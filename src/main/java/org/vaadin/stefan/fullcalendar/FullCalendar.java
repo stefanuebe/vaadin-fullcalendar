@@ -41,6 +41,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
         getElement().callFunction("previous");
     }
 
+    public void today() {
+        getElement().callFunction("today");
+    }
+
     public void addEvent(Event event) {
         boolean added = events.add(event);
         if (added) {
