@@ -16,19 +16,19 @@ import java.util.Optional;
 @Route("")
 public class App extends VerticalLayout {
     public App() {
-
         FullCalendar calendar = new FullCalendar();
         calendar.addDayClickListener(event -> {
-            FullCalendar source = event.getSource();
-            Optional<LocalDateTime> oClickedDateTime = event.getClickedDateTime();
-            Optional<LocalDate> oClickedDate = event.getClickedDate();
+            Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
+            Optional<LocalDate> optionalDate = event.getClickedDate();
 
-            if (oClickedDateTime.isPresent()) {
-                LocalDateTime time = oClickedDateTime.get();
-                source.addEvent(new Event(time.toString(), time, time.plusHours(1)));
-            } else if (oClickedDate.isPresent()) {
-                LocalDate date = oClickedDate.get();
-                source.addEvent(new Event(date.toString(), date));
+            if (optionalDateTime.isPresent()) { // check if user clicked a time slot
+                LocalDateTime time = optionalDateTime.get();
+                calendar.addEvent(new Event(time.toString(), time, time.plusHours(1)));
+
+            } else if (optionalDate.isPresent()) { // check if user clicked a day slot
+                LocalDate date = optionalDate.get();
+                calendar.addEvent(new Event(date.toString(), date));
+
             }
         });
 
