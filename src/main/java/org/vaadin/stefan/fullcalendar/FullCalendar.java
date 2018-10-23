@@ -5,6 +5,9 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
+import elemental.json.Json;
+import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,8 +44,46 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
     public void addEvent(Event event) {
         boolean added = events.add(event);
         if (added) {
-            getElement().callFunction("addEvent", event.getTitle(), event.getStart().toString(), event.getEnd().isPresent() ? event.getEnd().get().toLocalDate() : null);
+            getElement().callFunction("addEvent", eventToJson(event));
         }
+    }
+
+    public void removeEvent(Event event) {
+        if (events.contains(event)) {
+            events.remove(event);
+            getElement().callFunction("removeEvent", eventToJson(event));
+        }
+    }
+
+    public void removeAllEvents() {
+        events.clear();
+        getElement().callFunction("removeAllEvents");
+    }
+
+    private JsonObject eventToJson(Event event) {
+        JsonObject jsonObject = Json.createObject();
+        jsonObject.put("id", toJsonValue(event.getId()));
+        jsonObject.put("title", toJsonValue(event.getTitle()));
+
+        boolean fullDayEvent = event.isFullDayEvent();
+        jsonObject.put("fullDay", toJsonValue(fullDayEvent));
+
+        LocalDateTime start = event.getStart();
+        LocalDateTime end = event.getEnd().orElse(null);
+        jsonObject.put("start", toJsonValue(fullDayEvent ? start.toLocalDate() : start));
+        jsonObject.put("end", toJsonValue(fullDayEvent && end != null ? end.toLocalDate() : end));
+
+        return jsonObject;
+    }
+
+    private JsonValue toJsonValue(Object value) {
+        if (value == null) {
+            return Json.createNull();
+        }
+        if (value instanceof Boolean) {
+            return Json.create((Boolean) value);
+        }
+        return Json.create(String.valueOf(value));
     }
 
 
