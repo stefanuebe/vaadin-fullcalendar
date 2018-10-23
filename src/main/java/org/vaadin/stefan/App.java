@@ -3,6 +3,7 @@ package org.vaadin.stefan;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
@@ -31,6 +32,9 @@ public class App extends VerticalLayout {
 
             }
         });
+
+        calendar.addEventClickListener(event -> Notification.show(event.getEvent().getTitle() + " clicked"));
+        calendar.addEventResizeListener(event -> Notification.show(event.getEvent().getTitle() + " resized by " + event.getDelta()));
 
 
         HorizontalLayout functions = new HorizontalLayout();
