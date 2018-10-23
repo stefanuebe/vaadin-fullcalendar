@@ -5,16 +5,21 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Represents a event / item in the full calendar.
+ * <p/>
+ * <i><b>Note: </b>Creation of an event might be exported to a builder later.</i>
+ *
  */
 public class Event {
-    private String id;
-    private String title;
-    private LocalDateTime start;
-    private LocalDateTime end;
-    private boolean fullDayEvent;
+    private final boolean editable;
+    private final String id;
+    private final String title;
+    private final LocalDateTime start;
+    private final LocalDateTime end;
+    private final boolean fullDayEvent;
 
     public Event(String title, LocalDate date) {
         this(null, title, date.atStartOfDay(), null, true);
@@ -45,11 +50,12 @@ public class Event {
         Objects.requireNonNull(title);
         Objects.requireNonNull(start);
 
-        this.id = id;
+        this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
         this.start = start;
         this.end = end;
         this.fullDayEvent = fullDayEvent;
+        this.editable = true;
     }
 
     public String getId() {
@@ -72,24 +78,20 @@ public class Event {
         return fullDayEvent;
     }
 
+    public boolean isEditable() {
+        return editable;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return fullDayEvent == event.fullDayEvent &&
-                Objects.equals(id, event.id) &&
-                Objects.equals(title, event.title) &&
-                Objects.equals(start, event.start) &&
-                Objects.equals(end, event.end);
+        return Objects.equals(id, event.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, start, end, fullDayEvent);
+        return Objects.hash(id);
     }
 }
