@@ -35,6 +35,7 @@ public class App extends VerticalLayout {
 
         HorizontalLayout functions = new HorizontalLayout();
         functions.add(new Button("Previous", e -> calendar.previous()));
+        functions.add(new Button("Today", e -> calendar.today()));
         functions.add(new Button("Next", e -> calendar.next()));
         Button button = new Button("Clear", e -> calendar.removeAllEvents());
         button.getElement().getThemeList().add("error");
