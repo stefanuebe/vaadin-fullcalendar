@@ -19,7 +19,7 @@ public class Entry {
     private String title;
     private LocalDateTime start;
     private LocalDateTime end;
-    private boolean fullDayEvent;
+    private boolean allDay;
 
     public Entry(String title, LocalDate date) {
         this(null, title, date.atStartOfDay(), date.atStartOfDay(), true);
@@ -46,7 +46,7 @@ public class Entry {
     }
 
 
-    private Entry(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean fullDayEvent) {
+    private Entry(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean allDay) {
         Objects.requireNonNull(title);
         Objects.requireNonNull(start);
         Objects.requireNonNull(end);
@@ -55,7 +55,7 @@ public class Entry {
         this.title = title;
         this.start = start;
         this.end = end;
-        this.fullDayEvent = fullDayEvent;
+        this.allDay = allDay;
         this.editable = true;
     }
 
@@ -75,8 +75,8 @@ public class Entry {
         return end;
     }
 
-    public boolean isFullDayEvent() {
-        return fullDayEvent;
+    public boolean isAllDay() {
+        return allDay;
     }
 
     public boolean isEditable() {
@@ -99,8 +99,8 @@ public class Entry {
         this.end = end;
     }
 
-    public void setFullDayEvent(boolean fullDayEvent) {
-        this.fullDayEvent = fullDayEvent;
+    public void setAllDay(boolean allDay) {
+        this.allDay = allDay;
     }
 
     @Override
