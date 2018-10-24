@@ -82,9 +82,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
         jsonObject.put("fullDay", toJsonValue(fullDayEvent));
 
         LocalDateTime start = entry.getStart();
-        LocalDateTime end = entry.getEnd().orElse(null);
+        LocalDateTime end = entry.getEnd();
         jsonObject.put("start", toJsonValue(fullDayEvent ? start.toLocalDate() : start));
-        jsonObject.put("end", toJsonValue(fullDayEvent && end != null ? end.toLocalDate() : end));
+        jsonObject.put("end", toJsonValue(fullDayEvent ? end.toLocalDate() : end));
         jsonObject.put("editable", entry.isEditable());
 
         return jsonObject;

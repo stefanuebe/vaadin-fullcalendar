@@ -18,7 +18,7 @@ public class EntryResizeEvent extends EntryDeltaEvent {
         super(source, fromClient, id, delta);
 
         Entry entry = getEntry();
-        entry.setEnd(getDelta().applyOn(entry.getEnd().orElseGet(entry::getStart)));
+        entry.setEnd(getDelta().applyOn(entry.getEnd()));
 
     }
 }
