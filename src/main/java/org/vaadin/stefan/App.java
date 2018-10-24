@@ -16,28 +16,36 @@ import java.util.Optional;
 
 @Route("")
 public class App extends VerticalLayout {
+
+    private static int count = 1;
+
     public App() {
         FullCalendar calendar = new FullCalendar();
         calendar.addDayClickListener(event -> {
             Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
             Optional<LocalDate> optionalDate = event.getClickedDate();
 
+            String title = "Event " + count++;
+
             if (optionalDateTime.isPresent()) { // check if user clicked a time slot
                 LocalDateTime time = optionalDateTime.get();
-                calendar.addEntry(new Entry(time.toString(), time, time.plusHours(1)));
+                calendar.addEntry(new Entry(title, time, time.plusHours(1)));
 
             } else if (optionalDate.isPresent()) { // check if user clicked a day slot
                 LocalDate date = optionalDate.get();
-                calendar.addEntry(new Entry(date.toString(), date));
+                calendar.addEntry(new Entry(title, date));
 
             }
         });
 
         calendar.addEntryClickListener(event -> Notification.show(event.getEntry().getTitle() + " clicked"));
-        calendar.addEntryResizeListener(event -> Notification.show(event.getEntry().getTitle() + " resized to " + event.getEntry().getEnd() + "by " + event.getDelta()));
+        calendar.addEntryResizeListener(event -> {
+            Entry entry = event.getEntry();
+            Notification.show(entry.getTitle() + " resized to " + entry.getStart() + " - " + entry.getEnd() + " by " + event.getDelta());
+        });
         calendar.addEntryDropListener(event -> {
             Entry entry = event.getEntry();
-            Notification.show(entry.getTitle() + " moved to " + entry.getStart() + " - " + entry.getEnd() + "by " + event.getDelta());
+            Notification.show(entry.getTitle() + " moved to " + entry.getStart() + " - " + entry.getEnd() + " by " + event.getDelta());
         });
 
 
