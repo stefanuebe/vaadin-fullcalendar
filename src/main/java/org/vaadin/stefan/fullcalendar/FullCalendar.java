@@ -1,6 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.shared.Registration;
@@ -109,6 +110,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
 
     public Registration addEntryResizeListener(ComponentEventListener<EntryResizeEvent> listener) {
         return addListener(EntryResizeEvent.class, listener);
+    }
+
+    public Registration addEntryDropListener(ComponentEventListener<EntryDropEvent> listener) {
+        return addListener(EntryDropEvent.class, listener);
     }
 
 
