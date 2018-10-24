@@ -34,7 +34,7 @@ public class App extends VerticalLayout {
         });
 
         calendar.addEventClickListener(event -> Notification.show(event.getEvent().getTitle() + " clicked"));
-        calendar.addEventResizeListener(event -> Notification.show(event.getEvent().getTitle() + " resized by " + event.getDelta()));
+        calendar.addEventResizeListener(event -> Notification.show(event.getEvent().getTitle() + " resized to " + event.getEvent().getEnd().get() + "by " + event.getDelta() + " to end " + event.getEvent().getEnd().get()));
 
 
         HorizontalLayout functions = new HorizontalLayout();
