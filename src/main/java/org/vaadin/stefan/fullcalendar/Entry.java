@@ -83,23 +83,23 @@ public class Entry {
         return editable;
     }
 
-    void setEditable(boolean editable) {
+    public void setEditable(boolean editable) {
         this.editable = editable;
     }
 
-    void setTitle(String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    void setStart(LocalDateTime start) {
+    public void setStart(LocalDateTime start) {
         this.start = start;
     }
 
-    void setEnd(LocalDateTime end) {
+    public void setEnd(LocalDateTime end) {
         this.end = end;
     }
 
-    void setFullDayEvent(boolean fullDayEvent) {
+    public void setFullDayEvent(boolean fullDayEvent) {
         this.fullDayEvent = fullDayEvent;
     }
 
