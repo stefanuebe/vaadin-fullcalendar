@@ -29,7 +29,7 @@ public class EntryDropEvent extends EntryDeltaEvent {
         LocalDateTime end = entry.getEnd();
 
         entry.setStart(allDay ? delta.applyOnAndConvert(start).atStartOfDay() : delta.applyOn(start));
-        entry.setEnd(allDay ? delta.applyOnAndConvert(end).atStartOfDay() : delta.applyOn(end));
+        entry.setEnd(allDay ? delta.applyOnAndConvert(end).atStartOfDay() : delta.applyOn(end).plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
     }
 
     public boolean isAllDay() {
