@@ -13,7 +13,7 @@ import java.util.UUID;
  * <i><b>Note: </b>Creation of an event might be exported to a builder later.</i>
  *
  */
-public class Event {
+public class Entry {
     private boolean editable;
     private final String id;
     private String title;
@@ -21,32 +21,32 @@ public class Event {
     private LocalDateTime end;
     private boolean fullDayEvent;
 
-    public Event(String title, LocalDate date) {
+    public Entry(String title, LocalDate date) {
         this(null, title, date.atStartOfDay(), null, true);
     }
 
-    public Event(String title, LocalDate start, LocalDate end) {
+    public Entry(String title, LocalDate start, LocalDate end) {
         this(null, title, start.atStartOfDay(), end.atTime(23, 59, 59, 999), true);
     }
 
-    public Event(String title, LocalDateTime start, LocalDateTime end) {
+    public Entry(String title, LocalDateTime start, LocalDateTime end) {
         this(null, title, start, end, false);
     }
 
-    public Event(String id, String title, LocalDate date) {
+    public Entry(String id, String title, LocalDate date) {
         this(id, title, date.atStartOfDay(), null, true);
     }
 
-    public Event(String id, String title, LocalDate start, LocalDate end) {
+    public Entry(String id, String title, LocalDate start, LocalDate end) {
         this(id, title, start.atStartOfDay(), end.atTime(23, 59, 59, 999), true);
     }
 
-    public Event(String id, String title, LocalDateTime start, LocalDateTime end) {
+    public Entry(String id, String title, LocalDateTime start, LocalDateTime end) {
         this(id, title, start, end, false);
     }
 
 
-    private Event(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean fullDayEvent) {
+    private Entry(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean fullDayEvent) {
         Objects.requireNonNull(title);
         Objects.requireNonNull(start);
 
@@ -106,7 +106,7 @@ public class Event {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
+        Entry event = (Entry) o;
         return Objects.equals(id, event.id);
     }
 
