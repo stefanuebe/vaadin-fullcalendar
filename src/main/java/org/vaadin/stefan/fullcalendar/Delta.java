@@ -1,5 +1,10 @@
 package org.vaadin.stefan.fullcalendar;
 
+import elemental.json.JsonObject;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 public class Delta {
 
     private final int years;
@@ -16,6 +21,20 @@ public class Delta {
         this.hours = hours;
         this.minutes = minutes;
         this.seconds = seconds;
+    }
+
+    public static Delta fromJson(JsonObject jsonObject) {
+        int years = toInt(jsonObject, "years");
+        int months = toInt(jsonObject, "months");
+        int days = toInt(jsonObject, "days");
+        int hours = toInt(jsonObject, "hours");
+        int minutes = toInt(jsonObject, "minutes");
+        int seconds = toInt(jsonObject, "seconds");
+        return new Delta(years, months, days, hours, minutes, seconds);
+    }
+
+    private static int toInt(JsonObject delta, String key) {
+        return (int) delta.getNumber(key);
     }
 
     public int getYears() {
@@ -40,6 +59,25 @@ public class Delta {
 
     public int getSeconds() {
         return seconds;
+    }
+
+    public LocalDateTime applyOn(LocalDateTime dateTime) {
+        return dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
+    }
+
+    public LocalDate applyOn(LocalDate date) {
+        return date.plusYears(years).plusMonths(months).plusDays(days);
+    }
+
+    /**
+     * Applies this delta on the given date time object and converts it to a local date <b>after that</b>. This means, that
+     * the applied time changes are cut off, but a day switch might has happen anyways.
+     *
+     * @param dateTime local date time
+     * @return local date
+     */
+    public LocalDate applyOnAndConvert(LocalDateTime dateTime) {
+        return dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds).toLocalDate();
     }
 
     @Override
