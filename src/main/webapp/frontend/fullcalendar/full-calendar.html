@@ -37,22 +37,34 @@
 
                 this._handle = $(this.$.calendar);
                 this._handle.fullCalendar({
-                    defaultView: 'agendaWeek'
+                    defaultView: 'agendaWeek',
+
+                    // no native control elements
+                    header: {
+                        left: '',
+                        center: '',
+                        right: ''
+                    }
+
                 });
                 this._calendar = this._handle.fullCalendar('getCalendar');
 
                 var thisReference = this;
 
-                this._calendar.on('dayClick', function (date, jsEvent, view) {
+                this._calendar.on('dayClick', function (date) {
                     thisReference.dispatchEvent(new CustomEvent('dayClick', {detail: {date: date.format()}}));
                 });
 
-                this._calendar.on('eventClick', function (event, jsEvent, view) {
+                this._calendar.on('eventClick', function (event) {
                     thisReference.dispatchEvent(new CustomEvent('eventClick', {detail: {id: event.id}}));
                 });
 
-                this._calendar.on('eventResize', function (event, delta, revertFunc, jsEvent, ui, view) {
+                this._calendar.on('eventResize', function (event, delta, revertFunc) {
                     thisReference.dispatchEvent(new CustomEvent('eventResize', {detail: {id: event.id, delta: delta._data}}));
+                });
+
+                this._calendar.on('eventDrop', function (event, delta, revertFunc) {
+                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {detail: {id: event.id, delta: delta._data, allDay: !event.start.hasTime()}}));
                 });
             }
 
