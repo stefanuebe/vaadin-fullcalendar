@@ -188,20 +188,15 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
             super(source, fromClient);
             this.event = source.getEventById(id).orElseThrow(IllegalArgumentException::new);
 
-            int years = toInt(delta, "years");
-            int months = toInt(delta, "months");
-            int days = toInt(delta, "days");
-            int hours = toInt(delta, "hours");
-            int minutes = toInt(delta, "minutes");
-            int seconds = toInt(delta, "seconds");
-
-            this.delta = new Delta(years, months, days, hours, minutes, seconds);
+            this.delta = Delta.fromJson(delta);
+            event.setEnd(this.delta.applyOn(event.getEnd().orElseGet(event::getStart)));
         }
 
-        private int toInt(JsonObject delta, String key) {
-            return (int) delta.getNumber(key);
-        }
 
+        /**
+         * Returns the modified event. The end date of this event has already been updated by the delta.
+         * @return event
+         */
         public Event getEvent() {
             return event;
         }
@@ -210,5 +205,6 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
             return delta;
         }
     }
+
 
 }
