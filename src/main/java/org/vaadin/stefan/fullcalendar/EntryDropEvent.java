@@ -18,7 +18,7 @@ public class EntryDropEvent extends EntryDeltaEvent {
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      */
-    public EntryDropEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String id, @EventData("event.detail.delta") JsonObject jsonDelta, @EventData("event.detail.allDay") boolean allDay) {
+    public EntryDropEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String id, @EventData("event.detail.delta") JsonObject jsonDelta, @EventData("event.detail.allDay") boolean allDay, @EventData("event.detail.data") JsonObject data) {
         super(source, fromClient, id, jsonDelta);
         this.allDay = allDay;
 
@@ -30,14 +30,19 @@ public class EntryDropEvent extends EntryDeltaEvent {
 
         boolean allDayBefore = entry.isAllDay();
         entry.setAllDay(allDay);
-        entry.setStart(allDay ? delta.applyOnAndConvert(start).atStartOfDay() : delta.applyOn(start));
-        entry.setEnd(allDay ? delta.applyOnAndConvert(end).atStartOfDay() : delta.applyOn(end));
 
         if (allDayBefore && !allDay) {
             // this handles the server side default timespan of an event that has been
             // an all day event before dragging and is now a timed event. client side will handle
             // that duration automatically.
-            entry.setEnd(entry.getEnd().plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
+            entry.setStart(delta.applyOn(start));
+            entry.setEnd(delta.applyOn(start).plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
+        } else if(!allDayBefore && allDay){
+            entry.setStart(delta.applyOnAndConvert(start).atStartOfDay());
+            entry.setEnd(delta.applyOnAndConvert(end).atStartOfDay());
+        } else {
+            entry.setStart(allDay ? delta.applyOnAndConvert(start).atStartOfDay() : delta.applyOn(start));
+            entry.setEnd(allDay ? delta.applyOnAndConvert(end).atStartOfDay() : delta.applyOn(end));
         }
 
     }
