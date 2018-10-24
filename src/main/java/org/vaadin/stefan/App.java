@@ -39,14 +39,14 @@ public class App extends VerticalLayout {
         });
 
         calendar.addEntryClickListener(event -> {
-//            Entry entry = event.getEntry();
-//            String oldTitle = entry.getTitle();
-//            entry.setTitle("Event " + count++);
-//
-//            Notification.show(oldTitle + " renamed by click to " + entry.getTitle());
-//            calendar.updateEntry(entry);
+            Entry entry = event.getEntry();
+            String oldTitle = entry.getTitle();
+            entry.setTitle("Event " + count++);
 
-            calendar.removeEntry(event.getEntry());
+            Notification.show(oldTitle + " renamed by click to " + entry.getTitle());
+            calendar.updateEntry(entry);
+
+//            calendar.removeEntry(event.getEntry());
         });
         calendar.addEntryResizeListener(event -> {
             Entry entry = event.getEntry();
