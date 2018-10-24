@@ -38,14 +38,25 @@ public class App extends VerticalLayout {
             }
         });
 
-        calendar.addEntryClickListener(event -> Notification.show(event.getEntry().getTitle() + " clicked"));
+        calendar.addEntryClickListener(event -> {
+            Entry entry = event.getEntry();
+            String oldTitle = entry.getTitle();
+            entry.setTitle("Event " + count++);
+
+            Notification.show(oldTitle + " renamed by click to " + entry.getTitle());
+            calendar.updateEntry(entry);
+        });
         calendar.addEntryResizeListener(event -> {
             Entry entry = event.getEntry();
             Notification.show(entry.getTitle() + " resized to " + entry.getStart() + " - " + entry.getEnd() + " by " + event.getDelta());
         });
         calendar.addEntryDropListener(event -> {
             Entry entry = event.getEntry();
-            Notification.show(entry.getTitle() + " moved to " + entry.getStart() + " - " + entry.getEnd() + " by " + event.getDelta());
+            boolean allDay = entry.isAllDay();
+            LocalDateTime start = entry.getStart();
+            LocalDateTime end = entry.getEnd();
+
+            Notification.show(entry.getTitle() + " moved to " + (allDay ? start.toLocalDate() : start) + " - " + (allDay ? end.toLocalDate() : end)+ " by " + event.getDelta());
         });
 
 
