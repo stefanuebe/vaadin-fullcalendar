@@ -28,9 +28,18 @@ public class EntryDropEvent extends EntryDeltaEvent {
         LocalDateTime start = entry.getStart();
         LocalDateTime end = entry.getEnd();
 
+        boolean allDayBefore = entry.isAllDay();
         entry.setAllDay(allDay);
         entry.setStart(allDay ? delta.applyOnAndConvert(start).atStartOfDay() : delta.applyOn(start));
-        entry.setEnd(allDay ? delta.applyOnAndConvert(end).atStartOfDay() : delta.applyOn(end).plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
+        entry.setEnd(allDay ? delta.applyOnAndConvert(end).atStartOfDay() : delta.applyOn(end));
+
+        if (allDayBefore && !allDay) {
+            // this handles the server side default timespan of an event that has been
+            // an all day event before dragging and is now a timed event. client side will handle
+            // that duration automatically.
+            entry.setEnd(entry.getEnd().plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
+        }
+
     }
 
     public boolean isAllDay() {
