@@ -9,9 +9,7 @@ import elemental.json.Json;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -111,99 +109,6 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
 
     public Registration addEntryResizeListener(ComponentEventListener<EntryResizeEvent> listener) {
         return addListener(EntryResizeEvent.class, listener);
-    }
-
-    @DomEvent("dayClick")
-    public static class DayClickEvent extends ComponentEvent<FullCalendar> {
-
-        private LocalDateTime clickedDateTime;
-        private LocalDate clickedDate;
-
-        /**
-         * Creates a new event using the given source and indicator whether the
-         * event originated from the client side or the server side.
-         *
-         * @param source     the source component
-         * @param fromClient <code>true</code> if the event originated from the client
-         */
-        public DayClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date) {
-            super(source, fromClient);
-
-            try {
-                clickedDateTime = LocalDateTime.parse(date);
-            } catch (DateTimeParseException e) {
-                clickedDate = LocalDate.parse(date);
-            }
-        }
-
-        public Optional<LocalDate> getClickedDate() {
-            return Optional.ofNullable(clickedDate);
-        }
-
-        public Optional<LocalDateTime> getClickedDateTime() {
-            return Optional.ofNullable(clickedDateTime);
-        }
-
-        public boolean isTimeSlotEvent() {
-            return clickedDateTime != null;
-        }
-    }
-
-    @DomEvent("eventClick")
-    public static class EntryClickEvent extends ComponentEvent<FullCalendar> {
-
-        private final Entry entry;
-
-        /**
-         * Creates a new event using the given source and indicator whether the
-         * event originated from the client side or the server side.
-         *
-         * @param source     the source component
-         * @param fromClient <code>true</code> if the event originated from the client
-         */
-        public EntryClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String id) {
-            super(source, fromClient);
-            this.entry = source.getEntryById(id).orElseThrow(IllegalArgumentException::new);
-        }
-
-        public Entry getEntry() {
-            return entry;
-        }
-    }
-
-    @DomEvent("eventResize")
-    public static class EntryResizeEvent extends ComponentEvent<FullCalendar> {
-
-        private final Entry entry;
-        private final Delta delta;
-
-        /**
-         * Creates a new event using the given source and indicator whether the
-         * event originated from the client side or the server side.
-         *
-         * @param source     the source component
-         * @param fromClient <code>true</code> if the event originated from the client
-         */
-        public EntryResizeEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String id, @EventData("event.detail.delta") JsonObject delta) {
-            super(source, fromClient);
-            this.entry = source.getEntryById(id).orElseThrow(IllegalArgumentException::new);
-
-            this.delta = Delta.fromJson(delta);
-            entry.setEnd(this.delta.applyOn(entry.getEnd().orElseGet(entry::getStart)));
-        }
-
-
-        /**
-         * Returns the modified event. The end date of this event has already been updated by the delta.
-         * @return event
-         */
-        public Entry getEntry() {
-            return entry;
-        }
-
-        public Delta getDelta() {
-            return delta;
-        }
     }
 
 
