@@ -29,7 +29,7 @@ public class App extends VerticalLayout {
 
             if (optionalDateTime.isPresent()) { // check if user clicked a time slot
                 LocalDateTime time = optionalDateTime.get();
-                calendar.addEntry(new Entry(title, time, time.plusHours(1)));
+                calendar.addEntry(new Entry(title, time, time.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION)));
 
             } else if (optionalDate.isPresent()) { // check if user clicked a day slot
                 LocalDate date = optionalDate.get();
