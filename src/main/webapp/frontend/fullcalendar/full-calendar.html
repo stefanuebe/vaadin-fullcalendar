@@ -89,17 +89,7 @@
 
             updateEvent(obj) {
                 // getEventSourceById not working currently, so for now we do it manually and optimize later
-                var events = this._calendar.clientEvents();
-                var eventToUpdate = null;
-                for (var i = 0; i < events.length; i++) {
-                    var event = events[i];
-                    if (event.hasOwnProperty("id")) {
-                        if (event.id === obj.id) {
-                            eventToUpdate = event;
-                            break;
-                        }
-                    }
-                }
+                var eventToUpdate = this.getEventById(obj.id);
 
                 if (eventToUpdate != null) {
                     for(var property in obj) {
@@ -114,9 +104,22 @@
             }
 
             removeEvent(obj) {
-                this._calendar.removeEventSource(function (eventObject) {
-                    alert(eventObject);
-                });
+                this._calendar.removeEvents(obj.id);
+            }
+
+            getEventById(id) {
+                var events = this._calendar.clientEvents();
+                var eventToUpdate = null;
+                for (var i = 0; i < events.length; i++) {
+                    var event = events[i];
+                    if (event.hasOwnProperty("id")) {
+                        if (event.id === id) {
+                            eventToUpdate = event;
+                            break;
+                        }
+                    }
+                }
+                return eventToUpdate;
             }
 
             removeAllEvents() {
