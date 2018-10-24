@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -23,7 +22,7 @@ public class Entry {
     private boolean fullDayEvent;
 
     public Entry(String title, LocalDate date) {
-        this(null, title, date.atStartOfDay(), null, true);
+        this(null, title, date.atStartOfDay(), date.atStartOfDay(), true);
     }
 
     public Entry(String title, LocalDate start, LocalDate end) {
@@ -35,7 +34,7 @@ public class Entry {
     }
 
     public Entry(String id, String title, LocalDate date) {
-        this(id, title, date.atStartOfDay(), null, true);
+        this(id, title, date.atStartOfDay(), date.atStartOfDay(), true);
     }
 
     public Entry(String id, String title, LocalDate start, LocalDate end) {
@@ -50,6 +49,7 @@ public class Entry {
     private Entry(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean fullDayEvent) {
         Objects.requireNonNull(title);
         Objects.requireNonNull(start);
+        Objects.requireNonNull(end);
 
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
@@ -71,8 +71,8 @@ public class Entry {
         return start;
     }
 
-    public Optional<LocalDateTime> getEnd() {
-        return Optional.ofNullable(end);
+    public LocalDateTime getEnd() {
+        return end;
     }
 
     public boolean isFullDayEvent() {

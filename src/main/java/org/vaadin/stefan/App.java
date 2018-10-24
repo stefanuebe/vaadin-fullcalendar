@@ -34,10 +34,10 @@ public class App extends VerticalLayout {
         });
 
         calendar.addEntryClickListener(event -> Notification.show(event.getEntry().getTitle() + " clicked"));
-        calendar.addEntryResizeListener(event -> Notification.show(event.getEntry().getTitle() + " resized to " + event.getEntry().getEnd().get() + "by " + event.getDelta()));
+        calendar.addEntryResizeListener(event -> Notification.show(event.getEntry().getTitle() + " resized to " + event.getEntry().getEnd() + "by " + event.getDelta()));
         calendar.addEntryDropListener(event -> {
             Entry entry = event.getEntry();
-            Notification.show(entry.getTitle() + " moved to " + entry.getStart() + " - " + entry.getEnd().get() + "by " + event.getDelta());
+            Notification.show(entry.getTitle() + " moved to " + entry.getStart() + " - " + entry.getEnd() + "by " + event.getDelta());
         });
 
 
