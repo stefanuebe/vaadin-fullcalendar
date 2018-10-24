@@ -8,9 +8,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Represents a event / item in the full calendar.
+ * Represents a event / item in the full calendar. It is named Entry here to prevent name conflicts with
+ * event handling mechanisms (e.g. a component event fired by clicking something).
  * <p/>
- * <i><b>Note: </b>Creation of an event might be exported to a builder later.</i>
+ * <i><b>Note: </b>Creation of an entry might be exported to a builder later.</i>
  *
  */
 public class Entry {
