@@ -64,6 +64,14 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
         return !containsKey;
     }
 
+    public void updateEntry(Entry entry) {
+        String id = entry.getId();
+        boolean containsKey = entries.containsKey(id);
+        if (containsKey) {
+            getElement().callFunction("updateEvent", entryToJson(entry));
+        }
+    }
+
     public void removeEntry(Entry entry) {
         String id = entry.getId();
         if (entries.containsKey(id)) {
@@ -82,7 +90,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
         jsonObject.put("id", toJsonValue(entry.getId()));
         jsonObject.put("title", toJsonValue(entry.getTitle()));
 
-        boolean fullDayEvent = entry.isFullDayEvent();
+        boolean fullDayEvent = entry.isAllDay();
         jsonObject.put("fullDay", toJsonValue(fullDayEvent));
 
         LocalDateTime start = entry.getStart();
