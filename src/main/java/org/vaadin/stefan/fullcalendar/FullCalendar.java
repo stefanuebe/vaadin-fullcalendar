@@ -26,7 +26,7 @@ import java.util.Optional;
 @HtmlImport("fullcalendar/full-calendar.html")
 public class FullCalendar extends PolymerTemplate<TemplateModel> {
 
-    private Map<String, Event> events = new HashMap<>();
+    private Map<String, Entry> entries = new HashMap<>();
 
     /**
      * Creates a new FullCalendar.
@@ -46,47 +46,47 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
         getElement().callFunction("today");
     }
 
-    public Optional<Event> getEventById(String id) {
-        return Optional.ofNullable(events.get(id));
+    public Optional<Entry> getEntryById(String id) {
+        return Optional.ofNullable(entries.get(id));
     }
 
-    public boolean addEvent(Event event) {
-        String id = event.getId();
-        boolean containsKey = events.containsKey(id);
+    public boolean addEntry(Entry entry) {
+        String id = entry.getId();
+        boolean containsKey = entries.containsKey(id);
         if (!containsKey) {
-            events.put(id, event);
-            getElement().callFunction("addEvent", eventToJson(event));
+            entries.put(id, entry);
+            getElement().callFunction("addEvent", entryToJson(entry));
         }
 
         return !containsKey;
     }
 
-    public void removeEvent(Event event) {
-        String id = event.getId();
-        if (events.containsKey(id)) {
-            events.remove(id);
-            getElement().callFunction("removeEvent", eventToJson(event));
+    public void removeEntry(Entry entry) {
+        String id = entry.getId();
+        if (entries.containsKey(id)) {
+            entries.remove(id);
+            getElement().callFunction("removeEvent", entryToJson(entry));
         }
     }
 
-    public void removeAllEvents() {
-        events.clear();
+    public void removeAllEntries() {
+        entries.clear();
         getElement().callFunction("removeAllEvents");
     }
 
-    private JsonObject eventToJson(Event event) {
+    private JsonObject entryToJson(Entry entry) {
         JsonObject jsonObject = Json.createObject();
-        jsonObject.put("id", toJsonValue(event.getId()));
-        jsonObject.put("title", toJsonValue(event.getTitle()));
+        jsonObject.put("id", toJsonValue(entry.getId()));
+        jsonObject.put("title", toJsonValue(entry.getTitle()));
 
-        boolean fullDayEvent = event.isFullDayEvent();
+        boolean fullDayEvent = entry.isFullDayEvent();
         jsonObject.put("fullDay", toJsonValue(fullDayEvent));
 
-        LocalDateTime start = event.getStart();
-        LocalDateTime end = event.getEnd().orElse(null);
+        LocalDateTime start = entry.getStart();
+        LocalDateTime end = entry.getEnd().orElse(null);
         jsonObject.put("start", toJsonValue(fullDayEvent ? start.toLocalDate() : start));
         jsonObject.put("end", toJsonValue(fullDayEvent && end != null ? end.toLocalDate() : end));
-        jsonObject.put("editable", event.isEditable());
+        jsonObject.put("editable", entry.isEditable());
 
         return jsonObject;
     }
@@ -105,12 +105,12 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
         return addListener(DayClickEvent.class, listener);
     }
 
-    public Registration addEventClickListener(ComponentEventListener<EventClickEvent> listener) {
-        return addListener(EventClickEvent.class, listener);
+    public Registration addEntryClickListener(ComponentEventListener<EntryClickEvent> listener) {
+        return addListener(EntryClickEvent.class, listener);
     }
 
-    public Registration addEventResizeListener(ComponentEventListener<EventResizeEvent> listener) {
-        return addListener(EventResizeEvent.class, listener);
+    public Registration addEntryResizeListener(ComponentEventListener<EntryResizeEvent> listener) {
+        return addListener(EntryResizeEvent.class, listener);
     }
 
     @DomEvent("dayClick")
@@ -150,9 +150,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
     }
 
     @DomEvent("eventClick")
-    public static class EventClickEvent extends ComponentEvent<FullCalendar> {
+    public static class EntryClickEvent extends ComponentEvent<FullCalendar> {
 
-        private final Event event;
+        private final Entry entry;
 
         /**
          * Creates a new event using the given source and indicator whether the
@@ -161,20 +161,20 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
          * @param source     the source component
          * @param fromClient <code>true</code> if the event originated from the client
          */
-        public EventClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String id) {
+        public EntryClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String id) {
             super(source, fromClient);
-            this.event = source.getEventById(id).orElseThrow(IllegalArgumentException::new);
+            this.entry = source.getEntryById(id).orElseThrow(IllegalArgumentException::new);
         }
 
-        public Event getEvent() {
-            return event;
+        public Entry getEntry() {
+            return entry;
         }
     }
 
     @DomEvent("eventResize")
-    public static class EventResizeEvent extends ComponentEvent<FullCalendar> {
+    public static class EntryResizeEvent extends ComponentEvent<FullCalendar> {
 
-        private final Event event;
+        private final Entry entry;
         private final Delta delta;
 
         /**
@@ -184,12 +184,12 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
          * @param source     the source component
          * @param fromClient <code>true</code> if the event originated from the client
          */
-        public EventResizeEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String id, @EventData("event.detail.delta") JsonObject delta) {
+        public EntryResizeEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String id, @EventData("event.detail.delta") JsonObject delta) {
             super(source, fromClient);
-            this.event = source.getEventById(id).orElseThrow(IllegalArgumentException::new);
+            this.entry = source.getEntryById(id).orElseThrow(IllegalArgumentException::new);
 
             this.delta = Delta.fromJson(delta);
-            event.setEnd(this.delta.applyOn(event.getEnd().orElseGet(event::getStart)));
+            entry.setEnd(this.delta.applyOn(entry.getEnd().orElseGet(entry::getStart)));
         }
 
 
@@ -197,8 +197,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
          * Returns the modified event. The end date of this event has already been updated by the delta.
          * @return event
          */
-        public Event getEvent() {
-            return event;
+        public Entry getEntry() {
+            return entry;
         }
 
         public Delta getDelta() {

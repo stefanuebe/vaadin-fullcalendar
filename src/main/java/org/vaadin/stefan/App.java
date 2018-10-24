@@ -7,7 +7,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import org.vaadin.stefan.fullcalendar.Event;
+import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.time.LocalDate;
@@ -24,24 +24,24 @@ public class App extends VerticalLayout {
 
             if (optionalDateTime.isPresent()) { // check if user clicked a time slot
                 LocalDateTime time = optionalDateTime.get();
-                calendar.addEvent(new Event(time.toString(), time, time.plusHours(1)));
+                calendar.addEntry(new Entry(time.toString(), time, time.plusHours(1)));
 
             } else if (optionalDate.isPresent()) { // check if user clicked a day slot
                 LocalDate date = optionalDate.get();
-                calendar.addEvent(new Event(date.toString(), date));
+                calendar.addEntry(new Entry(date.toString(), date));
 
             }
         });
 
-        calendar.addEventClickListener(event -> Notification.show(event.getEvent().getTitle() + " clicked"));
-        calendar.addEventResizeListener(event -> Notification.show(event.getEvent().getTitle() + " resized to " + event.getEvent().getEnd().get() + "by " + event.getDelta() + " to end " + event.getEvent().getEnd().get()));
+        calendar.addEntryClickListener(event -> Notification.show(event.getEntry().getTitle() + " clicked"));
+        calendar.addEntryResizeListener(event -> Notification.show(event.getEntry().getTitle() + " resized to " + event.getEntry().getEnd().get() + "by " + event.getDelta() + " to end " + event.getEntry().getEnd().get()));
 
 
         HorizontalLayout functions = new HorizontalLayout();
         functions.add(new Button("Previous", e -> calendar.previous()));
         functions.add(new Button("Today", e -> calendar.today()));
         functions.add(new Button("Next", e -> calendar.next()));
-        Button button = new Button("Clear", e -> calendar.removeAllEvents());
+        Button button = new Button("Clear", e -> calendar.removeAllEntries());
         button.getElement().getThemeList().add("error");
         functions.add(button);
 
