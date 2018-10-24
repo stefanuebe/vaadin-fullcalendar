@@ -14,12 +14,12 @@ import java.util.UUID;
  *
  */
 public class Event {
-    private final boolean editable;
+    private boolean editable;
     private final String id;
-    private final String title;
-    private final LocalDateTime start;
-    private final LocalDateTime end;
-    private final boolean fullDayEvent;
+    private String title;
+    private LocalDateTime start;
+    private LocalDateTime end;
+    private boolean fullDayEvent;
 
     public Event(String title, LocalDate date) {
         this(null, title, date.atStartOfDay(), null, true);
@@ -80,6 +80,26 @@ public class Event {
 
     public boolean isEditable() {
         return editable;
+    }
+
+    void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+
+    void setTitle(String title) {
+        this.title = title;
+    }
+
+    void setStart(LocalDateTime start) {
+        this.start = start;
+    }
+
+    void setEnd(LocalDateTime end) {
+        this.end = end;
+    }
+
+    void setFullDayEvent(boolean fullDayEvent) {
+        this.fullDayEvent = fullDayEvent;
     }
 
     @Override
