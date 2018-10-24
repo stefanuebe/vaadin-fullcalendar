@@ -65,7 +65,15 @@
                 });
 
                 this._calendar.on('eventDrop', function (event, delta, revertFunc) {
-                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {detail: {id: event.id, delta: delta._data, allDay: !event.start.hasTime()}}));
+                    var e = thisReference.getEventById(event.id);
+                    var data = {
+                        id: e.id,
+                        start: e.start.format(),
+                        end: e.end != null ? e.end.format() : e.start.add(1, 'day').format(),
+                        allDay: e.allDay,
+                        editable: e.editable
+                    };
+                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {detail: {id: event.id, delta: delta._data, allDay: !event.start.hasTime(), data: data}}));
                 });
             }
 
@@ -94,7 +102,14 @@
                 if (eventToUpdate != null) {
                     for(var property in obj) {
                         if (eventToUpdate.hasOwnProperty(property)) {
+                            if (property === "start" || property === "end") {
+                                var mDate = moment(obj[property]);
+                                eventToUpdate[property] = mDate;
+
+                            } else {
                             eventToUpdate[property] = obj[property];
+
+                            }
                         }
                     }
 

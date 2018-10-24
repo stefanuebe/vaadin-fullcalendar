@@ -22,23 +22,23 @@ public class Entry {
     private boolean allDay;
 
     public Entry(String title, LocalDate date) {
-        this(null, title, date.atStartOfDay(), date.atStartOfDay(), true);
-    }
-
-    public Entry(String title, LocalDate start, LocalDate end) {
-        this(null, title, start.atStartOfDay(), end.atTime(23, 59, 59, 999), true);
-    }
-
-    public Entry(String title, LocalDateTime start, LocalDateTime end) {
-        this(null, title, start, end, false);
+        this(null, title, date);
     }
 
     public Entry(String id, String title, LocalDate date) {
-        this(id, title, date.atStartOfDay(), date.atStartOfDay(), true);
+        this(id, title, date, date);
+    }
+
+    public Entry(String title, LocalDate start, LocalDate end) {
+        this(null, title, start, end);
     }
 
     public Entry(String id, String title, LocalDate start, LocalDate end) {
-        this(id, title, start.atStartOfDay(), end.atTime(23, 59, 59, 999), true);
+        this(id, title, start.atStartOfDay(), end.plusDays(1).atStartOfDay(), true);
+    }
+
+    public Entry(String title, LocalDateTime start, LocalDateTime end) {
+        this(null, title, start, end);
     }
 
     public Entry(String id, String title, LocalDateTime start, LocalDateTime end) {
