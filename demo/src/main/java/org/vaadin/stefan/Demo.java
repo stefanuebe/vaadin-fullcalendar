@@ -1,8 +1,10 @@
 package org.vaadin.stefan;
 
+import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
@@ -86,6 +88,24 @@ public class Demo extends VerticalLayout {
 
         functions.add(comboBox);
 
+
+        // simulate the date picker light that we can use in polymer
+        DatePicker gotoDate = new DatePicker();
+        gotoDate.addValueChangeListener(event1 -> calendar.gotoDate(event1.getValue()));
+        gotoDate.getElement().getStyle().set("visibility", "hidden");
+        gotoDate.getElement().getStyle().set("position", "fixed");
+        gotoDate.setWidth("0px");
+        gotoDate.setHeight("0px");
+
+        Button interval = new Button();
+        interval.getElement().appendChild(gotoDate.getElement());
+        interval.addClickListener(event -> {
+            gotoDate.open();
+        });
+        functions.add(interval);
+        calendar.addViewRenderedListener(event -> updateIntervalLabel(interval, comboBox.getValue(), event.getIntervalStart()));
+
+
         add(new H2("full calendar"));
         add(functions);
         add(new Hr());
@@ -97,6 +117,28 @@ public class Demo extends VerticalLayout {
         setMargin(false);
         setSpacing(false);
         setPadding(false);
+
+        calendar.setFirstDay(1);
+    }
+
+    public void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
+        String text;
+        switch (view) {
+            default:
+            case MONTH:
+                text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
+                break;
+            case AGENDA_DAY:
+            case BASIC_DAY:
+                text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                break;
+            case AGENDA_WEEK:
+            case BASIC_WEEK:
+                text = intervalStart.format(DateTimeFormatter.ofPattern("ww/yyyy"));
+                break;
+        }
+
+        intervalLabel.setText(text);
     }
 
     public static class DemoDialog extends Dialog {
