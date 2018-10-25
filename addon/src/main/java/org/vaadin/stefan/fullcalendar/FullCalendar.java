@@ -1,14 +1,12 @@
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -48,6 +46,14 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     public void today() {
         getElement().callFunction("today");
+    }
+
+    public void setFirstDay(int firstDay) {
+        getElement().callFunction("setFirstDay", firstDay);
+    }
+
+    public void setLocale(String locale) {
+        getElement().callFunction("setLocale", locale);
     }
 
     public Optional<Entry> getEntryById(String id) {
@@ -91,6 +97,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         getElement().callFunction("changeView", view.getClientSideName());
     }
 
+    public void gotoDate(LocalDate date) {
+        getElement().callFunction("gotoDate", date.toString());
+    }
+
     public Registration addDayClickListener(ComponentEventListener<DayClickEvent> listener) {
         return addListener(DayClickEvent.class, listener);
     }
@@ -105,6 +115,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     public Registration addEntryDropListener(ComponentEventListener<EntryDropEvent> listener) {
         return addListener(EntryDropEvent.class, listener);
+    }
+
+    public Registration addViewRenderedListener(ComponentEventListener<ViewRenderedEvent> listener) {
+        return addListener(ViewRenderedEvent.class, listener);
     }
 
 
