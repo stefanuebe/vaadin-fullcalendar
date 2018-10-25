@@ -33,9 +33,10 @@ import java.util.Optional;
 public class Demo extends VerticalLayout {
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
+    private final FullCalendar calendar;
 
     public Demo() {
-        FullCalendar calendar = new FullCalendar();
+        calendar = new FullCalendar();
         calendar.addDayClickListener(event -> {
             Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
             Optional<LocalDate> optionalDate = event.getClickedDate();
@@ -96,6 +97,7 @@ public class Demo extends VerticalLayout {
         gotoDate.getElement().getStyle().set("position", "fixed");
         gotoDate.setWidth("0px");
         gotoDate.setHeight("0px");
+        gotoDate.setWeekNumbersVisible(true);
 
         Button interval = new Button();
         interval.getElement().appendChild(gotoDate.getElement());
@@ -119,6 +121,24 @@ public class Demo extends VerticalLayout {
         setPadding(false);
 
         calendar.setFirstDay(1);
+
+        LocalDate now = LocalDate.now();
+        createTimedEntry("Kickoff meeting with customer", now.withDayOfMonth(3).atTime(10, 0), 120, "mediumseagreen");
+        createTimedEntry("Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "violet");
+        createTimedEntry("Dentist", now.withDayOfMonth(20).atTime(11, 45), 90, "violet");
+        createTimedEntry("Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "dodgerblue");
+        createDayEntry("Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
+        createDayEntry("John's Birthday", now.withDayOfMonth(23), 1, "gray");
+        createDayEntry("This special holiday", now.withDayOfMonth(4), 1, "gray");
+
+    }
+
+    private void createDayEntry(String title, LocalDate start, int days, String color) {
+        calendar.addEntry(new Entry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description..."));
+    }
+
+    private void createTimedEntry(String title, LocalDateTime start, int minutes, String color) {
+        calendar.addEntry(new Entry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description..."));
     }
 
     public void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
@@ -134,7 +154,7 @@ public class Demo extends VerticalLayout {
                 break;
             case AGENDA_WEEK:
             case BASIC_WEEK:
-                text = intervalStart.format(DateTimeFormatter.ofPattern("ww/yyyy"));
+                text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy")) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy")) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww")) + ")";
                 break;
         }
 
