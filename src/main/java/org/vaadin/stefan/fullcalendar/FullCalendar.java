@@ -1,6 +1,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -20,7 +22,7 @@ import java.util.Optional;
  */
 @Tag("full-calendar")
 @HtmlImport("fullcalendar/full-calendar.html")
-public class FullCalendar extends PolymerTemplate<TemplateModel> {
+public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasStyle, HasSize {
 
     /**
      * This is the default duration of an event in hours. Will be dynamic settable in a later version.
