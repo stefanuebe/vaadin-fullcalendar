@@ -26,33 +26,9 @@ public class Entry {
     private LocalDateTime start;
     private LocalDateTime end;
     private boolean allDay;
+    private String color;
 
-    public Entry(String title, LocalDate date) {
-        this(null, title, date);
-    }
-
-    public Entry(String id, String title, LocalDate date) {
-        this(id, title, date, date);
-    }
-
-    public Entry(String title, LocalDate start, LocalDate end) {
-        this(null, title, start, end);
-    }
-
-    public Entry(String id, String title, LocalDate start, LocalDate end) {
-        this(id, title, start.atStartOfDay(), end.plusDays(1).atStartOfDay(), true);
-    }
-
-    public Entry(String title, LocalDateTime start, LocalDateTime end) {
-        this(null, title, start, end);
-    }
-
-    public Entry(String id, String title, LocalDateTime start, LocalDateTime end) {
-        this(id, title, start, end, false);
-    }
-
-
-    private Entry(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean allDay) {
+    public Entry(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean allDay, String color) {
         Objects.requireNonNull(title);
         Objects.requireNonNull(start);
         Objects.requireNonNull(end);
@@ -63,6 +39,7 @@ public class Entry {
         this.end = end;
         this.allDay = allDay;
         this.editable = true;
+        this.color = color;
     }
 
     public String getId() {
@@ -109,6 +86,14 @@ public class Entry {
         this.allDay = allDay;
     }
 
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -135,6 +120,7 @@ public class Entry {
         jsonObject.put("start", toJsonValue(fullDayEvent ? start.toLocalDate() : start));
         jsonObject.put("end", toJsonValue(fullDayEvent ? end.toLocalDate() : end));
         jsonObject.put("editable", isEditable());
+        jsonObject.put("color", toJsonValue(getColor()));
 
         return jsonObject;
     }
@@ -156,6 +142,7 @@ public class Entry {
         updateBoolean(object, "allDay", this::setAllDay);
         updateDateTime(object, "start", this::setStart);
         updateDateTime(object, "end", this::setEnd);
+        updateString(object, "color", this::setColor);
     }
 
     private void updateString(JsonObject object, String key, Consumer<String> setter) {

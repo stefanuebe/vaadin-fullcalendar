@@ -19,6 +19,8 @@ public class App extends VerticalLayout {
 
     private static int count = 1;
 
+    private static String[] colors = {"red", "green", "blue", "black"};
+
     public App() {
         FullCalendar calendar = new FullCalendar();
         calendar.addDayClickListener(event -> {
@@ -26,14 +28,16 @@ public class App extends VerticalLayout {
             Optional<LocalDate> optionalDate = event.getClickedDate();
 
             String title = "Event " + count++;
+            String color = colors[count % colors.length];
 
             if (optionalDateTime.isPresent()) { // check if user clicked a time slot
                 LocalDateTime time = optionalDateTime.get();
-                calendar.addEntry(new Entry(title, time, time.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION)));
+                calendar.addEntry(new Entry(null, title, time, time.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION), true, color));
 
             } else if (optionalDate.isPresent()) { // check if user clicked a day slot
-                LocalDate date = optionalDate.get();
-                calendar.addEntry(new Entry(title, date));
+                LocalDateTime date = optionalDate.get().atStartOfDay();
+
+                calendar.addEntry(new Entry(null, title, date, date, true, color));
 
             }
         });
