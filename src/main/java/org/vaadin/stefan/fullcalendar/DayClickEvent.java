@@ -36,15 +36,27 @@ public class DayClickEvent extends ComponentEvent<FullCalendar> {
         }
     }
 
+    /**
+     * Returns a non empty optional with the clicked date when {@link #isAllDay()} returns true.
+     * @return date or empty
+     */
     public Optional<LocalDate> getClickedDate() {
         return Optional.ofNullable(clickedDate);
     }
 
+    /**
+     * Returns a non empty optional with the clicked date time when {@link #isAllDay()} returns false.
+     * @return date time or empty
+     */
     public Optional<LocalDateTime> getClickedDateTime() {
         return Optional.ofNullable(clickedDateTime);
     }
 
-    public boolean isTimeSlotEvent() {
+    /**
+     * Returns, if the click has been for a day slot. False means, it has been a click on a time slot inside a day.
+     * @return all day click
+     */
+    public boolean isAllDay() {
         return clickedDateTime != null;
     }
 }

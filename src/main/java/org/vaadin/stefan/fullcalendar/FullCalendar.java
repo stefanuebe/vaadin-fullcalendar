@@ -29,6 +29,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
      * This is the default duration of an event in hours. Will be dynamic settable in a later version.
      */
     public static final int DEFAULT_TIMED_EVENT_DURATION = 1;
+    public static final int DEFAULT_DAY_EVENT_DURATION = 1;
+
     private Map<String, Entry> entries = new HashMap<>();
 
     /**
