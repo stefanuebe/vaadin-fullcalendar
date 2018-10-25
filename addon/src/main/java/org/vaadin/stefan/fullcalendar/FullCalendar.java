@@ -21,7 +21,7 @@ import java.util.Optional;
  * does not overwrite or otherwise change this file.
  */
 @Tag("full-calendar")
-@HtmlImport("fullcalendar/full-calendar.html")
+@HtmlImport("bower_components/fullcalendar/full-calendar.html")
 public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasStyle, HasSize {
 
     /**
