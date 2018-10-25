@@ -3,6 +3,7 @@ package org.vaadin.stefan;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
@@ -10,6 +11,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -26,6 +28,7 @@ import java.util.Optional;
 
 @Route("")
 @Push
+@HtmlImport("frontend://demo-style.html")
 public class Demo extends VerticalLayout {
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
@@ -78,7 +81,10 @@ public class Demo extends VerticalLayout {
         functions.add(new Button("Today", e -> calendar.today()));
         functions.add(new Button("Next", e -> calendar.next()));
         ComboBox<CalendarView> comboBox = new ComboBox<>("", CalendarView.values());
-        comboBox.addValueChangeListener(e -> calendar.changeView(e.getValue()));
+        comboBox.addValueChangeListener(e -> {
+            CalendarView value = e.getValue();
+            calendar.changeView(value == null ? CalendarView.MONTH : value);
+        });
         comboBox.setValue(CalendarView.MONTH);
 
         functions.add(comboBox);
@@ -87,6 +93,12 @@ public class Demo extends VerticalLayout {
         add(functions);
         add(new Hr());
         add(calendar);
+
+        setFlexGrow(1, calendar);
+        addClassName("demo");
+        setMargin(false);
+        setSpacing(false);
+        setPadding(false);
     }
 
     public static class DemoDialog extends Dialog {
