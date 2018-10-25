@@ -7,8 +7,7 @@
     <artifactId>fullcalendar-demo</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
-    <name>Full Calendar web component</name>
-    <description>A web component that wraps the Full Calendar (https://fullcalendar.io).</description>
+    <name>Full Calendar web component demo</name>
 
     <packaging>war</packaging>
 
