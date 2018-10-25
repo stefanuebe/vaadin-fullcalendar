@@ -61,7 +61,7 @@
                 });
 
                 this._calendar.on('eventResize', function (event, delta, revertFunc) {
-                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {detail: {data: thisReference._toData(event), delta: delta._data}}));
+                    thisReference.dispatchEvent(new CustomEvent('eventResize', {detail: {data: thisReference._toData(event), delta: delta._data}}));
                 });
 
                 this._calendar.on('eventDrop', function (event, delta, revertFunc) {
