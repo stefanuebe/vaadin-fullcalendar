@@ -1,6 +1,6 @@
 build/
 node_modules/
-/target/
+**/target/
 /.idea/
 /src/main/resources/application.properties
 .DS_Store
