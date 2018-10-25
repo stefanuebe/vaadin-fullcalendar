@@ -1,6 +1,7 @@
 # vaadin_fullcalendar
 Integration of FullCalendar as Flow component for Vaadin Platform / Vaadin 10+. The component is currently in an early alpha. 
 
+## Functionality
 The following functions are available to use from server side:
 * adding / updating / removing calendar items,
 * switching between shown intervals (next month, previous month, etc.),
@@ -21,5 +22,9 @@ The following functions are available to use from server side:
     * description (not shown via FC), 
     * editable / read only
 
+## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
 I'm also happy for feedback or suggestions about improvements.
+
+##About FullCalendar
+For a full overview of what FullCalendar is capable of have a look at https://fullcalendar.io/ 
