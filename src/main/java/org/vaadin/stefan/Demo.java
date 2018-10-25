@@ -11,7 +11,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
-import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -39,26 +38,24 @@ public class Demo extends VerticalLayout {
             Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
             Optional<LocalDate> optionalDate = event.getClickedDate();
 
+            Entry entry = new Entry();
             if (optionalDateTime.isPresent()) { // check if user clicked a time slot
                 LocalDateTime time = optionalDateTime.get();
 
-                Entry entry = new Entry();
                 entry.setStart(time);
                 entry.setEnd(time.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
                 entry.setAllDay(false);
 
-                new DemoDialog(calendar, entry, true).open();
-
             } else if (optionalDate.isPresent()) { // check if user clicked a day slot
                 LocalDateTime date = optionalDate.get().atStartOfDay();
 
-                Entry entry = new Entry();
                 entry.setStart(date);
                 entry.setEnd(date.plusDays(FullCalendar.DEFAULT_DAY_EVENT_DURATION));
                 entry.setAllDay(true);
 
-                new DemoDialog(calendar, entry, true).open();
             }
+            entry.setColor("dodgerblue");
+            new DemoDialog(calendar, entry, true).open();
         });
 
         calendar.addEntryClickListener(event -> new DemoDialog(calendar, event.getEntry(), false).open());
@@ -96,6 +93,7 @@ public class Demo extends VerticalLayout {
 
         setFlexGrow(1, calendar);
         addClassName("demo");
+        setSizeUndefined();
         setMargin(false);
         setSpacing(false);
         setPadding(false);
@@ -106,8 +104,6 @@ public class Demo extends VerticalLayout {
         public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
             setCloseOnEsc(true);
             setCloseOnOutsideClick(false);
-            setWidth("500px");
-
 
             VerticalLayout layout = new VerticalLayout();
             layout.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
