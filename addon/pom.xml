@@ -10,7 +10,6 @@
     <name>Full Calendar web component</name>
     <description>A web component that wraps the Full Calendar (https://fullcalendar.io).</description>
 
-
     <properties>
         <vaadin.version>10.0.6</vaadin.version>
 
@@ -64,11 +63,11 @@
             <artifactId>fullcalendar</artifactId>
             <version>3.9.0</version>
         </dependency>-->
-        <dependency>
-            <groupId>org.webjars.bowergithub.fullcalendar</groupId>
-            <artifactId>fullcalendar</artifactId>
-            <version>3.9.0</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.webjars.bowergithub.fullcalendar</groupId>-->
+            <!--<artifactId>fullcalendar</artifactId>-->
+            <!--<version>3.9.0</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <!--<build>-->
