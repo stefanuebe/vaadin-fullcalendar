@@ -39,6 +39,9 @@ public class App extends VerticalLayout {
         });
 
         calendar.addEntryClickListener(event -> {
+//            Entry entry = event.getEntry();
+//            Notification.show(entry.getTitle() + " clicked");
+
             Entry entry = event.getEntry();
             String oldTitle = entry.getTitle();
             entry.setTitle("Event " + count++);

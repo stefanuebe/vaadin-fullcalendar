@@ -2,19 +2,22 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import elemental.json.JsonObject;
 
+/**
+ * Occurs when an entry has been clicked on the client side.
+ */
 @DomEvent("eventClick")
 public class EntryClickEvent extends EntryEvent {
 
     /**
-     * Creates a new event using the given source and indicator whether the
-     * event originated from the client side or the server side.
-     *
-     * @param source     the source component
-     * @param fromClient <code>true</code> if the event originated from the client
+     * New instance. Awaits the id of the clicked entry.
+     * @param source source component
+     * @param fromClient from client
+     * @param entryId affected entry id
      */
-    public EntryClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String id) {
-        super(source, fromClient, id);
+    public EntryClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String entryId) {
+        super(source, fromClient, entryId);
     }
 
 }

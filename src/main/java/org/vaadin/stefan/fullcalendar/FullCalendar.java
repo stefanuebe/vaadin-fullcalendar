@@ -58,7 +58,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
         boolean containsKey = entries.containsKey(id);
         if (!containsKey) {
             entries.put(id, entry);
-            getElement().callFunction("addEvent", entryToJson(entry));
+            getElement().callFunction("addEvent", entry.toJson());
         }
 
         return !containsKey;
@@ -68,7 +68,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
         String id = entry.getId();
         boolean containsKey = entries.containsKey(id);
         if (containsKey) {
-            getElement().callFunction("updateEvent", entryToJson(entry));
+            getElement().callFunction("updateEvent", entry.toJson());
         }
     }
 
@@ -76,40 +76,13 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
         String id = entry.getId();
         if (entries.containsKey(id)) {
             entries.remove(id);
-            getElement().callFunction("removeEvent", entryToJson(entry));
+            getElement().callFunction("removeEvent", entry.toJson());
         }
     }
 
     public void removeAllEntries() {
         entries.clear();
         getElement().callFunction("removeAllEvents");
-    }
-
-    private JsonObject entryToJson(Entry entry) {
-        JsonObject jsonObject = Json.createObject();
-        jsonObject.put("id", toJsonValue(entry.getId()));
-        jsonObject.put("title", toJsonValue(entry.getTitle()));
-
-        boolean fullDayEvent = entry.isAllDay();
-        jsonObject.put("allDay", toJsonValue(fullDayEvent));
-
-        LocalDateTime start = entry.getStart();
-        LocalDateTime end = entry.getEnd();
-        jsonObject.put("start", toJsonValue(fullDayEvent ? start.toLocalDate() : start));
-        jsonObject.put("end", toJsonValue(fullDayEvent ? end.toLocalDate() : end));
-        jsonObject.put("editable", entry.isEditable());
-
-        return jsonObject;
-    }
-
-    private JsonValue toJsonValue(Object value) {
-        if (value == null) {
-            return Json.createNull();
-        }
-        if (value instanceof Boolean) {
-            return Json.create((Boolean) value);
-        }
-        return Json.create(String.valueOf(value));
     }
 
     public Registration addDayClickListener(ComponentEventListener<DayClickEvent> listener) {
