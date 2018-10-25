@@ -23,6 +23,7 @@ import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,7 +45,7 @@ public class Demo extends VerticalLayout {
         setPadding(false);
 
         calendar = new FullCalendar();
-        calendar.setFirstDay(1);
+        calendar.setFirstDay(DayOfWeek.MONDAY);
 
         calendar.addDayClickListener(event -> {
             Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
