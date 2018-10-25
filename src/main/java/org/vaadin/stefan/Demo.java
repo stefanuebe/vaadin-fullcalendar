@@ -4,7 +4,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.notification.Notification;
@@ -16,7 +15,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
-import elemental.css.RGBColor;
 import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
@@ -75,7 +73,6 @@ public class Demo extends VerticalLayout {
             Notification.show(entry.getTitle() + " moved to " + start + " - " + end+ " by " + event.getDelta());
         });
 
-
         HorizontalLayout functions = new HorizontalLayout();
         functions.add(new Button("Previous", e -> calendar.previous()));
         functions.add(new Button("Today", e -> calendar.today()));
@@ -93,14 +90,12 @@ public class Demo extends VerticalLayout {
     }
 
     public static class DemoDialog extends Dialog {
-        private final Entry entry;
 
         public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
-            this.entry = entry;
-
             setCloseOnEsc(true);
             setCloseOnOutsideClick(false);
             setWidth("500px");
+
 
             VerticalLayout layout = new VerticalLayout();
             layout.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
@@ -137,44 +132,41 @@ public class Demo extends VerticalLayout {
             binder.setBean(entry);
 
             HorizontalLayout buttons = new HorizontalLayout();
-            Button save;
+            Button buttonSave;
             if (newInstance) {
-                save = new Button("Create", e -> {
+                buttonSave = new Button("Create", e -> {
                     if (binder.validate().isOk()) {
                         calendar.addEntry(entry);
                     }
                 });
             } else {
-                save = new Button("Save", e -> {
+                buttonSave = new Button("Save", e -> {
                     if (binder.validate().isOk()) {
                         calendar.updateEntry(entry);
                     }
                 });
             }
-            save.addClickListener(e -> close());
-            buttons.add(save);
+            buttonSave.addClickListener(e -> close());
+            buttons.add(buttonSave);
 
-            Button cancel = new Button("Cancel", e -> {
+            Button buttonCancel = new Button("Cancel", e -> {
                 close();
             });
-            cancel.getElement().getThemeList().add("tertiary");
-            buttons.add(cancel);
+            buttonCancel.getElement().getThemeList().add("tertiary");
+            buttons.add(buttonCancel);
 
             if (!newInstance) {
-                Button remove = new Button("Remove", e -> {
+                Button buttonRemove = new Button("Remove", e -> {
                     calendar.removeEntry(entry);
                     close();
                 });
-                ThemeList themeList = remove.getElement().getThemeList();
+                ThemeList themeList = buttonRemove.getElement().getThemeList();
                 themeList.add("error");
                 themeList.add("tertiary");
-                buttons.add(remove);
+                buttons.add(buttonRemove);
             }
-
 
             add(layout, buttons);
         }
-
-
     }
 }
