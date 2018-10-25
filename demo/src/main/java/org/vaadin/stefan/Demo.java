@@ -9,6 +9,7 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -36,7 +37,15 @@ public class Demo extends VerticalLayout {
     private final FullCalendar calendar;
 
     public Demo() {
+        addClassName("demo");
+        setSizeUndefined();
+        setMargin(false);
+        setSpacing(false);
+        setPadding(false);
+
         calendar = new FullCalendar();
+        calendar.setFirstDay(1);
+
         calendar.addDayClickListener(event -> {
             Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
             Optional<LocalDate> optionalDate = event.getClickedDate();
@@ -76,19 +85,17 @@ public class Demo extends VerticalLayout {
             Notification.show(entry.getTitle() + " moved to " + start + " - " + end+ " by " + event.getDelta());
         });
 
-        HorizontalLayout functions = new HorizontalLayout();
-        functions.add(new Button("Previous", e -> calendar.previous()));
-        functions.add(new Button("Today", e -> calendar.today()));
-        functions.add(new Button("Next", e -> calendar.next()));
+        Button previous = new Button("Previous", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
+        Button today = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
+        Button next = new Button("Next", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
+        next.setIconAfterText(true);
+
         ComboBox<CalendarView> comboBox = new ComboBox<>("", CalendarView.values());
         comboBox.addValueChangeListener(e -> {
             CalendarView value = e.getValue();
             calendar.changeView(value == null ? CalendarView.MONTH : value);
         });
         comboBox.setValue(CalendarView.MONTH);
-
-        functions.add(comboBox);
-
 
         // simulate the date picker light that we can use in polymer
         DatePicker gotoDate = new DatePicker();
@@ -98,29 +105,18 @@ public class Demo extends VerticalLayout {
         gotoDate.setWidth("0px");
         gotoDate.setHeight("0px");
         gotoDate.setWeekNumbersVisible(true);
-
-        Button interval = new Button();
+        Button interval = new Button(VaadinIcon.CALENDAR.create());
         interval.getElement().appendChild(gotoDate.getElement());
         interval.addClickListener(event -> {
             gotoDate.open();
         });
-        functions.add(interval);
         calendar.addViewRenderedListener(event -> updateIntervalLabel(interval, comboBox.getValue(), event.getIntervalStart()));
 
-
-        add(new H2("full calendar"));
-        add(functions);
+        add(new H2("full calendar demo"));
+        add(new HorizontalLayout(previous, today, interval, next, comboBox));
         add(new Hr());
         add(calendar);
-
         setFlexGrow(1, calendar);
-        addClassName("demo");
-        setSizeUndefined();
-        setMargin(false);
-        setSpacing(false);
-        setPadding(false);
-
-        calendar.setFirstDay(1);
 
         LocalDate now = LocalDate.now();
         createTimedEntry("Kickoff meeting with customer", now.withDayOfMonth(3).atTime(10, 0), 120, "mediumseagreen");
