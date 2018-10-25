@@ -61,23 +61,32 @@
                 });
 
                 this._calendar.on('eventResize', function (event, delta, revertFunc) {
-                    thisReference.dispatchEvent(new CustomEvent('eventResize', {detail: {id: event.id, delta: delta._data}}));
+                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {detail: {data: thisReference._toData(event), delta: delta._data}}));
                 });
 
                 this._calendar.on('eventDrop', function (event, delta, revertFunc) {
-                    var e = thisReference.getEventById(event.id);
-                    var data = {
-                        id: e.id,
-                        start: e.start.format(),
-                        end: e.end != null ? e.end.format() : e.start.add(1, 'day').format(),
-                        allDay: e.allDay,
-                        editable: e.editable
-                    };
-                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {detail: {id: event.id, delta: delta._data, allDay: !event.start.hasTime(), data: data}}));
+                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {detail: {data: thisReference._toData(event), delta: delta._data}}));
                 });
             }
 
+            _toData(event) {
+                var end = event.end;
+                if (end != null) {
+                    end = end.format();
+                } else if(event.allDay){
+                    end = event.start.clone().add(1, 'day').format(); // update, when default duration change
+                } else {
+                    end = event.start.clone().add(1, 'hour').format(); // update, when default duration change
+                }
 
+                return {
+                    id: event.id,
+                    start: event.start.format(),
+                    end: end,
+                    allDay: event.allDay,
+                    editable: event.editable
+                }
+            }
 
             next() {
                 this._calendar.next();
