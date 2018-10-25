@@ -65,7 +65,7 @@ public class App extends VerticalLayout {
             LocalDateTime start = entry.getStart();
             LocalDateTime end = entry.getEnd();
 
-            Notification.show(entry.getTitle() + " moved to " + (allDay ? start.toLocalDate() : start) + " - " + (allDay ? end.toLocalDate() : end)+ " by " + event.getDelta());
+            Notification.show(entry.getTitle() + " moved to " + start + " - " + end+ " by " + event.getDelta());
         });
 
 
