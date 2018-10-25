@@ -17,6 +17,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 import elemental.css.RGBColor;
+import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
@@ -79,9 +80,11 @@ public class Demo extends VerticalLayout {
         functions.add(new Button("Previous", e -> calendar.previous()));
         functions.add(new Button("Today", e -> calendar.today()));
         functions.add(new Button("Next", e -> calendar.next()));
-        Button button = new Button("Remove all!", e -> calendar.removeAllEntries());
-        button.getElement().getThemeList().add("error");
-        functions.add(button);
+        ComboBox<CalendarView> comboBox = new ComboBox<>("", CalendarView.values());
+        comboBox.addValueChangeListener(e -> calendar.changeView(e.getValue()));
+        comboBox.setValue(CalendarView.MONTH);
+
+        functions.add(comboBox);
 
         add(new H2("full calendar"));
         add(functions);
@@ -103,31 +106,32 @@ public class Demo extends VerticalLayout {
             layout.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
             layout.setSizeFull();
 
-            TextField title = new TextField("Title");
-            ComboBox<String> color = new ComboBox<>("Color", COLORS);
-            TextArea description = new TextArea("Description");
+            TextField fieldTitle = new TextField("Title");
+            ComboBox<String> fieldColor = new ComboBox<>("Color", COLORS);
+            TextArea fieldDescription = new TextArea("Description");
 
-            TextField start = new TextField("Start");
-            start.setValue(entry.getStart().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")));
-            start.setEnabled(false);
+            TextField fieldStart = new TextField("Start");
+            fieldStart.setEnabled(false);
 
-            TextField end = new TextField("End");
-            end.setValue(entry.getEnd().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")));
-            end.setEnabled(false);
+            TextField fieldEnd = new TextField("End");
+            fieldEnd.setEnabled(false);
 
-            Checkbox allDay = new Checkbox("All day event");
-            allDay.setValue(entry.isAllDay());
-            allDay.setEnabled(false);
+            fieldStart.setValue(entry.getStart().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")));
+            fieldEnd.setValue(entry.getEnd().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")));
 
-            layout.add(title, color, description, start, end, allDay);
+            Checkbox fieldAllDay = new Checkbox("All day event");
+            fieldAllDay.setValue(entry.isAllDay());
+            fieldAllDay.setEnabled(false);
+
+            layout.add(fieldTitle, fieldColor, fieldDescription, fieldStart, fieldEnd, fieldAllDay);
 
             Binder<Entry> binder = new Binder<>(Entry.class);
-            binder.forField(title)
+            binder.forField(fieldTitle)
                     .asRequired()
                     .bind(Entry::getTitle, Entry::setTitle);
 
-            binder.bind(color, Entry::getColor, Entry::setColor);
-            binder.bind(description, Entry::getDescription, Entry::setDescription);
+            binder.bind(fieldColor, Entry::getColor, Entry::setColor);
+            binder.bind(fieldDescription, Entry::getDescription, Entry::setDescription);
             binder.setBean(entry);
 
             HorizontalLayout buttons = new HorizontalLayout();

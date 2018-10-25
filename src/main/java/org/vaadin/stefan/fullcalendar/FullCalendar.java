@@ -6,13 +6,10 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
-import elemental.json.Json;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -85,6 +82,11 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> {
     public void removeAllEntries() {
         entries.clear();
         getElement().callFunction("removeAllEvents");
+    }
+
+    public void changeView(CalendarView view) {
+        Objects.requireNonNull(view);
+        getElement().callFunction("changeView", view.getClientSideName());
     }
 
     public Registration addDayClickListener(ComponentEventListener<DayClickEvent> listener) {

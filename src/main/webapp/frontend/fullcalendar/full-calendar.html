@@ -37,7 +37,7 @@
 
                 this._handle = $(this.$.calendar);
                 this._handle.fullCalendar({
-                    defaultView: 'agendaWeek',
+                    // defaultView: 'agendaWeek',
 
                     // no native control elements
                     header: {
@@ -124,7 +124,6 @@
 
                     this._calendar.updateEvent(eventToUpdate);
                 }
-
             }
 
             removeEvent(obj) {
@@ -148,6 +147,10 @@
 
             removeAllEvents() {
                 this._calendar.removeEventSources();
+            }
+
+            changeView(viewName) {
+                this._calendar.changeView(viewName);
             }
 
         }
