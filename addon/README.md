@@ -1,37 +1,25 @@
 # vaadin_fullcalendar
-Integration of FullCalendar as Flow component for Vaadin Platform / Vaadin 10+.
+Integration of FullCalendar as Flow component for Vaadin Platform / Vaadin 10+. The component is currently in an early alpha. 
 
-## Early usage example
+The following functions are available to use from server side:
+* adding / updating / removing calendar items,
+* switching between shown intervals (next month, previous month, etc.),
+* goto a specific date or today,
+* switch the calendar view (month, basic / agenda day, basic / agenda week),
+* setting the first day of week to be shown,
 
-```
-@Route("")
-public class App extends VerticalLayout {
-    public App() {
-        FullCalendar calendar = new FullCalendar();
-        calendar.addDayClickListener(event -> {
-            Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
-            Optional<LocalDate> optionalDate = event.getClickedDate();
+* Event handling for
+    * clicking an empty time spot in the calendar,
+    * clicking an entry,
+    * moving an entry via drag and drop (event is fired on drop + changed time),
+    * resizing an entry (event is fired after resize + changed time),
+    
+* Model supports setting 
+    * title, 
+    * start / end / all day flag, 
+    * color (html colors, like "#f00" or "red"), 
+    * description (not shown via FC), 
+    * editable / read only
 
-            if (optionalDateTime.isPresent()) { // check if user clicked a time slot
-                LocalDateTime time = optionalDateTime.get();
-                calendar.addEvent(new Event(time.toString(), time, time.plusHours(1)));
-
-            } else if (optionalDate.isPresent()) { // check if user clicked a day slot
-                LocalDate date = optionalDate.get();
-                calendar.addEvent(new Event(date.toString(), date));
-
-            }
-        });
-
-
-        HorizontalLayout functions = new HorizontalLayout();
-        functions.add(new Button("Previous", e -> calendar.previous()));
-        functions.add(new Button("Next", e -> calendar.next()));
-
-        add(new H2("full calendar"));
-        add(functions);
-        add(new Hr());
-        add(calendar);
-    }
-}
-```
+If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
+I'm also happy for feedback or suggestions about improvements.
