@@ -20,15 +20,17 @@ import java.util.function.Consumer;
  *
  */
 public class Entry {
-    private boolean editable;
+    private boolean editable = true;
     private final String id;
     private String title;
     private LocalDateTime start;
     private LocalDateTime end;
     private boolean allDay;
     private String color;
+    private String description;
 
-    public Entry(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean allDay, String color) {
+    public Entry(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
+        this.description = description;
         Objects.requireNonNull(title);
         Objects.requireNonNull(start);
         Objects.requireNonNull(end);
@@ -38,8 +40,16 @@ public class Entry {
         this.start = start;
         this.end = end;
         this.allDay = allDay;
-        this.editable = true;
+        this.editable = editable;
         this.color = color;
+    }
+
+    /**
+     * Empty instance.
+     */
+    public Entry() {
+        this.id = UUID.randomUUID().toString();
+        this.editable = true;
     }
 
     public String getId() {
@@ -193,5 +203,13 @@ public class Entry {
                 ", editable=" + editable +
                 ", id='" + id + '\'' +
                 '}';
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
