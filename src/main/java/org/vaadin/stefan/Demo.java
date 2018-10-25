@@ -107,6 +107,8 @@ public class Demo extends VerticalLayout {
             layout.setSizeFull();
 
             TextField fieldTitle = new TextField("Title");
+            fieldTitle.focus();
+
             ComboBox<String> fieldColor = new ComboBox<>("Color", COLORS);
             TextArea fieldDescription = new TextArea("Description");
 
