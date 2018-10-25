@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar-demo</artifactId>
-    <version>1.0.0.alpha1</version>
+    <version>1.0.0.alpha2-SNAPSHOT</version>
 
     <name>Full Calendar web component demo</name>
 
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.vaadin.stefan</groupId>
             <artifactId>fullcalendar</artifactId>
-            <version>1.0.0.alpha1</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
