@@ -7,9 +7,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -45,7 +43,9 @@ public class Demo extends Div {
     private HorizontalLayout toolbar;
 
     public Demo() {
-        add(new H2("full calendar demo"));
+        HorizontalLayout title = new HorizontalLayout(new H3("full calendar demo"), new Span("(1.0.0.alpha3)"));
+        title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
+        add(title);
 
         createToolbar();
         add(toolbar);
