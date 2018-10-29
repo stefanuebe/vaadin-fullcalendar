@@ -6,7 +6,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -113,25 +112,16 @@ public class Demo extends Div {
         calendar = new FullCalendar();
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.addDayClickListener(event -> {
-            Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
-            Optional<LocalDate> optionalDate = event.getClickedDate();
+            LocalDateTime clickedDateTime = event.getClickedDateTime();
 
             Entry entry = new Entry();
-            if (optionalDateTime.isPresent()) { // check if user clicked a time slot
-                LocalDateTime time = optionalDateTime.get();
+            LocalDateTime start = clickedDateTime;
+            entry.setStart(start);
 
-                entry.setStart(time);
-                entry.setEnd(time.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
-                entry.setAllDay(false);
+            boolean allDay = event.isAllDay();
+            entry.setAllDay(allDay);
+            entry.setEnd(allDay ? start.plusDays(FullCalendar.DEFAULT_DAY_EVENT_DURATION) : start.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
 
-            } else if (optionalDate.isPresent()) { // check if user clicked a day slot
-                LocalDateTime date = optionalDate.get().atStartOfDay();
-
-                entry.setStart(date);
-                entry.setEnd(date.plusDays(FullCalendar.DEFAULT_DAY_EVENT_DURATION));
-                entry.setAllDay(true);
-
-            }
             entry.setColor("dodgerblue");
             new DemoDialog(calendar, entry, true).open();
         });
