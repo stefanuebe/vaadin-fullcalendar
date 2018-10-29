@@ -221,14 +221,14 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * Registers a listener to be informed when a day click event occurred.
+     * Registers a listener to be informed when a timeslot click event occurred.
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addDayClickListener(@Nonnull ComponentEventListener<DayClickEvent> listener) {
+    public Registration addTimeslotClickedListener(@Nonnull ComponentEventListener<TimeslotClickedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(DayClickEvent.class, listener);
+        return addListener(TimeslotClickedEvent.class, listener);
     }
 
     /**

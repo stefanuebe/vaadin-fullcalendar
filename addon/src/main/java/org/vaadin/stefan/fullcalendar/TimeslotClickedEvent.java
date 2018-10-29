@@ -8,11 +8,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * This event occurs when an empty slot in the calendar has clicked. Empty means the empty space itself, not that there
+ * This event occurs when an empty timeslot in the calendar has clicked. Empty means the empty space itself, not that there
  * is not yet another entry located at this timeslot.
+ * <p/>
+ * Client side event: dayClick.
  */
 @DomEvent("dayClick")
-public class DayClickEvent extends ComponentEvent<FullCalendar> {
+public class TimeslotClickedEvent extends ComponentEvent<FullCalendar> {
 
     private final boolean allDay;
     private LocalDateTime clickedDateTime;
@@ -24,7 +26,7 @@ public class DayClickEvent extends ComponentEvent<FullCalendar> {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param date clicked time slot as iso string
      */
-    public DayClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay) {
+    public TimeslotClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient);
 
         this.allDay = allDay;
