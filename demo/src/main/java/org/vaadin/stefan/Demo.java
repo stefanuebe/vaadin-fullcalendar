@@ -85,7 +85,9 @@ public class Demo extends Div {
 
         Button buttonHeight = new Button("Calendar height", event -> new HeightDialog().open());
 
-        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight);
+        Checkbox weekNumbers = new Checkbox("Week numbers", event -> calendar.setWeekNumbersVisible(event.getValue()));
+
+        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, weekNumbers);
     }
 
     private void setFlexStyles(boolean flexStyles) {
