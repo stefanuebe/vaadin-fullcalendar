@@ -23,7 +23,6 @@ import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -117,7 +116,7 @@ public class Demo extends Div {
 
     private void createCalendarInstance() {
         calendar = new FullCalendar();
-        calendar.setEventLimit(5);
+        calendar.setLimitOfEntriesShownPerDay(5);
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
         // one day selection.
