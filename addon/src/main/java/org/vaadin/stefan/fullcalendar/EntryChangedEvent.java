@@ -5,7 +5,7 @@ import elemental.json.JsonObject;
 /**
  * An event, that occur, when a entry has been changed on the client side. Returns the updated event.
  */
-public class EntryChangedEvent extends EntryEvent {
+public abstract class EntryChangedEvent extends EntryEvent {
 
     /**
      * New instance. Awaits the changed data object.
