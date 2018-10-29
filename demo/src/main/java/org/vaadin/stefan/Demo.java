@@ -43,19 +43,18 @@ public class Demo extends Div {
     private HorizontalLayout toolbar;
 
     public Demo() {
-        createCalendarInstance();
-        createToolbar();
-
         add(new H2("full calendar demo"));
+
+        createToolbar();
         add(toolbar);
+
         add(new Hr());
+
+        createCalendarInstance();
         add(calendar);
 
         // height by parent and flex container
-        setSizeFull();
-        calendar.setHeightByParent();
-        setFlexStyles(true);
-        createTestEntries(calendar);
+        initBaseLayoutSettings();
     }
 
 
@@ -66,11 +65,11 @@ public class Demo extends Div {
         buttonNext.setIconAfterText(true);
 
         comboBoxView = new ComboBox<>("", CalendarView.values());
+        comboBoxView.setValue(CalendarView.MONTH);
         comboBoxView.addValueChangeListener(e -> {
             CalendarView value = e.getValue();
             calendar.changeView(value == null ? CalendarView.MONTH : value);
         });
-        comboBoxView.setValue(CalendarView.MONTH);
 
         // simulate the date picker light that we can use in polymer
         DatePicker gotoDate = new DatePicker();
@@ -88,7 +87,14 @@ public class Demo extends Div {
 
         Button buttonHeight = new Button("Calendar height", event -> new HeightDialog().open());
 
-        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight);
+        Button reset = new Button("Reset", event -> {
+            remove(calendar);
+            createCalendarInstance();
+            initBaseLayoutSettings();
+            add(calendar);
+        });
+
+        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, reset);
     }
 
     private void setFlexStyles(boolean flexStyles) {
@@ -143,6 +149,14 @@ public class Demo extends Div {
             Notification.show(entry.getTitle() + " moved to " + start + " - " + end+ " by " + event.getDelta());
         });
         calendar.addViewRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
+
+        createTestEntries(calendar);
+    }
+
+    private void initBaseLayoutSettings() {
+        setSizeFull();
+        calendar.setHeightByParent();
+        setFlexStyles(true);
     }
 
     protected void createTestEntries(FullCalendar calendar) {
