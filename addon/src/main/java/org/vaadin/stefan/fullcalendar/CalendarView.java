@@ -9,6 +9,10 @@ public enum CalendarView {
     AGENDA_WEEK("agendaWeek"),
     BASIC_DAY("basicDay"),
     BASIC_WEEK("basicWeek"),
+    LIST_WEEK("listWeek"),
+    LIST_DAY("listDay"),
+    LIST_MONTH("listMonth"),
+    LIST_YEAR("listYear"),
     ;
 
     private final String clientSideName;

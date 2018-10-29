@@ -194,15 +194,21 @@ public class Demo extends Div {
         switch (view) {
             default:
             case MONTH:
+            case LIST_MONTH:
                 text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
                 break;
             case AGENDA_DAY:
             case BASIC_DAY:
+            case LIST_DAY:
                 text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
                 break;
             case AGENDA_WEEK:
             case BASIC_WEEK:
+            case LIST_WEEK:
                 text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
+                break;
+            case LIST_YEAR:
+                text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
                 break;
         }
 
