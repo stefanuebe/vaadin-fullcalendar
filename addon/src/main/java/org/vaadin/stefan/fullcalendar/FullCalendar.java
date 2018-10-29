@@ -10,6 +10,7 @@ import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -66,6 +67,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         getElement().callFunction("today");
     }
 
+    protected void setOption(Option key, Serializable value) {
+        getElement().callFunction("setOption", key.getOptionKey(), value);
+    }
+
     /**
      * Sets the first day of a week to be shown by the calendar. Per default sunday.
      * <p/>
@@ -76,13 +81,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      */
     public void setFirstDay(@Nonnull DayOfWeek firstDay) {
         int value = firstDay == DayOfWeek.SUNDAY ? 0 : firstDay.getValue();
-        getElement().callFunction("setFirstDay", value);
+        setOption(Option.FIRST_DAY, value);
     }
-
-    // TODO active multi locales on client side
-//    public void setLocale(String locale) {
-//        getElement().callFunction("setLocale", locale);
-//    }
 
     /**
      * Returns the entry with the given id. Is empty when the id is not registered.
@@ -174,7 +174,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param heightInPixels height in pixels (e.g. 300)
      */
     public void setHeight(int heightInPixels) {
-        getElement().callFunction("setHeight", heightInPixels);
+        setOption(Option.HEIGHT, heightInPixels);
     }
 
     /**
@@ -183,7 +183,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * the parent or the calendar.
      */
     public void setHeightByParent() {
-        getElement().callFunction("setHeight", "parent");
+        setOption(Option.HEIGHT, "parent");
     }
 
     /**
@@ -191,7 +191,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * width-height-ratio.
      */
     public void setHeightAuto() {
-        getElement().callFunction("setHeight", "auto");
+        setOption(Option.HEIGHT, "auto");
     }
 
     /**
@@ -256,5 +256,21 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         return addListener(ViewRenderedEvent.class, listener);
     }
 
+    enum Option {
+        HEIGHT("height"),
+        FIRST_DAY("firstDay"),
+        SELECTABLE("selectable"),
+        DEFAULT_TIMES_EVENT_DURATION("defaultTimedEventDuration");
+
+        private final String optionKey;
+
+        Option(String optionKey) {
+            this.optionKey = optionKey;
+        }
+
+        String getOptionKey() {
+            return optionKey;
+        }
+    }
 
 }
