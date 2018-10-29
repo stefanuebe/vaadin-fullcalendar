@@ -26,7 +26,8 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      *
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
-     * @param date clicked time slot as iso string
+     * @param start start time slot as iso string
+     * @param end end time slot as iso string
      */
     public TimeslotsSelectedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient);
@@ -41,14 +42,26 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
         }
     }
 
+    /**
+     * Returns, if the selection has been for day slots. False means, it has been a selection on time slots inside a day.
+     * @return all day click
+     */
     public boolean isAllDay() {
         return allDay;
     }
 
+    /**
+     * Returns the selected start date time. For day slots the time will be at start of the day.
+     * @return date time
+     */
     public LocalDateTime getStartDateTime() {
         return startDateTime;
     }
 
+    /**
+     * Returns the selected end date time. For day slots the time will be at start of the day.
+     * @return date time
+     */
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
