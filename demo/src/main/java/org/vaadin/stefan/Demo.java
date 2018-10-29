@@ -117,7 +117,7 @@ public class Demo extends Div {
 
     private void createCalendarInstance() {
         calendar = new FullCalendar();
-//        calendar.setFirstDay(DayOfWeek.MONDAY);
+        calendar.setEventLimit(5);
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
         // one day selection.
@@ -178,6 +178,17 @@ public class Demo extends Div {
         createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
         createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
         createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
+
+        createDayEntry(calendar, "Multi 1", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 2", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 3", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 4", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 5", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 6", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 7", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 8", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
     }
 
     protected void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
