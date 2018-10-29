@@ -7,6 +7,13 @@ import com.vaadin.flow.component.EventData;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Occurs when the user selects one or multiple timeslots on the calendar. The selected timeslots may contain
+ * entries.
+ * <p/>
+ * Client side event: select
+ *
+ */
 @DomEvent("select")
 public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
 
