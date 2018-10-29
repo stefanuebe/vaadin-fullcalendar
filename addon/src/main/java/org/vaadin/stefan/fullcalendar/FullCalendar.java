@@ -237,6 +237,31 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
+     * Sets the limit of entries shown on a day. "0" or a negative number removes the limit. Will
+     * overwrite previously set values via {@link #setEventLimit(boolean)}.
+     * @param limit limit of entries shown per day
+     */
+    public void setEventLimit(int limit) {
+        if(limit <= 0) {
+            setOption(Option.EVENT_LIMIT, false);
+        } else {
+            setOption(Option.EVENT_LIMIT, limit);
+        }
+    }
+
+    /**
+     * Sets if the entries shown per day should be limited to the height of the cell (true) or not (false). Will
+     * overwrite previously set values via {@link #setEventLimit(int)}.
+     * <p/>
+     * This function may not work perfectly when the content height is automatic calculated. In this case use
+     * {@link #setEventLimit(int)}
+     * @param limit limit the shown events per day
+     */
+    public void setEventLimit(boolean limit) {
+
+    }
+
+    /**
      * Force the client side instance to re-render it's content.
      */
     public void render() {
@@ -328,12 +353,12 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     enum Option {
-        DEFAULT_TIMES_EVENT_DURATION("defaultTimedEventDuration"),
         FIRST_DAY("firstDay"),
         HEIGHT("height"),
         LOCALE("locale"),
         SELECTABLE("selectable"),
         WEEK_NUMBERS("weekNumbers"),
+        EVENT_LIMIT("eventLimit")
         ;
 
         private final String optionKey;
