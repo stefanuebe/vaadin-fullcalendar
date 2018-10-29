@@ -21,6 +21,13 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
     private final LocalDateTime startDateTime;
     private final LocalDateTime endDateTime;
 
+    /**
+     * New instance. Awaits the selected dates (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
+     *
+     * @param source     the source component
+     * @param fromClient <code>true</code> if the event originated from the client
+     * @param date clicked time slot as iso string
+     */
     public TimeslotsSelectedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient);
 
