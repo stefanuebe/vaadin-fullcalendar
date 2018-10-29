@@ -195,6 +195,13 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
+     * Force the client side instance to re-render it's content.
+     */
+    public void render() {
+        getElement().callFunction("render");
+    }
+
+    /**
      * Registers a listener to be informed when a day click event occurred.
      * @param listener listener
      * @return registration to remove the listener
