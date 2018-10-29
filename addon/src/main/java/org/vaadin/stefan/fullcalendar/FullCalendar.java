@@ -237,9 +237,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryClickListener(@Nonnull ComponentEventListener<EntryClickEvent> listener) {
+    public Registration addEntryClickedListener(@Nonnull ComponentEventListener<EntryClickedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EntryClickEvent.class, listener);
+        return addListener(EntryClickedEvent.class, listener);
     }
 
     /**
@@ -248,9 +248,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryResizeListener(@Nonnull ComponentEventListener<EntryResizeEvent> listener) {
+    public Registration addEntryResizedListener(@Nonnull ComponentEventListener<EntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EntryResizeEvent.class, listener);
+        return addListener(EntryResizedEvent.class, listener);
     }
 
     /**
@@ -259,9 +259,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryDropListener(@Nonnull ComponentEventListener<EntryDropEvent> listener) {
+    public Registration addEntryDroppedListener(@Nonnull ComponentEventListener<EntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EntryDropEvent.class, listener);
+        return addListener(EntryDroppedEvent.class, listener);
     }
 
     /**
