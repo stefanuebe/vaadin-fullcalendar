@@ -6,9 +6,12 @@ import elemental.json.JsonObject;
 
 /**
  * Occurs when an entry has been clicked on the client side.
+ * <p/>
+ * Client side event: eventClick
+ *
  */
 @DomEvent("eventClick")
-public class EntryClickEvent extends EntryEvent {
+public class EntryClickedEvent extends EntryEvent {
 
     /**
      * New instance. Awaits the id of the clicked entry.
@@ -16,7 +19,7 @@ public class EntryClickEvent extends EntryEvent {
      * @param fromClient from client
      * @param entryId affected entry id
      */
-    public EntryClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String entryId) {
+    public EntryClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.id") String entryId) {
         super(source, fromClient, entryId);
     }
 
