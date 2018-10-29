@@ -112,10 +112,9 @@ public class Demo extends Div {
         calendar = new FullCalendar();
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.addDayClickListener(event -> {
-            LocalDateTime clickedDateTime = event.getClickedDateTime();
-
             Entry entry = new Entry();
-            LocalDateTime start = clickedDateTime;
+
+            LocalDateTime start = event.getClickedDateTime();
             entry.setStart(start);
 
             boolean allDay = event.isAllDay();
@@ -139,6 +138,16 @@ public class Demo extends Div {
             Notification.show(entry.getTitle() + " moved to " + start + " - " + end+ " by " + event.getDelta());
         });
         calendar.addViewRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
+
+        calendar.addTimeslotsSelectedEventListener(event -> {
+            Entry entry = new Entry();
+            entry.setStart(event.getStartDateTime());
+            entry.setEnd(event.getEndDateTime());
+            entry.setAllDay(event.isAllDay());
+
+            entry.setColor("dodgerblue");
+            new DemoDialog(calendar, entry, true).open();
+        });
 
         createTestEntries(calendar);
     }

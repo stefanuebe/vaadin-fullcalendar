@@ -67,6 +67,10 @@
                     thisReference.dispatchEvent(new CustomEvent('dayClick', {detail: {date: date.format(), allDay: !date.hasTime()}}));
                 });
 
+                this._calendar.on('select', function (start, end) {
+                    thisReference.dispatchEvent(new CustomEvent('select', {detail: {start: start.format(), end: end.format(), allDay: !start.hasTime()}}));
+                });
+
                 this._calendar.on('eventClick', function (event) {
                     thisReference.dispatchEvent(new CustomEvent('eventClick', {detail: {id: event.id}}));
                 });
@@ -175,10 +179,6 @@
             gotoDate(date) {
                 this._calendar.gotoDate(moment(date));
             }
-
-            // setLocale(locale) { // TODO needs locale-all.js added @https://fullcalendar.io/docs/locale
-            //     this._calendar.option('locale', locale);
-            // }
 
             render() {
                 this._calendar.render();
