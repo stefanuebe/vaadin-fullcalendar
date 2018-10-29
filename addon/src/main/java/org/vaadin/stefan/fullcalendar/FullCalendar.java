@@ -13,10 +13,7 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -223,6 +220,14 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
+     * Sets the locale to be used. If invoked for the first time it will load additional language scripts.
+     * @param locale locale
+     */
+    public void setLocale(Locale locale) {
+        setOption(Option.LOCALE, locale.toString());
+    }
+
+    /**
      * Force the client side instance to re-render it's content.
      */
     public void render() {
@@ -314,11 +319,13 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     enum Option {
-        HEIGHT("height"),
-        FIRST_DAY("firstDay"),
-        SELECTABLE("selectable"),
         DEFAULT_TIMES_EVENT_DURATION("defaultTimedEventDuration"),
-        WEEK_NUMBERS("weekNumbers");
+        FIRST_DAY("firstDay"),
+        HEIGHT("height"),
+        LOCALE("locale"),
+        SELECTABLE("selectable"),
+        WEEK_NUMBERS("weekNumbers"),
+        ;
 
         private final String optionKey;
 
