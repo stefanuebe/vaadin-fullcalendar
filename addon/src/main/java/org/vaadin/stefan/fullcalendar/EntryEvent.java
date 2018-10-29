@@ -6,7 +6,7 @@ import elemental.json.JsonObject;
 /**
  * Simple event that occurred for a specific calendar item.
  */
-public class EntryEvent extends ComponentEvent<FullCalendar> {
+public abstract class EntryEvent extends ComponentEvent<FullCalendar> {
     private final Entry entry;
 
     /**
