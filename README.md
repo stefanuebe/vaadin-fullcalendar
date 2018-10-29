@@ -13,9 +13,11 @@ The following functions are implemented and available to use from server side:
 
 * Event handling for
     * clicking an empty time spot in the calendar,
+    * selecting a block of empty time spots in the calendar, 
     * clicking an entry,
     * moving an entry via drag and drop (event is fired on drop + changed time),
     * resizing an entry (event is fired after resize + changed time),
+    * view rendered (i. e. to update a label of the shown interval)
     
 * Model supports setting 
     * title, 
@@ -23,6 +25,8 @@ The following functions are implemented and available to use from server side:
     * color (html colors, like "#f00" or "red"), 
     * description (not shown via FC), 
     * editable / read only
+    * height
+    * show of week numbers
 
 ## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
@@ -53,27 +57,19 @@ calendar.add(entry);
  * calendar. Depending of if the clicked point was a day or time slot the event will provide the 
  * time details of the clicked point. With this info you can show a dialog to create a new entry.
  */
-calendar.addDayClickListener(event -> {
-        Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
-        Optional<LocalDate> optionalDate = event.getClickedDate();
-
+calendar.addTimeslotClickedListener(event -> {
         Entry entry = new Entry();
-        if (optionalDateTime.isPresent()) { // check if user clicked a time slot
-            LocalDateTime time = optionalDateTime.get();
-            entry.setStart(time);
-            entry.setEnd(time.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
-            entry.setAllDay(false);
-
-        } else if (optionalDate.isPresent()) { // check if user clicked a day slot
-            LocalDateTime date = optionalDate.get().atStartOfDay();
-
-            entry.setStart(date);
-            entry.setEnd(date.plusDays(FullCalendar.DEFAULT_DAY_EVENT_DURATION));
-            entry.setAllDay(true);
-
-        }
-           
-        new EntryDialog(calendar, entry, true).open();
+        
+        LocalDateTime start = event.getClickedDateTime();
+        entry.setStart(start);
+        
+        boolean allDay = event.isAllDay();
+        entry.setAllDay(allDay);
+        entry.setEnd(allDay ? start.plusDays(FullCalendar.DEFAULT_DAY_EVENT_DURATION) : start.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
+        
+        entry.setColor("dodgerblue");
+        
+        // ... open a dialog or other view to edit details 
     });
 
 /*
@@ -120,11 +116,11 @@ private void init() {
 
     // combo box to select a view for the calendar, like "monthly", "weekly", ...
     ComboBox<CalendarView> viewBox = new ComboBox<>("", CalendarView.values());
-    viewBox .addValueChangeListener(e -> {
+    viewBox.addValueChangeListener(e -> {
         CalendarView value = e.getValue();
         calendar.changeView(value == null ? CalendarView.MONTH : value);
     });
-    viewBox .setValue(CalendarView.MONTH);
+    viewBox.setValue(CalendarView.MONTH);
 
     /*
       * The view rendered listener is called when the view has been rendererd on client side 
