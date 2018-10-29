@@ -175,6 +175,10 @@
                 this._calendar.gotoDate(moment(date));
             }
 
+            setHeight(value) {
+                this._calendar.option('height', value);
+            }
+
             // setLocale(locale) { // TODO needs locale-all.js added @https://fullcalendar.io/docs/locale
             //     this._calendar.option('locale', locale);
             // }

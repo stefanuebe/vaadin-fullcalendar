@@ -170,6 +170,31 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
+     * Sets the calendar's height to a fixed amount of pixels.
+     * @param heightInPixels height in pixels (e.g. 300)
+     */
+    public void setHeight(int heightInPixels) {
+        getElement().callFunction("setHeight", heightInPixels);
+    }
+
+    /**
+     * Sets the calendar's height to be calculated from parents height. Please be aware, that a block parent with
+     * relative height (e. g. 100%) might not work properly. In this case use flex layout or set a fixed height for
+     * the parent or the calendar.
+     */
+    public void setHeightByParent() {
+        getElement().callFunction("setHeight", "parent");
+    }
+
+    /**
+     * Sets the calendar's height to be calculated automatically. In current implementation this means by the calendars
+     * width-height-ratio.
+     */
+    public void setHeightAuto() {
+        getElement().callFunction("setHeight", "auto");
+    }
+
+    /**
      * Registers a listener to be informed when a day click event occurred.
      * @param listener listener
      * @return registration to remove the listener
