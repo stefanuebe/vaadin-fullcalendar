@@ -34,7 +34,6 @@ import java.util.Optional;
 
 @Route("")
 @Push
-@HtmlImport("frontend://demo-style.html")
 public class Demo extends Div {
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
@@ -44,8 +43,6 @@ public class Demo extends Div {
     private HorizontalLayout toolbar;
 
     public Demo() {
-        addClassName("demo");
-
         createCalendarInstance();
         createToolbar();
 
@@ -55,6 +52,7 @@ public class Demo extends Div {
         add(calendar);
 
         // height by parent and flex container
+        setSizeFull();
         calendar.setHeightByParent();
         setFlexStyles(true);
         createTestEntries(calendar);
@@ -274,7 +272,7 @@ public class Demo extends Div {
             Button byPixels = new Button("Set by pixels", e -> {
                 calendar.setHeight(Integer.valueOf(heightInput.getValue()));
 
-                setSizeUndefined();
+                Demo.this.setSizeUndefined();
                 setFlexStyles(false);
             });
             byPixels.getElement().setProperty("title", "Calendar height is fixed by pixels.");
@@ -283,7 +281,7 @@ public class Demo extends Div {
             Button autoHeight = new Button("Auto height", e -> {
                 calendar.setHeightAuto();
 
-                setSizeUndefined();
+                Demo.this.setSizeUndefined();
                 setFlexStyles(false);
             });
             autoHeight.getElement().setProperty("title", "Calendar height is set to auto.");
@@ -293,7 +291,7 @@ public class Demo extends Div {
                 calendar.setHeightByParent();
                 calendar.setSizeFull();
 
-                setSizeFull();
+                Demo.this.setSizeFull();
                 setFlexStyles(false);
             });
             heightByBlockParent.getElement().setProperty("title", "Container is display:block + setSizeFull(). Calendar height is set to parent + setSizeFull(). Body element kept unchanged.");
@@ -303,7 +301,7 @@ public class Demo extends Div {
                 calendar.setHeightByParent();
                 calendar.getElement().getStyle().set("height", "calc(100vh - 450px)");
 
-                setSizeFull();
+                Demo.this.setSizeFull();
                 setFlexStyles(false);
             });
             heightByBlockParentAndCalc.getElement().setProperty("title", "Container is display:block + setSizeFull(). Calendar height is set to parent + css height is calculated by calc(100vh - 450px) as example. Body element kept unchanged.");
@@ -312,7 +310,7 @@ public class Demo extends Div {
             Button heightByFlexParent = new Button("Height by flex parent", e -> {
                 calendar.setHeightByParent();
 
-                setSizeUndefined();
+                Demo.this.setSizeFull();
                 setFlexStyles(true);
             });
             heightByFlexParent.getElement().setProperty("title", "Container is display:flex + setSizeFull(). Calendar height is set to parent + flex-grow: 1. Body element kept unchanged.");
@@ -321,7 +319,7 @@ public class Demo extends Div {
             Button heightByFlexParentAndBody = new Button("Height by flex parent and flex body", e -> {
                 calendar.setHeightByParent();
 
-                setSizeUndefined();
+                Demo.this.setSizeUndefined();
                 setFlexStyles(true);
 
                 UI.getCurrent().getElement().getStyle().set("display", "flex");
