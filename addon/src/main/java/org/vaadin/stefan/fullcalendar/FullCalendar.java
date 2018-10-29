@@ -41,6 +41,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     private Map<String, Entry> entries = new HashMap<>();
     private Map<Option, Serializable> options = new HashMap<>();
 
+    // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
+    private int timeslotsSelectedListenerCount;
+
     /**
      * Creates a new FullCalendar.
      */
@@ -202,6 +205,15 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
+     * Set if timeslots might be selected by the user. Please see also documentation of {@link #addTimeslotsSelectedEventListener(ComponentEventListener)}.
+     *
+     * @param selectable activate selectable
+     */
+    public void setTimeslotsSelectable(boolean selectable) {
+        setOption(Option.SELECTABLE, selectable);
+    }
+
+    /**
      * Force the client side instance to re-render it's content.
      */
     public void render() {
@@ -261,6 +273,35 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public Registration addViewRenderedListener(@Nonnull ComponentEventListener<ViewRenderedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(ViewRenderedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener to be informed when the user selected a range of timeslots.
+     * <p/>
+     * Adding the first listener
+     * to this component will activate the selectable option. Removing the last instance will automatically disable it.
+     * You may override that via setTimestlotsSelectable().
+     * <p/>
+     * You should also deactivate timeslot clicked listeners since both events will get fired when the user only selects
+     * one timeslot / day.
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addTimeslotsSelectedEventListener(@Nonnull ComponentEventListener<TimeslotsSelectedEvent> listener) {
+        Objects.requireNonNull(listener);
+
+        Registration registration = addListener(TimeslotsSelectedEvent.class, listener);
+
+        if(timeslotsSelectedListenerCount++ == 0) {
+            setTimeslotsSelectable(true);
+        }
+
+        return () -> {
+            registration.remove();
+            if (--timeslotsSelectedListenerCount == 0) {
+                setTimeslotsSelectable(false);
+            }
+        };
     }
 
     enum Option {
