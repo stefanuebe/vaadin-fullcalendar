@@ -49,6 +49,7 @@
                 this._handle = $(this.$.calendar);
                 this._handle.fullCalendar({
                     height: 'parent',
+
                     // no native control elements
                     header: {
                         left: '',
@@ -81,6 +82,10 @@
                 this._calendar.on('viewRender', function (view, element) {
                     thisReference.dispatchEvent(new CustomEvent("viewRender", {detail: {intervalStart: view.intervalStart.format(), intervalEnd: view.intervalEnd.format()}}));
                 });
+            }
+
+            setOption(key, value) {
+                this._calendar.option(key, value);
             }
 
             _toData(event) {
@@ -167,16 +172,8 @@
                 this._calendar.changeView(viewName);
             }
 
-            setFirstDay(firstDay) {
-                this._calendar.option('firstDay', firstDay);
-            }
-
             gotoDate(date) {
                 this._calendar.gotoDate(moment(date));
-            }
-
-            setHeight(value) {
-                this._calendar.option('height', value);
             }
 
             // setLocale(locale) { // TODO needs locale-all.js added @https://fullcalendar.io/docs/locale
