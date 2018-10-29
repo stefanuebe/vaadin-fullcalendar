@@ -29,7 +29,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 @Route("")
 @Push
@@ -111,19 +110,23 @@ public class Demo extends Div {
     private void createCalendarInstance() {
         calendar = new FullCalendar();
         calendar.setFirstDay(DayOfWeek.MONDAY);
-        calendar.addDayClickListener(event -> {
-            Entry entry = new Entry();
 
-            LocalDateTime start = event.getClickedDateTime();
-            entry.setStart(start);
+        // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
+        // one day selection.
+        //        calendar.addTimeslotClickedListener(event -> {
+        //            Entry entry = new Entry();
+        //
+        //            LocalDateTime start = event.getClickedDateTime();
+        //            entry.setStart(start);
+        //
+        //            boolean allDay = event.isAllDay();
+        //            entry.setAllDay(allDay);
+        //            entry.setEnd(allDay ? start.plusDays(FullCalendar.DEFAULT_DAY_EVENT_DURATION) : start.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
+        //
+        //            entry.setColor("dodgerblue");
+        //            new DemoDialog(calendar, entry, true).open();
+        //        });
 
-            boolean allDay = event.isAllDay();
-            entry.setAllDay(allDay);
-            entry.setEnd(allDay ? start.plusDays(FullCalendar.DEFAULT_DAY_EVENT_DURATION) : start.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
-
-            entry.setColor("dodgerblue");
-            new DemoDialog(calendar, entry, true).open();
-        });
         calendar.addEntryClickListener(event -> new DemoDialog(calendar, event.getEntry(), false).open());
         calendar.addEntryResizeListener(event -> {
             Entry entry = event.getEntry();
