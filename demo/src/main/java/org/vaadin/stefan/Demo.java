@@ -29,6 +29,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 @Route("")
@@ -86,9 +89,18 @@ public class Demo extends Div {
 
         Button buttonHeight = new Button("Calendar height", event -> new HeightDialog().open());
 
-        Checkbox weekNumbers = new Checkbox("Week numbers", event -> calendar.setWeekNumbersVisible(event.getValue()));
+        Checkbox cbWeekNumbers = new Checkbox("Week numbers", event -> calendar.setWeekNumbersVisible(event.getValue()));
 
-        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, weekNumbers);
+        ComboBox<Locale> comboBoxLocales = new ComboBox<>();
+        List<Locale> items = Arrays.asList(Locale.getAvailableLocales());
+        items.sort(Comparator.comparing(Locale::toLanguageTag));
+        comboBoxLocales.setItems(items);
+        comboBoxLocales.setValue(Locale.getDefault());
+        comboBoxLocales.addValueChangeListener(event -> calendar.setLocale(event.getValue()));
+        comboBoxLocales.setRequired(true);
+        comboBoxLocales.setPreventInvalidInput(true);
+
+        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales);
     }
 
     private void setFlexStyles(boolean flexStyles) {
@@ -106,7 +118,6 @@ public class Demo extends Div {
     private void createCalendarInstance() {
         calendar = new FullCalendar();
 //        calendar.setFirstDay(DayOfWeek.MONDAY);
-        calendar.setLocale(Locale.GERMAN);
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
         // one day selection.
@@ -179,18 +190,19 @@ public class Demo extends Div {
 
     protected void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
         String text;
+        Locale locale = calendar.getLocale();
         switch (view) {
             default:
             case MONTH:
-                text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
+                text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
                 break;
             case AGENDA_DAY:
             case BASIC_DAY:
-                text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
                 break;
             case AGENDA_WEEK:
             case BASIC_WEEK:
-                text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy")) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy")) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww")) + ")";
+                text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
                 break;
         }
 
