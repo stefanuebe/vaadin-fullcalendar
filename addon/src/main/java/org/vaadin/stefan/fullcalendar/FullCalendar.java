@@ -45,6 +45,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Creates a new FullCalendar.
      */
     public FullCalendar() {
+        setLocale(Locale.getDefault());
     }
 
     /**
@@ -224,7 +225,15 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param locale locale
      */
     public void setLocale(Locale locale) {
-        setOption(Option.LOCALE, locale.toString());
+        setOption(Option.LOCALE, locale.toLanguageTag());
+    }
+
+    /**
+     * Returns the current set locale.
+     * @return locale
+     */
+    public Locale getLocale() {
+        return Locale.forLanguageTag((String) options.getOrDefault(Option.LOCALE, Locale.getDefault().toLanguageTag()));
     }
 
     /**
