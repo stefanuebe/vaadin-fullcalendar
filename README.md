@@ -9,7 +9,10 @@ The following functions are implemented and available to use from server side:
 * switching between shown intervals (next month, previous month, etc.),
 * goto a specific date or today,
 * switch the calendar view (month, basic / agenda day, basic / agenda week),
-* setting the first day of week to be shown,
+* setting a locale to be used for displaying week days, formatting values, calculating the first day of the week, etc.
+* setting the first day of week to be shown (overrides the locale setting),
+* setting the height of the calendar instance (calculated by parent, aspect ratio or fixed pixel size)
+* show of week numbers
 
 * Event handling for
     * clicking an empty time spot in the calendar,
@@ -25,8 +28,6 @@ The following functions are implemented and available to use from server side:
     * color (html colors, like "#f00" or "red"), 
     * description (not shown via FC), 
     * editable / read only
-    * height
-    * show of week numbers
 
 ## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
