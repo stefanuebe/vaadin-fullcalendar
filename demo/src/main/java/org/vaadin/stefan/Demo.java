@@ -29,6 +29,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Route("")
 @Push
@@ -104,7 +105,8 @@ public class Demo extends Div {
 
     private void createCalendarInstance() {
         calendar = new FullCalendar();
-        calendar.setFirstDay(DayOfWeek.MONDAY);
+//        calendar.setFirstDay(DayOfWeek.MONDAY);
+        calendar.setLocale(Locale.GERMAN);
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
         // one day selection.
