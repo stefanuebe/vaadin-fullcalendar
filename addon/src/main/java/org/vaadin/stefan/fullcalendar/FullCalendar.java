@@ -39,6 +39,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public static final int DEFAULT_DAY_EVENT_DURATION = 1;
 
     private Map<String, Entry> entries = new HashMap<>();
+    private Map<Option, Serializable> options = new HashMap<>();
 
     /**
      * Creates a new FullCalendar.
@@ -65,23 +66,6 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      */
     public void today() {
         getElement().callFunction("today");
-    }
-
-    protected void setOption(Option key, Serializable value) {
-        getElement().callFunction("setOption", key.getOptionKey(), value);
-    }
-
-    /**
-     * Sets the first day of a week to be shown by the calendar. Per default sunday.
-     * <p/>
-     * Might be extended / replaced later by a locale setting.
-     *
-     * @param firstDay first day to be shown
-     * @throws NullPointerException when null is passed
-     */
-    public void setFirstDay(@Nonnull DayOfWeek firstDay) {
-        int value = firstDay == DayOfWeek.SUNDAY ? 0 : firstDay.getValue();
-        setOption(Option.FIRST_DAY, value);
     }
 
     /**
@@ -167,6 +151,29 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      */
     public void gotoDate(@Nonnull LocalDate date) {
         getElement().callFunction("gotoDate", date.toString());
+    }
+
+    /**
+     * Sets a option for this instance.
+     * @param option option
+     * @param value value
+     */
+    protected void setOption(Option option, Serializable value) {
+        options.put(option, value);
+        getElement().callFunction("setOption", option.getOptionKey(), value);
+    }
+
+    /**
+     * Sets the first day of a week to be shown by the calendar. Per default sunday.
+     * <p/>
+     * Might be extended / replaced later by a locale setting.
+     *
+     * @param firstDay first day to be shown
+     * @throws NullPointerException when null is passed
+     */
+    public void setFirstDay(@Nonnull DayOfWeek firstDay) {
+        int value = firstDay == DayOfWeek.SUNDAY ? 0 : firstDay.getValue();
+        setOption(Option.FIRST_DAY, value);
     }
 
     /**
