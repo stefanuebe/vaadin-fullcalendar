@@ -6,8 +6,6 @@ import com.vaadin.flow.component.EventData;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.Optional;
 
 /**
  * This event occurs when an empty slot in the calendar has clicked. Empty means the empty space itself, not that there
@@ -18,7 +16,6 @@ public class DayClickEvent extends ComponentEvent<FullCalendar> {
 
     private final boolean allDay;
     private LocalDateTime clickedDateTime;
-    private LocalDate clickedDate;
 
     /**
      * New instance. Awaits the clicked date (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
@@ -32,26 +29,18 @@ public class DayClickEvent extends ComponentEvent<FullCalendar> {
 
         this.allDay = allDay;
         if (allDay) {
-            clickedDate = LocalDate.parse(date);
+            clickedDateTime = LocalDate.parse(date).atStartOfDay();
         } else {
             clickedDateTime = LocalDateTime.parse(date);
         }
     }
 
     /**
-     * Returns a non empty optional with the clicked date when {@link #isAllDay()} returns true.
-     * @return date or empty
+     * Returns the clicked date time. For day slots the time will be at start of the day.
+     * @return date time
      */
-    public Optional<LocalDate> getClickedDate() {
-        return Optional.ofNullable(clickedDate);
-    }
-
-    /**
-     * Returns a non empty optional with the clicked date time when {@link #isAllDay()} returns false.
-     * @return date time or empty
-     */
-    public Optional<LocalDateTime> getClickedDateTime() {
-        return Optional.ofNullable(clickedDateTime);
+    public LocalDateTime getClickedDateTime() {
+        return clickedDateTime;
     }
 
     /**
