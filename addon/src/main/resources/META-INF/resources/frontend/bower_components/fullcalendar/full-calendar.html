@@ -64,7 +64,7 @@
                 var thisReference = this;
 
                 this._calendar.on('dayClick', function (date) {
-                    thisReference.dispatchEvent(new CustomEvent('dayClick', {detail: {date: date.format()}}));
+                    thisReference.dispatchEvent(new CustomEvent('dayClick', {detail: {date: date.format(), allDay: !date.hasTime()}}));
                 });
 
                 this._calendar.on('eventClick', function (event) {

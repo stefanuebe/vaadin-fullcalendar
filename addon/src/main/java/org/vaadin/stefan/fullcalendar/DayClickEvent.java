@@ -16,6 +16,7 @@ import java.util.Optional;
 @DomEvent("dayClick")
 public class DayClickEvent extends ComponentEvent<FullCalendar> {
 
+    private final boolean allDay;
     private LocalDateTime clickedDateTime;
     private LocalDate clickedDate;
 
@@ -26,13 +27,14 @@ public class DayClickEvent extends ComponentEvent<FullCalendar> {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param date clicked time slot as iso string
      */
-    public DayClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date) {
+    public DayClickEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient);
 
-        try {
-            clickedDateTime = LocalDateTime.parse(date);
-        } catch (DateTimeParseException e) {
+        this.allDay = allDay;
+        if (allDay) {
             clickedDate = LocalDate.parse(date);
+        } else {
+            clickedDateTime = LocalDateTime.parse(date);
         }
     }
 
@@ -57,6 +59,6 @@ public class DayClickEvent extends ComponentEvent<FullCalendar> {
      * @return all day click
      */
     public boolean isAllDay() {
-        return clickedDateTime != null;
+        return allDay;
     }
 }
