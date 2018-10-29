@@ -1,16 +1,19 @@
 package org.vaadin.stefan;
 
 import com.vaadin.flow.component.HasText;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
@@ -32,21 +35,79 @@ import java.util.Optional;
 @Route("")
 @Push
 @HtmlImport("frontend://demo-style.html")
-public class Demo extends VerticalLayout {
+public class Demo extends Div {
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
-    private final FullCalendar calendar;
+    private FullCalendar calendar;
+    private ComboBox<CalendarView> comboBoxView;
+    private Button buttonDatePicker;
+    private HorizontalLayout toolbar;
 
     public Demo() {
         addClassName("demo");
-        setSizeUndefined();
-        setMargin(false);
-        setSpacing(false);
-        setPadding(false);
 
+        createCalendarInstance();
+        createToolbar();
+
+        add(new H2("full calendar demo"));
+        add(toolbar);
+        add(new Hr());
+        add(calendar);
+
+        // height by parent and flex container
+        calendar.setHeightByParent();
+        setFlexStyles(true);
+        createTestEntries(calendar);
+    }
+
+
+    private void createToolbar() {
+        Button buttonPrevious = new Button("Previous", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
+        Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
+        Button buttonNext = new Button("Next", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
+        buttonNext.setIconAfterText(true);
+
+        comboBoxView = new ComboBox<>("", CalendarView.values());
+        comboBoxView.addValueChangeListener(e -> {
+            CalendarView value = e.getValue();
+            calendar.changeView(value == null ? CalendarView.MONTH : value);
+        });
+        comboBoxView.setValue(CalendarView.MONTH);
+
+        // simulate the date picker light that we can use in polymer
+        DatePicker gotoDate = new DatePicker();
+        gotoDate.addValueChangeListener(event1 -> calendar.gotoDate(event1.getValue()));
+        gotoDate.getElement().getStyle().set("visibility", "hidden");
+        gotoDate.getElement().getStyle().set("position", "fixed");
+        gotoDate.setWidth("0px");
+        gotoDate.setHeight("0px");
+        gotoDate.setWeekNumbersVisible(true);
+        buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
+        buttonDatePicker.getElement().appendChild(gotoDate.getElement());
+        buttonDatePicker.addClickListener(event -> {
+            gotoDate.open();
+        });
+
+        Button buttonHeight = new Button("Calendar height", event -> new HeightDialog().open());
+
+        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight);
+    }
+
+    private void setFlexStyles(boolean flexStyles) {
+        if (flexStyles) {
+            calendar.getElement().getStyle().set("flex-grow", "1");
+            getElement().getStyle().set("display", "flex");
+            getElement().getStyle().set("flex-direction", "column");
+        } else {
+            calendar.getElement().getStyle().remove("flex-grow");
+            getElement().getStyle().remove("display");
+            getElement().getStyle().remove("flex-direction");
+        }
+    }
+
+    private void createCalendarInstance() {
         calendar = new FullCalendar();
         calendar.setFirstDay(DayOfWeek.MONDAY);
-
         calendar.addDayClickListener(event -> {
             Optional<LocalDateTime> optionalDateTime = event.getClickedDateTime();
             Optional<LocalDate> optionalDate = event.getClickedDate();
@@ -70,9 +131,7 @@ public class Demo extends VerticalLayout {
             entry.setColor("dodgerblue");
             new DemoDialog(calendar, entry, true).open();
         });
-
         calendar.addEntryClickListener(event -> new DemoDialog(calendar, event.getEntry(), false).open());
-
         calendar.addEntryResizeListener(event -> {
             Entry entry = event.getEntry();
             Notification.show(entry.getTitle() + " resized to " + entry.getStart() + " - " + entry.getEnd() + " by " + event.getDelta());
@@ -85,60 +144,29 @@ public class Demo extends VerticalLayout {
 
             Notification.show(entry.getTitle() + " moved to " + start + " - " + end+ " by " + event.getDelta());
         });
-
-        Button previous = new Button("Previous", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
-        Button today = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
-        Button next = new Button("Next", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
-        next.setIconAfterText(true);
-
-        ComboBox<CalendarView> comboBox = new ComboBox<>("", CalendarView.values());
-        comboBox.addValueChangeListener(e -> {
-            CalendarView value = e.getValue();
-            calendar.changeView(value == null ? CalendarView.MONTH : value);
-        });
-        comboBox.setValue(CalendarView.MONTH);
-
-        // simulate the date picker light that we can use in polymer
-        DatePicker gotoDate = new DatePicker();
-        gotoDate.addValueChangeListener(event1 -> calendar.gotoDate(event1.getValue()));
-        gotoDate.getElement().getStyle().set("visibility", "hidden");
-        gotoDate.getElement().getStyle().set("position", "fixed");
-        gotoDate.setWidth("0px");
-        gotoDate.setHeight("0px");
-        gotoDate.setWeekNumbersVisible(true);
-        Button interval = new Button(VaadinIcon.CALENDAR.create());
-        interval.getElement().appendChild(gotoDate.getElement());
-        interval.addClickListener(event -> {
-            gotoDate.open();
-        });
-        calendar.addViewRenderedListener(event -> updateIntervalLabel(interval, comboBox.getValue(), event.getIntervalStart()));
-
-        add(new H2("full calendar demo"));
-        add(new HorizontalLayout(previous, today, interval, next, comboBox));
-        add(new Hr());
-        add(calendar);
-        setFlexGrow(1, calendar);
-
-        LocalDate now = LocalDate.now();
-        createTimedEntry("Kickoff meeting with customer", now.withDayOfMonth(3).atTime(10, 0), 120, "mediumseagreen");
-        createTimedEntry("Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "violet");
-        createTimedEntry("Dentist", now.withDayOfMonth(20).atTime(11, 45), 90, "violet");
-        createTimedEntry("Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "dodgerblue");
-        createDayEntry("Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
-        createDayEntry("John's Birthday", now.withDayOfMonth(23), 1, "gray");
-        createDayEntry("This special holiday", now.withDayOfMonth(4), 1, "gray");
-
+        calendar.addViewRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
     }
 
-    private void createDayEntry(String title, LocalDate start, int days, String color) {
+    protected void createTestEntries(FullCalendar calendar) {
+        LocalDate now = LocalDate.now();
+        createTimedEntry(calendar, "Kickoff meeting with customer", now.withDayOfMonth(3).atTime(10, 0), 120, "mediumseagreen");
+        createTimedEntry(calendar, "Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "violet");
+        createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 45), 90, "violet");
+        createTimedEntry(calendar, "Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "dodgerblue");
+        createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
+        createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
+        createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
+    }
+
+    protected void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
         calendar.addEntry(new Entry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description..."));
     }
 
-    private void createTimedEntry(String title, LocalDateTime start, int minutes, String color) {
+    protected void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
         calendar.addEntry(new Entry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description..."));
     }
 
-    public void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
+    protected void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
         String text;
         switch (view) {
             default:
@@ -165,7 +193,7 @@ public class Demo extends VerticalLayout {
             setCloseOnOutsideClick(false);
 
             VerticalLayout layout = new VerticalLayout();
-            layout.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+            layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
             layout.setSizeFull();
 
             TextField fieldTitle = new TextField("Title");
@@ -236,4 +264,71 @@ public class Demo extends VerticalLayout {
             add(layout, buttons);
         }
     }
+
+    public class HeightDialog extends Dialog {
+        public HeightDialog() {
+            VerticalLayout dialogContainer = new VerticalLayout();
+            add(dialogContainer);
+
+            TextField heightInput = new TextField("", "500", "e. g. 300");
+            Button byPixels = new Button("Set by pixels", e -> {
+                calendar.setHeight(Integer.valueOf(heightInput.getValue()));
+
+                setSizeUndefined();
+                setFlexStyles(false);
+            });
+            byPixels.getElement().setProperty("title", "Calendar height is fixed by pixels.");
+            dialogContainer.add(new HorizontalLayout(heightInput, byPixels));
+
+            Button autoHeight = new Button("Auto height", e -> {
+                calendar.setHeightAuto();
+
+                setSizeUndefined();
+                setFlexStyles(false);
+            });
+            autoHeight.getElement().setProperty("title", "Calendar height is set to auto.");
+            dialogContainer.add(autoHeight);
+
+            Button heightByBlockParent = new Button("Height by block parent", e -> {
+                calendar.setHeightByParent();
+                calendar.setSizeFull();
+
+                setSizeFull();
+                setFlexStyles(false);
+            });
+            heightByBlockParent.getElement().setProperty("title", "Container is display:block + setSizeFull(). Calendar height is set to parent + setSizeFull(). Body element kept unchanged.");
+            dialogContainer.add(heightByBlockParent);
+
+            Button heightByBlockParentAndCalc = new Button("Height by block parent + calc()", e -> {
+                calendar.setHeightByParent();
+                calendar.getElement().getStyle().set("height", "calc(100vh - 450px)");
+
+                setSizeFull();
+                setFlexStyles(false);
+            });
+            heightByBlockParentAndCalc.getElement().setProperty("title", "Container is display:block + setSizeFull(). Calendar height is set to parent + css height is calculated by calc(100vh - 450px) as example. Body element kept unchanged.");
+            dialogContainer.add(heightByBlockParentAndCalc);
+
+            Button heightByFlexParent = new Button("Height by flex parent", e -> {
+                calendar.setHeightByParent();
+
+                setSizeUndefined();
+                setFlexStyles(true);
+            });
+            heightByFlexParent.getElement().setProperty("title", "Container is display:flex + setSizeFull(). Calendar height is set to parent + flex-grow: 1. Body element kept unchanged.");
+            dialogContainer.add(heightByFlexParent);
+
+            Button heightByFlexParentAndBody = new Button("Height by flex parent and flex body", e -> {
+                calendar.setHeightByParent();
+
+                setSizeUndefined();
+                setFlexStyles(true);
+
+                UI.getCurrent().getElement().getStyle().set("display", "flex");
+            });
+            heightByFlexParentAndBody.getElement().setProperty("title", "Container is display:flex. Calendar height is set to parent + flex-grow: 1. Body element is set to display: flex.");
+            dialogContainer.add(heightByFlexParentAndBody);
+        }
+    }
+
 }
