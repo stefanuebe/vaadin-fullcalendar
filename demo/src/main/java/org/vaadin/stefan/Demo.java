@@ -19,10 +19,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinService;
+import org.vaadin.stefan.fullcalendar.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -91,10 +94,10 @@ public class Demo extends Div {
         Checkbox cbWeekNumbers = new Checkbox("Week numbers", event -> calendar.setWeekNumbersVisible(event.getValue()));
 
         ComboBox<Locale> comboBoxLocales = new ComboBox<>();
-        List<Locale> items = Arrays.asList(Locale.getAvailableLocales());
-        items.sort(Comparator.comparing(Locale::toLanguageTag));
+
+        List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         comboBoxLocales.setItems(items);
-        comboBoxLocales.setValue(Locale.getDefault());
+        comboBoxLocales.setValue(CalendarLocale.ENGLISH);
         comboBoxLocales.addValueChangeListener(event -> calendar.setLocale(event.getValue()));
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);

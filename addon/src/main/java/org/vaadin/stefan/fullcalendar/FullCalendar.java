@@ -233,7 +233,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return locale
      */
     public Locale getLocale() {
-        return Locale.forLanguageTag((String) options.getOrDefault(Option.LOCALE, Locale.getDefault().toLanguageTag()));
+        return Locale.forLanguageTag((String) options.getOrDefault(Option.LOCALE, CalendarLocale.ENGLISH.toLanguageTag()));
     }
 
     /**
