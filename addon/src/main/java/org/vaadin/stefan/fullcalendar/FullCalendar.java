@@ -214,6 +214,15 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
+     * Should the calendar show week numbers (when available for the current view)?
+     *
+     * @param weekNumbersVisible week numbers visible
+     */
+    public void setWeekNumbersVisible(boolean weekNumbersVisible) {
+        setOption(Option.WEEK_NUMBERS, weekNumbersVisible);
+    }
+
+    /**
      * Force the client side instance to re-render it's content.
      */
     public void render() {
@@ -308,7 +317,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         HEIGHT("height"),
         FIRST_DAY("firstDay"),
         SELECTABLE("selectable"),
-        DEFAULT_TIMES_EVENT_DURATION("defaultTimedEventDuration");
+        DEFAULT_TIMES_EVENT_DURATION("defaultTimedEventDuration"),
+        WEEK_NUMBERS("weekNumbers");
 
         private final String optionKey;
 
