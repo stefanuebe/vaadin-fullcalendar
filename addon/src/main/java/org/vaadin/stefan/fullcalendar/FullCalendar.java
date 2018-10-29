@@ -225,7 +225,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param locale locale
      */
     public void setLocale(Locale locale) {
-        setOption(Option.LOCALE, locale.toLanguageTag());
+        setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase());
     }
 
     /**
