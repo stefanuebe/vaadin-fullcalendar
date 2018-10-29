@@ -85,14 +85,7 @@ public class Demo extends Div {
 
         Button buttonHeight = new Button("Calendar height", event -> new HeightDialog().open());
 
-        Button reset = new Button("Reset", event -> {
-            remove(calendar);
-            createCalendarInstance();
-            initBaseLayoutSettings();
-            add(calendar);
-        });
-
-        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, reset);
+        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight);
     }
 
     private void setFlexStyles(boolean flexStyles) {
