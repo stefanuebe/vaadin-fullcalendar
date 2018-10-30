@@ -19,18 +19,15 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinService;
 import org.vaadin.stefan.fullcalendar.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -121,8 +118,9 @@ public class Demo extends Div {
         calendar = new FullCalendar();
         calendar.setLimitOfEntriesShownPerDay(5);
         calendar.setNowIndicatorShown(true);
-        calendar.setDayNumberClickForwardsToDetails(true);
-        calendar.setDayNumberClickForwardsTarget(CalendarView.AGENDA_DAY);
+        calendar.setNumberClickForwardsToDetails(true);
+        calendar.setNumberClickForwardsDayTarget(CalendarView.LIST_DAY);
+        calendar.setNumberClickForwardsWeekTarget(CalendarView.LIST_WEEK);
 
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
