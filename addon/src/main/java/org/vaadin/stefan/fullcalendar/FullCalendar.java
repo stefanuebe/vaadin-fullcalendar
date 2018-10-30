@@ -15,6 +15,29 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
+enum Option {
+    FIRST_DAY("firstDay"),
+    HEIGHT("height"),
+    LOCALE("locale"),
+    SELECTABLE("selectable"),
+    WEEK_NUMBERS("weekNumbers"),
+    EVENT_LIMIT("eventLimit"),
+    NOW_INDICATOR("nowIndicator"),
+    NAV_LINKS("navLinks"),
+    NAV_LINKS_DAY_TARGET("navLinkDayClick"),
+    NAV_LINKS_WEEK_TARGET("navLinkWeekClick");
+
+    private final String optionKey;
+
+    Option(String optionKey) {
+        this.optionKey = optionKey;
+    }
+
+    String getOptionKey() {
+        return optionKey;
+    }
+}
+
 /**
  * Flow implementation for the FullCalendar.
  *
@@ -274,14 +297,22 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * When true is passed the day numbers (or texts) will become clickable by the user and open
      * a day view for the clicked day.
      * <p/>
-     * Use {@link #setDayNumberClickForwardsTarget(CalendarView)} to define a target view. Default is AGENDA_DAY.
+     * Use {@link #setNumberClickForwardsDayTarget(CalendarView)} and
+     * {@link #setNumberClickForwardsWeekTarget(CalendarView)} to define target views. Default is AGENDA_DAY and
+     * AGENDA_WEEK
      * @param clickable clickable
      */
-    public void setDayNumberClickForwardsToDetails(boolean clickable) {
+    public void setNumberClickForwardsToDetails(boolean clickable) {
         setOption(Option.NAV_LINKS, clickable);
-        if (clickable && !getOption(Option.NAV_LINKS_TARGET).isPresent()) {
-            setOption(Option.NAV_LINKS_TARGET, CalendarView.AGENDA_DAY.getClientSideName());
+        if (clickable) {
+            if (!getOption(Option.NAV_LINKS_DAY_TARGET).isPresent()) {
+                setNumberClickForwardsDayTarget(CalendarView.AGENDA_DAY);
+            }
+            if (!getOption(Option.NAV_LINKS_WEEK_TARGET).isPresent()) {
+                setNumberClickForwardsWeekTarget(CalendarView.AGENDA_WEEK);
+            }
         }
+
     }
 
     /**
@@ -289,14 +320,30 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * <p/>
      * Currently supported are only day views, others will throw an exception.
      * <p/>
-     * Use {@link #setDayNumberClickForwardsToDetails(boolean)} to activate the functionality.
+     * Use {@link #setNumberClickForwardsToDetails(boolean)} to activate the functionality.
      * @param view views
      */
-    public void setDayNumberClickForwardsTarget(CalendarView view) {
+    public void setNumberClickForwardsDayTarget(CalendarView view) {
         if (view.getClientSideName().toLowerCase().contains("day")) { // allows extension of day views without need to update this
-            setOption(Option.NAV_LINKS_TARGET, view.getClientSideName());
+            setOption(Option.NAV_LINKS_DAY_TARGET, view.getClientSideName());
         } else {
             throw new IllegalArgumentException("Must be a day view. " + view + " not supported.");
+        }
+    }
+
+    /**
+     * Sets the target view that should be used when clicking on a calendar's week number / name.
+     * <p/>
+     * Currently supported are only week views, others will throw an exception.
+     * <p/>
+     * Use {@link #setNumberClickForwardsToDetails(boolean)} to activate the functionality.
+     * @param view views
+     */
+    public void setNumberClickForwardsWeekTarget(CalendarView view) {
+        if (view.getClientSideName().toLowerCase().contains("week")) { // allows extension of week views without need to update this
+            setOption(Option.NAV_LINKS_WEEK_TARGET, view.getClientSideName());
+        } else {
+            throw new IllegalArgumentException("Must be a week view. " + view + " not supported.");
         }
     }
 
@@ -400,29 +447,6 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
                 setTimeslotsSelectable(false);
             }
         };
-    }
-
-    enum Option {
-        FIRST_DAY("firstDay"),
-        HEIGHT("height"),
-        LOCALE("locale"),
-        SELECTABLE("selectable"),
-        WEEK_NUMBERS("weekNumbers"),
-        EVENT_LIMIT("eventLimit"),
-        NOW_INDICATOR("nowIndicator"),
-        NAV_LINKS("navLinks"),
-        NAV_LINKS_TARGET("navLinkDayClick")
-        ;
-
-        private final String optionKey;
-
-        Option(String optionKey) {
-            this.optionKey = optionKey;
-        }
-
-        String getOptionKey() {
-            return optionKey;
-        }
     }
 
 }
