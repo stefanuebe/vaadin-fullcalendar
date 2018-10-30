@@ -1,5 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
+import elemental.json.Json;
+import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -68,5 +70,25 @@ public class DeltaTest {
         Assertions.assertEquals(reference.getHour() + 1, applied.getHour());
         Assertions.assertEquals(reference.getMinute() + 1, applied.getMinute());
         Assertions.assertEquals(reference.getSecond() + 1, applied.getSecond());
+    }
+
+    @Test
+    void testCreationFromJsonObject() {
+        JsonObject jsonObject = Json.createObject();
+        jsonObject.put( "years", 1);
+        jsonObject.put( "months", 2);
+        jsonObject.put( "days", 3);
+        jsonObject.put( "hours", 4);
+        jsonObject.put( "minutes", 5);
+        jsonObject.put( "seconds", 6);
+
+        Delta delta = Delta.fromJson(jsonObject);
+
+        Assertions.assertEquals(1, delta.getYears());
+        Assertions.assertEquals(2, delta.getMonths());
+        Assertions.assertEquals(3, delta.getDays());
+        Assertions.assertEquals(4, delta.getHours());
+        Assertions.assertEquals(5, delta.getMinutes());
+        Assertions.assertEquals(6, delta.getSeconds());
     }
 }
