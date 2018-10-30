@@ -18,7 +18,7 @@ public class DeltaTest {
     }
 
     @Test
-    void testConstructorFieldInit() {
+    void testConstructor() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> new Delta(0, 12, 0, 0, 0, 0));
         Assertions.assertThrows(IllegalArgumentException.class, () -> new Delta(0, 0, 31, 0, 0, 0));
         Assertions.assertThrows(IllegalArgumentException.class, () -> new Delta(0, 0, 0, 24, 0, 0));
