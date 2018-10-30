@@ -93,7 +93,7 @@ public class Demo extends Div {
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         comboBoxLocales.setItems(items);
-        comboBoxLocales.setValue(CalendarLocale.ENGLISH);
+        comboBoxLocales.setValue(CalendarLocale.getDefault());
         comboBoxLocales.addValueChangeListener(event -> calendar.setLocale(event.getValue()));
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);
@@ -114,13 +114,11 @@ public class Demo extends Div {
     }
 
     private void createCalendarInstance() {
-        calendar = new FullCalendar();
-//        calendar.setLimitOfEntriesShownPerDay(5);
+        calendar = new FullCalendar(5);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickForwardsToDetails(true);
         calendar.setNumberClickForwardsDayTarget(CalendarView.LIST_DAY);
         calendar.setNumberClickForwardsWeekTarget(CalendarView.LIST_WEEK);
-
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
         // one day selection.

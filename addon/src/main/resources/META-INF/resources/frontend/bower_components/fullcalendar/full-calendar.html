@@ -44,7 +44,10 @@
 
             static get properties() {
                 return {
-                    // Declare your properties here.
+                    eventLimit: {
+                        type: Object,
+                        value: false
+                    }
                 };
             }
 
@@ -64,6 +67,17 @@
                         center: '',
                         right: ''
                     },
+
+                    eventLimit: this.eventLimit,
+                    views: {
+                        basicDay: {
+                            eventLimit: false // adjust to unlimited for basic view
+                        },
+                        basicWeek: {
+                            eventLimit: false
+                        }
+                    },
+
                     defaultTimedEventDuration: '01:00:00'
 
                 });
