@@ -17,6 +17,7 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarLocale;
@@ -27,9 +28,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @Route("")
 @Push
@@ -143,6 +142,7 @@ public class Demo extends Div {
         calendar.addEntryResizedListener(event -> {
             Entry entry = event.getEntry();
             Notification.show(entry.getTitle() + " resized to " + entry.getStart() + " - " + entry.getEnd() + " by " + event.getDelta());
+            calendar.render();
         });
         calendar.addEntryDroppedListener(event -> {
             Entry entry = event.getEntry();
@@ -151,6 +151,7 @@ public class Demo extends Div {
             LocalDateTime end = entry.getEnd();
 
             Notification.show(entry.getTitle() + " moved to " + start + " - " + end+ " by " + event.getDelta());
+            calendar.render();
         });
         calendar.addViewRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
@@ -162,6 +163,22 @@ public class Demo extends Div {
 
             entry.setColor("dodgerblue");
             new DemoDialog(calendar, entry, true).open();
+        });
+
+        calendar.addLimitedEntriesClickedEventListener(event -> {
+            Collection<Entry> entries = calendar.getEntries(event.getClickedDate());
+            if (!entries.isEmpty()) {
+                Dialog dialog = new Dialog();
+                VerticalLayout dialogLayout = new VerticalLayout();
+                dialogLayout.add(new H3("Entries of " + event.getClickedDate().format(DateTimeFormatter.ISO_DATE.withLocale(calendar.getLocale()))));
+                entries.stream()
+                        .sorted(Comparator.comparing(Entry::getTitle))
+                        .map(entry -> new Button(entry.getTitle(), clickEvent -> new DemoDialog(calendar, entry, false).open()))
+                        .forEach(dialogLayout::add);
+
+                dialog.add(dialogLayout);
+                dialog.open();
+            }
         });
 
         createTestEntries(calendar);

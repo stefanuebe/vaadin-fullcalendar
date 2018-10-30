@@ -13,7 +13,9 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 enum Option {
     FIRST_DAY("firstDay"),
@@ -40,7 +42,7 @@ enum Option {
 
 /**
  * Flow implementation for the FullCalendar.
- *
+ * <p>
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
@@ -101,6 +103,46 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public Optional<Entry> getEntryById(String id) {
         return Optional.ofNullable(entries.get(id));
     }
+
+    /**
+     * Returns all entries registered in this instance. Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     * @return entries entries
+     */
+    public Collection<Entry> getEntries() {
+        return entries.values();
+    }
+
+    /**
+     * Returns all entries registered in this instance which timespan crosses the given time span.
+     * <p/>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     * @param filterStart start point of filter timespan
+     * @param filterEnd end point of filter timespan
+     * @return entries
+     */
+    public Collection<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
+        return getEntries().stream()
+                .filter(e -> e.getStart().compareTo(filterEnd) <= 0 && e.getEnd().compareTo(filterStart) >= 0)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns all entries registered in this instance which timespan crosses the given date.
+     * <p/>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     * @param date end point of filter timespan
+     * @return entries
+     */
+    public Collection<Entry> getEntries(LocalDate date) {
+        return getEntries(date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+    }
+
 
     /**
      * Adds an entry to this calendar. Noop if the entry id is already registered
@@ -179,8 +221,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Sets a option for this instance.
+     *
      * @param option option
-     * @param value value
+     * @param value  value
      */
     protected void setOption(Option option, Serializable value) {
         options.put(option, value);
@@ -202,6 +245,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Sets the calendar's height to a fixed amount of pixels.
+     *
      * @param heightInPixels height in pixels (e.g. 300)
      */
     public void setHeight(int heightInPixels) {
@@ -245,6 +289,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Sets the locale to be used. If invoked for the first time it will load additional language scripts.
+     *
      * @param locale locale
      */
     public void setLocale(Locale locale) {
@@ -253,6 +298,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Returns the current set locale.
+     *
      * @return locale
      */
     public Locale getLocale() {
@@ -262,10 +308,11 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     /**
      * Sets the limit of entries shown on a day. "0" or a negative number removes the limit. Will
      * overwrite previously set values via {@link #setLimitOfEntriesShownPerDay(boolean)}.
+     *
      * @param limit limit of entries shown per day
      */
     public void setLimitOfEntriesShownPerDay(int limit) {
-        if(limit <= 0) {
+        if (limit <= 0) {
             setOption(Option.EVENT_LIMIT, false);
         } else {
             setOption(Option.EVENT_LIMIT, limit);
@@ -278,6 +325,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * <p/>
      * This function may not work perfectly when the content height is automatic calculated. In this case use
      * {@link #setLimitOfEntriesShownPerDay(int)}
+     *
      * @param limit limit the shown events per day
      */
     public void setLimitOfEntriesShownPerDay(boolean limit) {
@@ -300,6 +348,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Use {@link #setNumberClickForwardsDayTarget(CalendarView)} and
      * {@link #setNumberClickForwardsWeekTarget(CalendarView)} to define target views. Default is AGENDA_DAY and
      * AGENDA_WEEK
+     *
      * @param clickable clickable
      */
     public void setNumberClickForwardsToDetails(boolean clickable) {
@@ -321,6 +370,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Currently supported are only day views, others will throw an exception.
      * <p/>
      * Use {@link #setNumberClickForwardsToDetails(boolean)} to activate the functionality.
+     *
      * @param view views
      */
     public void setNumberClickForwardsDayTarget(CalendarView view) {
@@ -337,6 +387,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Currently supported are only week views, others will throw an exception.
      * <p/>
      * Use {@link #setNumberClickForwardsToDetails(boolean)} to activate the functionality.
+     *
      * @param view views
      */
     public void setNumberClickForwardsWeekTarget(CalendarView view) {
@@ -349,8 +400,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Returns an optional option value or empty.
+     *
      * @param option option
-     * @param <T> type of value
+     * @param <T>    type of value
      * @return optional value or empty
      */
     protected <T> Optional<T> getOption(Option option) {
@@ -367,6 +419,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Registers a listener to be informed when a timeslot click event occurred.
+     *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
@@ -378,6 +431,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Registers a listener to be informed when an entry click event occurred.
+     *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
@@ -389,6 +443,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Registers a listener to be informed when an entry resized event occurred.
+     *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
@@ -400,6 +455,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Registers a listener to be informed when an entry dropped event occurred.
+     *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
@@ -411,6 +467,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Registers a listener to be informed when a view rendered event occurred.
+     *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
@@ -429,15 +486,17 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * <p/>
      * You should also deactivate timeslot clicked listeners since both events will get fired when the user only selects
      * one timeslot / day.
+     *
      * @param listener listener
      * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
      */
     public Registration addTimeslotsSelectedEventListener(@Nonnull ComponentEventListener<TimeslotsSelectedEvent> listener) {
         Objects.requireNonNull(listener);
 
         Registration registration = addListener(TimeslotsSelectedEvent.class, listener);
 
-        if(timeslotsSelectedListenerCount++ == 0) {
+        if (timeslotsSelectedListenerCount++ == 0) {
             setTimeslotsSelectable(true);
         }
 
@@ -447,6 +506,18 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
                 setTimeslotsSelectable(false);
             }
         };
+    }
+
+    /**
+     * Registers a listener to be informed when the user clicked on the limited entries link (e.g. "+6 more").
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addLimitedEntriesClickedEventListener(@Nonnull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(LimitedEntriesClickedEvent.class, listener);
     }
 
 }
