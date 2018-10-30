@@ -17,28 +17,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-enum Option {
-    FIRST_DAY("firstDay"),
-    HEIGHT("height"),
-    LOCALE("locale"),
-    SELECTABLE("selectable"),
-    WEEK_NUMBERS("weekNumbers"),
-    NOW_INDICATOR("nowIndicator"),
-    NAV_LINKS("navLinks"),
-    NAV_LINKS_DAY_TARGET("navLinkDayClick"),
-    NAV_LINKS_WEEK_TARGET("navLinkWeekClick"),
-    ;
-    private final String optionKey;
-
-    Option(String optionKey) {
-        this.optionKey = optionKey;
-    }
-
-    String getOptionKey() {
-        return optionKey;
-    }
-}
-
 /**
  * Flow implementation for the FullCalendar.
  * <p>
@@ -507,4 +485,25 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         return addListener(LimitedEntriesClickedEvent.class, listener);
     }
 
+    enum Option {
+        FIRST_DAY("firstDay"),
+        HEIGHT("height"),
+        LOCALE("locale"),
+        SELECTABLE("selectable"),
+        WEEK_NUMBERS("weekNumbers"),
+        NOW_INDICATOR("nowIndicator"),
+        NAV_LINKS("navLinks"),
+        NAV_LINKS_DAY_TARGET("navLinkDayClick"),
+        NAV_LINKS_WEEK_TARGET("navLinkWeekClick"),
+        ;
+        private final String optionKey;
+
+        Option(String optionKey) {
+            this.optionKey = optionKey;
+        }
+
+        String getOptionKey() {
+            return optionKey;
+        }
+    }
 }
