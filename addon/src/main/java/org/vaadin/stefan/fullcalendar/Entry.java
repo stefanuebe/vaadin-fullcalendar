@@ -4,7 +4,6 @@ import elemental.json.Json;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
-import javax.annotation.Nonnull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -20,7 +19,7 @@ import java.util.function.Consumer;
  *
  */
 public class Entry {
-    private boolean editable = true;
+    private boolean editable;
     private final String id;
     private String title;
     private LocalDateTime start;
@@ -29,19 +28,17 @@ public class Entry {
     private String color;
     private String description;
 
-    public Entry(String id, @Nonnull String title, @Nonnull LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
-        this.description = description;
-        Objects.requireNonNull(title);
-        Objects.requireNonNull(start);
-        Objects.requireNonNull(end);
-
+    public Entry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
         this.id = id != null ? id : UUID.randomUUID().toString();
+
         this.title = title;
         this.start = start;
         this.end = end;
         this.allDay = allDay;
         this.editable = editable;
-        this.color = color;
+        this.description = description;
+
+        setColor(color);
     }
 
     /**
@@ -101,7 +98,7 @@ public class Entry {
     }
 
     public void setColor(String color) {
-        this.color = color;
+        this.color = color == null || color.trim().isEmpty() ? null : color;
     }
 
     @Override
