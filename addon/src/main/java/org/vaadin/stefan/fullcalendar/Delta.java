@@ -15,12 +15,24 @@ public class Delta {
     private final int seconds;
 
     public Delta(int years, int months, int days, int hours, int minutes, int seconds) {
+        assertLessThan("months", months, 12);
+        assertLessThan("days", days, 31);
+        assertLessThan("hours", hours, 24);
+        assertLessThan("minutes", minutes, 60);
+        assertLessThan("seconds", seconds, 60);
+
         this.years = years;
         this.months = months;
         this.days = days;
         this.hours = hours;
         this.minutes = minutes;
         this.seconds = seconds;
+    }
+
+    static void assertLessThan(String name, int current, int lessThanThis) {
+        if(current >= lessThanThis) {
+            throw new IllegalArgumentException("Value '" + name + "' must be less than '" + lessThanThis + "' but was '" + current + "'!");
+        }
     }
 
     public static Delta fromJson(JsonObject jsonObject) {
@@ -71,7 +83,7 @@ public class Delta {
     }
 
     /**
-     * Applies this delta instance on the given local date by adding all day related delta values.
+     * Applies this delta instance on the given local date by adding all day related delta values. Time values are ignored.
      * @param date date time to modify
      * @return modified date instance
      */
