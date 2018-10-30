@@ -59,8 +59,8 @@ public class Demo extends Div {
 
 
     private void createToolbar() {
-        Button buttonPrevious = new Button("Previous", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
         Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
+        Button buttonPrevious = new Button("Previous", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
         Button buttonNext = new Button("Next", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
         buttonNext.setIconAfterText(true);
 
@@ -115,7 +115,7 @@ public class Demo extends Div {
 
     private void createCalendarInstance() {
         calendar = new FullCalendar();
-        calendar.setLimitOfEntriesShownPerDay(5);
+//        calendar.setLimitOfEntriesShownPerDay(5);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickForwardsToDetails(true);
         calendar.setNumberClickForwardsDayTarget(CalendarView.LIST_DAY);
