@@ -120,6 +120,10 @@ public class Demo extends Div {
     private void createCalendarInstance() {
         calendar = new FullCalendar();
         calendar.setLimitOfEntriesShownPerDay(5);
+        calendar.setNowIndicatorShown(true);
+        calendar.setDayNumberClickForwardsToDetails(true);
+        calendar.setDayNumberClickForwardsTarget(CalendarView.AGENDA_DAY);
+
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
         // one day selection.
@@ -232,7 +236,7 @@ public class Demo extends Div {
 
         public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
             setCloseOnEsc(true);
-            setCloseOnOutsideClick(false);
+            setCloseOnOutsideClick(true);
 
             VerticalLayout layout = new VerticalLayout();
             layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
