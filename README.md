@@ -8,11 +8,14 @@ The following functions are implemented and available to use from server side:
 * adding / updating / removing calendar items,
 * switching between shown intervals (next month, previous month, etc.),
 * goto a specific date or today,
-* switch the calendar view (month, basic / agenda day, basic / agenda week),
-* setting a locale to be used for displaying week days, formatting values, calculating the first day of the week, etc.
+* switch the calendar view (month, basic views for days and weeks, agenda views for days and weeks, list views for day to year),
+* setting a locale to be used for displaying week days, formatting values, calculating the first day of the week, etc. (supported locales are provided as constant list)
 * setting the first day of week to be shown (overrides the locale setting),
 * setting the height of the calendar instance (calculated by parent, aspect ratio or fixed pixel size)
 * show of week numbers
+* limit max shown entries per day (except basic views)
+* showing now indicator
+* activating day / week numbers / names to be links, that forward to another, specific details view
 
 * Event handling for
     * clicking an empty time spot in the calendar,
@@ -21,6 +24,7 @@ The following functions are implemented and available to use from server side:
     * moving an entry via drag and drop (event is fired on drop + changed time),
     * resizing an entry (event is fired after resize + changed time),
     * view rendered (i. e. to update a label of the shown interval)
+    * clicking on limited entries link "+ X more"
     
 * Model supports setting 
     * title, 
