@@ -98,7 +98,7 @@ public class Demo extends Div {
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);
 
-        toolbar = new HorizontalLayout(buttonPrevious, buttonToday, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales);
+        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales);
     }
 
     private void setFlexStyles(boolean flexStyles) {
