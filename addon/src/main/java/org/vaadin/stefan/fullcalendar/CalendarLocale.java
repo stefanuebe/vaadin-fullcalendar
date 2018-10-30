@@ -93,4 +93,8 @@ public class CalendarLocale {
     public static Locale[] getAvailableLocales() {
         return Arrays.copyOf(availableLocales, availableLocales.length);
     }
+
+    public static Locale getDefault() {
+        return CalendarLocale.ENGLISH;
+    }
 }

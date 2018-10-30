@@ -23,12 +23,11 @@ enum Option {
     LOCALE("locale"),
     SELECTABLE("selectable"),
     WEEK_NUMBERS("weekNumbers"),
-    EVENT_LIMIT("eventLimit"),
     NOW_INDICATOR("nowIndicator"),
     NAV_LINKS("navLinks"),
     NAV_LINKS_DAY_TARGET("navLinkDayClick"),
-    NAV_LINKS_WEEK_TARGET("navLinkWeekClick");
-
+    NAV_LINKS_WEEK_TARGET("navLinkWeekClick"),
+    ;
     private final String optionKey;
 
     Option(String optionKey) {
@@ -70,7 +69,22 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Creates a new FullCalendar.
      */
     public FullCalendar() {
-        setLocale(Locale.getDefault());
+        setLocale(CalendarLocale.getDefault());
+    }
+
+    /**
+     * Creates a new FullCalendar.
+     * <p/>
+     * Expects the default limit of entries shown per day. This does not affect basic or
+     * list views. This value has to be set here and cannot be modified afterwards due to
+     * technical reasons of FC. If set afterwards the entry limit would overwrite settings
+     * and would show the limit also for basic views where it makes no sense (might change in future).
+     *
+     * @param entryLimit max entries to shown per day
+     */
+    public FullCalendar(int entryLimit) {
+        setLocale(CalendarLocale.getDefault());
+        getElement().setProperty("eventLimit", entryLimit);
     }
 
     /**
@@ -302,34 +316,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return locale
      */
     public Locale getLocale() {
-        return Locale.forLanguageTag((String) options.getOrDefault(Option.LOCALE, CalendarLocale.ENGLISH.toLanguageTag()));
-    }
-
-    /**
-     * Sets the limit of entries shown on a day. "0" or a negative number removes the limit. Will
-     * overwrite previously set values via {@link #setLimitOfEntriesShownPerDay(boolean)}.
-     *
-     * @param limit limit of entries shown per day
-     */
-    public void setLimitOfEntriesShownPerDay(int limit) {
-        if (limit <= 0) {
-            setOption(Option.EVENT_LIMIT, false);
-        } else {
-            setOption(Option.EVENT_LIMIT, limit);
-        }
-    }
-
-    /**
-     * Sets if the entries shown per day should be limited to the height of the cell (true) or not (false). Will
-     * overwrite previously set values via {@link #setLimitOfEntriesShownPerDay(int)}.
-     * <p/>
-     * This function may not work perfectly when the content height is automatic calculated. In this case use
-     * {@link #setLimitOfEntriesShownPerDay(int)}
-     *
-     * @param limit limit the shown events per day
-     */
-    public void setLimitOfEntriesShownPerDay(boolean limit) {
-        setOption(Option.EVENT_LIMIT, limit);
+        return Locale.forLanguageTag((String) options.getOrDefault(Option.LOCALE, CalendarLocale.getDefault().toLanguageTag()));
     }
 
     /**
