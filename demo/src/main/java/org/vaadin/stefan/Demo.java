@@ -168,11 +168,25 @@ public class Demo extends Div {
             if (!entries.isEmpty()) {
                 Dialog dialog = new Dialog();
                 VerticalLayout dialogLayout = new VerticalLayout();
-                dialogLayout.add(new H3("Entries of " + event.getClickedDate().format(DateTimeFormatter.ISO_DATE.withLocale(calendar.getLocale()))));
+                dialogLayout.setSpacing(false);
+                dialogLayout.setPadding(false);
+                dialogLayout.setMargin(false);
+                dialogLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
+
+                dialogLayout.add(new Span("Entries of " + event.getClickedDate().format(DateTimeFormatter.ISO_DATE.withLocale(calendar.getLocale()))));
                 entries.stream()
                         .sorted(Comparator.comparing(Entry::getTitle))
-                        .map(entry -> new Button(entry.getTitle(), clickEvent -> new DemoDialog(calendar, entry, false).open()))
-                        .forEach(dialogLayout::add);
+                        .map(entry -> {
+                            NativeButton button = new NativeButton(entry.getTitle(), clickEvent -> new DemoDialog(calendar, entry, false).open());
+                            Style style = button.getStyle();
+                            style.set("background-color", entry.getColor());
+                            style.set("color", "white");
+                            style.set("border", "0 none black");
+                            style.set("border-radius", "3px");
+                            style.set("text-align", "left");
+                            style.set("margin", "1px");
+                            return button;
+                        }).forEach(dialogLayout::add);
 
                 dialog.add(dialogLayout);
                 dialog.open();
