@@ -41,7 +41,7 @@ public class Demo extends Div {
     private HorizontalLayout toolbar;
 
     public Demo() {
-        HorizontalLayout title = new HorizontalLayout(new H3("full calendar demo"), new Span("(1.0.0.alpha4-SNAPSHOT)"));
+        HorizontalLayout title = new HorizontalLayout(new H3("full calendar demo"), new Span("(1.0.0.alpha4)"));
         title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         add(title);
 
