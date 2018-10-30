@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar-demo</artifactId>
-    <version>1.0.0.alpha4</version>
+    <version>1.0.0.beta1-SNAPSHOT</version>
 
     <name>Full Calendar web component demo</name>
 

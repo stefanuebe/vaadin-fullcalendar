@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar</artifactId>
-    <version>1.0.0.alpha4</version>
+    <version>1.0.0.beta1-SNAPSHOT</version>
 
     <name>Full Calendar web component</name>
     <description>A web component that wraps the Full Calendar (https://fullcalendar.io).</description>
@@ -58,59 +58,9 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
         </dependency>
-        <!--<dependency>&lt;!&ndash;deprecated webjar&ndash;&gt;
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>fullcalendar</artifactId>
-            <version>3.9.0</version>
-        </dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.webjars.bowergithub.fullcalendar</groupId>-->
-            <!--<artifactId>fullcalendar</artifactId>-->
-            <!--<version>3.9.0</version>-->
-        <!--</dependency>-->
     </dependencies>
 
-    <!--<build>-->
-        <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-jar-plugin</artifactId>-->
-                <!--<version>3.0.2</version>-->
-                <!--<configuration>-->
-                    <!--<archive>-->
-                        <!--<index>true</index>-->
-                        <!--<manifest>-->
-                            <!--<addClasspath>false</addClasspath>-->
-                            <!--<addDefaultImplementationEntries>true</addDefaultImplementationEntries>-->
-                        <!--</manifest>-->
-                        <!--<manifestEntries>-->
-                            <!--<Vaadin-Package-Version>1</Vaadin-Package-Version>-->
-                        <!--</manifestEntries>-->
-                    <!--</archive>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-        <!--</plugins>-->
-    <!--</build>-->
-
     <build>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <configuration>
-                        <packagingExcludes>
-                            %regex[WEB-INF/lib/slf4j-simple.*.jar],
-                            %regex[WEB-INF/lib/tomcat.*.jar]
-                        </packagingExcludes>
-                        <failOnMissingWebXml>${failOnMissingWebXml}</failOnMissingWebXml>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
