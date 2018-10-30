@@ -75,12 +75,12 @@ public class DeltaTest {
     @Test
     void testCreationFromJsonObject() {
         JsonObject jsonObject = Json.createObject();
-        jsonObject.put( "years", 1);
-        jsonObject.put( "months", 2);
-        jsonObject.put( "days", 3);
-        jsonObject.put( "hours", 4);
-        jsonObject.put( "minutes", 5);
-        jsonObject.put( "seconds", 6);
+        jsonObject.put("years", 1);
+        jsonObject.put("months", 2);
+        jsonObject.put("days", 3);
+        jsonObject.put("hours", 4);
+        jsonObject.put("minutes", 5);
+        jsonObject.put("seconds", 6);
 
         Delta delta = Delta.fromJson(jsonObject);
 
