@@ -61,7 +61,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param entryLimit max entries to shown per day
      */
     public FullCalendar(int entryLimit) {
-        setLocale(CalendarLocale.getDefault());
+        this();
         getElement().setProperty("eventLimit", entryLimit);
     }
 
@@ -112,13 +112,20 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
+     * <p/>
+     * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
+     * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
+     * exclusive to the date.
+     * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
+     * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
+     * include it.
      * @param filterStart start point of filter timespan
      * @param filterEnd end point of filter timespan
      * @return entries
      */
     public Collection<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
         return getEntries().stream()
-                .filter(e -> e.getStart().compareTo(filterEnd) <= 0 && e.getEnd().compareTo(filterStart) >= 0)
+                .filter(e -> e.getStart().isBefore(filterEnd) && e.getEnd().isAfter(filterStart))
                 .collect(Collectors.toList());
     }
 
