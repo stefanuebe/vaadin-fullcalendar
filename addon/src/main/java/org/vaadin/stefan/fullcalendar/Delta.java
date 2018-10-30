@@ -61,23 +61,22 @@ public class Delta {
         return seconds;
     }
 
+    /**
+     * Applies this delta instance on the given local date time by adding all day and time related delta values.
+     * @param dateTime date time to modify
+     * @return modified date time instance
+     */
     public LocalDateTime applyOn(LocalDateTime dateTime) {
         return dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
 
+    /**
+     * Applies this delta instance on the given local date by adding all day related delta values.
+     * @param date date time to modify
+     * @return modified date instance
+     */
     public LocalDate applyOn(LocalDate date) {
         return date.plusYears(years).plusMonths(months).plusDays(days);
-    }
-
-    /**
-     * Applies this delta on the given date time object and converts it to a local date <b>after that</b>. This means, that
-     * the applied time changes are cut off, but a day switch might has happen anyways.
-     *
-     * @param dateTime local date time
-     * @return local date
-     */
-    public LocalDate applyOnAndConvert(LocalDateTime dateTime) {
-        return dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds).toLocalDate();
     }
 
     @Override
