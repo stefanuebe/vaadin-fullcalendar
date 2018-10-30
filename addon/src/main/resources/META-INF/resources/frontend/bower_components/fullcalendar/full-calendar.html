@@ -50,11 +50,14 @@
 
             ready() {
                 super.ready();
+                var thisReference = this;
 
                 this._handle = $(this.$.calendar);
                 this._handle.fullCalendar({
                     height: 'parent',
-
+                    eventLimitClick: function(cellInfo) {
+                        thisReference.dispatchEvent(new CustomEvent("eventLimitClick", {detail: {date: cellInfo.date.format()}}));
+                    },
                     // no native control elements
                     header: {
                         left: '',
@@ -66,7 +69,6 @@
                 });
                 this._calendar = this._handle.fullCalendar('getCalendar');
 
-                var thisReference = this;
 
                 this._calendar.on('dayClick', function (date) {
                     thisReference.dispatchEvent(new CustomEvent('dayClick', {detail: {date: date.format(), allDay: !date.hasTime()}}));
