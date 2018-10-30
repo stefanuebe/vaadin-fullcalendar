@@ -258,8 +258,58 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param limit limit the shown events per day
      */
     public void setLimitOfEntriesShownPerDay(boolean limit) {
-
+        setOption(Option.EVENT_LIMIT, limit);
     }
+
+    /**
+     * If true is passed then the calendar will show a indicator for the current time, depending on the view.
+     *
+     * @param shown show indicator for now
+     */
+    public void setNowIndicatorShown(boolean shown) {
+        setOption(Option.NOW_INDICATOR, shown);
+    }
+
+    /**
+     * When true is passed the day numbers (or texts) will become clickable by the user and open
+     * a day view for the clicked day.
+     * <p/>
+     * Use {@link #setDayNumberClickForwardsTarget(CalendarView)} to define a target view. Default is AGENDA_DAY.
+     * @param clickable clickable
+     */
+    public void setDayNumberClickForwardsToDetails(boolean clickable) {
+        setOption(Option.NAV_LINKS, clickable);
+        if (clickable && !getOption(Option.NAV_LINKS_TARGET).isPresent()) {
+            setOption(Option.NAV_LINKS_TARGET, CalendarView.AGENDA_DAY.getClientSideName());
+        }
+    }
+
+    /**
+     * Sets the target view that should be used when clicking on a calendar's day number / name.
+     * <p/>
+     * Currently supported are only day views, others will throw an exception.
+     * <p/>
+     * Use {@link #setDayNumberClickForwardsToDetails(boolean)} to activate the functionality.
+     * @param view views
+     */
+    public void setDayNumberClickForwardsTarget(CalendarView view) {
+        if (view.getClientSideName().toLowerCase().contains("day")) { // allows extension of day views without need to update this
+            setOption(Option.NAV_LINKS_TARGET, view.getClientSideName());
+        } else {
+            throw new IllegalArgumentException("Must be a day view. " + view + " not supported.");
+        }
+    }
+
+    /**
+     * Returns an optional option value or empty.
+     * @param option option
+     * @param <T> type of value
+     * @return optional value or empty
+     */
+    protected <T> Optional<T> getOption(Option option) {
+        return Optional.ofNullable((T) options.get(option));
+    }
+
 
     /**
      * Force the client side instance to re-render it's content.
@@ -358,7 +408,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         LOCALE("locale"),
         SELECTABLE("selectable"),
         WEEK_NUMBERS("weekNumbers"),
-        EVENT_LIMIT("eventLimit")
+        EVENT_LIMIT("eventLimit"),
+        NOW_INDICATOR("nowIndicator"),
+        NAV_LINKS("navLinks"),
+        NAV_LINKS_TARGET("navLinkDayClick")
         ;
 
         private final String optionKey;
