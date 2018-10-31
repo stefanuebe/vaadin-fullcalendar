@@ -4,6 +4,7 @@ import elemental.json.JsonObject;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Delta {
 
@@ -101,5 +102,27 @@ public class Delta {
                 ", minutes=" + minutes +
                 ", seconds=" + seconds +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Delta delta = (Delta) o;
+        return years == delta.years &&
+                months == delta.months &&
+                days == delta.days &&
+                hours == delta.hours &&
+                minutes == delta.minutes &&
+                seconds == delta.seconds;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(years, months, days, hours, minutes, seconds);
     }
 }
