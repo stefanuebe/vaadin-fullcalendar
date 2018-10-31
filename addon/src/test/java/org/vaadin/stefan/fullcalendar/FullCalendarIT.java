@@ -83,6 +83,7 @@ public class FullCalendarIT {
         calendar.gotoDate(LocalDate.MIN);
         calendar.gotoDate(LocalDate.MAX);
 
+        calendar.render();
     }
 
     @Test
@@ -123,7 +124,24 @@ public class FullCalendarIT {
 
         assertCorrectBooleanOption(calendar, Option.SELECTABLE, calendar::setTimeslotsSelectable);
         assertCorrectBooleanOption(calendar, Option.WEEK_NUMBERS, calendar::setWeekNumbersVisible);
+        assertCorrectBooleanOption(calendar, Option.NOW_INDICATOR, calendar::setNowIndicatorShown);
 
+        // this must be tested before the other setNumberClickForwads...Target methods
+        assertCorrectBooleanOption(calendar, Option.NAV_LINKS, calendar::setNumberClickForwardsToDetails);
+        assertOptionalEquals(CalendarView.AGENDA_DAY, calendar.getOption(Option.NAV_LINKS_DAY_TARGET));
+        assertOptionalEquals(CalendarView.AGENDA_WEEK, calendar.getOption(Option.NAV_LINKS_WEEK_TARGET));
+
+        assertNPE(calendar, c -> c.setNumberClickForwardsDayTarget(null));
+        assertIAE(calendar, c -> c.setNumberClickForwardsDayTarget(CalendarView.MONTH));
+        calendar.setNumberClickForwardsDayTarget(CalendarView.BASIC_DAY);
+        assertOptionalEquals(CalendarView.BASIC_DAY, calendar.getOption(Option.NAV_LINKS_DAY_TARGET));
+        assertOptionalEquals(CalendarView.BASIC_DAY.getClientSideName(), calendar.getOption(Option.NAV_LINKS_DAY_TARGET, true));
+
+        assertNPE(calendar, c -> c.setNumberClickForwardsWeekTarget(null));
+        assertIAE(calendar, c -> c.setNumberClickForwardsWeekTarget(CalendarView.MONTH));
+        calendar.setNumberClickForwardsWeekTarget(CalendarView.BASIC_WEEK);
+        assertOptionalEquals(CalendarView.BASIC_WEEK, calendar.getOption(Option.NAV_LINKS_WEEK_TARGET));
+        assertOptionalEquals(CalendarView.BASIC_WEEK.getClientSideName(), calendar.getOption(Option.NAV_LINKS_WEEK_TARGET, true));
 
     }
 
@@ -145,6 +163,10 @@ public class FullCalendarIT {
 
     private void assertNPE(FullCalendar calendar, Consumer<FullCalendar> function) {
         Assertions.assertThrows(NullPointerException.class, () -> function.accept(calendar));
+    }
+
+    private void assertIAE(FullCalendar calendar, Consumer<FullCalendar> function) {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> function.accept(calendar));
     }
 
     @Test
