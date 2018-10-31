@@ -15,7 +15,7 @@ The following functions are implemented and available to use from server side:
 * show of week numbers
 * limit max shown entries per day (except basic views)
 * showing now indicator
-* activating day / week numbers / names to be links, that forward to another, specific details view
+* activating day / week numbers / names to be links
 
 * Event handling for
     * clicking an empty time spot in the calendar,
@@ -25,6 +25,7 @@ The following functions are implemented and available to use from server side:
     * resizing an entry (event is fired after resize + changed time),
     * view rendered (i. e. to update a label of the shown interval)
     * clicking on limited entries link "+ X more"
+    * clicking on a day's or week's number link (when activated)
     
 * Model supports setting 
     * title, 
