@@ -14,10 +14,7 @@ import java.time.LocalDateTime;
  * Client side event: dayClick.
  */
 @DomEvent("dayClick")
-public class TimeslotClickedEvent extends ComponentEvent<FullCalendar> {
-
-    private final boolean allDay;
-    private LocalDateTime clickedDateTime;
+public class TimeslotClickedEvent extends DateTimeEvent {
 
     /**
      * New instance. Awaits the clicked date (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
@@ -27,29 +24,6 @@ public class TimeslotClickedEvent extends ComponentEvent<FullCalendar> {
      * @param date clicked time slot as iso string
      */
     public TimeslotClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay) {
-        super(source, fromClient);
-
-        this.allDay = allDay;
-        if (allDay) {
-            clickedDateTime = LocalDate.parse(date).atStartOfDay();
-        } else {
-            clickedDateTime = LocalDateTime.parse(date);
-        }
-    }
-
-    /**
-     * Returns the clicked date time. For day slots the time will be at start of the day.
-     * @return date time
-     */
-    public LocalDateTime getClickedDateTime() {
-        return clickedDateTime;
-    }
-
-    /**
-     * Returns, if the click has been for a day slot. False means, it has been a click on a time slot inside a day.
-     * @return all day click
-     */
-    public boolean isAllDay() {
-        return allDay;
+        super(source, fromClient, date, allDay);
     }
 }
