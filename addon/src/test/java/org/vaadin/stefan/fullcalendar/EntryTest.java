@@ -5,12 +5,13 @@ import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class EntryTest {
 
-    public static final LocalDateTime DEFAULT_START = LocalDateTime.now();
+    public static final LocalDateTime DEFAULT_START = LocalDate.of(2000, 1, 1).atStartOfDay();
     public static final LocalDateTime DEFAULT_END = DEFAULT_START.plusDays(1);
     public static final String DEFAULT_STRING = "test";
     public static final String DEFAULT_ID = DEFAULT_STRING + 1;
@@ -33,7 +34,21 @@ public class EntryTest {
     }
 
     @Test
-    void testArgsConstructor() {
+    void testIdArgConstructor() {
+        Entry entry = new Entry(null);
+
+        // test id generation
+        String id = entry.getId();
+        Assertions.assertNotNull(id);
+        Assertions.assertFalse(id.isEmpty());
+        UUID.fromString(id);
+
+        entry = new Entry("1");
+        Assertions.assertEquals("1", entry.getId());
+    }
+
+    @Test
+    void testFullArgsConstructor() {
         Entry entry;
 
         // test optional parameters
@@ -58,6 +73,40 @@ public class EntryTest {
 
         // test null color when set empty
         Assertions.assertNull(new Entry(null, null, null, null, false, false, "", null).getColor());
+    }
+
+    @Test
+    void testConstructionFromJson() {
+        LocalDateTime ref = LocalDate.now().atStartOfDay();
+
+        // day
+        Entry entry = new Entry("id", "title", ref, ref.plusDays(1), true, true, "color", "description");
+        JsonObject jsonObject = entry.toJson();
+
+        Entry fromJson = Entry.fromJson(jsonObject);
+        assertFullEqualsByJsonAttributes(entry, fromJson);
+
+        // timed
+        entry = new Entry("id", "title", ref, ref.plusHours(1), false, true, "color", "description");
+        jsonObject = entry.toJson();
+
+        fromJson = Entry.fromJson(jsonObject);
+        assertFullEqualsByJsonAttributes(entry, fromJson);
+    }
+
+    /**
+     * Checks an original entry and the json based variant for equal fields, that can be changed by json.
+     * @param expected expected entry
+     * @param actual actual entry
+     */
+    static void assertFullEqualsByJsonAttributes(Entry expected, Entry actual) {
+        Assertions.assertEquals(expected.getId(), actual.getId());
+        Assertions.assertEquals(expected.getTitle(), actual.getTitle());
+        Assertions.assertEquals(expected.getStart(), actual.getStart());
+        Assertions.assertEquals(expected.getEnd(), actual.getEnd());
+        Assertions.assertEquals(expected.isAllDay(), actual.isAllDay());
+        Assertions.assertEquals(expected.isEditable(), actual.isEditable());
+        Assertions.assertEquals(expected.getColor(), actual.getColor());
     }
 
     @Test
