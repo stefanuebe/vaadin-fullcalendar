@@ -100,10 +100,14 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Returns all entries registered in this instance. Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
+     * <p/>
+     * Changes in the list are not reflected to the calendar instance. Also please note, that the content
+     * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
+     * a convenient way of using the returned values without the need to encapsulate them yourselves.
      * @return entries entries
      */
-    public Collection<Entry> getEntries() {
-        return entries.values();
+    public List<Entry> getEntries() {
+        return new ArrayList<>(entries.values());
     }
 
     /**
