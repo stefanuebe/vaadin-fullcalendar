@@ -91,8 +91,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      *
      * @param id id
      * @return entry or empty
+     * @throws NullPointerException when null is passed
      */
-    public Optional<Entry> getEntryById(String id) {
+    public Optional<Entry> getEntryById(@Nonnull String id) {
+        Objects.requireNonNull(id);
         return Optional.ofNullable(entries.get(id));
     }
 
@@ -141,8 +143,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * {@link #updateEntry(Entry)} afterwards.
      * @param date end point of filter timespan
      * @return entries
+     * @throws NullPointerException when null is passed
      */
-    public Collection<Entry> getEntries(LocalDate date) {
+    public List<Entry> getEntries(@Nonnull LocalDate date) {
+        Objects.requireNonNull(date);
         return getEntries(date.atStartOfDay(), date.plusDays(1).atStartOfDay());
     }
 
@@ -219,6 +223,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException when null is passed
      */
     public void gotoDate(@Nonnull LocalDate date) {
+        Objects.requireNonNull(date);
         getElement().callFunction("gotoDate", date.toString());
     }
 
@@ -227,6 +232,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      *
      * @param option option
      * @param value  value
+     * @throws NullPointerException when null is passed
      */
     protected void setOption(@Nonnull Option option, Serializable value) {
         Objects.requireNonNull(option);
@@ -248,6 +254,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException when null is passed
      */
     public void setFirstDay(@Nonnull DayOfWeek firstDay) {
+        Objects.requireNonNull(firstDay);
         int value = firstDay == DayOfWeek.SUNDAY ? 0 : firstDay.getValue();
         setOption(Option.FIRST_DAY, value);
     }
@@ -300,8 +307,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Sets the locale to be used. If invoked for the first time it will load additional language scripts.
      *
      * @param locale locale
+     * @throws NullPointerException when null is passed
      */
-    public void setLocale(Locale locale) {
+    public void setLocale(@Nonnull Locale locale) {
+        Objects.requireNonNull(locale);
         setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase());
     }
 
@@ -354,8 +363,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Use {@link #setNumberClickForwardsToDetails(boolean)} to activate the functionality.
      *
      * @param view views
+     * @throws NullPointerException when null is passed
      */
-    public void setNumberClickForwardsDayTarget(CalendarView view) {
+    public void setNumberClickForwardsDayTarget(@Nonnull CalendarView view) {
+        Objects.requireNonNull(view);
         if (view.getClientSideName().toLowerCase().contains("day")) { // allows extension of day views without need to update this
             setOption(Option.NAV_LINKS_DAY_TARGET, view.getClientSideName());
         } else {
@@ -371,8 +382,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Use {@link #setNumberClickForwardsToDetails(boolean)} to activate the functionality.
      *
      * @param view views
+     * @throws NullPointerException when null is passed
      */
-    public void setNumberClickForwardsWeekTarget(CalendarView view) {
+    public void setNumberClickForwardsWeekTarget(@Nonnull CalendarView view) {
+        Objects.requireNonNull(view);
         if (view.getClientSideName().toLowerCase().contains("week")) { // allows extension of week views without need to update this
             setOption(Option.NAV_LINKS_WEEK_TARGET, view.getClientSideName());
         } else {
@@ -386,8 +399,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param option option
      * @param <T>    type of value
      * @return optional value or empty
+     * @throws NullPointerException when null is passed
      */
-    protected <T> Optional<T> getOption(Option option) {
+    protected <T> Optional<T> getOption(@Nonnull Option option) {
+        Objects.requireNonNull(option);
         return Optional.ofNullable((T) options.get(option));
     }
 
