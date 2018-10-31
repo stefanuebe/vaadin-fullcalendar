@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("ALL")
-public class FullCalendarIT {
+public class FullCalendarTest {
 
     @BeforeAll
     static void beforeAll() {
