@@ -223,13 +223,19 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * Sets a option for this instance.
+     * Sets a option for this instance. Passing a null value removes the option.
      *
      * @param option option
      * @param value  value
      */
-    protected void setOption(Option option, Serializable value) {
-        options.put(option, value);
+    protected void setOption(@Nonnull Option option, Serializable value) {
+        Objects.requireNonNull(option);
+
+        if (value == null) {
+            options.remove(option);
+        } else {
+            options.put(option, value);
+        }
         getElement().callFunction("setOption", option.getOptionKey(), value);
     }
 
