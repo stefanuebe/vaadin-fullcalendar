@@ -20,6 +20,7 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      * @param date       date instance as iso string
+     * @param allDay     all day event
      */
     public DateTimeEvent(FullCalendar source, boolean fromClient, String date, boolean allDay) {
         super(source, fromClient);
