@@ -61,6 +61,15 @@
                     eventLimitClick: function(cellInfo) {
                         thisReference.dispatchEvent(new CustomEvent("eventLimitClick", {detail: {date: cellInfo.date.format()}}));
                     },
+
+                    navLinkDayClick: function(date) {
+                        thisReference.dispatchEvent(new CustomEvent("navLinkDayClick", {detail: {date: date.format()}}));
+                    },
+
+                    navLinkWeekClick: function(date) {
+                        thisReference.dispatchEvent(new CustomEvent("navLinkWeekClick", {detail: {date: date.format()}}));
+                    },
+
                     // no native control elements
                     header: {
                         left: '',
