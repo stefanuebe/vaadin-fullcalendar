@@ -63,11 +63,11 @@
                     },
 
                     navLinkDayClick: function(date) {
-                        thisReference.dispatchEvent(new CustomEvent("navLinkDayClick", {detail: {date: date.format()}}));
+                        thisReference.dispatchEvent(new CustomEvent("navLinkDayClick", {detail: {date: date.format(), allDay: true}}));
                     },
 
                     navLinkWeekClick: function(date) {
-                        thisReference.dispatchEvent(new CustomEvent("navLinkWeekClick", {detail: {date: date.format()}}));
+                        thisReference.dispatchEvent(new CustomEvent("navLinkWeekClick", {detail: {date: date.format(), allDay: true}}));
                     },
 
                     // no native control elements
