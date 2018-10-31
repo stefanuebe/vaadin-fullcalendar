@@ -117,6 +117,7 @@ public class Demo extends Div {
         calendar = new FullCalendar(5);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
+        calendar.setTimeslotsSelectable(true);
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
         // one day selection.
