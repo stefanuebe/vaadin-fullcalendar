@@ -107,8 +107,12 @@ public class Entry {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Entry event = (Entry) o;
         return Objects.equals(id, event.id);
     }
