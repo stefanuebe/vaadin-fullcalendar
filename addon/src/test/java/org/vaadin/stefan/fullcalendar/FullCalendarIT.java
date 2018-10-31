@@ -14,7 +14,9 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Consumer;
 
+@SuppressWarnings("ALL")
 public class FullCalendarIT {
 
     @BeforeAll
@@ -59,17 +61,33 @@ public class FullCalendarIT {
         Assertions.assertEquals(entryLimit, calendar.getElement().getProperty("eventLimit", -1));
     }
 
+    private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
+        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(FullCalendar.Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
+    }
+
     @Test
-    void testCallFunctionMethodsWithoutFurtherLogic() {
+    void testClientSideMethods() {
         FullCalendar calendar = new FullCalendar();
 
         calendar.next();
         calendar.previous();
         calendar.today();
+
+        assertNPE(calendar, c -> c.changeView(null));
+        calendar.changeView(CalendarView.MONTH);
+
+        assertNPE(calendar, c -> c.gotoDate(null));
+        calendar.gotoDate(LocalDate.now());
+        calendar.gotoDate(LocalDate.MIN);
+        calendar.gotoDate(LocalDate.MAX);
+    }
+
+    private void assertNPE(FullCalendar calendar, Consumer<FullCalendar> function) {
+        Assertions.assertThrows(NullPointerException.class, () -> function.accept(calendar));
     }
 
     @Test
-    void getEntryById_testEmptyOptionalOnNonExistingId() {
+    void testEmptyOptionalOnFetchingNonExistingEntryById() {
         FullCalendar calendar = new FullCalendar();
 
         Optional<Entry> optional = calendar.getEntryById("");
@@ -78,7 +96,7 @@ public class FullCalendarIT {
     }
 
     @Test
-    void getEntryById_testFetchingExistingEntry() {
+    void testFetchingExistingEntryById() {
         FullCalendar calendar = new FullCalendar();
 
         Entry entry = new Entry();
@@ -91,7 +109,7 @@ public class FullCalendarIT {
     }
 
     @Test
-    void addEntry_testContent() {
+    void testAddEntry() {
         FullCalendar calendar = new FullCalendar();
 
         Entry entry1 = new Entry();
@@ -115,7 +133,7 @@ public class FullCalendarIT {
     }
 
     @Test
-    void removeEntry_testContent() {
+    void testRemoveContent() {
         FullCalendar calendar = new FullCalendar();
 
         Entry entry1 = new Entry();
@@ -141,7 +159,7 @@ public class FullCalendarIT {
     }
 
     @Test
-    void getEntries_testInitialEmptyCollection() {
+    void testInitialEmptyCollection() {
         FullCalendar calendar = new FullCalendar();
 
         Collection<Entry> entries = calendar.getEntries();
@@ -182,7 +200,7 @@ public class FullCalendarIT {
     }
 
     @Test
-    void getEntries_findByTimeSpan() {
+    void testGetEntriesByDateTimeInterval() {
         LocalDate ref = LocalDate.of(2000, 1, 1);
         LocalDateTime refStartOfDay = ref.atStartOfDay();
         LocalDateTime refEndOfDay = ref.atTime(23, 0);
@@ -235,12 +253,14 @@ public class FullCalendarIT {
     }
 
     @Test
-    void getEntries_findByDate() {
+    void testGetEntriesByDate() {
         LocalDateTime ref = LocalDate.of(2000, 1, 1).atStartOfDay();
         LocalDateTime filterEnd = ref.plusDays(1);
 
         List<Entry> entriesNotMatching = new ArrayList<>();
         List<Entry> entriesMatching = new ArrayList<>();
+
+        // TODO additional / other / better test cases?
 
         // completely out
         entriesNotMatching.add(new Entry(null, "NM: Last year", ref.minusYears(1), ref.minusYears(1), false, true, null, null));
@@ -305,7 +325,44 @@ public class FullCalendarIT {
         return sb.toString();
     }
 
-    private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
-        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(FullCalendar.Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
+    @Test
+    void testRemoveAll() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.addEntry(new Entry());
+        calendar.addEntry(new Entry());
+        calendar.addEntry(new Entry());
+
+        Assertions.assertEquals(3, calendar.getEntries().size());
+
+        calendar.removeAllEntries();
+        Assertions.assertEquals(0, calendar.getEntries().size());
+    }
+
+    @Test
+    void testGetEntriesReturnListCopy() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.addEntry(new Entry());
+        calendar.addEntry(new Entry());
+        calendar.addEntry(new Entry());
+
+        Collection<Entry> entries = calendar.getEntries();
+        Assertions.assertEquals(3, entries.size());
+
+        calendar.removeAllEntries();
+        Assertions.assertEquals(3, entries.size());
+    }
+
+    @Test
+    void testSetOption() {
+        FullCalendar calendar = new FullCalendar();
+
+        assertNPE(calendar, c -> c.setOption(null, null));
+        assertNPE(calendar, c -> c.setOption(null, "someValue"));
+
+        calendar.setOption(FullCalendar.Option.LOCALE, "someValue");
+        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
+
+        calendar.setOption(FullCalendar.Option.LOCALE, null);
+        Assertions.assertFalse(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
     }
 }
