@@ -131,22 +131,7 @@ public class FullCalendarTest {
         assertCorrectBooleanOption(calendar, Option.NOW_INDICATOR, calendar::setNowIndicatorShown);
 
         // this must be tested before the other setNumberClickForwads...Target methods
-        assertCorrectBooleanOption(calendar, Option.NAV_LINKS, calendar::setNumberClickForwardsToDetails);
-        assertOptionalEquals(CalendarView.AGENDA_DAY, calendar.getOption(Option.NAV_LINKS_DAY_TARGET));
-        assertOptionalEquals(CalendarView.AGENDA_WEEK, calendar.getOption(Option.NAV_LINKS_WEEK_TARGET));
-
-        assertNPE(calendar, c -> c.setNumberClickForwardsDayTarget(null));
-        assertIAE(calendar, c -> c.setNumberClickForwardsDayTarget(CalendarView.MONTH));
-        calendar.setNumberClickForwardsDayTarget(CalendarView.BASIC_DAY);
-        assertOptionalEquals(CalendarView.BASIC_DAY, calendar.getOption(Option.NAV_LINKS_DAY_TARGET));
-        assertOptionalEquals(CalendarView.BASIC_DAY.getClientSideName(), calendar.getOption(Option.NAV_LINKS_DAY_TARGET, true));
-
-        assertNPE(calendar, c -> c.setNumberClickForwardsWeekTarget(null));
-        assertIAE(calendar, c -> c.setNumberClickForwardsWeekTarget(CalendarView.MONTH));
-        calendar.setNumberClickForwardsWeekTarget(CalendarView.BASIC_WEEK);
-        assertOptionalEquals(CalendarView.BASIC_WEEK, calendar.getOption(Option.NAV_LINKS_WEEK_TARGET));
-        assertOptionalEquals(CalendarView.BASIC_WEEK.getClientSideName(), calendar.getOption(Option.NAV_LINKS_WEEK_TARGET, true));
-
+        assertCorrectBooleanOption(calendar, Option.NAV_LINKS, calendar::setNumberClickable);
     }
 
     private void assertCorrectBooleanOption(FullCalendar calendar, Option optionToCheck, Consumer<Boolean> function) {
@@ -670,21 +655,12 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testTimeslotClickedEvent() throws Exception {
-        FullCalendar calendar = new FullCalendar();
-
-        LocalDate refDate = LocalDate.of(2000, 1, 1);
-        LocalDateTime refDateTime = LocalDate.of(2000, 1, 1).atStartOfDay();
-
-        TimeslotClickedEvent timeslotClickedEvent;
-        timeslotClickedEvent = new TimeslotClickedEvent(calendar, true, refDate.toString(), true);
-        Assertions.assertEquals(refDate.atStartOfDay(), timeslotClickedEvent.getClickedDateTime());
-        Assertions.assertTrue(timeslotClickedEvent.isAllDay());
-
-        timeslotClickedEvent = new TimeslotClickedEvent(calendar, true, refDateTime.toString(), false);
-        Assertions.assertEquals(refDateTime, timeslotClickedEvent.getClickedDateTime());
-        Assertions.assertFalse(timeslotClickedEvent.isAllDay());
+    void testDateTimeEventSubClasses() throws Exception {
+        subTestDateTimeEventSubClass(TimeslotClickedEvent.class);
+        subTestDateTimeEventSubClass(DayNumberClickedEvent.class);
+        subTestDateTimeEventSubClass(WeekNumberClickedEvent.class);
     }
+
 
     @Test
     void testTimeslotsSelectedEvent() throws Exception {
@@ -709,9 +685,27 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testTimeChangedSubClassEvents() throws Exception {
+    void testTimeChangedEventSubClass() throws Exception {
         subTestEntryTimeChangedEventSubClass(EntryDroppedEvent.class);
         subTestEntryTimeChangedEventSubClass(EntryResizedEvent.class);
+    }
+
+    private <T extends DateTimeEvent> void subTestDateTimeEventSubClass(Class<T> eventClass) throws Exception {
+        FullCalendar calendar = new FullCalendar();
+
+        LocalDate refDate = LocalDate.of(2000, 1, 1);
+        LocalDateTime refDateTime = LocalDate.of(2000, 1, 1).atStartOfDay();
+
+        T event;
+        Constructor<T> constructor = ComponentEventBusUtil.getEventConstructor(eventClass);
+        event = constructor.newInstance(calendar, true, refDate.toString(), true);
+        Assertions.assertEquals(refDate.atStartOfDay(), event.getDateTime());
+        Assertions.assertTrue(event.isAllDay());
+
+        event = constructor.newInstance(calendar, true, refDateTime.toString(), false);
+        Assertions.assertEquals(refDateTime, event.getDateTime());
+        Assertions.assertFalse(event.isAllDay());
+
     }
 
     private <T extends EntryTimeChangedEvent> void subTestEntryTimeChangedEventSubClass(Class<T> eventClass) throws Exception {

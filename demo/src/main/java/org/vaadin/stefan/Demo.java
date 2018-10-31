@@ -116,9 +116,7 @@ public class Demo extends Div {
     private void createCalendarInstance() {
         calendar = new FullCalendar(5);
         calendar.setNowIndicatorShown(true);
-        calendar.setNumberClickForwardsToDetails(true);
-        calendar.setNumberClickForwardsDayTarget(CalendarView.LIST_DAY);
-        calendar.setNumberClickForwardsWeekTarget(CalendarView.LIST_WEEK);
+        calendar.setNumberClickable(true);
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
         // one day selection.
@@ -196,6 +194,15 @@ public class Demo extends Div {
                 dialog.add(dialogLayout);
                 dialog.open();
             }
+        });
+
+        calendar.addDayNumberClickedEvent(event -> {
+            comboBoxView.setValue(CalendarView.LIST_DAY);
+            calendar.gotoDate(event.getDateTime().toLocalDate());
+        });
+        calendar.addWeekNumberClickedEvent(event -> {
+            comboBoxView.setValue(CalendarView.LIST_WEEK);
+            calendar.gotoDate(event.getDateTime().toLocalDate());
         });
 
         createTestEntries(calendar);
