@@ -1,5 +1,5 @@
 # FullCalendar integration
-This addon is an integration of the FullCalendar as Flow component for Vaadin Platform / Vaadin 10+. The component is currently in an early alpha. 
+This addon is an integration of the FullCalendar (v3.9.0) as Flow component for Vaadin Platform / Vaadin 10+. The component is currently in an early alpha. 
 
 For information about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
 
