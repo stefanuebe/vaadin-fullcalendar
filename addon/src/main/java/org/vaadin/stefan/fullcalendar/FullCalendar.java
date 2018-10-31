@@ -6,6 +6,7 @@ import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
@@ -339,7 +340,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * Set if timeslots might be selected by the user. Please see also documentation of {@link #addTimeslotsSelectedEventListener(ComponentEventListener)}.
+     * Set if timeslots might be selected by the user. Please see also documentation of {@link #addTimeslotsSelectedListener(ComponentEventListener)}.
      *
      * @param selectable activate selectable
      */
@@ -568,7 +569,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotsSelectedEventListener(@Nonnull ComponentEventListener<TimeslotsSelectedEvent> listener) {
+    public Registration addTimeslotsSelectedListener(@Nonnull ComponentEventListener<TimeslotsSelectedEvent> listener) {
         Objects.requireNonNull(listener);
 
         Registration registration = addListener(TimeslotsSelectedEvent.class, listener);
@@ -592,7 +593,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addLimitedEntriesClickedEventListener(@Nonnull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
+    public Registration addLimitedEntriesClickedListener(@Nonnull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(LimitedEntriesClickedEvent.class, listener);
     }
