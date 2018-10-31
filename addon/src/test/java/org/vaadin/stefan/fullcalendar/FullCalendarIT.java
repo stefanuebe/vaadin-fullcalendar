@@ -1,7 +1,10 @@
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.component.ComponentEventBusUtil;
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.VaadinService;
+import elemental.json.Json;
+import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -9,6 +12,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 
+import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -636,5 +640,134 @@ public class FullCalendarIT {
         calendar.setOption(Option.LOCALE, "someOtherValue", locale);
         calendar.setOption(Option.LOCALE, "someOtherValue");
         assertOptionalEquals("someOtherValue", calendar.getOption(Option.LOCALE));
+    }
+
+    @Test
+    void testEntryClickedEvent() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+
+        LocalDate refDate = LocalDate.of(2000, 1, 1);
+        LocalDateTime refDateAsDateTime = refDate.atStartOfDay();
+        LocalDateTime refDateTime = refDateAsDateTime.withHour(7);
+
+        // check all day and time entries
+        Entry allDayEntry = new Entry("allDay", "title", refDateAsDateTime, refDateAsDateTime.plusDays(1), true, true, "color", null);
+        Entry timedEntry = new Entry("timed", "title", refDateTime, refDateTime.plusHours(1), false, true, "color", null);
+        calendar.addEntry(allDayEntry);
+        calendar.addEntry(timedEntry);
+
+        Assertions.assertSame(allDayEntry, new EntryClickedEvent(calendar, true, allDayEntry.getId()).getEntry());
+        Assertions.assertSame(timedEntry, new EntryClickedEvent(calendar, true, timedEntry.getId()).getEntry());
+    }
+
+    @Test
+    void testLimitedEntriesClickedEvent() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+
+        LocalDate refDate = LocalDate.of(2000, 1, 1);
+
+        Assertions.assertEquals(refDate, new LimitedEntriesClickedEvent(calendar, true, refDate.toString()).getClickedDate());
+    }
+
+    @Test
+    void testTimeslotClickedEvent() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+
+        LocalDate refDate = LocalDate.of(2000, 1, 1);
+        LocalDateTime refDateTime = LocalDate.of(2000, 1, 1).atStartOfDay();
+
+        TimeslotClickedEvent timeslotClickedEvent;
+        timeslotClickedEvent = new TimeslotClickedEvent(calendar, true, refDate.toString(), true);
+        Assertions.assertEquals(refDate.atStartOfDay(), timeslotClickedEvent.getClickedDateTime());
+        Assertions.assertTrue(timeslotClickedEvent.isAllDay());
+
+        timeslotClickedEvent = new TimeslotClickedEvent(calendar, true, refDateTime.toString(), false);
+        Assertions.assertEquals(refDateTime, timeslotClickedEvent.getClickedDateTime());
+        Assertions.assertFalse(timeslotClickedEvent.isAllDay());
+    }
+
+    @Test
+    void testTimeslotsSelectedEvent() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+
+        LocalDate refDateStart = LocalDate.of(2000, 1, 1);
+        LocalDate refDateEnd = LocalDate.of(2000, 1, 2);
+
+        LocalDateTime refDateTimeStart = LocalDateTime.of(2000, 1, 1, 7, 0);
+        LocalDateTime refDateTimeEnd = LocalDateTime.of(2000, 1, 1, 8, 0);
+
+        TimeslotsSelectedEvent event;
+        event = new TimeslotsSelectedEvent(calendar, true, refDateStart.toString(), refDateEnd.toString(), true);
+        Assertions.assertEquals(refDateStart.atStartOfDay(), event.getStartDateTime());
+        Assertions.assertEquals(refDateEnd.atStartOfDay(), event.getEndDateTime());
+        Assertions.assertTrue(event.isAllDay());
+
+        event = new TimeslotsSelectedEvent(calendar, true, refDateTimeStart.toString(), refDateTimeEnd.toString(), false);
+        Assertions.assertEquals(refDateTimeStart, event.getStartDateTime());
+        Assertions.assertEquals(refDateTimeEnd, event.getEndDateTime());
+        Assertions.assertFalse(event.isAllDay());
+    }
+
+    @Test
+    void testTimeChangedSubClassEvents() throws Exception {
+        subTestEntryTimeChangedEventSubClass(EntryDroppedEvent.class);
+        subTestEntryTimeChangedEventSubClass(EntryResizedEvent.class);
+    }
+
+    private <T extends EntryTimeChangedEvent> void subTestEntryTimeChangedEventSubClass(Class<T> eventClass) throws Exception {
+        FullCalendar calendar = new FullCalendar();
+
+        LocalDateTime refDate = LocalDate.of(2000, 1, 1).atStartOfDay();
+        LocalDateTime refDateTime = refDate.withHour(7);
+
+        // check all day and time entries
+        Entry allDayEntry = new Entry("allDay", "title", refDate, refDate.plusDays(1), true, true, "color", null);
+        Entry timedEntry = new Entry("timed", "title", refDateTime, refDateTime.plusHours(1), false, true, "color", null);
+        calendar.addEntry(allDayEntry);
+        calendar.addEntry(timedEntry);
+
+        // the original entry will be modified by the event. we test if the modified original event matches the json source
+        Delta delta = new Delta(1, 1, 1, 1, 1, 1);
+        JsonObject jsonDelta = Json.createObject();
+        jsonDelta.put("years", 1);
+        jsonDelta.put("months", 1);
+        jsonDelta.put("days", 1);
+        jsonDelta.put("hours", 1);
+        jsonDelta.put("minutes", 1);
+        jsonDelta.put("seconds", 1);
+
+        Entry modifiedAllDayEntry = new Entry(allDayEntry.getId(), allDayEntry.getTitle() + 1, delta.applyOn(allDayEntry.getStart().toLocalDate()).atStartOfDay(), delta.applyOn(allDayEntry.getEnd().toLocalDate()).atStartOfDay(), allDayEntry.isAllDay(), !allDayEntry.isEditable(), allDayEntry.getColor() + 1, allDayEntry.getDescription());
+        Entry modifiedTimedEntry = new Entry(timedEntry.getId(), timedEntry.getTitle() + 1, delta.applyOn(timedEntry.getStart()), delta.applyOn(timedEntry.getEnd()), timedEntry.isAllDay(), !timedEntry.isEditable(), timedEntry.getColor() + 1, timedEntry.getDescription());
+        JsonObject jsonModifiedAllDayEntry = modifiedAllDayEntry.toJson();
+        JsonObject jsonModifiedTimedEntry = modifiedTimedEntry.toJson();
+
+        Constructor<T> constructor = ComponentEventBusUtil.getEventConstructor(eventClass);
+
+        /*
+            Day event
+         */
+        T event = constructor.newInstance(calendar, true, jsonModifiedAllDayEntry, jsonDelta);
+        Assertions.assertEquals(delta, event.getDelta());
+
+        // not changed automatically
+        EntryTest.assertFullEqualsByJsonAttributes(allDayEntry, event.getEntry());
+
+        // apply changes and test modifications
+        event.applyChangesOnEntry();
+        EntryTest.assertFullEqualsByJsonAttributes(modifiedAllDayEntry, event.getEntry());
+
+        /*
+            Time slot event
+         */
+        event = constructor.newInstance(calendar, true, jsonModifiedTimedEntry, jsonDelta);
+
+        Assertions.assertEquals(delta, event.getDelta());
+
+        // not changed automatically
+        EntryTest.assertFullEqualsByJsonAttributes(timedEntry, event.getEntry());
+
+        // apply changes and test modifications
+        event.applyChangesOnEntry();
+        EntryTest.assertFullEqualsByJsonAttributes(modifiedTimedEntry, event.getEntry());
     }
 }
