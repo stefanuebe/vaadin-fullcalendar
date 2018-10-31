@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -81,9 +82,27 @@ public class FullCalendarIT {
         calendar.gotoDate(LocalDate.MIN);
         calendar.gotoDate(LocalDate.MAX);
 
+    }
+
+    @Test
+    void testClientSideOptionMethods() {
+        FullCalendar calendar = new FullCalendar();
+
+        // first day of week
         assertNPE(calendar, c -> c.setFirstDay(null));
 
+        calendar.setFirstDay(DayOfWeek.MONDAY);
+        Assertions.assertEquals(DayOfWeek.MONDAY, calendar.getOption(FullCalendar.Option.FIRST_DAY).get());
+        Assertions.assertEquals(DayOfWeek.MONDAY.getValue(), calendar.getOption(FullCalendar.Option.FIRST_DAY, true).get());
+
+        calendar.setFirstDay(DayOfWeek.SUNDAY);
+        Assertions.assertEquals(DayOfWeek.SUNDAY, calendar.getOption(FullCalendar.Option.FIRST_DAY).get());
+        Assertions.assertEquals(0, calendar.getOption(FullCalendar.Option.FIRST_DAY, true).get());
+
+
     }
+
+
 
     private void assertNPE(FullCalendar calendar, Consumer<FullCalendar> function) {
         Assertions.assertThrows(NullPointerException.class, () -> function.accept(calendar));
@@ -549,6 +568,9 @@ public class FullCalendarIT {
         calendar.setOption(FullCalendar.Option.LOCALE, "someValue", locale);
         Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
         Assertions.assertSame(locale, calendar.getOption(FullCalendar.Option.LOCALE).get());
+
+        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE, true).isPresent());
+        Assertions.assertSame("someValue", calendar.getOption(FullCalendar.Option.LOCALE, true).get());
 
         calendar.setOption(FullCalendar.Option.LOCALE, "someValue", null);
         Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
