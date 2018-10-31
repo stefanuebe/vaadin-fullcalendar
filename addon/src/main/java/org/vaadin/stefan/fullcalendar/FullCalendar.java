@@ -558,11 +558,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     /**
      * Registers a listener to be informed when the user selected a range of timeslots.
      * <p/>
-     * Adding the first listener
-     * to this component will activate the selectable option. Removing the last instance will automatically disable it.
-     * You may override that via setTimestlotsSelectable().
-     * <p/>
-     * You should also deactivate timeslot clicked listeners since both events will get fired when the user only selects
+     * You should deactivate timeslot clicked listeners since both events will get fired when the user only selects
      * one timeslot / day.
      *
      * @param listener listener
@@ -571,19 +567,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      */
     public Registration addTimeslotsSelectedListener(@Nonnull ComponentEventListener<TimeslotsSelectedEvent> listener) {
         Objects.requireNonNull(listener);
-
-        Registration registration = addListener(TimeslotsSelectedEvent.class, listener);
-
-        if (timeslotsSelectedListenerCount++ == 0) {
-            setTimeslotsSelectable(true);
-        }
-
-        return () -> {
-            registration.remove();
-            if (--timeslotsSelectedListenerCount == 0) {
-                setTimeslotsSelectable(false);
-            }
-        };
+        return addListener(TimeslotsSelectedEvent.class, listener);
     }
 
     /**
