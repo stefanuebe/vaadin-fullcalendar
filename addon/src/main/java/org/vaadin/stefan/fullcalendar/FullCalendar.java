@@ -373,9 +373,14 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return locale
      */
     public Locale getLocale() {
-//        return Locale.forLanguageTag((String) options.getOrDefault(Option.LOCALE, CalendarLocale.getDefault().toLanguageTag()));
-        Serializable serializable = options.get(Option.LOCALE);
-        return serializable instanceof Locale ? (Locale) serializable : CalendarLocale.getDefault();
+        Optional<Object> option = getOption(Option.LOCALE);
+
+        if (!option.isPresent()) {
+            return CalendarLocale.getDefault();
+        }
+
+        Object value = option.get();
+        return value instanceof Locale ? (Locale) value : Locale.forLanguageTag((String) value);
     }
 
     /**
