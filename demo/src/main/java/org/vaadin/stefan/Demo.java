@@ -138,11 +138,16 @@ public class Demo extends Div {
 
         calendar.addEntryClickedListener(event -> new DemoDialog(calendar, event.getEntry(), false).open());
         calendar.addEntryResizedListener(event -> {
+            event.applyChangesOnEntry();
+
             Entry entry = event.getEntry();
+
             Notification.show(entry.getTitle() + " resized to " + entry.getStart() + " - " + entry.getEnd() + " by " + event.getDelta());
             calendar.render();
         });
         calendar.addEntryDroppedListener(event -> {
+            event.applyChangesOnEntry();
+
             Entry entry = event.getEntry();
             boolean allDay = entry.isAllDay();
             LocalDateTime start = entry.getStart();
