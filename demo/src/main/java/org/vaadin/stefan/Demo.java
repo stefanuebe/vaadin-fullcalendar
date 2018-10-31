@@ -153,7 +153,7 @@ public class Demo extends Div {
         });
         calendar.addViewRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
-        calendar.addTimeslotsSelectedEventListener(event -> {
+        calendar.addTimeslotsSelectedListener(event -> {
             Entry entry = new Entry();
             entry.setStart(event.getStartDateTime());
             entry.setEnd(event.getEndDateTime());
@@ -163,7 +163,7 @@ public class Demo extends Div {
             new DemoDialog(calendar, entry, true).open();
         });
 
-        calendar.addLimitedEntriesClickedEventListener(event -> {
+        calendar.addLimitedEntriesClickedListener(event -> {
             Collection<Entry> entries = calendar.getEntries(event.getClickedDate());
             if (!entries.isEmpty()) {
                 Dialog dialog = new Dialog();
