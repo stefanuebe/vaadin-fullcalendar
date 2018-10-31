@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,7 +64,7 @@ public class FullCalendarIT {
     }
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
-        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(FullCalendar.Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
+        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
     }
 
     @Test
@@ -92,17 +93,55 @@ public class FullCalendarIT {
         assertNPE(calendar, c -> c.setFirstDay(null));
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
-        Assertions.assertEquals(DayOfWeek.MONDAY, calendar.getOption(FullCalendar.Option.FIRST_DAY).get());
-        Assertions.assertEquals(DayOfWeek.MONDAY.getValue(), calendar.getOption(FullCalendar.Option.FIRST_DAY, true).get());
+        assertOptionalEquals(DayOfWeek.MONDAY, calendar.getOption(Option.FIRST_DAY));
+        assertOptionalEquals(DayOfWeek.MONDAY.getValue(), calendar.getOption(Option.FIRST_DAY, true));
 
         calendar.setFirstDay(DayOfWeek.SUNDAY);
-        Assertions.assertEquals(DayOfWeek.SUNDAY, calendar.getOption(FullCalendar.Option.FIRST_DAY).get());
-        Assertions.assertEquals(0, calendar.getOption(FullCalendar.Option.FIRST_DAY, true).get());
+        assertOptionalEquals(DayOfWeek.SUNDAY, calendar.getOption(Option.FIRST_DAY));
+        assertOptionalEquals(0, calendar.getOption(Option.FIRST_DAY, true));
+
+        calendar.setHeight(500);
+        assertOptionalEquals(500, calendar.getOption(Option.HEIGHT));
+
+        calendar.setHeightByParent();
+        assertOptionalEquals("parent", calendar.getOption(Option.HEIGHT));
+
+        calendar.setHeightAuto();
+        assertOptionalEquals("auto", calendar.getOption(Option.HEIGHT));
+
+        assertNPE(calendar, c -> c.setLocale(null));
+
+        Locale locale = CalendarLocale.GREEK;
+
+        // we want to be sure to not use the default to test.
+        Assertions.assertNotEquals(CalendarLocale.getDefault(), locale);
+
+        calendar.setLocale(locale);
+        Assertions.assertSame(locale, calendar.getLocale());
+        assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
+        assertOptionalEquals(locale.toLanguageTag().toLowerCase(), calendar.getOption(Option.LOCALE, true));
+
+        assertCorrectBooleanOption(calendar, Option.SELECTABLE, calendar::setTimeslotsSelectable);
+        assertCorrectBooleanOption(calendar, Option.WEEK_NUMBERS, calendar::setWeekNumbersVisible);
 
 
     }
 
+    private void assertCorrectBooleanOption(FullCalendar calendar, Option optionToCheck, Consumer<Boolean> function) {
+        function.accept(true);
+        assertOptionalEquals(true, calendar.getOption(optionToCheck), "Checking set true for setter of "
+                + optionToCheck.name() + " failed. Option returned false.");
+    }
 
+    private <T> void assertOptionalEquals(T expected, Optional<T> value) {
+        Assertions.assertTrue(value.isPresent());
+        Assertions.assertEquals(expected, value.get());
+    }
+
+    private <T> void assertOptionalEquals(T expected, Optional<T> value, String supplier) {
+        Assertions.assertTrue(value.isPresent(), supplier);
+        Assertions.assertEquals(expected, value.get(), supplier);
+    }
 
     private void assertNPE(FullCalendar calendar, Consumer<FullCalendar> function) {
         Assertions.assertThrows(NullPointerException.class, () -> function.accept(calendar));
@@ -126,8 +165,7 @@ public class FullCalendarIT {
 
         Optional<Entry> optional = calendar.getEntryById(entry.getId());
         Assertions.assertNotNull(optional);
-        Assertions.assertTrue(optional.isPresent());
-        Assertions.assertSame(entry, optional.get());
+        assertOptionalEquals(entry, optional);
     }
 
     @Test
@@ -149,9 +187,9 @@ public class FullCalendarIT {
         Assertions.assertTrue(entries.contains(entry2));
         Assertions.assertTrue(entries.contains(entry3));
 
-        Assertions.assertSame(entry1, calendar.getEntryById(entry1.getId()).get());
-        Assertions.assertSame(entry2, calendar.getEntryById(entry2.getId()).get());
-        Assertions.assertSame(entry3, calendar.getEntryById(entry3.getId()).get());
+        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
+        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
+        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
     }
 
     @Test
@@ -175,9 +213,10 @@ public class FullCalendarIT {
         Assertions.assertFalse(entries.contains(entry2));
         Assertions.assertTrue(entries.contains(entry3));
 
-        Assertions.assertSame(entry1, calendar.getEntryById(entry1.getId()).get());
+        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
+        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
+
         Assertions.assertFalse(calendar.getEntryById(entry2.getId()).isPresent());
-        Assertions.assertSame(entry3, calendar.getEntryById(entry3.getId()).get());
     }
 
     @Test
@@ -216,9 +255,9 @@ public class FullCalendarIT {
         Assertions.assertTrue(entries.contains(entry2));
         Assertions.assertTrue(entries.contains(entry3));
 
-        Assertions.assertSame(entry1, calendar.getEntryById(entry1.getId()).get());
-        Assertions.assertSame(entry2, calendar.getEntryById(entry2.getId()).get());
-        Assertions.assertSame(entry3, calendar.getEntryById(entry3.getId()).get());
+        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
+        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
+        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
     }
 
     @Test
@@ -552,11 +591,11 @@ public class FullCalendarIT {
         assertNPE(calendar, c -> c.setOption(null, null));
         assertNPE(calendar, c -> c.setOption(null, "someValue"));
 
-        calendar.setOption(FullCalendar.Option.LOCALE, "someValue");
-        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
+        calendar.setOption(Option.LOCALE, "someValue");
+        Assertions.assertTrue(calendar.getOption(Option.LOCALE).isPresent());
 
-        calendar.setOption(FullCalendar.Option.LOCALE, null);
-        Assertions.assertFalse(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
+        calendar.setOption(Option.LOCALE, null);
+        Assertions.assertFalse(calendar.getOption(Option.LOCALE).isPresent());
     }
 
     @Test
@@ -565,20 +604,15 @@ public class FullCalendarIT {
 
         Locale locale = Locale.getDefault();
 
-        calendar.setOption(FullCalendar.Option.LOCALE, "someValue", locale);
-        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
-        Assertions.assertSame(locale, calendar.getOption(FullCalendar.Option.LOCALE).get());
+        calendar.setOption(Option.LOCALE, "someValue", locale);
+        assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
+        assertOptionalEquals("someValue", calendar.getOption(Option.LOCALE, true));
 
-        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE, true).isPresent());
-        Assertions.assertSame("someValue", calendar.getOption(FullCalendar.Option.LOCALE, true).get());
+        calendar.setOption(Option.LOCALE, "someValue", null);
+        assertOptionalEquals("someValue", calendar.getOption(Option.LOCALE));
 
-        calendar.setOption(FullCalendar.Option.LOCALE, "someValue", null);
-        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
-        Assertions.assertEquals("someValue", calendar.getOption(FullCalendar.Option.LOCALE).get());
-
-        calendar.setOption(FullCalendar.Option.LOCALE, "someOtherValue", locale);
-        calendar.setOption(FullCalendar.Option.LOCALE, "someOtherValue");
-        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
-        Assertions.assertEquals("someOtherValue", calendar.getOption(FullCalendar.Option.LOCALE).get());
+        calendar.setOption(Option.LOCALE, "someOtherValue", locale);
+        calendar.setOption(Option.LOCALE, "someOtherValue");
+        assertOptionalEquals("someOtherValue", calendar.getOption(Option.LOCALE));
     }
 }
