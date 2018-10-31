@@ -6,7 +6,6 @@ import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
@@ -394,64 +393,13 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * When true is passed the day numbers (or texts) will become clickable by the user and open
-     * a day view for the clicked day.
-     * <p/>
-     * Use {@link #setNumberClickForwardsDayTarget(CalendarView)} and
-     * {@link #setNumberClickForwardsWeekTarget(CalendarView)} to define target views. Default is AGENDA_DAY and
-     * AGENDA_WEEK
+     * When true is passed the day / week numbers (or texts) will become clickable by the user and fire an event
+     * for the clicked day / week.
      *
      * @param clickable clickable
      */
-    public void setNumberClickForwardsToDetails(boolean clickable) {
+    public void setNumberClickable(boolean clickable) {
         setOption(Option.NAV_LINKS, clickable);
-        if (clickable) {
-            if (!getOption(Option.NAV_LINKS_DAY_TARGET).isPresent()) {
-                setNumberClickForwardsDayTarget(CalendarView.AGENDA_DAY);
-            }
-            if (!getOption(Option.NAV_LINKS_WEEK_TARGET).isPresent()) {
-                setNumberClickForwardsWeekTarget(CalendarView.AGENDA_WEEK);
-            }
-        }
-
-    }
-
-    /**
-     * Sets the target view that should be used when clicking on a calendar's day number / name.
-     * <p/>
-     * Currently supported are only day views, others will throw an exception.
-     * <p/>
-     * Use {@link #setNumberClickForwardsToDetails(boolean)} to activate the functionality.
-     *
-     * @param view views
-     * @throws NullPointerException when null is passed
-     */
-    public void setNumberClickForwardsDayTarget(@Nonnull CalendarView view) {
-        Objects.requireNonNull(view);
-        if (view.getClientSideName().toLowerCase().contains("day")) { // allows extension of day views without need to update this
-            setOption(Option.NAV_LINKS_DAY_TARGET, view.getClientSideName(), view);
-        } else {
-            throw new IllegalArgumentException("Must be a day view. " + view + " not supported.");
-        }
-    }
-
-    /**
-     * Sets the target view that should be used when clicking on a calendar's week number / name.
-     * <p/>
-     * Currently supported are only week views, others will throw an exception.
-     * <p/>
-     * Use {@link #setNumberClickForwardsToDetails(boolean)} to activate the functionality.
-     *
-     * @param view views
-     * @throws NullPointerException when null is passed
-     */
-    public void setNumberClickForwardsWeekTarget(@Nonnull CalendarView view) {
-        Objects.requireNonNull(view);
-        if (view.getClientSideName().toLowerCase().contains("week")) { // allows extension of week views without need to update this
-            setOption(Option.NAV_LINKS_WEEK_TARGET, view.getClientSideName(), view);
-        } else {
-            throw new IllegalArgumentException("Must be a week view. " + view + " not supported.");
-        }
     }
 
     /**
@@ -582,6 +530,34 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         return addListener(LimitedEntriesClickedEvent.class, listener);
     }
 
+    /**
+     * Registers a listener to be informed, when a user clicks a day's number.
+     * <p/>
+     * {@link #setNumberClickable(boolean)} needs to be called with true before.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addDayNumberClickedEvent(@Nonnull ComponentEventListener<DayNumberClickedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(DayNumberClickedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener to be informed, when a user clicks a week's number.
+     * <p/>
+     * {@link #setNumberClickable(boolean)} needs to be called with true before.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addWeekNumberClickedEvent(@Nonnull ComponentEventListener<WeekNumberClickedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(WeekNumberClickedEvent.class, listener);
+    }
+
     enum Option {
         FIRST_DAY("firstDay"),
         HEIGHT("height"),
@@ -590,8 +566,6 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         WEEK_NUMBERS("weekNumbers"),
         NOW_INDICATOR("nowIndicator"),
         NAV_LINKS("navLinks"),
-        NAV_LINKS_DAY_TARGET("navLinkDayClick"),
-        NAV_LINKS_WEEK_TARGET("navLinkWeekClick"),
         ;
         private final String optionKey;
 
