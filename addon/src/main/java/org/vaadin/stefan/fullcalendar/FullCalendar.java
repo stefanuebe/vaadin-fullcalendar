@@ -460,8 +460,25 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException when null is passed
      */
     public <T> Optional<T> getOption(@Nonnull Option option) {
+        return getOption(option, false);
+    }
+
+    /**
+     * Returns an optional option value or empty. If the second parameter is false and a server side version of the
+     * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
+     * <p/>
+     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     *
+     * @param option               option
+     * @param forceClientSideValue explicitly return the value that has been sent to client
+     * @param <T>                  type of value
+     * @return optional value or empty
+     * @throws NullPointerException when null is passed
+     */
+    public <T> Optional<T> getOption(@Nonnull Option option, boolean forceClientSideValue) {
         Objects.requireNonNull(option);
-        return Optional.ofNullable((T) (serverSideOptions.containsKey(option) ? serverSideOptions.get(option) : options.get(option)));
+        return Optional.ofNullable((T) (!forceClientSideValue && serverSideOptions.containsKey(option)
+                ? serverSideOptions.get(option) : options.get(option)));
     }
 
 
