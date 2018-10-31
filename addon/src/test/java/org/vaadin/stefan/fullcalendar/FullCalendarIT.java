@@ -80,6 +80,7 @@ public class FullCalendarIT {
         calendar.gotoDate(LocalDate.now());
         calendar.gotoDate(LocalDate.MIN);
         calendar.gotoDate(LocalDate.MAX);
+
     }
 
     private void assertNPE(FullCalendar calendar, Consumer<FullCalendar> function) {
@@ -242,7 +243,9 @@ public class FullCalendarIT {
         entriesNotMatching.forEach(calendar::addEntry);
         entriesMatching.forEach(calendar::addEntry);
 
-        List<Entry> entriesFound = new ArrayList<>(calendar.getEntries(filterStart, filterEnd));
+
+
+        List<Entry> entriesFound = calendar.getEntries(filterStart, filterEnd);
 
         // sort so that we have matching lists
         entriesMatching.sort(Comparator.comparing(Entry::getTitle));
@@ -254,6 +257,9 @@ public class FullCalendarIT {
 
     @Test
     void testGetEntriesByDate() {
+        FullCalendar calendar = new FullCalendar();
+        assertNPE(calendar, c -> c.getEntries(null));
+
         LocalDateTime ref = LocalDate.of(2000, 1, 1).atStartOfDay();
         LocalDateTime filterEnd = ref.plusDays(1);
 
@@ -286,9 +292,9 @@ public class FullCalendarIT {
         entriesMatching.add(new Entry(null, "M: Filter start to filter end - 1ns", ref, filterEnd.minusNanos(1), false, true, null, null));
         entriesMatching.add(new Entry(null, "M: Inside of filter timespan", ref.plusMinutes(29), filterEnd.plusMinutes(31), false, true, null, null));
 
-        FullCalendar calendar = new FullCalendar();
         entriesNotMatching.forEach(calendar::addEntry);
         entriesMatching.forEach(calendar::addEntry);
+
 
         List<Entry> entriesFound = new ArrayList<>(calendar.getEntries(ref.toLocalDate()));
 
@@ -353,9 +359,10 @@ public class FullCalendarIT {
     }
 
     @Test
-    void testSetOption() {
+    void testGetAndSetOption() {
         FullCalendar calendar = new FullCalendar();
 
+        assertNPE(calendar, c -> c.getOption(null));
         assertNPE(calendar, c -> c.setOption(null, null));
         assertNPE(calendar, c -> c.setOption(null, "someValue"));
 

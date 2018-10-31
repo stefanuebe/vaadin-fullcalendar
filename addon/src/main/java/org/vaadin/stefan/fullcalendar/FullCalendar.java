@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -113,7 +114,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * Returns all entries registered in this instance which timespan crosses the given time span.
+     * Returns all entries registered in this instance which timespan crosses the given time span. You may
+     * pass null for the parameters to have the timespan search only on one side. Passing null for both
+     * parameters return all entries.
      * <p/>
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
@@ -125,14 +128,25 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
      * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
      * include it.
-     * @param filterStart start point of filter timespan
-     * @param filterEnd end point of filter timespan
+     * @param filterStart start point of filter timespan or null to have no limit
+     * @param filterEnd end point of filter timespan or null to have no limit
      * @return entries
      */
-    public Collection<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
-        return getEntries().stream()
-                .filter(e -> e.getStart().isBefore(filterEnd) && e.getEnd().isAfter(filterStart))
-                .collect(Collectors.toList());
+    public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
+        if (filterStart == null && filterEnd == null) {
+            return getEntries();
+        }
+
+        Stream<Entry> stream = getEntries().stream();
+        if (filterStart != null) {
+            stream = stream.filter(e -> e.getEnd().isAfter(filterStart));
+        }
+
+        if (filterEnd != null) {
+            stream = stream.filter(e -> e.getStart().isBefore(filterEnd));
+        }
+
+        return stream.collect(Collectors.toList());
     }
 
     /**
