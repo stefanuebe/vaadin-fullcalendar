@@ -22,7 +22,7 @@ public abstract class EntryEvent extends ComponentEvent<FullCalendar> {
 
     /**
      * Returns the entry, for which the event occurred.
-     * @return
+     * @return entry
      */
     public Entry getEntry() {
         return entry;

@@ -29,7 +29,7 @@ public class Entry {
     private String description;
 
     public Entry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
-        this.id = id != null ? id : UUID.randomUUID().toString();
+        this(id);
 
         this.title = title;
         this.start = start;
@@ -45,8 +45,12 @@ public class Entry {
      * Empty instance.
      */
     public Entry() {
-        this.id = UUID.randomUUID().toString();
+        this(null);
         this.editable = true;
+    }
+
+    protected Entry(String id) {
+        this.id = id != null ? id : UUID.randomUUID().toString();
     }
 
     public String getId() {
@@ -150,6 +154,17 @@ public class Entry {
         updateDateTime(object, "start", this::setStart);
         updateDateTime(object, "end", this::setEnd);
         updateString(object, "color", this::setColor);
+    }
+
+    /**
+     * Creates a new instance from the given json object.
+     * @param object json
+     * @return entry
+     */
+    public static Entry fromJson(JsonObject object) {
+        Entry entry = new Entry(object.getString("id"));
+        entry.update(object);
+        return entry;
     }
 
     private void updateString(JsonObject object, String key, Consumer<String> setter) {
