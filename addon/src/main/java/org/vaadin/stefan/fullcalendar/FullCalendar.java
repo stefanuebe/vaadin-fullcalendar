@@ -40,6 +40,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     private Map<String, Entry> entries = new HashMap<>();
     private Map<Option, Serializable> options = new HashMap<>();
+    private Map<Option, Object> serverSideOptions = new HashMap<>();
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
@@ -252,12 +253,46 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException when null is passed
      */
     public void setOption(@Nonnull Option option, Serializable value) {
+        setOption(option, value, null);
+    }
+
+    /**
+     * Sets a option for this instance. Passing a null value removes the option. The third parameter
+     * might be used to explicitly store a "more complex" variant of the option's value to be returned
+     * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
+     * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
+     * <p/>
+     * Example:
+     * <pre>
+     // sends a client parseable version to client and stores original in server side
+     calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
+
+     // returns the original locale (as optional)
+     Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
+     * </pre>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     *
+     *
+     * @param option option
+     * @param value  value
+     * @param valueForServerSide value to be stored on server side
+     * @throws NullPointerException when null is passed
+     */
+    public void setOption(@Nonnull Option option, Serializable value, Object valueForServerSide) {
         Objects.requireNonNull(option);
 
         if (value == null) {
             options.remove(option);
+            serverSideOptions.remove(option);
         } else {
             options.put(option, value);
+
+            if (valueForServerSide == null || valueForServerSide.equals(value)) {
+                serverSideOptions.remove(option);
+            } else {
+                serverSideOptions.put(option, valueForServerSide);
+            }
         }
         getElement().callFunction("setOption", option.getOptionKey(), value);
     }
@@ -265,7 +300,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     /**
      * Sets the first day of a week to be shown by the calendar. Per default sunday.
      * <p/>
-     * Might be extended / replaced later by a locale setting.
+     * <b>Note:</b> FC works internally with 0 for sunday. This method converts SUNDAY to
+     * this number before passing it to the client.
      *
      * @param firstDay first day to be shown
      * @throws NullPointerException when null is passed
@@ -273,7 +309,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public void setFirstDay(@Nonnull DayOfWeek firstDay) {
         Objects.requireNonNull(firstDay);
         int value = firstDay == DayOfWeek.SUNDAY ? 0 : firstDay.getValue();
-        setOption(Option.FIRST_DAY, value);
+        setOption(Option.FIRST_DAY, value, firstDay);
     }
 
     /**
@@ -328,7 +364,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      */
     public void setLocale(@Nonnull Locale locale) {
         Objects.requireNonNull(locale);
-        setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase());
+        setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
     }
 
     /**
@@ -337,7 +373,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return locale
      */
     public Locale getLocale() {
-        return Locale.forLanguageTag((String) options.getOrDefault(Option.LOCALE, CalendarLocale.getDefault().toLanguageTag()));
+//        return Locale.forLanguageTag((String) options.getOrDefault(Option.LOCALE, CalendarLocale.getDefault().toLanguageTag()));
+        Serializable serializable = options.get(Option.LOCALE);
+        return serializable instanceof Locale ? (Locale) serializable : CalendarLocale.getDefault();
     }
 
     /**
@@ -385,7 +423,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public void setNumberClickForwardsDayTarget(@Nonnull CalendarView view) {
         Objects.requireNonNull(view);
         if (view.getClientSideName().toLowerCase().contains("day")) { // allows extension of day views without need to update this
-            setOption(Option.NAV_LINKS_DAY_TARGET, view.getClientSideName());
+            setOption(Option.NAV_LINKS_DAY_TARGET, view.getClientSideName(), view);
         } else {
             throw new IllegalArgumentException("Must be a day view. " + view + " not supported.");
         }
@@ -404,19 +442,17 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public void setNumberClickForwardsWeekTarget(@Nonnull CalendarView view) {
         Objects.requireNonNull(view);
         if (view.getClientSideName().toLowerCase().contains("week")) { // allows extension of week views without need to update this
-            setOption(Option.NAV_LINKS_WEEK_TARGET, view.getClientSideName());
+            setOption(Option.NAV_LINKS_WEEK_TARGET, view.getClientSideName(), view);
         } else {
             throw new IllegalArgumentException("Must be a week view. " + view + " not supported.");
         }
     }
 
     /**
-     * Returns an optional option value or empty.
+     * Returns an optional option value or empty. If a server side version of the value has been set
+     * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
      * <p/>
-     * Please be aware that this method returns a non parsed version of the option value. This
-     * means that e.g. for Option.LOCALE a string is returned. It is recommended to use the
-     * explicit getter methods instead (e.g. {@link #getLocale()}). If there is none, additional
-     * parsing must be done manually.
+     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
      * @param <T>    type of value
@@ -425,7 +461,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      */
     public <T> Optional<T> getOption(@Nonnull Option option) {
         Objects.requireNonNull(option);
-        return Optional.ofNullable((T) options.get(option));
+        return Optional.ofNullable((T) (serverSideOptions.containsKey(option) ? serverSideOptions.get(option) : options.get(option)));
     }
 
 

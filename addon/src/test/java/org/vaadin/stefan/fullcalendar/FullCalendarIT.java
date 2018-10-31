@@ -81,6 +81,8 @@ public class FullCalendarIT {
         calendar.gotoDate(LocalDate.MIN);
         calendar.gotoDate(LocalDate.MAX);
 
+        assertNPE(calendar, c -> c.setFirstDay(null));
+
     }
 
     private void assertNPE(FullCalendar calendar, Consumer<FullCalendar> function) {
@@ -536,5 +538,25 @@ public class FullCalendarIT {
 
         calendar.setOption(FullCalendar.Option.LOCALE, null);
         Assertions.assertFalse(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
+    }
+
+    @Test
+    void testGetAndSetOptionWithServerSideValues() {
+        FullCalendar calendar = new FullCalendar();
+
+        Locale locale = Locale.getDefault();
+
+        calendar.setOption(FullCalendar.Option.LOCALE, "someValue", locale);
+        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
+        Assertions.assertSame(locale, calendar.getOption(FullCalendar.Option.LOCALE).get());
+
+        calendar.setOption(FullCalendar.Option.LOCALE, "someValue", null);
+        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
+        Assertions.assertEquals("someValue", calendar.getOption(FullCalendar.Option.LOCALE).get());
+
+        calendar.setOption(FullCalendar.Option.LOCALE, "someOtherValue", locale);
+        calendar.setOption(FullCalendar.Option.LOCALE, "someOtherValue");
+        Assertions.assertTrue(calendar.getOption(FullCalendar.Option.LOCALE).isPresent());
+        Assertions.assertEquals("someOtherValue", calendar.getOption(FullCalendar.Option.LOCALE).get());
     }
 }
