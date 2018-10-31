@@ -243,12 +243,15 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Sets a option for this instance. Passing a null value removes the option.
+     * <p/>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
      *
      * @param option option
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    protected void setOption(@Nonnull Option option, Serializable value) {
+    public void setOption(@Nonnull Option option, Serializable value) {
         Objects.requireNonNull(option);
 
         if (value == null) {
@@ -409,13 +412,18 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Returns an optional option value or empty.
+     * <p/>
+     * Please be aware that this method returns a non parsed version of the option value. This
+     * means that e.g. for Option.LOCALE a string is returned. It is recommended to use the
+     * explicit getter methods instead (e.g. {@link #getLocale()}). If there is none, additional
+     * parsing must be done manually.
      *
      * @param option option
      * @param <T>    type of value
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    protected <T> Optional<T> getOption(@Nonnull Option option) {
+    public <T> Optional<T> getOption(@Nonnull Option option) {
         Objects.requireNonNull(option);
         return Optional.ofNullable((T) options.get(option));
     }
