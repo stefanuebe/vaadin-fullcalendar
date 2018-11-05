@@ -356,9 +356,6 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         getElement().callFunction("setOption", option, value);
     }
 
-
-
-
     /**
      * Sets the first day of a week to be shown by the calendar. Per default sunday.
      * <p/>
