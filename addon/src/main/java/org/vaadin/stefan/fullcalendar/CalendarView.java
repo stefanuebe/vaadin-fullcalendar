@@ -13,6 +13,10 @@ public enum CalendarView {
     LIST_DAY("listDay"),
     LIST_MONTH("listMonth"),
     LIST_YEAR("listYear"),
+    TIMELINE_DAY("timelineDay"),
+    TIMELINE_WEEK("timelineWeek"),
+    TIMELINE_MONTH("timelineMonth"),
+    TIMELINE_YEAR("timelineYear"),
     ;
 
     private final String clientSideName;
