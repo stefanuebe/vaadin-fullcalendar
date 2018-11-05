@@ -77,11 +77,19 @@ public class EntryTest {
 
     @Test
     void testConstructionFromJson() {
+        Entry entry;
+        JsonObject jsonObject;
+
         LocalDateTime ref = LocalDate.now().atStartOfDay();
 
+        // null
+        JsonObject empty = Json.createObject();
+        empty.put("id", Json.createNull());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Entry.fromJson(empty));
+
         // day
-        Entry entry = new Entry("id", "title", ref, ref.plusDays(1), true, true, "color", "description");
-        JsonObject jsonObject = entry.toJson();
+        entry = new Entry("id", "title", ref, ref.plusDays(1), true, true, "color", "description");
+        jsonObject = entry.toJson();
 
         Entry fromJson = Entry.fromJson(jsonObject);
         assertFullEqualsByJsonAttributes(entry, fromJson);
