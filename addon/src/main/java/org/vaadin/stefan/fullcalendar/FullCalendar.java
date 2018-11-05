@@ -39,8 +39,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public static final int DEFAULT_DAY_EVENT_DURATION = 1;
 
     private Map<String, Entry> entries = new HashMap<>();
-    private Map<Option, Serializable> options = new HashMap<>();
-    private Map<Option, Object> serverSideOptions = new HashMap<>();
+    private Map<String, Serializable> options = new HashMap<>();
+    private Map<String, Object> serverSideOptions = new HashMap<>();
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
@@ -280,6 +280,53 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException when null is passed
      */
     public void setOption(@Nonnull Option option, Serializable value, Object valueForServerSide) {
+       setOption(option.getOptionKey(), value, valueForServerSide);
+    }
+
+    /**
+     * Sets a option for this instance. Passing a null value removes the option.
+     * <p/>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * <p/>
+     * For a full overview of possible options have a look at the FullCalendar documentation
+     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     *
+     * @param option option
+     * @param value  value
+     * @throws NullPointerException when null is passed
+     */
+    public void setOption(@Nonnull String option, Serializable value) {
+        setOption(option, value, null);
+    }
+
+    /**
+     * Sets a option for this instance. Passing a null value removes the option. The third parameter
+     * might be used to explicitly store a "more complex" variant of the option's value to be returned
+     * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
+     * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
+     * <p/>
+     * Example:
+     * <pre>
+     // sends a client parseable version to client and stores original in server side
+     calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
+
+     // returns the original locale (as optional)
+     Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
+     * </pre>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     *
+     * <p/>
+     * For a full overview of possible options have a look at the FullCalendar documentation
+     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     *
+     * @param option option
+     * @param value  value
+     * @param valueForServerSide value to be stored on server side
+     * @throws NullPointerException when null is passed
+     */
+    public void setOption(@Nonnull String option, Serializable value, Object valueForServerSide) {
         Objects.requireNonNull(option);
 
         if (value == null) {
@@ -294,8 +341,11 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
                 serverSideOptions.put(option, valueForServerSide);
             }
         }
-        getElement().callFunction("setOption", option.getOptionKey(), value);
+        getElement().callFunction("setOption", option, value);
     }
+
+
+
 
     /**
      * Sets the first day of a week to be shown by the calendar. Per default sunday.
@@ -403,7 +453,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * Returns an optional option value or empty. If a server side version of the value has been set
+     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
+     * If a server side version of the value has been set
      * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
      * <p/>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
@@ -418,7 +469,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * Returns an optional option value or empty. If the second parameter is false and a server side version of the
+     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
+     * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
      * <p/>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
@@ -430,6 +482,39 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException when null is passed
      */
     public <T> Optional<T> getOption(@Nonnull Option option, boolean forceClientSideValue) {
+        return getOption(option.getOptionKey(), forceClientSideValue);
+    }
+
+    /**
+     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
+     * If a server side version of the value has been set
+     * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
+     * <p/>
+     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     *
+     * @param option option
+     * @param <T>    type of value
+     * @return optional value or empty
+     * @throws NullPointerException when null is passed
+     */
+    public <T> Optional<T> getOption(@Nonnull String option) {
+        return getOption(option, false);
+    }
+
+    /**
+     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
+     * If the second parameter is false and a server side version of the
+     * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
+     * <p/>
+     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     *
+     * @param option               option
+     * @param forceClientSideValue explicitly return the value that has been sent to client
+     * @param <T>                  type of value
+     * @return optional value or empty
+     * @throws NullPointerException when null is passed
+     */
+    public <T> Optional<T> getOption(@Nonnull String option, boolean forceClientSideValue) {
         Objects.requireNonNull(option);
         return Optional.ofNullable((T) (!forceClientSideValue && serverSideOptions.containsKey(option)
                 ? serverSideOptions.get(option) : options.get(option)));
