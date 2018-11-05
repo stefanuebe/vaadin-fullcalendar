@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -27,6 +28,8 @@ public class Entry {
     private boolean allDay;
     private String color;
     private String description;
+
+    private FullCalendar calendar;
 
     public Entry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
         this(id);
@@ -51,6 +54,23 @@ public class Entry {
 
     protected Entry(String id) {
         this.id = id != null ? id : UUID.randomUUID().toString();
+    }
+
+    /**
+     * Sets the calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
+     * @param calendar calendar instance
+     */
+    protected void setCalendar(FullCalendar calendar) {
+        this.calendar = calendar;
+    }
+
+    /**
+     * Returns the calendar instance of this entry. Is empty when not yet added to a calendar.
+     *
+     * @return calendar instance
+     */
+    public Optional<FullCalendar> getCalendar() {
+        return Optional.ofNullable(calendar);
     }
 
     public String getId() {
@@ -122,7 +142,7 @@ public class Entry {
         return Objects.hash(id);
     }
 
-    JsonObject toJson() {
+    protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", toJsonValue(getId()));
         jsonObject.put("title", toJsonValue(getTitle()));
@@ -146,7 +166,7 @@ public class Entry {
      * ignored.
      * @param object json object / change set
      */
-    void update(JsonObject object) {
+    protected void update(JsonObject object) {
         String id = object.getString("id");
         if (!this.id.equals(id)) {
             throw new IllegalArgumentException("IDs are not matching.");
@@ -171,20 +191,20 @@ public class Entry {
         return entry;
     }
 
-    private void updateString(JsonObject object, String key, Consumer<String> setter) {
+    protected void updateString(JsonObject object, String key, Consumer<String> setter) {
         if (object.hasKey(key)) {
             setter.accept(object.getString(key));
         }
     }
 
-    private void updateBoolean(JsonObject object, String key, Consumer<Boolean> setter) {
+    protected void updateBoolean(JsonObject object, String key, Consumer<Boolean> setter) {
         if (object.hasKey(key)) {
             setter.accept(object.getBoolean(key));
         }
     }
 
 
-    private void updateDateTime(JsonObject object, String key, Consumer<LocalDateTime> setter) {
+    protected void updateDateTime(JsonObject object, String key, Consumer<LocalDateTime> setter) {
         if (object.hasKey(key)) {
             String string = object.getString(key);
 
@@ -228,4 +248,5 @@ public class Entry {
     public void setDescription(String description) {
         this.description = description;
     }
+
 }

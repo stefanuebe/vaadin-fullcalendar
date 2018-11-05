@@ -1,5 +1,8 @@
 package org.vaadin.stefan.fullcalendar;
 
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Represents functionality for the FullCalendarScheduler.
  */
@@ -36,4 +39,42 @@ public interface Scheduler {
      */
     void setSchedulerLicenseKey(String schedulerLicenseKey);
 
+    /**
+     * Adds an resource to this calendar. Removes it from an old calendar instance when existing.
+     * Noop if the resource id is already registered.
+     *
+     * @param resource resource
+     * @return true if resource could be added
+     * @throws NullPointerException when null is passed
+     */
+    boolean addResource(Resource resource);
+
+    /**
+     * Removes the given resource. Noop if the id is not registered.
+     *
+     * @param resource resource
+     * @throws NullPointerException when null is passed
+     */
+    void removeResource(Resource resource);
+
+    /**
+     * Returns the resource with the given id. Is empty when the id is not registered.
+     *
+     * @param id id
+     * @return resource or empty
+     * @throws NullPointerException when null is passed
+     */
+    Optional<Resource> getResourceById(String id);
+
+    /**
+     * Returns all resources registered in this instance. Changes in an resource instance is reflected in the
+     * calendar instance on server side, but not client side. Resources can currently not be updated on the client side.
+     * <p/>
+     * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
+     * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
+     * a convenient way of using the returned values without the need to encapsulate them yourselves.
+     *
+     * @return resources resources
+     */
+    List<Resource> getResources();
 }

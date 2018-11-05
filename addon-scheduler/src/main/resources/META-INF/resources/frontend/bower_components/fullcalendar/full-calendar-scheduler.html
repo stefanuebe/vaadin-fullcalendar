@@ -42,6 +42,29 @@
             ready() {
                 super.ready();
             }
+
+            _createInitOptions() {
+                var options = super._createInitOptions();
+                options.resources = [];
+                return options;
+            }
+
+            _toEventData(event) {
+                var eventData = super._toEventData(event);
+                eventData.resourceId = event.resourceId;
+                eventData.resourceIds = event.resourceIds;
+
+                return eventData;
+            }
+
+            addResource(obj) {
+                this._calendar.addResource(obj);
+            }
+
+            removeResource(obj) {
+                this._calendar.removeResource(obj.id);
+            }
+
         }
 
         customElements.define(FullCalendarScheduler.is, FullCalendarScheduler);
