@@ -100,7 +100,28 @@ public class Demo extends Div {
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);
 
-        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales);
+        ComboBox<String> comboBoxGroupBy = new ComboBox<>("");
+        comboBoxGroupBy.setPlaceholder("Group by...");
+        comboBoxGroupBy.setItems("none", "group by resource / date", "group by date / resource");
+        comboBoxGroupBy.addValueChangeListener(event -> {
+            switch (event.getValue()) {
+                default:
+                case "none":
+                    calendar.setOption("groupByResource", false);
+                    calendar.setOption("groupByDateAndResource", false);
+                    break;
+                case "group by resource / date":
+                    calendar.setOption("groupByDateAndResource", false);
+                    calendar.setOption("groupByResource", true);
+                    break;
+                case "group by date / resource":
+                    calendar.setOption("groupByResource", false);
+                    calendar.setOption("groupByDateAndResource", true);
+                    break;
+            }
+        });
+
+        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy);
     }
 
     private void setFlexStyles(boolean flexStyles) {

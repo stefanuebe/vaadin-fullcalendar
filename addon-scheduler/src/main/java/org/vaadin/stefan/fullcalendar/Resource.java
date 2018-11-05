@@ -13,23 +13,44 @@ public class Resource {
     private final String id;
     private String title;
 
+    /**
+     * New instance.
+     */
     public Resource() {
         this(null);
     }
 
+    /**
+     * New instance. Awaits id and title.
+     * @param id id
+     * @param title title
+     */
     public Resource(String id, String title) {
         this(id);
         this.title = title;
     }
 
+    /**
+     * New instance. Awaits id.
+     *
+     * @param id id
+     */
     protected Resource(String id) {
         this.id = id != null ? id : UUID.randomUUID().toString();
     }
 
+    /**
+     * Returns the id of this instance.
+     * @return id
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Returns the title.
+     * @return title
+     */
     public String getTitle() {
         return title;
     }
@@ -37,6 +58,8 @@ public class Resource {
     public void setTitle(String title) {
         this.title = title;
     }
+
+
 
     @Override
     public boolean equals(Object o) {
