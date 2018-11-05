@@ -236,8 +236,11 @@ public class Entry {
                 ", start=" + start +
                 ", end=" + end +
                 ", allDay=" + allDay +
+                ", color='" + color + '\'' +
+                ", description='" + description + '\'' +
                 ", editable=" + editable +
                 ", id='" + id + '\'' +
+                ", calendar=" + calendar +
                 '}';
     }
 

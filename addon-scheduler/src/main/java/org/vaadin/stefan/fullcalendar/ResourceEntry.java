@@ -1,14 +1,10 @@
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
+import elemental.json.*;
 
+import javax.jnlp.JNLPRandomAccessFile;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents an entry that can be connected with a resource. Needed for timeline views.
@@ -43,6 +39,10 @@ public class ResourceEntry extends Entry {
      */
     public Optional<Resource> getResource() {
         return Optional.ofNullable(resources != null && !resources.isEmpty() ? resources.iterator().next() : null);
+    }
+
+    public Set<Resource> getResources() {
+        return Collections.unmodifiableSet(resources);
     }
 
     /**
@@ -118,21 +118,33 @@ public class ResourceEntry extends Entry {
     protected void update(JsonObject object) {
         super.update(object);
 
-        Optional<Resource> optional = getResource();
-        if (optional.isPresent()) {
-            Resource resource = optional.get();
-            String resourceId = object.getString("resourceId");
-            if (!resource.getId().equals(resourceId)) {
-                if (resourceId == null) {
+        getCalendar().map(c -> (Scheduler) c).ifPresent(calendar -> {
+            JsonValue jsonValue = object.get("resourceIds");
+
+            if (jsonValue instanceof JsonNull) {
+                jsonValue = object.get("resourceId");
+                if (jsonValue instanceof JsonNull) {
                     setResource(null);
                 } else {
-                    getCalendar().ifPresent(c -> {
-                        ((Scheduler) c).getResourceById(resourceId).ifPresent(newResource -> setResource(newResource));
-                    });
+                    setResource(calendar.getResourceById(jsonValue.asString()).orElse(null));
                 }
+            } else {
+                JsonArray resourceIds = (JsonArray) jsonValue;
+                if (resourceIds != null) {
+                    removeAllResources();
+
+                    int length = resourceIds.length();
+                    HashSet<Resource> set = new HashSet<>(length);
+
+                    for (int i = 0; i < length; i++) {
+                        String resourceId = resourceIds.getString(i);
+                        calendar.getResourceById(resourceId).ifPresent(set::add);
+                }
+
+                    addResources(set);
             }
-        } else {
-            setResource(null);
+            }
+
+        });
         }
-    }
 }
