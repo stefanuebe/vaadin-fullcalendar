@@ -598,15 +598,32 @@ public class FullCalendarTest {
     void testGetAndSetOption() {
         FullCalendar calendar = new FullCalendar();
 
-        assertNPE(calendar, c -> c.getOption(null));
-        assertNPE(calendar, c -> c.setOption(null, null));
-        assertNPE(calendar, c -> c.setOption(null, "someValue"));
+        assertNPE(calendar, c -> c.getOption((Option) null));
+        assertNPE(calendar, c -> c.setOption((Option) null, null));
+        assertNPE(calendar, c -> c.setOption((Option) null, "someValue"));
 
         calendar.setOption(Option.LOCALE, "someValue");
         Assertions.assertTrue(calendar.getOption(Option.LOCALE).isPresent());
 
         calendar.setOption(Option.LOCALE, null);
         Assertions.assertFalse(calendar.getOption(Option.LOCALE).isPresent());
+    }
+
+    @Test
+    void testGetAndSetOptionWithStringKeys() {
+        FullCalendar calendar = new FullCalendar();
+
+        assertNPE(calendar, c -> c.getOption((String) null));
+        assertNPE(calendar, c -> c.setOption((String) null, null));
+        assertNPE(calendar, c -> c.setOption((String) null, "someValue"));
+
+        String optionKey = Option.LOCALE.getOptionKey();
+
+        calendar.setOption(optionKey, "someValue");
+        Assertions.assertTrue(calendar.getOption(optionKey).isPresent());
+
+        calendar.setOption(optionKey, null);
+        Assertions.assertFalse(calendar.getOption(optionKey).isPresent());
     }
 
     @Test
@@ -625,6 +642,25 @@ public class FullCalendarTest {
         calendar.setOption(Option.LOCALE, "someOtherValue", locale);
         calendar.setOption(Option.LOCALE, "someOtherValue");
         assertOptionalEquals("someOtherValue", calendar.getOption(Option.LOCALE));
+    }
+
+    @Test
+    void testGetAndSetOptionWithServerSideValuesWithStringKeys() {
+        FullCalendar calendar = new FullCalendar();
+
+        Locale locale = Locale.getDefault();
+        String option = Option.LOCALE.getOptionKey();
+
+        calendar.setOption(option, "someValue", locale);
+        assertOptionalEquals(locale, calendar.getOption(option));
+        assertOptionalEquals("someValue", calendar.getOption(option, true));
+
+        calendar.setOption(option, "someValue", null);
+        assertOptionalEquals("someValue", calendar.getOption(option));
+
+        calendar.setOption(option, "someOtherValue", locale);
+        calendar.setOption(option, "someOtherValue");
+        assertOptionalEquals("someOtherValue", calendar.getOption(option));
     }
 
     @Test
