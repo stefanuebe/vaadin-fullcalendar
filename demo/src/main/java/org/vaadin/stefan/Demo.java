@@ -40,7 +40,7 @@ public class Demo extends Div {
     private HorizontalLayout toolbar;
 
     public Demo() {
-        HorizontalLayout title = new HorizontalLayout(new H3("full calendar demo"), new Span("(1.2.0)"));
+        HorizontalLayout title = new HorizontalLayout(new H3("full calendar demo"), new Span("(1.3.0-SNAPSHOT)"));
         title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         add(title);
 
@@ -63,11 +63,14 @@ public class Demo extends Div {
         Button buttonNext = new Button("Next", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
         buttonNext.setIconAfterText(true);
 
-        comboBoxView = new ComboBox<>("", CalendarView.values());
-        comboBoxView.setValue(CalendarView.MONTH);
+        List<CalendarView> calendarViews = new ArrayList<>();
+        calendarViews.addAll(Arrays.asList(CalendarViewImpl.values()));
+        calendarViews.addAll(Arrays.asList(SchedulerView.values()));
+        comboBoxView = new ComboBox<>("", calendarViews);
+        comboBoxView.setValue(CalendarViewImpl.MONTH);
         comboBoxView.addValueChangeListener(e -> {
             CalendarView value = e.getValue();
-            calendar.changeView(value == null ? CalendarView.MONTH : value);
+            calendar.changeView(value == null ? CalendarViewImpl.MONTH : value);
         });
 
         // simulate the date picker light that we can use in polymer
@@ -113,10 +116,13 @@ public class Demo extends Div {
     }
 
     private void createCalendarInstance() {
-        calendar = new FullCalendar(5);
+        calendar = FullCalendarBuilder.create().withEntryLimit(5).withScheduler().build();
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+
+        // scheduler options
+        ((Scheduler) calendar).setSchedulerLicenseKey(Scheduler.GPL_V3_LICENSE_KEY);
 
         // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
         // one day selection.
@@ -197,11 +203,11 @@ public class Demo extends Div {
         });
 
         calendar.addDayNumberClickedEvent(event -> {
-            comboBoxView.setValue(CalendarView.LIST_DAY);
+            comboBoxView.setValue(CalendarViewImpl.LIST_DAY);
             calendar.gotoDate(event.getDateTime().toLocalDate());
         });
         calendar.addWeekNumberClickedEvent(event -> {
-            comboBoxView.setValue(CalendarView.LIST_WEEK);
+            comboBoxView.setValue(CalendarViewImpl.LIST_WEEK);
             calendar.gotoDate(event.getDateTime().toLocalDate());
         });
 
@@ -245,27 +251,48 @@ public class Demo extends Div {
     }
 
     protected void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
-        String text;
+        String text = "--";
         Locale locale = calendar.getLocale();
-        switch (view) {
-            default:
-            case MONTH:
-            case LIST_MONTH:
-                text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
-                break;
-            case AGENDA_DAY:
-            case BASIC_DAY:
-            case LIST_DAY:
-                text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
-                break;
-            case AGENDA_WEEK:
-            case BASIC_WEEK:
-            case LIST_WEEK:
-                text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
-                break;
-            case LIST_YEAR:
-                text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
-                break;
+
+        if (view == null) {
+            text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
+        } else if (view instanceof CalendarViewImpl) {
+            switch ((CalendarViewImpl) view) {
+                default:
+                case MONTH:
+                case LIST_MONTH:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
+                    break;
+                case AGENDA_DAY:
+                case BASIC_DAY:
+                case LIST_DAY:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
+                    break;
+                case AGENDA_WEEK:
+                case BASIC_WEEK:
+                case LIST_WEEK:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
+                    break;
+                case LIST_YEAR:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
+                    break;
+            }
+        } else if (view instanceof SchedulerView) {
+            switch ((SchedulerView) view) {
+                default:
+                case TIMELINE_MONTH:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
+                    break;
+                case TIMELINE_DAY:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
+                    break;
+                case TIMELINE_WEEK:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
+                    break;
+                case TIMELINE_YEAR:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
+                    break;
+            }
         }
 
         intervalLabel.setText(text);
