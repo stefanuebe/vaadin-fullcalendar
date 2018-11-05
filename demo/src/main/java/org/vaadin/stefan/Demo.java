@@ -157,7 +157,16 @@ public class Demo extends Div {
             LocalDateTime start = entry.getStart();
             LocalDateTime end = entry.getEnd();
 
-            Notification.show(entry.getTitle() + " moved to " + start + " - " + end+ " by " + event.getDelta());
+            String text = entry.getTitle() + " moved to " + start + " - " + end + " by " + event.getDelta();
+
+            if(entry instanceof ResourceEntry) {
+                if(((ResourceEntry) entry).getResource().isPresent()) {
+                    text += text + " - room is " + ((ResourceEntry) entry).getResource().get().getTitle();
+                }
+            }
+
+
+            Notification.show(text);
             calendar.render();
         });
         calendar.addViewRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
@@ -222,7 +231,18 @@ public class Demo extends Div {
 
     protected void createTestEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
-        createTimedEntry(calendar, "Kickoff meeting with customer", now.withDayOfMonth(3).atTime(10, 0), 120, "mediumseagreen");
+
+        Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red");
+        Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green");
+        Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue");
+
+        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, "mediumseagreen", meetingRoomBlue);
+        createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
+        createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
+        createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
+        createTimedEntry(calendar, "Kickoff meeting with customer #5", now.withDayOfMonth(17).atTime(11, 30), 120, "mediumseagreen", meetingRoomBlue);
+        createTimedEntry(calendar, "Kickoff meeting with customer #6", now.withDayOfMonth(22).atTime(9, 0), 120, "mediumseagreen", meetingRoomRed);
+
         createTimedEntry(calendar, "Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "violet");
         createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 45), 90, "violet");
         createTimedEntry(calendar, "Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "dodgerblue");
@@ -240,14 +260,31 @@ public class Demo extends Div {
         createDayEntry(calendar, "Multi 8", now.withDayOfMonth(12), 2, "tomato");
         createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
         createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
+
+
+
     }
 
-    protected void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
-        calendar.addEntry(new Entry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description..."));
+    private Resource createResource(Scheduler calendar, String s) {
+        Resource resource = new Resource(null, s);
+        calendar.addResource(resource);
+        return resource;
     }
 
-    protected void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
-        calendar.addEntry(new Entry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description..."));
+    protected ResourceEntry createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
+        ResourceEntry entry = new ResourceEntry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description...");
+        calendar.addEntry(entry);
+        return entry;
+    }
+
+    protected ResourceEntry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
+        return createTimedEntry(calendar, title, start, minutes, color, null);
+    }
+    protected ResourceEntry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource resource) {
+        ResourceEntry entry = new ResourceEntry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description...");
+        entry.setResource(resource);
+        calendar.addEntry(entry);
+        return entry;
     }
 
     protected void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {

@@ -56,40 +56,7 @@
                 var thisReference = this;
 
                 this._handle = $(this.$.calendar);
-                this._handle.fullCalendar({
-                    height: 'parent',
-                    eventLimitClick: function(cellInfo) {
-                        thisReference.dispatchEvent(new CustomEvent("eventLimitClick", {detail: {date: cellInfo.date.format()}}));
-                    },
-
-                    navLinkDayClick: function(date) {
-                        thisReference.dispatchEvent(new CustomEvent("navLinkDayClick", {detail: {date: date.format(), allDay: true}}));
-                    },
-
-                    navLinkWeekClick: function(date) {
-                        thisReference.dispatchEvent(new CustomEvent("navLinkWeekClick", {detail: {date: date.format(), allDay: true}}));
-                    },
-
-                    // no native control elements
-                    header: {
-                        left: '',
-                        center: '',
-                        right: ''
-                    },
-
-                    eventLimit: this.eventLimit,
-                    views: {
-                        basicDay: {
-                            eventLimit: false // adjust to unlimited for basic view
-                        },
-                        basicWeek: {
-                            eventLimit: false
-                        }
-                    },
-
-                    defaultTimedEventDuration: '01:00:00'
-
-                });
+                this._handle.fullCalendar(this._createInitOptions());
                 this._calendar = this._handle.fullCalendar('getCalendar');
 
 
@@ -106,11 +73,21 @@
                 });
 
                 this._calendar.on('eventResize', function (event, delta, revertFunc) {
-                    thisReference.dispatchEvent(new CustomEvent('eventResize', {detail: {data: thisReference._toData(event), delta: delta._data}}));
+                    thisReference.dispatchEvent(new CustomEvent('eventResize', {
+                        detail: {
+                            data: thisReference._toEventData(event),
+                            delta: delta._data
+                        }
+                    }));
                 });
 
                 this._calendar.on('eventDrop', function (event, delta, revertFunc) {
-                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {detail: {data: thisReference._toData(event), delta: delta._data}}));
+                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {
+                        detail: {
+                            data: thisReference._toEventData(event),
+                            delta: delta._data
+                        }
+                    }));
                 });
 
                 this._calendar.on('viewRender', function (view, element) {
@@ -118,11 +95,62 @@
                 });
             }
 
+            _createInitOptions() {
+                var thisReference = this;
+
+                return {
+                    height: 'parent',
+                    eventLimitClick: function (cellInfo) {
+                        thisReference.dispatchEvent(new CustomEvent("eventLimitClick", {detail: {date: cellInfo.date.format()}}));
+                    },
+
+                    navLinkDayClick: function (date) {
+                        thisReference.dispatchEvent(new CustomEvent("navLinkDayClick", {
+                            detail: {
+                                date: date.format(),
+                                allDay: true
+                            }
+                        }));
+                    },
+
+                    navLinkWeekClick: function (date) {
+                        thisReference.dispatchEvent(new CustomEvent("navLinkWeekClick", {
+                            detail: {
+                                date: date.format(),
+                                allDay: true
+                            }
+                        }));
+                    },
+
+                    // no native control elements
+                    header: {
+                        left: '',
+                        center: '',
+                        right: ''
+                    },
+
+                    resources: [],
+
+                    eventLimit: this.eventLimit,
+                    views: {
+                        basicDay: {
+                            eventLimit: false // adjust to unlimited for basic view
+                        },
+                        basicWeek: {
+                            eventLimit: false
+                        }
+                    },
+
+                    defaultTimedEventDuration: '01:00:00'
+
+                };
+            }
+
             setOption(key, value) {
                 this._calendar.option(key, value);
             }
 
-            _toData(event) {
+            _toEventData(event) {
                 var end = event.end;
                 if (end != null) {
                     end = end.format();

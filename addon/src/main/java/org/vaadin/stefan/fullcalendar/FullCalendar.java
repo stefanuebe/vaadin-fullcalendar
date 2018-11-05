@@ -110,7 +110,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
      * <p/>
-     * Changes in the list are not reflected to the calendar instance. Also please note, that the content
+     * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
      * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
      * a convenient way of using the returned values without the need to encapsulate them yourselves.
      * @return entries entries
@@ -172,17 +172,24 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
 
     /**
-     * Adds an entry to this calendar. Noop if the entry id is already registered
+     * Adds an entry to this calendar. Removes it from an old calendar instance when existing.
+     * Noop if the entry id is already registered.
      *
      * @param entry entry
      * @return true if entry could be added
      * @throws NullPointerException when null is passed
      */
     public boolean addEntry(@Nonnull Entry entry) {
+        Objects.requireNonNull(entry);
         String id = entry.getId();
         boolean containsKey = entries.containsKey(id);
         if (!containsKey) {
+            // remove from old instance
+            entry.getCalendar().ifPresent(c -> c.removeEntry(entry));
+            entry.setCalendar(this);
+
             entries.put(id, entry);
+
             getElement().callFunction("addEvent", entry.toJson());
         }
 
