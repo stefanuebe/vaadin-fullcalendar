@@ -236,7 +236,7 @@ public class Demo extends Div {
         Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green");
         Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue");
 
-        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, "mediumseagreen", meetingRoomBlue);
+        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, "mediumseagreen", meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
         createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
@@ -260,9 +260,6 @@ public class Demo extends Div {
         createDayEntry(calendar, "Multi 8", now.withDayOfMonth(12), 2, "tomato");
         createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
         createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
-
-
-
     }
 
     private Resource createResource(Scheduler calendar, String s) {
@@ -280,9 +277,11 @@ public class Demo extends Div {
     protected ResourceEntry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
         return createTimedEntry(calendar, title, start, minutes, color, null);
     }
-    protected ResourceEntry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource resource) {
+    protected ResourceEntry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource... resources) {
         ResourceEntry entry = new ResourceEntry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description...");
-        entry.setResource(resource);
+        if (resources != null && resources.length > 0) {
+            entry.addResources(Arrays.asList(resources));
+        }
         calendar.addEntry(entry);
         return entry;
     }
