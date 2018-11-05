@@ -16,6 +16,7 @@ The following functions are implemented and available to use from server side:
 * limit max shown entries per day (except basic views)
 * showing now indicator
 * activating day / week numbers / names to be links
+* styles are overridable via custom properties
 
 * Event handling for
     * clicking an empty time spot in the calendar,
