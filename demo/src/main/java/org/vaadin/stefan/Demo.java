@@ -181,8 +181,9 @@ public class Demo extends Div {
             String text = entry.getTitle() + " moved to " + start + " - " + end + " by " + event.getDelta();
 
             if(entry instanceof ResourceEntry) {
-                if(((ResourceEntry) entry).getResource().isPresent()) {
-                    text += text + " - room is " + ((ResourceEntry) entry).getResource().get().getTitle();
+                Set<Resource> resources = ((ResourceEntry) entry).getResources();
+                if(!resources.isEmpty()) {
+                    text += text + " - rooms are " + resources;
                 }
             }
 
@@ -253,11 +254,11 @@ public class Demo extends Div {
     protected void createTestEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
 
-        Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red");
-        Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green");
-        Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue");
+        Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red", "red");
+        Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green", "green");
+        Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
 
-        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, "mediumseagreen", meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
+        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
         createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
@@ -283,8 +284,8 @@ public class Demo extends Div {
         createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
     }
 
-    private Resource createResource(Scheduler calendar, String s) {
-        Resource resource = new Resource(null, s);
+    private Resource createResource(Scheduler calendar, String s, String color) {
+        Resource resource = new Resource(null, s, color);
         calendar.addResource(resource);
         return resource;
     }

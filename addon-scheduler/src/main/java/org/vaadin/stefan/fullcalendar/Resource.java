@@ -2,6 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.Json;
 import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -11,32 +12,26 @@ import java.util.UUID;
  */
 public class Resource {
     private final String id;
-    private String title;
+    private final String title;
+    private final String color;
 
     /**
      * New instance.
      */
     public Resource() {
-        this(null);
+        this(null, null, null);
     }
 
     /**
      * New instance. Awaits id and title.
      * @param id id
      * @param title title
+     * @param color color (optional)
      */
-    public Resource(String id, String title) {
-        this(id);
-        this.title = title;
-    }
-
-    /**
-     * New instance. Awaits id.
-     *
-     * @param id id
-     */
-    protected Resource(String id) {
+    public Resource(String id, String title, String color) {
         this.id = id != null ? id : UUID.randomUUID().toString();
+        this.title = title;
+        this.color = color;
     }
 
     /**
@@ -54,12 +49,6 @@ public class Resource {
     public String getTitle() {
         return title;
     }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-
 
     @Override
     public boolean equals(Object o) {
@@ -83,7 +72,31 @@ public class Resource {
 
         jsonObject.put("id", getId());
         jsonObject.put("title", getTitle());
+        jsonObject.put("eventColor", toJsonValue(getColor()));
 
         return jsonObject;
+    }
+
+    @Override
+    public String toString() {
+        return "Resource{" +
+                "title='" + title + '\'' +
+                ", color='" + color + '\'' +
+                ", id='" + id + '\'' +
+                '}';
+    }
+
+    private JsonValue toJsonValue(Object value) {
+        if (value == null) {
+            return Json.createNull();
+        }
+        if (value instanceof Boolean) {
+            return Json.create((Boolean) value);
+        }
+        return Json.create(String.valueOf(value));
+    }
+
+    public String getColor() {
+        return color;
     }
 }
