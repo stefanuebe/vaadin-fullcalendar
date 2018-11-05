@@ -1,8 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
+import elemental.json.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -161,9 +159,9 @@ public class Entry {
     }
 
     /**
-     * Updates this instance with the content of the given object. Properties, that are not part of the object will
-     * be unmodified. Same for the id. Properties in the object, that do not match with this instance will be
-     * ignored.
+     * Updates this instance with the content of the given object. Properties, that are not part of the object or are
+     * of an invalid type will be unmodified. Same for the id. Properties in the object, that do not match with this
+     * instance will be ignored.
      * @param object json object / change set
      */
     protected void update(JsonObject object) {
@@ -186,26 +184,30 @@ public class Entry {
      * @return entry
      */
     public static Entry fromJson(JsonObject object) {
-        Entry entry = new Entry(object.getString("id"));
-        entry.update(object);
-        return entry;
+        try {
+            Entry entry = new Entry(object.getString("id"));
+            entry.update(object);
+            return entry;
+        } catch (ClassCastException cce) {
+            throw new IllegalArgumentException("ID is not a valid json string.");
+        }
     }
 
     protected void updateString(JsonObject object, String key, Consumer<String> setter) {
-        if (object.hasKey(key)) {
+        if (object.get(key) instanceof JsonString) {
             setter.accept(object.getString(key));
         }
     }
 
     protected void updateBoolean(JsonObject object, String key, Consumer<Boolean> setter) {
-        if (object.hasKey(key)) {
+        if (object.get(key) instanceof JsonBoolean) {
             setter.accept(object.getBoolean(key));
         }
     }
 
 
     protected void updateDateTime(JsonObject object, String key, Consumer<LocalDateTime> setter) {
-        if (object.hasKey(key)) {
+        if (object.get(key) instanceof JsonString) {
             String string = object.getString(key);
 
             LocalDateTime dateTime;
