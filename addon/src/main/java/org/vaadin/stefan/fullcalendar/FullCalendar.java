@@ -48,8 +48,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     /**
      * Creates a new FullCalendar.
      */
-    public FullCalendar() {
-        setLocale(CalendarLocale.getDefault());
+    FullCalendar() {
+        this(-1);
     }
 
     /**
@@ -59,12 +59,17 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * list views. This value has to be set here and cannot be modified afterwards due to
      * technical reasons of FC. If set afterwards the entry limit would overwrite settings
      * and would show the limit also for basic views where it makes no sense (might change in future).
+     * Passing a negative number or 0 disabled the entry limit (same as passing no number at all).
      *
      * @param entryLimit max entries to shown per day
      */
-    public FullCalendar(int entryLimit) {
-        this();
-        getElement().setProperty("eventLimit", entryLimit);
+    FullCalendar(int entryLimit) {
+        setLocale(CalendarLocale.getDefault());
+        if (entryLimit > 0) {
+            getElement().setProperty("eventLimit", entryLimit);
+        } else {
+            getElement().setProperty("eventLimit", false);
+        }
     }
 
     /**

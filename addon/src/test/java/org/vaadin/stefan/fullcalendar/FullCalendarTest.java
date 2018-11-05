@@ -80,7 +80,7 @@ public class FullCalendarTest {
         calendar.today();
 
         assertNPE(calendar, c -> c.changeView(null));
-        calendar.changeView(CalendarView.MONTH);
+        calendar.changeView(CalendarViewImpl.MONTH);
 
         assertNPE(calendar, c -> c.gotoDate(null));
         calendar.gotoDate(LocalDate.now());

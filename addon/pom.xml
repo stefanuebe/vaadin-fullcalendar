@@ -110,23 +110,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.3.7.v20160115</version>
-                <configuration>
-                    <scanIntervalSeconds>2</scanIntervalSeconds>
-                    <!-- Use test scope because the UI/demo classes are in
-                        the test package. -->
-                    <useTestScope>false</useTestScope>
-                    <!--<webAppConfig>-->
-                    <!--&lt;!&ndash; This is only needed to be able to unzip webjars-->
-                    <!--directly into src/test/webjar-debug and modify them for testing &ndash;&gt;-->
-                    <!--<resourceBase>src/test/webjar-debug/META-INF/resources</resourceBase>-->
-                    <!--</webAppConfig>-->
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.0.0</version>
