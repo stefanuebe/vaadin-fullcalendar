@@ -164,3 +164,32 @@ calendar.getElement().getStyle().set("height", "calc(100vh - 450px)");
 calendar.setHeightByParent();
 calendar.getElement().getStyle().set("flex-grow", "1");
 ```
+
+## Using custom styles to modify FCs appearance
+1. Copy the styles.html from the github demo or create your own custom style file.
+https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/src/main/webapp/frontend/styles.html
+
+2. Modify the styles as needed.
+
+```
+<custom-style>
+    <style>
+        html{
+            /* light blue to be used instead of default light yellow*/
+            --fc-unthemed_tdfc-today-background: #81DAF5 !important;
+            
+            /* and some fancy border */
+            --fc_td-border-style: dotted !important;
+            --fc_td-border-width: 2px !important;
+        }
+    </style>
+</custom-style>
+```
+
+3. Use the styles file in your application.
+```
+@HtmlImport("frontend://styles/full-calendar-styles.html")
+public class FullCalendarApplication extends Div {
+    // ...
+}
+```
