@@ -166,8 +166,11 @@ calendar.getElement().getStyle().set("flex-grow", "1");
 ```
 
 ## Using custom styles to modify FCs appearance
-1. Copy the styles.html from the github demo or create your own custom style file.
+1. Copy the styles.html from the github demo or create your own custom style file and place it in your applications webapp/frontend folder (e. g. webapp/frontend/styles/styles/my-custom-full-calendar-styles.html)
+
+The github demo file can be obtained from here:
 https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/src/main/webapp/frontend/styles.html
+
 
 2. Modify the styles as needed.
 
