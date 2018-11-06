@@ -2,7 +2,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.*;
 
-import javax.jnlp.JNLPRandomAccessFile;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -42,12 +41,12 @@ public class ResourceEntry extends Entry {
     }
 
     public Set<Resource> getResources() {
-        return Collections.unmodifiableSet(resources);
+        return resources != null ? Collections.unmodifiableSet(resources) : Collections.emptySet();
     }
 
     /**
      * Sets a resource for this entry. Previously set resources will be removed. Setting null is the same
-     * as calling {@link #removeAllResources()}
+     * as calling {@link #removeAllResources()}.
      *
      * @param resource resource
      */
@@ -112,21 +111,6 @@ public class ResourceEntry extends Entry {
         }
 
         return jsonObject;
-    }
-
-    /**
-     * Creates a new instance from the given json object.
-     * @param object json
-     * @return entry
-     */
-    public static ResourceEntry fromJson(JsonObject object) {
-        try {
-            ResourceEntry entry = new ResourceEntry(object.getString("id"));
-            entry.update(object);
-            return entry;
-        } catch (ClassCastException cce) {
-            throw new IllegalArgumentException("ID is not a valid json string.");
-        }
     }
 
     @Override
