@@ -101,26 +101,21 @@ public class Demo extends Div {
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);
 
-        ComboBox<String> comboBoxGroupBy = new ComboBox<>("");
+        ComboBox<GroupEntriesBy> comboBoxGroupBy = new ComboBox<>("");
         comboBoxGroupBy.setPlaceholder("Group by...");
-        comboBoxGroupBy.setItems("none", "group by resource / date", "group by date / resource");
-        comboBoxGroupBy.addValueChangeListener(event -> {
-            switch (event.getValue()) {
+        comboBoxGroupBy.setItems(GroupEntriesBy.values());
+        comboBoxGroupBy.setItemLabelGenerator(item -> {
+            switch (item) {
                 default:
-                case "none":
-                    calendar.setOption("groupByResource", false);
-                    calendar.setOption("groupByDateAndResource", false);
-                    break;
-                case "group by resource / date":
-                    calendar.setOption("groupByDateAndResource", false);
-                    calendar.setOption("groupByResource", true);
-                    break;
-                case "group by date / resource":
-                    calendar.setOption("groupByResource", false);
-                    calendar.setOption("groupByDateAndResource", true);
-                    break;
+                case NONE:
+                    return "none";
+                case RESOURCE_DATE:
+                    return "group by resource / date";
+                case DATE_RESOURCE:
+                    return "group by date / resource";
             }
         });
+        comboBoxGroupBy.addValueChangeListener(event -> ((Scheduler) calendar).setGroupEntriesBy(event.getValue()));
 
         toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy);
     }
