@@ -75,33 +75,6 @@ public class EntryTest {
         Assertions.assertNull(new Entry(null, null, null, null, false, false, "", null).getColor());
     }
 
-    @Test
-    void testConstructionFromJson() {
-        Entry entry;
-        JsonObject jsonObject;
-
-        LocalDateTime ref = LocalDate.now().atStartOfDay();
-
-        // null
-        JsonObject empty = Json.createObject();
-        empty.put("id", Json.createNull());
-        Assertions.assertThrows(IllegalArgumentException.class, () -> Entry.fromJson(empty));
-
-        // day
-        entry = new Entry("id", "title", ref, ref.plusDays(1), true, true, "color", "description");
-        jsonObject = entry.toJson();
-
-        Entry fromJson = Entry.fromJson(jsonObject);
-        assertFullEqualsByJsonAttributes(entry, fromJson);
-
-        // timed
-        entry = new Entry("id", "title", ref, ref.plusHours(1), false, true, "color", "description");
-        jsonObject = entry.toJson();
-
-        fromJson = Entry.fromJson(jsonObject);
-        assertFullEqualsByJsonAttributes(entry, fromJson);
-    }
-
     /**
      * Checks an original entry and the json based variant for equal fields, that can be changed by json.
      * @param expected expected entry
