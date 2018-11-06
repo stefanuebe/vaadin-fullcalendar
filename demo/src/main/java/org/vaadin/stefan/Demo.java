@@ -65,13 +65,13 @@ public class Demo extends Div {
         buttonNext.setIconAfterText(true);
 
         List<CalendarView> calendarViews = new ArrayList<>();
-        calendarViews.addAll(Arrays.asList(MainCalendarView.values()));
+        calendarViews.addAll(Arrays.asList(CalendarViewImpl.values()));
         calendarViews.addAll(Arrays.asList(SchedulerView.values()));
         comboBoxView = new ComboBox<>("", calendarViews);
-        comboBoxView.setValue(MainCalendarView.MONTH);
+        comboBoxView.setValue(CalendarViewImpl.MONTH);
         comboBoxView.addValueChangeListener(e -> {
             CalendarView value = e.getValue();
-            calendar.changeView(value == null ? MainCalendarView.MONTH : value);
+            calendar.changeView(value == null ? CalendarViewImpl.MONTH : value);
         });
 
         // simulate the date picker light that we can use in polymer
@@ -233,11 +233,11 @@ public class Demo extends Div {
         });
 
         calendar.addDayNumberClickedEvent(event -> {
-            comboBoxView.setValue(MainCalendarView.LIST_DAY);
+            comboBoxView.setValue(CalendarViewImpl.LIST_DAY);
             calendar.gotoDate(event.getDateTime().toLocalDate());
         });
         calendar.addWeekNumberClickedEvent(event -> {
-            comboBoxView.setValue(MainCalendarView.LIST_WEEK);
+            comboBoxView.setValue(CalendarViewImpl.LIST_WEEK);
             calendar.gotoDate(event.getDateTime().toLocalDate());
         });
 
@@ -313,8 +313,8 @@ public class Demo extends Div {
 
         if (view == null) {
             text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
-        } else if (view instanceof MainCalendarView) {
-            switch ((MainCalendarView) view) {
+        } else if (view instanceof CalendarViewImpl) {
+            switch ((CalendarViewImpl) view) {
                 default:
                 case MONTH:
                 case LIST_MONTH:
