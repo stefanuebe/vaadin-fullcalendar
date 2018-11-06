@@ -16,14 +16,14 @@ public class Resource {
     private final String color;
 
     /**
-     * New instance.
+     * New instance. ID will be generated.
      */
     public Resource() {
         this(null, null, null);
     }
 
     /**
-     * New instance. Awaits id and title.
+     * New instance. Awaits id and title. If no id is provided, one will be generated.
      * @param id id
      * @param title title
      * @param color color (optional)
@@ -71,7 +71,7 @@ public class Resource {
         JsonObject jsonObject = Json.createObject();
 
         jsonObject.put("id", getId());
-        jsonObject.put("title", getTitle());
+        jsonObject.put("title", toJsonValue(getTitle()));
         jsonObject.put("eventColor", toJsonValue(getColor()));
 
         return jsonObject;
