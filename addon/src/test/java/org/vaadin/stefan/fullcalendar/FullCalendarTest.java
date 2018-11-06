@@ -1,21 +1,14 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEventBusUtil;
-import com.vaadin.flow.function.DeploymentConfiguration;
-import com.vaadin.flow.server.VaadinService;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 
 import java.lang.reflect.Constructor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,24 +18,11 @@ import java.util.function.Consumer;
 @SuppressWarnings("ALL")
 public class FullCalendarTest {
 
+    public static final String FULL_CALENDAR_HTML = "fullcalendar/full-calendar.html";
+
     @BeforeAll
     static void beforeAll() {
-        VaadinService vaadinService = Mockito.mock(VaadinService.class);
-        VaadinService.setCurrent(vaadinService);
-
-        Mockito.when(vaadinService.getDeploymentConfiguration())
-                .thenAnswer(invocation -> {
-                    DeploymentConfiguration config = Mockito.mock(DeploymentConfiguration.class);
-                    Mockito.when(config.isProductionMode()).thenReturn(false);
-                    return config;
-                });
-
-        Mockito.when(vaadinService.
-                getResourceAsStream(ArgumentMatchers.eq("frontend://bower_components/fullcalendar/full-calendar.html"), ArgumentMatchers.any(), ArgumentMatchers.any())).
-                thenAnswer(invocation -> {
-                    Path path = Paths.get("src/main/resources/META-INF/resources/frontend/bower_components/fullcalendar/full-calendar.html").toAbsolutePath();
-                    return Files.newInputStream(path);
-                });
+        TestUtils.initVaadinService(FULL_CALENDAR_HTML);
     }
 
     @Test
