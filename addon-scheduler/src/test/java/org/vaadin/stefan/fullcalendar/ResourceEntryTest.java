@@ -5,6 +5,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -21,6 +22,11 @@ public class ResourceEntryTest {
     public static final String DEFAULT_TITLE = DEFAULT_STRING + 2;
     public static final String DEFAULT_COLOR = DEFAULT_STRING + 3;
     public static final String DEFAULT_DESCRIPTION = DEFAULT_STRING + 4;
+
+    @BeforeAll
+    static void beforeAll() {
+        TestUtils.initVaadinService(FullCalendarSchedulerTest.COMPONENT_HTMLS);
+    }
 
     @Test
     void testNoArgsConstructor() {
@@ -76,16 +82,6 @@ public class ResourceEntryTest {
 
         // test null color when set empty
         Assertions.assertNull(new ResourceEntry(null, null, null, null, false, false, "", null).getColor());
-    }
-
-    @Test
-    void testConstructionFromJson() {
-        LocalDateTime ref = LocalDate.now().atStartOfDay();
-
-        ResourceEntry entry = new ResourceEntry("id", "title", ref, ref.plusDays(1), true, true, "color", "description");
-        entry.addResources(new HashSet<>(Arrays.asList(new Resource(), new Resource(), new Resource())));
-
-        assertFullEqualsByJsonAttributes(entry, ResourceEntry.fromJson(entry.toJson()));
     }
 
     /**
