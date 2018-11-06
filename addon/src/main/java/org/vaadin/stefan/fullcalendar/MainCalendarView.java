@@ -3,7 +3,7 @@ package org.vaadin.stefan.fullcalendar;
 /**
  * Basic enumeration of possible calendar views.
  */
-public enum CalendarViewImpl implements CalendarView {
+public enum MainCalendarView implements CalendarView {
     MONTH("month"),
     AGENDA_DAY("agendaDay"),
     AGENDA_WEEK("agendaWeek"),
@@ -17,7 +17,7 @@ public enum CalendarViewImpl implements CalendarView {
 
     private final String clientSideName;
 
-    CalendarViewImpl(String clientSideName) {
+    MainCalendarView(String clientSideName) {
         this.clientSideName = clientSideName;
     }
 
