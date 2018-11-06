@@ -3,6 +3,8 @@ This addon is an integration of the FullCalendar (v3.9.0) as Flow component for 
 
 For information about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
 
+If you want to use the Scheduler, please have a look here: https://vaadin.com/directory/component/full-calendar-scheduler-extension/samples
+
 ## Addon Functionality
 The following functions are implemented and available to use from server side:
 - adding / updating / removing calendar items,
@@ -128,7 +130,7 @@ private void init() {
         CalendarView value = e.getValue();
         calendar.changeView(value == null ? CalendarViewImpl.MONTH : value);
     });
-    viewBox.setValue(CalendarView.MONTH);
+    viewBox.setValue(CalendarViewImpl.MONTH);
 
     /*
       * The view rendered listener is called when the view has been rendererd on client side 
@@ -201,12 +203,13 @@ public class FullCalendarApplication extends Div {
 
 # FullCalendar Scheduler extension
 This addon extends the **FullCalendar integration addon** with the FullCalendar Scheduler (v1.9.4) as Flow component for Vaadin Platform / Vaadin 10+.
-It needs the **FullCalendar (1.3.0+)** integration addon as basis (https://vaadin.com/directory/component/edit/full-calendar-web-component).
+It needs the FC integration addon ((1.3.0+) as basis (https://vaadin.com/directory/component/edit/full-calendar-web-component).
 
-For information about the Schedular or the FullCalendar (functionality, features, license information, etc.) 
-visit https://fullcalendar.io/. 
+For information about the Schedular (functionality, features, license information, etc.) 
+visit https://fullcalendar.io/scheduler. 
 
-**License information:** Please be aware, that the Scheduler has a different license model then the FullCalendar.
+## License information:
+Please be aware, that the Scheduler has a different license model then the FullCalendar.
 For details of when to use which license, visit https://fullcalendar.io/scheduler/license.
 
 **This addon does not provide any commercial license for the Scheduler. The license model of MIT does only affect
@@ -238,7 +241,7 @@ I'm also happy for feedback or suggestions about improvements.
 FullCalendar calendar = FullCalendarBuilder.create().withScheduler().build();
 
 // scheduler options
-((Scheduler) calendar).setSchedulerLicenseKey(Scheduler.GPL_V3_LICENSE_KEY);
+((Scheduler) calendar).setSchedulerLicenseKey(...);
 ```
 
 ### Adding a resource to a calendar and link it with entries
@@ -251,7 +254,7 @@ entry.setResource(resource);
 calendar.addEntry(entry);
 ```
 
-### Handling change of entry resource by drag and drop
+### Handling change of an entry's assigned resource by drag and drop
 ```
 calendar.addEntryDroppedListener(event -> {
     event.applyChangesOnEntry();
@@ -272,11 +275,30 @@ calendar.addEntryDroppedListener(event -> {
 calendar.changeView(SchedulerView.TIMELINE_DAY);
 ```
 
+### Activate vertical resource view 
+```
+// currently done by plain options, will provide a better API later
+
+// Switch to a non timeline view, then use one of these cases
+
+// Case 1 Deactivate grouping
+calendar.setOption("groupByResource", false);
+calendar.setOption("groupByDateAndResource", false);
+                    
+// Case 2 Activate grouping by resource / date                    
+calendar.setOption("groupByResource", true);
+calendar.setOption("groupByDateAndResource", false);
+
+// Case 3 Activate grouping by date / resoute
+calendar.setOption("groupByResource", false);
+calendar.setOption("groupByDateAndResource", true);
+```
+
 ### Using custom styles to modify FCs appearance
 1. Copy the styles_scheduler.html from the github demo or create your own custom style file and place it in your applications webapp/frontend folder (e. g. webapp/frontend/styles/styles/my-custom-full-calendar-styles.html)
 
 The github demo file can be obtained from here:
-https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/src/main/webapp/frontend/styles.html
+https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/src/main/webapp/frontend/styles_scheduler.html
 
 
 2. Modify the styles as needed.
