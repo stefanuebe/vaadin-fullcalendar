@@ -123,10 +123,10 @@ private void init() {
     HasText intervalLabel = new Span();
 
     // combo box to select a view for the calendar, like "monthly", "weekly", ...
-    ComboBox<CalendarView> viewBox = new ComboBox<>("", CalendarView.values());
+    ComboBox<CalendarView> viewBox = new ComboBox<>("", CalendarViewImpl.values());
     viewBox.addValueChangeListener(e -> {
         CalendarView value = e.getValue();
-        calendar.changeView(value == null ? CalendarView.MONTH : value);
+        calendar.changeView(value == null ? CalendarViewImpl.MONTH : value);
     });
     viewBox.setValue(CalendarView.MONTH);
 
