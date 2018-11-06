@@ -3,7 +3,7 @@ This addon is an integration of the FullCalendar (v3.9.0) as Flow component for 
 
 For information about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
 
-If you want to use the Scheduler, please have a look here: https://vaadin.com/directory/component/full-calendar-scheduler-extension/samples
+If you want to use the Scheduler, please have a look here: https://vaadin.com/directory/component/full-calendar-scheduler-extension
 
 ## Addon Functionality
 The following functions are implemented and available to use from server side:
