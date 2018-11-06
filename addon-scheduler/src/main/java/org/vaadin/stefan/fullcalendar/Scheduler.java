@@ -82,4 +82,6 @@ public interface Scheduler {
      * Removes all registered resources from this instance.
      */
     void removeAllResources();
+
+    void setGroupEntriesBy(GroupEntriesBy groupEntriesBy);
 }

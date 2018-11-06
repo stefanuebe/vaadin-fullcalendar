@@ -72,6 +72,26 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         resources.clear();
     }
 
-
-
+    /**
+     * Set a grouping option for entries based on their assigned resource(s) and date.
+     * @param groupEntriesBy group entries by option
+     */
+    @Override
+    public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
+        switch (groupEntriesBy) {
+            default:
+            case NONE:
+                setOption("groupByResource", false);
+                setOption("groupByDateAndResource", false);
+                break;
+            case RESOURCE_DATE:
+                setOption("groupByDateAndResource", false);
+                setOption("groupByResource", true);
+                break;
+            case DATE_RESOURCE:
+                setOption("groupByResource", false);
+                setOption("groupByDateAndResource", true);
+                break;
+        }
+    }
 }
