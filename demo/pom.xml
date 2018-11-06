@@ -64,12 +64,12 @@
         <dependency>
             <groupId>org.vaadin.stefan</groupId>
             <artifactId>fullcalendar</artifactId>
-            <version>${project.version}</version>
+            <version>${fullcalendar.version}</version>
         </dependency>
         <dependency>
             <groupId>org.vaadin.stefan</groupId>
             <artifactId>fullcalendar-scheduler</artifactId>
-            <version>1.0.0.alpha1-SNAPSHOT</version>
+            <version>${fullcalendar.scheduler.version}</version>
         </dependency>
     </dependencies>
 
