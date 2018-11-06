@@ -66,7 +66,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void removeAllResources() {
         for (Resource value : resources.values()) {
-            removeResource(value);
+            getElement().callFunction("removeResource", value.toJson());
         }
 
         resources.clear();
