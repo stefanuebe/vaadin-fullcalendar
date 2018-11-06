@@ -178,21 +178,6 @@ public class Entry {
         updateString(object, "color", this::setColor);
     }
 
-    /**
-     * Creates a new instance from the given json object.
-     * @param object json
-     * @return entry
-     */
-    public static Entry fromJson(JsonObject object) {
-        try {
-            Entry entry = new Entry(object.getString("id"));
-            entry.update(object);
-            return entry;
-        } catch (ClassCastException cce) {
-            throw new IllegalArgumentException("ID is not a valid json string.");
-        }
-    }
-
     protected void updateString(JsonObject object, String key, Consumer<String> setter) {
         if (object.get(key) instanceof JsonString) {
             setter.accept(object.getString(key));
