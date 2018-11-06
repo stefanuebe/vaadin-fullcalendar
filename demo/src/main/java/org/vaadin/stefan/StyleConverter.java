@@ -21,7 +21,7 @@ import java.util.*;
 
 public class StyleConverter {
     public static void main(String[] args) throws Exception {
-        Path styles = Paths.get("styles");
+        Path styles = Paths.get("styles").toAbsolutePath();
         List<String> strings = Files.readAllLines(styles);
 
         CSSOMParser parser = new CSSOMParser(new SACParserCSS3());
