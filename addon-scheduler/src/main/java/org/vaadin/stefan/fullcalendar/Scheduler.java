@@ -1,7 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents functionality for the FullCalendarScheduler.
@@ -76,5 +76,10 @@ public interface Scheduler {
      *
      * @return resources resources
      */
-    List<Resource> getResources();
+    Set<Resource> getResources();
+
+    /**
+     * Removes all registered resources from this instance.
+     */
+    void removeAllResources();
 }

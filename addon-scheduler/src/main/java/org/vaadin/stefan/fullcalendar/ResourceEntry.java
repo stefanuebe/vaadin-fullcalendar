@@ -114,6 +114,21 @@ public class ResourceEntry extends Entry {
         return jsonObject;
     }
 
+    /**
+     * Creates a new instance from the given json object.
+     * @param object json
+     * @return entry
+     */
+    public static ResourceEntry fromJson(JsonObject object) {
+        try {
+            ResourceEntry entry = new ResourceEntry(object.getString("id"));
+            entry.update(object);
+            return entry;
+        } catch (ClassCastException cce) {
+            throw new IllegalArgumentException("ID is not a valid json string.");
+        }
+    }
+
     @Override
     protected void update(JsonObject object) {
         super.update(object);

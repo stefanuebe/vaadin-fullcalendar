@@ -59,9 +59,19 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
-    public List<Resource> getResources() {
-        return new ArrayList<>(resources.values());
+    public Set<Resource> getResources() {
+        return new HashSet<>(resources.values());
     }
+
+    @Override
+    public void removeAllResources() {
+        for (Resource value : resources.values()) {
+            removeResource(value);
+        }
+
+        resources.clear();
+    }
+
 
 
 }
