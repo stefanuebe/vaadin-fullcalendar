@@ -13,7 +13,7 @@ import java.util.*;
  * component, API, functionality, etc.
  */
 @Tag("full-calendar-scheduler")
-@HtmlImport("bower_components/fullcalendar/full-calendar-scheduler.html")
+@HtmlImport("frontend://bower_components/fullcalendar/full-calendar-scheduler.html")
 public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     private Map<String, Resource> resources = new HashMap<>();

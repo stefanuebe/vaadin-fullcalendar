@@ -203,7 +203,7 @@ public class FullCalendarApplication extends Div {
 
 # FullCalendar Scheduler extension
 This addon extends the **FullCalendar integration addon** with the FullCalendar Scheduler (v1.9.4) as Flow component for Vaadin Platform / Vaadin 10+.
-It needs the FC integration addon ((1.3.0+) as basis (https://vaadin.com/directory/component/edit/full-calendar-web-component).
+It needs the FC integration addon ((1.3.1+) as basis (https://vaadin.com/directory/component/edit/full-calendar-web-component).
 
 For information about the Schedular (functionality, features, license information, etc.) 
 visit https://fullcalendar.io/scheduler. 
