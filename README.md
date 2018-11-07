@@ -280,21 +280,7 @@ calendar.changeView(SchedulerView.TIMELINE_DAY);
 
 ### Activate vertical resource view 
 ```
-// currently done by plain options, will provide a better API later
-
-// Switch to a non timeline view, then use one of these cases
-
-// Case 1 Deactivate grouping
-calendar.setOption("groupByResource", false);
-calendar.setOption("groupByDateAndResource", false);
-                    
-// Case 2 Activate grouping by resource / date                    
-calendar.setOption("groupByResource", true);
-calendar.setOption("groupByDateAndResource", false);
-
-// Case 3 Activate grouping by date / resoute
-calendar.setOption("groupByResource", false);
-calendar.setOption("groupByDateAndResource", true);
+calendar.setGroupEntriesBy(GroupEntriesBy.RESOURCE_DATE);
 ```
 
 ### Using custom styles to modify FCs appearance
