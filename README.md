@@ -219,13 +219,14 @@ the additional files of this addon, not the used original files.**
 By default the scheduler is not active, when you use a FullCalendar instance. To have an instance with scheduler
 activated, use the `withScheduler()` method of the `FullCalendarBuilder`. 
 
-This method will throw an exception, if
-the scheduler extension is not on the class path.
+This method will throw an exception, if the scheduler extension is not on the class path.
+
+To link a resource with entries, use the Entry subclass `ResourceEntry`. 
 
 ## Additional Features of the Scheduler extension
 - Activation of the Scheduler by method in the FullCalendarBuilder.
 - Adding resources to a calendar (hierarchies of resources are not yet supported). 
-- Link one or multiple resources with entries (`ResourceEntry`).
+- Link one or multiple resources with entries.
 - List of possible Scheduler based views (timeline).
 
 *Info:* Entries are linked to calendar internally. The calendar instance is used to resolve resources by after updating an
@@ -249,6 +250,8 @@ FullCalendar calendar = FullCalendarBuilder.create().withScheduler().build();
 Resource resource = new Resource(null, s, color);
 calendar.addResource(resource);
 
+// When we want to link an entry with a resource, we need to use ResourceEntry
+// (a subclass of Entry)
 ResourceEntry entry = new ResourceEntry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description...");
 entry.setResource(resource);
 calendar.addEntry(entry);

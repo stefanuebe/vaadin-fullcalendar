@@ -78,7 +78,9 @@
         </dependency>
     </dependencies>
 
+
     <build>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -153,59 +155,48 @@
 
     <profiles>
         <profile>
-            <id>directory</id>
+            <id>productionMode</id>
+            <activation>
+                <property>
+                    <name>vaadin.productionMode</name>
+                </property>
+            </activation>
+
+            <dependencies>
+                <dependency>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>flow-server-production-mode</artifactId>
+                </dependency>
+            </dependencies>
+
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>2.6</version>
-                        <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>assembly/assembly.xml</descriptor>
-                            </descriptors>
-                        </configuration>
+                        <groupId>com.vaadin</groupId>
+                        <artifactId>vaadin-maven-plugin</artifactId>
+                        <version>${vaadin.version}</version>
                         <executions>
                             <execution>
                                 <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <phase>install</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
+                                    <goal>copy-production-files</goal>
+                                    <goal>package-for-production</goal>
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <quiet>true</quiet>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                        </configuration>
+                        <!--<configuration>-->
+                        <!--<bundle>true</bundle>-->
+                        <!--<fragments>-->
+                        <!--<fragment>-->
+                        <!--<name>mobile-dnd</name>-->
+                        <!--<files>-->
+                        <!--<file>bower_components/mobile-drag-drop/release/default.css</file>-->
+                        <!--<file>bower_components/mobile-drag-drop/release/index.min.js</file>-->
+                        <!--<file>bower_components/mobile-drag-drop/release/scroll-behaviour.min.js</file>-->
+                        <!--</files>-->
+                        <!--</fragment>-->
+                        <!--</fragments>-->
+                        <!--</configuration>-->
+
                     </plugin>
                 </plugins>
             </build>
