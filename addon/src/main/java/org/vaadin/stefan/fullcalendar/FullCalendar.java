@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  * component, API, functionality, etc.
  */
 @Tag("full-calendar")
-@HtmlImport("bower_components/fullcalendar/full-calendar.html")
+@HtmlImport("frontend://bower_components/fullcalendar/full-calendar.html")
 public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasStyle, HasSize {
 
     /**
