@@ -462,8 +462,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * The given string needs to be a valid JavaScript function. This function will be parsed on client side
-     * and attached to the calendar as the eventRender callback.
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as the eventRender callback. It must be a valid JavaScript function.
      * <p/>
      * <b>Note: </b> Please be aware, that there is NO content parsing, escaping, quoting or
      * other security mechanism applied on this string, so check it yourself before passing it to the client.
