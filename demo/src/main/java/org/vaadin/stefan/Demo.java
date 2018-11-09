@@ -7,7 +7,6 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.HtmlImport;
-import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -22,10 +21,8 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
-import elemental.json.Json;
 import org.vaadin.stefan.fullcalendar.*;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -87,9 +84,7 @@ public class Demo extends Div {
         gotoDate.setWeekNumbersVisible(true);
         buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
         buttonDatePicker.getElement().appendChild(gotoDate.getElement());
-        buttonDatePicker.addClickListener(event -> {
-            gotoDate.open();
-        });
+        buttonDatePicker.addClickListener(event -> gotoDate.open());
 
         Button buttonHeight = new Button("Calendar height", event -> new HeightDialog().open());
 
@@ -180,7 +175,6 @@ public class Demo extends Div {
             event.applyChangesOnEntry();
 
             Entry entry = event.getEntry();
-            boolean allDay = entry.isAllDay();
             LocalDateTime start = entry.getStart();
             LocalDateTime end = entry.getEnd();
 
@@ -256,7 +250,7 @@ public class Demo extends Div {
         setFlexStyles(true);
     }
 
-    protected void createTestEntries(FullCalendar calendar) {
+    private void createTestEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
 
         Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red", "red");
@@ -264,7 +258,7 @@ public class Demo extends Div {
         Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
 
         createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
-        createTimedBackgroundEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
+        createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
         createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
@@ -289,9 +283,9 @@ public class Demo extends Div {
         createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
         createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
 
-        createDayBackgroundEntry(calendar, "Some BG", now.withDayOfMonth(4), 6, "#B9FFC3");
-        createDayBackgroundEntry(calendar, "Some BG", now.withDayOfMonth(19), 2, "#CEE3FF");
-        createTimedBackgroundEntry(calendar, "Some BG", now.withDayOfMonth(20).atTime(11, 0), 150, "#FBC8FF");
+        createDayBackgroundEntry(calendar, now.withDayOfMonth(4), 6, "#B9FFC3");
+        createDayBackgroundEntry(calendar, now.withDayOfMonth(19), 2, "#CEE3FF");
+        createTimedBackgroundEntry(calendar, now.withDayOfMonth(20).atTime(11, 0), 150, "#FBC8FF");
     }
 
     private Resource createResource(Scheduler calendar, String s, String color) {
@@ -300,49 +294,44 @@ public class Demo extends Div {
         return resource;
     }
 
-    protected ResourceEntry createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
+    private void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
         ResourceEntry entry = new ResourceEntry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description...");
         calendar.addEntry(entry);
-        return entry;
     }
 
-    protected ResourceEntry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
-        return createTimedEntry(calendar, title, start, minutes, color, null);
+    private void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
+        createTimedEntry(calendar, title, start, minutes, color, (Resource[]) null);
     }
-    protected ResourceEntry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource... resources) {
+    private void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource... resources) {
         ResourceEntry entry = new ResourceEntry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description...");
         if (resources != null && resources.length > 0) {
             entry.addResources(Arrays.asList(resources));
         }
         calendar.addEntry(entry);
-        return entry;
     }
 
-    protected ResourceEntry createDayBackgroundEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
-        ResourceEntry entry = new ResourceEntry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description...");
+    private void createDayBackgroundEntry(FullCalendar calendar, LocalDate start, int days, String color) {
+        ResourceEntry entry = new ResourceEntry(null, "Some BG", start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description...");
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         calendar.addEntry(entry);
-        return entry;
     }
 
-    protected ResourceEntry createTimedBackgroundEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
-        ResourceEntry entry = new ResourceEntry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description...");
+    private void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color) {
+        ResourceEntry entry = new ResourceEntry(null, "Some BG", start, start.plusMinutes(minutes), false, true, color, "Some description...");
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         calendar.addEntry(entry);
-        return entry;
     }
 
-    protected ResourceEntry createTimedBackgroundEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource... resources) {
-        ResourceEntry entry = new ResourceEntry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description...");
+    private void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color, Resource... resources) {
+        ResourceEntry entry = new ResourceEntry(null, "BG", start, start.plusMinutes(minutes), false, true, color, "Some description...");
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         if (resources != null && resources.length > 0) {
             entry.addResources(Arrays.asList(resources));
         }
         calendar.addEntry(entry);
-        return entry;
     }
 
-    protected void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
+    private void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
         String text = "--";
         Locale locale = calendar.getLocale();
 
@@ -392,7 +381,7 @@ public class Demo extends Div {
 
     public static class DemoDialog extends Dialog {
 
-        public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
+        DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
             setCloseOnEsc(true);
             setCloseOnOutsideClick(true);
 
@@ -448,9 +437,7 @@ public class Demo extends Div {
             buttonSave.addClickListener(e -> close());
             buttons.add(buttonSave);
 
-            Button buttonCancel = new Button("Cancel", e -> {
-                close();
-            });
+            Button buttonCancel = new Button("Cancel", e -> close());
             buttonCancel.getElement().getThemeList().add("tertiary");
             buttons.add(buttonCancel);
 
@@ -470,7 +457,7 @@ public class Demo extends Div {
     }
 
     public class HeightDialog extends Dialog {
-        public HeightDialog() {
+        HeightDialog() {
             VerticalLayout dialogContainer = new VerticalLayout();
             add(dialogContainer);
 
