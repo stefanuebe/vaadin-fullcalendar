@@ -40,20 +40,6 @@ public class Entry {
         setColor(color);
     }
 
-    public Entry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description, Rendering rendering) {
-        this(id);
-
-        this.title = title;
-        this.start = start;
-        this.end = end;
-        this.allDay = allDay;
-        this.editable = editable;
-        this.description = description;
-        this.rendering = rendering;
-
-        setColor(color);
-    }
-
     /**
      * Empty instance.
      */
@@ -226,6 +212,7 @@ public class Entry {
                 ", editable=" + editable +
                 ", id='" + id + '\'' +
                 ", calendar=" + calendar +
+                ", rendering=" + rendering +
                 '}';
     }
 
