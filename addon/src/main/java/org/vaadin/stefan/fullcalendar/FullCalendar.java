@@ -240,7 +240,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      */
     public void changeView(@Nonnull CalendarView view) {
         Objects.requireNonNull(view);
-        getElement().callFunction("changeView", view.getClientSideName());
+        getElement().callFunction("changeView", view.getClientSideValue());
     }
 
     /**
