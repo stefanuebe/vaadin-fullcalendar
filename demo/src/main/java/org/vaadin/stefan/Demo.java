@@ -264,6 +264,7 @@ public class Demo extends Div {
         Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
 
         createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
+        createTimedBackgroundEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
         createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
@@ -327,6 +328,16 @@ public class Demo extends Div {
     protected ResourceEntry createTimedBackgroundEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
         ResourceEntry entry = new ResourceEntry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description...");
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        calendar.addEntry(entry);
+        return entry;
+    }
+
+    protected ResourceEntry createTimedBackgroundEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource... resources) {
+        ResourceEntry entry = new ResourceEntry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description...");
+        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        if (resources != null && resources.length > 0) {
+            entry.addResources(Arrays.asList(resources));
+        }
         calendar.addEntry(entry);
         return entry;
     }
