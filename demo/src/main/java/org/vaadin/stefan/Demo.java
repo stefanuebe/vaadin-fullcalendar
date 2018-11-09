@@ -23,8 +23,10 @@ import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -131,11 +133,15 @@ public class Demo extends Div {
     }
 
     private void createCalendarInstance() {
-//        calendar = FullCalendarBuilder.create().withEntryLimit(5).withScheduler().build();
-        calendar = new MyFullCalendar(5);
+        calendar = FullCalendarBuilder.create().withEntryLimit(5).withScheduler().build();
+//        calendar = new MyFullCalendar(5);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+        calendar.setBusinessHours(
+                new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK)
+                , new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
+        );
 
 //        calendar.setEntryRenderCallback("" +
 //                "function(event, element) {" +
