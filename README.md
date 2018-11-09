@@ -20,6 +20,7 @@ The following functions are implemented and available to use from server side:
 - activating day / week numbers / names to be links
 - styles are overridable via custom properties
 - setting a eventRender JS function from server side
+- setting business hours (multiple instances possible)
 
 - Event handling for
     - clicking an empty time spot in the calendar,
@@ -264,6 +265,20 @@ Entry entry = new Entry();
 
 entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
 calendar.addEntry(entry);
+
+### Adding business hours
+// Single instance for "normal" business week (mo-fr)
+calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK));
+
+// Multiple instances
+calendar.setBusinessHours(
+                new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK),
+                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
+        );
+        
+// Single instance for "each day from 9am to midnight"
+calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0)));
+
 
 # FullCalendar Scheduler extension
 This addon extends the **FullCalendar integration addon** with the FullCalendar Scheduler (v1.9.4) as Flow component for Vaadin Platform / Vaadin 10+.
