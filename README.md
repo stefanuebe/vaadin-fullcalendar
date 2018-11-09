@@ -19,6 +19,7 @@ The following functions are implemented and available to use from server side:
 - showing now indicator
 - activating day / week numbers / names to be links
 - styles are overridable via custom properties
+- setting a eventRender JS function from server side
 
 - Event handling for
     - clicking an empty time spot in the calendar,
@@ -201,6 +202,61 @@ public class FullCalendarApplication extends Div {
 }
 ```
 
+### Modifying eventRender from server side
+// The given string will be interpreted as js function on client side
+// and attached as eventRender callback. 
+// Make sure, that it does not contain any harmful code.
+
+calendar.setEntryRenderCallback("" +
+        "function(event, element) {" +
+        "   console.log(event.title + 'X');" +
+        "   element.css('color', 'red');" +
+        "   return element; " +
+        "}");
+        
+### Creating a subclass of FullCalendar for custom mods
+1. Create a new polymer template (e.g. webapp/frontend/my-full-calendar.html):
+
+<link rel="import" href="bower_components/fullcalendar/full-calendar.html">
+<dom-module id="my-full-calendar">
+    <script>
+        class MyFullCalendar extends FullCalendar {
+            static get is() {
+                return 'my-full-calendar';
+            }
+
+            _createInitOptions() {
+                var options = super._createInitOptions();
+                options.eventRender = function (event, element) {
+                    element.css('color', 'red');
+                    return element;
+                };
+                return options;
+            }
+        }
+
+        customElements.define(MyFullCalendar.is, MyFullCalendar);
+    </script>
+</dom-module>
+
+2. Create a subclass of FullCalendar 
+
+import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.dependency.HtmlImport;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
+
+@Tag("my-full-calendar")
+@HtmlImport("frontend://my-full-calendar.html")
+public class MyFullCalendar extends FullCalendar {
+    MyFullCalendar(int entryLimit) {
+        super(entryLimit);
+    }
+}
+
+3. Use this class in your code
+
+calendar = new MyFullCalendar(5);
+
 # FullCalendar Scheduler extension
 This addon extends the **FullCalendar integration addon** with the FullCalendar Scheduler (v1.9.4) as Flow component for Vaadin Platform / Vaadin 10+.
 It needs the FC integration addon ((1.3.1+) as basis (https://vaadin.com/directory/component/edit/full-calendar-web-component).
@@ -310,3 +366,46 @@ public class FullCalendarApplication extends Div {
     // ...
 }
 ```
+
+### Creating a subclass of FullCalendarScheduler for custom mods
+1. Create a new polymer template (e.g. webapp/frontend/my-full-calendar.html):
+
+<link rel="import" href="bower_components/fullcalendar/full-calendar-scheduler.html">
+<dom-module id="my-full-calendar">
+    <script>
+        class MyFullCalendar extends FullCalendarScheduler {
+            static get is() {
+                return 'my-full-calendar';
+            }
+
+            _createInitOptions() {
+                var options = super._createInitOptions();
+                options.eventRender = function (event, element) {
+                    element.css('color', 'red');
+                    return element;
+                };
+                return options;
+            }
+        }
+
+        customElements.define(MyFullCalendar.is, MyFullCalendar);
+    </script>
+</dom-module>
+
+2. Create a subclass of FullCalendarScheduler
+
+import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.dependency.HtmlImport;
+import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
+
+@Tag("my-full-calendar")
+@HtmlImport("frontend://my-full-calendar.html")
+public class MyFullCalendar extends FullCalendarScheduler {
+    MyFullCalendar(int entryLimit) {
+        super(entryLimit);
+    }
+}
+
+3. Use this class in your code
+
+calendar = new MyFullCalendar(5);
