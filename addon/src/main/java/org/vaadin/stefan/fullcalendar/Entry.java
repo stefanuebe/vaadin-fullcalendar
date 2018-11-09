@@ -2,13 +2,10 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 /**
  * Represents a event / item in the full calendar. It is named Entry here to prevent name conflicts with
@@ -26,6 +23,7 @@ public class Entry {
     private boolean allDay;
     private String color;
     private String description;
+    private Rendering rendering;
 
     private FullCalendar calendar;
 
@@ -142,18 +140,18 @@ public class Entry {
 
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
-        jsonObject.put("id", toJsonValue(getId()));
-        jsonObject.put("title", toJsonValue(getTitle()));
+        jsonObject.put("id", JsonUtils.toJsonValue(getId()));
+        jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
 
         boolean fullDayEvent = isAllDay();
-        jsonObject.put("allDay", toJsonValue(fullDayEvent));
+        jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
 
         LocalDateTime start = getStart();
         LocalDateTime end = getEnd();
-        jsonObject.put("start", toJsonValue(fullDayEvent ? start.toLocalDate() : start));
-        jsonObject.put("end", toJsonValue(fullDayEvent ? end.toLocalDate() : end));
+        jsonObject.put("start", JsonUtils.toJsonValue(fullDayEvent ? start.toLocalDate() : start));
+        jsonObject.put("end", JsonUtils.toJsonValue(fullDayEvent ? end.toLocalDate() : end));
         jsonObject.put("editable", isEditable());
-        jsonObject.put("color", toJsonValue(getColor()));
+        jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
 
         return jsonObject;
     }
@@ -170,50 +168,12 @@ public class Entry {
             throw new IllegalArgumentException("IDs are not matching.");
         }
 
-        updateString(object, "title", this::setTitle);
-        updateBoolean(object, "editable", this::setEditable);
-        updateBoolean(object, "allDay", this::setAllDay);
-        updateDateTime(object, "start", this::setStart);
-        updateDateTime(object, "end", this::setEnd);
-        updateString(object, "color", this::setColor);
-    }
-
-    protected void updateString(JsonObject object, String key, Consumer<String> setter) {
-        if (object.get(key) instanceof JsonString) {
-            setter.accept(object.getString(key));
-        }
-    }
-
-    protected void updateBoolean(JsonObject object, String key, Consumer<Boolean> setter) {
-        if (object.get(key) instanceof JsonBoolean) {
-            setter.accept(object.getBoolean(key));
-        }
-    }
-
-
-    protected void updateDateTime(JsonObject object, String key, Consumer<LocalDateTime> setter) {
-        if (object.get(key) instanceof JsonString) {
-            String string = object.getString(key);
-
-            LocalDateTime dateTime;
-            try {
-                dateTime = LocalDateTime.parse(string);
-            } catch (DateTimeParseException e) {
-                dateTime = LocalDate.parse(string).atStartOfDay();
-            }
-
-            setter.accept(dateTime);
-        }
-    }
-
-    private JsonValue toJsonValue(Object value) {
-        if (value == null) {
-            return Json.createNull();
-        }
-        if (value instanceof Boolean) {
-            return Json.create((Boolean) value);
-        }
-        return Json.create(String.valueOf(value));
+        JsonUtils.updateString(object, "title", this::setTitle);
+        JsonUtils.updateBoolean(object, "editable", this::setEditable);
+        JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
+        JsonUtils.updateDateTime(object, "start", this::setStart);
+        JsonUtils.updateDateTime(object, "end", this::setEnd);
+        JsonUtils.updateString(object, "color", this::setColor);
     }
 
     @Override
@@ -231,12 +191,38 @@ public class Entry {
                 '}';
     }
 
+    /**
+     * Gets the description of an event.
+     * @return description
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Sets the description of an event.
+     * @param description description
+     */
     public void setDescription(String description) {
         this.description = description;
     }
 
+    /**
+     * Constants for rendering of an event.
+     */
+    public enum Rendering {
+        NORMAL(null),
+        BACKGROUND("background"),
+        INVERSE_BACKGROUND("inverse-background");
+
+        private final String clientSideName;
+
+        Rendering(String clientSideName) {
+            this.clientSideName = clientSideName;
+        }
+
+        public String getClientSideName() {
+            return clientSideName;
+        }
+    }
 }
