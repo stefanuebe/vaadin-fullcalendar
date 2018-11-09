@@ -5,7 +5,9 @@ import elemental.json.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Iterator;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public final class JsonUtils {
     private JsonUtils() {
@@ -28,6 +30,28 @@ public final class JsonUtils {
         if (value instanceof Boolean) {
             return Json.create((Boolean) value);
         }
+        if (value instanceof Number) {
+            return Json.create(((Number) value).doubleValue());
+        }
+
+        if (value instanceof Iterator<?>) {
+            Iterator<?> iterator = (Iterator) value;
+            JsonArray array = Json.createArray();
+            int i = 0;
+            while (iterator.hasNext()) {
+                array.set(i++, toJsonValue(iterator.next()));
+            }
+            return array;
+        }
+
+        if (value instanceof Iterable<?>) {
+            return toJsonValue(((Iterable) value).iterator());
+        }
+
+        if (value instanceof Stream<?>) {
+            return toJsonValue(((Stream) value).iterator());
+        }
+
         return Json.create(String.valueOf(value));
     }
 
