@@ -66,6 +66,44 @@ public class Entry {
         this.id = id != null ? id : UUID.randomUUID().toString();
     }
 
+    protected JsonObject toJson() {
+        JsonObject jsonObject = Json.createObject();
+        jsonObject.put("id", JsonUtils.toJsonValue(getId()));
+        jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
+
+        boolean fullDayEvent = isAllDay();
+        jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
+
+        LocalDateTime start = getStart();
+        LocalDateTime end = getEnd();
+        jsonObject.put("start", JsonUtils.toJsonValue(fullDayEvent ? start.toLocalDate() : start));
+        jsonObject.put("end", JsonUtils.toJsonValue(fullDayEvent ? end.toLocalDate() : end));
+        jsonObject.put("editable", isEditable());
+        jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
+
+        return jsonObject;
+    }
+
+    /**
+     * Updates this instance with the content of the given object. Properties, that are not part of the object or are
+     * of an invalid type will be unmodified. Same for the id. Properties in the object, that do not match with this
+     * instance will be ignored.
+     * @param object json object / change set
+     */
+    protected void update(JsonObject object) {
+        String id = object.getString("id");
+        if (!this.id.equals(id)) {
+            throw new IllegalArgumentException("IDs are not matching.");
+        }
+
+        JsonUtils.updateString(object, "title", this::setTitle);
+        JsonUtils.updateBoolean(object, "editable", this::setEditable);
+        JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
+        JsonUtils.updateDateTime(object, "start", this::setStart);
+        JsonUtils.updateDateTime(object, "end", this::setEnd);
+        JsonUtils.updateString(object, "color", this::setColor);
+    }
+
     /**
      * Sets the calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
      * @param calendar calendar instance
@@ -143,6 +181,22 @@ public class Entry {
         this.rendering = rendering;
     }
 
+    /**
+     * Gets the description of an event.
+     * @return description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the description of an event.
+     * @param description description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -160,44 +214,6 @@ public class Entry {
         return Objects.hash(id);
     }
 
-    protected JsonObject toJson() {
-        JsonObject jsonObject = Json.createObject();
-        jsonObject.put("id", JsonUtils.toJsonValue(getId()));
-        jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
-
-        boolean fullDayEvent = isAllDay();
-        jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
-
-        LocalDateTime start = getStart();
-        LocalDateTime end = getEnd();
-        jsonObject.put("start", JsonUtils.toJsonValue(fullDayEvent ? start.toLocalDate() : start));
-        jsonObject.put("end", JsonUtils.toJsonValue(fullDayEvent ? end.toLocalDate() : end));
-        jsonObject.put("editable", isEditable());
-        jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
-
-        return jsonObject;
-    }
-
-    /**
-     * Updates this instance with the content of the given object. Properties, that are not part of the object or are
-     * of an invalid type will be unmodified. Same for the id. Properties in the object, that do not match with this
-     * instance will be ignored.
-     * @param object json object / change set
-     */
-    protected void update(JsonObject object) {
-        String id = object.getString("id");
-        if (!this.id.equals(id)) {
-            throw new IllegalArgumentException("IDs are not matching.");
-        }
-
-        JsonUtils.updateString(object, "title", this::setTitle);
-        JsonUtils.updateBoolean(object, "editable", this::setEditable);
-        JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
-        JsonUtils.updateDateTime(object, "start", this::setStart);
-        JsonUtils.updateDateTime(object, "end", this::setEnd);
-        JsonUtils.updateString(object, "color", this::setColor);
-    }
-
     @Override
     public String toString() {
         return "Entry{" +
@@ -211,22 +227,6 @@ public class Entry {
                 ", id='" + id + '\'' +
                 ", calendar=" + calendar +
                 '}';
-    }
-
-    /**
-     * Gets the description of an event.
-     * @return description
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Sets the description of an event.
-     * @param description description
-     */
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     /**
