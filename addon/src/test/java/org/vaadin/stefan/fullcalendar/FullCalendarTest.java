@@ -12,6 +12,7 @@ import java.lang.reflect.Constructor;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -112,6 +113,19 @@ public class FullCalendarTest {
 
         // this must be tested before the other setNumberClickForwads...Target methods
         assertCorrectBooleanOption(calendar, Option.NAV_LINKS, calendar::setNumberClickable);
+
+        assertNPE(calendar, c -> calendar.setBusinessHours(null));
+        BusinessHours hours = new BusinessHours(BusinessHours.ALL_DAYS, LocalTime.of(5, 0), LocalTime.of(10, 0));
+        calendar.setBusinessHours(hours);
+
+        Optional<Object> option = calendar.getOption(Option.BUSINESS_HOURS);
+        Assertions.assertTrue(option.isPresent());
+        Assertions.assertTrue(option.get() instanceof BusinessHours[]);
+        Assertions.assertEquals(hours, ((BusinessHours[]) option.get())[0]);
+
+        calendar.removeBusinessHours();
+        option = calendar.getOption(Option.BUSINESS_HOURS);
+        Assertions.assertFalse(option.isPresent());
     }
 
     private void assertCorrectBooleanOption(FullCalendar calendar, Option optionToCheck, Consumer<Boolean> function) {
@@ -780,4 +794,5 @@ public class FullCalendarTest {
         event.applyChangesOnEntry();
         EntryTest.assertFullEqualsByJsonAttributes(modifiedTimedEntry, event.getEntry());
     }
+
 }

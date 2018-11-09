@@ -5,6 +5,7 @@ import elemental.json.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -42,6 +43,10 @@ public final class JsonUtils {
                 array.set(i++, toJsonValue(iterator.next()));
             }
             return array;
+        }
+
+        if (value instanceof Object[]) {
+            return toJsonValue(Arrays.asList((Object[]) value).iterator());
         }
 
         if (value instanceof Iterable<?>) {
