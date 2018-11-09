@@ -242,6 +242,10 @@
                 this._calendar.render();
             }
 
+            setEventRenderCallback(s) {
+                this._calendar.option('eventRender', new Function("return " + s)());
+            }
+
 
         }
 
