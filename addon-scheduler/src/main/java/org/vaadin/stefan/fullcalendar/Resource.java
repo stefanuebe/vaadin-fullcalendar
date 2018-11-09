@@ -49,6 +49,14 @@ public class Resource {
         return title;
     }
 
+    /**
+     * Returns the resource's color.
+     * @return color
+     */
+    public String getColor() {
+        return color;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -85,7 +93,5 @@ public class Resource {
                 '}';
     }
 
-    public String getColor() {
-        return color;
-    }
+
 }
