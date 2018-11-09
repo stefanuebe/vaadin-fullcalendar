@@ -2,7 +2,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.Json;
 import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -71,8 +70,8 @@ public class Resource {
         JsonObject jsonObject = Json.createObject();
 
         jsonObject.put("id", getId());
-        jsonObject.put("title", toJsonValue(getTitle()));
-        jsonObject.put("eventColor", toJsonValue(getColor()));
+        jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
+        jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
 
         return jsonObject;
     }
@@ -84,16 +83,6 @@ public class Resource {
                 ", color='" + color + '\'' +
                 ", id='" + id + '\'' +
                 '}';
-    }
-
-    private JsonValue toJsonValue(Object value) {
-        if (value == null) {
-            return Json.createNull();
-        }
-        if (value instanceof Boolean) {
-            return Json.create((Boolean) value);
-        }
-        return Json.create(String.valueOf(value));
     }
 
     public String getColor() {
