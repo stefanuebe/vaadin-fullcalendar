@@ -18,6 +18,7 @@ public class EntryTest {
     public static final String DEFAULT_TITLE = DEFAULT_STRING + 2;
     public static final String DEFAULT_COLOR = DEFAULT_STRING + 3;
     public static final String DEFAULT_DESCRIPTION = DEFAULT_STRING + 4;
+    public static final Entry.RenderingMode DEFAULT_RENDERING = Entry.RenderingMode.BACKGROUND;
 
     @Test
     void testNoArgsConstructor() {
@@ -88,12 +89,14 @@ public class EntryTest {
         Assertions.assertEquals(expected.isAllDay(), actual.isAllDay());
         Assertions.assertEquals(expected.isEditable(), actual.isEditable());
         Assertions.assertEquals(expected.getColor(), actual.getColor());
+        Assertions.assertEquals(expected.getRenderingMode(), actual.getRenderingMode());
     }
 
     @Test
     void testEqualsAndHashcodeOnlyDependOnId() {
         Entry entry = new Entry(DEFAULT_ID, null, null, null, false, false, null, null);
         Entry entry1 = new Entry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START, DEFAULT_END, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
+        entry1.setRenderingMode(DEFAULT_RENDERING);
 
         Assertions.assertEquals(entry, entry1);
         Assertions.assertEquals(entry.hashCode(), entry1.hashCode());
@@ -103,6 +106,8 @@ public class EntryTest {
 
         Entry entry2 = new Entry(null, DEFAULT_TITLE, DEFAULT_START, DEFAULT_END, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
         Entry entry3 = new Entry(null, DEFAULT_TITLE, DEFAULT_START, DEFAULT_END, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
+        entry2.setRenderingMode(DEFAULT_RENDERING);
+        entry3.setRenderingMode(DEFAULT_RENDERING);
 
         Assertions.assertNotEquals(entry2, entry3);
         Assertions.assertNotEquals(entry2.hashCode(), entry3.hashCode());
@@ -111,6 +116,7 @@ public class EntryTest {
     @Test
     void testToJson() {
         Entry entry = new Entry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START, DEFAULT_END, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
+        entry.setRenderingMode(DEFAULT_RENDERING);
 
         JsonObject jsonObject = entry.toJson();
 
@@ -121,6 +127,7 @@ public class EntryTest {
         Assertions.assertTrue(jsonObject.getBoolean("allDay"));
         Assertions.assertTrue(jsonObject.getBoolean("editable"));
         Assertions.assertEquals(DEFAULT_COLOR, jsonObject.getString("color"));
+        Assertions.assertEquals(DEFAULT_RENDERING.getClientSideValue(), jsonObject.getString("rendering"));
     }
 
     @Test
@@ -135,10 +142,8 @@ public class EntryTest {
 
     @Test
     void testUpdateEntryFromJson() {
-        Entry entry = new Entry();
-
         JsonObject jsonObject = Json.createObject();
-        jsonObject.put("id", entry.getId());
+        jsonObject.put("id", "1");
 
         jsonObject.put("title", DEFAULT_TITLE);
         jsonObject.put("start", DEFAULT_START.toString());
@@ -148,7 +153,9 @@ public class EntryTest {
         jsonObject.put("color", DEFAULT_COLOR);
 
         jsonObject.put("description", DEFAULT_DESCRIPTION); // this should not affect the object
+        jsonObject.put("rendering", DEFAULT_RENDERING.getClientSideValue()); // this should not affect the object
 
+        Entry entry = new Entry("1");
         entry.update(jsonObject);
 
         Assertions.assertEquals(jsonObject.getString("id"), entry.getId());
@@ -161,19 +168,20 @@ public class EntryTest {
         Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
 
         Assertions.assertNull(entry.getDescription()); // should not be affected by json
+        Assertions.assertEquals(Entry.RenderingMode.NORMAL, entry.getRenderingMode()); // should not be affected by json
     }
 
     @Test
     void testUpdateAllDayEntryFromJson() {
-        Entry entry = new Entry();
 
         JsonObject jsonObject = Json.createObject();
-        jsonObject.put("id", entry.getId());
+        jsonObject.put("id", "1");
 
         jsonObject.put("start", DEFAULT_START.toLocalDate().toString());
         jsonObject.put("end", DEFAULT_END.toLocalDate().toString());
         jsonObject.put("allDay", true);
 
+        Entry entry = new Entry("1");
         entry.update(jsonObject);
 
         Assertions.assertTrue(entry.isAllDay());
