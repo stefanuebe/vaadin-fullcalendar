@@ -104,13 +104,19 @@ public class BusinessHours {
      * @return days of week for business
      */
     public Set<DayOfWeek> getDayOfWeeks() {
-        return dayOfWeeks;
+        return Collections.unmodifiableSet(dayOfWeeks);
     }
 
+    /**
+     * Converts the given object into a json object.
+     * @return json object
+     */
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
 
         jsonObject.put("dow", JsonUtils.toJsonValue(dayOfWeeks.stream().map(DayOfWeek::getValue)));
+        jsonObject.put("start", JsonUtils.toJsonValue(start != null ? start : "00:00"));
+        jsonObject.put("end", JsonUtils.toJsonValue(end != null ? end : "1.00:00"));
 
         return jsonObject;
     }

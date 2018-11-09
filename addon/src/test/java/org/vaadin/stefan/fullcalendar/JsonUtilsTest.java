@@ -154,6 +154,30 @@ public class JsonUtilsTest {
     }
 
     @Test
+    void testToJsonWithArray() {
+        List<Object> source = Arrays.asList(null, null, null);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonNull.class, v -> null);
+
+        source = Arrays.asList("1", "2", "3");
+        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonString.class, JsonValue::asString);
+
+        source = Arrays.asList(1, 2, 3);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonNumber.class, v -> (int) v.asNumber());
+
+        source = Arrays.asList(1.0, 2.0, 3.0);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonNumber.class, JsonValue::asNumber);
+
+        source = Arrays.asList(true, false, true);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonBoolean.class, JsonValue::asBoolean);
+
+
+        Assertions.assertTrue(ClientSideValue.class.isAssignableFrom(CalendarViewImpl.class)); // prevent implemention change
+        List<CalendarViewImpl> eSource = Arrays.asList(CalendarViewImpl.values());
+
+        assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonValue(eSource.toArray()), JsonString.class, JsonValue::asString);
+    }
+
+    @Test
     void testStringPropertyUpdate() {
         JsonObject object = Json.createObject();
         object.put("title", "test");

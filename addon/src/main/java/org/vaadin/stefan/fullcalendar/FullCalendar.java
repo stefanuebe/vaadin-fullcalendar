@@ -494,9 +494,13 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public void setBusinessHours(@Nonnull BusinessHours... hours) {
         Objects.requireNonNull(hours);
 
-
+        setOption(Option.BUSINESS_HOURS, JsonUtils.toJsonValue(Arrays.stream(hours).map(BusinessHours::toJson)), hours);
     }
 
+    /**
+     * Removes the business hours for this calendar instance.
+     * @throws NullPointerException when null is passed
+     */
     public void removeBusinessHours() {
         setOption(Option.BUSINESS_HOURS, null);
     }

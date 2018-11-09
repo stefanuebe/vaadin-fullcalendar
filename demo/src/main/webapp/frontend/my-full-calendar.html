@@ -9,10 +9,36 @@
 
             _createInitOptions() {
                 var options = super._createInitOptions();
-                options.eventRender = function (event, element) {
-                    element.css('color', 'red');
-                    return element;
+                options.businessHours = {
+                    dow: [0,1,2,3,4,5,6],
+                    start: '9:00',
+                    end: '18:00'
                 };
+                // options.events = [
+                //     {
+                //         title  : 'event2',
+                //         start  : '00:00',
+                //         end    : '09:00',
+                //         allDay : false,
+                //         rendering : 'background',
+                //         color: 'blue'
+                //     },
+                //     {
+                //         title  : 'event3',
+                //         start  : '18:00',
+                //         end    : '24:00',
+                //         dow: [1],
+                //         allDay : false,
+                //         rendering : 'background',
+                //         color: 'green'
+                //     },
+                //     {
+                //         title: "Elementary & Middle School Art Exhibit",
+                //         dow:[0,6],
+                //         rendering: "background",
+                //         color: "blue"
+                //     }
+                // ];
                 return options;
             }
         }
