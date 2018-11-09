@@ -22,6 +22,13 @@ public class JsonUtilsTest {
     }
 
     @Test
+    void testToJsonWithJsonValue() {
+        JsonString someTest = Json.create("test");
+
+        Assertions.assertSame(someTest, JsonUtils.toJsonValue(someTest));
+    }
+
+    @Test
     void testToJsonWithNull() {
         JsonValue value = JsonUtils.toJsonValue(null);
 

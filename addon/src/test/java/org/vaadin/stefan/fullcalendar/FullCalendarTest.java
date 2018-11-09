@@ -115,7 +115,7 @@ public class FullCalendarTest {
         assertCorrectBooleanOption(calendar, Option.NAV_LINKS, calendar::setNumberClickable);
 
         assertNPE(calendar, c -> calendar.setBusinessHours(null));
-        BusinessHours hours = new BusinessHours(BusinessHours.ALL_DAYS, LocalTime.of(5, 0), LocalTime.of(10, 0));
+        BusinessHours hours = new BusinessHours(LocalTime.of(5, 0), LocalTime.of(10, 0), BusinessHours.ALL_DAYS);
         calendar.setBusinessHours(hours);
 
         Optional<Object> option = calendar.getOption(Option.BUSINESS_HOURS);

@@ -14,7 +14,8 @@ public class BusinessHours {
     /**
      * Represents all days of week.
      */
-    public static final Set<DayOfWeek> ALL_DAYS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DayOfWeek.values())));
+    public static final DayOfWeek[] ALL_DAYS = DayOfWeek.values();
+    public static final DayOfWeek[] DEFAULT_BUSINESS_WEEK = {DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY};
 
     private final Set<DayOfWeek> dayOfWeeks;
     private final LocalTime start;
@@ -27,7 +28,7 @@ public class BusinessHours {
      * @param end   end time
      */
     public BusinessHours(LocalTime start, LocalTime end) {
-        this(ALL_DAYS, start, end);
+        this(start, end, ALL_DAYS);
     }
 
     /**
@@ -36,7 +37,7 @@ public class BusinessHours {
      * @param start start time
      */
     public BusinessHours(LocalTime start) {
-        this(ALL_DAYS, start, null);
+        this(start, null, ALL_DAYS);
     }
 
     /**
@@ -46,8 +47,8 @@ public class BusinessHours {
      *
      * @param dayOfWeeks days of business
      */
-    public BusinessHours(Set<DayOfWeek> dayOfWeeks) {
-        this(dayOfWeeks, null, null);
+    public BusinessHours(DayOfWeek... dayOfWeeks) {
+        this(null, null, dayOfWeeks);
     }
 
     /**
@@ -60,8 +61,8 @@ public class BusinessHours {
      * @param dayOfWeeks days of business
      * @param start      start time
      */
-    public BusinessHours(Set<DayOfWeek> dayOfWeeks, LocalTime start) {
-        this(dayOfWeeks, start, null);
+    public BusinessHours(LocalTime start, DayOfWeek... dayOfWeeks) {
+        this(start, null, dayOfWeeks);
     }
 
     /**
@@ -73,8 +74,18 @@ public class BusinessHours {
      * @param start      start time
      * @param end        end time
      */
-    public BusinessHours(Set<DayOfWeek> dayOfWeeks, LocalTime start, LocalTime end) {
-        this.dayOfWeeks = dayOfWeeks == null ? Collections.emptySet() : dayOfWeeks;
+    public BusinessHours(LocalTime start, LocalTime end, DayOfWeek... dayOfWeeks) {
+        Set<DayOfWeek> set;
+        if (dayOfWeeks == null || dayOfWeeks.length == 0) {
+            set = Collections.emptySet();
+        } else {
+            set = new HashSet<>(Arrays.asList(dayOfWeeks));
+            if (set.stream().anyMatch(Objects::isNull)) {
+                throw new NullPointerException("Day of weeks must not contain null");
+            }
+        }
+
+        this.dayOfWeeks = set;
         this.start = start;
         this.end = end;
     }

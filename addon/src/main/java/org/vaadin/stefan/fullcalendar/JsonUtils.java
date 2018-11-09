@@ -21,6 +21,10 @@ public final class JsonUtils {
      * @return object
      */
     public static JsonValue toJsonValue(Object value) {
+        if (value instanceof JsonValue) {
+            return (JsonValue) value;
+        }
+
         if (value instanceof ClientSideValue) {
             value = ((ClientSideValue) value).getClientSideValue();
         }

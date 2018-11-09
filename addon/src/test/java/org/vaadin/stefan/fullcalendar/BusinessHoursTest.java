@@ -7,20 +7,17 @@ import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BusinessHoursTest {
     @Test
     void testEmptyConstructors() {
         new BusinessHours((LocalTime) null);
-        new BusinessHours((Set<DayOfWeek>) null);
-        new BusinessHours((LocalTime) null, null);
-        new BusinessHours((Set<DayOfWeek>) null, null);
-        new BusinessHours(null, null, null);
+        new BusinessHours((DayOfWeek[]) null);
+        new BusinessHours(null, (LocalTime) null);
+        new BusinessHours(null, (DayOfWeek[]) null);
+        new BusinessHours(null, null, (DayOfWeek[]) null);
 
         Assertions.assertEquals(5, BusinessHours.class.getDeclaredConstructors().length, "There are untested constructors!");
     }
@@ -43,22 +40,23 @@ public class BusinessHoursTest {
         hours = new BusinessHours(start);
         Assertions.assertEquals(start, hours.getStart().get());
 
+        Set<DayOfWeek> allDaysAsSet = new HashSet<>(Arrays.asList(BusinessHours.ALL_DAYS));
+
         hours = new BusinessHours(BusinessHours.ALL_DAYS);
-        Assertions.assertNotSame(BusinessHours.ALL_DAYS, hours.getDayOfWeeks());
-        Assertions.assertEquals(BusinessHours.ALL_DAYS, hours.getDayOfWeeks());
+        Assertions.assertEquals(allDaysAsSet, hours.getDayOfWeeks());
 
         hours = new BusinessHours(start, end);
         Assertions.assertEquals(start, hours.getStart().get());
         Assertions.assertEquals(end, hours.getEnd().get());
 
-        hours = new BusinessHours(BusinessHours.ALL_DAYS, start);
+        hours = new BusinessHours(start, BusinessHours.ALL_DAYS);
         Assertions.assertNotSame(BusinessHours.ALL_DAYS, hours.getDayOfWeeks());
-        Assertions.assertEquals(BusinessHours.ALL_DAYS, hours.getDayOfWeeks());
+        Assertions.assertEquals(allDaysAsSet, hours.getDayOfWeeks());
         Assertions.assertEquals(start, hours.getStart().get());
 
-        hours = new BusinessHours(BusinessHours.ALL_DAYS, start, end);
+        hours = new BusinessHours(start, end, BusinessHours.ALL_DAYS);
         Assertions.assertNotSame(BusinessHours.ALL_DAYS, hours.getDayOfWeeks());
-        Assertions.assertEquals(BusinessHours.ALL_DAYS, hours.getDayOfWeeks());
+        Assertions.assertEquals(allDaysAsSet, hours.getDayOfWeeks());
         Assertions.assertEquals(start, hours.getStart().get());
         Assertions.assertEquals(end, hours.getEnd().get());
 
@@ -69,7 +67,7 @@ public class BusinessHoursTest {
     void testToJson() {
         LocalTime start = LocalTime.of(5, 0);
         LocalTime end = start.plusHours(1);
-        BusinessHours hours = new BusinessHours(BusinessHours.ALL_DAYS, start, end);
+        BusinessHours hours = new BusinessHours(start, end, BusinessHours.ALL_DAYS);
 
         JsonObject object = hours.toJson();
 
@@ -81,13 +79,13 @@ public class BusinessHoursTest {
         for (int i = 0; i < array.length(); i++) {
             days.add((int) array.getNumber(i));
         }
-        Assertions.assertEquals(BusinessHours.ALL_DAYS.stream().map(DayOfWeek::getValue).collect(Collectors.toSet()), days);
+        Assertions.assertEquals(Arrays.stream(BusinessHours.ALL_DAYS).map(DayOfWeek::getValue).collect(Collectors.toSet()), days);
     }
 
 
     @Test
     void testEmptyToJson() {
-        BusinessHours hours = new BusinessHours(null, null, null);
+        BusinessHours hours = new BusinessHours(null, null, (DayOfWeek[]) null);
 
         JsonObject object = hours.toJson();
 
