@@ -7,6 +7,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -21,6 +22,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
+import elemental.json.Json;
 import org.vaadin.stefan.fullcalendar.*;
 
 import java.time.LocalDate;
@@ -41,7 +43,7 @@ public class Demo extends Div {
     private HorizontalLayout toolbar;
 
     public Demo() {
-        HorizontalLayout title = new HorizontalLayout(new H3("full calendar demo"), new Span("(FullCalendar addon: 1.3.1, FullCalendar Scheduler extension: 1.0.1)"));
+        HorizontalLayout title = new HorizontalLayout(new H3("full calendar demo"), new Span("(FullCalendar addon: 1.3.3-SNAPSHOT, FullCalendar Scheduler extension: 1.0.2)"));
         title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
         add(title);
 
@@ -134,9 +136,17 @@ public class Demo extends Div {
 
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create().withEntryLimit(5).withScheduler().build();
+//        calendar = new MyFullCalendar(5);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+
+//        calendar.setEntryRenderCallback("" +
+//                "function(event, element) {" +
+//                "   console.log(event.title + 'X');" +
+//                "   element.css('color', 'red');" +
+//                "   return element; " +
+//                "}");
 
         // scheduler options
         ((Scheduler) calendar).setSchedulerLicenseKey(Scheduler.GPL_V3_LICENSE_KEY);
