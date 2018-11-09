@@ -72,10 +72,6 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         }
     }
 
-    public void setEntryRenderCallback(String s) {
-        getElement().callFunction("setEventRenderCallback", s);
-    }
-
     /**
      * Moves to the next interval (e. g. next month if current view is monthly based).
      */
@@ -464,6 +460,30 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public void setNumberClickable(boolean clickable) {
         setOption(Option.NAV_LINKS, clickable);
     }
+
+    /**
+     * The given string needs to be a valid JavaScript function. This function will be parsed on client side
+     * and attached to the calendar as the eventRender callback.
+     * <p/>
+     * <b>Note: </b> Please be aware, that there is NO content parsing, escaping, quoting or
+     * other security mechanism applied on this string, so check it yourself before passing it to the client.
+     * <p/>
+     * Example
+     * <pre>
+     calendar.setEntryRenderCallback("" +
+             "function(event, element) {" +
+             "   console.log(event.title + 'X');" +
+             "   element.css('color', 'red');" +
+             "   return element; " +
+             "}");
+     *
+     * </pre>
+     * @param s js function to be attached to eventRender callback
+     */
+    public void setEntryRenderCallback(String s) {
+        getElement().callFunction("setEventRenderCallback", s);
+    }
+
 
     /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
