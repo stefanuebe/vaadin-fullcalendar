@@ -52,17 +52,26 @@ public class FullCalendarBuilder {
      */
     public FullCalendar build() {
         if (scheduler) {
-            try {
-                Class<?> loadClass = getClass().getClassLoader().loadClass("org.vaadin.stefan.fullcalendar.FullCalendarScheduler");
-                return (FullCalendar) loadClass.getDeclaredConstructor(int.class).newInstance(entryLimit);
-            } catch (ClassNotFoundException ce) {
-                throw new ExtensionNotFoundException("Could not find scheduler extension for FullCalendar on class path. Please check you libraries / dependencies.", ce);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return createFullCalendarSchedulerInstance(entryLimit);
         } else {
-            return new FullCalendar(entryLimit);
+            return createFullCalendarBasicInstance();
         }
+    }
+
+    protected FullCalendar createFullCalendarBasicInstance() {
+        return new FullCalendar(entryLimit);
+    }
+
+    protected FullCalendar createFullCalendarSchedulerInstance(int entryLimit) {
+        try {
+            Class<?> loadClass = getClass().getClassLoader().loadClass("org.vaadin.stefan.fullcalendar.FullCalendarScheduler");
+            return (FullCalendar) loadClass.getDeclaredConstructor(int.class).newInstance(this.entryLimit);
+        } catch (ClassNotFoundException ce) {
+            throw new ExtensionNotFoundException("Could not find scheduler extension for FullCalendar on class path. Please check you libraries / dependencies.", ce);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     /**
