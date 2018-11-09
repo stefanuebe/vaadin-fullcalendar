@@ -1,0 +1,22 @@
+<link rel="import" href="bower_components/fullcalendar/full-calendar-scheduler.html">
+
+<dom-module id="my-full-calendar">
+    <script>
+        class MyFullCalendar extends FullCalendarScheduler {
+            static get is() {
+                return 'my-full-calendar';
+            }
+
+            _createInitOptions() {
+                var options = super._createInitOptions();
+                options.eventRender = function (event, element) {
+                    element.css('color', 'red');
+                    return element;
+                };
+                return options;
+            }
+        }
+
+        customElements.define(MyFullCalendar.is, MyFullCalendar);
+    </script>
+</dom-module>
