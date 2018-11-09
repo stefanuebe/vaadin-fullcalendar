@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.3-SNAPSHOT</version>
 
     <name>Full Calendar web component</name>
     <description>A web component that wraps the Full Calendar (https://fullcalendar.io).</description>

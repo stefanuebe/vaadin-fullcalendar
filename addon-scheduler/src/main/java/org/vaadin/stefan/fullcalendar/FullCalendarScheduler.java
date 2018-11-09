@@ -18,11 +18,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     private Map<String, Resource> resources = new HashMap<>();
 
-    FullCalendarScheduler() {
+    protected FullCalendarScheduler() {
         super();
     }
 
-    FullCalendarScheduler(int entryLimit) {
+    protected FullCalendarScheduler(int entryLimit) {
         super(entryLimit);
     }
 
