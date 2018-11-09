@@ -37,6 +37,7 @@ The following functions are implemented and available to use from server side:
     - color (html colors, like "#f00" or "red"), 
     - description (not shown via FC), 
     - editable / read only
+    - rendering mode (normal, background, inversed background)
 
 ## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
@@ -257,9 +258,16 @@ public class MyFullCalendar extends FullCalendar {
 
 calendar = new MyFullCalendar(5);
 
+### Creating a background event
+Entry entry = new Entry();
+// ... setup entry details
+
+entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+calendar.addEntry(entry);
+
 # FullCalendar Scheduler extension
 This addon extends the **FullCalendar integration addon** with the FullCalendar Scheduler (v1.9.4) as Flow component for Vaadin Platform / Vaadin 10+.
-It needs the FC integration addon ((1.3.1+) as basis (https://vaadin.com/directory/component/edit/full-calendar-web-component).
+It needs the FC integration addon (1.4.0+) as basis (https://vaadin.com/directory/component/edit/full-calendar-web-component).
 
 For information about the Schedular (functionality, features, license information, etc.) 
 visit https://fullcalendar.io/scheduler. 
@@ -409,3 +417,10 @@ public class MyFullCalendar extends FullCalendarScheduler {
 3. Use this class in your code
 
 calendar = new MyFullCalendar(5);
+
+### Creating a resource bases background event
+ResourceEntry entry = new ResourceEntry();
+// ... setup entry details, including addResource()
+
+entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+calendar.addEntry(entry);
