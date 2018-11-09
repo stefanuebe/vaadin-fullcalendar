@@ -25,6 +25,7 @@ import com.vaadin.flow.router.Route;
 import elemental.json.Json;
 import org.vaadin.stefan.fullcalendar.*;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -270,7 +271,7 @@ public class Demo extends Div {
         createTimedEntry(calendar, "Kickoff meeting with customer #6", now.withDayOfMonth(22).atTime(9, 0), 120, "mediumseagreen", meetingRoomRed);
 
         createTimedEntry(calendar, "Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "violet");
-        createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 45), 90, "violet");
+        createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 30), 60, "violet");
         createTimedEntry(calendar, "Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "dodgerblue");
         createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
         createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
@@ -286,6 +287,10 @@ public class Demo extends Div {
         createDayEntry(calendar, "Multi 8", now.withDayOfMonth(12), 2, "tomato");
         createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
         createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
+
+        createDayBackgroundEntry(calendar, "Some BG", now.withDayOfMonth(4), 6, "#B9FFC3");
+        createDayBackgroundEntry(calendar, "Some BG", now.withDayOfMonth(19), 2, "#CEE3FF");
+        createTimedBackgroundEntry(calendar, "Some BG", now.withDayOfMonth(20).atTime(11, 0), 150, "#FBC8FF");
     }
 
     private Resource createResource(Scheduler calendar, String s, String color) {
@@ -308,6 +313,20 @@ public class Demo extends Div {
         if (resources != null && resources.length > 0) {
             entry.addResources(Arrays.asList(resources));
         }
+        calendar.addEntry(entry);
+        return entry;
+    }
+
+    protected ResourceEntry createDayBackgroundEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
+        ResourceEntry entry = new ResourceEntry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description...");
+        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        calendar.addEntry(entry);
+        return entry;
+    }
+
+    protected ResourceEntry createTimedBackgroundEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
+        ResourceEntry entry = new ResourceEntry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description...");
+        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         calendar.addEntry(entry);
         return entry;
     }
