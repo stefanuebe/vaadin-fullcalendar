@@ -17,7 +17,7 @@ public enum SchedulerView implements CalendarView {
     }
 
     @Override
-    public String getClientSideName() {
+    public String getClientSideValue() {
         return clientSideName;
     }
 }

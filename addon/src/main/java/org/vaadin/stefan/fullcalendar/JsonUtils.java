@@ -18,6 +18,10 @@ public final class JsonUtils {
      * @return object
      */
     public static JsonValue toJsonValue(Object value) {
+        if (value instanceof ClientSideValue) {
+            value = ((ClientSideValue) value).getClientSideValue();
+        }
+
         if (value == null) {
             return Json.createNull();
         }

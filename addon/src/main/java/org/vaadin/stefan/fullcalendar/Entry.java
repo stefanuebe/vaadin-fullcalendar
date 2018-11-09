@@ -67,6 +67,7 @@ public class Entry {
         jsonObject.put("end", JsonUtils.toJsonValue(fullDayEvent ? end.toLocalDate() : end));
         jsonObject.put("editable", isEditable());
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
+        jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
 
         return jsonObject;
     }
@@ -230,7 +231,7 @@ public class Entry {
     /**
      * Constants for rendering of an event.
      */
-    public enum RenderingMode {
+    public enum RenderingMode implements ClientSideValue {
         /**
          * Renders as normal entry.
          */
@@ -252,7 +253,8 @@ public class Entry {
             this.clientSideName = clientSideName;
         }
 
-        public String getClientSideName() {
+        @Override
+        public String getClientSideValue() {
             return clientSideName;
         }
     }
