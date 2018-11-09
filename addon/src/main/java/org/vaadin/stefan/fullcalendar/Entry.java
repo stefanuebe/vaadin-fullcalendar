@@ -2,6 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.*;
 
+import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public class Entry {
     private boolean allDay;
     private String color;
     private String description;
-    private Rendering rendering = Rendering.NORMAL;
+    private RenderingMode renderingMode = RenderingMode.NORMAL;
 
     private FullCalendar calendar;
 
@@ -159,12 +160,22 @@ public class Entry {
         this.color = color == null || color.trim().isEmpty() ? null : color;
     }
 
-    public Rendering getRendering() {
-        return rendering;
+    /**
+     * Returns the rendering mode of this entry. Never null.
+     * @return rendering mode
+     */
+    public RenderingMode getRenderingMode() {
+        return renderingMode;
     }
 
-    public void setRendering(Rendering rendering) {
-        this.rendering = rendering;
+    /**
+     * Sets the rendering of this entry. Default is {@link RenderingMode#NORMAL}
+     * @param renderingMode rendering
+     * @throws NullPointerException when passing null
+     */
+    public void setRenderingMode(@Nonnull RenderingMode renderingMode) {
+        Objects.requireNonNull(renderingMode);
+        this.renderingMode = renderingMode;
     }
 
     /**
@@ -212,14 +223,14 @@ public class Entry {
                 ", editable=" + editable +
                 ", id='" + id + '\'' +
                 ", calendar=" + calendar +
-                ", rendering=" + rendering +
+                ", rendering=" + renderingMode +
                 '}';
     }
 
     /**
      * Constants for rendering of an event.
      */
-    public enum Rendering {
+    public enum RenderingMode {
         /**
          * Renders as normal entry.
          */
@@ -237,7 +248,7 @@ public class Entry {
 
         private final String clientSideName;
 
-        Rendering(String clientSideName) {
+        RenderingMode(String clientSideName) {
             this.clientSideName = clientSideName;
         }
 
