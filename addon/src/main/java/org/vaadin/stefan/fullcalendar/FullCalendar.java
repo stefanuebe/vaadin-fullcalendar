@@ -484,6 +484,23 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         getElement().callFunction("setEventRenderCallback", s);
     }
 
+    /**
+     * Sets the business hours for this calendar instance. You may pass multiple instances for different configurations.
+     * Please be aware, that instances with crossing days or times are handled by the client side and may lead
+     * to unexpected results.
+     * @param hours hours to set
+     * @throws NullPointerException when null is passed
+     */
+    public void setBusinessHours(@Nonnull BusinessHours... hours) {
+        Objects.requireNonNull(hours);
+
+
+    }
+
+    public void removeBusinessHours() {
+        setOption(Option.BUSINESS_HOURS, null);
+    }
+
 
     /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
@@ -684,6 +701,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         WEEK_NUMBERS("weekNumbers"),
         NOW_INDICATOR("nowIndicator"),
         NAV_LINKS("navLinks"),
+        BUSINESS_HOURS("businessHours"),
         ;
         private final String optionKey;
 
