@@ -23,7 +23,7 @@ public class Entry {
     private boolean allDay;
     private String color;
     private String description;
-    private Rendering rendering;
+    private Rendering rendering = Rendering.NORMAL;
 
     private FullCalendar calendar;
 
@@ -36,6 +36,20 @@ public class Entry {
         this.allDay = allDay;
         this.editable = editable;
         this.description = description;
+
+        setColor(color);
+    }
+
+    public Entry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description, Rendering rendering) {
+        this(id);
+
+        this.title = title;
+        this.start = start;
+        this.end = end;
+        this.allDay = allDay;
+        this.editable = editable;
+        this.description = description;
+        this.rendering = rendering;
 
         setColor(color);
     }
@@ -119,6 +133,14 @@ public class Entry {
 
     public void setColor(String color) {
         this.color = color == null || color.trim().isEmpty() ? null : color;
+    }
+
+    public Rendering getRendering() {
+        return rendering;
+    }
+
+    public void setRendering(Rendering rendering) {
+        this.rendering = rendering;
     }
 
     @Override
@@ -211,8 +233,19 @@ public class Entry {
      * Constants for rendering of an event.
      */
     public enum Rendering {
+        /**
+         * Renders as normal entry.
+         */
         NORMAL(null),
+
+        /**
+         * Renders as background entry (marks the area of the entry interval).
+         */
         BACKGROUND("background"),
+
+        /**
+         * Renders as inversed background entry (marks everything except the entry interval).
+         */
         INVERSE_BACKGROUND("inverse-background");
 
         private final String clientSideName;
