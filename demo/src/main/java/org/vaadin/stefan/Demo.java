@@ -212,7 +212,7 @@ public class Demo extends Div {
                 dialogLayout.setMargin(false);
                 dialogLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
 
-                dialogLayout.add(new Span("Entries of " + event.getClickedDate().format(DateTimeFormatter.ISO_DATE.withLocale(calendar.getLocale()))));
+                dialogLayout.add(new Span("Entries of " + event.getClickedDate()));
                 entries.stream()
                         .sorted(Comparator.comparing(Entry::getTitle))
                         .map(entry -> {
