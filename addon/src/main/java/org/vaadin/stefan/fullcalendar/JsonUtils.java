@@ -2,8 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -94,16 +93,29 @@ public final class JsonUtils {
      * @param object json object
      * @param key json property key
      * @param setter setter to apply value
+     * @param zoneId
      */
-    public static void updateDateTime(JsonObject object, String key, Consumer<LocalDateTime> setter) {
+    public static void updateDateTime(JsonObject object, String key, Consumer<Instant> setter, ZoneId zoneId) {
         if (object.get(key) instanceof JsonString) {
             String string = object.getString(key);
 
-            LocalDateTime dateTime;
+            // TODO to instance and zone id
+
+            Instant dateTime;
+
             try {
-                dateTime = LocalDateTime.parse(string);
+                ZonedDateTime parse = ZonedDateTime.parse(string);
+                dateTime = parse.toInstant();
             } catch (DateTimeParseException e) {
-                dateTime = LocalDate.parse(string).atStartOfDay();
+                try {
+                    dateTime = Instant.parse(string);
+                } catch (DateTimeParseException e1) {
+                    LocalDateTime parse = LocalDateTime.parse(string);
+                    ZoneOffset offset = zoneId.getRules().getOffset(parse);
+
+                    dateTime = parse.toInstant(offset);
+                    System.out.println(string);
+                }
             }
 
             setter.accept(dateTime);

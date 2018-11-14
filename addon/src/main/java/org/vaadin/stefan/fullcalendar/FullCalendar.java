@@ -11,9 +11,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -138,7 +136,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param filterEnd end point of filter timespan or null to have no limit
      * @return entries
      */
-    public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
+    public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
         if (filterStart == null && filterEnd == null) {
             return getEntries();
         }
@@ -165,9 +163,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return entries
      * @throws NullPointerException when null is passed
      */
-    public List<Entry> getEntries(@Nonnull LocalDate date) {
+    public List<Entry> getEntries(@Nonnull Instant date) {
         Objects.requireNonNull(date);
-        return getEntries(date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        return getEntries(date, date.plusSeconds(86400));
     }
 
 

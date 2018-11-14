@@ -12,10 +12,10 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>10.0.6</vaadin.version>
+        <vaadin.version>12.0.0.beta1</vaadin.version>
 
-        <fullcalendar.version>1.5.0</fullcalendar.version>
-        <fullcalendar.scheduler.version>1.0.4</fullcalendar.scheduler.version>
+        <fullcalendar.version>1.6.0-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.scheduler.version>1.1.0-SNAPSHOT</fullcalendar.scheduler.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -75,6 +75,11 @@
             <groupId>org.vaadin.stefan</groupId>
             <artifactId>fullcalendar-scheduler</artifactId>
             <version>${fullcalendar.scheduler.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.8.16</version>
         </dependency>
     </dependencies>
 

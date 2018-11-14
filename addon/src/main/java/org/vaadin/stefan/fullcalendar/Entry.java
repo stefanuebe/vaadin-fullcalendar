@@ -3,7 +3,9 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.*;
 
 import javax.annotation.Nonnull;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,16 +21,18 @@ public class Entry {
     private boolean editable;
     private final String id;
     private String title;
-    private LocalDateTime start;
-    private LocalDateTime end;
+    private Instant start;
+    private Instant end;
     private boolean allDay;
     private String color;
     private String description;
     private RenderingMode renderingMode = RenderingMode.NORMAL;
 
+    private ZoneId zoneId = ZoneId.of(ZoneOffset.UTC.getId());
+
     private FullCalendar calendar;
 
-    public Entry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
+    public Entry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
         this(id);
 
         this.title = title;
@@ -61,10 +65,10 @@ public class Entry {
         boolean fullDayEvent = isAllDay();
         jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
 
-        LocalDateTime start = getStart();
-        LocalDateTime end = getEnd();
-        jsonObject.put("start", JsonUtils.toJsonValue(fullDayEvent ? start.toLocalDate() : start));
-        jsonObject.put("end", JsonUtils.toJsonValue(fullDayEvent ? end.toLocalDate() : end));
+        Instant start = getStart();
+        Instant end = getEnd();
+        jsonObject.put("start", JsonUtils.toJsonValue(start.atZone(zoneId)));
+        jsonObject.put("end", JsonUtils.toJsonValue(end.atZone(zoneId)));
         jsonObject.put("editable", isEditable());
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
@@ -87,8 +91,8 @@ public class Entry {
         JsonUtils.updateString(object, "title", this::setTitle);
         JsonUtils.updateBoolean(object, "editable", this::setEditable);
         JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
-        JsonUtils.updateDateTime(object, "start", this::setStart);
-        JsonUtils.updateDateTime(object, "end", this::setEnd);
+        JsonUtils.updateDateTime(object, "start", this::setStart, zoneId);
+        JsonUtils.updateDateTime(object, "end", this::setEnd, zoneId);
         JsonUtils.updateString(object, "color", this::setColor);
     }
 
@@ -117,11 +121,11 @@ public class Entry {
         return title;
     }
 
-    public LocalDateTime getStart() {
+    public Instant getStart() {
         return start;
     }
 
-    public LocalDateTime getEnd() {
+    public Instant getEnd() {
         return end;
     }
 
@@ -141,11 +145,11 @@ public class Entry {
         this.title = title;
     }
 
-    public void setStart(LocalDateTime start) {
+    public void setStart(Instant start) {
         this.start = start;
     }
 
-    public void setEnd(LocalDateTime end) {
+    public void setEnd(Instant end) {
         this.end = end;
     }
 
@@ -257,5 +261,14 @@ public class Entry {
         public String getClientSideValue() {
             return clientSideName;
         }
+
+    }
+    public ZoneId getZoneId() {
+        return zoneId;
+    }
+
+    public void setZoneId(ZoneId zoneId) {
+        Objects.requireNonNull(zoneId);
+        this.zoneId = zoneId;
     }
 }
