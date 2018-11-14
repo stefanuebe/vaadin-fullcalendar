@@ -132,7 +132,7 @@ public class Demo extends Div {
     private void createCalendarInstance() {
 //        calendar = FullCalendarBuilder.create().withEntryLimit(5).withScheduler().build();
         calendar = new MyFullCalendar(5);
-        calendar.changeView(CalendarViewImpl.AGENDA_WEEK);
+        calendar.changeView(CalendarViewImpl.MONTH);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
@@ -264,8 +264,15 @@ public class Demo extends Div {
         Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
 
         Entry entry = new Entry();
-        entry.setTitle("Hi there");
-        Instant start = LocalDate.now().atTime(12, 0).toInstant(ZoneOffset.UTC);
+        entry.setTitle("Standard time entry");
+        Instant start = LocalDate.of(2018, 11, 17).atTime(12, 0).toInstant(ZoneOffset.UTC);
+        entry.setStart(start);
+        entry.setEnd(start.plus(Duration.ofHours(1)));
+        calendar.addEntry(entry);
+
+        entry = new Entry();
+        entry.setTitle("Summer time entry");
+        start = LocalDate.of(2018, 8, 17).atTime(12, 0).toInstant(ZoneOffset.UTC);
         entry.setStart(start);
         entry.setEnd(start.plus(Duration.ofHours(1)));
         calendar.addEntry(entry);

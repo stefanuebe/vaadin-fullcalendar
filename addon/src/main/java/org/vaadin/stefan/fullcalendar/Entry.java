@@ -57,18 +57,15 @@ public class Entry {
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", JsonUtils.toJsonValue(getId()));
-        Timezone timezone = calendar != null ? calendar.getTimezone() : Timezone.UTC;
+        jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
 
         boolean fullDayEvent = isAllDay();
         jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
 
-        Instant start = getStart();
-        Instant end = getEnd();
-        jsonObject.put("title", JsonUtils.toJsonValue(getTitle() + ", " + start.atZone(Timezone.UTC.getZoneId()).toLocalTime() + " " + timezone.getZoneId().getRules().getOffset(start)));
+        Timezone timezone = calendar != null ? calendar.getTimezone() : Timezone.UTC;
 
-
-        jsonObject.put("start", JsonUtils.toJsonValue(timezone.formatWithZoneId(start)));
-        jsonObject.put("end", JsonUtils.toJsonValue(timezone.formatWithZoneId(end)));
+        jsonObject.put("start", JsonUtils.toJsonValue(timezone.formatWithZoneId(getStart())));
+        jsonObject.put("end", JsonUtils.toJsonValue(timezone.formatWithZoneId(getEnd())));
         jsonObject.put("editable", isEditable());
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
