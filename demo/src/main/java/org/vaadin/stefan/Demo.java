@@ -30,8 +30,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@Route("")
-@Push
+@Route(value = "", layout = MainView.class)
 @HtmlImport("frontend://styles.html")
 @HtmlImport("frontend://styles_scheduler.html")
 public class Demo extends Div {
@@ -43,10 +42,6 @@ public class Demo extends Div {
     private HorizontalLayout toolbar;
 
     public Demo() {
-        HorizontalLayout title = new HorizontalLayout(new H3("full calendar demo"), new Span("(FullCalendar addon: 1.5.0, FullCalendar Scheduler extension: 1.0.4)"));
-        title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
-        add(title);
-
         createToolbar();
         add(toolbar);
 

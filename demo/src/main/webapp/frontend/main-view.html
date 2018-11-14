@@ -1,0 +1,21 @@
+<link rel="import" href="bower_components/polymer/polymer-element.html">
+<link rel="import" href="bower_components/vaadin-ordered-layout/vaadin-horizontal-layout.html">
+
+<dom-module id="main-view">
+    <template>
+
+        <vaadin-horizontal-layout id="title"></vaadin-horizontal-layout>
+        <slot></slot>
+    </template>
+
+    <script>
+        class MainView extends Polymer.Element {
+            static get is() {
+                return 'main-view';
+            }
+
+        }
+
+        window.customElements.define(MainView.is, MainView);
+    </script>
+</dom-module>
