@@ -28,8 +28,6 @@ public class Entry {
     private String description;
     private RenderingMode renderingMode = RenderingMode.NORMAL;
 
-    private ZoneId zoneId = ZoneId.of(ZoneOffset.UTC.getId());
-
     private FullCalendar calendar;
 
     public Entry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
@@ -67,8 +65,11 @@ public class Entry {
 
         Instant start = getStart();
         Instant end = getEnd();
-        jsonObject.put("start", JsonUtils.toJsonValue(start.atZone(zoneId)));
-        jsonObject.put("end", JsonUtils.toJsonValue(end.atZone(zoneId)));
+
+        Timezone timezone = calendar != null ? calendar.getTimezone() : Timezone.NONE;
+
+        jsonObject.put("start", JsonUtils.toJsonValue(start.atZone(timezone.getZoneId())));
+        jsonObject.put("end", JsonUtils.toJsonValue(end.atZone(timezone.getZoneId())));
         jsonObject.put("editable", isEditable());
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
@@ -91,8 +92,8 @@ public class Entry {
         JsonUtils.updateString(object, "title", this::setTitle);
         JsonUtils.updateBoolean(object, "editable", this::setEditable);
         JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
-        JsonUtils.updateDateTime(object, "start", this::setStart, zoneId);
-        JsonUtils.updateDateTime(object, "end", this::setEnd, zoneId);
+        JsonUtils.updateDateTime(object, "start", this::setStart);
+        JsonUtils.updateDateTime(object, "end", this::setEnd);
         JsonUtils.updateString(object, "color", this::setColor);
     }
 
@@ -262,13 +263,5 @@ public class Entry {
             return clientSideName;
         }
 
-    }
-    public ZoneId getZoneId() {
-        return zoneId;
-    }
-
-    public void setZoneId(ZoneId zoneId) {
-        Objects.requireNonNull(zoneId);
-        this.zoneId = zoneId;
     }
 }

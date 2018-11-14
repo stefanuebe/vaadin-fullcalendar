@@ -15,29 +15,5 @@ public class MyFullCalendar extends FullCalendarScheduler {
         super(entryLimit);
     }
 
-    public void setTimezone(Timezone tzb) {
-        setOption("timezone", tzb);
-    }
-
-    public enum Timezone implements ClientSideValue {
-        NONE("false"),
-        LOCAL("local"),
-        UTC("utc"),
-        ZONE_ID("utc");
-
-        private final String clientSideValue;
-
-        Timezone(String clientSideValue) {
-            this.clientSideValue = clientSideValue;
-        }
-
-        @Nullable
-        @Override
-        public String getClientSideValue() {
-            return this.clientSideValue;
-        }
-    }
-
-
 
 }
