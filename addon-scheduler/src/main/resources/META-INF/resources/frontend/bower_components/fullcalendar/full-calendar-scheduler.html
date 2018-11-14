@@ -58,11 +58,11 @@
             }
 
             addResource(obj) {
-                this._calendar.addResource(obj);
+                this.getCalendar().addResource(obj);
             }
 
             removeResource(obj) {
-                this._calendar.removeResource(obj.id);
+                this.getCalendar().removeResource(obj.id);
             }
 
         }
