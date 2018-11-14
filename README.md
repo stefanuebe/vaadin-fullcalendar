@@ -283,7 +283,7 @@ calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0)));
 # FullCalendar Scheduler extension
 This addon extends the **FullCalendar integration addon** with the FullCalendar Scheduler (v1.9.4) as Flow component for Vaadin Platform / Vaadin 10+.
 
-It needs the FC integration addon (1.5.0+) as basis (https://vaadin.com/directory/component/full-calendar-web-component). Since this addon is not always updated when the basis gets an update, I would suggest, that you add both dependencies (basis and extension) to always use the latest version of basis. This extension is compatible as long as the readme does not tells anything else.
+It needs the FC integration addon (1.5.1+) as basis (https://vaadin.com/directory/component/full-calendar-web-component). Since this addon is not always updated when the basis gets an update, I would suggest, that you add both dependencies (basis and extension) to always use the latest version of basis. This extension is compatible as long as the readme does not tells anything else.
 
 For information about the Schedular (functionality, features, license information, etc.) 
 visit https://fullcalendar.io/scheduler. 
