@@ -52,47 +52,86 @@
             }
 
             ready() {
-                super.ready();
-                var thisReference = this;
+                // super.ready();
+                this._initCalendar();
+            }
 
-                this._handle = $(this.$.calendar);
-                this._handle.fullCalendar(this._createInitOptions());
-                this._calendar = this._handle.fullCalendar('getCalendar');
+            getCalendar() {
+                if (this._calendar === undefined) {
+                    this._initCalendar();
+                }
+
+                return this._calendar;
+            }
+
+            getJqueryHandle() {
+                if (this._calendar === undefined) {
+                    this._initCalendar();
+                }
+
+                return this._handle;
+            }
+
+            _initCalendar() {
+                if (this._calendar === undefined) {
+                    super.ready();
+                    var thisReference = this;
+
+                    this._handle = $(this.$.calendar);
+                    this._handle.fullCalendar(this._createInitOptions());
+                    this._calendar = this._handle.fullCalendar('getCalendar');
 
 
-                this._calendar.on('dayClick', function (date) {
-                    thisReference.dispatchEvent(new CustomEvent('dayClick', {detail: {date: date.format(), allDay: !date.hasTime()}}));
-                });
+                    this._calendar.on('dayClick', function (date) {
+                        thisReference.dispatchEvent(new CustomEvent('dayClick', {
+                            detail: {
+                                date: date.format(),
+                                allDay: !date.hasTime()
+                            }
+                        }));
+                    });
 
-                this._calendar.on('select', function (start, end) {
-                    thisReference.dispatchEvent(new CustomEvent('select', {detail: {start: start.format(), end: end.format(), allDay: !start.hasTime()}}));
-                });
+                    this._calendar.on('select', function (start, end) {
+                        thisReference.dispatchEvent(new CustomEvent('select', {
+                            detail: {
+                                start: start.format(),
+                                end: end.format(),
+                                allDay: !start.hasTime()
+                            }
+                        }));
+                    });
 
-                this._calendar.on('eventClick', function (event) {
-                    thisReference.dispatchEvent(new CustomEvent('eventClick', {detail: {id: event.id}}));
-                });
+                    this._calendar.on('eventClick', function (event) {
+                        thisReference.dispatchEvent(new CustomEvent('eventClick', {detail: {id: event.id}}));
+                    });
 
-                this._calendar.on('eventResize', function (event, delta, revertFunc) {
-                    thisReference.dispatchEvent(new CustomEvent('eventResize', {
-                        detail: {
-                            data: thisReference._toEventData(event),
-                            delta: delta._data
-                        }
-                    }));
-                });
+                    this._calendar.on('eventResize', function (event, delta, revertFunc) {
+                        thisReference.dispatchEvent(new CustomEvent('eventResize', {
+                            detail: {
+                                data: thisReference._toEventData(event),
+                                delta: delta._data
+                            }
+                        }));
+                    });
 
-                this._calendar.on('eventDrop', function (event, delta, revertFunc) {
-                    thisReference.dispatchEvent(new CustomEvent('eventDrop', {
-                        detail: {
-                            data: thisReference._toEventData(event),
-                            delta: delta._data
-                        }
-                    }));
-                });
+                    this._calendar.on('eventDrop', function (event, delta, revertFunc) {
+                        thisReference.dispatchEvent(new CustomEvent('eventDrop', {
+                            detail: {
+                                data: thisReference._toEventData(event),
+                                delta: delta._data
+                            }
+                        }));
+                    });
 
-                this._calendar.on('viewRender', function (view, element) {
-                    thisReference.dispatchEvent(new CustomEvent("viewRender", {detail: {intervalStart: view.intervalStart.format(), intervalEnd: view.intervalEnd.format()}}));
-                });
+                    this._calendar.on('viewRender', function (view, element) {
+                        thisReference.dispatchEvent(new CustomEvent("viewRender", {
+                            detail: {
+                                intervalStart: view.intervalStart.format(),
+                                intervalEnd: view.intervalEnd.format()
+                            }
+                        }));
+                    });
+                }
             }
 
             _createInitOptions() {
@@ -147,7 +186,7 @@
             }
 
             setOption(key, value) {
-                this._calendar.option(key, value);
+                this.getCalendar().option(key, value);
             }
 
             _toEventData(event) {
@@ -170,19 +209,19 @@
             }
 
             next() {
-                this._calendar.next();
+                this.getCalendar().next();
             }
 
             previous() {
-                this._calendar.prev();
+                this.getCalendar().prev();
             }
 
             today() {
-                this._calendar.today();
+                this.getCalendar().today();
             }
 
             addEvent(obj) {
-                this._calendar.addEventSource([obj]);
+                this.getCalendar().addEventSource([obj]);
             }
 
             updateEvent(obj) {
@@ -203,16 +242,16 @@
                         }
                     }
 
-                    this._calendar.updateEvent(eventToUpdate);
+                    this.getCalendar().updateEvent(eventToUpdate);
                 }
             }
 
             removeEvent(obj) {
-                this._calendar.removeEvents(obj.id);
+                this.getCalendar().removeEvents(obj.id);
             }
 
             getEventById(id) {
-                var events = this._calendar.clientEvents();
+                var events = this.getCalendar().clientEvents();
                 var eventToUpdate = null;
                 for (var i = 0; i < events.length; i++) {
                     var event = events[i];
@@ -227,23 +266,23 @@
             }
 
             removeAllEvents() {
-                this._calendar.removeEventSources();
+                this.getCalendar().removeEventSources();
             }
 
             changeView(viewName) {
-                this._calendar.changeView(viewName);
+                this.getCalendar().changeView(viewName);
             }
 
             gotoDate(date) {
-                this._calendar.gotoDate(moment(date));
+                this.getCalendar().gotoDate(moment(date));
             }
 
             render() {
-                this._calendar.render();
+                this.getCalendar().render();
             }
 
             setEventRenderCallback(s) {
-                this._calendar.option('eventRender', new Function("return " + s)());
+                this.getCalendar().option('eventRender', new Function("return " + s)());
             }
 
 

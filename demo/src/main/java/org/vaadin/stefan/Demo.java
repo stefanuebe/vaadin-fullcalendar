@@ -14,6 +14,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -29,8 +30,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalField;
 import java.util.*;
 
-@Route("")
-//@Push
+@Route(value = "", layout = MainView.class)
 @HtmlImport("frontend://styles.html")
 @HtmlImport("frontend://styles_scheduler.html")
 public class Demo extends Div {
@@ -41,10 +41,6 @@ public class Demo extends Div {
     private HorizontalLayout toolbar;
 
     public Demo() {
-        HorizontalLayout title = new HorizontalLayout(new H3("full calendar demo"), new Span("(FullCalendar addon: 1.6.0-SNAPSHOT, FullCalendar Scheduler extension: 1.1.0-SNAPSHOT)"));
-        title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
-        add(title);
-
         createToolbar();
         add(toolbar);
 
@@ -141,7 +137,6 @@ public class Demo extends Div {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
         );
 
-
 //        calendar.setEntryRenderCallback("" +
 //                "function(event, element) {" +
 //                "   console.log(event.title + 'X');" +
@@ -157,8 +152,7 @@ public class Demo extends Div {
         //        calendar.addTimeslotClickedListener(event -> {
         //            Entry entry = new Entry();
         //
-        //            Instant
-        //start = event.getClickedDateTime();
+        //            LocalDateTime start = event.getClickedDateTime();
         //            entry.setStart(start);
         //
         //            boolean allDay = event.isAllDay();
@@ -218,7 +212,7 @@ public class Demo extends Div {
                 dialogLayout.setMargin(false);
                 dialogLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
 
-                dialogLayout.add(new Span("Entries of " + event.getClickedDate()));
+                dialogLayout.add(new Span("Entries of " + event.getClickedDate().format(DateTimeFormatter.ISO_DATE.withLocale(calendar.getLocale()))));
                 entries.stream()
                         .sorted(Comparator.comparing(Entry::getTitle))
                         .map(entry -> {
