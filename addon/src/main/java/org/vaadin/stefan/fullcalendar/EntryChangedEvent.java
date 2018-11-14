@@ -38,6 +38,7 @@ public abstract class EntryChangedEvent extends EntryEvent {
     public Entry applyChangesOnEntry() {
         Entry entry = getEntry();
         entry.update(getJsonObject());
+        getSource().updateEntry(entry);
         return entry;
     }
 }

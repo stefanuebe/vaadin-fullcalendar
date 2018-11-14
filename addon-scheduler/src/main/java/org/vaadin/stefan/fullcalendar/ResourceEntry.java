@@ -2,7 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -13,7 +13,7 @@ public class ResourceEntry extends Entry {
     private Set<Resource> resources;
 
 
-    public ResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
+    public ResourceEntry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
         super(id, title, start, end, allDay, editable, color, description);
     }
 
