@@ -3,7 +3,18 @@
 
 <dom-module id="main-view">
     <template>
+        <style>
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
 
+            #id {
+                flex-grow: 0;
+            }
+
+        </style>
         <vaadin-horizontal-layout id="title"></vaadin-horizontal-layout>
         <slot></slot>
     </template>

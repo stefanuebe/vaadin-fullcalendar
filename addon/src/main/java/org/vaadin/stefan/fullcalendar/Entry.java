@@ -1,11 +1,10 @@
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.*;
+import elemental.json.Json;
+import elemental.json.JsonObject;
 
 import javax.annotation.Nonnull;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,18 +57,18 @@ public class Entry {
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", JsonUtils.toJsonValue(getId()));
-        jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
+        Timezone timezone = calendar != null ? calendar.getTimezone() : Timezone.UTC;
 
         boolean fullDayEvent = isAllDay();
         jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
 
         Instant start = getStart();
         Instant end = getEnd();
+        jsonObject.put("title", JsonUtils.toJsonValue(getTitle() + ", " + start.atZone(Timezone.UTC.getZoneId()).toLocalTime() + " " + timezone.getZoneId().getRules().getOffset(start)));
 
-        Timezone timezone = calendar != null ? calendar.getTimezone() : Timezone.NONE;
 
-        jsonObject.put("start", JsonUtils.toJsonValue(start.atZone(timezone.getZoneId())));
-        jsonObject.put("end", JsonUtils.toJsonValue(end.atZone(timezone.getZoneId())));
+        jsonObject.put("start", JsonUtils.toJsonValue(timezone.formatWithZoneId(start)));
+        jsonObject.put("end", JsonUtils.toJsonValue(timezone.formatWithZoneId(end)));
         jsonObject.put("editable", isEditable());
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));

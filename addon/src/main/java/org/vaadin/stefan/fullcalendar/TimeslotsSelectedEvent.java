@@ -4,7 +4,8 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Occurs when the user selects one or multiple timeslots on the calendar. The selected timeslots may contain
@@ -17,8 +18,8 @@ import java.time.Instant;
 public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
 
     private final boolean allDay;
-    private final Instant startDateTime;
-    private final Instant endDateTime;
+    private final LocalDateTime startDateTime;
+    private final LocalDateTime endDateTime;
 
     /**
      * New instance. Awaits the selected dates (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
@@ -32,8 +33,13 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
         super(source, fromClient);
 
         this.allDay = allDay;
-        startDateTime = Instant.parse(start);
-        endDateTime = Instant.parse(end);
+        if (allDay) {
+            startDateTime = LocalDate.parse(start).atStartOfDay();
+            endDateTime = LocalDate.parse(end).atStartOfDay();
+        } else {
+            startDateTime = LocalDateTime.parse(start);
+            endDateTime = LocalDateTime.parse(end);
+        }
     }
 
     /**
@@ -48,7 +54,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * Returns the selected start date time. For day slots the time will be at start of the day.
      * @return date time
      */
-    public Instant getStartDateTime() {
+    public LocalDateTime getStartDateTime() {
         return startDateTime;
     }
 
@@ -56,7 +62,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * Returns the selected end date time. For day slots the time will be at start of the day.
      * @return date time
      */
-    public Instant getEndDateTime() {
+    public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 }

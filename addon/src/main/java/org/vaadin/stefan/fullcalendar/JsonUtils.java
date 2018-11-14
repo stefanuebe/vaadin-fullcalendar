@@ -6,6 +6,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
@@ -61,10 +62,6 @@ public final class JsonUtils {
         if (value instanceof Stream<?>) {
             return toJsonValue(((Stream) value).iterator());
         }
-
-//        if (value instanceof Temporal) {
-//            DateTimeFormatter.
-//        }
 
         return Json.create(String.valueOf(value));
     }
