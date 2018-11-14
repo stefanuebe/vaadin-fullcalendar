@@ -10,7 +10,6 @@ import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -508,11 +507,16 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     public void setTimezone(Timezone timezone) {
         Objects.requireNonNull(timezone);
-        setOption("timezone", timezone.getClientSideValue(), timezone);
+
+        Timezone oldTimezone = getTimezone();
+        if (!timezone.equals(oldTimezone)) {
+            setOption("timezone", timezone.getClientSideValue(), timezone);
+            getEntries().forEach(this::updateEntry);
+        }
     }
 
     public Timezone getTimezone() {
-        return (Timezone) getOption("timezone").orElse(Timezone.NONE);
+        return (Timezone) getOption("timezone").orElse(Timezone.UTC);
     }
 
     /**
@@ -687,7 +691,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addDayNumberClickedEvent(@Nonnull ComponentEventListener<DayNumberClickedEvent> listener) {
+    public Registration addDayNumberClickedListener(@Nonnull ComponentEventListener<DayNumberClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(DayNumberClickedEvent.class, listener);
     }
@@ -701,7 +705,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addWeekNumberClickedEvent(@Nonnull ComponentEventListener<WeekNumberClickedEvent> listener) {
+    public Registration addWeekNumberClickedListener(@Nonnull ComponentEventListener<WeekNumberClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(WeekNumberClickedEvent.class, listener);
     }

@@ -186,7 +186,17 @@
             }
 
             setOption(key, value) {
-                this.getCalendar().option(key, value);
+                var calendar = this.getCalendar();
+                if(key === "timezone" && calendar.option("timezone") !== value) {
+                    this.dispatchEvent(new CustomEvent("timezone-changed", {
+                        detail: {
+                            timezone: value
+                        }
+                    }));
+                }
+
+                calendar.option(key, value);
+
             }
 
             _toEventData(event) {

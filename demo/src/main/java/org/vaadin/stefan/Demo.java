@@ -14,7 +14,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -25,9 +24,6 @@ import org.vaadin.stefan.fullcalendar.*;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.TemporalField;
 import java.util.*;
 
 @Route(value = "", layout = MainView.class)
@@ -110,7 +106,15 @@ public class Demo extends Div {
         });
         comboBoxGroupBy.addValueChangeListener(event -> ((Scheduler) calendar).setGroupEntriesBy(event.getValue()));
 
-        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy);
+        ComboBox<Timezone> timezoneComboBox = new ComboBox<>("");
+        timezoneComboBox.setItems(Timezone.getAvailableZones());
+        timezoneComboBox.setValue(Timezone.UTC);
+        timezoneComboBox.addValueChangeListener(event -> {
+            Timezone value = event.getValue();
+            calendar.setTimezone(value != null ? value : Timezone.UTC);
+        });
+
+        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox);
     }
 
     private void setFlexStyles(boolean flexStyles) {
@@ -136,6 +140,7 @@ public class Demo extends Div {
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK),
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
         );
+        calendar.setTimezone(Timezone.UTC);
 
 //        calendar.setEntryRenderCallback("" +
 //                "function(event, element) {" +
@@ -194,8 +199,9 @@ public class Demo extends Div {
 
         calendar.addTimeslotsSelectedListener(event -> {
             Entry entry = new Entry();
-            entry.setStart(event.getStartDateTime());
-            entry.setEnd(event.getEndDateTime());
+
+            entry.setStart(event.getStartDateTime().toInstant(ZoneOffset.UTC));
+            entry.setEnd(event.getEndDateTime().toInstant(ZoneOffset.UTC));
             entry.setAllDay(event.isAllDay());
 
             entry.setColor("dodgerblue");
@@ -232,11 +238,11 @@ public class Demo extends Div {
             }
         });
 
-        calendar.addDayNumberClickedEvent(event -> {
+        calendar.addDayNumberClickedListener(event -> {
             comboBoxView.setValue(CalendarViewImpl.LIST_DAY);
             calendar.gotoDate(event.getDateTime().toLocalDate());
         });
-        calendar.addWeekNumberClickedEvent(event -> {
+        calendar.addWeekNumberClickedListener(event -> {
             comboBoxView.setValue(CalendarViewImpl.LIST_WEEK);
             calendar.gotoDate(event.getDateTime().toLocalDate());
         });
