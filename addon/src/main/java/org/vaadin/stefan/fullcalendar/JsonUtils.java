@@ -3,7 +3,9 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.*;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
@@ -59,6 +61,10 @@ public final class JsonUtils {
         if (value instanceof Stream<?>) {
             return toJsonValue(((Stream) value).iterator());
         }
+
+//        if (value instanceof Temporal) {
+//            DateTimeFormatter.
+//        }
 
         return Json.create(String.valueOf(value));
     }
@@ -120,5 +126,9 @@ public final class JsonUtils {
 
             setter.accept(dateTime);
         }
+    }
+
+    public static void updateDateTime(JsonObject object, String key, Consumer<Instant> setter) {
+        updateDateTime(object, key, setter, ZoneId.of(ZoneOffset.UTC.getId()).normalized());
     }
 }

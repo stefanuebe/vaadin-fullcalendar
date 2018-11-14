@@ -10,8 +10,11 @@ import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -503,6 +506,14 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         setOption(Option.BUSINESS_HOURS, null);
     }
 
+    public void setTimezone(Timezone timezone) {
+        Objects.requireNonNull(timezone);
+        setOption("timezone", timezone.getClientSideValue(), timezone);
+    }
+
+    public Timezone getTimezone() {
+        return (Timezone) getOption("timezone").orElse(Timezone.NONE);
+    }
 
     /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
@@ -704,7 +715,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         NOW_INDICATOR("nowIndicator"),
         NAV_LINKS("navLinks"),
         BUSINESS_HOURS("businessHours"),
+        TIMEZONE("timezone"),
         ;
+
         private final String optionKey;
 
         Option(String optionKey) {
@@ -715,4 +728,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
             return optionKey;
         }
     }
+
+
+
 }

@@ -259,7 +259,7 @@ public class Demo extends Div {
 
         Entry entry = new Entry();
         entry.setTitle("Hi there");
-        Instant start = LocalDate.now().atTime(12, 0).toInstant(ZoneOffset.of("+01:00"));
+        Instant start = LocalDate.now().atTime(12, 0).toInstant(ZoneOffset.UTC);
         entry.setStart(start);
         entry.setEnd(start.plus(Duration.ofHours(1)));
         calendar.addEntry(entry);
