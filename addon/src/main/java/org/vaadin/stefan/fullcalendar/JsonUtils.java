@@ -117,15 +117,10 @@ public final class JsonUtils {
                     ZoneOffset offset = zoneId.getRules().getOffset(parse);
 
                     dateTime = parse.toInstant(offset);
-                    System.out.println(string);
                 }
             }
 
             setter.accept(dateTime);
         }
-    }
-
-    public static void updateDateTime(JsonObject object, String key, Consumer<Instant> setter) {
-        updateDateTime(object, key, setter, ZoneId.of(ZoneOffset.UTC.getId()).normalized());
     }
 }

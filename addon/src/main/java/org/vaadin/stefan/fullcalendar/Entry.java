@@ -88,8 +88,8 @@ public class Entry {
         JsonUtils.updateString(object, "title", this::setTitle);
         JsonUtils.updateBoolean(object, "editable", this::setEditable);
         JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
-        JsonUtils.updateDateTime(object, "start", this::setStart);
-        JsonUtils.updateDateTime(object, "end", this::setEnd);
+        JsonUtils.updateDateTime(object, "start", this::setStart, calendar.getTimezone().getZoneId());
+        JsonUtils.updateDateTime(object, "end", this::setEnd, calendar.getTimezone().getZoneId());
         JsonUtils.updateString(object, "color", this::setColor);
     }
 
