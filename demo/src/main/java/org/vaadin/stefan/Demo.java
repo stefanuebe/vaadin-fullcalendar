@@ -52,12 +52,6 @@ public class Demo extends Div {
         initBaseLayoutSettings();
     }
 
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        calendar.getBrowserTimezone().ifPresent(timezoneComboBox::setValue);
-    }
-
-
     private void createToolbar() {
         Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
         Button buttonPrevious = new Button("Previous", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
@@ -151,6 +145,8 @@ public class Demo extends Div {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
         );
         calendar.setTimezone(Timezone.UTC);
+
+        calendar.addBrowserTimezoneObtainedListener(event -> timezoneComboBox.setValue(event.getTimezone()));
 
 //        calendar.setEntryRenderCallback("" +
 //                "function(event, element) {" +

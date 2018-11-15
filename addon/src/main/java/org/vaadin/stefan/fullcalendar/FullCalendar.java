@@ -557,6 +557,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     protected void setBrowserTimezone(String timezoneId) {
         if (timezoneId != null) {
             this.browserTimezone = new Timezone(ZoneId.of(timezoneId));
+            getEventBus().fireEvent(new BrowserTimezoneObtainedEvent(this, false, browserTimezone));
         }
     }
 
@@ -767,6 +768,17 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public Registration addWeekNumberClickedListener(@Nonnull ComponentEventListener<WeekNumberClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(WeekNumberClickedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener to be informed, when the browser's timezone has been obtained by the server.
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addBrowserTimezoneObtainedListener(@Nonnull ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(BrowserTimezoneObtainedEvent.class, listener);
     }
 
     enum Option {
