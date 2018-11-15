@@ -131,6 +131,8 @@
                             }
                         }));
                     });
+
+                    this.$server.setBrowserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
                 }
             }
 

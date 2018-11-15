@@ -1,5 +1,6 @@
 package org.vaadin.stefan;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -36,6 +37,7 @@ public class Demo extends Div {
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
     private HorizontalLayout toolbar;
+    private ComboBox<Timezone> timezoneComboBox;
 
     public Demo() {
         createToolbar();
@@ -49,6 +51,12 @@ public class Demo extends Div {
         // height by parent and flex container
         initBaseLayoutSettings();
     }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        calendar.getBrowserTimezone().ifPresent(timezoneComboBox::setValue);
+    }
+
 
     private void createToolbar() {
         Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
@@ -107,7 +115,7 @@ public class Demo extends Div {
         });
         comboBoxGroupBy.addValueChangeListener(event -> ((Scheduler) calendar).setGroupEntriesBy(event.getValue()));
 
-        ComboBox<Timezone> timezoneComboBox = new ComboBox<>("");
+        timezoneComboBox = new ComboBox<>("");
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
         timezoneComboBox.setItems(Timezone.getAvailableZones());
         timezoneComboBox.setValue(Timezone.UTC);
@@ -419,6 +427,8 @@ public class Demo extends Div {
             ComboBox<String> fieldColor = new ComboBox<>("Color", COLORS);
             TextArea fieldDescription = new TextArea("Description");
 
+            layout.add(fieldTitle, fieldColor, fieldDescription);
+
             TextField fieldStart = new TextField("Start");
             fieldStart.setEnabled(false);
 
@@ -432,7 +442,7 @@ public class Demo extends Div {
             fieldAllDay.setValue(entry.isAllDay());
             fieldAllDay.setEnabled(false);
 
-            layout.add(fieldTitle, fieldColor, fieldDescription, fieldStart, fieldEnd, fieldAllDay);
+            layout.add(fieldStart, fieldEnd, fieldAllDay);
 
             Binder<Entry> binder = new Binder<>(Entry.class);
             binder.forField(fieldTitle)
