@@ -1,18 +1,36 @@
 package org.vaadin.stefan.fullcalendar;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Represents a timezone, that is usable by the calendar. The timezone is identified by a zone id and a client side
+ * representation. The client side representation may differ from the zone id.
+ */
 public class Timezone implements ClientSideValue {
+
     private static final ZoneId ZONE_ID_UTC = ZoneId.of("UTC");
-    public static final Timezone LOCAL = new Timezone("local", ZONE_ID_UTC);
-    public static final Timezone UTC = new Timezone("UTC", ZONE_ID_UTC);
+
+    /**
+     * This special constant represent the setting for the FC to show the times in the browsers timezone. Uses
+     * UTC as server side value representation.
+     */
+    public static final Timezone LOCAL = new Timezone(ZONE_ID_UTC, "local");
+
+    /**
+     * Constant for the timezone UTC. Default for conversions, if no custom timezone is set.
+     */
+    public static final Timezone UTC = new Timezone(ZONE_ID_UTC, "UTC");
+
     private static final Timezone[] AVAILABLE_ZONES;
 
     static {
@@ -32,31 +50,61 @@ public class Timezone implements ClientSideValue {
     private final String clientSideValue;
     private ZoneId zoneId;
 
-    public Timezone(ZoneId zoneId) {
-        this(zoneId.getId(), zoneId);
+    /**
+     * Returns all available timezones. This arrayy bases on all constants of this class plus all available zone ids
+     * returned by {@link ZoneId#getAvailableZoneIds()}.
+     * @return timezones
+     */
+    public static Timezone[] getAvailableZones() {
+        return AVAILABLE_ZONES;
     }
 
-    private Timezone(String clientSideValue, ZoneId zoneId) {
+    /**
+     * Creates a new instance based on the given zone id. The zone id is also used as client side representation.
+     * @param zoneId zone id
+     * @throws NullPointerException when zoneId is null
+     */
+    public Timezone(@Nonnull ZoneId zoneId) {
+        this(zoneId, zoneId.getId());
+    }
+
+    /**
+     * Creates a new instance based on the given zone id and client side value.
+     * @param zoneId zone id
+     * @param clientSideValue client side value
+     * @throws NullPointerException when zoneId is null
+     */
+    public Timezone(@Nonnull ZoneId zoneId, String clientSideValue) {
+        Objects.requireNonNull(zoneId);
         this.clientSideValue = clientSideValue;
         this.zoneId = zoneId;
     }
 
-    @Nullable
+    /**
+     * Returns the client side value of this instance.
+     * @return client side value
+     */
     @Override
     public String getClientSideValue() {
         return this.clientSideValue;
     }
 
-    public static Timezone[] getAvailableZones() {
-        return AVAILABLE_ZONES;
-    }
-
+    /**
+     * Returns the zone id of this instance. Never null.
+     * @return zone id
+     */
     public ZoneId getZoneId() {
         return zoneId;
     }
 
+    /**
+     * Formats the given instant based on the zone id to be sent to the client side.
+     * For UTC based timezones the string will end on a Z, all other zone ids are parsed as local date versions.
+     * @param instant instant
+     * @return formatted date time
+     */
     public String formatWithZoneId(Instant instant) {
-        if (this == UTC || this == LOCAL) {
+        if (this == UTC || this == LOCAL || this.zoneId.equals(ZONE_ID_UTC)) {
             return instant.toString();
         }
 
