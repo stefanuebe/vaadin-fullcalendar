@@ -3,9 +3,9 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import sun.usagetracker.UsageTrackerClient;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -232,5 +232,29 @@ public class JsonUtilsTest {
         JsonUtils.updateDateTime(object, "date", entry::setStart, Timezone.UTC);
 
         Assertions.assertEquals(now.atStartOfDay(), entry.getStart());
+    }
+
+    @Test
+    void testParseDateTimeString() {
+        ZoneId zoneId = ZoneId.of("Europe/Berlin");
+
+        Instant instant = Instant.now();
+        Assertions.assertEquals(instant, JsonUtils.parseDateTimeString(instant.toString(), null)); // timezone should not be necessary here
+
+        ZonedDateTime zonedDateTime = ZonedDateTime.now();
+        Assertions.assertEquals(zonedDateTime.toInstant(), JsonUtils.parseDateTimeString(zonedDateTime.toString(), null)); // timezone should not be necessary here
+
+        ZoneOffset offset = zoneId.getRules().getOffset(instant);
+
+        LocalDateTime localDateTime = LocalDateTime.now();
+        Assertions.assertEquals(localDateTime.toInstant(ZoneOffset.UTC), JsonUtils.parseDateTimeString(localDateTime.toString(), Timezone.UTC)); // timezone should not be necessary here
+        Assertions.assertEquals(localDateTime.toInstant(offset), JsonUtils.parseDateTimeString(localDateTime.toString(), new Timezone(zoneId))); // timezone should not be necessary here
+
+        LocalDate localDate = LocalDate.now();
+        Assertions.assertEquals(localDate.atStartOfDay().toInstant(ZoneOffset.UTC), JsonUtils.parseDateTimeString(localDate.toString(), Timezone.UTC)); // timezone should not be necessary here
+        Assertions.assertEquals(localDate.atStartOfDay().toInstant(offset), JsonUtils.parseDateTimeString(localDate.toString(), new Timezone(zoneId))); // timezone should not be necessary here
+
+
+
     }
 }

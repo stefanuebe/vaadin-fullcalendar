@@ -97,28 +97,36 @@ public final class JsonUtils {
      */
     public static void updateDateTime(JsonObject object, String key, Consumer<Instant> setter, Timezone timezone) {
         if (object.get(key) instanceof JsonString) {
-            String string = object.getString(key);
-
-            // TODO to instance and zone id
-
-            Instant dateTime;
-
-            try {
-                ZonedDateTime parse = ZonedDateTime.parse(string);
-                dateTime = parse.toInstant();
-            } catch (DateTimeParseException e) {
-                try {
-                    dateTime = Instant.parse(string);
-                } catch (DateTimeParseException e1) {
-                    try {
-                        dateTime = timezone.convertToUTC(LocalDateTime.parse(string));
-                    } catch (DateTimeException e2) {
-                        dateTime = timezone.convertToUTC(LocalDate.parse(string));
-                    }
-                }
-            }
+            Instant dateTime = parseDateTimeString(object.getString(key), timezone);
 
             setter.accept(dateTime);
         }
+    }
+
+    /**
+     * Parses a date time string sent from the client side. This string may apply to ZonedDateTime, Instant, LocalDate
+     * or LocalDateTime default parsers. The resulting temporal will be UTC based.
+     * @param dateTimeString date time string
+     * @param timezone timezone (might not be necessary)
+     * @return UTC based date time instance
+     */
+    public static Instant parseDateTimeString(String dateTimeString, Timezone timezone) {
+        Instant dateTime;
+
+        try {
+            ZonedDateTime parse = ZonedDateTime.parse(dateTimeString);
+            dateTime = parse.toInstant();
+        } catch (DateTimeParseException e) {
+            try {
+                dateTime = Instant.parse(dateTimeString);
+            } catch (DateTimeParseException e1) {
+                try {
+                    dateTime = timezone.convertToUTC(LocalDateTime.parse(dateTimeString));
+                } catch (DateTimeException e2) {
+                    dateTime = timezone.convertToUTC(LocalDate.parse(dateTimeString));
+                }
+            }
+        }
+        return dateTime;
     }
 }
