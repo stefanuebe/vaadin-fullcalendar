@@ -2,6 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
+import com.vaadin.flow.component.EventData;
 
 /**
  * This event gets fired when the client side reported the browser's timezone to the server. Since this is
@@ -19,7 +20,7 @@ public class BrowserTimezoneObtainedEvent extends ComponentEvent<FullCalendar> {
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      */
-    public BrowserTimezoneObtainedEvent(FullCalendar source, boolean fromClient, Timezone timezone) {
+    public BrowserTimezoneObtainedEvent(FullCalendar source, boolean fromClient, @EventData("dummy") Timezone timezone) {
         super(source, fromClient);
         this.timezone = timezone;
     }
