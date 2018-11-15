@@ -110,7 +110,11 @@ public final class JsonUtils {
                 try {
                     dateTime = Instant.parse(string);
                 } catch (DateTimeParseException e1) {
-                    dateTime = timezone.convertToUTC(LocalDateTime.parse(string));
+                    try {
+                        dateTime = timezone.convertToUTC(LocalDateTime.parse(string));
+                    } catch (DateTimeException e2) {
+                        dateTime = timezone.convertToUTC(LocalDate.parse(string));
+                    }
                 }
             }
 

@@ -6,6 +6,7 @@ import elemental.json.JsonObject;
 import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +37,32 @@ public class Entry {
         this.title = title;
         this.start = start;
         this.end = end;
+        this.allDay = allDay;
+        this.editable = editable;
+        this.description = description;
+
+        setColor(color);
+    }
+
+    public Entry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
+        this(id);
+
+        this.title = title;
+        this.start = start.toInstant(ZoneOffset.UTC);
+        this.end = end.toInstant(ZoneOffset.UTC);
+        this.allDay = allDay;
+        this.editable = editable;
+        this.description = description;
+
+        setColor(color);
+    }
+
+    public Entry(String id, String title, LocalDateTime start, LocalDateTime end, Timezone timezone, boolean allDay, boolean editable, String color, String description) {
+        this(id);
+
+        this.title = title;
+        this.start = timezone.convertToUTC(start);
+        this.end = timezone.convertToUTC(end);
         this.allDay = allDay;
         this.editable = editable;
         this.description = description;

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -61,7 +62,7 @@ public class ResourceEntryTest {
         Entry entry;
 
         // test optional parameters
-        entry = new ResourceEntry(null, null, null, null, false, false, null, null);
+        entry = new ResourceEntry(null, null, (Instant) null, null, false, false, null, null);
 
         // test id generation
         String id = entry.getId();
@@ -81,7 +82,7 @@ public class ResourceEntryTest {
         Assertions.assertEquals(DEFAULT_DESCRIPTION, entry.getDescription());
 
         // test null color when set empty
-        Assertions.assertNull(new ResourceEntry(null, null, null, null, false, false, "", null).getColor());
+        Assertions.assertNull(new ResourceEntry(null, null, (Instant) null, null, false, false, "", null).getColor());
     }
 
     /**
@@ -102,19 +103,12 @@ public class ResourceEntryTest {
 
     @Test
     void testToJson() {
-        ResourceEntry entry = new ResourceEntry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START, DEFAULT_END, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
+        ResourceEntry entry = new ResourceEntry();
         Set<Resource> resources = new HashSet<>(Arrays.asList(new Resource(), new Resource(), new Resource()));
         entry.addResources(resources);
 
-        JsonObject jsonObject = entry.toJson();
+        JsonObject jsonObject = entry.toJson(); // rest of toJson is asserted in basis tests
 
-        Assertions.assertEquals(DEFAULT_ID, jsonObject.getString("id"));
-        Assertions.assertEquals(DEFAULT_TITLE, jsonObject.getString("title"));
-        Assertions.assertEquals(DEFAULT_START.toLocalDate().toString(), jsonObject.getString("start"));
-        Assertions.assertEquals(DEFAULT_END.toLocalDate().toString(), jsonObject.getString("end"));
-        Assertions.assertTrue(jsonObject.getBoolean("allDay"));
-        Assertions.assertTrue(jsonObject.getBoolean("editable"));
-        Assertions.assertEquals(DEFAULT_COLOR, jsonObject.getString("color"));
         Assertions.assertTrue(jsonObject.get("resourceIds") instanceof JsonArray);
 
         JsonArray array = jsonObject.get("resourceIds");
