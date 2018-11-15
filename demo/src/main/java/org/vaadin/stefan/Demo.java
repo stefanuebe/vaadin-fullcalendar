@@ -24,6 +24,7 @@ import org.vaadin.stefan.fullcalendar.*;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Route(value = "", layout = MainView.class)
@@ -264,49 +265,36 @@ public class Demo extends Div {
         Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green", "green");
         Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
 
-        Entry entry = new Entry();
-        entry.setTitle("Standard time entry (12 UTC)");
-        LocalDateTime start = LocalDateTime.of(2018, 11, 17, 12, 0);
-        entry.setStart(start);
-        entry.setEnd(start.plus(Duration.ofHours(1)));
-        calendar.addEntry(entry);
 
-        entry = new Entry();
-        entry.setTitle("Summer time entry (12 UTC)");
-        start = LocalDateTime.of(2018, 8, 17, 12, 0);
-        entry.setStart(start);
-        entry.setEnd(start.plus(Duration.ofHours(1)));
-        calendar.addEntry(entry);
+        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
+        createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
+        createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
+        createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
+        createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
+        createTimedEntry(calendar, "Kickoff meeting with customer #5", now.withDayOfMonth(17).atTime(11, 30), 120, "mediumseagreen", meetingRoomBlue);
+        createTimedEntry(calendar, "Kickoff meeting with customer #6", now.withDayOfMonth(22).atTime(9, 0), 120, "mediumseagreen", meetingRoomRed);
 
-//        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
-//        createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
-//        createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
-//        createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
-//        createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
-//        createTimedEntry(calendar, "Kickoff meeting with customer #5", now.withDayOfMonth(17).atTime(11, 30), 120, "mediumseagreen", meetingRoomBlue);
-//        createTimedEntry(calendar, "Kickoff meeting with customer #6", now.withDayOfMonth(22).atTime(9, 0), 120, "mediumseagreen", meetingRoomRed);
-//
-//        createTimedEntry(calendar, "Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "violet");
-//        createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 30), 60, "violet");
-//        createTimedEntry(calendar, "Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "dodgerblue");
-//        createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
-//        createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
-//        createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
-//
-//        createDayEntry(calendar, "Multi 1", now.withDayOfMonth(12), 2, "tomato");
-//        createDayEntry(calendar, "Multi 2", now.withDayOfMonth(12), 2, "tomato");
-//        createDayEntry(calendar, "Multi 3", now.withDayOfMonth(12), 2, "tomato");
-//        createDayEntry(calendar, "Multi 4", now.withDayOfMonth(12), 2, "tomato");
-//        createDayEntry(calendar, "Multi 5", now.withDayOfMonth(12), 2, "tomato");
-//        createDayEntry(calendar, "Multi 6", now.withDayOfMonth(12), 2, "tomato");
-//        createDayEntry(calendar, "Multi 7", now.withDayOfMonth(12), 2, "tomato");
-//        createDayEntry(calendar, "Multi 8", now.withDayOfMonth(12), 2, "tomato");
-//        createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
-//        createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
-//
-//        createDayBackgroundEntry(calendar, now.withDayOfMonth(4), 6, "#B9FFC3");
-//        createDayBackgroundEntry(calendar, now.withDayOfMonth(19), 2, "#CEE3FF");
-//        createTimedBackgroundEntry(calendar, now.withDayOfMonth(20).atTime(11, 0), 150, "#FBC8FF");
+        createTimedEntry(calendar, "Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "violet");
+        createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 30), 60, "violet");
+        createTimedEntry(calendar, "Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "dodgerblue");
+        createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
+        createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
+        createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
+
+        createDayEntry(calendar, "Multi 1", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 2", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 3", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 4", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 5", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 6", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 7", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 8", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
+        createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
+
+        createDayBackgroundEntry(calendar, now.withDayOfMonth(4), 6, "#B9FFC3");
+        createDayBackgroundEntry(calendar, now.withDayOfMonth(19), 2, "#CEE3FF");
+        createTimedBackgroundEntry(calendar, now.withDayOfMonth(20).atTime(11, 0), 150, "#FBC8FF");
     }
 
     private Resource createResource(Scheduler calendar, String s, String color) {
@@ -315,42 +303,57 @@ public class Demo extends Div {
         return resource;
     }
 
-//    private void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
-//        ResourceEntry entry = new ResourceEntry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description...");
-//        calendar.addEntry(entry);
-//    }
-//
-//    private void createTimedEntry(FullCalendar calendar, String title, Instant start, int minutes, String color) {
-//        createTimedEntry(calendar, title, start, minutes, color, (Resource[]) null);
-//    }
-//    private void createTimedEntry(FullCalendar calendar, String title, Instant start, int minutes, String color, Resource... resources) {
-//        ResourceEntry entry = new ResourceEntry(null, title, start, start.plusMinutes(minutes), false, true, color, "Some description...");
-//        if (resources != null && resources.length > 0) {
-//            entry.addResources(Arrays.asList(resources));
-//        }
-//        calendar.addEntry(entry);
-//    }
-//
-//    private void createDayBackgroundEntry(FullCalendar calendar, LocalDate start, int days, String color) {
-//        ResourceEntry entry = new ResourceEntry(null, "Some BG", start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description...");
-//        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
-//        calendar.addEntry(entry);
-//    }
-//
-//    private void createTimedBackgroundEntry(FullCalendar calendar, Instant start, int minutes, String color) {
-//        ResourceEntry entry = new ResourceEntry(null, "Some BG", start, start.plusMinutes(minutes), false, true, color, "Some description...");
-//        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
-//        calendar.addEntry(entry);
-//    }
-//
-//    private void createTimedBackgroundEntry(FullCalendar calendar, Instant start, int minutes, String color, Resource... resources) {
-//        ResourceEntry entry = new ResourceEntry(null, "BG", start, start.plusMinutes(minutes), false, true, color, "Some description...");
-//        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
-//        if (resources != null && resources.length > 0) {
-//            entry.addResources(Arrays.asList(resources));
-//        }
-//        calendar.addEntry(entry);
-//    }
+    private void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
+        ResourceEntry entry = new ResourceEntry();
+        setValues(calendar, entry, title, start.atStartOfDay(), days, ChronoUnit.DAYS, color);
+        calendar.addEntry(entry);
+    }
+
+    private void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
+        createTimedEntry(calendar, title, start, minutes, color, (Resource[]) null);
+    }
+
+    private void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource... resources) {
+        ResourceEntry entry = new ResourceEntry();
+        setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color);
+        if (resources != null && resources.length > 0) {
+            entry.addResources(Arrays.asList(resources));
+        }
+        calendar.addEntry(entry);
+    }
+    private void createDayBackgroundEntry(FullCalendar calendar, LocalDate start, int days, String color) {
+        ResourceEntry entry = new ResourceEntry();
+        setValues(calendar, entry, "BG", start.atStartOfDay(), days, ChronoUnit.DAYS, color);
+
+        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        calendar.addEntry(entry);
+    }
+
+    private void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color) {
+        ResourceEntry entry = new ResourceEntry();
+        setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
+
+        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        calendar.addEntry(entry);
+    }
+
+    private void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color, Resource... resources) {
+        ResourceEntry entry = new ResourceEntry();
+        setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
+        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        if (resources != null && resources.length > 0) {
+            entry.addResources(Arrays.asList(resources));
+        }
+        calendar.addEntry(entry);
+    }
+
+    private void setValues(FullCalendar calendar, ResourceEntry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
+        entry.setTitle(title);
+        entry.setStart(start, calendar.getTimezone());
+        entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setAllDay(unit == ChronoUnit.DAYS);
+        entry.setColor(color);
+    }
 
     private void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
         String text = "--";
