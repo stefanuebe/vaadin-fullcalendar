@@ -70,7 +70,7 @@ public class EntryTest {
         Entry entry;
 
         // test optional parameters
-        entry = new Entry(null, null, null, null, false, false, null, null);
+        entry = new Entry(null, null, (Instant) null, null, false, false, null, null);
 
         // test id generation
         String id = entry.getId();
@@ -90,7 +90,7 @@ public class EntryTest {
         Assertions.assertEquals(DEFAULT_DESCRIPTION, entry.getDescription());
 
         // test null color when set empty
-        Assertions.assertNull(new Entry(null, null, null, null, false, false, "", null).getColor());
+        Assertions.assertNull(new Entry(null, null, (Instant) null, null, false, false, "", null).getColor());
     }
 
     /**
@@ -111,7 +111,7 @@ public class EntryTest {
 
     @Test
     void testEqualsAndHashcodeOnlyDependOnId() {
-        Entry entry = new Entry(DEFAULT_ID, null, null, null, false, false, null, null);
+        Entry entry = new Entry(DEFAULT_ID, null, (Instant) null, null, false, false, null, null);
         Entry entry1 = new Entry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START_UTC, DEFAULT_END_UTC, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
         entry1.setRenderingMode(DEFAULT_RENDERING);
 

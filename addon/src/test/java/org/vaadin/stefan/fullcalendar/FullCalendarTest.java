@@ -9,10 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 
 import java.lang.reflect.Constructor;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -268,11 +267,11 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByClosedDateTimeInterval() {
         LocalDate ref = LocalDate.of(2000, 1, 1);
-        LocalDateTime refStartOfDay = ref.atStartOfDay();
-        LocalDateTime refEndOfDay = ref.atTime(23, 0);
+        Instant refStartOfDay = ref.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant refEndOfDay = ref.atTime(23, 0).toInstant(ZoneOffset.UTC);
 
-        LocalDateTime filterStart = ref.atTime(7, 0);
-        LocalDateTime filterEnd = ref.atTime(8, 0);
+        Instant filterStart = ref.atTime(7, 0).toInstant(ZoneOffset.UTC);
+        Instant filterEnd = ref.atTime(8, 0).toInstant(ZoneOffset.UTC);
 
         List<Entry> entriesNotMatching = new ArrayList<>();
         List<Entry> entriesMatching = new ArrayList<>();
@@ -303,7 +302,7 @@ public class FullCalendarTest {
         // inner filter period match
         entriesMatching.add(new Entry(null, "M: Filter start + 1ns to filter end", filterStart.plusNanos(1), filterEnd, false, true, null, null));
         entriesMatching.add(new Entry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", filterStart.plusMinutes(29), filterStart.plusMinutes(31), false, true, null, null));
+        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
         FullCalendar calendar = new FullCalendar();
         entriesNotMatching.forEach(calendar::addEntry);
@@ -322,11 +321,11 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByDateTimeIntervalWithoutFilterStart() {
         LocalDate ref = LocalDate.of(2000, 1, 1);
-        LocalDateTime refStartOfDay = ref.atStartOfDay();
-        LocalDateTime refEndOfDay = ref.atTime(23, 0);
+        Instant refStartOfDay = ref.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant refEndOfDay = ref.atTime(23, 0).toInstant(ZoneOffset.UTC);
 
-        LocalDateTime filterStart = ref.atTime(7, 0);
-        LocalDateTime filterEnd = ref.atTime(8, 0);
+        Instant filterStart = ref.atTime(7, 0).toInstant(ZoneOffset.UTC);
+        Instant filterEnd = ref.atTime(8, 0).toInstant(ZoneOffset.UTC);
 
         List<Entry> entriesNotMatching = new ArrayList<>();
         List<Entry> entriesMatching = new ArrayList<>();
@@ -355,7 +354,7 @@ public class FullCalendarTest {
         // inner filter period match
         entriesMatching.add(new Entry(null, "M: Filter start + 1ns to filter end", filterStart.plusNanos(1), filterEnd, false, true, null, null));
         entriesMatching.add(new Entry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", filterStart.plusMinutes(29), filterStart.plusMinutes(31), false, true, null, null));
+        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
         FullCalendar calendar = new FullCalendar();
         entriesNotMatching.forEach(calendar::addEntry);
@@ -374,11 +373,11 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByClosedDateTimeIntervalWithoutFilterEnd() {
         LocalDate ref = LocalDate.of(2000, 1, 1);
-        LocalDateTime refStartOfDay = ref.atStartOfDay();
-        LocalDateTime refEndOfDay = ref.atTime(23, 0);
+        Instant refStartOfDay = ref.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant refEndOfDay = ref.atTime(23, 0).toInstant(ZoneOffset.UTC);
 
-        LocalDateTime filterStart = ref.atTime(7, 0);
-        LocalDateTime filterEnd = ref.atTime(8, 0);
+        Instant filterStart = ref.atTime(7, 0).toInstant(ZoneOffset.UTC);
+        Instant filterEnd = ref.atTime(8, 0).toInstant(ZoneOffset.UTC);
 
         List<Entry> entriesNotMatching = new ArrayList<>();
         List<Entry> entriesMatching = new ArrayList<>();
@@ -408,7 +407,7 @@ public class FullCalendarTest {
         // inner filter period match
         entriesMatching.add(new Entry(null, "M: Filter start + 1ns to filter end", filterStart.plusNanos(1), filterEnd, false, true, null, null));
         entriesMatching.add(new Entry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", filterStart.plusMinutes(29), filterStart.plusMinutes(31), false, true, null, null));
+        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
         FullCalendar calendar = new FullCalendar();
         entriesNotMatching.forEach(calendar::addEntry);
@@ -427,11 +426,11 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByClosedDateTimeIntervalWithoutParameters() {
         LocalDate ref = LocalDate.of(2000, 1, 1);
-        LocalDateTime refStartOfDay = ref.atStartOfDay();
-        LocalDateTime refEndOfDay = ref.atTime(23, 0);
+        Instant refStartOfDay = ref.atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant refEndOfDay = ref.atTime(23, 0).toInstant(ZoneOffset.UTC);
 
-        LocalDateTime filterStart = ref.atTime(7, 0);
-        LocalDateTime filterEnd = ref.atTime(8, 0);
+        Instant filterStart = ref.atTime(7, 0).toInstant(ZoneOffset.UTC);
+        Instant filterEnd = ref.atTime(8, 0).toInstant(ZoneOffset.UTC);
 
         List<Entry> entriesNotMatching = new ArrayList<>();
         List<Entry> entriesMatching = new ArrayList<>();
@@ -462,13 +461,13 @@ public class FullCalendarTest {
         // inner filter period match
         entriesMatching.add(new Entry(null, "M: Filter start + 1ns to filter end", filterStart.plusNanos(1), filterEnd, false, true, null, null));
         entriesMatching.add(new Entry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", filterStart.plusMinutes(29), filterStart.plusMinutes(31), false, true, null, null));
+        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
         FullCalendar calendar = new FullCalendar();
         entriesNotMatching.forEach(calendar::addEntry); // should be empty
         entriesMatching.forEach(calendar::addEntry);
 
-        List<Entry> entriesFound = calendar.getEntries(null, null);
+        List<Entry> entriesFound = calendar.getEntries((Instant) null, null);
         List<Entry> allEntries = calendar.getEntries();
 
         // sort so that we have matching lists
@@ -488,7 +487,7 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByDate() {
         FullCalendar calendar = new FullCalendar();
-        assertNPE(calendar, c -> c.getEntries(null));
+        assertNPE(calendar, c -> c.getEntries((Instant) null));
 
         LocalDateTime ref = LocalDate.of(2000, 1, 1).atStartOfDay();
         LocalDateTime filterEnd = ref.plusDays(1);
@@ -499,20 +498,20 @@ public class FullCalendarTest {
         // TODO additional / other / better test cases?
 
         // completely out
-        entriesNotMatching.add(new Entry(null, "NM: Last year", ref.minusYears(1), ref.minusYears(1), false, true, null, null));
+        entriesNotMatching.add(new Entry(null, "NM: Last year", ref.minus(1, ChronoUnit.YEARS), ref.minus(1, ChronoUnit.YEARS), false, true, null, null));
 
         // matching only with exclusive start filter time so not matching at all
-        entriesNotMatching.add(new Entry(null, "NM: Last year to filter start", ref.minusYears(1), ref, false, true, null, null));
+        entriesNotMatching.add(new Entry(null, "NM: Last year to filter start", ref.minus(1, ChronoUnit.YEARS), ref, false, true, null, null));
 
         // matching only with exclusive end filter time so not matching at all
-        entriesNotMatching.add(new Entry(null, "NM: Filter end to end of month", filterEnd, ref.withDayOfMonth(31), false, true, null, null));
+        entriesNotMatching.add(new Entry(null, "NM: Filter end to end of month", filterEnd, ref.with(ChronoField.DAY_OF_MONTH, 31), false, true, null, null));
 
         // 0 timespan - matching only with exclusive end filter time so not matching at all
         entriesNotMatching.add(new Entry(null, "NM: Filter end to filter end", filterEnd, filterEnd, false, true, null, null));
 
         // crossing filter timespan (match by 1 nanosecond)
-        entriesMatching.add(new Entry(null, "M: Last year to filter start + 1ns", ref.minusYears(1), ref.plusNanos(1), false, true, null, null));
-        entriesMatching.add(new Entry(null, "M: Filter end - 1ns to end of month", filterEnd.minusNanos(1), ref.withDayOfMonth(31), false, true, null, null));
+        entriesMatching.add(new Entry(null, "M: Last year to filter start + 1ns", ref.minus(1, ChronoUnit.YEARS), ref.plusNanos(1), false, true, null, null));
+        entriesMatching.add(new Entry(null, "M: Filter end - 1ns to end of month", filterEnd.minusNanos(1), ref.with(ChronoField.DAY_OF_MONTH, 31), false, true, null, null));
 
         // matches filter timespan completely
         entriesMatching.add(new Entry(null, "M: Filter start to filter end", ref, filterEnd, false, true, null, null));
@@ -520,13 +519,13 @@ public class FullCalendarTest {
         // inner filter period match
         entriesMatching.add(new Entry(null, "M: Filter start + 1ns to filter end", ref.plusNanos(1), filterEnd, false, true, null, null));
         entriesMatching.add(new Entry(null, "M: Filter start to filter end - 1ns", ref, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", ref.plusMinutes(29), filterEnd.plusMinutes(31), false, true, null, null));
+        entriesMatching.add(new Entry(null, "M: Inside of filter timespan", ref.plus(29, ChronoUnit.MINUTES), filterEnd.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
         entriesNotMatching.forEach(calendar::addEntry);
         entriesMatching.forEach(calendar::addEntry);
 
 
-        List<Entry> entriesFound = new ArrayList<>(calendar.getEntries(ref.toLocalDate()));
+        List<Entry> entriesFound = new ArrayList<>(calendar.getEntries(ref.toInstant(ZoneOffset.UTC)));
 
         // sort so that we have matching lists
         entriesMatching.sort(Comparator.comparing(Entry::getTitle));
@@ -661,13 +660,13 @@ public class FullCalendarTest {
     void testEntryClickedEvent() throws Exception {
         FullCalendar calendar = new FullCalendar();
 
-        LocalDate refDate = LocalDate.of(2000, 1, 1);
-        LocalDateTime refDateAsDateTime = refDate.atStartOfDay();
-        LocalDateTime refDateTime = refDateAsDateTime.withHour(7);
+        LocalDateTime refDate = LocalDate.of(2000, 1, 1).atStartOfDay();
+        Instant refDateAsDateTime = refDate.toInstant(ZoneOffset.UTC);
+        Instant refDateTime = refDate.withHour(7).toInstant(ZoneOffset.UTC);
 
         // check all day and time entries
-        Entry allDayEntry = new Entry("allDay", "title", refDateAsDateTime, refDateAsDateTime.plusDays(1), true, true, "color", null);
-        Entry timedEntry = new Entry("timed", "title", refDateTime, refDateTime.plusHours(1), false, true, "color", null);
+        Entry allDayEntry = new Entry("allDay", "title", refDateAsDateTime, refDateAsDateTime.plus(1, ChronoUnit.DAYS), true, true, "color", null);
+        Entry timedEntry = new Entry("timed", "title", refDateTime, refDateTime.plus(1, ChronoUnit.HOURS), false, true, "color", null);
         calendar.addEntry(allDayEntry);
         calendar.addEntry(timedEntry);
 
@@ -741,12 +740,12 @@ public class FullCalendarTest {
     private <T extends EntryTimeChangedEvent> void subTestEntryTimeChangedEventSubClass(Class<T> eventClass) throws Exception {
         FullCalendar calendar = new FullCalendar();
 
-        LocalDateTime refDate = LocalDate.of(2000, 1, 1).atStartOfDay();
-        LocalDateTime refDateTime = refDate.withHour(7);
+        Instant refDate = LocalDate.of(2000, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        Instant refDateTime = LocalDate.of(2000, 1, 1).atStartOfDay().withHour(7).toInstant(ZoneOffset.UTC);
 
         // check all day and time entries
-        Entry allDayEntry = new Entry("allDay", "title", refDate, refDate.plusDays(1), true, true, "color", null);
-        Entry timedEntry = new Entry("timed", "title", refDateTime, refDateTime.plusHours(1), false, true, "color", null);
+        Entry allDayEntry = new Entry("allDay", "title", refDate, refDate.plus(1, ChronoUnit.DAYS), true, true, "color", null);
+        Entry timedEntry = new Entry("timed", "title", refDateTime, refDateTime.plus(1, ChronoUnit.HOURS), false, true, "color", null);
         calendar.addEntry(allDayEntry);
         calendar.addEntry(timedEntry);
 
@@ -760,8 +759,8 @@ public class FullCalendarTest {
         jsonDelta.put("minutes", 1);
         jsonDelta.put("seconds", 1);
 
-        Entry modifiedAllDayEntry = new Entry(allDayEntry.getId(), allDayEntry.getTitle() + 1, delta.applyOn(allDayEntry.getStart().toLocalDate()).atStartOfDay(), delta.applyOn(allDayEntry.getEnd().toLocalDate()).atStartOfDay(), allDayEntry.isAllDay(), !allDayEntry.isEditable(), allDayEntry.getColor() + 1, allDayEntry.getDescription());
-        Entry modifiedTimedEntry = new Entry(timedEntry.getId(), timedEntry.getTitle() + 1, delta.applyOn(timedEntry.getStart()), delta.applyOn(timedEntry.getEnd()), timedEntry.isAllDay(), !timedEntry.isEditable(), timedEntry.getColor() + 1, timedEntry.getDescription());
+        Entry modifiedAllDayEntry = new Entry(allDayEntry.getId(), allDayEntry.getTitle() + 1, delta.applyOn(allDayEntry.getStartUTC()), delta.applyOn(allDayEntry.getEndUTC()), allDayEntry.isAllDay(), !allDayEntry.isEditable(), allDayEntry.getColor() + 1, allDayEntry.getDescription());
+        Entry modifiedTimedEntry = new Entry(timedEntry.getId(), timedEntry.getTitle() + 1, delta.applyOn(timedEntry.getStartUTC()), delta.applyOn(timedEntry.getEndUTC()), timedEntry.isAllDay(), !timedEntry.isEditable(), timedEntry.getColor() + 1, timedEntry.getDescription());
         JsonObject jsonModifiedAllDayEntry = modifiedAllDayEntry.toJson();
         JsonObject jsonModifiedTimedEntry = modifiedTimedEntry.toJson();
 
