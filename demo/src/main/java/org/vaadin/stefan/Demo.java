@@ -59,7 +59,7 @@ public class Demo extends Div {
         calendarViews.addAll(Arrays.asList(CalendarViewImpl.values()));
         calendarViews.addAll(Arrays.asList(SchedulerView.values()));
         comboBoxView = new ComboBox<>("", calendarViews);
-        comboBoxView.setValue(CalendarViewImpl.AGENDA_WEEK);
+        comboBoxView.setValue(CalendarViewImpl.MONTH);
         comboBoxView.addValueChangeListener(e -> {
             CalendarView value = e.getValue();
             calendar.changeView(value == null ? CalendarViewImpl.MONTH : value);
@@ -113,6 +113,7 @@ public class Demo extends Div {
             Timezone value = event.getValue();
             calendar.setTimezone(value != null ? value : Timezone.UTC);
         });
+        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
 
         toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox);
     }
@@ -180,8 +181,8 @@ public class Demo extends Div {
             event.applyChangesOnEntry();
 
             Entry entry = event.getEntry();
-            Instant start = entry.getStart();
-            Instant end = entry.getEnd();
+            LocalDateTime start = entry.getStart();
+            LocalDateTime end = entry.getEnd();
 
             String text = entry.getTitle() + " moved to " + start + " - " + end + " by " + event.getDelta();
 
@@ -200,8 +201,8 @@ public class Demo extends Div {
         calendar.addTimeslotsSelectedListener(event -> {
             Entry entry = new Entry();
 
-            entry.setStart(event.getStartDateTime().toInstant(ZoneOffset.UTC));
-            entry.setEnd(event.getEndDateTime().toInstant(ZoneOffset.UTC));
+            entry.setStart(event.getStartDateTime());
+            entry.setEnd(event.getEndDateTime());
             entry.setAllDay(event.isAllDay());
 
             entry.setColor("dodgerblue");
@@ -264,15 +265,15 @@ public class Demo extends Div {
         Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
 
         Entry entry = new Entry();
-        entry.setTitle("Standard time entry");
-        Instant start = LocalDate.of(2018, 11, 17).atTime(12, 0).toInstant(ZoneOffset.UTC);
+        entry.setTitle("Standard time entry (12 UTC)");
+        LocalDateTime start = LocalDateTime.of(2018, 11, 17, 12, 0);
         entry.setStart(start);
         entry.setEnd(start.plus(Duration.ofHours(1)));
         calendar.addEntry(entry);
 
         entry = new Entry();
-        entry.setTitle("Summer time entry");
-        start = LocalDate.of(2018, 8, 17).atTime(12, 0).toInstant(ZoneOffset.UTC);
+        entry.setTitle("Summer time entry (12 UTC)");
+        start = LocalDateTime.of(2018, 8, 17, 12, 0);
         entry.setStart(start);
         entry.setEnd(start.plus(Duration.ofHours(1)));
         calendar.addEntry(entry);
@@ -421,8 +422,8 @@ public class Demo extends Div {
             TextField fieldEnd = new TextField("End");
             fieldEnd.setEnabled(false);
 
-            fieldStart.setValue(entry.getStart().toString());
-            fieldEnd.setValue(entry.getEnd().toString());
+            fieldStart.setValue(entry.getStartUTC().toString());
+            fieldEnd.setValue(entry.getEndUTC().toString());
 
             Checkbox fieldAllDay = new Checkbox("All day event");
             fieldAllDay.setValue(entry.isAllDay());
