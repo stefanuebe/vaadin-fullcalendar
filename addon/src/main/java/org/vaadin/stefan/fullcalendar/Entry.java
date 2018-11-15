@@ -63,8 +63,8 @@ public class Entry {
         boolean fullDayEvent = isAllDay();
         jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
 
-        jsonObject.put("start", JsonUtils.toJsonValue(getStartTimezone().formatWithZoneId(getStartUTC())));
-        jsonObject.put("end", JsonUtils.toJsonValue(getEndTimezone().formatWithZoneId(getEndUTC())));
+        jsonObject.put("start", JsonUtils.toJsonValue(getStartUTC() == null ? null : getStartTimezone().formatWithZoneId(getStartUTC())));
+        jsonObject.put("end", JsonUtils.toJsonValue(getEndUTC() == null ? null : getEndTimezone().formatWithZoneId(getEndUTC())));
         jsonObject.put("editable", isEditable());
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
