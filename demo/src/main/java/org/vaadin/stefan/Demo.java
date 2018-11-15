@@ -108,13 +108,13 @@ public class Demo extends Div {
         comboBoxGroupBy.addValueChangeListener(event -> ((Scheduler) calendar).setGroupEntriesBy(event.getValue()));
 
         ComboBox<Timezone> timezoneComboBox = new ComboBox<>("");
+        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
         timezoneComboBox.setItems(Timezone.getAvailableZones());
         timezoneComboBox.setValue(Timezone.UTC);
         timezoneComboBox.addValueChangeListener(event -> {
             Timezone value = event.getValue();
             calendar.setTimezone(value != null ? value : Timezone.UTC);
         });
-        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
 
         toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox);
     }
@@ -176,7 +176,7 @@ public class Demo extends Div {
 
             Entry entry = event.getEntry();
 
-            Notification.show(entry.getTitle() + " resized to " + entry.getStart() + " - " + entry.getEnd() + " by " + event.getDelta());
+            Notification.show(entry.getTitle() + " resized to " + entry.getStart() + " - " + entry.getEnd() + " " + calendar.getTimezone().getClientSideValue() + " by " + event.getDelta());
         });
         calendar.addEntryDroppedListener(event -> {
             event.applyChangesOnEntry();
@@ -185,7 +185,7 @@ public class Demo extends Div {
             LocalDateTime start = entry.getStart();
             LocalDateTime end = entry.getEnd();
 
-            String text = entry.getTitle() + " moved to " + start + " - " + end + " by " + event.getDelta();
+            String text = entry.getTitle() + " moved to " + start + " - " + end + " " + calendar.getTimezone().getClientSideValue()+ " by " + event.getDelta();
 
             if(entry instanceof ResourceEntry) {
                 Set<Resource> resources = ((ResourceEntry) entry).getResources();
@@ -202,8 +202,8 @@ public class Demo extends Div {
         calendar.addTimeslotsSelectedListener(event -> {
             Entry entry = new Entry();
 
-            entry.setStart(event.getStartDateTime());
-            entry.setEnd(event.getEndDateTime());
+            entry.setStart(calendar.getTimezone().convertToUTC(event.getStartDateTime()));
+            entry.setEnd(calendar.getTimezone().convertToUTC(event.getEndDateTime()));
             entry.setAllDay(event.isAllDay());
 
             entry.setColor("dodgerblue");
@@ -425,8 +425,8 @@ public class Demo extends Div {
             TextField fieldEnd = new TextField("End");
             fieldEnd.setEnabled(false);
 
-            fieldStart.setValue(entry.getStartUTC().toString());
-            fieldEnd.setValue(entry.getEndUTC().toString());
+            fieldStart.setValue(calendar.getTimezone().formatWithZoneId(entry.getStartUTC()));
+            fieldEnd.setValue(calendar.getTimezone().formatWithZoneId(entry.getEndUTC()));
 
             Checkbox fieldAllDay = new Checkbox("All day event");
             fieldAllDay.setValue(entry.isAllDay());
