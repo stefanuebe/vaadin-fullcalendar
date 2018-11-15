@@ -1,7 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -100,10 +99,13 @@ public class Timezone implements ClientSideValue {
     /**
      * Formats the given instant based on the zone id to be sent to the client side.
      * For UTC based timezones the string will end on a Z, all other zone ids are parsed as local date versions.
+     *
      * @param instant instant
      * @return formatted date time
+     * @throws NullPointerException when null is passed
      */
-    public String formatWithZoneId(Instant instant) {
+    public String formatWithZoneId(@Nonnull Instant instant) {
+        Objects.requireNonNull(instant);
         if (this == UTC || this == LOCAL || this.zoneId.equals(ZONE_ID_UTC)) {
             return instant.toString();
         }
