@@ -21,6 +21,7 @@ The following functions are implemented and available to use from server side:
 - styles are overridable via custom properties
 - setting a eventRender JS function from server side
 - setting business hours (multiple instances possible)
+- timezone support
 
 - Event handling for
     - clicking an empty time spot in the calendar,
@@ -39,6 +40,9 @@ The following functions are implemented and available to use from server side:
     - description (not shown via FC), 
     - editable / read only
     - rendering mode (normal, background, inversed background)
+
+## Timezones
+Starting with 1.6.0 FC supports setting timezones. From this version, entries and some events work with Instant to represent the time based on UTC. You may set a custom timezone to display events for a user's timezone while the entries themselves still work with UTC based times.
 
 ## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
@@ -279,6 +283,30 @@ calendar.setBusinessHours(
 // Single instance for "each day from 9am to midnight"
 calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0)));
 
+### Using timezones
+// Per default, our FC works with UTC. You can set a custom timezone to be shown for the user. 
+// This will automatically update all entries on the client side.
+Timezone tzBerlinGermany = new Timezone("Europe/Berlin");
+calendar.setTimezone(tzBerlinGermany);
+
+// We can also reset the timezone to default.
+calendar.setTimezone(Timezone.UTC);
+
+// We can also read the browsers timezone, after the component has been attached to the client side.
+// There are other ways to obtain the browser's timezone, so you are not obliged to use the listener.
+calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
+
+// When using timezones, entries can calculate their start and end in different ways.
+entry.setStart(Instant.now()); // UTC 
+entry.setStart(LocalDateTime.now(), tzBerlinGermany); // timezone is used to calculate the UTC value
+
+entry.setCalendar(calendar); // is done automatically, when using calendar.addEntry(entry);
+entry.setStart(LocalDateTime.now()); // Uses the calendars timezone (or UTC as fallback)
+ 
+// Timezone provides some convenient methods to work with the two different temporal types
+tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 10, 1, 10, 0, 0)) // Standard time, returns Instant for 9:00 UTC this day.
+tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 8, 1, 10, 0, 0)) // Summer time, returns Instant for 8:00 UTC this day.
+tzBerlinGermany.convertToLocalDateTime(Instant.now()) // returns a date time with +1/+2 hours (depending on summer time).
 
 # FullCalendar Scheduler extension
 This addon extends the **FullCalendar integration addon** with the FullCalendar Scheduler (v1.9.4) as Flow component for Vaadin Platform / Vaadin 10+.
