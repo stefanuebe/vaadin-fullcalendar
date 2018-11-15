@@ -16,11 +16,9 @@ public class TimezoneTests {
 
     @Test
     void testStatics() {
-        Assertions.assertEquals(UTC_ID, Timezone.LOCAL.getZoneId());
         Assertions.assertEquals(UTC_ID, Timezone.UTC.getZoneId());
 
         List<Timezone> timezoneList = Arrays.asList(Timezone.getAvailableZones());
-        Assertions.assertTrue(timezoneList.contains(Timezone.LOCAL));
         Assertions.assertTrue(timezoneList.contains(Timezone.UTC));
     }
 
@@ -43,7 +41,6 @@ public class TimezoneTests {
         String ldtString = LocalDateTime.ofInstant(now, CUSTOM_TIMEZONE.getZoneId()).toString();
 
         Assertions.assertEquals(utcString, Timezone.UTC.formatWithZoneId(now));
-        Assertions.assertEquals(utcString, Timezone.LOCAL.formatWithZoneId(now));
         Assertions.assertEquals(utcString, new Timezone(UTC_ID).formatWithZoneId(now));
 
         Assertions.assertEquals(ldtString, CUSTOM_TIMEZONE.formatWithZoneId(now));
@@ -55,7 +52,6 @@ public class TimezoneTests {
 
         // TODO additional tests needed?
         Assertions.assertEquals(instant, Timezone.UTC.convertToUTC(Timezone.UTC.converToLocalDateTime(instant)));
-        Assertions.assertEquals(instant, Timezone.LOCAL.convertToUTC(Timezone.LOCAL.converToLocalDateTime(instant)));
         Assertions.assertEquals(instant, CUSTOM_TIMEZONE.convertToUTC(CUSTOM_TIMEZONE.converToLocalDateTime(instant)));
     }
 

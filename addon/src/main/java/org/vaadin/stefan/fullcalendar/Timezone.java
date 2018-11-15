@@ -6,10 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents a timezone, that is usable by the calendar. The timezone is identified by a zone id and a client side
@@ -18,12 +15,6 @@ import java.util.Objects;
 public class Timezone implements ClientSideValue {
 
     private static final ZoneId ZONE_ID_UTC = ZoneId.of("UTC");
-
-    /**
-     * This special constant represent the setting for the FC to show the times in the browsers timezone. Uses
-     * UTC as server side value representation.
-     */
-    public static final Timezone LOCAL = new Timezone(ZONE_ID_UTC, "local");
 
     /**
      * Constant for the timezone UTC. Default for conversions, if no custom timezone is set.
@@ -40,7 +31,7 @@ public class Timezone implements ClientSideValue {
                 .map(Timezone::new)
                 .toArray(Timezone[]::new);
 
-        List<Timezone> timezonesList = new ArrayList<>(Arrays.asList(LOCAL, UTC));
+        List<Timezone> timezonesList = new ArrayList<>(Collections.singletonList(UTC));
         timezonesList.addAll(Arrays.asList(timezones));
 
         AVAILABLE_ZONES = timezonesList.toArray(new Timezone[0]);
@@ -106,7 +97,7 @@ public class Timezone implements ClientSideValue {
      */
     public String formatWithZoneId(@Nonnull Instant instant) {
         Objects.requireNonNull(instant);
-        if (this == UTC || this == LOCAL || this.zoneId.equals(ZONE_ID_UTC)) {
+        if (this == UTC || this.zoneId.equals(ZONE_ID_UTC)) {
             return instant.toString();
         }
 

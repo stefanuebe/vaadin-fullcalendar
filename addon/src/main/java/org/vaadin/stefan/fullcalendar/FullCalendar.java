@@ -1,9 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.shared.Registration;
@@ -11,10 +8,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,6 +40,8 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
+
+    private Timezone browserTimezone;
 
     /**
      * Creates a new FullCalendar.
@@ -557,8 +553,29 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         }
     }
 
+    @ClientCallable
+    protected void setBrowserTimezone(String timezoneId) {
+        if (timezoneId != null) {
+            this.browserTimezone = new Timezone(ZoneId.of(timezoneId));
+        }
+    }
+
+    /**
+     * Returns the timezone set for this browser. By default UTC. If obtainable, you can read the timezone from
+     * the browser.
+     * @return time zone
+     */
     public Timezone getTimezone() {
         return (Timezone) getOption("timezone").orElse(Timezone.UTC);
+    }
+
+    /**
+     * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone.
+     * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
+     * @return optional client side timezone
+     */
+    public Optional<Timezone> getBrowserTimezone() {
+        return Optional.ofNullable(browserTimezone);
     }
 
     /**
