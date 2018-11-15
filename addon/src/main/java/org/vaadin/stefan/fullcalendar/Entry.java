@@ -87,8 +87,8 @@ public class Entry {
         JsonUtils.updateString(object, "title", this::setTitle);
         JsonUtils.updateBoolean(object, "editable", this::setEditable);
         JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
-        JsonUtils.updateDateTime(object, "start", this::setStart, getStartTimezone().getZoneId());
-        JsonUtils.updateDateTime(object, "end", this::setEnd, getEndTimezone().getZoneId());
+        JsonUtils.updateDateTime(object, "start", this::setStart, getStartTimezone());
+        JsonUtils.updateDateTime(object, "end", this::setEnd, getEndTimezone());
         JsonUtils.updateString(object, "color", this::setColor);
     }
 
@@ -208,7 +208,7 @@ public class Entry {
      * @param timezone timezone
      */
     public void setStart(LocalDateTime start, Timezone timezone) {
-        this.start = start.toInstant(timezone.getZoneId().getRules().getOffset(start));
+        this.start = timezone.convertToUTC(start);
     }
 
     /**
@@ -234,7 +234,7 @@ public class Entry {
      * @param timezone timezone
      */
     public void setEnd(LocalDateTime end, Timezone timezone) {
-        this.end = end.toInstant(timezone.getZoneId().getRules().getOffset(end));
+        this.end = timezone.convertToUTC(end);
     }
 
     /**

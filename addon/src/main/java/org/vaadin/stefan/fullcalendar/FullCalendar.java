@@ -14,6 +14,8 @@ import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -167,9 +169,28 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      */
     public List<Entry> getEntries(@Nonnull Instant date) {
         Objects.requireNonNull(date);
-        return getEntries(date, date.plusSeconds(86400));
+        return getEntries(date, date.plus(1, ChronoUnit.DAYS));
     }
 
+    /**
+     * Returns all entries registered in this instance which timespan crosses the given date. The date is converted
+     * to UTC before searching. The conversion is done with the calendars timezone.
+     * <p/>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     * @param date end point of filter timespan
+     * @return entries
+     * @throws NullPointerException when null is passed
+     */
+    public List<Entry> getEntries(@Nonnull LocalDate date) {
+        Objects.requireNonNull(date);
+
+        LocalDateTime dateTime = date.atStartOfDay();
+        Instant dateTimeUTC = getTimezone().convertToUTC(date);
+
+        return getEntries(dateTimeUTC, dateTimeUTC.plus(1, ChronoUnit.DAYS));
+    }
 
     /**
      * Adds an entry to this calendar. Removes it from an old calendar instance when existing.
