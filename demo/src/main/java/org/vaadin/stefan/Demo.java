@@ -110,7 +110,6 @@ public class Demo extends Div {
         comboBoxGroupBy.addValueChangeListener(event -> ((Scheduler) calendar).setGroupEntriesBy(event.getValue()));
 
         timezoneComboBox = new ComboBox<>("");
-        timezoneComboBox.setVisible(false);
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
         timezoneComboBox.setItems(Timezone.getAvailableZones());
         timezoneComboBox.setValue(Timezone.UTC);
@@ -146,7 +145,6 @@ public class Demo extends Div {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
         );
         calendar.addBrowserTimezoneObtainedListener(event -> {
-            timezoneComboBox.setVisible(true);
             timezoneComboBox.setValue(event.getTimezone());
         });
 
