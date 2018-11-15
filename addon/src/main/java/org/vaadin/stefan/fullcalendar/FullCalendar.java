@@ -145,11 +145,11 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
         Stream<Entry> stream = getEntries().stream();
         if (filterStart != null) {
-            stream = stream.filter(e -> e.getEnd().isAfter(filterStart));
+            stream = stream.filter(e -> e.getEndUTC().isAfter(filterStart));
         }
 
         if (filterEnd != null) {
-            stream = stream.filter(e -> e.getStart().isBefore(filterEnd));
+            stream = stream.filter(e -> e.getStartUTC().isBefore(filterEnd));
         }
 
         return stream.collect(Collectors.toList());

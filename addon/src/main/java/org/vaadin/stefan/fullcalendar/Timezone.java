@@ -71,7 +71,10 @@ public class Timezone implements ClientSideValue {
 
     @Override
     public String toString() {
-        return getClientSideValue();
+        return "Timezone{" +
+                "clientSideValue='" + clientSideValue + '\'' +
+                ", zoneId=" + zoneId +
+                '}';
     }
 
     @Override

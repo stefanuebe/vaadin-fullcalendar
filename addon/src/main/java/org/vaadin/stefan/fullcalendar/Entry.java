@@ -5,6 +5,7 @@ import elemental.json.JsonObject;
 
 import javax.annotation.Nonnull;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,10 +63,8 @@ public class Entry {
         boolean fullDayEvent = isAllDay();
         jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
 
-        Timezone timezone = calendar != null ? calendar.getTimezone() : Timezone.UTC;
-
-        jsonObject.put("start", JsonUtils.toJsonValue(timezone.formatWithZoneId(getStart())));
-        jsonObject.put("end", JsonUtils.toJsonValue(timezone.formatWithZoneId(getEnd())));
+        jsonObject.put("start", JsonUtils.toJsonValue(getStartTimezone().formatWithZoneId(getStartUTC())));
+        jsonObject.put("end", JsonUtils.toJsonValue(getEndTimezone().formatWithZoneId(getEndUTC())));
         jsonObject.put("editable", isEditable());
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
@@ -88,8 +87,8 @@ public class Entry {
         JsonUtils.updateString(object, "title", this::setTitle);
         JsonUtils.updateBoolean(object, "editable", this::setEditable);
         JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
-        JsonUtils.updateDateTime(object, "start", this::setStart, calendar.getTimezone().getZoneId());
-        JsonUtils.updateDateTime(object, "end", this::setEnd, calendar.getTimezone().getZoneId());
+        JsonUtils.updateDateTime(object, "start", this::setStart, getStartTimezone().getZoneId());
+        JsonUtils.updateDateTime(object, "end", this::setEnd, getEndTimezone().getZoneId());
         JsonUtils.updateString(object, "color", this::setColor);
     }
 
@@ -118,12 +117,56 @@ public class Entry {
         return title;
     }
 
-    public Instant getStart() {
+    /**
+     * Returns the start of the entry based on UTC.
+     * @return start
+     */
+    public Instant getStartUTC() {
         return start;
     }
 
-    public Instant getEnd() {
+    /**
+     * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezone()} (by
+     * default the calendars timezone or UTC).
+     * @return start as local date time
+     */
+    public LocalDateTime getStart() {
+        return getStart(getStartTimezone());
+    }
+
+    /**
+     * Returns the start of the entry as local date time based on the given timezone
+     * @param timezone timezone
+     * @return start as local date time
+     */
+    public LocalDateTime getStart(Timezone timezone) {
+        return start != null ? LocalDateTime.ofInstant(start, timezone.getZoneId().getRules().getOffset(start)) : null;
+    }
+
+    /**
+     * Returns the start of the entry based on UTC.
+     * @return start
+     */
+    public Instant getEndUTC() {
         return end;
+    }
+
+    /**
+     * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezone()} (by
+     * default the calendars timezone or UTC).
+     * @return start as local date time
+     */
+    public LocalDateTime getEnd() {
+        return getEnd(getEndTimezone());
+    }
+
+    /**
+     * Returns the start of the entry as local date time based on the given timezone
+     * @param timezone timezone
+     * @return start as local date time
+     */
+    public LocalDateTime getEnd(Timezone timezone) {
+        return end != null ? LocalDateTime.ofInstant(end, timezone.getZoneId().getRules().getOffset(end)) : null;
     }
 
     public boolean isAllDay() {
@@ -142,22 +185,79 @@ public class Entry {
         this.title = title;
     }
 
+    /**
+     * Sets the entry's start as UTC.
+     * @param start start
+     */
     public void setStart(Instant start) {
         this.start = start;
     }
 
+    /**
+     * Sets the given local date time as start. It is converted to an instant by using the
+     * calendars timezone. If no calendar has been set yet, UTC is taken.
+     * @param start start
+     */
+    public void setStart(LocalDateTime start) {
+        setStart(start, getStartTimezone());
+    }
+
+    /**
+     * Sets the given local date time as start. It is converted to an Instant by using the given timezone.
+     * @param start start
+     * @param timezone timezone
+     */
+    public void setStart(LocalDateTime start, Timezone timezone) {
+        this.start = start.toInstant(timezone.getZoneId().getRules().getOffset(start));
+    }
+
+    /**
+     * Sets the entry's end.
+     * @param end end
+     */
     public void setEnd(Instant end) {
         this.end = end;
     }
 
+    /**
+     * Sets the given local date time as end. It is converted to an instant by using the
+     * calendars timezone. If no calendar has been set yet, UTC is taken.
+     * @param end end
+     */
+    public void setEnd(LocalDateTime end) {
+        setEnd(end, getEndTimezone());
+    }
+
+    /**
+     * Sets the given local date time as end. It is converted to an Instant by using the given timezone.
+     * @param end end
+     * @param timezone timezone
+     */
+    public void setEnd(LocalDateTime end, Timezone timezone) {
+        this.end = end.toInstant(timezone.getZoneId().getRules().getOffset(end));
+    }
+
+    /**
+     * Marks this entry as an all day entry or not. This does <b>not</b> modifiy the date values directly. Any
+     * changes on date values are done by the FC by event, but not this class.
+     * @param allDay all day entry
+     */
     public void setAllDay(boolean allDay) {
         this.allDay = allDay;
     }
 
+    /**
+     * Returns the color for this entry.
+     * @return color
+     */
     public String getColor() {
         return color;
     }
 
+    /**
+     * Sets the color for this entry. Null resets the color to the FC's default.
+     * @param color color
+     */
     public void setColor(String color) {
         this.color = color == null || color.trim().isEmpty() ? null : color;
     }
@@ -196,6 +296,22 @@ public class Entry {
         this.description = description;
     }
 
+    /**
+     * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry start.
+     * @return timezone
+     */
+    public Timezone getStartTimezone() {
+        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+    }
+
+    /**
+     * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry end.
+     * @return timezone
+     */
+    public Timezone getEndTimezone() {
+        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -226,6 +342,8 @@ public class Entry {
                 ", id='" + id + '\'' +
                 ", calendar=" + calendar +
                 ", rendering=" + renderingMode +
+                ", startTimezone=" + getStartTimezone() +
+                ", endTimezone=" + getEndTimezone() +
                 '}';
     }
 
