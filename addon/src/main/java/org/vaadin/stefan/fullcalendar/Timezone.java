@@ -1,10 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import javax.annotation.Nullable;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
@@ -67,6 +64,37 @@ public class Timezone implements ClientSideValue {
         LocalDateTime temporal = LocalDateTime.ofInstant(instant, zoneId);
 
         return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(temporal);
+    }
+
+    /**
+     * Applies the rules of this timezone on the given local date and creates an instant at the start
+     * of the given day. Please check the additional documentation on
+     * {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
+     * @param date local date
+     * @return instant
+     */
+    public Instant convertToUTC(LocalDate date) {
+        LocalDateTime dateTime = date.atStartOfDay();
+        return convertToUTC(dateTime);
+    }
+
+    /**
+     * Applies the rules of this timezone on the given local date time and creates an instant. Please check
+     * the additional documentation on {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
+     * @param dateTime local date time
+     * @return instant
+     */
+    public Instant convertToUTC(LocalDateTime dateTime) {
+        return dateTime.toInstant(getZoneId().getRules().getOffset(dateTime));
+    }
+
+    /**
+     * Applies the rules of this timezone on the given instant and creates a local date time.
+     * @param instant instant
+     * @return local date time
+     */
+    public LocalDateTime converToLocalDateTime(Instant instant) {
+        return LocalDateTime.ofInstant(instant, getZoneId());
     }
 
     @Override

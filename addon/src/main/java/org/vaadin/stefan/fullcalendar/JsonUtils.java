@@ -3,10 +3,7 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.*;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
@@ -92,13 +89,13 @@ public final class JsonUtils {
     }
 
     /**
-     * Reads the json property by key and tries to apply it as a local date time.
+     * Reads the json property by key and tries to apply it as a temporal. Might use the timezone, if conversion to UTC is needed.
      * @param object json object
      * @param key json property key
      * @param setter setter to apply value
-     * @param zoneId
+     * @param timezone timezone
      */
-    public static void updateDateTime(JsonObject object, String key, Consumer<Instant> setter, ZoneId zoneId) {
+    public static void updateDateTime(JsonObject object, String key, Consumer<Instant> setter, Timezone timezone) {
         if (object.get(key) instanceof JsonString) {
             String string = object.getString(key);
 
@@ -113,10 +110,7 @@ public final class JsonUtils {
                 try {
                     dateTime = Instant.parse(string);
                 } catch (DateTimeParseException e1) {
-                    LocalDateTime parse = LocalDateTime.parse(string);
-                    ZoneOffset offset = zoneId.getRules().getOffset(parse);
-
-                    dateTime = parse.toInstant(offset);
+                    dateTime = timezone.convertToUTC(LocalDateTime.parse(string));
                 }
             }
 
