@@ -222,7 +222,7 @@ public class Entry {
 
     /**
      * Sets the given local date time as start. It is converted to an instant by using the
-     * calendars timezone. If no calendar has been set yet, UTC is taken.
+     * calendars timezone. If no calendar has been set yet, <b>UTC</b> is taken.
      * @param start start
      */
     public void setStart(LocalDateTime start) {
