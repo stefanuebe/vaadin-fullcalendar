@@ -2,8 +2,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public class Delta {
@@ -90,6 +90,17 @@ public class Delta {
      */
     public LocalDate applyOn(LocalDate date) {
         return date.plusYears(years).plusMonths(months).plusDays(days);
+    }
+
+    /**
+     * Applies this delta instance on the given instant by adding all day and time related delta values. Internally
+     * uses a local date time, that the instant will be converted to (utc based).
+     * @param instant instanceto modify
+     * @return updated instance
+     */
+    public Instant applyOn(Instant instant) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
+        return applyOn(localDateTime).toInstant(ZoneOffset.UTC);
     }
 
     @Override
