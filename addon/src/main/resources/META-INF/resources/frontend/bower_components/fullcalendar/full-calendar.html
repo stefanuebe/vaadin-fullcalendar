@@ -75,6 +75,13 @@
             _initCalendar() {
                 if (this._calendar === undefined) {
                     super.ready();
+
+                    try {
+                        this.$server.setBrowserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    } catch (e) {
+                        console.log("Could not obtain browsers time zone", e);
+                    }
+
                     var thisReference = this;
 
                     this._handle = $(this.$.calendar);
@@ -131,8 +138,6 @@
                             }
                         }));
                     });
-
-                    this.$server.setBrowserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
                 }
             }
 
