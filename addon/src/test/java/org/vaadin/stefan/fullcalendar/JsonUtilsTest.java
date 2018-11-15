@@ -3,7 +3,6 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import sun.usagetracker.UsageTrackerClient;
 
 import java.time.*;
 import java.util.Arrays;
