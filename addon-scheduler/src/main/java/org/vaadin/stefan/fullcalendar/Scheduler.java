@@ -56,14 +56,28 @@ public interface Scheduler {
     void setSchedulerLicenseKey(String schedulerLicenseKey);
 
     /**
-     * Adds an resource to this calendar. Removes it from an old calendar instance when existing.
-     * Noop if the resource id is already registered.
+     * Adds an resource to this calendar. Noop if the resource id is already registered.
      *
      * @param resource resource
-     * @return true if resource could be added
      * @throws NullPointerException when null is passed
      */
-    boolean addResource(Resource resource);
+    void addResource(Resource resource);
+
+    /**
+     * Adds resources to this calendar. Noop already registered resources.
+     *
+     * @param resources resources to add
+     * @throws NullPointerException when null is passed
+     */
+    void addResources(Resource... resources);
+
+    /**
+     * Adds resources to this calendar. Noop already registered resources.
+     *
+     * @param resources resources to add
+     * @throws NullPointerException when null is passed
+     */
+    void addResources(Iterable<Resource> resources);
 
     /**
      * Removes the given resource. Noop if the id is not registered.
@@ -72,6 +86,21 @@ public interface Scheduler {
      * @throws NullPointerException when null is passed
      */
     void removeResource(Resource resource);
+
+    /**
+     * Removes the given resources. Noop not registered resources.
+     *
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    void removeResources(Resource... resources);
+ /**
+     * Removes the given resources. Noop not registered resources.
+     *
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    void removeResources(Iterable<Resource> resources);
 
     /**
      * Returns the resource with the given id. Is empty when the id is not registered.

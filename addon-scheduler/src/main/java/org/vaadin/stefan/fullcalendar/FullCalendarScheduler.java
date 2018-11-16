@@ -18,6 +18,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import elemental.json.Json;
+import elemental.json.JsonArray;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -48,24 +50,60 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
-    public boolean addResource(Resource resource) {
-        String id = resource.getId();
-        boolean containsKey = resources.containsKey(id);
-        if (!containsKey) {
-            resources.put(id, resource);
-            getElement().callFunction("addResource", resource.toJson());
-        }
+    public void addResource(Resource resource) {
+        Objects.requireNonNull(resource);
+        addResources(Collections.singletonList(resource));
+    }
 
-        return !containsKey;
+    @Override
+    public void addResources(Resource... resources) {
+        addResources(Arrays.asList(resources));
+    }
+
+    @Override
+    public void addResources(Iterable<Resource> iterableResource) {
+        Objects.requireNonNull(iterableResource);
+
+        JsonArray array = Json.createArray();
+        iterableResource.forEach(resource -> {
+            String id = resource.getId();
+            boolean containsKey = resources.containsKey(id);
+            if (!containsKey) {
+                resources.put(id, resource);
+                array.set(array.length(), resource.toJson());
+            }
+
+        });
+
+        getElement().callFunction("addResources", array);
+
     }
 
     @Override
     public void removeResource(Resource resource) {
-        String id = resource.getId();
-        if (resources.containsKey(id)) {
-            resources.remove(id);
-            getElement().callFunction("removeResource", resource.toJson());
-        }
+        Objects.requireNonNull(resource);
+        removeResources(Collections.singletonList(resource));
+    }
+
+    @Override
+    public void removeResources(Resource... resources) {
+        removeResources(Arrays.asList(resources));
+    }
+
+    @Override
+    public void removeResources(Iterable<Resource> iterableResources) {
+        Objects.requireNonNull(iterableResources);
+        JsonArray array = Json.createArray();
+        iterableResources.forEach(resource -> {
+            String id = resource.getId();
+            if (resources.containsKey(id)) {
+                resources.remove(id);
+                array.set(array.length(), resource.toJson());
+            }
+        });
+
+        getElement().callFunction("removeResources", array);
+
     }
 
     @Override
