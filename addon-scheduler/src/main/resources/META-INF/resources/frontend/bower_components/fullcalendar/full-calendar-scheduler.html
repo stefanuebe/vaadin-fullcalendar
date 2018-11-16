@@ -75,12 +75,17 @@
                 return eventData;
             }
 
-            addResource(obj) {
-                this.getCalendar().addResource(obj);
+            addResources(array) {
+                for (var i = 0; i < array.length; i++) {
+                    this.getCalendar().addResource(array[i]);
+                }
+
             }
 
-            removeResource(obj) {
-                this.getCalendar().removeResource(obj.id);
+            removeResources(array) {
+                for (var i = 0; i < array.length; i++) {
+                    this.getCalendar().removeResource(array[i].id);
+                }
             }
 
         }
