@@ -21,6 +21,8 @@ import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
+import elemental.json.Json;
+import elemental.json.JsonArray;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -226,29 +228,55 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * Adds an entry to this calendar. Removes it from an old calendar instance when existing.
-     * Noop if the entry id is already registered.
+     * Adds an entry to this calendar. Noop if the entry id is already registered.
      *
      * @param entry entry
-     * @return true if entry could be added
      * @throws NullPointerException when null is passed
      */
-    public boolean addEntry(@Nonnull Entry entry) {
+    public void addEntry(@Nonnull Entry entry) {
         Objects.requireNonNull(entry);
-        String id = entry.getId();
-        boolean containsKey = entries.containsKey(id);
-        if (!containsKey) {
-            // remove from old instance
-            entry.getCalendar().ifPresent(c -> c.removeEntry(entry));
-            entry.setCalendar(this);
-
-            entries.put(id, entry);
-
-            getElement().callFunction("addEvent", entry.toJson());
-        }
-
-        return !containsKey;
+        addEntries(Collections.singletonList(entry));
     }
+
+    /**
+     * Adds an array of entries to the calendar. Noop for the entry id is already registered.
+     *
+     * @param arrayOfEntries
+     *           array of entries
+     * @throws NullPointerException
+     *            when null is passed
+     */
+    public void addEntries(@Nonnull Entry... arrayOfEntries) {
+        addEntries(Arrays.asList(arrayOfEntries));
+    }
+
+    /**
+     * Adds a list of entries to the calendar. Noop for the entry id is already registered.
+     *
+     * @param iterableEntries
+     *           list of entries
+     * @throws NullPointerException
+     *            when null is passed
+     */
+    public void addEntries(@Nonnull Iterable<Entry> iterableEntries) {
+        Objects.requireNonNull(iterableEntries);
+
+        JsonArray array = Json.createArray();
+        iterableEntries.forEach(entry -> {
+            String id = entry.getId();
+
+            if (!entries.containsKey(id)) {
+                entry.setCalendar(this);
+                entries.put(id, entry);
+                array.set(array.length(), entry.toJson());
+            }
+        });
+
+        if (array.length() > 0) {
+            getElement().callFunction("addEvents", array);
+        }
+    }
+
 
     /**
      * Updates the given entry on the client side. Will check if the id is already registered, otherwise a noop.
@@ -257,10 +285,40 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException when null is passed
      */
     public void updateEntry(@Nonnull Entry entry) {
-        String id = entry.getId();
-        boolean containsKey = entries.containsKey(id);
-        if (containsKey) {
-            getElement().callFunction("updateEvent", entry.toJson());
+        Objects.requireNonNull(entry);
+        updateEntries(Collections.singletonList(entry));
+    }
+
+    /**
+     * Updates the given entries on the client side. Ignores non-registered entries.
+     *
+     * @param arrayOfEntries entries to update
+     * @throws NullPointerException when null is passed
+     */
+    public void updateEntries(@Nonnull Entry... arrayOfEntries) {
+        updateEntries(Arrays.asList(arrayOfEntries));
+    }
+
+
+        /**
+         * Updates the given entries on the client side. Ignores non-registered entries.
+         *
+         * @param iterableEntries entries to update
+         * @throws NullPointerException when null is passed
+         */
+    public void updateEntries(@Nonnull Iterable<Entry> iterableEntries) {
+        Objects.requireNonNull(entries);
+
+        JsonArray array = Json.createArray();
+        iterableEntries.forEach(entry -> {
+            String id = entry.getId();
+            if (entries.containsKey(id)) {
+                array.set(array.length(), entry.toJson());
+            }
+        });
+
+        if (array.length() > 0) {
+            getElement().callFunction("updateEvents", array);
         }
     }
 
@@ -271,10 +329,41 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException when null is passed
      */
     public void removeEntry(@Nonnull Entry entry) {
-        String id = entry.getId();
-        if (entries.containsKey(id)) {
-            entries.remove(id);
-            getElement().callFunction("removeEvent", entry.toJson());
+        Objects.requireNonNull(entry);
+        removeEntries(Collections.singletonList(entry));
+    }
+
+    /**
+     * Removes the given entries. Noop for not registered entries.
+     *
+     * @param arrayOfEntries entries to remove
+     * @throws NullPointerException when null is passed
+     */
+    public void removeEntries(@Nonnull Entry... arrayOfEntries) {
+        removeEntries(Arrays.asList(arrayOfEntries));
+    }
+   /**
+     * Removes the given entries. Noop for not registered entries.
+     *
+     * @param iterableEntries entries to remove
+     * @throws NullPointerException when null is passed
+     */
+    public void removeEntries(@Nonnull Iterable<Entry> iterableEntries) {
+        Objects.requireNonNull(entries);
+
+        JsonArray array = Json.createArray();
+        iterableEntries.forEach(entry -> {
+            String id = entry.getId();
+
+            if (entries.containsKey(id)) {
+                entry.setCalendar(null);
+                entries.remove(id);
+                array.set(array.length(), entry.toJson());
+            }
+        });
+
+        if (array.length() > 0) {
+            getElement().callFunction("removeEvents", array);
         }
     }
 
@@ -565,7 +654,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         Timezone oldTimezone = getTimezone();
         if (!timezone.equals(oldTimezone)) {
             setOption("timezone", timezone.getClientSideValue(), timezone);
-            getEntries().forEach(this::updateEntry);
+            updateEntries(getEntries());
         }
     }
 

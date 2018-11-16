@@ -256,34 +256,40 @@
                 this.getCalendar().today();
             }
 
-            addEvent(obj) {
-                this.getCalendar().addEventSource([obj]);
+            addEvents(obj) {
+                this._calendar.addEventSource(obj);
             }
 
-            updateEvent(obj) {
-                // getEventSourceById not working currently, so for now we do it manually and optimize later
-                var eventToUpdate = this.getEventById(obj.id);
+            updateEvents(array) {
+                var arrayToUpdate = [];
+                for (var i = 0; i < array.length; i++) {
+                    var obj = array[i];
+                    var eventToUpdate = this.getEventById(obj.id);
 
-                if (eventToUpdate != null) {
-                    for(var property in obj) {
-                        if (eventToUpdate.hasOwnProperty(property)) {
-                            if (property === "start" || property === "end") {
-                                var mDate = moment(obj[property]);
-                                eventToUpdate[property] = mDate;
+                    if (eventToUpdate != null) {
+                        for(var property in obj) {
+                            if (eventToUpdate.hasOwnProperty(property)) {
+                                if (property === "start" || property === "end") {
+                                    var mDate = moment(obj[property]);
+                                    eventToUpdate[property] = mDate;
 
-                            } else {
-                                eventToUpdate[property] = obj[property];
+                                } else {
+                                    eventToUpdate[property] = obj[property];
 
+                                }
                             }
                         }
-                    }
 
-                    this.getCalendar().updateEvent(eventToUpdate);
+                        arrayToUpdate.push(eventToUpdate);
+                    }
                 }
+                this.getCalendar().updateEvents(arrayToUpdate);
             }
 
-            removeEvent(obj) {
-                this.getCalendar().removeEvents(obj.id);
+            removeEvents(array) {
+                for (var i = 0; i < array.length; i++) {
+                    this.getCalendar().removeEvents(array[i].id);
+                }
             }
 
             getEventById(id) {
