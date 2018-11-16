@@ -21,6 +21,7 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Client side event: eventLimitClick.
@@ -39,7 +40,7 @@ public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
     public LimitedEntriesClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date) {
         super(source, fromClient);
 
-        clickedDate = LocalDate.parse(date);
+        clickedDate = source.getTimezone().converToLocalDateTime(JsonUtils.parseDateTimeString(date, source.getTimezone())).toLocalDate();
     }
 
     /**

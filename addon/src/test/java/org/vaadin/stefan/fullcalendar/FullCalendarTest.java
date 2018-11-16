@@ -1,6 +1,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEventBusUtil;
+import elemental.html.EntriesCallback;
+import elemental.html.OptionElement;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
@@ -794,4 +796,109 @@ public class FullCalendarTest {
         EntryTest.assertFullEqualsByJsonAttributes(modifiedTimedEntry, event.getEntry());
     }
 
+    @Test
+    void testAddEntriesArray() {
+        FullCalendar calendar = new FullCalendar();
+        assertNPE(calendar, c -> c.addEntries((Entry[])null));
+
+        Entry entry1 = new Entry();
+        Entry entry2 = new Entry();
+        Entry entry3 = new Entry();
+
+        calendar.addEntries(entry1, entry2, entry3, entry3);
+
+        Collection<Entry> entries = calendar.getEntries();
+        Assertions.assertEquals(3, entries.size());
+
+        Assertions.assertTrue(entries.contains(entry1));
+        Assertions.assertTrue(entries.contains(entry2));
+        Assertions.assertTrue(entries.contains(entry3));
+
+        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
+        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
+        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
+    }
+
+    @Test
+    void testAddEntriesIterable() {
+        FullCalendar calendar = new FullCalendar();
+        assertNPE(calendar, c -> c.addEntries((Iterable<Entry>) null));
+
+        Entry entry1 = new Entry();
+        Entry entry2 = new Entry();
+        Entry entry3 = new Entry();
+
+        calendar.addEntries(Arrays.asList(entry1, entry2, entry3, entry3));
+
+        Collection<Entry> entries = calendar.getEntries();
+        Assertions.assertEquals(3, entries.size());
+
+        Assertions.assertTrue(entries.contains(entry1));
+        Assertions.assertTrue(entries.contains(entry2));
+        Assertions.assertTrue(entries.contains(entry3));
+
+        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
+        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
+        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
+    }
+
+    @Test
+    void testUpdateEntries() {
+        // checks only for exceptions
+
+        FullCalendar calendar = new FullCalendar();
+        assertNPE(calendar, c -> c.updateEntries((Entry[]) null));
+        assertNPE(calendar, c -> c.updateEntries((Iterable<Entry>) null));
+
+
+        Entry entry1 = new Entry();
+        Entry entry2 = new Entry();
+        Entry entry3 = new Entry();
+
+        calendar.addEntries(entry1, entry2, entry3, entry3);
+        calendar.updateEntries(entry1, entry2, entry3, entry3);
+        calendar.updateEntries(Arrays.asList(entry1, entry2, entry3, entry3));
+    }
+
+    @Test
+    void testRemoveEntriesArray() {
+        FullCalendar calendar = new FullCalendar();
+
+        assertNPE(calendar, c -> c.removeEntries((Entry[])null));
+
+        Entry entry1 = new Entry();
+        Entry entry2 = new Entry();
+        Entry entry3 = new Entry();
+
+        calendar.addEntries(entry1, entry2, entry3);
+        calendar.removeEntries(entry1, entry2);
+
+        Collection<Entry> entries = calendar.getEntries();
+        Assertions.assertEquals(1, entries.size());
+
+        Assertions.assertFalse(entries.contains(entry1));
+        Assertions.assertFalse(entries.contains(entry2));
+        Assertions.assertTrue(entries.contains(entry3));
+    }
+
+    @Test
+    void testRemoveEntriesIterable() {
+        FullCalendar calendar = new FullCalendar();
+
+        assertNPE(calendar, c -> c.removeEntries((Iterable<Entry>) null));
+
+        Entry entry1 = new Entry();
+        Entry entry2 = new Entry();
+        Entry entry3 = new Entry();
+
+        calendar.addEntries(entry1, entry2, entry3);
+        calendar.removeEntries(Arrays.asList(entry1, entry2));
+
+        Collection<Entry> entries = calendar.getEntries();
+        Assertions.assertEquals(1, entries.size());
+
+        Assertions.assertFalse(entries.contains(entry1));
+        Assertions.assertFalse(entries.contains(entry2));
+        Assertions.assertTrue(entries.contains(entry3));
+    }
 }
