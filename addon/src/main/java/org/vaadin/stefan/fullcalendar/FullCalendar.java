@@ -266,6 +266,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
             String id = entry.getId();
 
             if (!entries.containsKey(id)) {
+                if(entry.getStartUTC() == null || entry.getEndUTC() == null) {
+                    throw new IllegalArgumentException("Start and end must not be null for an added event: " + entry);
+                }
                 entry.setCalendar(this);
                 entries.put(id, entry);
                 array.set(array.length(), entry.toJson());
@@ -313,6 +316,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         iterableEntries.forEach(entry -> {
             String id = entry.getId();
             if (entries.containsKey(id)) {
+                if(entry.getStartUTC() == null || entry.getEndUTC() == null) {
+                    throw new IllegalArgumentException("Start and end must not be null for an updated event: " + entry);
+                }
+
                 array.set(array.length(), entry.toJson());
             }
         });

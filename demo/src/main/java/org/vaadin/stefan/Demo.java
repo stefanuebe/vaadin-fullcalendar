@@ -41,13 +41,15 @@ import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.lang.reflect.Executable;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Route(value = "", layout = MainView.class)
 @HtmlImport("frontend://styles.html")
@@ -57,7 +59,7 @@ public class Demo extends Div {
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
-    private HorizontalLayout toolbar;
+    private Div toolbar;
     private ComboBox<Timezone> timezoneComboBox;
 
     public Demo() {
@@ -139,7 +141,35 @@ public class Demo extends Div {
             calendar.setTimezone(value != null ? value : Timezone.UTC);
         });
 
-        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox);
+        Button addThousand = new Button("Add 1000 entries", event -> {
+            Button source = event.getSource();
+            source.setEnabled(false);
+            source.setText("Creating...");
+            Optional<UI> optionalUI = getUI();
+            optionalUI.ifPresent(ui -> {
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    Timezone timezone = new Timezone(ZoneId.systemDefault());
+                    Instant start = timezone.convertToUTC(LocalDate.now());
+                    Instant end = timezone.convertToUTC(LocalDate.now().plusDays(1));
+                    List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
+                        Entry entry = new Entry();
+                        entry.setStart(start);
+                        entry.setEnd(end);
+                        entry.setAllDay(true);
+                        entry.setTitle("Generated " + (i + 1));
+                        return entry;
+                    }).collect(Collectors.toList());
+
+                    ui.access(() -> {
+                        calendar.addEntries(list);
+                        source.setVisible(false);
+                        Notification.show("Added 1,000 entries for today");
+                    });
+                });
+            });
+        });
+
+        toolbar = new Div(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox, addThousand);
     }
 
     private void setFlexStyles(boolean flexStyles) {
