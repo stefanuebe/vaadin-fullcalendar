@@ -41,7 +41,7 @@ public class MainView extends PolymerTemplate<TemplateModel> implements RouterLa
     private HorizontalLayout title;
 
     public MainView() {
-        title.add(new H3("full calendar demo"), new Span("(FullCalendar addon: 1.7.11.2.1-SNAPSHOT, FullCalendar Scheduler extension: 1.2.11.2.1-SNAPSHOT)"));
+        title.add(new H3("full calendar demo"), new Span("(FullCalendar addon: 1.7.1, FullCalendar Scheduler extension: 1.2.1)"));
         title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
     }
 }
