@@ -153,7 +153,9 @@
                         thisReference.dispatchEvent(new CustomEvent("viewRender", {
                             detail: {
                                 intervalStart: view.intervalStart.format(),
-                                intervalEnd: view.intervalEnd.format()
+                                intervalEnd: view.intervalEnd.format(),
+                                start: view.start.format(),
+                                end: view.end.format()
                             }
                         }));
                     });

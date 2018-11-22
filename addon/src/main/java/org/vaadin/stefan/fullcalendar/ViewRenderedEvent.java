@@ -20,7 +20,6 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 import java.time.LocalDate;
 
@@ -32,6 +31,8 @@ public class ViewRenderedEvent extends ComponentEvent<FullCalendar> {
 
     private final LocalDate intervalStart;
     private final LocalDate intervalEnd;
+    private final LocalDate start;
+    private final LocalDate end;
 
     /**
      * Creates a new event using the given source and indicator whether the
@@ -45,6 +46,8 @@ public class ViewRenderedEvent extends ComponentEvent<FullCalendar> {
 
         intervalStart = LocalDate.parse(eventData.getString("intervalStart"));
         intervalEnd = LocalDate.parse(eventData.getString("intervalEnd"));
+        start = LocalDate.parse(eventData.getString("start"));
+        end = LocalDate.parse(eventData.getString("end"));
     }
 
     /**
@@ -62,4 +65,27 @@ public class ViewRenderedEvent extends ComponentEvent<FullCalendar> {
     public LocalDate getIntervalEnd() {
         return intervalEnd;
     }
+
+    /**
+     * Returns the first visible date. In month-view, this value is often before
+     * the 1st day of the month, because most months do not begin on the first
+     * day-of-week.
+     *
+     * @return first visible date
+     */
+    public LocalDate getStart() {
+        return start;
+    }
+
+    /**
+     * Returns the last visible date. In month-view, this value is often after
+     * the last day of the month, because most months do not end on the last day
+     * of the week.
+     *
+     * @return last visible date
+     */
+    public LocalDate getEnd() {
+        return end;
+    }
+
 }
