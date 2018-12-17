@@ -281,7 +281,7 @@ public class Demo extends Div {
                         .map(entry -> {
                             NativeButton button = new NativeButton(entry.getTitle(), clickEvent -> new DemoDialog(calendar, entry, false).open());
                             Style style = button.getStyle();
-                            style.set("background-color", entry.getColor());
+                            style.set("background-color", Optional.ofNullable(entry.getColor()).orElse("rgb(58, 135, 173)"));
                             style.set("color", "white");
                             style.set("border", "0 none black");
                             style.set("border-radius", "3px");
