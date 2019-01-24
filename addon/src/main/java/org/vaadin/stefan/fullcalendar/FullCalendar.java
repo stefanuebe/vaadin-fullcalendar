@@ -371,6 +371,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Remove all entries.
      */
     public void removeAllEntries() {
+        entries.values().forEach(e -> e.setCalendar(null));
         entries.clear();
         getElement().callFunction("removeAllEvents");
     }
