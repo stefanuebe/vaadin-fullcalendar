@@ -169,7 +169,11 @@ public class Demo extends Div {
             });
         });
 
-        toolbar = new Div(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox, addThousand);
+        Button removeAllEntries = new Button("Remove all", event -> {
+            calendar.removeAllEntries();
+        });
+
+        toolbar = new Div(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox, addThousand, removeAllEntries);
     }
 
     private void setFlexStyles(boolean flexStyles) {
