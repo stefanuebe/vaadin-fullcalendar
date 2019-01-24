@@ -50,7 +50,7 @@ public class ResourceEntry extends Entry {
     }
 
     protected void setCalendar(FullCalendar calendar) {
-        if (!(calendar instanceof Scheduler)) {
+        if (calendar != null && !(calendar instanceof Scheduler)) {
             throw new IllegalArgumentException("ResourceEntries must be added to a FullCalendar that implements Scheduler");
         }
         super.setCalendar(calendar);
