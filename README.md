@@ -208,6 +208,48 @@ public class FullCalendarApplication extends Div {
 }
 ```
 
+### Alternative way of overriding styles
+Create a custom component, that extends FullCalendar or FullCalendarScheduler. Add a style element and your custom css stylings. Override the static template method and let it insert your template with the style node into the parents template DOM.
+
+The example _my-full-calendar.html_ sets a beautiful green background for empty lists (.fc-list-empty).
+
+Please note, that the id of your component inside of the template method needs to be updated to your component's id.
+
+```
+<link rel="import" href="bower_components/fullcalendar/full-calendar-scheduler.html">
+
+<dom-module id="my-full-calendar">
+    <template>
+        <style id="styles">
+            .fc-list-empty {
+                background-color: green !important;
+            }
+        </style>
+    </template>
+
+    <script>
+        class MyFullCalendar extends FullCalendarScheduler {
+            static get is() {
+                return 'my-full-calendar';
+            }
+
+            // example of adding / overriding styles 
+            static get template() {
+                const parentTemplate = FullCalendarScheduler.template.cloneNode(true);
+                const childTemplate = Polymer.DomModule.import('my-full-calendar', 'template');
+
+                parentTemplate.content.insertBefore(childTemplate.content, parentTemplate.content.firstChild);
+
+                return parentTemplate;
+            }
+        }
+
+        customElements.define(MyFullCalendar.is, MyFullCalendar);
+    </script>
+</dom-module>
+```
+
+
 ### Modifying eventRender from server side
 // The given string will be interpreted as js function on client side
 // and attached as eventRender callback. 
