@@ -16,8 +16,10 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 
@@ -76,7 +78,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         });
 
         getElement().callFunction("addResources", array);
-
     }
 
     @Override
@@ -147,5 +148,33 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                 setOption("groupByDateAndResource", true);
                 break;
         }
+    }
+
+    /**
+     * Registers a listener to be informed when the user selected a range of timeslots.
+     * <p/>
+     * You should deactivate timeslot clicked listeners since both events will get fired when the user only selects
+     * one timeslot / day.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    @Override
+    public Registration addTimeslotsSelectedListener(@Nonnull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(TimeslotsSelectedSchedulerEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Registers a listener to be informed when a timeslot click event occurred.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addTimeslotClickedListener(@Nonnull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(TimeslotClickedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 }

@@ -258,12 +258,14 @@ public class Demo extends Div {
         });
         calendar.addViewRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
-        calendar.addTimeslotsSelectedListener(event -> {
+        calendar.addTimeslotsSelectedListener((TimeslotsSelectedSchedulerEvent event) -> {
             Entry entry = new Entry();
 
             entry.setStart(calendar.getTimezone().convertToUTC(event.getStartDateTime()));
             entry.setEnd(calendar.getTimezone().convertToUTC(event.getEndDateTime()));
             entry.setAllDay(event.isAllDay());
+            Optional<Resource> resource = event.getResource();
+            System.out.println(resource);
 
             entry.setColor("dodgerblue");
             new DemoDialog(calendar, entry, true).open();

@@ -108,21 +108,23 @@
                     this._calendar = this._handle.fullCalendar('getCalendar');
 
 
-                    this._calendar.on('dayClick', function (date) {
+                    this._calendar.on('dayClick', function (date, jsEvent, view, resource ) {
                         thisReference.dispatchEvent(new CustomEvent('dayClick', {
                             detail: {
                                 date: date.format(),
-                                allDay: !date.hasTime()
+                                allDay: !date.hasTime(),
+                                resource: typeof resource === 'object' ? resource.id : null
                             }
                         }));
                     });
 
-                    this._calendar.on('select', function (start, end) {
+                    this._calendar.on('select', function (start, end,  jsEvent, view, resource) {
                         thisReference.dispatchEvent(new CustomEvent('select', {
                             detail: {
                                 start: start.format(),
                                 end: end.format(),
-                                allDay: !start.hasTime()
+                                allDay: !start.hasTime(),
+                                resource: typeof resource === 'object' ? resource.id : null
                             }
                         }));
                     });
