@@ -64,7 +64,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     /**
      * Creates a new FullCalendar.
      */
-    protected FullCalendar() {
+    public FullCalendar() {
         this(-1);
     }
 
@@ -79,7 +79,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      *
      * @param entryLimit max entries to shown per day
      */
-    protected FullCalendar(int entryLimit) {
+    public FullCalendar(int entryLimit) {
         setLocale(CalendarLocale.getDefault());
         if (entryLimit > 0) {
             getElement().setProperty("eventLimit", entryLimit);
