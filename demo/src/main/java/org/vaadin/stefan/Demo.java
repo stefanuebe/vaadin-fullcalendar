@@ -196,7 +196,7 @@ public class Demo extends Div {
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
         calendar.setBusinessHours(
-                new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK),
+                new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
         );
         calendar.addBrowserTimezoneObtainedListener(event -> {
@@ -244,11 +244,11 @@ public class Demo extends Div {
             LocalDateTime start = entry.getStart();
             LocalDateTime end = entry.getEnd();
 
-            String text = entry.getTitle() + " moved to " + start + " - " + end + " " + calendar.getTimezone().getClientSideValue()+ " by " + event.getDelta();
+            String text = entry.getTitle() + " moved to " + start + " - " + end + " " + calendar.getTimezone().getClientSideValue() + " by " + event.getDelta();
 
-            if(entry instanceof ResourceEntry) {
+            if (entry instanceof ResourceEntry) {
                 Set<Resource> resources = ((ResourceEntry) entry).getResources();
-                if(!resources.isEmpty()) {
+                if (!resources.isEmpty()) {
                     text += text + " - rooms are " + resources;
                 }
             }
@@ -259,12 +259,19 @@ public class Demo extends Div {
         calendar.addViewRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
         calendar.addTimeslotsSelectedListener((TimeslotsSelectedSchedulerEvent event) -> {
-            Entry entry = new Entry();
+            Optional<Resource> resource = event.getResource();
+            Entry entry;
+            if (resource.isPresent()) {
+                ResourceEntry resourceEntry = new ResourceEntry();
+                resourceEntry.setResource(resource.get());
+                entry = resourceEntry;
+            } else {
+                entry = new Entry();
+            }
 
             entry.setStart(calendar.getTimezone().convertToUTC(event.getStartDateTime()));
             entry.setEnd(calendar.getTimezone().convertToUTC(event.getEndDateTime()));
             entry.setAllDay(event.isAllDay());
-            Optional<Resource> resource = event.getResource();
             System.out.println(resource);
 
             entry.setColor("dodgerblue");
@@ -382,6 +389,7 @@ public class Demo extends Div {
         }
         calendar.addEntry(entry);
     }
+
     private void createDayBackgroundEntry(FullCalendar calendar, LocalDate start, int days, String color) {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, "BG", start.atStartOfDay(), days, ChronoUnit.DAYS, color);
@@ -483,19 +491,26 @@ public class Demo extends Div {
             layout.add(fieldTitle, fieldColor, fieldDescription);
 
             TextField fieldStart = new TextField("Start");
-            fieldStart.setEnabled(false);
+            fieldStart.setReadOnly(true);
 
             TextField fieldEnd = new TextField("End");
-            fieldEnd.setEnabled(false);
+            fieldEnd.setReadOnly(true);
 
             fieldStart.setValue(calendar.getTimezone().formatWithZoneId(entry.getStartUTC()));
             fieldEnd.setValue(calendar.getTimezone().formatWithZoneId(entry.getEndUTC()));
 
             Checkbox fieldAllDay = new Checkbox("All day event");
             fieldAllDay.setValue(entry.isAllDay());
-            fieldAllDay.setEnabled(false);
+            fieldAllDay.setReadOnly(true);
 
             layout.add(fieldStart, fieldEnd, fieldAllDay);
+
+            if (entry instanceof ResourceEntry) {
+                TextArea fieldResource = new TextArea("Assigned resources");
+                fieldResource.setReadOnly(true);
+                fieldResource.setValue(((ResourceEntry) entry).getResources().stream().map(Resource::getTitle).collect(Collectors.joining(", ")));
+                layout.add(fieldResource);
+            }
 
             Binder<Entry> binder = new Binder<>(Entry.class);
             binder.forField(fieldTitle)
