@@ -505,7 +505,7 @@ public class Demo extends Div {
 
             layout.add(fieldStart, fieldEnd, fieldAllDay);
 
-            if (entry instanceof ResourceEntry) {
+            if (entry instanceof ResourceEntry && ((ResourceEntry) entry).getResource().isPresent()) {
                 TextArea fieldResource = new TextArea("Assigned resources");
                 fieldResource.setReadOnly(true);
                 fieldResource.setValue(((ResourceEntry) entry).getResources().stream().map(Resource::getTitle).collect(Collectors.joining(", ")));
