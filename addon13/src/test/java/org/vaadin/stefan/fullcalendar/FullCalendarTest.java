@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("ALL")
 public class FullCalendarTest {
 
-    public static final String FULL_CALENDAR_HTML = "fullcalendar/full-calendar.js";
+    public static final String FULL_CALENDAR_HTML = "fullcalendar/full-calendar.html";
 
     @BeforeAll
     static void beforeAll() {

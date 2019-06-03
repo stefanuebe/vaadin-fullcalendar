@@ -17,10 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.dependency.JavaScript;
-import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.dependency.JsModule.Container;
-import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
@@ -41,16 +38,9 @@ import java.util.stream.Stream;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-//@NpmPackage(value = "full-calender", version = "2.0.0")
 @Tag("full-calendar")
-@Container({
-        @JsModule("./jquery.js"),
-        @JsModule("./moment.js"),
-        @JsModule("./fullcalendar.js"),
-        @JsModule("./locale-all.js"),
-        @JsModule("./full-calendar.js")
-})
-public class FullCalendar extends Component implements HasStyle, HasSize {
+@HtmlImport("frontend://bower_components/fullcalendar/full-calendar.html")
+public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasStyle, HasSize {
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
@@ -139,7 +129,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
      * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
      * a convenient way of using the returned values without the need to encapsulate them yourselves.
-     *
      * @return entries entries
      */
     public List<Entry> getEntries() {
@@ -161,9 +150,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
      * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
      * include it.
-     *
      * @param filterStart start point of filter timespan or null to have no limit
-     * @param filterEnd   end point of filter timespan or null to have no limit
+     * @param filterEnd end point of filter timespan or null to have no limit
      * @return entries
      */
     public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
@@ -199,9 +187,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
      * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
      * include it.
-     *
      * @param filterStart start point of filter timespan or null to have no limit
-     * @param filterEnd   end point of filter timespan or null to have no limit
+     * @param filterEnd end point of filter timespan or null to have no limit
      * @return entries
      */
     public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
@@ -215,7 +202,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
-     *
      * @param date end point of filter timespan
      * @return entries
      * @throws NullPointerException when null is passed
@@ -232,7 +218,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
-     *
      * @param date end point of filter timespan
      * @return entries
      * @throws NullPointerException when null is passed
@@ -256,8 +241,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Adds an array of entries to the calendar. Noop for the entry id is already registered.
      *
-     * @param arrayOfEntries array of entries
-     * @throws NullPointerException when null is passed
+     * @param arrayOfEntries
+     *           array of entries
+     * @throws NullPointerException
+     *            when null is passed
      */
     public void addEntries(@NotNull Entry... arrayOfEntries) {
         addEntries(Arrays.asList(arrayOfEntries));
@@ -266,8 +253,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Adds a list of entries to the calendar. Noop for the entry id is already registered.
      *
-     * @param iterableEntries list of entries
-     * @throws NullPointerException when null is passed
+     * @param iterableEntries
+     *           list of entries
+     * @throws NullPointerException
+     *            when null is passed
      */
     public void addEntries(@NotNull Iterable<Entry> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
@@ -311,12 +300,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
 
-    /**
-     * Updates the given entries on the client side. Ignores non-registered entries.
-     *
-     * @param iterableEntries entries to update
-     * @throws NullPointerException when null is passed
-     */
+        /**
+         * Updates the given entries on the client side. Ignores non-registered entries.
+         *
+         * @param iterableEntries entries to update
+         * @throws NullPointerException when null is passed
+         */
     public void updateEntries(@NotNull Iterable<Entry> iterableEntries) {
         Objects.requireNonNull(entries);
 
@@ -353,8 +342,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void removeEntries(@NotNull Entry... arrayOfEntries) {
         removeEntries(Arrays.asList(arrayOfEntries));
     }
-
-    /**
+   /**
      * Removes the given entries. Noop for not registered entries.
      *
      * @param iterableEntries entries to remove
@@ -432,22 +420,23 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <p/>
      * Example:
      * <pre>
-     * // sends a client parseable version to client and stores original in server side
-     * calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
-     *
-     * // returns the original locale (as optional)
-     * Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
+     // sends a client parseable version to client and stores original in server side
+     calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
+
+     // returns the original locale (as optional)
+     Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
      * </pre>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
      *
-     * @param option             option
-     * @param value              value
+     *
+     * @param option option
+     * @param value  value
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
     public void setOption(@NotNull Option option, Serializable value, Object valueForServerSide) {
-        setOption(option.getOptionKey(), value, valueForServerSide);
+       setOption(option.getOptionKey(), value, valueForServerSide);
     }
 
     /**
@@ -475,21 +464,21 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <p/>
      * Example:
      * <pre>
-     * // sends a client parseable version to client and stores original in server side
-     * calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
-     *
-     * // returns the original locale (as optional)
-     * Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
+     // sends a client parseable version to client and stores original in server side
+     calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
+
+     // returns the original locale (as optional)
+     Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
      * </pre>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
-     * <p>
+     *
      * <p/>
      * For a full overview of possible options have a look at the FullCalendar documentation
      * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
      *
-     * @param option             option
-     * @param value              value
+     * @param option option
+     * @param value  value
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
@@ -571,6 +560,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Sets the locale to be used. If invoked for the first time it will load additional language scripts.
+     *
+     * @param locale locale
+     * @throws NullPointerException when null is passed
+     */
+    public void setLocale(@NotNull Locale locale) {
+        Objects.requireNonNull(locale);
+        setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
+    }
+
+    /**
      * Returns the current set locale.
      *
      * @return locale
@@ -584,17 +584,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         Object value = option.get();
         return value instanceof Locale ? (Locale) value : Locale.forLanguageTag((String) value);
-    }
-
-    /**
-     * Sets the locale to be used. If invoked for the first time it will load additional language scripts.
-     *
-     * @param locale locale
-     * @throws NullPointerException when null is passed
-     */
-    public void setLocale(@NotNull Locale locale) {
-        Objects.requireNonNull(locale);
-        setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
     }
 
     /**
@@ -625,15 +614,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <p/>
      * Example
      * <pre>
-     * calendar.setEntryRenderCallback("" +
-     * "function(event, element) {" +
-     * "   console.log(event.title + 'X');" +
-     * "   element.css('color', 'red');" +
-     * "   return element; " +
-     * "}");
+     calendar.setEntryRenderCallback("" +
+             "function(event, element) {" +
+             "   console.log(event.title + 'X');" +
+             "   element.css('color', 'red');" +
+             "   return element; " +
+             "}");
      *
      * </pre>
-     *
      * @param s js function to be attached to eventRender callback
      */
     public void setEntryRenderCallback(String s) {
@@ -644,7 +632,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Sets the business hours for this calendar instance. You may pass multiple instances for different configurations.
      * Please be aware, that instances with crossing days or times are handled by the client side and may lead
      * to unexpected results.
-     *
      * @param hours hours to set
      * @throws NullPointerException when null is passed
      */
@@ -656,21 +643,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Removes the business hours for this calendar instance.
-     *
      * @throws NullPointerException when null is passed
      */
     public void removeBusinessHours() {
         setOption(Option.BUSINESS_HOURS, null);
-    }
-
-    /**
-     * Returns the timezone set for this browser. By default UTC. If obtainable, you can read the timezone from
-     * the browser.
-     *
-     * @return time zone
-     */
-    public Timezone getTimezone() {
-        return (Timezone) getOption("timezone").orElse(Timezone.UTC);
     }
 
     public void setTimezone(Timezone timezone) {
@@ -683,22 +659,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         }
     }
 
-    /**
-     * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone.
-     * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
-     *
-     * @return optional client side timezone
-     */
-    public Optional<Timezone> getBrowserTimezone() {
-        return Optional.ofNullable(browserTimezone);
-    }
-
     @ClientCallable
     protected void setBrowserTimezone(String timezoneId) {
         if (timezoneId != null) {
             this.browserTimezone = new Timezone(ZoneId.of(timezoneId));
             getEventBus().fireEvent(new BrowserTimezoneObtainedEvent(this, false, browserTimezone));
         }
+    }
+
+    /**
+     * Returns the timezone set for this browser. By default UTC. If obtainable, you can read the timezone from
+     * the browser.
+     * @return time zone
+     */
+    public Timezone getTimezone() {
+        return (Timezone) getOption("timezone").orElse(Timezone.UTC);
+    }
+
+    /**
+     * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone.
+     * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
+     * @return optional client side timezone
+     */
+    public Optional<Timezone> getBrowserTimezone() {
+        return Optional.ofNullable(browserTimezone);
     }
 
     /**
@@ -894,7 +878,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Registers a listener to be informed, when the browser's timezone has been obtained by the server.
-     *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
@@ -926,6 +909,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             return optionKey;
         }
     }
+
 
 
 }

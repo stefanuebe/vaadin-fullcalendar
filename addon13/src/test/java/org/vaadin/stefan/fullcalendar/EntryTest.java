@@ -25,7 +25,7 @@ public class EntryTest {
     public static final Entry.RenderingMode DEFAULT_RENDERING = Entry.RenderingMode.BACKGROUND;
     public static final Timezone CUSTOM_TIMEZONE = new Timezone(ZoneId.of("Europe/Berlin"));
 
-    public static final String FULL_CALENDAR_HTML = "fullcalendar/full-calendar.js";
+    public static final String FULL_CALENDAR_HTML = "fullcalendar/full-calendar.html";
 
     @BeforeAll
     static void beforeAll() {
