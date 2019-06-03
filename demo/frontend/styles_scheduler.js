@@ -1,4 +1,4 @@
-<!--
+/*
    Copyright 2018, Stefan Uebe
 
    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
@@ -13,9 +13,9 @@
    WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
    OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
--->
+*/
 
-<!--
+/*
 This file contains a list of generated custom properties that might be used to style the FullCalendar Schedular extension.
 Simply remove the comment, change the value and refresh the page.
 
@@ -51,8 +51,12 @@ is targeted by --fc_fc-toolbar__LACE_BRACE___ASTERISK___LACE_BRACE___COLON_first
 All the css properties have also a default value, so you simply can clean the list and keep the custom properties
 that you need.
 
--->
+*/
 
+const $_documentContainer = document.createElement('template');
+
+
+$_documentContainer.innerHTML = `
 <custom-style>
     <style>
         html{
@@ -257,4 +261,5 @@ that you need.
             /*--ui-widget_fc-scroller-canvas__LACE_BRACE__fc-content-border-color: transparent;*/
         }
     </style>
-</custom-style>
+</custom-style>`;
+document.head.appendChild($_documentContainer.content);
