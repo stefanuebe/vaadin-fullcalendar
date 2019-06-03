@@ -1,4 +1,5 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
+import { Calendar } from '@fullcalendar/core';
 
 /*
    Copyright 2018, Stefan Uebe
@@ -50,10 +51,6 @@ export class FullCalendar extends PolymerElement {
         `;
     }
 
-    static get is() {
-        return 'full-calendar';
-    }
-
     static get properties() {
         return {
             eventLimit: {
@@ -76,248 +73,254 @@ export class FullCalendar extends PolymerElement {
         return this._calendar;
     }
 
-    getJqueryHandle() {
-        if (this._calendar === undefined) {
-            this._initCalendar();
-        }
-
-        return this._handle;
-    }
+    // getJqueryHandle() {
+    //     if (this._calendar === undefined) {
+    //         this._initCalendar();
+    //     }
+    //
+    //     return this._handle;
+    // }
 
     _initCalendar() {
         if (this._calendar === undefined) {
             super.ready();
 
-            try {
-                this.$server.setBrowserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-            } catch (e) {
-                console.log("Could not obtain browsers time zone", e);
-            }
-
-            var thisReference = this;
-
-            this._handle = $(this.$.calendar);
-            this._handle.fullCalendar(this._createInitOptions());
-            this._calendar = this._handle.fullCalendar('getCalendar');
-
-
-            this._calendar.on('dayClick', function (date, jsEvent, view, resource) {
-                thisReference.dispatchEvent(new CustomEvent('dayClick', {
-                    detail: {
-                        date: date.format(),
-                        allDay: !date.hasTime(),
-                        resource: typeof resource === 'object' ? resource.id : null
-                    }
-                }));
+            this._calendar = new Calendar(this.$.calendar, {
+                // plugins: [ dayGridPlugin ]
             });
 
-            this._calendar.on('select', function (start, end, jsEvent, view, resource) {
-                thisReference.dispatchEvent(new CustomEvent('select', {
-                    detail: {
-                        start: start.format(),
-                        end: end.format(),
-                        allDay: !start.hasTime(),
-                        resource: typeof resource === 'object' ? resource.id : null
-                    }
-                }));
-            });
+            this._calendar.render();
 
-            this._calendar.on('eventClick', function (event) {
-                thisReference.dispatchEvent(new CustomEvent('eventClick', {detail: {id: event.id}}));
-            });
-
-            this._calendar.on('eventResize', function (event, delta, revertFunc) {
-                thisReference.dispatchEvent(new CustomEvent('eventResize', {
-                    detail: {
-                        data: thisReference._toEventData(event),
-                        delta: delta._data
-                    }
-                }));
-            });
-
-            this._calendar.on('eventDrop', function (event, delta, revertFunc) {
-                thisReference.dispatchEvent(new CustomEvent('eventDrop', {
-                    detail: {
-                        data: thisReference._toEventData(event),
-                        delta: delta._data
-                    }
-                }));
-            });
-
-            this._calendar.on('viewRender', function (view, element) {
-                thisReference.dispatchEvent(new CustomEvent("viewRender", {
-                    detail: {
-                        intervalStart: view.intervalStart.format(),
-                        intervalEnd: view.intervalEnd.format(),
-                        start: view.start.format(),
-                        end: view.end.format()
-                    }
-                }));
-            });
+            // try {
+            //     this.$server.setBrowserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+            // } catch (e) {
+            //     console.log("Could not obtain browsers time zone", e);
+            // }
+            //
+            // var thisReference = this;
+            //
+            // this._handle = $(this.$.calendar);
+            // this._handle.fullCalendar(this._createInitOptions());
+            // this._calendar = this._handle.fullCalendar('getCalendar');
+            //
+            //
+            // this._calendar.on('dayClick', function (date, jsEvent, view, resource) {
+            //     thisReference.dispatchEvent(new CustomEvent('dayClick', {
+            //         detail: {
+            //             date: date.format(),
+            //             allDay: !date.hasTime(),
+            //             resource: typeof resource === 'object' ? resource.id : null
+            //         }
+            //     }));
+            // });
+            //
+            // this._calendar.on('select', function (start, end, jsEvent, view, resource) {
+            //     thisReference.dispatchEvent(new CustomEvent('select', {
+            //         detail: {
+            //             start: start.format(),
+            //             end: end.format(),
+            //             allDay: !start.hasTime(),
+            //             resource: typeof resource === 'object' ? resource.id : null
+            //         }
+            //     }));
+            // });
+            //
+            // this._calendar.on('eventClick', function (event) {
+            //     thisReference.dispatchEvent(new CustomEvent('eventClick', {detail: {id: event.id}}));
+            // });
+            //
+            // this._calendar.on('eventResize', function (event, delta, revertFunc) {
+            //     thisReference.dispatchEvent(new CustomEvent('eventResize', {
+            //         detail: {
+            //             data: thisReference._toEventData(event),
+            //             delta: delta._data
+            //         }
+            //     }));
+            // });
+            //
+            // this._calendar.on('eventDrop', function (event, delta, revertFunc) {
+            //     thisReference.dispatchEvent(new CustomEvent('eventDrop', {
+            //         detail: {
+            //             data: thisReference._toEventData(event),
+            //             delta: delta._data
+            //         }
+            //     }));
+            // });
+            //
+            // this._calendar.on('viewRender', function (view, element) {
+            //     thisReference.dispatchEvent(new CustomEvent("viewRender", {
+            //         detail: {
+            //             intervalStart: view.intervalStart.format(),
+            //             intervalEnd: view.intervalEnd.format(),
+            //             start: view.start.format(),
+            //             end: view.end.format()
+            //         }
+            //     }));
+            // });
         }
     }
 
-    _createInitOptions() {
-        var thisReference = this;
-
-        return {
-            height: 'parent',
-            eventLimitClick: function (cellInfo) {
-                thisReference.dispatchEvent(new CustomEvent("eventLimitClick", {detail: {date: cellInfo.date.format()}}));
-            },
-
-            navLinkDayClick: function (date) {
-                thisReference.dispatchEvent(new CustomEvent("navLinkDayClick", {
-                    detail: {
-                        date: date.format(),
-                        allDay: true
-                    }
-                }));
-            },
-
-            navLinkWeekClick: function (date) {
-                thisReference.dispatchEvent(new CustomEvent("navLinkWeekClick", {
-                    detail: {
-                        date: date.format(),
-                        allDay: true
-                    }
-                }));
-            },
-
-            // no native control elements
-            header: false,
-            resources: [],
-
-            eventLimit: this.eventLimit,
-            views: {
-                basicDay: {
-                    eventLimit: false // adjust to unlimited for basic view
-                },
-                basicWeek: {
-                    eventLimit: false
-                }
-            },
-
-            defaultTimedEventDuration: '01:00:00'
-
-        };
-    }
-
-    setOption(key, value) {
-        var calendar = this.getCalendar();
-        if (key === "timezone" && calendar.option("timezone") !== value) {
-            this.dispatchEvent(new CustomEvent("timezone-changed", {
-                detail: {
-                    timezone: value
-                }
-            }));
-        }
-
-        calendar.option(key, value);
-
-    }
-
-    _toEventData(event) {
-        var end = event.end;
-        if (end != null) {
-            end = end.format();
-        } else if (event.allDay) {
-            end = event.start.clone().add(1, 'day').format(); // update, when default duration change
-        } else {
-            end = event.start.clone().add(1, 'hour').format(); // update, when default duration change
-        }
-
-        return {
-            id: event.id,
-            start: event.start.format(),
-            end: end,
-            allDay: event.allDay,
-            editable: event.editable
-        }
-    }
-
-    next() {
-        this.getCalendar().next();
-    }
-
-    previous() {
-        this.getCalendar().prev();
-    }
-
-    today() {
-        this.getCalendar().today();
-    }
-
-    addEvents(obj) {
-        this._calendar.addEventSource(obj);
-    }
-
-    updateEvents(array) {
-        var arrayToUpdate = [];
-        for (var i = 0; i < array.length; i++) {
-            var obj = array[i];
-            var eventToUpdate = this.getEventById(obj.id);
-
-            if (eventToUpdate != null) {
-                for (var property in obj) {
-                    if (eventToUpdate.hasOwnProperty(property)) {
-                        if (property === "start" || property === "end") {
-                            var mDate = moment(obj[property]);
-                            eventToUpdate[property] = mDate;
-
-                        } else {
-                            eventToUpdate[property] = obj[property];
-
-                        }
-                    }
-                }
-
-                arrayToUpdate.push(eventToUpdate);
-            }
-        }
-        this.getCalendar().updateEvents(arrayToUpdate);
-    }
-
-    removeEvents(array) {
-        for (var i = 0; i < array.length; i++) {
-            this.getCalendar().removeEvents(array[i].id);
-        }
-    }
-
-    getEventById(id) {
-        var events = this.getCalendar().clientEvents();
-        var eventToUpdate = null;
-        for (var i = 0; i < events.length; i++) {
-            var event = events[i];
-            if (event.hasOwnProperty("id")) {
-                if (event.id === id) {
-                    eventToUpdate = event;
-                    break;
-                }
-            }
-        }
-        return eventToUpdate;
-    }
-
-    removeAllEvents() {
-        this.getCalendar().removeEventSources();
-    }
-
-    changeView(viewName) {
-        this.getCalendar().changeView(viewName);
-    }
-
-    gotoDate(date) {
-        this.getCalendar().gotoDate(moment(date));
-    }
-
-    render() {
-        this.getCalendar().render();
-    }
-
-    setEventRenderCallback(s) {
-        this.getCalendar().option('eventRender', new Function("return " + s)());
-    }
+    // _createInitOptions() {
+    //     var thisReference = this;
+    //
+    //     return {
+    //         height: 'parent',
+    //         eventLimitClick: function (cellInfo) {
+    //             thisReference.dispatchEvent(new CustomEvent("eventLimitClick", {detail: {date: cellInfo.date.format()}}));
+    //         },
+    //
+    //         navLinkDayClick: function (date) {
+    //             thisReference.dispatchEvent(new CustomEvent("navLinkDayClick", {
+    //                 detail: {
+    //                     date: date.format(),
+    //                     allDay: true
+    //                 }
+    //             }));
+    //         },
+    //
+    //         navLinkWeekClick: function (date) {
+    //             thisReference.dispatchEvent(new CustomEvent("navLinkWeekClick", {
+    //                 detail: {
+    //                     date: date.format(),
+    //                     allDay: true
+    //                 }
+    //             }));
+    //         },
+    //
+    //         // no native control elements
+    //         header: false,
+    //         resources: [],
+    //
+    //         eventLimit: this.eventLimit,
+    //         views: {
+    //             basicDay: {
+    //                 eventLimit: false // adjust to unlimited for basic view
+    //             },
+    //             basicWeek: {
+    //                 eventLimit: false
+    //             }
+    //         },
+    //
+    //         defaultTimedEventDuration: '01:00:00'
+    //
+    //     };
+    // }
+    //
+    // setOption(key, value) {
+    //     var calendar = this.getCalendar();
+    //     if (key === "timezone" && calendar.option("timezone") !== value) {
+    //         this.dispatchEvent(new CustomEvent("timezone-changed", {
+    //             detail: {
+    //                 timezone: value
+    //             }
+    //         }));
+    //     }
+    //
+    //     calendar.option(key, value);
+    //
+    // }
+    //
+    // _toEventData(event) {
+    //     var end = event.end;
+    //     if (end != null) {
+    //         end = end.format();
+    //     } else if (event.allDay) {
+    //         end = event.start.clone().add(1, 'day').format(); // update, when default duration change
+    //     } else {
+    //         end = event.start.clone().add(1, 'hour').format(); // update, when default duration change
+    //     }
+    //
+    //     return {
+    //         id: event.id,
+    //         start: event.start.format(),
+    //         end: end,
+    //         allDay: event.allDay,
+    //         editable: event.editable
+    //     }
+    // }
+    //
+    // next() {
+    //     this.getCalendar().next();
+    // }
+    //
+    // previous() {
+    //     this.getCalendar().prev();
+    // }
+    //
+    // today() {
+    //     this.getCalendar().today();
+    // }
+    //
+    // addEvents(obj) {
+    //     this._calendar.addEventSource(obj);
+    // }
+    //
+    // updateEvents(array) {
+    //     var arrayToUpdate = [];
+    //     for (var i = 0; i < array.length; i++) {
+    //         var obj = array[i];
+    //         var eventToUpdate = this.getEventById(obj.id);
+    //
+    //         if (eventToUpdate != null) {
+    //             for (var property in obj) {
+    //                 if (eventToUpdate.hasOwnProperty(property)) {
+    //                     if (property === "start" || property === "end") {
+    //                         var mDate = moment(obj[property]);
+    //                         eventToUpdate[property] = mDate;
+    //
+    //                     } else {
+    //                         eventToUpdate[property] = obj[property];
+    //
+    //                     }
+    //                 }
+    //             }
+    //
+    //             arrayToUpdate.push(eventToUpdate);
+    //         }
+    //     }
+    //     this.getCalendar().updateEvents(arrayToUpdate);
+    // }
+    //
+    // removeEvents(array) {
+    //     for (var i = 0; i < array.length; i++) {
+    //         this.getCalendar().removeEvents(array[i].id);
+    //     }
+    // }
+    //
+    // getEventById(id) {
+    //     var events = this.getCalendar().clientEvents();
+    //     var eventToUpdate = null;
+    //     for (var i = 0; i < events.length; i++) {
+    //         var event = events[i];
+    //         if (event.hasOwnProperty("id")) {
+    //             if (event.id === id) {
+    //                 eventToUpdate = event;
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     return eventToUpdate;
+    // }
+    //
+    // removeAllEvents() {
+    //     this.getCalendar().removeEventSources();
+    // }
+    //
+    // changeView(viewName) {
+    //     this.getCalendar().changeView(viewName);
+    // }
+    //
+    // gotoDate(date) {
+    //     this.getCalendar().gotoDate(moment(date));
+    // }
+    //
+    // render() {
+    //     this.getCalendar().render();
+    // }
+    //
+    // setEventRenderCallback(s) {
+    //     this.getCalendar().option('eventRender', new Function("return " + s)());
+    // }
 }
 
-customElements.define(FullCalendar.is, FullCalendar);
+customElements.define("full-calendar", FullCalendar);
