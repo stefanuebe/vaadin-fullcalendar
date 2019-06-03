@@ -19,7 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -318,7 +318,7 @@ public class Entry {
      * @param renderingMode rendering
      * @throws NullPointerException when passing null
      */
-    public void setRenderingMode(@Nonnull RenderingMode renderingMode) {
+    public void setRenderingMode(@NotNull RenderingMode renderingMode) {
         Objects.requireNonNull(renderingMode);
         this.renderingMode = renderingMode;
     }

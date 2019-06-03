@@ -1,8 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEventBusUtil;
-import elemental.html.EntriesCallback;
-import elemental.html.OptionElement;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
