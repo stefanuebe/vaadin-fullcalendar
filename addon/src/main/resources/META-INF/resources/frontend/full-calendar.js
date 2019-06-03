@@ -1,5 +1,9 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
-import { Calendar } from '@fullcalendar/core';
+
+import {Calendar} from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 
 /*
    Copyright 2018, Stefan Uebe
@@ -86,7 +90,7 @@ export class FullCalendar extends PolymerElement {
             super.ready();
 
             this._calendar = new Calendar(this.$.calendar, {
-                // plugins: [ dayGridPlugin ]
+                plugins: [ dayGridPlugin, timeGridPlugin, listPlugin ]
             });
 
             this._calendar.render();
