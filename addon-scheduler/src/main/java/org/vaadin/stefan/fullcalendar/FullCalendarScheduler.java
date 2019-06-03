@@ -23,7 +23,7 @@ import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 
 /**
