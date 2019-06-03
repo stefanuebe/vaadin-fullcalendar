@@ -18,7 +18,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonObject;
 
 /**
  * Occurs when an entry has been clicked on the client side.

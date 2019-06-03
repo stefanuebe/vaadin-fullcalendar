@@ -16,7 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,7 +70,7 @@ public class Timezone implements ClientSideValue {
      * @param zoneId zone id
      * @throws NullPointerException when zoneId is null
      */
-    public Timezone(@Nonnull ZoneId zoneId) {
+    public Timezone(@NotNull ZoneId zoneId) {
         this(zoneId, zoneId.getId());
     }
 
@@ -80,7 +80,7 @@ public class Timezone implements ClientSideValue {
      * @param clientSideValue client side value
      * @throws NullPointerException when zoneId is null
      */
-    public Timezone(@Nonnull ZoneId zoneId, String clientSideValue) {
+    public Timezone(@NotNull ZoneId zoneId, String clientSideValue) {
         Objects.requireNonNull(zoneId);
         this.clientSideValue = clientSideValue;
         this.zoneId = zoneId;
@@ -111,7 +111,7 @@ public class Timezone implements ClientSideValue {
      * @return formatted date time
      * @throws NullPointerException when null is passed
      */
-    public String formatWithZoneId(@Nonnull Instant instant) {
+    public String formatWithZoneId(@NotNull Instant instant) {
         Objects.requireNonNull(instant);
         if (this == UTC || this.zoneId.equals(ZONE_ID_UTC)) {
             return instant.toString();

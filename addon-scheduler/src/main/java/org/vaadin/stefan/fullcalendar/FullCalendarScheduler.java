@@ -108,7 +108,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
-    public Optional<Resource> getResourceById(@Nonnull String id) {
+    public Optional<Resource> getResourceById(@NotNull String id) {
         Objects.requireNonNull(id);
         return Optional.ofNullable(resources.get(id));
     }
@@ -161,7 +161,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @throws NullPointerException when null is passed
      */
     @Override
-    public Registration addTimeslotsSelectedListener(@Nonnull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
+    public Registration addTimeslotsSelectedListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotsSelectedSchedulerEvent.class, (ComponentEventListener) listener);
     }
@@ -173,7 +173,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotClickedListener(@Nonnull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+    public Registration addTimeslotClickedListener(@NotNull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotClickedSchedulerEvent.class, (ComponentEventListener) listener);
     }

@@ -21,7 +21,6 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**

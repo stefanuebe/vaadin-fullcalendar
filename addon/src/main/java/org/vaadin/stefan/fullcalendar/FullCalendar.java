@@ -24,7 +24,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -116,7 +116,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return entry or empty
      * @throws NullPointerException when null is passed
      */
-    public Optional<Entry> getEntryById(@Nonnull String id) {
+    public Optional<Entry> getEntryById(@NotNull String id) {
         Objects.requireNonNull(id);
         return Optional.ofNullable(entries.get(id));
     }
@@ -206,7 +206,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return entries
      * @throws NullPointerException when null is passed
      */
-    public List<Entry> getEntries(@Nonnull Instant date) {
+    public List<Entry> getEntries(@NotNull Instant date) {
         Objects.requireNonNull(date);
         return getEntries(date, date.plus(1, ChronoUnit.DAYS));
     }
@@ -222,7 +222,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return entries
      * @throws NullPointerException when null is passed
      */
-    public List<Entry> getEntries(@Nonnull LocalDate date) {
+    public List<Entry> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
         return getEntries(getTimezone().convertToUTC(date));
     }
@@ -233,7 +233,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param entry entry
      * @throws NullPointerException when null is passed
      */
-    public void addEntry(@Nonnull Entry entry) {
+    public void addEntry(@NotNull Entry entry) {
         Objects.requireNonNull(entry);
         addEntries(Collections.singletonList(entry));
     }
@@ -246,7 +246,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException
      *            when null is passed
      */
-    public void addEntries(@Nonnull Entry... arrayOfEntries) {
+    public void addEntries(@NotNull Entry... arrayOfEntries) {
         addEntries(Arrays.asList(arrayOfEntries));
     }
 
@@ -258,7 +258,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @throws NullPointerException
      *            when null is passed
      */
-    public void addEntries(@Nonnull Iterable<Entry> iterableEntries) {
+    public void addEntries(@NotNull Iterable<Entry> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
 
         JsonArray array = Json.createArray();
@@ -284,7 +284,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param entry entry to update
      * @throws NullPointerException when null is passed
      */
-    public void updateEntry(@Nonnull Entry entry) {
+    public void updateEntry(@NotNull Entry entry) {
         Objects.requireNonNull(entry);
         updateEntries(Collections.singletonList(entry));
     }
@@ -295,7 +295,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param arrayOfEntries entries to update
      * @throws NullPointerException when null is passed
      */
-    public void updateEntries(@Nonnull Entry... arrayOfEntries) {
+    public void updateEntries(@NotNull Entry... arrayOfEntries) {
         updateEntries(Arrays.asList(arrayOfEntries));
     }
 
@@ -306,7 +306,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
          * @param iterableEntries entries to update
          * @throws NullPointerException when null is passed
          */
-    public void updateEntries(@Nonnull Iterable<Entry> iterableEntries) {
+    public void updateEntries(@NotNull Iterable<Entry> iterableEntries) {
         Objects.requireNonNull(entries);
 
         JsonArray array = Json.createArray();
@@ -328,7 +328,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param entry entry
      * @throws NullPointerException when null is passed
      */
-    public void removeEntry(@Nonnull Entry entry) {
+    public void removeEntry(@NotNull Entry entry) {
         Objects.requireNonNull(entry);
         removeEntries(Collections.singletonList(entry));
     }
@@ -339,7 +339,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param arrayOfEntries entries to remove
      * @throws NullPointerException when null is passed
      */
-    public void removeEntries(@Nonnull Entry... arrayOfEntries) {
+    public void removeEntries(@NotNull Entry... arrayOfEntries) {
         removeEntries(Arrays.asList(arrayOfEntries));
     }
    /**
@@ -348,7 +348,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param iterableEntries entries to remove
      * @throws NullPointerException when null is passed
      */
-    public void removeEntries(@Nonnull Iterable<Entry> iterableEntries) {
+    public void removeEntries(@NotNull Iterable<Entry> iterableEntries) {
         Objects.requireNonNull(entries);
 
         JsonArray array = Json.createArray();
@@ -382,7 +382,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param view view to set
      * @throws NullPointerException when null is passed
      */
-    public void changeView(@Nonnull CalendarView view) {
+    public void changeView(@NotNull CalendarView view) {
         Objects.requireNonNull(view);
         getElement().callFunction("changeView", view.getClientSideValue());
     }
@@ -393,7 +393,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param date date to goto
      * @throws NullPointerException when null is passed
      */
-    public void gotoDate(@Nonnull LocalDate date) {
+    public void gotoDate(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
         getElement().callFunction("gotoDate", date.toString());
     }
@@ -408,7 +408,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@Nonnull Option option, Serializable value) {
+    public void setOption(@NotNull Option option, Serializable value) {
         setOption(option, value, null);
     }
 
@@ -435,7 +435,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@Nonnull Option option, Serializable value, Object valueForServerSide) {
+    public void setOption(@NotNull Option option, Serializable value, Object valueForServerSide) {
        setOption(option.getOptionKey(), value, valueForServerSide);
     }
 
@@ -452,7 +452,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@Nonnull String option, Serializable value) {
+    public void setOption(@NotNull String option, Serializable value) {
         setOption(option, value, null);
     }
 
@@ -482,7 +482,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@Nonnull String option, Serializable value, Object valueForServerSide) {
+    public void setOption(@NotNull String option, Serializable value, Object valueForServerSide) {
         Objects.requireNonNull(option);
 
         if (value == null) {
@@ -509,7 +509,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param firstDay first day to be shown
      * @throws NullPointerException when null is passed
      */
-    public void setFirstDay(@Nonnull DayOfWeek firstDay) {
+    public void setFirstDay(@NotNull DayOfWeek firstDay) {
         Objects.requireNonNull(firstDay);
         int value = firstDay == DayOfWeek.SUNDAY ? 0 : firstDay.getValue();
         setOption(Option.FIRST_DAY, value, firstDay);
@@ -565,7 +565,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param locale locale
      * @throws NullPointerException when null is passed
      */
-    public void setLocale(@Nonnull Locale locale) {
+    public void setLocale(@NotNull Locale locale) {
         Objects.requireNonNull(locale);
         setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
     }
@@ -635,7 +635,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param hours hours to set
      * @throws NullPointerException when null is passed
      */
-    public void setBusinessHours(@Nonnull BusinessHours... hours) {
+    public void setBusinessHours(@NotNull BusinessHours... hours) {
         Objects.requireNonNull(hours);
 
         setOption(Option.BUSINESS_HOURS, JsonUtils.toJsonValue(Arrays.stream(hours).map(BusinessHours::toJson)), hours);
@@ -697,7 +697,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@Nonnull Option option) {
+    public <T> Optional<T> getOption(@NotNull Option option) {
         return getOption(option, false);
     }
 
@@ -714,7 +714,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@Nonnull Option option, boolean forceClientSideValue) {
+    public <T> Optional<T> getOption(@NotNull Option option, boolean forceClientSideValue) {
         return getOption(option.getOptionKey(), forceClientSideValue);
     }
 
@@ -730,7 +730,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@Nonnull String option) {
+    public <T> Optional<T> getOption(@NotNull String option) {
         return getOption(option, false);
     }
 
@@ -747,7 +747,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@Nonnull String option, boolean forceClientSideValue) {
+    public <T> Optional<T> getOption(@NotNull String option, boolean forceClientSideValue) {
         Objects.requireNonNull(option);
         return Optional.ofNullable((T) (!forceClientSideValue && serverSideOptions.containsKey(option)
                 ? serverSideOptions.get(option) : options.get(option)));
@@ -768,7 +768,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotClickedListener(@Nonnull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+    public Registration addTimeslotClickedListener(@NotNull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotClickedEvent.class, (ComponentEventListener<TimeslotClickedEvent>) listener);
     }
@@ -780,7 +780,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryClickedListener(@Nonnull ComponentEventListener<EntryClickedEvent> listener) {
+    public Registration addEntryClickedListener(@NotNull ComponentEventListener<EntryClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryClickedEvent.class, listener);
     }
@@ -792,7 +792,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryResizedListener(@Nonnull ComponentEventListener<EntryResizedEvent> listener) {
+    public Registration addEntryResizedListener(@NotNull ComponentEventListener<EntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryResizedEvent.class, listener);
     }
@@ -804,7 +804,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryDroppedListener(@Nonnull ComponentEventListener<EntryDroppedEvent> listener) {
+    public Registration addEntryDroppedListener(@NotNull ComponentEventListener<EntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryDroppedEvent.class, listener);
     }
@@ -816,7 +816,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addViewRenderedListener(@Nonnull ComponentEventListener<ViewRenderedEvent> listener) {
+    public Registration addViewRenderedListener(@NotNull ComponentEventListener<ViewRenderedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(ViewRenderedEvent.class, listener);
     }
@@ -831,7 +831,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotsSelectedListener(@Nonnull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
+    public Registration addTimeslotsSelectedListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotsSelectedEvent.class, (ComponentEventListener<TimeslotsSelectedEvent>) listener);
     }
@@ -843,7 +843,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addLimitedEntriesClickedListener(@Nonnull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
+    public Registration addLimitedEntriesClickedListener(@NotNull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(LimitedEntriesClickedEvent.class, listener);
     }
@@ -857,7 +857,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addDayNumberClickedListener(@Nonnull ComponentEventListener<DayNumberClickedEvent> listener) {
+    public Registration addDayNumberClickedListener(@NotNull ComponentEventListener<DayNumberClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(DayNumberClickedEvent.class, listener);
     }
@@ -871,7 +871,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addWeekNumberClickedListener(@Nonnull ComponentEventListener<WeekNumberClickedEvent> listener) {
+    public Registration addWeekNumberClickedListener(@NotNull ComponentEventListener<WeekNumberClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(WeekNumberClickedEvent.class, listener);
     }
@@ -882,7 +882,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addBrowserTimezoneObtainedListener(@Nonnull ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
+    public Registration addBrowserTimezoneObtainedListener(@NotNull ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(BrowserTimezoneObtainedEvent.class, listener);
     }

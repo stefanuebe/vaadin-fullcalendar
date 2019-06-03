@@ -18,7 +18,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
