@@ -50,7 +50,7 @@ import java.util.stream.Stream;
         @JsModule("./locale-all.js"),
         @JsModule("./full-calendar.js")
 })
-public class FullCalendar extends Component implements HasStyle, HasSize {
+public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasStyle, HasSize {
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
