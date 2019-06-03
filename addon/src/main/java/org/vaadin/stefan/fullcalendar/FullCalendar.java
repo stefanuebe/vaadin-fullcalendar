@@ -21,6 +21,7 @@ import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.JsModule.Container;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
@@ -35,16 +36,32 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.vaadin.stefan.fullcalendar.FullCalendar.*;
+import static org.vaadin.stefan.fullcalendar.FullCalendar.FC_VERSION;
+
 /**
  * Flow implementation for the FullCalendar.
  * <p>
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/core", version = "4.2.0")
+// needed for styling
+@NpmPackage(value = "@fullcalendar/core", version = FC_VERSION)
+@NpmPackage(value = "@fullcalendar/interaction", version = FC_VERSION)
+@NpmPackage(value = "@fullcalendar/daygrid", version = FC_VERSION)
+@NpmPackage(value = "@fullcalendar/timegrid", version = FC_VERSION)
+@NpmPackage(value = "@fullcalendar/list", version = FC_VERSION)
+
 @Tag("full-calendar")
 @JsModule("./full-calendar.js")
 public class FullCalendar extends Component implements HasStyle, HasSize {
+
+    /**
+     * Used version
+     */
+    public static final String FC_VERSION = "4.2.0";
+
+
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
