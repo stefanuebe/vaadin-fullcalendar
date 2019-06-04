@@ -42,7 +42,5 @@ constructor. Override it for special event registration (e.g. if an event needs 
 * eventDrop also now has info about old and new resource (scheduler)
 
 ## Changed event names
-Some Java event names have changed to match the client side event names, others have changed 
-since the client side name also changed Includes the addListener methods.
-* TimeslotClickedEvent > DateClickedEvent
-* viewRendererEvent > DatesRenderedEvent
+Some events (and their listener methods) have changed. Here is a list of the old and the new names
+* ViewRendererEvent > DatesRenderedEvent

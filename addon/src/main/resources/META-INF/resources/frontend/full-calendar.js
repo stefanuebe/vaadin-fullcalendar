@@ -62,7 +62,12 @@ export class FullCalendar extends PolymerElement {
             navLinks: {
                 type: Boolean,
                 value: true
-            }
+            },
+            selectable: {
+                type: Boolean,
+                value: true
+            },
+
         };
     }
 
@@ -129,7 +134,6 @@ export class FullCalendar extends PolymerElement {
         // definition of the client to server event mapping
         return {
             dateClick: (eventInfo) => {
-                console.log(this._calendar);
                 return {
                     date: eventInfo.dateStr,
                     allDay: eventInfo.allDay,
@@ -207,16 +211,16 @@ export class FullCalendar extends PolymerElement {
      */
     _formatDate(date, ignoreTimezone) {
         let formatted = this._calendar.formatIso(date);
-        if (ignoreTimezone === true) {
-            let indexOf = formatted.indexOf("Z");
-            if (indexOf < 0) {
-                indexOf = formatted.indexOf("+");
-            }
-
-            if (indexOf >= 0) {
-                formatted = formatted.substr(0, indexOf);
-            }
-        }
+        // if (ignoreTimezone === true) {
+        //     let indexOf = formatted.indexOf("Z");
+        //     if (indexOf < 0) {
+        //         indexOf = formatted.indexOf("+");
+        //     }
+        //
+        //     if (indexOf >= 0) {
+        //         formatted = formatted.substr(0, indexOf);
+        //     }
+        // }
         return formatted;
     }
 
@@ -229,11 +233,14 @@ export class FullCalendar extends PolymerElement {
 
             //
             // // no native control elements
-            header: false,
+            // header: false,
+            header: { center: 'dayGridMonth,timeGridWeek' },
+            weekNumbers: true,
             // resources: [],
             //
             eventLimit: this.eventLimit,
             navLinks: this.navLinks,
+            selectable: this.selectable,
 
             // views: {
             //     basicDay: {

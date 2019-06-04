@@ -105,6 +105,7 @@ public class Delta {
      * @param dateTime date time to modify
      * @return modified date time instance
      */
+    @Deprecated
     public LocalDateTime applyOn(LocalDateTime dateTime) {
         return dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
@@ -114,6 +115,7 @@ public class Delta {
      * @param date date time to modify
      * @return modified date instance
      */
+    @Deprecated
     public LocalDate applyOn(LocalDate date) {
         return date.plusYears(years).plusMonths(months).plusDays(days);
     }

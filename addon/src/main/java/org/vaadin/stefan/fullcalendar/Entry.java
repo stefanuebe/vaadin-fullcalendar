@@ -106,8 +106,8 @@ public class Entry {
         boolean fullDayEvent = isAllDay();
         jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
 
-        jsonObject.put("start", JsonUtils.toJsonValue(getStartUTC() == null ? null : getStartTimezone().formatWithZoneId(getStartUTC())));
-        jsonObject.put("end", JsonUtils.toJsonValue(getEndUTC() == null ? null : getEndTimezone().formatWithZoneId(getEndUTC())));
+        jsonObject.put("start", JsonUtils.toJsonValue(getStart() == null ? null : getStartTimezone().formatWithZoneId(getStart())));
+        jsonObject.put("end", JsonUtils.toJsonValue(getEnd() == null ? null : getEndTimezone().formatWithZoneId(getEnd())));
         jsonObject.put("editable", isEditable());
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
@@ -164,18 +164,18 @@ public class Entry {
      * Returns the start of the entry based on UTC.
      * @return start
      */
-    public Instant getStartUTC() {
+    public Instant getStart() {
         return start;
     }
 
-    /**
-     * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezone()} (by
-     * default the calendars timezone or UTC).
-     * @return start as local date time
-     */
-    public LocalDateTime getStart() {
-        return getStart(getStartTimezone());
-    }
+//    /**
+//     * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezone()} (by
+//     * default the calendars timezone or UTC).
+//     * @return start as local date time
+//     */
+//    public LocalDateTime getStart() {
+//        return getStart(getStartTimezone());
+//    }
 
     /**
      * Returns the start of the entry as local date time based on the given timezone
@@ -190,18 +190,18 @@ public class Entry {
      * Returns the start of the entry based on UTC.
      * @return start
      */
-    public Instant getEndUTC() {
+    public Instant getEnd() {
         return end;
     }
 
-    /**
-     * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezone()} (by
-     * default the calendars timezone or UTC).
-     * @return start as local date time
-     */
-    public LocalDateTime getEnd() {
-        return getEnd(getEndTimezone());
-    }
+//    /**
+//     * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezone()} (by
+//     * default the calendars timezone or UTC).
+//     * @return start as local date time
+//     */
+//    public LocalDateTime getEnd() {
+//        return getEnd(getEndTimezone());
+//    }
 
     /**
      * Returns the start of the entry as local date time based on the given timezone
@@ -236,14 +236,14 @@ public class Entry {
         this.start = start;
     }
 
-    /**
-     * Sets the given local date time as start. It is converted to an instant by using the
-     * calendars timezone. If no calendar has been set yet, <b>UTC</b> is taken.
-     * @param start start
-     */
-    public void setStart(LocalDateTime start) {
-        setStart(start, getStartTimezone());
-    }
+//    /**
+//     * Sets the given local date time as start. It is converted to an instant by using the
+//     * calendars timezone. If no calendar has been set yet, <b>UTC</b> is taken.
+//     * @param start start
+//     */
+//    public void setStart(LocalDateTime start) {
+//        setStart(start, getStartTimezone());
+//    }
 
     /**
      * Sets the given local date time as start. It is converted to an Instant by using the given timezone.
@@ -262,14 +262,14 @@ public class Entry {
         this.end = end;
     }
 
-    /**
-     * Sets the given local date time as end. It is converted to an instant by using the
-     * calendars timezone. If no calendar has been set yet, UTC is taken.
-     * @param end end
-     */
-    public void setEnd(LocalDateTime end) {
-        setEnd(end, getEndTimezone());
-    }
+//    /**
+//     * Sets the given local date time as end. It is converted to an instant by using the
+//     * calendars timezone. If no calendar has been set yet, UTC is taken.
+//     * @param end end
+//     */
+//    public void setEnd(LocalDateTime end) {
+//        setEnd(end, getEndTimezone());
+//    }
 
     /**
      * Sets the given local date time as end. It is converted to an Instant by using the given timezone.
@@ -385,8 +385,8 @@ public class Entry {
                 ", id='" + id + '\'' +
                 ", calendar=" + calendar +
                 ", rendering=" + renderingMode +
-                ", startTimezone=" + getStartTimezone() +
-                ", endTimezone=" + getEndTimezone() +
+//                ", startTimezone=" + getStartTimezone() +
+//                ", endTimezone=" + getEndTimezone() +
                 '}';
     }
 

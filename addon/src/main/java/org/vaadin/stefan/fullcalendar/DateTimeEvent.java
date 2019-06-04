@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
@@ -26,7 +27,7 @@ import java.time.LocalDateTime;
 public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
 
     private final boolean allDay;
-    private LocalDateTime dateTime;
+    private Instant dateTime;
 
     /**
      * New instance. Awaits the date (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
@@ -40,8 +41,7 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
         super(source, fromClient);
 
         this.allDay = allDay;
-        dateTime = source.getTimezone().converToLocalDateTime(JsonUtils.parseDateTimeString(dateString, source.getTimezone()));
-
+        dateTime = JsonUtils.parseDateTimeString(dateString, source.getTimezone());
     }
 
     /**
@@ -49,7 +49,7 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
      *
      * @return date time
      */
-    public LocalDateTime getDateTime() {
+    public Instant getDateTime() {
         return dateTime;
     }
 

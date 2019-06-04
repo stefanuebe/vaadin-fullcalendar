@@ -24,18 +24,20 @@ public class FullCalendarBuilder {
 
     private boolean scheduler;
     private int entryLimit;
+    private final boolean autoBrowserTimezone;
 
     /**
      * Creates a new builder instance with default settings.
      * @return builder instance
      */
     public static FullCalendarBuilder create() {
-        return new FullCalendarBuilder(false, -1);
+        return new FullCalendarBuilder(false, -1, true);
     }
 
-    private FullCalendarBuilder(boolean scheduler, int entryLimit) {
+    private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone) {
         this.scheduler = scheduler;
         this.entryLimit = entryLimit;
+        this.autoBrowserTimezone = autoBrowserTimezone;
     }
 
     /**
@@ -46,7 +48,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withScheduler() {
-        return new FullCalendarBuilder(true, entryLimit);
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone);
     }
 
     /**
@@ -58,7 +60,15 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withEntryLimit(int entryLimit) {
-        return new FullCalendarBuilder(scheduler, entryLimit);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone);
+    }
+
+    /**
+     * Sets automatically the browser timezone as timezone for this browser.
+     * @return new immutable instance with updated settings
+     */
+    public FullCalendarBuilder withAutoBrowserTimezone() {
+        return new FullCalendarBuilder(scheduler, entryLimit, true);
     }
 
     /**
