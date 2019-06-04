@@ -16,22 +16,38 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.DomEvent;
-import com.vaadin.flow.component.EventData;
+import com.vaadin.flow.component.ComponentEvent;
+
+import java.time.Instant;
+import java.time.LocalDate;
 
 /**
- * Occurs when number links are active and a user clicked on a week's number.
+ * An abstract class for date events, that are not directly entry related. They are always whole day events.
  */
-@DomEvent("navLinkWeekClick")
-public class WeekNumberClickedEvent extends DateEvent {
+public abstract class DateEvent extends ComponentEvent<FullCalendar> {
+
+    private LocalDate date;
+
     /**
-     * New instance. Awaits the date (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
+     * New instance. Awaits the date as iso string (e.g. "2018-10-23").
      *
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
-     * @param date       date instance as iso string
+     * @param dateString date instance as iso string
      */
-    public WeekNumberClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date) {
-        super(source, fromClient, date);
+    public DateEvent(FullCalendar source, boolean fromClient, String dateString) {
+        super(source, fromClient);
+
+        date = LocalDate.parse(dateString);
     }
+
+    /**
+     * Returns the date.
+     *
+     * @return date
+     */
+    public LocalDate getDate() {
+        return date;
+    }
+
 }

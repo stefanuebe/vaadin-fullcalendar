@@ -170,10 +170,10 @@ export class FullCalendar extends PolymerElement {
             datesRender: (eventInfo) => {
                 let view = eventInfo.view;
                 return {
-                    intervalStart: this._formatDate(view.currentStart),
-                    intervalEnd: this._formatDate(view.currentEnd),
-                    start: this._formatDate(view.activeStart),
-                    end: this._formatDate(view.activeEnd)
+                    intervalStart: this._formatDate(view.currentStart, true),
+                    intervalEnd: this._formatDate(view.currentEnd, true),
+                    start: this._formatDate(view.activeStart, true),
+                    end: this._formatDate(view.activeEnd, true)
                 }
             },
             navLinkDayClick: (date) => {
@@ -197,26 +197,22 @@ export class FullCalendar extends PolymerElement {
         };
     }
 
-    _reformatDate(dateString, ignoreTimezone) {
-        return this._formatDate(Date.parse(dateString), ignoreTimezone);
+    _reformatDate(dateString, asDay) {
+        return this._formatDate(Date.parse(dateString), asDay);
     }
 
     /**
-     * Formats the given date as an iso string. Setting ignoreTimezone to true will cut of any timezone information
-     * (e.g "Z" or "+02:00").
+     * Formats the given date as an iso string. Setting asDay to true will cut of any time information. Also ignores
+     * potential timezone offsets. Should be used for events where the server side works with a LocalDate instance.
      * @param date date
-     * @param ignoreTimezone ignore timezone (optional)
+     * @param asDay format as day iso string (optional)
      * @returns {*}
      * @private
      */
-    _formatDate(date, ignoreTimezone) {
+    _formatDate(date, asDay) {
         let formatted = this._calendar.formatIso(date);
-        // if (ignoreTimezone === true) {
-        //     let indexOf = formatted.indexOf("Z");
-        //     if (indexOf < 0) {
-        //         indexOf = formatted.indexOf("+");
-        //     }
-        //
+        // if (asDay === true) {
+        //     let indexOf = formatted.indexOf("T");
         //     if (indexOf >= 0) {
         //         formatted = formatted.substr(0, indexOf);
         //     }
@@ -241,6 +237,13 @@ export class FullCalendar extends PolymerElement {
             eventLimit: this.eventLimit,
             navLinks: this.navLinks,
             selectable: this.selectable,
+
+            views: {
+                timeGridWeek: {
+                    minTime: "10:00:00",
+                    maxTime: "18:30:00"
+                }
+            }
 
             // views: {
             //     basicDay: {

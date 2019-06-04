@@ -45,7 +45,7 @@ public class Demo extends Div {
     }
 
     private void createCalendarInstance() {
-        calendar = new FullCalendar(5);
+        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(5).build();
 
         calendar.addDatesRenderedListener(event -> {
             System.out.println("dates rendered");
@@ -55,12 +55,11 @@ public class Demo extends Div {
             System.out.println(event.getIntervalEnd());
         });
 
-        calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
-        calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDateTime() + " " + event.isAllDay()));
+        calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
 
         calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
         calendar.addLimitedEntriesClickedListener(event -> System.out.println("limited entries clicked: " + event.getClickedDate()));
-        calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDateTime() + " " + event.isAllDay()));
+        calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDate()));
         calendar.addTimeslotsSelectedListener(event -> System.out.println("timeslots selected: " + event.getStartDateTime() + " -> " + event.getEndDateTime() + " " + event.isAllDay()));
     }
 
@@ -129,7 +128,7 @@ public class Demo extends Div {
     private void setValues(FullCalendar calendar, Entry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
         entry.setTitle(title);
         entry.setStart(start, calendar.getTimezone());
-        entry.setEnd(entry.getStart().plus(amountToAdd, unit));
+        entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
     }

@@ -26,6 +26,8 @@ import java.time.LocalDate;
 
 /**
  * Occurs when the calendar view has been rendered. Provides information about the shown timespan.
+ * <p/>
+ * The values are always daybased, regardless of the current view.
  */
 @DomEvent("datesRender")
 public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
