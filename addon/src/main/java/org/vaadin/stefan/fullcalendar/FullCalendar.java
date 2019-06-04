@@ -174,11 +174,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         Stream<Entry> stream = getEntries().stream();
         if (filterStart != null) {
-            stream = stream.filter(e -> e.getEndUTC().isAfter(filterStart));
+            stream = stream.filter(e -> e.getEnd().isAfter(filterStart));
         }
 
         if (filterEnd != null) {
-            stream = stream.filter(e -> e.getStartUTC().isBefore(filterEnd));
+            stream = stream.filter(e -> e.getStart().isBefore(filterEnd));
         }
 
         return stream.collect(Collectors.toList());
@@ -205,6 +205,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param filterEnd   end point of filter timespan or null to have no limit
      * @return entries
      */
+    @Deprecated
     public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
         Timezone timezone = getTimezone();
         return getEntries(timezone.convertToUTC(filterStart), timezone.convertToUTC(filterEnd));
@@ -238,6 +239,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return entries
      * @throws NullPointerException when null is passed
      */
+    @Deprecated
     public List<Entry> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
         return getEntries(getTimezone().convertToUTC(date));
@@ -406,6 +408,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param date date to goto
      * @throws NullPointerException when null is passed
      */
+    @Deprecated //TODO make Instant method
     public void gotoDate(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
         getElement().callFunction("gotoDate", date.toString());
@@ -785,9 +788,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addDateClickedListener(@NotNull ComponentEventListener<? extends DateClickedEvent> listener) {
+    public Registration addTimeslotClickedListener(@NotNull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(DateClickedEvent.class, (ComponentEventListener<DateClickedEvent>) listener);
+        return addListener(TimeslotClickedEvent.class, (ComponentEventListener<TimeslotClickedEvent>) listener);
     }
 
     /**

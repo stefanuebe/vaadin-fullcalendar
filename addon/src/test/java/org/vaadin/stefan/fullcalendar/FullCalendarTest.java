@@ -685,7 +685,7 @@ public class FullCalendarTest {
 
     @Test
     void testDateTimeEventSubClasses() throws Exception {
-        subTestDateTimeEventSubClass(DateClickedEvent.class);
+        subTestDateTimeEventSubClass(TimeslotClickedEvent.class);
         subTestDateTimeEventSubClass(DayNumberClickedEvent.class);
         subTestDateTimeEventSubClass(WeekNumberClickedEvent.class);
     }
@@ -759,8 +759,8 @@ public class FullCalendarTest {
         jsonDelta.put("minutes", 1);
         jsonDelta.put("seconds", 1);
 
-        Entry modifiedAllDayEntry = new Entry(allDayEntry.getId(), allDayEntry.getTitle() + 1, delta.applyOn(allDayEntry.getStartUTC()), delta.applyOn(allDayEntry.getEndUTC()), allDayEntry.isAllDay(), !allDayEntry.isEditable(), allDayEntry.getColor() + 1, allDayEntry.getDescription());
-        Entry modifiedTimedEntry = new Entry(timedEntry.getId(), timedEntry.getTitle() + 1, delta.applyOn(timedEntry.getStartUTC()), delta.applyOn(timedEntry.getEndUTC()), timedEntry.isAllDay(), !timedEntry.isEditable(), timedEntry.getColor() + 1, timedEntry.getDescription());
+        Entry modifiedAllDayEntry = new Entry(allDayEntry.getId(), allDayEntry.getTitle() + 1, delta.applyOn(allDayEntry.getStart()), delta.applyOn(allDayEntry.getEnd()), allDayEntry.isAllDay(), !allDayEntry.isEditable(), allDayEntry.getColor() + 1, allDayEntry.getDescription());
+        Entry modifiedTimedEntry = new Entry(timedEntry.getId(), timedEntry.getTitle() + 1, delta.applyOn(timedEntry.getStart()), delta.applyOn(timedEntry.getEnd()), timedEntry.isAllDay(), !timedEntry.isEditable(), timedEntry.getColor() + 1, timedEntry.getDescription());
         JsonObject jsonModifiedAllDayEntry = modifiedAllDayEntry.toJson();
         JsonObject jsonModifiedTimedEntry = modifiedTimedEntry.toJson();
 

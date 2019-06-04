@@ -63,27 +63,27 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
         return allDay;
     }
 
-    /**
-     * Returns the selected start date time. For day slots the time will be at start of the day.
-     * @return date time
-     */
-    public LocalDateTime getStartDateTime() {
-        return getSource().getTimezone().converToLocalDateTime(startDateTime);
-    }
+//    /**
+//     * Returns the selected start date time. For day slots the time will be at start of the day.
+//     * @return date time
+//     */
+//    public LocalDateTime getStartDateTime() {
+//        return getSource().getTimezone().converToLocalDateTime(startDateTime);
+//    }
 
-    /**
-     * Returns the selected end date time. For day slots the time will be at start of the day.
-     * @return date time
-     */
-    public LocalDateTime getEndDateTime() {
-        return getSource().getTimezone().converToLocalDateTime(endDateTime);
-    }
+//    /**
+//     * Returns the selected end date time. For day slots the time will be at start of the day.
+//     * @return date time
+//     */
+//    public LocalDateTime getEndDateTime() {
+//        return getSource().getTimezone().converToLocalDateTime(endDateTime);
+//    }
 
     /**
      * Returns the selected start date time as UTC. For day slots the time will be at start of the day.
      * @return date time
      */
-    public Instant getStartDateTimeUTC() {
+    public Instant getStartDateTime() {
         return startDateTime;
     }
 
@@ -91,7 +91,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * Returns the selected end date time as UTC. For day slots the time will be at start of the day.
      * @return date time
      */
-    public Instant getEndDateTimeUTC() {
+    public Instant getEndDateTime() {
         return endDateTime;
     }
 }

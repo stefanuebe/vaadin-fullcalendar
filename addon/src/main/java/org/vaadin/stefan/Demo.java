@@ -47,13 +47,21 @@ public class Demo extends Div {
     private void createCalendarInstance() {
         calendar = new FullCalendar(5);
 
-        calendar.addDateClickedListener(event -> {
-            System.out.println(event.getDateTime() + " " + event.isAllDay());
+        calendar.addDatesRenderedListener(event -> {
+            System.out.println("dates rendered");
+            System.out.println(event.getStart());
+            System.out.println(event.getEnd());
+            System.out.println(event.getIntervalStart());
+            System.out.println(event.getIntervalEnd());
         });
 
-        calendar.addLimitedEntriesClickedListener(event -> System.out.println(event.getClickedDate()));
-        calendar.addDayNumberClickedListener(event -> System.out.println(event.getDateTime()));
-        //        createTestEntries(calendar);
+        calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
+        calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDateTime() + " " + event.isAllDay()));
+
+        calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
+        calendar.addLimitedEntriesClickedListener(event -> System.out.println("limited entries clicked: " + event.getClickedDate()));
+        calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDateTime() + " " + event.isAllDay()));
+        calendar.addTimeslotsSelectedListener(event -> System.out.println("timeslots selected: " + event.getStartDateTime() + " -> " + event.getEndDateTime() + " " + event.isAllDay()));
     }
 
     private void createTestEntries(FullCalendar calendar) {
@@ -121,7 +129,7 @@ public class Demo extends Div {
     private void setValues(FullCalendar calendar, Entry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
         entry.setTitle(title);
         entry.setStart(start, calendar.getTimezone());
-        entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setEnd(entry.getStart().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
     }
