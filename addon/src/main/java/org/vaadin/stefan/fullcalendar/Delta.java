@@ -19,7 +19,9 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.JsonObject;
 
 import java.time.*;
+import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class Delta {
 
@@ -55,6 +57,15 @@ public class Delta {
         int years = toInt(jsonObject, "years");
         int months = toInt(jsonObject, "months");
         int days = toInt(jsonObject, "days");
+
+        // new 4.x way
+        if (jsonObject.hasKey("milliseconds")) {
+            long milliseconds = (long) jsonObject.getNumber("milliseconds");
+            LocalTime time = LocalTime.ofNanoOfDay(TimeUnit.MILLISECONDS.toNanos(milliseconds));
+            return new Delta(years, months, days, time.getHour(), time.getMinute(), time.getSecond());
+        }
+
+        // old 3.9 way
         int hours = toInt(jsonObject, "hours");
         int minutes = toInt(jsonObject, "minutes");
         int seconds = toInt(jsonObject, "seconds");

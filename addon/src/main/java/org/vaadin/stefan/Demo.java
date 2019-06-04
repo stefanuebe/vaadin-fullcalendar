@@ -17,40 +17,17 @@
 package org.vaadin.stefan;
 
 import com.vaadin.flow.component.HasText;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.html.NativeButton;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.dom.Style;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Route(value = "")
 public class Demo extends Div {
@@ -69,7 +46,14 @@ public class Demo extends Div {
 
     private void createCalendarInstance() {
         calendar = new FullCalendar(5);
-//        createTestEntries(calendar);
+
+        calendar.addDateClickedListener(event -> {
+            System.out.println(event.getDateTime() + " " + event.isAllDay());
+        });
+
+        calendar.addLimitedEntriesClickedListener(event -> System.out.println(event.getClickedDate()));
+        calendar.addDayNumberClickedListener(event -> System.out.println(event.getDateTime()));
+        //        createTestEntries(calendar);
     }
 
     private void createTestEntries(FullCalendar calendar) {

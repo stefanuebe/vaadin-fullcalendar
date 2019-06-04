@@ -4,7 +4,6 @@
   "dependencies": {
     "@polymer/polymer": "^3.1.0",
     "@webcomponents/webcomponentsjs": "^2.2.10",
-    "@fullcalendar/core": "4.2.0",
     "@vaadin/flow-deps": "./target\\frontend"
   },
   "devDependencies": {
