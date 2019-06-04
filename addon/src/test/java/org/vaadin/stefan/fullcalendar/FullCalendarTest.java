@@ -686,8 +686,8 @@ public class FullCalendarTest {
     @Test
     void testDateTimeEventSubClasses() throws Exception {
         subTestDateTimeEventSubClass(TimeslotClickedEvent.class);
-        subTestDateTimeEventSubClass(DayNumberClickedEvent.class);
-        subTestDateTimeEventSubClass(WeekNumberClickedEvent.class);
+        subTestDateEventSubClass(DayNumberClickedEvent.class);
+        subTestDateEventSubClass(WeekNumberClickedEvent.class);
     }
 
 
@@ -734,6 +734,18 @@ public class FullCalendarTest {
         event = constructor.newInstance(calendar, true, refDateTime.toString(), false);
         Assertions.assertEquals(refDateTime, event.getDateTime());
         Assertions.assertFalse(event.isAllDay());
+
+    }
+
+    private <T extends DateEvent> void subTestDateEventSubClass(Class<T> eventClass) throws Exception {
+        FullCalendar calendar = new FullCalendar();
+
+        LocalDate refDate = LocalDate.of(2000, 1, 1);
+
+        T event;
+        Constructor<T> constructor = ComponentEventBusUtil.getEventConstructor(eventClass);
+        event = constructor.newInstance(calendar, true, refDate.toString(), true);
+        Assertions.assertEquals(refDate.atStartOfDay(), event.getDate());
 
     }
 
