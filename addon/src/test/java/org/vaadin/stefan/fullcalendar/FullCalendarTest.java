@@ -685,7 +685,7 @@ public class FullCalendarTest {
 
     @Test
     void testDateTimeEventSubClasses() throws Exception {
-        subTestDateTimeEventSubClass(TimeslotClickedEvent.class);
+        subTestDateTimeEventSubClass(DateClickedEvent.class);
         subTestDateTimeEventSubClass(DayNumberClickedEvent.class);
         subTestDateTimeEventSubClass(WeekNumberClickedEvent.class);
     }

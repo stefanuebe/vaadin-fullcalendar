@@ -17,14 +17,9 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.dependency.JsModule.Container;
 import com.vaadin.flow.component.dependency.NpmPackage;
-import com.vaadin.flow.component.dependency.StyleSheet;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.templatemodel.TemplateModel;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 
@@ -36,7 +31,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.*;
 import static org.vaadin.stefan.fullcalendar.FullCalendar.FC_VERSION;
 
 /**
@@ -45,13 +39,11 @@ import static org.vaadin.stefan.fullcalendar.FullCalendar.FC_VERSION;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-// needed for styling
 @NpmPackage(value = "@fullcalendar/core", version = FC_VERSION)
 @NpmPackage(value = "@fullcalendar/interaction", version = FC_VERSION)
 @NpmPackage(value = "@fullcalendar/daygrid", version = FC_VERSION)
 @NpmPackage(value = "@fullcalendar/timegrid", version = FC_VERSION)
 @NpmPackage(value = "@fullcalendar/list", version = FC_VERSION)
-
 @Tag("full-calendar")
 @JsModule("./full-calendar.js")
 public class FullCalendar extends Component implements HasStyle, HasSize {
@@ -59,9 +51,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Used version
      */
-    public static final String FC_VERSION = "4.2.0";
-
-
+    public static final String FC_VERSION = "^4.2.0";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
@@ -795,9 +785,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotClickedListener(@NotNull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+    public Registration addDateClickedListener(@NotNull ComponentEventListener<? extends DateClickedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(TimeslotClickedEvent.class, (ComponentEventListener<TimeslotClickedEvent>) listener);
+        return addListener(DateClickedEvent.class, (ComponentEventListener<DateClickedEvent>) listener);
     }
 
     /**
@@ -837,15 +827,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Registers a listener to be informed when a view rendered event occurred.
+     * Registers a listener to be informed when a dates rendered event occurred.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addViewRenderedListener(@NotNull ComponentEventListener<ViewRenderedEvent> listener) {
+    public Registration addDatesRenderedListener(@NotNull ComponentEventListener<DatesRenderedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(ViewRenderedEvent.class, listener);
+        return addListener(DatesRenderedEvent.class, listener);
     }
 
     /**

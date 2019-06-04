@@ -26,8 +26,8 @@ import java.time.LocalDate;
 /**
  * Occurs when the calendar view has been rendered. Provides information about the shown timespan.
  */
-@DomEvent("viewRender")
-public class ViewRenderedEvent extends ComponentEvent<FullCalendar> {
+@DomEvent("datesRender")
+public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
 
     private final LocalDate intervalStart;
     private final LocalDate intervalEnd;
@@ -41,7 +41,7 @@ public class ViewRenderedEvent extends ComponentEvent<FullCalendar> {
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      */
-    public ViewRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
+    public DatesRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
         super(source, fromClient);
 
         intervalStart = LocalDate.parse(eventData.getString("intervalStart"));
