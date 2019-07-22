@@ -82,8 +82,8 @@ public class EntryTest {
         entry = new Entry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START_UTC, DEFAULT_END_UTC, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
         Assertions.assertEquals(DEFAULT_ID, entry.getId());
         Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
-        Assertions.assertEquals(DEFAULT_START_UTC, entry.getStart());
-        Assertions.assertEquals(DEFAULT_END_UTC, entry.getEnd());
+        Assertions.assertEquals(DEFAULT_START_UTC, entry.getStartUTC());
+        Assertions.assertEquals(DEFAULT_END_UTC, entry.getEndUTC());
         Assertions.assertTrue(entry.isAllDay());
         Assertions.assertTrue(entry.isEditable());
         Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
@@ -216,8 +216,8 @@ public class EntryTest {
 
         Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
         Assertions.assertFalse(entry.isAllDay());
-        Assertions.assertEquals(DEFAULT_START_UTC, entry.getStart());
-        Assertions.assertEquals(DEFAULT_END_UTC, entry.getEnd());
+        Assertions.assertEquals(DEFAULT_START_UTC, entry.getStartUTC());
+        Assertions.assertEquals(DEFAULT_END_UTC, entry.getEndUTC());
         Assertions.assertTrue(entry.isEditable());
         Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
 
@@ -249,8 +249,8 @@ public class EntryTest {
 
         Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
         Assertions.assertFalse(entry.isAllDay());
-        Assertions.assertEquals(DEFAULT_START_UTC, entry.getStart());
-        Assertions.assertEquals(DEFAULT_END_UTC, entry.getEnd());
+        Assertions.assertEquals(DEFAULT_START_UTC, entry.getStartUTC());
+        Assertions.assertEquals(DEFAULT_END_UTC, entry.getEndUTC());
         Assertions.assertTrue(entry.isEditable());
         Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
 

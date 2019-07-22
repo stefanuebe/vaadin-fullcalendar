@@ -20,7 +20,6 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 /**
@@ -28,7 +27,7 @@ import java.time.LocalDate;
  */
 @DomEvent("eventLimitClick")
 public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
-    private final Instant clickedDate;
+    private final LocalDate clickedDate;
 
     /**
      * New instance. Awaits the clicked date as iso string (e.g. "2018-10-23").
@@ -40,7 +39,7 @@ public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
     public LimitedEntriesClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date) {
         super(source, fromClient);
 
-        clickedDate = JsonUtils.parseDateTimeString(date, source.getTimezone());
+        clickedDate = source.getTimezone().converToLocalDateTime(JsonUtils.parseDateTimeString(date, source.getTimezone())).toLocalDate();
     }
 
     /**
@@ -48,7 +47,7 @@ public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
      *
      * @return date
      */
-    public Instant getClickedDate() {
+    public LocalDate getClickedDate() {
         return clickedDate;
     }
 }
