@@ -21,7 +21,6 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 /**
@@ -32,10 +31,10 @@ import java.time.LocalDate;
 @DomEvent("datesRender")
 public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
 
-    private final Instant intervalStart;
-    private final Instant intervalEnd;
-    private final Instant start;
-    private final Instant end;
+    private final LocalDate intervalStart;
+    private final LocalDate intervalEnd;
+    private final LocalDate start;
+    private final LocalDate end;
 
     /**
      * Creates a new event using the given source and indicator whether the
@@ -47,17 +46,17 @@ public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
     public DatesRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
         super(source, fromClient);
 
-        intervalStart = JsonUtils.parseDateTimeString(eventData.getString("intervalStart"), source.getTimezone());
-        intervalEnd = JsonUtils.parseDateTimeString(eventData.getString("intervalEnd"), source.getTimezone());
-        start = JsonUtils.parseDateTimeString(eventData.getString("start"), source.getTimezone());
-        end = JsonUtils.parseDateTimeString(eventData.getString("end"), source.getTimezone());
+        intervalStart = LocalDate.parse(eventData.getString("intervalStart"));
+        intervalEnd = LocalDate.parse(eventData.getString("intervalEnd"));
+        start = LocalDate.parse(eventData.getString("start"));
+        end = LocalDate.parse(eventData.getString("end"));
     }
 
     /**
      * Returns the current shown interval's start date.
      * @return interval start
      */
-    public Instant getIntervalStart() {
+    public LocalDate getIntervalStart() {
         return intervalStart;
     }
 
@@ -65,7 +64,7 @@ public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
      * Returns the current shown interval's exclusive end date. This means, this date is not part of the interval.
      * @return interval end (exclusive)
      */
-    public Instant getIntervalEnd() {
+    public LocalDate getIntervalEnd() {
         return intervalEnd;
     }
 
@@ -76,7 +75,7 @@ public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
      *
      * @return first visible date
      */
-    public Instant getStart() {
+    public LocalDate getStart() {
         return start;
     }
 
@@ -87,7 +86,7 @@ public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
      *
      * @return last visible date
      */
-    public Instant getEnd() {
+    public LocalDate getEnd() {
         return end;
     }
 
