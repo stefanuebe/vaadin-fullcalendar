@@ -23,6 +23,8 @@ import elemental.json.JsonObject;
 /**
  * Occurs when an entry time has changed by drag and drop.
  * <p/>
+ * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
+ * <p/>
  * Client side name: eventDrop
  */
 @DomEvent("eventDrop")

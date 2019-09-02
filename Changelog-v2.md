@@ -47,3 +47,4 @@ Some events (and their listener methods) have changed. Here is a list of the old
 * ViewRendererEvent > DatesRenderedEvent
 
 ## Other changes
+* corrected information in entry related events. These are not updated automatically as some ApiDocs indicated. This is done by calling manually the method `EntryChangedEvent.applyChangesOnEntry`.

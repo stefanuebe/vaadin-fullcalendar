@@ -45,6 +45,13 @@ public class Entry {
     private String description;
     private RenderingMode renderingMode = RenderingMode.NORMAL;
 
+    // TODO
+    // groupId
+    // daysOfWeek, startTime, endTime, startRecur, endRecur
+    // className / classNames
+
+
+
     private FullCalendar calendar;
 
     public Entry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {

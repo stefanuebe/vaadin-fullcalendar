@@ -47,6 +47,9 @@ public class Demo extends Div {
         createToolbar();
 
         add(calendar);
+
+
+        createTestEntries(calendar);
     }
 
     private void createToolbar() {
@@ -90,7 +93,7 @@ public class Demo extends Div {
     }
 
     private void createCalendarInstance() {
-        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(5).build();
+        calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(5).build();
 
         calendar.addDatesRenderedListener(event -> {
             System.out.println("dates rendered");
@@ -107,6 +110,10 @@ public class Demo extends Div {
         calendar.addLimitedEntriesClickedListener(event -> System.out.println("limited entries clicked: " + event.getClickedDate()));
         calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDate()));
         calendar.addTimeslotsSelectedListener(event -> System.out.println("timeslots selected: " + event.getStartDateTime() + " -> " + event.getEndDateTime() + " " + event.isAllDay()));
+
+        calendar.addEntryDroppedListener(event -> System.out.println(event.applyChangesOnEntry()));
+        calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
+
     }
 
     private void createTestEntries(FullCalendar calendar) {

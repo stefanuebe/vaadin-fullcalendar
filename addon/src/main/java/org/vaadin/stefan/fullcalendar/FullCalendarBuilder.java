@@ -38,7 +38,7 @@ public class FullCalendarBuilder {
      * @return builder instance
      */
     public static FullCalendarBuilder create() {
-        return new FullCalendarBuilder(false, -1, true);
+        return new FullCalendarBuilder(false, -1, false);
     }
 
     /**

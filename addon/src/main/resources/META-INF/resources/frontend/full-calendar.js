@@ -155,13 +155,13 @@ export class FullCalendar extends PolymerElement {
             },
             eventResize: (eventInfo) => {
                 return {
-                    data: FullCalendar._toEventData(this._calendar, eventInfo.event),
+                    data: this._toEventData(eventInfo.event),
                     delta: eventInfo.endDelta
                 }
             },
             eventDrop: (eventInfo) => {
                 return {
-                    data: FullCalendar._toEventData(this._calendar, eventInfo.event),
+                    data: this._toEventData(eventInfo.event),
                     delta: eventInfo.delta,
                     oldResource: typeof eventInfo.oldResource === 'object' ? eventInfo.oldResource.id : null,
                     newResource: typeof eventInfo.newResource === 'object' ? eventInfo.newResource.id : null
@@ -210,7 +210,7 @@ export class FullCalendar extends PolymerElement {
      * @private
      */
     _formatDate(date, asDay) {
-        return this._calendar.formatIso(date, asDay);
+        return this.getCalendar().formatIso(date, asDay);
     }
 
     _createInitOptions() {
@@ -298,10 +298,10 @@ export class FullCalendar extends PolymerElement {
         let end = event.end;
         if (end != null) {
             end = this._formatDate(end);
-        } else if (event.allDay) {
-            end = this._formatDate(event.start.clone().add(1, 'day')); // update, when default duration change
-        } else {
-            end = this._formatDate(event.start.clone().add(1, 'hour')); // update, when default duration change
+        } else if (event.allDay) { // when moved from time slotted to all day
+            end = this._formatDate(new Date(event.start.valueOf() + 86400000)); // + 1 day
+        } else { // when moved from all day to time slotted
+            end = this._formatDate(new Date(event.start.valueOf() + 3600000)); // + 1 hour
         }
 
         return {
@@ -330,10 +330,10 @@ export class FullCalendar extends PolymerElement {
         this.getCalendar().gotoDate(date);
     }
 
-    //
-    // addEvents(obj) {
-    //     this._calendar.addEventSource(obj);
-    // }
+
+    addEvents(obj) {
+        this.getCalendar().addEventSource(obj);
+    }
     //
     // updateEvents(array) {
     //     var arrayToUpdate = [];
