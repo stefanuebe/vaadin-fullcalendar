@@ -20,11 +20,11 @@ package org.vaadin.stefan.fullcalendar;
  * Basic enumeration of possible calendar views.
  */
 public enum CalendarViewImpl implements CalendarView {
-    MONTH("month"),
-    AGENDA_DAY("agendaDay"),
-    AGENDA_WEEK("agendaWeek"),
-    BASIC_DAY("basicDay"),
-    BASIC_WEEK("basicWeek"),
+    DAY_GRID_MONTH("dayGridMonth"), // was MONTH
+    TIME_GRID_DAY("timeGridDay"), // was AGENDA_DAY
+    TIME_GRID_WEEK("timeGridWeek"), // was AGENDA_WEEK
+    DAY_GRID_DAY("dayGridDay"), // was BASIC_DAY
+    DAY_GRID_WEEK("dayGridWeek"), // was BASIC_WEEK
     LIST_WEEK("listWeek"),
     LIST_DAY("listDay"),
     LIST_MONTH("listMonth"),

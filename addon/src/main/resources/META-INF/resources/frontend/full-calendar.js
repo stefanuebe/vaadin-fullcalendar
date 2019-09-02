@@ -210,14 +210,7 @@ export class FullCalendar extends PolymerElement {
      * @private
      */
     _formatDate(date, asDay) {
-        let formatted = this._calendar.formatIso(date);
-        // if (asDay === true) {
-        //     let indexOf = formatted.indexOf("T");
-        //     if (indexOf >= 0) {
-        //         formatted = formatted.substr(0, indexOf);
-        //     }
-        // }
-        return formatted;
+        return this._calendar.formatIso(date, asDay);
     }
 
     _createInitOptions() {
@@ -226,6 +219,7 @@ export class FullCalendar extends PolymerElement {
         let options = {
             plugins: [interaction, dayGridPlugin, timeGridPlugin, listPlugin],
             height: 'parent',
+            timeZone: 'UTC',
 
             //
             // // no native control elements
@@ -286,17 +280,17 @@ export class FullCalendar extends PolymerElement {
 
 
     setOption(key, value) {
-        //     var calendar = this.getCalendar();
-        //     if (key === "timezone" && calendar.option("timezone") !== value) {
-        //         this.dispatchEvent(new CustomEvent("timezone-changed", {
-        //             detail: {
-        //                 timezone: value
-        //             }
-        //         }));
-        //     }
-        //
-        //     calendar.option(key, value);
-        //
+        let calendar = this.getCalendar();
+        if (key === "timezone" && calendar.getOption("timezone") !== value) {
+            this.dispatchEvent(new CustomEvent("timezone-changed", {
+                detail: {
+                    timezone: value
+                }
+            }));
+        }
+
+        calendar.setOption(key, value);
+
     }
 
 
@@ -319,18 +313,23 @@ export class FullCalendar extends PolymerElement {
         }
     }
 
-    //
-    // next() {
-    //     this.getCalendar().next();
-    // }
-    //
-    // previous() {
-    //     this.getCalendar().prev();
-    // }
-    //
-    // today() {
-    //     this.getCalendar().today();
-    // }
+
+    next() {
+        this.getCalendar().next();
+    }
+
+    previous() {
+        this.getCalendar().prev();
+    }
+
+    today() {
+        this.getCalendar().today();
+    }
+
+    gotoDate(date) {
+        this.getCalendar().gotoDate(date);
+    }
+
     //
     // addEvents(obj) {
     //     this._calendar.addEventSource(obj);
@@ -387,13 +386,10 @@ export class FullCalendar extends PolymerElement {
     //     this.getCalendar().removeEventSources();
     // }
     //
-    // changeView(viewName) {
-    //     this.getCalendar().changeView(viewName);
-    // }
+    changeView(viewName) {
+        this.getCalendar().changeView(viewName);
+    }
     //
-    // gotoDate(date) {
-    //     this.getCalendar().gotoDate(moment(date));
-    // }
     //
     // render() {
     //     this.getCalendar().render();
