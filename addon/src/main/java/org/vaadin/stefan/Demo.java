@@ -19,7 +19,10 @@ package org.vaadin.stefan;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
@@ -35,7 +38,7 @@ public class Demo extends Div {
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
-    private Div toolbar;
+    private HorizontalLayout toolbar;
     private ComboBox<Timezone> timezoneComboBox;
 
     public Demo() {
@@ -44,14 +47,45 @@ public class Demo extends Div {
         createToolbar();
 
         add(calendar);
-
-
     }
 
     private void createToolbar() {
 
+        Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
+        Button buttonPrevious = new Button("Previous", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
+        Button buttonNext = new Button("Next", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
+        buttonNext.setIconAfterText(true);
 
-        toolbar = new Div();
+        // simulate the date picker light that we can use in polymer
+        DatePicker gotoDate = new DatePicker();
+        gotoDate.addValueChangeListener(event1 -> calendar.gotoDate(event1.getValue()));
+        gotoDate.getElement().getStyle().set("visibility", "hidden");
+        gotoDate.getElement().getStyle().set("position", "fixed");
+        gotoDate.setWidth("0px");
+        gotoDate.setHeight("0px");
+        gotoDate.setWeekNumbersVisible(true);
+        buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
+        buttonDatePicker.getElement().appendChild(gotoDate.getElement());
+        buttonDatePicker.addClickListener(event -> gotoDate.open());
+
+        List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
+        comboBoxView = new ComboBox<>("", calendarViews);
+        comboBoxView.setValue(CalendarViewImpl.DAY_GRID_MONTH);
+        comboBoxView.addValueChangeListener(e -> {
+            CalendarView value = e.getValue();
+            calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
+        });
+
+        List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
+        ComboBox<Locale> comboBoxLocales = new ComboBox<>();
+        comboBoxLocales.setItems(items);
+        comboBoxLocales.setValue(CalendarLocale.getDefault());
+        comboBoxLocales.addValueChangeListener(event -> calendar.setLocale(event.getValue()));
+        comboBoxLocales.setRequired(true);
+        comboBoxLocales.setPreventInvalidInput(true);
+
+        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales);
+
         add(toolbar);
     }
 
@@ -64,6 +98,8 @@ public class Demo extends Div {
             System.out.println(event.getEnd());
             System.out.println(event.getIntervalStart());
             System.out.println(event.getIntervalEnd());
+
+            updateIntervalLabel(buttonDatePicker, comboBoxView.getValue() ,event.getIntervalStart());
         });
 
         calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
@@ -151,17 +187,17 @@ public class Demo extends Div {
         } else if (view instanceof CalendarViewImpl) {
             switch ((CalendarViewImpl) view) {
                 default:
-                case MONTH:
+                case DAY_GRID_MONTH:
                 case LIST_MONTH:
                     text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
                     break;
-                case AGENDA_DAY:
-                case BASIC_DAY:
+                case TIME_GRID_DAY:
+                case DAY_GRID_DAY:
                 case LIST_DAY:
                     text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
                     break;
-                case AGENDA_WEEK:
-                case BASIC_WEEK:
+                case TIME_GRID_WEEK:
+                case DAY_GRID_WEEK:
                 case LIST_WEEK:
                     text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
                     break;

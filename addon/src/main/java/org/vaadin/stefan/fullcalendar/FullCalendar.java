@@ -31,27 +31,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.FC_VERSION;
-
 /**
  * Flow implementation for the FullCalendar.
  * <p>
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/core", version = FC_VERSION)
-@NpmPackage(value = "@fullcalendar/interaction", version = FC_VERSION)
-@NpmPackage(value = "@fullcalendar/daygrid", version = FC_VERSION)
-@NpmPackage(value = "@fullcalendar/timegrid", version = FC_VERSION)
-@NpmPackage(value = "@fullcalendar/list", version = FC_VERSION)
+@NpmPackage(value = "@fullcalendar/core", version = "^4.3.1")
+@NpmPackage(value = "@fullcalendar/interaction", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/daygrid", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/timegrid", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/list", version = "^4.3.0")
 @Tag("full-calendar")
 @JsModule("./full-calendar.js")
 public class FullCalendar extends Component implements HasStyle, HasSize {
-
-    /**
-     * Used version
-     */
-    public static final String FC_VERSION = "^4.3.1";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
@@ -103,21 +96,21 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Moves to the next interval (e. g. next month if current view is monthly based).
      */
     public void next() {
-        getElement().callFunction("next");
+        getElement().callJsFunction("next");
     }
 
     /**
      * Moves to the previous interval (e. g. previous month if current view is monthly based).
      */
     public void previous() {
-        getElement().callFunction("previous");
+        getElement().callJsFunction("previous");
     }
 
     /**
      * Moves to the current interval (e. g. current month if current view is monthly based).
      */
     public void today() {
-        getElement().callFunction("today");
+        getElement().callJsFunction("today");
     }
 
     /**
@@ -285,7 +278,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         });
 
         if (array.length() > 0) {
-            getElement().callFunction("addEvents", array);
+            getElement().callJsFunction("addEvents", array);
         }
     }
 
@@ -330,7 +323,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         });
 
         if (array.length() > 0) {
-            getElement().callFunction("updateEvents", array);
+            getElement().callJsFunction("updateEvents", array);
         }
     }
 
@@ -376,7 +369,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         });
 
         if (array.length() > 0) {
-            getElement().callFunction("removeEvents", array);
+            getElement().callJsFunction("removeEvents", array);
         }
     }
 
@@ -386,7 +379,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void removeAllEntries() {
         entries.values().forEach(e -> e.setCalendar(null));
         entries.clear();
-        getElement().callFunction("removeAllEvents");
+        getElement().callJsFunction("removeAllEvents");
     }
 
     /**
@@ -397,7 +390,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void changeView(@NotNull CalendarView view) {
         Objects.requireNonNull(view);
-        getElement().callFunction("changeView", view.getClientSideValue());
+        getElement().callJsFunction("changeView", view.getClientSideValue());
     }
 
     /**
@@ -408,7 +401,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void gotoDate(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
-        getElement().callFunction("gotoDate", date.toString());
+        getElement().callJsFunction("gotoDate", date.toString());
     }
 
     /**
@@ -509,7 +502,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                 serverSideOptions.put(option, valueForServerSide);
             }
         }
-        getElement().callFunction("setOption", option, value);
+        getElement().callJsFunction("setOption", option, value);
     }
 
     /**
@@ -638,7 +631,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param s js function to be attached to eventRender callback
      */
     public void setEntryRenderCallback(String s) {
-        getElement().callFunction("setEventRenderCallback", s);
+        getElement().callJsFunction("setEventRenderCallback", s);
     }
 
     /**
@@ -775,7 +768,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Force the client side instance to re-render it's content.
      */
     public void render() {
-        getElement().callFunction("render");
+        getElement().callJsFunction("render");
     }
 
     /**

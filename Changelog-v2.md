@@ -6,6 +6,7 @@
 # General full-calendar changes
 * is now a Polymer 3 object
 * _toEventData is now a static method, taking additionally the calendar as first parameter
+* CalendarViewImpl names have changed to represent the according new namings of view, see class for details of changed names
 
 # Events
 ## Event handler init
@@ -44,3 +45,5 @@ constructor. Override it for special event registration (e.g. if an event needs 
 ## Changed event names
 Some events (and their listener methods) have changed. Here is a list of the old and the new names
 * ViewRendererEvent > DatesRenderedEvent
+
+## Other changes

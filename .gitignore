@@ -13,3 +13,4 @@ node_modules/
 webpack.config.js
 package.json
 package-lock.json
+/addon/webpack.generated.js
