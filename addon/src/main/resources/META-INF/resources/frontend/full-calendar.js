@@ -229,8 +229,8 @@ export class FullCalendar extends PolymerElement {
 
             //
             // // no native control elements
-            // header: false,
-            header: { center: 'dayGridMonth,timeGridWeek' },
+            header: false,
+            // header: { center: 'dayGridMonth, timeGridWeek' },
             weekNumbers: true,
             // resources: [],
             //

@@ -40,8 +40,19 @@ public class Demo extends Div {
 
     public Demo() {
         createCalendarInstance();
+
+        createToolbar();
+
         add(calendar);
 
+
+    }
+
+    private void createToolbar() {
+
+
+        toolbar = new Div();
+        add(toolbar);
     }
 
     private void createCalendarInstance() {
@@ -56,7 +67,6 @@ public class Demo extends Div {
         });
 
         calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
-
         calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
         calendar.addLimitedEntriesClickedListener(event -> System.out.println("limited entries clicked: " + event.getClickedDate()));
         calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDate()));
@@ -65,7 +75,6 @@ public class Demo extends Div {
 
     private void createTestEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
-
 
         createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null);
         createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null);
