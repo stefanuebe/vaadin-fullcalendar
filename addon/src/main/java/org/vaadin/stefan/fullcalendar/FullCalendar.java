@@ -51,7 +51,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Used version
      */
-    public static final String FC_VERSION = "^4.2.0";
+    public static final String FC_VERSION = "^4.3.1";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
