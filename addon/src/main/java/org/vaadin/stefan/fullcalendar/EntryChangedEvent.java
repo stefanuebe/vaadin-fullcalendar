@@ -19,7 +19,9 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.JsonObject;
 
 /**
- * An event, that occur, when a entry has been changed on the client side. Returns the updated event.
+ * An event, that occur, when a entry has been changed on the client side.
+ * <p/>
+ * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  */
 public abstract class EntryChangedEvent extends EntryEvent {
 
@@ -54,7 +56,7 @@ public abstract class EntryChangedEvent extends EntryEvent {
     public Entry applyChangesOnEntry() {
         Entry entry = getEntry();
         entry.update(getJsonObject());
-        getSource().updateEntry(entry);
+//        getSource().updateEntry(entry); // TODO this is an extra roundtrip, not needed currently?
         return entry;
     }
 }
