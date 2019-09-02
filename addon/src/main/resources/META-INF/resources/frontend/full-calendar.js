@@ -278,7 +278,6 @@ export class FullCalendar extends PolymerElement {
     }
 
 
-
     setOption(key, value) {
         let calendar = this.getCalendar();
         if (key === "timezone" && calendar.getOption("timezone") !== value) {
@@ -334,33 +333,31 @@ export class FullCalendar extends PolymerElement {
     addEvents(obj) {
         this.getCalendar().addEventSource(obj);
     }
-    //
-    // updateEvents(array) {
-    //     var arrayToUpdate = [];
-    //     for (var i = 0; i < array.length; i++) {
-    //         var obj = array[i];
-    //         var eventToUpdate = this.getEventById(obj.id);
-    //
-    //         if (eventToUpdate != null) {
-    //             for (var property in obj) {
-    //                 if (eventToUpdate.hasOwnProperty(property)) {
-    //                     if (property === "start" || property === "end") {
-    //                         var mDate = moment(obj[property]);
-    //                         eventToUpdate[property] = mDate;
-    //
-    //                     } else {
-    //                         eventToUpdate[property] = obj[property];
-    //
-    //                     }
-    //                 }
-    //             }
-    //
-    //             arrayToUpdate.push(eventToUpdate);
-    //         }
-    //     }
-    //     this.getCalendar().updateEvents(arrayToUpdate);
-    // }
-    //
+
+    updateEvents(array) {
+        for (let i = 0; i < array.length; i++) {
+            let obj = array[i];
+            let eventToUpdate = this.getCalendar().getEventById(obj.id);
+
+            if (eventToUpdate != null) {
+
+                // TODO check for unchanged values and ignore them
+
+                // setting all day is not working 100%, we workaround it here
+                let start = this.getCalendar().formatIso(obj['start'], obj['allDay']);
+                let end = this.getCalendar().formatIso(obj['end'], obj['allDay']);
+
+                eventToUpdate.setDates(start, end, { allDay: obj['allDay']});
+
+                for (let property in obj) {
+                    if (property !== 'id' && property !== "start" && property !== "end" && property !== "allDay") {
+                        eventToUpdate.setProp(property, obj[property]);
+                    }
+                }
+            }
+        }
+    }
+
     // removeEvents(array) {
     //     for (var i = 0; i < array.length; i++) {
     //         this.getCalendar().removeEvents(array[i].id);
@@ -389,6 +386,7 @@ export class FullCalendar extends PolymerElement {
     changeView(viewName) {
         this.getCalendar().changeView(viewName);
     }
+
     //
     //
     // render() {

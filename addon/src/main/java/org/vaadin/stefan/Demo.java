@@ -20,9 +20,9 @@ import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
@@ -33,7 +33,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Route(value = "")
-public class Demo extends Div {
+public class Demo extends VerticalLayout {
+
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
@@ -42,14 +43,18 @@ public class Demo extends Div {
     private ComboBox<Timezone> timezoneComboBox;
 
     public Demo() {
+
         createCalendarInstance();
 
         createToolbar();
 
         add(calendar);
-
+        setFlexGrow(1, calendar);
+        setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
         createTestEntries(calendar);
+
+        setSizeFull();
     }
 
     private void createToolbar() {
@@ -71,7 +76,8 @@ public class Demo extends Div {
         buttonDatePicker.getElement().appendChild(gotoDate.getElement());
         buttonDatePicker.addClickListener(event -> gotoDate.open());
 
-        List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
+        List<CalendarView> calendarViews = Arrays.asList(CalendarViewImpl.values());
+        calendarViews.sort(Comparator.comparing(CalendarView::getName));
         comboBoxView = new ComboBox<>("", calendarViews);
         comboBoxView.setValue(CalendarViewImpl.DAY_GRID_MONTH);
         comboBoxView.addValueChangeListener(e -> {
@@ -114,6 +120,18 @@ public class Demo extends Div {
         calendar.addEntryDroppedListener(event -> System.out.println(event.applyChangesOnEntry()));
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
+        calendar.addEntryClickedListener(event -> new DemoDialog(calendar, event.getEntry(), false).open());
+        calendar.addTimeslotsSelectedListener((event) -> {
+            Entry entry;
+            entry = new Entry();
+
+            entry.setStart(calendar.getTimezone().convertToUTC(event.getStartDateTime()));
+            entry.setEnd(calendar.getTimezone().convertToUTC(event.getEndDateTime()));
+            entry.setAllDay(event.isAllDay());
+
+            entry.setColor("dodgerblue");
+            new DemoDialog(calendar, entry, true).open();
+        });
     }
 
     private void createTestEntries(FullCalendar calendar) {
