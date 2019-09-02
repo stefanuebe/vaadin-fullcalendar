@@ -41,4 +41,9 @@ public enum CalendarViewImpl implements CalendarView {
     public String getClientSideValue() {
         return clientSideName;
     }
+
+    @Override
+    public String getName() {
+        return name();
+    }
 }
