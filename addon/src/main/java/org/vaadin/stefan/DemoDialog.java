@@ -6,6 +6,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -18,7 +19,6 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -30,6 +30,7 @@ public class DemoDialog extends Dialog {
     public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
         setCloseOnEsc(true);
         setCloseOnOutsideClick(true);
+        setWidth("500px");
 
         VerticalLayout layout = new VerticalLayout();
         layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
@@ -53,9 +54,19 @@ public class DemoDialog extends Dialog {
         CustomDateTimePicker fieldEnd = new CustomDateTimePicker("End");
 
         Checkbox fieldAllDay = new Checkbox("All day event");
-        fieldAllDay.setValue(entry.isAllDay());
 
-        layout.add(fieldStart, fieldEnd, fieldAllDay);
+        boolean allDay = entry.isAllDay();
+        fieldStart.setDateOnly(allDay);
+        fieldEnd.setDateOnly(allDay);
+
+        fieldAllDay.addValueChangeListener(event -> fieldStart.setDateOnly(event.getValue()));
+        fieldAllDay.addValueChangeListener(event -> fieldEnd.setDateOnly(event.getValue()));
+
+        Span infoEnd = new Span("End is always exclusive, e.g. for a 1 day event you need to set for instance 4th of May as start and 5th of May as end.");
+        infoEnd.getStyle().set("font-size", "0.8em");
+        infoEnd.getStyle().set("color", "gray");
+
+        layout.add(fieldStart, fieldEnd, infoEnd, fieldAllDay);
 
         Binder<Entry> binder = new Binder<>(Entry.class);
         binder.forField(fieldTitle)
@@ -108,12 +119,13 @@ public class DemoDialog extends Dialog {
     }
 
     /**
-     * @see https://vaadin.com/components/vaadin-custom-field/java-examples
+     * see https://vaadin.com/components/vaadin-custom-field/java-examples
      */
     public static class CustomDateTimePicker extends CustomField<LocalDateTime> {
 
         private final DatePicker datePicker = new DatePicker();
         private final TimePicker timePicker = new TimePicker();
+        private boolean dateOnly;
 
         CustomDateTimePicker(String label) {
             setLabel(label);
@@ -124,7 +136,17 @@ public class DemoDialog extends Dialog {
         protected LocalDateTime generateModelValue() {
             final LocalDate date = datePicker.getValue();
             final LocalTime time = timePicker.getValue();
-            return date != null && time != null ? LocalDateTime.of(date, time) : null;
+
+            if (date != null) {
+                if (dateOnly || time == null) {
+                    return date.atStartOfDay();
+                }
+
+                return LocalDateTime.of(date, time);
+            }
+
+            return null;
+
         }
 
         @Override
@@ -134,6 +156,10 @@ public class DemoDialog extends Dialog {
             timePicker.setValue(newPresentationValue != null ? newPresentationValue.toLocalTime() : null);
         }
 
+        public void setDateOnly(boolean dateOnly) {
+            this.dateOnly = dateOnly;
+            timePicker.setVisible(!dateOnly);
+        }
     }
 
 }

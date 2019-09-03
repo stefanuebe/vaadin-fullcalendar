@@ -111,7 +111,7 @@ export class FullCalendar extends PolymerElement {
      * and weekStart moment for week). See FC doc for details about these functions. Same for eventLimitClick.
      * <p/>
      * Example of the returned object.
-     * <code>
+     * <pre>
      {
         select: (eventInfo) => {
             return {
@@ -127,9 +127,9 @@ export class FullCalendar extends PolymerElement {
             }
         }
      }
-     * </code>
+     * </pre>
+     * @returns an eventhandler definition object
      */
-
     _createEventHandlers() {
         // definition of the client to server event mapping
         return {
@@ -343,11 +343,15 @@ export class FullCalendar extends PolymerElement {
 
                 // TODO check for unchanged values and ignore them
 
-                // setting all day is not working 100%, we workaround it here
                 let start = this.getCalendar().formatIso(obj['start'], obj['allDay']);
                 let end = this.getCalendar().formatIso(obj['end'], obj['allDay']);
 
                 eventToUpdate.setDates(start, end, { allDay: obj['allDay']});
+
+                // setting all day is not working 100%, we workaround it here
+                if(obj['allDay']) {
+                    eventToUpdate.moveEnd()
+                }
 
                 for (let property in obj) {
                     if (property !== 'id' && property !== "start" && property !== "end" && property !== "allDay") {
@@ -364,20 +368,6 @@ export class FullCalendar extends PolymerElement {
     //     }
     // }
     //
-    // getEventById(id) {
-    //     var events = this.getCalendar().clientEvents();
-    //     var eventToUpdate = null;
-    //     for (var i = 0; i < events.length; i++) {
-    //         var event = events[i];
-    //         if (event.hasOwnProperty("id")) {
-    //             if (event.id === id) {
-    //                 eventToUpdate = event;
-    //                 break;
-    //             }
-    //         }
-    //     }
-    //     return eventToUpdate;
-    // }
     //
     // removeAllEvents() {
     //     this.getCalendar().removeEventSources();
