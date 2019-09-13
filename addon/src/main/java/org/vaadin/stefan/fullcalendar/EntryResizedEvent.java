@@ -22,9 +22,9 @@ import elemental.json.JsonObject;
 
 /**
  * Occurs when an entry time has changed by resizing.
- * <p/>
+ * <br><br>
  * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
- * <p/>
+ * <br><br>
  * Client side name: eventResize
  *
  */

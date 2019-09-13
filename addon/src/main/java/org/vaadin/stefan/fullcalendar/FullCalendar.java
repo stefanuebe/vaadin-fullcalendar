@@ -74,7 +74,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Creates a new FullCalendar.
-     * <p/>
+     * <br><br>
      * Expects the default limit of entries shown per day. This does not affect basic or
      * list views. This value has to be set here and cannot be modified afterwards due to
      * technical reasons of FC. If set afterwards the entry limit would overwrite settings
@@ -129,7 +129,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Returns all entries registered in this instance. Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
-     * <p/>
+     * <br><br>
      * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
      * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
      * a convenient way of using the returned values without the need to encapsulate them yourselves.
@@ -144,11 +144,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Returns all entries registered in this instance which timespan crosses the given time span. You may
      * pass null for the parameters to have the timespan search only on one side. Passing null for both
      * parameters return all entries.
-     * <p/>
+     * <br><br>
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
-     * <p/>
+     * <br><br>
      * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
      * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
      * exclusive to the date.
@@ -182,11 +182,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * pass null for the parameters to have the timespan search only on one side. Passing null for both
      * parameters return all entries. The times are converted
      * to UTC before searching. The conversion is done with the calendars timezone.
-     * <p/>
+     * <br><br>
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
-     * <p/>
+     * <br><br>
      * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
      * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
      * exclusive to the date.
@@ -205,7 +205,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Returns all entries registered in this instance which timespan crosses the given date.
-     * <p/>
+     * <br><br>
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
@@ -222,7 +222,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Returns all entries registered in this instance which timespan crosses the given date. The date is converted
      * to UTC before searching. The conversion is done with the calendars timezone.
-     * <p/>
+     * <br><br>
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
@@ -406,7 +406,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Sets a option for this instance. Passing a null value removes the option.
-     * <p/>
+     * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
      *
@@ -423,7 +423,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <p/>
+     * <br><br>
      * Example:
      * <pre>
      * // sends a client parseable version to client and stores original in server side
@@ -446,10 +446,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Sets a option for this instance. Passing a null value removes the option.
-     * <p/>
+     * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
-     * <p/>
+     * <br><br>
      * For a full overview of possible options have a look at the FullCalendar documentation
      * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
      *
@@ -466,7 +466,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <p/>
+     * <br><br>
      * Example:
      * <pre>
      * // sends a client parseable version to client and stores original in server side
@@ -478,7 +478,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
      * <p>
-     * <p/>
+     * <br><br>
      * For a full overview of possible options have a look at the FullCalendar documentation
      * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
      *
@@ -507,7 +507,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Sets the first day of a week to be shown by the calendar. Per default sunday.
-     * <p/>
+     * <br><br>
      * <b>Note:</b> FC works internally with 0 for sunday. This method converts SUNDAY to
      * this number before passing it to the client.
      *
@@ -613,10 +613,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * The given string will be interpreted as JS function on the client side
      * and attached to the calendar as the eventRender callback. It must be a valid JavaScript function.
-     * <p/>
+     * <br><br>
      * <b>Note: </b> Please be aware, that there is NO content parsing, escaping, quoting or
      * other security mechanism applied on this string, so check it yourself before passing it to the client.
-     * <p/>
+     * <br><br>
      * Example
      * <pre>
      * calendar.setEntryRenderCallback("" +
@@ -699,7 +699,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
      * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
-     * <p/>
+     * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
@@ -715,7 +715,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
-     * <p/>
+     * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option               option
@@ -732,7 +732,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
      * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
-     * <p/>
+     * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
@@ -748,7 +748,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
-     * <p/>
+     * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option               option
@@ -833,7 +833,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Registers a listener to be informed when the user selected a range of timeslots.
-     * <p/>
+     * <br><br>
      * You should deactivate timeslot clicked listeners since both events will get fired when the user only selects
      * one timeslot / day.
      *
@@ -860,7 +860,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Registers a listener to be informed, when a user clicks a day's number.
-     * <p/>
+     * <br><br>
      * {@link #setNumberClickable(boolean)} needs to be called with true before.
      *
      * @param listener listener
@@ -874,7 +874,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Registers a listener to be informed, when a user clicks a week's number.
-     * <p/>
+     * <br><br>
      * {@link #setNumberClickable(boolean)} needs to be called with true before.
      *
      * @param listener listener

@@ -23,7 +23,7 @@ import java.util.Optional;
 
 /**
  * This type extends the normal timeslot clicked event by providing the selected resource (if there's one).
- * <p/>
+ * <br><br>
  * Client side event: dayClick
  */
 @DomEvent("dayClick")

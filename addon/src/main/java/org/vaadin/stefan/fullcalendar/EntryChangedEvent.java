@@ -20,7 +20,7 @@ import elemental.json.JsonObject;
 
 /**
  * An event, that occur, when a entry has been changed on the client side.
- * <p/>
+ * <br><br>
  * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  */
 public abstract class EntryChangedEvent extends EntryEvent {
