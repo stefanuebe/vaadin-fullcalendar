@@ -30,7 +30,7 @@ import java.util.UUID;
 /**
  * Represents a event / item in the full calendar. It is named Entry here to prevent name conflicts with
  * event handling mechanisms (e.g. a component event fired by clicking something).
- * <p/>
+ * <br><br>
  * <i><b>Note: </b>Creation of an entry might be exported to a builder later.</i>
  *
  */

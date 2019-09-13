@@ -58,7 +58,7 @@ public class BusinessHours {
 
     /**
      * Creates a new instance. Defines the days of business. Time will be all day automatically.
-     * <p/>
+     * <br><br>
      * Passing null for days is the same as passing an empty set (means no business days at all).
      *
      * @param dayOfWeeks days of business
@@ -70,7 +70,7 @@ public class BusinessHours {
     /**
      * Creates a new instance. Defines the days of business plus start time for each of these days.
      * End time is automatically end of day.
-     * <p/>
+     * <br><br>
      * Passing null for days is the same as passing an empty set (means no business days at all).
      * Passing null for start means start of day.
      *

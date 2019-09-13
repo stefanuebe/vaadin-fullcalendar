@@ -22,7 +22,7 @@ import elemental.json.JsonObject;
 
 /**
  * Occurs when an entry time has changed by resizing.
- * <p/>
+ * <br><br>
  * Client side name: eventResize
  */
 @DomEvent("eventResize")

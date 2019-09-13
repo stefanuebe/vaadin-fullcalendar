@@ -26,7 +26,7 @@ public interface Scheduler {
 
     /**
      * While developing, in order to hide the license warning, use this following key.
-     * <p/>
+     * <br><br>
      * For more details visit
      * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
      */
@@ -34,7 +34,7 @@ public interface Scheduler {
 
     /**
      * Constant for the non-commercial creative commons license.
-     * <p/>
+     * <br><br>
      * For more details visit
      * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
      */
@@ -42,7 +42,7 @@ public interface Scheduler {
 
     /**
      * Constant for the GPL v3 open source license.
-     * <p/>
+     * <br><br>
      * For more details visit
      * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
      */
@@ -114,7 +114,7 @@ public interface Scheduler {
     /**
      * Returns all resources registered in this instance. Changes in an resource instance is reflected in the
      * calendar instance on server side, but not client side. Resources can currently not be updated on the client side.
-     * <p/>
+     * <br><br>
      * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
      * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
      * a convenient way of using the returned values without the need to encapsulate them yourselves.

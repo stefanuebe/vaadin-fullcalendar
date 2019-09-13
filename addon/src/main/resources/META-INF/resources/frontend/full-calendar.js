@@ -106,10 +106,10 @@ export class FullCalendar extends PolymerElement {
      * The returned object contains keys, that will be interpreted as client and server side event names.
      * Each key is assigned a function that takes the event info object as parameter and returns the
      * set of information as an object.
-     * <p/>
+     * <br><br>
      * Does also include navLinkDayClick, navLinkWeekClick, but here the parameters are different (date for day
      * and weekStart moment for week). See FC doc for details about these functions. Same for eventLimitClick.
-     * <p/>
+     * <br><br>
      * Example of the returned object.
      * <pre>
      {

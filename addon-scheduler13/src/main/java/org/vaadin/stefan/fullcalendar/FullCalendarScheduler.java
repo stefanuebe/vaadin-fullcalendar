@@ -152,7 +152,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     /**
      * Registers a listener to be informed when the user selected a range of timeslots.
-     * <p/>
+     * <br><br>
      * You should deactivate timeslot clicked listeners since both events will get fired when the user only selects
      * one timeslot / day.
      *

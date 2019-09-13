@@ -33,14 +33,16 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 
 @Push
 @PageTitle("FullCalendar Demo")
-@Viewport("width=device-width, height=device-height, minimum-scale=1, initial-scale=1, user-scalable=yes")
+@Viewport("width=100vw, height=100vh")
 public class MainView extends VerticalLayout implements RouterLayout {
 
     public MainView() {
+        setSpacing(false);
+        setSizeFull();
 
         HorizontalLayout title = new HorizontalLayout();
 
-        title.add(new H3("full calendar demo"), new Span("(Vaadin 13.0.3, FullCalendar addon: 1.9.1, FullCalendar Scheduler extension: 1.3.1)"));
+        title.add(new H3("FullCalendar demo"), new Span("(Vaadin 14.0.4, FullCalendar addon: 2.0.0.alpha1 (uses FC 4.3.1), FullCalendar Scheduler extension: n/a)"));
         title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
 
         add(title);

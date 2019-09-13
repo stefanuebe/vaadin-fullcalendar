@@ -43,7 +43,7 @@ public class FullCalendarBuilder {
 
     /**
      * Activates Scheduler support.
-     * <p/>
+     * <br><br>
      * <b>Note: </b> You need to add the FullCalender Scheduler extension addon to the class path, otherwise
      * the build will fail.
      *
@@ -56,7 +56,7 @@ public class FullCalendarBuilder {
     /**
      * Expects the default limit of entries shown per day. This does not affect basic or
      * list views.
-     * <p/>
+     * <br><br>
      * Passing a negative number or 0 disabled the entry limit (same as not using this method at all).
      *
      * @param entryLimit limit

@@ -1,7 +1,7 @@
 # General changes
 * Moved to Vaadin 14
 * moved frondend files one level up, deleted bower_components
-* replaced javax.annotation.Nonnull with javax.validation.constraints.NotNull since
+* replaced javax.annotation.Nonnull with javax.validation.constraints.NotNull
 
 # General full-calendar changes
 * is now a Polymer 3 object

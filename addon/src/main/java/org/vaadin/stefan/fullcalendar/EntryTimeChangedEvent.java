@@ -21,7 +21,7 @@ import elemental.json.JsonObject;
 /**
  * This specialized version of the entry changed event gives additional information about the changed time as
  * a delta instance.
- * <p/>
+ * <br><br>
  * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  */
 public class EntryTimeChangedEvent extends EntryChangedEvent {

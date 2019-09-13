@@ -22,7 +22,7 @@ import elemental.json.JsonObject;
 
 /**
  * Occurs when an entry time has changed by drag and drop.
- * <p/>
+ * <br><br>
  * Client side name: eventDrop
  */
 @DomEvent("eventDrop")

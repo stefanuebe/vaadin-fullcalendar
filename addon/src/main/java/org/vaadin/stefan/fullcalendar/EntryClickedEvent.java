@@ -21,7 +21,7 @@ import com.vaadin.flow.component.EventData;
 
 /**
  * Occurs when an entry has been clicked on the client side.
- * <p/>
+ * <br><br>
  * Client side event: eventClick
  *
  */

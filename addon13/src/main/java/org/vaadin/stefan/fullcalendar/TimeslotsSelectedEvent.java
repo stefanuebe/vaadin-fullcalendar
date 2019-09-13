@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 /**
  * Occurs when the user selects one or multiple timeslots on the calendar. The selected timeslots may contain
  * entries.
- * <p/>
+ * <br><br>
  * Client side event: select
  *
  */
