@@ -14,7 +14,7 @@
     <properties>
         <vaadin.version>14.0.4</vaadin.version>
 
-        <fullcalendar.version>2.0.0.alpha1</fullcalendar.version>
+        <fullcalendar.version>2.0.0.alpha2-SNAPSHOT</fullcalendar.version>
 <!--        <fullcalendar.scheduler.version>2.0.0-SNAPSHOT</fullcalendar.scheduler.version>-->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -88,6 +88,17 @@
             <version>${fullcalendar.version}</version>
         </dependency>
 <!--        <dependency>-->
+<!--            <groupId>com.vaadin</groupId>-->
+<!--            <artifactId>vaadin-spring-boot-starter</artifactId>-->
+<!--            <version>${vaadin.version}</version>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+<!--        <dependency>-->
 <!--            <groupId>org.vaadin.stefan</groupId>-->
 <!--            <artifactId>fullcalendar-scheduler</artifactId>-->
 <!--            <version>${fullcalendar.scheduler.version}</version>-->
@@ -115,7 +126,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
             </plugin>
-            <!-- Jetty plugin for easy testing without a server -->
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
@@ -130,12 +140,11 @@
                     </webAppConfig>
                 </configuration>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--            </plugin>-->
 
-            <!--
-                Take care of synchronizing java dependencies and imports in
-                package.json and main.js files.
-                It also creates webpack.config.js if not exists yet.
-            -->
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
