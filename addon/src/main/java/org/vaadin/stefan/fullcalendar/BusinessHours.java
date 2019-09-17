@@ -141,9 +141,10 @@ public class BusinessHours {
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
 
-        jsonObject.put("dow", JsonUtils.toJsonValue(dayOfWeeks.stream().map(DayOfWeek::getValue)));
-        jsonObject.put("start", JsonUtils.toJsonValue(start != null ? start : "00:00"));
-        jsonObject.put("end", JsonUtils.toJsonValue(end != null ? end : "1.00:00"));
+        jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(dayOfWeeks.stream().map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())));
+
+        jsonObject.put("startTime", JsonUtils.toJsonValue(start != null ? start : "00:00"));
+        jsonObject.put("endTime", JsonUtils.toJsonValue(end != null ? end : "24:00"));
 
         return jsonObject;
     }
