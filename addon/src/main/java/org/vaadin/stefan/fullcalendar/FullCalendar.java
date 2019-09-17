@@ -22,6 +22,7 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
+import elemental.json.JsonValue;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -445,6 +446,45 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Sets a custom option for this instance. Passing a null value removes the option.
+     * <br><br>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * <br><br>
+     * For a full overview of possible options have a look at the FullCalendar documentation
+     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     *
+     * @param option option
+     * @param value  value
+     * @throws NullPointerException when null is passed
+     */
+    public void setOption(@NotNull String option, JsonValue value) {
+        setOption(option, (JsonValue) value, null);
+    }
+
+    /**
+     * Sets a custom option for this instance. Passing a null value removes the option. The third parameter
+     * might be used to explicitly store a "more complex" variant of the option's value to be returned
+     * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
+     * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
+     * <br><br>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * <p>
+     * <br><br>
+     * For a full overview of possible options have a look at the FullCalendar documentation
+     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     *
+     * @param option             option
+     * @param value              value
+     * @param valueForServerSide value to be stored on server side
+     * @throws NullPointerException when null is passed
+     */
+    public void setOption(@NotNull String option, JsonValue value, Object valueForServerSide) {
+        setOption(option, (Serializable) value, valueForServerSide);
+    }
+
+    /**
      * Sets a option for this instance. Passing a null value removes the option.
      * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
@@ -467,14 +507,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
      * <br><br>
-     * Example:
-     * <pre>
-     * // sends a client parseable version to client and stores original in server side
-     * calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
-     *
-     * // returns the original locale (as optional)
-     * Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
-     * </pre>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
      * <p>
