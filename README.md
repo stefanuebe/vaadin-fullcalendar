@@ -23,6 +23,8 @@ The following functions are currently implemented and available to use from serv
 - showing now indicator
 - activating day / week numbers / names to be links
 - setting a eventRender JS function from server side
+- setting business hours information (multiple entries possible)
+- creating recurring events
 
 - Event handling for
     - clicking an empty time spot in the calendar,
@@ -41,6 +43,7 @@ The following functions are currently implemented and available to use from serv
     - description (not shown via FC), 
     - editable / read only
     - rendering mode (normal, background, inversed background)
+    - recurring data (day of week, start / end date and time)
 
 ## Timezones
 Currently timezones are not yet supported. I'm also not sure yet, how deep the timezone support will be integrated 
