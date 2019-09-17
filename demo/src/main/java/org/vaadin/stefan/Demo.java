@@ -109,15 +109,7 @@ public class Demo extends VerticalLayout {
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).build();
 
-        calendar.addDatesRenderedListener(event -> {
-            System.out.println("dates rendered");
-            System.out.println(event.getStart());
-            System.out.println(event.getEnd());
-            System.out.println(event.getIntervalStart());
-            System.out.println(event.getIntervalEnd());
-
-            updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart());
-        });
+        calendar.addDatesRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
