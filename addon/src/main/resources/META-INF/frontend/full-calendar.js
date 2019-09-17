@@ -233,13 +233,6 @@ export class FullCalendar extends PolymerElement {
             selectable: this.selectable,
 
             // views: {
-            //     timeGridWeek: {
-            //         minTime: "10:00:00",
-            //         maxTime: "18:30:00"
-            //     }
-            // }
-
-            // views: {
             //     basicDay: {
             //         eventLimit: false // adjust to unlimited for basic view
             //     },
