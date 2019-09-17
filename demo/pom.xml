@@ -84,7 +84,7 @@
     <dependencies>
         <dependency>
             <groupId>org.vaadin.stefan</groupId>
-            <artifactId>fullcalendar</artifactId>
+            <artifactId>fullcalendar2</artifactId>
             <version>${fullcalendar.version}</version>
         </dependency>
 <!--        <dependency>-->
