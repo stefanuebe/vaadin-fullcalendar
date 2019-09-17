@@ -119,7 +119,7 @@
     </dependencies>
 
     <build>
-        <defaultGoal>jetty:run</defaultGoal>
+        <defaultGoal>clean install jetty:run</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -153,6 +153,7 @@
                     <execution>
                         <goals>
                             <goal>prepare-frontend</goal>
+                            <goal>build-frontend</goal>
                         </goals>
                     </execution>
                 </executions>

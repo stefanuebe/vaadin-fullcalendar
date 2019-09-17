@@ -37,6 +37,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Route(value = "", layout = MainView.class)
@@ -48,6 +49,8 @@ public class Demo extends VerticalLayout {
     private Button buttonDatePicker;
     private HorizontalLayout toolbar;
     private ComboBox<Timezone> timezoneComboBox;
+
+    private boolean recurringCreated = false;
 
     public Demo() {
         setPadding(false);
@@ -212,6 +215,23 @@ public class Demo extends VerticalLayout {
         createDayBackgroundEntry(calendar, now.withDayOfMonth(4), 6, "#B9FFC3");
         createDayBackgroundEntry(calendar, now.withDayOfMonth(19), 2, "#CEE3FF");
         createTimedBackgroundEntry(calendar, now.withDayOfMonth(20).atTime(11, 0), 150, "#FBC8FF");
+
+        createRecurringEvents(calendar);
+    }
+
+    private void createRecurringEvents(FullCalendar calendar) {
+        LocalDate now = LocalDate.now();
+
+        Entry recurring = new Entry();
+        recurring.setTitle(now.getYear() + "'s sunday event");
+        recurring.setColor("lightgray");
+        recurring.setRecurringDaysOfWeeks(Collections.singleton(DayOfWeek.SUNDAY));
+
+        recurring.setRecurringStartDate(now.with(TemporalAdjusters.firstDayOfYear()), calendar.getTimezone());
+        recurring.setRecurringEndDate(now.with(TemporalAdjusters.lastDayOfYear()), calendar.getTimezone());
+        recurring.setRecurringStartTime(LocalTime.of(14,0));
+        recurring.setRecurringEndTime(LocalTime.of(17,0));
+        calendar.addEntry(recurring);
     }
 
     private void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {

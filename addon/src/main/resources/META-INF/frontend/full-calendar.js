@@ -330,42 +330,58 @@ export class FullCalendar extends PolymerElement {
     updateEvents(array) {
         for (let i = 0; i < array.length; i++) {
             let obj = array[i];
+
             let eventToUpdate = this.getCalendar().getEventById(obj.id);
 
             if (eventToUpdate != null) {
-
                 // TODO check for unchanged values and ignore them
 
-                let start = this.getCalendar().formatIso(obj['start'], obj['allDay']);
-                let end = this.getCalendar().formatIso(obj['end'], obj['allDay']);
+                // since currently recurring events can not be set by updating existing events, we circumcise that
+                // by simply re-adding the event.
+                // https://github.com/fullcalendar/fullcalendar/issues/4393
+                if (this._isRecurring(obj)) {
+                    eventToUpdate.remove();
+                    this.addEvents([obj]);
+                } else {
+                    let start = obj['start'] != null ? this.getCalendar().formatIso(obj['start'], obj['allDay']) : null;
+                    let end = obj['end'] != null ? this.getCalendar().formatIso(obj['end'], obj['allDay']) : null;
 
-                eventToUpdate.setDates(start, end, { allDay: obj['allDay']});
+                    eventToUpdate.setDates(start, end, {allDay: obj['allDay']});
 
-                // setting all day is not working 100%, we workaround it here
-                if(obj['allDay']) {
-                    eventToUpdate.moveEnd()
-                }
+                    // setting all day is not working 100%, we workaround it here
+                    if (obj['allDay']) {
+                        eventToUpdate.moveEnd()
+                    }
 
-                for (let property in obj) {
-                    if (property !== 'id' && property !== "start" && property !== "end" && property !== "allDay") {
-                        eventToUpdate.setProp(property, obj[property]);
+                    for (let property in obj) {
+                        if (property !== 'id' && property !== "start" && property !== "end" && property !== "allDay") {
+                            eventToUpdate.setProp(property, obj[property]);
+                        }
                     }
                 }
             }
         }
     }
 
-    // removeEvents(array) {
-    //     for (var i = 0; i < array.length; i++) {
-    //         this.getCalendar().removeEvents(array[i].id);
-    //     }
-    // }
-    //
-    //
-    // removeAllEvents() {
-    //     this.getCalendar().removeEventSources();
-    // }
-    //
+    _isRecurring(event) {
+        return event.daysOfWeek != null || event.startTime != null || event.endTime != null || event.startRecur != null || event.endRecur != null;
+    }
+
+    removeEvents(array) {
+        for (var i = 0; i < array.length; i++) {
+            let event = this.getCalendar().getEventById(array[i].id);
+            if (event != null) {
+                event.remove();
+            }
+        }
+    }
+
+
+    removeAllEvents() {
+        this.getCalendar().getEvents().forEach(e => e.remove());
+    }
+
+
     changeView(viewName) {
         this.getCalendar().changeView(viewName);
     }
