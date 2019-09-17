@@ -14,3 +14,4 @@ webpack.config.js
 package.json
 package-lock.json
 /addon/webpack.generated.js
+/demo/webpack.generated.js
