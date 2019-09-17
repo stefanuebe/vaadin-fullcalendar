@@ -33,6 +33,8 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
     public MainView() {
         setSpacing(false);
+        setPadding(false);
+        setMargin(false);
         setSizeFull();
 
         HorizontalLayout title = new HorizontalLayout();

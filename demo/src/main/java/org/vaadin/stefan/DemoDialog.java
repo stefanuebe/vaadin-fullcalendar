@@ -2,6 +2,8 @@ package org.vaadin.stefan;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -19,6 +21,7 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -53,20 +56,45 @@ public class DemoDialog extends Dialog {
         CustomDateTimePicker fieldStart = new CustomDateTimePicker("Start");
         CustomDateTimePicker fieldEnd = new CustomDateTimePicker("End");
 
+
+        CheckboxGroup<DayOfWeek> fieldRDays = new CheckboxGroup<>();
+        fieldRDays.setLabel("Recurrence days of week");
+        fieldRDays.setItems(DayOfWeek.values());
+        fieldRDays.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
+
+        DatePicker fieldRStart = new DatePicker("Recurrence start date");
+        DatePicker fieldREnd = new DatePicker("Recurrence end date");
+        TimePicker fieldRStartTime = new TimePicker("Recurrence start time");
+        TimePicker fieldREndTime = new TimePicker("Recurrence end time");
+
+//        fieldRDays.setEnabled(false);
+//        fieldRStart.setEnabled(false);
+//        fieldRStartTime.setEnabled(false);
+//        fieldREnd.setEnabled(false);
+//        fieldREndTime.setEnabled(false);
+
         Checkbox fieldAllDay = new Checkbox("All day event");
 
         boolean allDay = entry.isAllDay();
         fieldStart.setDateOnly(allDay);
         fieldEnd.setDateOnly(allDay);
 
-        fieldAllDay.addValueChangeListener(event -> fieldStart.setDateOnly(event.getValue()));
-        fieldAllDay.addValueChangeListener(event -> fieldEnd.setDateOnly(event.getValue()));
+        fieldAllDay.addValueChangeListener(event -> {
+            fieldStart.setDateOnly(event.getValue());
+            fieldEnd.setDateOnly(event.getValue());
+            fieldRStartTime.setEnabled(!event.getValue());
+            fieldREndTime.setEnabled(!event.getValue());
+        });
 
         Span infoEnd = new Span("End is always exclusive, e.g. for a 1 day event you need to set for instance 4th of May as start and 5th of May as end.");
         infoEnd.getStyle().set("font-size", "0.8em");
         infoEnd.getStyle().set("color", "gray");
 
-        layout.add(fieldStart, fieldEnd, infoEnd, fieldAllDay);
+        Span infoR = new Span("Recurrence is activated by setting one of the following options. All of them are optional.");
+        infoR.getStyle().set("font-size", "0.8em");
+        infoR.getStyle().set("color", "gray");
+
+        layout.add(fieldStart, fieldEnd, infoEnd, fieldAllDay, infoR, fieldRStart, fieldREnd, fieldRStartTime, fieldREndTime, fieldRDays);
 
         Binder<Entry> binder = new Binder<>(Entry.class);
         binder.forField(fieldTitle)
@@ -79,6 +107,11 @@ public class DemoDialog extends Dialog {
         binder.bind(fieldStart, e -> e.getStart(timezone), (e, start) -> e.setStart(start, timezone));
         binder.bind(fieldEnd, e -> e.getEnd(timezone), (e, end) -> e.setEnd(end, timezone));
         binder.bind(fieldAllDay, Entry::isAllDay, Entry::setAllDay);
+        binder.bind(fieldRStart, e -> e.getRecurringStartDate(timezone), (e, start) -> e.setRecurringStartDate(start, timezone));
+        binder.bind(fieldREnd, e -> e.getRecurringEndDate(timezone), (e, end) -> e.setRecurringEndDate(end, timezone));
+        binder.bind(fieldRStartTime, Entry::getRecurringStartTime, Entry::setRecurringStartTime);
+        binder.bind(fieldREndTime, Entry::getRecurringEndTime, Entry::setRecurringEndTime);
+        binder.bind(fieldRDays, Entry::getRecurringDaysOfWeeks, Entry::setRecurringDaysOfWeeks);
 
         binder.setBean(entry);
 

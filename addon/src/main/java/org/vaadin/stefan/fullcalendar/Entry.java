@@ -20,23 +20,24 @@ import elemental.json.Json;
 import elemental.json.JsonObject;
 
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Represents a event / item in the full calendar. It is named Entry here to prevent name conflicts with
  * event handling mechanisms (e.g. a component event fired by clicking something).
  * <br><br>
+ * To create a recurring entry, simply set any of the "recurring" properties. With any of them set the entry
+ * is automatically recurring.
+ * <br><br>
  * <i><b>Note: </b>Creation of an entry might be exported to a builder later.</i>
- *
  */
 public class Entry {
-    private boolean editable;
     private final String id;
+    private boolean editable;
     private String title;
     private Instant start;
     private Instant end;
@@ -44,12 +45,17 @@ public class Entry {
     private String color;
     private String description;
     private RenderingMode renderingMode = RenderingMode.NORMAL;
+    private Set<DayOfWeek> recurringDaysOfWeeks;
+    private Instant recurringStartDate;
+    private Instant recurringEndDate;
+    private LocalTime recurringStartTime;
+    private LocalTime recurringEndTime;
+
 
     // TODO
     // groupId
     // daysOfWeek, startTime, endTime, startRecur, endRecur
     // className / classNames
-
 
 
     private FullCalendar calendar;
@@ -119,6 +125,26 @@ public class Entry {
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
 
+        if (recurringDaysOfWeeks != null && !recurringDaysOfWeeks.isEmpty()) {
+            jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(recurringDaysOfWeeks.stream().map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())));
+        }
+
+        if (recurringStartTime != null) {
+            jsonObject.put("startTime", JsonUtils.toJsonValue(recurringStartTime));
+        }
+
+        if (recurringEndTime != null) {
+            jsonObject.put("endTime", JsonUtils.toJsonValue(recurringEndTime));
+        }
+
+        if (recurringStartDate != null) {
+            jsonObject.put("startRecur", JsonUtils.toJsonValue(getStartTimezone().formatWithZoneId(recurringStartDate)));
+        }
+
+        if (recurringEndDate != null) {
+            jsonObject.put("endRecur", JsonUtils.toJsonValue(getEndTimezone().formatWithZoneId(recurringEndDate)));
+        }
+
         return jsonObject;
     }
 
@@ -126,6 +152,7 @@ public class Entry {
      * Updates this instance with the content of the given object. Properties, that are not part of the object or are
      * of an invalid type will be unmodified. Same for the id. Properties in the object, that do not match with this
      * instance will be ignored.
+     *
      * @param object json object / change set
      */
     protected void update(JsonObject object) {
@@ -143,20 +170,21 @@ public class Entry {
     }
 
     /**
-     * Sets the calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
-     * @param calendar calendar instance
-     */
-    protected void setCalendar(FullCalendar calendar) {
-        this.calendar = calendar;
-    }
-
-    /**
      * Returns the calendar instance of this entry. Is empty when not yet added to a calendar.
      *
      * @return calendar instance
      */
     public Optional<FullCalendar> getCalendar() {
         return Optional.ofNullable(calendar);
+    }
+
+    /**
+     * Sets the calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
+     *
+     * @param calendar calendar instance
+     */
+    protected void setCalendar(FullCalendar calendar) {
+        this.calendar = calendar;
     }
 
     public String getId() {
@@ -167,8 +195,13 @@ public class Entry {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     /**
      * Returns the start of the entry based on UTC.
+     *
      * @return start
      */
     public Instant getStartUTC() {
@@ -178,6 +211,7 @@ public class Entry {
     /**
      * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezone()} (by
      * default the calendars timezone or UTC).
+     *
      * @return start as local date time
      */
     public LocalDateTime getStart() {
@@ -185,7 +219,27 @@ public class Entry {
     }
 
     /**
+     * Sets the entry's start as UTC.
+     *
+     * @param start start
+     */
+    public void setStart(Instant start) {
+        this.start = start;
+    }
+
+    /**
+     * Sets the given local date time as start. It is converted to an instant by using the
+     * calendars timezone. If no calendar has been set yet, <b>UTC</b> is taken.
+     *
+     * @param start start
+     */
+    public void setStart(LocalDateTime start) {
+        setStart(start, getStartTimezone());
+    }
+
+    /**
      * Returns the start of the entry as local date time based on the given timezone
+     *
      * @param timezone timezone
      * @return start as local date time
      */
@@ -195,6 +249,7 @@ public class Entry {
 
     /**
      * Returns the start of the entry based on UTC.
+     *
      * @return start
      */
     public Instant getEndUTC() {
@@ -204,6 +259,7 @@ public class Entry {
     /**
      * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezone()} (by
      * default the calendars timezone or UTC).
+     *
      * @return start as local date time
      */
     public LocalDateTime getEnd() {
@@ -211,7 +267,27 @@ public class Entry {
     }
 
     /**
+     * Sets the entry's end.
+     *
+     * @param end end
+     */
+    public void setEnd(Instant end) {
+        this.end = end;
+    }
+
+    /**
+     * Sets the given local date time as end. It is converted to an instant by using the
+     * calendars timezone. If no calendar has been set yet, UTC is taken.
+     *
+     * @param end end
+     */
+    public void setEnd(LocalDateTime end) {
+        setEnd(end, getEndTimezone());
+    }
+
+    /**
      * Returns the start of the entry as local date time based on the given timezone
+     *
      * @param timezone timezone
      * @return start as local date time
      */
@@ -223,6 +299,16 @@ public class Entry {
         return allDay;
     }
 
+    /**
+     * Marks this entry as an all day entry or not. This does <b>not</b> modifiy the date values directly. Any
+     * changes on date values are done by the FC by event, but not this class.
+     *
+     * @param allDay all day entry
+     */
+    public void setAllDay(boolean allDay) {
+        this.allDay = allDay;
+    }
+
     public boolean isEditable() {
         return editable;
     }
@@ -231,30 +317,10 @@ public class Entry {
         this.editable = editable;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    /**
-     * Sets the entry's start as UTC.
-     * @param start start
-     */
-    public void setStart(Instant start) {
-        this.start = start;
-    }
-
-    /**
-     * Sets the given local date time as start. It is converted to an instant by using the
-     * calendars timezone. If no calendar has been set yet, <b>UTC</b> is taken.
-     * @param start start
-     */
-    public void setStart(LocalDateTime start) {
-        setStart(start, getStartTimezone());
-    }
-
     /**
      * Sets the given local date time as start. It is converted to an Instant by using the given timezone.
-     * @param start start
+     *
+     * @param start    start
      * @param timezone timezone
      */
     public void setStart(LocalDateTime start, Timezone timezone) {
@@ -262,25 +328,9 @@ public class Entry {
     }
 
     /**
-     * Sets the entry's end.
-     * @param end end
-     */
-    public void setEnd(Instant end) {
-        this.end = end;
-    }
-
-    /**
-     * Sets the given local date time as end. It is converted to an instant by using the
-     * calendars timezone. If no calendar has been set yet, UTC is taken.
-     * @param end end
-     */
-    public void setEnd(LocalDateTime end) {
-        setEnd(end, getEndTimezone());
-    }
-
-    /**
      * Sets the given local date time as end. It is converted to an Instant by using the given timezone.
-     * @param end end
+     *
+     * @param end      end
      * @param timezone timezone
      */
     public void setEnd(LocalDateTime end, Timezone timezone) {
@@ -288,16 +338,8 @@ public class Entry {
     }
 
     /**
-     * Marks this entry as an all day entry or not. This does <b>not</b> modifiy the date values directly. Any
-     * changes on date values are done by the FC by event, but not this class.
-     * @param allDay all day entry
-     */
-    public void setAllDay(boolean allDay) {
-        this.allDay = allDay;
-    }
-
-    /**
      * Returns the color for this entry.
+     *
      * @return color
      */
     public String getColor() {
@@ -306,6 +348,7 @@ public class Entry {
 
     /**
      * Sets the color for this entry. Null resets the color to the FC's default.
+     *
      * @param color color
      */
     public void setColor(String color) {
@@ -314,6 +357,7 @@ public class Entry {
 
     /**
      * Returns the rendering mode of this entry. Never null.
+     *
      * @return rendering mode
      */
     public RenderingMode getRenderingMode() {
@@ -322,6 +366,7 @@ public class Entry {
 
     /**
      * Sets the rendering of this entry. Default is {@link RenderingMode#NORMAL}
+     *
      * @param renderingMode rendering
      * @throws NullPointerException when passing null
      */
@@ -332,6 +377,7 @@ public class Entry {
 
     /**
      * Gets the description of an event.
+     *
      * @return description
      */
     public String getDescription() {
@@ -340,6 +386,7 @@ public class Entry {
 
     /**
      * Sets the description of an event.
+     *
      * @param description description
      */
     public void setDescription(String description) {
@@ -348,6 +395,7 @@ public class Entry {
 
     /**
      * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry start.
+     *
      * @return timezone
      */
     public Timezone getStartTimezone() {
@@ -356,10 +404,153 @@ public class Entry {
 
     /**
      * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry end.
+     *
      * @return timezone
      */
     public Timezone getEndTimezone() {
         return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+    }
+
+    /**
+     * Returns the days of weeks on which this event should recur. Null or empty when
+     * no recurring is defined.
+     *
+     * @return days of week of recurrence
+     */
+    public Set<DayOfWeek> getRecurringDaysOfWeeks() {
+        return recurringDaysOfWeeks;
+    }
+
+    /**
+     * Sets the days of weeks on which this event should recur.
+     *
+     * @param recurringDaysOfWeeks days of week for recurrence
+     */
+    public void setRecurringDaysOfWeeks(Set<DayOfWeek> recurringDaysOfWeeks) {
+        this.recurringDaysOfWeeks = recurringDaysOfWeeks;
+    }
+
+    /**
+     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+     * is recurring).
+     *
+     * @return start date of recurrence
+     */
+    public Instant getRecurringStartDate() {
+        return recurringStartDate;
+    }
+
+    /**
+     * The start date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+     *
+     * @param recurringStartDate start date or recurrence
+     */
+    public void setRecurringStartDate(Instant recurringStartDate) {
+        this.recurringStartDate = recurringStartDate;
+    }
+
+    /**
+     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+     * is recurring).
+     * <br><br>
+     * The given timezone is used to convert the instant to a local date instance.
+     *
+     * @param timezone timezone
+     * @return start date of recurrence
+     */
+    public LocalDate getRecurringStartDate(Timezone timezone) {
+        return recurringStartDate != null ? LocalDateTime.ofInstant(recurringStartDate, timezone.getZoneId().getRules().getOffset(recurringStartDate)).toLocalDate() : null;
+    }
+
+    /**
+     * The start date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+     * It is converted to an Instant by using the given timezone.
+     *
+     * @param recurringStartDate start date or recurrence
+     * @param timezone           timezone
+     */
+    public void setRecurringStartDate(LocalDate recurringStartDate, Timezone timezone) {
+        setRecurringStartDate(timezone.convertToUTC(recurringStartDate));
+    }
+
+
+    /**
+     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+     * is recurring).
+     *
+     * @return end date of recurrence
+     */
+    public Instant getRecurringEndDate() {
+        return recurringEndDate;
+    }
+
+    /**
+     * The end date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+     *
+     * @param recurringEndDate end date or recurrence
+     */
+    public void setRecurringEndDate(Instant recurringEndDate) {
+        this.recurringEndDate = recurringEndDate;
+    }
+
+    /**
+     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+     * is recurring).
+     * <br><br>
+     * The given timezone is used to convert the instant to a local date instance.
+     *
+     * @param timezone timezone
+     * @return end date of recurrence
+     */
+    public LocalDate getRecurringEndDate(Timezone timezone) {
+        return recurringEndDate != null ? LocalDateTime.ofInstant(recurringEndDate, timezone.getZoneId().getRules().getOffset(recurringEndDate)).toLocalDate() : null;
+    }
+
+    /**
+     * The end date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+     * It is converted to an Instant by using the given timezone.
+     *
+     * @param recurringEndDate end date or recurrence
+     * @param timezone         timezone
+     */
+    public void setRecurringEndDate(LocalDate recurringEndDate, Timezone timezone) {
+        setRecurringEndDate(timezone.convertToUTC(recurringEndDate));
+    }
+
+    /**
+     * The start time of recurrence. When not defined, the event will appear as an all day event.
+     *
+     * @return start time of recurrence
+     */
+    public LocalTime getRecurringStartTime() {
+        return recurringStartTime;
+    }
+
+    /**
+     * The start time of recurrence. Passing null on a recurring entry will make it appear as an all day event.
+     *
+     * @param recurringStartTime start time or recurrence
+     */
+    public void setRecurringStartTime(LocalTime recurringStartTime) {
+        this.recurringStartTime = recurringStartTime;
+    }
+
+    /**
+     * The end time of recurrence. When not defined, the event will appear with default duration.
+     *
+     * @return end time of recurrence
+     */
+    public LocalTime getRecurringEndTime() {
+        return recurringEndTime;
+    }
+
+    /**
+     * The end time of recurrence. Passing null on a recurring entry will make it appear with default duration.
+     *
+     * @param recurringEndTime end time or recurrence
+     */
+    public void setRecurringEndTime(LocalTime recurringEndTime) {
+        this.recurringEndTime = recurringEndTime;
     }
 
     @Override
