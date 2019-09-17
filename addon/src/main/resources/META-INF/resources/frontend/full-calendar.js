@@ -232,12 +232,12 @@ export class FullCalendar extends PolymerElement {
             navLinks: this.navLinks,
             selectable: this.selectable,
 
-            views: {
-                timeGridWeek: {
-                    minTime: "10:00:00",
-                    maxTime: "18:30:00"
-                }
-            }
+            // views: {
+            //     timeGridWeek: {
+            //         minTime: "10:00:00",
+            //         maxTime: "18:30:00"
+            //     }
+            // }
 
             // views: {
             //     basicDay: {
