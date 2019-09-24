@@ -219,7 +219,6 @@ export class FullCalendar extends PolymerElement {
         let options = {
             plugins: [interaction, dayGridPlugin, timeGridPlugin, listPlugin],
             height: 'parent',
-            timeZone: 'UTC',
 
             //
             // // no native control elements

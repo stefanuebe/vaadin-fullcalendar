@@ -110,7 +110,7 @@ public class Demo extends VerticalLayout {
     }
 
     private void createCalendarInstance() {
-        calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).build();
+        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).build();
 
         calendar.addDatesRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
@@ -124,12 +124,12 @@ public class Demo extends VerticalLayout {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
         );
 
-        ////        calendar.setEntryRenderCallback("" +
-////                "function(event, element) {" +
-////                "   console.log(event.title + 'X');" +
-////                "   element.css('color', 'red');" +
-////                "   return element; " +
-////                "}");
+        calendar.setEntryRenderCallback("" +
+                "function(event, element) {" +
+                "   console.log(event.title + 'X');" +
+                "   element.css('color', 'red');" +
+                "   return element; " +
+                "}");
 
         calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
         calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
@@ -229,8 +229,8 @@ public class Demo extends VerticalLayout {
 
         recurring.setRecurringStartDate(now.with(TemporalAdjusters.firstDayOfYear()), calendar.getTimezone());
         recurring.setRecurringEndDate(now.with(TemporalAdjusters.lastDayOfYear()), calendar.getTimezone());
-        recurring.setRecurringStartTime(LocalTime.of(14,0));
-        recurring.setRecurringEndTime(LocalTime.of(17,0));
+        recurring.setRecurringStartTime(LocalTime.of(14, 0));
+        recurring.setRecurringEndTime(LocalTime.of(17, 0));
         calendar.addEntry(recurring);
     }
 
