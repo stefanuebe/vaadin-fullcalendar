@@ -104,7 +104,16 @@ public class Demo extends VerticalLayout {
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);
 
-        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales);
+        timezoneComboBox = new ComboBox<>("");
+        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
+        timezoneComboBox.setItems(Timezone.getAvailableZones());
+        timezoneComboBox.setValue(Timezone.UTC);
+        timezoneComboBox.addValueChangeListener(event -> {
+            Timezone value = event.getValue();
+            calendar.setTimezone(value != null ? value : Timezone.UTC);
+        });
+
+        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales, timezoneComboBox);
 
         add(toolbar);
     }
@@ -124,12 +133,12 @@ public class Demo extends VerticalLayout {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
         );
 
-        calendar.setEntryRenderCallback("" +
-                "function(event, element) {" +
-                "   console.log(event.title + 'X');" +
-                "   element.css('color', 'red');" +
-                "   return element; " +
-                "}");
+//        calendar.setEntryRenderCallback("" +
+//                "function(event, element) {" +
+//                "   console.log(event.title + 'X');" +
+//                "   element.css('color', 'red');" +
+//                "   return element; " +
+//                "}");
 
         calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
         calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
@@ -144,8 +153,8 @@ public class Demo extends VerticalLayout {
             Entry entry;
             entry = new Entry();
 
-            entry.setStart(calendar.getTimezone().convertToUTC(event.getStartDateTime()));
-            entry.setEnd(calendar.getTimezone().convertToUTC(event.getEndDateTime()));
+            entry.setStart(event.getStartDateTimeUTC());
+            entry.setEnd(event.getEndDateTimeUTC());
             entry.setAllDay(event.isAllDay());
 
             entry.setColor("dodgerblue");
@@ -181,6 +190,8 @@ public class Demo extends VerticalLayout {
                 dialog.open();
             }
         });
+
+        calendar.addBrowserTimezoneObtainedListener(event -> timezoneComboBox.setValue(event.getTimezone()));
     }
 
     private void createTestEntries(FullCalendar calendar) {

@@ -19,7 +19,6 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
-import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -44,6 +43,10 @@ import java.util.stream.Stream;
 @NpmPackage(value = "@fullcalendar/daygrid", version = "^4.3.0")
 @NpmPackage(value = "@fullcalendar/timegrid", version = "^4.3.0")
 @NpmPackage(value = "@fullcalendar/list", version = "^4.3.0")
+@NpmPackage(value = "moment", version = "^2.24.0")
+@NpmPackage(value = "moment-timezone", version = "^0.5.26")
+@NpmPackage(value = "@fullcalendar/moment", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/moment-timezone", version = "^4.3.0")
 @Tag("full-calendar")
 @JsModule("./full-calendar.js")
 public class FullCalendar extends Component implements HasStyle, HasSize {
@@ -697,7 +700,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return time zone
      */
     public Timezone getTimezone() {
-        return (Timezone) getOption("timezone").orElse(Timezone.UTC);
+        return (Timezone) getOption("timeZone").orElse(Timezone.UTC);
     }
 
     public void setTimezone(Timezone timezone) {
@@ -705,7 +708,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         Timezone oldTimezone = getTimezone();
         if (!timezone.equals(oldTimezone)) {
-            setOption("timezone", timezone.getClientSideValue(), timezone);
+            setOption("timeZone", timezone.getClientSideValue(), timezone);
             updateEntries(getEntries());
         }
     }
@@ -940,7 +943,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         NOW_INDICATOR("nowIndicator"),
         NAV_LINKS("navLinks"),
         BUSINESS_HOURS("businessHours"),
-        TIMEZONE("timezone"),
+        TIMEZONE("timeZone"),
         ;
 
         private final String optionKey;
