@@ -16,32 +16,32 @@
  */
 package org.vaadin.stefan;
 
-import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
-import com.vaadin.flow.component.polymertemplate.Id;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLayout;
-import com.vaadin.flow.templatemodel.TemplateModel;
 
-@Tag("main-view")
-@HtmlImport("main-view.html")
 @Push
 @PageTitle("FullCalendar Demo")
-@Viewport("width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes")
-public class MainView extends PolymerTemplate<TemplateModel> implements RouterLayout {
-
-    @Id("title")
-    private HorizontalLayout title;
+@Viewport("width=100vw, height=100vh")
+public class MainView extends VerticalLayout implements RouterLayout {
 
     public MainView() {
-        title.add(new H3("full calendar demo"), new Span("(Vaadin 13.0.3, FullCalendar addon: 1.9.1, FullCalendar Scheduler extension: 1.3.1)"));
+        setSpacing(false);
+        setPadding(false);
+        setMargin(false);
+        setSizeFull();
+
+        HorizontalLayout title = new HorizontalLayout();
+
+        title.add(new H3("FullCalendar demo"), new Span("(Vaadin 14, FullCalendar addon: 2.0.0.RC1 (uses FC 4.3.1), FullCalendar Scheduler extension: n/a)"));
         title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
+
+        add(title);
     }
 }

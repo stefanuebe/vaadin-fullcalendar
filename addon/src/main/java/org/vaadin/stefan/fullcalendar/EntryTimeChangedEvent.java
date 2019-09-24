@@ -20,8 +20,9 @@ import elemental.json.JsonObject;
 
 /**
  * This specialized version of the entry changed event gives additional information about the changed time as
- * a delta instance. Please note that the entry data will be updated automatically. Also the delta gives only
- * information about the start time. The end time might have changed independently given by the client.
+ * a delta instance.
+ * <br><br>
+ * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  */
 public class EntryTimeChangedEvent extends EntryChangedEvent {
     private final Delta delta;

@@ -17,62 +17,58 @@
 package org.vaadin.stefan;
 
 import com.vaadin.flow.component.HasText;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.dom.Style;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
-import java.lang.reflect.Executable;
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Route(value = "", layout = MainView.class)
-@HtmlImport("frontend://styles.html")
-@HtmlImport("frontend://styles_scheduler.html")
-public class Demo extends Div {
+@JsModule("./styles.js")
+public class Demo extends VerticalLayout {
+
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
-    private Div toolbar;
+    private HorizontalLayout toolbar;
     private ComboBox<Timezone> timezoneComboBox;
 
-    public Demo() {
-        createToolbar();
-        add(toolbar);
+    private boolean recurringCreated = false;
 
-        add(new Hr());
+    public Demo() {
+        setPadding(false);
+        setMargin(false);
+        setSpacing(false);
+        getStyle().set("flex-grow", "1");
 
         createCalendarInstance();
-        add(calendar);
 
-        // height by parent and flex container
-        initBaseLayoutSettings();
+        createToolbar();
+
+        add(calendar);
+        setFlexGrow(1, calendar);
+        setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
+
+        createTestEntries(calendar);
     }
 
     private void createToolbar() {
@@ -80,16 +76,6 @@ public class Demo extends Div {
         Button buttonPrevious = new Button("Previous", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
         Button buttonNext = new Button("Next", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
         buttonNext.setIconAfterText(true);
-
-        List<CalendarView> calendarViews = new ArrayList<>();
-        calendarViews.addAll(Arrays.asList(CalendarViewImpl.values()));
-        calendarViews.addAll(Arrays.asList(SchedulerView.values()));
-        comboBoxView = new ComboBox<>("", calendarViews);
-        comboBoxView.setValue(CalendarViewImpl.MONTH);
-        comboBoxView.addValueChangeListener(e -> {
-            CalendarView value = e.getValue();
-            calendar.changeView(value == null ? CalendarViewImpl.MONTH : value);
-        });
 
         // simulate the date picker light that we can use in polymer
         DatePicker gotoDate = new DatePicker();
@@ -103,105 +89,53 @@ public class Demo extends Div {
         buttonDatePicker.getElement().appendChild(gotoDate.getElement());
         buttonDatePicker.addClickListener(event -> gotoDate.open());
 
-        Button buttonHeight = new Button("Calendar height", event -> new HeightDialog().open());
-
-        Checkbox cbWeekNumbers = new Checkbox("Week numbers", event -> calendar.setWeekNumbersVisible(event.getValue()));
-
-        ComboBox<Locale> comboBoxLocales = new ComboBox<>();
+        List<CalendarView> calendarViews = Arrays.asList(CalendarViewImpl.values());
+        calendarViews.sort(Comparator.comparing(CalendarView::getName));
+        comboBoxView = new ComboBox<>("", calendarViews);
+        comboBoxView.setValue(CalendarViewImpl.DAY_GRID_MONTH);
+        comboBoxView.addValueChangeListener(e -> {
+            CalendarView value = e.getValue();
+            calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
+        });
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
+        ComboBox<Locale> comboBoxLocales = new ComboBox<>();
         comboBoxLocales.setItems(items);
         comboBoxLocales.setValue(CalendarLocale.getDefault());
         comboBoxLocales.addValueChangeListener(event -> calendar.setLocale(event.getValue()));
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);
 
-        ComboBox<GroupEntriesBy> comboBoxGroupBy = new ComboBox<>("");
-        comboBoxGroupBy.setPlaceholder("Group by...");
-        comboBoxGroupBy.setItems(GroupEntriesBy.values());
-        comboBoxGroupBy.setItemLabelGenerator(item -> {
-            switch (item) {
-                default:
-                case NONE:
-                    return "none";
-                case RESOURCE_DATE:
-                    return "group by resource / date";
-                case DATE_RESOURCE:
-                    return "group by date / resource";
-            }
-        });
-        comboBoxGroupBy.addValueChangeListener(event -> ((Scheduler) calendar).setGroupEntriesBy(event.getValue()));
+//        timezoneComboBox = new ComboBox<>("");
+//        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
+//        timezoneComboBox.setItems(Timezone.getAvailableZones());
+//        timezoneComboBox.setValue(Timezone.UTC);
+//        timezoneComboBox.addValueChangeListener(event -> {
+//            Timezone value = event.getValue();
+//            calendar.setTimezone(value != null ? value : Timezone.UTC);
+//        });
 
-        timezoneComboBox = new ComboBox<>("");
-        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
-        timezoneComboBox.setItems(Timezone.getAvailableZones());
-        timezoneComboBox.setValue(Timezone.UTC);
-        timezoneComboBox.addValueChangeListener(event -> {
-            Timezone value = event.getValue();
-            calendar.setTimezone(value != null ? value : Timezone.UTC);
-        });
+        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales);
 
-        Button addThousand = new Button("Add 1000 entries", event -> {
-            Button source = event.getSource();
-            source.setEnabled(false);
-            source.setText("Creating...");
-            Optional<UI> optionalUI = getUI();
-            optionalUI.ifPresent(ui -> {
-                Executors.newSingleThreadExecutor().execute(() -> {
-                    Timezone timezone = new Timezone(ZoneId.systemDefault());
-                    Instant start = timezone.convertToUTC(LocalDate.now());
-                    Instant end = timezone.convertToUTC(LocalDate.now().plusDays(1));
-                    List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
-                        Entry entry = new Entry();
-                        entry.setStart(start);
-                        entry.setEnd(end);
-                        entry.setAllDay(true);
-                        entry.setTitle("Generated " + (i + 1));
-                        return entry;
-                    }).collect(Collectors.toList());
+        Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
 
-                    ui.access(() -> {
-                        calendar.addEntries(list);
-                        source.setVisible(false);
-                        Notification.show("Added 1,000 entries for today");
-                    });
-                });
-            });
-        });
-
-        Button removeAllEntries = new Button("Remove all", event -> {
-            calendar.removeAllEntries();
-        });
-
-        toolbar = new Div(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox, addThousand, removeAllEntries);
-    }
-
-    private void setFlexStyles(boolean flexStyles) {
-        if (flexStyles) {
-            calendar.getElement().getStyle().set("flex-grow", "1");
-            getElement().getStyle().set("display", "flex");
-            getElement().getStyle().set("flex-direction", "column");
-        } else {
-            calendar.getElement().getStyle().remove("flex-grow");
-            getElement().getStyle().remove("display");
-            getElement().getStyle().remove("flex-direction");
-        }
+        add(toolbar);
     }
 
     private void createCalendarInstance() {
-//        calendar = FullCalendarBuilder.create().withEntryLimit(5).withScheduler().build();
-        calendar = new MyFullCalendar(5);
-        calendar.changeView(CalendarViewImpl.MONTH);
+        calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).build();
+
+        calendar.addDatesRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
+
+        calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
         calendar.setBusinessHours(
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
-                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
+                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
+                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
         );
-        calendar.addBrowserTimezoneObtainedListener(event -> {
-            timezoneComboBox.setValue(event.getTimezone());
-        });
 
 //        calendar.setEntryRenderCallback("" +
 //                "function(event, element) {" +
@@ -210,69 +144,22 @@ public class Demo extends Div {
 //                "   return element; " +
 //                "}");
 
-        // scheduler options
-        ((Scheduler) calendar).setSchedulerLicenseKey(Scheduler.GPL_V3_LICENSE_KEY);
+        calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
+        calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
+        calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDate()));
+        calendar.addTimeslotsSelectedListener(event -> System.out.println("timeslots selected: " + event.getStartDateTime() + " -> " + event.getEndDateTime() + " " + event.isAllDay()));
 
-        // This event listener is deactivated to prevent conflicts with selected event listener, who is also called on a
-        // one day selection.
-        //        calendar.addTimeslotClickedListener(event -> {
-        //            Entry entry = new Entry();
-        //
-        //            LocalDateTime start = event.getClickedDateTime();
-        //            entry.setStart(start);
-        //
-        //            boolean allDay = event.isAllDay();
-        //            entry.setAllDay(allDay);
-        //            entry.setEnd(allDay ? start.plusDays(FullCalendar.DEFAULT_DAY_EVENT_DURATION) : start.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
-        //
-        //            entry.setColor("dodgerblue");
-        //            new DemoDialog(calendar, entry, true).open();
-        //        });
+        calendar.addEntryDroppedListener(event -> System.out.println(event.applyChangesOnEntry()));
+        calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
         calendar.addEntryClickedListener(event -> new DemoDialog(calendar, event.getEntry(), false).open());
-        calendar.addEntryResizedListener(event -> {
-            event.applyChangesOnEntry();
-
-            Entry entry = event.getEntry();
-
-            Notification.show(entry.getTitle() + " resized to " + entry.getStart() + " - " + entry.getEnd() + " " + calendar.getTimezone().getClientSideValue() + " by " + event.getDelta());
-        });
-        calendar.addEntryDroppedListener(event -> {
-            event.applyChangesOnEntry();
-
-            Entry entry = event.getEntry();
-            LocalDateTime start = entry.getStart();
-            LocalDateTime end = entry.getEnd();
-
-            String text = entry.getTitle() + " moved to " + start + " - " + end + " " + calendar.getTimezone().getClientSideValue() + " by " + event.getDelta();
-
-            if (entry instanceof ResourceEntry) {
-                Set<Resource> resources = ((ResourceEntry) entry).getResources();
-                if (!resources.isEmpty()) {
-                    text += text + " - rooms are " + resources;
-                }
-            }
-
-
-            Notification.show(text);
-        });
-        calendar.addViewRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
-
-        calendar.addTimeslotsSelectedListener((TimeslotsSelectedSchedulerEvent event) -> {
-            Optional<Resource> resource = event.getResource();
+        calendar.addTimeslotsSelectedListener((event) -> {
             Entry entry;
-            if (resource.isPresent()) {
-                ResourceEntry resourceEntry = new ResourceEntry();
-                resourceEntry.setResource(resource.get());
-                entry = resourceEntry;
-            } else {
-                entry = new Entry();
-            }
+            entry = new Entry();
 
-            entry.setStart(calendar.getTimezone().convertToUTC(event.getStartDateTime()));
-            entry.setEnd(calendar.getTimezone().convertToUTC(event.getEndDateTime()));
+            entry.setStart(event.getStartDateTimeUTC());
+            entry.setEnd(event.getEndDateTimeUTC());
             entry.setAllDay(event.isAllDay());
-            System.out.println(resource);
 
             entry.setColor("dodgerblue");
             new DemoDialog(calendar, entry, true).open();
@@ -308,39 +195,19 @@ public class Demo extends Div {
             }
         });
 
-        calendar.addDayNumberClickedListener(event -> {
-            comboBoxView.setValue(CalendarViewImpl.LIST_DAY);
-            calendar.gotoDate(event.getDateTime().toLocalDate());
-        });
-        calendar.addWeekNumberClickedListener(event -> {
-            comboBoxView.setValue(CalendarViewImpl.LIST_WEEK);
-            calendar.gotoDate(event.getDateTime().toLocalDate());
-        });
-
-        createTestEntries(calendar);
-    }
-
-    private void initBaseLayoutSettings() {
-        setSizeFull();
-        calendar.setHeightByParent();
-        setFlexStyles(true);
+//        calendar.addBrowserTimezoneObtainedListener(event -> timezoneComboBox.setValue(event.getTimezone()));
     }
 
     private void createTestEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
 
-        Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red", "red");
-        Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green", "green");
-        Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
-
-
-        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
-        createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
-        createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
-        createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
-        createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
-        createTimedEntry(calendar, "Kickoff meeting with customer #5", now.withDayOfMonth(17).atTime(11, 30), 120, "mediumseagreen", meetingRoomBlue);
-        createTimedEntry(calendar, "Kickoff meeting with customer #6", now.withDayOfMonth(22).atTime(9, 0), 120, "mediumseagreen", meetingRoomRed);
+        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null);
+        createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null);
+        createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen");
+        createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen");
+        createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen");
+        createTimedEntry(calendar, "Kickoff meeting with customer #5", now.withDayOfMonth(17).atTime(11, 30), 120, "mediumseagreen");
+        createTimedEntry(calendar, "Kickoff meeting with customer #6", now.withDayOfMonth(22).atTime(9, 0), 120, "mediumseagreen");
 
         createTimedEntry(calendar, "Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "violet");
         createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 30), 60, "violet");
@@ -363,35 +230,39 @@ public class Demo extends Div {
         createDayBackgroundEntry(calendar, now.withDayOfMonth(4), 6, "#B9FFC3");
         createDayBackgroundEntry(calendar, now.withDayOfMonth(19), 2, "#CEE3FF");
         createTimedBackgroundEntry(calendar, now.withDayOfMonth(20).atTime(11, 0), 150, "#FBC8FF");
+
+        createRecurringEvents(calendar);
     }
 
-    private Resource createResource(Scheduler calendar, String s, String color) {
-        Resource resource = new Resource(null, s, color);
-        calendar.addResource(resource);
-        return resource;
+    private void createRecurringEvents(FullCalendar calendar) {
+        LocalDate now = LocalDate.now();
+
+        Entry recurring = new Entry();
+        recurring.setTitle(now.getYear() + "'s sunday event");
+        recurring.setColor("lightgray");
+        recurring.setRecurringDaysOfWeeks(Collections.singleton(DayOfWeek.SUNDAY));
+
+        recurring.setRecurringStartDate(now.with(TemporalAdjusters.firstDayOfYear()), calendar.getTimezone());
+        recurring.setRecurringEndDate(now.with(TemporalAdjusters.lastDayOfYear()), calendar.getTimezone());
+        recurring.setRecurringStartTime(LocalTime.of(14, 0));
+        recurring.setRecurringEndTime(LocalTime.of(17, 0));
+        calendar.addEntry(recurring);
     }
 
     private void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
-        ResourceEntry entry = new ResourceEntry();
+        Entry entry = new Entry();
         setValues(calendar, entry, title, start.atStartOfDay(), days, ChronoUnit.DAYS, color);
         calendar.addEntry(entry);
     }
 
     private void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
-        createTimedEntry(calendar, title, start, minutes, color, (Resource[]) null);
-    }
-
-    private void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource... resources) {
-        ResourceEntry entry = new ResourceEntry();
+        Entry entry = new Entry();
         setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color);
-        if (resources != null && resources.length > 0) {
-            entry.addResources(Arrays.asList(resources));
-        }
         calendar.addEntry(entry);
     }
 
     private void createDayBackgroundEntry(FullCalendar calendar, LocalDate start, int days, String color) {
-        ResourceEntry entry = new ResourceEntry();
+        Entry entry = new Entry();
         setValues(calendar, entry, "BG", start.atStartOfDay(), days, ChronoUnit.DAYS, color);
 
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
@@ -399,24 +270,13 @@ public class Demo extends Div {
     }
 
     private void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color) {
-        ResourceEntry entry = new ResourceEntry();
+        Entry entry = new Entry();
         setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
-
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         calendar.addEntry(entry);
     }
 
-    private void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color, Resource... resources) {
-        ResourceEntry entry = new ResourceEntry();
-        setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
-        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
-        if (resources != null && resources.length > 0) {
-            entry.addResources(Arrays.asList(resources));
-        }
-        calendar.addEntry(entry);
-    }
-
-    private void setValues(FullCalendar calendar, ResourceEntry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
+    private void setValues(FullCalendar calendar, Entry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
         entry.setTitle(title);
         entry.setStart(start, calendar.getTimezone());
         entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
@@ -433,37 +293,21 @@ public class Demo extends Div {
         } else if (view instanceof CalendarViewImpl) {
             switch ((CalendarViewImpl) view) {
                 default:
-                case MONTH:
+                case DAY_GRID_MONTH:
                 case LIST_MONTH:
                     text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
                     break;
-                case AGENDA_DAY:
-                case BASIC_DAY:
+                case TIME_GRID_DAY:
+                case DAY_GRID_DAY:
                 case LIST_DAY:
                     text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
                     break;
-                case AGENDA_WEEK:
-                case BASIC_WEEK:
+                case TIME_GRID_WEEK:
+                case DAY_GRID_WEEK:
                 case LIST_WEEK:
                     text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
                     break;
                 case LIST_YEAR:
-                    text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
-                    break;
-            }
-        } else if (view instanceof SchedulerView) {
-            switch ((SchedulerView) view) {
-                default:
-                case TIMELINE_MONTH:
-                    text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
-                    break;
-                case TIMELINE_DAY:
-                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
-                    break;
-                case TIMELINE_WEEK:
-                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
-                    break;
-                case TIMELINE_YEAR:
                     text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
                     break;
             }
@@ -472,156 +316,5 @@ public class Demo extends Div {
         intervalLabel.setText(text);
     }
 
-    public static class DemoDialog extends Dialog {
-
-        DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
-            setCloseOnEsc(true);
-            setCloseOnOutsideClick(true);
-
-            VerticalLayout layout = new VerticalLayout();
-            layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
-            layout.setSizeFull();
-
-            TextField fieldTitle = new TextField("Title");
-            fieldTitle.focus();
-
-            ComboBox<String> fieldColor = new ComboBox<>("Color", COLORS);
-            TextArea fieldDescription = new TextArea("Description");
-
-            layout.add(fieldTitle, fieldColor, fieldDescription);
-
-            TextField fieldStart = new TextField("Start");
-            fieldStart.setReadOnly(true);
-
-            TextField fieldEnd = new TextField("End");
-            fieldEnd.setReadOnly(true);
-
-            fieldStart.setValue(calendar.getTimezone().formatWithZoneId(entry.getStartUTC()));
-            fieldEnd.setValue(calendar.getTimezone().formatWithZoneId(entry.getEndUTC()));
-
-            Checkbox fieldAllDay = new Checkbox("All day event");
-            fieldAllDay.setValue(entry.isAllDay());
-            fieldAllDay.setReadOnly(true);
-
-            layout.add(fieldStart, fieldEnd, fieldAllDay);
-
-            if (entry instanceof ResourceEntry && ((ResourceEntry) entry).getResource().isPresent()) {
-                TextArea fieldResource = new TextArea("Assigned resources");
-                fieldResource.setReadOnly(true);
-                fieldResource.setValue(((ResourceEntry) entry).getResources().stream().map(Resource::getTitle).collect(Collectors.joining(", ")));
-                layout.add(fieldResource);
-            }
-
-            Binder<Entry> binder = new Binder<>(Entry.class);
-            binder.forField(fieldTitle)
-                    .asRequired()
-                    .bind(Entry::getTitle, Entry::setTitle);
-
-            binder.bind(fieldColor, Entry::getColor, Entry::setColor);
-            binder.bind(fieldDescription, Entry::getDescription, Entry::setDescription);
-            binder.setBean(entry);
-
-            HorizontalLayout buttons = new HorizontalLayout();
-            Button buttonSave;
-            if (newInstance) {
-                buttonSave = new Button("Create", e -> {
-                    if (binder.validate().isOk()) {
-                        calendar.addEntry(entry);
-                    }
-                });
-            } else {
-                buttonSave = new Button("Save", e -> {
-                    if (binder.validate().isOk()) {
-                        calendar.updateEntry(entry);
-                    }
-                });
-            }
-            buttonSave.addClickListener(e -> close());
-            buttons.add(buttonSave);
-
-            Button buttonCancel = new Button("Cancel", e -> close());
-            buttonCancel.getElement().getThemeList().add("tertiary");
-            buttons.add(buttonCancel);
-
-            if (!newInstance) {
-                Button buttonRemove = new Button("Remove", e -> {
-                    calendar.removeEntry(entry);
-                    close();
-                });
-                ThemeList themeList = buttonRemove.getElement().getThemeList();
-                themeList.add("error");
-                themeList.add("tertiary");
-                buttons.add(buttonRemove);
-            }
-
-            add(layout, buttons);
-        }
-    }
-
-    public class HeightDialog extends Dialog {
-        HeightDialog() {
-            VerticalLayout dialogContainer = new VerticalLayout();
-            add(dialogContainer);
-
-            TextField heightInput = new TextField("", "500", "e. g. 300");
-            Button byPixels = new Button("Set by pixels", e -> {
-                calendar.setHeight(Integer.valueOf(heightInput.getValue()));
-
-                Demo.this.setSizeUndefined();
-                setFlexStyles(false);
-            });
-            byPixels.getElement().setProperty("title", "Calendar height is fixed by pixels.");
-            dialogContainer.add(new HorizontalLayout(heightInput, byPixels));
-
-            Button autoHeight = new Button("Auto height", e -> {
-                calendar.setHeightAuto();
-
-                Demo.this.setSizeUndefined();
-                setFlexStyles(false);
-            });
-            autoHeight.getElement().setProperty("title", "Calendar height is set to auto.");
-            dialogContainer.add(autoHeight);
-
-            Button heightByBlockParent = new Button("Height by block parent", e -> {
-                calendar.setHeightByParent();
-                calendar.setSizeFull();
-
-                Demo.this.setSizeFull();
-                setFlexStyles(false);
-            });
-            heightByBlockParent.getElement().setProperty("title", "Container is display:block + setSizeFull(). Calendar height is set to parent + setSizeFull(). Body element kept unchanged.");
-            dialogContainer.add(heightByBlockParent);
-
-            Button heightByBlockParentAndCalc = new Button("Height by block parent + calc()", e -> {
-                calendar.setHeightByParent();
-                calendar.getElement().getStyle().set("height", "calc(100vh - 450px)");
-
-                Demo.this.setSizeFull();
-                setFlexStyles(false);
-            });
-            heightByBlockParentAndCalc.getElement().setProperty("title", "Container is display:block + setSizeFull(). Calendar height is set to parent + css height is calculated by calc(100vh - 450px) as example. Body element kept unchanged.");
-            dialogContainer.add(heightByBlockParentAndCalc);
-
-            Button heightByFlexParent = new Button("Height by flex parent", e -> {
-                calendar.setHeightByParent();
-
-                Demo.this.setSizeFull();
-                setFlexStyles(true);
-            });
-            heightByFlexParent.getElement().setProperty("title", "Container is display:flex + setSizeFull(). Calendar height is set to parent + flex-grow: 1. Body element kept unchanged.");
-            dialogContainer.add(heightByFlexParent);
-
-            Button heightByFlexParentAndBody = new Button("Height by flex parent and flex body", e -> {
-                calendar.setHeightByParent();
-
-                Demo.this.setSizeUndefined();
-                setFlexStyles(true);
-
-                UI.getCurrent().getElement().getStyle().set("display", "flex");
-            });
-            heightByFlexParentAndBody.getElement().setProperty("title", "Container is display:flex. Calendar height is set to parent + flex-grow: 1. Body element is set to display: flex.");
-            dialogContainer.add(heightByFlexParentAndBody);
-        }
-    }
 
 }

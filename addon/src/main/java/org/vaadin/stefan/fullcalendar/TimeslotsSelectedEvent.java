@@ -21,13 +21,12 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
  * Occurs when the user selects one or multiple timeslots on the calendar. The selected timeslots may contain
  * entries.
- * <p/>
+ * <br><br>
  * Client side event: select
  *
  */

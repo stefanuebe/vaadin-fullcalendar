@@ -1,27 +1,31 @@
 # FullCalendar integration
-This addon is an integration of the FullCalendar (v3.9.0) as Flow component for Vaadin Platform / Vaadin 10+. 
+This addon is an integration of the FullCalendar (v4.3.1) as Flow component for Vaadin 14+ and the official successor 
+of this V10-13 addon https://vaadin.com/directory/component/full-calendar-web-component.
+
+Please be aware, that the addon is currently in alpha stage (and so is this readme). I'll try to integrate
+missing features asap. Feel free to notice me, when basic things are not working or missing.
+
+Please also have a look at the demo for a live example and source code of how to integrate the FC. Not all
+described events are handled visually currently.
 
 For information about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
 
-If you want to use the Scheduler, please have a look here: https://vaadin.com/directory/component/full-calendar-scheduler-extension
-
 ## Addon Functionality
-The following functions are implemented and available to use from server side:
+The following functions are currently implemented and available to use from server side:
 - adding / updating / removing calendar items,
 - switching between shown intervals (next month, previous month, etc.),
 - goto a specific date or today,
 - switch the calendar view (month, basic views for days and weeks, agenda views for days and weeks, list views for day to year),
 - setting a locale to be used for displaying week days, formatting values, calculating the first day of the week, etc. (supported locales are provided as constant list)
 - setting the first day of week to be shown (overrides the locale setting),
-- setting the height of the calendar instance (calculated by parent, aspect ratio or fixed pixel size)
 - show of week numbers
 - limit max shown entries per day (except basic views)
 - showing now indicator
 - activating day / week numbers / names to be links
-- styles are overridable via custom properties
 - setting a eventRender JS function from server side
-- setting business hours (multiple instances possible)
-- timezone support
+- setting business hours information (multiple entries possible)
+- creating recurring events
+- setting / handling timezones and their offsets (by default the FC uses UTC times and dates)
 
 - Event handling for
     - clicking an empty time spot in the calendar,
@@ -40,9 +44,7 @@ The following functions are implemented and available to use from server side:
     - description (not shown via FC), 
     - editable / read only
     - rendering mode (normal, background, inversed background)
-
-## Timezones
-Starting with 1.6.0 FC supports setting timezones. From this version, entries and some events work with Instant to represent the time based on UTC. You may set a custom timezone to display events for a user's timezone while the entries themselves still work with UTC based times.
+    - recurring data (day of week, start / end date and time)
 
 ## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
@@ -59,8 +61,8 @@ container.setFlexGrow(1, calendar);
 // Create a initial sample entry
 Entry entry = new Entry();
 entry.setTitle("Some event");
-entry.setStart(LocalDate.now().withDayOfMonth(3).atTime(10, 0));
-entry.setEnd(entry.getStart().plusHours(2));
+entry.setStart(LocalDate.now().withDayOfMonth(3).atTime(10, 0), calendar.getTimezone());
+entry.setEnd(entry.getStart().plusHours(2), calendar.getTimezone());
 entry.setColor("#ff3333");
 
 calendar.add(entry);
@@ -73,27 +75,23 @@ calendar.add(entry);
  * calendar. Depending of if the clicked point was a day or time slot the event will provide the 
  * time details of the clicked point. With this info you can show a dialog to create a new entry.
  */
-calendar.addTimeslotClickedListener(event -> {
-        Entry entry = new Entry();
-        
-        LocalDateTime start = event.getClickedDateTime();
-        entry.setStart(start);
-        
-        boolean allDay = event.isAllDay();
-        entry.setAllDay(allDay);
-        entry.setEnd(allDay ? start.plusDays(FullCalendar.DEFAULT_DAY_EVENT_DURATION) : start.plusHours(FullCalendar.DEFAULT_TIMED_EVENT_DURATION));
-        
-        entry.setColor("dodgerblue");
-        
-        // ... open a dialog or other view to edit details 
-    });
+calendar.addTimeslotsSelectedListener((event) -> {
+    Entry entry;
+    entry = new Entry();
+
+    entry.setStart(calendar.getTimezone().convertToUTC(event.getStartDateTime()));
+    entry.setEnd(calendar.getTimezone().convertToUTC(event.getEndDateTime()));
+    entry.setAllDay(event.isAllDay());
+
+    entry.setColor("dodgerblue");
+    
+});
 
 /*
  * The entry click event listener is called when the user clicks on an existing entry. 
  * The event provides the clicked event which might be then opened in a dialog.
  */
-calendar.addEntryClickListener(event -> 
-    new DemoDialog(calendar, event.getEntry(), false).open());
+calendar.addEntryClickListener(event -> /* ... */);
 ```
 
 ### Add, update or remove an entry
@@ -337,6 +335,10 @@ calendar.setTimezone(Timezone.UTC);
 // We can also read the browsers timezone, after the component has been attached to the client side.
 // There are other ways to obtain the browser's timezone, so you are not obliged to use the listener.
 calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
+
+// If you want to let the calendar obtain the browser time zone automatically, you may simply use the builder.
+// In that case as soon as the client connected, it will set it's timezone in the server side instance. 
+FullCalendarBuilder.create().withAutoBrowserTimezone().build();
 
 // When using timezones, entries can calculate their start and end in different ways.
 entry.setStart(Instant.now()); // UTC 

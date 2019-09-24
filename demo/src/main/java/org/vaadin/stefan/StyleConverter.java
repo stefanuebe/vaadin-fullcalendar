@@ -38,90 +38,96 @@ import java.util.*;
 public class StyleConverter {
     public static void main(String[] args) throws Exception {
         Path styles = Paths.get("styles").toAbsolutePath();
-        List<String> strings = Files.readAllLines(styles);
 
-        CSSOMParser parser = new CSSOMParser(new SACParserCSS3());
-        CSSStyleSheet styleSheet = parser.parseStyleSheet(new InputSource(styles.toUri().toString()), null, null);
+        Files.list(styles).filter(path -> path.toString().endsWith(".css")).forEach(path -> {
+            try {
 
-        Map<String, String> defs = new HashMap<>();
-        Set<String> usage = new HashSet<>();
+                CSSOMParser parser = new CSSOMParser(new SACParserCSS3());
+                CSSStyleSheet styleSheet = parser.parseStyleSheet(new InputSource(path.toUri().toString()), null, null);
 
-        CSSRuleList rules = styleSheet.getCssRules();
-        for (int i = 0; i < rules.getLength(); i++) {
-            final CSSRule rule = rules.item(i);
+                Map<String, String> defs = new HashMap<>();
+                Set<String> usage = new HashSet<>();
 
-            if (rule instanceof CSSStyleRuleImpl) {
-                CSSStyleRuleImpl sRule = (CSSStyleRuleImpl) rule;
+                CSSRuleList rules = styleSheet.getCssRules();
+                for (int i = 0; i < rules.getLength(); i++) {
+                    final CSSRule rule = rules.item(i);
 
-                SelectorList selectors = sRule.getSelectors();
-                List<Property> properties = ((CSSStyleDeclarationImpl) sRule.getStyle()).getProperties();
+                    if (rule instanceof CSSStyleRuleImpl) {
+                        CSSStyleRuleImpl sRule = (CSSStyleRuleImpl) rule;
 
-                for (int j = 0; j < selectors.getLength(); j++) {
-                    Selector item = selectors.item(j);
-                    String prefix = item.toString().trim();
-                    prefix = prefix.replace(".", "");
-                    prefix = prefix.replace(" ", "_");
-                    prefix = prefix.replace(">", "_LACE_BRACE_");
-                    prefix = prefix.replace(":", "_COLON_");
-                    prefix = prefix.replace("*", "_ASTERISK_");
-                    prefix = prefix.replace("+", "_PLUS_");
-                    prefix = prefix.replace("[", "_SQUARE_BRACKET_OPEN_");
-                    prefix = prefix.replace("]", "_SQUARE_BRACKET_CLOSE_");
-                    prefix = prefix.replace("(", "_R_BRACKET_OPEN_");
-                    prefix = prefix.replace(")", "_R_BRACKET_CLOSE_");
+                        SelectorList selectors = sRule.getSelectors();
+                        List<Property> properties = ((CSSStyleDeclarationImpl) sRule.getStyle()).getProperties();
+
+                        for (int j = 0; j < selectors.getLength(); j++) {
+                            Selector item = selectors.item(j);
+                            String prefix = item.toString().trim();
+                            prefix = prefix.replace(".", "");
+                            prefix = prefix.replace(" ", "_");
+                            prefix = prefix.replace(">", "_LACE_BRACE_");
+                            prefix = prefix.replace(":", "_COLON_");
+                            prefix = prefix.replace("*", "_ASTERISK_");
+                            prefix = prefix.replace("+", "_PLUS_");
+                            prefix = prefix.replace("[", "_SQUARE_BRACKET_OPEN_");
+                            prefix = prefix.replace("]", "_SQUARE_BRACKET_CLOSE_");
+                            prefix = prefix.replace("(", "_R_BRACKET_OPEN_");
+                            prefix = prefix.replace(")", "_R_BRACKET_CLOSE_");
 
 
-                    for (Property property : properties) {
-                        String fullName = prefix + "-" + property.getName().trim();
+                            for (Property property : properties) {
+                                String fullName = prefix + "-" + property.getName().trim();
 
-                        String cssText = property.getValue().getCssText();
-                        if (cssText.matches("-[a-zA-Z].*")) {
-                            fullName += "-" + cssText.split("\\(")[0].trim();
-                        }
+                                String cssText = property.getValue().getCssText();
+                                if (cssText.matches("-[a-zA-Z].*")) {
+                                    fullName += "-" + cssText.split("\\(")[0].trim();
+                                }
 
 
 //                        if (cssText.startsWith("rgb") ) {
 //                            fullName += "-" + cssText.split("\\(")[0].trim();
 //                        }
 
-                        if (defs.containsKey(fullName) && !defs.get(fullName).equals(cssText)) {
-                            System.err.println(fullName + " already in there with diff css text: " + cssText + " vs. " + defs.get(fullName));
-                        } else {
-                            defs.put(fullName, cssText);
-                            usage.add(item.toString() + " { " + property.getName() + ": var(--" + fullName + ", " + cssText + "); }");
+                                if (defs.containsKey(fullName) && !defs.get(fullName).equals(cssText)) {
+                                    System.err.println(fullName + " already in there with diff css text: " + cssText + " vs. " + defs.get(fullName));
+                                } else {
+                                    defs.put(fullName, cssText);
+                                    usage.add(item.toString() + " { " + property.getName() + ": var(--" + fullName + ", " + cssText + "); }");
+                                }
+                            }
                         }
                     }
-                }
-            }
 
-            BufferedWriter bufferedWriter = Files.newBufferedWriter(Paths.get("styles_def.html"));
+                    BufferedWriter bufferedWriter = Files.newBufferedWriter(Paths.get(path.toString() + ".def"));
 
-            bufferedWriter.write("<custom-style>\n    <style>\n        html{\n");
+                    bufferedWriter.write("<custom-style>\n    <style>\n        html{\n");
 
-            defs.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).forEach(e -> {
-                try {
-                    bufferedWriter.write("            --" + e.getKey() + ": " + e.getValue() + ";");
-                    bufferedWriter.newLine();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            });
-            bufferedWriter.write("        }\n    </style>\n</custom-style>");
-            bufferedWriter.close();
+                    defs.entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey)).forEach(e -> {
+                        try {
+                            bufferedWriter.write("            --" + e.getKey() + ": " + e.getValue() + ";");
+                            bufferedWriter.newLine();
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    });
+                    bufferedWriter.write("        }\n    </style>\n</custom-style>");
+                    bufferedWriter.close();
 
-            BufferedWriter bufferedWriter2 = Files.newBufferedWriter(Paths.get("styles_usage"));
-            usage.stream().sorted(Comparator.naturalOrder()).forEach(s -> {
-                try {
-                    bufferedWriter2.write(s);
+                    BufferedWriter bufferedWriter2 = Files.newBufferedWriter(Paths.get(path.toString() + ".usage"));
+                    usage.stream().sorted(Comparator.naturalOrder()).forEach(s -> {
+                        try {
+                            bufferedWriter2.write(s);
 //                    bufferedWriter2.newLine();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+
+                    bufferedWriter2.close();
                 }
-            });
 
-            bufferedWriter2.close();
-        }
-
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 }
