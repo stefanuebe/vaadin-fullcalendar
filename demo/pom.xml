@@ -14,7 +14,7 @@
     <properties>
         <vaadin.version>14.0.5</vaadin.version>
 
-        <fullcalendar.version>2.0.0.alpha4-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.version>2.0.0.RC1</fullcalendar.version>
 <!--        <fullcalendar.scheduler.version>2.0.0-SNAPSHOT</fullcalendar.scheduler.version>-->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -111,11 +111,11 @@
 
 
         <!-- used for the helper class StyleConverter - not used in Demo directly -->
-<!--        <dependency>-->
-<!--            <groupId>net.sourceforge.cssparser</groupId>-->
-<!--            <artifactId>cssparser</artifactId>-->
-<!--            <version>0.9.26</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>net.sourceforge.cssparser</groupId>
+            <artifactId>cssparser</artifactId>
+            <version>0.9.27</version>
+        </dependency>
     </dependencies>
 
     <build>

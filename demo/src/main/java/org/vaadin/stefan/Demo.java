@@ -20,6 +20,7 @@ import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
@@ -41,6 +42,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Route(value = "", layout = MainView.class)
+@JsModule("./styles.js")
 public class Demo extends VerticalLayout {
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
@@ -104,22 +106,24 @@ public class Demo extends VerticalLayout {
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);
 
-        timezoneComboBox = new ComboBox<>("");
-        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
-        timezoneComboBox.setItems(Timezone.getAvailableZones());
-        timezoneComboBox.setValue(Timezone.UTC);
-        timezoneComboBox.addValueChangeListener(event -> {
-            Timezone value = event.getValue();
-            calendar.setTimezone(value != null ? value : Timezone.UTC);
-        });
+//        timezoneComboBox = new ComboBox<>("");
+//        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
+//        timezoneComboBox.setItems(Timezone.getAvailableZones());
+//        timezoneComboBox.setValue(Timezone.UTC);
+//        timezoneComboBox.addValueChangeListener(event -> {
+//            Timezone value = event.getValue();
+//            calendar.setTimezone(value != null ? value : Timezone.UTC);
+//        });
 
-        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales, timezoneComboBox);
+        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales);
+
+        Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
 
         add(toolbar);
     }
 
     private void createCalendarInstance() {
-        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).build();
+        calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).build();
 
         calendar.addDatesRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
@@ -191,7 +195,7 @@ public class Demo extends VerticalLayout {
             }
         });
 
-        calendar.addBrowserTimezoneObtainedListener(event -> timezoneComboBox.setValue(event.getTimezone()));
+//        calendar.addBrowserTimezoneObtainedListener(event -> timezoneComboBox.setValue(event.getTimezone()));
     }
 
     private void createTestEntries(FullCalendar calendar) {
