@@ -5,6 +5,8 @@ import interaction from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import { toMoment } from '@fullcalendar/moment'; // only for formatting
+import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 
 /*
    Copyright 2018, Stefan Uebe
@@ -142,8 +144,8 @@ export class FullCalendar extends PolymerElement {
             },
             select: (eventInfo) => {
                 return {
-                    start: eventInfo.startStr,
-                    end: eventInfo.endStr,
+                    start: this._formatDate(eventInfo.start),
+                    end: this._formatDate(eventInfo.end),
                     allDay: eventInfo.allDay,
                     resource: typeof eventInfo.resource === 'object' ? eventInfo.resource.id : null
                 }
@@ -197,10 +199,6 @@ export class FullCalendar extends PolymerElement {
         };
     }
 
-    _reformatDate(dateString, asDay) {
-        return this._formatDate(Date.parse(dateString), asDay);
-    }
-
     /**
      * Formats the given date as an iso string. Setting asDay to true will cut of any time information. Also ignores
      * potential timezone offsets. Should be used for events where the server side works with a LocalDate instance.
@@ -210,14 +208,19 @@ export class FullCalendar extends PolymerElement {
      * @private
      */
     _formatDate(date, asDay) {
-        return this.getCalendar().formatIso(date, asDay);
+        let moment = toMoment(date, this.getCalendar());
+        if(asDay) {
+            moment = moment.startOf('day');
+        }
+        return moment.format();
+        // return this.getCalendar().formatIso(date, asDay);
     }
 
     _createInitOptions() {
         let events = this._createEventHandlers();
 
         let options = {
-            plugins: [interaction, dayGridPlugin, timeGridPlugin, listPlugin],
+            plugins: [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin],
             height: 'parent',
 
             //
@@ -385,15 +388,13 @@ export class FullCalendar extends PolymerElement {
         this.getCalendar().changeView(viewName);
     }
 
-    //
-    //
-    // render() {
-    //     this.getCalendar().render();
-    // }
-    //
-    // setEventRenderCallback(s) {
-    //     this.getCalendar().option('eventRender', new Function("return " + s)());
-    // }
+    render() {
+        this.getCalendar().render();
+    }
+
+    setEventRenderCallback(s) {
+        this.getCalendar().option('eventRender', new Function("return " + s)());
+    }
 }
 
 customElements.define("full-calendar", FullCalendar);
