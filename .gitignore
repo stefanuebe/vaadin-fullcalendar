@@ -10,3 +10,9 @@ node_modules/
 .classpath
 .settings
 *.iml
+webpack.config.js
+package.json
+package-lock.json
+/addon/webpack.generated.js
+/demo/webpack.generated.js
+rebel.xml

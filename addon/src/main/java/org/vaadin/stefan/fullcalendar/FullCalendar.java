@@ -17,14 +17,14 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.dependency.HtmlImport;
-import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
+import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.templatemodel.TemplateModel;
 import elemental.json.Json;
 import elemental.json.JsonArray;
+import elemental.json.JsonValue;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -38,9 +38,18 @@ import java.util.stream.Stream;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
+@NpmPackage(value = "@fullcalendar/core", version = "^4.3.1")
+@NpmPackage(value = "@fullcalendar/interaction", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/daygrid", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/timegrid", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/list", version = "^4.3.0")
+@NpmPackage(value = "moment", version = "^2.24.0")
+@NpmPackage(value = "moment-timezone", version = "^0.5.26")
+@NpmPackage(value = "@fullcalendar/moment", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/moment-timezone", version = "^4.3.0")
 @Tag("full-calendar")
-@HtmlImport("frontend://bower_components/fullcalendar/full-calendar.html")
-public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasStyle, HasSize {
+@JsModule("./full-calendar.js")
+public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
@@ -70,7 +79,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Creates a new FullCalendar.
-     * <p/>
+     * <br><br>
      * Expects the default limit of entries shown per day. This does not affect basic or
      * list views. This value has to be set here and cannot be modified afterwards due to
      * technical reasons of FC. If set afterwards the entry limit would overwrite settings
@@ -92,21 +101,21 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Moves to the next interval (e. g. next month if current view is monthly based).
      */
     public void next() {
-        getElement().callFunction("next");
+        getElement().callJsFunction("next");
     }
 
     /**
      * Moves to the previous interval (e. g. previous month if current view is monthly based).
      */
     public void previous() {
-        getElement().callFunction("previous");
+        getElement().callJsFunction("previous");
     }
 
     /**
      * Moves to the current interval (e. g. current month if current view is monthly based).
      */
     public void today() {
-        getElement().callFunction("today");
+        getElement().callJsFunction("today");
     }
 
     /**
@@ -116,7 +125,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return entry or empty
      * @throws NullPointerException when null is passed
      */
-    public Optional<Entry> getEntryById(@Nonnull String id) {
+    public Optional<Entry> getEntryById(@NotNull String id) {
         Objects.requireNonNull(id);
         return Optional.ofNullable(entries.get(id));
     }
@@ -125,10 +134,11 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Returns all entries registered in this instance. Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
-     * <p/>
+     * <br><br>
      * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
      * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
      * a convenient way of using the returned values without the need to encapsulate them yourselves.
+     *
      * @return entries entries
      */
     public List<Entry> getEntries() {
@@ -139,19 +149,20 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Returns all entries registered in this instance which timespan crosses the given time span. You may
      * pass null for the parameters to have the timespan search only on one side. Passing null for both
      * parameters return all entries.
-     * <p/>
+     * <br><br>
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
-     * <p/>
+     * <br><br>
      * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
      * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
      * exclusive to the date.
      * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
      * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
      * include it.
+     *
      * @param filterStart start point of filter timespan or null to have no limit
-     * @param filterEnd end point of filter timespan or null to have no limit
+     * @param filterEnd   end point of filter timespan or null to have no limit
      * @return entries
      */
     public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
@@ -176,19 +187,20 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * pass null for the parameters to have the timespan search only on one side. Passing null for both
      * parameters return all entries. The times are converted
      * to UTC before searching. The conversion is done with the calendars timezone.
-     * <p/>
+     * <br><br>
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
-     * <p/>
+     * <br><br>
      * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
      * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
      * exclusive to the date.
      * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
      * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
      * include it.
+     *
      * @param filterStart start point of filter timespan or null to have no limit
-     * @param filterEnd end point of filter timespan or null to have no limit
+     * @param filterEnd   end point of filter timespan or null to have no limit
      * @return entries
      */
     public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
@@ -198,15 +210,16 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Returns all entries registered in this instance which timespan crosses the given date.
-     * <p/>
+     * <br><br>
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
+     *
      * @param date end point of filter timespan
      * @return entries
      * @throws NullPointerException when null is passed
      */
-    public List<Entry> getEntries(@Nonnull Instant date) {
+    public List<Entry> getEntries(@NotNull Instant date) {
         Objects.requireNonNull(date);
         return getEntries(date, date.plus(1, ChronoUnit.DAYS));
     }
@@ -214,15 +227,16 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     /**
      * Returns all entries registered in this instance which timespan crosses the given date. The date is converted
      * to UTC before searching. The conversion is done with the calendars timezone.
-     * <p/>
+     * <br><br>
      * Changes in an entry instance is reflected in the
      * calendar instance on server side, but not client side. If you change an entry make sure to call
      * {@link #updateEntry(Entry)} afterwards.
+     *
      * @param date end point of filter timespan
      * @return entries
      * @throws NullPointerException when null is passed
      */
-    public List<Entry> getEntries(@Nonnull LocalDate date) {
+    public List<Entry> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
         return getEntries(getTimezone().convertToUTC(date));
     }
@@ -233,7 +247,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param entry entry
      * @throws NullPointerException when null is passed
      */
-    public void addEntry(@Nonnull Entry entry) {
+    public void addEntry(@NotNull Entry entry) {
         Objects.requireNonNull(entry);
         addEntries(Collections.singletonList(entry));
     }
@@ -241,24 +255,20 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     /**
      * Adds an array of entries to the calendar. Noop for the entry id is already registered.
      *
-     * @param arrayOfEntries
-     *           array of entries
-     * @throws NullPointerException
-     *            when null is passed
+     * @param arrayOfEntries array of entries
+     * @throws NullPointerException when null is passed
      */
-    public void addEntries(@Nonnull Entry... arrayOfEntries) {
+    public void addEntries(@NotNull Entry... arrayOfEntries) {
         addEntries(Arrays.asList(arrayOfEntries));
     }
 
     /**
      * Adds a list of entries to the calendar. Noop for the entry id is already registered.
      *
-     * @param iterableEntries
-     *           list of entries
-     * @throws NullPointerException
-     *            when null is passed
+     * @param iterableEntries list of entries
+     * @throws NullPointerException when null is passed
      */
-    public void addEntries(@Nonnull Iterable<Entry> iterableEntries) {
+    public void addEntries(@NotNull Iterable<Entry> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
 
         JsonArray array = Json.createArray();
@@ -273,7 +283,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         });
 
         if (array.length() > 0) {
-            getElement().callFunction("addEvents", array);
+            getElement().callJsFunction("addEvents", array);
         }
     }
 
@@ -284,7 +294,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param entry entry to update
      * @throws NullPointerException when null is passed
      */
-    public void updateEntry(@Nonnull Entry entry) {
+    public void updateEntry(@NotNull Entry entry) {
         Objects.requireNonNull(entry);
         updateEntries(Collections.singletonList(entry));
     }
@@ -295,18 +305,18 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param arrayOfEntries entries to update
      * @throws NullPointerException when null is passed
      */
-    public void updateEntries(@Nonnull Entry... arrayOfEntries) {
+    public void updateEntries(@NotNull Entry... arrayOfEntries) {
         updateEntries(Arrays.asList(arrayOfEntries));
     }
 
 
-        /**
-         * Updates the given entries on the client side. Ignores non-registered entries.
-         *
-         * @param iterableEntries entries to update
-         * @throws NullPointerException when null is passed
-         */
-    public void updateEntries(@Nonnull Iterable<Entry> iterableEntries) {
+    /**
+     * Updates the given entries on the client side. Ignores non-registered entries.
+     *
+     * @param iterableEntries entries to update
+     * @throws NullPointerException when null is passed
+     */
+    public void updateEntries(@NotNull Iterable<Entry> iterableEntries) {
         Objects.requireNonNull(entries);
 
         JsonArray array = Json.createArray();
@@ -318,7 +328,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         });
 
         if (array.length() > 0) {
-            getElement().callFunction("updateEvents", array);
+            getElement().callJsFunction("updateEvents", array);
         }
     }
 
@@ -328,7 +338,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param entry entry
      * @throws NullPointerException when null is passed
      */
-    public void removeEntry(@Nonnull Entry entry) {
+    public void removeEntry(@NotNull Entry entry) {
         Objects.requireNonNull(entry);
         removeEntries(Collections.singletonList(entry));
     }
@@ -339,16 +349,17 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param arrayOfEntries entries to remove
      * @throws NullPointerException when null is passed
      */
-    public void removeEntries(@Nonnull Entry... arrayOfEntries) {
+    public void removeEntries(@NotNull Entry... arrayOfEntries) {
         removeEntries(Arrays.asList(arrayOfEntries));
     }
-   /**
+
+    /**
      * Removes the given entries. Noop for not registered entries.
      *
      * @param iterableEntries entries to remove
      * @throws NullPointerException when null is passed
      */
-    public void removeEntries(@Nonnull Iterable<Entry> iterableEntries) {
+    public void removeEntries(@NotNull Iterable<Entry> iterableEntries) {
         Objects.requireNonNull(entries);
 
         JsonArray array = Json.createArray();
@@ -363,7 +374,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         });
 
         if (array.length() > 0) {
-            getElement().callFunction("removeEvents", array);
+            getElement().callJsFunction("removeEvents", array);
         }
     }
 
@@ -373,7 +384,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     public void removeAllEntries() {
         entries.values().forEach(e -> e.setCalendar(null));
         entries.clear();
-        getElement().callFunction("removeAllEvents");
+        getElement().callJsFunction("removeAllEvents");
     }
 
     /**
@@ -382,9 +393,9 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param view view to set
      * @throws NullPointerException when null is passed
      */
-    public void changeView(@Nonnull CalendarView view) {
+    public void changeView(@NotNull CalendarView view) {
         Objects.requireNonNull(view);
-        getElement().callFunction("changeView", view.getClientSideValue());
+        getElement().callJsFunction("changeView", view.getClientSideValue());
     }
 
     /**
@@ -393,14 +404,14 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param date date to goto
      * @throws NullPointerException when null is passed
      */
-    public void gotoDate(@Nonnull LocalDate date) {
+    public void gotoDate(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
-        getElement().callFunction("gotoDate", date.toString());
+        getElement().callJsFunction("gotoDate", date.toString());
     }
 
     /**
      * Sets a option for this instance. Passing a null value removes the option.
-     * <p/>
+     * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
      *
@@ -408,7 +419,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@Nonnull Option option, Serializable value) {
+    public void setOption(@NotNull Option option, Serializable value) {
         setOption(option, value, null);
     }
 
@@ -417,34 +428,33 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <p/>
+     * <br><br>
      * Example:
      * <pre>
-     // sends a client parseable version to client and stores original in server side
-     calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
-
-     // returns the original locale (as optional)
-     Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
+     * // sends a client parseable version to client and stores original in server side
+     * calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
+     *
+     * // returns the original locale (as optional)
+     * Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
      * </pre>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
      *
-     *
-     * @param option option
-     * @param value  value
+     * @param option             option
+     * @param value              value
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@Nonnull Option option, Serializable value, Object valueForServerSide) {
-       setOption(option.getOptionKey(), value, valueForServerSide);
+    public void setOption(@NotNull Option option, Serializable value, Object valueForServerSide) {
+        setOption(option.getOptionKey(), value, valueForServerSide);
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option.
-     * <p/>
+     * Sets a custom option for this instance. Passing a null value removes the option.
+     * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
-     * <p/>
+     * <br><br>
      * For a full overview of possible options have a look at the FullCalendar documentation
      * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
      *
@@ -452,7 +462,46 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@Nonnull String option, Serializable value) {
+    public void setOption(@NotNull String option, JsonValue value) {
+        setOption(option, (JsonValue) value, null);
+    }
+
+    /**
+     * Sets a custom option for this instance. Passing a null value removes the option. The third parameter
+     * might be used to explicitly store a "more complex" variant of the option's value to be returned
+     * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
+     * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
+     * <br><br>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * <p>
+     * <br><br>
+     * For a full overview of possible options have a look at the FullCalendar documentation
+     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     *
+     * @param option             option
+     * @param value              value
+     * @param valueForServerSide value to be stored on server side
+     * @throws NullPointerException when null is passed
+     */
+    public void setOption(@NotNull String option, JsonValue value, Object valueForServerSide) {
+        setOption(option, (Serializable) value, valueForServerSide);
+    }
+
+    /**
+     * Sets a option for this instance. Passing a null value removes the option.
+     * <br><br>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * <br><br>
+     * For a full overview of possible options have a look at the FullCalendar documentation
+     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     *
+     * @param option option
+     * @param value  value
+     * @throws NullPointerException when null is passed
+     */
+    public void setOption(@NotNull String option, Serializable value) {
         setOption(option, value, null);
     }
 
@@ -461,28 +510,20 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <p/>
-     * Example:
-     * <pre>
-     // sends a client parseable version to client and stores original in server side
-     calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
-
-     // returns the original locale (as optional)
-     Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
-     * </pre>
+     * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
-     *
-     * <p/>
+     * <p>
+     * <br><br>
      * For a full overview of possible options have a look at the FullCalendar documentation
      * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
      *
-     * @param option option
-     * @param value  value
+     * @param option             option
+     * @param value              value
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@Nonnull String option, Serializable value, Object valueForServerSide) {
+    public void setOption(@NotNull String option, Serializable value, Object valueForServerSide) {
         Objects.requireNonNull(option);
 
         if (value == null) {
@@ -497,19 +538,19 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
                 serverSideOptions.put(option, valueForServerSide);
             }
         }
-        getElement().callFunction("setOption", option, value);
+        getElement().callJsFunction("setOption", option, value);
     }
 
     /**
      * Sets the first day of a week to be shown by the calendar. Per default sunday.
-     * <p/>
+     * <br><br>
      * <b>Note:</b> FC works internally with 0 for sunday. This method converts SUNDAY to
      * this number before passing it to the client.
      *
      * @param firstDay first day to be shown
      * @throws NullPointerException when null is passed
      */
-    public void setFirstDay(@Nonnull DayOfWeek firstDay) {
+    public void setFirstDay(@NotNull DayOfWeek firstDay) {
         Objects.requireNonNull(firstDay);
         int value = firstDay == DayOfWeek.SUNDAY ? 0 : firstDay.getValue();
         setOption(Option.FIRST_DAY, value, firstDay);
@@ -560,17 +601,6 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * Sets the locale to be used. If invoked for the first time it will load additional language scripts.
-     *
-     * @param locale locale
-     * @throws NullPointerException when null is passed
-     */
-    public void setLocale(@Nonnull Locale locale) {
-        Objects.requireNonNull(locale);
-        setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
-    }
-
-    /**
      * Returns the current set locale.
      *
      * @return locale
@@ -584,6 +614,17 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
         Object value = option.get();
         return value instanceof Locale ? (Locale) value : Locale.forLanguageTag((String) value);
+    }
+
+    /**
+     * Sets the locale to be used. If invoked for the first time it will load additional language scripts.
+     *
+     * @param locale locale
+     * @throws NullPointerException when null is passed
+     */
+    public void setLocale(@NotNull Locale locale) {
+        Objects.requireNonNull(locale);
+        setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
     }
 
     /**
@@ -608,34 +649,36 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     /**
      * The given string will be interpreted as JS function on the client side
      * and attached to the calendar as the eventRender callback. It must be a valid JavaScript function.
-     * <p/>
+     * <br><br>
      * <b>Note: </b> Please be aware, that there is NO content parsing, escaping, quoting or
      * other security mechanism applied on this string, so check it yourself before passing it to the client.
-     * <p/>
+     * <br><br>
      * Example
      * <pre>
-     calendar.setEntryRenderCallback("" +
-             "function(event, element) {" +
-             "   console.log(event.title + 'X');" +
-             "   element.css('color', 'red');" +
-             "   return element; " +
-             "}");
+     * calendar.setEntryRenderCallback("" +
+     * "function(event, element) {" +
+     * "   console.log(event.title + 'X');" +
+     * "   element.css('color', 'red');" +
+     * "   return element; " +
+     * "}");
      *
      * </pre>
+     *
      * @param s js function to be attached to eventRender callback
      */
     public void setEntryRenderCallback(String s) {
-        getElement().callFunction("setEventRenderCallback", s);
+        getElement().callJsFunction("setEventRenderCallback", s);
     }
 
     /**
      * Sets the business hours for this calendar instance. You may pass multiple instances for different configurations.
      * Please be aware, that instances with crossing days or times are handled by the client side and may lead
      * to unexpected results.
+     *
      * @param hours hours to set
      * @throws NullPointerException when null is passed
      */
-    public void setBusinessHours(@Nonnull BusinessHours... hours) {
+    public void setBusinessHours(@NotNull BusinessHours... hours) {
         Objects.requireNonNull(hours);
 
         setOption(Option.BUSINESS_HOURS, JsonUtils.toJsonValue(Arrays.stream(hours).map(BusinessHours::toJson)), hours);
@@ -643,10 +686,21 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
     /**
      * Removes the business hours for this calendar instance.
+     *
      * @throws NullPointerException when null is passed
      */
     public void removeBusinessHours() {
         setOption(Option.BUSINESS_HOURS, null);
+    }
+
+    /**
+     * Returns the timezone set for this browser. By default UTC. If obtainable, you can read the timezone from
+     * the browser.
+     *
+     * @return time zone
+     */
+    public Timezone getTimezone() {
+        return (Timezone) getOption("timeZone").orElse(Timezone.UTC);
     }
 
     public void setTimezone(Timezone timezone) {
@@ -654,9 +708,19 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
 
         Timezone oldTimezone = getTimezone();
         if (!timezone.equals(oldTimezone)) {
-            setOption("timezone", timezone.getClientSideValue(), timezone);
+            setOption("timeZone", timezone.getClientSideValue(), timezone);
             updateEntries(getEntries());
         }
+    }
+
+    /**
+     * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone.
+     * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
+     *
+     * @return optional client side timezone
+     */
+    public Optional<Timezone> getBrowserTimezone() {
+        return Optional.ofNullable(browserTimezone);
     }
 
     @ClientCallable
@@ -668,28 +732,10 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
     }
 
     /**
-     * Returns the timezone set for this browser. By default UTC. If obtainable, you can read the timezone from
-     * the browser.
-     * @return time zone
-     */
-    public Timezone getTimezone() {
-        return (Timezone) getOption("timezone").orElse(Timezone.UTC);
-    }
-
-    /**
-     * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone.
-     * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
-     * @return optional client side timezone
-     */
-    public Optional<Timezone> getBrowserTimezone() {
-        return Optional.ofNullable(browserTimezone);
-    }
-
-    /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
      * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
-     * <p/>
+     * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
@@ -697,7 +743,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@Nonnull Option option) {
+    public <T> Optional<T> getOption(@NotNull Option option) {
         return getOption(option, false);
     }
 
@@ -705,7 +751,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
-     * <p/>
+     * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option               option
@@ -714,7 +760,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@Nonnull Option option, boolean forceClientSideValue) {
+    public <T> Optional<T> getOption(@NotNull Option option, boolean forceClientSideValue) {
         return getOption(option.getOptionKey(), forceClientSideValue);
     }
 
@@ -722,7 +768,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
      * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
-     * <p/>
+     * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
@@ -730,7 +776,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@Nonnull String option) {
+    public <T> Optional<T> getOption(@NotNull String option) {
         return getOption(option, false);
     }
 
@@ -738,7 +784,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
-     * <p/>
+     * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option               option
@@ -747,7 +793,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@Nonnull String option, boolean forceClientSideValue) {
+    public <T> Optional<T> getOption(@NotNull String option, boolean forceClientSideValue) {
         Objects.requireNonNull(option);
         return Optional.ofNullable((T) (!forceClientSideValue && serverSideOptions.containsKey(option)
                 ? serverSideOptions.get(option) : options.get(option)));
@@ -758,7 +804,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * Force the client side instance to re-render it's content.
      */
     public void render() {
-        getElement().callFunction("render");
+        getElement().callJsFunction("render");
     }
 
     /**
@@ -768,7 +814,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotClickedListener(@Nonnull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+    public Registration addTimeslotClickedListener(@NotNull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotClickedEvent.class, (ComponentEventListener<TimeslotClickedEvent>) listener);
     }
@@ -780,7 +826,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryClickedListener(@Nonnull ComponentEventListener<EntryClickedEvent> listener) {
+    public Registration addEntryClickedListener(@NotNull ComponentEventListener<EntryClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryClickedEvent.class, listener);
     }
@@ -792,7 +838,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryResizedListener(@Nonnull ComponentEventListener<EntryResizedEvent> listener) {
+    public Registration addEntryResizedListener(@NotNull ComponentEventListener<EntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryResizedEvent.class, listener);
     }
@@ -804,26 +850,26 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryDroppedListener(@Nonnull ComponentEventListener<EntryDroppedEvent> listener) {
+    public Registration addEntryDroppedListener(@NotNull ComponentEventListener<EntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryDroppedEvent.class, listener);
     }
 
     /**
-     * Registers a listener to be informed when a view rendered event occurred.
+     * Registers a listener to be informed when a dates rendered event occurred.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addViewRenderedListener(@Nonnull ComponentEventListener<ViewRenderedEvent> listener) {
+    public Registration addDatesRenderedListener(@NotNull ComponentEventListener<DatesRenderedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(ViewRenderedEvent.class, listener);
+        return addListener(DatesRenderedEvent.class, listener);
     }
 
     /**
      * Registers a listener to be informed when the user selected a range of timeslots.
-     * <p/>
+     * <br><br>
      * You should deactivate timeslot clicked listeners since both events will get fired when the user only selects
      * one timeslot / day.
      *
@@ -831,7 +877,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotsSelectedListener(@Nonnull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
+    public Registration addTimeslotsSelectedListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotsSelectedEvent.class, (ComponentEventListener<TimeslotsSelectedEvent>) listener);
     }
@@ -843,46 +889,47 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addLimitedEntriesClickedListener(@Nonnull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
+    public Registration addLimitedEntriesClickedListener(@NotNull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(LimitedEntriesClickedEvent.class, listener);
     }
 
     /**
      * Registers a listener to be informed, when a user clicks a day's number.
-     * <p/>
+     * <br><br>
      * {@link #setNumberClickable(boolean)} needs to be called with true before.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addDayNumberClickedListener(@Nonnull ComponentEventListener<DayNumberClickedEvent> listener) {
+    public Registration addDayNumberClickedListener(@NotNull ComponentEventListener<DayNumberClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(DayNumberClickedEvent.class, listener);
     }
 
     /**
      * Registers a listener to be informed, when a user clicks a week's number.
-     * <p/>
+     * <br><br>
      * {@link #setNumberClickable(boolean)} needs to be called with true before.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addWeekNumberClickedListener(@Nonnull ComponentEventListener<WeekNumberClickedEvent> listener) {
+    public Registration addWeekNumberClickedListener(@NotNull ComponentEventListener<WeekNumberClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(WeekNumberClickedEvent.class, listener);
     }
 
     /**
      * Registers a listener to be informed, when the browser's timezone has been obtained by the server.
+     *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addBrowserTimezoneObtainedListener(@Nonnull ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
+    public Registration addBrowserTimezoneObtainedListener(@NotNull ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(BrowserTimezoneObtainedEvent.class, listener);
     }
@@ -896,7 +943,7 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
         NOW_INDICATOR("nowIndicator"),
         NAV_LINKS("navLinks"),
         BUSINESS_HOURS("businessHours"),
-        TIMEZONE("timezone"),
+        TIMEZONE("timeZone"),
         ;
 
         private final String optionKey;
@@ -909,7 +956,6 @@ public class FullCalendar extends PolymerTemplate<TemplateModel> implements HasS
             return optionKey;
         }
     }
-
 
 
 }

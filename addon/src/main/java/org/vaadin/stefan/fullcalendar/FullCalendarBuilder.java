@@ -22,56 +22,78 @@ package org.vaadin.stefan.fullcalendar;
  */
 public class FullCalendarBuilder {
 
+    private final boolean autoBrowserTimezone;
     private boolean scheduler;
     private int entryLimit;
 
+    private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone) {
+        this.scheduler = scheduler;
+        this.entryLimit = entryLimit;
+        this.autoBrowserTimezone = autoBrowserTimezone;
+    }
+
     /**
      * Creates a new builder instance with default settings.
+     *
      * @return builder instance
      */
     public static FullCalendarBuilder create() {
-        return new FullCalendarBuilder(false, -1);
-    }
-
-    private FullCalendarBuilder(boolean scheduler, int entryLimit) {
-        this.scheduler = scheduler;
-        this.entryLimit = entryLimit;
+        return new FullCalendarBuilder(false, -1, false);
     }
 
     /**
      * Activates Scheduler support.
-     * <p/>
+     * <br><br>
      * <b>Note: </b> You need to add the FullCalender Scheduler extension addon to the class path, otherwise
      * the build will fail.
+     *
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withScheduler() {
-        return new FullCalendarBuilder(true, entryLimit);
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone);
     }
 
     /**
      * Expects the default limit of entries shown per day. This does not affect basic or
      * list views.
-     * <p/>
+     * <br><br>
      * Passing a negative number or 0 disabled the entry limit (same as not using this method at all).
+     *
      * @param entryLimit limit
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withEntryLimit(int entryLimit) {
-        return new FullCalendarBuilder(scheduler, entryLimit);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone);
+    }
+
+    /**
+     * Sets automatically the browser timezone as timezone for this browser.
+     *
+     * @return new immutable instance with updated settings
+     */
+    public FullCalendarBuilder withAutoBrowserTimezone() {
+        return new FullCalendarBuilder(scheduler, entryLimit, true);
     }
 
     /**
      * Builds the FullCalendar with the settings of this instance. Depending on some settings the returned
      * instance might be a subclass of {@link FullCalendar}.
+     *
      * @return FullCalendar instance
      */
     public FullCalendar build() {
+        FullCalendar calendar;
         if (scheduler) {
-            return createFullCalendarSchedulerInstance(entryLimit);
+            calendar = createFullCalendarSchedulerInstance(entryLimit);
         } else {
-            return createFullCalendarBasicInstance();
+            calendar = createFullCalendarBasicInstance();
         }
+
+        if (autoBrowserTimezone) {
+            calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
+        }
+
+        return calendar;
     }
 
     protected FullCalendar createFullCalendarBasicInstance() {

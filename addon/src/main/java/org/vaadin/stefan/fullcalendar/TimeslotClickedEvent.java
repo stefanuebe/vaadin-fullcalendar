@@ -22,10 +22,10 @@ import com.vaadin.flow.component.EventData;
 /**
  * This event occurs when an empty timeslot in the calendar has clicked. Empty means the empty space itself, not that there
  * is not yet another entry located at this timeslot.
- * <p/>
- * Client side event: dayClick.
+ * <br><br>
+ * Client side event: dateClick.
  */
-@DomEvent("dayClick")
+@DomEvent("dateClick")
 public class TimeslotClickedEvent extends DateTimeEvent {
 
     /**

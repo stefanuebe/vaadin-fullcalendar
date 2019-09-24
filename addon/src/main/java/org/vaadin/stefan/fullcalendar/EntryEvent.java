@@ -17,7 +17,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
-import elemental.json.JsonObject;
 
 /**
  * Simple event that occurred for a specific calendar item.

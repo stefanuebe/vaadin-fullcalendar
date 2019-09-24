@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import javax.annotation.Nullable;
 
 /**
  * Marks a class as a client side setting, which returns client side representation for an instance of this class.
@@ -26,7 +25,8 @@ import javax.annotation.Nullable;
 public interface ClientSideValue {
     /**
      * Returns a client side representation of this instance.
+     *
      * @return String
      */
-    @Nullable String getClientSideValue();
+    String getClientSideValue();
 }
