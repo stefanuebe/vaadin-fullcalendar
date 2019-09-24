@@ -25,6 +25,7 @@ The following functions are currently implemented and available to use from serv
 - setting a eventRender JS function from server side
 - setting business hours information (multiple entries possible)
 - creating recurring events
+- setting / handling timezones and their offsets
 
 - Event handling for
     - clicking an empty time spot in the calendar,
@@ -46,9 +47,9 @@ The following functions are currently implemented and available to use from serv
     - recurring data (day of week, start / end date and time)
 
 ## Timezones
-Currently timezones are not yet supported. I'm also not sure yet, how deep the timezone support will be integrated 
-at this point due to the handling of timezones is a matter of the server side and syncing the times between
-server and client leads to some unwanted problems. But as said, not yet decided ;)
+The FC addon tries to obtain the browser's timezone (when activated) and use it internally for the FC. Alternatively
+you can also set the timezone by yourself or simply use UTC if you don't want the FC component to manage timezones
+or offset at all. Internally the API works with Instant (and partially with LocalDate/Time).
 
 ## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
