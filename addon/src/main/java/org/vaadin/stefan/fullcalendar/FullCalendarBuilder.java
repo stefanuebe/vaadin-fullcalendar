@@ -84,7 +84,7 @@ public class FullCalendarBuilder {
     public FullCalendar build() {
         FullCalendar calendar;
         if (scheduler) {
-            calendar = createFullCalendarSchedulerInstance(entryLimit);
+            calendar = createFullCalendarSchedulerInstance();
         } else {
             calendar = createFullCalendarBasicInstance();
         }
@@ -100,7 +100,7 @@ public class FullCalendarBuilder {
         return new FullCalendar(entryLimit);
     }
 
-    protected FullCalendar createFullCalendarSchedulerInstance(int entryLimit) {
+    protected FullCalendar createFullCalendarSchedulerInstance() {
         try {
             Class<?> loadClass = getClass().getClassLoader().loadClass("org.vaadin.stefan.fullcalendar.FullCalendarScheduler");
             return (FullCalendar) loadClass.getDeclaredConstructor(int.class).newInstance(this.entryLimit);

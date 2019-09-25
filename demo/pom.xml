@@ -15,7 +15,7 @@
         <vaadin.version>14.0.5</vaadin.version>
 
         <fullcalendar.version>2.0.0.RC2</fullcalendar.version>
-<!--        <fullcalendar.scheduler.version>2.0.0-SNAPSHOT</fullcalendar.scheduler.version>-->
+        <fullcalendar.scheduler.version>2.0.0.alpha1-SNAPSHOT</fullcalendar.scheduler.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,13 +32,8 @@
         </license>
     </licenses>
 
-    <organization>
-        <name>Vaadin Visitor</name>
-    </organization>
-
     <repositories>
         <!-- The order of definitions matters. Explicitly defining central here to make sure it has the highest priority. -->
-
         <!-- Main Maven repository -->
         <repository>
             <id>central</id>
@@ -87,28 +82,17 @@
             <artifactId>fullcalendar2</artifactId>
             <version>${fullcalendar.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.vaadin</groupId>-->
-<!--            <artifactId>vaadin-spring-boot-starter</artifactId>-->
-<!--            <version>${vaadin.version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.vaadin.stefan</groupId>-->
-<!--            <artifactId>fullcalendar-scheduler</artifactId>-->
-<!--            <version>${fullcalendar.scheduler.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>net.bytebuddy</groupId>-->
-<!--            <artifactId>byte-buddy</artifactId>-->
-<!--            <version>1.8.16</version>-->
-<!--        </dependency>-->
-
+        <dependency>
+            <groupId>org.vaadin.stefan</groupId>
+            <artifactId>fullcalendar2-scheduler</artifactId>
+            <version>${fullcalendar.scheduler.version}</version>
+        </dependency>
 
         <!-- used for the helper class StyleConverter - not used in Demo directly -->
         <dependency>
@@ -131,20 +115,11 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>9.4.19.v20190610</version>
                 <configuration>
-                    <!-- If using IntelliJ IDEA with autocompilation, this
-                    might cause lots of unnecessary compilations in the
-                    background.-->
-                    <!-- Use war output directory to get the webpack files -->
                     <webAppConfig>
                         <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
                     </webAppConfig>
                 </configuration>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--            </plugin>-->
-
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
@@ -194,7 +169,6 @@
             </build>
         </profile>
     </profiles>
-
 </project>
 
 

@@ -43,6 +43,7 @@ import java.util.*;
 
 @Route(value = "", layout = MainView.class)
 @JsModule("./styles.js")
+@JsModule("./styles-scheduler.js")
 public class Demo extends VerticalLayout {
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
@@ -123,7 +124,8 @@ public class Demo extends VerticalLayout {
     }
 
     private void createCalendarInstance() {
-        calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).build();
+        calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).withScheduler().build();
+        ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
 
         calendar.addDatesRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
