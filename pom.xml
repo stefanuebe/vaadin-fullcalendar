@@ -26,7 +26,7 @@
 
     <modules>
         <module>addon</module>
-<!--        <module>addon-scheduler</module>-->
+        <module>addon-scheduler</module>
         <module>demo</module>
     </modules>
 
