@@ -19,6 +19,8 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -32,8 +34,11 @@ import java.util.*;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
+@NpmPackage(value = "@fullcalendar/resource-timeline", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/resource-timeline", version = "^4.3.0")
+@NpmPackage(value = "@fullcalendar/resource-timegrid", version = "^4.3.0")
 @Tag("full-calendar-scheduler")
-@HtmlImport("frontend://bower_components/fullcalendar/full-calendar-scheduler.html")
+@JsModule("./full-calendar-scheduler.js")
 public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     private Map<String, Resource> resources = new HashMap<>();
