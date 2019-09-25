@@ -17,6 +17,7 @@
 package org.vaadin.stefan;
 
 import com.vaadin.flow.component.HasText;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -25,6 +26,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -32,14 +34,14 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Route(value = "", layout = MainView.class)
 @JsModule("./styles.js")
@@ -90,8 +92,10 @@ public class Demo extends VerticalLayout {
         buttonDatePicker.getElement().appendChild(gotoDate.getElement());
         buttonDatePicker.addClickListener(event -> gotoDate.open());
 
-        List<CalendarView> calendarViews = Arrays.asList(CalendarViewImpl.values());
+        List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
+        calendarViews.addAll(Arrays.asList(SchedulerView.values()));
         calendarViews.sort(Comparator.comparing(CalendarView::getName));
+
         comboBoxView = new ComboBox<>("", calendarViews);
         comboBoxView.setValue(CalendarViewImpl.DAY_GRID_MONTH);
         comboBoxView.addValueChangeListener(e -> {
@@ -107,18 +111,49 @@ public class Demo extends VerticalLayout {
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);
 
-//        timezoneComboBox = new ComboBox<>("");
-//        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
-//        timezoneComboBox.setItems(Timezone.getAvailableZones());
-//        timezoneComboBox.setValue(Timezone.UTC);
-//        timezoneComboBox.addValueChangeListener(event -> {
-//            Timezone value = event.getValue();
-//            calendar.setTimezone(value != null ? value : Timezone.UTC);
-//        });
+        timezoneComboBox = new ComboBox<>("");
+        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
+        timezoneComboBox.setItems(Timezone.getAvailableZones());
+        timezoneComboBox.setValue(Timezone.UTC);
+        timezoneComboBox.addValueChangeListener(event -> {
+            Timezone value = event.getValue();
+            calendar.setTimezone(value != null ? value : Timezone.UTC);
+        });
+
+        Button addThousand = new Button("Add 1000 entries", event -> {
+            Button source = event.getSource();
+            source.setEnabled(false);
+            source.setText("Creating...");
+            Optional<UI> optionalUI = getUI();
+            optionalUI.ifPresent(ui -> {
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    Timezone timezone = new Timezone(ZoneId.systemDefault());
+                    Instant start = Instant.now();
+                    Instant end = Instant.now().plus(1, ChronoUnit.DAYS);
+                    List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
+                        Entry entry = new Entry();
+                        entry.setStart(start);
+                        entry.setEnd(end);
+                        entry.setAllDay(true);
+                        entry.setTitle("Generated " + (i + 1));
+                        return entry;
+                    }).collect(Collectors.toList());
+
+                    ui.access(() -> {
+                        calendar.addEntries(list);
+                        source.setVisible(false);
+                        Notification.show("Added 1,000 entries for today");
+                    });
+                });
+            });
+        });
+
 
         toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales);
 
         Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
+
+        toolbar.add(addThousand);
 
         add(toolbar);
     }
@@ -203,6 +238,19 @@ public class Demo extends VerticalLayout {
     private void createTestEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
 
+        Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red", "red");
+        Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green", "green");
+        Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
+
+        createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
+        createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
+        createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
+        createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
+        createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
+        createTimedEntry(calendar, "Kickoff meeting with customer #5", now.withDayOfMonth(17).atTime(11, 30), 120, "mediumseagreen", meetingRoomBlue);
+        createTimedEntry(calendar, "Kickoff meeting with customer #6", now.withDayOfMonth(22).atTime(9, 0), 120, "mediumseagreen", meetingRoomRed);
+
+
         createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null);
         createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null);
         createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen");
@@ -285,6 +333,41 @@ public class Demo extends VerticalLayout {
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
     }
+
+    private void setValues(FullCalendar calendar, ResourceEntry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
+        entry.setTitle(title);
+        entry.setStart(start, calendar.getTimezone());
+        entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setAllDay(unit == ChronoUnit.DAYS);
+        entry.setColor(color);
+    }
+
+
+    private Resource createResource(Scheduler calendar, String s, String color) {
+        Resource resource = new Resource(null, s, color);
+        calendar.addResource(resource);
+        return resource;
+    }
+
+    private void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource... resources) {
+        ResourceEntry entry = new ResourceEntry();
+        setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color);
+        if (resources != null && resources.length > 0) {
+            entry.addResources(Arrays.asList(resources));
+        }
+        calendar.addEntry(entry);
+    }
+
+    private void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color, Resource... resources) {
+        ResourceEntry entry = new ResourceEntry();
+        setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
+        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        if (resources != null && resources.length > 0) {
+            entry.addResources(Arrays.asList(resources));
+        }
+        calendar.addEntry(entry);
+    }
+
 
     private void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
         String text = "--";

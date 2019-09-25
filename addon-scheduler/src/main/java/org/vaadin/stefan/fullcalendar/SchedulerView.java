@@ -24,6 +24,15 @@ public enum SchedulerView implements CalendarView {
     TIMELINE_WEEK("timelineWeek"),
     TIMELINE_MONTH("timelineMonth"),
     TIMELINE_YEAR("timelineYear"),
+
+    RESOURCE_TIMELINE_DAY("resourceTimelineDay"),
+    RESOURCE_TIMELINE_WEEK("resourceTimelineWeek"),
+    RESOURCE_TIMELINE_MONTH("resourceTimelineMonth"),
+    RESOURCE_TIMELINE_YEAR("resourceTimelineYear"),
+
+    RESOURCE_TIME_GRID_DAY("resourceTimeGridDay"), // was AGENDA_DAY
+    RESOURCE_TIME_GRID_WEEK("resourceTimeGridWeek"), // was AGENDA_WEEK
+
     ;
 
     private final String clientSideName;
@@ -39,6 +48,6 @@ public enum SchedulerView implements CalendarView {
 
     @Override
     public String getName() {
-        return name();
+        return name() + " (S)";
     }
 }
