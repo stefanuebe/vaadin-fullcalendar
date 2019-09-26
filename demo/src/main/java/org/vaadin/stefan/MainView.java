@@ -39,7 +39,7 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
         HorizontalLayout title = new HorizontalLayout();
 
-        title.add(new H3("FullCalendar demo"), new Span("(Vaadin 14, FullCalendar addon: 2.0.0.RC2 (uses FC 4.3.1), FullCalendar Scheduler extension: n/a)"));
+        title.add(new H3("FullCalendar demo"), new Span("(Vaadin 14.0.5, FullCalendar addon: 2.0.0.RC2 (uses FC 4.3.1), FullCalendar Scheduler extension: 2.0.0.RC1 (uses scheduler extension libs 4.3.0)"));
         title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
 
         add(title);

@@ -1,14 +1,13 @@
 # FullCalendar integration
-This addon is an integration of the FullCalendar (v4.3.1) as Flow component for Vaadin 14+ and the official successor 
-of this V10-13 addon https://vaadin.com/directory/component/full-calendar-web-component.
-
-Please be aware, that the addon is currently in alpha stage (and so is this readme). I'll try to integrate
-missing features asap. Feel free to notice me, when basic things are not working or missing.
+This addon is an integration of the FullCalendar (v4.3.1) as Flow component for Vaadin 14+. For a Vaadin 10-13 version 
+ (built on FC 3.10.x) https://vaadin.com/directory/component/full-calendar-web-component.
 
 Please also have a look at the demo for a live example and source code of how to integrate the FC. Not all
 described events are handled visually currently.
 
 For information about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
+
+If you want to use the FC Scheduler, please have a look at this addon: https://vaadin.com/directory/component/full-calendar-4-scheduler-web-component
 
 ## Addon Functionality
 The following functions are currently implemented and available to use from server side:
@@ -76,15 +75,16 @@ calendar.add(entry);
  * time details of the clicked point. With this info you can show a dialog to create a new entry.
  */
 calendar.addTimeslotsSelectedListener((event) -> {
-    Entry entry;
-    entry = new Entry();
+    // react on the selected timeslot, for instance create a new instance and let the user edit it 
+    Entry entry = new Entry();
 
     entry.setStart(calendar.getTimezone().convertToUTC(event.getStartDateTime()));
     entry.setEnd(calendar.getTimezone().convertToUTC(event.getEndDateTime()));
     entry.setAllDay(event.isAllDay());
 
     entry.setColor("dodgerblue");
-    
+
+    // ... show and editor
 });
 
 /*
@@ -123,7 +123,7 @@ if (!newInstance) {
 }
 ```
 
-### Show the current shown interval (e. g. month)
+### Show the current shown time interval (e. g. month) with Vaadin components 
 ```
 private void init() {
     // The element that should show the current interval. 
@@ -142,7 +142,7 @@ private void init() {
       * and FC is aware of the current shown interval. Might be accessible more directly in 
       * future.
       */ 
-    calendar.addViewRenderedListener(event -> 
+    calendar.addDatesRenderedListener(event -> 
         LocalDate intervalStart = event.getIntervalStart();
         CalendarView cView = viewBox.getValue();
 
@@ -353,16 +353,21 @@ tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 8, 1, 10, 0, 0)) // Summer t
 tzBerlinGermany.convertToLocalDateTime(Instant.now()) // returns a date time with +1/+2 hours (depending on summer time).
 
 # FullCalendar Scheduler extension
-This addon extends the **FullCalendar integration addon** with the FullCalendar Scheduler (v1.9.4) as Flow component for Vaadin Platform / Vaadin 10+.
+This addon extends the **FullCalendar 4 web component** with the FullCalendar Scheduler, which provides 
+additional resource based views (Timeline View and Vertical Resource View) for Vaadin 14+. 
+For a Vaadin 10-13 version (that is built on FC 3.10.x), see https://vaadin.com/directory/component/full-calendar-scheduler-extension
 
-It needs the FC integration addon (1.9.0+) as basis (https://vaadin.com/directory/component/full-calendar-web-component). Since this addon is not always updated when the basis gets an update, I would suggest, that you add both dependencies (basis and extension) to always use the latest version of basis. This extension is compatible as long as the readme does not tells anything else.
+It needs the basic addon (https://vaadin.com/directory/component/full-calendar-4-web-component) to work. 
+Since this addon is not always updated when the basis gets an update, I suggest, that you add both dependencies 
+(basis and extension) to always use the latest versions. This extension is compatible as long as the readme 
+does not tells anything else.
 
 For information about the Scheduler (functionality, features, license information, etc.) 
 visit https://fullcalendar.io/scheduler. 
 
 ## License information:
-Please be aware, that the Scheduler has a different license model then the FullCalendar.
-For details of when to use which license, visit https://fullcalendar.io/scheduler/license.
+Please be aware, that the FullCalender Scheduler library this addon is based on has a different license model 
+then the basic FullCalendar. For details about the license, visit https://fullcalendar.io/license.
 
 **This addon does not provide any commercial license for the Scheduler. The license model of MIT does only affect
 the additional files of this addon, not the used original files.** 
