@@ -174,16 +174,18 @@ calendar.setHeightByParent();
 calendar.getElement().getStyle().set("flex-grow", "1");
 ```
 
-### Using custom styles to modify FCs appearance
-1. Copy the styles.html from the github demo or create your own custom style file and place it in your applications webapp/frontend folder (e. g. webapp/frontend/styles/styles/my-custom-full-calendar-styles.html)
+### Modify FCs appearance by using css variables
+1. Copy the styles.js from the github demo or create your own custom style file and place it in your
+ applications frontend folder (e. g. frontend/styles/my-custom-full-calendar-styles.js)
 
-The github demo file can be obtained from here:
-https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/src/main/webapp/frontend/styles.html
+An example file can be found from here:
+https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/frontend/styles.js
 
 
 2. Modify the styles as needed.
-
 ```
+const $_documentContainer = document.createElement('template');
+$_documentContainer.innerHTML = `
 <custom-style>
     <style>
         html{
@@ -196,57 +198,54 @@ https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/src/main/weba
         }
     </style>
 </custom-style>
+`;
+document.head.appendChild($_documentContainer.content);
 ```
 
 3. Use the styles file in your application.
 ```
-@HtmlImport("frontend://styles/full-calendar-styles.html")
-public class FullCalendarApplication extends Div {
+@JsModule("./styles/my-custom-full-calendar-styles.js")
+public class FullCalendarApplication extends ... {
     // ...
 }
 ```
 
-### Alternative way of overriding styles
-Create a custom component, that extends FullCalendar or FullCalendarScheduler. Add a style element and your custom css stylings. Override the static template method and let it insert your template with the style node into the parents template DOM.
+### Modifiy FC's appearance by using a custom class.
+Create a custom component, that extends FullCalendar or FullCalendarScheduler. 
+Override the static template method and reuse the parent's methods to create the basic styles.
 
-The example _my-full-calendar.html_ sets a beautiful green background for empty lists (.fc-list-empty).
+The following example shows how a custom class extends the basic fc class and adds it's own styles. It will 
+set the background of the "today" cell to red. 
 
-Please note, that the id of your component inside of the template method needs to be updated to your component's id.
+Please note, that you also need a Java class using this Polymer class on the server side. The Scheduler is
+working the same way, please have a look at its implementation for further details.
 
 ```
-<link rel="import" href="bower_components/fullcalendar/full-calendar-scheduler.html">
+export class MyFullCalendar extends FullCalendar {
+    static get template() {
+        return html`
+            ${this.templateCalendarCss}
+            
+            ${this.templateCustomCalendarCss}
+        
+            ${this.templateElementCss}
+            ${this.templateContainer}
+        `;
+    }
 
-<dom-module id="my-full-calendar">
-    <template>
-        <style id="styles">
-            .fc-list-empty {
-                background-color: green !important;
-            }
+    static get templateCustomCalendarCss() {
+        return html`
+        <style>
+             .fc-unthemed td.fc-today {
+               background: red;
+             }
         </style>
-    </template>
+        `;
+    }
+}
 
-    <script>
-        class MyFullCalendar extends FullCalendarScheduler {
-            static get is() {
-                return 'my-full-calendar';
-            }
-
-            // example of adding / overriding styles 
-            static get template() {
-                const parentTemplate = FullCalendarScheduler.template.cloneNode(true);
-                const childTemplate = Polymer.DomModule.import('my-full-calendar', 'template');
-
-                parentTemplate.content.insertBefore(childTemplate.content, parentTemplate.content.firstChild);
-
-                return parentTemplate;
-            }
-        }
-
-        customElements.define(MyFullCalendar.is, MyFullCalendar);
-    </script>
-</dom-module>
+customElements.define('my-full-calendar', MyFullCalendar);
 ```
-
 
 ### Modifying eventRender from server side
 // The given string will be interpreted as js function on client side
