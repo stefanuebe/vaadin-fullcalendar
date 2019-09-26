@@ -221,6 +221,9 @@ Please note, that you also need a Java class using this Polymer class on the ser
 working the same way, please have a look at its implementation for further details.
 
 ```
+import {html} from '@polymer/polymer/polymer-element.js';
+import {FullCalendar} from 'full-calendar';
+
 export class MyFullCalendar extends FullCalendar {
     static get template() {
         return html`
@@ -260,47 +263,53 @@ calendar.setEntryRenderCallback("" +
         "}");
         
 ### Creating a subclass of FullCalendar for custom mods
-1. Create a new polymer template (e.g. webapp/frontend/my-full-calendar.html):
+1. Create a custom Polymer component
+Create a custom component, that extends FullCalendar or FullCalendarScheduler. 
 
-<link rel="import" href="bower_components/fullcalendar/full-calendar.html">
-<dom-module id="my-full-calendar">
-    <script>
-        class MyFullCalendar extends FullCalendar {
-            static get is() {
-                return 'my-full-calendar';
-            }
+For changes on the appeareance, override the static template method and reuse the parent's methods 
+to create the basic styles and layout (see example for modifying FC's appearance for details).
 
-            _createInitOptions() {
-                var options = super._createInitOptions();
-                options.eventRender = function (event, element) {
-                    element.css('color', 'red');
-                    return element;
-                };
-                return options;
-            }
-        }
+For changes on the initial options see the following example. 
 
-        customElements.define(MyFullCalendar.is, MyFullCalendar);
-    </script>
-</dom-module>
+```
+import {html} from '@polymer/polymer/polymer-element.js';
+import {FullCalendar} from 'full-calendar';
+
+export class MyFullCalendar extends FullCalendar {
+    _createInitOptions() {
+        var options = super._createInitOptions();
+        options.eventRender = function (event, element) {
+            element.css('color', 'red');
+            return element;
+        };
+        return options;
+    }
+}
+
+customElements.define('my-full-calendar', MyFullCalendar);
+```
 
 2. Create a subclass of FullCalendar 
 
+```
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 @Tag("my-full-calendar")
-@HtmlImport("frontend://my-full-calendar.html")
+@JsModule("./my-full-calendar.js")
 public class MyFullCalendar extends FullCalendar {
     MyFullCalendar(int entryLimit) {
         super(entryLimit);
     }
 }
+```
 
 3. Use this class in your code
 
+```
 calendar = new MyFullCalendar(5);
+```
 
 ### Creating a background event
 Entry entry = new Entry();
@@ -438,77 +447,6 @@ calendar.changeView(SchedulerView.TIMELINE_DAY);
 ```
 calendar.setGroupEntriesBy(GroupEntriesBy.RESOURCE_DATE);
 ```
-
-### Using custom styles to modify FCs appearance
-1. Copy the styles_scheduler.html from the github demo or create your own custom style file and place it in your applications webapp/frontend folder (e. g. webapp/frontend/styles/styles/my-custom-full-calendar-styles.html)
-
-The github demo file can be obtained from here:
-https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/src/main/webapp/frontend/styles_scheduler.html
-
-
-2. Modify the styles as needed.
-
-```
-<custom-style>
-    <style>
-        html{
-               --fc-timeline_fc-divider-border-style: dashed;
-               --fc-timeline_fc-divider-width: 2px;
-        }
-    </style>
-</custom-style>
-```
-
-3. Use the styles file in your application.
-```
-@HtmlImport("frontend://styles/full-calendar-styles-scheduler.html")
-public class FullCalendarApplication extends Div {
-    // ...
-}
-```
-
-### Creating a subclass of FullCalendarScheduler for custom mods
-1. Create a new polymer template (e.g. webapp/frontend/my-full-calendar.html):
-
-<link rel="import" href="bower_components/fullcalendar/full-calendar-scheduler.html">
-<dom-module id="my-full-calendar">
-    <script>
-        class MyFullCalendar extends FullCalendarScheduler {
-            static get is() {
-                return 'my-full-calendar';
-            }
-
-            _createInitOptions() {
-                var options = super._createInitOptions();
-                options.eventRender = function (event, element) {
-                    element.css('color', 'red');
-                    return element;
-                };
-                return options;
-            }
-        }
-
-        customElements.define(MyFullCalendar.is, MyFullCalendar);
-    </script>
-</dom-module>
-
-2. Create a subclass of FullCalendarScheduler
-
-import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
-import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
-
-@Tag("my-full-calendar")
-@HtmlImport("frontend://my-full-calendar.html")
-public class MyFullCalendar extends FullCalendarScheduler {
-    MyFullCalendar(int entryLimit) {
-        super(entryLimit);
-    }
-}
-
-3. Use this class in your code
-
-calendar = new MyFullCalendar(5);
 
 ### Creating a resource bases background event
 ResourceEntry entry = new ResourceEntry();

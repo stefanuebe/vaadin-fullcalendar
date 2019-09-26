@@ -18,7 +18,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
@@ -134,6 +133,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     /**
      * Set a grouping option for entries based on their assigned resource(s) and date.
+     *
      * @param groupEntriesBy group entries by option
      */
     @Override
