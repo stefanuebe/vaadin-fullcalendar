@@ -98,6 +98,7 @@ public class Demo extends VerticalLayout {
 
         comboBoxView = new ComboBox<>("", calendarViews);
         comboBoxView.setValue(CalendarViewImpl.DAY_GRID_MONTH);
+        comboBoxView.setWidth("300px");
         comboBoxView.addValueChangeListener(e -> {
             CalendarView value = e.getValue();
             calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
