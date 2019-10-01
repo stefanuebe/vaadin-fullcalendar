@@ -150,7 +150,7 @@ public class Timezone implements ClientSideValue {
      * @param instant instant
      * @return local date time
      */
-    public LocalDateTime converToLocalDateTime(Instant instant) {
+    public LocalDateTime convertToLocalDateTime(Instant instant) {
         return LocalDateTime.ofInstant(instant, getZoneId());
     }
 

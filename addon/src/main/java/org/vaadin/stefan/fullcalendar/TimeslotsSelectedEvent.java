@@ -68,7 +68,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * @return date time
      */
     public LocalDateTime getStartDateTime() {
-        return getSource().getTimezone().converToLocalDateTime(startDateTime);
+        return getSource().getTimezone().convertToLocalDateTime(startDateTime);
     }
 
     /**
@@ -76,7 +76,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * @return date time
      */
     public LocalDateTime getEndDateTime() {
-        return getSource().getTimezone().converToLocalDateTime(endDateTime);
+        return getSource().getTimezone().convertToLocalDateTime(endDateTime);
     }
 
     /**
