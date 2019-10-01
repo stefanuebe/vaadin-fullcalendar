@@ -39,7 +39,7 @@ public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
     public LimitedEntriesClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date) {
         super(source, fromClient);
 
-        clickedDate = source.getTimezone().convertToLocalDateTime(JsonUtils.parseDateTimeString(date, source.getTimezone())).toLocalDate();
+        clickedDate = source.getTimezone().convertToLocalDate(JsonUtils.parseDateTimeString(date, source.getTimezone()));
     }
 
     /**
