@@ -21,7 +21,10 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
 
+import java.time.Instant;
 import java.time.LocalDate;
+
+import static org.vaadin.stefan.fullcalendar.JsonUtils.parseDateTimeString;
 
 /**
  * Occurs when the calendar view has been rendered. Provides information about the shown timespan.
@@ -46,14 +49,15 @@ public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
     public DatesRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
         super(source, fromClient);
 
-        intervalStart = LocalDate.parse(eventData.getString("intervalStart"));
-        intervalEnd = LocalDate.parse(eventData.getString("intervalEnd"));
-        start = LocalDate.parse(eventData.getString("start"));
-        end = LocalDate.parse(eventData.getString("end"));
+        this.intervalStart = getLocalDate(eventData, "intervalStart", source);
+        this.intervalEnd = getLocalDate(eventData, "intervalEnd", source);
+        this.start = getLocalDate(eventData, "start", source);
+        this.end = getLocalDate(eventData, "end", source);
     }
 
     /**
      * Returns the current shown interval's start date.
+     *
      * @return interval start
      */
     public LocalDate getIntervalStart() {
@@ -62,6 +66,7 @@ public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
 
     /**
      * Returns the current shown interval's exclusive end date. This means, this date is not part of the interval.
+     *
      * @return interval end (exclusive)
      */
     public LocalDate getIntervalEnd() {
@@ -88,6 +93,11 @@ public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
      */
     public LocalDate getEnd() {
         return end;
+    }
+
+    private LocalDate getLocalDate(final JsonObject eventData, final String key, final FullCalendar source) {
+        final Instant instant = parseDateTimeString(eventData.getString(key), source.getTimezone());
+        return source.getTimezone().convertToLocalDate(instant);
     }
 
 }
