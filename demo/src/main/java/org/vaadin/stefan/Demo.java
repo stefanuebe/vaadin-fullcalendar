@@ -41,11 +41,9 @@ import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
-import java.lang.reflect.Executable;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -169,11 +167,10 @@ public class Demo extends Div {
             });
         });
 
-        Button removeAllEntries = new Button("Remove all", event -> {
-            calendar.removeAllEntries();
-        });
+        Button removeAllEntries = new Button("Remove entries", event -> calendar.removeAllEntries());
+        Button removeAllResources = new Button("Remove resources", event -> ((FullCalendarScheduler) calendar).removeAllResources());
 
-        toolbar = new Div(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox, addThousand, removeAllEntries);
+        toolbar = new Div(buttonToday, buttonPrevious, buttonDatePicker, buttonNext, comboBoxView, buttonHeight, cbWeekNumbers, comboBoxLocales, comboBoxGroupBy, timezoneComboBox, addThousand, removeAllEntries, removeAllResources);
     }
 
     private void setFlexStyles(boolean flexStyles) {
