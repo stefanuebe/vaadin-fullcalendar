@@ -150,8 +150,17 @@ public class Timezone implements ClientSideValue {
      * @param instant instant
      * @return local date time
      */
-    public LocalDateTime converToLocalDateTime(Instant instant) {
+    public LocalDateTime convertToLocalDateTime(Instant instant) {
         return LocalDateTime.ofInstant(instant, getZoneId());
+    }
+
+    /**
+     * Applies the rules of this timezone on the given instant and creates a local date.
+     * @param instant instant
+     * @return local date
+     */
+    public LocalDate convertToLocalDate(Instant instant) {
+        return convertToLocalDateTime(instant).toLocalDate();
     }
 
     @Override
