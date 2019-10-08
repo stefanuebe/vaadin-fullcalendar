@@ -51,6 +51,7 @@ public interface Scheduler {
     /**
      * Sets the license key to be used for the scheduler. For more details visit
      * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
+     *
      * @param schedulerLicenseKey license key
      */
     void setSchedulerLicenseKey(String schedulerLicenseKey);
@@ -80,7 +81,8 @@ public interface Scheduler {
     void addResources(Iterable<Resource> resources);
 
     /**
-     * Removes the given resource. Noop if the id is not registered.
+     * Removes the given resource. Also removes it from its related entries.
+     * Does not send an extra update for the entries.
      *
      * @param resource resource
      * @throws NullPointerException when null is passed
@@ -88,14 +90,21 @@ public interface Scheduler {
     void removeResource(Resource resource);
 
     /**
-     * Removes the given resources. Noop not registered resources.
+     * Removes the given resources. Also removes them from their related entries.
+     * Does not send an extra update for the entries.
+     * <p/>
+     * Noop on not registered resources.
      *
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
     void removeResources(Resource... resources);
- /**
-     * Removes the given resources. Noop not registered resources.
+
+    /**
+     * Removes the given resources.  Also removes them from their related entries.
+     * Does not send an extra update for the entries.
+     * <p/>
+     * Noop on not registered resources.
      *
      * @param resources resources
      * @throws NullPointerException when null is passed
@@ -124,7 +133,8 @@ public interface Scheduler {
     Set<Resource> getResources();
 
     /**
-     * Removes all registered resources from this instance.
+     * Removes all registered resources from this instance. Also removes them from their related entries.
+     * Does not send an extra update for the entries.
      */
     void removeAllResources();
 
