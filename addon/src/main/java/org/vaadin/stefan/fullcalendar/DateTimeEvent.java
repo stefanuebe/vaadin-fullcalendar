@@ -40,7 +40,7 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
         super(source, fromClient);
 
         this.allDay = allDay;
-        dateTime = source.getTimezone().converToLocalDateTime(JsonUtils.parseDateTimeString(dateString, source.getTimezone()));
+        dateTime = source.getTimezone().convertToLocalDateTime(JsonUtils.parseDateTimeString(dateString, source.getTimezone()));
 
     }
 
