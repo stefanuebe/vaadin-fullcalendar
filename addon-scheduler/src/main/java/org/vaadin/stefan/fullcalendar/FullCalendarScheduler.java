@@ -26,6 +26,8 @@ import elemental.json.JsonArray;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -107,6 +109,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             }
         });
 
+        List<Resource> resources = StreamSupport.stream(iterableResources.spliterator(), false).collect(Collectors.toList());
+        getEntries().stream().filter(e -> e instanceof ResourceEntry).forEach(e -> {
+            ((ResourceEntry) e).removeResources(resources);
+        });
+
         getElement().callFunction("removeResources", array);
 
     }
@@ -124,11 +131,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     public void removeAllResources() {
-        for (Resource value : resources.values()) {
-            getElement().callFunction("removeResource", value.toJson());
-        }
-
-        resources.clear();
+        removeResources(new HashSet<>(resources.values()));
     }
 
     /**
