@@ -83,7 +83,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         });
 
-        getElement().callFunction("addResources", array);
+        getElement().callJsFunction("addResources", array);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             ((ResourceEntry) e).removeResources(resources);
         });
 
-        getElement().callFunction("removeResources", array);
+        getElement().callJsFunction("removeResources", array);
 
     }
 
