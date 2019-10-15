@@ -224,8 +224,10 @@ export class FullCalendar extends PolymerElement {
         if (asDay) {
             moment = moment.startOf('day');
         }
-        return moment.format();
-        // return this.getCalendar().formatIso(date, asDay);
+
+        let dateString = moment.format();
+
+        return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
     }
 
     _createInitOptions() {
