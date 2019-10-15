@@ -149,12 +149,14 @@ public class Demo extends VerticalLayout {
             });
         });
 
+        Button removeAllEntries = new Button("All Entries", VaadinIcon.TRASH.create(), event -> calendar.removeAllEntries());
+        Button removeAllResources = new Button("All Resources", VaadinIcon.TRASH.create(), event -> ((FullCalendarScheduler) calendar).removeAllResources());
 
         toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales);
 
         Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
 
-        toolbar.add(addThousand);
+        toolbar.add(addThousand, removeAllEntries, removeAllResources);
 
         add(toolbar);
     }
@@ -168,7 +170,7 @@ public class Demo extends VerticalLayout {
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
-        calendar.setTimeslotsSelectable(true);
+        calendar.setTimeslotsSelectable(false);
         calendar.setBusinessHours(
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
