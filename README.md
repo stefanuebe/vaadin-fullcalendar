@@ -381,6 +381,13 @@ tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 10, 1, 10, 0, 0)) // Standar
 tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 8, 1, 10, 0, 0)) // Summer time, returns Instant for 8:00 UTC this day.
 tzBerlinGermany.convertToLocalDateTime(Instant.now()) // returns a date time with +1/+2 hours (depending on summer time).
 
+
+
+
+
+
+
+
 # FullCalendar Scheduler extension
 This addon extends the **FullCalendar 4 web component** with the FullCalendar Scheduler, which provides 
 additional resource based views (Timeline View and Vertical Resource View) for Vaadin 14+. 
@@ -408,6 +415,27 @@ activated, use the `withScheduler()` method of the `FullCalendarBuilder`.
 This method will throw an exception, if the scheduler extension is not on the class path.
 
 To link a resource with entries, use the Entry subclass `ResourceEntry`. 
+
+## Building with V14
+Currently there seems to be a bug when resolving transitive dependencies in NPM. Please make sure, that you add
+also the goal `build-frontend` to the vaadin maven plugin. This will resolve transitive npm dependencies at build time.
+
+For instance:
+```
+<plugin>
+    <groupId>com.vaadin</groupId>
+    <artifactId>vaadin-maven-plugin</artifactId>
+    <version>${vaadin.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>prepare-frontend</goal>
+                <goal>build-frontend</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+``` 
 
 ## Additional Features of the Scheduler extension
 - Activation of the Scheduler by method in the FullCalendarBuilder.
