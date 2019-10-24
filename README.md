@@ -9,6 +9,27 @@ For information about the FullCalendar (functionality, features, license informa
 
 If you want to use the FC Scheduler, please have a look at this addon: https://vaadin.com/directory/component/full-calendar-4-scheduler-web-component
 
+## Building with V14
+Currently there seems to be a bug when resolving transitive dependencies in NPM. Please make sure, that you add
+also the goal `build-frontend` to the vaadin maven plugin. This will resolve transitive npm dependencies at build time.
+
+For instance:
+```
+<plugin>
+    <groupId>com.vaadin</groupId>
+    <artifactId>vaadin-maven-plugin</artifactId>
+    <version>${vaadin.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>prepare-frontend</goal>
+                <goal>build-frontend</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+``` 
+
 ## Addon Functionality
 The following functions are currently implemented and available to use from server side:
 - adding / updating / removing calendar items,
