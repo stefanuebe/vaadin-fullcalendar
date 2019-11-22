@@ -36,7 +36,6 @@ import java.util.stream.StreamSupport;
  * component, API, functionality, etc.
  */
 @NpmPackage(value = "@fullcalendar/resource-timeline", version = "^4.3.0")
-@NpmPackage(value = "@fullcalendar/resource-timeline", version = "^4.3.0")
 @NpmPackage(value = "@fullcalendar/resource-timegrid", version = "^4.3.0")
 @Tag("full-calendar-scheduler")
 @JsModule("./full-calendar-scheduler.js")
