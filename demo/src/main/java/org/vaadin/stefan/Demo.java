@@ -164,8 +164,14 @@ public class Demo extends VerticalLayout {
 
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).withScheduler().build();
+//        calendar.allowDatesRenderEventOnOptionChange(true);
 
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
+
+        calendar.addDatesRenderedListener(event -> {
+            updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart());
+            System.out.println("dates rendered: " + event.getStart() + " " + event.getEnd());
+        });
 
 //        calendar.setOption("rerenderDelay", "500");
 
@@ -238,10 +244,6 @@ public class Demo extends VerticalLayout {
             }
         });
 
-            calendar.addDatesRenderedListener(event -> {
-                updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart());
-                System.out.println("dates rendered: " + event.getStart() + " " + event.getEnd());
-            });
 //        calendar.setOption("rerenderDelay", "null");
     }
 
