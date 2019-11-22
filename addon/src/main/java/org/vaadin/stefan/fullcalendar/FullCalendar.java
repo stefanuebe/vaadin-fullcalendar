@@ -98,7 +98,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     public void allowDatesRenderEventOnOptionChange(boolean allow) {
-        getElement().setProperty("noDatesRenderEventOnOptionSetting", allow);
+        getElement().setProperty("noDatesRenderEventOnOptionSetting", !allow);
     }
 
     /**
