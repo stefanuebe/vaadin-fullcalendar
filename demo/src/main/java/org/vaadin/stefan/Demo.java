@@ -406,6 +406,27 @@ public class Demo extends VerticalLayout {
                     text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
                     break;
             }
+        } else if (view instanceof SchedulerView) {
+            switch((SchedulerView) view) {
+                case TIMELINE_DAY:
+                case RESOURCE_TIMELINE_DAY:
+                case RESOURCE_TIME_GRID_DAY:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
+                    break;
+                case TIMELINE_WEEK:
+                case RESOURCE_TIMELINE_WEEK:
+                case RESOURCE_TIME_GRID_WEEK:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale)) + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
+                    break;
+                case TIMELINE_MONTH:
+                case RESOURCE_TIMELINE_MONTH:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
+                    break;
+                case TIMELINE_YEAR:
+                case RESOURCE_TIMELINE_YEAR:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
+                    break;
+            }
         }
 
         intervalLabel.setText(text);
