@@ -386,7 +386,7 @@ tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 10, 1, 10, 0, 0)) // Standar
 tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 8, 1, 10, 0, 0)) // Summer time, returns Instant for 8:00 UTC this day.
 tzBerlinGermany.convertToLocalDateTime(Instant.now()) // returns a date time with +1/+2 hours (depending on summer time).
 
-# FAQ
+## FAQ
 Q: The calendar instance is not recognized during build time or loading of frontend dependencies (leads client side errors)
 A: Please see `Build problems / JS (client side) errors with V14` for further details.
 
