@@ -81,6 +81,10 @@ export class FullCalendar extends PolymerElement {
                 type: Boolean,
                 value: true
             },
+            noDatesRenderEventOnOptionSetting: {
+                type: Boolean,
+                value: true
+            }
 
         };
     }
@@ -182,12 +186,14 @@ export class FullCalendar extends PolymerElement {
                 }
             },
             datesRender: (eventInfo) => {
-                let view = eventInfo.view;
-                return {
-                    intervalStart: this._formatDate(view.currentStart, true),
-                    intervalEnd: this._formatDate(view.currentEnd, true),
-                    start: this._formatDate(view.activeStart, true),
-                    end: this._formatDate(view.activeEnd, true)
+                if (!this.noDatesRenderEvent) {
+                    let view = eventInfo.view;
+                    return {
+                        intervalStart: this._formatDate(view.currentStart, true),
+                        intervalEnd: this._formatDate(view.currentEnd, true),
+                        start: this._formatDate(view.activeStart, true),
+                        end: this._formatDate(view.activeEnd, true)
+                    }
                 }
             },
             navLinkDayClick: (date) => {
@@ -298,8 +304,9 @@ export class FullCalendar extends PolymerElement {
             }));
         }
 
+        this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
         calendar.setOption(key, value);
-
+        this.noDatesRenderEvent = false;
     }
 
 

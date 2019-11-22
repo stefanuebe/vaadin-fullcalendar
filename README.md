@@ -9,9 +9,14 @@ For information about the FullCalendar (functionality, features, license informa
 
 If you want to use the FC Scheduler, please have a look at this addon: https://vaadin.com/directory/component/full-calendar-4-scheduler-web-component
 
-## Building with V14
-Currently there seems to be a bug when resolving transitive dependencies in NPM. Please make sure, that you add
-also the goal `build-frontend` to the vaadin maven plugin. This will resolve transitive npm dependencies at build time.
+## Build problems / JS (client side) errors with V14
+It might be, that the transitive dependencies are not resolved correctly.
+
+If you are using Spring Boot please add the `@EnableVaadin` annotation to your application class. Add
+the package `org.vaadin.stefan` plus your root package as parameters. This should enable Spring to analyze
+all npm dependencies at runtime. Other CDI version should work the same.
+
+If you are not using Spring, but have similiar issues try to add also the goal `build-frontend` to the vaadin maven plugin. This should resolve transitive npm dependencies at build time.
 
 For instance:
 ```
@@ -381,10 +386,17 @@ tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 10, 1, 10, 0, 0)) // Standar
 tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 8, 1, 10, 0, 0)) // Summer time, returns Instant for 8:00 UTC this day.
 tzBerlinGermany.convertToLocalDateTime(Instant.now()) // returns a date time with +1/+2 hours (depending on summer time).
 
+# FAQ
+Q: The calendar instance is not recognized during build time or loading of frontend dependencies (leads client side errors)
+A: Please see `Build problems / JS (client side) errors with V14` for further details.
 
-
-
-
+Q: The `DatesRenderedEvent` is not fired when setting an option, that changes the view. 
+A: I deactivated the forwarding of the datesRendered event from the client side when an option is set, since
+that would lead otherwise to a huge amount of datesRendered events. When setting options before the client side
+is fully attached, the queueing messes up the event handling here.
+ 
+When needed, you can activate or deactivate that by using the method `allowDatesRenderEventOnOptionChange(boolean)`. 
+By default this value is `false`, simply set it to true to also receive date render events on setOption. 
 
 
 
@@ -416,9 +428,14 @@ This method will throw an exception, if the scheduler extension is not on the cl
 
 To link a resource with entries, use the Entry subclass `ResourceEntry`. 
 
-## Building with V14
-Currently there seems to be a bug when resolving transitive dependencies in NPM. Please make sure, that you add
-also the goal `build-frontend` to the vaadin maven plugin. This will resolve transitive npm dependencies at build time.
+## Build problems / JS (client side) errors with V14
+It might be, that the transitive dependencies are not resolved correctly.
+
+If you are using Spring Boot please add the `@EnableVaadin` annotation to your application class. Add
+the package `org.vaadin.stefan` plus your root package as parameters. This should enable Spring to analyze
+all npm dependencies at runtime. Other CDI version should work the same.
+
+If you are not using Spring, but have similiar issues try to add also the goal `build-frontend` to the vaadin maven plugin. This should resolve transitive npm dependencies at build time.
 
 For instance:
 ```
