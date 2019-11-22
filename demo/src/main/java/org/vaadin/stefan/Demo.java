@@ -161,11 +161,13 @@ public class Demo extends VerticalLayout {
         add(toolbar);
     }
 
+
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).withScheduler().build();
+
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
 
-        calendar.addDatesRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
+//        calendar.setOption("rerenderDelay", "500");
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
@@ -184,7 +186,6 @@ public class Demo extends VerticalLayout {
 //                "   return element; " +
 //                "}");
 
-        calendar.addDatesRenderedListener(event -> System.out.println("dates rendered: " + event.getStart() + " " + event.getEnd()));
 
         calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
         calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
@@ -237,7 +238,11 @@ public class Demo extends VerticalLayout {
             }
         });
 
-//        calendar.addBrowserTimezoneObtainedListener(event -> timezoneComboBox.setValue(event.getTimezone()));
+            calendar.addDatesRenderedListener(event -> {
+                updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart());
+                System.out.println("dates rendered: " + event.getStart() + " " + event.getEnd());
+            });
+//        calendar.setOption("rerenderDelay", "null");
     }
 
     private void createTestEntries(FullCalendar calendar) {
