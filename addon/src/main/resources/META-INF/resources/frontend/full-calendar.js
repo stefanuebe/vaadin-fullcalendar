@@ -136,7 +136,7 @@ export class FullCalendar extends PolymerElement {
                 start: eventInfo.startStr,
                 end: eventInfo.endStr,
                 allDay: eventInfo.allDay,
-                resource: typeof eventInfo.resource === 'object' ? eventInfo.resource.id : null
+                resource: eventInfo.resource ? eventInfo.resource.id : null
             }
         },
         eventClick: (eventInfo) => {
@@ -155,7 +155,7 @@ export class FullCalendar extends PolymerElement {
                 return {
                     date: eventInfo.dateStr,
                     allDay: eventInfo.allDay,
-                    resource: typeof eventInfo.resource === 'object' ? eventInfo.resource.id : null
+                    resource: eventInfo.resource ? eventInfo.resource.id : null
                 }
             },
             select: (eventInfo) => {
@@ -163,7 +163,7 @@ export class FullCalendar extends PolymerElement {
                     start: this._formatDate(eventInfo.start),
                     end: this._formatDate(eventInfo.end),
                     allDay: eventInfo.allDay,
-                    resource: typeof eventInfo.resource === 'object' ? eventInfo.resource.id : null
+                    resource: eventInfo.resource ? eventInfo.resource.id : null
                 }
             },
             eventClick: (eventInfo) => {
@@ -181,8 +181,8 @@ export class FullCalendar extends PolymerElement {
                 return {
                     data: this._toEventData(eventInfo.event),
                     delta: eventInfo.delta,
-                    oldResource: typeof eventInfo.oldResource === 'object' ? eventInfo.oldResource.id : null,
-                    newResource: typeof eventInfo.newResource === 'object' ? eventInfo.newResource.id : null
+                    oldResource: eventInfo.oldResource ? eventInfo.oldResource.id : null,
+                    newResource: eventInfo.newResource ? eventInfo.newResource.id : null
                 }
             },
             datesRender: (eventInfo) => {
