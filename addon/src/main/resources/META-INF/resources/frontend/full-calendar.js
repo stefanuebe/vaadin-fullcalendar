@@ -195,6 +195,8 @@ export class FullCalendar extends PolymerElement {
                         end: this._formatDate(view.activeEnd, true)
                     }
                 }
+
+                return false;
             },
             navLinkDayClick: (date) => {
                 return {
@@ -285,9 +287,12 @@ export class FullCalendar extends PolymerElement {
         for (let eventName in events) {
             if (events.hasOwnProperty(eventName)) {
                 options[eventName] = (eventInfo) => {
-                    this.dispatchEvent(new CustomEvent(eventName, {
-                        detail: events[eventName](eventInfo)
-                    }));
+                    const eventDetails = events[eventName](eventInfo);
+                    if (eventDetails) {
+                        this.dispatchEvent(new CustomEvent(eventName, {
+                            detail: eventDetails
+                        }));
+                    }
                 }
             }
         }
