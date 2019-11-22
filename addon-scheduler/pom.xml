@@ -11,7 +11,7 @@
     <description>A web component that wraps the Full Calendar 4.x Scheduler extension (https://fullcalendar.io).</description>
 
     <properties>
-        <fullcalendar.version>2.0.0.RC5</fullcalendar.version>
+        <fullcalendar.version>2.0.0.RC6</fullcalendar.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
