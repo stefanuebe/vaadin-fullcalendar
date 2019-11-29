@@ -696,6 +696,42 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void removeBusinessHours() {
         setOption(Option.BUSINESS_HOURS, null);
     }
+    
+    /**
+     * Sets the snap duration for this calendar instance.<p>
+     * The default is '00:30'
+     *
+     * @param duration duration to set in format hh:mm
+     * @throws NullPointerException when null is passed
+     */
+    public void setSnapDuration(@NotNull String duration) {
+        Objects.requireNonNull(duration);
+        setOption(Option.SNAP_DURATION, duration);
+    }
+    
+    /**
+     * Sets the min time for this calendar instance. This is the first time slot that will be displayed for each day.<p>
+     * The default is '00:00:00'
+     *
+     * @param minTime minTime to set
+     * @throws NullPointerException when null is passed
+     */
+    public void setMinTime(@NotNull LocalTime minTime) {
+        Objects.requireNonNull(minTime);
+        setOption(Option.MIN_TIME, JsonUtils.toJsonValue(minTime != null ? minTime : "00:00:00"));
+    }
+    
+    /**
+     * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day<p>
+     * The default is '24:00:00'
+     *
+     * @param maxTime maxTime to set
+     * @throws NullPointerException when null is passed
+     */
+    public void setMaxTime(@NotNull LocalTime maxTime) {
+        Objects.requireNonNull(maxTime);  
+        setOption(Option.MAX_TIME, JsonUtils.toJsonValue(maxTime != null ? maxTime : "24:00:00"));
+    }
 
     /**
      * Returns the timezone set for this browser. By default UTC. If obtainable, you can read the timezone from
@@ -948,6 +984,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         NAV_LINKS("navLinks"),
         BUSINESS_HOURS("businessHours"),
         TIMEZONE("timeZone"),
+        SNAP_DURATION("snapDuration"),
+        MIN_TIME("minTime"),
+        MAX_TIME("maxTime")
         ;
 
         private final String optionKey;
