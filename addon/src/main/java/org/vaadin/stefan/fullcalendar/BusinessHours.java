@@ -141,12 +141,16 @@ public class BusinessHours {
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
 
-        jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(dayOfWeeks.stream().map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())));
+        jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(dayOfWeeks.stream().map(dayOfWeek -> convertToClientSideDow(dayOfWeek))));
 
         jsonObject.put("startTime", JsonUtils.toJsonValue(start != null ? start : "00:00"));
         jsonObject.put("endTime", JsonUtils.toJsonValue(end != null ? end : "24:00"));
 
         return jsonObject;
+    }
+
+    public static int convertToClientSideDow(DayOfWeek dayOfWeek) {
+        return dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue();
     }
 
     @Override
