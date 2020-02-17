@@ -407,7 +407,11 @@ export class FullCalendar extends PolymerElement {
 
 
     removeAllEvents() {
-        this.getCalendar().getEvents().forEach(e => e.remove());
+        //this.getCalendar().getEvents().forEach(e => e.remove());
+    	var calendar = this.getCalendar();
+    	this.getCalendar().batchRendering(function() {
+    		calendar.getEvents().forEach(e => e.remove());		  
+		});
     }
 
 
