@@ -73,7 +73,11 @@ export class FullCalendarScheduler extends FullCalendar {
 
     removeResources(array) {
         for (let i = 0; i < array.length; i++) {
-            this.getCalendar().removeResource(array[i].id);
+            // TODO use batch rendering?
+            const resource = this.getCalendar().getResourceById(array[i].id);
+            if (resource != null) {
+                resource.remove();
+            }
         }
     }
 
