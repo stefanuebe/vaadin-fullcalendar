@@ -397,6 +397,7 @@ export class FullCalendar extends PolymerElement {
     }
 
     removeEvents(array) {
+        // TODO use batch rendering?
         for (var i = 0; i < array.length; i++) {
             let event = this.getCalendar().getEventById(array[i].id);
             if (event != null) {

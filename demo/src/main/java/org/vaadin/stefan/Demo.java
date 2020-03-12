@@ -173,7 +173,8 @@ public class Demo extends VerticalLayout {
             System.out.println("dates rendered: " + event.getStart() + " " + event.getEnd());
         });
 
-//        calendar.setOption("rerenderDelay", "500");
+//        calendar.setOpt
+//        ion("rerenderDelay", "500");
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
