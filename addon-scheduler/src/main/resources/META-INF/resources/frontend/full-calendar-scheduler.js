@@ -80,7 +80,13 @@ export class FullCalendarScheduler extends FullCalendar {
             }
         }
     }
-
+    
+    removeAllResources() {
+    	var calendar = this.getCalendar();
+    	this.getCalendar().batchRendering(function() {
+    		calendar.getResources().forEach(r => r.remove());		  
+		});
+    }
 }
 
 customElements.define(FullCalendarScheduler.is, FullCalendarScheduler);
