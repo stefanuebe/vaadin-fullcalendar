@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import elemental.json.Json;
 import elemental.json.JsonObject;
 
 import java.time.*;
@@ -74,6 +75,19 @@ public class Delta {
         int minutes = toInt(jsonObject, "minutes");
         int seconds = toInt(jsonObject, "seconds");
         return new Delta(years, months, days, hours, minutes, seconds);
+    }
+    
+    public JsonObject toJson() {
+    	JsonObject jsonObject = Json.createObject();
+    	
+    	jsonObject.put("years", getYears());
+    	jsonObject.put("months", getMonths());
+    	jsonObject.put("days", getDays());
+    	jsonObject.put("hours", getHours());
+    	jsonObject.put("minutes", getMinutes());
+    	jsonObject.put("seconds", getSeconds());
+    	
+    	return jsonObject;
     }
 
     private static int toInt(JsonObject delta, String key) {

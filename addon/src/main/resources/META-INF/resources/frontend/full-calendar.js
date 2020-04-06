@@ -90,7 +90,6 @@ export class FullCalendar extends PolymerElement {
     }
 
     ready() {
-        // super.ready();
         this._initCalendar();
     }
 
@@ -349,6 +348,10 @@ export class FullCalendar extends PolymerElement {
 
     gotoDate(date) {
         this.getCalendar().gotoDate(date);
+    }
+    
+    incrementDate(duration){
+    	this.getCalendar().incrementDate(duration);
     }
 
 
