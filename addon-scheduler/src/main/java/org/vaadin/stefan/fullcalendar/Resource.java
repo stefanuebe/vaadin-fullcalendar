@@ -20,7 +20,6 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -32,13 +31,12 @@ public class Resource {
     private final String id;
     private final String title;
     private final String color;
-    private List<Resource> children = new ArrayList<Resource>();
 
     /**
      * New instance. ID will be generated.
      */
     public Resource() {
-        this(null, null, null, new ArrayList<Resource>());
+        this(null, null, null);
     }
     
     /**
@@ -51,21 +49,6 @@ public class Resource {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
         this.color = color;
-        this.children = new ArrayList<Resource>();
-    }
-
-    /**
-     * New instance. Awaits id and title. If no id is provided, one will be generated.
-     * @param id id
-     * @param title title
-     * @param color color (optional)
-     * @param children children
-     */
-    public Resource(String id, String title, String color, ArrayList<Resource> children) {
-        this.id = id != null ? id : UUID.randomUUID().toString();
-        this.title = title;
-        this.color = color;
-        this.children = children;
     }
 
     /**
@@ -92,22 +75,6 @@ public class Resource {
         return color;
     }
 
-	/**
-     * Returns the resource's children list.
-     * @return children
-     */
-	public List<Resource> getChildren() {
-		return this.children;
-	}
-	
-	/**
-     * Add the children to the childrens list
-     * @param children
-     */
-	public void addChildren(Resource children) {
-		this.children.add(children);
-	}
-	
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -125,26 +92,12 @@ public class Resource {
         return Objects.hash(id);
     }
     
-    /**
-     * Convert the children list to JsonArray Object
-     * @param childrens
-     */
-	protected JsonArray childrenListToJsonArray(List<Resource> children) {
-		JsonArray jsonArray = Json.createArray();
-		
-		for(Resource child : children)
-			jsonArray.set(jsonArray.length(), child.toJson());
-		
-		return jsonArray;
-	}
-
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
 
         jsonObject.put("id", getId());
         jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
         jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
-        jsonObject.put("children", childrenListToJsonArray(getChildren()));
 
         return jsonObject;
     }
@@ -155,7 +108,6 @@ public class Resource {
                 "title='" + title + '\'' + 
                 ", color='" + color + '\'' +
                 ", id='" + id + '\'' +
-                ", children='" + children + '\''+
                 '}';
     }
 

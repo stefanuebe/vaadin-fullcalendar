@@ -349,11 +349,6 @@ export class FullCalendar extends PolymerElement {
     gotoDate(date) {
         this.getCalendar().gotoDate(date);
     }
-    
-    incrementDate(duration){
-    	this.getCalendar().incrementDate(duration);
-    }
-
 
     addEvents(obj) {
         this.getCalendar().addEventSource(obj);
