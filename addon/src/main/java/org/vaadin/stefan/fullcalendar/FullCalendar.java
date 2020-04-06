@@ -413,38 +413,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         Objects.requireNonNull(date);
         getElement().callJsFunction("gotoDate", date.toString());
     }
-    
-    /**
-     * How far into the future/past the calendar navigates when prev/next is executed
-     * 
-     * @param duration duration (Delta)
-     * @throws NullPointerException when null is passed
-     */
-    public void incrementDate(@NotNull Delta duration) {
-    	Objects.requireNonNull(duration);
-    	getElement().callJsFunction("incrementDate", duration.toJson());
-    }
-    /**
-     * How far into the future/past the calendar navigates when prev/next is executed
-     * 
-     * @param duration duration (LocalDateTime)
-     * @throws NullPointerException when null is passed
-     */
-    public void incrementDate(@NotNull LocalDateTime duration) {
-    	Objects.requireNonNull(duration);
-    	getElement().callJsFunction("incrementDate", duration.toString());
-    }
-    /**
-     * How far into the future/past the calendar navigates when prev/next is executed
-     * 
-     * @param duration duration (milliseconds)
-     * @throws NullPointerException when null is passed
-     */
-    public void incrementDate(@NotNull Double duration) {
-    	Objects.requireNonNull(duration);
-    	getElement().callJsFunction("incrementDate", duration.toString());
-    }
-    
+
     /**
      * Sets a option for this instance. Passing a null value removes the option.
      * <br><br>
