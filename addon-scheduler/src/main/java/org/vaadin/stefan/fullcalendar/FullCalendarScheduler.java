@@ -140,7 +140,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     public void removeAllResources() {
-        removeResources(new HashSet<>(resources.values()));
+    	resources.clear();
+        getElement().callJsFunction("removeAllResources");
     }
 
     /**

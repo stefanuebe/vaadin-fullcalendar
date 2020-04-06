@@ -68,7 +68,6 @@ export class FullCalendarScheduler extends FullCalendar {
         for (let i = 0; i < array.length; i++) {
             this.getCalendar().addResource(array[i]);
         }
-
     }
 
     removeResources(array) {
