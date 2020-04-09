@@ -164,17 +164,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
      * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
      * include it.
+     * <br><br>
+     * Also recurring events are always ignored by this method and thus never a part of this list.
      *
      * @param filterStart start point of filter timespan or null to have no limit
      * @param filterEnd   end point of filter timespan or null to have no limit
      * @return entries
      */
     public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
-        if (filterStart == null && filterEnd == null) {
-            return getEntries();
-        }
+        Stream<Entry> stream = getEntries().stream().filter(e -> !e.isRecurring());
 
-        Stream<Entry> stream = getEntries().stream();
         if (filterStart != null) {
             stream = stream.filter(e -> e.getEndUTC().isAfter(filterStart));
         }
