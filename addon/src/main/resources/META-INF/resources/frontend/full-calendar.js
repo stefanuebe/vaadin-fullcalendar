@@ -7,6 +7,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
+import allLocales from '@fullcalendar/core/locales-all';
+
 
 /*
    Copyright 2018, Stefan Uebe
@@ -256,6 +258,7 @@ export class FullCalendar extends PolymerElement {
             eventLimit: this.eventLimit,
             navLinks: this.navLinks,
             selectable: this.selectable,
+            locales: allLocales
 
             // views: {
             //     basicDay: {
