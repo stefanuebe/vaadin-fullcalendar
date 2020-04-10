@@ -62,16 +62,17 @@ public class DemoDialog extends Dialog {
         fieldRDays.setItems(DayOfWeek.values());
         fieldRDays.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 
+        Checkbox fieldRecurring = new Checkbox("Recurring event");
         DatePicker fieldRStart = new DatePicker("Recurrence start date");
         DatePicker fieldREnd = new DatePicker("Recurrence end date");
         TimePicker fieldRStartTime = new TimePicker("Recurrence start time");
         TimePicker fieldREndTime = new TimePicker("Recurrence end time");
 
-//        fieldRDays.setEnabled(false);
-//        fieldRStart.setEnabled(false);
-//        fieldRStartTime.setEnabled(false);
-//        fieldREnd.setEnabled(false);
-//        fieldREndTime.setEnabled(false);
+        fieldRDays.setVisible(false);
+        fieldRStart.setVisible(false);
+        fieldRStartTime.setVisible(false);
+        fieldREnd.setVisible(false);
+        fieldREndTime.setVisible(false);
 
         Checkbox fieldAllDay = new Checkbox("All day event");
 
@@ -86,15 +87,25 @@ public class DemoDialog extends Dialog {
             fieldREndTime.setEnabled(!event.getValue());
         });
 
+
         Span infoEnd = new Span("End is always exclusive, e.g. for a 1 day event you need to set for instance 4th of May as start and 5th of May as end.");
         infoEnd.getStyle().set("font-size", "0.8em");
         infoEnd.getStyle().set("color", "gray");
 
-        Span infoR = new Span("Recurrence is activated by setting one of the following options. All of them are optional.");
+        Span infoR = new Span("You can activate recurrence for this entry by activating the checkbox and filling in the given fields.");
         infoR.getStyle().set("font-size", "0.8em");
         infoR.getStyle().set("color", "gray");
 
-        layout.add(fieldStart, fieldEnd, infoEnd, fieldAllDay, infoR, fieldRStart, fieldREnd, fieldRStartTime, fieldREndTime, fieldRDays);
+        fieldRecurring.addValueChangeListener(event -> {
+            Boolean active = event.getValue();
+            fieldRDays.setVisible(active);
+            fieldREnd.setVisible(active);
+            fieldREndTime.setVisible(active);
+            fieldRStart.setVisible(active);
+            fieldRStartTime.setVisible(active);
+        });
+
+        layout.add(fieldStart, fieldEnd, infoEnd, fieldAllDay, infoR, fieldRecurring, fieldRStart, fieldREnd, fieldRStartTime, fieldREndTime, fieldRDays);
 
         Binder<Entry> binder = new Binder<>(Entry.class);
         binder.forField(fieldTitle)
@@ -107,6 +118,7 @@ public class DemoDialog extends Dialog {
         binder.bind(fieldStart, e -> e.getStart(timezone), (e, start) -> e.setStart(start, timezone));
         binder.bind(fieldEnd, e -> e.getEnd(timezone), (e, end) -> e.setEnd(end, timezone));
         binder.bind(fieldAllDay, Entry::isAllDay, Entry::setAllDay);
+        binder.bind(fieldRecurring, Entry::isRecurring, Entry::setRecurring);
         binder.bind(fieldRStart, e -> e.getRecurringStartDate(timezone), (e, start) -> e.setRecurringStartDate(start, timezone));
         binder.bind(fieldREnd, e -> e.getRecurringEndDate(timezone), (e, end) -> e.setRecurringEndDate(end, timezone));
         binder.bind(fieldRStartTime, Entry::getRecurringStartTime, Entry::setRecurringStartTime);
@@ -126,6 +138,14 @@ public class DemoDialog extends Dialog {
         } else {
             buttonSave = new Button("Save", e -> {
                 if (binder.validate().isOk()) {
+                    if (!entry.isRecurring()) {
+                        entry.setRecurringDaysOfWeeks(null);
+                        entry.setRecurringStartDate(null);
+                        entry.setRecurringEndDate(null);
+                        entry.setRecurringStartTime(null);
+                        entry.setRecurringEndTime(null);
+                    }
+
                     calendar.updateEntry(entry);
                 }
             });

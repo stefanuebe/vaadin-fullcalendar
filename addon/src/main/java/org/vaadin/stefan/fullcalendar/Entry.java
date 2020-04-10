@@ -45,6 +45,8 @@ public class Entry {
     private String color;
     private String description;
     private RenderingMode renderingMode = RenderingMode.NORMAL;
+
+    private boolean recurring;
     private Set<DayOfWeek> recurringDaysOfWeeks;
     private Instant recurringStartDate;
     private Instant recurringEndDate;
@@ -125,25 +127,25 @@ public class Entry {
         jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
 
-        if (recurringDaysOfWeeks != null && !recurringDaysOfWeeks.isEmpty()) {
-            jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(recurringDaysOfWeeks.stream().map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())));
-        }
+//        if (recurringDaysOfWeeks != null && !recurringDaysOfWeeks.isEmpty()) {
+            jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(recurringDaysOfWeeks == null || recurringDaysOfWeeks.isEmpty() ? null : recurringDaysOfWeeks.stream().map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())));
+//        }
 
-        if (recurringStartTime != null) {
+//        if (recurringStartTime != null) {
             jsonObject.put("startTime", JsonUtils.toJsonValue(recurringStartTime));
-        }
+//        }
 
-        if (recurringEndTime != null) {
+//        if (recurringEndTime != null) {
             jsonObject.put("endTime", JsonUtils.toJsonValue(recurringEndTime));
-        }
+//        }
 
-        if (recurringStartDate != null) {
-            jsonObject.put("startRecur", JsonUtils.toJsonValue(getStartTimezone().formatWithZoneId(recurringStartDate)));
-        }
+//        if (recurringStartDate != null) {
+            jsonObject.put("startRecur", JsonUtils.toJsonValue(recurringStartDate == null ? null : getStartTimezone().formatWithZoneId(recurringStartDate)));
+//        }
 
-        if (recurringEndDate != null) {
-            jsonObject.put("endRecur", JsonUtils.toJsonValue(getEndTimezone().formatWithZoneId(recurringEndDate)));
-        }
+//        if (recurringEndDate != null) {
+            jsonObject.put("endRecur", JsonUtils.toJsonValue(recurringEndDate == null ? null : getEndTimezone().formatWithZoneId(recurringEndDate)));
+//        }
 
         return jsonObject;
     }
@@ -409,6 +411,24 @@ public class Entry {
      */
     public Timezone getEndTimezone() {
         return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+    }
+
+    /**
+     * Simple flag that indicates, if this entry is a recurring one or not. Recurring information
+     * might be stored in the event independently to this flag (server side only information).
+     * @return is recurring
+     */
+    public boolean isRecurring() {
+        return recurring;
+    }
+
+    /**
+     * Simple flag that indicates, if this entry is a recurring one or not. This is a server side only information.
+     * Does <b>not</b> remove any recurring information, when set to false.
+     * @param recurring is recurring
+     */
+    public void setRecurring(boolean recurring) {
+        this.recurring = recurring;
     }
 
     /**
