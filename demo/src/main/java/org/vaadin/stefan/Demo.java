@@ -301,6 +301,7 @@ public class Demo extends VerticalLayout {
         LocalDate now = LocalDate.now();
 
         Entry recurring = new Entry();
+        recurring.setRecurring(true);
         recurring.setTitle(now.getYear() + "'s sunday event");
         recurring.setColor("lightgray");
         recurring.setRecurringDaysOfWeeks(Collections.singleton(DayOfWeek.SUNDAY));

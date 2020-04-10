@@ -7,6 +7,8 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
+import allLocales from '@fullcalendar/core/locales-all';
+
 
 /*
    Copyright 2018, Stefan Uebe
@@ -255,6 +257,7 @@ export class FullCalendar extends PolymerElement {
             eventLimit: this.eventLimit,
             navLinks: this.navLinks,
             selectable: this.selectable,
+            locales: allLocales
 
             // views: {
             //     basicDay: {
@@ -366,7 +369,8 @@ export class FullCalendar extends PolymerElement {
                 // since currently recurring events can not be set by updating existing events, we circumcise that
                 // by simply re-adding the event.
                 // https://github.com/fullcalendar/fullcalendar/issues/4393
-                if (this._isRecurring(obj)) {
+
+                if (this._isServerSideRecurring(obj) || this._isClientSideRecurring(eventToUpdate)) {
                     eventToUpdate.remove();
                     this.addEvents([obj]);
                 } else {
@@ -390,8 +394,24 @@ export class FullCalendar extends PolymerElement {
         }
     }
 
-    _isRecurring(event) {
+    /**
+     * Checks entries coming from the server side if they are recurring.
+     * @param event
+     * @returns {boolean}
+     * @private
+     */
+    _isServerSideRecurring(event) {
         return event.daysOfWeek != null || event.startTime != null || event.endTime != null || event.startRecur != null || event.endRecur != null;
+    }
+
+    /**
+     * Checks entries existing on the client side if they are recurring (experimental)
+     * @param event
+     * @returns {boolean|boolean}
+     * @private
+     */
+    _isClientSideRecurring(event) {
+        return typeof event._def.recurringDef === "object" && event._def.recurringDef != null
     }
 
     removeEvents(array) {

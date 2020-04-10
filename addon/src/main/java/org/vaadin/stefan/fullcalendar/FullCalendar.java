@@ -176,12 +176,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         }
 
         Stream<Entry> stream = getEntries().stream();
+
         if (filterStart != null) {
-            stream = stream.filter(e -> e.getEndUTC().isAfter(filterStart));
+            stream = stream.filter(e -> e.getEndUTC() != null && e.getEndUTC().isAfter(filterStart));
         }
 
         if (filterEnd != null) {
-            stream = stream.filter(e -> e.getStartUTC().isBefore(filterEnd));
+            stream = stream.filter(e -> e.getStartUTC() != null && e.getStartUTC().isBefore(filterEnd));
         }
 
         return stream.collect(Collectors.toList());
