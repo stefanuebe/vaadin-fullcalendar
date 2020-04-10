@@ -64,7 +64,7 @@ public class Resource {
      * @param color color (optional)
      * @param children children (optional)
      */
-    public Resource(String id, String title, String color, ArrayList<Resource> children) {
+    public Resource(String id, String title, String color, List<Resource> children) {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
         this.color = color;
