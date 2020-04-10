@@ -9,7 +9,6 @@ import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all';
 
-
 /*
    Copyright 2018, Stefan Uebe
 
@@ -443,7 +442,8 @@ export class FullCalendar extends PolymerElement {
     }
 
     setEventRenderCallback(s) {
-        this.getCalendar().option('eventRender', new Function("return " + s)());
+    	let calendar = this.getCalendar();
+    	calendar.setOption('eventRender', new Function("return " + s)());
     }
 }
 
