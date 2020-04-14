@@ -31,6 +31,7 @@ public class Resource {
     private final String title;
     private final String color;
     private Set<Resource> children;
+    private Resource parent;
 
     /**
      * New instance. ID will be generated.
@@ -53,17 +54,22 @@ public class Resource {
 
     /**
      * New instance. Awaits id and title. If no id is provided, one will be generated.
+     * <p/>
+     * Adds the given resources as children using {@link #addChildren(Collection)} if a value != null is passed.
      *
      * @param id       id
      * @param title    title
      * @param color    color (optional)
      * @param children children (optional)
      */
-    public Resource(String id, String title, String color, Set<Resource> children) {
+    public Resource(String id, String title, String color, Collection<Resource> children) {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
         this.color = color;
-        this.children = children;
+
+        if (children != null) {
+            addChildren(children);
+        }
     }
 
     /**
@@ -77,7 +83,14 @@ public class Resource {
 
     /**
      * Adds the given resources as children to this instance. Does not check, if the resources have been
-     * added to other resources or entries before. Does also not update the resource instance on the client side.
+     * added to other resources or entries before.
+     * <p/>
+     * Does also not update the resource instance on the client side. If you want to add child ressources to
+     * already existing resources, you also have to register them manually in the client
+     * using {@link Scheduler#addResources(Resource...)}
+     * <p/>
+     * Sets the parent for each child resource to this instance. If you move resource from another parent, remove
+     * them there first.
      *
      * @param children resources to be added as children
      */
@@ -87,11 +100,16 @@ public class Resource {
         } else {
             this.children.addAll(children);
         }
+
+        children.forEach(child -> child.setParent(this));
     }
 
     /**
      * Adds the given resource as child to this instance. Does not check, if the resource has been
      * added to other resources or entries before. Does also not update the resource instance on the client side.
+     * If you want to add child ressources to
+     * already existing resources, you also have to register them manually in the client
+     * using {@link Scheduler#addResources(Resource...)}
      *
      * @param child resource to be added as child
      */
@@ -100,7 +118,9 @@ public class Resource {
     }
 
     /**
-     * Removes the given resource from this instance. Does not update the resource instance on the client side.
+     * Removes the given resource from this instance. Does not update the resource instance on the client side. For
+     * that you need to call {@link Scheduler#removeResources(Resource...)} manually for the given instance.
+     *
      * @param child child resource to be removed
      */
     public void removeChild(Resource child) {
@@ -109,10 +129,21 @@ public class Resource {
 
     /**
      * Removes the given resources from this instance. Does not update the resource instance on the client side.
+     * For that you need to call {@link Scheduler#removeResources(Resource...)} manually for the given instance.
+     * <p/>
+     * Unsets the parent, if it matches this instance.
+     *
      * @param children child resources to be removed
      */
     public void removeChildren(Collection<Resource> children) {
         if (this.children != null) {
+            children.stream()
+                    .filter(child -> {
+                        Optional<Resource> parent = child.getParent();
+                        return parent.isPresent() && parent.get().equals(this);
+                    })
+                    .forEach(child -> child.setParent(null));
+
             this.children.removeAll(children);
         }
     }
@@ -144,6 +175,24 @@ public class Resource {
         return color;
     }
 
+    /**
+     * Returns the parent resource (or empty if top level).
+     *
+     * @return parent or empty
+     */
+    public Optional<Resource> getParent() {
+        return Optional.ofNullable(parent);
+    }
+
+    /**
+     * Used by {@link #addChildren(Collection)}. Currently no need to use it elsewhere.
+     *
+     * @param parent parent
+     */
+    private void setParent(Resource parent) {
+        this.parent = parent;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -164,6 +213,7 @@ public class Resource {
     /**
      * Converts the instance to a JsonObject. Calls itself also for child methods. Please be aware, that this method
      * <b>does not check</b> for potential hierarchial loops (e. g. infinite loops), this has to be done manually before.
+     *
      * @return json object
      */
     protected JsonObject toJson() {
@@ -172,6 +222,7 @@ public class Resource {
         jsonObject.put("id", getId());
         jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
         jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
+        getParent().ifPresent(parent -> jsonObject.put("parentId", parent.getId()));
 
         Set<Resource> children = getChildren();
         if (!children.isEmpty()) {
@@ -189,12 +240,17 @@ public class Resource {
 
     @Override
     public String toString() {
-        return "Resource{" +
+        String s = "Resource{" +
                 "title='" + title + '\'' +
                 ", color='" + color + '\'' +
                 ", id='" + id + '\'' +
-                ", children='" + children + '\'' +
-                '}';
+                ", children='" + children + '\'';
+
+        if (parent != null) {
+            s += "parentId = '" + parent.getId() + '\'';
+        }
+
+        return s + '}';
     }
 
 
