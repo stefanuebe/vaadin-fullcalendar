@@ -162,20 +162,10 @@ public class Resource {
     }
 
     /**
-     * Convert the children list to JsonArray Object
-     *
-     * @param children children to be converted
+     * Converts the instance to a JsonObject. Calls itself also for child methods. Please be aware, that this method
+     * <b>does not check</b> for potential hierarchial loops (e. g. infinite loops), this has to be done manually before.
+     * @return json object
      */
-    protected JsonArray childrenToJsonArray(Collection<Resource> children) {
-        JsonArray jsonArray = Json.createArray();
-
-        for (Resource child : children) {
-            jsonArray.set(jsonArray.length(), child.toJson());
-        }
-
-        return jsonArray;
-    }
-
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
 
@@ -185,7 +175,13 @@ public class Resource {
 
         Set<Resource> children = getChildren();
         if (!children.isEmpty()) {
-            jsonObject.put("children", childrenToJsonArray(children));
+            JsonArray jsonArray = Json.createArray();
+
+            for (Resource child : children) {
+                jsonArray.set(jsonArray.length(), child.toJson());
+            }
+
+            jsonObject.put("children", jsonArray);
         }
 
         return jsonObject;
