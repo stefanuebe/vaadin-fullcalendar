@@ -42,11 +42,15 @@ public class DemoDialog extends Dialog {
 
         setWidth("500px");
 
-
         // init fields
 
         TextField fieldTitle = new TextField("Title");
         ComboBox<String> fieldColor = new ComboBox<>("Color", COLORS);
+        fieldColor.setPreventInvalidInput(false);
+        fieldColor.setAllowCustomValue(true);
+        fieldColor.addCustomValueSetListener(event -> fieldColor.setValue(event.getDetail()));
+        fieldColor.setClearButtonVisible(true);
+
         TextArea fieldDescription = new TextArea("Description");
 
         Checkbox fieldRecurring = new Checkbox("Recurring event");

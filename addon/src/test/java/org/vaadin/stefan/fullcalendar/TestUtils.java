@@ -1,5 +1,9 @@
 package org.vaadin.stefan.fullcalendar;
 
+import elemental.json.JsonObject;
+import elemental.json.JsonValue;
+import org.junit.jupiter.api.Assertions;
+
 public class TestUtils {
 
     private static boolean inited = false;
@@ -41,5 +45,21 @@ public class TestUtils {
 //
 //            inited = true;
 //        }
+    }
+
+    public static void assertJsonType(JsonObject object, String key, Class<? extends JsonValue> expectedType) {
+        JsonValue jsonValue = object.get(key);
+        Assertions.assertNotNull(jsonValue, "Json value for key '" + key + "' returned null, expected a json value being a sub type of " + expectedType);
+
+        Class<? extends JsonValue> aClass = jsonValue.getClass();
+        if (!expectedType.isAssignableFrom(aClass)) {
+            Assertions.fail("Json value for key '" + key + "': Expected sub type of " + expectedType + ", but got " + aClass);
+        }
+    }
+
+    public static void assertJsonMissingKey(JsonObject object, String key) {
+        if (object.hasKey(key)) {
+            Assertions.fail("Expected json object to not have key '" + key + "'");
+        }
     }
 }

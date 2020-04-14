@@ -1,6 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.Json;
+import elemental.json.JsonBoolean;
 import elemental.json.JsonNull;
 import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
@@ -30,6 +31,23 @@ public class EntryTest {
     @BeforeAll
     static void beforeAll() {
         TestUtils.initVaadinService(FULL_CALENDAR_HTML);
+    }
+
+    /**
+     * Checks an original entry and the json based variant for equal fields, that can be changed by json.
+     *
+     * @param expected expected entry
+     * @param actual   actual entry
+     */
+    static void assertFullEqualsByJsonAttributes(Entry expected, Entry actual) {
+        Assertions.assertEquals(expected.getId(), actual.getId());
+        Assertions.assertEquals(expected.getTitle(), actual.getTitle());
+        Assertions.assertEquals(expected.getStart(), actual.getStart());
+        Assertions.assertEquals(expected.getEnd(), actual.getEnd());
+        Assertions.assertEquals(expected.isAllDay(), actual.isAllDay());
+        Assertions.assertEquals(expected.isEditable(), actual.isEditable());
+        Assertions.assertEquals(expected.getColor(), actual.getColor());
+        Assertions.assertEquals(expected.getRenderingMode(), actual.getRenderingMode());
     }
 
     @Test
@@ -93,22 +111,6 @@ public class EntryTest {
         Assertions.assertNull(new Entry(null, null, (Instant) null, null, false, false, "", null).getColor());
     }
 
-    /**
-     * Checks an original entry and the json based variant for equal fields, that can be changed by json.
-     * @param expected expected entry
-     * @param actual actual entry
-     */
-    static void assertFullEqualsByJsonAttributes(Entry expected, Entry actual) {
-        Assertions.assertEquals(expected.getId(), actual.getId());
-        Assertions.assertEquals(expected.getTitle(), actual.getTitle());
-        Assertions.assertEquals(expected.getStart(), actual.getStart());
-        Assertions.assertEquals(expected.getEnd(), actual.getEnd());
-        Assertions.assertEquals(expected.isAllDay(), actual.isAllDay());
-        Assertions.assertEquals(expected.isEditable(), actual.isEditable());
-        Assertions.assertEquals(expected.getColor(), actual.getColor());
-        Assertions.assertEquals(expected.getRenderingMode(), actual.getRenderingMode());
-    }
-
     @Test
     void testEqualsAndHashcodeOnlyDependOnId() {
         Entry entry = new Entry(DEFAULT_ID, null, (Instant) null, null, false, false, null, null);
@@ -136,13 +138,15 @@ public class EntryTest {
         JsonObject jsonObject = entry.toJson();
 
         Assertions.assertEquals(entry.getId(), jsonObject.getString("id"));
-        Assertions.assertTrue(jsonObject.get("title") instanceof JsonNull);
-        Assertions.assertTrue(jsonObject.get("start") instanceof JsonNull);
-        Assertions.assertTrue(jsonObject.get("end") instanceof JsonNull);
+        TestUtils.assertJsonType(jsonObject, "title", JsonNull.class);
+        TestUtils.assertJsonType(jsonObject, "start", JsonNull.class);
+        TestUtils.assertJsonType(jsonObject, "end", JsonNull.class);
+        TestUtils.assertJsonMissingKey(jsonObject, "color");
+        TestUtils.assertJsonType(jsonObject, "rendering", JsonNull.class);
+        TestUtils.assertJsonType(jsonObject, "allDay", JsonBoolean.class);
+        TestUtils.assertJsonType(jsonObject, "editable", JsonBoolean.class);
         Assertions.assertFalse(jsonObject.getBoolean("allDay"));
         Assertions.assertTrue(jsonObject.getBoolean("editable"));
-        Assertions.assertTrue(jsonObject.get("color") instanceof JsonNull);
-        Assertions.assertTrue(jsonObject.get("rendering") instanceof JsonNull);
     }
 
 

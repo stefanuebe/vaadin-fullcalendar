@@ -253,7 +253,7 @@ public class Demo extends VerticalLayout {
     private void createTestEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
 
-        Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red", "red");
+        Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red", "#ff0000");
         Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green", "green");
         Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
         Resource computer1A = createResource((Scheduler) calendar, "Computer 1A", "lightbrown");
