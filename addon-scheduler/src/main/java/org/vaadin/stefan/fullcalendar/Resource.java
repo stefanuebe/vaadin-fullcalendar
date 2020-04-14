@@ -20,75 +20,106 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
- * Represents a resource.
+ * Represents a resource. ResourceEntries contain these resources (a resource itself does not know anything about
+ * the assigned entries). A resource can have sub resources / child resources.
  */
 public class Resource {
     private final String id;
     private final String title;
     private final String color;
-    private List<Resource> children;
+    private Set<Resource> children;
 
     /**
      * New instance. ID will be generated.
      */
     public Resource() {
-        this(null, null, null, new ArrayList<Resource>());
+        this(null, null, null);
     }
-    
+
     /**
      * New instance. Awaits id and title. If no id is provided, one will be generated.
      * Children list will be initialized to empty ArrayList<Resource>
-     * 
-     * @param id id
+     *
+     * @param id    id
      * @param title title
      * @param color color (optional)
      */
     public Resource(String id, String title, String color) {
-        this.id = id != null ? id : UUID.randomUUID().toString();
-        this.title = title;
-        this.color = color;
-        this.children = new ArrayList<Resource>();
+        this(id, title, color, null);
     }
-    
+
     /**
      * New instance. Awaits id and title. If no id is provided, one will be generated.
-     * 
-     * @param id id
-     * @param title title
-     * @param color color (optional)
+     *
+     * @param id       id
+     * @param title    title
+     * @param color    color (optional)
      * @param children children (optional)
      */
-    public Resource(String id, String title, String color, List<Resource> children) {
+    public Resource(String id, String title, String color, Set<Resource> children) {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
         this.color = color;
         this.children = children;
     }
-    
+
     /**
-     * Returns the resource's children list.
+     * Returns the resource's children as unmodifiable set. Empty, when not children are set.
+     *
      * @return children
      */
-	public List<Resource> getChildren() {
-		return this.children;
-	}
-	
-	/**
-     * Add the children to the childrens list
-     * @param children
+    public Set<Resource> getChildren() {
+        return children != null ? Collections.unmodifiableSet(children) : Collections.emptySet();
+    }
+
+    /**
+     * Adds the given resources as children to this instance. Does not check, if the resources have been
+     * added to other resources or entries before. Does also not update the resource instance on the client side.
+     *
+     * @param children resources to be added as children
      */
-	public void addChildren(Resource children) {
-		this.children.add(children);
-	}
+    public void addChildren(Collection<Resource> children) {
+        if (this.children == null) {
+            this.children = new HashSet<>(children);
+        } else {
+            this.children.addAll(children);
+        }
+    }
+
+    /**
+     * Adds the given resource as child to this instance. Does not check, if the resource has been
+     * added to other resources or entries before. Does also not update the resource instance on the client side.
+     *
+     * @param child resource to be added as child
+     */
+    public void addChild(Resource child) {
+        addChildren(Collections.singleton(child));
+    }
+
+    /**
+     * Removes the given resource from this instance. Does not update the resource instance on the client side.
+     * @param child child resource to be removed
+     */
+    public void removeChild(Resource child) {
+        removeChildren(Collections.singleton(child));
+    }
+
+    /**
+     * Removes the given resources from this instance. Does not update the resource instance on the client side.
+     * @param children child resources to be removed
+     */
+    public void removeChildren(Collection<Resource> children) {
+        if (this.children != null) {
+            this.children.removeAll(children);
+        }
+    }
 
     /**
      * Returns the id of this instance.
+     *
      * @return id
      */
     public String getId() {
@@ -97,6 +128,7 @@ public class Resource {
 
     /**
      * Returns the title.
+     *
      * @return title
      */
     public String getTitle() {
@@ -105,6 +137,7 @@ public class Resource {
 
     /**
      * Returns the resource's color.
+     *
      * @return color
      */
     public String getColor() {
@@ -127,35 +160,41 @@ public class Resource {
     public int hashCode() {
         return Objects.hash(id);
     }
-    
+
     /**
      * Convert the children list to JsonArray Object
-     * @param childrens
+     *
+     * @param children children to be converted
      */
-	protected JsonArray childrenListToJsonArray(List<Resource> children) {
-		JsonArray jsonArray = Json.createArray();
-		
-		for(Resource child : children)
-			jsonArray.set(jsonArray.length(), child.toJson());
-		
-		return jsonArray;
-	}
-    
+    protected JsonArray childrenToJsonArray(Collection<Resource> children) {
+        JsonArray jsonArray = Json.createArray();
+
+        for (Resource child : children) {
+            jsonArray.set(jsonArray.length(), child.toJson());
+        }
+
+        return jsonArray;
+    }
+
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
 
         jsonObject.put("id", getId());
         jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
         jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
-        jsonObject.put("children", childrenListToJsonArray(getChildren()));
-        
+
+        Set<Resource> children = getChildren();
+        if (!children.isEmpty()) {
+            jsonObject.put("children", childrenToJsonArray(children));
+        }
+
         return jsonObject;
     }
 
     @Override
     public String toString() {
         return "Resource{" +
-                "title='" + title + '\'' + 
+                "title='" + title + '\'' +
                 ", color='" + color + '\'' +
                 ", id='" + id + '\'' +
                 ", children='" + children + '\'' +
