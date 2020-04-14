@@ -22,7 +22,6 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
-import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 import javax.validation.constraints.NotNull;
@@ -698,7 +697,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void removeBusinessHours() {
         setOption(Option.BUSINESS_HOURS, null);
     }
-    
+
     /**
      * Sets the snap duration for this calendar instance.<p>
      * The default is '00:30'
@@ -710,7 +709,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         Objects.requireNonNull(duration);
         setOption(Option.SNAP_DURATION, duration);
     }
-    
+
     /**
      * Sets the min time for this calendar instance. This is the first time slot that will be displayed for each day.<p>
      * The default is '00:00:00'
@@ -722,7 +721,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         Objects.requireNonNull(minTime);
         setOption(Option.MIN_TIME, JsonUtils.toJsonValue(minTime != null ? minTime : "00:00:00"));
     }
-    
+
     /**
      * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day<p>
      * The default is '24:00:00'
@@ -731,7 +730,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @throws NullPointerException when null is passed
      */
     public void setMaxTime(@NotNull LocalTime maxTime) {
-        Objects.requireNonNull(maxTime);  
+        Objects.requireNonNull(maxTime);
         setOption(Option.MAX_TIME, JsonUtils.toJsonValue(maxTime != null ? maxTime : "24:00:00"));
     }
 
@@ -988,8 +987,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         TIMEZONE("timeZone"),
         SNAP_DURATION("snapDuration"),
         MIN_TIME("minTime"),
-        MAX_TIME("maxTime")
-        ;
+        MAX_TIME("maxTime");
 
         private final String optionKey;
 
