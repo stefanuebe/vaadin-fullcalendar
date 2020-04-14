@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import elemental.json.Json;
 import elemental.json.JsonObject;
 
 import java.time.*;
