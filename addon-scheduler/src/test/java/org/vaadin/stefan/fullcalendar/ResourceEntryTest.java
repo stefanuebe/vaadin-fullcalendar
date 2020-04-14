@@ -124,50 +124,59 @@ public class ResourceEntryTest {
     @Test
     void testUpdateResourceEntryFromJson() {
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.addResource(new Resource("1", "1", null));
-        calendar.addResource(new Resource("2", "2", null));
-        calendar.addResource(new Resource("3", "3", null));
+        Resource resource1 = new Resource("1", "1", null);
+        Resource resource2 = new Resource("2", "2", null);
+        Resource resource3 = new Resource("3", "3", null);
+        calendar.addResources(resource1, resource2, resource3);
 
         ResourceEntry entry = new ResourceEntry();
         entry.setCalendar(calendar);
 
+        Set<Resource> resourceList = new HashSet<>(Arrays.asList(resource1, resource2));
+        entry.addResources(resourceList);
+
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", entry.getId());
 
+        // test basic data
         jsonObject.put("title", DEFAULT_TITLE);
         jsonObject.put("start", DEFAULT_START.toString());
         jsonObject.put("end", DEFAULT_END.toString());
         jsonObject.put("allDay", false);
         jsonObject.put("editable", true);
         jsonObject.put("color", DEFAULT_COLOR);
-
-        JsonArray array = Json.createArray();
-        array.set(0, "1");
-        array.set(1, "2");
-        array.set(2, "3");
-        jsonObject.put("resourceIds", array);
-
         jsonObject.put("description", DEFAULT_DESCRIPTION); // this should not affect the object
 
+        Assertions.assertNotNull(entry);
+        Assertions.assertNotNull(jsonObject);
         entry.update(jsonObject);
 
         Assertions.assertEquals(jsonObject.getString("id"), entry.getId());
-
         Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
         Assertions.assertFalse(entry.isAllDay());
         Assertions.assertEquals(DEFAULT_START, entry.getStart());
         Assertions.assertEquals(DEFAULT_END, entry.getEnd());
         Assertions.assertTrue(entry.isEditable());
         Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
+        Assertions.assertEquals(resourceList, entry.getResources()); // should not have changed yet
 
-        Assertions.assertTrue(jsonObject.get("resourceIds") instanceof JsonArray);
+        // test resource changes
+        // new resource
+        jsonObject.put("newResource", "3");
+        entry.update(jsonObject);
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(resource1, resource2, resource3)), entry.getResources());
 
-        array = jsonObject.get("resourceIds");
-        Set<String> jsonResourceIds = new HashSet<>(array.length());
-        for (int i = 0; i < array.length(); i++) {
-            jsonResourceIds.add(array.getString(i));
-        }
-        Assertions.assertEquals(calendar.getResources().stream().map(Resource::getId).collect(Collectors.toSet()), jsonResourceIds);
+        // remove resource
+        jsonObject.remove("newResource");
+        jsonObject.put("oldResource", "3");
+        entry.update(jsonObject);
+        Assertions.assertEquals(resourceList, entry.getResources());
+
+        // change resource
+        jsonObject.put("oldResource", "2");
+        jsonObject.put("newResource", "3");
+        entry.update(jsonObject);
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(resource1, resource3)), entry.getResources());
 
         Assertions.assertNull(entry.getDescription()); // should not be affected by json
     }

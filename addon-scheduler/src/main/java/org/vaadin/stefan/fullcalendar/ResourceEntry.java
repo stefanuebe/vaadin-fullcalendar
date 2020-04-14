@@ -156,31 +156,20 @@ public class ResourceEntry extends Entry {
         super.update(object);
 
         getCalendar().map(c -> (Scheduler) c).ifPresent(calendar -> {
-            JsonValue jsonValue = object.get("resourceIds");
 
-            if (jsonValue instanceof JsonNull) {
-                jsonValue = object.get("resourceId");
-                if (jsonValue instanceof JsonNull) {
-                    setResource(null);
-                } else {
-                    setResource(calendar.getResourceById(jsonValue.asString()).orElse(null));
-                }
-            } else {
-                JsonArray resourceIds = (JsonArray) jsonValue;
-                if (resourceIds != null) {
-                    removeAllResources();
+            Optional.<JsonValue>ofNullable(object.get("oldResource"))
+                    .filter(o -> o instanceof JsonString)
+                    .map(JsonValue::asString)
+                    .flatMap(calendar::getResourceById)
+                    .map(Collections::singleton)
+                    .ifPresent(this::removeResources);
 
-                    int length = resourceIds.length();
-                    HashSet<Resource> set = new HashSet<>(length);
-
-                    for (int i = 0; i < length; i++) {
-                        String resourceId = resourceIds.getString(i);
-                        calendar.getResourceById(resourceId).ifPresent(set::add);
-                    }
-
-                    addResources(set);
-                }
-            }
+            Optional.<JsonValue>ofNullable(object.get("newResource"))
+                    .filter(o -> o instanceof JsonString)
+                    .map(JsonValue::asString)
+                    .flatMap(calendar::getResourceById)
+                    .map(Collections::singleton)
+                    .ifPresent(this::addResources);
 
         });
     }

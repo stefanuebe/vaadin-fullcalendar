@@ -179,10 +179,11 @@ export class FullCalendar extends PolymerElement {
             },
             eventDrop: (eventInfo) => {
                 return {
-                    data: this._toEventData(eventInfo.event),
+                    data: this._toEventData(eventInfo. event, eventInfo.oldResource, eventInfo.newResource),
+                    // data: this._toEventData(eventInfo.event),
                     delta: eventInfo.delta,
-                    oldResource: eventInfo.oldResource ? eventInfo.oldResource.id : null,
-                    newResource: eventInfo.newResource ? eventInfo.newResource.id : null
+                    // oldResource: eventInfo.oldResource ? eventInfo.oldResource.id : null,
+                    // newResource: eventInfo.newResource ? eventInfo.newResource.id : null
                 }
             },
             datesRender: (eventInfo) => {
@@ -316,7 +317,7 @@ export class FullCalendar extends PolymerElement {
     }
 
 
-    _toEventData(event) {
+    _toEventData(event, oldResourceInfo, newResourceInfo) {
         let end = event.end;
         if (end != null) {
             end = this._formatDate(end);
@@ -326,13 +327,24 @@ export class FullCalendar extends PolymerElement {
             end = this._formatDate(new Date(event.start.valueOf() + 3600000)); // + 1 hour
         }
 
-        return {
+        let data = {
             id: event.id,
             start: this._formatDate(event.start),
             end: end,
             allDay: event.allDay,
             editable: event.editable
+        };
+
+        if (oldResourceInfo != null) {
+            data.oldResource = oldResourceInfo.id;
         }
+
+        if (newResourceInfo != null) {
+            data.newResource = newResourceInfo.id;
+        }
+
+
+        return data;
     }
 
 
