@@ -21,6 +21,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.NativeButton;
@@ -46,6 +47,7 @@ import java.util.stream.IntStream;
 @Route(value = "", layout = MainView.class)
 @JsModule("./styles.js")
 @JsModule("./styles-scheduler.js")
+@CssImport("./demo-styles.css")
 public class Demo extends VerticalLayout {
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
@@ -132,7 +134,7 @@ public class Demo extends VerticalLayout {
                     Instant start = Instant.now();
                     Instant end = Instant.now().plus(1, ChronoUnit.DAYS);
                     List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
-                        Entry entry = new Entry();
+                        Entry entry = new ResourceEntry();
                         entry.setStart(start);
                         entry.setEnd(end);
                         entry.setAllDay(true);
@@ -202,10 +204,9 @@ public class Demo extends VerticalLayout {
         calendar.addEntryDroppedListener(event -> System.out.println(event.applyChangesOnEntry()));
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
-        calendar.addEntryClickedListener(event -> new DemoDialog(calendar, event.getEntry(), false).open());
+        calendar.addEntryClickedListener(event -> new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open());
         calendar.addTimeslotsSelectedListener((event) -> {
-            Entry entry;
-            entry = new Entry();
+            ResourceEntry entry = new ResourceEntry();
 
             entry.setStart(event.getStartDateTimeUTC());
             entry.setEnd(event.getEndDateTimeUTC());
@@ -229,7 +230,7 @@ public class Demo extends VerticalLayout {
                 entries.stream()
                         .sorted(Comparator.comparing(Entry::getTitle))
                         .map(entry -> {
-                            NativeButton button = new NativeButton(entry.getTitle(), clickEvent -> new DemoDialog(calendar, entry, false).open());
+                            NativeButton button = new NativeButton(entry.getTitle(), clickEvent -> new DemoDialog(calendar, (ResourceEntry) entry, false).open());
                             Style style = button.getStyle();
                             style.set("background-color", Optional.ofNullable(entry.getColor()).orElse("rgb(58, 135, 173)"));
                             style.set("color", "white");
@@ -254,6 +255,28 @@ public class Demo extends VerticalLayout {
         Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red", "red");
         Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green", "green");
         Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
+        Resource computer1A = createResource((Scheduler) calendar, "Computer 1A", "lightbrown");
+        Resource computer1B = createResource((Scheduler) calendar, "Computer 1B", "lightbrown");
+        Resource computer1C = createResource((Scheduler) calendar, "Computer 1C", "lightbrown");
+
+        Resource computerRoom1 = createResource((Scheduler) calendar, "Computer room 1", "brown", Arrays.asList(computer1A, computer1B, computer1C));
+//        computerRoom.addChildren(Arrays.asList(computerA, computerB, computerC));
+
+        Resource computerRoom2 = createResource((Scheduler) calendar, "Computer room 2", "brown");
+        // here we must NOT use createResource, since they are added to the calendar later
+        Resource computer2A = new Resource(null, "Computer 2A", "lightbrown");
+        Resource computer2B = new Resource(null, "Computer 2B", "lightbrown");
+        Resource computer2C = new Resource(null, "Computer 2C", "lightbrown");
+
+        // not realistic, just a demonstration of automatic recursive adding
+        computer2A.addChild(new Resource(null, "Mouse", "orange"));
+        computer2A.addChild(new Resource(null, "Screen", "orange"));
+        computer2A.addChild(new Resource(null, "Keyboard", "orange"));
+
+        List<Resource> computerRoom2Children = Arrays.asList(computer2A, computer2B, computer2C);
+        computerRoom2.addChildren(computerRoom2Children);
+        ((Scheduler) calendar).addResources(computerRoom2Children);
+
 
         createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
         createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
@@ -300,7 +323,7 @@ public class Demo extends VerticalLayout {
     private void createRecurringEvents(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
 
-        Entry recurring = new Entry();
+        Entry recurring = new ResourceEntry();
         recurring.setRecurring(true);
         recurring.setTitle(now.getYear() + "'s sunday event");
         recurring.setColor("lightgray");
@@ -314,19 +337,19 @@ public class Demo extends VerticalLayout {
     }
 
     private void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
-        Entry entry = new Entry();
+        Entry entry = new ResourceEntry();
         setValues(calendar, entry, title, start.atStartOfDay(), days, ChronoUnit.DAYS, color);
         calendar.addEntry(entry);
     }
 
     private void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
-        Entry entry = new Entry();
+        Entry entry = new ResourceEntry();
         setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color);
         calendar.addEntry(entry);
     }
 
     private void createDayBackgroundEntry(FullCalendar calendar, LocalDate start, int days, String color) {
-        Entry entry = new Entry();
+        Entry entry = new ResourceEntry();
         setValues(calendar, entry, "BG", start.atStartOfDay(), days, ChronoUnit.DAYS, color);
 
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
@@ -334,7 +357,7 @@ public class Demo extends VerticalLayout {
     }
 
     private void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color) {
-        Entry entry = new Entry();
+        Entry entry = new ResourceEntry();
         setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         calendar.addEntry(entry);
@@ -359,6 +382,12 @@ public class Demo extends VerticalLayout {
 
     private Resource createResource(Scheduler calendar, String s, String color) {
         Resource resource = new Resource(null, s, color);
+        calendar.addResource(resource);
+        return resource;
+    }
+
+    private Resource createResource(Scheduler calendar, String s, String color, Collection<Resource> children) {
+        Resource resource = new Resource(null, s, color, children);
         calendar.addResource(resource);
         return resource;
     }
