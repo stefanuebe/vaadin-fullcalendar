@@ -22,6 +22,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <failOnMissingWebXml>false</failOnMissingWebXml>
+
+        <lombok.version>1.18.12</lombok.version>
     </properties>
 
     <licenses>
@@ -99,6 +101,14 @@
             <groupId>net.sourceforge.cssparser</groupId>
             <artifactId>cssparser</artifactId>
             <version>0.9.27</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -109,7 +119,18 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <!-- Lombok should be used as an annotation processor. -->
+                        <annotationProcessorPath>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
@@ -133,6 +154,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
