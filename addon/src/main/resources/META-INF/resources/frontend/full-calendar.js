@@ -369,8 +369,11 @@ export class FullCalendar extends PolymerElement {
     }
 
     updateEvents(array) {
-        for (let i = 0; i < array.length; i++) {
-            let obj = array[i];
+        const calendar = this.getCalendar();
+        calendar.batchRendering(() => {
+
+            for (let i = 0; i < array.length; i++) {
+                let obj = array[i];
 
                 let eventToUpdate = calendar.getEventById(obj.id);
 
@@ -395,14 +398,15 @@ export class FullCalendar extends PolymerElement {
                             eventToUpdate.moveEnd()
                         }
 
-                    for (let property in obj) {
-                        if (property !== 'id' && property !== "start" && property !== "end" && property !== "allDay") {
-                            eventToUpdate.setProp(property, obj[property]);
+                        for (let property in obj) {
+                            if (property !== 'id' && property !== "start" && property !== "end" && property !== "allDay") {
+                                eventToUpdate.setProp(property, obj[property]);
+                            }
                         }
                     }
                 }
             }
-        }
+        });
     }
 
     /**
