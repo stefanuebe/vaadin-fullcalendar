@@ -56,14 +56,6 @@ export class FullCalendarScheduler extends FullCalendar {
         return options;
     }
 
-    _toEventData(event) {
-        const eventData = super._toEventData(event);
-        eventData.resourceId = event.resourceId;
-        eventData.resourceIds = event.resourceIds;
-
-        return eventData;
-    }
-
     addResources(array) {
         let calendar = this.getCalendar();
         calendar.batchRendering(function () {
