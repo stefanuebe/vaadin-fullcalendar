@@ -16,6 +16,10 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.shared.Registration;
+
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.Set;
 
@@ -136,5 +140,31 @@ public interface Scheduler {
      */
     void removeAllResources();
 
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as the resourceRender callback. It must be a valid JavaScript function.
+     * <br><br>
+     *
+     * </pre>
+     *
+     * @param s js function to be attached to resourceRender callback
+     */
+    void setResourceRenderCallback(String s);
+
+    /**
+     * Set a grouping option for entries based on their assigned resource(s) and date.
+     *
+     * @param groupEntriesBy group entries by option
+     */
     void setGroupEntriesBy(GroupEntriesBy groupEntriesBy);
+
+    /**
+     * Registers a listener to be informed when an entry dropped event occurred, along with scheduler
+     * specific data.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    Registration addEntryDroppedSchedulerListener(@NotNull ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener);
 }
