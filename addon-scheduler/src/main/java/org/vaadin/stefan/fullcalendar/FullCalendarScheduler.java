@@ -135,9 +135,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         getEntries().stream().filter(e -> e instanceof ResourceEntry).forEach(e -> {
             ((ResourceEntry) e).removeResources(resources);
         });
-
-        getElement().callJsFunction("removeResources", array);
-
     }
 
     @Override
