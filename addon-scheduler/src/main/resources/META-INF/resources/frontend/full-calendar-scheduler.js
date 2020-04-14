@@ -68,7 +68,6 @@ export class FullCalendarScheduler extends FullCalendar {
         for (let i = 0; i < array.length; i++) {
             this.getCalendar().addResource(array[i]);
         }
-
     }
 
     removeResources(array) {
@@ -80,7 +79,18 @@ export class FullCalendarScheduler extends FullCalendar {
             }
         }
     }
-
+    
+    removeAllResources() {
+    	var calendar = this.getCalendar();
+    	this.getCalendar().batchRendering(function() {
+    		calendar.getResources().forEach(r => r.remove());		  
+		});
+    }
+    
+    setResourceRenderCallback(s) {
+    	var calendar = this.getCalendar();
+    	calendar.setOption('resourceRender', new Function("return " + s)());
+    }
 }
 
 customElements.define(FullCalendarScheduler.is, FullCalendarScheduler);

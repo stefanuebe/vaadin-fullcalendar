@@ -22,6 +22,7 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 import javax.validation.constraints.NotNull;
@@ -404,7 +405,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Switch to the intervall containing the given date (e. g. to month "October" if the "15th October ..." is passed).
+     * Switch to the interval containing the given date (e. g. to month "October" if the "15th October ..." is passed).
      *
      * @param date date to goto
      * @throws NullPointerException when null is passed

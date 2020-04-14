@@ -140,7 +140,21 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     public void removeAllResources() {
-        removeResources(new HashSet<>(resources.values()));
+    	resources.clear();
+        getElement().callJsFunction("removeAllResources");
+    }
+    
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as the resourceRender callback. It must be a valid JavaScript function.
+     * <br><br>
+     *
+     * </pre>
+     *
+     * @param s js function to be attached to resourceRender callback
+     */
+    public void setResourceRenderCallback(String s) {
+        getElement().callJsFunction("setResourceRenderCallback", s);
     }
 
     /**
