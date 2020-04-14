@@ -28,7 +28,7 @@ import java.util.*;
 public class ResourceEntry extends Entry {
 
     private Set<Resource> resources;
-
+    private boolean resourceEditableOnClientSide;
 
     public ResourceEntry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
         super(id, title, start, end, allDay, editable, color, description);
@@ -148,6 +148,8 @@ public class ResourceEntry extends Entry {
             jsonObject.put("resourceIds", array);
         }
 
+        jsonObject.put("resourceEditable", resourceEditableOnClientSide);
+
         return jsonObject;
     }
 
@@ -172,5 +174,28 @@ public class ResourceEntry extends Entry {
                     .ifPresent(this::addResources);
 
         });
+    }
+
+    /**
+     * Defines, if the user can move entries between resources (by using drag and drop). This value
+     * is passed to the client side and interpreted there, but can also be used for server side checks.
+     * <p/>
+     * This value has no impact on the resource API of this class.
+     * @return resource is editable on client side
+     */
+    public boolean isResourceEditableOnClientSide() {
+        return resourceEditableOnClientSide;
+    }
+
+    /**
+     * Defines, if the user can move entries between resources (by using drag and drop). This value
+     * is passed to the client side and interpreted there, but can also be used for server side checks.
+     * <p/>
+     * This value has no impact on the resource API of this class.
+     *
+     * @param resourceEditableOnClientSide resource editable on client side
+     */
+    public void setResourceEditableOnClientSide(boolean resourceEditableOnClientSide) {
+        this.resourceEditableOnClientSide = resourceEditableOnClientSide;
     }
 }
