@@ -65,31 +65,36 @@ export class FullCalendarScheduler extends FullCalendar {
     }
 
     addResources(array) {
-        for (let i = 0; i < array.length; i++) {
-            this.getCalendar().addResource(array[i]);
-        }
+        let calendar = this.getCalendar();
+        calendar.batchRendering(function () {
+            for (let i = 0; i < array.length; i++) {
+                calendar.addResource(array[i]);
+            }
+        });
     }
 
     removeResources(array) {
-        for (let i = 0; i < array.length; i++) {
-            // TODO use batch rendering?
-            const resource = this.getCalendar().getResourceById(array[i].id);
-            if (resource != null) {
-                resource.remove();
+        let calendar = this.getCalendar();
+        calendar.batchRendering(function () {
+            for (let i = 0; i < array.length; i++) {
+                const resource = calendar.getResourceById(array[i].id);
+                if (resource != null) {
+                    resource.remove();
+                }
             }
-        }
+        });
     }
-    
+
     removeAllResources() {
-    	var calendar = this.getCalendar();
-    	this.getCalendar().batchRendering(function() {
-    		calendar.getResources().forEach(r => r.remove());		  
-		});
+        let calendar = this.getCalendar();
+        calendar.batchRendering(function () {
+            calendar.getResources().forEach(r => r.remove());
+        });
     }
-    
+
     setResourceRenderCallback(s) {
-    	var calendar = this.getCalendar();
-    	calendar.setOption('resourceRender', new Function("return " + s)());
+        var calendar = this.getCalendar();
+        calendar.setOption('resourceRender', new Function("return " + s)());
     }
 }
 
