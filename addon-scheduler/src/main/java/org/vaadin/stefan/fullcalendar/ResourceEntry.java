@@ -99,6 +99,22 @@ public class ResourceEntry extends Entry {
     }
 
     /**
+     * Returns the amount of assigned resources.
+     * @return resources
+     */
+    public int getResourcesSize() {
+        return resources != null ? resources.size() : 0;
+    }
+
+    /**
+     * Returns, if the entry has any ressources assigned.
+     * @return has resources
+     */
+    public boolean hasResources() {
+        return resources != null && !resources.isEmpty();
+    }
+
+    /**
      * Add multiple resources to this entry. Does not check, if the resources have been added somewhere else before
      * (for instance as children to other resources). May lead to corrupted data on the client side, when there
      * are hierarchical loops.
@@ -146,7 +162,13 @@ public class ResourceEntry extends Entry {
             }
 
             jsonObject.put("resourceIds", array);
+
+            if (getColor() == null && !resources.isEmpty()) {
+                jsonObject.put("_hardReset", true);  // currently needed to make sure, that the color is
+                                                                // set correctly. Might change in future, if not performant
+            }
         }
+
 
         jsonObject.put("resourceEditable", resourceEditableOnClientSide);
 

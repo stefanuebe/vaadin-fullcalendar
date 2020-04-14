@@ -123,7 +123,7 @@ public class Entry {
         jsonObject.put("start", JsonUtils.toJsonValue(getStartUTC() == null ? null : getStartTimezone().formatWithZoneId(getStartUTC())));
         jsonObject.put("end", JsonUtils.toJsonValue(getEndUTC() == null ? null : getEndTimezone().formatWithZoneId(getEndUTC())));
         jsonObject.put("editable", isEditable());
-        jsonObject.put("color", JsonUtils.toJsonValue(getColor()));
+        Optional.ofNullable(getColor()).ifPresent(s -> jsonObject.put("color", s));
         jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
 
         jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(recurringDaysOfWeeks == null || recurringDaysOfWeeks.isEmpty() ? null : recurringDaysOfWeeks.stream().map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())));

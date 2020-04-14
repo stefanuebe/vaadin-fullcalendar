@@ -179,7 +179,7 @@ export class FullCalendar extends PolymerElement {
             },
             eventDrop: (eventInfo) => {
                 return {
-                    data: this._toEventData(eventInfo. event, eventInfo.oldResource, eventInfo.newResource),
+                    data: this._toEventData(eventInfo.event, eventInfo.oldResource, eventInfo.newResource),
                     // data: this._toEventData(eventInfo.event),
                     delta: eventInfo.delta,
                     // oldResource: eventInfo.oldResource ? eventInfo.oldResource.id : null,
@@ -372,28 +372,28 @@ export class FullCalendar extends PolymerElement {
         for (let i = 0; i < array.length; i++) {
             let obj = array[i];
 
-            let eventToUpdate = this.getCalendar().getEventById(obj.id);
+                let eventToUpdate = calendar.getEventById(obj.id);
 
-            if (eventToUpdate != null) {
-                // TODO check for unchanged values and ignore them
+                if (eventToUpdate != null) {
+                    // TODO check for unchanged values and ignore them
 
-                // since currently recurring events can not be set by updating existing events, we circumcise that
-                // by simply re-adding the event.
-                // https://github.com/fullcalendar/fullcalendar/issues/4393
+                    // since currently recurring events can not be set by updating existing events, we circumcise that
+                    // by simply re-adding the event.
+                    // https://github.com/fullcalendar/fullcalendar/issues/4393
 
-                if (this._isServerSideRecurring(obj) || this._isClientSideRecurring(eventToUpdate)) {
-                    eventToUpdate.remove();
-                    this.addEvents([obj]);
-                } else {
-                    let start = obj['start'] != null ? this.getCalendar().formatIso(obj['start'], obj['allDay']) : null;
-                    let end = obj['end'] != null ? this.getCalendar().formatIso(obj['end'], obj['allDay']) : null;
+                    if (obj['_hardReset'] === true || this._isServerSideRecurring(obj) || this._isClientSideRecurring(eventToUpdate)) {
+                        eventToUpdate.remove();
+                        this.addEvents([obj]);
+                    } else {
+                        let start = obj['start'] != null ? calendar.formatIso(obj['start'], obj['allDay']) : null;
+                        let end = obj['end'] != null ? calendar.formatIso(obj['end'], obj['allDay']) : null;
 
-                    eventToUpdate.setDates(start, end, {allDay: obj['allDay']});
+                        eventToUpdate.setDates(start, end, {allDay: obj['allDay']});
 
-                    // setting all day is not working 100%, we workaround it here
-                    if (obj['allDay']) {
-                        eventToUpdate.moveEnd()
-                    }
+                        // setting all day is not working 100%, we workaround it here
+                        if (obj['allDay']) {
+                            eventToUpdate.moveEnd()
+                        }
 
                     for (let property in obj) {
                         if (property !== 'id' && property !== "start" && property !== "end" && property !== "allDay") {
@@ -438,10 +438,10 @@ export class FullCalendar extends PolymerElement {
 
     removeAllEvents() {
         //this.getCalendar().getEvents().forEach(e => e.remove());
-    	var calendar = this.getCalendar();
-    	this.getCalendar().batchRendering(function() {
-    		calendar.getEvents().forEach(e => e.remove());		  
-		});
+        var calendar = this.getCalendar();
+        this.getCalendar().batchRendering(function () {
+            calendar.getEvents().forEach(e => e.remove());
+        });
     }
 
 
@@ -454,8 +454,8 @@ export class FullCalendar extends PolymerElement {
     }
 
     setEventRenderCallback(s) {
-    	let calendar = this.getCalendar();
-    	calendar.setOption('eventRender', new Function("return " + s)());
+        let calendar = this.getCalendar();
+        calendar.setOption('eventRender', new Function("return " + s)());
     }
 }
 
