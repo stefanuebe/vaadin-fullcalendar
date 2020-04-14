@@ -59,19 +59,19 @@ public class ResourceEntry extends Entry {
     /**
      * Returns the first set resource. Is empty if no resource has been registered.
      *
-     * @return
+     * @return resource
      */
     public Optional<Resource> getResource() {
         return Optional.ofNullable(resources != null && !resources.isEmpty() ? resources.iterator().next() : null);
     }
 
-    public Set<Resource> getResources() {
-        return resources != null ? Collections.unmodifiableSet(resources) : Collections.emptySet();
-    }
-
     /**
      * Sets a resource for this entry. Previously set resources will be removed. Setting null is the same
      * as calling {@link #removeAllResources()}.
+     * <p/>
+     * Does not check, if the resources have been added somewhere else before
+     * (for instance as children to other resources). May lead to corrupted data on the client side, when there
+     * are hierarchical loops.
      *
      * @param resource resource
      */
@@ -89,15 +89,28 @@ public class ResourceEntry extends Entry {
     }
 
     /**
-     * Add multiple resources to this entry.
+     * Returns a copy of the entry's resources. Only contains the top level resources (means, child resources
+     * have to be collected manually by using {@link Resource#getChildren()}.
+     *
+     * @return entry's resources (top level)
+     */
+    public Set<Resource> getResources() {
+        return resources != null ? Collections.unmodifiableSet(resources) : Collections.emptySet();
+    }
+
+    /**
+     * Add multiple resources to this entry. Does not check, if the resources have been added somewhere else before
+     * (for instance as children to other resources). May lead to corrupted data on the client side, when there
+     * are hierarchical loops.
      *
      * @param resources resources
      */
     public void addResources(Collection<Resource> resources) {
         if (this.resources == null) {
-            this.resources = new HashSet<>(resources.size());
+            this.resources = new HashSet<>(resources);
+        } else {
+            this.resources.addAll(resources);
         }
-        this.resources.addAll(resources);
     }
 
     /**
@@ -163,12 +176,12 @@ public class ResourceEntry extends Entry {
                     for (int i = 0; i < length; i++) {
                         String resourceId = resourceIds.getString(i);
                         calendar.getResourceById(resourceId).ifPresent(set::add);
-                }
+                    }
 
                     addResources(set);
-            }
+                }
             }
 
         });
-        }
+    }
 }
