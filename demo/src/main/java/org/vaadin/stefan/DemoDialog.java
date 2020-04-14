@@ -1,6 +1,7 @@
 package org.vaadin.stefan;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
@@ -16,159 +17,140 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.dom.ThemeList;
+import lombok.Data;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
+import java.util.Set;
 
 public class DemoDialog extends Dialog {
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
+    private final DialogEntry dialogEntry;
+    private final CustomDateTimePicker fieldStart;
+    private final CustomDateTimePicker fieldEnd;
+    private final CheckboxGroup<DayOfWeek> fieldRDays;
 
-    public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
+    public DemoDialog(FullCalendar calendar, ResourceEntry entry, boolean newInstance) {
+        this.dialogEntry = DialogEntry.of(entry, calendar.getTimezone());
+
         setCloseOnEsc(true);
         setCloseOnOutsideClick(true);
+
         setWidth("500px");
 
-        VerticalLayout layout = new VerticalLayout();
-        layout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
-        layout.setSizeFull();
+
+        // init fields
 
         TextField fieldTitle = new TextField("Title");
-        fieldTitle.focus();
-
         ComboBox<String> fieldColor = new ComboBox<>("Color", COLORS);
         TextArea fieldDescription = new TextArea("Description");
 
-        layout.add(fieldTitle, fieldColor, fieldDescription);
-
-//        TextField fieldStart = new TextField("Start");
-//        fieldStart.setReadOnly(true);
-//
-//        TextField fieldEnd = new TextField("End");
-//        fieldEnd.setReadOnly(true);
-
-        CustomDateTimePicker fieldStart = new CustomDateTimePicker("Start");
-        CustomDateTimePicker fieldEnd = new CustomDateTimePicker("End");
-
-
-        CheckboxGroup<DayOfWeek> fieldRDays = new CheckboxGroup<>();
-        fieldRDays.setLabel("Recurrence days of week");
-        fieldRDays.setItems(DayOfWeek.values());
-        fieldRDays.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
-
         Checkbox fieldRecurring = new Checkbox("Recurring event");
-        DatePicker fieldRStart = new DatePicker("Recurrence start date");
-        DatePicker fieldREnd = new DatePicker("Recurrence end date");
-        TimePicker fieldRStartTime = new TimePicker("Recurrence start time");
-        TimePicker fieldREndTime = new TimePicker("Recurrence end time");
-
-        fieldRDays.setVisible(false);
-        fieldRStart.setVisible(false);
-        fieldRStartTime.setVisible(false);
-        fieldREnd.setVisible(false);
-        fieldREndTime.setVisible(false);
-
         Checkbox fieldAllDay = new Checkbox("All day event");
 
-        boolean allDay = entry.isAllDay();
+        fieldStart = new CustomDateTimePicker("Start");
+        fieldEnd = new CustomDateTimePicker("End");
+
+        boolean allDay = dialogEntry.isAllDay();
         fieldStart.setDateOnly(allDay);
         fieldEnd.setDateOnly(allDay);
-
-        fieldAllDay.addValueChangeListener(event -> {
-            fieldStart.setDateOnly(event.getValue());
-            fieldEnd.setDateOnly(event.getValue());
-            fieldRStartTime.setEnabled(!event.getValue());
-            fieldREndTime.setEnabled(!event.getValue());
-        });
-
 
         Span infoEnd = new Span("End is always exclusive, e.g. for a 1 day event you need to set for instance 4th of May as start and 5th of May as end.");
         infoEnd.getStyle().set("font-size", "0.8em");
         infoEnd.getStyle().set("color", "gray");
 
-        Span infoR = new Span("You can activate recurrence for this entry by activating the checkbox and filling in the given fields.");
-        infoR.getStyle().set("font-size", "0.8em");
-        infoR.getStyle().set("color", "gray");
+        fieldRDays = new CheckboxGroup<>();
+        fieldRDays.setLabel("Recurrence days of week");
+        fieldRDays.setItems(DayOfWeek.values());
+        fieldRDays.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 
-        fieldRecurring.addValueChangeListener(event -> {
-            Boolean active = event.getValue();
-            fieldRDays.setVisible(active);
-            fieldREnd.setVisible(active);
-            fieldREndTime.setVisible(active);
-            fieldRStart.setVisible(active);
-            fieldRStartTime.setVisible(active);
+        fieldAllDay.addValueChangeListener(event -> {
+            fieldStart.setDateOnly(event.getValue());
+            fieldEnd.setDateOnly(event.getValue());
         });
 
-        layout.add(fieldStart, fieldEnd, infoEnd, fieldAllDay, infoR, fieldRecurring, fieldRStart, fieldREnd, fieldRStartTime, fieldREndTime, fieldRDays);
+        fieldRecurring.addValueChangeListener(event -> updateRecurringFieldsState(event.getValue()));
 
-        Binder<Entry> binder = new Binder<>(Entry.class);
-        binder.forField(fieldTitle)
-                .asRequired()
-                .bind(Entry::getTitle, Entry::setTitle);
 
-        binder.bind(fieldColor, Entry::getColor, Entry::setColor);
-        binder.bind(fieldDescription, Entry::getDescription, Entry::setDescription);
-        Timezone timezone = calendar.getTimezone();
-        binder.bind(fieldStart, e -> e.getStart(timezone), (e, start) -> e.setStart(start, timezone));
-        binder.bind(fieldEnd, e -> e.getEnd(timezone), (e, end) -> e.setEnd(end, timezone));
-        binder.bind(fieldAllDay, Entry::isAllDay, Entry::setAllDay);
-        binder.bind(fieldRecurring, Entry::isRecurring, Entry::setRecurring);
-        binder.bind(fieldRStart, e -> e.getRecurringStartDate(timezone), (e, start) -> e.setRecurringStartDate(start, timezone));
-        binder.bind(fieldREnd, e -> e.getRecurringEndDate(timezone), (e, end) -> e.setRecurringEndDate(end, timezone));
-        binder.bind(fieldRStartTime, Entry::getRecurringStartTime, Entry::setRecurringStartTime);
-        binder.bind(fieldREndTime, Entry::getRecurringEndTime, Entry::setRecurringEndTime);
-        binder.bind(fieldRDays, Entry::getRecurringDaysOfWeeks, Entry::setRecurringDaysOfWeeks);
+        // init binder
 
-        binder.setBean(entry);
+        Binder<DialogEntry> binder = new Binder<>(DialogEntry.class);
 
-        HorizontalLayout buttons = new HorizontalLayout();
-        Button buttonSave;
-        if (newInstance) {
-            buttonSave = new Button("Create", e -> {
-                if (binder.validate().isOk()) {
-                    calendar.addEntry(entry);
+        // required fields
+        binder.forField(fieldTitle).asRequired().bind(DialogEntry::getTitle, DialogEntry::setTitle);
+        binder.forField(fieldStart).asRequired().bind(DialogEntry::getStart, DialogEntry::setStart);
+        binder.forField(fieldEnd).asRequired().bind(DialogEntry::getEnd, DialogEntry::setStart);
+
+        // optional fields
+        binder.bind(fieldColor, DialogEntry::getColor, DialogEntry::setColor);
+        binder.bind(fieldDescription, DialogEntry::getDescription, DialogEntry::setDescription);
+        binder.bind(fieldAllDay, DialogEntry::isAllDay, DialogEntry::setAllDay);
+        binder.bind(fieldRecurring, DialogEntry::isRecurring, DialogEntry::setRecurring);
+        binder.bind(fieldRDays, DialogEntry::getRecurringDays, DialogEntry::setRecurringDays);
+
+        binder.setBean(dialogEntry);
+
+
+        // init buttons
+
+        Button buttonSave = new Button("Save", e -> {
+            if (binder.validate().isOk()) {
+                if (newInstance) {
+                    calendar.addEntry(dialogEntry.updateEntry());
+                } else {
+                    calendar.updateEntry(dialogEntry.updateEntry());
                 }
-            });
-        } else {
-            buttonSave = new Button("Save", e -> {
-                if (binder.validate().isOk()) {
-                    if (!entry.isRecurring()) {
-                        entry.setRecurringDaysOfWeeks(null);
-                        entry.setRecurringStartDate(null);
-                        entry.setRecurringEndDate(null);
-                        entry.setRecurringStartTime(null);
-                        entry.setRecurringEndTime(null);
-                    }
-
-                    calendar.updateEntry(entry);
-                }
-            });
-        }
-        buttonSave.addClickListener(e -> close());
-        buttons.add(buttonSave);
+            }
+            close();
+        });
+        buttonSave.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         Button buttonCancel = new Button("Cancel", e -> close());
-        buttonCancel.getElement().getThemeList().add("tertiary");
-        buttons.add(buttonCancel);
+        buttonCancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        HorizontalLayout buttons = new HorizontalLayout(buttonSave, buttonCancel);
 
         if (!newInstance) {
             Button buttonRemove = new Button("Remove", e -> {
                 calendar.removeEntry(entry);
                 close();
             });
-            ThemeList themeList = buttonRemove.getElement().getThemeList();
-            themeList.add("error");
-            themeList.add("tertiary");
+            buttonRemove.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
             buttons.add(buttonRemove);
         }
 
-        add(layout, buttons);
+
+        // layouting
+
+        VerticalLayout mainLayout = new VerticalLayout(fieldTitle, fieldColor, fieldDescription,
+                new HorizontalLayout(fieldAllDay, fieldRecurring),
+                fieldStart, fieldEnd, infoEnd, fieldRDays);
+
+        mainLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
+        mainLayout.setSizeFull();
+
+        add(mainLayout, buttons);
+
+
+        // additional layout init
+
+        updateRecurringFieldsState(dialogEntry.isRecurring());
+        fieldTitle.focus();
+    }
+
+    protected void updateRecurringFieldsState(boolean recurring) {
+        if (recurring) {
+            fieldStart.setLabel("Start of recurrence");
+            fieldEnd.setLabel("End of recurrence");
+        } else {
+            fieldStart.setLabel("Start");
+            fieldEnd.setLabel("End");
+        }
+        fieldRDays.setVisible(recurring);
     }
 
     /**
@@ -215,4 +197,82 @@ public class DemoDialog extends Dialog {
         }
     }
 
+    @Data
+    private static class DialogEntry {
+        private String id;
+        private String title;
+        private String color;
+        private String description;
+        private LocalDateTime start;
+        private LocalDateTime end;
+        private boolean allDay;
+        private boolean recurring;
+        private Set<DayOfWeek> recurringDays;
+        private Timezone timezone;
+        private ResourceEntry entry;
+
+        public static DialogEntry of(ResourceEntry entry, Timezone timezone) {
+            DialogEntry dialogEntry = new DialogEntry();
+
+            dialogEntry.setTimezone(timezone);
+            dialogEntry.setEntry(entry);
+
+            dialogEntry.setTitle(entry.getTitle());
+            dialogEntry.setColor(entry.getColor());
+            dialogEntry.setDescription(entry.getDescription());
+            dialogEntry.setAllDay(entry.isAllDay());
+
+            boolean recurring = entry.isRecurring();
+            dialogEntry.setRecurring(recurring);
+
+            if (recurring) {
+                dialogEntry.setRecurringDays(entry.getRecurringDaysOfWeeks());
+
+                dialogEntry.setStart(entry.getRecurringStartDate(timezone).atTime(entry.getRecurringStartTime()));
+                dialogEntry.setEnd(entry.getRecurringEndDate(timezone).atTime(entry.getRecurringEndTime()));
+            } else {
+                dialogEntry.setStart(entry.getStart(timezone));
+                dialogEntry.setEnd(entry.getEnd(timezone));
+            }
+
+            return dialogEntry;
+        }
+
+        /**
+         * Updates the stored entry instance and returns it after updating.
+         *
+         * @return entry instnace
+         */
+        private Entry updateEntry() {
+            entry.setTitle(title);
+            entry.setColor(color);
+            entry.setDescription(description);
+            entry.setAllDay(allDay);
+            entry.setRecurring(recurring);
+
+            if (recurring) {
+                entry.setRecurringDaysOfWeeks(getRecurringDays());
+
+                entry.setStart((Instant) null);
+                entry.setEnd((Instant) null);
+
+                entry.setRecurringStartDate(start.toLocalDate(), timezone);
+                entry.setRecurringStartTime(allDay ? null : start.toLocalTime());
+
+                entry.setRecurringEndDate(end.toLocalDate(), timezone);
+                entry.setRecurringEndTime(allDay ? null : end.toLocalTime());
+            } else {
+                entry.setStart(start, timezone);
+                entry.setEnd(end, timezone);
+
+                entry.setRecurringStartDate(null);
+                entry.setRecurringStartTime(null);
+                entry.setRecurringEndDate(null);
+                entry.setRecurringEndTime(null);
+                entry.setRecurringDaysOfWeeks(null);
+            }
+
+            return entry;
+        }
+    }
 }
