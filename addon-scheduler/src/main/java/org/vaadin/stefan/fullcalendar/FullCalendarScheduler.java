@@ -109,15 +109,28 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void removeResources(Iterable<Resource> iterableResources) {
         Objects.requireNonNull(iterableResources);
+
+        removeFromEntries(iterableResources);
+
+        // create registry of removed items to send to client
         JsonArray array = Json.createArray();
         iterableResources.forEach(resource -> {
             String id = resource.getId();
-            if (resources.containsKey(id)) {
-                resources.remove(id);
+            if (this.resources.containsKey(id)) {
+                this.resources.remove(id);
                 array.set(array.length(), resource.toJson());
             }
         });
 
+        getElement().callJsFunction("removeResources", array);
+
+    }
+
+    /**
+     * Removes the given resources from the known entries of this calendar.
+     * @param iterableResources resources
+     */
+    private void removeFromEntries(Iterable<Resource> iterableResources) {
         List<Resource> resources = StreamSupport.stream(iterableResources.spliterator(), false).collect(Collectors.toList());
         getEntries().stream().filter(e -> e instanceof ResourceEntry).forEach(e -> {
             ((ResourceEntry) e).removeResources(resources);
