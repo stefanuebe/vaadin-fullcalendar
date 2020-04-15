@@ -167,4 +167,20 @@ public interface Scheduler {
      * @throws NullPointerException when null is passed
      */
     Registration addEntryDroppedSchedulerListener(@NotNull ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener);
+
+    /**
+     * Registers a listener to be informed when a timeslot has been clicked, including scheduler specific data.
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    Registration addTimeslotClickedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotClickedSchedulerEvent> listener);
+
+    /**
+     * Registers a listener to be informed when a timespan has been selected, including scheduler specific data.
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    Registration addTimeslotsSelectedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener);
 }

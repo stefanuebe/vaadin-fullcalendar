@@ -174,16 +174,26 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     public Registration addTimeslotsSelectedListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
+        return addTimeslotsSelectedSchedulerListener((ComponentEventListener) listener);
+    }
+
+    @Override
+    public Registration addTimeslotsSelectedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotsSelectedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
-
+    @Override
     public Registration addTimeslotClickedListener(@NotNull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+        return addTimeslotClickedSchedulerListener((ComponentEventListener) listener);
+    }
+
+    @Override
+    public Registration addTimeslotClickedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotClickedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotClickedSchedulerEvent.class, (ComponentEventListener) listener);
     }
-    
+
     /**
      * Registers a listener to be informed when an entry dropped event occurred, along with scheduler
      * specific data.
