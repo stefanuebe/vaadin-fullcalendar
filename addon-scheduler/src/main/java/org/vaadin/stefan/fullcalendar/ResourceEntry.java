@@ -141,7 +141,7 @@ public class ResourceEntry extends Entry {
      *
      * @param resource resource
      * @deprecated Naming "set" does not match very well the use case and also the wording in the official FC doc, thus it
-     * will be removed in later versions. Use {@link #unassignResources(Resource...)} plus {@link #assignResources(Resource...)} instead.
+     * will be removed in later versions. Use {@link #unassignResource(Resource)} plus {@link #assignResource(Resource)} instead.
      */
     @Deprecated
     public void setResource(Resource resource) {
@@ -198,6 +198,16 @@ public class ResourceEntry extends Entry {
     }
 
     /**
+     * Assign an additional resource to this entry. Already assigned resources will be kept.
+     *
+     * @param resource resource
+     * @throws NullPointerException when null is passed
+     */
+    public void assignResource(@NotNull Resource resource) {
+        assignResources(Objects.requireNonNull(resource));
+    }
+
+    /**
      * Assign additional resources to this entry. Already assigned resources will be kept.
      *
      * @param resources resources
@@ -220,6 +230,16 @@ public class ResourceEntry extends Entry {
      */
     public void assignResources(@NotNull Resource... resources) {
         assignResources(Arrays.asList(resources));
+    }
+
+    /**
+     * Unassigns the given resource from this entry.
+     *
+     * @param resource resource
+     * @throws NullPointerException when null is passed
+     */
+    public void unassignResource(@NotNull Resource... resource) {
+        unassignResources(Objects.requireNonNull(resource));
     }
 
     /**

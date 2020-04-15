@@ -82,6 +82,20 @@ public class Resource {
     }
 
     /**
+     * Adds the given resource as children to this instance. If the given resource has been added to
+     * other resources before, it will be removed from there. Also the parent is replaced.
+     * <br><br>
+     * Does not update the resource instances on the client side when this instance has been added to the calendar
+     * before. In that case you need to add the child resources manually via {@link Scheduler#addResource(Resource)}.
+     *
+     * @param child resources to be added as children
+     * @throws NullPointerException when null is passed
+     */
+    public void addChild(@NotNull Resource child) {
+        addChildren(Objects.requireNonNull(child));
+    }
+
+    /**
      * Adds the given resources as children to this instance. If the given resources have been added to
      * other resources before, they will be removed from there. Also the parent is replaced.
      * <br><br>
@@ -101,7 +115,6 @@ public class Resource {
         }
 
         children.forEach(child -> {
-//            child.getParent().ifPresent(p -> p.removeChild(child));
             child.getParent().ifPresent(p -> p.children.remove(child)); // faster, but keep an eye on the removal to not miss anything later here
             child.setParent(this);
         });
@@ -119,6 +132,19 @@ public class Resource {
      */
     public void addChildren(@NotNull Resource... children) {
         addChildren(Arrays.asList(children));
+    }
+
+    /**
+     * Removes the given resource from this instance. Does not update the resource instance on the client side.
+     * For that you need to call {@link Scheduler#removeResource(Resource)} manually for the given instance.
+     * <br><br>
+     * Unsets the parent, if it matches this instance.
+     *
+     * @param child child resources to be removed
+     * @throws NullPointerException when null is passed
+     */
+    public void removeChild(@NotNull Resource child) {
+        removeChildren(Objects.requireNonNull(child));
     }
 
     /**
