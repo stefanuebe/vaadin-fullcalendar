@@ -541,4 +541,12 @@ calendar.removeResource(child);
 parent.removeChild(child); 
 ```
 
+### Making a resource entry draggable between resources
+```
+// activate for the client to have an entry being draggable between resources
+resourceEntry.setResourceEditableOnClientSide(true);
+
+// update the entry on the client side, if it is already added to the calendar
+calendar.updateEntry(resourceEntry);
+```
 
