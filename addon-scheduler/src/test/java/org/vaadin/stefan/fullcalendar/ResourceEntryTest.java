@@ -10,10 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ResourceEntryTest {
@@ -136,7 +133,7 @@ public class ResourceEntryTest {
     }
 
     @Test
-    void testUpdateResourceEntryFromJson() {
+    void testUpdateResourceEntryBasicsFromJson() {
         FullCalendarScheduler calendar = new FullCalendarScheduler();
         Resource resource1 = new Resource("1", "1", null);
         Resource resource2 = new Resource("2", "2", null);
@@ -161,8 +158,6 @@ public class ResourceEntryTest {
         jsonObject.put("color", DEFAULT_COLOR);
         jsonObject.put("description", DEFAULT_DESCRIPTION); // this should not affect the object
 
-        Assertions.assertNotNull(entry);
-        Assertions.assertNotNull(jsonObject);
         entry.update(jsonObject);
 
         Assertions.assertEquals(jsonObject.getString("id"), entry.getId());
@@ -173,26 +168,67 @@ public class ResourceEntryTest {
         Assertions.assertTrue(entry.isEditable());
         Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
         Assertions.assertEquals(resourceList, entry.getResources()); // should not have changed yet
+        Assertions.assertNull(entry.getDescription()); // should not be affected by json
+    }
+
+    @Test
+    void testAssignResourceEntryResourcesFromJson() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        Resource resource1 = new Resource("1", "1", null);
+        Resource resource2 = new Resource("2", "2", null);
+        Resource resource3 = new Resource("3", "3", null);
+        calendar.addResources(resource1, resource2, resource3);
+
+        ResourceEntry entry = new ResourceEntry();
+        entry.setCalendar(calendar);
+        entry.assignResources(resource1, resource2);
 
         // test resource changes
-        // new resource
+        JsonObject jsonObject = Json.createObject();
+        jsonObject.put("id", entry.getId());
         jsonObject.put("newResource", "3");
         entry.update(jsonObject);
         Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource2, resource3)), entry.getResources());
+    }
 
-        // remove resource
-        jsonObject.remove("newResource");
-        jsonObject.put("oldResource", "3");
+    @Test
+    void testUnassignResourceEntryResourcesFromJson() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        Resource resource1 = new Resource("1", "1", null);
+        Resource resource2 = new Resource("2", "2", null);
+        calendar.addResources(resource1, resource2);
+
+        ResourceEntry entry = new ResourceEntry();
+        entry.setCalendar(calendar);
+        entry.assignResources(resource1, resource2);
+
+        // test resource changes
+        JsonObject jsonObject = Json.createObject();
+        jsonObject.put("id", entry.getId());
+        jsonObject.put("oldResource", "2");
         entry.update(jsonObject);
-        Assertions.assertEquals(resourceList, entry.getResources());
+        Assertions.assertEquals(Collections.singleton(resource1), entry.getResources());
+    }
 
-        // change resource
+    @Test
+    void testReassignResourceEntryResourcesFromJson() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        Resource resource1 = new Resource("1", "1", null);
+        Resource resource2 = new Resource("2", "2", null);
+        Resource resource3 = new Resource("3", "3", null);
+        calendar.addResources(resource1, resource2, resource3);
+
+        ResourceEntry entry = new ResourceEntry();
+        entry.setCalendar(calendar);
+        entry.assignResources(resource1, resource2);
+
+        // test resource changes
+        JsonObject jsonObject = Json.createObject();
+        jsonObject.put("id", entry.getId());
         jsonObject.put("oldResource", "2");
         jsonObject.put("newResource", "3");
         entry.update(jsonObject);
         Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource3)), entry.getResources());
-
-        Assertions.assertNull(entry.getDescription()); // should not be affected by json
     }
 
 }
