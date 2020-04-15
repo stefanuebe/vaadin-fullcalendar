@@ -143,15 +143,16 @@ public final class JsonUtils {
     /**
      * Parses a date time string sent from the client side. This string may apply to ZonedDateTime, Instant, LocalDate
      * or LocalDateTime default parsers. The resulting temporal will be UTC based.
+     * <br><br>
+     * If no timezone is passed but is needed, the method will use the system's timezone.
      *
      * @param dateTimeString date time string
-     * @param timezone       timezone (might not be necessary)
+     * @param timezone       timezone
      * @return UTC based date time instance
      * @throws NullPointerException when null is passed for not null parameters
      */
-    public static Instant parseDateTimeString(@NotNull String dateTimeString, @NotNull Timezone timezone) {
+    public static Instant parseDateTimeString(@NotNull String dateTimeString, Timezone timezone) {
         Objects.requireNonNull(dateTimeString, "dateTimeString");
-        Objects.requireNonNull(timezone, "timezone");
         Instant dateTime;
 
         try {
@@ -161,6 +162,10 @@ public final class JsonUtils {
             try {
                 dateTime = Instant.parse(dateTimeString);
             } catch (DateTimeParseException e1) {
+                if (timezone == null) {
+                    timezone = Timezone.getSystem();
+                }
+
                 try {
                     dateTime = timezone.convertToUTC(LocalDateTime.parse(dateTimeString));
                 } catch (DateTimeException e2) {

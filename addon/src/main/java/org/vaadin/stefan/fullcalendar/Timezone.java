@@ -87,6 +87,14 @@ public class Timezone implements ClientSideValue {
     }
 
     /**
+     * Returns a new timezone instance representing the system's current timezone.
+     * @return system's timezone
+     */
+    public static Timezone getSystem() {
+        return new Timezone(ZoneId.systemDefault());
+    }
+
+    /**
      * Returns the client side value of this instance.
      * @return client side value
      */
