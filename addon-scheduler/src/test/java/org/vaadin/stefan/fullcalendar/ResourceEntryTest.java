@@ -121,7 +121,7 @@ public class ResourceEntryTest {
     void testToJson() {
         ResourceEntry entry = new ResourceEntry();
         Set<Resource> resources = new LinkedHashSet<>(Arrays.asList(new Resource(), new Resource(), new Resource()));
-        entry.addResources(resources);
+        entry.assignResources(resources);
 
         JsonObject jsonObject = entry.toJson(); // rest of toJson is asserted in basis tests
 
@@ -147,7 +147,7 @@ public class ResourceEntryTest {
         entry.setCalendar(calendar);
 
         Set<Resource> resourceList = new LinkedHashSet<>(Arrays.asList(resource1, resource2));
-        entry.addResources(resourceList);
+        entry.assignResources(resourceList);
 
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", entry.getId());
