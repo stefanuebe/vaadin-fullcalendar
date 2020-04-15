@@ -21,6 +21,7 @@ import elemental.json.*;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 /**
@@ -30,6 +31,20 @@ public class ResourceEntry extends Entry {
 
     private Set<Resource> resources;
     private boolean resourceEditableOnClientSide;
+
+    /**
+     * Creates a new entry with default values.
+     */
+    public ResourceEntry() {
+    }
+
+    /**
+     * Creates a new entry with the given id. Null will lead to a generated id.
+     * @param id id
+     */
+    public ResourceEntry(String id) {
+        super(id);
+    }
 
     /**
      * Creates a new instance containing most values.
@@ -47,7 +62,14 @@ public class ResourceEntry extends Entry {
      */
     @Deprecated
     public ResourceEntry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
-        super(id, title, start, end, allDay, editable, color, description);
+        super(id);
+        setTitle(title);
+        setStart(start);
+        setEnd(end);
+        setAllDay(allDay);
+        setEditable(editable);
+        setDescription(description);
+        setColor(color);
     }
 
     /**
@@ -66,7 +88,7 @@ public class ResourceEntry extends Entry {
      */
     @Deprecated
     public ResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
-        super(id, title, start, end, allDay, editable, color, description);
+        this(id, title, start != null ? start.toInstant(ZoneOffset.UTC) : null, end != null ? end.toInstant(ZoneOffset.UTC) : null, allDay, editable, color, description);
     }
 
     /**
@@ -86,21 +108,7 @@ public class ResourceEntry extends Entry {
      */
     @Deprecated
     public ResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, Timezone timezone, boolean allDay, boolean editable, String color, String description) {
-        super(id, title, start, end, timezone, allDay, editable, color, description);
-    }
-
-    /**
-     * Creates a new entry with default values.
-     */
-    public ResourceEntry() {
-    }
-
-    /**
-     * Creates a new entry with the given id. Null will lead to a generated id.
-     * @param id id
-     */
-    public ResourceEntry(String id) {
-        super(id);
+        this(id, title, start != null ? timezone.convertToUTC(start) : null, end != null ? timezone.convertToUTC(end) : null, allDay, editable, color, description);
     }
 
     /**
