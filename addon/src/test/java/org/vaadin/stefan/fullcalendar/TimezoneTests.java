@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class TimezoneTests {
     void testFormatting() {
         Instant now = Instant.now();
         String utcString = now.toString();
-        String ldtString = LocalDateTime.ofInstant(now, CUSTOM_TIMEZONE.getZoneId()).toString();
+        String ldtString = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(now, CUSTOM_TIMEZONE.getZoneId()));
 
         Assertions.assertEquals(utcString, Timezone.UTC.formatWithZoneId(now));
         Assertions.assertEquals(utcString, new Timezone(UTC_ID).formatWithZoneId(now));
