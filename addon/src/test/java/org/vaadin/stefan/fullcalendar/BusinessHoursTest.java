@@ -40,7 +40,7 @@ public class BusinessHoursTest {
         hours = new BusinessHours(start);
         Assertions.assertEquals(start, hours.getStart().get());
 
-        Set<DayOfWeek> allDaysAsSet = new HashSet<>(Arrays.asList(BusinessHours.ALL_DAYS));
+        Set<DayOfWeek> allDaysAsSet = new LinkedHashSet<>(Arrays.asList(BusinessHours.ALL_DAYS));
 
         hours = new BusinessHours(BusinessHours.ALL_DAYS);
         Assertions.assertEquals(allDaysAsSet, hours.getDayOfWeeks());
@@ -88,7 +88,7 @@ public class BusinessHoursTest {
         Assertions.assertEquals(end.toString(), object.getString("endTime"));
 
         JsonArray array = object.get("daysOfWeek");
-        Set<Integer> days = new HashSet<>(array.length());
+        Set<Integer> days = new LinkedHashSet<>(array.length());
         for (int i = 0; i < array.length(); i++) {
             days.add((int) array.getNumber(i));
         }

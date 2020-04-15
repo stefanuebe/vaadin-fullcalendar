@@ -95,7 +95,7 @@ public class BusinessHours {
         if (dayOfWeeks == null || dayOfWeeks.length == 0) {
             set = Collections.emptySet();
         } else {
-            set = new HashSet<>(Arrays.asList(dayOfWeeks));
+            set = new LinkedHashSet<>(Arrays.asList(dayOfWeeks));
             if (set.stream().anyMatch(Objects::isNull)) {
                 throw new NullPointerException("Day of weeks must not contain null");
             }

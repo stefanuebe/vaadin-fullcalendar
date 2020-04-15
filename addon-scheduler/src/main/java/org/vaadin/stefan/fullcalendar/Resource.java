@@ -95,7 +95,7 @@ public class Resource {
      */
     public void addChildren(Collection<Resource> children) {
         if (this.children == null) {
-            this.children = new HashSet<>(children);
+            this.children = new LinkedHashSet<>(children);
         } else {
             this.children.addAll(children);
         }
