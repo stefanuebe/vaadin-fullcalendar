@@ -97,6 +97,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         }
     }
 
+    /**
+     * Sets a property to allow or disallow (re-)rendering of dates, when an option changes. When allowed,
+     * each option will fire a dates rendering event, which can lead to multiple rendering events, even if only
+     * one is needed.
+     * @param allow allow
+     */
     public void allowDatesRenderEventOnOptionChange(boolean allow) {
         getElement().setProperty("noDatesRenderEventOnOptionSetting", !allow);
     }
@@ -142,10 +148,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
      * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
      * a convenient way of using the returned values without the need to encapsulate them yourselves.
+     * <br>
+     * <b>This behavior may change in future.</b>
      *
      * @return entries entries
      */
     public List<Entry> getEntries() {
+        // TODO this should be an unmodifiable list, as most api in the addon does it that way.
         return new ArrayList<>(entries.values());
     }
 
@@ -210,7 +219,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
         Timezone timezone = getTimezone();
-        return getEntries(timezone.convertToUTC(filterStart), timezone.convertToUTC(filterEnd));
+        return getEntries(filterStart == null ? null : timezone.convertToUTC(filterStart), filterEnd == null ? null : timezone.convertToUTC(filterEnd));
     }
 
     /**
@@ -975,6 +984,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return addListener(BrowserTimezoneObtainedEvent.class, listener);
     }
 
+    /**
+     * Enumeration of possible options, that can be applied to this calendar instance to have an effect on the client side.
+     * This list does not contain all options, but the most common used ones.
+     * <br><br>
+     * Please refer to the FullCalendar client library documentation for possible options:
+     * https://fullcalendar.io/docs
+     *
+     */
     enum Option {
         FIRST_DAY("firstDay"),
         HEIGHT("height"),
