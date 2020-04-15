@@ -87,7 +87,7 @@ public class DemoDialog extends Dialog {
         // required fields
         binder.forField(fieldTitle).asRequired().bind(DialogEntry::getTitle, DialogEntry::setTitle);
         binder.forField(fieldStart).asRequired().bind(DialogEntry::getStart, DialogEntry::setStart);
-        binder.forField(fieldEnd).asRequired().bind(DialogEntry::getEnd, DialogEntry::setStart);
+        binder.forField(fieldEnd).asRequired().bind(DialogEntry::getEnd, DialogEntry::setEnd);
 
         // optional fields
         binder.bind(fieldColor, DialogEntry::getColor, DialogEntry::setColor);
