@@ -55,6 +55,11 @@ public class TimezoneTests {
         Assertions.assertEquals(instant, CUSTOM_TIMEZONE.convertToUTC(CUSTOM_TIMEZONE.convertToLocalDateTime(instant)));
     }
 
+    @Test
+    void testSystemTimezone() {
+        Timezone system = Timezone.getSystem();
+        Assertions.assertEquals(ZoneId.systemDefault(), system.getZoneId());
+    }
 
 
 }
