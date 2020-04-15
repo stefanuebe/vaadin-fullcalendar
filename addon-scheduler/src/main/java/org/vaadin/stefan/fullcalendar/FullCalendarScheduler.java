@@ -74,15 +74,29 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         JsonArray array = Json.createArray();
         iterableResource.forEach(resource -> {
             String id = resource.getId();
-            boolean containsKey = resources.containsKey(id);
-            if (!containsKey) {
+            if (!resources.containsKey(id)) {
                 resources.put(id, resource);
-                array.set(array.length(), resource.toJson());
+                array.set(array.length(), resource.toJson()); // this automatically sends sub resources to the client side
             }
 
+            // now also register child resources
+            registerResourcesInternally(resource.getChildren());
         });
 
         getElement().callJsFunction("addResources", array);
+    }
+
+    /**
+     * Adds resources to the internal resources map. Does not update the client side. This method is mainly intended
+     * to be used for child resources of registered resources, as the toJson method takes care for recursive child registration
+     * on the client side, thus no separate call of toJson for children is needed.
+     * @param resources resources
+     */
+    private void registerResourcesInternally(Collection<Resource> resources) {
+        for (Resource resource : resources) {
+            this.resources.put(resource.getId(), resource);
+            registerResourcesInternally(resource.getChildren());
+        }
     }
 
     @Override
