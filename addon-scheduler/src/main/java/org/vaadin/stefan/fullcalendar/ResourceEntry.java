@@ -33,13 +33,17 @@ public class ResourceEntry extends Entry {
     private boolean resourceEditableOnClientSide;
 
     /**
-     * Creates a new entry with default values.
+     * Creates a new entry with a generated id.
      */
     public ResourceEntry() {
     }
 
     /**
      * Creates a new entry with the given id. Null will lead to a generated id.
+     * <br><br>
+     * Please be aware, that the ID needs to be unique in the calendar instance. Otherwise it can lead to
+     * unpredictable results.
+     *
      * @param id id
      */
     public ResourceEntry(String id) {
@@ -49,16 +53,15 @@ public class ResourceEntry extends Entry {
     /**
      * Creates a new instance containing most values.
      *
-     * @deprecated will be removed in a later version
-     *
-     * @param id id
-     * @param title title
-     * @param start start
-     * @param end end
-     * @param allDay allday
-     * @param editable editable
-     * @param color color
+     * @param id          id
+     * @param title       title
+     * @param start       start
+     * @param end         end
+     * @param allDay      allday
+     * @param editable    editable
+     * @param color       color
      * @param description description
+     * @deprecated will be removed in a later version
      */
     @Deprecated
     public ResourceEntry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
@@ -75,16 +78,15 @@ public class ResourceEntry extends Entry {
     /**
      * Creates a new instance containing most values.
      *
-     * @deprecated will be removed in a later version
-     *
-     * @param id id
-     * @param title title
-     * @param start start
-     * @param end end
-     * @param allDay allday
-     * @param editable editable
-     * @param color color
+     * @param id          id
+     * @param title       title
+     * @param start       start
+     * @param end         end
+     * @param allDay      allday
+     * @param editable    editable
+     * @param color       color
      * @param description description
+     * @deprecated will be removed in a later version
      */
     @Deprecated
     public ResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
@@ -94,17 +96,16 @@ public class ResourceEntry extends Entry {
     /**
      * Creates a new instance containing most values.
      *
-     * @deprecated will be removed in a later version
-     *
-     * @param id id
-     * @param title title
-     * @param start start
-     * @param end end
-     * @param timezone timezone
-     * @param allDay allday
-     * @param editable editable
-     * @param color color
+     * @param id          id
+     * @param title       title
+     * @param start       start
+     * @param end         end
+     * @param timezone    timezone
+     * @param allDay      allday
+     * @param editable    editable
+     * @param color       color
      * @param description description
+     * @deprecated will be removed in a later version
      */
     @Deprecated
     public ResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, Timezone timezone, boolean allDay, boolean editable, String color, String description) {
@@ -113,6 +114,7 @@ public class ResourceEntry extends Entry {
 
     /**
      * Sets the calendar for this instance. The given calendar must be implementing Scheduler.
+     *
      * @param calendar calendar instance
      * @throws IllegalArgumentException instance is not implementing {@link Scheduler}
      */
@@ -136,9 +138,10 @@ public class ResourceEntry extends Entry {
     /**
      * Sets a resource for this entry. Previously set resources will be removed. Setting null is the same
      * as calling {@link #removeAllResources()}.
+     *
+     * @param resource resource
      * @deprecated Naming "set" does not match very well the use case and also the wording in the official FC doc, thus it
      * will be removed in later versions. Use {@link #unassignResources(Resource...)} plus {@link #assignResources(Resource...)} instead.
-     * @param resource resource
      */
     @Deprecated
     public void setResource(Resource resource) {
@@ -165,6 +168,7 @@ public class ResourceEntry extends Entry {
 
     /**
      * Returns the amount of assigned resources.
+     *
      * @return resources
      */
     public int getResourcesSize() {
@@ -173,6 +177,7 @@ public class ResourceEntry extends Entry {
 
     /**
      * Returns, if the entry has any ressources assigned.
+     *
      * @return has resources
      */
     public boolean hasResources() {
@@ -182,11 +187,10 @@ public class ResourceEntry extends Entry {
     /**
      * Assign resources to this entry.
      *
-     * @deprecated Naming "add" does not match very well the use case and also the wording in the official FC doc, thus it
-     * will be removed in later versions. Use {@link #assignResources(Collection)} instead.
-     *
      * @param resources resources
      * @throws NullPointerException when null is passed
+     * @deprecated Naming "add" does not match very well the use case and also the wording in the official FC doc, thus it
+     * will be removed in later versions. Use {@link #assignResources(Collection)} instead.
      */
     @Deprecated
     public void addResources(@NotNull Collection<Resource> resources) {
@@ -220,6 +224,7 @@ public class ResourceEntry extends Entry {
 
     /**
      * Unassigns the given resources from this entry.
+     *
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
@@ -229,6 +234,7 @@ public class ResourceEntry extends Entry {
 
     /**
      * Unassigns the given resources from this entry.
+     *
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
@@ -241,9 +247,9 @@ public class ResourceEntry extends Entry {
     /**
      * Removes the given resources from this entry.
      *
+     * @param resources resources
      * @deprecated Naming "remove" does not match very well the use case and also the wording in the official FC doc, thus it
      * will be removed in later versions. Use {@link #unassignResources(Collection)} instead.
-     * @param resources resources
      */
     @Deprecated
     public void removeResources(Collection<Resource> resources) {
@@ -252,6 +258,7 @@ public class ResourceEntry extends Entry {
 
     /**
      * Removes all resources from this entry.
+     *
      * @deprecated Naming "remove" does not match very well the use case and also the wording in the official FC doc, thus it
      * will be removed in later versions. Use {@link #unassignResources(Collection)} instead.
      */
@@ -285,7 +292,7 @@ public class ResourceEntry extends Entry {
 
             if (getColor() == null && !resources.isEmpty()) {
                 jsonObject.put("_hardReset", true);  // currently needed to make sure, that the color is
-                                                                // set correctly. Might change in future, if not performant
+                // set correctly. Might change in future, if not performant
             }
         }
 
@@ -323,6 +330,7 @@ public class ResourceEntry extends Entry {
      * is passed to the client side and interpreted there, but can also be used for server side checks.
      * <br><br>
      * This value has no impact on the resource API of this class.
+     *
      * @return resource is editable on client side
      */
     public boolean isResourceEditableOnClientSide() {
