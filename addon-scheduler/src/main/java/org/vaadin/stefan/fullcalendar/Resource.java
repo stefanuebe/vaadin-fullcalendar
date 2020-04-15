@@ -100,7 +100,11 @@ public class Resource {
             this.children.addAll(children);
         }
 
-        children.forEach(child -> child.setParent(this));
+        children.forEach(child -> {
+//            child.getParent().ifPresent(p -> p.removeChild(child));
+            child.getParent().ifPresent(p -> p.children.remove(child)); // faster, but keep an eye on the removal to not miss anything later here
+            child.setParent(this);
+        });
     }
 
     /**
