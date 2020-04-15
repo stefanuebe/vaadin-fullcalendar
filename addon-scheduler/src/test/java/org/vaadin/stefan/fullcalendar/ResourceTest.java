@@ -55,7 +55,7 @@ public class ResourceTest {
 
         Resource child = new Resource();
 
-        parent.addChild(child);
+        parent.addChildren(child);
 
         Assertions.assertTrue(child.getParent().isPresent(), "Check if parent was set");
         Assertions.assertEquals(parent, child.getParent().get(), "Check if correct parent was set");
@@ -63,7 +63,7 @@ public class ResourceTest {
         Assertions.assertEquals(1, parent.getChildren().size(), "Check if child was added correctly");
         Assertions.assertEquals(child, parent.getChildren().iterator().next(), "Check if correct child was added");
 
-        parent.removeChild(child);
+        parent.removeChildren(child);
         Assertions.assertEquals(0, parent.getChildren().size(), "Check if child was removed correctly");
         Assertions.assertFalse(child.getParent().isPresent(), "Check if parent was removed correctly");
     }
@@ -93,7 +93,7 @@ public class ResourceTest {
         }
 
         // Remove one child
-        parent.removeChild(child2);
+        parent.removeChildren(child2);
         Assertions.assertEquals(children.size() - 1, parent.getChildren().size(), "Check if child2 was removed correctly");
         Assertions.assertFalse(child2.getParent().isPresent(), "Check if parent was removed correctly");
 
@@ -126,8 +126,8 @@ public class ResourceTest {
 
         Resource child = new Resource();
 
-        parent1.addChild(child);
-        parent2.addChild(child);
+        parent1.addChildren(child);
+        parent2.addChildren(child);
 
         Assertions.assertTrue(child.getParent().isPresent(), "Check if parent was set");
         Assertions.assertEquals(parent2, child.getParent().get(), "Check if correct parent was set");
@@ -178,7 +178,7 @@ public class ResourceTest {
         Resource child11 = new Resource(CHILD1_1 + DEFAULT_ID, CHILD1_1 + DEFAULT_TITLE, CHILD1_1 + DEFAULT_COLOR);
 
         parent.addChildren(Arrays.asList(child1, child2));
-        child1.addChild(child11);
+        child1.addChildren(child11);
 
         parentJson = parent.toJson();
         Assertions.assertTrue(parentJson.hasKey("children"), "json has children");
