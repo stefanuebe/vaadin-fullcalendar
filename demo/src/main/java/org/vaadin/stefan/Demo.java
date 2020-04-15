@@ -181,7 +181,7 @@ public class Demo extends VerticalLayout {
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
-        calendar.setTimeslotsSelectable(false);
+        calendar.setTimeslotsSelectable(true);
         calendar.setBusinessHours(
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
@@ -206,7 +206,8 @@ public class Demo extends VerticalLayout {
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
         calendar.addEntryClickedListener(event -> new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open());
-        calendar.addTimeslotsSelectedListener((event) -> {
+
+        ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
             ResourceEntry entry = new ResourceEntry();
 
             entry.setStart(event.getStartDateTimeUTC());
