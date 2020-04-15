@@ -20,6 +20,7 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
+import javax.validation.constraints.NotNull;
 import java.util.*;
 
 /**
@@ -81,19 +82,18 @@ public class Resource {
     }
 
     /**
-     * Adds the given resources as children to this instance. Does not check, if the resources have been
-     * added to other resources or entries before.
+     * Adds the given resources as children to this instance. If the given resources have been added to
+     * other resources before, they will be removed from there. Also the parent is replaced.
      * <br><br>
-     * Does also not update the resource instance on the client side. If you want to add child ressources to
-     * already existing resources, you also have to register them manually in the client
-     * using {@link Scheduler#addResources(Resource...)}
-     * <br><br>
-     * Sets the parent for each child resource to this instance. If you move resource from another parent, remove
-     * them there first.
+     * Does not update the resource instances on the client side when this instance has been added to the calendar
+     * before. In that case you need to add the child resources manually via {@link Scheduler#addResources(Iterable)}.
      *
      * @param children resources to be added as children
+     * @throws NullPointerException when null is passed
      */
-    public void addChildren(Collection<Resource> children) {
+    public void addChildren(@NotNull Collection<Resource> children) {
+        Objects.requireNonNull(children);
+
         if (this.children == null) {
             this.children = new LinkedHashSet<>(children);
         } else {
@@ -108,26 +108,17 @@ public class Resource {
     }
 
     /**
-     * Adds the given resource as child to this instance. Does not check, if the resource has been
-     * added to other resources or entries before. Does also not update the resource instance on the client side.
-     * If you want to add child ressources to
-     * already existing resources, you also have to register them manually in the client
-     * using {@link Scheduler#addResources(Resource...)}
+     * Adds the given resources as children to this instance. If the given resources have been added to
+     * other resources before, they will be removed from there. Also the parent is replaced.
+     * <br><br>
+     * Does not update the resource instances on the client side when this instance has been added to the calendar
+     * before. In that case you need to add the child resources manually via {@link Scheduler#addResources(Resource...)}.
      *
-     * @param child resource to be added as child
+     * @param children resources to be added as children
+     * @throws NullPointerException when null is passed
      */
-    public void addChild(Resource child) {
-        addChildren(Collections.singleton(child));
-    }
-
-    /**
-     * Removes the given resource from this instance. Does not update the resource instance on the client side. For
-     * that you need to call {@link Scheduler#removeResources(Resource...)} manually for the given instance.
-     *
-     * @param child child resource to be removed
-     */
-    public void removeChild(Resource child) {
-        removeChildren(Collections.singleton(child));
+    public void addChildren(@NotNull Resource... children) {
+        addChildren(Arrays.asList(children));
     }
 
     /**
@@ -137,18 +128,30 @@ public class Resource {
      * Unsets the parent, if it matches this instance.
      *
      * @param children child resources to be removed
+     * @throws NullPointerException when null is passed
      */
-    public void removeChildren(Collection<Resource> children) {
-        if (this.children != null) {
-            children.stream()
-                    .filter(child -> {
-                        Optional<Resource> parent = child.getParent();
-                        return parent.isPresent() && parent.get().equals(this);
-                    })
-                    .forEach(child -> child.setParent(null));
+    public void removeChildren(@NotNull Resource... children) {
+        removeChildren(Arrays.asList(children));
+    }
 
-            this.children.removeAll(children);
-        }
+    /**
+     * Removes the given resources from this instance. Does not update the resource instance on the client side.
+     * For that you need to call {@link Scheduler#removeResources(Resource...)} manually for the given instance.
+     * <br><br>
+     * Unsets the parent, if it matches this instance.
+     *
+     * @param children child resources to be removed
+     * @throws NullPointerException when null is passed
+     */
+    public void removeChildren(@NotNull Collection<Resource> children) {
+        children.stream()
+                .filter(child -> {
+                    Optional<Resource> parent = child.getParent();
+                    return parent.isPresent() && parent.get().equals(this);
+                })
+                .forEach(child -> child.setParent(null));
+
+        this.children.removeAll(children);
     }
 
     /**
