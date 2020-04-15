@@ -46,7 +46,7 @@ public class StyleConverter {
                 CSSStyleSheet styleSheet = parser.parseStyleSheet(new InputSource(path.toUri().toString()), null, null);
 
                 Map<String, String> defs = new HashMap<>();
-                Set<String> usage = new HashSet<>();
+                Set<String> usage = new LinkedHashSet<>();
 
                 CSSRuleList rules = styleSheet.getCssRules();
                 for (int i = 0; i < rules.getLength(); i++) {

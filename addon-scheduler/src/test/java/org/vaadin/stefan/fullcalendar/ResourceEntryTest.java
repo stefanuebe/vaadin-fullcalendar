@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -106,7 +106,7 @@ public class ResourceEntryTest {
     @Test
     void testToJson() {
         ResourceEntry entry = new ResourceEntry();
-        Set<Resource> resources = new HashSet<>(Arrays.asList(new Resource(), new Resource(), new Resource()));
+        Set<Resource> resources = new LinkedHashSet<>(Arrays.asList(new Resource(), new Resource(), new Resource()));
         entry.addResources(resources);
 
         JsonObject jsonObject = entry.toJson(); // rest of toJson is asserted in basis tests
@@ -114,7 +114,7 @@ public class ResourceEntryTest {
         Assertions.assertTrue(jsonObject.get("resourceIds") instanceof JsonArray);
 
         JsonArray array = jsonObject.get("resourceIds");
-        Set<String> jsonResourceIds = new HashSet<>(array.length());
+        Set<String> jsonResourceIds = new LinkedHashSet<>(array.length());
         for (int i = 0; i < array.length(); i++) {
             jsonResourceIds.add(array.getString(i));
         }
@@ -132,7 +132,7 @@ public class ResourceEntryTest {
         ResourceEntry entry = new ResourceEntry();
         entry.setCalendar(calendar);
 
-        Set<Resource> resourceList = new HashSet<>(Arrays.asList(resource1, resource2));
+        Set<Resource> resourceList = new LinkedHashSet<>(Arrays.asList(resource1, resource2));
         entry.addResources(resourceList);
 
         JsonObject jsonObject = Json.createObject();
@@ -164,7 +164,7 @@ public class ResourceEntryTest {
         // new resource
         jsonObject.put("newResource", "3");
         entry.update(jsonObject);
-        Assertions.assertEquals(new HashSet<>(Arrays.asList(resource1, resource2, resource3)), entry.getResources());
+        Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource2, resource3)), entry.getResources());
 
         // remove resource
         jsonObject.remove("newResource");
@@ -176,7 +176,7 @@ public class ResourceEntryTest {
         jsonObject.put("oldResource", "2");
         jsonObject.put("newResource", "3");
         entry.update(jsonObject);
-        Assertions.assertEquals(new HashSet<>(Arrays.asList(resource1, resource3)), entry.getResources());
+        Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource3)), entry.getResources());
 
         Assertions.assertNull(entry.getDescription()); // should not be affected by json
     }

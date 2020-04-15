@@ -135,7 +135,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     public Set<Resource> getResources() {
-        return new HashSet<>(resources.values());
+        return new LinkedHashSet<>(resources.values());
     }
 
     @Override

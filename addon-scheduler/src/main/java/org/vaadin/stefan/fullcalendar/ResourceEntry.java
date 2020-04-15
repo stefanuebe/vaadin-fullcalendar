@@ -80,7 +80,7 @@ public class ResourceEntry extends Entry {
             removeAllResources();
         } else {
             if (this.resources == null) {
-                this.resources = new HashSet<>(1);
+                this.resources = new LinkedHashSet<>(1);
             } else {
                 this.resources.clear();
             }
@@ -123,7 +123,7 @@ public class ResourceEntry extends Entry {
      */
     public void addResources(Collection<Resource> resources) {
         if (this.resources == null) {
-            this.resources = new HashSet<>(resources);
+            this.resources = new LinkedHashSet<>(resources);
         } else {
             this.resources.addAll(resources);
         }
