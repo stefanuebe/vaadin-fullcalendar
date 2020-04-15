@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 
+import javax.validation.constraints.NotNull;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
@@ -31,6 +32,10 @@ public class BusinessHours {
      * Represents all days of week.
      */
     public static final DayOfWeek[] ALL_DAYS = DayOfWeek.values();
+
+    /**
+     * Represents default business days (mo-fr).
+     */
     public static final DayOfWeek[] DEFAULT_BUSINESS_WEEK = {DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY};
 
     private final Set<DayOfWeek> dayOfWeeks;
@@ -149,8 +154,14 @@ public class BusinessHours {
         return jsonObject;
     }
 
-    public static int convertToClientSideDow(DayOfWeek dayOfWeek) {
-        return dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue();
+    /**
+     * Converts the given day of the week to the correct client side number (handles sundays differently).
+     * @param dayOfWeek day of week
+     * @return client side representation
+     * @throws NullPointerException when null is passed
+     */
+    public static int convertToClientSideDow(@NotNull DayOfWeek dayOfWeek) {
+        return Objects.requireNonNull(dayOfWeek) == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue();
     }
 
     @Override

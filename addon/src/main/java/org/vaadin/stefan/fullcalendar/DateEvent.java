@@ -18,7 +18,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 /**
@@ -26,7 +25,7 @@ import java.time.LocalDate;
  */
 public abstract class DateEvent extends ComponentEvent<FullCalendar> {
 
-    private LocalDate date;
+    private final LocalDate date;
 
     /**
      * New instance. Awaits the date as iso string (e.g. "2018-10-23").

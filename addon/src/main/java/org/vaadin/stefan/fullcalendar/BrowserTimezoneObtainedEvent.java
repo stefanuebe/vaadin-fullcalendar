@@ -41,6 +41,10 @@ public class BrowserTimezoneObtainedEvent extends ComponentEvent<FullCalendar> {
         this.timezone = timezone;
     }
 
+    /**
+     * Returns the obtained timezone.
+     * @return timezone
+     */
     public Timezone getTimezone() {
         return timezone;
     }
