@@ -68,7 +68,7 @@ public class ResourceEntry extends Entry {
     /**
      * Sets a resource for this entry. Previously set resources will be removed. Setting null is the same
      * as calling {@link #removeAllResources()}.
-     * <p/>
+     * <br><br>
      * Does not check, if the resources have been added somewhere else before
      * (for instance as children to other resources). May lead to corrupted data on the client side, when there
      * are hierarchical loops.
@@ -201,7 +201,7 @@ public class ResourceEntry extends Entry {
     /**
      * Defines, if the user can move entries between resources (by using drag and drop). This value
      * is passed to the client side and interpreted there, but can also be used for server side checks.
-     * <p/>
+     * <br><br>
      * This value has no impact on the resource API of this class.
      * @return resource is editable on client side
      */
@@ -212,7 +212,7 @@ public class ResourceEntry extends Entry {
     /**
      * Defines, if the user can move entries between resources (by using drag and drop). This value
      * is passed to the client side and interpreted there, but can also be used for server side checks.
-     * <p/>
+     * <br><br>
      * This value has no impact on the resource API of this class.
      *
      * @param resourceEditableOnClientSide resource editable on client side

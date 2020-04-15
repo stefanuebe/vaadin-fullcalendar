@@ -143,9 +143,6 @@ public interface Scheduler {
     /**
      * The given string will be interpreted as JS function on the client side
      * and attached to the calendar as the resourceRender callback. It must be a valid JavaScript function.
-     * <br><br>
-     *
-     * </pre>
      *
      * @param s js function to be attached to resourceRender callback
      */
