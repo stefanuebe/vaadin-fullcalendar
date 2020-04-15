@@ -42,7 +42,6 @@ public class Resource {
 
     /**
      * New instance. Awaits id and title. If no id is provided, one will be generated.
-     * Children list will be initialized to empty ArrayList<Resource>
      *
      * @param id    id
      * @param title title
@@ -54,7 +53,7 @@ public class Resource {
 
     /**
      * New instance. Awaits id and title. If no id is provided, one will be generated.
-     * <p/>
+     * <br><br>
      * Adds the given resources as children using {@link #addChildren(Collection)} if a value != null is passed.
      *
      * @param id       id
@@ -84,11 +83,11 @@ public class Resource {
     /**
      * Adds the given resources as children to this instance. Does not check, if the resources have been
      * added to other resources or entries before.
-     * <p/>
+     * <br><br>
      * Does also not update the resource instance on the client side. If you want to add child ressources to
      * already existing resources, you also have to register them manually in the client
      * using {@link Scheduler#addResources(Resource...)}
-     * <p/>
+     * <br><br>
      * Sets the parent for each child resource to this instance. If you move resource from another parent, remove
      * them there first.
      *
@@ -130,7 +129,7 @@ public class Resource {
     /**
      * Removes the given resources from this instance. Does not update the resource instance on the client side.
      * For that you need to call {@link Scheduler#removeResources(Resource...)} manually for the given instance.
-     * <p/>
+     * <br><br>
      * Unsets the parent, if it matches this instance.
      *
      * @param children child resources to be removed
