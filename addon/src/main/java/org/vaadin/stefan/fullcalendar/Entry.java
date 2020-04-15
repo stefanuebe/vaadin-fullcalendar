@@ -61,6 +61,41 @@ public class Entry {
 
     private FullCalendar calendar;
 
+
+    /**
+     * Creates a new editable instance with a generated id.
+     */
+    public Entry() {
+        this(null);
+        this.editable = true;
+    }
+
+    /**
+     * Creates a new entry with the given id. Null will lead to a generated id.
+     * <br><br>
+     * Please be aware, that the ID needs to be unique in the calendar instance. Otherwise it can lead to
+     * unpredictable results.
+     *
+     * @param id id
+     */
+    public Entry(String id) {
+        this.id = id != null ? id : UUID.randomUUID().toString();
+    }
+
+    /**
+     * Creates a new entry with the given attributes.
+     *
+     * @param id          id
+     * @param title       title
+     * @param start       start
+     * @param end         end
+     * @param allDay      allday
+     * @param editable    editable
+     * @param color       color
+     * @param description description
+     * @deprecated will be removed in a later version
+     */
+    @Deprecated
     public Entry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
         this(id);
 
@@ -74,6 +109,20 @@ public class Entry {
         setColor(color);
     }
 
+    /**
+     * Creates a new entry with the given attributes.
+     *
+     * @param id          id
+     * @param title       title
+     * @param start       start
+     * @param end         end
+     * @param allDay      allday
+     * @param editable    editable
+     * @param color       color
+     * @param description description
+     * @deprecated will be removed in a later version
+     */
+    @Deprecated
     public Entry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
         this(id);
 
@@ -87,6 +136,21 @@ public class Entry {
         setColor(color);
     }
 
+    /**
+     * Creates a new entry with the given attributes.
+     *
+     * @param id          id
+     * @param title       title
+     * @param start       start
+     * @param end         end
+     * @param timezone    timezone
+     * @param allDay      allday
+     * @param editable    editable
+     * @param color       color
+     * @param description description
+     * @deprecated will be removed in a later version
+     */
+    @Deprecated
     public Entry(String id, String title, LocalDateTime start, LocalDateTime end, Timezone timezone, boolean allDay, boolean editable, String color, String description) {
         this(id);
 
@@ -101,17 +165,10 @@ public class Entry {
     }
 
     /**
-     * Empty instance.
+     * Converts the content of this instance to json to be sent to the client.
+     *
+     * @return json
      */
-    public Entry() {
-        this(null);
-        this.editable = true;
-    }
-
-    protected Entry(String id) {
-        this.id = id != null ? id : UUID.randomUUID().toString();
-    }
-
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", JsonUtils.toJsonValue(getId()));
@@ -141,8 +198,9 @@ public class Entry {
      * instance will be ignored.
      *
      * @param object json object / change set
+     * @throws NullPointerException when null is passed
      */
-    protected void update(JsonObject object) {
+    protected void update(@NotNull JsonObject object) {
         String id = object.getString("id");
         if (!this.id.equals(id)) {
             throw new IllegalArgumentException("IDs are not matching.");
@@ -174,14 +232,29 @@ public class Entry {
         this.calendar = calendar;
     }
 
+    /**
+     * Returns the entry's id.
+     *
+     * @return id
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Returns the entry's title.
+     *
+     * @return id
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Sets the title of this entry.
+     *
+     * @param title title
+     */
     public void setTitle(String title) {
         this.title = title;
     }
@@ -229,8 +302,10 @@ public class Entry {
      *
      * @param timezone timezone
      * @return start as local date time
+     * @throws NullPointerException when null is passed
      */
-    public LocalDateTime getStart(Timezone timezone) {
+    public LocalDateTime getStart(@NotNull Timezone timezone) {
+        Objects.requireNonNull(timezone, "timezone");
         return start != null ? LocalDateTime.ofInstant(start, timezone.getZoneId().getRules().getOffset(start)) : null;
     }
 
@@ -277,11 +352,19 @@ public class Entry {
      *
      * @param timezone timezone
      * @return start as local date time
+     * @throws NullPointerException when null is passed
      */
-    public LocalDateTime getEnd(Timezone timezone) {
+    public LocalDateTime getEnd(@NotNull Timezone timezone) {
+        Objects.requireNonNull(timezone, "timezone");
         return end != null ? LocalDateTime.ofInstant(end, timezone.getZoneId().getRules().getOffset(end)) : null;
     }
 
+    /**
+     * Indicates if this entry is all day or not. There might be time values set for start or end even if this
+     * value is false.
+     *
+     * @return is all day entry
+     */
     public boolean isAllDay() {
         return allDay;
     }
@@ -296,31 +379,53 @@ public class Entry {
         this.allDay = allDay;
     }
 
+    /**
+     * Indicates if this entry is editable by the users. Please be aware, that this class allows setter calls even when
+     * this value is false.
+     *
+     * @return editable
+     */
     public boolean isEditable() {
         return editable;
     }
 
+    /**
+     * Indicates if this entry is editable by the users. Please be aware, that this class allows setter calls even when
+     * this value is false.
+     *
+     * @param editable is editable
+     */
     public void setEditable(boolean editable) {
         this.editable = editable;
     }
 
     /**
      * Sets the given local date time as start. It is converted to an Instant by using the given timezone.
+     * <br><br>
+     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
      *
      * @param start    start
      * @param timezone timezone
+     * @throws NullPointerException when null is passed
      */
-    public void setStart(LocalDateTime start, Timezone timezone) {
+    public void setStart(@NotNull LocalDateTime start, @NotNull Timezone timezone) {
+        Objects.requireNonNull(start, "start");
+        Objects.requireNonNull(timezone, "timezone");
         this.start = timezone.convertToUTC(start);
     }
 
     /**
      * Sets the given local date time as end. It is converted to an Instant by using the given timezone.
+     * <br><br>
+     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
      *
      * @param end      end
      * @param timezone timezone
+     * @throws NullPointerException when null is passed
      */
-    public void setEnd(LocalDateTime end, Timezone timezone) {
+    public void setEnd(@NotNull LocalDateTime end, @NotNull Timezone timezone) {
+        Objects.requireNonNull(end, "end");
+        Objects.requireNonNull(timezone, "timezone");
         this.end = timezone.convertToUTC(end);
     }
 
@@ -464,19 +569,26 @@ public class Entry {
      *
      * @param timezone timezone
      * @return start date of recurrence
+     * @throws NullPointerException when null is passed
      */
-    public LocalDate getRecurringStartDate(Timezone timezone) {
+    public LocalDate getRecurringStartDate(@NotNull Timezone timezone) {
+        Objects.requireNonNull(timezone, "timezone");
         return recurringStartDate != null ? LocalDateTime.ofInstant(recurringStartDate, timezone.getZoneId().getRules().getOffset(recurringStartDate)).toLocalDate() : null;
     }
 
     /**
      * The start date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
      * It is converted to an Instant by using the given timezone.
+     * <br><br>
+     * Null is not allowed here, use {@link #setRecurringStartDate(Instant)} to reset the value.
      *
      * @param recurringStartDate start date or recurrence
      * @param timezone           timezone
+     * @throws NullPointerException when null is passed
      */
-    public void setRecurringStartDate(LocalDate recurringStartDate, Timezone timezone) {
+    public void setRecurringStartDate(@NotNull LocalDate recurringStartDate, @NotNull Timezone timezone) {
+        Objects.requireNonNull(recurringStartDate, "recurringStartDate");
+        Objects.requireNonNull(timezone, "timezone");
         setRecurringStartDate(timezone.convertToUTC(recurringStartDate));
     }
 
@@ -508,19 +620,27 @@ public class Entry {
      *
      * @param timezone timezone
      * @return end date of recurrence
+     * @throws NullPointerException when null is passed
      */
-    public LocalDate getRecurringEndDate(Timezone timezone) {
+    public LocalDate getRecurringEndDate(@NotNull Timezone timezone) {
+        Objects.requireNonNull(timezone, "timezone");
         return recurringEndDate != null ? LocalDateTime.ofInstant(recurringEndDate, timezone.getZoneId().getRules().getOffset(recurringEndDate)).toLocalDate() : null;
     }
 
     /**
      * The end date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
      * It is converted to an Instant by using the given timezone.
+     * <br><br>
+     * Null is not allowed here, use {@link #setRecurringEndDate(Instant)} to reset the value.
      *
      * @param recurringEndDate end date or recurrence
      * @param timezone         timezone
+     * @throws NullPointerException when null is passed
      */
-    public void setRecurringEndDate(LocalDate recurringEndDate, Timezone timezone) {
+    public void setRecurringEndDate(@NotNull LocalDate recurringEndDate, @NotNull Timezone timezone) {
+        Objects.requireNonNull(recurringEndDate, "recurringEndDate");
+        Objects.requireNonNull(timezone, "timezone");
+
         setRecurringEndDate(timezone.convertToUTC(recurringEndDate));
     }
 
