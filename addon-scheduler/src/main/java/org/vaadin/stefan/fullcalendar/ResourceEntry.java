@@ -238,7 +238,7 @@ public class ResourceEntry extends Entry {
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
-    public void unassignResource(@NotNull Resource... resource) {
+    public void unassignResource(@NotNull Resource resource) {
         unassignResources(Objects.requireNonNull(resource));
     }
 
