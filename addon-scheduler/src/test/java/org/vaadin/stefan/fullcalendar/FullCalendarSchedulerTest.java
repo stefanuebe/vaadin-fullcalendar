@@ -68,7 +68,7 @@ public class FullCalendarSchedulerTest {
     @Test
     void testFetchingExistingResourceById() {
         Resource resource = new Resource();
-        calendar.addResource(resource);
+        calendar.addResources(resource);
 
         Optional<Resource> optional = calendar.getResourceById(resource.getId());
         Assertions.assertNotNull(optional);
@@ -76,14 +76,12 @@ public class FullCalendarSchedulerTest {
     }
 
     @Test
-    void testAddResource() {
+    void testAddResources() {
         Resource resource1 = new Resource();
         Resource resource2 = new Resource();
         Resource resource3 = new Resource();
 
-        calendar.addResource(resource1);
-        calendar.addResource(resource2);
-        calendar.addResource(resource3);
+        calendar.addResources(resource1, resource2, resource3);
 
         Collection<Resource> resources = calendar.getResources();
         Assertions.assertEquals(3, resources.size());
@@ -104,11 +102,8 @@ public class FullCalendarSchedulerTest {
         Resource resource2 = new Resource();
         Resource resource3 = new Resource();
 
-        calendar.addResource(resource1);
-        calendar.addResource(resource2);
-        calendar.addResource(resource3);
-
-        calendar.removeResource(resource2);
+        calendar.addResources(resource1, resource2, resource3);
+        calendar.removeResources(resource2);
 
         Collection<Resource> resources = calendar.getResources();
         Assertions.assertEquals(2, resources.size());
@@ -132,9 +127,7 @@ public class FullCalendarSchedulerTest {
 
     @Test
     void testRemoveAll() {
-        calendar.addResource(new Resource());
-        calendar.addResource(new Resource());
-        calendar.addResource(new Resource());
+        calendar.addResources(new Resource(), new Resource(), new Resource());
 
         Assertions.assertEquals(3, calendar.getResources().size());
 
@@ -144,9 +137,7 @@ public class FullCalendarSchedulerTest {
 
     @Test
     void testGetResourcesReturnListCopy() {
-        calendar.addResource(new Resource());
-        calendar.addResource(new Resource());
-        calendar.addResource(new Resource());
+        calendar.addResources(new Resource(), new Resource(), new Resource());
 
         Collection<Resource> resources = calendar.getResources();
         Assertions.assertEquals(3, resources.size());
@@ -155,6 +146,7 @@ public class FullCalendarSchedulerTest {
         Assertions.assertEquals(3, resources.size());
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // we want that here explicitely
     private <T> void assertOptionalEquals(T expected, Optional<T> value) {
         Assertions.assertTrue(value.isPresent());
         Assertions.assertEquals(expected, value.get());

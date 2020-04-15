@@ -23,8 +23,8 @@ package org.vaadin.stefan.fullcalendar;
 public class FullCalendarBuilder {
 
     private final boolean autoBrowserTimezone;
-    private boolean scheduler;
-    private int entryLimit;
+    private final boolean scheduler;
+    private final int entryLimit;
 
     private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone) {
         this.scheduler = scheduler;
@@ -96,10 +96,20 @@ public class FullCalendarBuilder {
         return calendar;
     }
 
+    /**
+     * Creates a basic instance.
+     * @return instance
+     */
     protected FullCalendar createFullCalendarBasicInstance() {
         return new FullCalendar(entryLimit);
     }
 
+    /**
+     * Creates a basic scheduler instance. Needs the scheduler addon.
+     * @return scheduler instance
+     * @throws ExtensionNotFoundException when the scheduler extension has not been found on the class path.
+     * @throws RuntimeException on any other exception internally catched except for ClassNotFoundException
+     */
     protected FullCalendar createFullCalendarSchedulerInstance() {
         try {
             Class<?> loadClass = getClass().getClassLoader().loadClass("org.vaadin.stefan.fullcalendar.FullCalendarScheduler");

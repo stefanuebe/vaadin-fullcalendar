@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
 
     private final boolean allDay;
-    private LocalDateTime dateTime;
+    private final LocalDateTime dateTime;
 
     /**
      * New instance. Awaits the date (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
