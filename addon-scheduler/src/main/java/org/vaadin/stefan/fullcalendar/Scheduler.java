@@ -61,10 +61,11 @@ public interface Scheduler {
 
     /**
      * Adds an resource to this calendar. Noop if the resource id is already registered.
-     *
+     * @deprecated will be removed later, use {@link #addResources(Resource...)} instead
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
+    @Deprecated
     default void addResource(@NotNull Resource resource) {
         Objects.requireNonNull(resource);
         addResources(Collections.singletonList(resource));
@@ -92,9 +93,11 @@ public interface Scheduler {
      * Removes the given resource. Also removes it from its related entries.
      * Does not send an extra update for the entries.
      *
+     * @deprecated will be removed later, use {@link #removeResources(Resource...)} instead
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
+    @Deprecated
     default void removeResource(@NotNull Resource resource) {
         Objects.requireNonNull(resource);
         removeResources(Collections.singletonList(resource));
