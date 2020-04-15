@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -64,7 +64,7 @@ public class ResourceEntryTest {
         Entry entry;
 
         // test optional parameters
-        entry = new ResourceEntry(null, null, (Instant) null, null, false, false, null, null);
+        entry = createResourceEntry(null, null, null, null, false, false, null, null);
 
         // test id generation
         String id = entry.getId();
@@ -73,7 +73,7 @@ public class ResourceEntryTest {
         UUID.fromString(id);
 
         // test field values after construction - all params
-        entry = new ResourceEntry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START, DEFAULT_END, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
+        entry = createResourceEntry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START, DEFAULT_END, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
         Assertions.assertEquals(DEFAULT_ID, entry.getId());
         Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
         Assertions.assertEquals(DEFAULT_START, entry.getStart());
@@ -84,7 +84,21 @@ public class ResourceEntryTest {
         Assertions.assertEquals(DEFAULT_DESCRIPTION, entry.getDescription());
 
         // test null color when set empty
-        Assertions.assertNull(new ResourceEntry(null, null, (Instant) null, null, false, false, "", null).getColor());
+        Assertions.assertNull(createResourceEntry(null, null, null, null, false, false, "", null).getColor());
+    }
+
+    private static Entry createResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
+        ResourceEntry entry = new ResourceEntry(id);
+
+        entry.setTitle(title);
+        entry.setStart(start != null ? start.toInstant(ZoneOffset.UTC) : null);
+        entry.setEnd(end != null ? end.toInstant(ZoneOffset.UTC) : null);
+        entry.setAllDay(allDay);
+        entry.setEditable(editable);
+        entry.setDescription(description);
+        entry.setColor(color);
+
+        return entry;
     }
 
     /**
@@ -180,4 +194,5 @@ public class ResourceEntryTest {
 
         Assertions.assertNull(entry.getDescription()); // should not be affected by json
     }
+
 }
