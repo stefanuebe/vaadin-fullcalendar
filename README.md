@@ -520,3 +520,25 @@ ResourceEntry entry = new ResourceEntry();
 
 entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
 calendar.addEntry(entry);
+
+### Creating hierarchical resources
+```
+// Create a parent resource. When adding the sub resources first before adding the parent to the calendar,
+// the sub resources are registered automatically on client side and server side.
+
+Resource parent = new Resource();
+parent.addChildren(new Resource(), new Resource(), new Resource());
+
+calendar.addResource(parent); // will add the resource and also it's children to server and client
+
+// add new resources to already registered parents
+Resource child = new Resource()
+parent.addChild(child);
+calendar.addResource(child); // this will update the client side
+
+// or remove them from already registered ones
+calendar.removeResource(child); 
+parent.removeChild(child); 
+```
+
+
