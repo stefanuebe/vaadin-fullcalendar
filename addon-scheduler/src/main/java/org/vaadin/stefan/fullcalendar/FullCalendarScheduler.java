@@ -41,12 +41,19 @@ import java.util.stream.StreamSupport;
 @JsModule("./full-calendar-scheduler.js")
 public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
-    private Map<String, Resource> resources = new HashMap<>();
+    private final Map<String, Resource> resources = new HashMap<>();
 
+    /**
+     * Creates a default instance.
+     */
     public FullCalendarScheduler() {
         super();
     }
 
+    /**
+     * Creates a new instance using the given integer as entries shown per day limit
+     * @param entryLimit max entries shown per day
+     */
     public FullCalendarScheduler(int entryLimit) {
         super(entryLimit);
     }
@@ -202,7 +209,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public Registration addEntryDroppedScedulerListener(@NotNull ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
         return addEntryDroppedSchedulerListener(listener);
     }
-
 
     @Override
     public Registration addEntryDroppedSchedulerListener(@NotNull ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
