@@ -56,19 +56,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         setOption("schedulerLicenseKey", schedulerLicenseKey);
     }
 
-    @Override
-    public void addResource(Resource resource) {
-        Objects.requireNonNull(resource);
-        addResources(Collections.singletonList(resource));
-    }
 
     @Override
-    public void addResources(Resource... resources) {
-        addResources(Arrays.asList(resources));
-    }
-
-    @Override
-    public void addResources(Iterable<Resource> iterableResource) {
+    public void addResources(@NotNull Iterable<Resource> iterableResource) {
         Objects.requireNonNull(iterableResource);
 
         JsonArray array = Json.createArray();
@@ -100,18 +90,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
-    public void removeResource(Resource resource) {
-        Objects.requireNonNull(resource);
-        removeResources(Collections.singletonList(resource));
-    }
-
-    @Override
-    public void removeResources(Resource... resources) {
-        removeResources(Arrays.asList(resources));
-    }
-
-    @Override
-    public void removeResources(Iterable<Resource> iterableResources) {
+    public void removeResources(@NotNull Iterable<Resource> iterableResources) {
         Objects.requireNonNull(iterableResources);
 
         removeFromEntries(iterableResources);
