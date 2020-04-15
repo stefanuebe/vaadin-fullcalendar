@@ -247,7 +247,7 @@ public class ResourceEntry extends Entry {
      */
     @Deprecated
     public void removeResources(Collection<Resource> resources) {
-        unassignResources();
+        unassignResources(resources);
     }
 
     /**
@@ -306,14 +306,14 @@ public class ResourceEntry extends Entry {
                     .map(JsonValue::asString)
                     .flatMap(calendar::getResourceById)
                     .map(Collections::singleton)
-                    .ifPresent(this::removeResources);
+                    .ifPresent(this::unassignResources);
 
             Optional.<JsonValue>ofNullable(object.get("newResource"))
                     .filter(o -> o instanceof JsonString)
                     .map(JsonValue::asString)
                     .flatMap(calendar::getResourceById)
                     .map(Collections::singleton)
-                    .ifPresent(this::addResources);
+                    .ifPresent(this::assignResources);
 
         });
     }
