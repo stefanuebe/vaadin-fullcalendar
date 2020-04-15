@@ -20,8 +20,8 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 
 import javax.validation.constraints.NotNull;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents functionality for the FullCalendarScheduler.
@@ -65,7 +65,10 @@ public interface Scheduler {
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
-    void addResource(Resource resource);
+    default void addResource(@NotNull Resource resource) {
+        Objects.requireNonNull(resource);
+        addResources(Collections.singletonList(resource));
+    }
 
     /**
      * Adds resources to this calendar. Noop already registered resources.
@@ -73,7 +76,9 @@ public interface Scheduler {
      * @param resources resources to add
      * @throws NullPointerException when null is passed
      */
-    void addResources(Resource... resources);
+    default void addResources(@NotNull Resource... resources) {
+        addResources(Arrays.asList(resources));
+    }
 
     /**
      * Adds resources to this calendar. Noop already registered resources.
@@ -81,7 +86,7 @@ public interface Scheduler {
      * @param resources resources to add
      * @throws NullPointerException when null is passed
      */
-    void addResources(Iterable<Resource> resources);
+    void addResources(@NotNull Iterable<Resource> resources);
 
     /**
      * Removes the given resource. Also removes it from its related entries.
@@ -90,7 +95,10 @@ public interface Scheduler {
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
-    void removeResource(Resource resource);
+    default void removeResource(@NotNull Resource resource) {
+        Objects.requireNonNull(resource);
+        removeResources(Collections.singletonList(resource));
+    }
 
     /**
      * Removes the given resources. Also removes them from their related entries.
@@ -101,7 +109,9 @@ public interface Scheduler {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    void removeResources(Resource... resources);
+    default void removeResources(@NotNull Resource... resources) {
+        removeResources(Arrays.asList(resources));
+    }
  /**
      * Removes the given resources.  Also removes them from their related entries.
      * Does not send an extra update for the entries.
@@ -111,7 +121,7 @@ public interface Scheduler {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    void removeResources(Iterable<Resource> resources);
+    void removeResources(@NotNull Iterable<Resource> resources);
 
     /**
      * Returns the resource with the given id. Is empty when the id is not registered.
@@ -120,10 +130,10 @@ public interface Scheduler {
      * @return resource or empty
      * @throws NullPointerException when null is passed
      */
-    Optional<Resource> getResourceById(String id);
+    Optional<Resource> getResourceById(@NotNull String id);
 
     /**
-     * Returns all resources registered in this instance. Changes in an resource instance is reflected in the
+     * Returns all resources registered in this instance, including child resources. Changes in an resource instance is reflected in the
      * calendar instance on server side, but not client side. Resources can currently not be updated on the client side.
      * <br><br>
      * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
@@ -133,6 +143,24 @@ public interface Scheduler {
      * @return resources resources
      */
     Set<Resource> getResources();
+
+    /**
+     * Returns all top level resources registered in this instance (having no parent). This list is calculated on each
+     * call to reflect the latest state of possible changes in the resources' structure. If you need it multiple times
+     * in a row and can be sure, that there haven't been changes, you should cache the list for that short time.
+     * <br><br>
+     * Changes in an resource instance is reflected in the
+     * calendar instance on server side, but not client side. Resources can currently not be updated on the client side.
+     * <br><br>
+     * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
+     * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
+     * a convenient way of using the returned values without the need to encapsulate them yourselves.
+     *
+     * @return resources resources
+     */
+    default Set<Resource> getTopLevelResources() {
+        return getResources().stream().filter(r -> !r.getParent().isPresent()).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
 
     /**
      * Removes all registered resources from this instance. Also removes them from their related entries.
