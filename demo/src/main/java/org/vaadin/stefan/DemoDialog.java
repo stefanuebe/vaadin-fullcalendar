@@ -128,6 +128,8 @@ public class DemoDialog extends Dialog {
         }
 
 
+        // TODO add resource assignment widget
+
         // layouting
 
         VerticalLayout mainLayout = new VerticalLayout(fieldTitle, fieldColor, fieldDescription,
