@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.*;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -30,25 +31,84 @@ public class ResourceEntry extends Entry {
     private Set<Resource> resources;
     private boolean resourceEditableOnClientSide;
 
+    /**
+     * Creates a new instance containing most values.
+     *
+     * @deprecated will be removed in a later version
+     *
+     * @param id id
+     * @param title title
+     * @param start start
+     * @param end end
+     * @param allDay allday
+     * @param editable editable
+     * @param color color
+     * @param description description
+     */
+    @Deprecated
     public ResourceEntry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
         super(id, title, start, end, allDay, editable, color, description);
     }
 
+    /**
+     * Creates a new instance containing most values.
+     *
+     * @deprecated will be removed in a later version
+     *
+     * @param id id
+     * @param title title
+     * @param start start
+     * @param end end
+     * @param allDay allday
+     * @param editable editable
+     * @param color color
+     * @param description description
+     */
+    @Deprecated
     public ResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
         super(id, title, start, end, allDay, editable, color, description);
     }
 
+    /**
+     * Creates a new instance containing most values.
+     *
+     * @deprecated will be removed in a later version
+     *
+     * @param id id
+     * @param title title
+     * @param start start
+     * @param end end
+     * @param timezone timezone
+     * @param allDay allday
+     * @param editable editable
+     * @param color color
+     * @param description description
+     */
+    @Deprecated
     public ResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, Timezone timezone, boolean allDay, boolean editable, String color, String description) {
         super(id, title, start, end, timezone, allDay, editable, color, description);
     }
 
+    /**
+     * Creates a new entry with default values.
+     */
     public ResourceEntry() {
     }
 
+    /**
+     * Creates a new entry with the given id. Null will lead to a generated id.
+     * @param id id
+     */
     public ResourceEntry(String id) {
         super(id);
     }
 
+    /**
+     * Sets the calendar for this instance. The given calendar must be implementing Scheduler.
+     * @param calendar calendar instance
+     * @throws IllegalArgumentException instance is not implementing {@link Scheduler}
+     */
+    @Override
     protected void setCalendar(FullCalendar calendar) {
         if (calendar != null && !(calendar instanceof Scheduler)) {
             throw new IllegalArgumentException("ResourceEntries must be added to a FullCalendar that implements Scheduler");
@@ -57,7 +117,7 @@ public class ResourceEntry extends Entry {
     }
 
     /**
-     * Returns the first set resource. Is empty if no resource has been registered.
+     * Returns the first assigned resource. Is empty if no resource has been assigned yet.
      *
      * @return resource
      */
@@ -68,13 +128,11 @@ public class ResourceEntry extends Entry {
     /**
      * Sets a resource for this entry. Previously set resources will be removed. Setting null is the same
      * as calling {@link #removeAllResources()}.
-     * <br><br>
-     * Does not check, if the resources have been added somewhere else before
-     * (for instance as children to other resources). May lead to corrupted data on the client side, when there
-     * are hierarchical loops.
-     *
+     * @deprecated Naming "set" does not match very well the use case and also the wording in the official FC doc, thus it
+     * will be removed in later versions. Use {@link #unassignResources(Resource...)} plus {@link #assignResources(Resource...)} instead.
      * @param resource resource
      */
+    @Deprecated
     public void setResource(Resource resource) {
         if (resource == null) {
             removeAllResources();
@@ -89,10 +147,9 @@ public class ResourceEntry extends Entry {
     }
 
     /**
-     * Returns a copy of the entry's resources. Only contains the top level resources (means, child resources
-     * have to be collected manually by using {@link Resource#getChildren()}.
+     * Returns a copy of the entry's assigned resources.
      *
-     * @return entry's resources (top level)
+     * @return entry's resources
      */
     public Set<Resource> getResources() {
         return resources != null ? Collections.unmodifiableSet(resources) : Collections.emptySet();
@@ -115,13 +172,27 @@ public class ResourceEntry extends Entry {
     }
 
     /**
-     * Add multiple resources to this entry. Does not check, if the resources have been added somewhere else before
-     * (for instance as children to other resources). May lead to corrupted data on the client side, when there
-     * are hierarchical loops.
+     * Assign resources to this entry.
+     *
+     * @deprecated Naming "add" does not match very well the use case and also the wording in the official FC doc, thus it
+     * will be removed in later versions. Use {@link #assignResources(Collection)} instead.
      *
      * @param resources resources
+     * @throws NullPointerException when null is passed
      */
-    public void addResources(Collection<Resource> resources) {
+    @Deprecated
+    public void addResources(@NotNull Collection<Resource> resources) {
+        assignResources(resources);
+    }
+
+    /**
+     * Assign additional resources to this entry. Already assigned resources will be kept.
+     *
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    public void assignResources(@NotNull Collection<Resource> resources) {
+        Objects.requireNonNull(resources);
         if (this.resources == null) {
             this.resources = new LinkedHashSet<>(resources);
         } else {
@@ -130,20 +201,61 @@ public class ResourceEntry extends Entry {
     }
 
     /**
-     * Removes the given resources from this entry.
+     * Assigns additional resources to this entry. Already assigned resources will be kept.
      *
      * @param resources resources
+     * @throws NullPointerException when null is passed
      */
-    public void removeResources(Collection<Resource> resources) {
+    public void assignResources(@NotNull Resource... resources) {
+        assignResources(Arrays.asList(resources));
+    }
+
+    /**
+     * Unassigns the given resources from this entry.
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    public void unassignResources(@NotNull Resource... resources) {
+        unassignResources(Arrays.asList(resources));
+    }
+
+    /**
+     * Unassigns the given resources from this entry.
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    public void unassignResources(@NotNull Collection<Resource> resources) {
         if (this.resources != null) {
             this.resources.removeAll(resources);
         }
     }
 
     /**
-     * Removes all resources from this entry.
+     * Removes the given resources from this entry.
+     *
+     * @deprecated Naming "remove" does not match very well the use case and also the wording in the official FC doc, thus it
+     * will be removed in later versions. Use {@link #unassignResources(Collection)} instead.
+     * @param resources resources
      */
+    @Deprecated
+    public void removeResources(Collection<Resource> resources) {
+        unassignResources();
+    }
+
+    /**
+     * Removes all resources from this entry.
+     * @deprecated Naming "remove" does not match very well the use case and also the wording in the official FC doc, thus it
+     * will be removed in later versions. Use {@link #unassignResources(Collection)} instead.
+     */
+    @Deprecated
     public void removeAllResources() {
+        unassignAllResources();
+    }
+
+    /**
+     * Unassigns all resources from this entry.
+     */
+    public void unassignAllResources() {
         if (this.resources != null) {
             this.resources.clear();
             this.resources = null;
