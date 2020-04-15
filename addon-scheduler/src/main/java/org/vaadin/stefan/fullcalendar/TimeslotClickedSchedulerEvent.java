@@ -24,9 +24,9 @@ import java.util.Optional;
 /**
  * This type extends the normal timeslot clicked event by providing the selected resource (if there's one).
  * <br><br>
- * Client side event: dayClick
+ * Client side event: dateClick
  */
-@DomEvent("dayClick")
+@DomEvent("dateClick")
 public class TimeslotClickedSchedulerEvent extends TimeslotClickedEvent {
 
     private Resource resource;
