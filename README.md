@@ -47,7 +47,7 @@ The following functions are currently implemented and available to use from serv
     - recurring data (day of week, start / end date and time)
 
 
-## Known issues in
+## Known issues
 ### Calendar size does not work anymore (V15)
 For some, currently unknown reason, the sizing by parent does not work anymore in V15. Please apply a concrete height for the calendar by using either `FullCalendar#setHeight(int)` or `FullCalendar#setHeightAuto()`. The 2nd one should work in combination with Vaadin's  `setHeight(String)` method.
 
