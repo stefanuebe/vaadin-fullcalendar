@@ -453,32 +453,6 @@ This method will throw an exception, if the scheduler extension is not on the cl
 
 To link a resource with entries, use the Entry subclass `ResourceEntry`. 
 
-## Build problems / JS (client side) errors with V14
-It might be, that the transitive dependencies are not resolved correctly.
-
-If you are using Spring Boot please add the `@EnableVaadin` annotation to your application class. Add
-the package `org.vaadin.stefan` plus your root package as parameters. This should enable Spring to analyze
-all npm dependencies at runtime. Other CDI version should work the same.
-
-If you are not using Spring, but have similiar issues try to add also the goal `build-frontend` to the vaadin maven plugin. This should resolve transitive npm dependencies at build time.
-
-For instance:
-```
-<plugin>
-    <groupId>com.vaadin</groupId>
-    <artifactId>vaadin-maven-plugin</artifactId>
-    <version>${vaadin.version}</version>
-    <executions>
-        <execution>
-            <goals>
-                <goal>prepare-frontend</goal>
-                <goal>build-frontend</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
-``` 
-
 ## Additional Features of the Scheduler extension
 - Activation of the Scheduler by method in the FullCalendarBuilder.
 - Adding resources to a calendar (hierarchies of resources are not yet supported). 
