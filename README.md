@@ -1,39 +1,14 @@
-# FullCalendar integration
-This addon is an integration of the FullCalendar 4 as Flow component for Vaadin 14+. For a Vaadin 10-13 version 
+# FullCalendar web component addon
+This addon is an integration of the FullCalendar 4 as Flow component for Vaadin 14.x. For a Vaadin 10-13 version 
  (built on FC 3.10.x) https://vaadin.com/directory/component/full-calendar-web-component.
 
 Please also have a look at the demo for a live example and source code of how to integrate the FC. Not all
-described events are handled visually currently.
+described events are handled visually currently. 
 
 For information about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
 
 If you want to use the FC Scheduler, please have a look at this addon: https://vaadin.com/directory/component/full-calendar-4-scheduler-web-component
 
-## Build problems / JS (client side) errors with V14
-It might be, that the transitive dependencies are not resolved correctly.
-
-If you are using Spring Boot please add the `@EnableVaadin` annotation to your application class. Add
-the package `org.vaadin.stefan` plus your root package as parameters. This should enable Spring to analyze
-all npm dependencies at runtime. Other CDI version should work the same.
-
-If you are not using Spring, but have similiar issues try to add also the goal `build-frontend` to the vaadin maven plugin. This should resolve transitive npm dependencies at build time.
-
-For instance:
-```
-<plugin>
-    <groupId>com.vaadin</groupId>
-    <artifactId>vaadin-maven-plugin</artifactId>
-    <version>${vaadin.version}</version>
-    <executions>
-        <execution>
-            <goals>
-                <goal>prepare-frontend</goal>
-                <goal>build-frontend</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
-``` 
 
 ## Addon Functionality
 The following functions are currently implemented and available to use from server side:
@@ -70,6 +45,56 @@ The following functions are currently implemented and available to use from serv
     - editable / read only
     - rendering mode (normal, background, inversed background)
     - recurring data (day of week, start / end date and time)
+
+
+## Known issues in
+### Calendar size does not work anymore (V15)
+For some, currently unknown reason, the sizing by parent does not work anymore in V15. Please apply a concrete height for the calendar by using either `FullCalendar#setHeight(int)` or `FullCalendar#setHeightAuto()`. The 2nd one should work in combination with Vaadin's  `setHeight(String)` method.
+
+### Calendar crashes when clicking (V14+)
+For some, currently unknown reason, sizing a calendar after the view has changed manually on a newly created calendar lets the calendar crash, when clicking inside somewhere. I have no idea, why that is so. Please see https://github.com/stefanuebe/vaadin_fullcalendar/issues/45 for details and progress.
+
+
+### Build problems / JS (client side) errors (V14+)
+It might be, that the transitive dependencies are not resolved correctly.
+
+If you are using Spring Boot please add the `@EnableVaadin` annotation to your application class. Add
+the package `org.vaadin.stefan` plus your root package as parameters. This should enable Spring to analyze
+all npm dependencies at runtime. Other CDI version should work the same.
+
+If you are not using Spring, but have similiar issues try to add also the goal `build-frontend` to the vaadin maven plugin. This should resolve transitive npm dependencies at build time.
+
+For instance:
+```
+<plugin>
+    <groupId>com.vaadin</groupId>
+    <artifactId>vaadin-maven-plugin</artifactId>
+    <version>${vaadin.version}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>prepare-frontend</goal>
+                <goal>build-frontend</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+``` 
+
+## FAQ
+Q: The calendar instance is not recognized during build time or loading of frontend dependencies (leads client side errors)
+
+A: Please see `Build problems / JS (client side) errors with V14` for further details.
+
+Q: The `DatesRenderedEvent` is not fired when setting an option, that changes the view. 
+
+A: I deactivated the forwarding of the datesRendered event from the client side when an option is set, since
+that would lead otherwise to a huge amount of datesRendered events. When setting options before the client side
+is fully attached, the queueing messes up the event handling here.
+ 
+When needed, you can activate or deactivate that by using the method `allowDatesRenderEventOnOptionChange(boolean)`. 
+By default this value is `false`, simply set it to true to also receive date render events on setOption. 
+
 
 ## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
