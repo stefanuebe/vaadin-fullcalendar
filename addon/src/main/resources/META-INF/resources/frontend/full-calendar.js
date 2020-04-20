@@ -337,10 +337,14 @@ export class FullCalendar extends PolymerElement {
 
         if (oldResourceInfo != null) {
             data.oldResource = oldResourceInfo.id;
+        } else {
+        	data.oldResource = "";
         }
 
         if (newResourceInfo != null) {
             data.newResource = newResourceInfo.id;
+        } else {
+        	data.newResource = "";
         }
 
 
