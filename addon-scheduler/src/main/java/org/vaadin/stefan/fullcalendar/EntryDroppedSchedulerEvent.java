@@ -21,15 +21,17 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
      */
     public EntryDroppedSchedulerEvent(FullCalendarScheduler source, boolean fromClient,
                                       @EventData("event.detail.data") JsonObject jsonEntry,
-                                      @EventData("event.detail.delta") JsonObject jsonDelta) {
+                                      @EventData("event.detail.delta") JsonObject jsonDelta,
+                                      @EventData("event.detail.oldResource") String oldResourceId,
+                              		  @EventData("event.detail.newResource") String newResourceId) {
         super(source, fromClient, jsonEntry, jsonDelta);
 
-        String oldResourceId = jsonEntry.getString("oldResource");
+        //String oldResourceId = jsonEntry.getString("oldResource");
         if (oldResourceId != null) {
             this.oldResource = source.getResourceById(oldResourceId).orElseThrow(IllegalArgumentException::new);
         }
 
-        String newResourceId = jsonEntry.getString("newResource");
+        //String newResourceId = jsonEntry.getString("newResource");
         if (newResourceId != null) {
             this.newResource = source.getResourceById(newResourceId).orElseThrow(IllegalArgumentException::new);
         }
