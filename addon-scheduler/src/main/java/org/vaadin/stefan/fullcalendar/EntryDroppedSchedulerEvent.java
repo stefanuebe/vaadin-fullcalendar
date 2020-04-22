@@ -3,6 +3,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 import java.util.Optional;
 
@@ -24,15 +25,14 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
                                       @EventData("event.detail.delta") JsonObject jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
 
-        String oldResourceId = jsonEntry.getString("oldResource");
-        if (oldResourceId != null) {
-            this.oldResource = source.getResourceById(oldResourceId).orElseThrow(IllegalArgumentException::new);
-        }
+        Optional.<JsonValue>ofNullable(jsonEntry.get("oldResource"))
+                .map(JsonValue::asString)
+                .ifPresent(id -> this.oldResource = source.getResourceById(id).orElseThrow(IllegalArgumentException::new));
 
-        String newResourceId = jsonEntry.getString("newResource");
-        if (newResourceId != null) {
-            this.newResource = source.getResourceById(newResourceId).orElseThrow(IllegalArgumentException::new);
-        }
+        Optional.<JsonValue>ofNullable(jsonEntry.get("newResource"))
+                .map(JsonValue::asString)
+                .ifPresent(id -> this.newResource = source.getResourceById(id).orElseThrow(IllegalArgumentException::new));
+
     }
 
     public Optional<Resource> getOldResource() {
