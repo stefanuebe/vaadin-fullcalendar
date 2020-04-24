@@ -1,4 +1,5 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
 
 import {Calendar} from '@fullcalendar/core';
 import interaction from '@fullcalendar/interaction';
@@ -54,11 +55,10 @@ export class FullCalendar extends PolymerElement {
                     #calendar-container, #calendar {
                         display: flex;
                         flex-direction: column;
+                        flex-grow: 1;
                     }
         
-                    #calendar-container {
-                        flex-grow: 1;
-                    }</style>
+                    </style>
 `;
     }
 
@@ -116,6 +116,13 @@ export class FullCalendar extends PolymerElement {
             this._calendar = new Calendar(this.$.calendar, options);
 
             this._calendar.render();
+
+            afterNextRender(this, function() {
+                // used to assure correct initial size. It seems, that with V15 (currently 15.0.5) the lifecycle
+                // can not guarantee, that the calendar container provides the correct height, since it might not
+                // be rendered yet. This method call will upate the size correctly.
+                this._calendar.updateSize();
+            });
         }
     }
 
