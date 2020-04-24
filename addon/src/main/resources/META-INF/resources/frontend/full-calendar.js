@@ -57,7 +57,7 @@ export class FullCalendar extends PolymerElement {
                         flex-direction: column;
                         flex-grow: 1;
                     }
-        
+                    
                     </style>
 `;
     }
@@ -115,7 +115,7 @@ export class FullCalendar extends PolymerElement {
             let options = this._createInitOptions();
             this._calendar = new Calendar(this.$.calendar, options);
 
-            this._calendar.render();
+            this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
 
             afterNextRender(this, function() {
                 // used to assure correct initial size. It seems, that with V15 (currently 15.0.5) the lifecycle
