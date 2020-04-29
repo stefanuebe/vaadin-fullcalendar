@@ -25,11 +25,13 @@ public class FullCalendarBuilder {
     private final boolean autoBrowserTimezone;
     private final boolean scheduler;
     private final int entryLimit;
+    private final String schedulerLicenseKey;
 
-    private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone) {
+    private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone, String schedulerLicenseKey) {
         this.scheduler = scheduler;
         this.entryLimit = entryLimit;
         this.autoBrowserTimezone = autoBrowserTimezone;
+        this.schedulerLicenseKey = schedulerLicenseKey;
     }
 
     /**
@@ -38,11 +40,12 @@ public class FullCalendarBuilder {
      * @return builder instance
      */
     public static FullCalendarBuilder create() {
-        return new FullCalendarBuilder(false, -1, false);
+        return new FullCalendarBuilder(false, -1, false, null);
     }
 
     /**
-     * Activates Scheduler support.
+     * Activates Scheduler support. Sets no license key. When {@link #withScheduler(String)} has been used before,
+     * the license key passed there, will be kept internally.
      * <br><br>
      * <b>Note: </b> You need to add the FullCalender Scheduler extension addon to the class path, otherwise
      * the build will fail.
@@ -50,7 +53,21 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withScheduler() {
-        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone);
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey);
+    }
+
+    /**
+     * Activates Scheduler support. The given string will be used as scheduler license key.
+     * <br><br>
+     * <b>Note: </b> You need to add the FullCalender Scheduler extension addon to the class path, otherwise
+     * the build will fail.
+     *
+     * @param licenseKey scheduler license key to be used
+     *
+     * @return new immutable instance with updated settings
+     */
+    public FullCalendarBuilder withScheduler(String licenseKey) {
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, licenseKey);
     }
 
     /**
@@ -63,7 +80,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withEntryLimit(int entryLimit) {
-        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey);
     }
 
     /**
@@ -72,7 +89,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withAutoBrowserTimezone() {
-        return new FullCalendarBuilder(scheduler, entryLimit, true);
+        return new FullCalendarBuilder(scheduler, entryLimit, true, schedulerLicenseKey);
     }
 
     /**
@@ -84,7 +101,7 @@ public class FullCalendarBuilder {
     public FullCalendar build() {
         FullCalendar calendar;
         if (scheduler) {
-            calendar = createFullCalendarSchedulerInstance();
+            calendar = createFullCalendarSchedulerInstance(schedulerLicenseKey);
         } else {
             calendar = createFullCalendarBasicInstance();
         }
@@ -109,11 +126,18 @@ public class FullCalendarBuilder {
      * @return scheduler instance
      * @throws ExtensionNotFoundException when the scheduler extension has not been found on the class path.
      * @throws RuntimeException on any other exception internally catched except for ClassNotFoundException
+     * @param schedulerLicenseKey scheduler license key to be used
      */
-    protected FullCalendar createFullCalendarSchedulerInstance() {
+    protected FullCalendar createFullCalendarSchedulerInstance(String schedulerLicenseKey) {
         try {
             Class<?> loadClass = getClass().getClassLoader().loadClass("org.vaadin.stefan.fullcalendar.FullCalendarScheduler");
-            return (FullCalendar) loadClass.getDeclaredConstructor(int.class).newInstance(this.entryLimit);
+            Object scheduler = loadClass.getDeclaredConstructor(int.class).newInstance(this.entryLimit);
+
+            if (schedulerLicenseKey != null) { // set the license key, if provided
+                scheduler.getClass().getMethod("setSchedulerLicenseKey", String.class).invoke(scheduler, schedulerLicenseKey);
+            }
+
+            return (FullCalendar) scheduler;
         } catch (ClassNotFoundException ce) {
             throw new ExtensionNotFoundException("Could not find scheduler extension for FullCalendar on class path. Please check you libraries / dependencies.", ce);
         } catch (Exception e) {
