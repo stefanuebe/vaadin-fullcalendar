@@ -226,36 +226,32 @@ calendar.getElement().getStyle().set("flex-grow", "1");
 ```
 
 ### Modify FCs appearance by using css variables
-1. Copy the styles.js from the github demo or create your own custom style file and place it in your
- applications frontend folder (e. g. frontend/styles/my-custom-full-calendar-styles.js)
+1. Copy the styles.css from the github demo or create your own css file and place it in your
+ applications frontend folder (e. g. frontend/styles/my-custom-full-calendar-styles.css)
 
 An example file can be found from here:
-https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/frontend/styles.js
+https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/frontend/styles.css
+
+(Please be aware, that these custom properties are generated from the original styles. Since some dom elements
+have classes, which are not used in the css files, there are no generated custom attributes for these class
+combinations. In that case you'll have to subclass the Polymer class.) 
 
 
 2. Modify the styles as needed.
 ```
-const $_documentContainer = document.createElement('template');
-$_documentContainer.innerHTML = `
-<custom-style>
-    <style>
-        html{
-            /* light blue to be used instead of default light yellow*/
-            --fc-unthemed_tdfc-today-background: #81DAF5 !important;
-            
-            /* and some fancy border */
-            --fc_td-border-style: dotted !important;
-            --fc_td-border-width: 2px !important;
-        }
-    </style>
-</custom-style>
-`;
-document.head.appendChild($_documentContainer.content);
+html{
+    /* light blue to be used instead of default light yellow*/
+    --fc-unthemed_tdfc-today-background: #81DAF5 !important;
+    
+    /* and some fancy border */
+    --fc_td-border-style: dotted !important;
+    --fc_td-border-width: 2px !important;
+}
 ```
 
 3. Use the styles file in your application.
 ```
-@JsModule("./styles/my-custom-full-calendar-styles.js")
+@CssImport("./styles/my-custom-full-calendar-styles.css")
 public class FullCalendarApplication extends ... {
     // ...
 }

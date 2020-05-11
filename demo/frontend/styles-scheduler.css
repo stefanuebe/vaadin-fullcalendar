@@ -52,12 +52,6 @@ that you need.
 
 */
 
-const $_documentContainer = document.createElement('template');
-
-
-$_documentContainer.innerHTML = `
-<custom-style>
-    <style>
         html{
             
             /**
@@ -258,7 +252,3 @@ $_documentContainer.innerHTML = `
             /*--fc-timeline_fc-head__LACE_BRACE__tr__LACE_BRACE__fc-divider-border-bottom: 0;*/
 
         }
-    </style>
-</custom-style>
-`;
-document.head.appendChild($_documentContainer.content);
