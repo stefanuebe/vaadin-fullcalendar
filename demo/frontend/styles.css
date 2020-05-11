@@ -52,10 +52,6 @@ that you need.
 
 */
 
-const $_documentContainer = document.createElement('template');
-$_documentContainer.innerHTML = `
-<custom-style>
-    <style>
         html{
             /*--a_SQUARE_BRACKET_OPEN_data-goto_SQUARE_BRACKET_CLOSE_-cursor: pointer;*/
             /*--a_SQUARE_BRACKET_OPEN_data-goto_SQUARE_BRACKET_CLOSE__COLON_hover-text-decoration: underline;*/
@@ -590,7 +586,3 @@ $_documentContainer.innerHTML = `
             /*--hrfc-divider-padding: 0 0 2px;*/
             /*--tr_COLON_first-child__LACE_BRACE__td__LACE_BRACE__fc-day-grid-event-margin-top: 2px;*/
         }
-    </style>
-</custom-style>
-`;
-document.head.appendChild($_documentContainer.content);
