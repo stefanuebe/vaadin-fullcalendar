@@ -469,6 +469,10 @@ public class Entry {
 
     /**
      * Gets the description of an event.
+     * <br><br>
+     * Please be aware, that the description is a non-standard field on the client side and thus will not be
+     * displayed in the entry's space. You can use it for custom entry rendering
+     * (see {@link FullCalendar#setEntryRenderCallback(String)}.
      *
      * @return description
      */
@@ -478,6 +482,11 @@ public class Entry {
 
     /**
      * Sets the description of an event.
+     * <br><br>
+     * Please be aware, that the description is a non-standard field on the client side and thus will not be
+     * displayed in the entry's space. You can use it for custom entry rendering
+     * (see {@link FullCalendar#setEntryRenderCallback(String)}.
+     *
      *
      * @param description description
      */
