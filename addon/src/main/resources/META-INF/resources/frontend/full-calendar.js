@@ -85,6 +85,10 @@ export class FullCalendar extends PolymerElement {
             noDatesRenderEventOnOptionSetting: {
                 type: Boolean,
                 value: true
+            },
+            initialOptions: {
+                type: Object,
+                value: null
             }
 
         };
@@ -112,7 +116,7 @@ export class FullCalendar extends PolymerElement {
                 console.log("Could not obtain browsers time zone", e);
             }
 
-            let options = this._createInitOptions();
+            let options = this._createInitOptions(this.initialOptions);
             this._calendar = new Calendar(this.$.calendar, options);
 
             this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
@@ -246,11 +250,10 @@ export class FullCalendar extends PolymerElement {
         return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
     }
 
-    _createInitOptions() {
+    _createInitOptions(initialOptions) {
         let events = this._createEventHandlers();
 
-        let options = {
-            plugins: [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin],
+        let options = initialOptions != null ? initialOptions : {
             height: 'parent',
             timeZone: 'UTC',
 
@@ -264,7 +267,6 @@ export class FullCalendar extends PolymerElement {
             eventLimit: this.eventLimit,
             navLinks: this.navLinks,
             selectable: this.selectable,
-            locales: allLocales
 
             // views: {
             //     basicDay: {
@@ -279,6 +281,9 @@ export class FullCalendar extends PolymerElement {
         };
 
         this._addEventHandlersToOptions(options, events);
+
+        options['locales'] = allLocales;
+        options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
 
         return options;
     }
@@ -321,6 +326,15 @@ export class FullCalendar extends PolymerElement {
         this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
         calendar.setOption(key, value);
         this.noDatesRenderEvent = false;
+    }
+
+    /**
+     * Calls the getOption method of the calendar.
+     * @param key key
+     * @returns {*}
+     */
+    getOption(key) {
+        return this.getCalendar().getOption(key);
     }
 
 

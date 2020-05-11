@@ -49,10 +49,13 @@ export class FullCalendarScheduler extends FullCalendar {
         super.ready();
     }
 
-    _createInitOptions() {
-        const options = super._createInitOptions();
-        options.plugins.push(resourceTimeGridPlugin, resourceTimelinePlugin)
-        options.resources = [];
+    _createInitOptions(initialOptions) {
+        const options = super._createInitOptions(initialOptions);
+
+        if (initialOptions == null) {
+            options.resources = [];
+        }
+        options.plugins.push(resourceTimeGridPlugin, resourceTimelinePlugin);
         return options;
     }
 

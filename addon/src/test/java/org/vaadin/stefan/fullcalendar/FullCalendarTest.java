@@ -1,6 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEventBusUtil;
+import com.vaadin.flow.dom.Element;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
@@ -8,11 +9,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 @SuppressWarnings("ALL")
@@ -35,7 +39,7 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testArgsConstructor() {
+    void testArgsConstructor_entryLimit() {
         int entryLimit = 5;
 
         FullCalendar calendar = new FullCalendar(entryLimit);
@@ -45,6 +49,23 @@ public class FullCalendarTest {
         Assertions.assertSame(CalendarLocale.getDefault(), calendar.getLocale());
 
         Assertions.assertEquals(entryLimit, calendar.getElement().getProperty("eventLimit", -1));
+    }
+
+    @Test
+    void testArgsConstructor_initialOptions() throws ExecutionException, InterruptedException, TimeoutException {
+        JsonObject options = Json.createObject();
+
+        FullCalendar calendar = new FullCalendar(options);
+        Element element = calendar.getElement();
+
+        // this shall assure that all init options are handled
+        assertExistingOptionCount(calendar, 0);
+        Serializable returnedOptions = element.getPropertyRaw("initialOptions");
+
+        Assertions.assertTrue(returnedOptions instanceof JsonObject, "Returned initial options not instanceof JsonObject");
+
+        // TODO integrate Testbench test
+
     }
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
