@@ -117,6 +117,9 @@ public class FullCalendarBuilder {
      * <br><br>
      * Please be aware, that incorrect options or event handler overriding can lead to unpredictable errors,
      * which will NOT be supported in any case.
+     * <br><br>
+     * Also, options set this way are not cached in the server side state. Calling any of the
+     * {@code getOption(...)} methods will result in {@code null} (or the respective native default).
      *
      * @param initialOptions json object
      * @return new immutable instance with updated settings
