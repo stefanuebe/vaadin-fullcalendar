@@ -118,6 +118,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <br><br>
      * Please be aware, that incorrect options or event handler overriding can lead to unpredictable errors,
      * which will NOT be supported in any case.
+     * <br><br>
+     * Also, options set this way are not cached in the server side state. Calling any of the
+     * {@code getOption(...)} methods will result in {@code null} (or the respective native default).
      *
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      *
@@ -867,7 +870,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
      * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
-     *
+     * <br><br>
+     * Returns {@code null} for initial options. Please use #getRawOption(String)
      * @param option               option
      * @param forceClientSideValue explicitly return the value that has been sent to client
      * @param <T>                  type of value
@@ -876,9 +880,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public <T> Optional<T> getOption(@NotNull String option, boolean forceClientSideValue) {
         Objects.requireNonNull(option);
-        return Optional.ofNullable((T) (!forceClientSideValue && serverSideOptions.containsKey(option)
-                ? serverSideOptions.get(option) : options.get(option)));
+        if (!forceClientSideValue && serverSideOptions.containsKey(option)) {
+            return Optional.ofNullable((T) serverSideOptions.get(option));
+        }
+
+        return Optional.ofNullable((T) options.get(option));
+//        return Optional.ofNullable((T) options.get(option));
     }
+
+//    /**
+//     * Tries to get the current option from the client. Opposite to the other {@code getOption(...)} methods, this
+//     * method does not refer to internal caches of the server, but uses the client side only. This means, that
+//     * the returned value can be manipulated by the client. You should use this method only for test purposes.
+//     *
+//     * @param option option key
+//     * @param <T> return type to be expected
+//     * @return optional
+//     * @throws ExecutionException when an error has occured execution the client side call
+//     * @throws InterruptedException when the client side call has been interrupted
+//     */
+//    public <T> Optional<T> getRawClientSideOption(@NotNull String option) throws ExecutionException, InterruptedException {
+//        return (Optional<T>) Optional.ofNullable(getElement().callJsFunction("getOption", option).toCompletableFuture().get().toNative());
+//    }
 
 
     /**
