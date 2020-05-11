@@ -22,6 +22,7 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 import javax.validation.constraints.NotNull;
@@ -71,20 +72,23 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private Timezone browserTimezone;
 
     /**
-     * Creates a new FullCalendar.
+     * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
      */
     public FullCalendar() {
         this(-1);
     }
 
     /**
-     * Creates a new FullCalendar.
+     * Creates a new instance.
      * <br><br>
      * Expects the default limit of entries shown per day. This does not affect basic or
      * list views. This value has to be set here and cannot be modified afterwards due to
      * technical reasons of FC. If set afterwards the entry limit would overwrite settings
      * and would show the limit also for basic views where it makes no sense (might change in future).
      * Passing a negative number or 0 disabled the entry limit (same as passing no number at all).
+     * <br><br>
+     * Sets the locale to {@link CalendarLocale#getDefault()}
+     *
      *
      * @param entryLimit max entries to shown per day
      */
@@ -95,6 +99,33 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         } else {
             getElement().setProperty("eventLimit", false);
         }
+    }
+
+    /**
+     * Creates a new instance with custom initial options. This allows a full override of the default
+     * initial options, that the calendar would normally receive. Theoretically you can set all options,
+     * as long as they are not based on a client side variable (as for instance "plugins" or "locales").
+     * Complex objects are possible, too, for instance for view-specific settings.
+     *  Please refer to the official FC documentation regarding potential options.
+     * <br><br>
+     * Client side event handlers, that are technically also a part of the options are still applied to
+     * the options object. However you may set your own event handlers with the correct name. In that case
+     * they will be taken into account instead of the default ones.
+     * <br><br>
+     * Plugins (key "plugins") will always be set on the client side (and thus override any key passed with this
+     * object), since they are needed for a functional calendar. This may change in future. Same for locales
+     * (key "locales").
+     * <br><br>
+     * Please be aware, that incorrect options or event handler overriding can lead to unpredictable errors,
+     * which will NOT be supported in any case.
+     *
+     * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
+     *
+     * @param initialOptions initial options
+     * @throws NullPointerException when null is passed
+     */
+    public FullCalendar(@NotNull JsonObject initialOptions) {
+        getElement().setPropertyJson("initialOptions", Objects.requireNonNull(initialOptions));
     }
 
     /**
