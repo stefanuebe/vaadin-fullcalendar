@@ -32,8 +32,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
 
 import java.time.*;
@@ -166,16 +164,16 @@ public class Demo extends VerticalLayout {
 
 
     private void createCalendarInstance() {
-//        calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).withScheduler().build();
+        calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).withScheduler().build();
 //        calendar.allowDatesRenderEventOnOptionChange(true);
 
-        JsonObject initialOptions = Json.createObject();
-        initialOptions.put("height", "parent");
-        initialOptions.put("timeZone", "America/New_York");
-        initialOptions.put("locale", CalendarLocale.GREEK.toLanguageTag());
-        initialOptions.put("header", false);
-        initialOptions.put("selectable", true);
-        calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initialOptions).build();
+//        JsonObject initialOptions = Json.createObject();
+//        initialOptions.put("height", "parent");
+//        initialOptions.put("timeZone", "America/New_York");
+//        initialOptions.put("locale", CalendarLocale.GREEK.toLanguageTag());
+//        initialOptions.put("header", false);
+//        initialOptions.put("selectable", true);
+//        calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initialOptions).build();
 
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
 
@@ -187,16 +185,16 @@ public class Demo extends VerticalLayout {
 //        calendar.setOpt
 //        ion("rerenderDelay", "500");
 
-//        calendar.setFirstDay(DayOfWeek.MONDAY);
-//        calendar.setNowIndicatorShown(true);
-//        calendar.setNumberClickable(true);
-//        calendar.setTimeslotsSelectable(true);
+        calendar.setFirstDay(DayOfWeek.MONDAY);
+        calendar.setNowIndicatorShown(true);
+        calendar.setNumberClickable(true);
+        calendar.setTimeslotsSelectable(true);
 
-//        calendar.setBusinessHours(
-//                new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
-//                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
-//                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
-//        );
+        calendar.setBusinessHours(
+                new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
+                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
+                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
+        );
 
 //        calendar.setEntryRenderCallback("" +
 //                "function(event, element) {" +
