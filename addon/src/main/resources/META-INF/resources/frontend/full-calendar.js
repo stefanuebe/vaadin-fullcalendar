@@ -8,7 +8,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
-import allLocales from '@fullcalendar/core/locales-all';
+import allLocales from '@fullcalendar/core/locales-all.min';
 
 /*
    Copyright 2018, Stefan Uebe
