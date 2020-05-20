@@ -3,14 +3,14 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 import java.util.Optional;
 
 @DomEvent("eventDrop")
 public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
-    private Resource oldResource;
-    private Resource newResource;
+
+    private final Resource oldResource;
+    private final Resource newResource;
 
     /**
      * New instance. Awaits the changed data object for the entry plus the json object for the delta information.
@@ -25,20 +25,31 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
                                       @EventData("event.detail.delta") JsonObject jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
 
-        Optional.<JsonValue>ofNullable(jsonEntry.get("oldResource"))
-                .map(JsonValue::asString)
-                .ifPresent(id -> this.oldResource = source.getResourceById(id).orElseThrow(IllegalArgumentException::new));
+        if(jsonEntry.hasKey("oldResource")) {
+            this.oldResource = source.getResourceById(jsonEntry.getString("oldResource")).orElseThrow(IllegalArgumentException::new);
+        } else {
+            this.oldResource = null;
+        }
 
-        Optional.<JsonValue>ofNullable(jsonEntry.get("newResource"))
-                .map(JsonValue::asString)
-                .ifPresent(id -> this.newResource = source.getResourceById(id).orElseThrow(IllegalArgumentException::new));
-
+        if(jsonEntry.hasKey("newResource")) {
+            this.newResource = source.getResourceById(jsonEntry.getString("newResource")).orElseThrow(IllegalArgumentException::new);
+        } else {
+            this.newResource = null;
+        }
     }
 
+    /**
+     * If there has been a change in the resource assignments, this method returns the previous assigned resource.
+     * @return previous resource or empty
+     */
     public Optional<Resource> getOldResource() {
         return Optional.ofNullable(oldResource);
     }
 
+    /**
+     * If there has been a change in the resource assignments, this method returns the newly assigned resource.
+     * @return newly resource or empty
+     */
     public Optional<Resource> getNewResource() {
         return Optional.ofNullable(newResource);
     }
