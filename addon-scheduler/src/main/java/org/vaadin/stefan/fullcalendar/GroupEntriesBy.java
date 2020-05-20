@@ -16,8 +16,23 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+/**
+ * Enumeration of possible ways of how resource entries should be grouped.
+ */
 public enum GroupEntriesBy {
+    /**
+     * Do not group at all.
+     */
     NONE,
+
+    /**
+     * Group by resource, then date.
+     */
     RESOURCE_DATE,
+
+    /**
+     * Group by date, then resource.
+     *
+     */
     DATE_RESOURCE;
 }
