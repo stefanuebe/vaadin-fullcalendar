@@ -17,13 +17,18 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
+import lombok.Getter;
 
 /**
  * Extended entry event type, that provides also additional client side entry data, that can be interpreted on the
  * server side.
  */
+@Getter
 public abstract class EntryDataEvent extends EntryEvent {
 
+    /**
+     * Rhe json object that contains the changes from client side.
+     */
     private final JsonObject jsonObject;
 
     /**
@@ -35,14 +40,5 @@ public abstract class EntryDataEvent extends EntryEvent {
     public EntryDataEvent(FullCalendar source, boolean fromClient, JsonObject jsonObject) {
         super(source, fromClient, jsonObject.getString("id"));
         this.jsonObject = jsonObject;
-    }
-
-    /**
-     * Returns the json object that contains the changes from client side.
-     *
-     * @return changes as JsonObject
-     */
-    public JsonObject getJsonObject() {
-        return jsonObject;
     }
 }

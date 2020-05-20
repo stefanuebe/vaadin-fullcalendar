@@ -16,9 +16,14 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Basic enumeration of possible calendar views.
  */
+@Getter
+@RequiredArgsConstructor
 public enum CalendarViewImpl implements CalendarView {
 
     /** Day based grid view of a month */
@@ -44,16 +49,7 @@ public enum CalendarViewImpl implements CalendarView {
     LIST_YEAR("listYear"),
     ;
 
-    private final String clientSideName;
-
-    CalendarViewImpl(String clientSideName) {
-        this.clientSideName = clientSideName;
-    }
-
-    @Override
-    public String getClientSideValue() {
-        return clientSideName;
-    }
+    private final String clientSideValue;
 
     @Override
     public String getName() {

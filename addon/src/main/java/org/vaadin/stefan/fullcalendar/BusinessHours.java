@@ -18,6 +18,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.Json;
 import elemental.json.JsonObject;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 import java.time.DayOfWeek;
@@ -27,6 +29,8 @@ import java.util.*;
 /**
  * Definition of business hours for a calendar instance.
  */
+@EqualsAndHashCode
+@ToString
 public class BusinessHours {
     /**
      * Represents all days of week.
@@ -164,31 +168,4 @@ public class BusinessHours {
         return Objects.requireNonNull(dayOfWeek) == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        BusinessHours that = (BusinessHours) o;
-        return Objects.equals(dayOfWeeks, that.dayOfWeeks) &&
-                Objects.equals(start, that.start) &&
-                Objects.equals(end, that.end);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(dayOfWeeks, start, end);
-    }
-
-    @Override
-    public String toString() {
-        return "BusinessHours{" +
-                "dayOfWeeks=" + dayOfWeeks +
-                ", start=" + start +
-                ", end=" + end +
-                '}';
-    }
 }

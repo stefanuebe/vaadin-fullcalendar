@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
@@ -26,7 +27,12 @@ import java.time.LocalDate;
  * Client side event: eventLimitClick.
  */
 @DomEvent("eventLimitClick")
+@Getter
 public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
+
+    /**
+     * The clicked date.
+     */
     private final LocalDate clickedDate;
 
     /**
@@ -42,12 +48,4 @@ public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
         clickedDate = source.getTimezone().convertToLocalDate(JsonUtils.parseDateTimeString(date, source.getTimezone()));
     }
 
-    /**
-     * Returns the clicked date.
-     *
-     * @return date
-     */
-    public LocalDate getClickedDate() {
-        return clickedDate;
-    }
 }

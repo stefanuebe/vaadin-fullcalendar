@@ -19,6 +19,8 @@ package org.vaadin.stefan.fullcalendar;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -27,10 +29,25 @@ import java.util.*;
  * Represents a resource. ResourceEntries contain these resources (a resource itself does not know anything about
  * the assigned entries). A resource can have sub resources / child resources.
  */
+@Getter
+@EqualsAndHashCode(of = "id")
 public class Resource {
+
+    /**
+     * The id of this resource.
+     */
     private final String id;
+
+    /**
+     * The title / name of this resource.
+     */
     private final String title;
+
+    /**
+     * The color of this resource.
+     */
     private final String color;
+
     private Set<Resource> children;
     private Resource parent;
 
@@ -181,68 +198,6 @@ public class Resource {
     }
 
     /**
-     * Returns the id of this instance.
-     *
-     * @return id
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Returns the title.
-     *
-     * @return title
-     */
-    public String getTitle() {
-        return title;
-    }
-
-    /**
-     * Returns the resource's color.
-     *
-     * @return color
-     */
-    public String getColor() {
-        return color;
-    }
-
-    /**
-     * Returns the parent resource (or empty if top level).
-     *
-     * @return parent or empty
-     */
-    public Optional<Resource> getParent() {
-        return Optional.ofNullable(parent);
-    }
-
-    /**
-     * Used by {@link #addChildren(Collection)}. Currently no need to use it elsewhere.
-     *
-     * @param parent parent
-     */
-    private void setParent(Resource parent) {
-        this.parent = parent;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Resource resource = (Resource) o;
-        return Objects.equals(id, resource.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    /**
      * Converts the instance to a JsonObject. Calls itself also for child methods. Please be aware, that this method
      * <b>does not check</b> for potential hierarchial loops (e. g. infinite loops), this has to be done manually before.
      *
@@ -269,6 +224,25 @@ public class Resource {
 
         return jsonObject;
     }
+
+    /**
+     * Returns the parent resource (or empty if top level).
+     *
+     * @return parent or empty
+     */
+    public Optional<Resource> getParent() {
+        return Optional.ofNullable(parent);
+    }
+
+    /**
+     * Used by {@link #addChildren(Collection)}. Currently no need to use it elsewhere.
+     *
+     * @param parent parent
+     */
+    private void setParent(Resource parent) {
+        this.parent = parent;
+    }
+
 
     @Override
     public String toString() {

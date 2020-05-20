@@ -40,9 +40,5 @@ public class EntryResizedEvent extends EntryTimeChangedEvent {
      */
     public EntryResizedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject jsonEntry, @EventData("event.detail.delta") JsonObject jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
-
-//        Entry entry = getEntry();
-//        entry.setEnd(getDelta().applyOn(entry.getEnd()));
-
     }
 }
