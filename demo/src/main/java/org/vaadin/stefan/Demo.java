@@ -164,16 +164,7 @@ public class Demo extends VerticalLayout {
 
 
     private void createCalendarInstance() {
-        calendar = FullCalendarBuilder.create()/*.withAutoBrowserTimezone()*/.withEntryLimit(3).withScheduler().build();
-//        calendar.allowDatesRenderEventOnOptionChange(true);
-
-//        JsonObject initialOptions = Json.createObject();
-//        initialOptions.put("height", "parent");
-//        initialOptions.put("timeZone", "America/New_York");
-//        initialOptions.put("locale", CalendarLocale.GREEK.toLanguageTag());
-//        initialOptions.put("header", false);
-//        initialOptions.put("selectable", true);
-//        calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initialOptions).build();
+        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).withScheduler().build();
 
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
 
@@ -181,9 +172,6 @@ public class Demo extends VerticalLayout {
             updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart());
             System.out.println("dates rendered: " + event.getStart() + " " + event.getEnd());
         });
-
-//        calendar.setOpt
-//        ion("rerenderDelay", "500");
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
@@ -195,14 +183,6 @@ public class Demo extends VerticalLayout {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
         );
-
-//        calendar.setEntryRenderCallback("" +
-//                "function(event, element) {" +
-//                "   console.log(event.title + 'X');" +
-//                "   element.css('color', 'red');" +
-//                "   return element; " +
-//                "}");
-
 
         calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
         calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
@@ -274,8 +254,7 @@ public class Demo extends VerticalLayout {
         Resource computer1B = createResource((Scheduler) calendar, "Computer 1B", "lightbrown");
         Resource computer1C = createResource((Scheduler) calendar, "Computer 1C", "lightbrown");
 
-        Resource computerRoom1 = createResource((Scheduler) calendar, "Computer room 1", "brown", Arrays.asList(computer1A, computer1B, computer1C));
-//        computerRoom.addChildren(Arrays.asList(computerA, computerB, computerC));
+        createResource((Scheduler) calendar, "Computer room 1", "brown", Arrays.asList(computer1A, computer1B, computer1C));
 
         Resource computerRoom2 = createResource((Scheduler) calendar, "Computer room 2", "brown");
         // here we must NOT use createResource, since they are added to the calendar later
