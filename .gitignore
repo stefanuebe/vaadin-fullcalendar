@@ -11,6 +11,7 @@ node_modules/
 .settings
 *.iml
 webpack.config.js
+package*json
 /addon/webpack.generated.js
 /demo/webpack.generated.js
 rebel.xml
