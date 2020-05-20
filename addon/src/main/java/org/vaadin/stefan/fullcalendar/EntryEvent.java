@@ -24,6 +24,7 @@ import com.vaadin.flow.component.ComponentEvent;
 public abstract class EntryEvent extends ComponentEvent<FullCalendar> {
     private final Entry entry;
 
+
     /**
      * New instance. Awaits the entry id.
      * @param source source component
