@@ -691,8 +691,13 @@ public class FullCalendarTest {
         calendar.addEntry(allDayEntry);
         calendar.addEntry(timedEntry);
 
-        Assertions.assertSame(allDayEntry, new EntryClickedEvent(calendar, true, allDayEntry.getId()).getEntry());
-        Assertions.assertSame(timedEntry, new EntryClickedEvent(calendar, true, timedEntry.getId()).getEntry());
+        JsonObject jsonData = Json.createObject();
+        jsonData.put("id", allDayEntry.getId());
+        Assertions.assertSame(allDayEntry, new EntryClickedEvent(calendar, true, jsonData).getEntry());
+
+        jsonData = Json.createObject();
+        jsonData.put("id", timedEntry.getId());
+        Assertions.assertSame(timedEntry, new EntryClickedEvent(calendar, true, jsonData).getEntry());
     }
 
     @Test

@@ -126,6 +126,7 @@ export class FullCalendar extends PolymerElement {
                 // can not guarantee, that the calendar container provides the correct height, since it might not
                 // be rendered yet. This method call will upate the size correctly.
                 this._calendar.updateSize();
+
             });
         }
     }
@@ -178,8 +179,10 @@ export class FullCalendar extends PolymerElement {
                 }
             },
             eventClick: (eventInfo) => {
+                let event = eventInfo.event;
                 return {
-                    id: eventInfo.event.id
+                    id: event.id, // we keep this for backward compatibility, but not used by us on server side
+                    data: this._toEventData(event)
                 }
             },
             eventResize: (eventInfo) => {
