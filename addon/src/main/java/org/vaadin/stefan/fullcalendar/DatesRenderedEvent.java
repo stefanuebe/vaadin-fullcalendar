@@ -20,6 +20,7 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
+import lombok.Getter;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -32,11 +33,30 @@ import static org.vaadin.stefan.fullcalendar.JsonUtils.parseDateTimeString;
  * The values are always daybased, regardless of the current view.
  */
 @DomEvent("datesRender")
+@Getter
 public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
 
+    /**
+     * The current shown interval's start date.
+     */
     private final LocalDate intervalStart;
+
+    /**
+     * The current shown interval's end date.
+     */
     private final LocalDate intervalEnd;
+
+    /**
+     * The first visible date. In month-view, this value is often before
+     * the 1st day of the month, because most months do not begin on the first
+     * day-of-week.
+     */
     private final LocalDate start;
+
+    /**
+     * The last visible date. In month-view, this value is often after
+     * the last day of the month, because most months do not end on the last day of the week
+     */
     private final LocalDate end;
 
     /**
@@ -53,46 +73,6 @@ public class DatesRenderedEvent extends ComponentEvent<FullCalendar> {
         this.intervalEnd = getLocalDate(eventData, "intervalEnd", source);
         this.start = getLocalDate(eventData, "start", source);
         this.end = getLocalDate(eventData, "end", source);
-    }
-
-    /**
-     * Returns the current shown interval's start date.
-     *
-     * @return interval start
-     */
-    public LocalDate getIntervalStart() {
-        return intervalStart;
-    }
-
-    /**
-     * Returns the current shown interval's exclusive end date. This means, this date is not part of the interval.
-     *
-     * @return interval end (exclusive)
-     */
-    public LocalDate getIntervalEnd() {
-        return intervalEnd;
-    }
-
-    /**
-     * Returns the first visible date. In month-view, this value is often before
-     * the 1st day of the month, because most months do not begin on the first
-     * day-of-week.
-     *
-     * @return first visible date
-     */
-    public LocalDate getStart() {
-        return start;
-    }
-
-    /**
-     * Returns the last visible date. In month-view, this value is often after
-     * the last day of the month, because most months do not end on the last day
-     * of the week.
-     *
-     * @return last visible date
-     */
-    public LocalDate getEnd() {
-        return end;
     }
 
     private LocalDate getLocalDate(final JsonObject eventData, final String key, final FullCalendar source) {

@@ -17,15 +17,24 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 /**
  * An abstract class for date events, that are not directly entry related.
  */
+@Getter
 public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
 
+    /**
+     * If the event has occurred for a day slot. False means, it has been for a time slot inside a day.
+     */
     private final boolean allDay;
+
+    /**
+     * The date time related to this event. For day slots the time will be at start of the day.
+     */
     private final LocalDateTime dateTime;
 
     /**
@@ -42,23 +51,5 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
         this.allDay = allDay;
         dateTime = source.getTimezone().convertToLocalDateTime(JsonUtils.parseDateTimeString(dateString, source.getTimezone()));
 
-    }
-
-    /**
-     * Returns the date time. For day slots the time will be at start of the day.
-     *
-     * @return date time
-     */
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    /**
-     * Returns, if the event has occurred for a day slot. False means, it has been for a time slot inside a day.
-     *
-     * @return all day event
-     */
-    public boolean isAllDay() {
-        return allDay;
     }
 }

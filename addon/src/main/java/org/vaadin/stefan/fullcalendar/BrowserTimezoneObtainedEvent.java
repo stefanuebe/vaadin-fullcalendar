@@ -19,14 +19,19 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import lombok.Getter;
 
 /**
  * This event gets fired when the client side reported the browser's timezone to the server. Since this is
  * done after the element has been attached to the client, it will be fired after all UI attach events.
  */
 @DomEvent("browser-timezone-obtained")
+@Getter
 public class BrowserTimezoneObtainedEvent extends ComponentEvent<FullCalendar> {
 
+    /**
+     * The timezone obtained by this event.
+     */
     private final Timezone timezone;
 
     /**
@@ -41,11 +46,4 @@ public class BrowserTimezoneObtainedEvent extends ComponentEvent<FullCalendar> {
         this.timezone = timezone;
     }
 
-    /**
-     * Returns the obtained timezone.
-     * @return timezone
-     */
-    public Timezone getTimezone() {
-        return timezone;
-    }
 }

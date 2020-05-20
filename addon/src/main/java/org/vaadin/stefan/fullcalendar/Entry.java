@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.Json;
 import elemental.json.JsonObject;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.time.*;
@@ -35,32 +36,130 @@ import java.util.UUID;
  * <br><br>
  * <i><b>Note: </b>Creation of an entry might be exported to a builder later.</i>
  */
+@Getter
+@Setter
+@EqualsAndHashCode(of = "id")
+@ToString(exclude = {"calendar", "description"})
 public class Entry {
+
+    /**
+     * The entry's id.
+     */
     private final String id;
-    private boolean editable;
+
+    /**
+     * The entry's title. This title will be shown on the client side.
+     */
     private String title;
+
+    /**
+     * The entry's start as UTC.
+     */
     private Instant start;
+
+    /**
+     * The entry's end as UTC.
+     */
     private Instant end;
+
+    /**
+     * Indicates if this entry is all day or not. There might be time values set for start or end even if this
+     * value is false. Changes on this field do <b>not</b> modifiy the date values directly. Any
+     * changes on date values are done by the FC by event, but not this class.
+     */
     private boolean allDay;
+
+    /**
+     * Indicates if this entry is editable by the users. This value
+     * is passed to the client side and interpreted there, but can also be used for server side checks.
+     * <br><br>
+     * This value has no impact on the resource API of this class.
+     */
+    private boolean editable;
+
+    /**
+     * Indicates if this entry's start is editable by the users. This value
+     * is passed to the client side and interpreted there, but can also be used for server side checks.
+     * <br><br>
+     * This value has no impact on the resource API of this class.
+     */
+    private boolean startEditable;
+
+    /**
+     * Indicates if this entry's end is editable by the users. This value
+     * is passed to the client side and interpreted there, but can also be used for server side checks.
+     * <br><br>
+     * This value has no impact on the resource API of this class.
+     */
+    private boolean durationEditable;
+
+    /**
+     * The color of this entry.
+     */
     private String color;
+
+    /**
+     * The description of this entry.
+     * <br><br>
+     * Please be aware, that the description is a non-standard field on the client side and thus will not be
+     * displayed in the entry's space. You can use it for custom entry rendering
+     * (see {@link FullCalendar#setEntryRenderCallback(String)}.
+     *
+     *
+     */
     private String description;
+
+    /**
+     * The rendering mode of this entry. Never null
+     */
+    @NonNull
     private RenderingMode renderingMode = RenderingMode.NORMAL;
 
+    /**
+     * Simple flag that indicates, if this entry is a recurring one or not. Recurring information
+     * might be stored in the entry independently to this flag (server side only information).
+     * Does <b>not</b> remove any recurring information, when set to false.
+     */
     private boolean recurring;
-    private Set<DayOfWeek> recurringDaysOfWeeks;
-    private Instant recurringStartDate;
-    private Instant recurringEndDate;
-    private LocalTime recurringStartTime;
-    private LocalTime recurringEndTime;
 
+    /**
+     * Returns the days of weeks on which this event should recur. Null or empty when
+     * no recurring is defined.
+     */
+    private Set<DayOfWeek> recurringDaysOfWeeks;
+
+    /**
+     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+     * is recurring).
+     */
+    private Instant recurringStartDate;
+
+    /**
+     * The start time of recurrence. When not defined, the event will appear as an all day event.
+     */
+    private LocalTime recurringStartTime;
+
+    /**
+     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+     * is recurring).
+     */
+    private Instant recurringEndDate;
+
+    /**
+     * The start time of recurrence. Passing null on a recurring entry will make it appear as an all day event.
+     */
+    private LocalTime recurringEndTime;
 
     // TODO
     // groupId
     // className / classNames
 
-
+    /**
+     * The calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
+     */
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.PROTECTED)
     private FullCalendar calendar;
-
 
     /**
      * Creates a new editable instance with a generated id.
@@ -224,42 +323,6 @@ public class Entry {
     }
 
     /**
-     * Sets the calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
-     *
-     * @param calendar calendar instance
-     */
-    protected void setCalendar(FullCalendar calendar) {
-        this.calendar = calendar;
-    }
-
-    /**
-     * Returns the entry's id.
-     *
-     * @return id
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Returns the entry's title.
-     *
-     * @return id
-     */
-    public String getTitle() {
-        return title;
-    }
-
-    /**
-     * Sets the title of this entry.
-     *
-     * @param title title
-     */
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    /**
      * Returns the start of the entry based on UTC.
      *
      * @return start
@@ -279,7 +342,7 @@ public class Entry {
     }
 
     /**
-     * Sets the entry's start as UTC.
+     * Sets the given instant time as start.
      *
      * @param start start
      */
@@ -329,7 +392,7 @@ public class Entry {
     }
 
     /**
-     * Sets the entry's end.
+     * Sets the given instant time as end.
      *
      * @param end end
      */
@@ -357,46 +420,6 @@ public class Entry {
     public LocalDateTime getEnd(@NotNull Timezone timezone) {
         Objects.requireNonNull(timezone, "timezone");
         return end != null ? LocalDateTime.ofInstant(end, timezone.getZoneId().getRules().getOffset(end)) : null;
-    }
-
-    /**
-     * Indicates if this entry is all day or not. There might be time values set for start or end even if this
-     * value is false.
-     *
-     * @return is all day entry
-     */
-    public boolean isAllDay() {
-        return allDay;
-    }
-
-    /**
-     * Marks this entry as an all day entry or not. This does <b>not</b> modifiy the date values directly. Any
-     * changes on date values are done by the FC by event, but not this class.
-     *
-     * @param allDay all day entry
-     */
-    public void setAllDay(boolean allDay) {
-        this.allDay = allDay;
-    }
-
-    /**
-     * Indicates if this entry is editable by the users. Please be aware, that this class allows setter calls even when
-     * this value is false.
-     *
-     * @return editable
-     */
-    public boolean isEditable() {
-        return editable;
-    }
-
-    /**
-     * Indicates if this entry is editable by the users. Please be aware, that this class allows setter calls even when
-     * this value is false.
-     *
-     * @param editable is editable
-     */
-    public void setEditable(boolean editable) {
-        this.editable = editable;
     }
 
     /**
@@ -430,68 +453,12 @@ public class Entry {
     }
 
     /**
-     * Returns the color for this entry.
-     *
-     * @return color
-     */
-    public String getColor() {
-        return color;
-    }
-
-    /**
      * Sets the color for this entry. Null resets the color to the FC's default.
      *
      * @param color color
      */
     public void setColor(String color) {
         this.color = color == null || color.trim().isEmpty() ? null : color;
-    }
-
-    /**
-     * Returns the rendering mode of this entry. Never null.
-     *
-     * @return rendering mode
-     */
-    public RenderingMode getRenderingMode() {
-        return renderingMode;
-    }
-
-    /**
-     * Sets the rendering of this entry. Default is {@link RenderingMode#NORMAL}
-     *
-     * @param renderingMode rendering
-     * @throws NullPointerException when passing null
-     */
-    public void setRenderingMode(@NotNull RenderingMode renderingMode) {
-        Objects.requireNonNull(renderingMode);
-        this.renderingMode = renderingMode;
-    }
-
-    /**
-     * Gets the description of an event.
-     * <br><br>
-     * Please be aware, that the description is a non-standard field on the client side and thus will not be
-     * displayed in the entry's space. You can use it for custom entry rendering
-     * (see {@link FullCalendar#setEntryRenderCallback(String)}.
-     *
-     * @return description
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Sets the description of an event.
-     * <br><br>
-     * Please be aware, that the description is a non-standard field on the client side and thus will not be
-     * displayed in the entry's space. You can use it for custom entry rendering
-     * (see {@link FullCalendar#setEntryRenderCallback(String)}.
-     *
-     *
-     * @param description description
-     */
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     /**
@@ -513,42 +480,16 @@ public class Entry {
     }
 
     /**
-     * Simple flag that indicates, if this entry is a recurring one or not. Recurring information
-     * might be stored in the event independently to this flag (server side only information).
+     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+     * is recurring).
      *
-     * @return is recurring
-     */
-    public boolean isRecurring() {
-        return recurring;
-    }
-
-    /**
-     * Simple flag that indicates, if this entry is a recurring one or not. This is a server side only information.
-     * Does <b>not</b> remove any recurring information, when set to false.
+     * @deprecated use {@link #getRecurringStartDateUTC()} instead.
      *
-     * @param recurring is recurring
+     * @return start date of recurrence
      */
-    public void setRecurring(boolean recurring) {
-        this.recurring = recurring;
-    }
-
-    /**
-     * Returns the days of weeks on which this event should recur. Null or empty when
-     * no recurring is defined.
-     *
-     * @return days of week of recurrence
-     */
-    public Set<DayOfWeek> getRecurringDaysOfWeeks() {
-        return recurringDaysOfWeeks;
-    }
-
-    /**
-     * Sets the days of weeks on which this event should recur.
-     *
-     * @param recurringDaysOfWeeks days of week for recurrence
-     */
-    public void setRecurringDaysOfWeeks(Set<DayOfWeek> recurringDaysOfWeeks) {
-        this.recurringDaysOfWeeks = recurringDaysOfWeeks;
+    @Deprecated
+    public Instant getRecurringStartDate() {
+        return recurringStartDate;
     }
 
     /**
@@ -557,17 +498,8 @@ public class Entry {
      *
      * @return start date of recurrence
      */
-    public Instant getRecurringStartDate() {
+    public Instant getRecurringStartDateUTC() {
         return recurringStartDate;
-    }
-
-    /**
-     * The start date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
-     *
-     * @param recurringStartDate start date or recurrence
-     */
-    public void setRecurringStartDate(Instant recurringStartDate) {
-        this.recurringStartDate = recurringStartDate;
     }
 
     /**
@@ -606,19 +538,22 @@ public class Entry {
      * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
      * is recurring).
      *
+     * @deprecated use {@link #getRecurringEndDateUTC()} instead
      * @return end date of recurrence
      */
+    @Deprecated
     public Instant getRecurringEndDate() {
         return recurringEndDate;
     }
 
     /**
-     * The end date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+     * is recurring).
      *
-     * @param recurringEndDate end date or recurrence
+     * @return end date of recurrence
      */
-    public void setRecurringEndDate(Instant recurringEndDate) {
-        this.recurringEndDate = recurringEndDate;
+    public Instant getRecurringEndDateUTC() {
+        return recurringEndDate;
     }
 
     /**
@@ -651,77 +586,6 @@ public class Entry {
         Objects.requireNonNull(timezone, "timezone");
 
         setRecurringEndDate(timezone.convertToUTC(recurringEndDate));
-    }
-
-    /**
-     * The start time of recurrence. When not defined, the event will appear as an all day event.
-     *
-     * @return start time of recurrence
-     */
-    public LocalTime getRecurringStartTime() {
-        return recurringStartTime;
-    }
-
-    /**
-     * The start time of recurrence. Passing null on a recurring entry will make it appear as an all day event.
-     *
-     * @param recurringStartTime start time or recurrence
-     */
-    public void setRecurringStartTime(LocalTime recurringStartTime) {
-        this.recurringStartTime = recurringStartTime;
-    }
-
-    /**
-     * The end time of recurrence. When not defined, the event will appear with default duration.
-     *
-     * @return end time of recurrence
-     */
-    public LocalTime getRecurringEndTime() {
-        return recurringEndTime;
-    }
-
-    /**
-     * The end time of recurrence. Passing null on a recurring entry will make it appear with default duration.
-     *
-     * @param recurringEndTime end time or recurrence
-     */
-    public void setRecurringEndTime(LocalTime recurringEndTime) {
-        this.recurringEndTime = recurringEndTime;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Entry event = (Entry) o;
-        return Objects.equals(id, event.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Entry{" +
-                "title='" + title + '\'' +
-                ", start=" + start +
-                ", end=" + end +
-                ", allDay=" + allDay +
-                ", color='" + color + '\'' +
-                ", description='" + description + '\'' +
-                ", editable=" + editable +
-                ", id='" + id + '\'' +
-                ", calendar=" + calendar +
-                ", rendering=" + renderingMode +
-                ", startTimezone=" + getStartTimezone() +
-                ", endTimezone=" + getEndTimezone() +
-                '}';
     }
 
     /**

@@ -27,6 +27,8 @@ import java.util.Objects;
  */
 public class FullCalendarBuilder {
 
+    // TODO convert to lombok based builder
+
     private final boolean autoBrowserTimezone;
     private final boolean scheduler;
     private final int entryLimit;

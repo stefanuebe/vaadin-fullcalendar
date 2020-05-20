@@ -17,32 +17,55 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 import java.time.*;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a delta between two times. A delta can contain negative values if the first date is later then the second one.
  */
+@Getter
+@ToString
+@EqualsAndHashCode
 public class Delta {
 
+    /**
+     * The delta's years part.
+     */
     private final int years;
+    /**
+     * The delta's months part.
+     */
     private final int months;
+    /**
+     * The delta's days part.
+     */
     private final int days;
+    /**
+     * The delta's hours part.
+     */
     private final int hours;
+    /**
+     * The delta's minutes part.
+     */
     private final int minutes;
+    /**
+     * The delta's seconds part.
+     */
     private final int seconds;
 
     /**
      * Creates a new instance. Checks, if the given values are in their correct span (e.g. months between -12 and 12).
-     * @param years
-     * @param months
-     * @param days
-     * @param hours
-     * @param minutes
-     * @param seconds
+     * @param years years delta
+     * @param months months delta
+     * @param days days delta
+     * @param hours hours delta
+     * @param minutes minutes delta
+     * @param seconds seconds delta
      */
     public Delta(int years, int months, int days, int hours, int minutes, int seconds) {
         assertLessThan("months", Math.abs(months), 12);
@@ -99,54 +122,6 @@ public class Delta {
     }
 
     /**
-     * The delta's years part.
-     * @return years
-     */
-    public int getYears() {
-        return years;
-    }
-
-    /**
-     * The delta's months part.
-     * @return months
-     */
-    public int getMonths() {
-        return months;
-    }
-
-    /**
-     * The delta's days part.
-     * @return days
-     */
-    public int getDays() {
-        return days;
-    }
-
-    /**
-     * The delta's hours part.
-     * @return hours
-     */
-    public int getHours() {
-        return hours;
-    }
-
-    /**
-     * The delta's minutes part.
-     * @return minutes
-     */
-    public int getMinutes() {
-        return minutes;
-    }
-
-    /**
-     * The delta's seconds part.
-     * @return seconds
-     */
-    public int getSeconds() {
-        return seconds;
-    }
-
-    /**
      * Applies this delta instance on the given local date time by adding all day and time related delta values.
      *
      * @param dateTime date time to modify
@@ -181,37 +156,4 @@ public class Delta {
         return applyOn(localDateTime).toInstant(ZoneOffset.UTC);
     }
 
-    @Override
-    public String toString() {
-        return "Delta{" +
-                "years=" + years +
-                ", months=" + months +
-                ", days=" + days +
-                ", hours=" + hours +
-                ", minutes=" + minutes +
-                ", seconds=" + seconds +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Delta delta = (Delta) o;
-        return years == delta.years &&
-                months == delta.months &&
-                days == delta.days &&
-                hours == delta.hours &&
-                minutes == delta.minutes &&
-                seconds == delta.seconds;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(years, months, days, hours, minutes, seconds);
-    }
 }

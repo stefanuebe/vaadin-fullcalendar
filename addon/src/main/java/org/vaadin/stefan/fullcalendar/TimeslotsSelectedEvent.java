@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import lombok.Getter;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -31,9 +32,14 @@ import java.time.LocalDateTime;
  *
  */
 @DomEvent("select")
+@Getter
 public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
 
+    /**
+     * If the selection has been for day slots. False means, it has been a selection on time slots inside a day.
+     */
     private final boolean allDay;
+
     private final Instant startDateTime;
     private final Instant endDateTime;
 
@@ -49,18 +55,9 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
         super(source, fromClient);
 
         Timezone timezone = source.getTimezone();
-
         this.allDay = allDay;
         this.startDateTime = JsonUtils.parseDateTimeString(start, timezone);
         this.endDateTime = JsonUtils.parseDateTimeString(end, timezone);
-    }
-
-    /**
-     * Returns, if the selection has been for day slots. False means, it has been a selection on time slots inside a day.
-     * @return all day click
-     */
-    public boolean isAllDay() {
-        return allDay;
     }
 
     /**

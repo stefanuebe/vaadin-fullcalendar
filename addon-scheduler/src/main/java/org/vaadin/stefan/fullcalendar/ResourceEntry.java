@@ -17,6 +17,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -27,10 +29,19 @@ import java.util.*;
 /**
  * Represents an entry that can be connected with a resource. Needed for timeline views.
  */
+@Getter
+@Setter
 public class ResourceEntry extends Entry {
 
     private Set<Resource> resources;
-    private boolean resourceEditableOnClientSide;
+
+    /**
+     * Defines, if the user can move entries between resources (by using drag and drop). This value
+     * is passed to the client side and interpreted there, but can also be used for server side checks.
+     * <br><br>
+     * This value has no impact on the resource API of this class.
+     */
+    private boolean resourceEditable;
 
     /**
      * Creates a new entry with a generated id.
@@ -317,7 +328,7 @@ public class ResourceEntry extends Entry {
         }
 
 
-        jsonObject.put("resourceEditable", resourceEditableOnClientSide);
+        jsonObject.put("resourceEditable", isResourceEditable());
 
         return jsonObject;
     }
@@ -352,9 +363,10 @@ public class ResourceEntry extends Entry {
      * This value has no impact on the resource API of this class.
      *
      * @return resource is editable on client side
+     * @deprecated use {@link #isResourceEditable()} instead
      */
     public boolean isResourceEditableOnClientSide() {
-        return resourceEditableOnClientSide;
+        return isResourceEditable();
     }
 
     /**
@@ -364,8 +376,9 @@ public class ResourceEntry extends Entry {
      * This value has no impact on the resource API of this class.
      *
      * @param resourceEditableOnClientSide resource editable on client side
+     * @deprecated use {@link #setResourceEditable(boolean)} instead
      */
     public void setResourceEditableOnClientSide(boolean resourceEditableOnClientSide) {
-        this.resourceEditableOnClientSide = resourceEditableOnClientSide;
+        setResourceEditable(resourceEditableOnClientSide);
     }
 }

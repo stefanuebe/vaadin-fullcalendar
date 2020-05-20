@@ -17,6 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
+import lombok.Getter;
 
 /**
  * This specialized version of the entry changed event gives additional information about the changed time as
@@ -24,7 +25,13 @@ import elemental.json.JsonObject;
  * <br><br>
  * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  */
+@Getter
 public class EntryTimeChangedEvent extends EntryChangedEvent {
+
+    /**
+     * The delta information. Please note, that the entry itself already is up-to-date, so there is no need
+     * to apply the delta on it.
+     */
     private final Delta delta;
 
     /**
@@ -39,12 +46,4 @@ public class EntryTimeChangedEvent extends EntryChangedEvent {
         this.delta = Delta.fromJson(jsonDelta);
     }
 
-    /**
-     * Returns the delta information. Please note, that the entry itself already is up-to-date, so there is no need
-     * to apply the delta on it.
-     * @return delta
-     */
-    public Delta getDelta() {
-        return delta;
-    }
 }
