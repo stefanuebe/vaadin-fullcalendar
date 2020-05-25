@@ -17,6 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
+import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
@@ -32,8 +33,6 @@ import lombok.ToString;
 @Getter
 @ToString
 public class ViewSkeletonRenderedEvent extends ViewRenderEvent {
-
-
     /**
      * Creates a new event using the given source and indicator whether the
      * event originated from the client side or the server side.
@@ -42,7 +41,7 @@ public class ViewSkeletonRenderedEvent extends ViewRenderEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param eventData client side event data
      */
-    public ViewSkeletonRenderedEvent(FullCalendar source, boolean fromClient, JsonObject eventData) {
+    public ViewSkeletonRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
         super(source, fromClient, eventData);
     }
 }
