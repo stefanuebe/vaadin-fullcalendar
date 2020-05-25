@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import elemental.json.JsonObject;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Occurs after a view's non-date-related DOM structure has been rendered. Provides information about the shown timespan.
@@ -29,6 +30,7 @@ import lombok.Getter;
  */
 @DomEvent("viewSkeletonRender")
 @Getter
+@ToString
 public class ViewSkeletonRenderedEvent extends ViewRenderEvent {
 
 

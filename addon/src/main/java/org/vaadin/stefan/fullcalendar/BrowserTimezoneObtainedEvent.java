@@ -20,6 +20,7 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * This event gets fired when the client side reported the browser's timezone to the server. Since this is
@@ -27,6 +28,7 @@ import lombok.Getter;
  */
 @DomEvent("browser-timezone-obtained")
 @Getter
+@ToString
 public class BrowserTimezoneObtainedEvent extends ComponentEvent<FullCalendar> {
 
     /**

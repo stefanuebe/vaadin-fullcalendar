@@ -20,6 +20,7 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -28,6 +29,7 @@ import java.time.LocalDate;
  */
 @DomEvent("eventLimitClick")
 @Getter
+@ToString
 public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
 
     /**

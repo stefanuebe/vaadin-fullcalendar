@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
+import lombok.ToString;
 
 /**
  * Occurs when an entry time has changed by drag and drop.
@@ -28,6 +29,7 @@ import elemental.json.JsonObject;
  * Client side name: eventDrop
  */
 @DomEvent("eventDrop")
+@ToString
 public class EntryDroppedEvent extends EntryTimeChangedEvent {
 
     /**

@@ -20,6 +20,7 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ import java.time.LocalDateTime;
  */
 @DomEvent("select")
 @Getter
+@ToString
 public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
 
     /**
