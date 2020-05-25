@@ -173,6 +173,10 @@ public class Demo extends VerticalLayout {
             System.out.println("dates rendered: " + event.getStart() + " " + event.getEnd());
         });
 
+        calendar.addViewSkeletonRenderedListener(event -> {
+            System.out.println("View skeleton rendered: " + event);
+        });
+
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);

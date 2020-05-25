@@ -971,6 +971,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return addListener(DatesRenderedEvent.class, listener);
     }
 
+
+    /**
+     * Registers a listener to be informed when a view skeleton rendered event occurred.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addViewSkeletonRenderedListener(@NotNull ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(ViewSkeletonRenderedEvent.class, listener);
+    }
+
+
     /**
      * Registers a listener to be informed when the user selected a range of timeslots.
      * <br><br>
