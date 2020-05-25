@@ -412,8 +412,7 @@ You can fully customize the client side options in Java by passing a JsonObject 
 Please be aware, that some options are always set, regardless of the values you set. Please check the
 ApiDocs of the withInitialOptions method (or respective constructors) for details
 
-The following example initializes the FullCalendar in the same way is it is done when not passing anything at
-all.
+The following example shows the default initial options as they are set internally by the web component.
 
 ```
 JsonObject initialOptions = Json.createObject();
