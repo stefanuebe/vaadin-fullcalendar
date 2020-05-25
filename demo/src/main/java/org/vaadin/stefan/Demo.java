@@ -329,7 +329,7 @@ public class Demo extends VerticalLayout {
         recurring.setRecurringEndDate(now.with(TemporalAdjusters.lastDayOfYear()), calendar.getTimezone());
         recurring.setRecurringStartTime(LocalTime.of(14, 0));
         recurring.setRecurringEndTime(LocalTime.of(17, 0));
-        recurring.setResourceEditableOnClientSide(true);
+        recurring.setResourceEditable(true);
 
         calendar.addEntry(recurring);
     }
@@ -337,7 +337,7 @@ public class Demo extends VerticalLayout {
     private void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, title, start.atStartOfDay(), days, ChronoUnit.DAYS, color);
-        entry.setResourceEditableOnClientSide(true);
+        entry.setResourceEditable(true);
 
         calendar.addEntry(entry);
     }
@@ -345,7 +345,7 @@ public class Demo extends VerticalLayout {
     private void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color);
-        entry.setResourceEditableOnClientSide(true);
+        entry.setResourceEditable(true);
 
         calendar.addEntry(entry);
     }
@@ -355,7 +355,7 @@ public class Demo extends VerticalLayout {
         setValues(calendar, entry, "BG", start.atStartOfDay(), days, ChronoUnit.DAYS, color);
 
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
-        entry.setResourceEditableOnClientSide(true);
+        entry.setResourceEditable(true);
 
         calendar.addEntry(entry);
     }
@@ -364,7 +364,7 @@ public class Demo extends VerticalLayout {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
-        entry.setResourceEditableOnClientSide(true);
+        entry.setResourceEditable(true);
 
         calendar.addEntry(entry);
     }
@@ -402,9 +402,9 @@ public class Demo extends VerticalLayout {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color);
         if (resources != null && resources.length > 0) {
-            entry.addResources(Arrays.asList(resources));
+            entry.assignResources(Arrays.asList(resources));
         }
-        entry.setResourceEditableOnClientSide(true);
+        entry.setResourceEditable(true);
         calendar.addEntry(entry);
     }
 
@@ -413,9 +413,9 @@ public class Demo extends VerticalLayout {
         setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         if (resources != null && resources.length > 0) {
-            entry.addResources(Arrays.asList(resources));
+            entry.assignResources(Arrays.asList(resources));
         }
-        entry.setResourceEditableOnClientSide(true);
+        entry.setResourceEditable(true);
 
         calendar.addEntry(entry);
     }
