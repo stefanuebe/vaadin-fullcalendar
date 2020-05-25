@@ -3,10 +3,12 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
+import lombok.ToString;
 
 import java.util.Optional;
 
 @DomEvent("eventDrop")
+@ToString
 public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
 
     private final Resource oldResource;

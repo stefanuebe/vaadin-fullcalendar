@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import lombok.ToString;
 
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ import java.util.Optional;
  * Client side event: dateClick
  */
 @DomEvent("dateClick")
+@ToString
 public class TimeslotClickedSchedulerEvent extends TimeslotClickedEvent {
 
     private Resource resource;
