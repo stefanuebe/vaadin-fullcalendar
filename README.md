@@ -408,18 +408,21 @@ tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 8, 1, 10, 0, 0)) // Summer t
 tzBerlinGermany.convertToLocalDateTime(Instant.now()) // returns a date time with +1/+2 hours (depending on summer time).
 
 ### Passing custom initial options in Java
-// Instead of subclassing the client side Polymer class, you can 
-// alternatively pass a custom set of initial options via Java.
-//
-// Please also see the ApiDocs for the method `withInitialOptions` 
-// (or the respective constructors) for details.
+You can fully customize the client side options in Java by passing a JsonObject when creating the FullCalendar.
+Please be aware, that some options are always set, regardless of the values you set. Please check the
+ApiDocs of the withInitialOptions method (or respective constructors) for details
+
+The following example initializes the FullCalendar in the same way is it is done when not passing anything at
+all.
 
 ```
 JsonObject initialOptions = Json.createObject();
 initialOptions.put("height", "parent");
-initialOptions.put("timeZone", "America/New_York");
-initialOptions.put("locale", CalendarLocale.GREEK.toLanguageTag());
+initialOptions.put("timeZone", "UTC");
 initialOptions.put("header", false);
+initialOptions.put("weekNumbers", true);
+initialOptions.put("eventLimit", false); // pass an int value to limit the entries per day
+initialOptions.put("navLinks", true); 
 initialOptions.put("selectable", true);
 calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initialOptions).build();
 ```
