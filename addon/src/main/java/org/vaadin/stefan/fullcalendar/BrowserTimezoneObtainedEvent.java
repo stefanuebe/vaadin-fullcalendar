@@ -18,7 +18,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
-import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -42,8 +41,9 @@ public class BrowserTimezoneObtainedEvent extends ComponentEvent<FullCalendar> {
      *
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
+     * @param timezone client side timezone
      */
-    public BrowserTimezoneObtainedEvent(FullCalendar source, boolean fromClient, @EventData("dummy") Timezone timezone) {
+    public BrowserTimezoneObtainedEvent(FullCalendar source, boolean fromClient, Timezone timezone) {
         super(source, fromClient);
         this.timezone = timezone;
     }
