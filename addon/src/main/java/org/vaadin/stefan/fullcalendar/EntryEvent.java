@@ -18,11 +18,13 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Simple event that occurred for a specific calendar item.
  */
 @Getter
+@ToString
 public abstract class EntryEvent extends ComponentEvent<FullCalendar> {
 
     /**

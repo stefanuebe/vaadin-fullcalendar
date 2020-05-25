@@ -31,7 +31,7 @@ import lombok.ToString;
  */
 @DomEvent("datesRender")
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class DatesRenderedEvent extends ViewRenderEvent {
 
 

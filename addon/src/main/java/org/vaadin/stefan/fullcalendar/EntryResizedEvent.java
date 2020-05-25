@@ -30,7 +30,7 @@ import lombok.ToString;
  *
  */
 @DomEvent("eventResize")
-@ToString
+@ToString(callSuper = true)
 public class EntryResizedEvent extends EntryTimeChangedEvent {
 
     /**

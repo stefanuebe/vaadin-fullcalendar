@@ -27,7 +27,7 @@ import lombok.ToString;
  * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  */
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class EntryTimeChangedEvent extends EntryChangedEvent {
 
     /**

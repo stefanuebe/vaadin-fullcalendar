@@ -31,7 +31,7 @@ import lombok.ToString;
  */
 @DomEvent("viewSkeletonRender")
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class ViewSkeletonRenderedEvent extends ViewRenderEvent {
     /**
      * Creates a new event using the given source and indicator whether the

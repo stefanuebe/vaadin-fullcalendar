@@ -24,7 +24,7 @@ import lombok.ToString;
  * Occurs when number links are active and a user clicked on a week's number.
  */
 @DomEvent("navLinkWeekClick")
-@ToString
+@ToString(callSuper = true)
 public class WeekNumberClickedEvent extends DateEvent {
     /**
      * New instance. Awaits the date (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").

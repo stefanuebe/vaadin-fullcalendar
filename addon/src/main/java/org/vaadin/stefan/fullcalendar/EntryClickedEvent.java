@@ -27,7 +27,7 @@ import lombok.ToString;
  * Client side event: eventClick
  */
 @DomEvent("eventClick")
-@ToString
+@ToString(callSuper = true)
 public class EntryClickedEvent extends EntryDataEvent {
 
     /**

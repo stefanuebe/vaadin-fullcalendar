@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
  * An abstract class for date events, that are not directly entry related.
  */
 @Getter
+@ToString
 public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
 
     /**

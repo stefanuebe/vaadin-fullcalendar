@@ -17,12 +17,14 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
+import lombok.ToString;
 
 /**
  * An event, that occur, when a entry has been changed on the client side.
  * <br><br>
  * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  */
+@ToString(callSuper = true)
 public abstract class EntryChangedEvent extends EntryDataEvent {
 
     /**
