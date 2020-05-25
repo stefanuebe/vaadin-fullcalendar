@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * This specialized version of the entry changed event gives additional information about the changed time as
@@ -26,6 +27,7 @@ import lombok.Getter;
  * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  */
 @Getter
+@ToString
 public class EntryTimeChangedEvent extends EntryChangedEvent {
 
     /**

@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
+import lombok.ToString;
 
 /**
  * Occurs when an entry time has changed by resizing.
@@ -29,6 +30,7 @@ import elemental.json.JsonObject;
  *
  */
 @DomEvent("eventResize")
+@ToString
 public class EntryResizedEvent extends EntryTimeChangedEvent {
 
     /**

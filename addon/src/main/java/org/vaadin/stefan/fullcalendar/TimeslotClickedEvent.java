@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import lombok.ToString;
 
 /**
  * This event occurs when an empty timeslot in the calendar has clicked. Empty means the empty space itself, not that there
@@ -26,6 +27,7 @@ import com.vaadin.flow.component.EventData;
  * Client side event: dateClick.
  */
 @DomEvent("dateClick")
+@ToString
 public class TimeslotClickedEvent extends DateTimeEvent {
 
     /**

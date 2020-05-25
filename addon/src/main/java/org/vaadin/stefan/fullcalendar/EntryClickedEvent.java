@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
+import lombok.ToString;
 
 /**
  * Occurs when an entry has been clicked on the client side.
@@ -26,6 +27,7 @@ import elemental.json.JsonObject;
  * Client side event: eventClick
  */
 @DomEvent("eventClick")
+@ToString
 public class EntryClickedEvent extends EntryDataEvent {
 
     /**

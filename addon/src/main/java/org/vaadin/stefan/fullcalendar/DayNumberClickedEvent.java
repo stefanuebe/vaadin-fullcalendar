@@ -18,11 +18,13 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import lombok.ToString;
 
 /**
  * Occurs when number links are active and a user clicked on a day's number.
  */
 @DomEvent("navLinkDayClick")
+@ToString
 public class DayNumberClickedEvent extends DateEvent {
     /**
      * New instance. Awaits the date (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
