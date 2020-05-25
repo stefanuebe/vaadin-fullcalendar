@@ -40,6 +40,8 @@ public class TimeslotsSelectedSchedulerEvent extends TimeslotsSelectedEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param start      start time slot as iso string
      * @param end        end time slot as iso string
+     * @param allDay    all day event
+     * @param resourceId optional resource id
      */
     public TimeslotsSelectedSchedulerEvent(FullCalendarScheduler source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay, @EventData("event.detail.resource") String resourceId) {
         super(source, fromClient, start, end, allDay);

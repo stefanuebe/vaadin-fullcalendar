@@ -36,6 +36,7 @@ public class TimeslotClickedEvent extends DateTimeEvent {
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      * @param date clicked time slot as iso string
+     * @param allDay all day event
      */
     public TimeslotClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient, date, allDay);

@@ -52,6 +52,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param start start time slot as iso string
      * @param end end time slot as iso string
+     * @param allDay all day event
      */
     public TimeslotsSelectedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient);
