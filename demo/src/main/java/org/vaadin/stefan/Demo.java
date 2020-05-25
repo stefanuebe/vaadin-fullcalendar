@@ -245,6 +245,8 @@ public class Demo extends VerticalLayout {
             }
         });
 
+        calendar.addBrowserTimezoneObtainedListener(event -> System.out.println("Use browser's timezone: " + event.getTimezone().toString()));
+
 //        calendar.setOption("rerenderDelay", "null");
     }
 
