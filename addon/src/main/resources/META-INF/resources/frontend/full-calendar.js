@@ -121,7 +121,7 @@ export class FullCalendar extends PolymerElement {
 
             this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
 
-            afterNextRender(this, function() {
+            afterNextRender(this, function () {
                 // used to assure correct initial size. It seems, that with V15 (currently 15.0.5) the lifecycle
                 // can not guarantee, that the calendar container provides the correct height, since it might not
                 // be rendered yet. This method call will upate the size correctly.
@@ -204,6 +204,7 @@ export class FullCalendar extends PolymerElement {
                 if (!this.noDatesRenderEvent) {
                     let view = eventInfo.view;
                     return {
+                        name: view.type,
                         intervalStart: this._formatDate(view.currentStart, true),
                         intervalEnd: this._formatDate(view.currentEnd, true),
                         start: this._formatDate(view.activeStart, true),
@@ -228,6 +229,16 @@ export class FullCalendar extends PolymerElement {
             eventLimitClick: (eventInfo) => {
                 return {
                     date: this._formatDate(eventInfo.date, true)
+                }
+            },
+            viewSkeletonRender: (eventInfo) => {
+                let view = eventInfo.view;
+                return {
+                    name: view.type,
+                    intervalStart: this._formatDate(view.currentStart, true),
+                    intervalEnd: this._formatDate(view.currentEnd, true),
+                    start: this._formatDate(view.activeStart, true),
+                    end: this._formatDate(view.activeEnd, true)
                 }
             }
 
@@ -485,6 +496,7 @@ export class FullCalendar extends PolymerElement {
         let calendar = this.getCalendar();
         calendar.setOption('eventRender', new Function("return " + s)());
     }
+
 }
 
 customElements.define("full-calendar", FullCalendar);

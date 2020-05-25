@@ -19,19 +19,17 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import elemental.json.JsonObject;
 import lombok.Getter;
-import lombok.ToString;
 
 /**
- * Occurs when a new set of dates has been rendered.. Provides information about the shown timespan.
+ * Occurs after a view's non-date-related DOM structure has been rendered. Provides information about the shown timespan.
  * <br><br>
  * The values are always daybased, regardless of the current view.
  * <br><br>
- * Called after registered {@link ViewSkeletonRenderedEvent} listeners.
+ * Called before registered {@link DatesRenderedEvent} listeners.
  */
-@DomEvent("datesRender")
+@DomEvent("viewSkeletonRender")
 @Getter
-@ToString
-public class DatesRenderedEvent extends ViewRenderEvent {
+public class ViewSkeletonRenderedEvent extends ViewRenderEvent {
 
 
     /**
@@ -42,7 +40,7 @@ public class DatesRenderedEvent extends ViewRenderEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param eventData client side event data
      */
-    public DatesRenderedEvent(FullCalendar source, boolean fromClient, JsonObject eventData) {
+    public ViewSkeletonRenderedEvent(FullCalendar source, boolean fromClient, JsonObject eventData) {
         super(source, fromClient, eventData);
     }
 }
