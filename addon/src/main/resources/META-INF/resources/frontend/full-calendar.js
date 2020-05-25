@@ -271,27 +271,12 @@ export class FullCalendar extends PolymerElement {
             height: 'parent',
             timeZone: 'UTC',
 
-            //
             // // no native control elements
             header: false,
-            // header: { center: 'dayGridMonth, timeGridWeek' },
             weekNumbers: true,
-            // resources: [],
-            //
             eventLimit: this.eventLimit,
             navLinks: this.navLinks,
             selectable: this.selectable,
-
-            // views: {
-            //     basicDay: {
-            //         eventLimit: false // adjust to unlimited for basic view
-            //     },
-            //     basicWeek: {
-            //         eventLimit: false
-            //     }
-            // },
-            //
-            // defaultTimedEventDuration: '01:00:00'
         };
 
         this._addEventHandlersToOptions(options, events);
