@@ -17,7 +17,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
@@ -72,7 +71,7 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      */
-    public ViewRenderEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
+    public ViewRenderEvent(FullCalendar source, boolean fromClient, JsonObject eventData) {
         super(source, fromClient);
 
         this.name = eventData.getString("name");

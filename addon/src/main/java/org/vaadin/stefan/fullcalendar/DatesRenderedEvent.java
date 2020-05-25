@@ -17,6 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
+import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
@@ -42,7 +43,7 @@ public class DatesRenderedEvent extends ViewRenderEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param eventData client side event data
      */
-    public DatesRenderedEvent(FullCalendar source, boolean fromClient, JsonObject eventData) {
+    public DatesRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
         super(source, fromClient, eventData);
     }
 }
