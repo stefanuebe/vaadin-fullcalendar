@@ -28,7 +28,7 @@ import java.util.Optional;
  * Client side event: select
  */
 @DomEvent("select")
-@ToString
+@ToString(callSuper = true)
 public class TimeslotsSelectedSchedulerEvent extends TimeslotsSelectedEvent {
 
     private Resource resource;

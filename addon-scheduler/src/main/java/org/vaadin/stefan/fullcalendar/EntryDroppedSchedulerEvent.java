@@ -8,7 +8,7 @@ import lombok.ToString;
 import java.util.Optional;
 
 @DomEvent("eventDrop")
-@ToString
+@ToString(callSuper = true)
 public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
 
     private final Resource oldResource;

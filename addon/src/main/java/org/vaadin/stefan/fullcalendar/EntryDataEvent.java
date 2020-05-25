@@ -18,12 +18,14 @@ package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Extended entry event type, that provides also additional client side entry data, that can be interpreted on the
  * server side.
  */
 @Getter
+@ToString(callSuper = true)
 public abstract class EntryDataEvent extends EntryEvent {
 
     /**

@@ -29,7 +29,7 @@ import lombok.ToString;
  * Client side name: eventDrop
  */
 @DomEvent("eventDrop")
-@ToString
+@ToString(callSuper = true)
 public class EntryDroppedEvent extends EntryTimeChangedEvent {
 
     /**

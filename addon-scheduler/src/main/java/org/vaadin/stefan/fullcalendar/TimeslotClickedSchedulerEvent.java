@@ -28,7 +28,7 @@ import java.util.Optional;
  * Client side event: dateClick
  */
 @DomEvent("dateClick")
-@ToString
+@ToString(callSuper = true)
 public class TimeslotClickedSchedulerEvent extends TimeslotClickedEvent {
 
     private Resource resource;

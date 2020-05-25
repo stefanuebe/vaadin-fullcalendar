@@ -27,7 +27,7 @@ import lombok.ToString;
  * Client side event: dateClick.
  */
 @DomEvent("dateClick")
-@ToString
+@ToString(callSuper = true)
 public class TimeslotClickedEvent extends DateTimeEvent {
 
     /**
