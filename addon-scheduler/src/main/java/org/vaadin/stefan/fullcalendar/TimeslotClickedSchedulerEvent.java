@@ -39,6 +39,8 @@ public class TimeslotClickedSchedulerEvent extends TimeslotClickedEvent {
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      * @param date clicked time slot as iso string
+     * @param allDay all day event
+     * @param resourceId optional resource id
      */
     public TimeslotClickedSchedulerEvent(FullCalendarScheduler source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay, @EventData("event.detail.resource") String resourceId) {
         super(source, fromClient, date, allDay);
