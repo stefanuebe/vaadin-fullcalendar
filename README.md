@@ -427,9 +427,12 @@ calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initi
 ```
 
 ### Using tippy.js for description tooltips
-This sample shows how to easy integrate tippy.js into a custom subclass of FullCalendar (there might be other solutions). Please customize the example as needed.
+This sample shows how to easy integrate tippy.js into a custom subclass of FullCalendar to show an entry's description 
+as a tooltip when hovering the entry inside the FC. Please customize the example as needed.
 
-1. Create a new javascript file inside the frontend folder of your project. It needs to extend either FullCalendar or FullCalendarScheduler. This example utilized FullCalendarScheduler. If you want to use the normal FC, simply remove all the -Scheduler parts. 
+1. Create a new javascript file inside the frontend folder of your project. It needs to extend either FullCalendar or 
+FullCalendarScheduler. This example utilized FullCalendarScheduler. If you want to use the normal FC, simply remove 
+all the -Scheduler parts. 
 
 full-calendar-with-tooltips.js
 
