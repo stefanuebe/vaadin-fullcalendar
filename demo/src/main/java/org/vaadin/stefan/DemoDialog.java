@@ -12,7 +12,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -37,9 +36,6 @@ public class DemoDialog extends Dialog {
 
     public DemoDialog(FullCalendar calendar, ResourceEntry entry, boolean newInstance) {
         this.dialogEntry = DialogEntry.of(entry, calendar.getTimezone());
-
-        setDraggable(true);
-        setResizable(true);
 
         setCloseOnEsc(true);
         setCloseOnOutsideClick(true);
@@ -143,9 +139,9 @@ public class DemoDialog extends Dialog {
         mainLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
         mainLayout.setSizeFull();
 
-        Scroller mainLayoutScroller = new Scroller(mainLayout);
-        mainLayoutScroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
-        add(mainLayoutScroller, buttons);
+        mainLayout.getElement().getStyle().set("overflow-y", "auto");
+
+        add(mainLayout, buttons);
 
 
         // additional layout init

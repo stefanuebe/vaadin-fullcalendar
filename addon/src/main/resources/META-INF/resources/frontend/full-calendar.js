@@ -6,12 +6,10 @@ import interaction from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
-import {toMoment} from '@fullcalendar/moment'; // only for formatting
-import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all.min';
 
 /*
-   Copyright 2018, Stefan Uebe
+   Copyright 2020, Stefan Uebe
 
    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
    documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -254,15 +252,49 @@ export class FullCalendar extends PolymerElement {
      * @private
      */
     _formatDate(date, asDay) {
-        let moment = toMoment(date, this.getCalendar());
-        if (asDay) {
-            moment = moment.startOf('day');
+        let dateString = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDay();
+
+        if (!asDay) {
+            let offset = date.getTimezoneOffset();
+
+            let offsetString;
+            if (offset === 0) {
+                offsetString = "Z"
+            } else {
+                offsetString = offset < 0 ? "-" : "+";
+
+                offset = Math.abs(offset);
+
+                let offsetHours = Math.trunc(offset / 60);
+                let offsetMinutes = offset - (offsetHours * 60);
+
+                if (offsetHours < 10) {
+                    offsetString += "0";
+                }
+
+                offsetString += offsetHours + ":"
+
+                if (offsetMinutes < 10) {
+                    offsetString += "0";
+                }
+                offsetString += offsetMinutes;
+            }
+            dateString += "T" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + offsetString;
         }
 
-        let dateString = moment.format();
-
-        return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
+        return dateString
     }
+
+    // _formatDate(date, asDay) {
+    //     let moment = toMoment(date, this.getCalendar());
+    //     if (asDay) {
+    //         moment = moment.startOf('day');
+    //     }
+    //
+    //     let dateString = moment.format();
+    //
+    //     return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
+    // }
 
     _createInitOptions(initialOptions) {
         let events = this._createEventHandlers();
@@ -282,7 +314,7 @@ export class FullCalendar extends PolymerElement {
         this._addEventHandlersToOptions(options, events);
 
         options['locales'] = allLocales;
-        options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
+        options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin/*, momentTimezonePlugin*/];
 
         return options;
     }

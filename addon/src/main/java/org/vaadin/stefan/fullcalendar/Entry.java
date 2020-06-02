@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Stefan Uebe
+ * Copyright 2020, Stefan Uebe
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -287,6 +287,8 @@ public class Entry {
         jsonObject.put("endTime", JsonUtils.toJsonValue(recurringEndTime));
         jsonObject.put("startRecur", JsonUtils.toJsonValue(recurringStartDate == null ? null : getStartTimezone().formatWithZoneId(recurringStartDate)));
         jsonObject.put("endRecur", JsonUtils.toJsonValue(recurringEndDate == null ? null : getEndTimezone().formatWithZoneId(recurringEndDate)));
+
+        jsonObject.put("description", JsonUtils.toJsonValue(getDescription()));
 
         return jsonObject;
     }
