@@ -6,6 +6,8 @@ import interaction from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import {toMoment} from '@fullcalendar/moment'; // only for formatting
+import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all.min';
 
 /*
@@ -252,48 +254,49 @@ export class FullCalendar extends PolymerElement {
      * @private
      */
     _formatDate(date, asDay) {
-        let dateString = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDay();
-
-        if (!asDay) {
-            let offset = date.getTimezoneOffset();
-
-            let offsetString;
-            if (offset === 0) {
-                offsetString = "Z"
-            } else {
-                offsetString = offset < 0 ? "-" : "+";
-
-                offset = Math.abs(offset);
-
-                let offsetHours = Math.trunc(offset / 60);
-                let offsetMinutes = offset - (offsetHours * 60);
-
-                if (offsetHours < 10) {
-                    offsetString += "0";
-                }
-
-                offsetString += offsetHours + ":"
-
-                if (offsetMinutes < 10) {
-                    offsetString += "0";
-                }
-                offsetString += offsetMinutes;
-            }
-            dateString += "T" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + offsetString;
+        let moment = toMoment(date, this.getCalendar());
+        if (asDay) {
+            moment = moment.startOf('day');
         }
 
-        return dateString
+        let dateString = moment.format();
+
+        return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
     }
 
     // _formatDate(date, asDay) {
-    //     let moment = toMoment(date, this.getCalendar());
-    //     if (asDay) {
-    //         moment = moment.startOf('day');
+    //     let dateString = date.getFullYear()
+    //         + "-" + this._withLeadingZero(date.getMonth())
+    //         + "-" + this._withLeadingZero(date.getDay());
+    //
+    //     if (!asDay) {
+    //         let offset = date.getTimezoneOffset();
+    //
+    //         let offsetString;
+    //         if (offset === 0) {
+    //             offsetString = "Z"
+    //         } else {
+    //             offsetString = offset < 0 ? "-" : "+";
+    //
+    //             offset = Math.abs(offset);
+    //
+    //             let offsetHours = Math.trunc(offset / 60);
+    //             let offsetMinutes = offset - (offsetHours * 60);
+    //
+    //             offsetString += this._withLeadingZero(offsetHours) + ":" + this._withLeadingZero(offsetMinutes);
+    //         }
+    //
+    //         dateString += "T" + this._withLeadingZero(date.getHours())
+    //             + ":" + this._withLeadingZero(date.getMinutes())
+    //             + ":" + this._withLeadingZero(date.getSeconds())
+    //             + offsetString;
     //     }
     //
-    //     let dateString = moment.format();
-    //
-    //     return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
+    //     return dateString
+    // }
+
+    // _withLeadingZero(number) {
+    //     return (number < 10 ? "0" : "") + number;
     // }
 
     _createInitOptions(initialOptions) {
@@ -314,7 +317,7 @@ export class FullCalendar extends PolymerElement {
         this._addEventHandlersToOptions(options, events);
 
         options['locales'] = allLocales;
-        options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin/*, momentTimezonePlugin*/];
+        options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
 
         return options;
     }
