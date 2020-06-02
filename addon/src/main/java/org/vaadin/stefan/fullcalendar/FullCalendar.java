@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Stefan Uebe
+ * Copyright 2020, Stefan Uebe
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -44,10 +44,10 @@ import java.util.stream.Stream;
 @NpmPackage(value = "@fullcalendar/daygrid", version = "4.4.0")
 @NpmPackage(value = "@fullcalendar/timegrid", version = "4.4.0")
 @NpmPackage(value = "@fullcalendar/list", version = "4.4.0")
-@NpmPackage(value = "moment", version = "2.24.0")
-@NpmPackage(value = "moment-timezone", version = "0.5.28")
-@NpmPackage(value = "@fullcalendar/moment", version = "4.4.0")
-@NpmPackage(value = "@fullcalendar/moment-timezone", version = "4.4.0")
+//@NpmPackage(value = "moment", version = "2.24.0")
+//@NpmPackage(value = "moment-timezone", version = "0.5.28")
+//@NpmPackage(value = "@fullcalendar/moment", version = "4.4.0")
+//@NpmPackage(value = "@fullcalendar/moment-timezone", version = "4.4.0")
 @Tag("full-calendar")
 @JsModule("./full-calendar.js")
 public class FullCalendar extends Component implements HasStyle, HasSize {

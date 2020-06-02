@@ -22,12 +22,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
@@ -43,10 +43,11 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Route(value = "", layout = MainView.class)
+@NpmPackage(value = "tippy.js", version = "6.2.3")
+@Route(value = "tooltip", layout = MainView.class)
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
-public class Demo extends VerticalLayout {
+public class DemoWithTooltip extends VerticalLayout {
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
     private FullCalendar calendar;
@@ -55,7 +56,7 @@ public class Demo extends VerticalLayout {
     private HorizontalLayout toolbar;
     private ComboBox<Timezone> timezoneComboBox;
 
-    public Demo() {
+    public DemoWithTooltip() {
         getStyle().set("flex-grow", "1");
 
         createCalendarInstance();
@@ -159,7 +160,7 @@ public class Demo extends VerticalLayout {
 
 
     private void createCalendarInstance() {
-        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).withScheduler().build();
+        calendar = new FullCalendarWithTooltip();
 
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
 
@@ -220,7 +221,7 @@ public class Demo extends VerticalLayout {
                 dialogLayout.setSpacing(false);
                 dialogLayout.setPadding(false);
                 dialogLayout.setMargin(false);
-                dialogLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
+                dialogLayout.setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
 
                 dialogLayout.add(new Span("Entries of " + event.getClickedDate()));
                 entries.stream()
@@ -384,6 +385,7 @@ public class Demo extends VerticalLayout {
         entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
+        entry.setDescription("Description of " + title);
     }
 
 

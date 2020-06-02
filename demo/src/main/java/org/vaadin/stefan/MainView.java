@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Stefan Uebe
+ * Copyright 2020, Stefan Uebe
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -39,7 +39,7 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
         HorizontalLayout title = new HorizontalLayout();
 
-        title.add(new H3("FullCalendar demo"), new Span("(Vaadin 14.2.0, FullCalendar addon: 2.3.0 (uses FC 4.4.0), FullCalendar Scheduler extension: 2.3.0 (uses scheduler extension libs 4.3.0)"));
+        title.add(new H3("FullCalendar demo"), new Span("(Vaadin 14.2.0, FullCalendar addon: 2.3.1-SNAPSHOT (uses FC 4.4.0), FullCalendar Scheduler extension: 2.3.1-SNAPSHOT (uses scheduler extension libs 4.3.0)"));
         title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
 
         add(title);

@@ -426,6 +426,58 @@ initialOptions.put("selectable", true);
 calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initialOptions).build();
 ```
 
+### Using tippy.js for description tooltips
+This sample shows how to easy integrate tippy.js into a custom subclass of FullCalendar (there might be other solutions). Please customize the example as needed.
+
+1. Create a new javascript file inside the frontend folder of your project. It needs to extend either FullCalendar or FullCalendarScheduler. This example utilized FullCalendarScheduler. If you want to use the normal FC, simply remove all the -Scheduler parts. 
+
+full-calendar-with-tooltips.js
+
+```
+import {FullCalendarScheduler} from '@vaadin/flow-frontend/full-calendar-scheduler.js';
+import tippy from 'tippy.js';
+
+export class FullCalendarWithTooltip extends FullCalendarScheduler {
+    static get is() {
+        return 'full-calendar-with-tooltip';
+    }
+
+    _initCalendar() {
+        super._initCalendar();
+        this.getCalendar().setOption("eventRender", this.callTooltip);
+    }
+
+    callTooltip(info) {
+        if (info.event.extendedProps && info.event.extendedProps.description) {
+            tippy(info.el, {
+                // content: info.event.extendedProps.description
+                theme: 'light',
+                content: info.event.extendedProps.description
+            });
+        }
+    }
+}
+
+customElements.define(FullCalendarWithTooltip.is, FullCalendarWithTooltip);
+```
+
+2. Now create a simple JavaClass, that utilizes your js file. This Java class also imports the needed CSS files.
+
+```
+@Tag("full-calendar-with-tooltip")
+@JsModule("./full-calendar-with-tooltip.js")
+@CssImport("tippy.js/dist/tippy.css")
+@CssImport("tippy.js/themes/light.css")
+public class FullCalendarWithTooltip extends FullCalendarScheduler {
+
+    public FullCalendarWithTooltip() {
+        super(3);
+    }
+}
+```
+
+
+
 ## FAQ
 Q: The calendar instance is not recognized during build time or loading of frontend dependencies (leads client side errors)
 A: Please see `Build problems / JS (client side) errors with V14` for further details.
