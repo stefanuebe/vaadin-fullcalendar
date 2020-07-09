@@ -298,16 +298,19 @@ customElements.define('my-full-calendar', MyFullCalendar);
 ```
 
 ### Modifying eventRender from server side
-// The given string will be interpreted as js function on client side
-// and attached as eventRender callback. 
-// Make sure, that it does not contain any harmful code.
+The given string will be interpreted as js function on client side
+and attached as eventRender callback. 
+Make sure, that it does not contain any harmful code.
 
+```
 calendar.setEntryRenderCallback("" +
-        "function(event, element) {" +
-        "   console.log(event.title + 'X');" +
-        "   element.css('color', 'red');" +
-        "   return element; " +
-        "}");
+	"function(info) {" +
+        "   console.log(info.event.title + 'X');" +
+        "   info.el.style.color = 'red';" +
+        "   return info.el; " +
+        "}"
+);
+```
         
 ### Creating a subclass of FullCalendar for custom mods
 1. Create a custom Polymer component
