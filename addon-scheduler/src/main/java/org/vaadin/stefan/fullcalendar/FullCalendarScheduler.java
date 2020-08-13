@@ -121,7 +121,25 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             registerResourcesInternally(resource.getChildren());
         });
 
-        getElement().callJsFunction("addResources", array);
+        getElement().callJsFunction("addResources", array, true);
+    }
+    
+    @Override
+    public void addResources(@NotNull Iterable<Resource> iterableResource, boolean scrollToLast) {
+        Objects.requireNonNull(iterableResource);
+
+        JsonArray array = Json.createArray();
+        iterableResource.forEach(resource -> {
+            String id = resource.getId();
+            if (!resources.containsKey(id)) {
+                resources.put(id, resource);
+                array.set(array.length(), resource.toJson()); // this automatically sends sub resources to the client side
+            }
+
+            // now also register child resources
+            registerResourcesInternally(resource.getChildren());
+        });
+        getElement().callJsFunction("addResources", array, scrollToLast);
     }
 
     /**
@@ -152,7 +170,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                 array.set(array.length(), resource.toJson());
             }
         });
-
+        
         getElement().callJsFunction("removeResources", array);
 
     }
