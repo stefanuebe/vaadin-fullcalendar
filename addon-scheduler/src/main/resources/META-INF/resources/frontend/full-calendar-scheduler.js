@@ -59,11 +59,11 @@ export class FullCalendarScheduler extends FullCalendar {
         return options;
     }
 
-    addResources(array) {
+    addResources(array, scrollToLast) {
         let calendar = this.getCalendar();
         calendar.batchRendering(function () {
             for (let i = 0; i < array.length; i++) {
-                calendar.addResource(array[i]);
+                calendar.addResource(array[i], scrollToLast);
             }
         });
     }
