@@ -64,6 +64,10 @@ public interface Scheduler {
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
+    default void addResource(@NotNull Resource resource, boolean scrollToLast) {
+        Objects.requireNonNull(resource);
+        addResources(Collections.singletonList(resource), scrollToLast);
+    }
     default void addResource(@NotNull Resource resource) {
         Objects.requireNonNull(resource);
         addResources(Collections.singletonList(resource));
@@ -75,6 +79,9 @@ public interface Scheduler {
      * @param resources resources to add
      * @throws NullPointerException when null is passed
      */
+    default void addResources(boolean scrollToLast, @NotNull Resource... resources) {
+        addResources(Arrays.asList(resources), scrollToLast);
+    }
     default void addResources(@NotNull Resource... resources) {
         addResources(Arrays.asList(resources));
     }
@@ -85,6 +92,7 @@ public interface Scheduler {
      * @param resources resources to add
      * @throws NullPointerException when null is passed
      */
+    void addResources(@NotNull Iterable<Resource> resources, boolean scrollToLast);
     void addResources(@NotNull Iterable<Resource> resources);
 
     /**
