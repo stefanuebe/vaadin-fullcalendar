@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar-demo</artifactId>
-    <version>2.3.3</version>
+    <version>2.3.4-SNAPSHOT</version>
 
     <name>Full Calendar web component demo</name>
 
@@ -14,8 +14,8 @@
     <properties>
         <vaadin.version>14.3.4</vaadin.version>
 
-        <fullcalendar.version>2.3.3</fullcalendar.version>
-        <fullcalendar.scheduler.version>2.3.3</fullcalendar.scheduler.version>
+        <fullcalendar.version>2.3.4-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.scheduler.version>2.3.4-SNAPSHOT</fullcalendar.scheduler.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
