@@ -22,13 +22,11 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
-import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLayout;
 
 @Push
 @PageTitle("FullCalendar Demo")
-@Viewport("width=100vw, height=100vh")
 public class MainView extends VerticalLayout implements RouterLayout {
 
     public MainView() {
@@ -39,7 +37,7 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
         HorizontalLayout title = new HorizontalLayout();
 
-        title.add(new H3("FullCalendar demo"), new Span("(Vaadin 14.3.4, FullCalendar addon: 2.3.4-SNAPSHOT (uses FC 4.4.2), FullCalendar Scheduler extension: 2.3.4-SNAPSHOT (uses scheduler extension libs 4.3.0)"));
+        title.add(new H3("FullCalendar demo"), new Span("(Vaadin 14.3.4, FullCalendar addon: 2.3.4-SNAPSHOT (uses FC 5.3.1), FullCalendar Scheduler extension: 2.3.4-SNAPSHOT (uses scheduler extension libs 5.3.1)"));
         title.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.BASELINE);
 
         add(title);
