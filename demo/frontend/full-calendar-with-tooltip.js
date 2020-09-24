@@ -26,7 +26,7 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
 
     _initCalendar() {
         super._initCalendar();
-        this.getCalendar().setOption("eventRender", this.callTooltip);
+        this.getCalendar().setOption("eventDidMount", this.callTooltip);
     }
 
     callTooltip(info) {

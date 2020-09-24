@@ -39,15 +39,15 @@ import java.util.stream.Stream;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/core", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/interaction", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/daygrid", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/timegrid", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/list", version = "4.4.2")
+@NpmPackage(value = "@fullcalendar/core", version = "5.3.1")
+@NpmPackage(value = "@fullcalendar/interaction", version = "5.3.1")
+@NpmPackage(value = "@fullcalendar/daygrid", version = "5.3.1")
+@NpmPackage(value = "@fullcalendar/timegrid", version = "5.3.1")
+@NpmPackage(value = "@fullcalendar/list", version = "5.3.1")
 @NpmPackage(value = "moment", version = "2.24.0")
 @NpmPackage(value = "moment-timezone", version = "0.5.28")
-@NpmPackage(value = "@fullcalendar/moment", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/moment-timezone", version = "4.4.2")
+@NpmPackage(value = "@fullcalendar/moment", version = "5.3.1")
+@NpmPackage(value = "@fullcalendar/moment-timezone", version = "5.3.1")
 @Tag("full-calendar")
 @JsModule("./full-calendar.js")
 public class FullCalendar extends Component implements HasStyle, HasSize {
@@ -714,8 +714,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @param s js function to be attached to eventRender callback
      */
-    public void setEntryRenderCallback(String s) {
-        getElement().callJsFunction("setEventRenderCallback", s);
+    public void setEntryClassNamesCallback(String s) {
+        getElement().callJsFunction("setEventClassNamesCallback", s);
+    }
+    
+    public void setEntryContentCallback(String s) {
+        getElement().callJsFunction("setEventContentCallback", s);
+    }
+    
+    public void setEventDidMountCallback(String s) {
+        getElement().callJsFunction("setEventDidMountCallback", s);
+    }
+    
+    public void setEventWillUnmountCallback(String s) {
+        getElement().callJsFunction("setEventWillUnmountCallback", s);
     }
 
     /**
