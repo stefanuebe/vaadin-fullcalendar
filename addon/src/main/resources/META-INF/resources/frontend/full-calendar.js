@@ -1,15 +1,3 @@
-import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
-import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
-
-import {Calendar} from '@fullcalendar/core';
-import interaction from '@fullcalendar/interaction';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import listPlugin from '@fullcalendar/list';
-import {toMoment} from '@fullcalendar/moment'; // only for formatting
-import momentTimezonePlugin from '@fullcalendar/moment-timezone';
-import allLocales from '@fullcalendar/core/locales-all.min';
-
 /*
    Copyright 2020, Stefan Uebe
 
@@ -28,6 +16,19 @@ import allLocales from '@fullcalendar/core/locales-all.min';
 
    Exception of this license is the separately licensed part of the styles.
 */
+
+import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
+
+import {Calendar} from '@fullcalendar/core';
+import interaction from '@fullcalendar/interaction';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
+import { toMoment } from '@fullcalendar/moment'; // only for formatting
+import momentTimezonePlugin from '@fullcalendar/moment-timezone';
+import allLocales from '@fullcalendar/core/locales-all.js';
+
 
 export class FullCalendar extends PolymerElement {
     static get template() {
@@ -70,7 +71,7 @@ export class FullCalendar extends PolymerElement {
 
     static get properties() {
         return {
-            eventLimit: {
+        	dayMaxEventRows: {
                 type: Object,
                 value: false
             },
@@ -200,7 +201,7 @@ export class FullCalendar extends PolymerElement {
                     // newResource: eventInfo.newResource ? eventInfo.newResource.id : null
                 }
             },
-            datesRender: (eventInfo) => {
+            datesSet: (eventInfo) => {
                 if (!this.noDatesRenderEvent) {
                     let view = eventInfo.view;
                     return {
@@ -226,12 +227,12 @@ export class FullCalendar extends PolymerElement {
                     allDay: true
                 }
             },
-            eventLimitClick: (eventInfo) => {
+            moreLinkClick: (eventInfo) => {
                 return {
                     date: this._formatDate(eventInfo.date, true)
                 }
             },
-            viewSkeletonRender: (eventInfo) => {
+            viewDidMount: (eventInfo) => {
                 let view = eventInfo.view;
                 return {
                     name: view.type,
@@ -307,9 +308,9 @@ export class FullCalendar extends PolymerElement {
             timeZone: 'UTC',
 
             // // no native control elements
-            header: false,
+            headerToolbar: false,
             weekNumbers: true,
-            eventLimit: this.eventLimit,
+            dayMaxEventRows: this.dayMaxEventRows,
             navLinks: this.navLinks,
             selectable: this.selectable,
         };
@@ -455,7 +456,7 @@ export class FullCalendar extends PolymerElement {
 
                         for (let property in obj) {
                             if (property !== 'id' && property !== "start" && property !== "end" && property !== "allDay") {
-                                eventToUpdate.setProp(property, obj[property]);
+                                eventToUpdate.setExtendedProp(property, obj[property]);
                             }
                         }
                     }
@@ -494,7 +495,6 @@ export class FullCalendar extends PolymerElement {
         }
     }
 
-
     removeAllEvents() {
         //this.getCalendar().getEvents().forEach(e => e.remove());
         var calendar = this.getCalendar();
@@ -502,7 +502,6 @@ export class FullCalendar extends PolymerElement {
             calendar.getEvents().forEach(e => e.remove());
         });
     }
-
 
     changeView(viewName) {
         this.getCalendar().changeView(viewName);
@@ -512,11 +511,25 @@ export class FullCalendar extends PolymerElement {
         this.getCalendar().render();
     }
 
-    setEventRenderCallback(s) {
+    setEventClassNamesCallback(s) {
         let calendar = this.getCalendar();
-        calendar.setOption('eventRender', new Function("return " + s)());
+        calendar.setOption('eventClassNames', new Function("return " + s)());
     }
-
+    
+    setEventContentCallback(s) {
+        let calendar = this.getCalendar();
+        calendar.setOption('eventContent', new Function("return " + s)());
+    }
+    
+    setEventDidMountCallback(s) {
+        let calendar = this.getCalendar();
+        calendar.setOption('eventDidMount', new Function("return " + s)());
+    }
+    
+    setEventWillUnmountCallback(s) {
+        let calendar = this.getCalendar();
+        calendar.setOption('eventWillUnmount', new Function("return " + s)());
+    }
 }
 
 customElements.define("full-calendar", FullCalendar);
