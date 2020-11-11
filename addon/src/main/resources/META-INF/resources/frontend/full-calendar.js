@@ -1506,10 +1506,7 @@ export class FullCalendar extends PolymerElement {
             eventDrop: (eventInfo) => {
                 return {
                     data: this._toEventData(eventInfo.event, eventInfo.oldResource, eventInfo.newResource),
-                    // data: this._toEventData(eventInfo.event),
                     delta: eventInfo.delta,
-                    // oldResource: eventInfo.oldResource ? eventInfo.oldResource.id : null,
-                    // newResource: eventInfo.newResource ? eventInfo.newResource.id : null
                 }
             },
             datesSet: (eventInfo) => {
@@ -1575,41 +1572,6 @@ export class FullCalendar extends PolymerElement {
 
         return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
     }
-
-    // _formatDate(date, asDay) {
-    //     let dateString = date.getFullYear()
-    //         + "-" + this._withLeadingZero(date.getMonth())
-    //         + "-" + this._withLeadingZero(date.getDay());
-    //
-    //     if (!asDay) {
-    //         let offset = date.getTimezoneOffset();
-    //
-    //         let offsetString;
-    //         if (offset === 0) {
-    //             offsetString = "Z"
-    //         } else {
-    //             offsetString = offset < 0 ? "-" : "+";
-    //
-    //             offset = Math.abs(offset);
-    //
-    //             let offsetHours = Math.trunc(offset / 60);
-    //             let offsetMinutes = offset - (offsetHours * 60);
-    //
-    //             offsetString += this._withLeadingZero(offsetHours) + ":" + this._withLeadingZero(offsetMinutes);
-    //         }
-    //
-    //         dateString += "T" + this._withLeadingZero(date.getHours())
-    //             + ":" + this._withLeadingZero(date.getMinutes())
-    //             + ":" + this._withLeadingZero(date.getSeconds())
-    //             + offsetString;
-    //     }
-    //
-    //     return dateString
-    // }
-
-    // _withLeadingZero(number) {
-    //     return (number < 10 ? "0" : "") + number;
-    // }
 
     _createInitOptions(initialOptions) {
         let events = this._createEventHandlers();
