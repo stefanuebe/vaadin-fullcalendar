@@ -32,7 +32,7 @@ public class FullCalendarSchedulerTest {
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals("123456", option.get());
     }
-
+    
     @Test
     void testNonArgsConstructor() {
 
@@ -50,7 +50,7 @@ public class FullCalendarSchedulerTest {
         assertExistingOptionCount(calendar, 1);
         Assertions.assertSame(CalendarLocale.getDefault(), calendar.getLocale());
 
-        Assertions.assertEquals(entryLimit, calendar.getElement().getProperty("eventLimit", -1));
+        Assertions.assertEquals(entryLimit, calendar.getElement().getProperty("dayMaxEvents", -1));
     }
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {

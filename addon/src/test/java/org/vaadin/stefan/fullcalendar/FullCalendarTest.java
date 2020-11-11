@@ -48,7 +48,7 @@ public class FullCalendarTest {
         assertExistingOptionCount(calendar, 1);
         Assertions.assertSame(CalendarLocale.getDefault(), calendar.getLocale());
 
-        Assertions.assertEquals(entryLimit, calendar.getElement().getProperty("eventLimit", -1));
+        Assertions.assertEquals(entryLimit, calendar.getElement().getProperty("dayMaxEvents", -1));
     }
 
     @Test

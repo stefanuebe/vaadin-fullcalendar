@@ -82,7 +82,7 @@ public class FullCalendarBuilder {
      * Expects the default limit of entries shown per day. This does not affect basic or
      * list views.
      * <br><br>
-     * Passing a negative number or 0 disabled the entry limit (same as not using this method at all).
+     * Passing a negative number disabled the entry limit (same as not using this method at all).
      *
      * @param entryLimit limit
      * @return new immutable instance with updated settings
