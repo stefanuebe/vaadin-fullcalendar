@@ -27,7 +27,7 @@ import java.time.LocalDate;
 /**
  * Client side event: eventLimitClick.
  */
-@DomEvent("eventLimitClick")
+@DomEvent("moreLinkClick")
 @Getter
 @ToString
 public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {

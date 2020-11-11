@@ -23,6 +23,7 @@ public class Demo2 extends VerticalLayout {
     }
 
     private void initBasicDemo() {
+
         FullCalendar calendar = FullCalendarBuilder.create().withScheduler().build();
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
 
@@ -39,7 +40,6 @@ public class Demo2 extends VerticalLayout {
         Demo.createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
         Demo.createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
         Demo.createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
-
     }
 
     private HorizontalLayout createBasicToolbar(FullCalendar calendar) {

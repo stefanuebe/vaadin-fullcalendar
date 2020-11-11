@@ -183,8 +183,6 @@ public class Demo extends VerticalLayout {
             System.out.println("View skeleton rendered: " + event);
         });
 
-
-
         calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
         calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
         calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDate()));

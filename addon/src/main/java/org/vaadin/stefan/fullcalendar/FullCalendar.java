@@ -85,19 +85,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * list views. This value has to be set here and cannot be modified afterwards due to
      * technical reasons of FC. If set afterwards the entry limit would overwrite settings
      * and would show the limit also for basic views where it makes no sense (might change in future).
-     * Passing a negative number or 0 disabled the entry limit (same as passing no number at all).
+     * Passing a negative number disabled the entry limit (same as passing no number at all).
      * <br><br>
      * Sets the locale to {@link CalendarLocale#getDefault()}
      *
      *
-     * @param entryLimit max entries to shown per day
+     * @param entryLimit The max number of stacked event levels within a given day. This includes the +more link if present. The rest will show up in a popover.
      */
     public FullCalendar(int entryLimit) {
         setLocale(CalendarLocale.getDefault());
-        if (entryLimit > 0) {
-            getElement().setProperty("eventLimit", entryLimit);
+        if (entryLimit >= 0) {
+            getElement().setProperty("dayMaxEvents", entryLimit);
         } else {
-            getElement().setProperty("eventLimit", false);
+            getElement().setProperty("dayMaxEvents", false);
         }
     }
 

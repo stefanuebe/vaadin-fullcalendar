@@ -29,7 +29,7 @@ import lombok.ToString;
  * <br><br>
  * Called after registered {@link ViewSkeletonRenderedEvent} listeners.
  */
-@DomEvent("datesRender")
+@DomEvent("datesSet")
 @Getter
 @ToString(callSuper = true)
 public class DatesRenderedEvent extends ViewRenderEvent {
