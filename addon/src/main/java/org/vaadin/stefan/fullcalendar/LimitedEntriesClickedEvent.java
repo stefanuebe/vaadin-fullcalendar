@@ -25,7 +25,7 @@ import lombok.ToString;
 import java.time.LocalDate;
 
 /**
- * Client side event: eventLimitClick.
+ * Client side event: moreLinkClick.
  */
 @DomEvent("moreLinkClick")
 @Getter
