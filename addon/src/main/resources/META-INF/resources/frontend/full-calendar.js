@@ -1382,7 +1382,7 @@ export class FullCalendar extends PolymerElement {
 
     static get properties() {
         return {
-        	dayMaxEventRows: {
+        	dayMaxEvents: {
                 type: Object,
                 value: false
             },
@@ -1621,7 +1621,7 @@ export class FullCalendar extends PolymerElement {
             // // no native control elements
             headerToolbar: false,
             weekNumbers: true,
-            dayMaxEventRows: this.dayMaxEventRows,
+            dayMaxEvents: this.dayMaxEvents,
             navLinks: this.navLinks,
             selectable: this.selectable,
         };
