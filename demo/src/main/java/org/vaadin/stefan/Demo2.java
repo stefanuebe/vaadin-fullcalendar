@@ -24,8 +24,8 @@ public class Demo2 extends VerticalLayout {
 
     private void initBasicDemo() {
 
-        FullCalendar calendar = FullCalendarBuilder.create().withScheduler().build();
-        ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
+        FullCalendar calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").build();
+        //((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
 
         createBasicEntries(calendar);
 
