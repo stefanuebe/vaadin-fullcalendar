@@ -50,7 +50,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public FullCalendarScheduler() {
         super();
     }
-
+    
     /**
      * Creates a new instance.
      * <br><br>
