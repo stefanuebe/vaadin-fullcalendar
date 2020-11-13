@@ -25,9 +25,9 @@ import lombok.ToString;
 import java.time.LocalDate;
 
 /**
- * Client side event: eventLimitClick.
+ * Client side event: moreLinkClick.
  */
-@DomEvent("eventLimitClick")
+@DomEvent("moreLinkClick")
 @Getter
 @ToString
 public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
