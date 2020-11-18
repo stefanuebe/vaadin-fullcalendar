@@ -166,7 +166,6 @@ public class Entry {
      */
     public Entry() {
         this(null);
-        this.editable = true;
     }
 
     /**
