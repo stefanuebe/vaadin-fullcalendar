@@ -166,7 +166,6 @@ public class Entry {
      */
     public Entry() {
         this(null);
-        this.editable = true;
     }
 
     /**
@@ -179,6 +178,7 @@ public class Entry {
      */
     public Entry(String id) {
         this.id = id != null ? id : UUID.randomUUID().toString();
+        this.editable = true;
     }
 
     /**

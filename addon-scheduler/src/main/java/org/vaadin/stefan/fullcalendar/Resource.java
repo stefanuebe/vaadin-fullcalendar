@@ -48,8 +48,19 @@ public class Resource {
      */
     private final String color;
 
+    /**
+     * The childern's of the resource
+     */
     private Set<Resource> children;
+    /**
+     * The parent of the current resource
+     */
     private Resource parent;
+    
+    /**
+     * The custom property list
+     */
+    private HashMap<String, Object> extendedProps = new HashMap<String, Object>();
 
     /**
      * New instance. ID will be generated.
@@ -196,6 +207,35 @@ public class Resource {
 
         this.children.removeAll(children);
     }
+    
+    /**
+     * Add custom element to the extendedProp HashMap. This allow to set custom property to the resource.
+     *
+     *@param key String the name of the property to add
+     *@param value Object the object to add
+     */
+    public void addExtendedProps(@NotNull String key, @NotNull Object value) {
+    	extendedProps.put(key, value);
+    }
+    
+    /**
+     * Remove the custom property based on the name.
+     *
+     *@param key String the name of the property to remove
+     */
+    public void removeExtendedProps(@NotNull String key) {
+    	extendedProps.remove(key);
+    }
+    
+    /**
+     * remove specific custom property where the name and value match.
+     *
+     *@param key String the name of the property to remove
+     *@param value Object the object to remove
+     */
+    public void removeExtendedProps(@NotNull String key, @NotNull Object value) {
+    	extendedProps.remove(key, value);
+    }
 
     /**
      * Converts the instance to a JsonObject. Calls itself also for child methods. Please be aware, that this method
@@ -220,6 +260,13 @@ public class Resource {
             }
 
             jsonObject.put("children", jsonArray);
+        }
+        
+        HashMap<String, Object> extendedProps = getExtendedProps();
+        if (!extendedProps.isEmpty()) {
+            for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
+            	jsonObject.put(prop.getKey(), prop.getValue().toString());
+            }
         }
 
         return jsonObject;
