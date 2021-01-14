@@ -47,8 +47,8 @@ import java.util.stream.IntStream;
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
 public class Demo extends VerticalLayout {
+	private static final long serialVersionUID = 1L;
 
-    private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
@@ -122,7 +122,6 @@ public class Demo extends VerticalLayout {
             Optional<UI> optionalUI = getUI();
             optionalUI.ifPresent(ui -> {
                 Executors.newSingleThreadExecutor().execute(() -> {
-                    Timezone timezone = new Timezone(ZoneId.systemDefault());
                     Instant start = Instant.now();
                     Instant end = Instant.now().plus(1, ChronoUnit.DAYS);
                     List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
