@@ -46,8 +46,8 @@ import java.util.stream.IntStream;
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
 public class DemoWithTooltip extends VerticalLayout {
+	private static final long serialVersionUID = 1L;
 
-    private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
@@ -113,6 +113,11 @@ public class DemoWithTooltip extends VerticalLayout {
             Timezone value = event.getValue();
             calendar.setTimezone(value != null ? value : Timezone.UTC);
         });
+        
+        Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
+        	calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
+        	Notification.show("Updated fixedWeekCount value from " + Boolean.toString(!calendar.getFixedWeekCount()) + " to " + Boolean.toString(calendar.getFixedWeekCount()));
+        });
 
         Button addThousand = new Button("Add 1000 entries", event -> {
             Button source = event.getSource();
@@ -121,7 +126,6 @@ public class DemoWithTooltip extends VerticalLayout {
             Optional<UI> optionalUI = getUI();
             optionalUI.ifPresent(ui -> {
                 Executors.newSingleThreadExecutor().execute(() -> {
-                    Timezone timezone = new Timezone(ZoneId.systemDefault());
                     Instant start = Instant.now();
                     Instant end = Instant.now().plus(1, ChronoUnit.DAYS);
                     List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
@@ -149,13 +153,10 @@ public class DemoWithTooltip extends VerticalLayout {
 
         Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
 
-        toolbar.add(addThousand, removeAllEntries, removeAllResources);
-
-
-
+        toolbar.add(toogleFixedWeekCount, addThousand, removeAllEntries, removeAllResources);
+        
         add(toolbar);
     }
-
 
     private void createCalendarInstance() {
         calendar = new FullCalendarWithTooltip();

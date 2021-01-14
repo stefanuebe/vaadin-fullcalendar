@@ -114,6 +114,11 @@ public class Demo extends VerticalLayout {
             Timezone value = event.getValue();
             calendar.setTimezone(value != null ? value : Timezone.UTC);
         });
+        
+        Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
+        	calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
+        	Notification.show("Updated fixedWeekCount value from " + Boolean.toString(!calendar.getFixedWeekCount()) + " to " + Boolean.toString(calendar.getFixedWeekCount()));
+        });
 
         Button addThousand = new Button("Add 1000 entries", event -> {
             Button source = event.getSource();
@@ -149,13 +154,10 @@ public class Demo extends VerticalLayout {
 
         Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
 
-        toolbar.add(addThousand, removeAllEntries, removeAllResources);
-
-
+        toolbar.add(toogleFixedWeekCount, addThousand, removeAllEntries, removeAllResources);
 
         add(toolbar);
     }
-
 
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).withScheduler().build();
@@ -277,6 +279,7 @@ public class Demo extends VerticalLayout {
 
         createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
         createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
+        
         createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
         createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);

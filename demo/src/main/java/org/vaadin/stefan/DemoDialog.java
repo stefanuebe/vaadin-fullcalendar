@@ -27,8 +27,9 @@ import java.time.*;
 import java.util.Set;
 
 public class DemoDialog extends Dialog {
-
-    private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
+	private static final long serialVersionUID = 1L;
+	
+	private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
     private final DialogEntry dialogEntry;
     private final CustomDateTimePicker fieldStart;
     private final CustomDateTimePicker fieldEnd;
