@@ -256,6 +256,9 @@ public class Demo extends VerticalLayout {
         Resource meetingRoomRed = createResource((Scheduler) calendar, "Meetingroom Red", "#ff0000");
         Resource meetingRoomGreen = createResource((Scheduler) calendar, "Meetingroom Green", "green");
         Resource meetingRoomBlue = createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
+        Resource meetingRoomYellow = createResource((Scheduler) calendar, "Meetingroom Yellow", "yellow", null, 
+        		new BusinessHours(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
+        
         Resource computer1A = createResource((Scheduler) calendar, "Computer 1A", "lightbrown");
         Resource computer1B = createResource((Scheduler) calendar, "Computer 1B", "lightbrown");
         Resource computer1C = createResource((Scheduler) calendar, "Computer 1C", "lightbrown");
@@ -279,6 +282,8 @@ public class Demo extends VerticalLayout {
 
         createTimedEntry(calendar, "Kickoff meeting with customer #1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
         createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
+        
+        createTimedEntry(calendar, "Kickoff meeting with customer #7", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomYellow);
         
         createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
         createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
@@ -397,6 +402,12 @@ public class Demo extends VerticalLayout {
 
     static Resource createResource(Scheduler calendar, String s, String color, Collection<Resource> children) {
         Resource resource = new Resource(null, s, color, children);
+        calendar.addResource(resource);
+        return resource;
+    }
+    
+    static Resource createResource(Scheduler calendar, String s, String color, Collection<Resource> children, BusinessHours businessHours) {
+        Resource resource = new Resource(null, s, color, children, businessHours);
         calendar.addResource(resource);
         return resource;
     }
