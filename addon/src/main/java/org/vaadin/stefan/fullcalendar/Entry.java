@@ -153,7 +153,7 @@ public class Entry {
     // TODO
     // groupId
     // className / classNames
-
+    
     /**
      * The calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
      */
@@ -179,88 +179,6 @@ public class Entry {
     public Entry(String id) {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.editable = true;
-    }
-
-    /**
-     * Creates a new entry with the given attributes.
-     *
-     * @param id          id
-     * @param title       title
-     * @param start       start
-     * @param end         end
-     * @param allDay      allday
-     * @param editable    editable
-     * @param color       color
-     * @param description description
-     * @deprecated will be removed in a later version
-     */
-    @Deprecated
-    public Entry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
-        this(id);
-
-        this.title = title;
-        this.start = start;
-        this.end = end;
-        this.allDay = allDay;
-        this.editable = editable;
-        this.description = description;
-
-        setColor(color);
-    }
-
-    /**
-     * Creates a new entry with the given attributes.
-     *
-     * @param id          id
-     * @param title       title
-     * @param start       start
-     * @param end         end
-     * @param allDay      allday
-     * @param editable    editable
-     * @param color       color
-     * @param description description
-     * @deprecated will be removed in a later version
-     */
-    @Deprecated
-    public Entry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
-        this(id);
-
-        this.title = title;
-        this.start = start.toInstant(ZoneOffset.UTC);
-        this.end = end.toInstant(ZoneOffset.UTC);
-        this.allDay = allDay;
-        this.editable = editable;
-        this.description = description;
-
-        setColor(color);
-    }
-
-    /**
-     * Creates a new entry with the given attributes.
-     *
-     * @param id          id
-     * @param title       title
-     * @param start       start
-     * @param end         end
-     * @param timezone    timezone
-     * @param allDay      allday
-     * @param editable    editable
-     * @param color       color
-     * @param description description
-     * @deprecated will be removed in a later version
-     */
-    @Deprecated
-    public Entry(String id, String title, LocalDateTime start, LocalDateTime end, Timezone timezone, boolean allDay, boolean editable, String color, String description) {
-        this(id);
-
-        this.title = title;
-        this.start = timezone.convertToUTC(start);
-        this.end = timezone.convertToUTC(end);
-        this.allDay = allDay;
-        this.editable = editable;
-        this.description = description;
-
-        setColor(color);
     }
 
     /**
@@ -485,19 +403,6 @@ public class Entry {
      * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
      * is recurring).
      *
-     * @deprecated use {@link #getRecurringStartDateUTC()} instead.
-     *
-     * @return start date of recurrence
-     */
-    @Deprecated
-    public Instant getRecurringStartDate() {
-        return recurringStartDate;
-    }
-
-    /**
-     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-     * is recurring).
-     *
      * @return start date of recurrence
      */
     public Instant getRecurringStartDateUTC() {
@@ -533,19 +438,6 @@ public class Entry {
         Objects.requireNonNull(recurringStartDate, "recurringStartDate");
         Objects.requireNonNull(timezone, "timezone");
         setRecurringStartDate(timezone.convertToUTC(recurringStartDate));
-    }
-
-
-    /**
-     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-     * is recurring).
-     *
-     * @deprecated use {@link #getRecurringEndDateUTC()} instead
-     * @return end date of recurrence
-     */
-    @Deprecated
-    public Instant getRecurringEndDate() {
-        return recurringEndDate;
     }
 
     /**
