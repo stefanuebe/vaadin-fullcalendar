@@ -12,6 +12,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 @CssImport("tippy.js/dist/tippy.css")
 @CssImport("tippy.js/themes/light.css")
 public class FullCalendarWithTooltip extends FullCalendarScheduler {
+	private static final long serialVersionUID = 1L;
 
     public FullCalendarWithTooltip() {
         super(3);
