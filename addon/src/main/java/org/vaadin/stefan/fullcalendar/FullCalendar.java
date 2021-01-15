@@ -778,6 +778,27 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Returns the fixedWeekCount. By default true.
+     *
+     * @return fixedWeekCount
+     */
+    public boolean getFixedWeekCount() {
+        return (boolean) getOption(Option.FIXED_WEEK_COUNT).orElse(true);
+    }
+
+    /**
+     * Determines the number of weeks displayed in a month view.
+     * If true, the calendar will always be 6 weeks tall. 
+     * If false, the calendar will have either 4, 5, or 6 weeks, depending on the month.
+     * 
+     * @param boolean fixedWeekCount
+     * 
+     */
+    public void setFixedWeekCount(boolean fixedWeekCount) {
+        setOption(Option.FIXED_WEEK_COUNT, fixedWeekCount);
+    }
+    
+    /**
      * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day<p>
      * The default is '24:00:00'
      *
@@ -796,6 +817,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return time zone
      */
     public Timezone getTimezone() {
+    	// TODO: Investigate on why Option.TIMEZONE is not used
         return (Timezone) getOption("timeZone").orElse(Timezone.UTC);
     }
 
@@ -804,6 +826,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         Timezone oldTimezone = getTimezone();
         if (!timezone.equals(oldTimezone)) {
+        	// TODO: Investigate on why Option.TIMEZONE is not used
             setOption("timeZone", timezone.getClientSideValue(), timezone);
             updateEntries(getEntries());
         }
@@ -1084,7 +1107,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         TIMEZONE("timeZone"),
         SNAP_DURATION("snapDuration"),
         MIN_TIME("minTime"),
-        MAX_TIME("maxTime");
+        MAX_TIME("maxTime"),
+    	FIXED_WEEK_COUNT("fixedWeekCount");
 
         private final String optionKey;
 

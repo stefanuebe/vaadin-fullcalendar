@@ -18,6 +18,8 @@ import java.util.List;
 
 @Route(value = "demo2", layout = MainView.class)
 public class Demo2 extends VerticalLayout {
+	private static final long serialVersionUID = 1L;
+	
     public Demo2() {
         initBasicDemo();
     }
