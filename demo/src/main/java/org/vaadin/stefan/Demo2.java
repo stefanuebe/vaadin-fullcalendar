@@ -7,6 +7,7 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
@@ -25,9 +26,13 @@ public class Demo2 extends VerticalLayout {
     }
 
     private void initBasicDemo() {
+    	getStyle().set("flex-grow", "1");
 
         FullCalendar calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").build();
         //((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
+        
+        setFlexGrow(1, calendar);
+        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
 
         createBasicEntries(calendar);
 

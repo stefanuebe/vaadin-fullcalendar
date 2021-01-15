@@ -1577,7 +1577,7 @@ export class FullCalendar extends PolymerElement {
         let events = this._createEventHandlers();
 
         let options = initialOptions != null ? initialOptions : {
-            height: 'parent',
+            height: '100%',
             timeZone: 'UTC',
 
             // // no native control elements
