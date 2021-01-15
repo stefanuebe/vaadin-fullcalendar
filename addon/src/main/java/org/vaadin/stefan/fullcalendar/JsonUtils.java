@@ -21,8 +21,13 @@ import elemental.json.*;
 import javax.validation.constraints.NotNull;
 import java.time.*;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -68,6 +73,17 @@ public final class JsonUtils {
                 array.set(i++, toJsonValue(iterator.next()));
             }
             return array;
+        }
+        
+        if (value instanceof HashMap<?, ?>) {
+        	HashMap<String, Object> hashmap = (HashMap<String, Object>) value;
+        	JsonObject jsonObject = Json.createObject();
+        	
+        	for (Map.Entry<String, Object> prop : hashmap.entrySet()) {
+            	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
+            }
+            
+            return jsonObject;
         }
 
         if (value instanceof Object[]) {
@@ -139,6 +155,75 @@ public final class JsonUtils {
             setter.accept(dateTime);
         }
     }
+    
+    /**
+     * Reads the json property by key and tries to apply it as a string.
+     *
+     * @param object json object
+     * @param key    json property key
+     * @param setter setter to apply value
+     * @throws NullPointerException when null is passed for not null parameters
+     */
+    public static void updateHashMap(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<HashMap<String, Object>> setter) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        if (object.get(key) instanceof JsonString) {
+            setter.accept(toHashMap(object.get(key)));
+        }
+    }
+    
+    /**
+     * Convert the JsonObject to HashMap
+     *
+     * @param object json object
+     * 
+     * @return HashMap<String, Object> The mapping
+     */
+    private static HashMap<String, Object> toHashMap(JsonObject jsonobj) {
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        Iterator<String> keys = Arrays.asList(jsonobj.keys()).iterator();
+        
+        while(keys.hasNext()) {
+            String key = keys.next();
+            Object value = jsonobj.get(key);
+            
+            if (value instanceof JsonArray)
+                value = toList((JsonArray) value);
+            else if (value instanceof JsonObject) 
+                value = toHashMap((JsonObject) value);
+
+            map.put(key, value);
+        }
+        
+        return map;
+    }
+
+    /**
+     * Convert the JsonArray to List
+     *
+     * @param array json array
+     * 
+     * @return List<Object The list
+     */
+    private static List<Object> toList(JsonArray array) {
+    	List<Object> list = new ArrayList<Object>();
+    	
+        for(int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+            
+            if (value instanceof JsonArray)
+                value = toList((JsonArray) value);
+            else if (value instanceof JsonObject)
+                value = toHashMap((JsonObject) value);
+            
+            list.add(value);
+        }
+        
+        return list;
+    }
+        
+
 
     /**
      * Parses a date time string sent from the client side. This string may apply to ZonedDateTime, Instant, LocalDate
