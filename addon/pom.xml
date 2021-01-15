@@ -10,7 +10,7 @@
     <description>A web component that wraps the Full Calendar 4.x (https://fullcalendar.io).</description>
 
     <properties>
-        <vaadin.version>14.4.2</vaadin.version>
+        <vaadin.version>14.4.6</vaadin.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>

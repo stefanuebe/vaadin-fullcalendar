@@ -36,8 +36,8 @@ import java.util.stream.StreamSupport;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/resource-timeline", version = "5.3.1")
-@NpmPackage(value = "@fullcalendar/resource-timegrid", version = "5.3.1")
+@NpmPackage(value = "@fullcalendar/resource-timeline", version = "5.5.0")
+@NpmPackage(value = "@fullcalendar/resource-timegrid", version = "5.5.0")
 @Tag("full-calendar-scheduler")
 @JsModule("./full-calendar-scheduler.js")
 public class FullCalendarScheduler extends FullCalendar implements Scheduler {
