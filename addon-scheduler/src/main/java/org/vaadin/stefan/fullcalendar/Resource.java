@@ -35,19 +35,32 @@ public class Resource {
 
     /**
      * The id of this resource.
+     * 
+     * Uniquely identifies this resource. 
      */
     private final String id;
 
     /**
-     * The title / name of this resource.
+     * The title/name of this resource.
+     * 
+     * Text that will be displayed on the resource when it is rendered.
      */
     private final String title;
 
     /**
      * The color of this resource.
+     * 
+     * Events associated with this resources will have their backgrounds and borders colored. 
      */
     private final String color;
 
+    /**
+     * The BusinessHours of this resource.
+     * 
+     * A businessHours declaration that will only apply to this resource.
+     */
+    private final BusinessHours businessHours;
+    
     /**
      * The childern's of the resource
      */
@@ -91,9 +104,25 @@ public class Resource {
      * @param children children (optional)
      */
     public Resource(String id, String title, String color, Collection<Resource> children) {
+    	this(id, title, color, children, null);
+    }
+
+    /**
+     * New instance. Awaits id and title. If no id is provided, one will be generated.
+     * <br><br>
+     * Adds the given resources as children using {@link #addChildren(Collection)} if a value != null is passed.
+     *
+     * @param id       id
+     * @param title    title
+     * @param color    color (optional)
+     * @param children children (optional)
+     * @param businessHours businessHours (optional)
+     */
+    public Resource(String id, String title, String color, Collection<Resource> children, BusinessHours businessHours) {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
         this.color = color;
+        this.businessHours = businessHours;
 
         if (children != null) {
             addChildren(children);
@@ -249,6 +278,10 @@ public class Resource {
         jsonObject.put("id", getId());
         jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
         jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
+        
+        if(getBusinessHours() != null)
+        	jsonObject.put("businessHours", getBusinessHours().toJson());
+        
         getParent().ifPresent(parent -> jsonObject.put("parentId", parent.getId()));
 
         Set<Resource> children = getChildren();
@@ -265,7 +298,7 @@ public class Resource {
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {
             for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
-            	jsonObject.put(prop.getKey(), prop.getValue().toString());
+            	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
             }
         }
 
