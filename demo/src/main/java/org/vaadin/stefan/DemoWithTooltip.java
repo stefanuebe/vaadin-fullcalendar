@@ -22,14 +22,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.NativeButton;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
@@ -46,8 +42,8 @@ import java.util.stream.IntStream;
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
 public class DemoWithTooltip extends VerticalLayout {
+	private static final long serialVersionUID = 1L;
 
-    private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
@@ -121,7 +117,6 @@ public class DemoWithTooltip extends VerticalLayout {
             Optional<UI> optionalUI = getUI();
             optionalUI.ifPresent(ui -> {
                 Executors.newSingleThreadExecutor().execute(() -> {
-                    Timezone timezone = new Timezone(ZoneId.systemDefault());
                     Instant start = Instant.now();
                     Instant end = Instant.now().plus(1, ChronoUnit.DAYS);
                     List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
