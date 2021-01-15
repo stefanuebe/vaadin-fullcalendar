@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Client side event: moreLinkClick.
@@ -36,6 +37,11 @@ public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
      * The clicked date.
      */
     private final LocalDate clickedDate;
+    
+    /**
+     * A List of all event objects for the clicked date. (This is not the Event Segment Object, but the Event Object)
+     */
+    private final List<Entry> events;
 
     /**
      * New instance. Awaits the clicked date as iso string (e.g. "2018-10-23").
@@ -44,10 +50,11 @@ public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param date       clicked time slot as iso string
      */
-    public LimitedEntriesClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date) {
+    public LimitedEntriesClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allSegs") List<Entry> allSegs) {
         super(source, fromClient);
 
         clickedDate = source.getTimezone().convertToLocalDate(JsonUtils.parseDateTimeString(date, source.getTimezone()));
+        events = allSegs;
     }
 
 }

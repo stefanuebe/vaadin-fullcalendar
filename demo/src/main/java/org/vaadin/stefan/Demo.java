@@ -252,8 +252,8 @@ public class Demo extends VerticalLayout {
             new DemoDialog(calendar, entry, true).open();
         });
 
-        calendar.addLimitedEntriesClickedListener(event -> {
-            Collection<Entry> entries = calendar.getEntries(event.getClickedDate());
+        /*calendar.addLimitedEntriesClickedListener(event -> {
+            Collection<Entry> entries = event.getEvents();
             if (!entries.isEmpty()) {
                 Dialog dialog = new Dialog();
                 VerticalLayout dialogLayout = new VerticalLayout();
@@ -280,7 +280,7 @@ public class Demo extends VerticalLayout {
                 dialog.add(dialogLayout);
                 dialog.open();
             }
-        });
+        });*/
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             System.out.println("Use browser's timezone: " + event.getTimezone().toString());
