@@ -62,68 +62,6 @@ public class ResourceEntry extends Entry {
     }
 
     /**
-     * Creates a new instance containing most values.
-     *
-     * @param id          id
-     * @param title       title
-     * @param start       start
-     * @param end         end
-     * @param allDay      allday
-     * @param editable    editable
-     * @param color       color
-     * @param description description
-     * @deprecated will be removed in a later version
-     */
-    @Deprecated
-    public ResourceEntry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
-        super(id);
-        setTitle(title);
-        setStart(start);
-        setEnd(end);
-        setAllDay(allDay);
-        setEditable(editable);
-        setDescription(description);
-        setColor(color);
-    }
-
-    /**
-     * Creates a new instance containing most values.
-     *
-     * @param id          id
-     * @param title       title
-     * @param start       start
-     * @param end         end
-     * @param allDay      allday
-     * @param editable    editable
-     * @param color       color
-     * @param description description
-     * @deprecated will be removed in a later version
-     */
-    @Deprecated
-    public ResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
-        this(id, title, start != null ? start.toInstant(ZoneOffset.UTC) : null, end != null ? end.toInstant(ZoneOffset.UTC) : null, allDay, editable, color, description);
-    }
-
-    /**
-     * Creates a new instance containing most values.
-     *
-     * @param id          id
-     * @param title       title
-     * @param start       start
-     * @param end         end
-     * @param timezone    timezone
-     * @param allDay      allday
-     * @param editable    editable
-     * @param color       color
-     * @param description description
-     * @deprecated will be removed in a later version
-     */
-    @Deprecated
-    public ResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, Timezone timezone, boolean allDay, boolean editable, String color, String description) {
-        this(id, title, start != null ? timezone.convertToUTC(start) : null, end != null ? timezone.convertToUTC(end) : null, allDay, editable, color, description);
-    }
-
-    /**
      * Sets the calendar for this instance. The given calendar must be implementing Scheduler.
      *
      * @param calendar calendar instance
@@ -144,28 +82,6 @@ public class ResourceEntry extends Entry {
      */
     public Optional<Resource> getResource() {
         return Optional.ofNullable(resources != null && !resources.isEmpty() ? resources.iterator().next() : null);
-    }
-
-    /**
-     * Sets a resource for this entry. Previously set resources will be removed. Setting null is the same
-     * as calling {@link #removeAllResources()}.
-     *
-     * @param resource resource
-     * @deprecated Naming "set" does not match very well the use case and also the wording in the official FC doc, thus it
-     * will be removed in later versions. Use {@link #unassignResource(Resource)} plus {@link #assignResource(Resource)} instead.
-     */
-    @Deprecated
-    public void setResource(Resource resource) {
-        if (resource == null) {
-            removeAllResources();
-        } else {
-            if (this.resources == null) {
-                this.resources = new LinkedHashSet<>(1);
-            } else {
-                this.resources.clear();
-            }
-            this.resources.add(resource);
-        }
     }
 
     /**
@@ -193,19 +109,6 @@ public class ResourceEntry extends Entry {
      */
     public boolean hasResources() {
         return resources != null && !resources.isEmpty();
-    }
-
-    /**
-     * Assign resources to this entry.
-     *
-     * @param resources resources
-     * @throws NullPointerException when null is passed
-     * @deprecated Naming "add" does not match very well the use case and also the wording in the official FC doc, thus it
-     * will be removed in later versions. Use {@link #assignResources(Collection)} instead.
-     */
-    @Deprecated
-    public void addResources(@NotNull Collection<Resource> resources) {
-        assignResources(resources);
     }
 
     /**
@@ -276,29 +179,6 @@ public class ResourceEntry extends Entry {
     }
 
     /**
-     * Removes the given resources from this entry.
-     *
-     * @param resources resources
-     * @deprecated Naming "remove" does not match very well the use case and also the wording in the official FC doc, thus it
-     * will be removed in later versions. Use {@link #unassignResources(Collection)} instead.
-     */
-    @Deprecated
-    public void removeResources(Collection<Resource> resources) {
-        unassignResources(resources);
-    }
-
-    /**
-     * Removes all resources from this entry.
-     *
-     * @deprecated Naming "remove" does not match very well the use case and also the wording in the official FC doc, thus it
-     * will be removed in later versions. Use {@link #unassignResources(Collection)} instead.
-     */
-    @Deprecated
-    public void removeAllResources() {
-        unassignAllResources();
-    }
-
-    /**
      * Unassigns all resources from this entry.
      */
     public void unassignAllResources() {
@@ -354,31 +234,5 @@ public class ResourceEntry extends Entry {
                     .ifPresent(this::assignResources);
 
         });
-    }
-
-    /**
-     * Defines, if the user can move entries between resources (by using drag and drop). This value
-     * is passed to the client side and interpreted there, but can also be used for server side checks.
-     * <br><br>
-     * This value has no impact on the resource API of this class.
-     *
-     * @return resource is editable on client side
-     * @deprecated use {@link #isResourceEditable()} instead
-     */
-    public boolean isResourceEditableOnClientSide() {
-        return isResourceEditable();
-    }
-
-    /**
-     * Defines, if the user can move entries between resources (by using drag and drop). This value
-     * is passed to the client side and interpreted there, but can also be used for server side checks.
-     * <br><br>
-     * This value has no impact on the resource API of this class.
-     *
-     * @param resourceEditableOnClientSide resource editable on client side
-     * @deprecated use {@link #setResourceEditable(boolean)} instead
-     */
-    public void setResourceEditableOnClientSide(boolean resourceEditableOnClientSide) {
-        setResourceEditable(resourceEditableOnClientSide);
     }
 }

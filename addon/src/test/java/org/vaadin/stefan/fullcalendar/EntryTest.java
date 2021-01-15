@@ -88,16 +88,26 @@ public class EntryTest {
         Entry entry;
 
         // test optional parameters
-        entry = new Entry(null, null, (Instant) null, null, false, false, null, null);
+        entry = new Entry();
 
         // test id generation
         String id = entry.getId();
         Assertions.assertNotNull(id);
         Assertions.assertFalse(id.isEmpty());
         UUID.fromString(id);
+        // test editable parameter to be true by default
+        Assertions.assertTrue(entry.isEditable());
 
         // test field values after construction - all params
-        entry = new Entry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START_UTC, DEFAULT_END_UTC, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
+        entry = new Entry(DEFAULT_ID);
+        entry.setTitle(DEFAULT_TITLE);
+        entry.setStart(DEFAULT_START_UTC);
+        entry.setEnd(DEFAULT_END_UTC);
+        entry.setAllDay(true);
+        entry.setEditable(true);
+        entry.setColor(DEFAULT_COLOR);
+        entry.setDescription(DEFAULT_DESCRIPTION);
+        
         Assertions.assertEquals(DEFAULT_ID, entry.getId());
         Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
         Assertions.assertEquals(DEFAULT_START_UTC, entry.getStartUTC());
@@ -108,13 +118,28 @@ public class EntryTest {
         Assertions.assertEquals(DEFAULT_DESCRIPTION, entry.getDescription());
 
         // test null color when set empty
-        Assertions.assertNull(new Entry(null, null, (Instant) null, null, false, false, "", null).getColor());
+        Assertions.assertNull(new Entry().getColor());
     }
 
     @Test
     void testEqualsAndHashcodeOnlyDependOnId() {
-        Entry entry = new Entry(DEFAULT_ID, null, (Instant) null, null, false, false, null, null);
-        Entry entry1 = new Entry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START_UTC, DEFAULT_END_UTC, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
+        Entry entry = new Entry(DEFAULT_ID);
+        entry.setTitle(null);
+        entry.setStart((Instant)null);
+        entry.setEnd((Instant)null);
+        entry.setAllDay(false);
+        entry.setEditable(false);
+        entry.setColor(null);
+        entry.setDescription(null);
+        
+        Entry entry1 = new Entry(DEFAULT_ID);
+        entry1.setTitle(DEFAULT_TITLE);
+        entry1.setStart(DEFAULT_START_UTC);
+        entry1.setEnd(DEFAULT_END_UTC);
+        entry1.setAllDay(true);
+        entry1.setEditable(true);
+        entry1.setColor(DEFAULT_COLOR);
+        entry1.setDescription(DEFAULT_DESCRIPTION);
         entry1.setRenderingMode(DEFAULT_RENDERING);
 
         Assertions.assertEquals(entry, entry1);
@@ -123,9 +148,23 @@ public class EntryTest {
         Assertions.assertNotEquals(entry, new Entry());
         Assertions.assertNotEquals(entry.hashCode(), new Entry().hashCode());
 
-        Entry entry2 = new Entry(null, DEFAULT_TITLE, DEFAULT_START_UTC, DEFAULT_END_UTC, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
-        Entry entry3 = new Entry(null, DEFAULT_TITLE, DEFAULT_START_UTC, DEFAULT_END_UTC, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
-        entry2.setRenderingMode(DEFAULT_RENDERING);
+        Entry entry2 = new Entry();
+        entry2.setTitle(DEFAULT_TITLE);
+        entry2.setStart(DEFAULT_START_UTC);
+        entry2.setEnd(DEFAULT_END_UTC);
+        entry2.setAllDay(true);
+        entry2.setEditable(true);
+        entry2.setColor(DEFAULT_COLOR);
+        entry2.setDescription(DEFAULT_DESCRIPTION);
+        Entry entry3 = new Entry();
+        entry3.setTitle(DEFAULT_TITLE);
+        entry3.setStart(DEFAULT_START_UTC);
+        entry3.setEnd(DEFAULT_END_UTC);
+        entry3.setAllDay(true);
+        entry3.setEditable(true);
+        entry3.setColor(DEFAULT_COLOR);
+        entry3.setDescription(DEFAULT_DESCRIPTION);
+        entry3.setRenderingMode(DEFAULT_RENDERING);
         entry3.setRenderingMode(DEFAULT_RENDERING);
 
         Assertions.assertNotEquals(entry2, entry3);
@@ -154,7 +193,14 @@ public class EntryTest {
     void testToJsonCustomTimezone() {
         FullCalendar calendar = new FullCalendar();
         calendar.setTimezone(CUSTOM_TIMEZONE);
-        Entry entry = new Entry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START_UTC, DEFAULT_END_UTC, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
+        Entry entry = new Entry(DEFAULT_ID);
+        entry.setTitle(DEFAULT_TITLE);
+        entry.setStart(DEFAULT_START_UTC);
+        entry.setEnd(DEFAULT_END_UTC);
+        entry.setAllDay(true);
+        entry.setEditable(true);
+        entry.setColor(DEFAULT_COLOR);
+        entry.setDescription(DEFAULT_DESCRIPTION);
         entry.setRenderingMode(DEFAULT_RENDERING);
         entry.setCalendar(calendar);
 
@@ -173,7 +219,14 @@ public class EntryTest {
     @Test
     void testToJsonUTC() {
 
-        Entry entry = new Entry(DEFAULT_ID, DEFAULT_TITLE, DEFAULT_START_UTC, DEFAULT_END_UTC, true, true, DEFAULT_COLOR, DEFAULT_DESCRIPTION);
+        Entry entry = new Entry(DEFAULT_ID);
+        entry.setTitle(DEFAULT_TITLE);
+        entry.setStart(DEFAULT_START_UTC);
+        entry.setEnd(DEFAULT_END_UTC);
+        entry.setAllDay(true);
+        entry.setEditable(true);
+        entry.setColor(DEFAULT_COLOR);
+        entry.setDescription(DEFAULT_DESCRIPTION);
         entry.setRenderingMode(DEFAULT_RENDERING);
 
         JsonObject jsonObject = entry.toJson();
