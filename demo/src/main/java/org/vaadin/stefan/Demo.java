@@ -23,6 +23,8 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -32,6 +34,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
+
 import org.vaadin.stefan.fullcalendar.*;
 
 import java.time.*;
@@ -52,7 +55,7 @@ public class Demo extends VerticalLayout {
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
-    private HorizontalLayout toolbar;
+    private FormLayout toolbar;
     private ComboBox<Timezone> timezoneComboBox;
 
     public Demo() {
@@ -69,9 +72,15 @@ public class Demo extends VerticalLayout {
     }
 
     private void createToolbar() {
+    	toolbar = new FormLayout();
+    	toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("22em", 7));
+    	
         Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
-        Button buttonPrevious = new Button("Previous", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
-        Button buttonNext = new Button("Next", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
+        
+        HorizontalLayout temporalLayout = new HorizontalLayout();
+        
+        Button buttonPrevious = new Button("", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
+        Button buttonNext = new Button("", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
         buttonNext.setIconAfterText(true);
 
         // simulate the date picker light that we can use in polymer
@@ -85,6 +94,11 @@ public class Demo extends VerticalLayout {
         buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
         buttonDatePicker.getElement().appendChild(gotoDate.getElement());
         buttonDatePicker.addClickListener(event -> gotoDate.open());
+        buttonDatePicker.setWidthFull();
+        
+        temporalLayout.add(buttonPrevious, buttonDatePicker, buttonNext, gotoDate);
+        temporalLayout.setWidthFull();
+        temporalLayout.setSpacing(false);
 
         List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
         calendarViews.addAll(Arrays.asList(SchedulerView.values()));
@@ -115,12 +129,13 @@ public class Demo extends VerticalLayout {
             calendar.setTimezone(value != null ? value : Timezone.UTC);
         });
         
+        
         Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
         	calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
         	Notification.show("Updated fixedWeekCount value from " + Boolean.toString(!calendar.getFixedWeekCount()) + " to " + Boolean.toString(calendar.getFixedWeekCount()));
         });
 
-        Button addThousand = new Button("Add 1000 entries", event -> {
+        Button addThousand = new Button("Add 1k entries", event -> {
             Button source = event.getSource();
             source.setEnabled(false);
             source.setText("Creating...");
@@ -146,15 +161,36 @@ public class Demo extends VerticalLayout {
                 });
             });
         });
+        
+        toogleFixedWeekCount.setWidthFull();
+        addThousand.setWidthFull();
+        
+        VerticalLayout commandLayout = new VerticalLayout();
+        
+        commandLayout.add(toogleFixedWeekCount, addThousand);
+        commandLayout.setSpacing(false);
+        commandLayout.setPadding(false);
+        commandLayout.setMargin(false);
+        commandLayout.setWidthFull();
 
         Button removeAllEntries = new Button("All Entries", VaadinIcon.TRASH.create(), event -> calendar.removeAllEntries());
         Button removeAllResources = new Button("All Resources", VaadinIcon.TRASH.create(), event -> ((FullCalendarScheduler) calendar).removeAllResources());
+        removeAllEntries.setWidthFull();
+        removeAllResources.setWidthFull();
+        
+        VerticalLayout removeLayout = new VerticalLayout();
+        
+        removeLayout.add(removeAllEntries, removeAllResources);
+        removeLayout.setSpacing(false);
+        removeLayout.setPadding(false);
+        removeLayout.setMargin(false);
+        removeLayout.setWidthFull();
 
-        toolbar = new HorizontalLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales);
+        toolbar.add(buttonToday, temporalLayout, comboBoxView, comboBoxLocales);
 
         Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
 
-        toolbar.add(toogleFixedWeekCount, addThousand, removeAllEntries, removeAllResources);
+        toolbar.add(commandLayout, removeLayout);
 
         add(toolbar);
     }
@@ -183,8 +219,6 @@ public class Demo extends VerticalLayout {
         calendar.addViewSkeletonRenderedListener(event -> {
             System.out.println("View skeleton rendered: " + event);
         });
-
-
 
         calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
         calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
@@ -248,6 +282,16 @@ public class Demo extends VerticalLayout {
             timezoneComboBox.setValue(event.getTimezone());
         });
 
+        calendar.setEntryRenderCallback(
+        		  "function(info) { " 
+        		+ "    if(info.event.extendedProps.cursors != undefined) { "
+        		+ "        if(!info.event.startEditable) { "
+        		+ "            info.el.style.cursor = info.event.extendedProps.cursors.disabled;" 
+        		+ "        } else { " 
+        		+ "            info.el.style.cursor = info.event.extendedProps.cursors.enabled;" 
+        		+ "        }"
+        		+ "    }"
+        		+ "}");
     }
 
     private static void createTestEntries(FullCalendar calendar) {
@@ -284,9 +328,15 @@ public class Demo extends VerticalLayout {
         createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
         
         createTimedEntry(calendar, "Kickoff meeting with customer #7", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomYellow);
-        
         createTimedEntry(calendar, "Kickoff meeting with customer #2", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen", meetingRoomRed);
-        createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", meetingRoomGreen);
+        
+        HashMap<String, Object> extendedProps = new HashMap<String, Object>();
+        HashMap<String, Object> cursors = new HashMap<String, Object>();
+        cursors.put("enabled", "pointer");
+        cursors.put("disabled", "not-allowed");
+        extendedProps.put("cursors", cursors);
+        
+        createTimedEntry(calendar, "Kickoff meeting with customer #3", now.withDayOfMonth(12).atTime(9, 0), 120, "mediumseagreen", extendedProps, meetingRoomGreen);
         createTimedEntry(calendar, "Kickoff meeting with customer #4", now.withDayOfMonth(13).atTime(10, 0), 120, "mediumseagreen", meetingRoomGreen);
         createTimedEntry(calendar, "Kickoff meeting with customer #5", now.withDayOfMonth(17).atTime(11, 30), 120, "mediumseagreen", meetingRoomBlue);
         createTimedEntry(calendar, "Kickoff meeting with customer #6", now.withDayOfMonth(22).atTime(9, 0), 120, "mediumseagreen", meetingRoomRed);
@@ -392,6 +442,15 @@ public class Demo extends VerticalLayout {
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
     }
+    
+    static void setValues(FullCalendar calendar, ResourceEntry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color, HashMap<String, Object> extendedProps) {
+        entry.setTitle(title);
+        entry.setStart(start, calendar.getTimezone());
+        entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setAllDay(unit == ChronoUnit.DAYS);
+        entry.setColor(color);
+        entry.setExtendedProps(extendedProps);
+    }
 
 
     static Resource createResource(Scheduler calendar, String s, String color) {
@@ -419,6 +478,16 @@ public class Demo extends VerticalLayout {
             entry.assignResources(Arrays.asList(resources));
         }
         entry.setResourceEditable(true);
+        calendar.addEntry(entry);
+    }
+    
+    static void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, HashMap<String, Object> extendedProps, Resource... resources) {
+        ResourceEntry entry = new ResourceEntry();
+        setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color, extendedProps);
+        if (resources != null && resources.length > 0) 
+            entry.assignResources(Arrays.asList(resources));
+        entry.setResourceEditable(true);
+        entry.setEditable(false);
         calendar.addEntry(entry);
     }
 

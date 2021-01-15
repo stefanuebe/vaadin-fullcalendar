@@ -297,7 +297,7 @@ public class Resource {
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {
             for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
-            	jsonObject.put(prop.getKey(), prop.getValue().toString());
+            	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
             }
         }
 
