@@ -73,12 +73,16 @@ public class Demo extends VerticalLayout {
 
     private void createToolbar() {
     	toolbar = new FormLayout();
-    	toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("22em", 7));
+    	toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 6));
+
+    	FormLayout temporalLayout = new FormLayout();
+    	temporalLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
     	
-        Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
-        
-        HorizontalLayout temporalLayout = new HorizontalLayout();
-        
+    	Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
+    	buttonToday.setWidthFull();
+    	
+        HorizontalLayout temporalSelectorLayout = new HorizontalLayout();
+
         Button buttonPrevious = new Button("", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
         Button buttonNext = new Button("", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
         buttonNext.setIconAfterText(true);
@@ -96,9 +100,12 @@ public class Demo extends VerticalLayout {
         buttonDatePicker.addClickListener(event -> gotoDate.open());
         buttonDatePicker.setWidthFull();
         
-        temporalLayout.add(buttonPrevious, buttonDatePicker, buttonNext, gotoDate);
+        temporalSelectorLayout.add(buttonPrevious, buttonDatePicker, buttonNext, gotoDate);
+        temporalSelectorLayout.setWidthFull();
+        temporalSelectorLayout.setSpacing(false);
+        
+        temporalLayout.add(buttonToday, temporalSelectorLayout);
         temporalLayout.setWidthFull();
-        temporalLayout.setSpacing(false);
 
         List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
         calendarViews.addAll(Arrays.asList(SchedulerView.values()));
@@ -111,6 +118,7 @@ public class Demo extends VerticalLayout {
             CalendarView value = e.getValue();
             calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
         });
+        comboBoxView.setWidthFull();
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> comboBoxLocales = new ComboBox<>();
@@ -119,6 +127,7 @@ public class Demo extends VerticalLayout {
         comboBoxLocales.addValueChangeListener(event -> calendar.setLocale(event.getValue()));
         comboBoxLocales.setRequired(true);
         comboBoxLocales.setPreventInvalidInput(true);
+        comboBoxLocales.setWidthFull();
 
         timezoneComboBox = new ComboBox<>("");
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
@@ -128,8 +137,8 @@ public class Demo extends VerticalLayout {
             Timezone value = event.getValue();
             calendar.setTimezone(value != null ? value : Timezone.UTC);
         });
-        
-        
+        timezoneComboBox.setWidthFull();
+
         Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
         	calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
         	Notification.show("Updated fixedWeekCount value from " + Boolean.toString(!calendar.getFixedWeekCount()) + " to " + Boolean.toString(calendar.getFixedWeekCount()));
@@ -165,12 +174,10 @@ public class Demo extends VerticalLayout {
         toogleFixedWeekCount.setWidthFull();
         addThousand.setWidthFull();
         
-        VerticalLayout commandLayout = new VerticalLayout();
+        FormLayout commandLayout = new FormLayout();
+        commandLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         
         commandLayout.add(toogleFixedWeekCount, addThousand);
-        commandLayout.setSpacing(false);
-        commandLayout.setPadding(false);
-        commandLayout.setMargin(false);
         commandLayout.setWidthFull();
 
         Button removeAllEntries = new Button("All Entries", VaadinIcon.TRASH.create(), event -> calendar.removeAllEntries());
@@ -178,15 +185,13 @@ public class Demo extends VerticalLayout {
         removeAllEntries.setWidthFull();
         removeAllResources.setWidthFull();
         
-        VerticalLayout removeLayout = new VerticalLayout();
+        FormLayout removeLayout = new FormLayout();
+        removeLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
         
         removeLayout.add(removeAllEntries, removeAllResources);
-        removeLayout.setSpacing(false);
-        removeLayout.setPadding(false);
-        removeLayout.setMargin(false);
         removeLayout.setWidthFull();
 
-        toolbar.add(buttonToday, temporalLayout, comboBoxView, comboBoxLocales);
+        toolbar.add(temporalLayout, comboBoxView, comboBoxLocales);
 
         Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
 
