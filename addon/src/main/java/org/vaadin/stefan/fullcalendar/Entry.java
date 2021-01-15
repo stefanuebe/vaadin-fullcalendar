@@ -22,6 +22,8 @@ import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.time.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -108,6 +110,11 @@ public class Entry {
      *
      */
     private String description;
+    
+    /**
+     * The custom property list
+     */
+    private HashMap<String, Object> extendedProps = new HashMap<String, Object>();
 
     /**
      * The rendering mode of this entry. Never null
@@ -207,6 +214,13 @@ public class Entry {
         jsonObject.put("endRecur", JsonUtils.toJsonValue(recurringEndDate == null ? null : getEndTimezone().formatWithZoneId(recurringEndDate)));
 
         jsonObject.put("description", JsonUtils.toJsonValue(getDescription()));
+        
+        HashMap<String, Object> extendedProps = getExtendedProps();
+        if (!extendedProps.isEmpty()) {
+            for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
+            	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
+            }
+        }
 
         return jsonObject;
     }
@@ -231,6 +245,7 @@ public class Entry {
         JsonUtils.updateDateTime(object, "start", this::setStart, getStartTimezone());
         JsonUtils.updateDateTime(object, "end", this::setEnd, getEndTimezone());
         JsonUtils.updateString(object, "color", this::setColor);
+        JsonUtils.updateHashMap(object, "extendedProps", this::setExtendedProps);
     }
 
     /**
@@ -379,6 +394,35 @@ public class Entry {
      */
     public void setColor(String color) {
         this.color = color == null || color.trim().isEmpty() ? null : color;
+    }
+    
+    /**
+     * Add custom element to the extendedProp HashMap. This allow to set custom property to the resource.
+     *
+     *@param key String the name of the property to add
+     *@param value Object the object to add
+     */
+    public void addExtendedProps(@NotNull String key, @NotNull Object value) {
+    	extendedProps.put(key, value);
+    }
+
+    /**
+     * Remove the custom property based on the name.
+     *
+     *@param key String the name of the property to remove
+     */
+    public void removeExtendedProps(@NotNull String key) {
+    	extendedProps.remove(key);
+    }
+
+    /**
+     * remove specific custom property where the name and value match.
+     *
+     *@param key String the name of the property to remove
+     *@param value Object the object to remove
+     */
+    public void removeExtendedProps(@NotNull String key, @NotNull Object value) {
+    	extendedProps.remove(key, value);
     }
 
     /**
