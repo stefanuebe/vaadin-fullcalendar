@@ -1664,6 +1664,7 @@ export class FullCalendarScheduler extends FullCalendar {
             options.resources = [];
         }
         options.plugins.push(resourceTimeGridPlugin, resourceTimelinePlugin);
+        
         return options;
     }
 

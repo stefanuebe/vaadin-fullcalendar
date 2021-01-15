@@ -1450,7 +1450,7 @@ export class FullCalendar extends PolymerElement {
      * set of information as an object.
      * <br><br>
      * Does also include navLinkDayClick, navLinkWeekClick, but here the parameters are different (date for day
-     * and weekStart moment for week). See FC doc for details about these functions. Same for eventLimitClick.
+     * and weekStart moment for week). See FC doc for details about these functions. Same for moreLinkClick.
      * <br><br>
      * Example of the returned object.
      * <pre>
@@ -1491,6 +1491,7 @@ export class FullCalendar extends PolymerElement {
                 }
             },
             eventClick: (eventInfo) => {
+            	console.log(eventInfo);
                 let event = eventInfo.event;
                 return {
                     id: event.id, // we keep this for backward compatibility, but not used by us on server side
@@ -1536,8 +1537,10 @@ export class FullCalendar extends PolymerElement {
                 }
             },
             moreLinkClick: (eventInfo) => {
+            	let events = eventInfo.allSegs.map(seg => this._toEventData(seg.event));
                 return {
-                    date: this._formatDate(eventInfo.date, true)
+                    date: this._formatDate(eventInfo.date, true),
+                    allSegs: events
                 }
             },
             viewDidMount: (eventInfo) => {
@@ -1648,6 +1651,7 @@ export class FullCalendar extends PolymerElement {
 
     _toEventData(event, oldResourceInfo, newResourceInfo) {
         let end = event.end;
+        
         if (end != null) {
             end = this._formatDate(end);
         } else if (event.allDay) { // when moved from time slotted to all day
@@ -1661,7 +1665,7 @@ export class FullCalendar extends PolymerElement {
             start: this._formatDate(event.start),
             end: end,
             allDay: event.allDay,
-            editable: event.editable
+            editable: event.extendedProps.editable
         };
 
         if (oldResourceInfo != null) {
@@ -1672,10 +1676,8 @@ export class FullCalendar extends PolymerElement {
             data.newResource = newResourceInfo.id;
         }
 
-
         return data;
     }
-
 
     next() {
         this.getCalendar().next();

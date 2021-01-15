@@ -733,7 +733,7 @@ public class FullCalendarTest {
 
         LocalDate refDate = LocalDate.of(2000, 1, 1);
 
-        Assertions.assertEquals(refDate, new LimitedEntriesClickedEvent(calendar, true, refDate.toString()).getClickedDate());
+        Assertions.assertEquals(refDate, new LimitedEntriesClickedEvent(calendar, true, refDate.toString(), new ArrayList<Entry>()).getClickedDate());
     }
 
     @Test
