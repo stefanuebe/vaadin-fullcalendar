@@ -1394,6 +1394,10 @@ export class FullCalendar extends PolymerElement {
                 type: Boolean,
                 value: true
             },
+            dragScroll: {
+                type: Boolean,
+                value: true
+            },
             noDatesRenderEventOnOptionSetting: {
                 type: Boolean,
                 value: true
@@ -1438,7 +1442,6 @@ export class FullCalendar extends PolymerElement {
                 // can not guarantee, that the calendar container provides the correct height, since it might not
                 // be rendered yet. This method call will upate the size correctly.
                 this._calendar.updateSize();
-
             });
         }
     }
@@ -1491,7 +1494,6 @@ export class FullCalendar extends PolymerElement {
                 }
             },
             eventClick: (eventInfo) => {
-            	console.log(eventInfo);
                 let event = eventInfo.event;
                 return {
                     id: event.id, // we keep this for backward compatibility, but not used by us on server side
@@ -1589,6 +1591,9 @@ export class FullCalendar extends PolymerElement {
             dayMaxEvents: this.dayMaxEvents,
             navLinks: this.navLinks,
             selectable: this.selectable,
+            dragScroll: this.dragScroll,
+            stickyHeaderDates: false,
+            stickyFooterScrollbar: false
         };
 
         this._addEventHandlersToOptions(options, events);
