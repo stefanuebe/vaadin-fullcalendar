@@ -204,6 +204,7 @@ public class Demo extends VerticalLayout {
         calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).withScheduler().build();
 
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
+        ((FullCalendarScheduler) calendar).setResourceLabelText("Resource Label");
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);

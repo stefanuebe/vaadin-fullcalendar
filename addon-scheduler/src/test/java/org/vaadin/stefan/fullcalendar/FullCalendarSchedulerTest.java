@@ -34,6 +34,16 @@ public class FullCalendarSchedulerTest {
     }
 
     @Test
+    void testSetResourceLabelText() {
+        calendar.setResourceLabelText("Hello World");
+
+        Optional<Object> option = calendar.getOption("resourceLabelText");
+
+        Assertions.assertTrue(option.isPresent());
+        Assertions.assertEquals("Hello World", option.get());
+    }
+
+    @Test
     void testNonArgsConstructor() {
 
         // this shall assure that all init options are handled
