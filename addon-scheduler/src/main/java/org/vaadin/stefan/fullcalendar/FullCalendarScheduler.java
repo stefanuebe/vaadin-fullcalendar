@@ -104,6 +104,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         setOption("schedulerLicenseKey", schedulerLicenseKey);
     }
 
+    @Override
+    public void setResourceLabelText(String resourceLabelText) {
+        setOption("resourceLabelText", resourceLabelText);
+    }
 
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource) {
