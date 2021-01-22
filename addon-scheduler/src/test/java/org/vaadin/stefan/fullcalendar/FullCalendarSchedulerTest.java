@@ -54,6 +54,16 @@ public class FullCalendarSchedulerTest {
     }
     
     @Test
+    void testSetFilterResourcesWithEvents() {
+        calendar.setFilterResourcesWithEvents(true);
+
+        Optional<Object> option = calendar.getOption("filterResourcesWithEvents");
+
+        Assertions.assertTrue(option.isPresent());
+        Assertions.assertEquals(true, option.get());
+    }
+    
+    @Test
     void testSetResourceAreaWidtht() {
         calendar.setResourceAreaWidth("10%");
 

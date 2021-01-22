@@ -123,6 +123,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public void setResourcesInitiallyExpanded(boolean resourceInitiallyExpanded) {
         setOption("resourcesInitiallyExpanded", resourceInitiallyExpanded);
     }
+    
+    @Override
+    public void setFilterResourcesWithEvents(boolean filterResourcesWithEvents) {
+        setOption("filterResourcesWithEvents", filterResourcesWithEvents);
+    }
 
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource) {
