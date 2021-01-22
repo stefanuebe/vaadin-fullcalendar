@@ -39,10 +39,10 @@ import java.util.stream.Stream;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/core", version = "5.5.0")
+@NpmPackage(value = "@fullcalendar/core", version = "5.5.1")
 @NpmPackage(value = "@fullcalendar/interaction", version = "5.5.0")
 @NpmPackage(value = "@fullcalendar/daygrid", version = "5.5.0")
-@NpmPackage(value = "@fullcalendar/timegrid", version = "5.5.0")
+@NpmPackage(value = "@fullcalendar/timegrid", version = "5.5.1")
 @NpmPackage(value = "@fullcalendar/list", version = "5.5.0")
 @NpmPackage(value = "moment", version = "2.29.1")
 @NpmPackage(value = "moment-timezone", version = "0.5.32")
