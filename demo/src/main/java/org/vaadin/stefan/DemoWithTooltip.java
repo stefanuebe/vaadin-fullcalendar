@@ -166,6 +166,7 @@ public class DemoWithTooltip extends VerticalLayout {
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotWidth("60");
         ((FullCalendarScheduler) calendar).setFilterResourcesWithEvents(true);
+        ((FullCalendarScheduler) calendar).setResourceOrder("-id");
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);

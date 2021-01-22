@@ -128,6 +128,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public void setFilterResourcesWithEvents(boolean filterResourcesWithEvents) {
         setOption("filterResourcesWithEvents", filterResourcesWithEvents);
     }
+    
+    @Override
+    public void setResourceOrder(String resourceOrder) {
+        setOption("resourceOrder", resourceOrder);
+    }
 
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource) {
