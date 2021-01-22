@@ -68,6 +68,8 @@ public interface Scheduler {
     void setResourcesInitiallyExpanded(boolean resourceInitiallyExpanded);
     
     void setFilterResourcesWithEvents(boolean filterResourcesWithEvents);
+    
+    void setResourceOrder(String resourceOrder);
 
     /**
      * Adds an resource to this calendar. Noop if the resource id is already registered.

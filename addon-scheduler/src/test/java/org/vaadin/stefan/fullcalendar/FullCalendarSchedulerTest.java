@@ -52,7 +52,7 @@ public class FullCalendarSchedulerTest {
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals(false, option.get());
     }
-    
+
     @Test
     void testSetFilterResourcesWithEvents() {
         calendar.setFilterResourcesWithEvents(true);
@@ -61,6 +61,16 @@ public class FullCalendarSchedulerTest {
 
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals(true, option.get());
+    }
+    
+    @Test
+    void testSetResourceOrder() {
+        calendar.setResourceOrder("-title");
+
+        Optional<Object> option = calendar.getOption("resourceOrder");
+
+        Assertions.assertTrue(option.isPresent());
+        Assertions.assertEquals("-title", option.get());
     }
     
     @Test
