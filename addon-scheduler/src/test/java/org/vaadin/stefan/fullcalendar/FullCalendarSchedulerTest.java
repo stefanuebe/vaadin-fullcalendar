@@ -52,6 +52,16 @@ public class FullCalendarSchedulerTest {
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals("10%", option.get());
     }
+    
+    @Test
+    void testSetSlotWidtht() {
+        calendar.setSlotWidth("100");
+
+        Optional<Object> option = calendar.getOption("slotWidth");
+
+        Assertions.assertTrue(option.isPresent());
+        Assertions.assertEquals("100", option.get());
+    }
 
     @Test
     void testNonArgsConstructor() {
