@@ -207,6 +207,7 @@ public class Demo extends VerticalLayout {
         ((FullCalendarScheduler) calendar).setResourceLabelText("Resource Label");
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotWidth("100");
+        ((FullCalendarScheduler) calendar).setResourcesInitiallyExpanded(false);
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
