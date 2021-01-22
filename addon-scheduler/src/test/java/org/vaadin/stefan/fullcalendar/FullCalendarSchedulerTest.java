@@ -44,6 +44,16 @@ public class FullCalendarSchedulerTest {
     }
     
     @Test
+    void testSetResourceInitiallyExpanded() {
+        calendar.setResourcesInitiallyExpanded(false);
+
+        Optional<Object> option = calendar.getOption("resourcesInitiallyExpanded");
+
+        Assertions.assertTrue(option.isPresent());
+        Assertions.assertEquals(false, option.get());
+    }
+    
+    @Test
     void testSetResourceAreaWidtht() {
         calendar.setResourceAreaWidth("10%");
 

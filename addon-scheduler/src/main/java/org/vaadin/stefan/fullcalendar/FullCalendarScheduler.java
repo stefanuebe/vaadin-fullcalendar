@@ -118,6 +118,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public void setSlotWidth(String slotWidth) {
         setOption("slotWidth", slotWidth);
     }
+    
+    @Override
+    public void setResourcesInitiallyExpanded(boolean resourceInitiallyExpanded) {
+        setOption("resourcesInitiallyExpanded", resourceInitiallyExpanded);
+    }
 
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource) {
