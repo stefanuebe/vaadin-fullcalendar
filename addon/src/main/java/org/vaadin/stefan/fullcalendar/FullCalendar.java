@@ -805,8 +805,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return time zone
      */
     public Timezone getTimezone() {
-    	// TODO: Investigate on why Option.TIMEZONE is not used
-        return (Timezone) getOption("timeZone").orElse(Timezone.UTC);
+        return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
     }
 
     public void setTimezone(Timezone timezone) {
@@ -814,10 +813,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         Timezone oldTimezone = getTimezone();
         if (!timezone.equals(oldTimezone)) {
-        	// TODO: Investigate on why Option.TIMEZONE is not used
-            setOption("timeZone", timezone.getClientSideValue(), timezone);
+            setOption(Option.TIMEZONE, timezone.getClientSideValue(), timezone);
             updateEntries(getEntries());
         }
+    }
+    
+    /**
+     * Returns the weekends display status. By default true.
+     *
+     * @return weekends
+     */
+    public boolean getWeekends() {
+        return (boolean) getOption(Option.WEEKENDS).orElse(true);
+    }
+    
+    /**
+     * Whether to include Saturday/Sunday columns in any of the calendar views.
+     * 
+     * @param boolean weekends
+     * 
+     */
+    public void setWeekends(boolean weekends) {
+        setOption(Option.WEEKENDS, weekends);
     }
 
     /**
@@ -1096,7 +1113,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         SNAP_DURATION("snapDuration"),
         MIN_TIME("minTime"),
         MAX_TIME("maxTime"),
-    	FIXED_WEEK_COUNT("fixedWeekCount");
+    	FIXED_WEEK_COUNT("fixedWeekCount"),
+    	WEEKENDS("weekends");
 
         private final String optionKey;
 
