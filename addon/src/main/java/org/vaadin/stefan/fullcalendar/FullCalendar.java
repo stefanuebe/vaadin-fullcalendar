@@ -647,6 +647,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setWeekNumbersVisible(boolean weekNumbersVisible) {
         setOption(Option.WEEK_NUMBERS, weekNumbersVisible);
     }
+    
+    /**
+     * Determines the styling for week numbers in Month and DayGrid views.
+     *
+     * @param weekNumbersWithinDays by default to false
+     */
+    public void setWeekNumbersWithinDays(boolean weekNumbersWithinDays) {
+    	setOption(Option.WEEK_NUMBERS_WITHIN_DAYS, weekNumbersWithinDays);
+    }
 
     /**
      * Returns the current set locale.
@@ -835,6 +844,60 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void setWeekends(boolean weekends) {
         setOption(Option.WEEKENDS, weekends);
+    }
+    
+    /**display the header.
+     * 
+     * @param String header
+     * 
+     */
+    public void setHeader(String header) {
+    	setOption(Option.HEADER, header);
+    }
+    
+    /**
+     * Returns the header. By default false (disabled).
+     *
+     * @return header
+     */
+    public String getHeader() {
+    	 return (String) getOption(Option.HEADER).orElse(false);
+    }
+    
+    /**display the footer.
+     * 
+     * @param String footer
+     * 
+     */
+    public void setFooter(String footer) {
+    	setOption(Option.FOOTER, footer);
+    }
+    
+    /**
+     * Returns the footer. By default false (disabled).
+     *
+     * @return footer
+     */
+    public String getFooter() {
+    	 return (String) getOption(Option.FOOTER).orElse(false);
+    }
+    
+    /**Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
+     * 
+     * @param String columnHeader
+     * 
+     */
+    public void setColumnHeader(boolean columnHeader) {
+    	setOption(Option.COLUMN_HEADER, columnHeader);
+    }
+    
+    /**
+     * Returns the columnHeader.
+     *
+     * @return columnHeader
+     */
+    public boolean getColumnHeader() {
+    	 return (boolean) getOption(Option.COLUMN_HEADER).orElse(true);
     }
 
     /**
@@ -1114,7 +1177,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         MIN_TIME("minTime"),
         MAX_TIME("maxTime"),
     	FIXED_WEEK_COUNT("fixedWeekCount"),
-    	WEEKENDS("weekends");
+    	WEEKENDS("weekends"),
+    	HEADER("header"),
+    	FOOTER("footer"),
+    	COLUMN_HEADER("columnHeader"),
+    	WEEK_NUMBERS_WITHIN_DAYS("weekNumbersWithinDays");
 
         private final String optionKey;
 
