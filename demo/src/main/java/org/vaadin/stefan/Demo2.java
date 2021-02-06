@@ -30,7 +30,7 @@ public class Demo2 extends VerticalLayout {
         ((FullCalendarScheduler) calendar).setResourceLabelText("Resource Label");
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotWidth("150");
-
+        
         createBasicEntries(calendar);
 
         add(new H1("Basic calendar"), createBasicToolbar(calendar), calendar);
