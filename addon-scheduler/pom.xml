@@ -5,16 +5,16 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2-scheduler</artifactId>
-    <version>2.3.4-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
 
-    <name>Full Calendar 4 Scheduler web component</name>
-    <description>A web component that wraps the Full Calendar 4.x Scheduler extension (https://fullcalendar.io).
+    <name>Full Calendar 5 Scheduler web component</name>
+    <description>A web component that wraps the Full Calendar 5.x Scheduler extension (https://fullcalendar.io).
     </description>
 
     <properties>
-        <vaadin.version>14.4.6</vaadin.version>
+        <vaadin.version>14.4.8</vaadin.version>
 
-        <fullcalendar.version>2.3.4-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.version>3.0.0-SNAPSHOT</fullcalendar.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
