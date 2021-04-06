@@ -31,6 +31,10 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 import javax.validation.constraints.NotNull;
+
+import org.vaadin.stefan.fullcalendar.model.Footer;
+import org.vaadin.stefan.fullcalendar.model.Header;
+
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -864,22 +868,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         setOption(Option.WEEKENDS, weekends);
     }
     
-    /**display the header.
+    /** display the header.
      * 
-     * @param String header
+     * @param Header header
      * 
      */
-    public void setHeader(String header) {
-    	setOption(Option.HEADER, header);
-    }
-    
-    /**
-     * Returns the header. By default false (disabled).
-     *
-     * @return header
-     */
-    public String getHeader() {
-    	 return (String) getOption(Option.HEADER).orElse(false);
+    public void setHeader(Header header) {
+    	setOption(Option.HEADER, header.toJson());
     }
     
     /**display the footer.
@@ -887,19 +882,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param String footer
      * 
      */
-    public void setFooter(String footer) {
-    	setOption(Option.FOOTER, footer);
+    public void setFooter(Footer footer) {
+    	setOption(Option.FOOTER, footer.toJson());
     }
-    
-    /**
-     * Returns the footer. By default false (disabled).
-     *
-     * @return footer
-     */
-    public String getFooter() {
-    	 return (String) getOption(Option.FOOTER).orElse(false);
-    }
-    
+
     /**Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
      * 
      * @param String columnHeader

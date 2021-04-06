@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -222,8 +221,6 @@ public final class JsonUtils {
         
         return list;
     }
-        
-
 
     /**
      * Parses a date time string sent from the client side. This string may apply to ZonedDateTime, Instant, LocalDate
