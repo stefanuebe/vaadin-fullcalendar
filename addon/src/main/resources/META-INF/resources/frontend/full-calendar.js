@@ -1592,8 +1592,8 @@ export class FullCalendar extends PolymerElement {
             navLinks: this.navLinks,
             selectable: this.selectable,
             dragScroll: this.dragScroll,
-            stickyHeaderDates: false,
-            stickyFooterScrollbar: false
+            stickyHeaderDates: true,
+            stickyFooterScrollbar: true
         };
 
         this._addEventHandlersToOptions(options, events);

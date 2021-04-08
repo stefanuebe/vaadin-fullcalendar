@@ -234,7 +234,9 @@ public class Demo extends VerticalLayout {
         });
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
-        calendar.addEntryClickedListener(event -> new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open());
+        calendar.addEntryClickedListener(event -> 
+        	new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open()
+        );
 
         ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
             ResourceEntry entry = new ResourceEntry();
