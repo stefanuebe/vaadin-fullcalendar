@@ -12,7 +12,7 @@
     </description>
 
     <properties>
-        <vaadin.version>14.4.8</vaadin.version>
+        <vaadin.version>14.4.10</vaadin.version>
 
         <fullcalendar.version>2.4.1-SNAPSHOT</fullcalendar.version>
         <maven.compiler.source>1.8</maven.compiler.source>
