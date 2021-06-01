@@ -38,7 +38,7 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
         HorizontalLayout title = new HorizontalLayout();
 
-        String text = "<b>FullCalendar Demo</b> (Vaadin 14.4.8, FullCalendar addon: 3.0.0-SNAPSHOT (uses FC 5.5.0), FullCalendar Scheduler extension: 3.0.0-SNAPSHOT (uses scheduler extension libs 5.5.0)";
+        String text = "<b>FullCalendar Demo</b> (Vaadin 14.6.1, FullCalendar addon: 3.0.0-SNAPSHOT (uses FC 5.7.0), FullCalendar Scheduler extension: 3.0.0-SNAPSHOT (uses scheduler extension libs 5.5.0)";
 
         Span span = new Span();
         span.getElement().setProperty("innerHTML", text);
