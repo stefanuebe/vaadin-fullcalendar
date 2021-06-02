@@ -22,14 +22,14 @@ import lombok.Getter;
  * Definition of header and footer positions.
  */
 @Getter
-public enum Positions {
+public enum HeaderFooterPartPosition {
 	LEFT("left"),
 	CENTER("center"),
 	RIGHT("right");
 	
-	private String code;
+	private final String code;
 	
-	private Positions(String code) {
+	private HeaderFooterPartPosition(String code) {
 		this.code = code;
 	}
 }

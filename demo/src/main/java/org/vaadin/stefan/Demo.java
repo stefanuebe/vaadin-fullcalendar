@@ -34,16 +34,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
-
-import elemental.json.Json;
-import elemental.json.JsonObject;
-
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
-import org.vaadin.stefan.fullcalendar.model.Options;
-import org.vaadin.stefan.fullcalendar.model.Position;
-import org.vaadin.stefan.fullcalendar.model.Positions;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -223,25 +218,21 @@ public class Demo extends VerticalLayout {
         calendar.setTimeslotsSelectable(true);
 
     	Header testHeader = new Header();
-        Position positionHeader = new Position(Positions.CENTER);
+        HeaderFooterPart headerCenter = testHeader.getCenter();
         
-        positionHeader.addOption(Options.BUTTON_PREVIOUS);
-        positionHeader.addOption(Options.TITLE);
-        positionHeader.addOption(Options.BUTTON_NEXT);
-        
-        testHeader.addPosition(positionHeader);
+        headerCenter.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
+        headerCenter.addItem(HeaderFooterItem.TITLE);
+        headerCenter.addItem(HeaderFooterItem.BUTTON_NEXT);
         
         calendar.setHeader(testHeader);
         
         Footer testFooter = new Footer();
-        Position positionFooter = new Position(Positions.CENTER);
+        HeaderFooterPart positionFooter = testFooter.getCenter();
         
-        positionFooter.addOption(Options.BUTTON_PREVIOUS);
-        positionFooter.addOption(Options.TITLE);
-        positionFooter.addOption(Options.BUTTON_NEXT);
-        
-        testFooter.addPosition(positionFooter);
-        
+        positionFooter.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
+        positionFooter.addItem(HeaderFooterItem.TITLE);
+        positionFooter.addItem(HeaderFooterItem.BUTTON_NEXT);
+
         calendar.setFooter(testFooter);
 
         calendar.setBusinessHours(

@@ -16,66 +16,26 @@
  */
 package org.vaadin.stefan.fullcalendar.model;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 
 /**
  * Definition of header for a calendar instance.
  */
-@EqualsAndHashCode
-@ToString
-public class Header {
-	private Set<Position> positions;
-	
+public class Header extends AbstractHeaderFooter {
     /**
      * Creates a new instance.
      */
     public Header() {
-    	this(new HashSet<>());
-    }
-    
-    public Header(Set<Position> positions) {
-    	this.positions = positions;
     }
 
     /**
-     * Returns the end time or empty if none was set.
+     * Creates a new instance with the given parts.
      *
-     * @return end time or empty
+     * @param parts parts
      */
-    public void addPosition(@NotNull Position position) {
-        Objects.requireNonNull(position);
-        
-        if(positions.contains(position))
-        	return;
-        
-        positions.add(position);
+    public Header(@NotNull Collection<HeaderFooterPart> parts) {
+        super(parts);
     }
-    
-    public Set<Position> getPositions() {
-    	return Collections.unmodifiableSet(positions);
-    }
-    
-    /**
-     * Converts the given object into a json object.
-     * @return json object
-     */
-    public JsonObject toJson() {
-        JsonObject jsonObject = Json.createObject();
-        
-        for (Position position : positions)
-        	jsonObject.put(position.getPosition().getCode(), position.getOptions().stream().map(o -> o.getCode()).collect(Collectors.joining(",")));
 
-        return jsonObject;
-    }
 }
