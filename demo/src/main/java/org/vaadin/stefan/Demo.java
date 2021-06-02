@@ -229,11 +229,7 @@ public class Demo extends VerticalLayout {
 //        String customCss = ".fc-center div {display: flex !important;}";
 //        calendar.addCustomStyles(customCss);
 
-        String customCss = "" +
-                ".fc-today.fc-day {" + // marks today with red
-                "   background-color: red !important;" +
-                "}" +
-                "" +
+        String customCss =
                 ".fc-center div {" + // aligns the FC's header content correctly
                 "   display: flex !important;" +
                 "}";
