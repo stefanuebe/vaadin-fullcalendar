@@ -35,6 +35,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.model.Header;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -213,22 +216,28 @@ public class Demo extends VerticalLayout {
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
 
-//    	Header testHeader = new Header();
-//        HeaderFooterPart headerCenter = testHeader.getCenter();
-//
-//        headerCenter.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
-//        headerCenter.addItem(HeaderFooterItem.TITLE);
-//        headerCenter.addItem(HeaderFooterItem.BUTTON_NEXT);
-//        calendar.setHeader(testHeader);
+    	Header testHeader = new Header();
+        HeaderFooterPart headerCenter = testHeader.getCenter();
 
-//        Footer testFooter = new Footer();
-//        HeaderFooterPart positionFooter = testFooter.getCenter();
+        headerCenter.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
+        headerCenter.addItem(HeaderFooterItem.TITLE);
+        headerCenter.addItem(HeaderFooterItem.BUTTON_NEXT);
+        calendar.setHeader(testHeader);
+
+        // some css hack to apply a style to the calendar
 //
-//        positionFooter.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
-//        positionFooter.addItem(HeaderFooterItem.TITLE);
-//        positionFooter.addItem(HeaderFooterItem.BUTTON_NEXT);
-//
-//        calendar.setFooter(testFooter);
+//        String customCss = ".fc-center div {display: flex !important;}";
+//        calendar.addCustomStyles(customCss);
+
+        String customCss = "" +
+                ".fc-today.fc-day {" + // marks today with red
+                "   background-color: red !important;" +
+                "}" +
+                "" +
+                ".fc-center div {" + // aligns the FC's header content correctly
+                "   display: flex !important;" +
+                "}";
+        calendar.addCustomStyles(customCss);
 
         calendar.setBusinessHours(
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
