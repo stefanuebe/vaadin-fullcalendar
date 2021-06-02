@@ -16,12 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.HasStyle;
-import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
@@ -29,29 +24,14 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-
-import javax.validation.constraints.NotNull;
-
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -151,6 +131,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public FullCalendar(@NotNull JsonObject initialOptions) {
         getElement().setPropertyJson("initialOptions", Objects.requireNonNull(initialOptions));
+    }
+
+    /**
+     * This method allows to add a custom css string to the full calendar to customize its styling without
+     * the need of subclassing the client side or using css properties.
+     *<br><br>
+     * The given string is set as the innerHTML of a client side styles element. <b>Attention:</b> The given
+     * string is taken as it is. Please be advised, that this method can be used to introduce malicious code into your
+     * page, so you should be sure, that the added css code is safe (e.g. not taken from user input or the databse).
+     * @param customStylesString custom css string
+     */
+    public void addCustomStyles(String customStylesString) {
+        getElement().callJsFunction("addCustomStyles", customStylesString);
     }
 
     /**

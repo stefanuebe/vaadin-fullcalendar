@@ -297,6 +297,20 @@ export class MyFullCalendar extends FullCalendar {
 customElements.define('my-full-calendar', MyFullCalendar);
 ```
 
+# Modify FC's appearance by adding a custom style element
+You can add a style tag to the existing full calendar implementation to add custom styles.  
+Please be advised, that this method can be used to introduce malicious code into your
+page, so you should be sure, that the added css code is safe (e.g. not taken from user input or the databse).
+
+```
+String customCss = "" +
+    ".fc-today.fc-day {" + // marks today with red
+    "   background-color: red !important;" +
+    "}";
+calendar.addCustomStyles(customCss);
+```
+
+
 ### Modifying eventRender from server side
 The given string will be interpreted as js function on client side
 and attached as eventRender callback. 

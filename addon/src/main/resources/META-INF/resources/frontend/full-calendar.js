@@ -130,6 +130,12 @@ export class FullCalendar extends PolymerElement {
         }
     }
 
+    addCustomStyles(customStylesString) {
+        let customStylesElement = document.createElement('style');
+        customStylesElement.innerHTML = customStylesString;
+        this.shadowRoot.appendChild(customStylesElement);
+    }
+
     /**
      * Creates an object that maps client side event information to server side information.
      * The returned object contains keys, that will be interpreted as client and server side event names.
