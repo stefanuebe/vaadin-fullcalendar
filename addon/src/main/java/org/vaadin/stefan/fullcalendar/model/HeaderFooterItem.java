@@ -19,10 +19,10 @@ package org.vaadin.stefan.fullcalendar.model;
 import lombok.Getter;
 
 /**
- * Definition of header and footer options.
+ * A predefined enum of available items for the header / footer parts.
  */
 @Getter
-public enum Options {
+public enum HeaderFooterItem {
 	TITLE("title"),
 	
 	BUTTON_PREVIOUS("prev"),
@@ -31,9 +31,9 @@ public enum Options {
 	BUTTON_NEXT_YEAR("nextYear"),
 	BUTTON_TODAY("today");
 	
-	private String code;
+	private final String code;
 	
-	private Options(String code) {
+	private HeaderFooterItem(String code) {
 		this.code = code;
 	}
 }
