@@ -8,7 +8,6 @@ import elemental.json.impl.JreJsonObject;
 import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
-import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 
 public class DemoDayGridWeekWithSixWeeks extends VerticalLayout {
     private static final long serialVersionUID = 1L;
@@ -19,8 +18,7 @@ public class DemoDayGridWeekWithSixWeeks extends VerticalLayout {
 
     private void initBasicDemo() {
         CustomDayGridWeekCalendarView calendarView = new CustomDayGridWeekCalendarView(6);
-        FullCalendar calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(calendarView.getInitialOptions()).build();
-        ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
+        FullCalendar calendar = FullCalendarBuilder.create().withInitialOptions(calendarView.getInitialOptions()).build();
         calendar.setHeight(500);
         calendar.changeView(calendarView);
         add(new H1("DayGridWeek calendar with six weeks"), calendar);
