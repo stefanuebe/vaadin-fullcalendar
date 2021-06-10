@@ -198,8 +198,6 @@ public class Demo extends VerticalLayout {
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).withScheduler("GPL-My-Project-Is-Open-Source").build();
 
-        //((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
-
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
