@@ -59,7 +59,7 @@ export class FullCalendar extends PolymerElement {
             </style>
         `;
     }
-
+    
     static get templateContainer() {
         return html`
         	<div id='calendar-container'>
@@ -74,6 +74,10 @@ export class FullCalendar extends PolymerElement {
                 value: false
             },
             navLinks: {
+                type: Boolean,
+                value: true
+            },
+            editable: {
                 type: Boolean,
                 value: true
             },
@@ -277,6 +281,7 @@ export class FullCalendar extends PolymerElement {
             weekNumbers: true,
             dayMaxEvents: this.dayMaxEvents,
             navLinks: this.navLinks,
+            editable: this.editable,
             selectable: this.selectable,
             dragScroll: this.dragScroll,
             stickyHeaderDates: true,
