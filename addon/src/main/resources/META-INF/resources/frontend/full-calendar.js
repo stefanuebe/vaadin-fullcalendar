@@ -96,6 +96,10 @@ export class FullCalendar extends PolymerElement {
             initialOptions: {
                 type: Object,
                 value: null
+            },
+            moreLinkClickAction: {
+        	    type: String,
+                value: "popover"
             }
 
         };
@@ -314,6 +318,10 @@ export class FullCalendar extends PolymerElement {
                         this.dispatchEvent(new CustomEvent(eventName, {
                             detail: eventDetails
                         }));
+
+                        if (eventName === "moreLinkClick") {
+                            return this.moreLinkClickAction; // necessary to prevent showing a popup
+                        }
                     }
                 }
             }
