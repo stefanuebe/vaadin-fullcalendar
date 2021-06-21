@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar-demo</artifactId>
-    <version>2.4.3</version>
+    <version>2.4.4</version>
 
     <name>Full Calendar web component demo</name>
 
@@ -14,8 +14,8 @@
     <properties>
         <vaadin.version>14.6.1</vaadin.version>
 
-        <fullcalendar.version>2.4.3</fullcalendar.version>
-        <fullcalendar.scheduler.version>2.4.3</fullcalendar.scheduler.version>
+        <fullcalendar.version>2.4.4</fullcalendar.version>
+        <fullcalendar.scheduler.version>2.4.4</fullcalendar.scheduler.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
