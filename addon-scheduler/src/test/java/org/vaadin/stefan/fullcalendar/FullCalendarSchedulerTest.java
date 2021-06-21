@@ -44,6 +44,16 @@ public class FullCalendarSchedulerTest {
     }
     
     @Test
+    void testSetResourceAreaWidtht() {
+        calendar.setResourceAreaWidth("10%");
+
+        Optional<Object> option = calendar.getOption("resourceAreaWidth");
+
+        Assertions.assertTrue(option.isPresent());
+        Assertions.assertEquals("10%", option.get());
+    }
+    
+    @Test
     void testNonArgsConstructor() {
 
         // this shall assure that all init options are handled

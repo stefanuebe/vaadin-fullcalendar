@@ -28,6 +28,7 @@ public class Demo2 extends VerticalLayout {
     	getStyle().set("flex-grow", "1");
 
         FullCalendar calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").build();
+        ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
 
         setFlexGrow(1, calendar);
         setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
