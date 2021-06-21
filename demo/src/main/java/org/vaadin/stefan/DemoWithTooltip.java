@@ -57,6 +57,7 @@ public class DemoWithTooltip extends VerticalLayout {
         createToolbar();
 
         add(calendar);
+
         setFlexGrow(1, calendar);
         setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
 
@@ -146,8 +147,6 @@ public class DemoWithTooltip extends VerticalLayout {
 
         toolbar.add(addThousand, removeAllEntries, removeAllResources);
 
-
-
         add(toolbar);
     }
 
@@ -156,6 +155,7 @@ public class DemoWithTooltip extends VerticalLayout {
         calendar = new FullCalendarWithTooltip();
 
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
+        ((FullCalendarScheduler) calendar).setResourceAreaHeaderContent("Rooms");
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
