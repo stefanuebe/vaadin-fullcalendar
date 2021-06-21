@@ -23,6 +23,8 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLayout;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 
 @Push
 @PageTitle("FullCalendar Demo")
@@ -38,7 +40,10 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
         HorizontalLayout title = new HorizontalLayout();
 
-        String text = "<b>FullCalendar Demo</b> (Vaadin 14.6.3, FullCalendar addon: 3.0.0-SNAPSHOT (uses FC 5.7.0), FullCalendar Scheduler extension: 3.0.0-SNAPSHOT (uses scheduler extension libs 5.7.0)";
+        String text = "<b>FullCalendar Demo</b> (Vaadin 14.6.3, FullCalendar addon: 3.0.0-SNAPSHOT " +
+                "(uses FC "+ FullCalendar.FC_CLIENT_VERSION +"), " +
+                "FullCalendar Scheduler extension: 3.0.0-SNAPSHOT " +
+                "(uses scheduler extension libs "+ FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION +")";
 
         Span span = new Span();
         span.getElement().setProperty("innerHTML", text);
