@@ -502,6 +502,12 @@ export class FullCalendar extends PolymerElement {
         let calendar = this.getCalendar();
         calendar.setOption('eventWillUnmount', new Function("return " + s)());
     }
+
+    addCustomStyles(customStylesString) {
+        let customStylesElement = document.createElement('style');
+        customStylesElement.innerHTML = customStylesString;
+        this.shadowRoot.appendChild(customStylesElement);
+    }
 }
 
 customElements.define("full-calendar", FullCalendar);
