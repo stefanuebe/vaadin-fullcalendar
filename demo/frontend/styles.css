@@ -19,10 +19,6 @@
    OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-.event-selected {
-  border: 2px solid red;
-}
-
 /*
 This file contains a list of generated custom properties that might be used to style the FullCalendar.
 Simply remove the comment, change the value and refresh the page.
