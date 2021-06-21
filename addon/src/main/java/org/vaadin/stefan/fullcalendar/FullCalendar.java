@@ -39,18 +39,24 @@ import java.util.stream.Stream;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/core", version = "5.7.2")
-@NpmPackage(value = "@fullcalendar/interaction", version = "5.7.2")
-@NpmPackage(value = "@fullcalendar/daygrid", version = "5.7.2")
-@NpmPackage(value = "@fullcalendar/timegrid", version = "5.7.2")
-@NpmPackage(value = "@fullcalendar/list", version = "5.7.2")
+@NpmPackage(value = "@fullcalendar/core", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/interaction", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/daygrid", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "moment", version = "2.29.1")
 @NpmPackage(value = "moment-timezone", version = "0.5.32")
-@NpmPackage(value = "@fullcalendar/moment", version = "5.7.2")
-@NpmPackage(value = "@fullcalendar/moment-timezone", version = "5.7.2")
+@NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
 @Tag("full-calendar")
 @JsModule("./full-calendar.js")
 public class FullCalendar extends Component implements HasStyle, HasSize {
+
+    /**
+     * The library base version used in this addon. Some additional libraries might have a different version number due to
+     * a different release cycle or known issues.
+     */
+    public static final String FC_CLIENT_VERSION = "5.8.0";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
