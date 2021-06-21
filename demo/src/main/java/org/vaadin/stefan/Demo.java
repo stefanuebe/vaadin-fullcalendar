@@ -22,17 +22,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
-import com.vaadin.flow.component.html.NativeButton;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 
 import org.vaadin.stefan.fullcalendar.*;
@@ -221,14 +216,6 @@ public class Demo extends VerticalLayout {
         headerCenter.addItem(HeaderFooterItem.BUTTON_NEXT);
         calendar.setHeaderToolbar(testHeader);
         
-        // some css hack to apply a style to the calendar
-        
-        String customCss =
-                ".fc-center div {" + // aligns the FC's header content correctly
-                "   display: flex !important;" +
-                "}";
-        calendar.addCustomStyles(customCss);
-
         calendar.setBusinessHours(
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
@@ -439,7 +426,7 @@ public class Demo extends VerticalLayout {
 
     static void createDayBackgroundEntry(FullCalendar calendar, LocalDate start, int days, String color) {
         ResourceEntry entry = new ResourceEntry();
-        setValues(calendar, entry, "BG", start.atStartOfDay(), days, ChronoUnit.DAYS, color);
+        setValues(calendar, entry, start.atStartOfDay(), days, ChronoUnit.DAYS, color);
 
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         entry.setResourceEditable(true);
@@ -449,7 +436,7 @@ public class Demo extends VerticalLayout {
 
     static void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color) {
         ResourceEntry entry = new ResourceEntry();
-        setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
+        setValues(calendar, entry, start, minutes, ChronoUnit.MINUTES, color);
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         entry.setResourceEditable(true);
 
@@ -480,7 +467,14 @@ public class Demo extends VerticalLayout {
         entry.setColor(color);
         entry.setExtendedProps(extendedProps);
     }
-
+    
+    static void setValues(FullCalendar calendar, ResourceEntry entry, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
+    	entry.setTitle("");
+        entry.setStart(start, calendar.getTimezone());
+        entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setAllDay(unit == ChronoUnit.DAYS);
+        entry.setColor(color);
+    }
 
     static Resource createResource(Scheduler calendar, String s, String color) {
         Resource resource = new Resource(null, s, color);

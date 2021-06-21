@@ -120,7 +120,7 @@ public class Entry {
      * The rendering mode of this entry. Never null
      */
     @NonNull
-    private RenderingMode renderingMode = RenderingMode.NORMAL;
+    private RenderingMode renderingMode = RenderingMode.NONE;
 
     /**
      * Simple flag that indicates, if this entry is a recurring one or not. Recurring information
@@ -205,7 +205,7 @@ public class Entry {
         jsonObject.put("end", JsonUtils.toJsonValue(getEndUTC() == null ? null : getEndTimezone().formatWithZoneId(getEndUTC())));
         jsonObject.put("editable", isEditable());
         Optional.ofNullable(getColor()).ifPresent(s -> jsonObject.put("color", s));
-        jsonObject.put("rendering", JsonUtils.toJsonValue(getRenderingMode()));
+        jsonObject.put("display", JsonUtils.toJsonValue(getRenderingMode()));
 
         jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(recurringDaysOfWeeks == null || recurringDaysOfWeeks.isEmpty() ? null : recurringDaysOfWeeks.stream().map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())));
         jsonObject.put("startTime", JsonUtils.toJsonValue(recurringStartTime));
@@ -533,8 +533,23 @@ public class Entry {
         /**
          * Renders as normal entry.
          */
-        NORMAL(null),
+        NONE(null),
+        
+        /**
+         * Renders as a solid rectangle in daygrid
+         */
+        BLOCK("block"),
+        
+        /**
+         * Renders with a dot when in daygrid
+         */
+        LIST_ITEM("list-item"),
 
+        /**
+         * Renders as 'block' if all-day or multi-day, otherwise will display as 'list-item'
+         */
+        AUTO("auto"),
+        
         /**
          * Renders as background entry (marks the area of the entry interval).
          */
@@ -550,7 +565,7 @@ public class Entry {
         RenderingMode(String clientSideName) {
             this.clientSideName = clientSideName;
         }
-
+         
         @Override
         public String getClientSideValue() {
             return clientSideName;
