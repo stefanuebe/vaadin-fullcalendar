@@ -210,14 +210,16 @@ public class Demo extends VerticalLayout {
         calendar.setTimeslotsSelectable(true);
         
         Header testHeader = new Header();
+
         HeaderFooterPart headerCenter = testHeader.getCenter();
         headerCenter.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
         headerCenter.addItem(HeaderFooterItem.TITLE);
         headerCenter.addItem(HeaderFooterItem.BUTTON_NEXT);
+        
         calendar.setHeaderToolbar(testHeader);
         
         String customCss =  
-        		".fc-center div {" + // aligns the FC's header content correctly               
+        		".fc-toolbar-chunk div {" + // aligns the FC's header content correctly               
         		"   display: flex !important;" +                
         		"}";
         calendar.addCustomStyles(customCss);
