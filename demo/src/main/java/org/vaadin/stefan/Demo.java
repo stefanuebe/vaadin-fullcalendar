@@ -197,6 +197,7 @@ public class Demo extends VerticalLayout {
 
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).withScheduler("GPL-My-Project-Is-Open-Source").build();
+        ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
 
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
