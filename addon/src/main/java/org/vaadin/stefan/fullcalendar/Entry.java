@@ -215,13 +215,17 @@ public class Entry {
 
         jsonObject.put("description", JsonUtils.toJsonValue(getDescription()));
         
+        JsonObject extObject = Json.createObject();
+        
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {
             for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
             	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
+            	extObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
             }
         }
-
+        jsonObject.put("extendedProps", extObject);
+        
         return jsonObject;
     }
 

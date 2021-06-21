@@ -216,6 +216,12 @@ public class Demo extends VerticalLayout {
         headerCenter.addItem(HeaderFooterItem.BUTTON_NEXT);
         calendar.setHeaderToolbar(testHeader);
         
+        String customCss =  
+        		".fc-center div {" + // aligns the FC's header content correctly               
+        		"   display: flex !important;" +                
+        				"}";
+        calendar.addCustomStyles(customCss);
+        
         calendar.setBusinessHours(
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
