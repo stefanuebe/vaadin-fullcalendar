@@ -26,6 +26,10 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 import javax.validation.constraints.NotNull;
+
+import org.vaadin.stefan.fullcalendar.model.Footer;
+import org.vaadin.stefan.fullcalendar.model.Header;
+
 import java.io.Serializable;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -653,6 +657,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setWeekNumbersVisible(boolean weekNumbersVisible) {
         setOption(Option.WEEK_NUMBERS, weekNumbersVisible);
     }
+    
+    /**
+     * Determines the styling for week numbers in Month and DayGrid views.
+     *
+     * @param weekNumbersWithinDays by default to false
+     */
+    public void setWeekNumbersWithinDays(boolean weekNumbersWithinDays) {
+    	setOption(Option.WEEK_NUMBERS_WITHIN_DAYS, weekNumbersWithinDays);
+    }
 
     /**
      * Returns the current set locale.
@@ -855,6 +868,43 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         setOption(Option.WEEKENDS, weekends);
     }
 
+
+    /** display the header.
+     * 
+     * @param Header header
+     * 
+     */
+    public void setHeaderToolbar(Header header) {
+    	setOption(Option.HEADER_TOOLBAR, header.toJson());
+    }
+
+    /**display the footer.
+     * 
+     * @param String footer
+     * 
+     */
+    public void setFooterToolbar(Footer footer) {
+    	setOption(Option.FOOTER_TOOLBAR, footer.toJson());
+    }
+
+    /**Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
+     * 
+     * @param String columnHeader
+     * 
+     */
+    public void setColumnHeader(boolean columnHeader) {
+    	setOption(Option.COLUMN_HEADER, columnHeader);
+    }
+
+    /**
+     * Returns the columnHeader.
+     *
+     * @return columnHeader
+     */
+    public boolean getColumnHeader() {
+    	 return (boolean) getOption(Option.COLUMN_HEADER).orElse(true);
+    }
+    
     /**
      * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone.
      * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
@@ -1171,7 +1221,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         MIN_TIME("minTime"),
         MAX_TIME("maxTime"),
         FIXED_WEEK_COUNT("fixedWeekCount"),
-    	WEEKENDS("weekends");
+        WEEKENDS("weekends"),
+    	HEADER_TOOLBAR("headerToolbar"),
+    	FOOTER_TOOLBAR("footerToolbar"),
+    	COLUMN_HEADER("columnHeader"),
+    	WEEK_NUMBERS_WITHIN_DAYS("weekNumbersWithinDays");
 
         private final String optionKey;
 

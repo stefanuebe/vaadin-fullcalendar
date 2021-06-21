@@ -36,6 +36,9 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 
 import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.model.Header;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -210,6 +213,21 @@ public class Demo extends VerticalLayout {
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+        
+        Header testHeader = new Header();
+        HeaderFooterPart headerCenter = testHeader.getCenter();
+        headerCenter.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
+        headerCenter.addItem(HeaderFooterItem.TITLE);
+        headerCenter.addItem(HeaderFooterItem.BUTTON_NEXT);
+        calendar.setHeaderToolbar(testHeader);
+        
+        // some css hack to apply a style to the calendar
+        
+        String customCss =
+                ".fc-center div {" + // aligns the FC's header content correctly
+                "   display: flex !important;" +
+                "}";
+        calendar.addCustomStyles(customCss);
 
         calendar.setBusinessHours(
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
