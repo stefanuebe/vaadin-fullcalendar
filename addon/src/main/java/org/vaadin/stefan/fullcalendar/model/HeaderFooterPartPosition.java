@@ -23,9 +23,9 @@ import lombok.Getter;
  */
 @Getter
 public enum HeaderFooterPartPosition {
-	LEFT("left"),
+	START("start"),
 	CENTER("center"),
-	RIGHT("right");
+	END("end");
 	
 	private final String code;
 	
