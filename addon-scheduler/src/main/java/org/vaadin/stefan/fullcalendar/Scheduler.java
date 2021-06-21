@@ -67,6 +67,10 @@ public interface Scheduler {
     void setSlotWidth(String slotWidth);
     
     void setResourcesInitiallyExpanded(boolean resourceInitiallyExpanded);
+    
+    void setFilterResourcesWithEvents(boolean filterResourcesWithEvents);
+    
+    void setResourceOrder(String resourceOrder);
 
     /**
      * Adds an resource to this calendar. Noop if the resource id is already registered.

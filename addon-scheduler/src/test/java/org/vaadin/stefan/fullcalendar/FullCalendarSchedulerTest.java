@@ -74,6 +74,26 @@ public class FullCalendarSchedulerTest {
     }
     
     @Test
+    void testSetFilterResourcesWithEvents() {
+        calendar.setFilterResourcesWithEvents(true);
+
+        Optional<Object> option = calendar.getOption("filterResourcesWithEvents");
+
+        Assertions.assertTrue(option.isPresent());
+        Assertions.assertEquals(true, option.get());
+    }
+    
+    @Test
+    void testSetResourceOrder() {
+        calendar.setResourceOrder("-title");
+
+        Optional<Object> option = calendar.getOption("resourceOrder");
+
+        Assertions.assertTrue(option.isPresent());
+        Assertions.assertEquals("-title", option.get());
+    }
+    
+    @Test
     void testNonArgsConstructor() {
 
         // this shall assure that all init options are handled
