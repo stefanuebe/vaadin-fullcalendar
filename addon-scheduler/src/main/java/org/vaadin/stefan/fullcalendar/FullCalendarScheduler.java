@@ -124,8 +124,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
-    public void setResourceAreaHeaderContent (String resourceAreaHeaderContent) {
-        setOption("resourceAreaHeaderContent ", resourceAreaHeaderContent);
+    public void setResourceAreaHeaderContent(String resourceAreaHeaderContent) {
+        setOption("resourceAreaHeaderContent", resourceAreaHeaderContent);
     }
 
     @Override

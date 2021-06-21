@@ -35,12 +35,12 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetResourceAreaHeaderContent() {
-        calendar.setResourceAreaHeaderContent("Hello World");
+        calendar.setResourceAreaHeaderContent("Hello");
 
         Optional<Object> option = calendar.getOption("resourceAreaHeaderContent");
 
         Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("Hello World", option.get());
+        Assertions.assertEquals("Hello", option.get());
     }
     
     @Test
