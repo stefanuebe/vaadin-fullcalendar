@@ -123,6 +123,15 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         setOption("schedulerLicenseKey", schedulerLicenseKey);
     }
 
+    @Override
+    public void setResourceAreaHeaderContent(String resourceAreaHeaderContent) {
+        setOption("resourceAreaHeaderContent", resourceAreaHeaderContent);
+    }
+    
+    @Override
+    public void setResourceAreaWidth(String resourceAreaWidth) {
+        setOption("resourceAreaWidth", resourceAreaWidth);
+    }
 
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource) {
