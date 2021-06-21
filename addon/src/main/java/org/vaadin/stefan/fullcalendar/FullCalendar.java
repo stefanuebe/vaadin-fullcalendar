@@ -1094,6 +1094,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * This method allows to add a custom css string to the full calendar to customize its styling without
+     * the need of subclassing the client side or using css properties.
+     *<br><br>
+     * The given string is set as the innerHTML of a client side styles element. <b>Attention:</b> The given
+     * string is taken as it is. Please be advised, that this method can be used to introduce malicious code into your
+     * page, so you should be sure, that the added css code is safe (e.g. not taken from user input or the databse).
+     * @param customStylesString custom css string
+     */
+    public void addCustomStyles(String customStylesString) {
+        getElement().callJsFunction("addCustomStyles", customStylesString);
+    }
+
+    /**
      * Enumeration of possible options, that can be applied to this calendar instance to have an effect on the client side.
      * This list does not contain all options, but the most common used ones.
      * <br><br>
