@@ -22,12 +22,17 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.html.NativeButton;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 
 import org.vaadin.stefan.fullcalendar.*;
@@ -247,35 +252,38 @@ public class Demo extends VerticalLayout {
             new DemoDialog(calendar, entry, true).open();
         });
 
-        /*calendar.addLimitedEntriesClickedListener(event -> {
-            Collection<Entry> entries = event.getEvents();
-            if (!entries.isEmpty()) {
-                Dialog dialog = new Dialog();
-                VerticalLayout dialogLayout = new VerticalLayout();
-                dialogLayout.setSpacing(false);
-                dialogLayout.setPadding(false);
-                dialogLayout.setMargin(false);
-                dialogLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
 
-                dialogLayout.add(new Span("Entries of " + event.getClickedDate()));
-                entries.stream()
-                        .sorted(Comparator.comparing(Entry::getTitle))
-                        .map(entry -> {
-                            NativeButton button = new NativeButton(entry.getTitle(), clickEvent -> new DemoDialog(calendar, (ResourceEntry) entry, false).open());
-                            Style style = button.getStyle();
-                            style.set("background-color", Optional.ofNullable(entry.getColor()).orElse("rgb(58, 135, 173)"));
-                            style.set("color", "white");
-                            style.set("border", "0 none black");
-                            style.set("border-radius", "3px");
-                            style.set("text-align", "left");
-                            style.set("margin", "1px");
-                            return button;
-                        }).forEach(dialogLayout::add);
-
-                dialog.add(dialogLayout);
-                dialog.open();
-            }
-        });*/
+        // this following code is an exapmle on how to create a server side dialog showing all entries of the day
+//        calendar.setMoreLinkClickAction(FullCalendar.MoreLinkClickAction.NOTHING);
+//        calendar.addMoreLinkClickedListener(event -> {
+//            Collection<Entry> entries = event.getEntries();
+//            if (!entries.isEmpty()) {
+//                Dialog dialog = new Dialog();
+//                VerticalLayout dialogLayout = new VerticalLayout();
+//                dialogLayout.setSpacing(false);
+//                dialogLayout.setPadding(false);
+//                dialogLayout.setMargin(false);
+//                dialogLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
+//
+//                dialogLayout.add(new Span("Entries of " + event.getClickedDate()));
+//                entries.stream()
+//                        .sorted(Comparator.comparing(Entry::getTitle))
+//                        .map(entry -> {
+//                            NativeButton button = new NativeButton(entry.getTitle(), clickEvent -> new DemoDialog(calendar, (ResourceEntry) entry, false).open());
+//                            Style style = button.getStyle();
+//                            style.set("background-color", Optional.ofNullable(entry.getColor()).orElse("rgb(58, 135, 173)"));
+//                            style.set("color", "white");
+//                            style.set("border", "0 none black");
+//                            style.set("border-radius", "3px");
+//                            style.set("text-align", "left");
+//                            style.set("margin", "1px");
+//                            return button;
+//                        }).forEach(dialogLayout::add);
+//
+//                dialog.add(dialogLayout);
+//                dialog.open();
+//            }
+//        });
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             System.out.println("Use browser's timezone: " + event.getTimezone().toString());

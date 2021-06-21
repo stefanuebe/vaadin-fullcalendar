@@ -1042,15 +1042,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Registers a listener to be informed when the user clicked on the limited entries link (e.g. "+6 more").
+     * Registers a listener to be informed when the user clicked on the "more" link (e.g. "+6 more").
+     *
+     * @deprecated use {@link #addMoreLinkClickedListener(ComponentEventListener)} instead
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     *
+     */
+    @Deprecated
+    public Registration addLimitedEntriesClickedListener(@NotNull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(LimitedEntriesClickedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener to be informed when the user clicked on the "more" link (e.g. "+6 more").
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addLimitedEntriesClickedListener(@NotNull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
+    public Registration addMoreLinkClickedListener(@NotNull ComponentEventListener<MoreLinkClickedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(LimitedEntriesClickedEvent.class, listener);
+        return addListener(MoreLinkClickedEvent.class, listener);
     }
 
     /**
@@ -1107,6 +1122,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Sets an action, that shall happen, when a user clicks the "+x more" link in the calendar (which occurs when the max
+     * entries per day are exceeded). Default value is {@code POPUP}. Passing {@code null} will reset the default.
+     *
+     * @see MoreLinkClickAction
+     * @param moreLinkClickAction action to set
+     */
+    public void setMoreLinkClickAction(MoreLinkClickAction moreLinkClickAction) {
+        getElement().setProperty("moreLinkClickAction", (moreLinkClickAction != null ? moreLinkClickAction : MoreLinkClickAction.POPUP).getClientSideValue());
+    }
+
+    /**
      * Enumeration of possible options, that can be applied to this calendar instance to have an effect on the client side.
      * This list does not contain all options, but the most common used ones.
      * <br><br>
@@ -1114,7 +1140,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * https://fullcalendar.io/docs
      *
      */
-    enum Option {
+    public enum Option {
         FIRST_DAY("firstDay"),
         HEIGHT("height"),
         LOCALE("locale"),
@@ -1137,6 +1163,43 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         String getOptionKey() {
             return optionKey;
+        }
+    }
+
+    /**
+     * Possible actions, that shall happen on the client side.
+     */
+    public enum MoreLinkClickAction implements ClientSideValue{
+        /**
+         * Shows a popup on the client side. This popup is purely client side rendered. Entries shown in that
+         * popup will fire the same click event as "normal" entries do.
+         */
+        POPUP("popover"),
+        /**
+         * Goes to a "day" view based on the current one.
+         */
+        DAY("day"),
+
+        /**
+         * Goes to a "week" view based on the current one.
+         */
+        WEEK("week"),
+
+        /**
+         * Nothing will happen automatically. You should use this action if you want to handle
+         * the action manually (e.g. showing your own dialog / popup for the given events).
+         */
+        NOTHING("function");
+
+        private final String clientSideValue;
+
+        MoreLinkClickAction(String clientSideValue) {
+            this.clientSideValue = clientSideValue;
+        }
+
+        @Override
+        public String getClientSideValue() {
+            return this.clientSideValue;
         }
     }
 
