@@ -59,6 +59,8 @@ public interface Scheduler {
      * @param schedulerLicenseKey license key
      */
     void setSchedulerLicenseKey(String schedulerLicenseKey);
+    
+    void setResourceAreaHeaderContent(String resourceAreaHeaderContent);
 
     /**
      * Adds an resource to this calendar. Noop if the resource id is already registered.
