@@ -219,7 +219,7 @@ public class Demo extends VerticalLayout {
         String customCss =  
         		".fc-center div {" + // aligns the FC's header content correctly               
         		"   display: flex !important;" +                
-        				"}";
+        		"}";
         calendar.addCustomStyles(customCss);
         
         calendar.setBusinessHours(
