@@ -1,5 +1,6 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
+import {unsafeCSS} from '@vaadin/vaadin-themable-mixin/register-styles.js';
 
 import {Calendar} from '@fullcalendar/core';
 import interaction from '@fullcalendar/interaction';
@@ -132,7 +133,7 @@ export class FullCalendar extends PolymerElement {
 
     addCustomStyles(customStylesString) {
         let customStylesElement = document.createElement('style');
-        customStylesElement.innerHTML = customStylesString;
+        customStylesElement.innerHTML = unsafeCSS(customStylesString);
         this.shadowRoot.appendChild(customStylesElement);
     }
 
