@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
+import com.vaadin.flow.router.PageTitle;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "demoextendedprops", layout = MainView.class)
+@PageTitle("FC with Extended Properties")
 public class DemoExtendedProps extends VerticalLayout {
 	private static final long serialVersionUID = -117988331031719049L;
 
@@ -32,15 +34,22 @@ public class DemoExtendedProps extends VerticalLayout {
     	calendar = FullCalendarBuilder.create().build();
     	
     	calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH);
-        
-        /*calendar.setEntryRenderCallback("" +
+
+//        calendar.setEntryContentCallback("" +
+//            "function (info) {" +
+//            "   console.warn(info.event.title + ': ' + info.event.extendedProps['selected']);" +
+//            "	if (info.event.extendedProps['selected'])" +
+//            "		info.el.style.setProperty('border', '2px solid red');" +
+//            "	return info.el;" +
+//            "}");
+         /*calendar.setEntryRenderCallback("" +
             "function (info) {" +
             "   console.warn(info.event.title + ': ' + info.event.extendedProps['selected']);" +
             "	if (info.event.extendedProps['selected'])" +
             "		info.el.style.setProperty('border', '2px solid red');" +
             "	return info.el;" +
             "}");*/
-        
+
         calendar.addEntryClickedListener(e -> {
             Entry oldSelected = this.selected;
             oldSelected.removeExtendedProps("selected");

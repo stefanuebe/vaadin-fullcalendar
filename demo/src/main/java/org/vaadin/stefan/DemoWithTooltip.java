@@ -26,6 +26,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
@@ -41,6 +42,7 @@ import java.util.stream.IntStream;
 @Route(value = "tooltip", layout = MainView.class)
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
+@PageTitle("FC with Tooltips")
 public class DemoWithTooltip extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
 
