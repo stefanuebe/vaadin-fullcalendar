@@ -2,6 +2,7 @@ package org.vaadin.stefan;
 
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import elemental.json.JsonFactory;
@@ -18,6 +19,7 @@ import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
 
 @Route(value = "demodaygridsixweeks", layout = MainView.class)
+@PageTitle("FC with Six Weeks Grid")
 public class DemoDayGridWeekWithSixWeeks extends VerticalLayout {
     private static final long serialVersionUID = 1L;
     
@@ -28,7 +30,7 @@ public class DemoDayGridWeekWithSixWeeks extends VerticalLayout {
     	
     	createCalendarInstance();
     	
-    	add(new H3("DayGridWeek calendar with six weeks"), calendar);
+    	add(calendar);
         
     	setFlexGrow(1, calendar);
         setDefaultHorizontalComponentAlignment(Alignment.STRETCH);

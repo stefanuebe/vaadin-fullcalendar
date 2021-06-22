@@ -2,6 +2,7 @@ package org.vaadin.stefan;
 
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import org.vaadin.stefan.fullcalendar.*;
@@ -12,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
 @Route(value = "demobackgroundevent", layout = MainView.class)
+@PageTitle("FC with Background Events")
 public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
     private static final long serialVersionUID = 1L;
     
@@ -24,7 +26,7 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
         addBackgroundEvent(Entry.RenderingMode.BACKGROUND, 4, "This special holiday");
         addBackgroundEvent(Entry.RenderingMode.BACKGROUND, 6, "");
 
-        add(new H3("Calendar with background event"), calendar);
+        add(calendar);
         
         setFlexGrow(1, calendar);
         setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
