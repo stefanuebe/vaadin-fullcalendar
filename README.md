@@ -504,7 +504,7 @@ By default this value is `false`, simply set it to true to also receive date ren
 
 
 # FullCalendar Scheduler extension
-This addon extends the **FullCalendar web component** with the FullCalendar Scheduler, which provides 
+This addon extends the **FullCalendar for Flow** addon with the FullCalendar Scheduler, which provides 
 additional resource based views (Timeline View and Vertical Resource View) for Vaadin 14+.
 
 It needs the basic addon (https://vaadin.com/directory/component/full-calendar-4-web-component) to work.
