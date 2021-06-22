@@ -22,18 +22,14 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
-import com.vaadin.flow.component.html.NativeButton;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
+
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
@@ -203,10 +199,7 @@ public class Demo extends VerticalLayout {
     }
 
     private void createCalendarInstance() {
-        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).withScheduler().build();
-
-        ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
-        ((FullCalendarScheduler) calendar).setResourceLabelText("Resource Label");
+        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).withScheduler("GPL-My-Project-Is-Open-Source").build();
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotWidth("100");
         ((FullCalendarScheduler) calendar).setResourcesInitiallyExpanded(false);
@@ -215,26 +208,22 @@ public class Demo extends VerticalLayout {
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+        
+        Header testHeader = new Header();
 
-    	Header testHeader = new Header();
         HeaderFooterPart headerCenter = testHeader.getCenter();
-
         headerCenter.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
         headerCenter.addItem(HeaderFooterItem.TITLE);
         headerCenter.addItem(HeaderFooterItem.BUTTON_NEXT);
-        calendar.setHeader(testHeader);
-
-        // some css hack to apply a style to the calendar
-//
-//        String customCss = ".fc-center div {display: flex !important;}";
-//        calendar.addCustomStyles(customCss);
-
-        String customCss =
-                ".fc-center div {" + // aligns the FC's header content correctly
-                "   display: flex !important;" +
-                "}";
+        
+        calendar.setHeaderToolbar(testHeader);
+        
+        String customCss =  
+        		".fc-toolbar-chunk div {" + // aligns the FC's header content correctly               
+        		"   display: flex !important;" +                
+        		"}";
         calendar.addCustomStyles(customCss);
-
+        
         calendar.setBusinessHours(
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
@@ -264,7 +253,9 @@ public class Demo extends VerticalLayout {
         });
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
-        calendar.addEntryClickedListener(event -> new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open());
+        calendar.addEntryClickedListener(event -> 
+        	new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open()
+        );
 
         ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
             ResourceEntry entry = new ResourceEntry();
@@ -277,42 +268,45 @@ public class Demo extends VerticalLayout {
             new DemoDialog(calendar, entry, true).open();
         });
 
-        calendar.addLimitedEntriesClickedListener(event -> {
-            Collection<Entry> entries = calendar.getEntries(event.getClickedDate());
-            if (!entries.isEmpty()) {
-                Dialog dialog = new Dialog();
-                VerticalLayout dialogLayout = new VerticalLayout();
-                dialogLayout.setSpacing(false);
-                dialogLayout.setPadding(false);
-                dialogLayout.setMargin(false);
-                dialogLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
 
-                dialogLayout.add(new Span("Entries of " + event.getClickedDate()));
-                entries.stream()
-                        .sorted(Comparator.comparing(Entry::getTitle))
-                        .map(entry -> {
-                            NativeButton button = new NativeButton(entry.getTitle(), clickEvent -> new DemoDialog(calendar, (ResourceEntry) entry, false).open());
-                            Style style = button.getStyle();
-                            style.set("background-color", Optional.ofNullable(entry.getColor()).orElse("rgb(58, 135, 173)"));
-                            style.set("color", "white");
-                            style.set("border", "0 none black");
-                            style.set("border-radius", "3px");
-                            style.set("text-align", "left");
-                            style.set("margin", "1px");
-                            return button;
-                        }).forEach(dialogLayout::add);
-
-                dialog.add(dialogLayout);
-                dialog.open();
-            }
-        });
+        // this following code is an exapmle on how to create a server side dialog showing all entries of the day
+//        calendar.setMoreLinkClickAction(FullCalendar.MoreLinkClickAction.NOTHING);
+//        calendar.addMoreLinkClickedListener(event -> {
+//            Collection<Entry> entries = event.getEntries();
+//            if (!entries.isEmpty()) {
+//                Dialog dialog = new Dialog();
+//                VerticalLayout dialogLayout = new VerticalLayout();
+//                dialogLayout.setSpacing(false);
+//                dialogLayout.setPadding(false);
+//                dialogLayout.setMargin(false);
+//                dialogLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
+//
+//                dialogLayout.add(new Span("Entries of " + event.getClickedDate()));
+//                entries.stream()
+//                        .sorted(Comparator.comparing(Entry::getTitle))
+//                        .map(entry -> {
+//                            NativeButton button = new NativeButton(entry.getTitle(), clickEvent -> new DemoDialog(calendar, (ResourceEntry) entry, false).open());
+//                            Style style = button.getStyle();
+//                            style.set("background-color", Optional.ofNullable(entry.getColor()).orElse("rgb(58, 135, 173)"));
+//                            style.set("color", "white");
+//                            style.set("border", "0 none black");
+//                            style.set("border-radius", "3px");
+//                            style.set("text-align", "left");
+//                            style.set("margin", "1px");
+//                            return button;
+//                        }).forEach(dialogLayout::add);
+//
+//                dialog.add(dialogLayout);
+//                dialog.open();
+//            }
+//        });
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             System.out.println("Use browser's timezone: " + event.getTimezone().toString());
             timezoneComboBox.setValue(event.getTimezone());
         });
 
-        calendar.setEntryRenderCallback(
+        calendar.setEventDidMountCallback(
         		  "function(info) { " 
         		+ "    if(info.event.extendedProps.cursors != undefined) { "
         		+ "        if(!info.event.startEditable) { "
@@ -440,7 +434,7 @@ public class Demo extends VerticalLayout {
 
     static void createDayBackgroundEntry(FullCalendar calendar, LocalDate start, int days, String color) {
         ResourceEntry entry = new ResourceEntry();
-        setValues(calendar, entry, "BG", start.atStartOfDay(), days, ChronoUnit.DAYS, color);
+        setValues(calendar, entry, start.atStartOfDay(), days, ChronoUnit.DAYS, color);
 
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         entry.setResourceEditable(true);
@@ -450,7 +444,7 @@ public class Demo extends VerticalLayout {
 
     static void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color) {
         ResourceEntry entry = new ResourceEntry();
-        setValues(calendar, entry, "BG", start, minutes, ChronoUnit.MINUTES, color);
+        setValues(calendar, entry, start, minutes, ChronoUnit.MINUTES, color);
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         entry.setResourceEditable(true);
 
@@ -481,7 +475,14 @@ public class Demo extends VerticalLayout {
         entry.setColor(color);
         entry.setExtendedProps(extendedProps);
     }
-
+    
+    static void setValues(FullCalendar calendar, ResourceEntry entry, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
+    	entry.setTitle("");
+        entry.setStart(start, calendar.getTimezone());
+        entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setAllDay(unit == ChronoUnit.DAYS);
+        entry.setColor(color);
+    }
 
     static Resource createResource(Scheduler calendar, String s, String color) {
         Resource resource = new Resource(null, s, color);

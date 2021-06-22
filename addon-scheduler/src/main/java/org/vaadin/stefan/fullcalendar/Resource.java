@@ -53,14 +53,14 @@ public class Resource {
      * Events associated with this resources will have their backgrounds and borders colored. 
      */
     private final String color;
-    
+
     /**
      * The BusinessHours of this resource.
      * 
      * A businessHours declaration that will only apply to this resource.
      */
     private final BusinessHours businessHours;
-
+    
     /**
      * The childern's of the resource
      */
@@ -104,9 +104,9 @@ public class Resource {
      * @param children children (optional)
      */
     public Resource(String id, String title, String color, Collection<Resource> children) {
-        this(id, title, color, children, null);
+    	this(id, title, color, children, null);
     }
-    
+
     /**
      * New instance. Awaits id and title. If no id is provided, one will be generated.
      * <br><br>
@@ -116,6 +116,7 @@ public class Resource {
      * @param title    title
      * @param color    color (optional)
      * @param children children (optional)
+     * @param businessHours businessHours (optional)
      */
     public Resource(String id, String title, String color, Collection<Resource> children, BusinessHours businessHours) {
         this.id = id != null ? id : UUID.randomUUID().toString();

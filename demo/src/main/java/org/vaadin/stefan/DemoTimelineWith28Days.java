@@ -7,10 +7,12 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonFactory;
 import elemental.json.impl.JreJsonFactory;
 import elemental.json.impl.JreJsonObject;
+
+import java.util.Locale;
+
 import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
-import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
@@ -35,20 +37,20 @@ public class DemoTimelineWith28Days extends VerticalLayout {
     private void createCalendarInstance() {
         CustomDaysTimelineCalendarView calendarView = new CustomDaysTimelineCalendarView(28);
         
-        calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(calendarView.getInitialOptions()).build();
-        ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
+        calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").withInitialOptions(calendarView.getInitialOptions()).build();
+        calendar.setLocale(Locale.ENGLISH);
         
         Header testHeader = new Header();
         
-        HeaderFooterPart headerLeft = testHeader.getLeft();
+        HeaderFooterPart headerLeft = testHeader.getStart();
         headerLeft.addItem(HeaderFooterItem.TITLE);
         
-        HeaderFooterPart headerRight = testHeader.getRight();
+        HeaderFooterPart headerRight = testHeader.getEnd();
         headerRight.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
         headerRight.addItem(HeaderFooterItem.BUTTON_TODAY);
         headerRight.addItem(HeaderFooterItem.BUTTON_NEXT);
         
-        calendar.setHeader(testHeader);
+        calendar.setHeaderToolbar(testHeader);
         
         calendar.setHeight(500);
         calendar.changeView(calendarView);

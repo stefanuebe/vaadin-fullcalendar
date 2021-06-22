@@ -20,11 +20,15 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLayout;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 
 @Push
 @PageTitle("FullCalendar Demo")
+@Viewport("width=100vw, height=100vh")
 public class MainView extends VerticalLayout implements RouterLayout {
 	private static final long serialVersionUID = 1L;
 
@@ -36,13 +40,16 @@ public class MainView extends VerticalLayout implements RouterLayout {
 
         HorizontalLayout title = new HorizontalLayout();
 
-        String text = "<b>FullCalendar Demo</b> (Vaadin 14.6.1, FullCalendar addon: 2.4.4 (uses FC 4.4.2), FullCalendar Scheduler extension: 2.4.4 (uses scheduler extension libs 4.4.2)";
-        
+        String text = "<b>FullCalendar Demo</b> (Vaadin 14.6.3, FullCalendar addon: 3.0.0 " +
+                "(uses FC "+ FullCalendar.FC_CLIENT_VERSION +"), " +
+                "FullCalendar Scheduler extension: 3.0.0 " +
+                "(uses scheduler extension libs "+ FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION +")";
+
         Span span = new Span();
         span.getElement().setProperty("innerHTML", text);
         span.getElement().getStyle().set("text-align", "center");
         span.setWidthFull();
-        
+
         title.add(span);
         title.setSpacing(false);
         title.setWidthFull();

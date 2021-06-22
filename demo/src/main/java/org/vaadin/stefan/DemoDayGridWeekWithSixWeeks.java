@@ -7,6 +7,9 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonFactory;
 import elemental.json.impl.JreJsonFactory;
 import elemental.json.impl.JreJsonObject;
+
+import java.util.Locale;
+
 import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
@@ -35,18 +38,19 @@ public class DemoDayGridWeekWithSixWeeks extends VerticalLayout {
         CustomDayGridWeekCalendarView calendarView = new CustomDayGridWeekCalendarView(6);
         
         calendar = FullCalendarBuilder.create().withInitialOptions(calendarView.getInitialOptions()).build();
+        calendar.setLocale(Locale.ENGLISH);
 
         Header testHeader = new Header();
         
-        HeaderFooterPart headerLeft = testHeader.getLeft();
+        HeaderFooterPart headerLeft = testHeader.getStart();
         headerLeft.addItem(HeaderFooterItem.TITLE);
         
-        HeaderFooterPart headerRight = testHeader.getRight();
+        HeaderFooterPart headerRight = testHeader.getEnd();
         headerRight.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
         headerRight.addItem(HeaderFooterItem.BUTTON_TODAY);
         headerRight.addItem(HeaderFooterItem.BUTTON_NEXT);
         
-        calendar.setHeader(testHeader);
+        calendar.setHeaderToolbar(testHeader);
 
         calendar.setHeight(500);
         calendar.changeView(calendarView);

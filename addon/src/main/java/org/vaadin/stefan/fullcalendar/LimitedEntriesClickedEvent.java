@@ -19,33 +19,41 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import elemental.json.JsonArray;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
- * Client side event: eventLimitClick.
+ * This event is fired when a user clicks the "+x more" link in the calendar (which occurs when the max
+ * entries per day are exceeded).
+ * @deprecated use {@link MoreLinkClickedEvent} instead
  */
-@DomEvent("eventLimitClick")
+@DomEvent("moreLinkClick")
 @Getter
 @ToString
-public class LimitedEntriesClickedEvent extends ComponentEvent<FullCalendar> {
+@Deprecated
+public class LimitedEntriesClickedEvent extends MultipleEntriesDataEvent {
 
     /**
      * The clicked date.
      */
     private final LocalDate clickedDate;
-
+    
     /**
-     * New instance. Awaits the clicked date as iso string (e.g. "2018-10-23").
+     * New instance. Awaits the clicked date as iso string (e.g. "2018-10-23") and an array of events, that are
+     * shown for that day.
      *
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      * @param date       clicked time slot as iso string
      */
-    public LimitedEntriesClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date) {
-        super(source, fromClient);
+    public LimitedEntriesClickedEvent(FullCalendar source, boolean fromClient,
+                                      @EventData("event.detail.date") String date,
+                                      @EventData("event.detail.allSegs") JsonArray coveredItems) {
+        super(source, fromClient, coveredItems);
 
         clickedDate = source.getTimezone().convertToLocalDate(JsonUtils.parseDateTimeString(date, source.getTimezone()));
     }

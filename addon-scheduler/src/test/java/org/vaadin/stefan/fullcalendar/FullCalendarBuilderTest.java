@@ -26,7 +26,7 @@ public class FullCalendarBuilderTest {
         Assertions.assertEquals(FullCalendarScheduler.class, build.getClass());
         Assertions.assertTrue(build instanceof Scheduler);
     }
-
+    
     @Test
     void testProvideLicenseKeyOnBuildTime() {
         String licenseKey = "some license key";

@@ -18,32 +18,40 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonObject;
+import elemental.json.JsonArray;
 import lombok.Getter;
 import lombok.ToString;
 
-/**
- * Occurs when a new set of dates has been rendered.. Provides information about the shown timespan.
- * <br><br>
- * The values are always daybased, regardless of the current view.
- * <br><br>
- * Called after registered {@link ViewSkeletonRenderedEvent} listeners.
- */
-@DomEvent("datesSet")
-@Getter
-@ToString(callSuper = true)
-public class DatesRenderedEvent extends ViewRenderEvent {
+import java.time.LocalDate;
 
+/**
+ * This event is fired when a user clicks the "+x more" link in the calendar (which occurs when the max
+ * entries per day are exceeded).
+ */
+@DomEvent("moreLinkClick")
+@Getter
+@ToString
+public class MoreLinkClickedEvent extends MultipleEntriesDataEvent {
 
     /**
-     * Creates a new event using the given source and indicator whether the
-     * event originated from the client side or the server side.
+     * The clicked date.
+     */
+    private final LocalDate clickedDate;
+
+    /**
+     * New instance. Awaits the clicked date as iso string (e.g. "2018-10-23") and an array of events, that are
+     * shown for that day.
      *
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
-     * @param eventData client side event data
+     * @param date       clicked time slot as iso string
      */
-    public DatesRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
-        super(source, fromClient, eventData);
+    public MoreLinkClickedEvent(FullCalendar source, boolean fromClient,
+                                @EventData("event.detail.date") String date,
+                                @EventData("event.detail.allSegs") JsonArray coveredItems) {
+        super(source, fromClient, coveredItems);
+
+        clickedDate = source.getTimezone().convertToLocalDate(JsonUtils.parseDateTimeString(date, source.getTimezone()));
     }
+
 }

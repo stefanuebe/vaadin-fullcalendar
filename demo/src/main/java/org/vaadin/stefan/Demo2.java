@@ -19,18 +19,21 @@ import java.util.List;
 @Route(value = "demo2", layout = MainView.class)
 public class Demo2 extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
-
-	public Demo2() {
+	
+    public Demo2() {
         initBasicDemo();
     }
 
     private void initBasicDemo() {
-        FullCalendar calendar = FullCalendarBuilder.create().withScheduler().build();
-        ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
-        ((FullCalendarScheduler) calendar).setResourceLabelText("Resource Label");
+    	getStyle().set("flex-grow", "1");
+
+        FullCalendar calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").build();
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotWidth("150");
-        
+
+        setFlexGrow(1, calendar);
+        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+
         createBasicEntries(calendar);
 
         add(new H1("Basic calendar"), createBasicToolbar(calendar), calendar);
@@ -44,7 +47,6 @@ public class Demo2 extends VerticalLayout {
         Demo.createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
         Demo.createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
         Demo.createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
-
     }
 
     private HorizontalLayout createBasicToolbar(FullCalendar calendar) {

@@ -1,14 +1,22 @@
 # FullCalendar web component addon
-This addon is an integration of the FullCalendar 4 as Flow component for Vaadin 14.x. For a Vaadin 10-13 version 
- (built on FC 3.10.x) https://vaadin.com/directory/component/full-calendar-web-component.
+This addon is an integration of the FullCalendar as a Flow component for Vaadin 14+. 
 
-Please also have a look at the demo for a live example and source code of how to integrate the FC. Not all
-described events are handled visually currently. 
+The latest version 3.x of this addon uses the FullCalendar 5, while version 2.x uses the older FullCalendar 4. 
+Please note, that 2.x will only receive maintenance fixes, while new features will be developed for the 
+3.x version.
 
-For information about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
+Please also have a look at the demo for some basic examples and source code of how to integrate the FC. 
+For more examples please have a look into the example section. 
 
-If you want to use the FC Scheduler, please have a look at this addon: https://vaadin.com/directory/component/full-calendar-4-scheduler-web-component
+## Authors of this addon
+This addon is currently maintained by Carlo Zanocco and me. If you have any questions or issues, please
+use the GitHub repository issues page.
 
+## Additional links and information
+* Homepage about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
+* If you want to use the FC Scheduler, please have a look at this addon: https://vaadin.com/directory/component/full-calendar-4-scheduler-web-component
+* For a Vaadin 10-13 version (built on FC 3.10.x) https://vaadin.com/directory/component/full-calendar-web-component.
+* GitHub profile of Carlo: https://github.com/aetasoul
 
 ## Addon Functionality
 The following functions are currently implemented and available to use from server side:
@@ -46,14 +54,12 @@ The following functions are currently implemented and available to use from serv
     - rendering mode (normal, background, inversed background)
     - recurring data (day of week, start / end date and time)
 
-
 ## Known issues
 ### Calendar size does not work anymore (V15)
 For some, currently unknown reason, the sizing by parent does not work anymore in V15. Please apply a concrete height for the calendar by using either `FullCalendar#setHeight(int)` or `FullCalendar#setHeightAuto()`. The 2nd one should work in combination with Vaadin's  `setHeight(String)` method.
 
 ### Calendar crashes when clicking (V14+)
 For some, currently unknown reason, sizing a calendar after the view has changed manually on a newly created calendar lets the calendar crash, when clicking inside somewhere. I have no idea, why that is so. Please see https://github.com/stefanuebe/vaadin_fullcalendar/issues/45 for details and progress.
-
 
 ### Build problems / JS (client side) errors (V14+)
 It might be, that the transitive dependencies are not resolved correctly.
@@ -93,8 +99,7 @@ that would lead otherwise to a huge amount of datesRendered events. When setting
 is fully attached, the queueing messes up the event handling here.
  
 When needed, you can activate or deactivate that by using the method `allowDatesRenderEventOnOptionChange(boolean)`. 
-By default this value is `false`, simply set it to true to also receive date render events on setOption. 
-
+By default this value is `false`, simply set it to true to also receive date render events on setOption.
 
 ## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
@@ -226,7 +231,7 @@ calendar.getElement().getStyle().set("flex-grow", "1");
 ```
 
 ### Modify FCs appearance by using css variables
-1. Copy the styles.css from the github demo or create your own css file and place it in your
+1. Copy the styles.css from the GitHub demo or create your own css file and place it in your
  applications frontend folder (e. g. frontend/styles/my-custom-full-calendar-styles.css)
 
 An example file can be found from here:
@@ -513,17 +518,21 @@ By default this value is `false`, simply set it to true to also receive date ren
 
 
 # FullCalendar Scheduler extension
-This addon extends the **FullCalendar 4 web component** with the FullCalendar Scheduler, which provides 
-additional resource based views (Timeline View and Vertical Resource View) for Vaadin 14+. 
-For a Vaadin 10-13 version (that is built on FC 3.10.x), see https://vaadin.com/directory/component/full-calendar-scheduler-extension
+This addon extends the **FullCalendar for Flow** addon with the FullCalendar Scheduler, which provides 
+additional resource based views (Timeline View and Vertical Resource View) for Vaadin 14+.
 
-It needs the basic addon (https://vaadin.com/directory/component/full-calendar-4-web-component) to work. 
-Since this addon is not always updated when the basis gets an update, I suggest, that you add both dependencies 
-(basis and extension) to always use the latest versions. This extension is compatible as long as the readme 
+It needs the basic addon (https://vaadin.com/directory/component/full-calendar-4-web-component) to work.
+Since this addon is not always updated when the basis gets an update, I suggest, that you add both dependencies
+(basis and extension) to always use the latest versions. This extension is compatible as long as the readme
 does not tells anything else.
+
+## Additional links and information
 
 For information about the Scheduler (functionality, features, license information, etc.) 
 visit https://fullcalendar.io/scheduler. 
+
+For a Vaadin 10-13 version (that is built on FC 3.10.x), see https://vaadin.com/directory/component/full-calendar-scheduler-extension
+
 
 ## License information:
 Please be aware, that the FullCalender Scheduler library this addon is based on has a different license model 
