@@ -92,66 +92,6 @@ public class FullCalendarSchedulerTest {
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals("-title", option.get());
     }
-    
-    @Test
-    void testSetResourceLabelText() {
-        calendar.setResourceLabelText("Hello World");
-
-        Optional<Object> option = calendar.getOption("resourceLabelText");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("Hello World", option.get());
-    }
-    
-    @Test
-    void testSetResourceInitiallyExpanded() {
-        calendar.setResourcesInitiallyExpanded(false);
-
-        Optional<Object> option = calendar.getOption("resourcesInitiallyExpanded");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals(false, option.get());
-    }
-
-    @Test
-    void testSetFilterResourcesWithEvents() {
-        calendar.setFilterResourcesWithEvents(true);
-
-        Optional<Object> option = calendar.getOption("filterResourcesWithEvents");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals(true, option.get());
-    }
-    
-    @Test
-    void testSetResourceOrder() {
-        calendar.setResourceOrder("-title");
-
-        Optional<Object> option = calendar.getOption("resourceOrder");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("-title", option.get());
-    }
-    
-    @Test
-    void testSetResourceAreaWidtht() {
-        calendar.setResourceAreaWidth("10%");
-
-        Optional<Object> option = calendar.getOption("resourceAreaWidth");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("10%", option.get());
-    }
-    
-    @Test
-    void testSetSlotWidtht() {
-        calendar.setSlotWidth("100");
-
-        Optional<Object> option = calendar.getOption("slotWidth");
-
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertEquals("100", option.get());
-    }
 
     @Test
     void testNonArgsConstructor() {
