@@ -61,19 +61,7 @@ public interface Scheduler {
     void setSchedulerLicenseKey(String schedulerLicenseKey);
     
     void setResourceAreaHeaderContent(String resourceAreaHeaderContent);
-    
-    void setResourceAreaWidth(String resourceAreaWidth);
-    
-    void setSlotWidth(String slotWidth);
-    
-    void setResourcesInitiallyExpanded(boolean resourceInitiallyExpanded);
-    
-    void setFilterResourcesWithEvents(boolean filterResourcesWithEvents);
-    
-    void setResourceOrder(String resourceOrder);
 
-    void setResourceLabelText(String resourceLabelText);
-    
     void setResourceAreaWidth(String resourceAreaWidth);
     
     void setSlotWidth(String slotWidth);
