@@ -47,8 +47,8 @@ public class AbstractHeaderFooter {
      * Convenience method to get the left part of this instance. Creates a new instance on the first call.
      * @return left part
      */
-    public HeaderFooterPart getLeft() {
-        return parts.computeIfAbsent(HeaderFooterPartPosition.LEFT, HeaderFooterPart::new);
+    public HeaderFooterPart getStart() {
+        return parts.computeIfAbsent(HeaderFooterPartPosition.START, HeaderFooterPart::new);
     }
 
     /**
@@ -63,8 +63,8 @@ public class AbstractHeaderFooter {
      * Convenience method to get the right part of this instance. Creates a new instance on the first call.
      * @return right part
      */
-    public HeaderFooterPart getRight() {
-        return parts.computeIfAbsent(HeaderFooterPartPosition.RIGHT, HeaderFooterPart::new);
+    public HeaderFooterPart getEnd() {
+        return parts.computeIfAbsent(HeaderFooterPartPosition.END, HeaderFooterPart::new);
     }
 
 

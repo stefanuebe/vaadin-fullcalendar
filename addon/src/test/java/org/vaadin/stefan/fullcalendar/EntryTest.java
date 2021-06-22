@@ -181,7 +181,7 @@ public class EntryTest {
         TestUtils.assertJsonType(jsonObject, "start", JsonNull.class);
         TestUtils.assertJsonType(jsonObject, "end", JsonNull.class);
         TestUtils.assertJsonMissingKey(jsonObject, "color");
-        TestUtils.assertJsonType(jsonObject, "rendering", JsonNull.class);
+        TestUtils.assertJsonType(jsonObject, "display", JsonNull.class);
         TestUtils.assertJsonType(jsonObject, "allDay", JsonBoolean.class);
         TestUtils.assertJsonType(jsonObject, "editable", JsonBoolean.class);
         Assertions.assertFalse(jsonObject.getBoolean("allDay"));
@@ -213,7 +213,7 @@ public class EntryTest {
         Assertions.assertTrue(jsonObject.getBoolean("allDay"));
         Assertions.assertTrue(jsonObject.getBoolean("editable"));
         Assertions.assertEquals(DEFAULT_COLOR, jsonObject.getString("color"));
-        Assertions.assertEquals(DEFAULT_RENDERING.getClientSideValue(), jsonObject.getString("rendering"));
+        Assertions.assertEquals(DEFAULT_RENDERING.getClientSideValue(), jsonObject.getString("display"));
     }
 
     @Test
@@ -238,7 +238,7 @@ public class EntryTest {
         Assertions.assertTrue(jsonObject.getBoolean("allDay"));
         Assertions.assertTrue(jsonObject.getBoolean("editable"));
         Assertions.assertEquals(DEFAULT_COLOR, jsonObject.getString("color"));
-        Assertions.assertEquals(DEFAULT_RENDERING.getClientSideValue(), jsonObject.getString("rendering"));
+        Assertions.assertEquals(DEFAULT_RENDERING.getClientSideValue(), jsonObject.getString("display"));
     }
 
     @Test
@@ -264,7 +264,7 @@ public class EntryTest {
         jsonObject.put("color", DEFAULT_COLOR);
 
         jsonObject.put("description", DEFAULT_DESCRIPTION); // this should not affect the object
-        jsonObject.put("rendering", DEFAULT_RENDERING.getClientSideValue()); // this should not affect the object
+        jsonObject.put("display", DEFAULT_RENDERING.getClientSideValue()); // this should not affect the object
 
         Entry entry = new Entry("1");
         entry.update(jsonObject);
@@ -279,7 +279,7 @@ public class EntryTest {
         Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
 
         Assertions.assertNull(entry.getDescription()); // should not be affected by json
-        Assertions.assertEquals(Entry.RenderingMode.NORMAL, entry.getRenderingMode()); // should not be affected by json
+        Assertions.assertEquals(Entry.RenderingMode.NONE, entry.getRenderingMode()); // should not be affected by json
     }
 
     @Test
@@ -297,7 +297,7 @@ public class EntryTest {
         jsonObject.put("color", DEFAULT_COLOR);
 
         jsonObject.put("description", DEFAULT_DESCRIPTION); // this should not affect the object
-        jsonObject.put("rendering", DEFAULT_RENDERING.getClientSideValue()); // this should not affect the object
+        jsonObject.put("display", DEFAULT_RENDERING.getClientSideValue()); // this should not affect the object
 
         Entry entry = new Entry("1");
         entry.update(jsonObject);
@@ -312,7 +312,7 @@ public class EntryTest {
         Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
 
         Assertions.assertNull(entry.getDescription()); // should not be affected by json
-        Assertions.assertEquals(Entry.RenderingMode.NORMAL, entry.getRenderingMode()); // should not be affected by json
+        Assertions.assertEquals(Entry.RenderingMode.NONE, entry.getRenderingMode()); // should not be affected by json
     }
 
 }

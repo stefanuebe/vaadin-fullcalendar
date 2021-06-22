@@ -77,11 +77,11 @@ public final class JsonUtils {
         if (value instanceof HashMap<?, ?>) {
         	HashMap<String, Object> hashmap = (HashMap<String, Object>) value;
         	JsonObject jsonObject = Json.createObject();
-        	
+
         	for (Map.Entry<String, Object> prop : hashmap.entrySet()) {
             	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
             }
-            
+
             return jsonObject;
         }
 
@@ -171,7 +171,7 @@ public final class JsonUtils {
             setter.accept(toHashMap(object.get(key)));
         }
     }
-    
+
     /**
      * Convert the JsonObject to HashMap
      *
@@ -182,11 +182,11 @@ public final class JsonUtils {
     private static HashMap<String, Object> toHashMap(JsonObject jsonobj) {
         HashMap<String, Object> map = new HashMap<String, Object>();
         Iterator<String> keys = Arrays.asList(jsonobj.keys()).iterator();
-        
+
         while(keys.hasNext()) {
             String key = keys.next();
             Object value = jsonobj.get(key);
-            
+
             if (value instanceof JsonArray)
                 value = toList((JsonArray) value);
             else if (value instanceof JsonObject) 
@@ -194,7 +194,7 @@ public final class JsonUtils {
 
             map.put(key, value);
         }
-        
+
         return map;
     }
 
@@ -207,18 +207,18 @@ public final class JsonUtils {
      */
     private static List<Object> toList(JsonArray array) {
     	List<Object> list = new ArrayList<Object>();
-    	
+
         for(int i = 0; i < array.length(); i++) {
             Object value = array.get(i);
-            
+
             if (value instanceof JsonArray)
                 value = toList((JsonArray) value);
             else if (value instanceof JsonObject)
                 value = toHashMap((JsonObject) value);
-            
+
             list.add(value);
         }
-        
+
         return list;
     }
 

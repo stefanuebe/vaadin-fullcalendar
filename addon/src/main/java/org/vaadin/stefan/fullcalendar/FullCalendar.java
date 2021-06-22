@@ -24,10 +24,12 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+
+import javax.validation.constraints.NotNull;
+
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -41,18 +43,24 @@ import java.util.stream.Stream;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/core", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/interaction", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/daygrid", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/timegrid", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/list", version = "4.4.2")
-@NpmPackage(value = "moment", version = "2.24.0")
-@NpmPackage(value = "moment-timezone", version = "0.5.28")
-@NpmPackage(value = "@fullcalendar/moment", version = "4.4.2")
-@NpmPackage(value = "@fullcalendar/moment-timezone", version = "4.4.2")
+@NpmPackage(value = "@fullcalendar/core", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/interaction", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/daygrid", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "moment", version = "2.29.1")
+@NpmPackage(value = "moment-timezone", version = "0.5.32")
+@NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
 @Tag("full-calendar")
 @JsModule("./full-calendar.js")
 public class FullCalendar extends Component implements HasStyle, HasSize {
+
+    /**
+     * The library base version used in this addon. Some additional libraries might have a different version number due to
+     * a different release cycle or known issues.
+     */
+    public static final String FC_CLIENT_VERSION = "5.8.0";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
@@ -87,19 +95,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * list views. This value has to be set here and cannot be modified afterwards due to
      * technical reasons of FC. If set afterwards the entry limit would overwrite settings
      * and would show the limit also for basic views where it makes no sense (might change in future).
-     * Passing a negative number or 0 disabled the entry limit (same as passing no number at all).
+     * Passing a negative number disabled the entry limit (same as passing no number at all).
      * <br><br>
      * Sets the locale to {@link CalendarLocale#getDefault()}
      *
      *
-     * @param entryLimit max entries to shown per day
+     * @param entryLimit The max number of stacked event levels within a given day. This includes the +more link if present. The rest will show up in a popover.
      */
     public FullCalendar(int entryLimit) {
         setLocale(CalendarLocale.getDefault());
-        if (entryLimit > 0) {
-            getElement().setProperty("eventLimit", entryLimit);
+        if (entryLimit >= 0) {
+            getElement().setProperty("dayMaxEvents", entryLimit);
         } else {
-            getElement().setProperty("eventLimit", false);
+            getElement().setProperty("dayMaxEvents", false);
         }
     }
 
@@ -131,19 +139,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public FullCalendar(@NotNull JsonObject initialOptions) {
         getElement().setPropertyJson("initialOptions", Objects.requireNonNull(initialOptions));
-    }
-
-    /**
-     * This method allows to add a custom css string to the full calendar to customize its styling without
-     * the need of subclassing the client side or using css properties.
-     *<br><br>
-     * The given string is set as the innerHTML of a client side styles element. <b>Attention:</b> The given
-     * string is taken as it is. Please be advised, that this method can be used to introduce malicious code into your
-     * page, so you should be sure, that the added css code is safe (e.g. not taken from user input or the databse).
-     * @param customStylesString custom css string
-     */
-    public void addCustomStyles(String customStylesString) {
-        getElement().callJsFunction("addCustomStyles", customStylesString);
     }
 
     /**
@@ -738,8 +733,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @param s js function to be attached to eventRender callback
      */
-    public void setEntryRenderCallback(String s) {
-        getElement().callJsFunction("setEventRenderCallback", s);
+    public void setEntryClassNamesCallback(String s) {
+        getElement().callJsFunction("setEventClassNamesCallback", s);
+    }
+    
+    public void setEntryContentCallback(String s) {
+        getElement().callJsFunction("setEventContentCallback", s);
+    }
+    
+    public void setEventDidMountCallback(String s) {
+        getElement().callJsFunction("setEventDidMountCallback", s);
+    }
+    
+    public void setEventWillUnmountCallback(String s) {
+        getElement().callJsFunction("setEventWillUnmountCallback", s);
     }
 
     /**
@@ -790,18 +797,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day<p>
-     * The default is '24:00:00'
-     *
-     * @param maxTime maxTime to set
-     * @throws NullPointerException when null is passed
-     */
-    public void setMaxTime(@NotNull LocalTime maxTime) {
-        Objects.requireNonNull(maxTime);
-        setOption(Option.MAX_TIME, JsonUtils.toJsonValue(maxTime != null ? maxTime : "24:00:00"));
-    }
-    
-    /**
      * Returns the fixedWeekCount. By default true.
      *
      * @return fixedWeekCount
@@ -809,7 +804,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public boolean getFixedWeekCount() {
         return (boolean) getOption(Option.FIXED_WEEK_COUNT).orElse(true);
     }
-    
+
     /**
      * Determines the number of weeks displayed in a month view.
      * If true, the calendar will always be 6 weeks tall. 
@@ -821,6 +816,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setFixedWeekCount(boolean fixedWeekCount) {
         setOption(Option.FIXED_WEEK_COUNT, fixedWeekCount);
     }
+    
+    /**
+     * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day<p>
+     * The default is '24:00:00'
+     *
+     * @param maxTime maxTime to set
+     * @throws NullPointerException when null is passed
+     */
+    public void setMaxTime(@NotNull LocalTime maxTime) {
+        Objects.requireNonNull(maxTime);
+        setOption(Option.MAX_TIME, JsonUtils.toJsonValue(maxTime != null ? maxTime : "24:00:00"));
+    }
 
     /**
      * Returns the timezone set for this browser. By default UTC. If obtainable, you can read the timezone from
@@ -829,7 +836,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return time zone
      */
     public Timezone getTimezone() {
-        return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
+    	return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
     }
 
     public void setTimezone(Timezone timezone) {
@@ -837,7 +844,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         Timezone oldTimezone = getTimezone();
         if (!timezone.equals(oldTimezone)) {
-            setOption(Option.TIMEZONE, timezone.getClientSideValue(), timezone);
+        	setOption(Option.TIMEZONE, timezone.getClientSideValue(), timezone);
             updateEntries(getEntries());
         }
     }
@@ -850,7 +857,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public boolean getWeekends() {
         return (boolean) getOption(Option.WEEKENDS).orElse(true);
     }
-    
+
     /**
      * Whether to include Saturday/Sunday columns in any of the calendar views.
      * 
@@ -860,23 +867,24 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setWeekends(boolean weekends) {
         setOption(Option.WEEKENDS, weekends);
     }
-    
+
+
     /** display the header.
      * 
      * @param Header header
      * 
      */
-    public void setHeader(Header header) {
-    	setOption(Option.HEADER, header.toJson());
+    public void setHeaderToolbar(Header header) {
+    	setOption(Option.HEADER_TOOLBAR, header.toJson());
     }
-    
+
     /**display the footer.
      * 
      * @param String footer
      * 
      */
-    public void setFooter(Footer footer) {
-    	setOption(Option.FOOTER, footer.toJson());
+    public void setFooterToolbar(Footer footer) {
+    	setOption(Option.FOOTER_TOOLBAR, footer.toJson());
     }
 
     /**Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
@@ -887,7 +895,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setColumnHeader(boolean columnHeader) {
     	setOption(Option.COLUMN_HEADER, columnHeader);
     }
-    
+
     /**
      * Returns the columnHeader.
      *
@@ -896,7 +904,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public boolean getColumnHeader() {
     	 return (boolean) getOption(Option.COLUMN_HEADER).orElse(true);
     }
-
+    
     /**
      * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone.
      * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
@@ -1101,15 +1109,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Registers a listener to be informed when the user clicked on the limited entries link (e.g. "+6 more").
+     * Registers a listener to be informed when the user clicked on the "more" link (e.g. "+6 more").
+     *
+     * @deprecated use {@link #addMoreLinkClickedListener(ComponentEventListener)} instead
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     *
+     */
+    @Deprecated
+    public Registration addLimitedEntriesClickedListener(@NotNull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(LimitedEntriesClickedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener to be informed when the user clicked on the "more" link (e.g. "+6 more").
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addLimitedEntriesClickedListener(@NotNull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
+    public Registration addMoreLinkClickedListener(@NotNull ComponentEventListener<MoreLinkClickedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(LimitedEntriesClickedEvent.class, listener);
+        return addListener(MoreLinkClickedEvent.class, listener);
     }
 
     /**
@@ -1153,6 +1176,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * This method allows to add a custom css string to the full calendar to customize its styling without
+     * the need of subclassing the client side or using css properties.
+     *<br><br>
+     * The given string is set as the innerHTML of a client side styles element. <b>Attention:</b> The given
+     * string is taken as it is. Please be advised, that this method can be used to introduce malicious code into your
+     * page, so you should be sure, that the added css code is safe (e.g. not taken from user input or the databse).
+     * @param customStylesString custom css string
+     */
+    public void addCustomStyles(String customStylesString) {
+        getElement().callJsFunction("addCustomStyles", customStylesString);
+    }
+
+    /**
+     * Sets an action, that shall happen, when a user clicks the "+x more" link in the calendar (which occurs when the max
+     * entries per day are exceeded). Default value is {@code POPUP}. Passing {@code null} will reset the default.
+     *
+     * @see MoreLinkClickAction
+     * @param moreLinkClickAction action to set
+     */
+    public void setMoreLinkClickAction(MoreLinkClickAction moreLinkClickAction) {
+        getElement().setProperty("moreLinkClickAction", (moreLinkClickAction != null ? moreLinkClickAction : MoreLinkClickAction.POPUP).getClientSideValue());
+    }
+
+    /**
      * Enumeration of possible options, that can be applied to this calendar instance to have an effect on the client side.
      * This list does not contain all options, but the most common used ones.
      * <br><br>
@@ -1160,7 +1207,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * https://fullcalendar.io/docs
      *
      */
-    enum Option {
+    public enum Option {
         FIRST_DAY("firstDay"),
         HEIGHT("height"),
         LOCALE("locale"),
@@ -1173,10 +1220,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         SNAP_DURATION("snapDuration"),
         MIN_TIME("minTime"),
         MAX_TIME("maxTime"),
-    	FIXED_WEEK_COUNT("fixedWeekCount"),
-    	WEEKENDS("weekends"),
-    	HEADER("header"),
-    	FOOTER("footer"),
+        FIXED_WEEK_COUNT("fixedWeekCount"),
+        WEEKENDS("weekends"),
+    	HEADER_TOOLBAR("headerToolbar"),
+    	FOOTER_TOOLBAR("footerToolbar"),
     	COLUMN_HEADER("columnHeader"),
     	WEEK_NUMBERS_WITHIN_DAYS("weekNumbersWithinDays");
 
@@ -1188,6 +1235,43 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         String getOptionKey() {
             return optionKey;
+        }
+    }
+
+    /**
+     * Possible actions, that shall happen on the client side.
+     */
+    public enum MoreLinkClickAction implements ClientSideValue{
+        /**
+         * Shows a popup on the client side. This popup is purely client side rendered. Entries shown in that
+         * popup will fire the same click event as "normal" entries do.
+         */
+        POPUP("popover"),
+        /**
+         * Goes to a "day" view based on the current one.
+         */
+        DAY("day"),
+
+        /**
+         * Goes to a "week" view based on the current one.
+         */
+        WEEK("week"),
+
+        /**
+         * Nothing will happen automatically. You should use this action if you want to handle
+         * the action manually (e.g. showing your own dialog / popup for the given events).
+         */
+        NOTHING("function");
+
+        private final String clientSideValue;
+
+        MoreLinkClickAction(String clientSideValue) {
+            this.clientSideValue = clientSideValue;
+        }
+
+        @Override
+        public String getClientSideValue() {
+            return this.clientSideValue;
         }
     }
 

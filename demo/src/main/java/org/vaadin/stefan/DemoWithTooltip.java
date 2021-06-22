@@ -22,14 +22,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.NativeButton;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 
@@ -61,6 +57,7 @@ public class DemoWithTooltip extends VerticalLayout {
         createToolbar();
 
         add(calendar);
+
         setFlexGrow(1, calendar);
         setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
 
@@ -113,11 +110,6 @@ public class DemoWithTooltip extends VerticalLayout {
             Timezone value = event.getValue();
             calendar.setTimezone(value != null ? value : Timezone.UTC);
         });
-        
-        Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
-        	calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
-        	Notification.show("Updated fixedWeekCount value from " + Boolean.toString(!calendar.getFixedWeekCount()) + " to " + Boolean.toString(calendar.getFixedWeekCount()));
-        });
 
         Button addThousand = new Button("Add 1000 entries", event -> {
             Button source = event.getSource();
@@ -153,21 +145,21 @@ public class DemoWithTooltip extends VerticalLayout {
 
         Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
 
-        toolbar.add(toogleFixedWeekCount, addThousand, removeAllEntries, removeAllResources);
-        
+        toolbar.add(addThousand, removeAllEntries, removeAllResources);
+
         add(toolbar);
     }
+
 
     private void createCalendarInstance() {
         calendar = new FullCalendarWithTooltip();
 
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
-        ((FullCalendarScheduler) calendar).setResourceLabelText("Resource Label");
+        ((FullCalendarScheduler) calendar).setResourceAreaHeaderContent("Rooms");
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotWidth("60");
-        ((FullCalendarScheduler) calendar).setFilterResourcesWithEvents(true);
         ((FullCalendarScheduler) calendar).setResourceOrder("-id");
-
+        
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
@@ -217,7 +209,7 @@ public class DemoWithTooltip extends VerticalLayout {
             new DemoDialog(calendar, entry, true).open();
         });
 
-        calendar.addLimitedEntriesClickedListener(event -> {
+        /*calendar.addLimitedEntriesClickedListener(event -> {
             Collection<Entry> entries = calendar.getEntries(event.getClickedDate());
             if (!entries.isEmpty()) {
                 Dialog dialog = new Dialog();
@@ -245,7 +237,7 @@ public class DemoWithTooltip extends VerticalLayout {
                 dialog.add(dialogLayout);
                 dialog.open();
             }
-        });
+        });*/
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             System.out.println("Use browser's timezone: " + event.getTimezone().toString());
