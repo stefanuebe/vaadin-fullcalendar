@@ -55,6 +55,9 @@ The following functions are currently implemented and available to use from serv
     - recurring data (day of week, start / end date and time)
 
 ## Known issues
+### Calendar gives exception when triggering event or rendering after adding some extra props 
+When adding extra props, the key of the props could override the internal props of the calendar itself (like `id`) and give irrelevant exceptions. Please have a look at `Entry.java` to have idea of what key should not be used 
+
 ### Calendar size does not work anymore (V15)
 For some, currently unknown reason, the sizing by parent does not work anymore in V15. Please apply a concrete height for the calendar by using either `FullCalendar#setHeight(int)` or `FullCalendar#setHeightAuto()`. The 2nd one should work in combination with Vaadin's  `setHeight(String)` method.
 
