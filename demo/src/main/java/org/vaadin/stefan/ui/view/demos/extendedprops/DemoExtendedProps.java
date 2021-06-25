@@ -1,4 +1,4 @@
-package org.vaadin.stefan;
+package org.vaadin.stefan.ui.view.demos.extendedprops;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -9,12 +9,15 @@ import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
+import org.vaadin.stefan.ui.MainLayout;
+import org.vaadin.stefan.ui.menu.MenuItem;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "demoextendedprops", layout = MainView.class)
+@Route(value = "demoextendedprops", layout = MainLayout.class)
 @PageTitle("FC with Extended Properties")
+@MenuItem(label = "Extended Properties")
 public class DemoExtendedProps extends VerticalLayout {
 	private static final long serialVersionUID = -117988331031719049L;
 

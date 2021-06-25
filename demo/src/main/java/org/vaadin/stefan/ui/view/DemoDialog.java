@@ -1,4 +1,4 @@
-package org.vaadin.stefan;
+package org.vaadin.stefan.ui.view;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

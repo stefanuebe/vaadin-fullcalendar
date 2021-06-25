@@ -14,159 +14,111 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.vaadin.stefan;
+package org.vaadin.stefan.ui;
 
+import com.github.appreciated.app.layout.component.appbar.AppBarBuilder;
+import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
+import com.github.appreciated.app.layout.component.builder.AppLayoutBuilder;
+import com.github.appreciated.app.layout.component.menu.left.builder.LeftAppMenuBuilder;
+import com.github.appreciated.app.layout.component.menu.left.builder.LeftSubMenuBuilder;
+import com.github.appreciated.app.layout.component.menu.left.items.LeftHeaderItem;
+import com.github.appreciated.app.layout.component.menu.left.items.LeftNavigationItem;
+import com.github.appreciated.app.layout.component.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentUtil;
-import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.avatar.Avatar;
-import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.component.tabs.TabsVariant;
-import com.vaadin.flow.router.*;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
 
-import java.util.Optional;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.ui.menu.MenuItem;
+import org.vaadin.stefan.ui.view.demos.backgroundevent.DemoCalendarWithBackgroundEvent;
+import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
+import org.vaadin.stefan.ui.view.demos.customdaygrid.DemoDayGridWeekWithSixWeeks;
+import org.vaadin.stefan.ui.view.demos.customtimeline.DemoTimelineWith28Days;
+import org.vaadin.stefan.ui.view.demos.extendedprops.DemoExtendedProps;
+import org.vaadin.stefan.ui.view.demos.simple.SimpleDemo;
+import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
+
+import static com.github.appreciated.app.layout.entity.Section.HEADER;
+
+import java.util.Locale;
 
 @Push
 @PageTitle("FullCalendar Demo")
-@Viewport("width=100vw, height=100vh")
-public class MainView extends AppLayout implements HasUrlParameter<String> {
-    public static final String ADDON_VERSION = "3.0.0";
-    private final Tabs vMenu;
-    private H5 vViewTitle;
+@Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
+@Theme(value = Lumo.class, variant = Lumo.LIGHT)
+@CssImport("./app-layout-styles.css")
+@SuppressWarnings("rawtypes")
+public class MainLayout extends AppLayoutRouterLayout {
+	private static final long serialVersionUID = -7479612679602267287L;
+	
+	public static final String ADDON_VERSION = "3.0.0";
 
-    public MainView() {
-        setPrimarySection(Section.DRAWER);
-        addToNavbar(true, createHeaderContent());
-        vMenu = createMenu();
-        addToDrawer(createDrawerContent(vMenu));
+    private void selectCurrentLocale() {
+		Locale locale = (Locale) VaadinRequest.getCurrent().getWrappedSession().getAttribute("locale");
+        if (locale == null) {
+        	locale = UI.getCurrent().getLocale();
+        	VaadinRequest.getCurrent().getWrappedSession().setAttribute("locale", locale);
+        } else 
+        	UI.getCurrent().setLocale(locale);
+	}
+
+    @SuppressWarnings("unchecked")
+	public MainLayout() {
+    	selectCurrentLocale();
+        
+        Component appBar = AppBarBuilder
+                .get()
+                .build();
+
+        Component appMenu = generateMenu();
+
+        init(AppLayoutBuilder
+                .get(LeftLayouts.LeftHybrid.class)
+                .withAppBar(appBar)
+                .withAppMenu(appMenu)
+                .build());
+                
     }
+    
+    private void addMenu(Object menuBuilder, Class<? extends Component> clazz) {
+		MenuItem item = clazz.getAnnotation(MenuItem.class);
+		if (menuBuilder instanceof LeftAppMenuBuilder)
+			//((LeftAppMenuBuilder)menuBuilder).add(new LeftNavigationItem(item.label(), item.icon().create(), clazz));
+			((LeftAppMenuBuilder)menuBuilder).add(new LeftNavigationItem(item.label(), new Icon(), clazz));
+		else
+			//((LeftSubMenuBuilder)menuBuilder).add(new LeftNavigationItem(item.label(), item.icon().create(), clazz));
+			((LeftSubMenuBuilder)menuBuilder).add(new LeftNavigationItem(item.label(), new Icon(), clazz));
+	}
 
-    private static Tab createTab(String pText, Class<? extends Component> pNavigationTarget) {
-        final Tab tab = new Tab();
-        tab.add(new RouterLink(pText, pNavigationTarget));
-        ComponentUtil.setData(tab, Class.class, pNavigationTarget);
-        return tab;
-    }
+	protected Component generateMenu() {
+		
+		LeftHeaderItem header = new LeftHeaderItem("FullCalendar Demo",
+        		"Version " + ADDON_VERSION + " on FC " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.6.3",
+                "images/logo.png");
+		
+		header.getContent().setAlignItems(Alignment.CENTER);
+		
+		LeftAppMenuBuilder menuBuilder = LeftAppMenuBuilder
+                .get()
+                .addToSection(HEADER, header);
 
-    private Component createHeaderContent() {
-        HorizontalLayout layout = new HorizontalLayout();
-        layout.setId("header");
-        layout.getThemeList().set("dark", true);
-        layout.setWidthFull();
-        layout.setSpacing(false);
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
-        layout.add(new DrawerToggle());
-        vViewTitle = new H5();
-        layout.add(vViewTitle);
-        return layout;
-    }
+		addMenu(menuBuilder, BasicDemo.class);
+		addMenu(menuBuilder, SimpleDemo.class);
+		addMenu(menuBuilder, DemoCalendarWithBackgroundEvent.class);
+		addMenu(menuBuilder, DemoWithTooltip.class);
+		addMenu(menuBuilder, DemoExtendedProps.class);
+		addMenu(menuBuilder, DemoTimelineWith28Days.class);
+		addMenu(menuBuilder, DemoDayGridWeekWithSixWeeks.class);
 
-    private Component createDrawerContent(Tabs pMenu) {
-        VerticalLayout layout = new VerticalLayout();
-        layout.setSizeFull();
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        layout.getThemeList().set("spacing-s", true);
-        layout.setAlignItems(FlexComponent.Alignment.STRETCH);
-        VerticalLayout logoLayout = new VerticalLayout();
-        logoLayout.setId("logo");
-        logoLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        Image logo = new Image("images/logo.png", "FC Flow Logo");
-        logo.setWidth("50%");
-        logoLayout.add(logo);
-        logoLayout.add(new H4("FullCalendar Demo"));
-
-        String text = "Version " + ADDON_VERSION + " on FC " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.6.3";
-
-
-        Span span = new Span(text);
-        span.getStyle().set("font-size", "0.7em");
-        logoLayout.add(span);
-        layout.add(logoLayout, pMenu);
-        return layout;
-    }
-
-    private Tabs createMenu() {
-        final Tabs tabs = new Tabs();
-        tabs.setOrientation(Tabs.Orientation.VERTICAL);
-        tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
-        tabs.setId("tabs");
-        tabs.add(createMenuItems());
-        return tabs;
-    }
-
-    private Component[] createMenuItems() {
-        return new Component[]{
-                createTab("Basic Demo", Demo.class),
-                createTab("Simple Demo", Demo2.class),
-                createTab("Background Events", DemoCalendarWithBackgroundEvent.class),
-                createTab("Tooltips", DemoWithTooltip.class),
-                createTab("Extended Properties", DemoExtendedProps.class),
-                createTab("28 Days Timeline", DemoTimelineWith28Days.class),
-                createTab("Six Weeks Grid", DemoDayGridWeekWithSixWeeks.class)
-        };
-    }
-
-    @Override
-    protected void afterNavigation() {
-        super.afterNavigation();
-        Component content = getContent();
-        if (content instanceof HasSize) {
-            ((HasSize) content).setSizeFull();
-        }
-        getTabForComponent(content).ifPresent(vMenu::setSelectedTab);
-//        vViewTitle.setText(getCurrentPageTitle());
-
-    }
-
-    private Optional<Tab> getTabForComponent(Component pComponent) {
-        return vMenu.getChildren().filter(tab -> ComponentUtil.getData(tab, Class.class).equals(pComponent.getClass()))
-                .findFirst().map(Tab.class::cast);
-    }
-
-    private String getCurrentPageTitle() {
-        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-        return title == null ? "" : title.value();
-    }
-
-    @Override
-    public void setParameter(BeforeEvent pEvent, String pParameter) {
-        addToDrawer(new Label(pParameter));
-    }
-
-//    public MainView() {
-//        setSpacing(false);
-//        setPadding(false);
-//        setMargin(false);
-//        setSizeFull();
-//
-//        HorizontalLayout title = new HorizontalLayout();
-//
-//        String text = "<b>FullCalendar Demo</b> (Vaadin 14.6.3, FullCalendar addon: " + ADDON_VERSION + " " +
-//                "(uses FC " + FullCalendar.FC_CLIENT_VERSION + "), " +
-//        "FullCalendar Scheduler extension: " + ADDON_VERSION + " " +
-//                "(uses scheduler extension libs " + FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION + ")";
-//
-//        Span span = new Span();
-//        span.getElement().setProperty("innerHTML", text);
-//        span.getElement().getStyle().set("text-align", "center");
-//        span.setWidthFull();
-//
-//        title.add(span);
-//        title.setSpacing(false);
-//        title.setWidthFull();
-//
-//        add(title);
-//    }
+        return menuBuilder.build();
+	}
 }
+

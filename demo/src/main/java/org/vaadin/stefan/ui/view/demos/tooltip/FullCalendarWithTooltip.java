@@ -1,4 +1,4 @@
-package org.vaadin.stefan;
+package org.vaadin.stefan.ui.view.demos.tooltip;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;

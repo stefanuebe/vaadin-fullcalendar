@@ -1,6 +1,5 @@
-package org.vaadin.stefan;
+package org.vaadin.stefan.ui.view.demos.customtimeline;
 
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -9,38 +8,42 @@ import elemental.json.JsonFactory;
 import elemental.json.impl.JreJsonFactory;
 import elemental.json.impl.JreJsonObject;
 
-import java.util.Locale;
-
+import org.vaadin.stefan.fullcalendar.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
+import org.vaadin.stefan.ui.MainLayout;
+import org.vaadin.stefan.ui.menu.MenuItem;
 
-@Route(value = "demotimelinecustomdays", layout = MainView.class)
+@Route(value = "demotimelinecustomdays", layout = MainLayout.class)
 @PageTitle("FC with 28 days timeline")
+@MenuItem(label = "28 Days Timeline")
 public class DemoTimelineWith28Days extends VerticalLayout {
     private static final long serialVersionUID = 1L;
     
     private FullCalendar calendar;
 
     public DemoTimelineWith28Days() {
-    	getStyle().set("flex-grow", "1");
+    	initView();
     	
     	createCalendarInstance();
     	
-    	add(calendar);
-    	
-    	setFlexGrow(1, calendar);
-        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+    	addAndExpand(calendar);
+    }
+    
+    private void initView() {
+    	setSizeFull();
     }
 
     private void createCalendarInstance() {
         CustomDaysTimelineCalendarView calendarView = new CustomDaysTimelineCalendarView(28);
         
         calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").withInitialOptions(calendarView.getInitialOptions()).build();
-        calendar.setLocale(Locale.ENGLISH);
+        calendar.setSizeFull();
+        calendar.setLocale(CalendarLocale.getDefault());
         
         Header testHeader = new Header();
         
@@ -53,8 +56,7 @@ public class DemoTimelineWith28Days extends VerticalLayout {
         headerRight.addItem(HeaderFooterItem.BUTTON_NEXT);
         
         calendar.setHeaderToolbar(testHeader);
-        
-        calendar.setHeight(500);
+
         calendar.changeView(calendarView);
     }
 
