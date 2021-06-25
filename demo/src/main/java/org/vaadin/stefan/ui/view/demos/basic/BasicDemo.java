@@ -32,6 +32,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import org.vaadin.stefan.ui.view.DemoDialog;
+import org.vaadin.stefan.ui.view.SettingsDialog;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 import org.vaadin.stefan.fullcalendar.*;
@@ -89,10 +90,10 @@ public class BasicDemo extends VerticalLayout {
     private void createToolbar() {
     	toolbar = new FormLayout();
     	toolbar.getElement().getStyle().set("margin-top", "0px");
-    	toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 3));
+    	toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 4));
 
     	FormLayout temporalLayout = new FormLayout();
-    	temporalLayout.setResponsiveSteps(new ResponsiveStep("0", 1));
+    	temporalLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
     	
     	Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
     	buttonToday.setWidthFull();
@@ -135,9 +136,21 @@ public class BasicDemo extends VerticalLayout {
             calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
         });
         comboBoxView.setWidthFull();
+        
+        Button removeAllEntries = new Button("All Entries", VaadinIcon.TRASH.create(), event -> calendar.removeAllEntries());
+        removeAllEntries.setWidthFull();
+        
+        FormLayout removeLayout = new FormLayout();
+        removeLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
+        
+        Button removeAllResources = new Button("All Resources", VaadinIcon.TRASH.create(), event -> ((FullCalendarScheduler) calendar).removeAllResources());
+        removeAllResources.setWidthFull();
+        
+        removeLayout.add(removeAllEntries, removeAllResources);
+        removeLayout.setWidthFull();
 
         FormLayout commandLayout = new FormLayout();
-        commandLayout.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 4));
+        commandLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
         
         Button addThousand = new Button("Add 1k entries", event -> {
             Button source = event.getSource();
@@ -166,23 +179,16 @@ public class BasicDemo extends VerticalLayout {
             });
         });
         addThousand.setWidthFull();
-        
-        Button removeAllEntries = new Button("All Entries", VaadinIcon.TRASH.create(), event -> calendar.removeAllEntries());
-        removeAllEntries.setWidthFull();
-        
-        Button removeAllResources = new Button("All Resources", VaadinIcon.TRASH.create(), event -> ((FullCalendarScheduler) calendar).removeAllResources());
-        removeAllResources.setWidthFull();
-        
+
         Button settings = new Button("Settings", VaadinIcon.COG.create(), event -> {
         	SettingsDialog sd = new SettingsDialog(calendar, timezone);
         	sd.open();
         });
         
-        commandLayout.add(addThousand, removeAllEntries, removeAllResources, settings);
+        commandLayout.add(addThousand, settings);
         commandLayout.setWidthFull();
 
-        toolbar.add(temporalLayout, comboBoxView);
-        toolbar.add(commandLayout);
+        toolbar.add(temporalLayout, comboBoxView, removeLayout, commandLayout);
     }
 
     private void createCalendarInstance() {

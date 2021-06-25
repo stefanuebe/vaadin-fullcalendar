@@ -1,4 +1,4 @@
-package org.vaadin.stefan.ui.view.demos.basic;
+package org.vaadin.stefan.ui.view;
 
 import java.util.Arrays;
 import java.util.List;
