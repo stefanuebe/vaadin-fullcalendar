@@ -115,6 +115,7 @@ public class EntryManager {
         entry.setEnd(entry.getStartUTC().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
+        entry.setDescription("Description of " + title);
     }
     
     static void setValues(FullCalendar calendar, ResourceEntry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color, HashMap<String, Object> extendedProps) {

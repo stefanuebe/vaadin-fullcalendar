@@ -22,6 +22,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -30,6 +32,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import org.vaadin.stefan.ui.view.DemoDialog;
+import org.vaadin.stefan.ui.view.SettingsDialog;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 import org.vaadin.stefan.fullcalendar.*;
@@ -58,13 +61,15 @@ public class DemoWithTooltip extends VerticalLayout {
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
-    private HorizontalLayout toolbar;
-    private ComboBox<Timezone> timezoneComboBox;
+    private FormLayout toolbar;
+
+    private Timezone timezone;
 
     public DemoWithTooltip() {
     	initView();
     	
         createToolbar();
+        add(toolbar);
 
         createCalendarInstance();
         addAndExpand(calendar);
@@ -77,6 +82,22 @@ public class DemoWithTooltip extends VerticalLayout {
     }
 
     private void createToolbar() {
+    	toolbar = new FormLayout();
+    	toolbar.getElement().getStyle().set("margin-top", "0px");
+    	toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 4));
+
+    	FormLayout temporalLayout = new FormLayout();
+    	temporalLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
+    	
+    	Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
+    	buttonToday.setWidthFull();
+    	
+        HorizontalLayout temporalSelectorLayout = new HorizontalLayout();
+
+        Button buttonPrevious = new Button("", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
+        Button buttonNext = new Button("", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
+        buttonNext.setIconAfterText(true);
+
         // simulate the date picker light that we can use in polymer
         DatePicker gotoDate = new DatePicker();
         gotoDate.addValueChangeListener(event1 -> calendar.gotoDate(event1.getValue()));
@@ -88,6 +109,14 @@ public class DemoWithTooltip extends VerticalLayout {
         buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
         buttonDatePicker.getElement().appendChild(gotoDate.getElement());
         buttonDatePicker.addClickListener(event -> gotoDate.open());
+        buttonDatePicker.setWidthFull();
+        
+        temporalSelectorLayout.add(buttonPrevious, buttonDatePicker, buttonNext, gotoDate);
+        temporalSelectorLayout.setWidthFull();
+        temporalSelectorLayout.setSpacing(false);
+        
+        temporalLayout.add(buttonToday, temporalSelectorLayout);
+        temporalLayout.setWidthFull();
 
         List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
         calendarViews.addAll(Arrays.asList(SchedulerView.values()));
@@ -95,30 +124,29 @@ public class DemoWithTooltip extends VerticalLayout {
 
         comboBoxView = new ComboBox<>("", calendarViews);
         comboBoxView.setValue(CalendarViewImpl.DAY_GRID_MONTH);
-        comboBoxView.setWidth("300px");
+        comboBoxView.setWidthFull();
         comboBoxView.addValueChangeListener(e -> {
             CalendarView value = e.getValue();
             calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
         });
+        comboBoxView.setWidthFull();
+        
+        Button removeAllEntries = new Button("All Entries", VaadinIcon.TRASH.create(), event -> calendar.removeAllEntries());
+        removeAllEntries.setWidthFull();
+        
+        FormLayout removeLayout = new FormLayout();
+        removeLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
+        
+        Button removeAllResources = new Button("All Resources", VaadinIcon.TRASH.create(), event -> ((FullCalendarScheduler) calendar).removeAllResources());
+        removeAllResources.setWidthFull();
+        
+        removeLayout.add(removeAllEntries, removeAllResources);
+        removeLayout.setWidthFull();
 
-        List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
-        ComboBox<Locale> comboBoxLocales = new ComboBox<>();
-        comboBoxLocales.setItems(items);
-        comboBoxLocales.setValue(CalendarLocale.getDefault());
-        comboBoxLocales.addValueChangeListener(event -> calendar.setLocale(event.getValue()));
-        comboBoxLocales.setRequired(true);
-        comboBoxLocales.setPreventInvalidInput(true);
-
-        timezoneComboBox = new ComboBox<>("");
-        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
-        timezoneComboBox.setItems(Timezone.getAvailableZones());
-        timezoneComboBox.setValue(Timezone.UTC);
-        timezoneComboBox.addValueChangeListener(event -> {
-            Timezone value = event.getValue();
-            calendar.setTimezone(value != null ? value : Timezone.UTC);
-        });
-
-        Button addThousand = new Button("Add 1000 entries", event -> {
+        FormLayout commandLayout = new FormLayout();
+        commandLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
+        
+        Button addThousand = new Button("Add 1k entries", event -> {
             Button source = event.getSource();
             source.setEnabled(false);
             source.setText("Creating...");
@@ -144,19 +172,19 @@ public class DemoWithTooltip extends VerticalLayout {
                 });
             });
         });
+        addThousand.setWidthFull();
 
-        Button removeAllEntries = new Button("All Entries", VaadinIcon.TRASH.create(), event -> calendar.removeAllEntries());
-        Button removeAllResources = new Button("All Resources", VaadinIcon.TRASH.create(), event -> ((FullCalendarScheduler) calendar).removeAllResources());
+        Button settings = new Button("Settings", VaadinIcon.COG.create(), event -> {
+        	SettingsDialog sd = new SettingsDialog(calendar, timezone);
+        	sd.open();
+        });
+        
+        commandLayout.add(addThousand, settings);
+        commandLayout.setWidthFull();
 
-        toolbar = new HorizontalLayout(buttonDatePicker, gotoDate, comboBoxView, comboBoxLocales);
-
-        Optional.ofNullable(timezoneComboBox).ifPresent(toolbar::add);
-
-        toolbar.add(addThousand, removeAllEntries, removeAllResources);
-
-        add(toolbar);
+        toolbar.add(temporalLayout, comboBoxView, removeLayout, commandLayout);
     }
-
+    
     private void createCalendarInstance() {
         calendar = new FullCalendarWithTooltip();
         calendar.setSizeFull();
@@ -186,7 +214,6 @@ public class DemoWithTooltip extends VerticalLayout {
         		"}";
         
         calendar.addCustomStyles(customCss);
-        
         
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
@@ -269,7 +296,7 @@ public class DemoWithTooltip extends VerticalLayout {
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             System.out.println("Use browser's timezone: " + event.getTimezone().toString());
-            timezoneComboBox.setValue(event.getTimezone());
+            timezone = event.getTimezone();
         });
     }
 
