@@ -249,13 +249,46 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     	resources.clear();
         getElement().callJsFunction("removeAllResources");
     }
-    
 
     @Override
-    public void setResourceRenderCallback(String s) {
-        getElement().callJsFunction("setResourceRenderCallback", s);
+    public void setResourceLabelClassNamesCallback(String s) {
+        getElement().callJsFunction("setResourceLabelClassNamesCallback", s);
     }
-
+    
+    @Override
+    public void setResourceLabelContentCallback(String s) {
+        getElement().callJsFunction("setResourceLabelContentCallback", s);
+    }
+    
+    @Override
+    public void setResourceLabelDidMountCallback(String s) {
+        getElement().callJsFunction("setResourceLabelDidMountCallback", s);
+    }
+    
+    @Override
+    public void setResourceLablelWillUnmountCallback(String s) {
+        getElement().callJsFunction("setResourceLablelWillUnmountCallback", s);
+    }
+    
+    @Override
+    public void setResourceLaneClassNamesCallback(String s) {
+        getElement().callJsFunction("setResourceLaneClassNamesCallback", s);
+    }
+    
+    @Override
+    public void setResourceLaneContentCallback(String s) {
+        getElement().callJsFunction("setResourceLaneContentCallback", s);
+    }
+    
+    @Override
+    public void setResourceLaneDidMountCallback(String s) {
+        getElement().callJsFunction("setResourceLaneDidMountCallback", s);
+    }
+    
+    @Override
+    public void setResourceLaneWillUnmountCallback(String s) {
+        getElement().callJsFunction("setResourceLaneWillUnmountCallback", s);
+    }
 
     @Override
     public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
@@ -275,7 +308,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                 break;
         }
     }
-
 
     @Override
     public Registration addTimeslotsSelectedListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {

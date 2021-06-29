@@ -190,11 +190,39 @@ public interface Scheduler {
 
     /**
      * The given string will be interpreted as JS function on the client side
-     * and attached to the calendar as the resourceRender callback. It must be a valid JavaScript function.
+     * and attached to the calendar as callback. It must be a valid JavaScript function.
+     * 
+     * A resource "label" is anywhere the name of a resource is displayed. 
+     * They exist in the header of vertical resource view and the side section of resource timeline view.
      *
-     * @param s js function to be attached to resourceRender callback
+     * @param s js function to be attached
      */
-    void setResourceRenderCallback(String s);
+
+    void setResourceLabelClassNamesCallback(String s);
+
+    void setResourceLabelContentCallback(String s);
+
+    void setResourceLabelDidMountCallback(String s);
+
+    void setResourceLablelWillUnmountCallback(String s);
+    
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as callback. It must be a valid JavaScript function.
+     * 
+     * A resource "lane" is an element in resource-timeline view. 
+     * It runs horizontally across the timeline slots for each resource.
+     *
+     * @param s js function to be attached
+     */
+
+    void setResourceLaneClassNamesCallback(String s);
+
+    void setResourceLaneContentCallback(String s);
+
+    void setResourceLaneDidMountCallback(String s);
+
+    void setResourceLaneWillUnmountCallback(String s);
 
     /**
      * Set a grouping option for entries based on their assigned resource(s) and date.
