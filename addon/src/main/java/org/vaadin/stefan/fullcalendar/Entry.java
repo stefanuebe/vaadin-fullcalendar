@@ -219,11 +219,11 @@ public class Entry {
         
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {
-            for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
-            	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
-            	extObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
+            for (Map.Entry<String, Object> extProp : extendedProps.entrySet()) {
+            	extObject.put(extProp.getKey(), JsonUtils.toJsonValue(extProp.getValue()));
             }
         }
+        
         jsonObject.put("extendedProps", extObject);
         
         return jsonObject;
