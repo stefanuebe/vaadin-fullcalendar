@@ -33,13 +33,13 @@ public class DemoExtendedProps extends VerticalLayout {
     	
     	calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH);
         
-        calendar.setEntryRenderCallback("" +
+        /*calendar.setEntryRenderCallback("" +
             "function (info) {" +
             "   console.warn(info.event.title + ': ' + info.event.extendedProps['selected']);" +
             "	if (info.event.extendedProps['selected'])" +
             "		info.el.style.setProperty('border', '2px solid red');" +
             "	return info.el;" +
-            "}");
+            "}");*/
         
         calendar.addEntryClickedListener(e -> {
             Entry oldSelected = this.selected;
