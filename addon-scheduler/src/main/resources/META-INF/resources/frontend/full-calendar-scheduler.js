@@ -87,9 +87,44 @@ export class FullCalendarScheduler extends FullCalendar {
         });
     }
 
-    setResourceRenderCallback(s) {
+    setResourceLabelClassNamesCallback(s) {
         var calendar = this.getCalendar();
-        calendar.setOption('resourceRender', new Function("return " + s)());
+        calendar.setOption('resourceLabelClassNames', new Function("return " + s)());
+    }
+    
+    setResourceLabelContentCallback(s) {
+        var calendar = this.getCalendar();
+        calendar.setOption('resourceLabelContent', new Function("return " + s)());
+    }
+    
+    setResourceLabelDidMountCallback(s) {
+        var calendar = this.getCalendar();
+        calendar.setOption('resourceLabelDidMount', new Function("return " + s)());
+    }
+    
+    setResourceLablelWillUnmountCallback(s) {
+        var calendar = this.getCalendar();
+        calendar.setOption('resourceLabelWillUnmount', new Function("return " + s)());
+    }
+    
+    setResourceLaneClassNamesCallback(s) {
+        var calendar = this.getCalendar();
+        calendar.setOption('resourceLaneClassNames', new Function("return " + s)());
+    }
+    
+    setResourceLaneContentCallback(s) {
+        var calendar = this.getCalendar();
+        calendar.setOption('resourceLaneContent', new Function("return " + s)());
+    }
+    
+    setResourceLaneDidMountCallback(s) {
+        var calendar = this.getCalendar();
+        calendar.setOption('resourceLaneDidMount', new Function("return " + s)());
+    }
+    
+    setResourceLaneWillUnmountCallback(s) {
+        var calendar = this.getCalendar();
+        calendar.setOption('resourceLaneWillUnmount', new Function("return " + s)());
     }
 }
 
