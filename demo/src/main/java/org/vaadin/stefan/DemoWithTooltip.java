@@ -157,7 +157,7 @@ public class DemoWithTooltip extends VerticalLayout {
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
         ((FullCalendarScheduler) calendar).setResourceAreaHeaderContent("Rooms");
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
-        ((FullCalendarScheduler) calendar).setSlotWidth("60");
+        ((FullCalendarScheduler) calendar).setSlotMinWidth("60");
         ((FullCalendarScheduler) calendar).setResourceOrder("-id");
         
         calendar.setFirstDay(DayOfWeek.MONDAY);
