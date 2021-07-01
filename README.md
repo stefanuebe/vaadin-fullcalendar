@@ -17,6 +17,7 @@ use the GitHub repository issues page.
 ## Vaadin directory
 
 Fullcalendar: https://vaadin.com/directory/component/full-calendar-flow
+
 Fullcalendar Scheduler: https://vaadin.com/directory/component/full-calendar-scheduler-flow/overview
 
 ## Additional links and information
