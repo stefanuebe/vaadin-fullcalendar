@@ -134,8 +134,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
     
     @Override
-    public void setSlotWidth(String slotWidth) {
-        setOption("slotWidth", slotWidth);
+    public void setSlotMinWidth(String slotMinWidth) {
+        setOption("slotMinWidth", slotMinWidth);
     }
     
     @Override
