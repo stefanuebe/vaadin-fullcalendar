@@ -64,7 +64,7 @@ public interface Scheduler {
 
     void setResourceAreaWidth(String resourceAreaWidth);
     
-    void setSlotWidth(String slotWidth);
+    void setSlotMinWidth(String slotMinWidth);
     
     void setResourcesInitiallyExpanded(boolean resourceInitiallyExpanded);
     
