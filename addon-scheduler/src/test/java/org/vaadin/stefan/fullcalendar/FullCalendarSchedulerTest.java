@@ -55,9 +55,9 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetSlotWidtht() {
-        calendar.setSlotWidth("100");
+        calendar.setSlotMinWidth("100");
 
-        Optional<Object> option = calendar.getOption("slotWidth");
+        Optional<Object> option = calendar.getOption("slotMinWidth");
 
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals("100", option.get());

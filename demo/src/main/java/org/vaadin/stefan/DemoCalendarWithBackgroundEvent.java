@@ -33,7 +33,7 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create().withScheduler().build();
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
-        ((FullCalendarScheduler) calendar).setSlotWidth("150");
+        ((FullCalendarScheduler) calendar).setSlotMinWidth("150");
         calendar.setLocale(Locale.ENGLISH);
         
         calendar.setHeight(500);
