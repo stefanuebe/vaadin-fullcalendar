@@ -22,7 +22,7 @@ Fullcalendar Scheduler: https://vaadin.com/directory/component/full-calendar-sch
 
 ## Additional links and information
 * Homepage about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
-* For a Vaadin 10-13 version (built on FC 3.10.x) https://vaadin.com/directory/component/full-calendar-web-component.
+* For a Vaadin 10-13 version (built on FC 3.10.x) https://vaadin.com/directory/component/full-calendar-web-component-vaadin10
 * GitHub profile of Carlo: https://github.com/aetasoul
 
 ## Addon Functionality
@@ -528,18 +528,23 @@ By default this value is `false`, simply set it to true to also receive date ren
 This addon extends the **FullCalendar for Flow** addon with the FullCalendar Scheduler, which provides 
 additional resource based views (Timeline View and Vertical Resource View) for Vaadin 14+.
 
-It needs the basic addon (https://vaadin.com/directory/component/full-calendar-4-web-component) to work.
+It needs the basic addon (https://vaadin.com/directory/component/full-calendar-scheduler-flow) to work.
 Since this addon is not always updated when the basis gets an update, I suggest, that you add both dependencies
 (basis and extension) to always use the latest versions. This extension is compatible as long as the readme
 does not tells anything else.
+
+The latest version 3.x.x of this addon uses the FullCalendar Scheduler 5.
+The version 2.x.x uses the older FullCalendar Scheduler 4. 
+
+**Note** Version 2.x.x will only receive maintenance fixes, while new features will be developed for the 
+3.x.x version.
 
 ## Additional links and information
 
 For information about the Scheduler (functionality, features, license information, etc.) 
 visit https://fullcalendar.io/scheduler. 
 
-For a Vaadin 10-13 version (that is built on FC 3.10.x), see https://vaadin.com/directory/component/full-calendar-scheduler-extension
-
+For a Vaadin 10-13 version (that is built on FC 3.10.x), see https://vaadin.com/directory/component/full-calendar-scheduler-extension-vaadin10
 
 ## License information:
 Please be aware, that the FullCalender Scheduler library this addon is based on has a different license model 
