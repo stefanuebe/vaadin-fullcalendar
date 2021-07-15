@@ -38,26 +38,22 @@ public class DemoExtendedProps extends VerticalLayout {
     	
     	calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH);
 
-//        calendar.setEntryContentCallback("" +
-//            "function (info) {" +
-//            "   console.warn(info.event.title + ': ' + info.event.extendedProps['selected']);" +
-//            "	if (info.event.extendedProps['selected'])" +
-//            "		info.el.style.setProperty('border', '2px solid red');" +
-//            "	return info.el;" +
-//            "}");
-         /*calendar.setEntryRenderCallback("" +
+        calendar.setEntryContentCallback("" +
             "function (info) {" +
-            "   console.warn(info.event.title + ': ' + info.event.extendedProps['selected']);" +
-            "	if (info.event.extendedProps['selected'])" +
-            "		info.el.style.setProperty('border', '2px solid red');" +
-            "	return info.el;" +
-            "}");*/
+                "debugger;" +
+                "console.warn(info.event.title + ': ' + info.event.extendedProps?.customProperties?.selected);" +
+            "	if (info.event.extendedProps?.customProperties?.selected)" +
+            "		info.backgroundColor = 'lightblue';" +
+                "else " +
+            "		info.backgroundColor = 'lightgreen';" +
+            "	" +
+            "}");
 
         calendar.addEntryClickedListener(e -> {
             Entry oldSelected = this.selected;
-            oldSelected.removeExtendedProps("selected");
+            oldSelected.setCustomProperty("selected", false);
             this.selected = e.getEntry();
-            this.selected.addExtendedProps("selected", true);
+            this.selected.setCustomProperty("selected", true);
             calendar.updateEntries(oldSelected, this.selected);
         });
         
@@ -66,7 +62,8 @@ public class DemoExtendedProps extends VerticalLayout {
     
     private void addDemoEntrys() {
     	for (int i = 1; i < 10; i++) {
-            LocalDate start = LocalDate.of(2021, 6, (int)(Math.random() * 29) + 1);
+            LocalDate now = LocalDate.now();
+            LocalDate start = now.withDayOfMonth((int)(Math.random() * 28) + 1);
             LocalDate end = start.plusDays(1);
             Entry entry = new Entry(UUID.randomUUID().toString());
             entry.setColor("lightgreen");
@@ -74,7 +71,7 @@ public class DemoExtendedProps extends VerticalLayout {
             entry.setStart(start.atStartOfDay());
             entry.setEnd(end.atTime(LocalTime.MAX));
             if (i == 1) {
-                entry.addExtendedProps("selected", true);
+                entry.setCustomProperty("selected", true);
                 selected = entry;
             }
             calendar.addEntry(entry);
