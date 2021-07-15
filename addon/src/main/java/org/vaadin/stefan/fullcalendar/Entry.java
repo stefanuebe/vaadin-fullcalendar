@@ -22,12 +22,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.time.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Represents a event / item in the full calendar. It is named Entry here to prevent name conflicts with
@@ -105,16 +100,14 @@ public class Entry {
      * <br><br>
      * Please be aware, that the description is a non-standard field on the client side and thus will not be
      * displayed in the entry's space. You can use it for custom entry rendering
-     * (see {@link FullCalendar#setEntryRenderCallback(String)}.
-     *
-     *
+     * (see {@link FullCalendar#setEntryContentCallback(String)}.
      */
     private String description;
-    
+
     /**
      * The custom property list
      */
-    private HashMap<String, Object> extendedProps = new HashMap<String, Object>();
+    private Map<String, Object> customProperties;
 
     /**
      * The rendering mode of this entry. Never null
@@ -214,18 +207,18 @@ public class Entry {
         jsonObject.put("endRecur", JsonUtils.toJsonValue(recurringEndDate == null ? null : getEndTimezone().formatWithZoneId(recurringEndDate)));
 
         jsonObject.put("description", JsonUtils.toJsonValue(getDescription()));
-        
+
         JsonObject extObject = Json.createObject();
-        
-        HashMap<String, Object> extendedProps = getExtendedProps();
-        if (!extendedProps.isEmpty()) {
-            for (Map.Entry<String, Object> extProp : extendedProps.entrySet()) {
-            	extObject.put(extProp.getKey(), JsonUtils.toJsonValue(extProp.getValue()));
+
+        Map<String, Object> customProperties = getCustomProperties();
+        if (!customProperties.isEmpty()) {
+            for (Map.Entry<String, Object> extProp : customProperties.entrySet()) {
+                extObject.put(extProp.getKey(), JsonUtils.toJsonValue(extProp.getValue()));
             }
         }
-        
-        jsonObject.put("extendedProps", extObject);
-        
+
+        jsonObject.put("customProperties", extObject);
+
         return jsonObject;
     }
 
@@ -249,7 +242,7 @@ public class Entry {
         JsonUtils.updateDateTime(object, "start", this::setStart, getStartTimezone());
         JsonUtils.updateDateTime(object, "end", this::setEnd, getEndTimezone());
         JsonUtils.updateString(object, "color", this::setColor);
-        JsonUtils.updateHashMap(object, "extendedProps", this::setExtendedProps);
+        JsonUtils.updateHashMap(object, "extendedProps", this::setCustomProperties);
     }
 
     /**
@@ -399,35 +392,82 @@ public class Entry {
     public void setColor(String color) {
         this.color = color == null || color.trim().isEmpty() ? null : color;
     }
-    
+
     /**
      * Add custom element to the extendedProp HashMap. This allow to set custom property to the resource.
      *
-     *@param key String the name of the property to add
-     *@param value Object the object to add
+     * @param key   String the name of the property to add
+     * @param value Object the object to add
+     * @deprecated use {@link #setCustomProperty(String, Object)}
+     *
      */
-    public void addExtendedProps(@NotNull String key, @NotNull Object value) {
-    	extendedProps.put(key, value);
+    @Deprecated
+    public void addExtendedProps(@NotNull String key, Object value) {
+        setCustomProperty(key, value);
+    }
+
+    /**
+     * Sets custom property for this entry. An existing property will be overwritten.
+     *
+     * @param key   the name of the property to set
+     * @param value value to set
+     *
+     */
+    public void setCustomProperty(@NotNull String key, Object value) {
+        if (customProperties == null) {
+            customProperties = new HashMap<>();
+        }
+        customProperties.put(Objects.requireNonNull(key), value);
     }
 
     /**
      * Remove the custom property based on the name.
      *
-     *@param key String the name of the property to remove
+     * @param key String the name of the property to remove
+     * @deprecated use {@link #removeCustomProperty(String)}
      */
+    @Deprecated
     public void removeExtendedProps(@NotNull String key) {
-    	extendedProps.remove(key);
+        removeCustomProperty(key);
     }
 
     /**
      * remove specific custom property where the name and value match.
      *
-     *@param key String the name of the property to remove
-     *@param value Object the object to remove
+     * @param key   String the name of the property to remove
+     * @param value Object the object to remove
+     * @deprecated use {@link #removeCustomProperty(String, Object)}
      */
+    @Deprecated
     public void removeExtendedProps(@NotNull String key, @NotNull Object value) {
-    	extendedProps.remove(key, value);
+        removeCustomProperty(key, value);
     }
+
+    /**
+     * Remove the custom property based on the name.
+     *
+     * @param key the name of the property to remove
+     */
+    public void removeCustomProperty(@NotNull String key) {
+        if (customProperties != null) {
+            // FIXME this will currently not remove the custom property from the client side!
+            customProperties.remove(Objects.requireNonNull(key));
+        }
+    }
+
+    /**
+     * Remove specific custom property where the name and value match.
+     *
+     * @param key   the name of the property to remove
+     * @param value the object to remove
+     */
+    public void removeCustomProperty(@NotNull String key, @NotNull Object value) {
+        if (customProperties != null) {
+            // FIXME this will currently not remove the custom property from the client side!
+            customProperties.remove(Objects.requireNonNull(key), Objects.requireNonNull(value));
+        }
+    }
+
 
     /**
      * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry start.
@@ -531,6 +571,22 @@ public class Entry {
     }
 
     /**
+     * @deprecated use {@link #getCustomProperties()}
+     */
+    @Deprecated
+    public Map<String, Object> getExtendedProps() {
+        return getCustomProperties();
+    }
+
+    /**
+     * Returns an unmodifiable map of the custom properties of this instance.
+     * @return map
+     */
+    public Map<String, Object> getCustomProperties() {
+        return customProperties != null ? Collections.unmodifiableMap(customProperties) : Collections.emptyMap();
+    }
+
+    /**
      * Constants for rendering of an event.
      */
     public enum RenderingMode implements ClientSideValue {
@@ -538,12 +594,12 @@ public class Entry {
          * Renders as normal entry.
          */
         NONE(null),
-        
+
         /**
          * Renders as a solid rectangle in daygrid
          */
         BLOCK("block"),
-        
+
         /**
          * Renders with a dot when in daygrid
          */
@@ -553,7 +609,7 @@ public class Entry {
          * Renders as 'block' if all-day or multi-day, otherwise will display as 'list-item'
          */
         AUTO("auto"),
-        
+
         /**
          * Renders as background entry (marks the area of the entry interval).
          */
@@ -569,7 +625,7 @@ public class Entry {
         RenderingMode(String clientSideName) {
             this.clientSideName = clientSideName;
         }
-         
+
         @Override
         public String getClientSideValue() {
             return clientSideName;
