@@ -21,7 +21,6 @@ import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
 import com.github.appreciated.app.layout.component.builder.AppLayoutBuilder;
 import com.github.appreciated.app.layout.component.menu.left.builder.LeftAppMenuBuilder;
 import com.github.appreciated.app.layout.component.menu.left.builder.LeftSubMenuBuilder;
-import com.github.appreciated.app.layout.component.menu.left.items.LeftHeaderItem;
 import com.github.appreciated.app.layout.component.menu.left.items.LeftNavigationItem;
 import com.github.appreciated.app.layout.component.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.Component;
@@ -29,13 +28,9 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.router.PageTitle;
@@ -45,11 +40,11 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.backgroundevent.DemoCalendarWithBackgroundEvent;
-import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
+import org.vaadin.stefan.ui.view.demos.full.FullDemo;
 import org.vaadin.stefan.ui.view.demos.customdaygrid.DemoDayGridWeekWithSixWeeks;
 import org.vaadin.stefan.ui.view.demos.customtimeline.DemoTimelineWith28Days;
 import org.vaadin.stefan.ui.view.demos.extendedprops.DemoExtendedProps;
-import org.vaadin.stefan.ui.view.demos.simple.SimpleDemo;
+import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
 import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
 import java.util.Locale;
@@ -122,10 +117,10 @@ public class MainLayout extends AppLayoutRouterLayout {
                 .addToSection(FOOTER, footer);
 
         addMenu(menuBuilder, BasicDemo.class);
-        addMenu(menuBuilder, SimpleDemo.class);
-        addMenu(menuBuilder, DemoCalendarWithBackgroundEvent.class);
+        addMenu(menuBuilder, FullDemo.class);
         addMenu(menuBuilder, DemoWithTooltip.class);
         addMenu(menuBuilder, DemoExtendedProps.class);
+        addMenu(menuBuilder, DemoCalendarWithBackgroundEvent.class);
         addMenu(menuBuilder, DemoTimelineWith28Days.class);
         addMenu(menuBuilder, DemoDayGridWeekWithSixWeeks.class);
 
