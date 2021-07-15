@@ -138,7 +138,8 @@ public class FullCalendarBuilder {
      *
      * @return FullCalendar instance
      */
-    public FullCalendar build() {
+    @SuppressWarnings("unchecked")
+    public <T extends FullCalendar> T build() {
         FullCalendar calendar;
         if (scheduler) {
             calendar = createFullCalendarSchedulerInstance(schedulerLicenseKey);
@@ -150,7 +151,7 @@ public class FullCalendarBuilder {
             calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
         }
 
-        return calendar;
+        return (T) calendar;
     }
 
     /**
