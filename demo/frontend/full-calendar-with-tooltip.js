@@ -30,12 +30,10 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
     }
 
     callTooltip(info) {
-        let description = FullCalendarWithTooltip.getCustomProperty(info.event, "description");
-        if (description && !info.isMirror) {
+    	if (info.event.extendedProps && info.event.extendedProps.description && !info.isMirror) {
             tippy(info.el, {
-                // content: info.event.extendedProps.description
                 theme: 'light',
-                content: description
+                content: info.event.extendedProps.description
             });
         }
     }
