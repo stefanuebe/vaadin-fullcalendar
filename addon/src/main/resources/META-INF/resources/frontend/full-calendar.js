@@ -1720,6 +1720,9 @@ export class FullCalendar extends PolymerElement {
                         eventToUpdate.remove();
                         this.addEvents([obj]);
                     } else {
+                    	eventToUpdate.setProp('title', obj['title'])
+                    	eventToUpdate.setProp('color', obj['color'])
+                    	eventToUpdate.setExtendedProp('description', obj['description'])
                         let start = obj['start'] != null ? calendar.formatIso(obj['start'], obj['allDay']) : null;
                         let end = obj['end'] != null ? calendar.formatIso(obj['end'], obj['allDay']) : null;
 
