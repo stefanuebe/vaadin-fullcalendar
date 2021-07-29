@@ -46,7 +46,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * The scheduler base version used in this addon. Some additionl libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_SCHEDULER_CLIENT_VERSION = "5.8.0";
+    public static final String FC_SCHEDULER_CLIENT_VERSION = "5.9.0";
     private final Map<String, Resource> resources = new HashMap<>();
 
     /**
@@ -54,7 +54,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public FullCalendarScheduler() {
         super();
-        initScheduler();
     }
 
     /**
@@ -73,7 +72,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public FullCalendarScheduler(int entryLimit) {
         super(entryLimit);
-        initScheduler();
     }
 
     /**
@@ -104,18 +102,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public FullCalendarScheduler(@NotNull JsonObject initialOptions) {
         super(initialOptions);
-        initScheduler();
-    }
-
-    /**
-     * This method allows additional setup for the scheduler. It is called in the constructor directly
-     * after calling the super() method. By default is overrides the css class ".fc-sticky". If not
-     * needed or leading to issues, this method can simply be overridden with a noop version.
-     */
-    protected void initScheduler() {
-        // workaround for https://github.com/fullcalendar/fullcalendar/issues/5556
-        // override this method, if you encounter issues with this custom style
-        addCustomStyles(".fc-sticky {position:static;}");
     }
 
     @Override
