@@ -36,6 +36,7 @@ import org.vaadin.stefan.ui.view.SettingsDialog;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
@@ -251,7 +252,10 @@ public class DemoWithTooltip extends VerticalLayout {
         });
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
-        calendar.addEntryClickedListener(event -> new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open());
+        calendar.addEntryClickedListener(event -> {
+        	if(event.getEntry().getRenderingMode() != RenderingMode.BACKGROUND && event.getEntry().getRenderingMode() != RenderingMode.INVERSE_BACKGROUND)
+        		new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open();
+        });
 
         ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
             ResourceEntry entry = new ResourceEntry();
