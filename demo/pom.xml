@@ -12,7 +12,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>14.6.3</vaadin.version>
+        <vaadin.version>14.6.8</vaadin.version>
 
         <fullcalendar.version>3.0.0</fullcalendar.version>
         <fullcalendar.scheduler.version>3.0.0</fullcalendar.scheduler.version>
