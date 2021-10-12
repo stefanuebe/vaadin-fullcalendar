@@ -203,6 +203,9 @@ public class FullDemo extends VerticalLayout {
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+        
+        calendar.setSlotMinTime(LocalTime.of(7, 0));
+        calendar.setSlotMaxTime(LocalTime.of(17, 0));
 
         calendar.setBusinessHours(
                 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
