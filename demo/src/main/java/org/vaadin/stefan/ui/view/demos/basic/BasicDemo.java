@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.basic;
 
+import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -7,10 +8,13 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import com.vaadin.flow.router.RouteAlias;
+import elemental.json.Json;
+import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -32,6 +36,8 @@ public class BasicDemo extends VerticalLayout {
 	
 	private FullCalendar calendar;
     private FormLayout toolbar;
+    private String viewName;
+    private LocalDate intervalStart;
 
     public BasicDemo() {
     	initView();
@@ -78,13 +84,31 @@ public class BasicDemo extends VerticalLayout {
             calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
         });
 
-        toolbar = new FormLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, comboBoxView);
+        Button attachButton = new Button(VaadinIcon.EYE_SLASH.create(), event -> {
+            if (calendar.getParent().isPresent()) {
+                remove(calendar);
+                event.getSource().setIcon(VaadinIcon.EYE.create());
+            } else {
+                add(calendar);
+                event.getSource().setIcon(VaadinIcon.EYE_SLASH.create());
+            }
+        });
+
+        toolbar = new FormLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, comboBoxView, attachButton);
         toolbar.getElement().getStyle().set("margin-top", "0px");
-        toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 5));
+        toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 6));
     }
 
+    private boolean first = true;
+
     private void createCalendar() {
-        calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").build();
+        JsonObject initialOptions = Json.createObject();
+        initialOptions.put("locale", "de");
+
+        calendar = FullCalendarBuilder.create()
+                .withScheduler("GPL-My-Project-Is-Open-Source")
+                .withInitialOptions(initialOptions)
+                .build();
 
         calendar.setSizeFull();
         calendar.setHeightByParent();

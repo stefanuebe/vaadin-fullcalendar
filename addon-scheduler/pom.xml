@@ -5,16 +5,16 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2-scheduler</artifactId>
-    <version>3.0.2</version>
+    <version>3.0.3</version>
 
     <name>FullCalendar Scheduler for Flow</name>
     <description>A web component that wraps the FullCalendar Scheduler extension (https://fullcalendar.io).
     </description>
 
     <properties>
-        <vaadin.version>14.6.3</vaadin.version>
+        <vaadin.version>14.7.1</vaadin.version>
 
-        <fullcalendar.version>3.0.2</fullcalendar.version>
+        <fullcalendar.version>3.0.3</fullcalendar.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

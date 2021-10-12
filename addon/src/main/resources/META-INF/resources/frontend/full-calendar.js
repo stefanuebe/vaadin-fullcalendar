@@ -1438,6 +1438,31 @@ export class FullCalendar extends PolymerElement {
     }
 
     /**
+     * Restores the state from the server. All values are optional and might be undefined.
+     * @param options options to set
+     * @param entries entries / events to add
+     * @param view view name to set
+     * @param date date to go to
+     * @private
+     */
+    _restoreStateFromServer(options = {}, entries = [], view , date) {
+        const calendar = this.getCalendar();
+        calendar.batchRendering(() => {
+            this.setOptions(options);
+            if (entries.length) {
+                this.addEvents(entries);
+            }
+
+            if (view) {
+                this.changeView(view, date);
+            } else if (date) {
+                this.gotoDate(date);
+            }
+        });
+
+    }
+
+    /**
      * Creates an object that maps client side event information to server side information.
      * The returned object contains keys, that will be interpreted as client and server side event names.
      * Each key is assigned a function that takes the event info object as parameter and returns the
@@ -1569,10 +1594,10 @@ export class FullCalendar extends PolymerElement {
         return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
     }
 
-    _createInitOptions(initialOptions) {
+    _createInitOptions(initialOptions = {}) {
         let events = this._createEventHandlers();
 
-        let options = initialOptions != null ? initialOptions : {
+        let options = {
             height: '100%',
             timeZone: 'UTC',
 
@@ -1585,7 +1610,8 @@ export class FullCalendar extends PolymerElement {
             selectable: this.selectable,
             dragScroll: this.dragScroll,
             stickyHeaderDates: true,
-            stickyFooterScrollbar: true
+            stickyFooterScrollbar: true,
+            ...initialOptions
         };
 
         this._addEventHandlersToOptions(options, events);
@@ -1624,9 +1650,39 @@ export class FullCalendar extends PolymerElement {
         }
     }
 
+    /**
+     * Allows to set a bunch of options at a time.
+     * @param options options to set
+     */
+    setOptions(options = {}) {
+        let calendar = this.getCalendar();
+        this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
+        for (let key in options) {
+            let value = options[key];
+            this._checkAndDispatchEventOnTimezoneChange(calendar, key, value);
+            calendar.setOption(key, value);
+        }
+        this.noDatesRenderEvent = false;
+    }
 
     setOption(key, value) {
         let calendar = this.getCalendar();
+        this._checkAndDispatchEventOnTimezoneChange(calendar, key, value);
+
+        this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
+        calendar.setOption(key, value);
+        this.noDatesRenderEvent = false;
+    }
+
+    /**
+     * Checks, if the given key represents the timezone key and if the given value does not equal the
+     * current timezone. In that case a "timezone-changed" event is dispatched.
+     * @param calendar calendar to check
+     * @param key key to check
+     * @param value value to check
+     * @private
+     */
+    _checkAndDispatchEventOnTimezoneChange(calendar, key, value ) {
         if (key === "timezone" && calendar.getOption("timezone") !== value) {
             this.dispatchEvent(new CustomEvent("timezone-changed", {
                 detail: {
@@ -1634,10 +1690,6 @@ export class FullCalendar extends PolymerElement {
                 }
             }));
         }
-
-        this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
-        calendar.setOption(key, value);
-        this.noDatesRenderEvent = false;
     }
 
     /**
@@ -1812,8 +1864,8 @@ export class FullCalendar extends PolymerElement {
         });
     }
 
-    changeView(viewName) {
-        this.getCalendar().changeView(viewName);
+    changeView(viewName, date) {
+        this.getCalendar().changeView(viewName, date);
     }
 
     render() {

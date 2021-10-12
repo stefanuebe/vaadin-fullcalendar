@@ -59,7 +59,7 @@ import static com.github.appreciated.app.layout.entity.Section.HEADER;
 @CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
 public class MainLayout extends AppLayoutRouterLayout {
-    public static final String ADDON_VERSION = "3.0.2";
+    public static final String ADDON_VERSION = "3.0.3";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")
@@ -107,7 +107,7 @@ public class MainLayout extends AppLayoutRouterLayout {
         H4 header = new H4("Samples");
         header.addClassName("header");
 
-        Div footer = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.6.3. " +
+        Div footer = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.7.1. " +
                 "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
         footer.addClassName("footer");
 
