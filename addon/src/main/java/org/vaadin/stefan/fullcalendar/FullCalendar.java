@@ -848,7 +848,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day<p>
      * The default is '24:00:00'
      *
-     * @param slotMaxTime maxTime to set
+     * @param slotMaxTime slotMaxTime to set
      * @throws NullPointerException when null is passed
      */
     public void setSlotMaxTime(@NotNull LocalTime slotMaxTime) {
