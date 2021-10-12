@@ -24,12 +24,10 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-
-import javax.validation.constraints.NotNull;
-
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -72,14 +70,21 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public static final int DEFAULT_DAY_EVENT_DURATION = 1;
 
-    private Map<String, Entry> entries = new HashMap<>();
-    private Map<String, Serializable> options = new HashMap<>();
-    private Map<String, Object> serverSideOptions = new HashMap<>();
+    private static final String JSON_INITIAL_OPTIONS = "initialOptions";
+
+    private final Map<String, Entry> entries = new HashMap<>();
+    private final Map<String, Serializable> options = new HashMap<>();
+    private final Map<String, Object> serverSideOptions = new HashMap<>();
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
 
     private Timezone browserTimezone;
+
+    private boolean firstAttach = true;
+
+    private String latestKnownViewName;
+    private LocalDate latestKnownIntervalStart;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
@@ -109,6 +114,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         } else {
             getElement().setProperty("dayMaxEvents", false);
         }
+
+        postConstruct();
     }
 
     /**
@@ -138,13 +145,65 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @throws NullPointerException when null is passed
      */
     public FullCalendar(@NotNull JsonObject initialOptions) {
-        getElement().setPropertyJson("initialOptions", Objects.requireNonNull(initialOptions));
+        getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
+
+        postConstruct();
     }
+
+    /**
+     * Called after the constructor has been initialized.
+     */
+    private void postConstruct() {
+        addDatesRenderedListener(event -> {
+            latestKnownViewName = event.getName();
+            latestKnownIntervalStart = event.getIntervalStart();
+        });
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        if (firstAttach) {
+            firstAttach = false;
+        } else {
+            getElement().getNode().runWhenAttached(ui -> {
+                ui.beforeClientResponse(this, executionContext -> {
+                    // options
+                    Serializable initialOptions = getElement().getPropertyRaw(JSON_INITIAL_OPTIONS);
+                    JsonObject optionsJson = Json.createObject();
+                    if (initialOptions instanceof JsonObject) {
+                        JsonObject initialOptionsJson = (JsonObject) initialOptions;
+                        for (String key : initialOptionsJson.keys()) {
+                            optionsJson.put(key, (JsonValue) initialOptionsJson.get(key));
+                        }
+                    }
+
+                    if (!options.isEmpty()) {
+                        options.forEach((key, value) -> optionsJson.put(key, JsonUtils.toJsonValue(value)));
+                    }
+
+                    // entries
+                    JsonArray entriesJson = Json.createArray();
+                    entries.values().forEach(entry -> entriesJson.set(entriesJson.length(), entry.toJson()));
+
+                    // We do not use setProperty since that would also store the jsonified state in this instance.
+                    // Especially with a huge amount of entries this could lead to memory issues.
+                    getElement().callJsFunction("_restoreStateFromServer",
+                            optionsJson,
+                            entriesJson,
+                            JsonUtils.toJsonValue(latestKnownViewName),
+                            JsonUtils.toJsonValue(latestKnownIntervalStart));
+                });
+            });
+        }
+    }
+
 
     /**
      * Sets a property to allow or disallow (re-)rendering of dates, when an option changes. When allowed,
      * each option will fire a dates rendering event, which can lead to multiple rendering events, even if only
      * one is needed.
+     *
      * @param allow allow
      */
     public void allowDatesRenderEventOnOptionChange(boolean allow) {
@@ -344,7 +403,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             getElement().callJsFunction("addEvents", array);
         }
     }
-
 
     /**
      * Updates the given entry on the client side. Will check if the id is already registered, otherwise a noop.
@@ -810,7 +868,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * If true, the calendar will always be 6 weeks tall. 
      * If false, the calendar will have either 4, 5, or 6 weeks, depending on the month.
      * 
-     * @param boolean fixedWeekCount
+     * @param fixedWeekCount
      * 
      */
     public void setFixedWeekCount(boolean fixedWeekCount) {
@@ -861,7 +919,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Whether to include Saturday/Sunday columns in any of the calendar views.
      * 
-     * @param boolean weekends
+     * @param weekends
      * 
      */
     public void setWeekends(boolean weekends) {
@@ -871,7 +929,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /** display the header.
      * 
-     * @param Header header
+     * @param header
      * 
      */
     public void setHeaderToolbar(Header header) {
@@ -880,7 +938,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**display the footer.
      * 
-     * @param String footer
+     * @param footer
      * 
      */
     public void setFooterToolbar(Footer footer) {
@@ -889,7 +947,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
      * 
-     * @param String columnHeader
+     * @param columnHeader
      * 
      */
     public void setColumnHeader(boolean columnHeader) {
@@ -1274,6 +1332,5 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             return this.clientSideValue;
         }
     }
-
 
 }
