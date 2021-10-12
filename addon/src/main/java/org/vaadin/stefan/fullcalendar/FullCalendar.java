@@ -790,10 +790,24 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @param minTime minTime to set
      * @throws NullPointerException when null is passed
+     * 
+     * @deprecated use {@link #setSlotMinTime(LocalTime)} instead.
      */
+    @Deprecated
     public void setMinTime(@NotNull LocalTime minTime) {
-        Objects.requireNonNull(minTime);
-        setOption(Option.MIN_TIME, JsonUtils.toJsonValue(minTime != null ? minTime : "00:00:00"));
+        setSlotMinTime(minTime);
+    }
+    
+    /**
+     * Sets the min time for this calendar instance. This is the first time slot that will be displayed for each day.<p>
+     * The default is '00:00:00'
+     *
+     * @param slotMinTime slotMinTime to set
+     * @throws NullPointerException when null is passed
+     */
+    public void setSlotMinTime(@NotNull LocalTime slotMinTime) {
+        Objects.requireNonNull(slotMinTime);
+        setOption(Option.SLOT_MIN_TIME, JsonUtils.toJsonValue(slotMinTime != null ? slotMinTime : "00:00:00"));
     }
 
     /**
@@ -823,10 +837,23 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @param maxTime maxTime to set
      * @throws NullPointerException when null is passed
+     * 
+     * @deprecated use {@link #setSlotMaxTime(LocalTime)} instead.
      */
     public void setMaxTime(@NotNull LocalTime maxTime) {
-        Objects.requireNonNull(maxTime);
-        setOption(Option.MAX_TIME, JsonUtils.toJsonValue(maxTime != null ? maxTime : "24:00:00"));
+        setSlotMaxTime(maxTime);
+    }
+    
+    /**
+     * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day<p>
+     * The default is '24:00:00'
+     *
+     * @param slotMaxTime maxTime to set
+     * @throws NullPointerException when null is passed
+     */
+    public void setSlotMaxTime(@NotNull LocalTime slotMaxTime) {
+        Objects.requireNonNull(slotMaxTime);
+        setOption(Option.SLOT_MAX_TIME, JsonUtils.toJsonValue(slotMaxTime != null ? slotMaxTime : "24:00:00"));
     }
 
     /**
@@ -1218,8 +1245,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         BUSINESS_HOURS("businessHours"),
         TIMEZONE("timeZone"),
         SNAP_DURATION("snapDuration"),
-        MIN_TIME("minTime"),
-        MAX_TIME("maxTime"),
+        SLOT_MIN_TIME("slotMinTime"),
+        SLOT_MAX_TIME("slotMaxTime"),
         FIXED_WEEK_COUNT("fixedWeekCount"),
         WEEKENDS("weekends"),
     	HEADER_TOOLBAR("headerToolbar"),
