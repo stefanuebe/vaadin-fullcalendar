@@ -401,7 +401,7 @@ export class FullCalendar extends PolymerElement {
                 }
 
                 .fc .fc-scrollgrid-section-sticky > * {
-                    background: var(--fc-page-bg-color, #fff);
+                    background: var(--fc-page-bg-color, transparent);
                     position: sticky;
                     z-index: 3
                 }
