@@ -58,7 +58,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * The library base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_CLIENT_VERSION = "5.9.0";
+    public static final String FC_CLIENT_VERSION = "5.10.0";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
