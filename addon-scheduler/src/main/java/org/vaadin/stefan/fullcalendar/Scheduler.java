@@ -62,16 +62,51 @@ public interface Scheduler {
     
     void setResourceAreaHeaderContent(String resourceAreaHeaderContent);
 
+    /**
+     * Determines the width of the area that contains the list of resources.
+     * Can be specified as a number of pixels, or a CSS string value, like "25%".
+     * @param String resourceAreaWidth
+     */
     void setResourceAreaWidth(String resourceAreaWidth);
     
+    /**
+     * Determines how wide each of the time-axis slots will be. Specified as a number of pixels.
+     * When not specified, a reasonable value will be automatically computed.
+     * @param String slotMinWidth
+     */
     void setSlotMinWidth(String slotMinWidth);
     
-    void setResourcesInitiallyExpanded(boolean resourceInitiallyExpanded);
+    /**
+     * Whether child resources should be expanded when the view loads.
+     * By default, all child resources are visible, but if you’d like child resources to be collapsed, 
+     * meaning they are not initially visible, change this setting to false.
+     * 
+     * Only supported in Timeline view.
+     * 
+     * @param boolean resourcesInitiallyExpanded
+     */
+    void setResourcesInitiallyExpanded(boolean resourcesInitiallyExpanded);
     
+    /**
+     * When this setting is activated, only resources that have associated events will be displayed.
+     * When activated, please be aware that in order for resources to render, event data will need to finish being fetched.
+     * @param boolean filterResourcesWithEvents
+     */
     void setFilterResourcesWithEvents(boolean filterResourcesWithEvents);
     
+    /**
+     * Determines the ordering of the resource list.
+     * If prefixed with a minus sign like '-propertyName', the ordering will be descending.
+     * If no resourceOrder is given (the default), resources will be ordered by their id, then by title.
+     * @param String resourceOrder
+     */
     void setResourceOrder(String resourceOrder);
     
+    /**
+     * Determines whether the user can drag events between resources.
+     * The default value is inherited from the master editable flag, which is false by default.
+     * @param boolean eventResourceEditable
+     */
     void setEntryResourceEditable(boolean eventResourceEditable);
 
     /**
@@ -215,7 +250,7 @@ public interface Scheduler {
      * A resource "lane" is an element in resource-timeline view. 
      * It runs horizontally across the timeline slots for each resource.
      *
-     * @param s js function to be attached
+     * @param String s the js function
      */
 
     void setResourceLaneClassNamesCallback(String s);
