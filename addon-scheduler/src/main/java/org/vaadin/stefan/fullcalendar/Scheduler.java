@@ -71,6 +71,8 @@ public interface Scheduler {
     void setFilterResourcesWithEvents(boolean filterResourcesWithEvents);
     
     void setResourceOrder(String resourceOrder);
+    
+    void setEntryResourceEditable(boolean eventResourceEditable);
 
     /**
      * Adds an resource to this calendar. Noop if the resource id is already registered.

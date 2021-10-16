@@ -252,7 +252,7 @@ public class FullDemo extends VerticalLayout {
             new DemoDialog(calendar, entry, true).open();
         });
 
-
+        ((FullCalendarScheduler) calendar).setEntryResourceEditable(false);
         // this following code is an exapmle on how to create a server side dialog showing all entries of the day
 //        calendar.setMoreLinkClickAction(FullCalendar.MoreLinkClickAction.NOTHING);
 //        calendar.addMoreLinkClickedListener(event -> {
