@@ -140,6 +140,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
     
     @Override
+    public void setEntryResourceEditable(boolean eventResourceEditable) {
+    	setOption("eventResourceEditable", eventResourceEditable);
+    }
+    
+    @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource) {
         Objects.requireNonNull(iterableResource);
 
