@@ -125,8 +125,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
     
     @Override
-    public void setResourcesInitiallyExpanded(boolean resourceInitiallyExpanded) {
-        setOption("resourcesInitiallyExpanded", resourceInitiallyExpanded);
+    public void setResourcesInitiallyExpanded(boolean resourcesInitiallyExpanded) {
+        setOption("resourcesInitiallyExpanded", resourcesInitiallyExpanded);
     }
     
     @Override
