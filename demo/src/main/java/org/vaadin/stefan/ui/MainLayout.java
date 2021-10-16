@@ -26,13 +26,17 @@ import com.github.appreciated.app.layout.component.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.theme.Theme;
@@ -71,7 +75,7 @@ public class MainLayout extends AppLayoutRouterLayout {
         Component appMenu = generateMenu();
 
         init(AppLayoutBuilder.get(LeftLayouts.LeftResponsiveHybrid.class)
-                .withTitle("FullCalendar for Vaadin Flow " + ADDON_VERSION)
+                .withTitle(generateTitle("FullCalendar for Vaadin Flow " + ADDON_VERSION))
                 .withAppBar(appBar)
                 .withAppMenu(appMenu)
                 .build());
@@ -84,6 +88,19 @@ public class MainLayout extends AppLayoutRouterLayout {
             VaadinRequest.getCurrent().getWrappedSession().setAttribute("locale", locale);
         } else
             UI.getCurrent().setLocale(locale);
+    }
+    
+    private Component generateTitle(String title) {
+    	Span span = new Span(title);
+    	
+        span.setWidthFull();
+        span.getStyle()
+        		.set("margin-left", "var(--app-layout-menu-toggle-button-padding)")
+                .set("overflow", "hidden")
+                .set("text-overflow", "ellipsis")
+                .set("text-align", "center");
+
+        return span;
     }
 
     private FlexLayout generateHeaderBar() {
@@ -107,14 +124,29 @@ public class MainLayout extends AppLayoutRouterLayout {
         H4 header = new H4("Samples");
         header.addClassName("header");
         
+        VerticalLayout footerLayout = new VerticalLayout();
+        
+        Button toggleButton = new Button("Toggle dark theme", click -> {
+            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
+
+            if (themeList.contains(Lumo.DARK)) {
+              themeList.remove(Lumo.DARK);
+            } else {
+              themeList.add(Lumo.DARK);
+            }
+          });
+        toggleButton.setWidthFull();
+        
         Div footer = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.7.1. " +
                 "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
-        footer.addClassName("footer");
-
+        
+        footerLayout.addClassName("footer");
+        footerLayout.add(toggleButton, footer);
+        
         LeftAppMenuBuilder menuBuilder = LeftAppMenuBuilder
                 .get()
                 .addToSection(HEADER, header)
-                .addToSection(FOOTER, footer);
+                .addToSection(FOOTER, footerLayout);
 
         addMenu(menuBuilder, BasicDemo.class);
         addMenu(menuBuilder, FullDemo.class);
