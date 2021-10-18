@@ -154,8 +154,10 @@ public class Entry {
      */
     private LocalTime recurringEndTime;
 
-    // TODO
-    // groupId
+    /**
+     * Events that share a groupId will be dragged and resized together automatically.
+     */
+    private String groupId;
 
     /**
      * The calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
@@ -193,6 +195,7 @@ public class Entry {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", JsonUtils.toJsonValue(getId()));
         jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
+        jsonObject.put("groupId", JsonUtils.toJsonValue(groupId));
 
         boolean fullDayEvent = isAllDay();
         jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
@@ -242,6 +245,7 @@ public class Entry {
         }
 
         JsonUtils.updateString(object, "title", this::setTitle);
+        JsonUtils.updateString(object, "groupId", this::setGroupId);
         JsonUtils.updateBoolean(object, "editable", this::setEditable);
         JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
         JsonUtils.updateDateTime(object, "start", this::setStart, getStartTimezone());
@@ -650,7 +654,7 @@ public class Entry {
     }
 
     /**
-     * Constants for rendering of an event.
+     * Constants for rendering of an entry.
      */
     public enum RenderingMode implements ClientSideValue {
         /**
