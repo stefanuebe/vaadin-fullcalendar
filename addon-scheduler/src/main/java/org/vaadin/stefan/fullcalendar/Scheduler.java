@@ -232,15 +232,42 @@ public interface Scheduler {
      * A resource "label" is anywhere the name of a resource is displayed. 
      * They exist in the header of vertical resource view and the side section of resource timeline view.
      *
-     * @param s js function to be attached
+     * @param String JS function to be attached
      */
 
     void setResourceLabelClassNamesCallback(String s);
 
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as callback. It must be a valid JavaScript function.
+     * 
+     * A resource "label" is anywhere the name of a resource is displayed. 
+     * They exist in the header of vertical resource view and the side section of resource timeline view.
+     *
+     * @param String JS function to be attached
+     */
     void setResourceLabelContentCallback(String s);
 
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as callback. It must be a valid JavaScript function.
+     * 
+     * A resource "label" is anywhere the name of a resource is displayed. 
+     * They exist in the header of vertical resource view and the side section of resource timeline view.
+     *
+     * @param String JS function to be attached
+     */
     void setResourceLabelDidMountCallback(String s);
 
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as callback. It must be a valid JavaScript function.
+     * 
+     * A resource "label" is anywhere the name of a resource is displayed. 
+     * They exist in the header of vertical resource view and the side section of resource timeline view.
+     *
+     * @param String JS function to be attached
+     */
     void setResourceLablelWillUnmountCallback(String s);
     
     /**
@@ -250,15 +277,41 @@ public interface Scheduler {
      * A resource "lane" is an element in resource-timeline view. 
      * It runs horizontally across the timeline slots for each resource.
      *
-     * @param String s the js function
+     * @param String JS function to be attached
      */
-
     void setResourceLaneClassNamesCallback(String s);
 
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as callback. It must be a valid JavaScript function.
+     * 
+     * A resource "lane" is an element in resource-timeline view. 
+     * It runs horizontally across the timeline slots for each resource.
+     *
+     * @param String JS function to be attached
+     */
     void setResourceLaneContentCallback(String s);
 
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as callback. It must be a valid JavaScript function.
+     * 
+     * A resource "lane" is an element in resource-timeline view. 
+     * It runs horizontally across the timeline slots for each resource.
+     *
+     * @param String JS function to be attached
+     */
     void setResourceLaneDidMountCallback(String s);
 
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as callback. It must be a valid JavaScript function.
+     * 
+     * A resource "lane" is an element in resource-timeline view. 
+     * It runs horizontally across the timeline slots for each resource.
+     *
+     * @param String JS function to be attached
+     */
     void setResourceLaneWillUnmountCallback(String s);
 
     /**
