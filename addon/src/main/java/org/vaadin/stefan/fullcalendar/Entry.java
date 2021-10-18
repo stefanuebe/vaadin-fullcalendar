@@ -195,7 +195,7 @@ public class Entry {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", JsonUtils.toJsonValue(getId()));
         jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
-        jsonObject.put("groupId", JsonUtils.toJsonValue(groupId));
+        Optional.ofNullable(getGroupId()).ifPresent(g -> jsonObject.put("groupId", JsonUtils.toJsonValue(g)));
 
         boolean fullDayEvent = isAllDay();
         jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
