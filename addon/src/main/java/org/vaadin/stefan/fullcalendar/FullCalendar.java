@@ -773,37 +773,111 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * The given string will be interpreted as JS function on the client side
-     * and attached to the calendar as the eventRender callback. It must be a valid JavaScript function.
+     * and attached to the calendar as the eventClassNames callback. It must be a valid JavaScript function.
      * <br><br>
-     * <b>Note: </b> Please be aware, that there is NO content parsing, escaping, quoting or
+     * A ClassName Input for adding classNames to the outermost event element. If supplied as a callback function, it is called every time the associated event data changes.
+     * <br><br>
+     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
      * other security mechanism applied on this string, so check it yourself before passing it to the client.
      * <br><br>
-     * Example
+     * <b>Example</b>
      * <pre>
-     * calendar.setEntryRenderCallback("" +
-     * "function(event, element) {" +
-     * "   console.log(event.title + 'X');" +
-     * "   element.css('color', 'red');" +
-     * "   return element; " +
+     * calendar.setEventClassNamesCallback("" +
+     * "function(arg) { " +
+     * "  if (arg.event.extendedProps.isUrgent) {" +
+     * "    return [ 'urgent' ];" +
+     * "  } else { " +
+     * "    return [ 'normal' ];" +
+     * "  }" +
      * "}");
-     *
      * </pre>
      *
-     * @param s js function to be attached to eventRender callback
+     * @param String JS function to be attached
      */
     public void setEntryClassNamesCallback(String s) {
         getElement().callJsFunction("setEventClassNamesCallback", s);
     }
     
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as the eventContent callback. It must be a valid JavaScript function.
+     * <br><br>
+     * A Content Injection Input. Generated content is inserted inside the inner-most wrapper of the event element.
+     * If supplied as a callback function, it is called every time the associated event data changes.
+     * <br><br>
+     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
+     * other security mechanism applied on this string, so check it yourself before passing it to the client.
+     * <br><br>
+     * <b>Example</b>
+     * <pre>
+     * calendar.setEntryContentCallback("" +
+     * "function(arg) { " +
+     * "  let italicEl = document.createElement('i');" +
+     * "  if (arg.event.extendedProps.isUrgent) {" +
+     * "    italicEl.innerHTML = 'urgent event';" +
+     * "  } else {" +
+     * "    italicEl.innerHTML = 'normal event';" +
+     * "  }" +
+     * "  let arrayOfDomNodes = [ italicEl ];" +
+     * "  return { domNodes: arrayOfDomNodes }" +
+     * "}");
+     * </pre>
+     *
+     * @param String JS function to be attached
+     */
     public void setEntryContentCallback(String s) {
         getElement().callJsFunction("setEventContentCallback", s);
     }
     
+    /**
+     * Deprecated. Use {@link #setEntryDidMountCallback(String s)} instead.
+     *
+     * @param String JS function to be attached
+     */
+    @Deprecated
     public void setEventDidMountCallback(String s) {
+    	setEntryDidMountCallback(s);
+    }
+    
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as the eventDidMount callback. It must be a valid JavaScript function.
+     * <br><br>
+     * Called right after the element has been added to the DOM. If the event data changes, this is <b>NOT</b> called again.
+     * <br><br>
+     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
+     * other security mechanism applied on this string, so check it yourself before passing it to the client.
+     * <br><br>
+     *
+     * @param String JS function to be attached
+     */
+    public void setEntryDidMountCallback(String s) {
         getElement().callJsFunction("setEventDidMountCallback", s);
     }
     
+    /**
+     * Deprecated. Use {@link #setEntryWillUnmountCallback(String s)} instead.
+     *
+     * @param String JS function to be attached
+     */
+    @Deprecated
     public void setEventWillUnmountCallback(String s) {
+    	setEntryWillUnmountCallback(s);
+    }
+    
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as the eventWillUnmount callback. It must be a valid JavaScript function.
+     * <br><br>
+     * Called right before the element will be removed from the DOM.
+     * <br><br>
+     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
+     * other security mechanism applied on this string, so check it yourself before passing it to the client.
+     * <br><br>
+     *
+     * @param String JS function to be attached
+     */
+    public void setEntryWillUnmountCallback(String s) {
         getElement().callJsFunction("setEventWillUnmountCallback", s);
     }
 
