@@ -24,10 +24,12 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -154,9 +156,46 @@ public final class JsonUtils {
             setter.accept(dateTime);
         }
     }
+
+    /**
+     * Reads the json property by key and tries to apply it as a Set<String>.
+     *
+     * @param object json object
+     * @param key    json property key
+     * @param setter setter to apply value
+     * @throws NullPointerException when null is passed for not null parameters
+     */
+    public static void updateSetString(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Set<String>> setter) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        if (object.get(key) instanceof JsonString) {
+            setter.accept(toSetString(object.get(key)));
+        }
+    }
     
     /**
-     * Reads the json property by key and tries to apply it as a string.
+     * Convert the JsonArray to Set<String>
+     *
+     * @param array json array
+     * 
+     * @return Set<String> The set
+     */
+    private static Set<String> toSetString(JsonArray array) {
+    	Set<String> set = new HashSet<String>();
+
+        for(int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+
+            if (value instanceof String)
+            	set.add(value.toString());
+        }
+
+        return set;
+    }
+    
+    /**
+     * Reads the json property by key and tries to apply it as a HashMap.
      *
      * @param object json object
      * @param key    json property key
