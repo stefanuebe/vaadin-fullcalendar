@@ -616,7 +616,7 @@ public class Entry {
     /**
      * Unassigns all classNames from this entry.
      */
-    public void unassignAllResources() {
+    public void unassignAllClassNames() {
         if (this.classNames != null) {
             this.classNames.clear();
             this.classNames = null;
