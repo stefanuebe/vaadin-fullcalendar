@@ -846,20 +846,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Sets the min time for this calendar instance. This is the first time slot that will be displayed for each day.<p>
      * The default is '00:00:00'
      *
-     * @param minTime minTime to set
-     * @throws NullPointerException when null is passed
-     * 
-     * @deprecated use {@link #setSlotMinTime(LocalTime)} instead.
-     */
-    @Deprecated
-    public void setMinTime(@NotNull LocalTime minTime) {
-        setSlotMinTime(minTime);
-    }
-    
-    /**
-     * Sets the min time for this calendar instance. This is the first time slot that will be displayed for each day.<p>
-     * The default is '00:00:00'
-     *
      * @param slotMinTime slotMinTime to set
      * @throws NullPointerException when null is passed
      */
@@ -888,20 +874,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setFixedWeekCount(boolean fixedWeekCount) {
         setOption(Option.FIXED_WEEK_COUNT, fixedWeekCount);
     }
-    
-    /**
-     * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day<p>
-     * The default is '24:00:00'
-     *
-     * @param maxTime maxTime to set
-     * @throws NullPointerException when null is passed
-     * 
-     * @deprecated use {@link #setSlotMaxTime(LocalTime)} instead.
-     */
-    public void setMaxTime(@NotNull LocalTime maxTime) {
-        setSlotMaxTime(maxTime);
-    }
-    
+
     /**
      * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day<p>
      * The default is '24:00:00'
@@ -1191,21 +1164,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public Registration addTimeslotsSelectedListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotsSelectedEvent.class, (ComponentEventListener<TimeslotsSelectedEvent>) listener);
-    }
-
-    /**
-     * Registers a listener to be informed when the user clicked on the "more" link (e.g. "+6 more").
-     *
-     * @deprecated use {@link #addMoreLinkClickedListener(ComponentEventListener)} instead
-     * @param listener listener
-     * @return registration to remove the listener
-     * @throws NullPointerException when null is passed
-     *
-     */
-    @Deprecated
-    public Registration addLimitedEntriesClickedListener(@NotNull ComponentEventListener<LimitedEntriesClickedEvent> listener) {
-        Objects.requireNonNull(listener);
-        return addListener(LimitedEntriesClickedEvent.class, listener);
     }
 
     /**
