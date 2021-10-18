@@ -76,14 +76,14 @@ public class DemoDayGridWeekWithSixWeeks extends VerticalLayout {
         Entry entry_2 = new Entry(UUID.randomUUID().toString());
         
         entry_2.setColor("lightgreen");
-        entry_2.setTitle("Entry 2");
+        entry_2.setTitle("Entry 2 - testgroup");
         entry_2.setStart(now.minusDays(3).atStartOfDay());
         entry_2.setEnd(now.minusDays(2).atTime(LocalTime.MAX));
         entry_2.setGroupId("testgroup");
         
         Entry entry_3 = new Entry(UUID.randomUUID().toString());
         
-        entry_3.setColor("lightred");
+        entry_3.setColor("lightsalmon");
         entry_3.setTitle("Entry 3 - ungrouped");
         entry_3.setStart(now.plusDays(2).atStartOfDay());
         entry_3.setEnd(now.plusDays(5).atTime(LocalTime.MAX));
