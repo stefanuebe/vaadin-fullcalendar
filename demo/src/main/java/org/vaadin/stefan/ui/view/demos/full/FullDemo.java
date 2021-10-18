@@ -290,7 +290,7 @@ public class FullDemo extends VerticalLayout {
             timezone = event.getTimezone();
         });
 
-        calendar.setEventDidMountCallback(
+        calendar.setEntryDidMountCallback(
         		  "function(info) { " 
         		+ "    if(info.event.extendedProps.cursors != undefined) { "
         		+ "        if(!info.event.startEditable) { "
