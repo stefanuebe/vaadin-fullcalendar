@@ -25,7 +25,7 @@ import java.time.*;
 import java.util.*;
 
 /**
- * Represents a event / item in the full calendar. It is named Entry here to prevent name conflicts with
+ * Represents an event in the full calendar. It is named Entry here to prevent name conflicts with
  * event handling mechanisms (e.g. a component event fired by clicking something).
  * <br><br>
  * To create a recurring entry, simply set any of the "recurring" properties. With any of them set the entry
@@ -38,7 +38,6 @@ import java.util.*;
 @EqualsAndHashCode(of = "id")
 @ToString(exclude = {"calendar", "description"})
 public class Entry {
-
     /**
      * The entry's id.
      */
@@ -401,19 +400,6 @@ public class Entry {
     }
 
     /**
-     * Add custom element to the extendedProp HashMap. This allow to set custom property to the resource.
-     *
-     * @param key   String the name of the property to add
-     * @param value Object the object to add
-     * @deprecated use {@link #setCustomProperty(String, Object)}
-     *
-     */
-    @Deprecated
-    public void addExtendedProps(@NotNull String key, Object value) {
-        setCustomProperty(key, value);
-    }
-
-    /**
      * Sets custom property for this entry. An existing property will be overwritten.
      *
      * @param key   the name of the property to set
@@ -425,29 +411,6 @@ public class Entry {
             customProperties = new HashMap<>();
         }
         customProperties.put(Objects.requireNonNull(key), value);
-    }
-
-    /**
-     * Remove the custom property based on the name.
-     *
-     * @param key String the name of the property to remove
-     * @deprecated use {@link #removeCustomProperty(String)}
-     */
-    @Deprecated
-    public void removeExtendedProps(@NotNull String key) {
-        removeCustomProperty(key);
-    }
-
-    /**
-     * remove specific custom property where the name and value match.
-     *
-     * @param key   String the name of the property to remove
-     * @param value Object the object to remove
-     * @deprecated use {@link #removeCustomProperty(String, Object)}
-     */
-    @Deprecated
-    public void removeExtendedProps(@NotNull String key, @NotNull Object value) {
-        removeCustomProperty(key, value);
     }
 
     /**
@@ -474,7 +437,6 @@ public class Entry {
             customProperties.remove(Objects.requireNonNull(key), Objects.requireNonNull(value));
         }
     }
-
 
     /**
      * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry start.
@@ -575,14 +537,6 @@ public class Entry {
         Objects.requireNonNull(timezone, "timezone");
 
         setRecurringEndDate(timezone.convertToUTC(recurringEndDate));
-    }
-
-    /**
-     * @deprecated use {@link #getCustomProperties()}
-     */
-    @Deprecated
-    public Map<String, Object> getExtendedProps() {
-        return getCustomProperties();
     }
 
     /**
