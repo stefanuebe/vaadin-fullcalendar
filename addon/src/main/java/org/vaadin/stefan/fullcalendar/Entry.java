@@ -597,9 +597,9 @@ public class Entry {
     }
     
     /**
-     * Unassigns the given resources from this entry.
+     * Unassigns the given classNames from this entry.
      *
-     * @param resources resources
+     * @param String classNames
      * @throws NullPointerException when null is passed
      */
     public void unassignClassNames(@NotNull String... classNames) {
@@ -607,9 +607,9 @@ public class Entry {
     }
 
     /**
-     * Unassigns the given resources from this entry.
+     * Unassigns the given classNames from this entry.
      *
-     * @param resources resources
+     * @param String classNames
      * @throws NullPointerException when null is passed
      */
     public void unassignClassNames(@NotNull Collection<String> classNames) {
@@ -636,9 +636,9 @@ public class Entry {
     }
     
     /**
-     * Returns the amount of assigned resources.
+     * Returns the amount of assigned classNames.
      *
-     * @return resources
+     * @return int size of classNames
      */
     public int getClassNamesSize() {
         return classNames != null ? classNames.size() : 0;
