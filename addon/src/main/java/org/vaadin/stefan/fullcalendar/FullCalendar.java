@@ -982,6 +982,89 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
     
     /**
+     * Allow events’ durations to be editable through resizing.
+     * 
+     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setDurationEditable(boolean)}
+     * 
+     * @param Boolean editable
+     */
+    public void setEntryDurationEditable(boolean editable) {
+    	setOption(Option.ENTRY_DURATION_EDITABLE, editable);
+    }
+    
+    /**
+     * Returns the editable flag. By default true.
+     *
+     * @return Boolean editable
+     */
+    public boolean getEntryDurationEditable() {
+    	return (boolean) getOption(Option.ENTRY_DURATION_EDITABLE).orElse(true);
+    }
+
+    /**
+     * Whether the user can resize an event from its starting edge.
+     * 
+     * @param Boolean editable
+     */
+    public void setEntryResizableFromStart(boolean editable) {
+    	setOption(Option.ENTRY_RESIZABLE_FROM_START, editable);
+    }
+    
+    /**
+     * Returns the editable flag. By default false.
+     *
+     * @return Boolean editable
+     */
+    public boolean getEntryResizableFromStart() {
+    	return (boolean) getOption(Option.ENTRY_RESIZABLE_FROM_START).orElse(false);
+    }
+
+    /**
+     * Allow events’ start times to be editable through dragging.
+     * 
+     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setStartEditable(boolean)}
+     * 
+     * @param Boolean editable
+     */
+    public void setEntryStartEditable(boolean editable) {
+    	setOption(Option.ENTRY_START_EDITABLE, editable);
+    }
+    
+    /**
+     * Returns the editable flag. By default true.
+     *
+     * @return Boolean editable
+     */
+    public boolean getEntryStartEditable() {
+    	return (boolean) getOption(Option.ENTRY_START_EDITABLE).orElse(true);
+    }
+
+    /**
+     * Determines whether the events on the calendar can be modified.
+     * 
+     * This determines if the events can be dragged and resized. 
+     * Enables/disables both at the same time. 
+     * If you don’t want both, use the more specific {@link #setEntryStartEditable(boolean)} and {@link #setEntryDurationEditable(boolean)} instead.
+     * <br><br>
+     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setEditable(boolean)}.
+     * However, Background Events can not be dragged or resized.
+     * 
+     * @param Boolean editable
+     */
+    public void setEditable(boolean editable) {
+    	setOption(Option.EDITABLE, editable);
+    }
+    
+    /**
+     * Returns the editable flag. By default false.
+     *
+     * @return Boolean editable
+     */
+    public boolean getEditable() {
+    	return (boolean) getOption(Option.EDITABLE).orElse(false);
+    }
+
+    /**
      * Returns the weekends display status. By default true.
      *
      * @return weekends
@@ -1342,7 +1425,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     	HEADER_TOOLBAR("headerToolbar"),
     	FOOTER_TOOLBAR("footerToolbar"),
     	COLUMN_HEADER("columnHeader"),
-    	WEEK_NUMBERS_WITHIN_DAYS("weekNumbersWithinDays");
+    	WEEK_NUMBERS_WITHIN_DAYS("weekNumbersWithinDays"),
+    	ENTRY_DURATION_EDITABLE("eventDurationEditable"),
+    	ENTRY_RESIZABLE_FROM_START("eventResizableFromStart"),
+    	ENTRY_START_EDITABLE("eventStartEditable"),
+    	EDITABLE("editable");
 
         private final String optionKey;
 
