@@ -67,6 +67,11 @@ public class Entry {
     private boolean allDay;
 
     /**
+     * Determines which HTML classNames will be attached to the rendered event.
+     */
+    private Set<String> classNames;
+    
+    /**
      * Indicates if this entry is editable by the users. This value
      * is passed to the client side and interpreted there, but can also be used for server side checks.
      * <br><br>
@@ -152,7 +157,6 @@ public class Entry {
 
     // TODO
     // groupId
-    // className / classNames
 
     /**
      * The calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
@@ -208,6 +212,8 @@ public class Entry {
 
         jsonObject.put("description", JsonUtils.toJsonValue(getDescription()));
 
+        jsonObject.put("classNames", JsonUtils.toJsonValue(getClassNames()));
+
         JsonObject extObject = Json.createObject();
 
         Map<String, Object> customProperties = getCustomProperties();
@@ -243,6 +249,7 @@ public class Entry {
         JsonUtils.updateDateTime(object, "end", this::setEnd, getEndTimezone());
         JsonUtils.updateString(object, "color", this::setColor);
         JsonUtils.updateHashMap(object, "extendedProps", this::setCustomProperties);
+        JsonUtils.updateSetString(object, "classNames", this::setClassNames);
     }
 
     /**
@@ -580,10 +587,112 @@ public class Entry {
 
     /**
      * Returns an unmodifiable map of the custom properties of this instance.
-     * @return map
+     * @return Map
      */
     public Map<String, Object> getCustomProperties() {
         return customProperties != null ? Collections.unmodifiableMap(customProperties) : Collections.emptyMap();
+    }
+    
+    /**
+     * Assign an additional className to this entry. Already assigned classNames will be kept.
+     *
+     * @param String className
+     * @throws NullPointerException when null is passed
+     */
+    public void assignClassName(String className) {
+    	assignClassNames(Objects.requireNonNull(className));
+    }
+    
+    /**
+     * Assign additional classNames to this entry. Already assigned classNames will be kept.
+     *
+     * @param String className
+     * @throws NullPointerException when null is passed
+     */
+    public void assignClassNames(@NotNull String... classNames) {
+    	assignClassNames(Arrays.asList(classNames));
+    }
+    
+    /**
+     * Assign additional classNames to this entry. Already assigned classNames will be kept.
+     *
+     * @param String classNames
+     * @throws NullPointerException when null is passed
+     */
+    public void assignClassNames(@NotNull Collection<String> classNames) {
+        Objects.requireNonNull(classNames);
+        if (this.classNames == null) {
+            this.classNames = new LinkedHashSet<>(classNames);
+        } else {
+            this.classNames.addAll(classNames);
+        }
+    }
+    
+    /**
+     * Unassigns the given className from this entry.
+     *
+     * @param String className
+     * @throws NullPointerException when null is passed
+     */
+    public void unassignClassName(String className) {
+    	unassignClassNames(Objects.requireNonNull(className));
+    }
+    
+    /**
+     * Unassigns the given resources from this entry.
+     *
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    public void unassignClassNames(@NotNull String... classNames) {
+    	unassignClassNames(Arrays.asList(classNames));
+    }
+
+    /**
+     * Unassigns the given resources from this entry.
+     *
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    public void unassignClassNames(@NotNull Collection<String> classNames) {
+        if (this.classNames != null)
+            this.classNames.removeAll(classNames);
+    }
+    
+    /**
+     * Unassigns all classNames from this entry.
+     */
+    public void unassignAllResources() {
+        if (this.classNames != null) {
+            this.classNames.clear();
+            this.classNames = null;
+        }
+    }
+    
+    /**
+     * Returns an unmodifiable set of the class names of this instance.
+     * @return Set
+     */
+    public Set<String> getClassNames() {
+    	return classNames != null ? Collections.unmodifiableSet(classNames) : Collections.emptySet();
+    }
+    
+    /**
+     * Returns the amount of assigned resources.
+     *
+     * @return resources
+     */
+    public int getClassNamesSize() {
+        return classNames != null ? classNames.size() : 0;
+    }
+    
+    /**
+     * Returns, if the entry has any class name assigned.
+     *
+     * @return Boolean hasClassNames
+     */
+    public boolean hasClassNames() {
+    	return classNames != null && !classNames.isEmpty();
     }
 
     /**

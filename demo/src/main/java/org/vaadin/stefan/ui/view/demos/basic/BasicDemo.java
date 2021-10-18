@@ -1,6 +1,5 @@
 package org.vaadin.stefan.ui.view.demos.basic;
 
-import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -8,7 +7,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -36,8 +34,6 @@ public class BasicDemo extends VerticalLayout {
 	
 	private FullCalendar calendar;
     private FormLayout toolbar;
-    private String viewName;
-    private LocalDate intervalStart;
 
     public BasicDemo() {
     	initView();
@@ -98,8 +94,6 @@ public class BasicDemo extends VerticalLayout {
         toolbar.getElement().getStyle().set("margin-top", "0px");
         toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 6));
     }
-
-    private boolean first = true;
 
     private void createCalendar() {
         JsonObject initialOptions = Json.createObject();
