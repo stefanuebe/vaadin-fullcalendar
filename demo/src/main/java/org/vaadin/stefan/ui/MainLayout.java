@@ -75,7 +75,7 @@ public class MainLayout extends AppLayoutRouterLayout {
         Component appMenu = generateMenu();
 
         init(AppLayoutBuilder.get(LeftLayouts.LeftResponsiveHybrid.class)
-                .withTitle(generateTitle("FullCalendar for Vaadin Flow " + ADDON_VERSION))
+                .withTitle(generateTitle("FullCalendar " + ADDON_VERSION + " for Vaadin Flow"))
                 .withAppBar(appBar)
                 .withAppMenu(appMenu)
                 .build());
@@ -137,7 +137,7 @@ public class MainLayout extends AppLayoutRouterLayout {
           });
         toggleButton.setWidthFull();
         
-        Div footer = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.7.2. " +
+        Div footer = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.7.3. " +
                 "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
         
         footerLayout.addClassName("footer");
