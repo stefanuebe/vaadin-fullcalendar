@@ -23,6 +23,8 @@ import lombok.ToString;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 import static org.vaadin.stefan.fullcalendar.JsonUtils.parseDateTimeString;
 
@@ -63,6 +65,29 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
      */
     private final LocalDate end;
 
+    /**
+     * The current shown interval's start date.
+     */
+    private final Instant intervalStartUTC;
+
+    /**
+     * The current shown interval's end date.
+     */
+    private final Instant intervalEndUTC;
+
+    /**
+     * The first visible date. In month-view, this value is often before
+     * the 1st day of the month, because most months do not begin on the first
+     * day-of-week.
+     */
+    private final Instant startUTC;
+
+    /**
+     * The last visible date. In month-view, this value is often after
+     * the last day of the month, because most months do not end on the last day of the week
+     */
+    private final Instant endUTC;
+
 
     /**
      * Creates a new event using the given source and indicator whether the
@@ -75,15 +100,17 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
         super(source, fromClient);
 
         this.name = eventData.getString("name");
-        this.intervalStart = getLocalDate(eventData, "intervalStart", source);
-        this.intervalEnd = getLocalDate(eventData, "intervalEnd", source);
-        this.start = getLocalDate(eventData, "start", source);
-        this.end = getLocalDate(eventData, "end", source);
-    }
 
-    protected LocalDate getLocalDate(final JsonObject eventData, final String key, final FullCalendar source) {
-        final Instant instant = parseDateTimeString(eventData.getString(key), source.getTimezone());
-        return source.getTimezone().convertToLocalDate(instant);
-    }
+        Timezone timezoneClient = source.getTimezoneClient();
+        this.intervalStartUTC = parseDateTimeString(eventData.getString("intervalStart"), timezoneClient);
+        this.intervalEndUTC = parseDateTimeString(eventData.getString("intervalEnd"), timezoneClient);
+        this.startUTC = parseDateTimeString(eventData.getString("start"), timezoneClient);
+        this.endUTC = parseDateTimeString(eventData.getString("end"), timezoneClient);
 
+        Timezone timezoneServer = source.getTimezoneServer();
+        this.intervalStart = timezoneServer.convertToLocalDate(this.intervalStartUTC);
+        this.intervalEnd = timezoneServer.convertToLocalDate(this.intervalEndUTC);
+        this.start = timezoneServer.convertToLocalDate(this.startUTC);
+        this.end = timezoneServer.convertToLocalDate(this.endUTC);
+    }
 }

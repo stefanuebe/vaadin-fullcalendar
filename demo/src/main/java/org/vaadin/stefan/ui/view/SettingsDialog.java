@@ -46,7 +46,7 @@ public class SettingsDialog extends Dialog {
         timezoneComboBox.setValue(timezone != null ? timezone : Timezone.UTC);
         timezoneComboBox.addValueChangeListener(event -> {
             Timezone value = event.getValue();
-            calendar.setTimezone(value != null ? value : Timezone.UTC);
+            calendar.setTimezoneClient(value != null ? value : Timezone.UTC);
         });
         timezoneComboBox.setWidthFull();
         

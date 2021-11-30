@@ -192,7 +192,7 @@ public class EntryTest {
     @Test
     void testToJsonCustomTimezone() {
         FullCalendar calendar = new FullCalendar();
-        calendar.setTimezone(CUSTOM_TIMEZONE);
+        calendar.setTimezoneClient(CUSTOM_TIMEZONE);
         Entry entry = new Entry(DEFAULT_ID);
         entry.setTitle(DEFAULT_TITLE);
         entry.setStart(DEFAULT_START_UTC);

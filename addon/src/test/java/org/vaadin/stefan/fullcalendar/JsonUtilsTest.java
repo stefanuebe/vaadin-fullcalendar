@@ -207,22 +207,8 @@ public class JsonUtilsTest {
     }
 
     @Test
-    void testLocalDatePropertyUpdate() {
-        LocalDateTime now = LocalDateTime.now();
-
-        JsonObject object = Json.createObject();
-        object.put("date", now.toString());
-
-        Entry entry = new Entry();
-        JsonUtils.updateDateTime(object, "date", entry::setStart, Timezone.UTC);
-
-        Assertions.assertEquals(now, entry.getStart());
-
-    }
-
-    @Test
     void testLocalDateTimePropertyUpdate() {
-        LocalDate now = LocalDateTime.now().toLocalDate();
+        Instant now = Instant.now();
 
         JsonObject object = Json.createObject();
         object.put("date", now.toString());
@@ -230,7 +216,7 @@ public class JsonUtilsTest {
         Entry entry = new Entry();
         JsonUtils.updateDateTime(object, "date", entry::setStart, Timezone.UTC);
 
-        Assertions.assertEquals(now.atStartOfDay(), entry.getStart());
+        Assertions.assertEquals(now.atZone(entry.getStartTimezoneServer().getZoneId()).toLocalDateTime(), entry.getStart());
     }
 
     @Test

@@ -321,7 +321,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return entries
      */
     public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
-        Timezone timezone = getTimezone();
+        Timezone timezone = getTimezoneServer();
         return getEntries(filterStart == null ? null : timezone.convertToUTC(filterStart), filterEnd == null ? null : timezone.convertToUTC(filterEnd));
     }
 
@@ -355,7 +355,25 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public List<Entry> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
-        return getEntries(getTimezone().convertToUTC(date));
+        return getEntries(getTimezoneServer().convertToUTC(date));
+    }
+
+
+    /**
+     * Returns all entries registered in this instance which timespan crosses the given date time. The date time is converted
+     * to UTC before searching. The conversion is done with the calendars timezone.
+     * <br><br>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     *
+     * @param dateTime end point of filter timespan
+     * @return entries
+     * @throws NullPointerException when null is passed
+     */
+    public List<Entry> getEntries(@NotNull LocalDateTime dateTime) {
+        Objects.requireNonNull(dateTime);
+        return getEntries(getTimezoneServer().convertToUTC(dateTime));
     }
 
     /**
@@ -965,22 +983,50 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Returns the timezone set for this browser. By default UTC. If obtainable, you can read the timezone from
      * the browser.
      *
+     * @deprecated use {@link #getTimezoneClient()} instead
      * @return time zone
      */
+    @Deprecated
     public Timezone getTimezone() {
+        return getTimezoneClient();
+    }
+
+    /**
+     * @deprecated use {@link #setTimezoneClient(Timezone)} instead
+     */
+    @Deprecated
+    public void setTimezone(Timezone timezone) {
+        setTimezoneClient(timezone);
+    }
+
+    /**
+     * Returns the timezone set for this browser. By default UTC. If obtainable, you can read the timezone from
+     * the browser.
+     *
+     * @return time zone
+     */
+    public Timezone getTimezoneClient() {
     	return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
     }
 
-    public void setTimezone(Timezone timezone) {
+    public void setTimezoneClient(Timezone timezone) {
         Objects.requireNonNull(timezone);
 
-        Timezone oldTimezone = getTimezone();
+        Timezone oldTimezone = getTimezoneClient();
         if (!timezone.equals(oldTimezone)) {
         	setOption(Option.TIMEZONE, timezone.getClientSideValue(), timezone);
             updateEntries(getEntries());
         }
     }
-    
+
+    /**
+     * Returns the server side timezone.
+     * @return timezone
+     */
+    protected Timezone getTimezoneServer() {
+        return Timezone.getSystem();
+    }
+
     /**
      * Allow events’ durations to be editable through resizing.
      * 

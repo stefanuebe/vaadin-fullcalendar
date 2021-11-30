@@ -51,7 +51,7 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
         ResourceEntry entry = new ResourceEntry();
         
         entry.setTitle(title);
-        entry.setStart(now.withDayOfMonth(offset).atStartOfDay(), calendar.getTimezone());
+        entry.setStart(now.withDayOfMonth(offset).atStartOfDay(), calendar.getTimezoneClient());
         entry.setEnd(entry.getStartUTC().plus(1, ChronoUnit.DAYS));
         entry.setAllDay(true);
         entry.setColor("red");

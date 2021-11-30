@@ -36,7 +36,7 @@ public class DemoDialog extends Dialog {
     private final CheckboxGroup<DayOfWeek> fieldRDays;
 
     public DemoDialog(FullCalendar calendar, ResourceEntry entry, boolean newInstance) {
-        this.dialogEntry = DialogEntry.of(entry, calendar.getTimezone());
+        this.dialogEntry = DialogEntry.of(entry, calendar.getTimezoneClient());
 
         setCloseOnEsc(true);
         setCloseOnOutsideClick(true);
@@ -274,9 +274,9 @@ public class DemoDialog extends Dialog {
                 entry.setStart(start, timezone);
                 entry.setEnd(end, timezone);
 
-                entry.setRecurringStartDate(null);
+                entry.setRecurringStartDate((Instant) null);
                 entry.setRecurringStartTime(null);
-                entry.setRecurringEndDate(null);
+                entry.setRecurringEndDate((Instant) null);
                 entry.setRecurringEndTime(null);
                 entry.setRecurringDaysOfWeeks(null);
             }

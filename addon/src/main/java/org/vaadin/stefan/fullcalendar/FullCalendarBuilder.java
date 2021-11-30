@@ -148,7 +148,7 @@ public class FullCalendarBuilder {
         }
 
         if (initialOptions == null && autoBrowserTimezone) {
-            calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
+            calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezoneClient(event.getTimezone()));
         }
 
         return (T) calendar;
