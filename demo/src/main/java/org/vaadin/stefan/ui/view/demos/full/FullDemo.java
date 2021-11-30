@@ -24,8 +24,10 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -70,8 +72,11 @@ public class FullDemo extends VerticalLayout {
     private Button buttonDatePicker;
     private FormLayout toolbar;
     
-    private Timezone timezone;
-
+    private Timezone browserTimezone;
+    private Span browserTimezoneSpan = new Span("");
+    private Timezone currentTimezone;
+    private Span currentTimezoneSpan = new Span("");
+    
     public FullDemo() {
     	initView();
     	
@@ -182,14 +187,19 @@ public class FullDemo extends VerticalLayout {
         addThousand.setWidthFull();
 
         Button settings = new Button("Settings", VaadinIcon.COG.create(), event -> {
-        	SettingsDialog sd = new SettingsDialog(calendar, timezone);
+        	SettingsDialog sd = new SettingsDialog(calendar, browserTimezone);
         	sd.open();
         });
         
         commandLayout.add(addThousand, settings);
         commandLayout.setWidthFull();
+        
+    	FormLayout timezonelLayout = new FormLayout();
+    	timezonelLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
+    	timezonelLayout.add(browserTimezoneSpan);
+    	timezonelLayout.addFormItem(browserTimezoneSpan, "Browser-Timezone");
 
-        toolbar.add(temporalLayout, comboBoxView, removeLayout, commandLayout);
+        toolbar.add(temporalLayout, comboBoxView, removeLayout, commandLayout, timezonelLayout);
     }
 
     private void createCalendarInstance() {
@@ -287,7 +297,8 @@ public class FullDemo extends VerticalLayout {
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             System.out.println("Use browser's timezone: " + event.getTimezone().toString());
-            timezone = event.getTimezone();
+            browserTimezone = event.getTimezone();
+            browserTimezoneSpan.setText(browserTimezone.getZoneId().toString());
         });
 
         calendar.setEntryDidMountCallback(
@@ -302,7 +313,7 @@ public class FullDemo extends VerticalLayout {
         		+ "}");
     }
 
-    private void createTestEntries() {
+	private void createTestEntries() {
         LocalDate now = LocalDate.now();
 
         Resource meetingRoomRed = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Red", "#ff0000");

@@ -17,7 +17,7 @@ import com.vaadin.flow.component.notification.Notification;
 public class SettingsDialog extends Dialog {
 	private static final long serialVersionUID = 1L;
 	
-	public SettingsDialog(FullCalendar calendar, Timezone timezone) {
+	public SettingsDialog(FullCalendar calendar, Timezone browserTimezone) {
         FormLayout layout = new FormLayout();
         
         Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
@@ -30,7 +30,7 @@ public class SettingsDialog extends Dialog {
         layout.add(toogleFixedWeekCount);
         
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
-        ComboBox<Locale> comboBoxLocales = new ComboBox<>();
+        ComboBox<Locale> comboBoxLocales = new ComboBox<>("FullCalendar's locale");
         comboBoxLocales.setItems(items);
         comboBoxLocales.setValue(CalendarLocale.getDefault());
         comboBoxLocales.addValueChangeListener(event -> calendar.setLocale(event.getValue()));
@@ -40,10 +40,12 @@ public class SettingsDialog extends Dialog {
         
         layout.add(comboBoxLocales);
 
-        ComboBox<Timezone> timezoneComboBox = new ComboBox<>("");
+        
+        Timezone currentTimezone = calendar.getTimezone();
+        ComboBox<Timezone> timezoneComboBox = new ComboBox<>("FullCalendar's Timezone");
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
         timezoneComboBox.setItems(Timezone.getAvailableZones());
-        timezoneComboBox.setValue(timezone != null ? timezone : Timezone.UTC);
+        timezoneComboBox.setValue(currentTimezone);
         timezoneComboBox.addValueChangeListener(event -> {
             Timezone value = event.getValue();
             calendar.setTimezone(value != null ? value : Timezone.UTC);
