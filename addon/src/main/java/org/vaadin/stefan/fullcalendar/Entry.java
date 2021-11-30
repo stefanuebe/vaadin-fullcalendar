@@ -299,7 +299,7 @@ public class Entry {
      * @param start start
      */
     public void setStart(LocalDateTime start) {
-        setStart(start, getStartTimezone());
+        setStart(start, getStartServerTimezone());
     }
 
     /**
@@ -349,7 +349,7 @@ public class Entry {
      * @param end end
      */
     public void setEnd(LocalDateTime end) {
-        setEnd(end, getEndTimezone());
+        setEnd(end, getEndServerTimezone());
     }
 
     /**
@@ -443,7 +443,7 @@ public class Entry {
     }
 
     /**
-     * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry start.
+     * Returns the timezone which is currently set to the calendar used for automatic conversion between Instant and LocalDateTime for the entry start.
      *
      * @return timezone
      */
@@ -452,12 +452,30 @@ public class Entry {
     }
 
     /**
-     * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry end.
+     * Returns the timezone which is currently set to the calendar used for automatic conversion between Instant and LocalDateTime for the entry end.
      *
      * @return timezone
      */
     public Timezone getEndTimezone() {
-        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+    	return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+    }
+    
+    /**
+     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry start.
+     *
+     * @return timezone
+     */
+    public Timezone getStartServerTimezone() {
+        return new Timezone( ZoneId.systemDefault() );
+    }
+
+    /**
+     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry end.
+     *
+     * @return timezone
+     */
+    public Timezone getEndServerTimezone() {
+    	return new Timezone( ZoneId.systemDefault() );
     }
 
     /**
