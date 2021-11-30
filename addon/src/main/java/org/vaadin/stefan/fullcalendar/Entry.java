@@ -448,7 +448,7 @@ public class Entry {
      * @return timezone
      */
     public Timezone getStartTimezone() {
-        return new Timezone( ZoneId.systemDefault() );
+        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
     }
 
     /**
@@ -457,7 +457,7 @@ public class Entry {
      * @return timezone
      */
     public Timezone getEndTimezone() {
-    	return new Timezone( ZoneId.systemDefault() );
+        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
     }
 
     /**
