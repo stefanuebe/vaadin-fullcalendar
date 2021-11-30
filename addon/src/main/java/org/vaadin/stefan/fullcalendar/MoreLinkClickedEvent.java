@@ -22,6 +22,7 @@ import elemental.json.JsonArray;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 /**
@@ -37,6 +38,7 @@ public class MoreLinkClickedEvent extends MultipleEntriesDataEvent {
      * The clicked date.
      */
     private final LocalDate clickedDate;
+    private final Instant clickedDateUTC;
 
     /**
      * New instance. Awaits the clicked date as iso string (e.g. "2018-10-23") and an array of events, that are
@@ -51,7 +53,8 @@ public class MoreLinkClickedEvent extends MultipleEntriesDataEvent {
                                 @EventData("event.detail.allSegs") JsonArray coveredItems) {
         super(source, fromClient, coveredItems);
 
-        clickedDate = source.getTimezone().convertToLocalDate(JsonUtils.parseDateTimeString(date, source.getTimezone()));
+        clickedDateUTC = JsonUtils.parseDateTimeString(date, source.getTimezoneClient());
+        clickedDate = source.getTimezoneServer().convertToLocalDate(clickedDateUTC);
     }
 
 }

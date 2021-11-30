@@ -87,9 +87,11 @@ public class ResourceEntryTest {
     private static Entry createResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
         ResourceEntry entry = new ResourceEntry(id);
 
+        Timezone system = Timezone.getSystem();
+
         entry.setTitle(title);
-        entry.setStart(start != null ? start.toInstant(ZoneOffset.UTC) : null);
-        entry.setEnd(end != null ? end.toInstant(ZoneOffset.UTC) : null);
+        entry.setStart(start != null ? system.convertToUTC(start) : null);
+        entry.setEnd(end != null ? system.convertToUTC(end) : null);
         entry.setAllDay(allDay);
         entry.setEditable(editable);
         entry.setDescription(description);
@@ -132,9 +134,17 @@ public class ResourceEntryTest {
         Assertions.assertEquals(resources.stream().map(Resource::getId).collect(Collectors.toSet()), jsonResourceIds);
     }
 
+    private FullCalendarScheduler createTestCalendar() {
+        FullCalendarScheduler scheduler = new FullCalendarScheduler();
+        scheduler.setTimezoneClient(Timezone.getSystem());
+        return scheduler;
+    }
+
     @Test
     void testUpdateResourceEntryBasicsFromJson() {
-        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        FullCalendarScheduler calendar = createTestCalendar();
+        Timezone timezoneClient = calendar.getTimezoneClient();
+
         Resource resource1 = new Resource("1", "1", null);
         Resource resource2 = new Resource("2", "2", null);
         Resource resource3 = new Resource("3", "3", null);
@@ -151,8 +161,8 @@ public class ResourceEntryTest {
 
         // test basic data
         jsonObject.put("title", DEFAULT_TITLE);
-        jsonObject.put("start", DEFAULT_START.toString());
-        jsonObject.put("end", DEFAULT_END.toString());
+        jsonObject.put("start", timezoneClient.convertToUTC(DEFAULT_START).toString());
+        jsonObject.put("end", timezoneClient.convertToUTC(DEFAULT_END).toString());
         jsonObject.put("allDay", false);
         jsonObject.put("editable", true);
         jsonObject.put("color", DEFAULT_COLOR);
@@ -173,7 +183,7 @@ public class ResourceEntryTest {
 
     @Test
     void testAssignResourceEntryResourcesFromJson() {
-        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        FullCalendarScheduler calendar = createTestCalendar();
         Resource resource1 = new Resource("1", "1", null);
         Resource resource2 = new Resource("2", "2", null);
         Resource resource3 = new Resource("3", "3", null);
@@ -193,7 +203,7 @@ public class ResourceEntryTest {
 
     @Test
     void testUnassignResourceEntryResourcesFromJson() {
-        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        FullCalendarScheduler calendar = createTestCalendar();
         Resource resource1 = new Resource("1", "1", null);
         Resource resource2 = new Resource("2", "2", null);
         calendar.addResources(resource1, resource2);
@@ -212,7 +222,7 @@ public class ResourceEntryTest {
 
     @Test
     void testReassignResourceEntryResourcesFromJson() {
-        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        FullCalendarScheduler calendar = createTestCalendar();
         Resource resource1 = new Resource("1", "1", null);
         Resource resource2 = new Resource("2", "2", null);
         Resource resource3 = new Resource("3", "3", null);

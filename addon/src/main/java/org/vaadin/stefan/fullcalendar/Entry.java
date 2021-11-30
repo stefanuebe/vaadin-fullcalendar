@@ -200,8 +200,8 @@ public class Entry {
         boolean fullDayEvent = isAllDay();
         jsonObject.put("allDay", JsonUtils.toJsonValue(fullDayEvent));
 
-        jsonObject.put("start", JsonUtils.toJsonValue(getStartUTC() == null ? null : getStartTimezone().formatWithZoneId(getStartUTC())));
-        jsonObject.put("end", JsonUtils.toJsonValue(getEndUTC() == null ? null : getEndTimezone().formatWithZoneId(getEndUTC())));
+        jsonObject.put("start", JsonUtils.toJsonValue(getStartUTC() == null ? null : getStartTimezoneClient().formatWithZoneId(getStartUTC())));
+        jsonObject.put("end", JsonUtils.toJsonValue(getEndUTC() == null ? null : getEndTimezoneClient().formatWithZoneId(getEndUTC())));
         jsonObject.put("editable", isEditable());
         Optional.ofNullable(getColor()).ifPresent(s -> jsonObject.put("color", s));
         jsonObject.put("display", JsonUtils.toJsonValue(getRenderingMode()));
@@ -209,8 +209,8 @@ public class Entry {
         jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(recurringDaysOfWeeks == null || recurringDaysOfWeeks.isEmpty() ? null : recurringDaysOfWeeks.stream().map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())));
         jsonObject.put("startTime", JsonUtils.toJsonValue(recurringStartTime));
         jsonObject.put("endTime", JsonUtils.toJsonValue(recurringEndTime));
-        jsonObject.put("startRecur", JsonUtils.toJsonValue(recurringStartDate == null ? null : getStartTimezone().formatWithZoneId(recurringStartDate)));
-        jsonObject.put("endRecur", JsonUtils.toJsonValue(recurringEndDate == null ? null : getEndTimezone().formatWithZoneId(recurringEndDate)));
+        jsonObject.put("startRecur", JsonUtils.toJsonValue(recurringStartDate == null ? null : getStartTimezoneClient().formatWithZoneId(recurringStartDate)));
+        jsonObject.put("endRecur", JsonUtils.toJsonValue(recurringEndDate == null ? null : getEndTimezoneClient().formatWithZoneId(recurringEndDate)));
 
         jsonObject.put("description", JsonUtils.toJsonValue(getDescription()));
 
@@ -248,8 +248,8 @@ public class Entry {
         JsonUtils.updateString(object, "groupId", this::setGroupId);
         JsonUtils.updateBoolean(object, "editable", this::setEditable);
         JsonUtils.updateBoolean(object, "allDay", this::setAllDay);
-        JsonUtils.updateDateTime(object, "start", this::setStart, getStartTimezone());
-        JsonUtils.updateDateTime(object, "end", this::setEnd, getEndTimezone());
+        JsonUtils.updateDateTime(object, "start", this::setStart, getStartTimezoneClient());
+        JsonUtils.updateDateTime(object, "end", this::setEnd, getEndTimezoneClient());
         JsonUtils.updateString(object, "color", this::setColor);
         JsonUtils.updateHashMap(object, "extendedProps", this::setCustomProperties);
         JsonUtils.updateSetString(object, "classNames", this::setClassNames);
@@ -274,13 +274,13 @@ public class Entry {
     }
 
     /**
-     * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezone()} (by
+     * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezoneServer()} (by
      * default the calendars timezone or UTC).
      *
      * @return start as local date time
      */
     public LocalDateTime getStart() {
-        return getStart(getStartTimezone());
+        return getStart(getStartTimezoneServer());
     }
 
     /**
@@ -294,12 +294,13 @@ public class Entry {
 
     /**
      * Sets the given local date time as start. It is converted to an instant by using the
-     * calendars timezone. If no calendar has been set yet, <b>UTC</b> is taken.
+     * calendars server side timezone. If no calendar has been set yet, the server's default timezone is taken.
      *
+     * @see #getStartTimezoneServer()
      * @param start start
      */
     public void setStart(LocalDateTime start) {
-        setStart(start, getStartTimezone());
+        setStart(start, getStartTimezoneServer());
     }
 
     /**
@@ -330,7 +331,7 @@ public class Entry {
      * @return start as local date time
      */
     public LocalDateTime getEnd() {
-        return getEnd(getEndTimezone());
+        return getEnd(getEndTimezoneServer());
     }
 
     /**
@@ -349,7 +350,7 @@ public class Entry {
      * @param end end
      */
     public void setEnd(LocalDateTime end) {
-        setEnd(end, getEndTimezone());
+        setEnd(end, getEndTimezoneServer());
     }
 
     /**
@@ -443,21 +444,72 @@ public class Entry {
     }
 
     /**
-     * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry start.
-     *
+     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
+     * to the client side timezone. By default UTC.
+     * @deprecated use {@link #getStartTimezoneClient()}() or {@link #getEndTimezoneClient()} instead depending
+     * on your use case
      * @return timezone
      */
+    @Deprecated
     public Timezone getStartTimezone() {
-        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+        return getStartTimezoneClient();
     }
 
     /**
-     * Returns the timezone used for automatic conversion between Instant and LocalDateTime for the entry end.
+     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
+     * to the client side timezone. By default UTC.
      *
      * @return timezone
      */
+    public Timezone getStartTimezoneClient() {
+        return calendar != null ? calendar.getTimezoneClient() : Timezone.UTC;
+    }
+
+
+    /**
+     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
+     * to the client side timezone. By default UTC.
+     *
+     * @deprecated use {@link #getEndTimezoneClient()} or {@link #getEndTimezoneServer()} instead depending on your
+     * use case
+     * @return timezone
+     */
+    @Deprecated
     public Timezone getEndTimezone() {
-        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+        return getEndTimezoneClient();
+    }
+
+     /**
+      * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
+      * to the client side timezone. By default UTC.
+     *
+     * @return timezone
+     */
+    public Timezone getEndTimezoneClient() {
+    	return calendar != null ? calendar.getTimezoneClient() : Timezone.UTC;
+    }
+
+    /**
+     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry start
+     * using {@link #setStart(LocalDateTime)} or {@link #getStart()}.
+     * <p></p>
+     * By default the server timezone.
+     *
+     * @return timezone
+     */
+    public Timezone getStartTimezoneServer() {
+        return Timezone.getSystem();
+    }
+
+    /**
+     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry start
+     * using {@link #setEnd(LocalDateTime)} or {@link #getEnd()}.
+     * <p></p>
+     * By default the server timezone.
+     * @return timezone
+     */
+    public Timezone getEndTimezoneServer() {
+        return Timezone.getSystem();
     }
 
     /**
@@ -502,6 +554,19 @@ public class Entry {
     }
 
     /**
+     * The start date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+     * It is converted to an Instant by using the server timezone.
+     * <br><br>
+     * Null is not allowed here, use {@link #setRecurringStartDate(Instant)} to reset the value.
+     *
+     * @param recurringStartDate start date or recurrence
+     * @throws NullPointerException when null is passed
+     */
+    public void setRecurringStartDate(@NotNull LocalDate recurringStartDate) {
+        setRecurringStartDate(recurringStartDate, getStartTimezoneServer());
+    }
+
+    /**
      * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
      * is recurring).
      *
@@ -509,6 +574,24 @@ public class Entry {
      */
     public Instant getRecurringEndDateUTC() {
         return recurringEndDate;
+    }
+
+    /**
+     * The start date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the future.
+     *
+     * @param recurringStartDate start date or recurrence
+     */
+    public void setRecurringStartDate(Instant recurringStartDate) {
+        this.recurringStartDate = recurringStartDate;
+    }
+
+    /**
+     * The end date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+     *
+     * @param recurringEndDate end date or recurrence
+     */
+    public void setRecurringEndDate(Instant recurringEndDate) {
+        this.recurringEndDate = recurringEndDate;
     }
 
     /**
@@ -544,6 +627,19 @@ public class Entry {
     }
 
     /**
+     * The end date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+     * It is converted to an Instant by using the server timezone.
+     * <br><br>
+     * Null is not allowed here, use {@link #setRecurringEndDate(Instant)} to reset the value.
+     *
+     * @param recurringEndDate end date or recurrence
+     * @throws NullPointerException when null is passed
+     */
+    public void setRecurringEndDate(@NotNull LocalDate recurringEndDate) {
+        setRecurringEndDate(recurringEndDate, getEndTimezoneServer());
+    }
+
+    /**
      * Returns an unmodifiable map of the custom properties of this instance.
      * @return Map
      */
@@ -554,7 +650,7 @@ public class Entry {
     /**
      * Assign an additional className to this entry. Already assigned classNames will be kept.
      *
-     * @param String className
+     * @param className class name
      * @throws NullPointerException when null is passed
      */
     public void assignClassName(String className) {
@@ -564,7 +660,7 @@ public class Entry {
     /**
      * Assign additional classNames to this entry. Already assigned classNames will be kept.
      *
-     * @param String className
+     * @param classNames class names
      * @throws NullPointerException when null is passed
      */
     public void assignClassNames(@NotNull String... classNames) {
@@ -574,7 +670,7 @@ public class Entry {
     /**
      * Assign additional classNames to this entry. Already assigned classNames will be kept.
      *
-     * @param String classNames
+     * @param classNames class names
      * @throws NullPointerException when null is passed
      */
     public void assignClassNames(@NotNull Collection<String> classNames) {
@@ -589,7 +685,7 @@ public class Entry {
     /**
      * Unassigns the given className from this entry.
      *
-     * @param String className
+     * @param className class name
      * @throws NullPointerException when null is passed
      */
     public void unassignClassName(String className) {
@@ -599,7 +695,7 @@ public class Entry {
     /**
      * Unassigns the given classNames from this entry.
      *
-     * @param String classNames
+     * @param classNames class names
      * @throws NullPointerException when null is passed
      */
     public void unassignClassNames(@NotNull String... classNames) {
@@ -609,7 +705,7 @@ public class Entry {
     /**
      * Unassigns the given classNames from this entry.
      *
-     * @param String classNames
+     * @param classNames class names
      * @throws NullPointerException when null is passed
      */
     public void unassignClassNames(@NotNull Collection<String> classNames) {
