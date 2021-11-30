@@ -303,8 +303,8 @@ public class FullCalendarTest {
     	Entry entry = new Entry(id);
     	
     	entry.setTitle(title);
-        entry.setStart(start);
-        entry.setEnd(end);
+        entry.setStart(start, Timezone.UTC);
+        entry.setEnd(end, Timezone.UTC);
         entry.setAllDay(allDay);
         entry.setEditable(editable);
         entry.setColor(color);
