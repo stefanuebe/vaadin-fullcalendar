@@ -1433,6 +1433,27 @@ export class FullCalendar extends PolymerElement {
                 // can not guarantee, that the calendar container provides the correct height, since it might not
                 // be rendered yet. This method call will upate the size correctly.
                 this._calendar.updateSize();
+
+                // WIP, not for production use yet
+                // let selector = "#full-calendar-css";
+                // const lightStyle = (this.getRootNode().querySelector(selector) || document.querySelector(selector);
+                // if (lightStyle) {
+                //     let node;
+                //     if (lightStyle.tagName === "DOM-MODULE") {
+                //         let style = lightStyle.children?.[0]?.content?.children?.[0]
+                //         if (style?.tagName === "STYLE") {
+                //             node = style;
+                //         }
+                //     } else if (lightStyle.tagName === "STYLE") {
+                //         node = lightStyle;
+                //     }
+                //
+                //     if (node) {
+                //         this.shadowRoot.appendChild(node.cloneNode(true));
+                //     }
+                // }
+
+
             });
         }
     }
@@ -1445,7 +1466,7 @@ export class FullCalendar extends PolymerElement {
      * @param date date to go to
      * @private
      */
-    _restoreStateFromServer(options = {}, entries = [], view , date) {
+    _restoreStateFromServer(options = {}, entries = [], view, date) {
         const calendar = this.getCalendar();
         calendar.batchRendering(() => {
             this.setOptions(options);
@@ -1682,7 +1703,7 @@ export class FullCalendar extends PolymerElement {
      * @param value value to check
      * @private
      */
-    _checkAndDispatchEventOnTimezoneChange(calendar, key, value ) {
+    _checkAndDispatchEventOnTimezoneChange(calendar, key, value) {
         if (key === "timezone" && calendar.getOption("timezone") !== value) {
             this.dispatchEvent(new CustomEvent("timezone-changed", {
                 detail: {
@@ -1772,10 +1793,10 @@ export class FullCalendar extends PolymerElement {
                         eventToUpdate.remove();
                         this.addEvents([obj]);
                     } else {
-                    	eventToUpdate.setProp('title', obj['title']);
-                    	eventToUpdate.setProp('color', obj['color']);
-                    	eventToUpdate.setProp('classNames', obj['classNames']);
-                    	eventToUpdate.setExtendedProp('description', obj['description'])
+                        eventToUpdate.setProp('title', obj['title']);
+                        eventToUpdate.setProp('color', obj['color']);
+                        eventToUpdate.setProp('classNames', obj['classNames']);
+                        eventToUpdate.setExtendedProp('description', obj['description'])
                         let start = obj['start'] != null ? calendar.formatIso(obj['start'], obj['allDay']) : null;
                         let end = obj['end'] != null ? calendar.formatIso(obj['end'], obj['allDay']) : null;
 
