@@ -3,8 +3,11 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import elemental.json.JsonObject;
+import elemental.json.JsonString;
+import elemental.json.JsonValue;
 import lombok.ToString;
 
+import java.util.Collections;
 import java.util.Optional;
 
 @DomEvent("eventDrop")
@@ -38,6 +41,38 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
         } else {
             this.newResource = null;
         }
+    }
+
+    /**
+     * Applies the changes on the entry including updating a resource change.
+     * @return this event's entry instance
+     */
+    @Override
+    public Entry applyChangesOnEntry() {
+        ResourceEntry entry = (ResourceEntry) super.applyChangesOnEntry();
+        JsonObject object = getJsonObject();
+
+        updateResourcesFromEventResourceDelta(entry, object);
+
+        return entry;
+    }
+
+    public static void updateResourcesFromEventResourceDelta(ResourceEntry entry, JsonObject object) {
+        entry.getCalendar().map(c -> (Scheduler) c).ifPresent(calendar -> {
+            Optional.<JsonValue>ofNullable(object.get("oldResource"))
+                    .filter(o -> o instanceof JsonString)
+                    .map(JsonValue::asString)
+                    .flatMap(calendar::getResourceById)
+                    .map(Collections::singleton)
+                    .ifPresent(entry::unassignResources);
+
+            Optional.<JsonValue>ofNullable(object.get("newResource"))
+                    .filter(o -> o instanceof JsonString)
+                    .map(JsonValue::asString)
+                    .flatMap(calendar::getResourceById)
+                    .map(Collections::singleton)
+                    .ifPresent(entry::assignResources);
+        });
     }
 
     /**

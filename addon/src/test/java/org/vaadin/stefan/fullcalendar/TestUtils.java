@@ -1,12 +1,17 @@
 package org.vaadin.stefan.fullcalendar;
 
+import elemental.json.JsonBoolean;
 import elemental.json.JsonObject;
+import elemental.json.JsonString;
 import elemental.json.JsonValue;
 import org.junit.jupiter.api.Assertions;
 
-public class TestUtils {
+import javax.validation.constraints.NotNull;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.function.Consumer;
 
-    private static boolean inited = false;
+public class TestUtils {
 
     /**
      * Inits the vaadin service and mocks it to find your web components under "frontend://bower_components/XYZ" with
@@ -60,6 +65,61 @@ public class TestUtils {
     public static void assertJsonMissingKey(JsonObject object, String key) {
         if (object.hasKey(key)) {
             Assertions.fail("Expected json object to not have key '" + key + "'");
+        }
+    }
+
+    /**
+     * Reads the json property by key and tries to apply it as a string.
+     *
+     * @param object json object
+     * @param key    json property key
+     * @param setter setter to apply value
+     * @throws NullPointerException when null is passed for not null parameters
+     */
+    public static void updateString(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<String> setter) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        if (object.get(key) instanceof JsonString) {
+            setter.accept(object.getString(key));
+        }
+    }
+
+    /**
+     * Reads the json property by key and tries to apply it as a boolean.
+     *
+     * @param object json object
+     * @param key    json property key
+     * @param setter setter to apply value
+     * @throws NullPointerException when null is passed for not null parameters
+     */
+    public static void updateBoolean(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Boolean> setter) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        if (object.get(key) instanceof JsonBoolean) {
+            setter.accept(object.getBoolean(key));
+        }
+    }
+
+    /**
+     * Reads the json property by key and tries to apply it as a temporal. Might use the timezone, if conversion to UTC is needed.
+     *
+     * @param object   json object
+     * @param key      json property key
+     * @param setter   setter to apply value
+     * @param timezone timezone
+     * @throws NullPointerException when null is passed for not null parameters
+     */
+    public static void updateDateTime(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Instant> setter, @NotNull Timezone timezone) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        Objects.requireNonNull(timezone, "timezone");
+        if (object.get(key) instanceof JsonString) {
+            Instant dateTime = JsonUtils.parseDateTimeString(object.getString(key), timezone);
+
+            setter.accept(dateTime);
         }
     }
 }
