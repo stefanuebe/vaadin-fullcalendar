@@ -104,6 +104,11 @@ public class DemoDialog extends Dialog {
 
         Button buttonSave = new Button("Save", e -> {
             if (binder.validate().isOk()) {
+                // to prevent accidentally "disappearing" days
+                if (dialogEntry.isAllDay() && dialogEntry.getStart().toLocalDate().equals(dialogEntry.getEnd().toLocalDate())) {
+                    dialogEntry.setEnd(dialogEntry.getEnd().plusDays(1));
+                }
+
                 if (newInstance) {
                     calendar.addEntry(dialogEntry.updateEntry());
                 } else {
@@ -237,8 +242,11 @@ public class DemoDialog extends Dialog {
             if (recurring) {
                 dialogEntry.setRecurringDays(entry.getRecurringDaysOfWeeks());
 
-                dialogEntry.setStart(entry.getRecurringStartDate(timezone).atTime(entry.getRecurringStartTime()));
-                dialogEntry.setEnd(entry.getRecurringEndDate(timezone).atTime(entry.getRecurringEndTime()));
+                LocalDate startDate = entry.getRecurringStartDate(timezone);
+                LocalDate endDate = entry.getRecurringEndDate(timezone);
+
+                dialogEntry.setStart(entry.isAllDay() ? startDate.atStartOfDay() : startDate.atTime(entry.getRecurringStartTime()));
+                dialogEntry.setEnd(entry.isAllDay() ? endDate.atStartOfDay().plusDays(1) : endDate.atTime(entry.getRecurringEndTime()));
             } else {
                 dialogEntry.setStart(entry.getStart(timezone));
                 dialogEntry.setEnd(entry.getEnd(timezone));
@@ -257,7 +265,6 @@ public class DemoDialog extends Dialog {
             entry.setColor(color);
             entry.setDescription(description);
             entry.setAllDay(allDay);
-            entry.setRecurring(recurring);
 
             if (recurring) {
                 entry.setRecurringDaysOfWeeks(getRecurringDays());

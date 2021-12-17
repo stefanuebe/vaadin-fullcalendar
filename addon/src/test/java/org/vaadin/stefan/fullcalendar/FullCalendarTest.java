@@ -601,10 +601,9 @@ public class FullCalendarTest {
         entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", ref, filterEnd.minusNanos(1), false, true, null, null));
         entriesMatching.add(createEntry(null, "M: Inside of filter timespan", ref.plus(29, ChronoUnit.MINUTES), filterEnd.plus(31, ChronoUnit.MINUTES), false, true, null, null));
 
-        entriesNotMatching.forEach(calendar::addEntry);
-        entriesMatching.forEach(calendar::addEntry);
+        calendar.addEntries(entriesNotMatching);
+        calendar.addEntries(entriesMatching);
 
-        Timezone timezoneServer = calendar.getTimezoneServer();
         List<Entry> entriesFound = new ArrayList<>(calendar.getEntries(ref));
 
         // sort so that we have matching lists
@@ -771,7 +770,7 @@ public class FullCalendarTest {
     @Test
     void testTimeslotsSelectedEvent() throws Exception {
         FullCalendar calendar = createTestCalendar();
-        
+
         Timezone timezoneClient = calendar.getTimezoneClient();
         Timezone timezoneServer = calendar.getTimezoneServer();
 

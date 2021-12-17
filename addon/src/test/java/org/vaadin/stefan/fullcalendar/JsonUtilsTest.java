@@ -189,7 +189,7 @@ public class JsonUtilsTest {
         object.put("title", "test");
 
         Entry entry = new Entry();
-        JsonUtils.updateString(object, "title", entry::setTitle);
+        TestUtils.updateString(object, "title", entry::setTitle);
 
         Assertions.assertEquals("test", entry.getTitle() );
     }
@@ -200,23 +200,36 @@ public class JsonUtilsTest {
         object.put("allDay", true);
 
         Entry entry = new Entry();
-        JsonUtils.updateBoolean(object, "allDay", entry::setAllDay);
+        TestUtils.updateBoolean(object, "allDay", entry::setAllDay);
 
         Assertions.assertEquals(true, entry.isAllDay() );
 
     }
 
     @Test
-    void testLocalDateTimePropertyUpdate() {
-        Instant now = Instant.now();
+    void testLocalDatePropertyUpdate() {
+        LocalDateTime now = LocalDateTime.now();
 
         JsonObject object = Json.createObject();
         object.put("date", now.toString());
 
         Entry entry = new Entry();
-        JsonUtils.updateDateTime(object, "date", entry::setStart, Timezone.UTC);
+        TestUtils.updateDateTime(object, "date", entry::setStartUTC, Timezone.getSystem());
 
-        Assertions.assertEquals(now.atZone(entry.getStartTimezoneServer().getZoneId()).toLocalDateTime(), entry.getStart());
+        Assertions.assertEquals(now, entry.getStart());
+    }
+
+    @Test
+    void testLocalDateTimePropertyUpdate() {
+        LocalDate now = LocalDateTime.now().toLocalDate();
+
+        JsonObject object = Json.createObject();
+        object.put("date", now.toString());
+
+        Entry entry = new Entry();
+        TestUtils.updateDateTime(object, "date", entry::setStartUTC, Timezone.getSystem());
+
+        Assertions.assertEquals(now.atStartOfDay(), entry.getStart());
     }
 
     @Test

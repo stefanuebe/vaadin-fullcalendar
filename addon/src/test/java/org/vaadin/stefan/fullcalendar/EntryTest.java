@@ -1,36 +1,41 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.Json;
-import elemental.json.JsonBoolean;
-import elemental.json.JsonNull;
 import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+
+import static org.vaadin.stefan.fullcalendar.Entry.*;
 
 public class EntryTest {
 
-    public static final LocalDateTime DEFAULT_START = LocalDate.of(2000, 1, 1).atStartOfDay();
-    public static final Instant DEFAULT_START_UTC = DEFAULT_START.toInstant(ZoneOffset.UTC);
-    public static final LocalDateTime DEFAULT_END = DEFAULT_START.plusDays(1);
-    public static final Instant DEFAULT_END_UTC = DEFAULT_END.toInstant(ZoneOffset.UTC);
+    public static final Instant DEFAULT_START_UTC = LocalDate.of(2000, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
+    public static final Instant DEFAULT_END_UTC = LocalDate.of(2000, 1, 1).atStartOfDay().plusDays(1).toInstant(ZoneOffset.UTC);
 
     public static final String DEFAULT_STRING = "test";
     public static final String DEFAULT_ID = DEFAULT_STRING + 1;
     public static final String DEFAULT_TITLE = DEFAULT_STRING + 2;
     public static final String DEFAULT_COLOR = DEFAULT_STRING + 3;
     public static final String DEFAULT_DESCRIPTION = DEFAULT_STRING + 4;
-    public static final Entry.RenderingMode DEFAULT_RENDERING = Entry.RenderingMode.BACKGROUND;
+    public static final RenderingMode DEFAULT_RENDERING = RenderingMode.BACKGROUND;
     public static final Timezone CUSTOM_TIMEZONE = new Timezone(ZoneId.of("Europe/Berlin"));
 
     public static final String FULL_CALENDAR_HTML = "fullcalendar/full-calendar.html";
 
-    @BeforeAll
-    static void beforeAll() {
-        TestUtils.initVaadinService(FULL_CALENDAR_HTML);
+    public static final Map<Key, Object> DEFAULTS = new HashMap<>();
+
+    static {
+        DEFAULTS.put(EntryKey.TITLE, DEFAULT_STRING);
+        DEFAULTS.put(EntryKey.START, DEFAULT_START_UTC);
+        DEFAULTS.put(EntryKey.END, DEFAULT_END_UTC);
+        DEFAULTS.put(EntryKey.COLOR, DEFAULT_COLOR);
+        DEFAULTS.put(EntryKey.RENDERING_MODE, DEFAULT_RENDERING);
     }
 
     /**
@@ -41,13 +46,10 @@ public class EntryTest {
      */
     static void assertFullEqualsByJsonAttributes(Entry expected, Entry actual) {
         Assertions.assertEquals(expected.getId(), actual.getId());
-        Assertions.assertEquals(expected.getTitle(), actual.getTitle());
-        Assertions.assertEquals(expected.getStart(), actual.getStart());
-        Assertions.assertEquals(expected.getEnd(), actual.getEnd());
+        // we use UTC, since LDT or ZoneDT can differ whether the entry has a calendar assigned or not
+        Assertions.assertEquals(expected.getStartUTC(), actual.getStartUTC());
+        Assertions.assertEquals(expected.getEndUTC(), actual.getEndUTC());
         Assertions.assertEquals(expected.isAllDay(), actual.isAllDay());
-        Assertions.assertEquals(expected.isEditable(), actual.isEditable());
-        Assertions.assertEquals(expected.getColor(), actual.getColor());
-        Assertions.assertEquals(expected.getRenderingMode(), actual.getRenderingMode());
     }
 
     @Test
@@ -58,6 +60,8 @@ public class EntryTest {
         String id = entry.getId();
         Assertions.assertNotNull(id);
         Assertions.assertFalse(id.isEmpty());
+
+        //noinspection ResultOfMethodCallIgnored
         UUID.fromString(id);
 
         // test if is editable
@@ -107,7 +111,7 @@ public class EntryTest {
         entry.setEditable(true);
         entry.setColor(DEFAULT_COLOR);
         entry.setDescription(DEFAULT_DESCRIPTION);
-        
+
         Assertions.assertEquals(DEFAULT_ID, entry.getId());
         Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
         Assertions.assertEquals(DEFAULT_START_UTC, entry.getStartUTC());
@@ -125,13 +129,13 @@ public class EntryTest {
     void testEqualsAndHashcodeOnlyDependOnId() {
         Entry entry = new Entry(DEFAULT_ID);
         entry.setTitle(null);
-        entry.setStart((Instant)null);
-        entry.setEnd((Instant)null);
+        entry.setStart((Instant) null);
+        entry.setEnd((Instant) null);
         entry.setAllDay(false);
         entry.setEditable(false);
         entry.setColor(null);
         entry.setDescription(null);
-        
+
         Entry entry1 = new Entry(DEFAULT_ID);
         entry1.setTitle(DEFAULT_TITLE);
         entry1.setStart(DEFAULT_START_UTC);
@@ -174,25 +178,25 @@ public class EntryTest {
     @Test
     void testToJsonEmpty() {
         Entry entry = new Entry();
-        JsonObject jsonObject = entry.toJson();
+        JsonObject jsonObject = entry.toJsonOnAdd();
 
         Assertions.assertEquals(entry.getId(), jsonObject.getString("id"));
-        TestUtils.assertJsonType(jsonObject, "title", JsonNull.class);
-        TestUtils.assertJsonType(jsonObject, "start", JsonNull.class);
-        TestUtils.assertJsonType(jsonObject, "end", JsonNull.class);
-        TestUtils.assertJsonMissingKey(jsonObject, "color");
-        TestUtils.assertJsonType(jsonObject, "display", JsonNull.class);
-        TestUtils.assertJsonType(jsonObject, "allDay", JsonBoolean.class);
-        TestUtils.assertJsonType(jsonObject, "editable", JsonBoolean.class);
-        Assertions.assertFalse(jsonObject.getBoolean("allDay"));
-        Assertions.assertTrue(jsonObject.getBoolean("editable"));
+        Set<Key> keys = Key.readAndRegisterKeys(EntryKey.class);
+
+        for (Key key : keys) {
+            if (key != EntryKey.ID && key.getDefaultValue() == null) {
+                Assertions.assertFalse(jsonObject.hasKey(key.getName()), key.getName());
+            } else {
+                Assertions.assertTrue(jsonObject.hasKey(key.getName()), key.getName());
+            }
+        }
     }
 
 
     @Test
     void testToJsonCustomTimezone() {
         FullCalendar calendar = new FullCalendar();
-        calendar.setTimezoneClient(CUSTOM_TIMEZONE);
+        calendar.setTimezone(CUSTOM_TIMEZONE);
         Entry entry = new Entry(DEFAULT_ID);
         entry.setTitle(DEFAULT_TITLE);
         entry.setStart(DEFAULT_START_UTC);
@@ -207,18 +211,17 @@ public class EntryTest {
         JsonObject jsonObject = entry.toJson();
 
         Assertions.assertEquals(DEFAULT_ID, jsonObject.getString("id"));
-        Assertions.assertEquals(DEFAULT_TITLE, jsonObject.getString("title"));
-        Assertions.assertEquals(CUSTOM_TIMEZONE.formatWithZoneId(DEFAULT_START_UTC), jsonObject.getString("start"));
-        Assertions.assertEquals(CUSTOM_TIMEZONE.formatWithZoneId(DEFAULT_END_UTC), jsonObject.getString("end"));
-        Assertions.assertTrue(jsonObject.getBoolean("allDay"));
-        Assertions.assertTrue(jsonObject.getBoolean("editable"));
-        Assertions.assertEquals(DEFAULT_COLOR, jsonObject.getString("color"));
-        Assertions.assertEquals(DEFAULT_RENDERING.getClientSideValue(), jsonObject.getString("display"));
+        Assertions.assertEquals(DEFAULT_TITLE, jsonObject.getString(EntryKey.TITLE.getName()));
+        Assertions.assertEquals(CUSTOM_TIMEZONE.formatWithZoneId(DEFAULT_START_UTC), jsonObject.getString(EntryKey.START.getName()));
+        Assertions.assertEquals(CUSTOM_TIMEZONE.formatWithZoneId(DEFAULT_END_UTC), jsonObject.getString(EntryKey.END.getName()));
+        Assertions.assertTrue(jsonObject.getBoolean(EntryKey.ALL_DAY.getName()));
+        Assertions.assertTrue(jsonObject.getBoolean(EntryKey.EDITABLE.getName()));
+        Assertions.assertEquals(DEFAULT_COLOR, jsonObject.getString(EntryKey.COLOR.getName()));
+        Assertions.assertEquals(DEFAULT_RENDERING.getClientSideValue(), jsonObject.getString(EntryKey.RENDERING_MODE.getName()));
     }
 
     @Test
     void testToJsonUTC() {
-
         Entry entry = new Entry(DEFAULT_ID);
         entry.setTitle(DEFAULT_TITLE);
         entry.setStart(DEFAULT_START_UTC);
@@ -232,13 +235,13 @@ public class EntryTest {
         JsonObject jsonObject = entry.toJson();
 
         Assertions.assertEquals(DEFAULT_ID, jsonObject.getString("id"));
-        Assertions.assertEquals(DEFAULT_TITLE, jsonObject.getString("title"));
-        Assertions.assertEquals(DEFAULT_START_UTC.toString(), jsonObject.getString("start"));
-        Assertions.assertEquals(DEFAULT_END_UTC.toString(), jsonObject.getString("end"));
-        Assertions.assertTrue(jsonObject.getBoolean("allDay"));
-        Assertions.assertTrue(jsonObject.getBoolean("editable"));
-        Assertions.assertEquals(DEFAULT_COLOR, jsonObject.getString("color"));
-        Assertions.assertEquals(DEFAULT_RENDERING.getClientSideValue(), jsonObject.getString("display"));
+        Assertions.assertEquals(DEFAULT_TITLE, jsonObject.getString(EntryKey.TITLE.getName()));
+        Assertions.assertEquals(DEFAULT_START_UTC.toString(), jsonObject.getString(EntryKey.START.getName()));
+        Assertions.assertEquals(DEFAULT_END_UTC.toString(), jsonObject.getString(EntryKey.END.getName()));
+        Assertions.assertTrue(jsonObject.getBoolean(EntryKey.ALL_DAY.getName()));
+        Assertions.assertTrue(jsonObject.getBoolean(EntryKey.EDITABLE.getName()));
+        Assertions.assertEquals(DEFAULT_COLOR, jsonObject.getString(EntryKey.COLOR.getName()));
+        Assertions.assertEquals(DEFAULT_RENDERING.getClientSideValue(), jsonObject.getString(EntryKey.RENDERING_MODE.getName()));
     }
 
     @Test
@@ -248,7 +251,7 @@ public class EntryTest {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", "someNonUUID");
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> entry.update(jsonObject));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> entry.updateFromJson(jsonObject));
     }
 
     @Test
@@ -256,30 +259,38 @@ public class EntryTest {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", "1");
 
-        jsonObject.put("title", DEFAULT_TITLE);
-        jsonObject.put("start", DEFAULT_START_UTC.toString());
-        jsonObject.put("end", DEFAULT_END_UTC.toString());
-        jsonObject.put("allDay", false);
-        jsonObject.put("editable", true);
-        jsonObject.put("color", DEFAULT_COLOR);
-
-        jsonObject.put("description", DEFAULT_DESCRIPTION); // this should not affect the object
-        jsonObject.put("display", DEFAULT_RENDERING.getClientSideValue()); // this should not affect the object
+        jsonObject.put(EntryKey.TITLE.getName(), DEFAULT_TITLE);
+        jsonObject.put(EntryKey.START.getName(), DEFAULT_START_UTC.toString());
+        jsonObject.put(EntryKey.END.getName(), DEFAULT_END_UTC.toString());
+        jsonObject.put(EntryKey.ALL_DAY.getName(), true);
+        jsonObject.put(EntryKey.EDITABLE.getName(), false);
+        jsonObject.put(EntryKey.DURATION_EDITABLE.getName(), false);
+        jsonObject.put(EntryKey.START_EDITABLE.getName(), false);
+        jsonObject.put(EntryKey.COLOR.getName(), DEFAULT_COLOR);
+        jsonObject.put("description", DEFAULT_DESCRIPTION);
+        jsonObject.put(EntryKey.RENDERING_MODE.getName(), DEFAULT_RENDERING.getClientSideValue());
 
         Entry entry = new Entry("1");
-        entry.update(jsonObject);
+        Assertions.assertTrue(entry.isValidJsonSource(jsonObject));
+        entry.updateFromJson(jsonObject);
 
-        Assertions.assertEquals(jsonObject.getString("id"), entry.getId());
-
-        Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
-        Assertions.assertFalse(entry.isAllDay());
+        // affected properties
+        Assertions.assertTrue(entry.isAllDay());
         Assertions.assertEquals(DEFAULT_START_UTC, entry.getStartUTC());
         Assertions.assertEquals(DEFAULT_END_UTC, entry.getEndUTC());
-        Assertions.assertTrue(entry.isEditable());
-        Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
 
-        Assertions.assertNull(entry.getDescription()); // should not be affected by json
-        Assertions.assertEquals(Entry.RenderingMode.NONE, entry.getRenderingMode()); // should not be affected by json
+        // by json unaffected properties
+        Assertions.assertTrue(entry.isEditable());
+        Assertions.assertTrue(entry.isStartEditable());
+        Assertions.assertTrue(entry.isDurationEditable());
+        Assertions.assertFalse(entry.isRecurring());
+        Assertions.assertNull(entry.getTitle());
+        Assertions.assertNull(entry.getColor());
+        Assertions.assertNull(entry.getBorderColor());
+        Assertions.assertNull(entry.getBackgroundColor());
+        Assertions.assertNull(entry.getTextColor());
+        Assertions.assertNull(entry.getDescription());
+        Assertions.assertEquals(RenderingMode.NONE, entry.getRenderingMode());
     }
 
     @Test
@@ -287,32 +298,36 @@ public class EntryTest {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", "1");
 
-        jsonObject.put("title", DEFAULT_TITLE);
         ZonedDateTime start = DEFAULT_START_UTC.atZone(CUSTOM_TIMEZONE.getZoneId());
         ZonedDateTime end = DEFAULT_END_UTC.atZone(CUSTOM_TIMEZONE.getZoneId());
-        jsonObject.put("start", start.toString());
-        jsonObject.put("end", end.toString());
-        jsonObject.put("allDay", false);
-        jsonObject.put("editable", true);
-        jsonObject.put("color", DEFAULT_COLOR);
+        jsonObject.put(EntryKey.START.getName(), start.toString());
+        jsonObject.put(EntryKey.END.getName(), end.toString());
+        jsonObject.put(EntryKey.ALL_DAY.getName(), true);
 
         jsonObject.put("description", DEFAULT_DESCRIPTION); // this should not affect the object
-        jsonObject.put("display", DEFAULT_RENDERING.getClientSideValue()); // this should not affect the object
+        jsonObject.put(EntryKey.RENDERING_MODE.getName(), DEFAULT_RENDERING.getClientSideValue()); // this should not affect the object
 
         Entry entry = new Entry("1");
-        entry.update(jsonObject);
+        Assertions.assertTrue(entry.isValidJsonSource(jsonObject));
+        entry.updateFromJson(jsonObject);
 
-        Assertions.assertEquals(jsonObject.getString("id"), entry.getId());
-
-        Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
-        Assertions.assertFalse(entry.isAllDay());
+        // affected properties
+        Assertions.assertTrue(entry.isAllDay());
         Assertions.assertEquals(DEFAULT_START_UTC, entry.getStartUTC());
         Assertions.assertEquals(DEFAULT_END_UTC, entry.getEndUTC());
-        Assertions.assertTrue(entry.isEditable());
-        Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
 
-        Assertions.assertNull(entry.getDescription()); // should not be affected by json
-        Assertions.assertEquals(Entry.RenderingMode.NONE, entry.getRenderingMode()); // should not be affected by json
+        // by json unaffected properties
+        Assertions.assertTrue(entry.isEditable());
+        Assertions.assertTrue(entry.isStartEditable());
+        Assertions.assertTrue(entry.isDurationEditable());
+        Assertions.assertFalse(entry.isRecurring());
+        Assertions.assertNull(entry.getTitle());
+        Assertions.assertNull(entry.getColor());
+        Assertions.assertNull(entry.getBorderColor());
+        Assertions.assertNull(entry.getBackgroundColor());
+        Assertions.assertNull(entry.getTextColor());
+        Assertions.assertNull(entry.getDescription());
+        Assertions.assertEquals(RenderingMode.NONE, entry.getRenderingMode());
     }
 
 }

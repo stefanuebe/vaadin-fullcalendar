@@ -22,6 +22,7 @@ import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 
 export class FullCalendarScheduler extends FullCalendar {
+
     static get is() {
         return 'full-calendar-scheduler';
     }
@@ -30,6 +31,7 @@ export class FullCalendarScheduler extends FullCalendar {
         return html`
             ${this.templateCalendarCss}
             ${this.templateSchedulerCss}
+
             ${this.templateElementCss}
         
             ${this.templateContainer}

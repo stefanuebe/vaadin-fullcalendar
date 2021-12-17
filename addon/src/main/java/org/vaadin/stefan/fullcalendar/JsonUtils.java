@@ -16,20 +16,13 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.function.SerializableFunction;
 import elemental.json.*;
 
 import javax.validation.constraints.NotNull;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -37,6 +30,7 @@ import java.util.stream.Stream;
  * JsonUtils used for internally handling conversion of objects sent to or received from the client side.
  */
 public final class JsonUtils {
+
     private JsonUtils() {
         // noop
     }
@@ -44,10 +38,22 @@ public final class JsonUtils {
     /**
      * Converts the given object to a json value. Can be null.
      *
-     * @param value value
+     * @param value                   value
      * @return object
      */
     public static JsonValue toJsonValue(Object value) {
+        return toJsonValue(value, null);
+    }
+
+    /**
+     * Converts the given object to a json value. Can be null. The given custom converter is applied, when
+     * there is no default conversion found for the given value. Can be null to convert it to a simple string.
+     *
+     * @param value                   value
+     * @return object
+     */
+    @SuppressWarnings("unchecked")
+    public static JsonValue toJsonValue(Object value, SerializableFunction<Object, JsonValue> customConverter) {
         if (value instanceof JsonValue) {
             return (JsonValue) value;
         }
@@ -67,198 +73,51 @@ public final class JsonUtils {
         }
 
         if (value instanceof Iterator<?>) {
-            Iterator<?> iterator = (Iterator) value;
+            Iterator<?> iterator = (Iterator<?>) value;
             JsonArray array = Json.createArray();
             int i = 0;
             while (iterator.hasNext()) {
-                array.set(i++, toJsonValue(iterator.next()));
+                array.set(i++, toJsonValue(iterator.next(), customConverter));
             }
             return array;
         }
-        
-        if (value instanceof HashMap<?, ?>) {
-        	HashMap<String, Object> hashmap = (HashMap<String, Object>) value;
-        	JsonObject jsonObject = Json.createObject();
 
-        	for (Map.Entry<String, Object> prop : hashmap.entrySet()) {
-            	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
+        if (value instanceof Map<?, ?>) {
+            Map<String, Object> map = (Map<String, Object>) value;
+            JsonObject jsonObject = Json.createObject();
+            for (Map.Entry<String, Object> prop : map.entrySet()) {
+                jsonObject.put(prop.getKey(), toJsonValue(prop.getValue(), customConverter));
             }
-
             return jsonObject;
         }
 
         if (value instanceof Object[]) {
-            return toJsonValue(Arrays.asList((Object[]) value).iterator());
+            return toJsonValue(Arrays.asList((Object[]) value).iterator(), customConverter);
         }
 
         if (value instanceof Iterable<?>) {
-            return toJsonValue(((Iterable) value).iterator());
+            return toJsonValue(((Iterable<?>) value).iterator(), customConverter);
         }
 
         if (value instanceof Stream<?>) {
-            return toJsonValue(((Stream) value).iterator());
+            return toJsonValue(((Stream<?>) value).iterator(), customConverter);
         }
 
-        return Json.create(String.valueOf(value));
+        return customConverter != null ? customConverter.apply(value) : Json.create(String.valueOf(value));
     }
 
     /**
-     * Reads the json property by key and tries to apply it as a string.
-     *
-     * @param object json object
-     * @param key    json property key
-     * @param setter setter to apply value
-     * @throws NullPointerException when null is passed for not null parameters
+     * Returns true, if this value would be converted to a json array (or iterable like) for the client, like
+     * any Java iterable, stream, array, map or iterator.
+     * @param value value
+     * @return value
      */
-    public static void updateString(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<String> setter) {
-        Objects.requireNonNull(object, "JsonObject");
-        Objects.requireNonNull(key, "key");
-        Objects.requireNonNull(setter, "setter");
-        if (object.get(key) instanceof JsonString) {
-            setter.accept(object.getString(key));
-        }
-    }
-
-    /**
-     * Reads the json property by key and tries to apply it as a boolean.
-     *
-     * @param object json object
-     * @param key    json property key
-     * @param setter setter to apply value
-     * @throws NullPointerException when null is passed for not null parameters
-     */
-    public static void updateBoolean(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Boolean> setter) {
-        Objects.requireNonNull(object, "JsonObject");
-        Objects.requireNonNull(key, "key");
-        Objects.requireNonNull(setter, "setter");
-        if (object.get(key) instanceof JsonBoolean) {
-            setter.accept(object.getBoolean(key));
-        }
-    }
-
-    /**
-     * Reads the json property by key and tries to apply it as a temporal. Might use the timezone, if conversion to UTC is needed.
-     *
-     * @param object   json object
-     * @param key      json property key
-     * @param setter   setter to apply value
-     * @param timezone timezone
-     * @throws NullPointerException when null is passed for not null parameters
-     */
-    public static void updateDateTime(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Instant> setter, @NotNull Timezone timezone) {
-        Objects.requireNonNull(object, "JsonObject");
-        Objects.requireNonNull(key, "key");
-        Objects.requireNonNull(setter, "setter");
-        Objects.requireNonNull(timezone, "timezone");
-        if (object.get(key) instanceof JsonString) {
-            Instant dateTime = parseDateTimeString(object.getString(key), timezone);
-
-            setter.accept(dateTime);
-        }
-    }
-
-    /**
-     * Reads the json property by key and tries to apply it as a Set<String>.
-     *
-     * @param object json object
-     * @param key    json property key
-     * @param setter setter to apply value
-     * @throws NullPointerException when null is passed for not null parameters
-     */
-    public static void updateSetString(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Set<String>> setter) {
-        Objects.requireNonNull(object, "JsonObject");
-        Objects.requireNonNull(key, "key");
-        Objects.requireNonNull(setter, "setter");
-        if (object.get(key) instanceof JsonString) {
-            setter.accept(toSetString(object.get(key)));
-        }
-    }
-    
-    /**
-     * Convert the JsonArray to Set<String>
-     *
-     * @param array json array
-     * 
-     * @return Set<String> The set
-     */
-    private static Set<String> toSetString(JsonArray array) {
-    	Set<String> set = new HashSet<String>();
-
-        for(int i = 0; i < array.length(); i++) {
-            Object value = array.get(i);
-
-            if (value instanceof String)
-            	set.add(value.toString());
-        }
-
-        return set;
-    }
-    
-    /**
-     * Reads the json property by key and tries to apply it as a HashMap.
-     *
-     * @param object json object
-     * @param key    json property key
-     * @param setter setter to apply value
-     * @throws NullPointerException when null is passed for not null parameters
-     */
-    public static void updateHashMap(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<HashMap<String, Object>> setter) {
-        Objects.requireNonNull(object, "JsonObject");
-        Objects.requireNonNull(key, "key");
-        Objects.requireNonNull(setter, "setter");
-        if (object.get(key) instanceof JsonString) {
-            setter.accept(toHashMap(object.get(key)));
-        }
-    }
-
-    /**
-     * Convert the JsonObject to HashMap
-     *
-     * @param object json object
-     * 
-     * @return HashMap<String, Object> The mapping
-     */
-    private static HashMap<String, Object> toHashMap(JsonObject jsonobj) {
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        Iterator<String> keys = Arrays.asList(jsonobj.keys()).iterator();
-
-        while(keys.hasNext()) {
-            String key = keys.next();
-            Object value = jsonobj.get(key);
-
-            if (value instanceof JsonArray)
-                value = toList((JsonArray) value);
-            else if (value instanceof JsonObject) 
-                value = toHashMap((JsonObject) value);
-
-            map.put(key, value);
-        }
-
-        return map;
-    }
-
-    /**
-     * Convert the JsonArray to List
-     *
-     * @param array json array
-     * 
-     * @return List<Object The list
-     */
-    private static List<Object> toList(JsonArray array) {
-    	List<Object> list = new ArrayList<Object>();
-
-        for(int i = 0; i < array.length(); i++) {
-            Object value = array.get(i);
-
-            if (value instanceof JsonArray)
-                value = toList((JsonArray) value);
-            else if (value instanceof JsonObject)
-                value = toHashMap((JsonObject) value);
-
-            list.add(value);
-        }
-
-        return list;
+    public static boolean isCollectable(Object value) {
+        return value instanceof Iterator<?>
+                || value instanceof Map<?, ?>
+                || value instanceof Object[]
+                || value instanceof Iterable<?>
+                || value instanceof Stream<?>;
     }
 
     /**
@@ -295,5 +154,307 @@ public final class JsonUtils {
             }
         }
         return dateTime;
+    }
+
+    /**
+     * Shortcut method for {@link #ofJsonValue(JsonValue, SerializableFunction, Collection, Class)}. Reads a json value object and
+     * tries to parse it to a Java object.
+     * <p></p>
+     * Most basic types are automatically converted. Since Json objects represent a more complex structure, the
+     * given callback can be used to convert them to their Java representation. This method converts them automatically
+     * into a Map, using {@link #convertObjectToMap(JsonObject, Class)}.
+     * <p></p>
+     * Json arrays are automatically converted into a Java {@link ArrayList}.
+     *
+     * @param jsonValue value to parse
+     * @param <T>       return type
+     * @return parsed / converted value
+     * @see #ofJsonValue(JsonValue, Class)
+     * @see #ofJsonValue(JsonValue, SerializableFunction, Collection, Class)
+     */
+    public static <T> T ofJsonValue(JsonValue jsonValue) {
+        return ofJsonValue(jsonValue, o -> convertObjectToMap(checkForObjectOrThrow(o), ArrayList.class), null, ArrayList.class);
+    }
+
+    /**
+     * Shortcut method for {@link #ofJsonValue(JsonValue, SerializableFunction, Collection, Class)}. Reads a json value object and
+     * tries to parse it to a Java object.
+     * <p></p>
+     * Most basic types are automatically converted. Since Json objects represent a more complex structure, the
+     * given callback can be used to convert them to their Java representation. This method converts them automatically
+     * into a Map, using {@link #convertObjectToMap(JsonObject, Class)}.
+     * <p></p>
+     * Json arrays are converted to the given
+     * collection type, where for each element of the json array, this method is called recursively. Please check,
+     * if the given collection type may lead to eliminated duplicates (e.g. Set)
+     *
+     * @param jsonValue          json value to read
+     * @param convertArrayToType target collection type json arrays shall be converted to.
+     * @param <T>                return type
+     * @return converted Java object
+     * @see #ofJsonValue(JsonValue, SerializableFunction, Collection, Class)
+     * @see #convertObjectToMap(JsonObject, Class)
+     */
+    @SuppressWarnings("rawtypes")
+    public static <T> T ofJsonValue(JsonValue jsonValue, Class<? extends Collection> convertArrayToType) {
+        return ofJsonValue(jsonValue, o -> convertObjectToMap(checkForObjectOrThrow(o), convertArrayToType), null, convertArrayToType);
+    }
+
+    /**
+     * Reads a json value object and tries to parse it to a Java object.
+     * <p></p>
+     * Most basic types are automatically converted. Since Json objects represent a more complex structure, the
+     * given callback can be used to convert them to their Java representation. Please also check
+     * {@link #convertObjectToMap(JsonObject, Class)} for a simple "to Map" converter.
+     * <p></p>
+     * Json arrays are converted to the given
+     * collection type, where for each element of the json array, this method is called recursively. Please check,
+     * if the given collection type may lead to eliminated duplicates (e.g. Set)
+     *
+     * @param jsonValue          json value to read
+     * @param toObjectCallback   callback to convert json objects
+     * @param convertArrayToType target collection type json arrays shall be converted to.
+     * @param <T>                return type
+     * @return converted Java object
+     * @see #convertObjectToMap(JsonObject, Class)
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T ofJsonValue(JsonValue jsonValue,
+                                    SerializableFunction<JsonValue, Object> toObjectCallback,
+                                    Collection<JsonType> toObjectJsonTypes,
+                                    @SuppressWarnings("rawtypes") Class<? extends Collection> convertArrayToType) {
+        if (jsonValue == null) {
+            return null;
+        }
+
+        JsonType type = jsonValue.getType();
+
+        if (type == JsonType.OBJECT) {
+            return (T) toObjectCallback.apply(jsonValue);
+        }
+
+        if (type == JsonType.ARRAY) {
+            try {
+                Collection<?> collection = convertArrayToType.newInstance();
+                JsonArray array = (JsonArray) jsonValue;
+                for (int i = 0; i < array.length(); i++) {
+                    collection.add(JsonUtils.ofJsonValue(array.get(i), toObjectCallback, toObjectJsonTypes, convertArrayToType));
+                }
+                return (T) collection;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (toObjectJsonTypes != null && toObjectJsonTypes.contains(type)) {
+            return (T) toObjectCallback.apply(jsonValue);
+        }
+
+        switch (type) {
+            case STRING:
+                return (T) jsonValue.asString();
+            case NUMBER:
+                return (T) (Double) jsonValue.asNumber();
+            case BOOLEAN:
+                return (T) (Boolean) jsonValue.asBoolean();
+            case NULL:
+                return null;
+            default:
+                throw new IllegalStateException("Unexpected value: " + type);
+        }
+    }
+
+    /**
+     * Simple method, that converts a json object to a map. Calls {@link #ofJsonValue(JsonValue, Class)} for each
+     * read value.
+     *
+     * @param object             object to read
+     * @param convertArrayToType target type json arrays shall be converted to
+     * @return map
+     */
+    @SuppressWarnings({"rawtypes"})
+    public static Map<String, Object> convertObjectToMap(JsonObject object, Class<? extends Collection> convertArrayToType) {
+        Map<String, Object> map = new HashMap<>();
+        for (String key : object.keys()) {
+            map.put(key, ofJsonValue(object.get(key), convertArrayToType));
+        }
+        return map;
+    }
+
+    private static JsonObject checkForObjectOrThrow(JsonValue value) {
+        if (!(value instanceof JsonObject)) {
+            throw new IllegalArgumentException("Only JsonObject is supported. Given type is " + (value != null ? value.getType() : " null"));
+        }
+
+        return (JsonObject) value;
+    }
+
+    /**
+     * Reads the json property by key and tries to apply it as a string.
+     *
+     * @param object json object
+     * @param key    json property key
+     * @param setter setter to apply value
+     * @throws NullPointerException when null is passed for not null parameters
+     * @deprecated not maintained anymore, will be removed in one of the next versions
+     */
+    @Deprecated
+    public static void updateString(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<String> setter) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        if (object.get(key) instanceof JsonString) {
+            setter.accept(object.getString(key));
+        }
+    }
+
+    /**
+     * Reads the json property by key and tries to apply it as a boolean.
+     *
+     * @param object json object
+     * @param key    json property key
+     * @param setter setter to apply value
+     * @throws NullPointerException when null is passed for not null parameters
+     * @deprecated not maintained anymore, will be removed in one of the next versions
+     */
+    @Deprecated
+    public static void updateBoolean(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Boolean> setter) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        if (object.get(key) instanceof JsonBoolean) {
+            setter.accept(object.getBoolean(key));
+        }
+    }
+
+    /**
+     * Reads the json property by key and tries to apply it as a temporal. Might use the timezone, if conversion to UTC is needed.
+     *
+     * @param object   json object
+     * @param key      json property key
+     * @param setter   setter to apply value
+     * @param timezone timezone
+     * @throws NullPointerException when null is passed for not null parameters
+     * @deprecated not maintained anymore, will be removed in one of the next versions
+     */
+    @Deprecated
+    public static void updateDateTime(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Instant> setter, @NotNull Timezone timezone) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        Objects.requireNonNull(timezone, "timezone");
+        if (object.get(key) instanceof JsonString) {
+            Instant dateTime = parseDateTimeString(object.getString(key), timezone);
+
+            setter.accept(dateTime);
+        }
+    }
+
+    /**
+     * Reads the json property by key and tries to apply it as a Set<String>.
+     *
+     * @param object json object
+     * @param key    json property key
+     * @param setter setter to apply value
+     * @throws NullPointerException when null is passed for not null parameters
+     * @deprecated not maintained anymore, will be removed in one of the next versions
+     */
+    @Deprecated
+    public static void updateSetString(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Set<String>> setter) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        if (object.get(key) instanceof JsonString) {
+            setter.accept(toSetString(object.get(key)));
+        }
+    }
+
+    /**
+     * Reads the json property by key and tries to apply it as a HashMap.
+     *
+     * @param object json object
+     * @param key    json property key
+     * @param setter setter to apply value
+     * @throws NullPointerException when null is passed for not null parameters
+     * @deprecated not maintained anymore, will be removed in one of the next versions
+     */
+    @Deprecated
+    public static void updateHashMap(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<HashMap<String, Object>> setter) {
+        Objects.requireNonNull(object, "JsonObject");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(setter, "setter");
+        if (object.get(key) instanceof JsonString) {
+            setter.accept(toHashMap(object.get(key)));
+        }
+    }
+
+    /**
+     * Convert the JsonObject to HashMap
+     *
+     * @param jsonObject json object
+     * @return HashMap<String, Object> The mapping
+     * @deprecated not maintained anymore, use {@link #ofJsonValue(JsonValue, Class)} instead
+     */
+    @Deprecated
+    private static HashMap<String, Object> toHashMap(JsonObject jsonObject) {
+        HashMap<String, Object> map = new HashMap<>();
+
+        for (String key : jsonObject.keys()) {
+            Object value = jsonObject.get(key);
+
+            if (value instanceof JsonArray)
+                value = toList((JsonArray) value);
+            else if (value instanceof JsonObject)
+                value = toHashMap((JsonObject) value);
+
+            map.put(key, value);
+        }
+
+        return map;
+    }
+
+    /**
+     * Convert the JsonArray to List
+     *
+     * @deprecated not maintained anymore, use {@link #ofJsonValue(JsonValue, Class)} instead
+     */
+    @Deprecated
+    private static List<Object> toList(JsonArray array) {
+        List<Object> list = new ArrayList<>();
+
+        for (int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+
+            if (value instanceof JsonArray)
+                value = toList((JsonArray) value);
+            else if (value instanceof JsonObject)
+                value = toHashMap((JsonObject) value);
+
+            list.add(value);
+        }
+
+        return list;
+    }
+
+    /**
+     * Convert the JsonArray to Set<String>
+     *
+     * @param array json array
+     * @return Set<String> The set
+     * @deprecated not maintained anymore, use {@link #ofJsonValue(JsonValue, Class)} instead
+     */
+    @Deprecated
+    private static Set<String> toSetString(JsonArray array) {
+        Set<String> set = new HashSet<>();
+
+        for (int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+
+//            if (value instanceof String) // invalid call, will never work
+            if (value instanceof JsonString)
+                set.add(((JsonString) value).asString());
+        }
+
+        return set;
     }
 }

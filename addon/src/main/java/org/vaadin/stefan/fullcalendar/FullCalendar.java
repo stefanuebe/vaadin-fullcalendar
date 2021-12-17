@@ -35,6 +35,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.vaadin.stefan.fullcalendar.Entry.*;
+
 /**
  * Flow implementation for the FullCalendar.
  * <p>
@@ -413,7 +415,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             if (!entries.containsKey(id)) {
                 entry.setCalendar(this);
                 entries.put(id, entry);
-                array.set(array.length(), entry.toJson());
+                array.set(array.length(), entry.toJsonOnAdd());
+
+                entry.setKnownToTheClient(true);
+                entry.clearDirtyState();
             }
         });
 
@@ -457,7 +462,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         iterableEntries.forEach(entry -> {
             String id = entry.getId();
             if (entries.containsKey(id)) {
-                array.set(array.length(), entry.toJson());
+                array.set(array.length(), entry.toJsonOnUpdate());
+
+                entry.setKnownToTheClient(true);
+                entry.clearDirtyState();
             }
         });
 
@@ -503,7 +511,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             if (entries.containsKey(id)) {
                 entry.setCalendar(null);
                 entries.remove(id);
-                array.set(array.length(), entry.toJson());
+                array.set(array.length(), entry.toJsonOnDelete());
+
+                entry.setKnownToTheClient(false);
+                entry.clearDirtyState();
             }
         });
 
@@ -516,7 +527,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Remove all entries.
      */
     public void removeAllEntries() {
-        entries.values().forEach(e -> e.setCalendar(null));
+        entries.values().forEach(e -> {
+            e.setCalendar(null);
+            e.setKnownToTheClient(false);
+            e.clearDirtyState();
+        });
         entries.clear();
         getElement().callJsFunction("removeAllEvents");
     }
@@ -810,7 +825,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * "}");
      * </pre>
      *
-     * @param String JS function to be attached
+     * @param s function to be attached
      */
     public void setEntryClassNamesCallback(String s) {
         getElement().callJsFunction("setEventClassNamesCallback", s);
@@ -841,7 +856,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * "}");
      * </pre>
      *
-     * @param String JS function to be attached
+     * @param s function to be attached
      */
     public void setEntryContentCallback(String s) {
         getElement().callJsFunction("setEventContentCallback", s);
@@ -850,7 +865,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Deprecated. Use {@link #setEntryDidMountCallback(String s)} instead.
      *
-     * @param String JS function to be attached
+     * @param s function to be attached
      */
     @Deprecated
     public void setEventDidMountCallback(String s) {
@@ -867,7 +882,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * other security mechanism applied on this string, so check it yourself before passing it to the client.
      * <br><br>
      *
-     * @param String JS function to be attached
+     * @param s function to be attached
      */
     public void setEntryDidMountCallback(String s) {
         getElement().callJsFunction("setEventDidMountCallback", s);
@@ -876,7 +891,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Deprecated. Use {@link #setEntryWillUnmountCallback(String s)} instead.
      *
-     * @param String JS function to be attached
+     * @param s function to be attached
      */
     @Deprecated
     public void setEventWillUnmountCallback(String s) {
@@ -893,7 +908,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * other security mechanism applied on this string, so check it yourself before passing it to the client.
      * <br><br>
      *
-     * @param String JS function to be attached
+     * @param s function to be attached
      */
     public void setEntryWillUnmountCallback(String s) {
         getElement().callJsFunction("setEventWillUnmountCallback", s);
@@ -1015,6 +1030,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         Timezone oldTimezone = getTimezoneClient();
         if (!timezone.equals(oldTimezone)) {
         	setOption(Option.TIMEZONE, timezone.getClientSideValue(), timezone);
+            getEntries().forEach(entry ->
+                    entry.markAsChangedPropertyWhenDefined(EntryKey.START, EntryKey.END, EntryKey.RECURRING_START_DATE, EntryKey.RECURRING_END_DATE));
             updateEntries(getEntries());
         }
     }
@@ -1032,7 +1049,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * 
      * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setDurationEditable(boolean)}
      * 
-     * @param Boolean editable
+     * @param editable editable
      */
     public void setEntryDurationEditable(boolean editable) {
     	setOption(Option.ENTRY_DURATION_EDITABLE, editable);
@@ -1041,7 +1058,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Returns the editable flag. By default true.
      *
-     * @return Boolean editable
+     * @return editable editable
      */
     public boolean getEntryDurationEditable() {
     	return (boolean) getOption(Option.ENTRY_DURATION_EDITABLE).orElse(true);
@@ -1050,7 +1067,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Whether the user can resize an event from its starting edge.
      * 
-     * @param Boolean editable
+     * @param editable editable
      */
     public void setEntryResizableFromStart(boolean editable) {
     	setOption(Option.ENTRY_RESIZABLE_FROM_START, editable);
@@ -1059,7 +1076,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Returns the editable flag. By default false.
      *
-     * @return Boolean editable
+     * @return editable editable
      */
     public boolean getEntryResizableFromStart() {
     	return (boolean) getOption(Option.ENTRY_RESIZABLE_FROM_START).orElse(false);
@@ -1070,7 +1087,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * 
      * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setStartEditable(boolean)}
      * 
-     * @param Boolean editable
+     * @param editable editable
      */
     public void setEntryStartEditable(boolean editable) {
     	setOption(Option.ENTRY_START_EDITABLE, editable);
@@ -1079,7 +1096,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Returns the editable flag. By default true.
      *
-     * @return Boolean editable
+     * @return editable editable
      */
     public boolean getEntryStartEditable() {
     	return (boolean) getOption(Option.ENTRY_START_EDITABLE).orElse(true);
@@ -1095,7 +1112,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setEditable(boolean)}.
      * However, Background Events can not be dragged or resized.
      * 
-     * @param Boolean editable
+     * @param editable editable
      */
     public void setEditable(boolean editable) {
     	setOption(Option.EDITABLE, editable);
@@ -1104,7 +1121,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Returns the editable flag. By default false.
      *
-     * @return Boolean editable
+     * @return editable editable
      */
     public boolean getEditable() {
     	return (boolean) getOption(Option.EDITABLE).orElse(false);

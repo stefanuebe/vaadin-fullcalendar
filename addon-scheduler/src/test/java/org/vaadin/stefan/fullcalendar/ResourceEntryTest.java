@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -102,8 +101,9 @@ public class ResourceEntryTest {
 
     /**
      * Checks an original entry and the json based variant for equal fields, that can be changed by json.
+     *
      * @param expected expected entry
-     * @param actual actual entry
+     * @param actual   actual entry
      */
     static void assertFullEqualsByJsonAttributes(ResourceEntry expected, ResourceEntry actual) {
         Assertions.assertEquals(expected.getId(), actual.getId());
@@ -164,20 +164,21 @@ public class ResourceEntryTest {
         jsonObject.put("start", timezoneClient.convertToUTC(DEFAULT_START).toString());
         jsonObject.put("end", timezoneClient.convertToUTC(DEFAULT_END).toString());
         jsonObject.put("allDay", false);
-        jsonObject.put("editable", true);
+        jsonObject.put("editable", false);
         jsonObject.put("color", DEFAULT_COLOR);
         jsonObject.put("description", DEFAULT_DESCRIPTION); // this should not affect the object
 
-        entry.update(jsonObject);
+        entry.updateFromJson(jsonObject);
 
         Assertions.assertEquals(jsonObject.getString("id"), entry.getId());
-        Assertions.assertEquals(DEFAULT_TITLE, entry.getTitle());
         Assertions.assertFalse(entry.isAllDay());
         Assertions.assertEquals(DEFAULT_START, entry.getStart());
         Assertions.assertEquals(DEFAULT_END, entry.getEnd());
-        Assertions.assertTrue(entry.isEditable());
-        Assertions.assertEquals(DEFAULT_COLOR, entry.getColor());
         Assertions.assertEquals(resourceList, entry.getResources()); // should not have changed yet
+
+        Assertions.assertNull(entry.getTitle());
+        Assertions.assertTrue(entry.isEditable());
+        Assertions.assertNull(entry.getColor());
         Assertions.assertNull(entry.getDescription()); // should not be affected by json
     }
 
@@ -197,7 +198,7 @@ public class ResourceEntryTest {
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", entry.getId());
         jsonObject.put("newResource", "3");
-        entry.update(jsonObject);
+        EntryDroppedSchedulerEvent.updateResourcesFromEventResourceDelta(entry, jsonObject);
         Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource2, resource3)), entry.getResources());
     }
 
@@ -215,8 +216,8 @@ public class ResourceEntryTest {
         // test resource changes
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", entry.getId());
-        jsonObject.put("oldResource", "2");
-        entry.update(jsonObject);
+        jsonObject.put("oldResource", resource2.getId());
+        EntryDroppedSchedulerEvent.updateResourcesFromEventResourceDelta(entry, jsonObject);
         Assertions.assertEquals(Collections.singleton(resource1), entry.getResources());
     }
 
@@ -237,7 +238,7 @@ public class ResourceEntryTest {
         jsonObject.put("id", entry.getId());
         jsonObject.put("oldResource", "2");
         jsonObject.put("newResource", "3");
-        entry.update(jsonObject);
+        EntryDroppedSchedulerEvent.updateResourcesFromEventResourceDelta(entry, jsonObject);
         Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource3)), entry.getResources());
     }
 
