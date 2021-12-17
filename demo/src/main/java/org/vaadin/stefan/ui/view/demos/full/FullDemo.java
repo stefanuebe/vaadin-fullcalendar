@@ -182,7 +182,7 @@ public class FullDemo extends VerticalLayout {
         addThousand.setWidthFull();
 
         Button settings = new Button("Settings", VaadinIcon.COG.create(), event -> {
-        	SettingsDialog sd = new SettingsDialog(calendar, timezone);
+        	SettingsDialog sd = new SettingsDialog(calendar);
         	sd.open();
         });
         
@@ -227,12 +227,14 @@ public class FullDemo extends VerticalLayout {
         calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDate()));
         calendar.addTimeslotsSelectedListener(event -> System.out.println("timeslots selected: " + event.getStartDateTime() + " -> " + event.getEndDateTime() + " " + event.isAllDay()));
 
-        calendar.addEntryDroppedListener(event -> System.out.println(event.applyChangesOnEntry()));
         ((FullCalendarScheduler) calendar).addEntryDroppedSchedulerListener(event -> {
             System.out.println("Old resource: " + event.getOldResource());
             System.out.println("New resource: " + event.getNewResource());
-
+            Entry entry = event.getEntry();
+            System.out.println(entry.getStart() + " / " + entry.getStartUTC());
             System.out.println(event.applyChangesOnEntry());
+            System.out.println(entry.getStart() + " / " + entry.getStartUTC());
+
         });
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
