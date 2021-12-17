@@ -176,7 +176,7 @@ public class DemoWithTooltip extends VerticalLayout {
         addThousand.setWidthFull();
 
         Button settings = new Button("Settings", VaadinIcon.COG.create(), event -> {
-        	SettingsDialog sd = new SettingsDialog(calendar, timezone);
+        	SettingsDialog sd = new SettingsDialog(calendar);
         	sd.open();
         });
         

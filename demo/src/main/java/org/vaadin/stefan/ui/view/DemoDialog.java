@@ -109,8 +109,8 @@ public class DemoDialog extends Dialog {
                 } else {
                     calendar.updateEntry(dialogEntry.updateEntry());
                 }
+                close();
             }
-            close();
         });
         buttonSave.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 

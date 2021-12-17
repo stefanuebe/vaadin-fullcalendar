@@ -36,7 +36,6 @@ import java.util.*;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"calendar", "description"})
 public class Entry {
     /**
      * The entry's id.
@@ -747,6 +746,31 @@ public class Entry {
      */
     public boolean hasClassNames() {
     	return classNames != null && !classNames.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return "Entry{" +
+                "id='" + id + '\'' +
+                ", groupId='" + groupId + '\'' +
+                ", title='" + title + '\'' +
+                ", startUTC=" + start +
+                ", endUTC=" + end +
+                ", allDay=" + allDay +
+                ", editable=" + editable +
+                ", startEditable=" + startEditable +
+                ", durationEditable=" + durationEditable +
+                ", color='" + color + '\'' +
+                ", renderingMode=" + renderingMode +
+                ", recurringDaysOfWeeks=" + recurringDaysOfWeeks +
+                ", recurringStartDate=" + recurringStartDate +
+                ", recurringStartTime=" + recurringStartTime +
+                ", recurringEndDate=" + recurringEndDate +
+                ", recurringEndTime=" + recurringEndTime +
+                ", description='" + description + '\'' +
+                ", classNames=" + classNames +
+                ", customProperties=" + customProperties +
+                '}';
     }
 
     /**
