@@ -19,12 +19,6 @@ public class DeltaTest {
 
     @Test
     void testConstructor() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Delta(0, 12, 0, 0, 0, 0));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Delta(0, 0, 31, 0, 0, 0));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Delta(0, 0, 0, 24, 0, 0));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Delta(0, 0, 0, 0, 60, 0));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new Delta(0, 0, 0, 0, 0, 60));
-
         // max valid values
         Delta delta = new Delta(Integer.MAX_VALUE, 11, 30, 23, 59, 59);
 
