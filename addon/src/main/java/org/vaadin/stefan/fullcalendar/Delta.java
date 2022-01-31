@@ -59,7 +59,7 @@ public class Delta {
     private final int seconds;
 
     /**
-     * Creates a new instance. Checks, if the given values are in their correct span (e.g. months between -12 and 12).
+     * Creates a new instance.
      * @param years years delta
      * @param months months delta
      * @param days days delta
@@ -68,11 +68,6 @@ public class Delta {
      * @param seconds seconds delta
      */
     public Delta(int years, int months, int days, int hours, int minutes, int seconds) {
-        assertLessThan("months", Math.abs(months), 12);
-        assertLessThan("days", Math.abs(days), 31);
-        assertLessThan("hours", Math.abs(hours), 24);
-        assertLessThan("minutes", Math.abs(minutes), 60);
-        assertLessThan("seconds", Math.abs(seconds), 60);
 
         this.years = years;
         this.months = months;
