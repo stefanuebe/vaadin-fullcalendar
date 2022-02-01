@@ -187,6 +187,32 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
+     * Sets the given local date as start using the start of the day as time. It is converted to an instant by using the
+     * calendar's server start timezone.
+     * <br><br>
+     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
+     *
+     * @param start start
+     */
+    public void setStart(@NotNull LocalDate start) {
+        setStart(start.atStartOfDay());
+    }
+
+    /**
+     * Sets the given local date time as start using the start of the day as time. It is converted to an Instant by
+     * using the given timezone.
+     * <br><br>
+     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
+     *
+     * @param start    start
+     * @param timezone timezone
+     * @throws NullPointerException when null is passed
+     */
+    public void setStart(@NotNull LocalDate start, @NotNull Timezone timezone) {
+        setStart(start.atStartOfDay(), timezone);
+    }
+
+    /**
      * Sets the given local date time as end. It is converted to an Instant by using the given timezone.
      * <br><br>
      * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
@@ -199,6 +225,34 @@ public class Entry extends JsonItem<String> {
         Objects.requireNonNull(end, "end");
         Objects.requireNonNull(timezone, "timezone");
         setEnd(timezone.convertToUTC(end));
+    }
+
+    /**
+     * Sets the given local date time as end using the start of the day as time. It is converted to an instant by using the
+     * calendar's server end timezone.
+     * <br><br>
+     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
+     *
+     * @param end      end
+     * @param timezone timezone
+     * @throws NullPointerException when null is passed
+     */
+    public void setEnd(@NotNull LocalDate end) {
+        setEnd(end.atStartOfDay());
+    }
+
+    /**
+     * Sets the given local date time as end using the start of the day as time. It is converted to an Instant by using
+     * the given timezone.
+     * <br><br>
+     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
+     *
+     * @param end      end
+     * @param timezone timezone
+     * @throws NullPointerException when null is passed
+     */
+    public void setEnd(@NotNull LocalDate end, @NotNull Timezone timezone) {
+        setEnd(end.atStartOfDay(), timezone);
     }
 
 //    /**
@@ -369,6 +423,7 @@ public class Entry extends JsonItem<String> {
     public void assignClassNames(@NotNull Collection<String> classNames) {
         Objects.requireNonNull(classNames);
         getOrCreateClassNames().addAll(classNames);
+        markAsChangedProperty(EntryKey.CLASS_NAMES);
     }
 
     /**
@@ -399,8 +454,11 @@ public class Entry extends JsonItem<String> {
      */
     public void unassignClassNames(@NotNull Collection<String> classNamesToRemove) {
         Set<String> classNames = getClassNames();
-        if (classNames != null)
+        if (classNames != null) {
             classNames.removeAll(classNamesToRemove);
+            markAsChangedProperty(EntryKey.CLASS_NAMES);
+        }
+
     }
 
     /**
@@ -1063,7 +1121,7 @@ public class Entry extends JsonItem<String> {
          * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
          */
         public static final JsonItem.Key CUSTOM_PROPERTIES = JsonItem.Key.builder()
-                .name("extendedProps")
+                .name("customProperties")
                 .allowedType(Map.class) // Map<String, Object>
                 .build();
 

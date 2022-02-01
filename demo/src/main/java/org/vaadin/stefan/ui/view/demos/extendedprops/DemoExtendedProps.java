@@ -16,8 +16,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "demoextendedprops", layout = MainLayout.class)
-@PageTitle("FC with Extended Properties")
-@MenuItem(label = "Extended Properties")
+@PageTitle("FC with Custom Properties")
+@MenuItem(label = "Custom Properties")
 public class DemoExtendedProps extends VerticalLayout {
 	private static final long serialVersionUID = -117988331031719049L;
 
@@ -40,8 +40,6 @@ public class DemoExtendedProps extends VerticalLayout {
 
         calendar.setEntryContentCallback("" +
             "function (info) {" +
-                "debugger;" +
-                "console.warn(info.event.title + ': ' + info.event.extendedProps?.customProperties?.selected);" +
             "	if (info.event.extendedProps?.customProperties?.selected)" +
             "		info.backgroundColor = 'lightblue';" +
                 "else " +

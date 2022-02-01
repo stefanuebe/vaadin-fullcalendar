@@ -160,6 +160,7 @@ public class ResourceEntry extends Entry {
     public void assignResources(@NotNull Collection<Resource> resources) {
         Objects.requireNonNull(resources);
         getResources().addAll(resources);
+        markAsChangedProperty(ResourceEntryKey.RESOURCES);
     }
 
     /**
@@ -201,6 +202,7 @@ public class ResourceEntry extends Entry {
     public void unassignResources(@NotNull Collection<Resource> resources) {
         if (hasResources()) {
             getResources().removeAll(resources);
+            markAsChangedProperty(ResourceEntryKey.RESOURCES);
         }
     }
 

@@ -925,6 +925,7 @@ public abstract class JsonItem<ID_TYPE> {
     public void setCustomProperty(@NotNull String key, Object value) {
         Objects.requireNonNull(key);
         getOrCreateCustomProperties().put(key, value);
+        markAsChangedProperty(getCustomPropertiesKey());
     }
 
     /**
@@ -949,6 +950,7 @@ public abstract class JsonItem<ID_TYPE> {
         if (customProperties != null) {
             // FIXME this will currently not remove the custom property from the client side!
             customProperties.remove(Objects.requireNonNull(key));
+            markAsChangedProperty(getCustomPropertiesKey());
         }
     }
 
@@ -963,6 +965,7 @@ public abstract class JsonItem<ID_TYPE> {
         if (customProperties != null) {
             // FIXME this will currently not remove the custom property from the client side!
             customProperties.remove(Objects.requireNonNull(key), Objects.requireNonNull(value));
+            markAsChangedProperty(getCustomPropertiesKey());
         }
     }
 
