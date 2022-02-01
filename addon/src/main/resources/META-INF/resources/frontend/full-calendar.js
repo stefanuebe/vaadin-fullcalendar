@@ -1805,7 +1805,7 @@ export class FullCalendar extends PolymerElement {
                                     // NOOP daytime settings are handled separately
                                     break;
 
-                                case "extendedProps":
+                                case "customProperties":
                                     let customProperties = obj[key];
                                     for (let cpKey in customProperties) {
                                         FullCalendar.setCustomProperty(eventToUpdate, cpKey, customProperties[cpKey]);
@@ -1876,8 +1876,8 @@ export class FullCalendar extends PolymerElement {
      * @return {*} property value
      */
     static getCustomProperty(event, key) {
-        if (event.extendedProps) {
-            return event.extendedProps[key];
+        if (event.extendedProps.customProperties) {
+            return event.extendedProps.customProperties[key];
         }
         return undefined;
     }
@@ -1889,12 +1889,10 @@ export class FullCalendar extends PolymerElement {
      * @param value value to write
      */
     static setCustomProperty(event, key, value) {
-        // if (!event.extendedProps.customProperties) {
-        //     event.extendedProps.customProperties = {};
-        // }
-        // event.extendedProps.customProperties[key] = value;
-
-        event.setExtendedProp(key, value);
+        if (!event.extendedProps.customProperties) {
+            event.setExtendedProp("customProperties", {}) ;
+        }
+        event.extendedProps.customProperties[key] = value;
     }
 
     /**
