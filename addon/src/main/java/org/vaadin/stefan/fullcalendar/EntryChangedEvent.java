@@ -53,7 +53,7 @@ public abstract class EntryChangedEvent extends EntryDataEvent {
             Entry copy = getEntry().copy();
 
             JsonObject jsonObject = getJsonObject();
-            copy.update(jsonObject);
+            copy.updateFromJson(jsonObject, false);
 
             return (R) copy; // we use R here, since in most cases event listeners do not specify a generic type
 
