@@ -234,7 +234,6 @@ public class Entry extends JsonItem<String> {
      * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
      *
      * @param end      end
-     * @param timezone timezone
      * @throws NullPointerException when null is passed
      */
     public void setEnd(@NotNull LocalDate end) {
@@ -357,7 +356,7 @@ public class Entry extends JsonItem<String> {
     public void setRecurringStartDate(@NotNull LocalDate recurringStartDate, @NotNull Timezone timezone) {
         Objects.requireNonNull(recurringStartDate, "recurringStartDate");
         Objects.requireNonNull(timezone, "timezone");
-        setRecurringStartDate(timezone.convertToUTC(recurringStartDate));
+        setRecurringStartDateUTC(timezone.convertToUTC(recurringStartDate));
     }
 
 
@@ -391,7 +390,7 @@ public class Entry extends JsonItem<String> {
         Objects.requireNonNull(recurringEndDate, "recurringEndDate");
         Objects.requireNonNull(timezone, "timezone");
 
-        setRecurringEndDate(timezone.convertToUTC(recurringEndDate));
+        setRecurringEndDateUTC(timezone.convertToUTC(recurringEndDate));
     }
 
     /**
@@ -851,14 +850,59 @@ public class Entry extends JsonItem<String> {
         return get(EntryKey.RECURRING_START_DATE);
     }
 
+
     /**
      * Sets the start date for a recurring entry. Passing a date automatically marks this entry
      * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the future.
      * @see #isRecurring()
      * @param start start date
      */
-    public void setRecurringStartDate(Instant start) {
+    public void setRecurringStartDateUTC(Instant start) {
         set(EntryKey.RECURRING_START_DATE, start);
+    }
+
+    /**
+     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
+     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the future.
+     * @see #isRecurring()
+     * @param start start date
+     * @deprecated use {@link #setRecurringStartDateUTC(Instant)} instead
+     *
+     */
+    @Deprecated
+    public void setRecurringStartDate(Instant start) {
+        setRecurringStartDateUTC(start);
+    }
+
+    /**
+     * Sets the given local date as recurring start. It is converted to an instant by using the
+     * calendar's server start timezone.
+     *
+     * @param recurringStart start
+     */
+    public void setRecurringStartDate(LocalDate recurringStart) {
+        setRecurringStartDate(recurringStart, getStartTimezoneServer());
+    }
+
+    /**
+     * Sets the given local date as recurring start. It is converted to an instant by using the
+     * calendar's server start timezone.
+     *
+     * @param recurringStart start
+     * @deprecated use {@link #setRecurringStartDate(LocalDate)}
+     */
+    @Deprecated
+    public void setRecurringStart(LocalDate recurringStart) {
+        setRecurringStartDate(recurringStart);
+    }
+
+    /**
+     * Returns the recurring start of the entry as local date time based on the timezone returned by {@link #getEndTimezoneServer()}.
+     *
+     * @return start as local date time
+     */
+    public LocalDate getRecurringStartDate() {
+        return getRecurringStartDate(getStartTimezoneServer());
     }
 
     /**
@@ -878,18 +922,21 @@ public class Entry extends JsonItem<String> {
      * @see #isRecurring()
      * @param end end date
      */
-    public void setRecurringEndDate(Instant end) {
+    public void setRecurringEndDateUTC(Instant end) {
         set(EntryKey.RECURRING_END_DATE, end);
     }
 
-
     /**
-     * Returns the recurring start of the entry as local date time based on the timezone returned by {@link #getEndTimezoneServer()}.
+     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
+     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the past.
+     * @see #isRecurring()
+     * @param end end date
      *
-     * @return start as local date time
+     * @deprecated use {@link #setRecurringEndDateUTC(Instant)} instead
      */
-    public LocalDate getRecurringStartDate() {
-        return getRecurringStartDate(getStartTimezoneServer());
+    @Deprecated
+    public void setRecurringEndDate(Instant end) {
+        setRecurringEndDateUTC(end);
     }
 
     /**
@@ -902,13 +949,13 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Sets the given local date as recurring start. It is converted to an instant by using the
-     * calendar's server start timezone.
+     * Sets the given local date as recurring end. It is converted to an instant by using the
+     * calendar's server end timezone.
      *
-     * @param recurringStart start
+     * @param recurringEnd end
      */
-    public void setRecurringStart(LocalDate recurringStart) {
-        setRecurringStartDate(recurringStart, getStartTimezoneServer());
+    public void setRecurringEndDate(LocalDate recurringEnd) {
+        setRecurringEndDate(recurringEnd, getEndTimezoneServer());
     }
 
     /**
@@ -916,10 +963,13 @@ public class Entry extends JsonItem<String> {
      * calendar's server end timezone.
      *
      * @param recurringEnd end
+     * @deprecated use {@link #setRecurringEndDate(LocalDate)}
      */
+    @Deprecated
     public void setRecurringEnd(LocalDate recurringEnd) {
-        setRecurringEndDate(recurringEnd, getEndTimezoneServer());
+        setRecurringEndDate(recurringEnd);
     }
+
 
     /**
      * The start time of recurrence per day. When not defined, recurrence will extend to the end of day for
@@ -963,6 +1013,28 @@ public class Entry extends JsonItem<String> {
      */
     public void setRecurringEndTime(LocalTime end) {
         set(EntryKey.RECURRING_END_TIME, end);
+    }
+
+    /**
+     * Sets the recurring start as local date time. Shortcut for calling {@link #setRecurringStartDate(LocalDate)}
+     * and {@link #setRecurringStartTime(LocalTime)}.
+     *
+     * @param recurringStart recurring start
+     */
+    public void setRecurringStart(LocalDateTime recurringStart) {
+        setRecurringStartDate(recurringStart.toLocalDate());
+        setRecurringStartTime(recurringStart.toLocalTime());
+    }
+
+    /**
+     * Sets the recurring end as local date time. Shortcut for calling {@link #setRecurringEndDate(LocalDate)}
+     * and {@link #setRecurringEndTime(LocalTime)}.
+     *
+     * @param recurringEnd recurring end
+     */
+    public void setRecurringEnd(LocalDateTime recurringEnd) {
+        setRecurringEndDate(recurringEnd.toLocalDate());
+        setRecurringEndTime(recurringEnd.toLocalTime());
     }
 
     @Getter
