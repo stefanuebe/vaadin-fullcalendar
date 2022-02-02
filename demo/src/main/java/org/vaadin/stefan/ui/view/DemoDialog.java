@@ -240,7 +240,7 @@ public class DemoDialog extends Dialog {
             dialogEntry.setRecurring(recurring);
 
             if (recurring) {
-                dialogEntry.setRecurringDays(entry.getRecurringDaysOfWeeks());
+                dialogEntry.setRecurringDays(entry.getRecurringDaysOfWeek());
 
                 LocalDate startDate = entry.getRecurringStartDate(timezone);
                 LocalDate endDate = entry.getRecurringEndDate(timezone);
@@ -267,10 +267,10 @@ public class DemoDialog extends Dialog {
             entry.setAllDay(allDay);
 
             if (recurring) {
-                entry.setRecurringDaysOfWeeks(getRecurringDays());
+                entry.setRecurringDaysOfWeek(getRecurringDays());
 
-                entry.setStart((Instant) null);
-                entry.setEnd((Instant) null);
+                entry.setStartUTC(null);
+                entry.setEndUTC(null);
 
                 entry.setRecurringStartDate(start.toLocalDate(), timezone);
                 entry.setRecurringStartTime(allDay ? null : start.toLocalTime());
@@ -281,11 +281,11 @@ public class DemoDialog extends Dialog {
                 entry.setStart(start, timezone);
                 entry.setEnd(end, timezone);
 
-                entry.setRecurringStartDate((Instant) null);
+                entry.setRecurringStartDateUTC(null);
                 entry.setRecurringStartTime(null);
-                entry.setRecurringEndDate((Instant) null);
+                entry.setRecurringEndDateUTC(null);
                 entry.setRecurringEndTime(null);
-                entry.setRecurringDaysOfWeeks(null);
+                entry.setRecurringDaysOfWeek(null);
             }
 
             return entry;

@@ -94,7 +94,7 @@ public class BasicDemo extends VerticalLayout {
 
         ComboBox<Timezone> timezoneComboBox = new ComboBox<>("");
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
-        timezoneComboBox.setItems(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")));
+        timezoneComboBox.setItems(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
         timezoneComboBox.setValue(Timezone.UTC);
         timezoneComboBox.addValueChangeListener(event -> {
             Timezone value = event.getValue();
