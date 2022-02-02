@@ -224,8 +224,8 @@ public class EntryTest {
     void testToJsonUTC() {
         Entry entry = new Entry(DEFAULT_ID);
         entry.setTitle(DEFAULT_TITLE);
-        entry.setStart(DEFAULT_START_UTC);
-        entry.setEnd(DEFAULT_END_UTC);
+        entry.setStartUTC(DEFAULT_START_UTC);
+        entry.setEndUTC(DEFAULT_END_UTC);
         entry.setAllDay(true);
         entry.setEditable(true);
         entry.setColor(DEFAULT_COLOR);
