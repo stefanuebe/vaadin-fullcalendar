@@ -122,7 +122,6 @@ public class Entry extends JsonItem<String> {
      * @param start start
      */
     public void setStart(LocalDateTime start) {
-//        setStart(start, getStartTimezoneServer());
         set(EntryKey.START, start);
     }
 
@@ -145,7 +144,6 @@ public class Entry extends JsonItem<String> {
      * @return start as local date time
      */
     public LocalDateTime getEnd() {
-//        return getEnd(getEndTimezoneServer());
         return get(EntryKey.END);
     }
 
@@ -156,7 +154,6 @@ public class Entry extends JsonItem<String> {
      * @param end end
      */
     public void setEnd(LocalDateTime end) {
-//        setEnd(end, getEndTimezoneServer());
         set(EntryKey.END, end);
     }
 
@@ -187,6 +184,14 @@ public class Entry extends JsonItem<String> {
 //        Objects.requireNonNull(timezone, "timezone");
 //        setStart(timezone.convertToUTC(start));
 //    }
+
+    public void clearStart() {
+        setStart((LocalDateTime) null);
+    }
+
+    public void clearEnd() {
+        setEnd((LocalDateTime) null);
+    }
 
     /**
      * Sets the given local date as start using the start of the day as time. It is converted to an instant by using the

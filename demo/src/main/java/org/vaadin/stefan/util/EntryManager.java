@@ -104,7 +104,7 @@ public class EntryManager {
 	static void setValues(FullCalendar calendar, Entry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
         entry.setTitle(title);
         entry.setStart(start);
-        entry.setEndUTC(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setEnd(entry.getStart().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
     }
@@ -112,7 +112,7 @@ public class EntryManager {
 	static void setValues(FullCalendar calendar, ResourceEntry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
         entry.setTitle(title);
         entry.setStart(start);
-        entry.setEndUTC(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setEnd(entry.getStart().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
         entry.setCustomProperty("description", "Description of " + title);
@@ -121,7 +121,7 @@ public class EntryManager {
     static void setValues(FullCalendar calendar, ResourceEntry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color, HashMap<String, Object> extendedProps) {
         entry.setTitle(title);
         entry.setStart(start);
-        entry.setEndUTC(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setEnd(entry.getStart().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
         entry.setCustomProperties(extendedProps);
@@ -130,7 +130,7 @@ public class EntryManager {
     static void setValues(FullCalendar calendar, ResourceEntry entry, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
     	entry.setTitle("");
         entry.setStart(start);
-        entry.setEndUTC(entry.getStartUTC().plus(amountToAdd, unit));
+        entry.setEnd(entry.getStart().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
     }

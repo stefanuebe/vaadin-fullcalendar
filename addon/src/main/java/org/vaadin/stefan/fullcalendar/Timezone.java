@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -137,6 +138,10 @@ public class Timezone implements ClientSideValue {
 
     public ZonedDateTime applyTimezone(LocalDateTime localDateTime) {
         return ZonedDateTime.of(localDateTime, getZoneId());
+    }
+
+    public OffsetDateTime applyOffset(LocalDateTime localDateTime) {
+        return applyTimezone(localDateTime).toOffsetDateTime();
     }
 
 //    /**

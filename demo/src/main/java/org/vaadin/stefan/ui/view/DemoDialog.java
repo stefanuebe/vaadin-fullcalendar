@@ -239,18 +239,18 @@ public class DemoDialog extends Dialog {
             boolean recurring = entry.isRecurring();
             dialogEntry.setRecurring(recurring);
 
-            if (recurring) {
-                dialogEntry.setRecurringDays(entry.getRecurringDaysOfWeek());
-
-                LocalDate startDate = entry.getRecurringStartDate(timezone);
-                LocalDate endDate = entry.getRecurringEndDate(timezone);
-
-                dialogEntry.setStart(entry.isAllDay() ? startDate.atStartOfDay() : startDate.atTime(entry.getRecurringStartTime()));
-                dialogEntry.setEnd(entry.isAllDay() ? endDate.atStartOfDay().plusDays(1) : endDate.atTime(entry.getRecurringEndTime()));
-            } else {
-                dialogEntry.setStart(entry.getStart(timezone));
-                dialogEntry.setEnd(entry.getEnd(timezone));
-            }
+//            if (recurring) {
+//                dialogEntry.setRecurringDays(entry.getRecurringDaysOfWeek());
+//
+//                LocalDate startDate = entry.getRecurringStartDate(timezone);
+//                LocalDate endDate = entry.getRecurringEndDate(timezone);
+//
+//                dialogEntry.setStart(entry.isAllDay() ? startDate.atStartOfDay() : startDate.atTime(entry.getRecurringStartTime()));
+//                dialogEntry.setEnd(entry.isAllDay() ? endDate.atStartOfDay().plusDays(1) : endDate.atTime(entry.getRecurringEndTime()));
+//            } else {
+//                dialogEntry.setStart(entry.getStart(timezone));
+//                dialogEntry.setEnd(entry.getEnd(timezone));
+//            }
 
             return dialogEntry;
         }
@@ -269,21 +269,25 @@ public class DemoDialog extends Dialog {
             if (recurring) {
                 entry.setRecurringDaysOfWeek(getRecurringDays());
 
-                entry.setStartUTC(null);
-                entry.setEndUTC(null);
+                entry.clearStart();
+                entry.clearEnd();
 
-                entry.setRecurringStartDate(start.toLocalDate(), timezone);
+//                entry.setRecurringStartDate(start.toLocalDate(), timezone);
+                entry.setRecurringStartDate(start.toLocalDate());
                 entry.setRecurringStartTime(allDay ? null : start.toLocalTime());
 
-                entry.setRecurringEndDate(end.toLocalDate(), timezone);
+//                entry.setRecurringEndDate(end.toLocalDate(), timezone);
+                entry.setRecurringEndDate(end.toLocalDate());
                 entry.setRecurringEndTime(allDay ? null : end.toLocalTime());
             } else {
-                entry.setStart(start, timezone);
-                entry.setEnd(end, timezone);
+//                entry.setStart(start, timezone);
+//                entry.setEnd(end, timezone);
+                entry.setStart(start);
+                entry.setEnd(end);
 
-                entry.setRecurringStartDateUTC(null);
+                entry.setRecurringStartDate(null);
                 entry.setRecurringStartTime(null);
-                entry.setRecurringEndDateUTC(null);
+                entry.setRecurringEndDate(null);
                 entry.setRecurringEndTime(null);
                 entry.setRecurringDaysOfWeek(null);
             }
