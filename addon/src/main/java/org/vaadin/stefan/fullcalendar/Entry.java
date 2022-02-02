@@ -972,7 +972,7 @@ public class Entry extends JsonItem<String> {
 
         @Override
         public JsonValue toJsonValue(Instant serverValue, T currentInstance) {
-            return JsonUtils.toJsonValue(serverValue == null ? null : timezoneSupplier.apply(currentInstance).formatWithZoneId(serverValue));
+            return JsonUtils.toJsonValue(serverValue == null ? null : Timezone.UTC.formatWithZoneId(serverValue));
         }
 
         @Override
@@ -982,7 +982,7 @@ public class Entry extends JsonItem<String> {
             }
 
             if (clientValue instanceof JsonString) {
-                return JsonUtils.parseDateTimeString(clientValue.asString(), timezoneSupplier.apply(currentInstance));
+                return JsonUtils.parseDateTimeString(clientValue.asString(), Timezone.UTC);
             }
 
             throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString");
