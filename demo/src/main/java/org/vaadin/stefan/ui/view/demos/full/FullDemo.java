@@ -19,42 +19,36 @@ package org.vaadin.stefan.ui.view.demos.full;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
-
 import com.vaadin.flow.router.Route;
 import elemental.json.Json;
 import elemental.json.JsonObject;
+import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.ui.MainLayout;
 import org.vaadin.stefan.ui.view.DemoDialog;
 import org.vaadin.stefan.ui.view.SettingsDialog;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
-import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
-import org.vaadin.stefan.ui.menu.MenuItem;
 
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -63,31 +57,35 @@ import java.util.stream.IntStream;
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
 @PageTitle("Full Demo")
-@MenuItem(label = "Full Demo")
+@org.vaadin.stefan.ui.menu.MenuItem(label = "Full Demo")
 public class FullDemo extends VerticalLayout {
-	private static final long serialVersionUID = 1L;
+
+    public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
+
+    private static final long serialVersionUID = 1L;
 
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private Button buttonDatePicker;
-    private FormLayout toolbar;
-    
+    private MenuBar toolbar;
+
     private Timezone timezone;
 
     public FullDemo() {
-    	initView();
-    	
-    	createToolbar();
-		add(toolbar);
+        initView();
+
+
+        createToolbar();
+        add(toolbar);
 
         createCalendarInstance();
         addAndExpand(calendar);
 
         createTestEntries();
     }
-    
+
     private void initView() {
-    	setSizeFull();
+        setSizeFull();
     }
 
     private void createToolbar() {
@@ -162,8 +160,8 @@ public class FullDemo extends VerticalLayout {
             Optional<UI> optionalUI = getUI();
             optionalUI.ifPresent(ui -> {
                 Executors.newSingleThreadExecutor().execute(() -> {
-                    Instant start = Instant.now();
-                    Instant end = Instant.now().plus(1, ChronoUnit.DAYS);
+                    LocalDateTime start = LocalDateTime.now();
+                    LocalDateTime end = LocalDateTime.now().plus(1, ChronoUnit.DAYS);
                     List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
                         Entry entry = new ResourceEntry();
                         entry.setStart(start);
@@ -220,7 +218,7 @@ public class FullDemo extends VerticalLayout {
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
-        
+
         calendar.setSlotMinTime(LocalTime.of(7, 0));
         calendar.setSlotMaxTime(LocalTime.of(17, 0));
 
@@ -248,23 +246,23 @@ public class FullDemo extends VerticalLayout {
             System.out.println("Old resource: " + event.getOldResource());
             System.out.println("New resource: " + event.getNewResource());
             Entry entry = event.getEntry();
-            System.out.println(entry.getStart() + " / " + entry.getStartUTC());
+            System.out.println(entry.getStart() + " / " + entry.getStart());
             System.out.println(event.applyChangesOnEntry());
-            System.out.println(entry.getStart() + " / " + entry.getStartUTC());
+            System.out.println(entry.getStart() + " / " + entry.getStart());
 
         });
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
         calendar.addEntryClickedListener(event -> {
-        	if(event.getEntry().getRenderingMode() != RenderingMode.BACKGROUND && event.getEntry().getRenderingMode() != RenderingMode.INVERSE_BACKGROUND)
-        		new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open();
+            if (event.getEntry().getRenderingMode() != RenderingMode.BACKGROUND && event.getEntry().getRenderingMode() != RenderingMode.INVERSE_BACKGROUND)
+                new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open();
         });
 
         ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
             ResourceEntry entry = new ResourceEntry();
 
-            entry.setStart(event.getStartDateTimeUTC());
-            entry.setEnd(event.getEndDateTimeUTC());
+            entry.setStart(event.getStartDateTime());
+            entry.setEnd(event.getEndDateTime());
             entry.setAllDay(event.isAllDay());
 
             entry.setColor("dodgerblue");
@@ -310,15 +308,15 @@ public class FullDemo extends VerticalLayout {
         });
 
         calendar.setEntryDidMountCallback(
-        		  "function(info) { " 
-        		+ "    if(info.event.extendedProps.cursors != undefined) { "
-        		+ "        if(!info.event.startEditable) { "
-        		+ "            info.el.style.cursor = info.event.extendedProps.cursors.disabled;" 
-        		+ "        } else { " 
-        		+ "            info.el.style.cursor = info.event.extendedProps.cursors.enabled;" 
-        		+ "        }"
-        		+ "    }"
-        		+ "}");
+                "function(info) { "
+                        + "    if(info.event.extendedProps.cursors != undefined) { "
+                        + "        if(!info.event.startEditable) { "
+                        + "            info.el.style.cursor = info.event.extendedProps.cursors.disabled;"
+                        + "        } else { "
+                        + "            info.el.style.cursor = info.event.extendedProps.cursors.enabled;"
+                        + "        }"
+                        + "    }"
+                        + "}");
     }
 
     private void createTestEntries() {
@@ -327,9 +325,9 @@ public class FullDemo extends VerticalLayout {
         Resource meetingRoomRed = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Red", "#ff0000");
         Resource meetingRoomGreen = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Green", "green");
         Resource meetingRoomBlue = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
-        Resource meetingRoomOrange = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Orange", "orange", null, 
-        		new BusinessHours(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
-        
+        Resource meetingRoomOrange = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Orange", "orange", null,
+                new BusinessHours(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
+
         Resource computer1A = ResourceManager.createResource((Scheduler) calendar, "Computer 1A", "lightbrown");
         Resource computer1B = ResourceManager.createResource((Scheduler) calendar, "Computer 1B", "lightbrown");
         Resource computer1C = ResourceManager.createResource((Scheduler) calendar, "Computer 1C", "lightbrown");
@@ -428,7 +426,7 @@ public class FullDemo extends VerticalLayout {
                     break;
             }
         } else if (view instanceof SchedulerView) {
-            switch((SchedulerView) view) {
+            switch ((SchedulerView) view) {
                 case TIMELINE_DAY:
                 case RESOURCE_TIMELINE_DAY:
                 case RESOURCE_TIME_GRID_DAY:
@@ -452,6 +450,5 @@ public class FullDemo extends VerticalLayout {
 
         intervalLabel.setText(text);
     }
-
 
 }

@@ -154,8 +154,8 @@ public class DemoWithTooltip extends VerticalLayout {
             Optional<UI> optionalUI = getUI();
             optionalUI.ifPresent(ui -> {
                 Executors.newSingleThreadExecutor().execute(() -> {
-                    Instant start = Instant.now();
-                    Instant end = Instant.now().plus(1, ChronoUnit.DAYS);
+                    LocalDateTime start = LocalDateTime.now();
+                    LocalDateTime end = LocalDateTime.now().plus(1, ChronoUnit.DAYS);
                     List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
                         Entry entry = new ResourceEntry();
                         entry.setStart(start);
@@ -260,8 +260,8 @@ public class DemoWithTooltip extends VerticalLayout {
         ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
             ResourceEntry entry = new ResourceEntry();
 
-            entry.setStart(event.getStartDateTimeUTC());
-            entry.setEnd(event.getEndDateTimeUTC());
+            entry.setStart(event.getStartDateTime());
+            entry.setEnd(event.getEndDateTime());
             entry.setAllDay(event.isAllDay());
 
             entry.setColor("dodgerblue");
