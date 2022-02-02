@@ -20,8 +20,8 @@ import com.vaadin.flow.function.SerializableFunction;
 import elemental.json.*;
 
 import javax.validation.constraints.NotNull;
-import java.time.*;
-import java.time.format.DateTimeParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -38,7 +38,7 @@ public final class JsonUtils {
     /**
      * Converts the given object to a json value. Can be null.
      *
-     * @param value                   value
+     * @param value value
      * @return object
      */
     public static JsonValue toJsonValue(Object value) {
@@ -49,7 +49,7 @@ public final class JsonUtils {
      * Converts the given object to a json value. Can be null. The given custom converter is applied, when
      * there is no default conversion found for the given value. Can be null to convert it to a simple string.
      *
-     * @param value                   value
+     * @param value value
      * @return object
      */
     @SuppressWarnings("unchecked")
@@ -109,6 +109,7 @@ public final class JsonUtils {
     /**
      * Returns true, if this value would be converted to a json array (or iterable like) for the client, like
      * any Java iterable, stream, array, map or iterator.
+     *
      * @param value value
      * @return value
      */
@@ -120,40 +121,48 @@ public final class JsonUtils {
                 || value instanceof Stream<?>;
     }
 
+    public static String formatClientSideDateString(LocalDate localDate) {
+        return localDate != null ? localDate.toString() : null;
+    }
+
+    public static String formatClientSideDateString(LocalDateTime localDateTiem) {
+        return localDateTiem != null ? localDateTiem.toLocalDate().toString() : null;
+    }
+
+    public static String formatClientSideDateTimeString(LocalDateTime localDateTime) {
+        return localDateTime == null ? null : localDateTime + "Z";
+    }
+
+    public static String formatClientSideDateTimeString(LocalDate localDate) {
+        return localDate == null ? null : localDate.atStartOfDay() + "Z";
+    }
+
     /**
-     * Parses a date time string sent from the client side. This string may apply to ZonedDateTime, Instant, LocalDate
-     * or LocalDateTime default parsers. The resulting temporal will be UTC based.
-     * <br><br>
-     * If no timezone is passed but is needed, the method will use the system's timezone.
+     * Parses a date string sent from the client side. Will be converted to a UTC.
      *
-     * @param dateTimeString date time string
-     * @param timezone       timezone
      * @return UTC based date time instance
      * @throws NullPointerException when null is passed for not null parameters
      */
-    public static Instant parseDateTimeString(@NotNull String dateTimeString, Timezone timezone) {
-        Objects.requireNonNull(dateTimeString, "dateTimeString");
-        Instant dateTime;
+    public static LocalDate parseClientSideDate(@NotNull String dateString) {
+        Objects.requireNonNull(dateString, "dateString");
 
-        try {
-            ZonedDateTime parse = ZonedDateTime.parse(dateTimeString);
-            dateTime = parse.toInstant();
-        } catch (DateTimeParseException e) {
-            try {
-                dateTime = Instant.parse(dateTimeString);
-            } catch (DateTimeParseException e1) {
-                if (timezone == null) {
-                    timezone = Timezone.getSystem();
-                }
-
-                try {
-                    dateTime = timezone.convertToUTC(LocalDateTime.parse(dateTimeString));
-                } catch (DateTimeException e2) {
-                    dateTime = timezone.convertToUTC(LocalDate.parse(dateTimeString));
-                }
-            }
+        if (dateString.length() > 10) {
+            dateString = dateString.substring(0, 10);
         }
-        return dateTime;
+
+        return LocalDate.parse(dateString);
+    }
+
+    public static LocalDateTime parseClientSideDateTime(@NotNull String dateTimeString) {
+        if (dateTimeString.length() <= 10) {
+            return parseClientSideDate(dateTimeString).atStartOfDay();
+        }
+
+        if (dateTimeString.endsWith("Z")) {
+            return LocalDateTime.parse(dateTimeString.substring(0, dateTimeString.length() - 1));
+        }
+
+        throw new IllegalArgumentException("Parsing non utc date time string: " + dateTimeString);
     }
 
     /**
@@ -338,13 +347,13 @@ public final class JsonUtils {
      * @deprecated not maintained anymore, will be removed in one of the next versions
      */
     @Deprecated
-    public static void updateDateTime(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Instant> setter, @NotNull Timezone timezone) {
+    public static void updateDateTime(@NotNull JsonObject object, @NotNull String key, Consumer<LocalDateTime> setter, @NotNull Timezone timezone) {
         Objects.requireNonNull(object, "JsonObject");
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(setter, "setter");
         Objects.requireNonNull(timezone, "timezone");
         if (object.get(key) instanceof JsonString) {
-            Instant dateTime = parseDateTimeString(object.getString(key), timezone);
+            LocalDateTime dateTime = parseClientSideDateTime(object.getString(key));
 
             setter.accept(dateTime);
         }

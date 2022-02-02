@@ -17,11 +17,9 @@
 package org.vaadin.stefan.fullcalendar;
 
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -59,6 +57,7 @@ public class Timezone implements ClientSideValue {
     /**
      * Returns all available timezones. This arrayy bases on all constants of this class plus all available zone ids
      * returned by {@link ZoneId#getAvailableZoneIds()}.
+     *
      * @return timezones
      */
     public static Timezone[] getAvailableZones() {
@@ -67,6 +66,7 @@ public class Timezone implements ClientSideValue {
 
     /**
      * Creates a new instance based on the given zone id. The zone id is also used as client side representation.
+     *
      * @param zoneId zone id
      * @throws NullPointerException when zoneId is null
      */
@@ -76,7 +76,8 @@ public class Timezone implements ClientSideValue {
 
     /**
      * Creates a new instance based on the given zone id and client side value.
-     * @param zoneId zone id
+     *
+     * @param zoneId          zone id
      * @param clientSideValue client side value
      * @throws NullPointerException when zoneId is null
      */
@@ -88,6 +89,7 @@ public class Timezone implements ClientSideValue {
 
     /**
      * Returns a new timezone instance representing the system's current timezone.
+     *
      * @return system's timezone
      */
     public static Timezone getSystem() {
@@ -96,6 +98,7 @@ public class Timezone implements ClientSideValue {
 
     /**
      * Returns the client side value of this instance.
+     *
      * @return client side value
      */
     @Override
@@ -105,71 +108,96 @@ public class Timezone implements ClientSideValue {
 
     /**
      * Returns the zone id of this instance. Never null.
+     *
      * @return zone id
      */
     public ZoneId getZoneId() {
         return zoneId;
     }
 
-    /**
-     * Formats the given instant based on the zone id to be sent to the client side.
-     * For UTC based timezones the string will end on a Z, all other zone ids are parsed as local date versions.
-     *
-     * @param instant instant
-     * @return formatted date time
-     * @throws NullPointerException when null is passed
-     */
-    public String formatWithZoneId(@NotNull Instant instant) {
-        Objects.requireNonNull(instant);
-        if (this == UTC || this.zoneId.equals(ZONE_ID_UTC)) {
-            return instant.toString();
-        }
+//    /**
+//     * Formats the given instant based on the zone id to be sent to the client side.
+//     * For UTC based timezones the string will end on a Z, all other zone ids are parsed as local date versions.
+//     *
+//     * @param instant instant
+//     * @return formatted date time
+//     * @throws NullPointerException when null is passed
+//     */
+//    public String formatWithZoneId(@NotNull Instant instant) {
+//        Objects.requireNonNull(instant);
+//        if (this == UTC || this.zoneId.equals(ZONE_ID_UTC)) {
+//            return instant.toString();
+//        }
+//
+//        ZoneId zoneId = getZoneId();
+//        LocalDateTime temporal = LocalDateTime.ofInstant(instant, zoneId);
+//
+//        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(temporal);
+//    }
 
-        ZoneId zoneId = getZoneId();
-        LocalDateTime temporal = LocalDateTime.ofInstant(instant, zoneId);
-
-        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(temporal);
+    public ZonedDateTime applyTimezone(LocalDateTime localDateTime) {
+        return ZonedDateTime.of(localDateTime, getZoneId());
     }
 
-    /**
-     * Applies the rules of this timezone on the given local date and creates an instant at the start
-     * of the given day. Please check the additional documentation on
-     * {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
-     * @param date local date
-     * @return instant
-     */
-    public Instant convertToUTC(LocalDate date) {
-        LocalDateTime dateTime = date.atStartOfDay();
-        return convertToUTC(dateTime);
-    }
+//    /**
+//     * Formats the given instant based on the zone id to be sent to the client side.
+//     * For UTC based timezones the string will end on a Z, all other zone ids are parsed as local date versions.
+//     *
+//     * @param localDateTime instant
+//     * @return formatted date time
+//     * @throws NullPointerException when null is passed
+//     */
+//    public String formatWithZoneId(@NotNull LocalDateTime localDateTime) {
+//        Objects.requireNonNull(localDateTime);
+//        if (this == UTC || this.zoneId.equals(ZONE_ID_UTC)) {
+//            return localDateTime + "/";
+//        }
+//
+//        ZoneId zoneId = getZoneId();
+//        LocalDateTime temporal = LocalDateTime.ofInstant(localDateTime, zoneId);
+//
+//        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(temporal);
+//    }
 
-    /**
-     * Applies the rules of this timezone on the given local date time and creates an instant. Please check
-     * the additional documentation on {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
-     * @param dateTime local date time
-     * @return instant
-     */
-    public Instant convertToUTC(LocalDateTime dateTime) {
-        return dateTime.toInstant(getZoneId().getRules().getOffset(dateTime));
-    }
-
-    /**
-     * Applies the rules of this timezone on the given instant and creates a local date time.
-     * @param instant instant
-     * @return local date time
-     */
-    public LocalDateTime convertToLocalDateTime(Instant instant) {
-        return LocalDateTime.ofInstant(instant, getZoneId());
-    }
-
-    /**
-     * Applies the rules of this timezone on the given instant and creates a local date.
-     * @param instant instant
-     * @return local date
-     */
-    public LocalDate convertToLocalDate(Instant instant) {
-        return convertToLocalDateTime(instant).toLocalDate();
-    }
+//    /**
+//     * Applies the rules of this timezone on the given local date and creates an instant at the start
+//     * of the given day. Please check the additional documentation on
+//     * {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
+//     * @param date local date
+//     * @return instant
+//     */
+//    public Instant convertToUTC(LocalDate date) {
+//        LocalDateTime dateTime = date.atStartOfDay();
+//        return convertToUTC(dateTime);
+//    }
+//
+//    /**
+//     * Applies the rules of this timezone on the given local date time and creates an instant. Please check
+//     * the additional documentation on {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
+//     * @param dateTime local date time
+//     * @return instant
+//     */
+//    public Instant convertToUTC(LocalDateTime dateTime) {
+//        return dateTime.toInstant(getZoneId().getRules().getOffset(dateTime));
+//    }
+//
+//    /**
+//     * Applies the rules of this timezone on the given instant and creates a local date time.
+//     * @param instant instant
+//     * @return local date time
+//     */
+//    public LocalDateTime convertToLocalDateTime(Instant instant) {
+//        return LocalDateTime.ofInstant(instant, getZoneId());
+//    }
+//
+//    /**
+//     * Applies the rules of this timezone on the given instant and creates a local date.
+//     * @param instant instant
+//     * @return local date
+//     */
+//    public LocalDate convertToLocalDate(Instant instant) {
+//        return convertToLocalDateTime(instant).toLocalDate();
+//    }
 
     @Override
     public String toString() {

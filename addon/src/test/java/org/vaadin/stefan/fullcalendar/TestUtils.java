@@ -102,24 +102,24 @@ public class TestUtils {
         }
     }
 
-    /**
-     * Reads the json property by key and tries to apply it as a temporal. Might use the timezone, if conversion to UTC is needed.
-     *
-     * @param object   json object
-     * @param key      json property key
-     * @param setter   setter to apply value
-     * @param timezone timezone
-     * @throws NullPointerException when null is passed for not null parameters
-     */
-    public static void updateDateTime(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Instant> setter, @NotNull Timezone timezone) {
-        Objects.requireNonNull(object, "JsonObject");
-        Objects.requireNonNull(key, "key");
-        Objects.requireNonNull(setter, "setter");
-        Objects.requireNonNull(timezone, "timezone");
-        if (object.get(key) instanceof JsonString) {
-            Instant dateTime = JsonUtils.parseDateTimeString(object.getString(key), timezone);
-
-            setter.accept(dateTime);
-        }
-    }
+//    /**
+//     * Reads the json property by key and tries to apply it as a temporal. Might use the timezone, if conversion to UTC is needed.
+//     *
+//     * @param object   json object
+//     * @param key      json property key
+//     * @param setter   setter to apply value
+//     * @param timezone timezone
+//     * @throws NullPointerException when null is passed for not null parameters
+//     */
+//    public static void updateDateTime(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Instant> setter, @NotNull Timezone timezone) {
+//        Objects.requireNonNull(object, "JsonObject");
+//        Objects.requireNonNull(key, "key");
+//        Objects.requireNonNull(setter, "setter");
+//        Objects.requireNonNull(timezone, "timezone");
+//        if (object.get(key) instanceof JsonString) {
+//            Instant dateTime = JsonUtils.parseClientSideDateTime(object.getString(key), timezone);
+//
+//            setter.accept(dateTime);
+//        }
+//    }
 }

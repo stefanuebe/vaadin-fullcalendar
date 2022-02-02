@@ -263,43 +263,43 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return new ArrayList<>(entries.values());
     }
 
-    /**
-     * Returns all entries registered in this instance which timespan crosses the given time span. You may
-     * pass null for the parameters to have the timespan search only on one side. Passing null for both
-     * parameters return all entries.
-     * <br><br>
-     * Changes in an entry instance is reflected in the
-     * calendar instance on server side, but not client side. If you change an entry make sure to call
-     * {@link #updateEntry(Entry)} afterwards.
-     * <br><br>
-     * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
-     * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
-     * exclusive to the date.
-     * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
-     * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
-     * include it.
-     *
-     * @param filterStart start point of filter timespan or null to have no limit
-     * @param filterEnd   end point of filter timespan or null to have no limit
-     * @return entries
-     */
-    public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
-        if (filterStart == null && filterEnd == null) {
-            return getEntries();
-        }
-
-        Stream<Entry> stream = getEntries().stream();
-
-        if (filterStart != null) {
-            stream = stream.filter(e -> e.getEndUTC() != null && e.getEndUTC().isAfter(filterStart));
-        }
-
-        if (filterEnd != null) {
-            stream = stream.filter(e -> e.getStartUTC() != null && e.getStartUTC().isBefore(filterEnd));
-        }
-
-        return stream.collect(Collectors.toList());
-    }
+//    /**
+//     * Returns all entries registered in this instance which timespan crosses the given time span. You may
+//     * pass null for the parameters to have the timespan search only on one side. Passing null for both
+//     * parameters return all entries.
+//     * <br><br>
+//     * Changes in an entry instance is reflected in the
+//     * calendar instance on server side, but not client side. If you change an entry make sure to call
+//     * {@link #updateEntry(Entry)} afterwards.
+//     * <br><br>
+//     * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
+//     * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
+//     * exclusive to the date.
+//     * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
+//     * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
+//     * include it.
+//     *
+//     * @param filterStart start point of filter timespan or null to have no limit
+//     * @param filterEnd   end point of filter timespan or null to have no limit
+//     * @return entries
+//     */
+//    public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
+//        if (filterStart == null && filterEnd == null) {
+//            return getEntries();
+//        }
+//
+//        Stream<Entry> stream = getEntries().stream();
+//
+//        if (filterStart != null) {
+//            stream = stream.filter(e -> e.getEndUTC() != null && e.getEndUTC().isAfter(filterStart));
+//        }
+//
+//        if (filterEnd != null) {
+//            stream = stream.filter(e -> e.getStartUTC() != null && e.getStartUTC().isBefore(filterEnd));
+//        }
+//
+//        return stream.collect(Collectors.toList());
+//    }
 
     /**
      * Returns all entries registered in this instance which timespan crosses the given time span. You may
@@ -323,25 +323,38 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return entries
      */
     public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
-        Timezone timezone = getTimezoneServer();
-        return getEntries(filterStart == null ? null : timezone.convertToUTC(filterStart), filterEnd == null ? null : timezone.convertToUTC(filterEnd));
+        if (filterStart == null && filterEnd == null) {
+            return getEntries();
+        }
+
+        Stream<Entry> stream = getEntries().stream();
+
+        if (filterStart != null) {
+            stream = stream.filter(e -> e.getEnd() != null && e.getEnd().isAfter(filterStart));
+        }
+
+        if (filterEnd != null) {
+            stream = stream.filter(e -> e.getStart() != null && e.getStart().isBefore(filterEnd));
+        }
+
+        return stream.collect(Collectors.toList());
     }
 
-    /**
-     * Returns all entries registered in this instance which timespan crosses the given date.
-     * <br><br>
-     * Changes in an entry instance is reflected in the
-     * calendar instance on server side, but not client side. If you change an entry make sure to call
-     * {@link #updateEntry(Entry)} afterwards.
-     *
-     * @param date end point of filter timespan
-     * @return entries
-     * @throws NullPointerException when null is passed
-     */
-    public List<Entry> getEntries(@NotNull Instant date) {
-        Objects.requireNonNull(date);
-        return getEntries(date, date.plus(1, ChronoUnit.DAYS));
-    }
+//    /**
+//     * Returns all entries registered in this instance which timespan crosses the given date.
+//     * <br><br>
+//     * Changes in an entry instance is reflected in the
+//     * calendar instance on server side, but not client side. If you change an entry make sure to call
+//     * {@link #updateEntry(Entry)} afterwards.
+//     *
+//     * @param date end point of filter timespan
+//     * @return entries
+//     * @throws NullPointerException when null is passed
+//     */
+//    public List<Entry> getEntries(@NotNull Instant date) {
+//        Objects.requireNonNull(date);
+//        return getEntries(date, date.plus(1, ChronoUnit.DAYS));
+//    }
 
     /**
      * Returns all entries registered in this instance which timespan crosses the given date. The date is converted
@@ -357,7 +370,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public List<Entry> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
-        return getEntries(getTimezoneServer().convertToUTC(date));
+        return getEntries(date.atStartOfDay());
     }
 
 
@@ -375,7 +388,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public List<Entry> getEntries(@NotNull LocalDateTime dateTime) {
         Objects.requireNonNull(dateTime);
-        return getEntries(getTimezoneServer().convertToUTC(dateTime));
+        return getEntries(dateTime, dateTime.plusDays(1));
     }
 
     /**
@@ -611,7 +624,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @throws NullPointerException when null is passed
      */
     public void setOption(@NotNull String option, JsonValue value) {
-        setOption(option, (JsonValue) value, null);
+        setOption(option, value, null);
     }
 
     /**
@@ -1035,13 +1048,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         }
     }
 
-    /**
-     * Returns the server side timezone.
-     * @return timezone
-     */
-    protected Timezone getTimezoneServer() {
-        return Timezone.getSystem();
-    }
+//    /**
+//     * Returns the server side timezone.
+//     * @return timezone
+//     */
+//    protected Timezone getTimezoneServer() {
+//        return Timezone.getSystem();
+//    }
 
     /**
      * Allow events’ durations to be editable through resizing.
