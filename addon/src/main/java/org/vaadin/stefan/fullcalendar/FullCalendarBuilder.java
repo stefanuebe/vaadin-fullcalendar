@@ -160,7 +160,31 @@ public class FullCalendarBuilder {
      * @return instance
      */
     protected FullCalendar createFullCalendarBasicInstance() {
-        return initialOptions != null ? new FullCalendar(initialOptions) : new FullCalendar(entryLimit);
+        if (initialOptions != null) {
+            extendInitialOptions();
+
+            FullCalendar calendar = new FullCalendar(initialOptions);
+            extendFcWithInitialOptions(calendar);
+            return calendar;
+        }
+
+        return new FullCalendar(entryLimit);
+    }
+
+    private void extendInitialOptions() {
+        if (initialOptions != null) {
+            if (entryLimit > 0 && !initialOptions.hasKey("dayMaxEvents")) {
+                initialOptions.put("dayMaxEvents", entryLimit);
+            }
+        }
+    }
+
+    private void extendFcWithInitialOptions(FullCalendar calendar) {
+        if (initialOptions != null) {
+            if (!initialOptions.hasKey(FullCalendar.Option.LOCALE.getOptionKey())) {
+                calendar.setLocale(CalendarLocale.getDefault());
+            }
+        }
     }
 
     /**
@@ -175,19 +199,22 @@ public class FullCalendarBuilder {
         try {
             Class<?> loadClass = getClass().getClassLoader().loadClass("org.vaadin.stefan.fullcalendar.FullCalendarScheduler");
 
-            Object scheduler;
+            FullCalendar scheduler;
 
             if (initialOptions != null) {
-                scheduler = loadClass.getDeclaredConstructor(JsonObject.class).newInstance(this.initialOptions);
+                extendInitialOptions();
+                scheduler = (FullCalendar) loadClass.getDeclaredConstructor(JsonObject.class).newInstance(this.initialOptions);
             } else {
-                scheduler = loadClass.getDeclaredConstructor(int.class).newInstance(this.entryLimit);
+                scheduler = (FullCalendar) loadClass.getDeclaredConstructor(int.class).newInstance(this.entryLimit);
             }
 
             if (schedulerLicenseKey != null) { // set the license key, if provided
                 scheduler.getClass().getMethod("setSchedulerLicenseKey", String.class).invoke(scheduler, schedulerLicenseKey);
             }
 
-            return (FullCalendar) scheduler;
+            extendFcWithInitialOptions(scheduler);
+
+            return scheduler;
         } catch (ClassNotFoundException ce) {
             throw new ExtensionNotFoundException("Could not find scheduler extension for FullCalendar on class path. Please check you libraries / dependencies.", ce);
         } catch (Exception e) {

@@ -463,7 +463,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             String id = entry.getId();
             if (entries.containsKey(id)) {
                 array.set(array.length(), entry.toJsonOnUpdate());
-
                 entry.setKnownToTheClient(true);
                 entry.clearDirtyState();
             }
@@ -1030,9 +1029,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         Timezone oldTimezone = getTimezoneClient();
         if (!timezone.equals(oldTimezone)) {
         	setOption(Option.TIMEZONE, timezone.getClientSideValue(), timezone);
-            getEntries().forEach(entry ->
-                    entry.markAsChangedPropertyWhenDefined(EntryKey.START, EntryKey.END, EntryKey.RECURRING_START_DATE, EntryKey.RECURRING_END_DATE));
-            updateEntries(getEntries());
+//            getEntries().forEach(entry ->
+//                    entry.markAsChangedPropertyWhenDefined(EntryKey.START, EntryKey.END, EntryKey.RECURRING_START_DATE, EntryKey.RECURRING_END_DATE));
+//            updateEntries(getEntries());
         }
     }
 
@@ -1492,6 +1491,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     	ENTRY_DURATION_EDITABLE("eventDurationEditable"),
     	ENTRY_RESIZABLE_FROM_START("eventResizableFromStart"),
     	ENTRY_START_EDITABLE("eventStartEditable"),
+        ENTRY_TIME_FORMAT("eventTimeFormat"),
     	EDITABLE("editable");
 
         private final String optionKey;

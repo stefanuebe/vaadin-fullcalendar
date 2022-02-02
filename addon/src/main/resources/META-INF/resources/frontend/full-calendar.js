@@ -1396,8 +1396,7 @@ export class FullCalendar extends PolymerElement {
             moreLinkClickAction: {
                 type: String,
                 value: "popover"
-            }
-
+            },
         };
     }
 
@@ -1615,8 +1614,17 @@ export class FullCalendar extends PolymerElement {
         return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
     }
 
+
+    addEvents(obj) {
+        this.getCalendar().addEventSource(obj);
+    }
+
     _createInitOptions(initialOptions = {}) {
         let events = this._createEventHandlers();
+
+        if (initialOptions) {
+            console.warn(initialOptions);
+        }
 
         let options = {
             height: '100%',
@@ -1632,6 +1640,7 @@ export class FullCalendar extends PolymerElement {
             dragScroll: this.dragScroll,
             stickyHeaderDates: true,
             stickyFooterScrollbar: true,
+            // eventTimeFormat: { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' },
             ...initialOptions
         };
 
@@ -1688,29 +1697,34 @@ export class FullCalendar extends PolymerElement {
 
     setOption(key, value) {
         let calendar = this.getCalendar();
-        this._checkAndDispatchEventOnTimezoneChange(calendar, key, value);
 
-        this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
-        calendar.setOption(key, value);
-        this.noDatesRenderEvent = false;
+        let oldValue = calendar.getOption(key);
+        if (oldValue != value) {
+            this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
+
+            calendar.setOption(key, value);
+            this.noDatesRenderEvent = false;
+
+            if (key === "timeZone") {
+                this._handleTimeZoneChange(calendar, value);
+            }
+        }
     }
 
     /**
-     * Checks, if the given key represents the timezone key and if the given value does not equal the
-     * current timezone. In that case a "timezone-changed" event is dispatched.
-     * @param calendar calendar to check
-     * @param key key to check
-     * @param value value to check
+     * Special executions for the case that the timezone had changed.
+     * @param calendar calendar
+     * @param value value
      * @private
      */
-    _checkAndDispatchEventOnTimezoneChange(calendar, key, value) {
-        if (key === "timezone" && calendar.getOption("timezone") !== value) {
-            this.dispatchEvent(new CustomEvent("timezone-changed", {
-                detail: {
-                    timezone: value
-                }
-            }));
-        }
+    _handleTimeZoneChange(calendar, value) {
+        calendar.refetchEvents();
+
+        this.dispatchEvent(new CustomEvent("timezone-changed", {
+            detail: {
+                timezone: value
+            }
+        }));
     }
 
     /**
@@ -1769,13 +1783,13 @@ export class FullCalendar extends PolymerElement {
         this.getCalendar().gotoDate(date);
     }
 
-    addEvents(obj) {
-        this.getCalendar().addEventSource(obj);
-    }
 
     updateEvents(array) {
         const calendar = this.getCalendar();
         calendar.batchRendering(() => {
+
+            console.warn();
+            console.warn("next update");
 
             for (let i = 0; i < array.length; i++) {
                 let obj = array[i];
@@ -1823,6 +1837,9 @@ export class FullCalendar extends PolymerElement {
 
                             let allDay = obj.hasOwnProperty("allDay") ? obj.allDay : eventToUpdate.allDay;
 
+                            if(obj.start)
+                                console.warn(obj.start, obj.title);
+
                             // start must not be null
                             let start = this._toUpdateDate("start", obj, eventToUpdate, false, allDay);
                             let end = this._toUpdateDate("end", obj, eventToUpdate, true, allDay);
@@ -1857,6 +1874,8 @@ export class FullCalendar extends PolymerElement {
         }
 
         let formatted = this.getCalendar().formatIso(date, allDay); //somehow not working with the date returned from eventToUpdate
+        console.warn("date formatted from ", date, " to ", formatted);
+
 
         if (allDay) {
             return formatted.split("T")[0];

@@ -31,6 +31,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 
 import com.vaadin.flow.router.Route;
+import elemental.json.Json;
+import elemental.json.JsonObject;
 import org.vaadin.stefan.ui.MainLayout;
 import org.vaadin.stefan.ui.view.DemoDialog;
 import org.vaadin.stefan.ui.view.SettingsDialog;
@@ -173,7 +175,8 @@ public class FullDemo extends VerticalLayout {
 
                     ui.access(() -> {
                         calendar.addEntries(list);
-                        source.setVisible(false);
+                        source.setEnabled(true);
+                        source.setText("Add 1k entries");
                         Notification.show("Added 1,000 entries for today");
                     });
                 });
@@ -193,7 +196,21 @@ public class FullDemo extends VerticalLayout {
     }
 
     private void createCalendarInstance() {
-        calendar = FullCalendarBuilder.create().withAutoBrowserTimezone().withEntryLimit(3).withScheduler("GPL-My-Project-Is-Open-Source").build();
+        JsonObject initialOptions = Json.createObject();
+        JsonObject eventTimeFormat = Json.createObject();
+        //{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
+        eventTimeFormat.put("hour", "numeric");
+        eventTimeFormat.put("minute", "2-digit");
+        eventTimeFormat.put("timeZoneName", "short");
+        initialOptions.put("eventTimeFormat", eventTimeFormat);
+
+        calendar = FullCalendarBuilder.create()
+                .withAutoBrowserTimezone()
+                .withInitialOptions(initialOptions)
+                .withEntryLimit(3)
+                .withScheduler("GPL-My-Project-Is-Open-Source")
+                .build();
+
         calendar.setSizeFull();
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotMinWidth("100");

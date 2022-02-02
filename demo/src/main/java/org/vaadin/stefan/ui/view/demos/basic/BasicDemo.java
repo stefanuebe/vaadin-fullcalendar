@@ -20,6 +20,7 @@ import org.vaadin.stefan.util.EntryManager;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -31,9 +32,10 @@ import java.util.List;
 @MenuItem(label = "Basic Demo")
 public class BasicDemo extends VerticalLayout {
 	private static final long serialVersionUID = 1L;
-	
+
 	private FullCalendar calendar;
     private FormLayout toolbar;
+    private int count = 1;
 
     public BasicDemo() {
     	initView();
@@ -90,14 +92,40 @@ public class BasicDemo extends VerticalLayout {
             }
         });
 
-        toolbar = new FormLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, comboBoxView, attachButton);
+        ComboBox<Timezone> timezoneComboBox = new ComboBox<>("");
+        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
+        timezoneComboBox.setItems(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")));
+        timezoneComboBox.setValue(Timezone.UTC);
+        timezoneComboBox.addValueChangeListener(event -> {
+            Timezone value = event.getValue();
+            calendar.setTimezoneClient(value != null ? value : Timezone.UTC);
+        });
+        timezoneComboBox.setWidthFull();
+
+        Button add = new Button("Add single entry", event -> {
+            Entry entry = new Entry();
+            entry.setStart(LocalDate.now().atTime(10, 0));
+            entry.setEnd(LocalDate.now().atTime(11, 0));
+            entry.setTitle("Test " + count++);
+            calendar.addEntry(entry);
+        });
+
+        toolbar = new FormLayout(buttonToday, buttonPrevious, buttonNext, buttonDatePicker, comboBoxView, attachButton, timezoneComboBox, add);
         toolbar.getElement().getStyle().set("margin-top", "0px");
-        toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 6));
+        toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", (int) toolbar.getChildren().count()));
     }
+
 
     private void createCalendar() {
         JsonObject initialOptions = Json.createObject();
         initialOptions.put("locale", "de");
+
+        JsonObject eventTimeFormat = Json.createObject();
+        //{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
+        eventTimeFormat.put("hour", "numeric");
+        eventTimeFormat.put("minute", "2-digit");
+        eventTimeFormat.put("timeZoneName", "short");
+        initialOptions.put("eventTimeFormat", eventTimeFormat);
 
         calendar = FullCalendarBuilder.create()
                 .withScheduler("GPL-My-Project-Is-Open-Source")
@@ -117,11 +145,11 @@ public class BasicDemo extends VerticalLayout {
 
     private void createBasicEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
-        EntryManager.createTimedEntry(calendar, "Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "purple");
-        EntryManager.createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 30), 60, "purple");
-        EntryManager.createTimedEntry(calendar, "Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "dodgerblue");
-        EntryManager.createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
-        EntryManager.createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
-        EntryManager.createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
+        EntryManager.createTimedEntry(calendar, "Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "green");
+        EntryManager.createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 30), 60, "green");
+        EntryManager.createTimedEntry(calendar, "Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "green");
+        EntryManager.createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "green");
+        EntryManager.createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "green");
+        EntryManager.createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "green");
     }
 }

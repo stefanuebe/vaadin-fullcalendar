@@ -9,6 +9,7 @@ import org.vaadin.stefan.fullcalendar.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -17,6 +18,8 @@ public class SettingsDialog extends Dialog {
     private static final long serialVersionUID = 1L;
 
     public SettingsDialog(FullCalendar calendar) {
+        setDraggable(true);
+
         FormLayout layout = new FormLayout();
         Timezone initialTimezone = calendar.getTimezoneClient();
 
@@ -46,6 +49,7 @@ public class SettingsDialog extends Dialog {
 
         ComboBox<Timezone> timezoneComboBox = new ComboBox<>("");
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
+//        timezoneComboBox.setItems(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")));
         timezoneComboBox.setItems(Timezone.getAvailableZones());
         timezoneComboBox.setValue(calendar.getTimezoneClient());
         timezoneComboBox.addValueChangeListener(event -> {
