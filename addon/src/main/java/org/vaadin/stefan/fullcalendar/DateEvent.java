@@ -20,7 +20,6 @@ import com.vaadin.flow.component.ComponentEvent;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 /**
@@ -35,10 +34,6 @@ public abstract class DateEvent extends ComponentEvent<FullCalendar> {
      */
     private final LocalDate date;
 
-    /**
-     * The date this event is related to.
-     */
-    private final Instant dateUTC;
 
     /**
      * New instance. Awaits the date as iso string (e.g. "2018-10-23").
@@ -50,8 +45,7 @@ public abstract class DateEvent extends ComponentEvent<FullCalendar> {
     public DateEvent(FullCalendar source, boolean fromClient, String dateString) {
         super(source, fromClient);
 
-        dateUTC = JsonUtils.parseDateTimeString(dateString, source.getTimezoneClient());
-        date = source.getTimezoneServer().convertToLocalDate(dateUTC);
+        date = JsonUtils.parseClientSideDate(dateString);
     }
 
 }

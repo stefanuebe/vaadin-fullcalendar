@@ -86,11 +86,9 @@ public class ResourceEntryTest {
     private static Entry createResourceEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
         ResourceEntry entry = new ResourceEntry(id);
 
-        Timezone system = Timezone.getSystem();
-
         entry.setTitle(title);
-        entry.setStart(start != null ? system.convertToUTC(start) : null);
-        entry.setEnd(end != null ? system.convertToUTC(end) : null);
+        entry.setStart(start);
+        entry.setEnd(end);
         entry.setAllDay(allDay);
         entry.setEditable(editable);
         entry.setDescription(description);
@@ -161,8 +159,8 @@ public class ResourceEntryTest {
 
         // test basic data
         jsonObject.put("title", DEFAULT_TITLE);
-        jsonObject.put("start", timezoneClient.convertToUTC(DEFAULT_START).toString());
-        jsonObject.put("end", timezoneClient.convertToUTC(DEFAULT_END).toString());
+        jsonObject.put("start", JsonUtils.formatClientSideDateTimeString(DEFAULT_START));
+        jsonObject.put("end", JsonUtils.formatClientSideDateTimeString(DEFAULT_END));
         jsonObject.put("allDay", false);
         jsonObject.put("editable", false);
         jsonObject.put("color", DEFAULT_COLOR);

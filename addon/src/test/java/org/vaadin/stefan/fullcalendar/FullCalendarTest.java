@@ -306,20 +306,6 @@ public class FullCalendarTest {
         assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
     }
     
-    private Entry createEntry(String id, String title, Instant start, Instant end, boolean allDay, boolean editable, String color, String description) {
-    	Entry entry = new Entry(id);
-    	
-    	entry.setTitle(title);
-        entry.setStart(start);
-        entry.setEnd(end);
-        entry.setAllDay(allDay);
-        entry.setEditable(editable);
-        entry.setColor(color);
-        entry.setDescription(description);
-        
-        return entry;
-    }
-    
     private Entry createEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
     	Entry entry = new Entry(id);
     	
@@ -337,14 +323,13 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByClosedDateTimeInterval() {
         FullCalendar calendar = createTestCalendar();
-        Timezone timezoneClient = calendar.getTimezoneClient();
 
         LocalDate ref = LocalDate.of(2000, 1, 1);
-        Instant refStartOfDay = timezoneClient.convertToUTC(ref.atStartOfDay());
-        Instant refEndOfDay = timezoneClient.convertToUTC(ref.atTime(23, 0));
+        LocalDateTime refStartOfDay = ref.atStartOfDay();
+        LocalDateTime refEndOfDay = ref.atTime(23, 0);
 
-        Instant filterStart = timezoneClient.convertToUTC(ref.atTime(7, 0));
-        Instant filterEnd = timezoneClient.convertToUTC(ref.atTime(8, 0));
+        LocalDateTime filterStart = ref.atTime(7, 0);
+        LocalDateTime filterEnd = ref.atTime(8, 0);
 
         List<Entry> entriesNotMatching = new ArrayList<>();
         List<Entry> entriesMatching = new ArrayList<>();
@@ -393,15 +378,13 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByDateTimeIntervalWithoutFilterStart() {
         FullCalendar calendar = createTestCalendar();
-        Timezone timezoneClient = calendar.getTimezoneClient();
-        Timezone timezoneServer = calendar.getTimezoneServer();
 
         LocalDate ref = LocalDate.of(2000, 1, 1);
-        Instant refStartOfDay = timezoneClient.convertToUTC(ref.atStartOfDay());
-        Instant refEndOfDay = timezoneClient.convertToUTC(ref.atTime(23, 0));
+        LocalDateTime refStartOfDay = ref.atStartOfDay();
+        LocalDateTime refEndOfDay = ref.atTime(23, 0);
 
-        Instant filterStart = timezoneClient.convertToUTC(ref.atTime(7, 0));
-        Instant filterEnd = timezoneClient.convertToUTC(ref.atTime(8, 0));
+        LocalDateTime filterStart = ref.atTime(7, 0);
+        LocalDateTime filterEnd = ref.atTime(8, 0);
 
         List<Entry> entriesNotMatching = new ArrayList<>();
         List<Entry> entriesMatching = new ArrayList<>();
@@ -448,15 +431,13 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByClosedDateTimeIntervalWithoutFilterEnd() {
         FullCalendar calendar = createTestCalendar();
-        Timezone timezoneClient = calendar.getTimezoneClient();
-        Timezone timezoneServer = calendar.getTimezoneServer();
 
         LocalDate ref = LocalDate.of(2000, 1, 1);
-        Instant refStartOfDay = timezoneClient.convertToUTC(ref.atStartOfDay());
-        Instant refEndOfDay = timezoneClient.convertToUTC(ref.atTime(23, 0));
+        LocalDateTime refStartOfDay = ref.atStartOfDay();
+        LocalDateTime refEndOfDay = ref.atTime(23, 0);
 
-        Instant filterStart = timezoneClient.convertToUTC(ref.atTime(7, 0));
-        Instant filterEnd = timezoneClient.convertToUTC(ref.atTime(8, 0));
+        LocalDateTime filterStart = ref.atTime(7, 0);
+        LocalDateTime filterEnd = ref.atTime(8, 0);
 
         List<Entry> entriesNotMatching = new ArrayList<>();
         List<Entry> entriesMatching = new ArrayList<>();
@@ -504,15 +485,13 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByClosedDateTimeIntervalWithoutParameters() {
         FullCalendar calendar = createTestCalendar();
-        Timezone timezoneClient = calendar.getTimezoneClient();
-        Timezone timezoneServer = calendar.getTimezoneServer();
 
         LocalDate ref = LocalDate.of(2000, 1, 1);
-        Instant refStartOfDay = timezoneClient.convertToUTC(ref.atStartOfDay());
-        Instant refEndOfDay = timezoneClient.convertToUTC(ref.atTime(23, 0));
+        LocalDateTime refStartOfDay = ref.atStartOfDay();
+        LocalDateTime refEndOfDay = ref.atTime(23, 0);
 
-        Instant filterStart = timezoneClient.convertToUTC(ref.atTime(7, 0));
-        Instant filterEnd = timezoneClient.convertToUTC(ref.atTime(8, 0));
+        LocalDateTime filterStart = ref.atTime(7, 0);
+        LocalDateTime filterEnd = ref.atTime(8, 0);
 
         List<Entry> entriesNotMatching = new ArrayList<>();
         List<Entry> entriesMatching = new ArrayList<>();
@@ -548,7 +527,7 @@ public class FullCalendarTest {
         entriesNotMatching.forEach(calendar::addEntry); // should be empty
         entriesMatching.forEach(calendar::addEntry);
 
-        List<Entry> entriesFound = calendar.getEntries((Instant) null, null);
+        List<Entry> entriesFound = calendar.getEntries((LocalDateTime) null, null);
         List<Entry> allEntries = calendar.getEntries();
 
         // sort so that we have matching lists
@@ -567,7 +546,7 @@ public class FullCalendarTest {
     @Test
     void testGetEntriesByDate() {
         FullCalendar calendar = createTestCalendar();
-        assertNPE(calendar, c -> c.getEntries((Instant) null));
+        assertNPE(calendar, c -> c.getEntries((LocalDateTime) null));
 
         LocalDateTime ref = LocalDate.of(2000, 1, 1).atStartOfDay();
         LocalDateTime filterEnd = ref.plusDays(1);
@@ -738,11 +717,10 @@ public class FullCalendarTest {
     @Test
     void testEntryClickedEvent() throws Exception {
         FullCalendar calendar = createTestCalendar();
-        Timezone timezoneClient = calendar.getTimezoneClient();
 
         LocalDateTime refDate = LocalDate.of(2000, 1, 1).atStartOfDay();
-        Instant refDateAsDateTime = timezoneClient.convertToUTC(refDate);
-        Instant refDateTime = timezoneClient.convertToUTC(refDate.withHour(7));
+        LocalDateTime refDateAsDateTime = refDate;
+        LocalDateTime refDateTime = refDate.withHour(7);
 
         // check all day and time entries
         Entry allDayEntry = createEntry("allDay", "title", refDateAsDateTime, refDateAsDateTime.plus(1, ChronoUnit.DAYS), true, true, "color", null);
@@ -771,25 +749,23 @@ public class FullCalendarTest {
     void testTimeslotsSelectedEvent() throws Exception {
         FullCalendar calendar = createTestCalendar();
 
-        Timezone timezoneClient = calendar.getTimezoneClient();
-        Timezone timezoneServer = calendar.getTimezoneServer();
 
         // client timezone may differ server timezone, so we have to simulate that for the event creation
-        Instant refDateStart = timezoneClient.convertToUTC(LocalDate.of(2000, 1, 1));
-        Instant refDateEnd = timezoneClient.convertToUTC(LocalDate.of(2000, 1, 2));
-        Instant refDateTimeStart = timezoneClient.convertToUTC(LocalDateTime.of(2000, 1, 1, 7, 0));
-        Instant refDateTimeEnd = timezoneClient.convertToUTC(LocalDateTime.of(2000, 1, 1, 8, 0));
+        LocalDate refDateStart = LocalDate.of(2000, 1, 1);
+        LocalDate refDateEnd = LocalDate.of(2000, 1, 2);
+        LocalDateTime refDateTimeStart = LocalDateTime.of(2000, 1, 1, 7, 0);
+        LocalDateTime refDateTimeEnd = LocalDateTime.of(2000, 1, 1, 8, 0);
 
         TimeslotsSelectedEvent event;
         // now we simulate the conversion to the server side timezone
-        event = new TimeslotsSelectedEvent(calendar, true, refDateStart.toString(), refDateEnd.toString(), true);
-        Assertions.assertEquals(timezoneServer.convertToLocalDate(refDateStart).atStartOfDay(), event.getStartDateTime());
-        Assertions.assertEquals(timezoneServer.convertToLocalDate(refDateEnd).atStartOfDay(), event.getEndDateTime());
+        event = new TimeslotsSelectedEvent(calendar, true, JsonUtils.formatClientSideDateString(refDateStart), JsonUtils.formatClientSideDateString(refDateEnd), true);
+        Assertions.assertEquals((refDateStart).atStartOfDay(), event.getStartDateTime());
+        Assertions.assertEquals((refDateEnd).atStartOfDay(), event.getEndDateTime());
         Assertions.assertTrue(event.isAllDay());
 
-        event = new TimeslotsSelectedEvent(calendar, true, refDateTimeStart.toString(), refDateTimeEnd.toString(), false);
-        Assertions.assertEquals(timezoneServer.convertToLocalDateTime(refDateTimeStart), event.getStartDateTime());
-        Assertions.assertEquals(timezoneServer.convertToLocalDateTime(refDateTimeEnd), event.getEndDateTime());
+        event = new TimeslotsSelectedEvent(calendar, true, JsonUtils.formatClientSideDateTimeString(refDateTimeStart), JsonUtils.formatClientSideDateTimeString(refDateTimeEnd), false);
+        Assertions.assertEquals((refDateTimeStart), event.getStartDateTime());
+        Assertions.assertEquals((refDateTimeEnd), event.getEndDateTime());
         Assertions.assertFalse(event.isAllDay());
     }
 
@@ -801,44 +777,38 @@ public class FullCalendarTest {
 
     private <T extends DateEvent> void subTestDateEventSubClass(Class<T> eventClass) throws Exception {
         FullCalendar calendar = createTestCalendar();
-        Timezone timezoneClient = calendar.getTimezoneClient();
-        Timezone timezoneServer = calendar.getTimezoneServer();
 
-        Instant refDate = timezoneClient.convertToUTC(LocalDate.of(2000, 1, 1));
+        LocalDate refDate = LocalDate.of(2000, 1, 1);
 
         T event;
         Constructor<T> constructor = ComponentEventBusUtil.getEventConstructor(eventClass);
-        event = constructor.newInstance(calendar, true, refDate.toString());
-        Assertions.assertEquals(timezoneServer.convertToLocalDate(refDate), event.getDate());
+        event = constructor.newInstance(calendar, true, JsonUtils.formatClientSideDateString(refDate));
+        Assertions.assertEquals((refDate), event.getDate());
     }
 
     private <T extends DateTimeEvent> void subTestDateTimeEventSubClass(Class<T> eventClass) throws Exception {
         FullCalendar calendar = createTestCalendar();
-        Timezone timezoneClient = calendar.getTimezoneClient();
-        Timezone timezoneServer = calendar.getTimezoneServer();
 
-        Instant refDate = timezoneClient.convertToUTC(LocalDate.of(2000, 1, 1));
-        Instant refDateTime = timezoneClient.convertToUTC(LocalDate.of(2000, 1, 1).atStartOfDay());
+        LocalDate refDate = LocalDate.of(2000, 1, 1);
+        LocalDateTime refDateTime = LocalDate.of(2000, 1, 1).atStartOfDay();
 
         T event;
         Constructor<T> constructor = ComponentEventBusUtil.getEventConstructor(eventClass);
-        event = constructor.newInstance(calendar, true, refDate.toString(), true);
-        Assertions.assertEquals(timezoneServer.convertToLocalDate(refDate).atStartOfDay(), event.getDateTime());
+        event = constructor.newInstance(calendar, true, JsonUtils.formatClientSideDateTimeString(refDate), true);
+        Assertions.assertEquals((refDate).atStartOfDay(), event.getDateTime());
         Assertions.assertTrue(event.isAllDay());
 
-        event = constructor.newInstance(calendar, true, refDateTime.toString(), false);
-        Assertions.assertEquals(timezoneServer.convertToLocalDateTime(refDateTime), event.getDateTime());
+        event = constructor.newInstance(calendar, true, JsonUtils.formatClientSideDateTimeString(refDateTime), false);
+        Assertions.assertEquals((refDateTime), event.getDateTime());
         Assertions.assertFalse(event.isAllDay());
 
     }
 
     private <T extends EntryTimeChangedEvent> void subTestEntryTimeChangedEventSubClass(Class<T> eventClass) throws Exception {
         FullCalendar calendar = createTestCalendar();
-        Timezone timezoneClient = calendar.getTimezoneClient();
-        Timezone timezoneServer = calendar.getTimezoneServer();
 
-        Instant refDate = timezoneClient.convertToUTC(LocalDate.of(2000, 1, 1).atStartOfDay());
-        Instant refDateTime = timezoneClient.convertToUTC(LocalDate.of(2000, 1, 1).atStartOfDay().withHour(7));
+        LocalDateTime refDate = LocalDate.of(2000, 1, 1).atStartOfDay();
+        LocalDateTime refDateTime = LocalDate.of(2000, 1, 1).atStartOfDay().withHour(7);
 
         // check all day and time entries
         Entry allDayEntry = createEntry("allDay", "title", refDate, refDate.plus(1, ChronoUnit.DAYS), true, true, "color", null);
@@ -856,8 +826,8 @@ public class FullCalendarTest {
         jsonDelta.put("minutes", 1);
         jsonDelta.put("seconds", 1);
 
-        Entry modifiedAllDayEntry = createEntry(allDayEntry.getId(), allDayEntry.getTitle() + 1, delta.applyOn(allDayEntry.getStartUTC()), delta.applyOn(allDayEntry.getEndUTC()), allDayEntry.isAllDay(), !allDayEntry.isEditable(), allDayEntry.getColor() + 1, allDayEntry.getDescription());
-        Entry modifiedTimedEntry = createEntry(timedEntry.getId(), timedEntry.getTitle() + 1, delta.applyOn(timedEntry.getStartUTC()), delta.applyOn(timedEntry.getEndUTC()), timedEntry.isAllDay(), !timedEntry.isEditable(), timedEntry.getColor() + 1, timedEntry.getDescription());
+        Entry modifiedAllDayEntry = createEntry(allDayEntry.getId(), allDayEntry.getTitle() + 1, delta.applyOn(allDayEntry.getStart()), delta.applyOn(allDayEntry.getEnd()), allDayEntry.isAllDay(), !allDayEntry.isEditable(), allDayEntry.getColor() + 1, allDayEntry.getDescription());
+        Entry modifiedTimedEntry = createEntry(timedEntry.getId(), timedEntry.getTitle() + 1, delta.applyOn(timedEntry.getStart()), delta.applyOn(timedEntry.getEnd()), timedEntry.isAllDay(), !timedEntry.isEditable(), timedEntry.getColor() + 1, timedEntry.getDescription());
         JsonObject jsonModifiedAllDayEntry = modifiedAllDayEntry.toJson();
         JsonObject jsonModifiedTimedEntry = modifiedTimedEntry.toJson();
 

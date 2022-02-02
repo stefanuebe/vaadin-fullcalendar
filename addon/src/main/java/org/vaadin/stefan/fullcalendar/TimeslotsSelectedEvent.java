@@ -22,7 +22,7 @@ import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -42,8 +42,8 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      */
     private final boolean allDay;
 
-    private final Instant startDateTime;
-    private final Instant endDateTime;
+    private final LocalDateTime startDateTime;
+    private final LocalDateTime endDateTime;
 
     /**
      * New instance. Awaits the selected dates (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
@@ -59,39 +59,15 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
 
         Timezone timezone = source.getTimezoneClient();
         this.allDay = allDay;
-        this.startDateTime = JsonUtils.parseDateTimeString(start, timezone);
-        this.endDateTime = JsonUtils.parseDateTimeString(end, timezone);
+        this.startDateTime = JsonUtils.parseClientSideDateTime(start);
+        this.endDateTime = JsonUtils.parseClientSideDateTime(end);
     }
 
-    /**
-     * Returns the selected start date time. For day slots the time will be at start of the day.
-     * @return date time
-     */
-    public LocalDateTime getStartDateTime() {
-        return getSource().getTimezoneServer().convertToLocalDateTime(startDateTime);
+    public LocalDate getStartDate() {
+        return startDateTime.toLocalDate();
     }
 
-    /**
-     * Returns the selected end date time. For day slots the time will be at start of the day.
-     * @return date time
-     */
-    public LocalDateTime getEndDateTime() {
-        return getSource().getTimezoneServer().convertToLocalDateTime(endDateTime);
-    }
-
-    /**
-     * Returns the selected start date time as UTC. For day slots the time will be at start of the day.
-     * @return date time
-     */
-    public Instant getStartDateTimeUTC() {
-        return startDateTime;
-    }
-
-    /**
-     * Returns the selected end date time as UTC. For day slots the time will be at start of the day.
-     * @return date time
-     */
-    public Instant getEndDateTimeUTC() {
-        return endDateTime;
+    public LocalDate getEndDate() {
+        return endDateTime.toLocalDate();
     }
 }

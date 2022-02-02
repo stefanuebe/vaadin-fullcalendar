@@ -1516,15 +1516,15 @@ export class FullCalendar extends PolymerElement {
         return {
             dateClick: (eventInfo) => {
                 return {
-                    date: eventInfo.dateStr,
+                    date: this._formatDate(eventInfo.date, eventInfo.allDay),
                     allDay: eventInfo.allDay,
                     resource: eventInfo.resource ? eventInfo.resource.id : null
                 }
             },
             select: (eventInfo) => {
                 return {
-                    start: this._formatDate(eventInfo.start),
-                    end: this._formatDate(eventInfo.end),
+                    start: this._formatDate(eventInfo.start, eventInfo.allDay),
+                    end: this._formatDate(eventInfo.end, eventInfo.allDay),
                     allDay: eventInfo.allDay,
                     resource: eventInfo.resource ? eventInfo.resource.id : null
                 }
@@ -1604,7 +1604,11 @@ export class FullCalendar extends PolymerElement {
      * @private
      */
     _formatDate(date, asDay) {
-        let moment = toMoment(date, this.getCalendar());
+        if (!(date instanceof Date)) {
+            date = new Date(date);
+        }
+
+        let moment = toMoment(date, this.getCalendar()).utc();
         if (asDay) {
             moment = moment.startOf('day');
         }
@@ -1736,6 +1740,7 @@ export class FullCalendar extends PolymerElement {
     _toEventData(event, oldResourceInfo, newResourceInfo) {
         let end = event.end;
 
+        // TODO add allDay parameters?
         if (end != null) {
             end = this._formatDate(end);
         } else if (event.allDay) { // when moved from time slotted to all day

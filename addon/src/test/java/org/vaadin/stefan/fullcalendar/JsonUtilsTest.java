@@ -206,53 +206,47 @@ public class JsonUtilsTest {
 
     }
 
-    @Test
-    void testLocalDatePropertyUpdate() {
-        LocalDateTime now = LocalDateTime.now();
-
-        JsonObject object = Json.createObject();
-        object.put("date", now.toString());
-
-        Entry entry = new Entry();
-        TestUtils.updateDateTime(object, "date", entry::setStartUTC, Timezone.getSystem());
-
-        Assertions.assertEquals(now, entry.getStart());
-    }
-
-    @Test
-    void testLocalDateTimePropertyUpdate() {
-        LocalDate now = LocalDateTime.now().toLocalDate();
-
-        JsonObject object = Json.createObject();
-        object.put("date", now.toString());
-
-        Entry entry = new Entry();
-        TestUtils.updateDateTime(object, "date", entry::setStartUTC, Timezone.getSystem());
-
-        Assertions.assertEquals(now.atStartOfDay(), entry.getStart());
-    }
+//    @Test
+//    void testLocalDatePropertyUpdate() {
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        JsonObject object = Json.createObject();
+//        object.put("date", now.toString());
+//
+//        Entry entry = new Entry();
+//        TestUtils.updateDateTime(object, "date", entry::setStart, Timezone.getSystem());
+//
+//        Assertions.assertEquals(now, entry.getStart());
+//    }
+//
+//    @Test
+//    void testLocalDateTimePropertyUpdate() {
+//        LocalDate now = LocalDateTime.now().toLocalDate();
+//
+//        JsonObject object = Json.createObject();
+//        object.put("date", now.toString());
+//
+//        Entry entry = new Entry();
+//        TestUtils.updateDateTime(object, "date", entry::setStartUTC, Timezone.getSystem());
+//
+//        Assertions.assertEquals(now.atStartOfDay(), entry.getStart());
+//    }
 
     @Test
     void testParseDateTimeString() {
-        ZoneId zoneId = ZoneId.of("Europe/Berlin");
+        LocalDate date = LocalDate.now();
+        LocalDateTime dateTime = date.atStartOfDay();
 
-        Instant instant = Instant.now();
-        Assertions.assertEquals(instant, JsonUtils.parseDateTimeString(instant.toString(), null)); // timezone should not be necessary here
+        Assertions.assertEquals(date.toString(), JsonUtils.formatClientSideDateString(date));
+        Assertions.assertEquals(dateTime + "Z", JsonUtils.formatClientSideDateTimeString(date));
 
-        ZonedDateTime zonedDateTime = ZonedDateTime.now();
-        Assertions.assertEquals(zonedDateTime.toInstant(), JsonUtils.parseDateTimeString(zonedDateTime.toString(), null)); // timezone should not be necessary here
+        Assertions.assertEquals(date.toString(), JsonUtils.formatClientSideDateString(dateTime));
+        Assertions.assertEquals(dateTime + "Z", JsonUtils.formatClientSideDateTimeString(dateTime));
 
-        ZoneOffset offset = zoneId.getRules().getOffset(instant);
+        Assertions.assertEquals(date, JsonUtils.parseClientSideDate(JsonUtils.formatClientSideDateString(date)));
+        Assertions.assertEquals(dateTime, JsonUtils.parseClientSideDateTime(JsonUtils.formatClientSideDateTimeString(date)));
 
-        LocalDateTime localDateTime = LocalDateTime.now();
-        Assertions.assertEquals(localDateTime.toInstant(ZoneOffset.UTC), JsonUtils.parseDateTimeString(localDateTime.toString(), Timezone.UTC)); // timezone should not be necessary here
-        Assertions.assertEquals(localDateTime.toInstant(offset), JsonUtils.parseDateTimeString(localDateTime.toString(), new Timezone(zoneId))); // timezone should not be necessary here
-
-        LocalDate localDate = LocalDate.now();
-        Assertions.assertEquals(localDate.atStartOfDay().toInstant(ZoneOffset.UTC), JsonUtils.parseDateTimeString(localDate.toString(), Timezone.UTC)); // timezone should not be necessary here
-        Assertions.assertEquals(localDate.atStartOfDay().toInstant(offset), JsonUtils.parseDateTimeString(localDate.toString(), new Timezone(zoneId))); // timezone should not be necessary here
-
-
-
+        Assertions.assertEquals(date, JsonUtils.parseClientSideDate(JsonUtils.formatClientSideDateString(dateTime)));
+        Assertions.assertEquals(dateTime, JsonUtils.parseClientSideDateTime(JsonUtils.formatClientSideDateTimeString(dateTime)));
     }
 }

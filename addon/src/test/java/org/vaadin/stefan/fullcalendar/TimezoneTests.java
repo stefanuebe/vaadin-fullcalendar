@@ -35,26 +35,26 @@ public class TimezoneTests {
         Assertions.assertEquals("someOther", timezone.getClientSideValue());
     }
 
-    @Test
-    void testFormatting() {
-        Instant now = Instant.now();
-        String utcString = now.toString();
-        String ldtString = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(now, CUSTOM_TIMEZONE.getZoneId()));
+//    @Test
+//    void testFormatting() {
+//        Instant now = Instant.now();
+//        String utcString = now.toString();
+//        String ldtString = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(now, CUSTOM_TIMEZONE.getZoneId()));
+//
+//        Assertions.assertEquals(utcString, Timezone.UTC.formatWithZoneId(now));
+//        Assertions.assertEquals(utcString, new Timezone(UTC_ID).formatWithZoneId(now));
+//
+//        Assertions.assertEquals(ldtString, CUSTOM_TIMEZONE.formatWithZoneId(now));
+//    }
 
-        Assertions.assertEquals(utcString, Timezone.UTC.formatWithZoneId(now));
-        Assertions.assertEquals(utcString, new Timezone(UTC_ID).formatWithZoneId(now));
-
-        Assertions.assertEquals(ldtString, CUSTOM_TIMEZONE.formatWithZoneId(now));
-    }
-
-    @Test
-    void testConversion() {
-        Instant instant = Instant.now();
-
-        // TODO additional tests needed?
-        Assertions.assertEquals(instant, Timezone.UTC.convertToUTC(Timezone.UTC.convertToLocalDateTime(instant)));
-        Assertions.assertEquals(instant, CUSTOM_TIMEZONE.convertToUTC(CUSTOM_TIMEZONE.convertToLocalDateTime(instant)));
-    }
+//    @Test
+//    void testConversion() {
+//        Instant instant = Instant.now();
+//
+//        // TODO additional tests needed?
+//        Assertions.assertEquals(instant, Timezone.UTC.convertToUTC(Timezone.UTC.convertToLocalDateTime(instant)));
+//        Assertions.assertEquals(instant, CUSTOM_TIMEZONE.convertToUTC(CUSTOM_TIMEZONE.convertToLocalDateTime(instant)));
+//    }
 
     @Test
     void testSystemTimezone() {

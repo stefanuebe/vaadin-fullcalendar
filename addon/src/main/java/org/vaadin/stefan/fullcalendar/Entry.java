@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.function.SerializableFunction;
 import elemental.json.JsonNull;
 import elemental.json.JsonObject;
 import elemental.json.JsonString;
@@ -108,12 +107,12 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Returns the start of the entry as local date time based on the timezone returned by {@link #getStartTimezoneServer()}.
+     * Returns the start of the entry as local date time based on the timezone returned by
      *
      * @return start as local date time
      */
     public LocalDateTime getStart() {
-        return getStart(getStartTimezoneServer());
+        return get(EntryKey.START);
     }
 
     /**
@@ -123,29 +122,31 @@ public class Entry extends JsonItem<String> {
      * @param start start
      */
     public void setStart(LocalDateTime start) {
-        setStart(start, getStartTimezoneServer());
+//        setStart(start, getStartTimezoneServer());
+        set(EntryKey.START, start);
     }
 
-    /**
-     * Returns the start of the entry as local date time based on the given timezone
-     *
-     * @param timezone timezone
-     * @return start as local date time
-     * @throws NullPointerException when null is passed
-     */
-    public LocalDateTime getStart(@NotNull Timezone timezone) {
-        Objects.requireNonNull(timezone, "timezone");
-        Instant start = getStartUTC();
-        return start != null ? LocalDateTime.ofInstant(start, timezone.getZoneId().getRules().getOffset(start)) : null;
-    }
+//    /**
+//     * Returns the start of the entry as local date time based on the given timezone
+//     *
+//     * @param timezone timezone
+//     * @return start as local date time
+//     * @throws NullPointerException when null is passed
+//     */
+//    public LocalDateTime getStart(@NotNull Timezone timezone) {
+//        Objects.requireNonNull(timezone, "timezone");
+//        Instant start = getStartUTC();
+//        return start != null ? LocalDateTime.ofInstant(start, timezone.getZoneId().getRules().getOffset(start)) : null;
+//    }
 
     /**
-     * Returns the start of the entry as local date time based on the timezone returned by {@link #getEndTimezoneServer()}.
+     * Returns the start of the entry as local date time representing the UTC value.
      *
      * @return start as local date time
      */
     public LocalDateTime getEnd() {
-        return getEnd(getEndTimezoneServer());
+//        return getEnd(getEndTimezoneServer());
+        return get(EntryKey.END);
     }
 
     /**
@@ -155,42 +156,43 @@ public class Entry extends JsonItem<String> {
      * @param end end
      */
     public void setEnd(LocalDateTime end) {
-        setEnd(end, getEndTimezoneServer());
+//        setEnd(end, getEndTimezoneServer());
+        set(EntryKey.END, end);
     }
 
-    /**
-     * Returns the start of the entry as local date time based on the given timezone
-     *
-     * @param timezone timezone
-     * @return start as local date time
-     * @throws NullPointerException when null is passed
-     */
-    public LocalDateTime getEnd(@NotNull Timezone timezone) {
-        Objects.requireNonNull(timezone, "timezone");
-        Instant end = getEndUTC();
-        return end != null ? LocalDateTime.ofInstant(end, timezone.getZoneId().getRules().getOffset(end)) : null;
-    }
+//    /**
+//     * Returns the start of the entry as local date time based on the given timezone
+//     *
+//     * @param timezone timezone
+//     * @return start as local date time
+//     * @throws NullPointerException when null is passed
+//     */
+//    public LocalDateTime getEnd(@NotNull Timezone timezone) {
+//        Objects.requireNonNull(timezone, "timezone");
+//        Instant end = getEndUTC();
+//        return end != null ? LocalDateTime.ofInstant(end, timezone.getZoneId().getRules().getOffset(end)) : null;
+//    }
 
-    /**
-     * Sets the given local date time as start. It is converted to an Instant by using the given timezone.
-     * <br><br>
-     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
-     *
-     * @param start    start
-     * @param timezone timezone
-     * @throws NullPointerException when null is passed
-     */
-    public void setStart(@NotNull LocalDateTime start, @NotNull Timezone timezone) {
-        Objects.requireNonNull(start, "start");
-        Objects.requireNonNull(timezone, "timezone");
-        setStart(timezone.convertToUTC(start));
-    }
+//    /**
+//     * Sets the given local date time as start. It is converted to an Instant by using the given timezone.
+//     * <br><br>
+//     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
+//     *
+//     * @param start    start
+//     * @param timezone timezone
+//     * @throws NullPointerException when null is passed
+//     */
+//    public void setStart(@NotNull LocalDateTime start, @NotNull Timezone timezone) {
+//        Objects.requireNonNull(start, "start");
+//        Objects.requireNonNull(timezone, "timezone");
+//        setStart(timezone.convertToUTC(start));
+//    }
 
     /**
      * Sets the given local date as start using the start of the day as time. It is converted to an instant by using the
      * calendar's server start timezone.
      * <br><br>
-     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
+     * Null values are not allowed here.
      *
      * @param start start
      */
@@ -198,40 +200,40 @@ public class Entry extends JsonItem<String> {
         setStart(start.atStartOfDay());
     }
 
-    /**
-     * Sets the given local date time as start using the start of the day as time. It is converted to an Instant by
-     * using the given timezone.
-     * <br><br>
-     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
-     *
-     * @param start    start
-     * @param timezone timezone
-     * @throws NullPointerException when null is passed
-     */
-    public void setStart(@NotNull LocalDate start, @NotNull Timezone timezone) {
-        setStart(start.atStartOfDay(), timezone);
-    }
+//    /**
+//     * Sets the given local date time as start using the start of the day as time. It is converted to an Instant by
+//     * using the given timezone.
+//     * <br><br>
+//     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
+//     *
+//     * @param start    start
+//     * @param timezone timezone
+//     * @throws NullPointerException when null is passed
+//     */
+//    public void setStart(@NotNull LocalDate start, @NotNull Timezone timezone) {
+//        setStart(start.atStartOfDay(), timezone);
+//    }
 
-    /**
-     * Sets the given local date time as end. It is converted to an Instant by using the given timezone.
-     * <br><br>
-     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
-     *
-     * @param end      end
-     * @param timezone timezone
-     * @throws NullPointerException when null is passed
-     */
-    public void setEnd(@NotNull LocalDateTime end, @NotNull Timezone timezone) {
-        Objects.requireNonNull(end, "end");
-        Objects.requireNonNull(timezone, "timezone");
-        setEnd(timezone.convertToUTC(end));
-    }
+//    /**
+//     * Sets the given local date time as end. It is converted to an Instant by using the given timezone.
+//     * <br><br>
+//     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
+//     *
+//     * @param end      end
+//     * @param timezone timezone
+//     * @throws NullPointerException when null is passed
+//     */
+//    public void setEnd(@NotNull LocalDateTime end, @NotNull Timezone timezone) {
+//        Objects.requireNonNull(end, "end");
+//        Objects.requireNonNull(timezone, "timezone");
+//        setEnd(timezone.convertToUTC(end));
+//    }
 
     /**
      * Sets the given local date time as end using the start of the day as time. It is converted to an instant by using the
      * calendar's server end timezone.
      * <br><br>
-     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
+     * Null values are not allowed here.
      *
      * @param end      end
      * @throws NullPointerException when null is passed
@@ -240,19 +242,19 @@ public class Entry extends JsonItem<String> {
         setEnd(end.atStartOfDay());
     }
 
-    /**
-     * Sets the given local date time as end using the start of the day as time. It is converted to an Instant by using
-     * the given timezone.
-     * <br><br>
-     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
-     *
-     * @param end      end
-     * @param timezone timezone
-     * @throws NullPointerException when null is passed
-     */
-    public void setEnd(@NotNull LocalDate end, @NotNull Timezone timezone) {
-        setEnd(end.atStartOfDay(), timezone);
-    }
+//    /**
+//     * Sets the given local date time as end using the start of the day as time. It is converted to an Instant by using
+//     * the given timezone.
+//     * <br><br>
+//     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
+//     *
+//     * @param end      end
+//     * @param timezone timezone
+//     * @throws NullPointerException when null is passed
+//     */
+//    public void setEnd(@NotNull LocalDate end, @NotNull Timezone timezone) {
+//        setEnd(end.atStartOfDay(), timezone);
+//    }
 
 //    /**
 //     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
@@ -267,15 +269,15 @@ public class Entry extends JsonItem<String> {
 //        return getStartTimezoneClient();
 //    }
 
-    /**
-     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-     * to the client side timezone. By default UTC.
-     *
-     * @return timezone
-     */
-    public Timezone getStartTimezoneClient() {
-        return calendar != null ? calendar.getTimezoneClient() : Timezone.UTC;
-    }
+//    /**
+//     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
+//     * to the client side timezone. By default UTC.
+//     *
+//     * @return timezone
+//     */
+//    public Timezone getStartTimezoneClient() {
+//        return calendar != null ? calendar.getTimezoneClient() : Timezone.UTC;
+//    }
 
 
 //    /**
@@ -291,107 +293,107 @@ public class Entry extends JsonItem<String> {
 //        return getEndTimezoneClient();
 //    }
 
-    /**
-     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-     * to the client side timezone. By default UTC.
-     *
-     * @return timezone
-     */
-    public Timezone getEndTimezoneClient() {
-        return calendar != null ? calendar.getTimezoneClient() : Timezone.UTC;
-    }
+//    /**
+//     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
+//     * to the client side timezone. By default UTC.
+//     *
+//     * @return timezone
+//     */
+//    public Timezone getEndTimezoneClient() {
+//        return calendar != null ? calendar.getTimezoneClient() : Timezone.UTC;
+//    }
 
-    /**
-     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry start
-     * using {@link #setStart(LocalDateTime)} or {@link #getStart()}.
-     * <p></p>
-     * By default the server timezone.
-     *
-     * @return timezone
-     */
-    public Timezone getStartTimezoneServer() {
-        return Timezone.getSystem();
-    }
+//    /**
+//     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry start
+//     * using {@link #setStart(LocalDateTime)} or {@link #getStart()}.
+//     * <p></p>
+//     * By default the server timezone.
+//     *
+//     * @return timezone
+//     */
+//    public Timezone getStartTimezoneServer() {
+//        return Timezone.getSystem();
+//    }
 
-    /**
-     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry start
-     * using {@link #setEnd(LocalDateTime)} or {@link #getEnd()}.
-     * <p></p>
-     * By default the server timezone.
-     *
-     * @return timezone
-     */
-    public Timezone getEndTimezoneServer() {
-        return Timezone.getSystem();
-    }
+//    /**
+//     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry start
+//     * using {@link #setEnd(LocalDateTime)} or {@link #getEnd()}.
+//     * <p></p>
+//     * By default the server timezone.
+//     *
+//     * @return timezone
+//     */
+//    public Timezone getEndTimezoneServer() {
+//        return Timezone.getSystem();
+//    }
 
-    /**
-     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-     * is recurring).
-     * <br><br>
-     * The given timezone is used to convert the instant to a local date instance.
-     *
-     * @param timezone timezone
-     * @return start date of recurrence
-     * @throws NullPointerException when null is passed
-     */
-    public LocalDate getRecurringStartDate(@NotNull Timezone timezone) {
-        Objects.requireNonNull(timezone, "timezone");
+//    /**
+//     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+//     * is recurring).
+//     * <br><br>
+//     * The given timezone is used to convert the instant to a local date instance.
+//     *
+//     * @param timezone timezone
+//     * @return start date of recurrence
+//     * @throws NullPointerException when null is passed
+//     */
+//    public LocalDate getRecurringStartDate(@NotNull Timezone timezone) {
+//        Objects.requireNonNull(timezone, "timezone");
+//
+//        Instant recurringStartDate = getRecurringStartDateUTC();
+//
+//        return recurringStartDate != null ? LocalDateTime.ofInstant(recurringStartDate, timezone.getZoneId().getRules().getOffset(recurringStartDate)).toLocalDate() : null;
+//    }
 
-        Instant recurringStartDate = getRecurringStartDateUTC();
-
-        return recurringStartDate != null ? LocalDateTime.ofInstant(recurringStartDate, timezone.getZoneId().getRules().getOffset(recurringStartDate)).toLocalDate() : null;
-    }
-
-    /**
-     * The start date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
-     * It is converted to an Instant by using the given timezone.
-     * <br><br>
-     * Null is not allowed here, use {@link #setRecurringStartDate(Instant)} to reset the value.
-     *
-     * @param recurringStartDate start date or recurrence
-     * @param timezone           timezone
-     * @throws NullPointerException when null is passed
-     */
-    public void setRecurringStartDate(@NotNull LocalDate recurringStartDate, @NotNull Timezone timezone) {
-        Objects.requireNonNull(recurringStartDate, "recurringStartDate");
-        Objects.requireNonNull(timezone, "timezone");
-        setRecurringStartDateUTC(timezone.convertToUTC(recurringStartDate));
-    }
+//    /**
+//     * The start date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+//     * It is converted to an Instant by using the given timezone.
+//     * <br><br>
+//     * Null is not allowed here, use {@link #setRecurringStartDate(Instant)} to reset the value.
+//     *
+//     * @param recurringStartDate start date or recurrence
+//     * @param timezone           timezone
+//     * @throws NullPointerException when null is passed
+//     */
+//    public void setRecurringStartDate(@NotNull LocalDate recurringStartDate, @NotNull Timezone timezone) {
+//        Objects.requireNonNull(recurringStartDate, "recurringStartDate");
+//        Objects.requireNonNull(timezone, "timezone");
+//        setRecurringStartDateUTC(timezone.convertToUTC(recurringStartDate));
+//    }
 
 
-    /**
-     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-     * is recurring).
-     * <br><br>
-     * The given timezone is used to convert the instant to a local date instance.
-     *
-     * @param timezone timezone
-     * @return end date of recurrence
-     * @throws NullPointerException when null is passed
-     */
-    public LocalDate getRecurringEndDate(@NotNull Timezone timezone) {
-        Objects.requireNonNull(timezone, "timezone");
-        Instant recurringEndDate = getRecurringEndDateUTC();
-        return recurringEndDate != null ? LocalDateTime.ofInstant(recurringEndDate, timezone.getZoneId().getRules().getOffset(recurringEndDate)).toLocalDate() : null;
-    }
+//    /**
+//     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+//     * is recurring).
+//     * <br><br>
+//     * The given timezone is used to convert the instant to a local date instance.
+//     *
+//     * @param timezone timezone
+//     * @return end date of recurrence
+//     * @throws NullPointerException when null is passed
+//     */
+//    public LocalDate getRecurringEndDate(@NotNull Timezone timezone) {
+//        Objects.requireNonNull(timezone, "timezone");
+//        Instant recurringEndDate = getRecurringEndDateUTC();
+//        return recurringEndDate != null ? LocalDateTime.ofInstant(recurringEndDate, timezone.getZoneId().getRules().getOffset(recurringEndDate)).toLocalDate() : null;
+//    }
 
-    /**
-     * The end date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
-     * It is converted to an Instant by using the given timezone.
-     * <br><br>
-     * Null is not allowed here, use {@link #setRecurringEndDate(Instant)} to reset the value.
-     *
-     * @param recurringEndDate end date or recurrence
-     * @param timezone         timezone
-     * @throws NullPointerException when null is passed
-     */
-    public void setRecurringEndDate(@NotNull LocalDate recurringEndDate, @NotNull Timezone timezone) {
-        Objects.requireNonNull(recurringEndDate, "recurringEndDate");
-        Objects.requireNonNull(timezone, "timezone");
-
-        setRecurringEndDateUTC(timezone.convertToUTC(recurringEndDate));
-    }
+//    /**
+//     * The end date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
+//     * It is converted to an Instant by using the given timezone.
+//     * <br><br>
+//     * Null is not allowed here, use {@link #setRecurringEndDate(Instant)} to reset the value.
+//     *
+//     * @param recurringEndDate end date or recurrence
+//     * @param timezone         timezone
+//     * @throws NullPointerException when null is passed
+//     */
+//    public void setRecurringEndDate(@NotNull LocalDate recurringEndDate, @NotNull Timezone timezone) {
+//        Objects.requireNonNull(recurringEndDate, "recurringEndDate");
+//        Objects.requireNonNull(timezone, "timezone");
+//
+//        setRecurringEndDateUTC(timezone.convertToUTC(recurringEndDate));
+//    }
 
     /**
      * Assign an additional className to this entry. Already assigned classNames will be kept.
@@ -536,59 +538,59 @@ public class Entry extends JsonItem<String> {
         set(EntryKey.GROUP_ID, groupId);
     }
 
-    /**
-     * Returns the start of the entry based on UTC.
-     *
-     * @return start
-     */
-    public Instant getStartUTC() {
-        return get(EntryKey.START);
-    }
+//    /**
+//     * Returns the start of the entry based on UTC.
+//     *
+//     * @return start
+//     */
+//    public Instant getStartUTC() {
+//        return get(EntryKey.START);
+//    }
 
-    /**
-     * Sets the start of this entry as an UTC based instant.
-     * @param start start
-     * @deprecated use {@link #setStartUTC(Instant)}
-     */
-    @Deprecated
-    public void setStart(Instant start) {
-        setStartUTC(start);
-    }
+//    /**
+//     * Sets the start of this entry as an UTC based instant.
+//     * @param start start
+//     * @deprecated use {@link #setStartUTC(Instant)}
+//     */
+//    @Deprecated
+//    public void setStart(Instant start) {
+//        setStartUTC(start);
+//    }
 
-    /**
-     * Sets the start of this entry as an UTC based instant.
-     * @param start start
-     */
-    public void setStartUTC(Instant start) {
-        set(EntryKey.START, start);
-    }
+//    /**
+//     * Sets the start of this entry as an UTC based instant.
+//     * @param start start
+//     */
+//    public void setStartUTC(Instant start) {
+//        set(EntryKey.START, start);
+//    }
 
-    /**
-     * Returns the end of the entry based on UTC.
-     *
-     * @return start
-     */
-    public Instant getEndUTC() {
-        return get(EntryKey.END);
-    }
+//    /**
+//     * Returns the end of the entry based on UTC.
+//     *
+//     * @return start
+//     */
+//    public Instant getEndUTC() {
+//        return get(EntryKey.END);
+//    }
 
-    /**
-     * Sets the end of this entry as an UTC based instant.
-     * @param end end
-     * @deprecated use {@link #setEndUTC(Instant)} instead
-     */
-    @Deprecated
-    public void setEnd(Instant end) {
-        set(EntryKey.END, end);
-    }
+//    /**
+//     * Sets the end of this entry as an UTC based instant.
+//     * @param end end
+//     * @deprecated use {@link #setEndUTC(Instant)} instead
+//     */
+//    @Deprecated
+//    public void setEnd(Instant end) {
+//        set(EntryKey.END, end);
+//    }
 
-    /**
-     * Sets the end of this entry as an UTC based instant.
-     * @param end end
-     */
-    public void setEndUTC(Instant end) {
-        set(EntryKey.END, end);
-    }
+//    /**
+//     * Sets the end of this entry as an UTC based instant.
+//     * @param end end
+//     */
+//    public void setEndUTC(Instant end) {
+//        set(EntryKey.END, end);
+//    }
 
     /**
      * Indicates, if this entry is an all day entry. Default ist false.
@@ -790,8 +792,8 @@ public class Entry extends JsonItem<String> {
     public boolean isRecurring() {
         Set<DayOfWeek> daysOfWeek = getRecurringDaysOfWeek();
         return (daysOfWeek != null && !daysOfWeek.isEmpty())
-                || getRecurringEndDateUTC() != null
-                || getRecurringStartDateUTC() != null
+                || getRecurringEndDate() != null
+                || getRecurringStartDate() != null
                 || getRecurringStartTime() != null
                 || getRecurringEndTime() != null;
     }
@@ -839,40 +841,40 @@ public class Entry extends JsonItem<String> {
         set(EntryKey.RECURRING_DAYS_OF_WEEKS, daysOfWeek);
     }
 
-    /**
-     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-     * is recurring).
-     *
-     * @see #isRecurring()
-     * @return start date of recurrence
-     */
-    public Instant getRecurringStartDateUTC() {
-        return get(EntryKey.RECURRING_START_DATE);
-    }
+//    /**
+//     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+//     * is recurring).
+//     *
+//     * @see #isRecurring()
+//     * @return start date of recurrence
+//     */
+//    public Instant getRecurringStartDateUTC() {
+//        return get(EntryKey.RECURRING_START_DATE);
+//    }
+//
+//
+//    /**
+//     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
+//     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the future.
+//     * @see #isRecurring()
+//     * @param start start date
+//     */
+//    public void setRecurringStartDateUTC(Instant start) {
+//        set(EntryKey.RECURRING_START_DATE, start);
+//    }
 
-
-    /**
-     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the future.
-     * @see #isRecurring()
-     * @param start start date
-     */
-    public void setRecurringStartDateUTC(Instant start) {
-        set(EntryKey.RECURRING_START_DATE, start);
-    }
-
-    /**
-     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the future.
-     * @see #isRecurring()
-     * @param start start date
-     * @deprecated use {@link #setRecurringStartDateUTC(Instant)} instead
-     *
-     */
-    @Deprecated
-    public void setRecurringStartDate(Instant start) {
-        setRecurringStartDateUTC(start);
-    }
+//    /**
+//     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
+//     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the future.
+//     * @see #isRecurring()
+//     * @param start start date
+//     * @deprecated use {@link #setRecurringStartDateUTC(Instant)} instead
+//     *
+//     */
+//    @Deprecated
+//    public void setRecurringStartDate(Instant start) {
+//        setRecurringStartDateUTC(start);
+//    }
 
     /**
      * Sets the given local date as recurring start. It is converted to an instant by using the
@@ -881,7 +883,8 @@ public class Entry extends JsonItem<String> {
      * @param recurringStart start
      */
     public void setRecurringStartDate(LocalDate recurringStart) {
-        setRecurringStartDate(recurringStart, getStartTimezoneServer());
+//        setRecurringStartDate(recurringStart, getStartTimezoneServer());
+        set(EntryKey.RECURRING_START_DATE, recurringStart);
     }
 
     /**
@@ -897,55 +900,57 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Returns the recurring start of the entry as local date time based on the timezone returned by {@link #getEndTimezoneServer()}.
+     * Returns the recurring start of the entry as local date time based on the timezone returned by
      *
      * @return start as local date time
      */
     public LocalDate getRecurringStartDate() {
-        return getRecurringStartDate(getStartTimezoneServer());
+//        return getRecurringStartDate(getStartTimezoneServer());
+        return get(EntryKey.RECURRING_START_DATE);
     }
 
-    /**
-     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-     * is recurring).
-     *
-     * @see #isRecurring()
-     * @return end date of recurrence
-     */
-    public Instant getRecurringEndDateUTC() {
-        return get(EntryKey.RECURRING_END_DATE);
-    }
+//    /**
+//     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
+//     * is recurring).
+//     *
+//     * @see #isRecurring()
+//     * @return end date of recurrence
+//     */
+//    public Instant getRecurringEndDateUTC() {
+//        return get(EntryKey.RECURRING_END_DATE);
+//    }
+
+//    /**
+//     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
+//     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the past.
+//     * @see #isRecurring()
+//     * @param end end date
+//     */
+//    public void setRecurringEndDateUTC(Instant end) {
+//        set(EntryKey.RECURRING_END_DATE, end);
+//    }
+
+//    /**
+//     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
+//     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the past.
+//     * @see #isRecurring()
+//     * @param end end date
+//     *
+//     * @deprecated use {@link #setRecurringEndDateUTC(Instant)} instead
+//     */
+//    @Deprecated
+//    public void setRecurringEndDate(Instant end) {
+//        setRecurringEndDateUTC(end);
+//    }
 
     /**
-     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the past.
-     * @see #isRecurring()
-     * @param end end date
-     */
-    public void setRecurringEndDateUTC(Instant end) {
-        set(EntryKey.RECURRING_END_DATE, end);
-    }
-
-    /**
-     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the past.
-     * @see #isRecurring()
-     * @param end end date
-     *
-     * @deprecated use {@link #setRecurringEndDateUTC(Instant)} instead
-     */
-    @Deprecated
-    public void setRecurringEndDate(Instant end) {
-        setRecurringEndDateUTC(end);
-    }
-
-    /**
-     * Returns the recurring end of the entry as local date time based on the timezone returned by {@link #getEndTimezoneServer()}.
+     * Returns the recurring end of the entry as local date time based on the timezone returned by
      *
      * @return start as local date time
      */
     public LocalDate getRecurringEndDate() {
-        return getRecurringEndDate(getEndTimezoneServer());
+//        return getRecurringEndDate(getEndTimezoneServer());
+        return get(EntryKey.RECURRING_END_DATE);
     }
 
     /**
@@ -955,7 +960,8 @@ public class Entry extends JsonItem<String> {
      * @param recurringEnd end
      */
     public void setRecurringEndDate(LocalDate recurringEnd) {
-        setRecurringEndDate(recurringEnd, getEndTimezoneServer());
+//        setRecurringEndDate(recurringEnd, getEndTimezoneServer());
+        set(EntryKey.RECURRING_END_DATE, recurringEnd);
     }
 
     /**
@@ -1039,22 +1045,46 @@ public class Entry extends JsonItem<String> {
 
     @Getter
     @RequiredArgsConstructor
-    public static class DateUTCConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<Instant, T> {
-        private final SerializableFunction<T, Timezone> timezoneSupplier;
+    public static class DateTimeUTCConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalDateTime, T> {
+//        private final SerializableFunction<T, Timezone> timezoneSupplier;
 
         @Override
-        public JsonValue toJsonValue(Instant serverValue, T currentInstance) {
-            return JsonUtils.toJsonValue(serverValue == null ? null : Timezone.UTC.formatWithZoneId(serverValue));
+        public JsonValue toJsonValue(LocalDateTime serverValue, T currentInstance) {
+            return JsonUtils.toJsonValue(JsonUtils.formatClientSideDateTimeString(serverValue));
         }
 
         @Override
-        public Instant ofJsonValue(JsonValue clientValue, T currentInstance) {
+        public LocalDateTime ofJsonValue(JsonValue clientValue, T currentInstance) {
             if (clientValue instanceof JsonNull) {
                 return null;
             }
 
             if (clientValue instanceof JsonString) {
-                return JsonUtils.parseDateTimeString(clientValue.asString(), Timezone.UTC);
+                return JsonUtils.parseClientSideDateTime(clientValue.asString());
+            }
+
+            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString");
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class DateUTCConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalDate, T> {
+//        private final SerializableFunction<T, zone> timezoneSupplier;
+
+        @Override
+        public JsonValue toJsonValue(LocalDate serverValue, T currentInstance) {
+            return JsonUtils.toJsonValue(JsonUtils.formatClientSideDateString(serverValue));
+        }
+
+        @Override
+        public LocalDate ofJsonValue(JsonValue clientValue, T currentInstance) {
+            if (clientValue instanceof JsonNull) {
+                return null;
+            }
+
+            if (clientValue instanceof JsonString) {
+                return JsonUtils.parseClientSideDate(clientValue.asString());
             }
 
             throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString");
@@ -1087,7 +1117,7 @@ public class Entry extends JsonItem<String> {
                 .name("start")
                 .allowedType(Instant.class)
                 .updateFromClientAllowed(true)
-                .converter(new DateUTCConverter<>(Entry::getStartTimezoneClient))
+                .converter(new DateTimeUTCConverter<>())
                 .build();
 
         /**
@@ -1097,7 +1127,7 @@ public class Entry extends JsonItem<String> {
                 .name("end")
                 .allowedType(Instant.class)
                 .updateFromClientAllowed(true)
-                .converter(new DateUTCConverter<>(Entry::getEndTimezoneClient))
+                .converter(new DateTimeUTCConverter<>())
                 .build();
 
         /**
@@ -1228,7 +1258,7 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key RECURRING_START_DATE = JsonItem.Key.builder()
                 .name("startRecur")
                 .allowedType(Instant.class)
-                .converter(new DateUTCConverter<>(Entry::getStartTimezoneClient))
+                .converter(new DateUTCConverter<>())
                 .build();
 
         /**
@@ -1246,7 +1276,7 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key RECURRING_END_DATE = JsonItem.Key.builder()
                 .name("endRecur")
                 .allowedType(Instant.class)
-                .converter(new DateUTCConverter<>(Entry::getEndTimezoneClient))
+                .converter(new DateUTCConverter<>())
                 .build();
 
         /**
