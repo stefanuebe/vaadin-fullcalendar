@@ -24,8 +24,8 @@ public class EntryManager {
         recurring.setColor("lightgray");
         recurring.setRecurringDaysOfWeek(Collections.singleton(DayOfWeek.SUNDAY));
 
-        recurring.setRecurringStartDate(now.with(TemporalAdjusters.firstDayOfYear()), calendar.getTimezoneClient());
-        recurring.setRecurringEndDate(now.with(TemporalAdjusters.lastDayOfYear()), calendar.getTimezoneClient());
+        recurring.setRecurringStartDate(now.with(TemporalAdjusters.firstDayOfYear()));
+        recurring.setRecurringEndDate(now.with(TemporalAdjusters.lastDayOfYear()));
         recurring.setRecurringStartTime(LocalTime.of(14, 0));
         recurring.setRecurringEndTime(LocalTime.of(17, 0));
         recurring.setResourceEditable(true);
