@@ -55,6 +55,14 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
         this.allDay = allDay;
         dateTimeUTC = JsonUtils.parseDateTimeString(dateString, source.getTimezoneClient());
         dateTime = source.getTimezoneServer().convertToLocalDateTime(dateTimeUTC);
+    }
 
+    /**
+     * Returns only the date part of the contained local date time. This method is intended to be used on
+     * all day entry related events.
+     * @return local date
+     */
+    public LocalDate getDate() {
+        return dateTime.toLocalDate();
     }
 }
