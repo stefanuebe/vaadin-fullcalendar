@@ -1622,10 +1622,6 @@ export class FullCalendar extends PolymerElement {
     _createInitOptions(initialOptions = {}) {
         let events = this._createEventHandlers();
 
-        if (initialOptions) {
-            console.warn(initialOptions);
-        }
-
         let options = {
             height: '100%',
             timeZone: 'UTC',
