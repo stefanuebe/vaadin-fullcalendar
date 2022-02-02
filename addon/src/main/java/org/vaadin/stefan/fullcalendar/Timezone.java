@@ -16,11 +16,10 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import net.bytebuddy.asm.Advice;
+
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 
 /**
@@ -116,6 +115,67 @@ public class Timezone implements ClientSideValue {
         return zoneId;
     }
 
+    /**
+     * Creates a zoned date time based on this timezone interpreting the given local date time as UTC time.
+     * Passing ...T00:00 to a GMT+1 instance will result in local date time ...T01:00+01:00
+     * <p/>
+     * For the UTC instance this method will not modify anything.
+     * @param localDateTime local date time to convert to a zoned date time
+     * @return zoned date time representing the given local date time at this timezone
+     */
+    public ZonedDateTime applyTimezone(LocalDateTime localDateTime) {
+        return ZonedDateTime.of(localDateTime, ZONE_ID_UTC).withZoneSameInstant(getZoneId());
+    }
+
+    /**
+     * Creates a UTC zoned date time by interpreting the given local date time as a timestamp of this time zone.
+     * Passing ...T01:00 to a GMT+1 instance will result in local date time ...T00:00Z
+     * <p/>
+     * For the UTC instance this method will not modify anything.
+     * @param localDateTime local date time to convert to a zoned date time
+     * @return zoned date time representing the given local date time at this timezone
+     */
+    public ZonedDateTime removeTimezone(LocalDateTime localDateTime) {
+        return ZonedDateTime.of(localDateTime, getZoneId()).withZoneSameInstant(ZONE_ID_UTC);
+    }
+
+    /**
+     * Creates a local date time based by adding the zone offset of this timezone onto the given local date time.
+     * Any offset modifies like daylight saving will be based on the given local date time.
+     * Passing ...T00:00 to a GMT+1 instance will result in local date time ...T01:00
+     * <p/>
+     * For the UTC instance this method will not modify anything, but return a new local date time instance.
+     * @param localDateTime local date time to convert to a zoned date time
+     * @return zoned date time representing the given local date time at this timezone
+     */
+    public LocalDateTime plusTimezoneOffset(LocalDateTime localDateTime) {
+        return applyTimezone(localDateTime).toLocalDateTime();
+    }
+
+    /**
+     * Creates a local date time based by subtracting the zone offset of this timezone from the given local date time.
+     * Any offset modifies like daylight saving will be based on the given local date time.
+     * Passing ...T01:00 to a GMT+1 instance will result in local date time ...T00:00
+     * <p/>
+     * For the UTC instance this method will not modify anything, but return a new local date time instance.
+     * @param localDateTime local date time to convert to a zoned date time
+     * @return zoned date time representing the given local date time at this timezone
+     */
+    public LocalDateTime minusTimezoneOffset(LocalDateTime localDateTime) {
+        return removeTimezone(localDateTime).toLocalDateTime();
+    }
+
+    /**
+     * Converts the given local date time to a zoned date time without changing the time itself other then
+     * {@link #applyTimezone(LocalDateTime)} or {@link #removeTimezone(LocalDateTime)}.
+     * @param localDateTime
+     * @return
+     */
+    public ZonedDateTime asZonedDateTime(LocalDateTime localDateTime) {
+        return ZonedDateTime.of(localDateTime, getZoneId());
+    }
+
+
 //    /**
 //     * Formats the given instant based on the zone id to be sent to the client side.
 //     * For UTC based timezones the string will end on a Z, all other zone ids are parsed as local date versions.
@@ -136,13 +196,7 @@ public class Timezone implements ClientSideValue {
 //        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(temporal);
 //    }
 
-    public ZonedDateTime applyTimezone(LocalDateTime localDateTime) {
-        return ZonedDateTime.of(localDateTime, getZoneId());
-    }
 
-    public OffsetDateTime applyOffset(LocalDateTime localDateTime) {
-        return applyTimezone(localDateTime).toOffsetDateTime();
-    }
 
 //    /**
 //     * Formats the given instant based on the zone id to be sent to the client side.

@@ -70,6 +70,7 @@ public class FullDemo extends VerticalLayout {
     private MenuBar toolbar;
 
     private Timezone timezone;
+    private ComboBox<Timezone> timezoneComboBox;
 
     public FullDemo() {
         initView();
@@ -141,6 +142,23 @@ public class FullDemo extends VerticalLayout {
                 });
             });
         });
+
+        calendarItems.addItem("Add daily items up to year's end", event -> {
+
+            LocalDateTime max = LocalDate.of(2022, Month.DECEMBER, 31).atStartOfDay();
+            LocalDateTime date = LocalDate.now().atTime(10, 0);
+
+            List<Entry> entries = new LinkedList<>();
+            while (!date.isAfter(max)) {
+                ResourceEntry entry = new ResourceEntry();
+                EntryManager.setValues(calendar, entry, "DAILY", date, 60, ChronoUnit.MINUTES, "red");
+                entries.add(entry);
+                date = date.plusDays(1);
+            }
+            calendar.addEntries(entries);
+            Notification.show("Added " + entries.size() + " entries, one per day at 10:00 UTC");
+        });
+
         calendarItems.addItem("Remove all entries", e -> calendar.removeAllEntries());
         calendarItems.addItem("Remove all resources", e -> ((FullCalendarScheduler) calendar).removeAllResources());
 
@@ -183,7 +201,7 @@ public class FullDemo extends VerticalLayout {
 
         Checkbox showOnlySomeTimezones = new Checkbox("Show only some timezones", true);
 
-        ComboBox<Timezone> timezoneComboBox = new ComboBox<>("Timezone");
+        timezoneComboBox = new ComboBox<>("Timezone");
         timezoneComboBox.setClearButtonVisible(true);
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
         timezoneComboBox.setPreventInvalidInput(true);
@@ -220,9 +238,10 @@ public class FullDemo extends VerticalLayout {
         JsonObject initialOptions = Json.createObject();
         JsonObject eventTimeFormat = Json.createObject();
         //{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
-        eventTimeFormat.put("hour", "numeric");
+        eventTimeFormat.put("hour", "2-digit");
         eventTimeFormat.put("minute", "2-digit");
         eventTimeFormat.put("timeZoneName", "short");
+        eventTimeFormat.put("meridiem",false);
         initialOptions.put("eventTimeFormat", eventTimeFormat);
 
         calendar = FullCalendarBuilder.create()
@@ -290,6 +309,10 @@ public class FullDemo extends VerticalLayout {
 
             entry.setColor("dodgerblue");
             new DemoDialog(calendar, entry, true).open();
+        });
+
+        calendar.addBrowserTimezoneObtainedListener(event -> {
+            timezoneComboBox.setValue(event.getTimezone());
         });
 
         ((FullCalendarScheduler) calendar).setEntryResourceEditable(false);
@@ -413,6 +436,7 @@ public class FullDemo extends VerticalLayout {
         EntryManager.createDayEntry(calendar, "Multi 8", now.withDayOfMonth(12), 2, "tomato");
         EntryManager.createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
         EntryManager.createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
+
 
         EntryManager.createDayBackgroundEntry(calendar, now.withDayOfMonth(4), 6, "#B9FFC3");
         EntryManager.createDayBackgroundEntry(calendar, now.withDayOfMonth(19), 2, "#CEE3FF");
