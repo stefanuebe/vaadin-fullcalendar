@@ -89,21 +89,12 @@ public class FullDemo extends VerticalLayout {
     }
 
     private void createToolbar() {
-    	toolbar = new FormLayout();
-    	toolbar.getElement().getStyle().set("margin-top", "0px");
-    	toolbar.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("25em", 4));
+        toolbar = new MenuBar();
+        toolbar.setOpenOnHover(true);
+        toolbar.setWidthFull();
 
-    	FormLayout temporalLayout = new FormLayout();
-    	temporalLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
-    	
-    	Button buttonToday = new Button("Today", VaadinIcon.HOME.create(), e -> calendar.today());
-    	buttonToday.setWidthFull();
-    	
-        HorizontalLayout temporalSelectorLayout = new HorizontalLayout();
-
-        Button buttonPrevious = new Button("", VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
-        Button buttonNext = new Button("", VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
-        buttonNext.setIconAfterText(true);
+        toolbar.addItem("Today", e -> calendar.today());
+        toolbar.addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
 
         // simulate the date picker light that we can use in polymer
         DatePicker gotoDate = new DatePicker();
@@ -114,47 +105,17 @@ public class FullDemo extends VerticalLayout {
         gotoDate.setHeight("0px");
         gotoDate.setWeekNumbersVisible(true);
         buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
+        buttonDatePicker.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         buttonDatePicker.getElement().appendChild(gotoDate.getElement());
         buttonDatePicker.addClickListener(event -> gotoDate.open());
         buttonDatePicker.setWidthFull();
-        
-        temporalSelectorLayout.add(buttonPrevious, buttonDatePicker, buttonNext, gotoDate);
-        temporalSelectorLayout.setWidthFull();
-        temporalSelectorLayout.setSpacing(false);
-        
-        temporalLayout.add(buttonToday, temporalSelectorLayout);
-        temporalLayout.setWidthFull();
+        toolbar.addItem(buttonDatePicker);
 
-        List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
-        calendarViews.addAll(Arrays.asList(SchedulerView.values()));
-        calendarViews.sort(Comparator.comparing(CalendarView::getName));
+        toolbar.addItem(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
 
-        comboBoxView = new ComboBox<>("", calendarViews);
-        comboBoxView.setValue(CalendarViewImpl.DAY_GRID_MONTH);
-        comboBoxView.setWidthFull();
-        comboBoxView.addValueChangeListener(e -> {
-            CalendarView value = e.getValue();
-            calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
-        });
-        comboBoxView.setWidthFull();
-        
-        Button removeAllEntries = new Button("All Entries", VaadinIcon.TRASH.create(), event -> calendar.removeAllEntries());
-        removeAllEntries.setWidthFull();
-        
-        FormLayout removeLayout = new FormLayout();
-        removeLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
-        
-        Button removeAllResources = new Button("All Resources", VaadinIcon.TRASH.create(), event -> ((FullCalendarScheduler) calendar).removeAllResources());
-        removeAllResources.setWidthFull();
-        
-        removeLayout.add(removeAllEntries, removeAllResources);
-        removeLayout.setWidthFull();
-
-        FormLayout commandLayout = new FormLayout();
-        commandLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
-        
-        Button addThousand = new Button("Add 1k entries", event -> {
-            Button source = event.getSource();
+        SubMenu calendarItems = toolbar.addItem("Calendar Items").getSubMenu();
+        calendarItems.addItem("Add 1k entries", event -> {
+            MenuItem source = event.getSource();
             source.setEnabled(false);
             source.setText("Creating...");
             Optional<UI> optionalUI = getUI();
@@ -180,17 +141,79 @@ public class FullDemo extends VerticalLayout {
                 });
             });
         });
-        addThousand.setWidthFull();
+        calendarItems.addItem("Remove all entries", e -> calendar.removeAllEntries());
+        calendarItems.addItem("Remove all resources", e -> ((FullCalendarScheduler) calendar).removeAllResources());
 
-        Button settings = new Button("Settings", VaadinIcon.COG.create(), event -> {
-        	SettingsDialog sd = new SettingsDialog(calendar);
-        	sd.open();
+        createSettingsSubMenu(toolbar);
+    }
+
+    private void createSettingsSubMenu(MenuBar menuBar) {
+        SubMenu subMenu = menuBar.addItem("Settings").getSubMenu();
+
+        List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
+        calendarViews.addAll(Arrays.asList(SchedulerView.values()));
+        calendarViews.sort(Comparator.comparing(CalendarView::getName));
+
+        comboBoxView = new ComboBox<>("Calendar View", calendarViews);
+        comboBoxView.setValue(CalendarViewImpl.DAY_GRID_MONTH);
+        comboBoxView.setWidthFull();
+        comboBoxView.addValueChangeListener(e -> {
+            CalendarView value = e.getValue();
+            calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
         });
-        
-        commandLayout.add(addThousand, settings);
-        commandLayout.setWidthFull();
+        comboBoxView.setWidthFull();
+        subMenu.add(comboBoxView);
 
-        toolbar.add(temporalLayout, comboBoxView, removeLayout, commandLayout);
+//        Button toogleFixedWeekCount = new Button("Toggle fixed week count", event -> {
+//            calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
+//            Notification.show("Updated fixedWeekCount value from " + Boolean.toString(!calendar.getFixedWeekCount()) + " to " + Boolean.toString(calendar.getFixedWeekCount()));
+//        });
+
+        List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
+        ComboBox<Locale> comboBoxLocales = new ComboBox<>("Locale");
+        comboBoxLocales.setClearButtonVisible(true);
+        comboBoxLocales.setItems(items);
+        comboBoxLocales.setValue(CalendarLocale.getDefault());
+        comboBoxLocales.addValueChangeListener(event -> {
+            Locale value = event.getValue();
+            calendar.setLocale(value != null ? value : CalendarLocale.getDefault());
+            Notification.show("Locale changed to " + calendar.getLocale().toLanguageTag());
+        });
+        comboBoxLocales.setPreventInvalidInput(true);
+
+        Checkbox showOnlySomeTimezones = new Checkbox("Show only some timezones", true);
+
+        ComboBox<Timezone> timezoneComboBox = new ComboBox<>("Timezone");
+        timezoneComboBox.setClearButtonVisible(true);
+        timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
+        timezoneComboBox.setPreventInvalidInput(true);
+        timezoneComboBox.setItems(SOME_TIMEZONES);
+        timezoneComboBox.setValue(Timezone.UTC);
+        timezoneComboBox.addValueChangeListener(event -> {
+            if (!Objects.equals(calendar.getTimezoneClient(), event.getValue())) {
+
+                Timezone value = event.getValue();
+                calendar.setTimezoneClient(value != null ? value : Timezone.UTC);
+                Notification.show("Timezone changed to " + calendar.getTimezoneClient());
+            }
+        });
+        showOnlySomeTimezones.addValueChangeListener(event -> updateTimezonesComboBox(calendar, timezoneComboBox, event.getValue()));
+
+        subMenu.add(/*toogleFixedWeekCount, */comboBoxLocales, timezoneComboBox, showOnlySomeTimezones);
+    }
+
+    private void updateTimezonesComboBox(FullCalendar calendar, ComboBox<Timezone> timezoneComboBox, boolean showOnlySome) {
+        if (showOnlySome) {
+            timezoneComboBox.setItems(SOME_TIMEZONES);
+        } else {
+            timezoneComboBox.setItems(Timezone.getAvailableZones());
+        }
+
+        if (!SOME_TIMEZONES.contains(calendar.getTimezoneClient())) {
+            timezoneComboBox.setValue(Timezone.UTC);
+        } else {
+            timezoneComboBox.setValue(calendar.getTimezoneClient());
+        }
     }
 
     private void createCalendarInstance() {
