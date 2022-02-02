@@ -101,7 +101,7 @@ public class EntryManager {
         calendar.addEntry(entry);
     }
 
-	static void setValues(FullCalendar calendar, Entry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
+	public static void setValues(FullCalendar calendar, Entry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
         entry.setTitle(title);
         entry.setStart(start);
         entry.setEnd(entry.getStart().plus(amountToAdd, unit));

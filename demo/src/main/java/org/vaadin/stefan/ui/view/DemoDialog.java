@@ -239,18 +239,18 @@ public class DemoDialog extends Dialog {
             boolean recurring = entry.isRecurring();
             dialogEntry.setRecurring(recurring);
 
-//            if (recurring) {
-//                dialogEntry.setRecurringDays(entry.getRecurringDaysOfWeek());
-//
-//                LocalDate startDate = entry.getRecurringStartDate(timezone);
-//                LocalDate endDate = entry.getRecurringEndDate(timezone);
-//
-//                dialogEntry.setStart(entry.isAllDay() ? startDate.atStartOfDay() : startDate.atTime(entry.getRecurringStartTime()));
-//                dialogEntry.setEnd(entry.isAllDay() ? endDate.atStartOfDay().plusDays(1) : endDate.atTime(entry.getRecurringEndTime()));
-//            } else {
-//                dialogEntry.setStart(entry.getStart(timezone));
-//                dialogEntry.setEnd(entry.getEnd(timezone));
-//            }
+            if (recurring) {
+                dialogEntry.setRecurringDays(entry.getRecurringDaysOfWeek());
+
+                LocalDate startDate = entry.getRecurringStartDate();
+                LocalDate endDate = entry.getRecurringEndDate();
+
+                dialogEntry.setStart(entry.isAllDay() ? startDate.atStartOfDay() : startDate.atTime(entry.getRecurringStartTime()));
+                dialogEntry.setEnd(entry.isAllDay() ? endDate.atStartOfDay().plusDays(1) : endDate.atTime(entry.getRecurringEndTime()));
+            } else {
+                dialogEntry.setStart(timezone.plusTimezoneOffset(entry.getStart()));
+                dialogEntry.setEnd(timezone.plusTimezoneOffset(entry.getEnd()));
+            }
 
             return dialogEntry;
         }
@@ -272,18 +272,16 @@ public class DemoDialog extends Dialog {
                 entry.clearStart();
                 entry.clearEnd();
 
-//                entry.setRecurringStartDate(start.toLocalDate(), timezone);
+                entry.setRecurringStartDate(start.toLocalDate());
                 entry.setRecurringStartDate(start.toLocalDate());
                 entry.setRecurringStartTime(allDay ? null : start.toLocalTime());
 
-//                entry.setRecurringEndDate(end.toLocalDate(), timezone);
+                entry.setRecurringEndDate(end.toLocalDate());
                 entry.setRecurringEndDate(end.toLocalDate());
                 entry.setRecurringEndTime(allDay ? null : end.toLocalTime());
             } else {
-//                entry.setStart(start, timezone);
-//                entry.setEnd(end, timezone);
-                entry.setStart(start);
-                entry.setEnd(end);
+                entry.setStart(timezone.minusTimezoneOffset(start));
+                entry.setEnd(timezone.minusTimezoneOffset(end));
 
                 entry.setRecurringStartDate(null);
                 entry.setRecurringStartTime(null);
