@@ -172,7 +172,22 @@ public class Entry extends JsonItem<String> {
      * @return start with offset or null
      */
     public LocalDateTime getStartWithOffset() {
-        return getStartTimezone().plusTimezoneOffset(getStart());
+        return getStartWithOffset(getStartTimezone());
+    }
+
+    /**
+     * Returns the start time as a local date time after applying the timezone's offset to
+     * the utc based start date ({@link #getStart()}).
+     * <p/>
+     * This method is intended to be used for new entrys that have not yet been added to the
+     * calender and thus have no reference to its timezone.
+     * <p/>
+     * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone()} and call
+     * {@link ZonedDateTime#toOffsetDateTime()}
+     * @return start with offset or null
+     */
+    public LocalDateTime getStartWithOffset(Timezone timezone) {
+        return timezone.plusTimezoneOffset(getStart());
     }
 
     /**
@@ -228,7 +243,25 @@ public class Entry extends JsonItem<String> {
      * @param startWithTimezone start with time zone
      */
     public void setStartWithOffset(LocalDateTime startWithTimezone) {
-        setStart(getStartTimezone().minusTimezoneOffset(startWithTimezone));
+        setStartWithOffset(startWithTimezone, getStartTimezone());
+    }
+
+    /**
+     * Sets the entry's start. The given date time will be interpreted as having the offset of the
+     * given time zone applied. The time will be converted to UTC.
+     * <p/>
+     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
+     * the resulting start time will be ...T00:00.
+     * <p/>
+     * This method is intended to be used in cases where entry is not yet added to the calender and thus
+     * cannot use its timezone to interpret the offset.
+     * <p/>
+     *
+     * @param startWithTimezone start with time zone
+     * @param timezone timezone
+     */
+    public void setStartWithOffset(LocalDateTime startWithTimezone, Timezone timezone) {
+        setStart(timezone.minusTimezoneOffset(startWithTimezone));
     }
 
     /**
@@ -304,6 +337,21 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
+     * Returns the end time as a local date time after applying the timezone's offset to
+     * the utc based end date ({@link #getEnd()}).
+     * <p/>
+     * This method is intended to be used for new entrys that have not yet been added to the
+     * calender and thus have no reference to its timezone.
+     * <p/>
+     * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone()} and call
+     * {@link ZonedDateTime#toOffsetDateTime()}
+     * @return end with offset or null
+     */
+    public LocalDateTime getEndWithOffset(Timezone timezone) {
+        return timezone.plusTimezoneOffset(getEnd());
+    }
+
+    /**
      * Sets the entry's end. The given date time will be interpreted as the UTC end time of this entry.
      *
      * @param end utc end
@@ -357,6 +405,24 @@ public class Entry extends JsonItem<String> {
      */
     public void setEndWithOffset(LocalDateTime endWithTimezone) {
         setEnd(getEndTimezone().minusTimezoneOffset(endWithTimezone));
+    }
+
+    /**
+     * Sets the entry's end. The given date time will be interpreted as having the offset of the
+     * given time zone applied. The time will be converted to UTC.
+     * <p/>
+     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
+     * the resulting end time will be ...T00:00.
+     * <p/>
+     * This method is intended to be used in cases where entry is not yet added to the calender and thus
+     * cannot use its timezone to interpret the offset.
+     * <p/>
+     *
+     * @param endWithTimezone end with time zone
+     * @param timezone timezone
+     */
+    public void setEndWithOffset(LocalDateTime endWithTimezone, Timezone timezone) {
+        setEnd(timezone.minusTimezoneOffset(endWithTimezone));
     }
 
     /**
