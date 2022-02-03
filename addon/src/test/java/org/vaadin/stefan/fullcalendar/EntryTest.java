@@ -200,6 +200,7 @@ public class EntryTest {
         Assertions.assertNull(entry.getStartAsLocalDate());
         Assertions.assertNull(entry.getStartWithTimezone());
         Assertions.assertNull(entry.getStartWithOffset());
+        Assertions.assertNull(entry.getStartWithOffset(Timezone.UTC));
 
         entry.clearStart();
         entry.setStart((LocalDateTime) null);
@@ -207,6 +208,7 @@ public class EntryTest {
         entry.setStart((LocalDate) null);
         entry.setStartWithTimezone(null);
         entry.setStartWithOffset(null);
+        entry.setStartWithOffset(null, Timezone.UTC);
     }
 
     @Test
@@ -224,6 +226,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         JsonObject json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
 
@@ -234,6 +237,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
 
@@ -244,6 +248,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
 
@@ -254,6 +259,17 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
+        json = entry.toJson();
+        Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
+
+        entry.setStartWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
+        Assertions.assertEquals(now, entry.getStart());
+        Assertions.assertEquals(nowInstant, entry.getStartAsInstant());
+        Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
 
@@ -291,6 +307,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         JsonObject json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
 
@@ -301,6 +318,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
 
@@ -311,9 +329,9 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
-
 
         entry.setStartWithOffset(nowZoned.toLocalDateTime());
         Assertions.assertEquals(now, entry.getStart());
@@ -321,9 +339,19 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
 
+        entry.setStartWithOffset(nowZoned.toLocalDateTime(), timezone);
+        Assertions.assertEquals(now, entry.getStart());
+        Assertions.assertEquals(nowInstant, entry.getStartAsInstant());
+        Assertions.assertEquals(nowZoned, entry.getStartWithTimezone());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
+        json = entry.toJson();
+        Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.START.getName()));
 
         LocalDate nowDate = now.toLocalDate();
         entry.setStart(nowDate);
@@ -343,6 +371,7 @@ public class EntryTest {
         Assertions.assertNull(entry.getEndAsLocalDate());
         Assertions.assertNull(entry.getEndWithTimezone());
         Assertions.assertNull(entry.getEndWithOffset());
+        Assertions.assertNull(entry.getEndWithOffset(Timezone.UTC));
 
         entry.clearEnd();
         entry.setEnd((LocalDateTime) null);
@@ -350,6 +379,7 @@ public class EntryTest {
         entry.setEnd((LocalDate) null);
         entry.setEndWithTimezone(null);
         entry.setEndWithOffset(null);
+        entry.setEndWithOffset(null, Timezone.UTC);
     }
 
     @Test
@@ -367,6 +397,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         JsonObject json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
@@ -377,6 +408,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
@@ -387,6 +419,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
@@ -397,6 +430,18 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
+
+        json = entry.toJson();
+        Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
+
+        entry.setEndWithOffset(nowZoned.toLocalDateTime(), Timezone.UTC);
+        Assertions.assertEquals(now, entry.getEnd());
+        Assertions.assertEquals(nowInstant, entry.getEndAsInstant());
+        Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
@@ -433,6 +478,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         JsonObject json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
@@ -443,6 +489,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
@@ -453,6 +500,7 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
         json = entry.toJson();
         Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
@@ -463,6 +511,21 @@ public class EntryTest {
         Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
         Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
+
+        json = entry.toJson();
+        Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
+
+        entry.setEndWithOffset(nowZoned.toLocalDateTime(), timezone);
+        Assertions.assertEquals(now, entry.getEnd());
+        Assertions.assertEquals(nowInstant, entry.getEndAsInstant());
+        Assertions.assertEquals(nowZoned, entry.getEndWithTimezone());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithTimezone().toLocalDateTime());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset());
+        Assertions.assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
+
+        json = entry.toJson();
+        Assertions.assertEquals(JSON_UTC_TIMESTAMP, json.getString(EntryKey.END.getName()));
 
         LocalDate nowDate = now.toLocalDate();
         entry.setEnd(nowDate);
