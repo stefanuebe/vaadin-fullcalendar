@@ -36,7 +36,7 @@ public class DemoDialog extends Dialog {
     private final CheckboxGroup<DayOfWeek> fieldRDays;
 
     public DemoDialog(FullCalendar calendar, ResourceEntry entry, boolean newInstance) {
-        this.dialogEntry = DialogEntry.of(entry, calendar.getTimezoneClient());
+        this.dialogEntry = DialogEntry.of(entry, calendar.getTimezone());
 
         setCloseOnEsc(true);
         setCloseOnOutsideClick(true);

@@ -1608,14 +1608,14 @@ export class FullCalendar extends PolymerElement {
             date = new Date(date);
         }
 
-        let moment = toMoment(date, this.getCalendar()).utc();
+        let moment = toMoment(date, this.getCalendar());
         if (asDay) {
-            moment = moment.startOf('day');
+            let dateString = moment.startOf('day').format().substr(0, 10);
+            return dateString;
         }
 
-        let dateString = moment.format();
-
-        return asDay ? dateString.substr(0, dateString.indexOf('T')) : dateString;
+        let dateString = moment.utc().format();
+        return dateString;
     }
 
 
@@ -1738,22 +1738,25 @@ export class FullCalendar extends PolymerElement {
 
 
     _toEventData(event, oldResourceInfo, newResourceInfo) {
+        let allDay = event.allDay;
+
+        let start = this._formatDate(event.start, allDay);
         let end = event.end;
 
         // TODO add allDay parameters?
         if (end != null) {
-            end = this._formatDate(end);
+            end = this._formatDate(end, allDay);
         } else if (event.allDay) { // when moved from time slotted to all day
-            end = this._formatDate(new Date(event.start.valueOf() + 86400000)); // + 1 day
+            end = this._formatDate(new Date(event.start.valueOf() + 86400000), allDay); // + 1 day
         } else { // when moved from all day to time slotted
-            end = this._formatDate(new Date(event.start.valueOf() + 3600000)); // + 1 hour
+            end = this._formatDate(new Date(event.start.valueOf() + 3600000), allDay); // + 1 hour
         }
 
         let data = {
             id: event.id,
-            start: this._formatDate(event.start),
-            end: end,
-            allDay: event.allDay,
+            start,
+            end,
+            allDay,
             // editable: event.extendedProps.editable // FIXME necessary? editable state should not be defined on client, but server only
         };
 
@@ -1788,9 +1791,6 @@ export class FullCalendar extends PolymerElement {
     updateEvents(array) {
         const calendar = this.getCalendar();
         calendar.batchRendering(() => {
-
-            console.warn();
-            console.warn("next update");
 
             for (let i = 0; i < array.length; i++) {
                 let obj = array[i];
@@ -1838,9 +1838,6 @@ export class FullCalendar extends PolymerElement {
 
                             let allDay = obj.hasOwnProperty("allDay") ? obj.allDay : eventToUpdate.allDay;
 
-                            if(obj.start)
-                                console.warn(obj.start, obj.title);
-
                             // start must not be null
                             let start = this._toUpdateDate("start", obj, eventToUpdate, false, allDay);
                             let end = this._toUpdateDate("end", obj, eventToUpdate, true, allDay);
@@ -1875,11 +1872,9 @@ export class FullCalendar extends PolymerElement {
         }
 
         let formatted = this.getCalendar().formatIso(date, allDay); //somehow not working with the date returned from eventToUpdate
-        console.warn("date formatted from ", date, " to ", formatted);
-
 
         if (allDay) {
-            return formatted.split("T")[0];
+            return formatted.substr(0, 10);
         }
 
         return formatted;

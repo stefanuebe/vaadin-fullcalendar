@@ -134,14 +134,14 @@ public class ResourceEntryTest {
 
     private FullCalendarScheduler createTestCalendar() {
         FullCalendarScheduler scheduler = new FullCalendarScheduler();
-        scheduler.setTimezoneClient(Timezone.getSystem());
+        scheduler.setTimezone(Timezone.getSystem());
         return scheduler;
     }
 
     @Test
     void testUpdateResourceEntryBasicsFromJson() {
         FullCalendarScheduler calendar = createTestCalendar();
-        Timezone timezoneClient = calendar.getTimezoneClient();
+        Timezone timezoneClient = calendar.getTimezone();
 
         Resource resource1 = new Resource("1", "1", null);
         Resource resource2 = new Resource("2", "2", null);
