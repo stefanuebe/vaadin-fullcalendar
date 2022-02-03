@@ -26,12 +26,9 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -41,7 +38,6 @@ import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.ui.MainLayout;
 import org.vaadin.stefan.ui.view.DemoDialog;
-import org.vaadin.stefan.ui.view.SettingsDialog;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 
@@ -208,11 +204,11 @@ public class FullDemo extends VerticalLayout {
         timezoneComboBox.setItems(SOME_TIMEZONES);
         timezoneComboBox.setValue(Timezone.UTC);
         timezoneComboBox.addValueChangeListener(event -> {
-            if (!Objects.equals(calendar.getTimezoneClient(), event.getValue())) {
+            if (!Objects.equals(calendar.getTimezone(), event.getValue())) {
 
                 Timezone value = event.getValue();
-                calendar.setTimezoneClient(value != null ? value : Timezone.UTC);
-                Notification.show("Timezone changed to " + calendar.getTimezoneClient());
+                calendar.setTimezone(value != null ? value : Timezone.UTC);
+                Notification.show("Timezone changed to " + calendar.getTimezone());
             }
         });
         showOnlySomeTimezones.addValueChangeListener(event -> updateTimezonesComboBox(calendar, timezoneComboBox, event.getValue()));
@@ -227,10 +223,10 @@ public class FullDemo extends VerticalLayout {
             timezoneComboBox.setItems(Timezone.getAvailableZones());
         }
 
-        if (!SOME_TIMEZONES.contains(calendar.getTimezoneClient())) {
+        if (!SOME_TIMEZONES.contains(calendar.getTimezone())) {
             timezoneComboBox.setValue(Timezone.UTC);
         } else {
-            timezoneComboBox.setValue(calendar.getTimezoneClient());
+            timezoneComboBox.setValue(calendar.getTimezone());
         }
     }
 

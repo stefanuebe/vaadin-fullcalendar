@@ -88,6 +88,25 @@ public abstract class JsonItem<ID_TYPE> {
     }
 
     /**
+     * This method checks, if the given key has a non null value set. If that is the case, that value
+     * will be passed to the given callback. The method returns the value of that callback.
+     * If the value is null or the key is not yet set, the method will automatically return null.
+     * @param key key
+     * @param notNullCallback callback to be applied on the non null value
+     * @param <T> value type
+     * @param <R> callback return type
+     * @return callback return value or null
+     */
+    public <T, R> R getOrNull(Key key, SerializableFunction<T, R> notNullCallback) {
+        if (has(key)) {
+            T value = get(key);
+            return value != null ? notNullCallback.apply(value) : null;
+        }
+
+        return null;
+    }
+
+    /**
      * Returns, if this instance has anything explicitly set for this property, including an empty or null value.
      * Will return {@code true} for the key, if {@link #set} has been called before. Will return {@code false} only,
      * if {@link #set} has not yet been called. Will also return {@code false}, if the key itself defines a default value,

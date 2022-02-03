@@ -24,7 +24,7 @@ public class SettingsDialog extends Dialog {
         setDraggable(true);
 
         VerticalLayout layout = new VerticalLayout();
-        Timezone initialTimezone = calendar.getTimezoneClient();
+        Timezone initialTimezone = calendar.getTimezone();
 
         Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
             calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
@@ -50,11 +50,11 @@ public class SettingsDialog extends Dialog {
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
         updateTimezonesComboBox(calendar, timezoneComboBox, showOnlySomeTimezones.getValue());
         timezoneComboBox.addValueChangeListener(event -> {
-            if (!Objects.equals(calendar.getTimezoneClient(), event.getValue())) {
+            if (!Objects.equals(calendar.getTimezone(), event.getValue())) {
 
                 Timezone value = event.getValue();
-                calendar.setTimezoneClient(value != null ? value : initialTimezone);
-                Notification.show("Timezone changed to " + calendar.getTimezoneClient());
+                calendar.setTimezone(value != null ? value : initialTimezone);
+                Notification.show("Timezone changed to " + calendar.getTimezone());
             }
         });
         showOnlySomeTimezones.addValueChangeListener(event -> updateTimezonesComboBox(calendar, timezoneComboBox, event.getValue()));
@@ -74,10 +74,10 @@ public class SettingsDialog extends Dialog {
             timezoneComboBox.setItems(Timezone.getAvailableZones());
         }
 
-        if (!SOME_TIMEZONES.contains(calendar.getTimezoneClient())) {
+        if (!SOME_TIMEZONES.contains(calendar.getTimezone())) {
             timezoneComboBox.setValue(Timezone.UTC);
         } else {
-            timezoneComboBox.setValue(calendar.getTimezoneClient());
+            timezoneComboBox.setValue(calendar.getTimezone());
         }
     }
 }

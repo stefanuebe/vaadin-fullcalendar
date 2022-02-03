@@ -28,7 +28,7 @@ import java.util.*;
  */
 public class Timezone implements ClientSideValue {
 
-    private static final ZoneId ZONE_ID_UTC = ZoneId.of("UTC");
+    public static final ZoneId ZONE_ID_UTC = ZoneId.of("UTC");
 
     /**
      * Constant for the timezone UTC. Default for conversions, if no custom timezone is set.
@@ -119,25 +119,27 @@ public class Timezone implements ClientSideValue {
      * Creates a zoned date time based on this timezone interpreting the given local date time as UTC time.
      * Passing ...T00:00 to a GMT+1 instance will result in local date time ...T01:00+01:00
      * <p/>
-     * For the UTC instance this method will not modify anything.
+     * For the UTC instance this method will not modify anything. Passing null will return null.
      * @param localDateTime local date time to convert to a zoned date time
      * @return zoned date time representing the given local date time at this timezone
      */
     public ZonedDateTime applyTimezone(LocalDateTime localDateTime) {
-        return ZonedDateTime.of(localDateTime, ZONE_ID_UTC).withZoneSameInstant(getZoneId());
+        return localDateTime != null ? ZonedDateTime.of(localDateTime, ZONE_ID_UTC).withZoneSameInstant(getZoneId()) : null;
     }
 
     /**
      * Creates a UTC zoned date time by interpreting the given local date time as a timestamp of this time zone.
      * Passing ...T01:00 to a GMT+1 instance will result in local date time ...T00:00Z
      * <p/>
-     * For the UTC instance this method will not modify anything.
+     * For the UTC instance this method will not modify anything.. Passing null will return null.
      * @param localDateTime local date time to convert to a zoned date time
      * @return zoned date time representing the given local date time at this timezone
      */
     public ZonedDateTime removeTimezone(LocalDateTime localDateTime) {
-        return ZonedDateTime.of(localDateTime, getZoneId()).withZoneSameInstant(ZONE_ID_UTC);
+        return localDateTime != null ? ZonedDateTime.of(localDateTime, getZoneId()).withZoneSameInstant(ZONE_ID_UTC) : null;
     }
+
+
 
     /**
      * Creates a local date time based by adding the zone offset of this timezone onto the given local date time.
@@ -145,11 +147,12 @@ public class Timezone implements ClientSideValue {
      * Passing ...T00:00 to a GMT+1 instance will result in local date time ...T01:00
      * <p/>
      * For the UTC instance this method will not modify anything, but return a new local date time instance.
+     * Passing null will return null.
      * @param localDateTime local date time to convert to a zoned date time
      * @return zoned date time representing the given local date time at this timezone
      */
     public LocalDateTime plusTimezoneOffset(LocalDateTime localDateTime) {
-        return applyTimezone(localDateTime).toLocalDateTime();
+        return localDateTime != null ? applyTimezone(localDateTime).toLocalDateTime() : null;
     }
 
     /**
@@ -158,105 +161,67 @@ public class Timezone implements ClientSideValue {
      * Passing ...T01:00 to a GMT+1 instance will result in local date time ...T00:00
      * <p/>
      * For the UTC instance this method will not modify anything, but return a new local date time instance.
+     * Passing null will return null.
      * @param localDateTime local date time to convert to a zoned date time
      * @return zoned date time representing the given local date time at this timezone
      */
     public LocalDateTime minusTimezoneOffset(LocalDateTime localDateTime) {
-        return removeTimezone(localDateTime).toLocalDateTime();
+        return localDateTime != null ? removeTimezone(localDateTime).toLocalDateTime() : null;
     }
 
     /**
-     * Converts the given local date time to a zoned date time without changing the time itself other then
+     * Converts the given local date time to a zoned date time without changing the time itself other then.
+     * Passing null will return null.
      * {@link #applyTimezone(LocalDateTime)} or {@link #removeTimezone(LocalDateTime)}.
-     * @param localDateTime
-     * @return
+     * @param localDateTime local date time  (nullable)
+     * @return zoned date time
      */
     public ZonedDateTime asZonedDateTime(LocalDateTime localDateTime) {
-        return ZonedDateTime.of(localDateTime, getZoneId());
+        return localDateTime != null ? ZonedDateTime.of(localDateTime, getZoneId()) : null;
     }
 
+    /**
+     * Applies the rules of this timezone on the given local date and creates an instant at the start
+     * of the given day. Please check the additional documentation on
+     * {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
+     * @param date local date (nullable)
+     * @return instant or null
+     */
+    public Instant convertToInstant(LocalDate date) {
+        if (date == null) {
+            return null;
+        }
+        LocalDateTime dateTime = date.atStartOfDay();
+        return convertToInstant(dateTime);
+    }
 
-//    /**
-//     * Formats the given instant based on the zone id to be sent to the client side.
-//     * For UTC based timezones the string will end on a Z, all other zone ids are parsed as local date versions.
-//     *
-//     * @param instant instant
-//     * @return formatted date time
-//     * @throws NullPointerException when null is passed
-//     */
-//    public String formatWithZoneId(@NotNull Instant instant) {
-//        Objects.requireNonNull(instant);
-//        if (this == UTC || this.zoneId.equals(ZONE_ID_UTC)) {
-//            return instant.toString();
-//        }
-//
-//        ZoneId zoneId = getZoneId();
-//        LocalDateTime temporal = LocalDateTime.ofInstant(instant, zoneId);
-//
-//        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(temporal);
-//    }
+    /**
+     * Applies the rules of this timezone on the given local date time and creates an instant. Please check
+     * the additional documentation on {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
+     * @param dateTime local date time (nullable)
+     * @return instant or null
+     */
+    public Instant convertToInstant(LocalDateTime dateTime) {
+        return dateTime != null ? dateTime.toInstant(getZoneId().getRules().getOffset(dateTime)) : null;
+    }
 
+    /**
+     * Applies the rules of this timezone on the given instant and creates a local date time.
+     * @param instant instant (nullable)
+     * @return local date time or null
+     */
+    public LocalDateTime convertToLocalDateTime(Instant instant) {
+        return instant != null ? LocalDateTime.ofInstant(instant, getZoneId()) : null;
+    }
 
-
-//    /**
-//     * Formats the given instant based on the zone id to be sent to the client side.
-//     * For UTC based timezones the string will end on a Z, all other zone ids are parsed as local date versions.
-//     *
-//     * @param localDateTime instant
-//     * @return formatted date time
-//     * @throws NullPointerException when null is passed
-//     */
-//    public String formatWithZoneId(@NotNull LocalDateTime localDateTime) {
-//        Objects.requireNonNull(localDateTime);
-//        if (this == UTC || this.zoneId.equals(ZONE_ID_UTC)) {
-//            return localDateTime + "/";
-//        }
-//
-//        ZoneId zoneId = getZoneId();
-//        LocalDateTime temporal = LocalDateTime.ofInstant(localDateTime, zoneId);
-//
-//        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(temporal);
-//    }
-
-//    /**
-//     * Applies the rules of this timezone on the given local date and creates an instant at the start
-//     * of the given day. Please check the additional documentation on
-//     * {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
-//     * @param date local date
-//     * @return instant
-//     */
-//    public Instant convertToUTC(LocalDate date) {
-//        LocalDateTime dateTime = date.atStartOfDay();
-//        return convertToUTC(dateTime);
-//    }
-//
-//    /**
-//     * Applies the rules of this timezone on the given local date time and creates an instant. Please check
-//     * the additional documentation on {@link java.time.zone.ZoneRules#getOffset(LocalDateTime)}
-//     * @param dateTime local date time
-//     * @return instant
-//     */
-//    public Instant convertToUTC(LocalDateTime dateTime) {
-//        return dateTime.toInstant(getZoneId().getRules().getOffset(dateTime));
-//    }
-//
-//    /**
-//     * Applies the rules of this timezone on the given instant and creates a local date time.
-//     * @param instant instant
-//     * @return local date time
-//     */
-//    public LocalDateTime convertToLocalDateTime(Instant instant) {
-//        return LocalDateTime.ofInstant(instant, getZoneId());
-//    }
-//
-//    /**
-//     * Applies the rules of this timezone on the given instant and creates a local date.
-//     * @param instant instant
-//     * @return local date
-//     */
-//    public LocalDate convertToLocalDate(Instant instant) {
-//        return convertToLocalDateTime(instant).toLocalDate();
-//    }
+    /**
+     * Applies the rules of this timezone on the given instant and creates a local date.
+     * @param instant instant (nullable)
+     * @return local date or null
+     */
+    public LocalDate convertToLocalDate(Instant instant) {
+        return instant != null ? convertToLocalDateTime(instant).toLocalDate() : null;
+    }
 
     @Override
     public String toString() {

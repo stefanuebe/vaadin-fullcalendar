@@ -57,7 +57,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
     public TimeslotsSelectedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient);
 
-        Timezone timezone = source.getTimezoneClient();
+        Timezone timezone = source.getTimezone();
         this.allDay = allDay;
         this.startDateTime = JsonUtils.parseClientSideDateTime(start);
         this.endDateTime = JsonUtils.parseClientSideDateTime(end);

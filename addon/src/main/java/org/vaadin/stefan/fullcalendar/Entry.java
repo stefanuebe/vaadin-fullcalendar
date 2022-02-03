@@ -34,6 +34,11 @@ import java.util.*;
  * Represents an event in the full calendar. It is named Entry here to prevent name conflicts with
  * event handling mechanisms (e.g. a component event fired by clicking something).
  * <br><br>
+ * Each event is at least defined by an id, a title and some kind of timespan. If not stated differently,
+ * time (e.g. LocalDateTime) are always referring to UTC, e.g. getStart() returns a LocalDateTime representing
+ * the start of the entry at UTC time (so it would be equal to an Instant representing the same "time string" or
+ * a zoned date time with zone UTC).
+ * <br><br>
  * To create a recurring entry, simply set any of the "recurring" properties. With any of them set the entry
  * is automatically recurring.
  * <br><br>
@@ -107,298 +112,280 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Returns the start of the entry as local date time based on the timezone returned by
+     * Returns the start of the entry as local date time. Represents the UTC date time this entry starts, which
+     * means the time is the same as when calling {@link #getStartAsInstant()}.
      *
-     * @return start as local date time
+     * @return start as local date time or null
      */
     public LocalDateTime getStart() {
         return get(EntryKey.START);
     }
 
     /**
-     * Sets the given local date time as start. It is converted to an instant by using the
-     * calendar's server start timezone.
+     * Returns the entry's start as an {@link Instant}. The contained time is the same as when calling
+     * {@link #getStart()}.
      *
-     * @param start start
+     * @return start as Instant or null
+     */
+    public Instant getStartAsInstant() {
+        return getOrNull(EntryKey.START, (LocalDateTime start) -> start.toInstant(ZoneOffset.UTC));
+    }
+
+    /**
+     * Returns the entry's start date.
+     * @return start date or null
+     */
+    public LocalDate getStartAsLocalDate() {
+        return getOrNull(EntryKey.START, LocalDateTime::toLocalDate);
+    }
+
+    /**
+     * Returns the entry's start as an {@link Instant}. The contained time is the same as when calling
+     * {@link #getStart()}.
+     *
+     * @return start as Instant
+     * @deprecated use {@link #getStartAsInstant()}
+     */
+    @Deprecated
+    public Instant getStartUTC() {
+        return getStartAsInstant();
+    }
+
+    /**
+     * Returns the start time as a zoned date time using this entry's start time zone. By default this is
+     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * <p/>
+     * Calling {@link ZonedDateTime#toLocalDateTime()} returns the time including the offset as LocalDateTime.
+     * @return start at current timezone or null
+     */
+    public ZonedDateTime getStartWithTimezone() {
+        return getStartTimezone().applyTimezone(getStart());
+    }
+
+    /**
+     * Returns the start time as a local date time after applying the timezone's offset to
+     * the utc based start date ({@link #getStart()}). By default the timezone is
+     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * <p/>
+     * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone()} and call
+     * {@link ZonedDateTime#toOffsetDateTime()}
+     * @return start with offset or null
+     */
+    public LocalDateTime getStartWithOffset() {
+        return getStartTimezone().plusTimezoneOffset(getStart());
+    }
+
+    /**
+     * Sets the entry's start. The given date time will be interpreted as the UTC start time of this entry.
+     *
+     * @param start utc start
      */
     public void setStart(LocalDateTime start) {
         set(EntryKey.START, start);
     }
 
-//    /**
-//     * Returns the start of the entry as local date time based on the given timezone
-//     *
-//     * @param timezone timezone
-//     * @return start as local date time
-//     * @throws NullPointerException when null is passed
-//     */
-//    public LocalDateTime getStart(@NotNull Timezone timezone) {
-//        Objects.requireNonNull(timezone, "timezone");
-//        Instant start = getStartUTC();
-//        return start != null ? LocalDateTime.ofInstant(start, timezone.getZoneId().getRules().getOffset(start)) : null;
-//    }
+    /**
+     * Sets the entry's start. The given instant will be interpreted as the UTC start time of this entry.
+     *
+     * @param start utc start
+     */
+    public void setStart(Instant start) {
+        setStart(start != null ? LocalDateTime.ofInstant(start, Timezone.ZONE_ID_UTC) : null);
+    }
 
     /**
-     * Returns the start of the entry as local date time representing the UTC value.
+     * Sets the given local date as start using the start of the day as time (utc based).
      *
-     * @return start as local date time
+     * @param start start at 00:00 utc time
+     */
+    public void setStart(LocalDate start) {
+        setStart(start != null ? start.atStartOfDay() : null);
+    }
+
+    /**
+     * Sets the entry's start based on the zoned date time instance. The given date time will be converted to UTC.
+     * <p/>
+     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
+     * the resulting start time will be ...T00:00.
+     * <p/>
+     * @param startWithTimezone start with time zone
+     */
+    public void setStartWithTimezone(ZonedDateTime startWithTimezone) {
+        setStart(startWithTimezone != null ? startWithTimezone.withZoneSameInstant(Timezone.ZONE_ID_UTC).toLocalDateTime() : null);
+    }
+
+    /**
+     * Sets the entry's start. The given date time will be interpreted as having the offset of the
+     * start time zone applied. The time will be converted to UTC.
+     * <p/>
+     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
+     * the resulting start time will be ...T00:00.
+     * <p/>
+     * This method is intended to be used in cases where the start time is edited in relation to
+     * the current time zone (like a calendar entry editor).
+     * <p/>
+     *
+     * @param startWithTimezone start with time zone
+     */
+    public void setStartWithOffset(LocalDateTime startWithTimezone) {
+        setStart(getStartTimezone().minusTimezoneOffset(startWithTimezone));
+    }
+
+    /**
+     * Clears the current start time. Convenience method to prevent unnecessary casting when using
+     * setStart(null).
+     */
+    public void clearStart() {
+        setStart((LocalDateTime) null);
+    }
+
+    /**
+     * Returns the end of the entry as local date time. Represents the UTC date time this entry ends, which
+     * means the time is the same as when calling {@link #getStartAsInstant()}.
+     *
+     * @return end as local date time or null
      */
     public LocalDateTime getEnd() {
         return get(EntryKey.END);
     }
 
     /**
-     * Sets the given local date time as end. It is converted to an instant by using the
-     * calendar's server end timezone.
+     * Returns the entry's end as an {@link Instant}. The contained time is the same as when calling
+     * {@link #getEnd()}.
      *
-     * @param end end
+     * @return end as Instant or null
+     */
+    public Instant getEndAsInstant() {
+        return getOrNull(EntryKey.END, (LocalDateTime end) -> end.toInstant(ZoneOffset.UTC));
+    }
+
+    /**
+     * Returns the entry's end date.
+     * @return end date or null
+     */
+    public LocalDate getEndAsLocalDate() {
+        return getOrNull(EntryKey.END, LocalDateTime::toLocalDate);
+    }
+
+    /**
+     * Returns the entry's end as an {@link Instant}. The contained time is the same as when calling
+     * {@link #getEnd()}.
+     *
+     * @return end as Instant
+     * @deprecated use {@link #getEndAsInstant()}
+     */
+    @Deprecated
+    public Instant getEndUTC() {
+        return getEndAsInstant();
+    }
+
+    /**
+     * Returns the end time as a zoned date time using this entry's end time zone. By default this is
+     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * <p/>
+     * Calling {@link ZonedDateTime#toLocalDateTime()} returns the time including the offset as LocalDateTime.
+     * @return end at current timezone or null
+     */
+    public ZonedDateTime getEndWithTimezone() {
+        return getEndTimezone().applyTimezone(getEnd());
+    }
+
+    /**
+     * Returns the end time as a local date time after applying the timezone's offset to
+     * the utc based end date ({@link #getEnd()}). By default the timezone is
+     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * <p/>
+     * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone()} and call
+     * {@link ZonedDateTime#toOffsetDateTime()}
+     * @return end with offset or null
+     */
+    public LocalDateTime getEndWithOffset() {
+        return getEndTimezone().plusTimezoneOffset(getEnd());
+    }
+
+    /**
+     * Sets the entry's end. The given date time will be interpreted as the UTC end time of this entry.
+     *
+     * @param end utc end
      */
     public void setEnd(LocalDateTime end) {
         set(EntryKey.END, end);
     }
 
-//    /**
-//     * Returns the start of the entry as local date time based on the given timezone
-//     *
-//     * @param timezone timezone
-//     * @return start as local date time
-//     * @throws NullPointerException when null is passed
-//     */
-//    public LocalDateTime getEnd(@NotNull Timezone timezone) {
-//        Objects.requireNonNull(timezone, "timezone");
-//        Instant end = getEndUTC();
-//        return end != null ? LocalDateTime.ofInstant(end, timezone.getZoneId().getRules().getOffset(end)) : null;
-//    }
-
-//    /**
-//     * Sets the given local date time as start. It is converted to an Instant by using the given timezone.
-//     * <br><br>
-//     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
-//     *
-//     * @param start    start
-//     * @param timezone timezone
-//     * @throws NullPointerException when null is passed
-//     */
-//    public void setStart(@NotNull LocalDateTime start, @NotNull Timezone timezone) {
-//        Objects.requireNonNull(start, "start");
-//        Objects.requireNonNull(timezone, "timezone");
-//        setStart(timezone.convertToUTC(start));
-//    }
-
-    public void clearStart() {
-        setStart((LocalDateTime) null);
+    /**
+     * Sets the entry's end. The given instant will be interpreted as the UTC end time of this entry.
+     *
+     * @param end utc end
+     */
+    public void setEnd(Instant end) {
+        setEnd(end != null ? LocalDateTime.ofInstant(end, Timezone.ZONE_ID_UTC) : null);
     }
 
+    /**
+     * Sets the given local date as end using the end of the day as time (utc based).
+     *
+     * @param end end at 00:00 utc time
+     */
+    public void setEnd(LocalDate end) {
+        setEnd(end != null ? end.atStartOfDay() : null);
+    }
+
+    /**
+     * Sets the entry's end based on the zoned date time instance. The given date time will be converted to UTC.
+     * <p/>
+     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
+     * the resulting end time will be ...T00:00.
+     * <p/>
+     * @param endWithTimezone end with time zone
+     */
+    public void setEndWithTimezone(ZonedDateTime endWithTimezone) {
+        setEnd(endWithTimezone != null ? endWithTimezone.withZoneSameInstant(Timezone.ZONE_ID_UTC).toLocalDateTime() : null);
+    }
+
+    /**
+     * Sets the entry's end. The given date time will be interpreted as having the offset of the
+     * end time zone applied. The time will be converted to UTC.
+     * <p/>
+     * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
+     * the resulting end time will be ...T00:00.
+     * <p/>
+     * This method is intended to be used in cases where the end time is edited in relation to
+     * the current time zone (like a calendar entry editor).
+     * <p/>
+     *
+     * @param endWithTimezone end with time zone
+     */
+    public void setEndWithOffset(LocalDateTime endWithTimezone) {
+        setEnd(getEndTimezone().minusTimezoneOffset(endWithTimezone));
+    }
+
+    /**
+     * Clears the current end time. Convenience method to prevent unnecessary casting when using
+     * setEnd(null).
+     */
     public void clearEnd() {
         setEnd((LocalDateTime) null);
     }
 
     /**
-     * Sets the given local date as start using the start of the day as time. It is converted to an instant by using the
-     * calendar's server start timezone.
-     * <br><br>
-     * Null values are not allowed here.
+     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
+     * to the client side timezone. By default UTC.
      *
-     * @param start start
+     * @return timezone
      */
-    public void setStart(@NotNull LocalDate start) {
-        setStart(start.atStartOfDay());
+    public Timezone getStartTimezone() {
+        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
     }
-
-//    /**
-//     * Sets the given local date time as start using the start of the day as time. It is converted to an Instant by
-//     * using the given timezone.
-//     * <br><br>
-//     * Null values are not allowed here. Use {@link #setStart(Instant)} instead to reset the date.
-//     *
-//     * @param start    start
-//     * @param timezone timezone
-//     * @throws NullPointerException when null is passed
-//     */
-//    public void setStart(@NotNull LocalDate start, @NotNull Timezone timezone) {
-//        setStart(start.atStartOfDay(), timezone);
-//    }
-
-//    /**
-//     * Sets the given local date time as end. It is converted to an Instant by using the given timezone.
-//     * <br><br>
-//     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
-//     *
-//     * @param end      end
-//     * @param timezone timezone
-//     * @throws NullPointerException when null is passed
-//     */
-//    public void setEnd(@NotNull LocalDateTime end, @NotNull Timezone timezone) {
-//        Objects.requireNonNull(end, "end");
-//        Objects.requireNonNull(timezone, "timezone");
-//        setEnd(timezone.convertToUTC(end));
-//    }
 
     /**
-     * Sets the given local date time as end using the start of the day as time. It is converted to an instant by using the
-     * calendar's server end timezone.
-     * <br><br>
-     * Null values are not allowed here.
+     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
+     * to the client side timezone. By default UTC.
      *
-     * @param end      end
-     * @throws NullPointerException when null is passed
+     * @return timezone
      */
-    public void setEnd(@NotNull LocalDate end) {
-        setEnd(end.atStartOfDay());
+    public Timezone getEndTimezone() {
+        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
     }
-
-//    /**
-//     * Sets the given local date time as end using the start of the day as time. It is converted to an Instant by using
-//     * the given timezone.
-//     * <br><br>
-//     * Null values are not allowed here. Use {@link #setEnd(Instant)} instead to reset the date.
-//     *
-//     * @param end      end
-//     * @param timezone timezone
-//     * @throws NullPointerException when null is passed
-//     */
-//    public void setEnd(@NotNull LocalDate end, @NotNull Timezone timezone) {
-//        setEnd(end.atStartOfDay(), timezone);
-//    }
-
-//    /**
-//     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-//     * to the client side timezone. By default UTC.
-//     *
-//     * @return timezone
-//     * @deprecated use {@link #getStartTimezoneClient()}() or {@link #getEndTimezoneClient()} instead depending
-//     * on your use case
-//     */
-//    @Deprecated
-//    public Timezone getStartTimezone() {
-//        return getStartTimezoneClient();
-//    }
-
-//    /**
-//     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-//     * to the client side timezone. By default UTC.
-//     *
-//     * @return timezone
-//     */
-//    public Timezone getStartTimezoneClient() {
-//        return calendar != null ? calendar.getTimezoneClient() : Timezone.UTC;
-//    }
-
-
-//    /**
-//     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-//     * to the client side timezone. By default UTC.
-//     *
-//     * @return timezone
-//     * @deprecated use {@link #getEndTimezoneClient()} or {@link #getEndTimezoneServer()} instead depending on your
-//     * use case
-//     */
-//    @Deprecated
-//    public Timezone getEndTimezone() {
-//        return getEndTimezoneClient();
-//    }
-
-//    /**
-//     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-//     * to the client side timezone. By default UTC.
-//     *
-//     * @return timezone
-//     */
-//    public Timezone getEndTimezoneClient() {
-//        return calendar != null ? calendar.getTimezoneClient() : Timezone.UTC;
-//    }
-
-//    /**
-//     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry start
-//     * using {@link #setStart(LocalDateTime)} or {@link #getStart()}.
-//     * <p></p>
-//     * By default the server timezone.
-//     *
-//     * @return timezone
-//     */
-//    public Timezone getStartTimezoneServer() {
-//        return Timezone.getSystem();
-//    }
-
-//    /**
-//     * Returns the server's timezone used for automatic conversion between Instant and LocalDateTime for the entry start
-//     * using {@link #setEnd(LocalDateTime)} or {@link #getEnd()}.
-//     * <p></p>
-//     * By default the server timezone.
-//     *
-//     * @return timezone
-//     */
-//    public Timezone getEndTimezoneServer() {
-//        return Timezone.getSystem();
-//    }
-
-//    /**
-//     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-//     * is recurring).
-//     * <br><br>
-//     * The given timezone is used to convert the instant to a local date instance.
-//     *
-//     * @param timezone timezone
-//     * @return start date of recurrence
-//     * @throws NullPointerException when null is passed
-//     */
-//    public LocalDate getRecurringStartDate(@NotNull Timezone timezone) {
-//        Objects.requireNonNull(timezone, "timezone");
-//
-//        Instant recurringStartDate = getRecurringStartDateUTC();
-//
-//        return recurringStartDate != null ? LocalDateTime.ofInstant(recurringStartDate, timezone.getZoneId().getRules().getOffset(recurringStartDate)).toLocalDate() : null;
-//    }
-
-//    /**
-//     * The start date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
-//     * It is converted to an Instant by using the given timezone.
-//     * <br><br>
-//     * Null is not allowed here, use {@link #setRecurringStartDate(Instant)} to reset the value.
-//     *
-//     * @param recurringStartDate start date or recurrence
-//     * @param timezone           timezone
-//     * @throws NullPointerException when null is passed
-//     */
-//    public void setRecurringStartDate(@NotNull LocalDate recurringStartDate, @NotNull Timezone timezone) {
-//        Objects.requireNonNull(recurringStartDate, "recurringStartDate");
-//        Objects.requireNonNull(timezone, "timezone");
-//        setRecurringStartDateUTC(timezone.convertToUTC(recurringStartDate));
-//    }
-
-
-//    /**
-//     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-//     * is recurring).
-//     * <br><br>
-//     * The given timezone is used to convert the instant to a local date instance.
-//     *
-//     * @param timezone timezone
-//     * @return end date of recurrence
-//     * @throws NullPointerException when null is passed
-//     */
-//    public LocalDate getRecurringEndDate(@NotNull Timezone timezone) {
-//        Objects.requireNonNull(timezone, "timezone");
-//        Instant recurringEndDate = getRecurringEndDateUTC();
-//        return recurringEndDate != null ? LocalDateTime.ofInstant(recurringEndDate, timezone.getZoneId().getRules().getOffset(recurringEndDate)).toLocalDate() : null;
-//    }
-
-//    /**
-//     * The end date of recurrence. Passing null on a recurring entry will extend the recurrence infinitely to the past.
-//     * It is converted to an Instant by using the given timezone.
-//     * <br><br>
-//     * Null is not allowed here, use {@link #setRecurringEndDate(Instant)} to reset the value.
-//     *
-//     * @param recurringEndDate end date or recurrence
-//     * @param timezone         timezone
-//     * @throws NullPointerException when null is passed
-//     */
-//    public void setRecurringEndDate(@NotNull LocalDate recurringEndDate, @NotNull Timezone timezone) {
-//        Objects.requireNonNull(recurringEndDate, "recurringEndDate");
-//        Objects.requireNonNull(timezone, "timezone");
-//
-//        setRecurringEndDateUTC(timezone.convertToUTC(recurringEndDate));
-//    }
 
     /**
      * Assign an additional className to this entry. Already assigned classNames will be kept.
@@ -543,14 +530,7 @@ public class Entry extends JsonItem<String> {
         set(EntryKey.GROUP_ID, groupId);
     }
 
-//    /**
-//     * Returns the start of the entry based on UTC.
-//     *
-//     * @return start
-//     */
-//    public Instant getStartUTC() {
-//        return get(EntryKey.START);
-//    }
+
 
 //    /**
 //     * Sets the start of this entry as an UTC based instant.

@@ -98,7 +98,7 @@ public class BasicDemo extends VerticalLayout {
         timezoneComboBox.setValue(Timezone.UTC);
         timezoneComboBox.addValueChangeListener(event -> {
             Timezone value = event.getValue();
-            calendar.setTimezoneClient(value != null ? value : Timezone.UTC);
+            calendar.setTimezone(value != null ? value : Timezone.UTC);
         });
         timezoneComboBox.setWidthFull();
 
