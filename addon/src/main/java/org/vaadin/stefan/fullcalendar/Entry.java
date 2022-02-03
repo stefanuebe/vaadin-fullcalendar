@@ -31,13 +31,14 @@ import java.time.*;
 import java.util.*;
 
 /**
- * Represents an event in the full calendar. It is named Entry here to prevent name conflicts with
- * event handling mechanisms (e.g. a component event fired by clicking something).
+ * Represents a simple calendar item. Each entry is at least defined by an id, a title and some kind of timespan.
+ * If not stated differently, time (e.g. LocalDateTime) are always referring to UTC, e.g. getStart() returns a
+ * LocalDateTime representing the start of the entry at UTC time (so it would be equal to an Instant representing
+ * the same "time string" or a zoned date time with zone UTC). The client side takes care of displaying
+ * entries in the calendar's current timezone
  * <br><br>
- * Each event is at least defined by an id, a title and some kind of timespan. If not stated differently,
- * time (e.g. LocalDateTime) are always referring to UTC, e.g. getStart() returns a LocalDateTime representing
- * the start of the entry at UTC time (so it would be equal to an Instant representing the same "time string" or
- * a zoned date time with zone UTC).
+ * If you handle entries on the client side please be aware, that the FC library names them as "event". We name
+ * them Entry here to prevent naming conflicts with UI Events (like "click" events, etc).
  * <br><br>
  * To create a recurring entry, simply set any of the "recurring" properties. With any of them set the entry
  * is automatically recurring.
@@ -556,7 +557,6 @@ public class Entry extends JsonItem<String> {
         return EntryKey.ID;
     }
 
-    @Override
     protected Key getCustomPropertiesKey() {
         return EntryKey.CUSTOM_PROPERTIES;
     }
@@ -819,12 +819,12 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Returns the rendering mode ("display"). If not set, it will return NONE (default), which display
+     * Returns the rendering mode ("display"). If not set, it will return AUTO (default), which display
      * the entry as a "normal" one.
      * @return rendering mode
      */
     public RenderingMode getRenderingMode() {
-        return get(EntryKey.RENDERING_MODE, RenderingMode.NONE);
+        return get(EntryKey.RENDERING_MODE, RenderingMode.AUTO);
     }
 
     /**
@@ -832,7 +832,7 @@ public class Entry extends JsonItem<String> {
      * @param renderingMode rengeringMode
      */
     public void setRenderingMode(RenderingMode renderingMode) {
-        set(EntryKey.RENDERING_MODE, renderingMode);
+        setOrDefault(EntryKey.RENDERING_MODE, renderingMode, RenderingMode.AUTO);
     }
 
     /**
@@ -1094,6 +1094,150 @@ public class Entry extends JsonItem<String> {
         setRecurringEndTime(recurringEnd.toLocalTime());
     }
 
+    /**
+     * Sets custom properties.
+     * <p/>
+     * You can access custom properties on the client side when customizing the event rendering via the property
+     * <code>event.extendedProps?.customProperties?.[key]</code>.
+     *
+     * @see FullCalendar#setEntryContentCallback(String)
+     * @param customProperties custom properties
+     */
+    public void setCustomProperties(Map<String, Object> customProperties) {
+        set(getCustomPropertiesKey(), customProperties);
+    }
+
+    /**
+     * Sets custom property for this entry. An existing property will be overwritten.
+     * <p/>
+     * You can access custom properties on the client side when customizing the event rendering via the property
+     * <code>event.extendedProps?.customProperties?.[key]</code>.
+     *
+     * @see FullCalendar#setEntryContentCallback(String)
+
+     *
+     * @param key   the name of the property to set
+     * @param value value to set
+     */
+    public void setCustomProperty(@NotNull String key, Object value) {
+        Objects.requireNonNull(key);
+        getOrCreateCustomProperties().put(key, value);
+        markAsChangedProperty(getCustomPropertiesKey());
+    }
+
+    /**
+     * Returns a custom property (or null if not defined).
+     * <p/>
+     * You can access custom properties on the client side when customizing the event rendering via the property
+     * <code>event.extendedProps?.customProperties?.[key]</code>.
+     *
+     * @see FullCalendar#setEntryContentCallback(String)
+
+     *
+     * @param key name of the custom property
+     * @param <T> return type
+     * @return custom property value or null
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getCustomProperty(@NotNull String key) {
+        return (T) getCustomPropertiesOrEmpty().get(key);
+    }
+
+    /**
+     * Remove the custom property based on the name.
+     *
+     * @param key the name of the property to remove
+     */
+    public void removeCustomProperty(@NotNull String key) {
+        Map<String, Object> customProperties = getCustomProperties();
+        if (customProperties != null) {
+            // FIXME this will currently not remove the custom property from the client side!
+            customProperties.remove(Objects.requireNonNull(key));
+            markAsChangedProperty(getCustomPropertiesKey());
+        }
+    }
+
+    /**
+     * Remove specific custom property where the name and value match.
+     *
+     * @param key   the name of the property to remove
+     * @param value the object to remove
+     */
+    public void removeCustomProperty(@NotNull String key, @NotNull Object value) {
+        Map<String, Object> customProperties = getCustomProperties();
+        if (customProperties != null) {
+            // FIXME this will currently not remove the custom property from the client side!
+            customProperties.remove(Objects.requireNonNull(key), Objects.requireNonNull(value));
+            markAsChangedProperty(getCustomPropertiesKey());
+        }
+    }
+
+    /**
+     * Returns the map of the custom properties of this instance. This map is editable and any changes
+     * will be sent to the client using {@link FullCalendar#updateEntry(Entry)}.
+     * <p></p>
+     * Might be null.
+     * <p/>
+     * You can access custom properties on the client side when customizing the event rendering via the property
+     * <code>event.extendedProps?.customProperties?.[key]</code>.
+     *
+     * @see FullCalendar#setEntryContentCallback(String)
+     *
+     * @return Map
+     * @see #getCustomPropertiesOrEmpty()
+     * @see #getOrCreateCustomProperties()
+     */
+    public Map<String, Object> getCustomProperties() {
+        return get(getCustomPropertiesKey());
+    }
+
+//    /**
+//     * Returns the key to be used to assign custom properties. Throws an {@link UnsupportedOperationException} by
+//     * default. Only necessary to be overridden, when custom properties shall be usable.
+//     *
+//     * @return custom properties key.
+//     */
+//    protected Key getCustomPropertiesKey() {
+//        throw new UnsupportedOperationException("Override getCustomPropertiesKey to use custom properties.");
+//    }
+
+    /**
+     * Returns the custom properties map or an empty one, if none has yet been created. The map is not writable.
+     * <p></p>
+     * Be aware, that any non standard property you
+     * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
+     *
+     * @return map
+     * @see #getCustomProperties()
+     * @see #getOrCreateCustomProperties()
+     */
+    public Map<String, Object> getCustomPropertiesOrEmpty() {
+        Map<String, Object> map = get(getCustomPropertiesKey());
+        return map != null ? Collections.unmodifiableMap(map) : Collections.emptyMap();
+    }
+
+    /**
+     * Returns the map of the custom properties of this instance. This map is editable and any changes
+     * will be sent to the client using {@link FullCalendar#updateEntry(Entry)}.
+     * <p/>
+     * Creates and registers a new map, if none is there yet.
+     * <p></p>
+     * Be aware, that any non standard property you
+     * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
+     *
+     * @return Map
+     * @see #getCustomPropertiesOrEmpty()
+     * @see #getCustomProperties()
+     */
+    public Map<String, Object> getOrCreateCustomProperties() {
+        Map<String, Object> map = get(getCustomPropertiesKey());
+        if (map == null) {
+            map = new HashMap<>();
+            setCustomProperties(map);
+        }
+        return map;
+    }
+
     @Getter
     @RequiredArgsConstructor
     public static class DateTimeUTCConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalDateTime, T> {
@@ -1284,7 +1428,6 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key RENDERING_MODE = JsonItem.Key.builder()
                 .name("display")
                 .allowedType(RenderingMode.class)
-                .converter((RenderingMode serverValue, Entry currentInstance) -> JsonUtils.toJsonValue(serverValue == null ? RenderingMode.NONE : serverValue))
                 .build();
 
         /**
@@ -1363,17 +1506,17 @@ public class Entry extends JsonItem<String> {
      */
     public enum RenderingMode implements ClientSideValue {
         /**
-         * Renders as normal entry.
+         * Does not render the entry.
          */
         NONE(null),
 
         /**
-         * Renders as a solid rectangle in daygrid
+         * Renders as a solid rectangle in day grid
          */
         BLOCK("block"),
 
         /**
-         * Renders with a dot when in daygrid
+         * Renders with a dot when in day grid
          */
         LIST_ITEM("list-item"),
 

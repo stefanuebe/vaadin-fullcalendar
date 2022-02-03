@@ -337,6 +337,16 @@ public abstract class JsonItem<ID_TYPE> {
     }
 
     /**
+     * Sets the given value for the given key or the default value, when the value itself is null.
+     * @param key key
+     * @param value value
+     * @param defaultWhenNull value to set when value is null
+     */
+    public void setOrDefault(Key key, Object value, Object defaultWhenNull) {
+        set(key, value != null ? value : defaultWhenNull);
+    }
+
+    /**
      * This method indicates, if the given key shall be marked as a changed property for the client
      * side, when it is changed on the server side via {@link #set}. This method shall assure, that for instance
      * for new items the concept of "changed properties" is irrelevant or there might be properties, that
@@ -861,132 +871,7 @@ public abstract class JsonItem<ID_TYPE> {
                 : JsonUtils.ofJsonValue(jsonValue, convertArrayToType);
     }
 
-    /**
-     * Returns the map of the custom properties of this instance. This map is editable and any changes
-     * will be sent to the client using {@link FullCalendar#updateEntry(Entry)}.
-     * <p></p>
-     * Might be null.
-     * <p></p>
-     * Be aware, that any non standard property you
-     * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
-     *
-     * @return Map
-     * @see #getCustomPropertiesOrEmpty()
-     * @see #getOrCreateCustomProperties()
-     */
-    public Map<String, Object> getCustomProperties() {
-        return get(getCustomPropertiesKey());
-    }
 
-    /**
-     * Returns the key to be used to assign custom properties. Throws an {@link UnsupportedOperationException} by
-     * default. Only necessary to be overridden, when custom properties shall be usable.
-     *
-     * @return custom properties key.
-     */
-    protected Key getCustomPropertiesKey() {
-        throw new UnsupportedOperationException("Override getCustomPropertiesKey to use custom properties.");
-    }
-
-    /**
-     * Returns the custom properties map or an empty one, if none has yet been created. The map is not writable.
-     * <p></p>
-     * Be aware, that any non standard property you
-     * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
-     *
-     * @return map
-     * @see #getCustomProperties()
-     * @see #getOrCreateCustomProperties()
-     */
-    public Map<String, Object> getCustomPropertiesOrEmpty() {
-        Map<String, Object> map = get(getCustomPropertiesKey());
-        return map != null ? Collections.unmodifiableMap(map) : Collections.emptyMap();
-    }
-
-    /**
-     * Returns the map of the custom properties of this instance. This map is editable and any changes
-     * will be sent to the client using {@link FullCalendar#updateEntry(Entry)}.
-     * <p/>
-     * Creates and registers a new map, if none is there yet.
-     * <p></p>
-     * Be aware, that any non standard property you
-     * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
-     *
-     * @return Map
-     * @see #getCustomPropertiesOrEmpty()
-     * @see #getCustomProperties()
-     */
-    public Map<String, Object> getOrCreateCustomProperties() {
-        Map<String, Object> map = get(getCustomPropertiesKey());
-        if (map == null) {
-            map = new HashMap<>();
-            setCustomProperties(map);
-        }
-        return map;
-    }
-
-    /**
-     * Sets custom properties. These will be passed as they are into the client side object as "extendedProps". Can
-     * be used for custom event rendering.
-     *
-     * @param customProperties custom properties
-     */
-    public void setCustomProperties(Map<String, Object> customProperties) {
-        set(getCustomPropertiesKey(), customProperties);
-    }
-
-    /**
-     * Sets custom property for this entry. An existing property will be overwritten.
-     *
-     * @param key   the name of the property to set
-     * @param value value to set
-     */
-    public void setCustomProperty(@NotNull String key, Object value) {
-        Objects.requireNonNull(key);
-        getOrCreateCustomProperties().put(key, value);
-        markAsChangedProperty(getCustomPropertiesKey());
-    }
-
-    /**
-     * Returns a custom property (or null if not defined).
-     *
-     * @param key name of the custom property
-     * @param <T> return type
-     * @return custom property value or null
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T getCustomProperty(@NotNull String key) {
-        return (T) getCustomPropertiesOrEmpty().get(key);
-    }
-
-    /**
-     * Remove the custom property based on the name.
-     *
-     * @param key the name of the property to remove
-     */
-    public void removeCustomProperty(@NotNull String key) {
-        Map<String, Object> customProperties = getCustomProperties();
-        if (customProperties != null) {
-            // FIXME this will currently not remove the custom property from the client side!
-            customProperties.remove(Objects.requireNonNull(key));
-            markAsChangedProperty(getCustomPropertiesKey());
-        }
-    }
-
-    /**
-     * Remove specific custom property where the name and value match.
-     *
-     * @param key   the name of the property to remove
-     * @param value the object to remove
-     */
-    public void removeCustomProperty(@NotNull String key, @NotNull Object value) {
-        Map<String, Object> customProperties = getCustomProperties();
-        if (customProperties != null) {
-            // FIXME this will currently not remove the custom property from the client side!
-            customProperties.remove(Objects.requireNonNull(key), Objects.requireNonNull(value));
-            markAsChangedProperty(getCustomPropertiesKey());
-        }
-    }
 
     /**
      * Creates a copy of this instance. Unset properties stay uninitialized.
