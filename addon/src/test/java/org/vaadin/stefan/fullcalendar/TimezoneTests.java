@@ -3,11 +3,8 @@ package org.vaadin.stefan.fullcalendar;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,8 +66,8 @@ public class TimezoneTests {
         Timezone timezone = new Timezone(ZoneId.of("Etc/GMT-1")); // timezone one hour ahead of UTC, ignoring daylight saving rules, e.g. Germany in winter.
         LocalDateTime nowZoned = now.plusHours(1);
 
-        Assertions.assertEquals(nowZoned, timezone.plusTimezoneOffset(now));
-        Assertions.assertEquals(now, timezone.minusTimezoneOffset(nowZoned));
+        Assertions.assertEquals(nowZoned, timezone.applyTimezoneOffset(now));
+        Assertions.assertEquals(now, timezone.removeTimezoneOffset(nowZoned));
 
         Assertions.assertEquals(nowZoned, timezone.applyTimezone(now).toLocalDateTime());
         Assertions.assertEquals(now, timezone.removeTimezone(nowZoned).toLocalDateTime());

@@ -188,7 +188,7 @@ public class Entry extends JsonItem<String> {
      * @return start with offset or null
      */
     public LocalDateTime getStartWithOffset(Timezone timezone) {
-        return timezone.plusTimezoneOffset(getStart());
+        return timezone.applyTimezoneOffset(getStart());
     }
 
     /**
@@ -262,7 +262,7 @@ public class Entry extends JsonItem<String> {
      * @param timezone timezone
      */
     public void setStartWithOffset(LocalDateTime startWithTimezone, Timezone timezone) {
-        setStart(timezone.minusTimezoneOffset(startWithTimezone));
+        setStart(timezone.removeTimezoneOffset(startWithTimezone));
     }
 
     /**
@@ -334,7 +334,7 @@ public class Entry extends JsonItem<String> {
      * @return end with offset or null
      */
     public LocalDateTime getEndWithOffset() {
-        return getEndTimezone().plusTimezoneOffset(getEnd());
+        return getEndTimezone().applyTimezoneOffset(getEnd());
     }
 
     /**
@@ -349,7 +349,7 @@ public class Entry extends JsonItem<String> {
      * @return end with offset or null
      */
     public LocalDateTime getEndWithOffset(Timezone timezone) {
-        return timezone.plusTimezoneOffset(getEnd());
+        return timezone.applyTimezoneOffset(getEnd());
     }
 
     /**
@@ -405,7 +405,7 @@ public class Entry extends JsonItem<String> {
      * @param endWithTimezone end with time zone
      */
     public void setEndWithOffset(LocalDateTime endWithTimezone) {
-        setEnd(getEndTimezone().minusTimezoneOffset(endWithTimezone));
+        setEnd(getEndTimezone().removeTimezoneOffset(endWithTimezone));
     }
 
     /**
@@ -423,7 +423,7 @@ public class Entry extends JsonItem<String> {
      * @param timezone timezone
      */
     public void setEndWithOffset(LocalDateTime endWithTimezone, Timezone timezone) {
-        setEnd(timezone.minusTimezoneOffset(endWithTimezone));
+        setEnd(timezone.removeTimezoneOffset(endWithTimezone));
     }
 
     /**

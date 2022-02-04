@@ -216,7 +216,7 @@ public class EntryTest {
         LocalDateTime now = DEFAULT_START;
         Instant nowInstant = now.toInstant(ZoneOffset.UTC);
         ZonedDateTime nowZoned = nowInstant.atZone(Timezone.ZONE_ID_UTC);
-        LocalDateTime nowPlusOffset = Timezone.UTC.plusTimezoneOffset(now);
+        LocalDateTime nowPlusOffset = Timezone.UTC.applyTimezoneOffset(now);
 
         Entry entry = new Entry();
         entry.setStart(now);
@@ -293,7 +293,7 @@ public class EntryTest {
         LocalDateTime now = DEFAULT_START;
         Instant nowInstant = now.toInstant(ZoneOffset.UTC);
         ZonedDateTime nowZoned = nowInstant.atZone(timezone.getZoneId());
-        LocalDateTime nowPlusOffset = timezone.plusTimezoneOffset(now);
+        LocalDateTime nowPlusOffset = timezone.applyTimezoneOffset(now);
 
         Entry entry = new Entry();
         entry.setStart(now);
@@ -387,7 +387,7 @@ public class EntryTest {
         LocalDateTime now = DEFAULT_START;
         Instant nowInstant = now.toInstant(ZoneOffset.UTC);
         ZonedDateTime nowZoned = nowInstant.atZone(Timezone.ZONE_ID_UTC);
-        LocalDateTime nowPlusOffset = Timezone.UTC.plusTimezoneOffset(now);
+        LocalDateTime nowPlusOffset = Timezone.UTC.applyTimezoneOffset(now);
 
         Entry entry = new Entry();
         entry.setEnd(now);
@@ -464,7 +464,7 @@ public class EntryTest {
         LocalDateTime now = DEFAULT_START;
         Instant nowInstant = now.toInstant(ZoneOffset.UTC);
         ZonedDateTime nowZoned = nowInstant.atZone(timezone.getZoneId());
-        LocalDateTime nowPlusOffset = timezone.plusTimezoneOffset(now);
+        LocalDateTime nowPlusOffset = timezone.applyTimezoneOffset(now);
 
         Entry entry = new Entry();
         entry.setEnd(now);

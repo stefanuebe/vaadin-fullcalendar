@@ -22,6 +22,7 @@ import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -42,8 +43,8 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      */
     private final boolean allDay;
 
-    private final LocalDateTime startDateTime;
-    private final LocalDateTime endDateTime;
+    private final LocalDateTime start;
+    private final LocalDateTime end;
 
     /**
      * New instance. Awaits the selected dates (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
@@ -59,15 +60,30 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
 
         Timezone timezone = source.getTimezone();
         this.allDay = allDay;
-        this.startDateTime = JsonUtils.parseClientSideDateTime(start);
-        this.endDateTime = JsonUtils.parseClientSideDateTime(end);
+        this.start = JsonUtils.parseClientSideDateTime(start);
+        this.end = JsonUtils.parseClientSideDateTime(end);
+    }
+
+    public Instant getStartAsInstant() {
+        return Timezone.UTC.convertToInstant(start);
+    }
+    public Instant getEndAsInstant() {
+        return Timezone.UTC.convertToInstant(end);
+    }
+
+    public Instant getStartWithOffset() {
+        return getSource().getTimezone().convertToInstant(start);
+    }
+    public Instant getEndWithOffset() {
+        return getSource().getTimezone().convertToInstant(end);
     }
 
     public LocalDate getStartDate() {
-        return startDateTime.toLocalDate();
+        return start.toLocalDate();
     }
 
     public LocalDate getEndDate() {
-        return endDateTime.toLocalDate();
+        return end.toLocalDate();
     }
+
 }
