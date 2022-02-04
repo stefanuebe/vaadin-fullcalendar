@@ -1425,6 +1425,19 @@ export class FullCalendar extends PolymerElement {
             let options = this._createInitOptions(this.initialOptions);
             this._calendar = new Calendar(this.$.calendar, options);
 
+
+            // override set option to allow a combination of internal and custom eventDidMount events
+            // hacky and needs to be maintained on updates, but currently there seems to be no other way
+            let _setOption = this._calendar.setOption;
+            this._calendar.setOption = (key, value) => {
+                if(key === "eventDidMount") {
+                    this.eventDidMountCallback = value;
+                } else {
+                    _setOption.call(this._calendar, key, value);
+                }
+            }
+
+
             this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
 
             afterNextRender(this, function () {
@@ -1618,11 +1631,6 @@ export class FullCalendar extends PolymerElement {
         return dateString;
     }
 
-
-    addEvents(obj) {
-        this.getCalendar().addEventSource(obj);
-    }
-
     _createInitOptions(initialOptions = {}) {
         let events = this._createEventHandlers();
 
@@ -1645,6 +1653,24 @@ export class FullCalendar extends PolymerElement {
         };
 
         this._addEventHandlersToOptions(options, events);
+
+        // extended eventDidMount option
+        // will supply helper methods to the event and also take care, that initial or custom didMount
+        // callbacks will be called afterwards.
+        let initEventDidMount = options['eventDidMount']
+        options['eventDidMount'] = (info) => {
+            let event = info.event;
+            event.getCustomProperty = (key, defaultValue = undefined) => {
+                return FullCalendar.getCustomProperty(event, key, defaultValue);
+            }
+
+            if (this.eventDidMountCallback) {
+                this.eventDidMountCallback(info);
+            } else if (initEventDidMount) {
+                initEventDidMount(info);
+            }
+
+        }
 
         options['locales'] = allLocales;
         options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
@@ -1787,13 +1813,16 @@ export class FullCalendar extends PolymerElement {
         this.getCalendar().gotoDate(date);
     }
 
+    addEvents(eventsCreateInfo) {
+        let _events = this.getCalendar().addEventSource(eventsCreateInfo);
+    }
 
-    updateEvents(array) {
+    updateEvents(eventsUpdateInfo) {
         const calendar = this.getCalendar();
         calendar.batchRendering(() => {
 
-            for (let i = 0; i < array.length; i++) {
-                let obj = array[i];
+            for (let i = 0; i < eventsUpdateInfo.length; i++) {
+                let obj = eventsUpdateInfo[i];
 
                 let eventToUpdate = calendar.getEventById(obj.id);
 
@@ -1890,11 +1919,12 @@ export class FullCalendar extends PolymerElement {
      * @param key property key to read
      * @return {*} property value
      */
-    static getCustomProperty(event, key) {
-        if (event.extendedProps.customProperties) {
+    static getCustomProperty(event, key, defaultValue = undefined) {
+        if(event.extendedProps && event.extendedProps.customProperties && event.extendedProps.customProperties[key]) {
             return event.extendedProps.customProperties[key];
         }
-        return undefined;
+
+        return defaultValue;
     }
 
     /**
@@ -1968,7 +1998,7 @@ export class FullCalendar extends PolymerElement {
 
     setEventDidMountCallback(s) {
         let calendar = this.getCalendar();
-        calendar.setOption('eventDidMount', new Function("return " + s)());
+        this.eventDidMountCallback = new Function("return " + s)();
     }
 
     setEventWillUnmountCallback(s) {
