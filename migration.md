@@ -1,12 +1,24 @@
+We know, that migration suck. Not only developers fear the appearance of a new major version but also every
+product or project manager using 3rd party software knows, that it can be a stressful, time taking horror to
+integrate a new major version.
+
+Unfortunately this applies also for this addon. There will be breaking changes, that need you guys to get back
+into your code and review everything. Nevertheless, we hope, that this migration guide helps you as good as possible
+to get a detailed insight of what has changed and what needs to be done to get you back on track.
+
+If we missed something or anything is unclear, please ping us on GitHub. We hope, that your upgrade goes through
+as smoothly as possible.
+
 #Migrating from 3.x > 4.0
 The most breaking change when migrating from version 3.x to 4.0 will be that the server side got
 rid of any timezone inclusion regarding date times. You still may set a timezone for the calendar
-or set/get offsetted local date times, but the regular api is now always utc based.
+or set/get offsetted local date times, but the regular api is now always utc based and we try to keep
+anything as clear as possible regarding whether a local date time represents a utc time or a time with offset.
 
 Part of this change is
 * Getter and Setter of Entry start and end have changed in name and meaning
 * Timezones are not applied anymore to the server side times
-
+* Calendar time related api is also now utc based (e.g. finding entries in a timespan)
 
 ## Removed features
 If you used a feature in your calendar, that an entry could have a different timezone for start and end:
@@ -18,9 +30,15 @@ Instead we wanted to bring you the new version as fast as possible.
 If you need this feature again, please contact us and we will check how to bring it back in one or another way.
 
 ## Migration steps / manual in detail
+### Timezone
+Before heading into all utc and timezone related changes, the first thing to mention is, that the Timezone class now
+has some simple methods to apply or remove the offset of the timezone it represents from a local date time to create
+another ((un)offsetted) local date time to help doing things manual. Just to keep in mind, when one of the following 
+things might seem to be a to breaking change.
+
 ### Entry start / end and timezone.
-If you have used the `Instant` based versions, you do not need to change your code. Please notify that `getStartUTC / getEndUTC` have
-been deprecated. Replace them at some point with `getStartAsInstant / getEndAsInstant`.
+If you have used the `Instant` based start / end api only, you theoretically do not need to change your code. 
+Please notify that `getStartUTC / getEndUTC` have been deprecated. Replace them at some point with `getStartAsInstant / getEndAsInstant`.
 
 If you have used the `LocalDateTime` based versions, you will most likely need to change your code as the LocalDateTime based `getStart / getEnd` and
 `setStart / setEnd` methods are now always referring to UTC and never to the timezones. If you want to set or get the date time including
@@ -75,11 +93,8 @@ entry.setStartWithOffset(start, timezone);
 Summarized we recommend: when working with your backend (persisting, etc), use the utc variants. When working with some kind
 of edit form, where the user can modify his/her entry based on the calendar's timezone, use the offset variants.
 
-There is also a ZonedDateTime based api and the `Timezone` now provides methods to do the offset calculation programmatically (e.g. `applyTimezoneOffset()`),
-if needed.
-
 ### Entry related events date time
-#### Timezones
+#### Events and timezones
 As with the entries also event times are now always date time based. The api has changed in the same way, that the "default"
 date time is always utc based, while the offset variant api provides the data with the calendar timezone's offset applied.
 
@@ -107,7 +122,7 @@ calendar.addTimeslotSelectedEvent(event -> {
 Getters in `TimeslotsSelectedEvent` have changed to be more aligned to the entry's and other events names to simplify the code to read a bit (e.g.
  a name has changed from `getStartDateTime` to `getStart`). We added respective methods for getting the Instant and the offsetted variant.
 
-### Removed getters in all day related events
+#### Removed getters in all day related events
 See chapter **All day behavior** for details.
 
 ### Recurrence
