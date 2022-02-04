@@ -1098,7 +1098,7 @@ public class Entry extends JsonItem<String> {
      * Sets custom properties.
      * <p/>
      * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.extendedProps?.customProperties?.[key]</code>.
+     * <code>event.getCustomProperty('key')</code>.
      *
      * @see FullCalendar#setEntryContentCallback(String)
      * @param customProperties custom properties
@@ -1111,7 +1111,7 @@ public class Entry extends JsonItem<String> {
      * Sets custom property for this entry. An existing property will be overwritten.
      * <p/>
      * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.extendedProps?.customProperties?.[key]</code>.
+     * <code>event.getCustomProperty('key')</code>.
      *
      * @see FullCalendar#setEntryContentCallback(String)
 
@@ -1129,7 +1129,7 @@ public class Entry extends JsonItem<String> {
      * Returns a custom property (or null if not defined).
      * <p/>
      * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.extendedProps?.customProperties?.[key]</code>.
+     * <code>event.getCustomProperty('key')</code>.
      *
      * @see FullCalendar#setEntryContentCallback(String)
 
@@ -1179,7 +1179,7 @@ public class Entry extends JsonItem<String> {
      * Might be null.
      * <p/>
      * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.extendedProps?.customProperties?.[key]</code>.
+     * <code>event.getCustomProperty('key')</code>.
      *
      * @see FullCalendar#setEntryContentCallback(String)
      *
@@ -1413,7 +1413,7 @@ public class Entry extends JsonItem<String> {
                 .build();
 
         /**
-         * The extended property list. Contains any non standard property. Please see also the fullcalendar
+         * The custom property list. Contains any non standard property. Please see also the fullcalendar
          * documentation regarding extended properties. Be aware, that any non standard property you
          * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
          */

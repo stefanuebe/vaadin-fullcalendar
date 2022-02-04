@@ -814,7 +814,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <pre>
      * calendar.setEventClassNamesCallback("" +
      * "function(arg) { " +
-     * "  if (arg.event.extendedProps.isUrgent) {" +
+     * "  if (arg.event.getCustomProperty('isUrgent', false)) {" +
      * "    return [ 'urgent' ];" +
      * "  } else { " +
      * "    return [ 'normal' ];" +
@@ -843,7 +843,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * calendar.setEntryContentCallback("" +
      * "function(arg) { " +
      * "  let italicEl = document.createElement('i');" +
-     * "  if (arg.event.extendedProps.isUrgent) {" +
+     * "  if (arg.event.getCustomProperty('isUrgent', false)) {" +
      * "    italicEl.innerHTML = 'urgent event';" +
      * "  } else {" +
      * "    italicEl.innerHTML = 'normal event';" +
