@@ -30,7 +30,9 @@ public class DemoCustomProperties extends VerticalLayout {
     	addDemoEntrys();
 
         setSizeFull();
-        addAndExpand(calendar);
+        add(calendar);
+        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+        setFlexGrow(1, calendar);
     }
     
     private void createCalendarInstance() {
@@ -50,8 +52,8 @@ public class DemoCustomProperties extends VerticalLayout {
             this.selected.setCustomProperty("selected", true);
             calendar.updateEntries(oldSelected, this.selected);
         });
-        
-        calendar.setSizeFull();
+
+        calendar.setHeightByParent();
     }
     
     private void addDemoEntrys() {

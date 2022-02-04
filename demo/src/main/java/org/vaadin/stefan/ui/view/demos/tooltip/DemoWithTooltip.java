@@ -73,13 +73,15 @@ public class DemoWithTooltip extends VerticalLayout {
         add(toolbar);
 
         createCalendarInstance();
-        addAndExpand(calendar);
+        add(calendar);
+        setFlexGrow(1, calendar);
 
         createTestEntries(calendar);
     }
     
     private void initView() {
     	setSizeFull();
+        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
     }
 
     private void createToolbar() {
@@ -188,7 +190,7 @@ public class DemoWithTooltip extends VerticalLayout {
     
     private void createCalendarInstance() {
         calendar = new FullCalendarWithTooltip();
-        calendar.setSizeFull();
+        calendar.setHeightByParent();
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
         ((FullCalendarScheduler) calendar).setResourceAreaHeaderContent("Rooms");
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");

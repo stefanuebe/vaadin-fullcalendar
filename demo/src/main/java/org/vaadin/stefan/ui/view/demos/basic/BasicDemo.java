@@ -46,6 +46,8 @@ public class BasicDemo extends VerticalLayout {
 		createCalendar();
 		add(calendar);
 
+        setFlexGrow(1, calendar);
+
 		createBasicEntries(calendar);
     }
 

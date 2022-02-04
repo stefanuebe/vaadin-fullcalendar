@@ -31,21 +31,23 @@ public class DemoDayGridWeekWithSixWeeks extends VerticalLayout {
     	
     	createCalendarInstance();
     	
-    	addAndExpand(calendar);
-    	
+    	add(calendar);
+        setFlexGrow(1, calendar);
+
     	addEntries();
     }
     
     private void initView() {
-    	setSizeFull();
+        setSizeFull();
+        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
     }
 
     private void createCalendarInstance() {
         CustomDayGridWeekCalendarView calendarView = new CustomDayGridWeekCalendarView(6);
         
         calendar = FullCalendarBuilder.create().withInitialOptions(calendarView.getInitialOptions()).build();
-        calendar.setSizeFull();
         calendar.setLocale(CalendarLocale.getDefault());
+        calendar.setHeightByParent();
 
         Header testHeader = new Header();
         
