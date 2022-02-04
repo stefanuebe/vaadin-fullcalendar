@@ -40,7 +40,6 @@ public class DemoCustomProperties extends VerticalLayout {
 
         calendar.setEntryContentCallback("" +
             "function (info) {" +
-                "console.warn('eventContent');" +
             "    info.backgroundColor = info.event.getCustomProperty('selected', false) ? 'lightblue' : 'lightgreen';" +
             "}");
 
