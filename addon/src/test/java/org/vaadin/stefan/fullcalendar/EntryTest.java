@@ -607,7 +607,7 @@ public class EntryTest {
         Assertions.assertNull(entry.getBackgroundColor());
         Assertions.assertNull(entry.getTextColor());
         Assertions.assertNull(entry.getDescription());
-        Assertions.assertEquals(RenderingMode.NONE, entry.getRenderingMode());
+        Assertions.assertEquals(RenderingMode.AUTO, entry.getRenderingMode());
     }
 
 }
