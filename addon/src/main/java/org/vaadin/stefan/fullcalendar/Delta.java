@@ -77,6 +77,12 @@ public class Delta {
         this.seconds = seconds;
     }
 
+    static void assertLessThan(String name, int current, int lessThanThis) {
+        if (current >= lessThanThis) {
+            throw new IllegalArgumentException("Value'" + name + "' must be less than or equal to '" + lessThanThis + "' (as absolute) but was '" + current + "'!");
+        }
+    }
+
     /**
      * Parses the given json object.
      * @param jsonObject json object
