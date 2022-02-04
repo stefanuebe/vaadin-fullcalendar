@@ -1,11 +1,9 @@
 # FullCalendar web component addon
 This addon is an integration of the FullCalendar as a Flow component for Vaadin 14+. 
 
-The latest version 3.x.x of this addon uses the FullCalendar 5.
-The version 2.x.x uses the older FullCalendar 4. 
+It is based on the latest version of the FullCalendar library 5.x.
 
-**Note** Version 2.x.x will only receive maintenance fixes, while new features will be developed for the 
-3.x.x version.
+**Note** Version 3.x.x will only receive maintenance fixes. Version 2.x is deprecated and will no longer be maintained.
 
 Please also have a look at the demo for some basic examples and source code of how to integrate the FC. 
 For more examples please have a look into the example section.
@@ -40,7 +38,7 @@ The following functions are currently implemented and available to use from serv
 - setting a eventRender JS function from server side
 - setting business hours information (multiple entries possible)
 - creating recurring events
-- setting / handling timezones and their offsets (by default the FC uses UTC times and dates)
+- setting a client side timezone
 
 - Event handling for
     - clicking an empty time spot in the calendar,
@@ -123,9 +121,11 @@ container.setFlexGrow(1, calendar);
 // Create a initial sample entry
 Entry entry = new Entry();
 entry.setTitle("Some event");
-entry.setStart(LocalDate.now().withDayOfMonth(3).atTime(10, 0), calendar.getTimezone());
-entry.setEnd(entry.getStart().plusHours(2), calendar.getTimezone());
 entry.setColor("#ff3333");
+
+// the given times will be interpreted as utc based - useful when the times are fetched from your database
+entry.setStart(LocalDate.now().withDayOfMonth(3).atTime(10, 0));
+entry.setEnd(entry.getStart().plusHours(2));
 
 calendar.add(entry);
 ```
@@ -141,8 +141,8 @@ calendar.addTimeslotsSelectedListener((event) -> {
     // react on the selected timeslot, for instance create a new instance and let the user edit it 
     Entry entry = new Entry();
 
-    entry.setStart(calendar.getTimezone().convertToUTC(event.getStartDateTime()));
-    entry.setEnd(calendar.getTimezone().convertToUTC(event.getEndDateTime()));
+    entry.setStart(event.getStartDateTime()); // also event times are always utc based
+    entry.setEnd(event.getEndDateTime());
     entry.setAllDay(event.isAllDay());
 
     entry.setColor("dodgerblue");
@@ -174,6 +174,7 @@ if (newInstance) {
     buttonSave = new Button("Save", e -> {
         if (binder.validate().isOk()) {
              // update an existing entry in the client side
+             // this will only send changed data
              calendar.updateEntry(entry);
         }
     });
@@ -237,16 +238,17 @@ calendar.setHeightByParent();
 calendar.getElement().getStyle().set("flex-grow", "1");
 ```
 
-### Modify FCs appearance by using css variables
+### Modify FCs appearance by using css variables (deprecated with 4.x)
 1. Copy the styles.css from the GitHub demo or create your own css file and place it in your
  applications frontend folder (e. g. frontend/styles/my-custom-full-calendar-styles.css)
 
 An example file can be found from here:
 https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/frontend/styles.css
 
-(Please be aware, that these custom properties are generated from the original styles. Since some dom elements
+Please be aware, that these custom properties are generated from the original styles. Since some dom elements
 have classes, which are not used in the css files, there are no generated custom attributes for these class
-combinations. In that case you'll have to subclass the Polymer class.) 
+combinations. In that case you'll have to subclass the Polymer class.
+Also with version 4.x the css properties will not be maintained any longer. 
 
 
 2. Modify the styles as needed.
@@ -269,7 +271,7 @@ public class FullCalendarApplication extends ... {
 }
 ```
 
-### Modifiy FC's appearance by using a custom class.
+### Modifiy FC's appearance by using a custom polymer class.
 Create a custom component, that extends FullCalendar or FullCalendarScheduler. 
 Override the static template method and reuse the parent's methods to create the basic styles.
 
@@ -286,12 +288,12 @@ import {FullCalendar} from 'full-calendar';
 export class MyFullCalendar extends FullCalendar {
     static get template() {
         return html`
-            ${this.templateCalendarCss}
+            ${this.templateCalendarCss} // defined in the parent class
             
-            ${this.templateCustomCalendarCss}
+            ${this.templateCustomCalendarCss} // defined in this class
         
-            ${this.templateElementCss}
-            ${this.templateContainer}
+            ${this.templateElementCss} // defined in the parent class
+            ${this.templateContainer} // defined in the parent class
         `;
     }
 
@@ -323,13 +325,14 @@ calendar.addCustomStyles(customCss);
 ```
 
 
-### Modifying eventRender from server side
-The given string will be interpreted as js function on client side
-and attached as eventRender callback. 
+### Customize the entry content
+FC allows you to modify the content of an entry. The given string will be interpreted as js function on client side
+and attached as eventContent callback. See https://fullcalendar.io/docs/content-injection ("...a function") for details.
+
 Make sure, that it does not contain any harmful code.
 
 ```
-calendar.setEntryRenderCallback("" +
+calendar.setEntryContentCallback("" +
 	"function(info) {" +
         "   console.log(info.event.title + 'X');" +
         "   info.el.style.color = 'red';" +
@@ -354,7 +357,7 @@ import {FullCalendar} from 'full-calendar';
 export class MyFullCalendar extends FullCalendar {
     _createInitOptions() {
         var options = super._createInitOptions();
-        options.eventRender = function (event, element) {
+        options.eventContent = function (event, element) {
             element.css('color', 'red');
             return element;
         };
@@ -408,10 +411,11 @@ calendar.setBusinessHours(
 calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0)));
 
 ### Using timezones
-// Per default, our FC works with UTC. You can set a custom timezone to be shown for the user. 
-// This will automatically update all entries on the client side.
+// FC allows to show entries in a specifc timezone. Setting a timezone only affects the client side
+// and might be interesting, when editing those entries in some kind of edit form
+
 Timezone tzBerlinGermany = new Timezone("Europe/Berlin");
-calendar.setTimezone(tzBerlinGermany);
+calendar.setTimezone(tzBerlinGermany); // will rerender the client side and show all times 1-2 hours "later".
 
 // We can also reset the timezone to default.
 calendar.setTimezone(Timezone.UTC);
@@ -424,17 +428,24 @@ calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.
 // In that case as soon as the client connected, it will set it's timezone in the server side instance. 
 FullCalendarBuilder.create().withAutoBrowserTimezone().build();
 
-// When using timezones, entries can calculate their start and end in different ways.
+// Entries use internally utc to define times. The LocalDateTime and Instant methods setStart/End have the same effect.
 entry.setStart(Instant.now()); // UTC 
-entry.setStart(LocalDateTime.now(), tzBerlinGermany); // timezone is used to calculate the UTC value
+entry.setEnd(LocalDateTime.now()); // UTC
 
-entry.setCalendar(calendar); // is done automatically, when using calendar.addEntry(entry);
-entry.setStart(LocalDateTime.now()); // Uses the calendars timezone (or UTC as fallback)
- 
-// Timezone provides some convenient methods to work with the two different temporal types
-tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 10, 1, 10, 0, 0)) // Standard time, returns Instant for 9:00 UTC this day.
-tzBerlinGermany.convertToUTC(LocalDateTime.of(2018, 8, 1, 10, 0, 0)) // Summer time, returns Instant for 8:00 UTC this day.
-tzBerlinGermany.convertToLocalDateTime(Instant.now()) // returns a date time with +1/+2 hours (depending on summer time).
+// Entry provides some additional convenience methods to handle the current calendar's timezone's offset, e.g. to allow easy 
+// integration into edit forms.
+calendar.setTimezone(tzBerlinGermany) // times are now 1-2 hours "ahead" (depending on daylight saving)
+entry.setStart(LocalDate.of(2000,1,1).atStartOfDay());
+
+LocalDateTime utcStart = entry.getStart(); // will be 2000-01-01, 00:00
+LocalDateTime offsetStart = entry.getStartWithOffset() // will be 2000-01-01, 01:00
+
+// ... modify the offset start, for instance in a date picker
+// e.g. modifiedOffsetStart = offsetStart.plusHours(5);
+
+entry.setStartWithOffset(modifiedOffsetStart); // automatically takes care of conversion back to utc
+LocalDateTime utcStart = entry.getStart(); // will be 2000-01-01, 04:00
+LocalDateTime offsetStart = entry.getStartWithOffset() // will be 2000-01-01, 05:00
 
 ### Passing custom initial options in Java
 You can fully customize the client side options in Java by passing a JsonObject when creating the FullCalendar.
@@ -476,16 +487,33 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
 
     _initCalendar() {
         super._initCalendar();
-        this.getCalendar().setOption("eventRender", this.callTooltip);
+        this.getCalendar().setOption("eventDidMount", e => {
+            this.initTooltip(e);
+        });
     }
 
-    callTooltip(info) {
-        if (info.event.extendedProps && info.event.extendedProps.description) {
-            tippy(info.el, {
-                // content: info.event.extendedProps.description
-                theme: 'light',
-                content: info.event.extendedProps.description
-            });
+    initTooltip(e) {
+        if (!e.isMirror) {
+            e.el.addEventListener("mouseenter", () => {
+                let tooltip = e.event.getCustomProperty("description");
+
+                if(tooltip) {
+                    e.el._tippy = tippy(e.el, {
+                        theme: 'light',
+                        content: tooltip,
+                        trigger: 'manual'
+                    });
+    
+                    e.el._tippy.show();
+                }
+            })
+
+            e.el.addEventListener("mouseleave", () => {
+                if (e.el._tippy) {
+                    e.el._tippy.destroy();
+                }
+            })
+
         }
     }
 }
@@ -507,8 +535,6 @@ public class FullCalendarWithTooltip extends FullCalendarScheduler {
     }
 }
 ```
-
-
 
 ## FAQ
 Q: The calendar instance is not recognized during build time or loading of frontend dependencies (leads client side errors)
