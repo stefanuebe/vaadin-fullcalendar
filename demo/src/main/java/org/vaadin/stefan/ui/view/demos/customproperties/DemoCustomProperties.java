@@ -1,4 +1,4 @@
-package org.vaadin.stefan.ui.view.demos.extendedprops;
+package org.vaadin.stefan.ui.view.demos.customproperties;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,14 +18,14 @@ import com.vaadin.flow.router.Route;
 @Route(value = "demoextendedprops", layout = MainLayout.class)
 @PageTitle("FC with Custom Properties")
 @MenuItem(label = "Custom Properties")
-public class DemoExtendedProps extends VerticalLayout {
+public class DemoCustomProperties extends VerticalLayout {
 	private static final long serialVersionUID = -117988331031719049L;
 
 	private FullCalendar calendar;
 	
 	private Entry selected;
 
-    public DemoExtendedProps() {
+    public DemoCustomProperties() {
     	createCalendarInstance();
     	addDemoEntrys();
 
@@ -40,11 +40,8 @@ public class DemoExtendedProps extends VerticalLayout {
 
         calendar.setEntryContentCallback("" +
             "function (info) {" +
-            "	if (info.event.extendedProps?.customProperties?.selected)" +
-            "		info.backgroundColor = 'lightblue';" +
-                "else " +
-            "		info.backgroundColor = 'lightgreen';" +
-            "	" +
+                "console.warn('eventContent');" +
+            "    info.backgroundColor = info.event.getCustomProperty('selected', false) ? 'lightblue' : 'lightgreen';" +
             "}");
 
         calendar.addEntryClickedListener(e -> {
