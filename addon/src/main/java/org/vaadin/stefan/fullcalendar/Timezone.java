@@ -16,8 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import net.bytebuddy.asm.Advice;
-
 import javax.validation.constraints.NotNull;
 import java.time.*;
 import java.util.*;
@@ -142,7 +140,7 @@ public class Timezone implements ClientSideValue {
 
 
     /**
-     * Creates a local date time based by adding the zone offset of this timezone onto the given local date time.
+     * Creates a local date time based by apply the zone offset of this timezone onto the given local date time.
      * Any offset modifies like daylight saving will be based on the given local date time.
      * Passing ...T00:00 to a GMT+1 instance will result in local date time ...T01:00
      * <p/>
@@ -151,12 +149,12 @@ public class Timezone implements ClientSideValue {
      * @param localDateTime local date time to convert to a zoned date time
      * @return zoned date time representing the given local date time at this timezone
      */
-    public LocalDateTime plusTimezoneOffset(LocalDateTime localDateTime) {
+    public LocalDateTime applyTimezoneOffset(LocalDateTime localDateTime) {
         return localDateTime != null ? applyTimezone(localDateTime).toLocalDateTime() : null;
     }
 
     /**
-     * Creates a local date time based by subtracting the zone offset of this timezone from the given local date time.
+     * Creates a local date time based by removing the zone offset of this timezone from the given local date time.
      * Any offset modifies like daylight saving will be based on the given local date time.
      * Passing ...T01:00 to a GMT+1 instance will result in local date time ...T00:00
      * <p/>
@@ -165,7 +163,7 @@ public class Timezone implements ClientSideValue {
      * @param localDateTime local date time to convert to a zoned date time
      * @return zoned date time representing the given local date time at this timezone
      */
-    public LocalDateTime minusTimezoneOffset(LocalDateTime localDateTime) {
+    public LocalDateTime removeTimezoneOffset(LocalDateTime localDateTime) {
         return localDateTime != null ? removeTimezone(localDateTime).toLocalDateTime() : null;
     }
 

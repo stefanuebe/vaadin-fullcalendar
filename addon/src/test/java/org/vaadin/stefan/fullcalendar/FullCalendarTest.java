@@ -759,13 +759,13 @@ public class FullCalendarTest {
         TimeslotsSelectedEvent event;
         // now we simulate the conversion to the server side timezone
         event = new TimeslotsSelectedEvent(calendar, true, JsonUtils.formatClientSideDateString(refDateStart), JsonUtils.formatClientSideDateString(refDateEnd), true);
-        Assertions.assertEquals((refDateStart).atStartOfDay(), event.getStartDateTime());
-        Assertions.assertEquals((refDateEnd).atStartOfDay(), event.getEndDateTime());
+        Assertions.assertEquals((refDateStart).atStartOfDay(), event.getStart());
+        Assertions.assertEquals((refDateEnd).atStartOfDay(), event.getEnd());
         Assertions.assertTrue(event.isAllDay());
 
         event = new TimeslotsSelectedEvent(calendar, true, JsonUtils.formatClientSideDateTimeString(refDateTimeStart), JsonUtils.formatClientSideDateTimeString(refDateTimeEnd), false);
-        Assertions.assertEquals((refDateTimeStart), event.getStartDateTime());
-        Assertions.assertEquals((refDateTimeEnd), event.getEndDateTime());
+        Assertions.assertEquals((refDateTimeStart), event.getStart());
+        Assertions.assertEquals((refDateTimeEnd), event.getEnd());
         Assertions.assertFalse(event.isAllDay());
     }
 

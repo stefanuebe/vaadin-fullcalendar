@@ -77,12 +77,6 @@ public class Delta {
         this.seconds = seconds;
     }
 
-    static void assertLessThan(String name, int current, int lessThanThis) {
-        if (current >= lessThanThis) {
-            throw new IllegalArgumentException("Value'" + name + "' must be less than or equal to '" + lessThanThis + "' (as absolute) but was '" + current + "'!");
-        }
-    }
-
     /**
      * Parses the given json object.
      * @param jsonObject json object
@@ -138,17 +132,16 @@ public class Delta {
         return date.plusYears(years).plusMonths(months).plusDays(days);
     }
 
-//    /**
-//     * Applies this delta instance on the given instant by adding all day and time related delta values. Internally
-//     * uses a local date time, that the instant will be converted to (utc based).
-//     *
-//     * @param instant instanceto modify
-//     * @return updated instance
-//     * @throws NullPointerException when null is passed
-//     */
-//    public Instant applyOn(@NotNull Instant instant) {
-//        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
-//        return applyOn(localDateTime).toInstant(ZoneOffset.UTC);
-//    }
+    /**
+     * Applies this delta instance on the given instant by adding all day and time related delta values.
+     *
+     * @param instant instance to modify
+     * @return updated instance
+     * @throws NullPointerException when null is passed
+     */
+    public Instant applyOn(@NotNull Instant instant) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
+        return applyOn(localDateTime).toInstant(ZoneOffset.UTC);
+    }
 
 }

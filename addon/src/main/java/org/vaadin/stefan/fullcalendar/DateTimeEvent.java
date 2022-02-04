@@ -20,6 +20,7 @@ import com.vaadin.flow.component.ComponentEvent;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -36,7 +37,7 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
     private final boolean allDay;
 
     /**
-     * The date time related to this event. For day slots the time will be at start of the day.
+     * The utc based date time related to this event. For day slots the time will be at start of the day.
      */
     private final LocalDateTime dateTime;
 
@@ -53,6 +54,30 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
 
         this.allDay = allDay;
         dateTime = JsonUtils.parseClientSideDateTime(dateString);
+    }
+
+    /**
+     * The utc based date time related to this event. For day slots the time will be at start of the day.
+     * @deprecated use {@link #getDateTimeAsInstant()} instead
+     */
+    @Deprecated
+    public Instant getDateTimeUTC() {
+        return getDateTimeAsInstant();
+    }
+
+    /**
+     * The utc based date time related to this event. For day slots the time will be at start of the day.
+     */
+    public Instant getDateTimeAsInstant() {
+        return Timezone.UTC.convertToInstant(dateTime);
+    }
+
+    /**
+     * The date time related to this event including the calendar timezone's offset.
+     * For day slots the time will be at start of the day and ignore the timezone.
+     */
+    public LocalDateTime getDateTimeWithOffset() {
+        return isAllDay() ? dateTime : getSource().getTimezone().applyTimezoneOffset(dateTime);
     }
 
     /**

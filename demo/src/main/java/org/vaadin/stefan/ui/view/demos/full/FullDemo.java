@@ -280,7 +280,7 @@ public class FullDemo extends VerticalLayout {
         calendar.addWeekNumberClickedListener(event -> System.out.println("week number clicked: " + event.getDate()));
         calendar.addTimeslotClickedListener(event -> System.out.println("timeslot clicked: " + event.getDateTime() + " " + event.isAllDay()));
         calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDate()));
-        calendar.addTimeslotsSelectedListener(event -> System.out.println("timeslots selected: " + event.getStartDateTime() + " -> " + event.getEndDateTime() + " " + event.isAllDay()));
+        calendar.addTimeslotsSelectedListener(event -> System.out.println("timeslots selected: " + event.getStart() + " -> " + event.getEnd() + " " + event.isAllDay()));
 
         ((FullCalendarScheduler) calendar).addEntryDroppedSchedulerListener(event -> {
             System.out.println("Old resource: " + event.getOldResource());
@@ -301,8 +301,8 @@ public class FullDemo extends VerticalLayout {
         ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
             ResourceEntry entry = new ResourceEntry();
 
-            entry.setStart(event.getStartDateTime());
-            entry.setEnd(event.getEndDateTime());
+            entry.setStart(event.getStart());
+            entry.setEnd(event.getEnd());
             entry.setAllDay(event.isAllDay());
 
             entry.setColor("dodgerblue");
