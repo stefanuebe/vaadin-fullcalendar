@@ -28,16 +28,19 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
         addBackgroundEvent(Entry.RenderingMode.BACKGROUND, 4, "This special holiday");
         addBackgroundEvent(Entry.RenderingMode.BACKGROUND, 6, "");
 
-        addAndExpand(calendar);
+        add(calendar);
+        setFlexGrow(1, calendar);
     }
     
     private void initView() {
     	setSizeFull();
+        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
     }
+
 
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create().withScheduler().build();
-        calendar.setSizeFull();
+        calendar.setHeightByParent();
         ((FullCalendarScheduler) calendar).setSchedulerLicenseKey("GPL-My-Project-Is-Open-Source");
         ((FullCalendarScheduler) calendar).setSlotMinWidth("150");
         calendar.setLocale(Locale.ENGLISH);

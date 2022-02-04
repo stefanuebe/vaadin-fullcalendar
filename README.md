@@ -225,7 +225,7 @@ calendar.setHeight(500);
 // #2 setting a auto height - this is calculated by the w-h-ratio of the calendar
 calendar.setHeightAuto();
 
-// #3 calculate height by parent. parent is a block container.
+// #3 calculate height by parent. 
 calendar.setHeightByParent();
 calendar.setSizeFull();
 
@@ -235,7 +235,15 @@ calendar.getElement().getStyle().set("height", "calc(100vh - 450px)");
 
 // #5 calculate height by parent. parent is a flex container.
 calendar.setHeightByParent();
-calendar.getElement().getStyle().set("flex-grow", "1");
+calendar.getElement().getStyle().set("flex-grow", "1"); // width should be handled by parent
+
+// if parent is for instance a vertical layout, you may also use the official api here
+VerticalLayout parent = ...;
+calendar.setHeightByParent();
+parent.add(calendar);
+parent.setFlexGrow(1, calendar);
+parent.setHorizontalAlignment(Alignment.STRETCH);
+
 ```
 
 ### Modify FCs appearance by using css variables (deprecated with 4.x)

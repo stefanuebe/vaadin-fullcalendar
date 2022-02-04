@@ -71,18 +71,20 @@ public class FullDemo extends VerticalLayout {
     public FullDemo() {
         initView();
 
-
         createToolbar();
         add(toolbar);
 
         createCalendarInstance();
-        addAndExpand(calendar);
+        add(calendar);
+
+        setFlexGrow(1, calendar);
 
         createTestEntries();
     }
 
     private void initView() {
         setSizeFull();
+        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
     }
 
     private void createToolbar() {
@@ -247,7 +249,7 @@ public class FullDemo extends VerticalLayout {
                 .withScheduler("GPL-My-Project-Is-Open-Source")
                 .build();
 
-        calendar.setSizeFull();
+        calendar.setHeightByParent();
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotMinWidth("100");
         ((FullCalendarScheduler) calendar).setResourcesInitiallyExpanded(false);

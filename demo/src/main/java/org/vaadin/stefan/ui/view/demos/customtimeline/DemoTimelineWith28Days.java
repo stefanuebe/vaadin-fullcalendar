@@ -26,20 +26,22 @@ public class DemoTimelineWith28Days extends VerticalLayout {
     	
     	createCalendarInstance();
     	
-    	addAndExpand(calendar);
+    	add(calendar);
+        setFlexGrow(1, calendar);
     }
     
     private void initView() {
     	setSizeFull();
+        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
     }
 
     private void createCalendarInstance() {
         CustomDaysTimelineCalendarView calendarView = new CustomDaysTimelineCalendarView(28);
         
         calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").withInitialOptions(calendarView.getInitialOptions()).build();
-        calendar.setSizeFull();
         calendar.setLocale(CalendarLocale.getDefault());
-        
+        calendar.setHeightByParent();
+
         Header testHeader = new Header();
         
         HeaderFooterPart headerLeft = testHeader.getStart();
