@@ -34,11 +34,7 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
     initTooltip(e) {
         if (!e.isMirror) {
             e.el.addEventListener("mouseenter", () => {
-                let tooltip = e.event.title;
-
-                if (e.event.extendedProps && e.event.extendedProps.customProperties && e.event.extendedProps.customProperties.description) {
-                    tooltip = e.event.extendedProps.customProperties.description;
-                }
+                let tooltip = e.event.getCustomProperty("description", e.event.title);
 
                 e.el._tippy = tippy(e.el, {
                     theme: 'light',
