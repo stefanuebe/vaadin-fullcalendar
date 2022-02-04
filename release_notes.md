@@ -1,9 +1,5 @@
-... in progress...
-
-
 # 4.0.x
-TBD
-- introduceda new json item api
+- introduced a new type JsonItem for creating item classes with dynamic property handling and automated conversion from and to json
 - integrated json item api into Entry types for dynamic type conversion
 - changed entries do not send whole data to the client, but changed only
 - changed date time handling on server side and communication to be always utc based to increase performance on massive entry count (breaking change)
