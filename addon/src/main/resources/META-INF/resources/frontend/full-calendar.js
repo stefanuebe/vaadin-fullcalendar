@@ -1423,6 +1423,32 @@ export class FullCalendar extends PolymerElement {
             }
 
             let options = this._createInitOptions(this.initialOptions);
+
+            // if the calendar is options to modify the event appearance, we extend the custom api here
+            // see _initCalendar for details
+            if (options.eventDidMount) {
+                let initEventDidMount = options.eventDidMount;
+                options['eventDidMount'] = (info) => {
+                    let event = info.event;
+                    this._addCustomAPI(event);
+
+                    if (initEventDidMount) {
+                        initEventDidMount.call(this._calendar, info);
+                    }
+                };
+            }
+            if (options.eventContent) {
+                let initEventContent = options.eventContent;
+                options['eventContent'] = (info) => {
+                    let event = info.event;
+                    this._addCustomAPI(event);
+
+                    if (initEventContent) {
+                        initEventContent.call(this._calendar, info);
+                    }
+                };
+            }
+
             this._calendar = new Calendar(this.$.calendar, options);
 
 
@@ -1666,31 +1692,6 @@ export class FullCalendar extends PolymerElement {
         };
 
         this._addEventHandlersToOptions(options, events);
-
-        // if the calendar is using initial options to modify the event, we extend the custom api here
-        // see _initCalendar for details
-        if (initialOptions && initialOptions.hasOwnProperty("eventDidMount")) {
-            let initEventDidMount = initialOptions.eventDidMount;
-            options['eventDidMount'] = (info) => {
-                let event = info.event;
-                this._addCustomAPI(event);
-
-                if (initEventDidMount) {
-                    initEventDidMount.call(this._calendar, info);
-                }
-            };
-        }
-        if (initialOptions && initialOptions.hasOwnProperty("eventContent")) {
-            let initEventContent = initialOptions.eventContent;
-            options['eventContent'] = (info) => {
-                let event = info.event;
-                this._addCustomAPI(event);
-
-                if (initEventContent) {
-                    initEventContent(this._calendar, info);
-                }
-            };
-        }
 
         options['locales'] = allLocales;
         options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
