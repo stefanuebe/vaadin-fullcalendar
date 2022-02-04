@@ -29,7 +29,7 @@ import lombok.ToString;
 public abstract class EntryDataEvent extends EntryEvent {
 
     /**
-     * Rhe json object that contains the changes from client side.
+     * The json object that contains the changes from client side.
      */
     private final JsonObject jsonObject;
 
@@ -43,4 +43,36 @@ public abstract class EntryDataEvent extends EntryEvent {
         super(source, fromClient, jsonObject.getString("id"));
         this.jsonObject = jsonObject;
     }
+
+    /**
+     * Applies the contained changes on the referring entry and returns this instance.
+     * @see Entry#updateFromJson(JsonObject)
+     * @return entry
+     */
+    public Entry applyChangesOnEntry() {
+        Entry entry = getEntry();
+        entry.updateFromJson(getJsonObject(), true);//        getSource().updateEntry(entry); // TODO this is an extra roundtrip, not needed currently?
+        return entry;
+    }
+
+    /**
+     * Creates a copy based on the referenced entry and the received data.
+     * @param <R> return type
+     * @return copy
+     */
+    public <R extends Entry> R createCopyBasedOnChanges() {
+        try {
+            Entry copy = getEntry().copy();
+
+            JsonObject jsonObject = getJsonObject();
+            copy.updateFromJson(jsonObject, false);
+
+            return (R) copy; // we use R here, since in most cases event listeners do not specify a generic type
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }

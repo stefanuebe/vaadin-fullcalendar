@@ -245,13 +245,13 @@ public class DemoWithTooltip extends VerticalLayout {
         calendar.addDayNumberClickedListener(event -> System.out.println("day number clicked: " + event.getDate()));
         calendar.addTimeslotsSelectedListener(event -> System.out.println("timeslots selected: " + event.getStartDateTime() + " -> " + event.getEndDateTime() + " " + event.isAllDay()));
 
-        calendar.addEntryDroppedListener(event -> System.out.println(event.applyChangesOnEntry()));
         ((FullCalendarScheduler) calendar).addEntryDroppedSchedulerListener(event -> {
             System.out.println("Old resource: " + event.getOldResource());
             System.out.println("New resource: " + event.getNewResource());
 
             System.out.println(event.applyChangesOnEntry());
         });
+
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
         calendar.addEntryClickedListener(event -> {

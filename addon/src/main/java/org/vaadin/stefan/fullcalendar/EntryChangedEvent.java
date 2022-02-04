@@ -37,28 +37,5 @@ public abstract class EntryChangedEvent extends EntryDataEvent {
         super(source, fromClient, jsonObject);
     }
 
-    /**
-     * Applies the contained changes on the refering entry and returns this instance.
-     * @see Entry#update(JsonObject)
-     * @return entry
-     */
-    public Entry applyChangesOnEntry() {
-        Entry entry = getEntry();
-        entry.updateFromJson(getJsonObject(), true);//        getSource().updateEntry(entry); // TODO this is an extra roundtrip, not needed currently?
-        return entry;
-    }
 
-    public <R extends Entry> R createCopyBasedOnChanges() {
-        try {
-            Entry copy = getEntry().copy();
-
-            JsonObject jsonObject = getJsonObject();
-            copy.updateFromJson(jsonObject, false);
-
-            return (R) copy; // we use R here, since in most cases event listeners do not specify a generic type
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
