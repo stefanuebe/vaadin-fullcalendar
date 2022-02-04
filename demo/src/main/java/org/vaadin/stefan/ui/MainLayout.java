@@ -47,7 +47,7 @@ import org.vaadin.stefan.ui.view.demos.backgroundevent.DemoCalendarWithBackgroun
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
 import org.vaadin.stefan.ui.view.demos.customdaygrid.DemoDayGridWeekWithSixWeeks;
 import org.vaadin.stefan.ui.view.demos.customtimeline.DemoTimelineWith28Days;
-import org.vaadin.stefan.ui.view.demos.extendedprops.DemoExtendedProps;
+import org.vaadin.stefan.ui.view.demos.customproperties.DemoCustomProperties;
 import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
 import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
@@ -151,7 +151,7 @@ public class MainLayout extends AppLayoutRouterLayout {
         addMenu(menuBuilder, BasicDemo.class);
         addMenu(menuBuilder, FullDemo.class);
         addMenu(menuBuilder, DemoWithTooltip.class);
-        addMenu(menuBuilder, DemoExtendedProps.class);
+        addMenu(menuBuilder, DemoCustomProperties.class);
         addMenu(menuBuilder, DemoCalendarWithBackgroundEvent.class);
         addMenu(menuBuilder, DemoTimelineWith28Days.class);
         addMenu(menuBuilder, DemoDayGridWeekWithSixWeeks.class);

@@ -1429,9 +1429,22 @@ export class FullCalendar extends PolymerElement {
             // override set option to allow a combination of internal and custom eventDidMount events
             // hacky and needs to be maintained on updates, but currently there seems to be no other way
             let _setOption = this._calendar.setOption;
+
+            // This function is to be used for callback options, where a function is provided to
+            // modify the event. The event will be extended with some custom api. Currently there is no
+            // other way then hook into e.g. eventDidMount or eventContent to do this.
+            let _setOptionCallbackWithCustomApi = (key, value) => {
+                _setOption.call(this._calendar, key, info => {
+                    this._addCustomAPI(info.event);
+                    value.call(this._calendar, info);
+                })
+            };
+
             this._calendar.setOption = (key, value) => {
-                if(key === "eventDidMount") {
-                    this.eventDidMountCallback = value;
+                debugger;
+                if(key === "eventDidMount" || key === "eventContent") {
+                    // in these cases add custom api to the event to allow for instance accessing custom properties
+                    _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
                 } else {
                     _setOption.call(this._calendar, key, value);
                 }
@@ -1654,28 +1667,43 @@ export class FullCalendar extends PolymerElement {
 
         this._addEventHandlersToOptions(options, events);
 
-        // extended eventDidMount option
-        // will supply helper methods to the event and also take care, that initial or custom didMount
-        // callbacks will be called afterwards.
-        let initEventDidMount = options['eventDidMount']
-        options['eventDidMount'] = (info) => {
-            let event = info.event;
-            event.getCustomProperty = (key, defaultValue = undefined) => {
-                return FullCalendar.getCustomProperty(event, key, defaultValue);
-            }
+        // if the calendar is using initial options to modify the event, we extend the custom api here
+        // see _initCalendar for details
+        if (initialOptions && initialOptions.hasOwnProperty("eventDidMount")) {
+            let initEventDidMount = initialOptions.eventDidMount;
+            options['eventDidMount'] = (info) => {
+                let event = info.event;
+                this._addCustomAPI(event);
 
-            if (this.eventDidMountCallback) {
-                this.eventDidMountCallback(info);
-            } else if (initEventDidMount) {
-                initEventDidMount(info);
-            }
+                if (initEventDidMount) {
+                    initEventDidMount.call(this._calendar, info);
+                }
+            };
+        }
+        if (initialOptions && initialOptions.hasOwnProperty("eventContent")) {
+            let initEventContent = initialOptions.eventContent;
+            options['eventContent'] = (info) => {
+                let event = info.event;
+                this._addCustomAPI(event);
 
+                if (initEventContent) {
+                    initEventContent(this._calendar, info);
+                }
+            };
         }
 
         options['locales'] = allLocales;
         options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
 
         return options;
+    }
+
+    _addCustomAPI(event) {
+        if(!event.getCustomProperty) {
+            event.getCustomProperty = (key, defaultValue = undefined) => {
+                return FullCalendar.getCustomProperty(event, key, defaultValue);
+            }
+        }
     }
 
     /**
@@ -1814,7 +1842,7 @@ export class FullCalendar extends PolymerElement {
     }
 
     addEvents(eventsCreateInfo) {
-        let _events = this.getCalendar().addEventSource(eventsCreateInfo);
+        this.getCalendar().addEventSource(eventsCreateInfo);
     }
 
     updateEvents(eventsUpdateInfo) {
