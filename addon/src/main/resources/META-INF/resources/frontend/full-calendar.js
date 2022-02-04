@@ -1467,7 +1467,6 @@ export class FullCalendar extends PolymerElement {
             };
 
             this._calendar.setOption = (key, value) => {
-                debugger;
                 if(key === "eventDidMount" || key === "eventContent") {
                     // in these cases add custom api to the event to allow for instance accessing custom properties
                     _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
