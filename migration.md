@@ -166,6 +166,41 @@ the 1st of March, the returned date may have been pointing to the 28th of Februa
 conversion. The returned timestamp will always be the correct date at 00:00 UTC time. Simply ignore the
 time part in this case or use the LocalDate getter.
 
+### Accessing custom properties in eventDidMount or eventContent
+Not a required but a recommended change. If you have customized the appearance of your entries using one of the
+callbacks `setEntryDidMount()` or `setEntryContent()` (or the respective client side variants) and you access
+custom properties of an event (for instance `description`), you should change the access to the newly introduced
+`getCustomProperty()` method. This method takes the custom property key and allows to define a fallback default value
+as second parameter.
+
+```java
+// set the custom property beforehand
+Entry someEntry = ...;
+someEntry.setCustomProperty(EntryCustomProperties.DESCRIPTION, "some description");
+
+calendar.setEntryContentCallback("" +
+	"function(info) {" +
+        
+        // old
+        "if(info.event.extendedProps && info.eventExtendedProps.customProperty && info.eventExtendedProps.customProperty.description) "+
+        "   console.log(info.event.extendedProps.customProperty.description);" +
+        "else " +
+        "   console.log('no description set');" +
+
+        // new
+        "   console.log(info.event.getCustomProperty('" +EntryCustomProperties.DESCRIPTION+ "', 'no description set'));" + // get custom property with fallback
+        
+        "   /* ... do something with the event content ...*/" +
+        "   return info.el; " +
+        "}"
+);
+```
+
+You can use that method also in javascript subclasses of the FullCalendar. Please note, that the method is hooked
+in by us as soon as the eventDidMount or eventContent option has been set. Beforehand the method is not present
+and using it will lead to javascript errors.
+
+ 
 ### Deprecation
 Some methods have been deprecated due to typos or ambigious meaning. Please check any compiler warnings and apidocs
 regarding deprecated methods. They might be removed in any upcoming minor or major release without additional
