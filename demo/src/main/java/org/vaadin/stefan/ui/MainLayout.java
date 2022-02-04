@@ -137,7 +137,7 @@ public class MainLayout extends AppLayoutRouterLayout {
           });
         toggleButton.setWidthFull();
         
-        Div footer = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.8.0. " +
+        Div footer = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.8.3. " +
                 "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
         
         footerLayout.addClassName("footer");
