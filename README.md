@@ -9,8 +9,8 @@ Please also visit the homepage of the FullCalendar at https://fullcalendar.io/. 
 ## Authors of this addon
 This addon is currently maintained by Carlo Zanocco and me. If you have any questions or issues, please
 use the GitHub repository issues page.
-* 
-* GitHub profile of Carlo: https://github.com/aetasoul
+
+GitHub profile of Carlo: https://github.com/aetasoul
 
 ## Vaadin directory
 Fullcalendar: https://vaadin.com/directory/component/full-calendar-flow
