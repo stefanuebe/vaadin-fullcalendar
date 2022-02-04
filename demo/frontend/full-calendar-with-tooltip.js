@@ -26,15 +26,35 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
 
     _initCalendar() {
         super._initCalendar();
-        this.getCalendar().setOption("eventDidMount", this.callTooltip);
+        this.getCalendar().setOption("eventDidMount", e => {
+            this.initTooltip(e);
+        });
     }
 
-    callTooltip(info) {
-    	if (info.event.extendedProps && info.event.extendedProps.description && !info.isMirror) {
-            tippy(info.el, {
-                theme: 'light',
-                content: info.event.extendedProps.description
-            });
+    initTooltip(e) {
+        if (!e.isMirror) {
+            e.el.addEventListener("mouseenter", () => {
+                let tooltip = e.event.title;
+
+                if (e.event.extendedProps && e.event.extendedProps.customProperties && e.event.extendedProps.customProperties.description) {
+                    tooltip = e.event.extendedProps.customProperties.description;
+                }
+
+                e.el._tippy = tippy(e.el, {
+                    theme: 'light',
+                    content: tooltip,
+                    trigger: 'manual'
+                });
+
+                e.el._tippy.show();
+            })
+
+            e.el.addEventListener("mouseleave", () => {
+                if (e.el._tippy) {
+                    e.el._tippy.destroy();
+                }
+            })
+
         }
     }
 }
