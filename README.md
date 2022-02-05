@@ -2,10 +2,14 @@
 This repository provides a Flow integration of the FullCalendar and the FullCalendar Scheduler for Vaadin Flow (14+).
 It is based on the latest version of the FullCalendar library 5.x.
 
-For any additional information have a look into our wiki: https://github.com/stefanuebe/vaadin_fullcalendar/wiki. Here you'll find
-integration examples, **migration guides**, a feature list, etc.
-
 Please also visit the homepage of the FullCalendar at https://fullcalendar.io/. They did a great job at building the foundation for this addons.
+
+## Release notes, migration guides, examples
+Since the addon and it's related information grows and grows, we decided to move most of the
+relevant information to our repository's wiki. Here you'll find
+integration examples, **migration guides**, a feature list, etc. We strongly recommend to check it out :)
+
+https://github.com/stefanuebe/vaadin_fullcalendar/wiki
 
 ## Authors of this addon
 This addon is currently maintained by Carlo Zanocco and me. If you have any questions or issues, please
