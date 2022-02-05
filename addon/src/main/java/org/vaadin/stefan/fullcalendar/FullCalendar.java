@@ -577,7 +577,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                         getElement().callJsFunction("updateEvents", entriesToUpdate);
                     }
                     if (entriesToRemove.length() > 0) {
-                        getElement().callJsFunction("removeEvents", entriesToUpdate);
+                        getElement().callJsFunction("removeEvents", entriesToRemove);
                     }
 
                     tmpAdd.clear();

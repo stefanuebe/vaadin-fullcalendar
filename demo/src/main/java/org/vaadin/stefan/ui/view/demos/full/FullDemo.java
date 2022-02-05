@@ -92,7 +92,6 @@ public class FullDemo extends VerticalLayout {
         toolbar.setOpenOnHover(true);
         toolbar.setWidthFull();
 
-        toolbar.addItem("Today", e -> calendar.today());
         toolbar.addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
 
         // simulate the date picker light that we can use in polymer
@@ -111,6 +110,8 @@ public class FullDemo extends VerticalLayout {
         toolbar.addItem(buttonDatePicker);
 
         toolbar.addItem(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
+
+        toolbar.addItem("Today", e -> calendar.today());
 
         SubMenu calendarItems = toolbar.addItem("Calendar Items").getSubMenu();
         calendarItems.addItem("Add 1k entries", event -> {
