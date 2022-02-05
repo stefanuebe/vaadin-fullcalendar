@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -31,8 +32,10 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -74,6 +77,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private final Map<String, Entry> entries = new HashMap<>();
     private final Map<String, Serializable> options = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
+
+    private final Set<Entry> tmpAdd = new HashSet<>();
+    private final Set<Entry> tmpChange = new HashSet<>();
+    private final Set<Entry> tmpRemove = new HashSet<>();
+
+    private boolean updateRegistered;
+    private boolean detached;
+    private boolean resendAll;
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
@@ -156,6 +167,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         addDatesRenderedListener(event -> {
             latestKnownViewName = event.getName();
             latestKnownIntervalStart = event.getIntervalStart();
+        });
+
+        addAttachListener(event -> {
+            if (detached) {
+                this.resendAll = true;
+                triggerClientSideUpdate();
+                this.detached = false;
+            }
         });
     }
 
@@ -406,23 +425,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void addEntries(@NotNull Iterable<Entry> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
 
-        JsonArray array = Json.createArray();
         iterableEntries.forEach(entry -> {
             String id = entry.getId();
 
             if (!entries.containsKey(id)) {
                 entry.setCalendar(this);
                 entries.put(id, entry);
-                array.set(array.length(), entry.toJsonOnAdd());
-
-                entry.setKnownToTheClient(true);
-                entry.clearDirtyState();
+                tmpAdd.add(entry);
             }
         });
 
-        if (array.length() > 0) {
-            getElement().callJsFunction("addEvents", array);
-        }
+        triggerClientSideUpdate();
     }
 
     /**
@@ -454,21 +467,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @throws NullPointerException when null is passed
      */
     public void updateEntries(@NotNull Iterable<Entry> iterableEntries) {
-        Objects.requireNonNull(entries);
-
-        JsonArray array = Json.createArray();
-        iterableEntries.forEach(entry -> {
-            String id = entry.getId();
-            if (entries.containsKey(id)) {
-                array.set(array.length(), entry.toJsonOnUpdate());
-                entry.setKnownToTheClient(true);
-                entry.clearDirtyState();
-            }
-        });
-
-        if (array.length() > 0) {
-            getElement().callJsFunction("updateEvents", array);
-        }
+        Objects.requireNonNull(iterableEntries);
+        iterableEntries.forEach(tmpChange::add);
+        triggerClientSideUpdate();
     }
 
     /**
@@ -499,38 +500,111 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @throws NullPointerException when null is passed
      */
     public void removeEntries(@NotNull Iterable<Entry> iterableEntries) {
-        Objects.requireNonNull(entries);
+        Objects.requireNonNull(iterableEntries);
 
-        JsonArray array = Json.createArray();
         iterableEntries.forEach(entry -> {
             String id = entry.getId();
-
-            if (entries.containsKey(id)) {
+            if (entries.remove(id) != null) {
                 entry.setCalendar(null);
-                entries.remove(id);
-                array.set(array.length(), entry.toJsonOnDelete());
-
-                entry.setKnownToTheClient(false);
-                entry.clearDirtyState();
+                tmpRemove.add(entry);
             }
         });
 
-        if (array.length() > 0) {
-            getElement().callJsFunction("removeEvents", array);
-        }
+        triggerClientSideUpdate();
     }
 
     /**
      * Remove all entries.
      */
     public void removeAllEntries() {
-        entries.values().forEach(e -> {
-            e.setCalendar(null);
-            e.setKnownToTheClient(false);
-            e.clearDirtyState();
-        });
-        entries.clear();
-        getElement().callJsFunction("removeAllEvents");
+        removeEntries(new ArrayList<>(entries.values())); // prevent concurrent mod exception
+        triggerClientSideUpdate();
+    }
+
+    /**
+     * This method is used to inform this component, that some data items have changed. Can be called multiple times
+     * (continuing calls are noop).
+     * <p/>
+     * Registers a single time task before the response is sent to the client. This task will check for
+     * added, updated and removed items, filter them depending on each other and then convert the items
+     * to their respective json items. The resulting json objects are then send to the client.
+     */
+    private void triggerClientSideUpdate() {
+        if (!updateRegistered) {
+            updateRegistered = true;
+            getElement().getNode().runWhenAttached(ui -> {
+                ui.beforeClientResponse(this, pExecutionContext -> {
+                    if (resendAll) {
+                        tmpAdd.addAll(entries.values());
+                    }
+
+                    // items that are not yet on the client need no update
+                    tmpChange.removeAll(tmpAdd);
+
+                    // items to be deleted, need not to be added or updated on the client
+                    tmpAdd.removeAll(tmpRemove);
+                    tmpChange.removeAll(tmpRemove);
+
+                    JsonArray entriesToAdd = convertItemsToJson(tmpAdd, item -> {
+                        JsonObject json = item.toJsonOnAdd();
+                        item.setKnownToTheClient(true);
+                        item.clearDirtyState();
+                        return json;
+                    });
+
+                    JsonArray entriesToUpdate = convertItemsToJson(tmpChange, item -> {
+                        String id = item.getId();
+                        if (item.isDirty() && entries.containsKey(id)) {
+                            item.setKnownToTheClient(true);
+                            JsonObject json = item.toJsonOnUpdate();
+                            item.clearDirtyState();
+                            return json;
+                        }
+                        return null;
+                    });
+
+                    JsonArray entriesToRemove = convertItemsToJson(tmpRemove, item -> {
+                        // only send some json to delete, if the item has not been created previously internally
+                        JsonObject jsonObject = item.toJsonOnDelete();
+                        item.setKnownToTheClient(false);
+                        return jsonObject;
+                    });
+
+                    if (entriesToAdd.length() > 0) {
+                        getElement().callJsFunction("addEvents", entriesToAdd);
+                    }
+                    if (entriesToUpdate.length() > 0) {
+                        getElement().callJsFunction("updateEvents", entriesToUpdate);
+                    }
+                    if (entriesToRemove.length() > 0) {
+                        getElement().callJsFunction("removeEvents", entriesToUpdate);
+                    }
+
+                    tmpAdd.clear();
+                    tmpChange.clear();
+                    tmpRemove.clear();
+
+                    updateRegistered = false;
+
+                    // if there is a request to resend all, it must be removed here
+                    resendAll = false;
+                });
+            });
+        }
+    }
+
+    protected JsonArray convertItemsToJson(@NotNull final Collection<Entry> pItems, final SerializableFunction<Entry, JsonValue> pItemConversionCallback) {
+        Objects.requireNonNull(pItems);
+
+        JsonArray array = com.vaadin.flow.internal.JsonUtils.createArray();
+        for (Entry item : pItems) {
+            JsonValue convertedItem = pItemConversionCallback.apply(item);
+            if (convertedItem != null) {
+                array.set(array.length(), convertedItem);
+            }
+        }
+
+        return array;
     }
 
     /**
