@@ -1,9 +1,9 @@
 package org.vaadin.stefan.fullcalendar.dataprovider;
 
 import com.vaadin.flow.data.provider.DataProviderListener;
+import com.vaadin.flow.shared.Registration;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -12,13 +12,13 @@ import java.util.stream.Stream;
 /**
  * @author Stefan Uebe
  */
-public interface FullCalendarDataProvider<T extends Entry> {
+public interface EntryProvider<T extends Entry> {
 
     default Stream<T> fetchAll() {
-        return fetch(new FullCalendarQuery());
+        return fetch(new EntryQuery());
     }
 
-    Stream<T> fetch(@NonNull FullCalendarQuery query);
+    Stream<T> fetch(@NonNull EntryQuery query);
 
     Optional<T> fetchById(@NonNull String id);
 
@@ -59,4 +59,8 @@ public interface FullCalendarDataProvider<T extends Entry> {
     static <T extends Entry> InMemoryEntryProvider<T> ofCollection(Collection<T> items) {
         return new InMemoryEntryProvider<T>(items);
     }
+
+    Registration addEntriesChangeListener(EntriesChangeEvent.EntriesChangeListener<T> listener);
+
+    Registration addEntryRefreshListener(EntryRefreshEvent.EntryRefreshListener<T> listener);
 }

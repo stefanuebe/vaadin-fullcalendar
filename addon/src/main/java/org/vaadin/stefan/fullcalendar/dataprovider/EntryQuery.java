@@ -5,6 +5,7 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.time.LocalDateTime;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -14,15 +15,18 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Builder
-public class FullCalendarQuery {
+public class EntryQuery {
 
-    private LocalDateTime from;
-    private LocalDateTime to;
+//    private final FullCalendar source; // needed?
+    private LocalDateTime start;
+    private LocalDateTime end;
 
     @NonNull
     private AllDay allDay = AllDay.BOTH;
 
     /**
+     * Convenience implementation to filter a stream based on this query.
+     * <p></p>
      * Simply applies the filter to the given stream and returns a stream containing only entries matching it.
      * Entries, that are "crossing" the time range border will be included in the stream.
      * <p></p>
@@ -33,26 +37,28 @@ public class FullCalendarQuery {
      * @return filtered stream
      */
     public <T extends Entry> Stream<T> applyFilter(Stream<T> stream) {
-        if (from == null && to == null && (allDay == null || allDay == AllDay.BOTH)) {
+        if (start == null && end == null && allDay == AllDay.BOTH) {
             return stream;
         }
 
-        return stream.filter(item -> {
-                    if (from != null && item.getStart().isAfter(from)) {
-                        return false;
-                    }
+        stream = stream.filter(item -> {
+            if (start != null && item.getStart().isAfter(start)) {
+                return false;
+            }
 
-                    if (to != null && item.getEnd().isBefore(to)) {
-                        return false;
-                    }
+            return !(end != null && item.getEnd().isBefore(end));
+        });
 
-//                    if (allDay) {
-//
-//                    }
+        if (allDay != AllDay.BOTH) {
+            Predicate<T> allDayFilter = Entry::isAllDay;
+            if (allDay == AllDay.TIMED_ONLY) {
+                allDayFilter = allDayFilter.negate();
+            }
 
-                    return true;
-                }
-        );
+            stream = stream.filter(allDayFilter);
+        }
+
+        return stream;
     }
 
     public enum AllDay {

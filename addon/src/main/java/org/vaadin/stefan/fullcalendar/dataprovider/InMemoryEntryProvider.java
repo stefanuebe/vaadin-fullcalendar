@@ -5,17 +5,24 @@ import com.vaadin.flow.internal.JsonUtils;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import lombok.NonNull;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.Timezone;
 
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Stefan Uebe
  */
-public class InMemoryEntryProvider<T extends Entry> {
+public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvider<T>{
 
     // TODO implement lazy loading by client side, where only query matching entries are fetched
 
@@ -53,6 +60,152 @@ public class InMemoryEntryProvider<T extends Entry> {
 
         entries.values().forEach(this::applyCalendar);
         triggerClientSideUpdate();
+    }
+
+    /**
+     * Returns the entry with the given id. Is empty when the id is not registered.
+     *
+     * @param id id
+     * @return entry or empty
+     * @throws NullPointerException when null is passed
+     */
+    public Optional<Entry> getEntryById(@NotNull String id) {
+        Objects.requireNonNull(id);
+        return Optional.ofNullable(entries.get(id));
+    }
+
+    /**
+     * Returns all entries registered in this instance. Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     * <br><br>
+     * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
+     * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
+     * a convenient way of using the returned values without the need to encapsulate them yourselves.
+     * <br>
+     * <b>This behavior may change in future.</b>
+     *
+     * @return entries entries
+     */
+    public List<Entry> getEntries() {
+        // TODO this should be an unmodifiable list, as most api in the addon does it that way.
+        return new ArrayList<>(entries.values());
+    }
+
+    /**
+     * Returns all entries registered in this instance which timespan crosses the given time span. You may
+     * pass null for the parameters to have the timespan search only on one side. Passing null for both
+     * parameters return all entries.
+     * <br><br>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     * <br><br>
+     * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
+     * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
+     * exclusive to the date.
+     * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
+     * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
+     * include it.
+     *
+     * @param filterStart start point of filter timespan or null to have no limit
+     * @param filterEnd   end point of filter timespan or null to have no limit
+     * @return entries
+     */
+    public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
+        return getEntries(Timezone.UTC.convertToLocalDateTime(filterStart), Timezone.UTC.convertToLocalDateTime(filterEnd));
+    }
+
+    /**
+     * // TODO OUTDATED DOCS
+     * Returns all entries registered in this instance which timespan crosses the given time span. You may
+     * pass null for the parameters to have the timespan search only on one side. Passing null for both
+     * parameters return all entries. The times are converted
+     * to UTC before searching. The conversion is done with the calendars timezone.
+     * <br><br>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     * <br><br>
+     * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
+     * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
+     * exclusive to the date.
+     * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
+     * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
+     * include it.
+     *
+     * @param filterStart start point of filter timespan or null to have no limit
+     * @param filterEnd   end point of filter timespan or null to have no limit
+     * @return entries
+     */
+    public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
+        if (filterStart == null && filterEnd == null) {
+            return getEntries();
+        }
+
+        Stream<Entry> stream = getEntries().stream();
+
+        if (filterStart != null) {
+            stream = stream.filter(e -> e.getEnd() != null && e.getEnd().isAfter(filterStart));
+        }
+
+        if (filterEnd != null) {
+            stream = stream.filter(e -> e.getStart() != null && e.getStart().isBefore(filterEnd));
+        }
+
+        return stream.collect(Collectors.toList());
+    }
+
+    /**
+     * Returns all entries registered in this instance which timespan crosses the given date.
+     * <br><br>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     *
+     * @param date end point of filter timespan
+     * @return entries
+     * @throws NullPointerException when null is passed
+     */
+    public List<Entry> getEntries(@NotNull Instant date) {
+        return getEntries(Timezone.UTC.convertToLocalDateTime(date));
+    }
+
+    /**
+     * // TODO OUTDATED DOCS
+     * Returns all entries registered in this instance which timespan crosses the given date. The date is converted
+     * to UTC before searching. The conversion is done with the calendars timezone.
+     * <br><br>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     *
+     * @param date end point of filter timespan
+     * @return entries
+     * @throws NullPointerException when null is passed
+     */
+    public List<Entry> getEntries(@NotNull LocalDate date) {
+        Objects.requireNonNull(date);
+        return getEntries(date.atStartOfDay());
+    }
+
+
+    /**
+     * // TODO OUTDATED DOCS
+     * Returns all entries registered in this instance which timespan crosses the given date time. The date time is converted
+     * to UTC before searching. The conversion is done with the calendars timezone.
+     * <br><br>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     *
+     * @param dateTime end point of filter timespan
+     * @return entries
+     * @throws NullPointerException when null is passed
+     */
+    public List<Entry> getEntries(@NotNull LocalDateTime dateTime) {
+        Objects.requireNonNull(dateTime);
+        return getEntries(dateTime, dateTime.plusDays(1));
     }
 
     /**
@@ -291,4 +444,26 @@ public class InMemoryEntryProvider<T extends Entry> {
         }
     }
 
+    @Override
+    public Stream<T> fetch(@NonNull EntryQuery query) {
+        return null;
+    }
+
+    @Override
+    public Optional<T> fetchById(@NonNull String id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void refreshItem(T item) {
+
+    }
+
+    @Override
+    public void refreshAll() {
+        for (T value : entries.values()) {
+            value.markAsDirty();
+        }
+        triggerClientSideUpdate();
+    }
 }

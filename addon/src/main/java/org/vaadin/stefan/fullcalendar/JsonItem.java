@@ -945,6 +945,14 @@ public abstract class JsonItem<ID_TYPE> {
         }
     }
 
+    /**
+     * Marks the item as dirty by marking all properties as changed. This leads basically to a full update of
+     * this entry on the next send to client.
+     */
+    public void markAsDirty() {
+        changedProperties.addAll(getKeys());
+    }
+
 
     /**
      * @param <SERVER_TYPE>

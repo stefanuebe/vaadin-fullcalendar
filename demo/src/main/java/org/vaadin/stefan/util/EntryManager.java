@@ -72,12 +72,13 @@ public class EntryManager {
         calendar.addEntry(entry);
     }
 	
-	public static void createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
+	public static Entry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color);
         entry.setResourceEditable(true);
 
         calendar.addEntry(entry);
+        return entry;
     }
 	
 	public static ResourceEntry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color, Resource... resources) {

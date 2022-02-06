@@ -25,6 +25,9 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
 
@@ -32,10 +35,8 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.*;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -77,6 +78,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private final Map<String, Entry> entries = new HashMap<>();
     private final Map<String, Serializable> options = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
+
+    private EntryProvider<Entry> entryProvider;
+    private List<Registration> entryProviderDataListeners;
 
     private final Set<Entry> tmpAdd = new HashSet<>();
     private final Set<Entry> tmpChange = new HashSet<>();
@@ -208,7 +212,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                     // Especially with a huge amount of entries this could lead to memory issues.
                     getElement().callJsFunction("_restoreStateFromServer",
                             optionsJson,
-                            entriesJson,
+                            Json.createArray(), // TODO
                             JsonUtils.toJsonValue(latestKnownViewName),
                             JsonUtils.toJsonValue(latestKnownIntervalStart));
                 });
@@ -249,6 +253,47 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         getElement().callJsFunction("today");
     }
 
+    public void setEntryProvider(EntryProvider<Entry> entryProvider) {
+        if (this.entryProvider != entryProvider) {
+            if (entryProviderDataListeners != null) {
+                entryProviderDataListeners.forEach(Registration::remove);
+            }
+
+            if (entryProvider == null || entryProvider instanceof InMemoryEntryProvider) {
+                // todo
+            } else {
+                entryProviderDataListeners = Arrays.asList(
+                        entryProvider.addEntriesChangeListener(event -> getElement().callJsFunction("refreshAllEntries")),
+
+                        // TODO can this be improved?
+                        entryProvider.addEntryRefreshListener(event -> getElement().callJsFunction("refreshAllEntries"))
+                );
+
+                getElement().callJsFunction("setHasEntryProvider", true);
+            }
+        }
+
+        this.entryProvider = entryProvider;
+    }
+
+    @ClientCallable
+    public JsonArray fetchFromServer(JsonObject query) {
+        if (entryProvider == null || entryProvider instanceof InMemoryEntryProvider) {
+            throw new UnsupportedOperationException("No entry provider set.");
+        }
+
+        LocalDateTime start = JsonUtils.parseClientSideDateTime(query.getString("start"));
+        LocalDateTime end = JsonUtils.parseClientSideDateTime(query.getString("end"));
+
+        JsonArray array = Json.createArray();
+        entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
+                .peek(entry -> entry.setCalendar(this))
+                .map(Entry::toJsonOnAdd)
+                .forEach(jsonObject -> array.set(array.length(), jsonObject));
+
+        return array;
+    }
+
     /**
      * Returns the entry with the given id. Is empty when the id is not registered.
      *
@@ -258,7 +303,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public Optional<Entry> getEntryById(@NotNull String id) {
         Objects.requireNonNull(id);
-        return Optional.ofNullable(entries.get(id));
+        return entryProvider != null ? entryProvider.fetchById(id) : Optional.ofNullable(entries.get(id));
     }
 
     /**
@@ -491,67 +536,67 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * to their respective json items. The resulting json objects are then send to the client.
      */
     private void triggerClientSideUpdate() {
-        if (!updateRegistered) {
-            updateRegistered = true;
-            getElement().getNode().runWhenAttached(ui -> {
-                ui.beforeClientResponse(this, pExecutionContext -> {
-                    if (resendAll) {
-                        tmpAdd.addAll(entries.values());
-                    }
-
-                    // items that are not yet on the client need no update
-                    tmpChange.removeAll(tmpAdd);
-
-                    // items to be deleted, need not to be added or updated on the client
-                    tmpAdd.removeAll(tmpRemove);
-                    tmpChange.removeAll(tmpRemove);
-
-                    JsonArray entriesToAdd = convertItemsToJson(tmpAdd, item -> {
-                        JsonObject json = item.toJson(false);
-                        item.setKnownToTheClient(true);
-                        item.clearDirtyState();
-                        return json;
-                    });
-
-                    JsonArray entriesToUpdate = convertItemsToJson(tmpChange, item -> {
-                        String id = item.getId();
-                        if (item.isDirty() && entries.containsKey(id)) {
-                            item.setKnownToTheClient(true);
-                            JsonObject json = item.toJson(true);
-                            item.clearDirtyState();
-                            return json;
-                        }
-                        return null;
-                    });
-
-                    JsonArray entriesToRemove = convertItemsToJson(tmpRemove, item -> {
-                        // only send some json to delete, if the item has not been created previously internally
-                        JsonObject jsonObject = item.toJsonWithIdOnly();
-                        item.setKnownToTheClient(false);
-                        return jsonObject;
-                    });
-
-                    if (entriesToAdd.length() > 0) {
-                        getElement().callJsFunction("addEvents", entriesToAdd);
-                    }
-                    if (entriesToUpdate.length() > 0) {
-                        getElement().callJsFunction("updateEvents", entriesToUpdate);
-                    }
-                    if (entriesToRemove.length() > 0) {
-                        getElement().callJsFunction("removeEvents", entriesToRemove);
-                    }
-
-                    tmpAdd.clear();
-                    tmpChange.clear();
-                    tmpRemove.clear();
-
-                    updateRegistered = false;
-
-                    // if there is a request to resend all, it must be removed here
-                    resendAll = false;
-                });
-            });
-        }
+//        if (!updateRegistered) {
+//            updateRegistered = true;
+//            getElement().getNode().runWhenAttached(ui -> {
+//                ui.beforeClientResponse(this, pExecutionContext -> {
+//                    if (resendAll) {
+//                        tmpAdd.addAll(entries.values());
+//                    }
+//
+//                    // items that are not yet on the client need no update
+//                    tmpChange.removeAll(tmpAdd);
+//
+//                    // items to be deleted, need not to be added or updated on the client
+//                    tmpAdd.removeAll(tmpRemove);
+//                    tmpChange.removeAll(tmpRemove);
+//
+//                    JsonArray entriesToAdd = convertItemsToJson(tmpAdd, item -> {
+//                        JsonObject json = item.toJsonOnAdd();
+//                        item.setKnownToTheClient(true);
+//                        item.clearDirtyState();
+//                        return json;
+//                    });
+//
+//                    JsonArray entriesToUpdate = convertItemsToJson(tmpChange, item -> {
+//                        String id = item.getId();
+//                        if (item.isDirty() && entries.containsKey(id)) {
+//                            item.setKnownToTheClient(true);
+//                            JsonObject json = item.toJsonOnUpdate();
+//                            item.clearDirtyState();
+//                            return json;
+//                        }
+//                        return null;
+//                    });
+//
+//                    JsonArray entriesToRemove = convertItemsToJson(tmpRemove, item -> {
+//                        // only send some json to delete, if the item has not been created previously internally
+//                        JsonObject jsonObject = item.toJsonOnDelete();
+//                        item.setKnownToTheClient(false);
+//                        return jsonObject;
+//                    });
+//
+//                    if (entriesToAdd.length() > 0) {
+//                        getElement().callJsFunction("addEvents", entriesToAdd);
+//                    }
+//                    if (entriesToUpdate.length() > 0) {
+//                        getElement().callJsFunction("updateEvents", entriesToUpdate);
+//                    }
+//                    if (entriesToRemove.length() > 0) {
+//                        getElement().callJsFunction("removeEvents", entriesToRemove);
+//                    }
+//
+//                    tmpAdd.clear();
+//                    tmpChange.clear();
+//                    tmpRemove.clear();
+//
+//                    updateRegistered = false;
+//
+//                    // if there is a request to resend all, it must be removed here
+//                    resendAll = false;
+//                });
+//            });
+//        }
     }
 
     protected JsonArray convertItemsToJson(@NotNull final Collection<Entry> pItems, final SerializableFunction<Entry, JsonValue> pItemConversionCallback) {

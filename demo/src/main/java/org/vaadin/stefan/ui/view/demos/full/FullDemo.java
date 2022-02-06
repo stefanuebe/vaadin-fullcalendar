@@ -60,13 +60,13 @@ public class FullDemo extends VerticalLayout {
 
     private static final long serialVersionUID = 1L;
 
+    private MenuBar toolbar;
     private FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
+    private ComboBox<Timezone> timezoneComboBox;
     private Button buttonDatePicker;
-    private MenuBar toolbar;
 
     private Timezone timezone;
-    private ComboBox<Timezone> timezoneComboBox;
 
     public FullDemo() {
         initView();

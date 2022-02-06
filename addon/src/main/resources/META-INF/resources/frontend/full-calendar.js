@@ -80,6 +80,10 @@ export class FullCalendar extends PolymerElement {
                 type: String,
                 value: "popover"
             },
+            hasEntryProvider: {
+                type: Boolean,
+                value: false
+            }
         };
     }
 
@@ -522,6 +526,31 @@ export class FullCalendar extends PolymerElement {
 
     gotoDate(date) {
         this.getCalendar().gotoDate(date);
+    }
+
+    setHasEntryProvider(hasEntryProvider) {
+        if (hasEntryProvider && !this.hasEntryProvider) {
+            this.setOption("entries", (info, successCallback, failureCallback)=> {
+                this.$.fetchFromServer({
+                    start: this._formatDate(info.start),
+                    end: this._formatDate(info.end)
+                }).then(array => {
+                    if (Array.isArray(array)) {
+                        successCallback(array);
+                    } else {
+                        failureCallback("could not fetch");
+                    }
+                })
+
+                // failureCallback(err);
+            });
+        } else if(!hasEntryProvider && this.hasEntryProvider) {
+            this.setOption("entries", []);
+        }
+    }
+
+    refreshAllEntries() {
+        this.getCalendar().refetchEvents();
     }
 
     addEvents(eventsCreateInfo) {
