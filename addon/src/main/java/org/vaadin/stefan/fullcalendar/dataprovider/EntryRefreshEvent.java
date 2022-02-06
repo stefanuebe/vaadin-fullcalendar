@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @author Stefan Uebe
  */
 @Getter
-public class FullCalendarDataRefreshEvent<T extends Entry> extends FullCalendarDataChangeEvent<T> {
+public class EntryRefreshEvent<T extends Entry> extends EntriesChangeEvent<T> {
     private final T itemToRefresh;
 
     /**
@@ -18,14 +18,14 @@ public class FullCalendarDataRefreshEvent<T extends Entry> extends FullCalendarD
      * @param source The object on which the Event initially occurred.
      * @throws IllegalArgumentException if source is null.
      */
-    public FullCalendarDataRefreshEvent(FullCalendarDataProvider<T> source, T itemToRefresh) {
+    public EntryRefreshEvent(EntryProvider<T> source, T itemToRefresh) {
         super(source);
         this.itemToRefresh = itemToRefresh;
     }
 
 
     @FunctionalInterface
-    public interface FullCalendarDataRefreshListener<T extends Entry> extends Serializable {
-        void onDataRefresh(FullCalendarDataChangeEvent<T> event);
+    public interface EntryRefreshListener<T extends Entry> extends Serializable {
+        void onDataRefresh(EntriesChangeEvent<T> event);
     }
 }

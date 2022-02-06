@@ -3,8 +3,8 @@ package org.vaadin.stefan.fullcalendar.dataprovider;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.dataprovider.FullCalendarDataChangeEvent.FullCalendarDataChangeListener;
-import org.vaadin.stefan.fullcalendar.dataprovider.FullCalendarDataRefreshEvent.FullCalendarDataRefreshListener;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntriesChangeEvent.EntriesChangeListener;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryRefreshEvent.EntryRefreshListener;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -12,17 +12,17 @@ import java.util.function.Consumer;
 /**
  * @author Stefan Uebe
  */
-public abstract class FullCalendarAbstractDataProvider<T extends Entry> implements FullCalendarDataProvider<T> {
+public abstract class AbstractEntryProvider<T extends Entry> implements EntryProvider<T> {
     private final Map<Class<?>, List<SerializableConsumer<?>>> listeners = new HashMap<>();
 
     @Override
     public void refreshAll() {
-        fireEvent(new FullCalendarDataChangeEvent<>(this));
+        fireEvent(new EntriesChangeEvent<>(this));
     }
 
     @Override
     public void refreshItem(T item) {
-        fireEvent(new FullCalendarDataRefreshEvent<>(this, item));
+        fireEvent(new EntryRefreshEvent<>(this, item));
     }
 
     /**
@@ -46,12 +46,14 @@ public abstract class FullCalendarAbstractDataProvider<T extends Entry> implemen
         return Registration.addAndRemove(list, method);
     }
 
-    protected Registration addDataChangeListener(FullCalendarDataChangeListener<T> listener) {
-        return addListener(FullCalendarDataChangeEvent.class, listener::onDataChange);
+    @Override
+    public Registration addEntriesChangeListener(EntriesChangeListener<T> listener) {
+        return addListener(EntriesChangeEvent.class, listener::onDataChange);
     }
 
-    protected Registration addDataRefreshListener(FullCalendarDataRefreshListener<T> listener) {
-        return addListener(FullCalendarDataRefreshEvent.class, listener::onDataRefresh);
+    @Override
+    public Registration addEntryRefreshListener(EntryRefreshListener<T> listener) {
+        return addListener(EntryRefreshEvent.class, listener::onDataRefresh);
     }
 
     /**

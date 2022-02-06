@@ -54,7 +54,7 @@ public class ResourceEntry extends Entry {
      * @throws IllegalArgumentException instance is not implementing {@link Scheduler}
      */
     @Override
-    protected void setCalendar(FullCalendar calendar) {
+    public void setCalendar(FullCalendar calendar) {
         if (calendar != null && !(calendar instanceof Scheduler)) {
             throw new IllegalArgumentException("ResourceEntries must be added to a FullCalendar that implements Scheduler");
         }

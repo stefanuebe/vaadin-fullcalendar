@@ -90,7 +90,7 @@ public class Entry extends JsonItem<String> {
         return Optional.ofNullable(calendar);
     }
 
-    protected void setCalendar(FullCalendar calendar) {
+    public void setCalendar(FullCalendar calendar) {
         if (this.calendar != null && calendar != null && this.calendar != calendar) {
             throw new UnsupportedOperationException("This entry is already attached to a calendar instance. Please remove it first from the old one.");
         }
