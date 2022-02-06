@@ -530,8 +530,8 @@ export class FullCalendar extends PolymerElement {
 
     setHasEntryProvider(hasEntryProvider) {
         if (hasEntryProvider && !this.hasEntryProvider) {
-            this.setOption("entries", (info, successCallback, failureCallback)=> {
-                this.$.fetchFromServer({
+            this.setOption("events", (info, successCallback, failureCallback)=> {
+                this.$server.fetchFromServer({
                     start: this._formatDate(info.start),
                     end: this._formatDate(info.end)
                 }).then(array => {
@@ -545,7 +545,7 @@ export class FullCalendar extends PolymerElement {
                 // failureCallback(err);
             });
         } else if(!hasEntryProvider && this.hasEntryProvider) {
-            this.setOption("entries", []);
+            this.setOption("events", []);
         }
     }
 
