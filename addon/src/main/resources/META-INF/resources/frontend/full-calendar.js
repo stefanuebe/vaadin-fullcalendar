@@ -198,24 +198,23 @@ export class FullCalendar extends PolymerElement {
     /**
      * Restores the state from the server. All values are optional and might be undefined.
      * @param options options to set
-     * @param entries entries / events to add
+     * @param lazyLoadingDataProvider indicates, if the server uses a lazy loading data provider
      * @param view view name to set
      * @param date date to go to
      * @private
      */
-    _restoreStateFromServer(options = {}, entries = [], view, date) {
+    _restoreStateFromServer(options = {}, lazyLoadingDataProvider, view, date) {
         const calendar = this.getCalendar();
         calendar.batchRendering(() => {
             this.setOptions(options);
-            if (entries.length) {
-                this.addEvents(entries);
-            }
 
             if (view) {
                 this.changeView(view, date);
-            } else if (date) {
+            }  if (date) {
                 this.gotoDate(date);
             }
+
+            this.setHasLazyLoadingEntryProvider(lazyLoadingDataProvider);
         });
 
     }

@@ -2,32 +2,28 @@ package org.vaadin.stefan.ui.view.demos.entryproviders;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.stereotype.Service;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.function.Predicate;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
  * @author Stefan Uebe
  */
-@Service
-public class EntryServiceWithReadOnlyDatabase {
+public class EntryService {
 
     private final Map<String, EntryData> database = new HashMap<>();
 
+    public static EntryService createInstance() {
+        return new EntryService();
+    }
 
-    public EntryServiceWithReadOnlyDatabase() {
-        System.out.println("Initialize entry service readonly database");
-        LocalDate date = LocalDate.of(2010, 1, 1).withDayOfYear(1);
-        LocalDate end = LocalDate.now().plusYears(10);
+    public EntryService() {
+        LocalDate date = LocalDate.now().minusYears(3).withDayOfYear(1);
+        LocalDate end = LocalDate.now().plusYears(3);
 
         Random random = new Random();
 
@@ -40,8 +36,6 @@ public class EntryServiceWithReadOnlyDatabase {
 
             date = date.plusMonths(1);
         }
-
-        System.out.println("Created " + count() + " dates");
     }
 
     public Optional<Entry> getEntry(String id) {
@@ -60,7 +54,10 @@ public class EntryServiceWithReadOnlyDatabase {
             EntryData time = new EntryData("" + database.size(), "Time event " + database.size(), date.atStartOfDay(), date.atTime(10, 0), false);
             database.put(time.getId(), time);
         }
+    }
 
+    public Stream<Entry> streamEntries() {
+        return database.values().stream().map(this::toEntry);
     }
 
     public Stream<Entry> streamEntries(EntryQuery query) {
@@ -71,28 +68,18 @@ public class EntryServiceWithReadOnlyDatabase {
     public Stream<EntryData> applyFilter(Stream<EntryData> stream, EntryQuery query) {
         LocalDateTime start = query.getStart();
         LocalDateTime end = query.getEnd();
-        EntryQuery.AllDay allDay = query.getAllDay();
 
-        if (start == null && end == null && allDay == EntryQuery.AllDay.BOTH) {
+        if (start == null && end == null) {
             return stream;
         }
 
         stream = stream.filter(item -> {
-            if (start != null && item.getStart().isAfter(end)) {
+            if (end != null && item.getStart().isAfter(end)) {
                 return false;
             }
 
-            return !(end != null && item.getEnd().isBefore(start));
+            return !(start != null && item.getEnd().isBefore(start));
         });
-
-        if (allDay != EntryQuery.AllDay.BOTH) {
-            Predicate<EntryData> allDayFilter = EntryData::isAllDay;
-            if (allDay == EntryQuery.AllDay.TIMED_ONLY) {
-                allDayFilter = allDayFilter.negate();
-            }
-
-            stream = stream.filter(allDayFilter);
-        }
 
         return stream;
     }
@@ -104,6 +91,14 @@ public class EntryServiceWithReadOnlyDatabase {
         entry.setEnd(entryData.getEnd());
         entry.setAllDay(entryData.isAllDay());
         return entry;
+    }
+
+    public void addEntries(List<Entry> entries) {
+        entries.forEach(entry -> database.put(entry.getId(), new EntryData(entry.getId(), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay())));
+    }
+
+    public void removeAll() {
+        database.clear();
     }
 
     @Data

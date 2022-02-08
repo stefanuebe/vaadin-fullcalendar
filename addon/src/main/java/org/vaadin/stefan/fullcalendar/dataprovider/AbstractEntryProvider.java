@@ -3,7 +3,6 @@ package org.vaadin.stefan.fullcalendar.dataprovider;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
-import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntriesChangeEvent.EntriesChangeListener;
@@ -13,14 +12,15 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
+ * Abstract base implementation of the {@link EntryProvider} interface.
  * @author Stefan Uebe
  */
 public abstract class AbstractEntryProvider<T extends Entry> implements EntryProvider<T> {
 
+    private final Map<Class<?>, List<SerializableConsumer<?>>> listeners = new HashMap<>();
+
     @Getter
     private FullCalendar calendar;
-
-    private final Map<Class<?>, List<SerializableConsumer<?>>> listeners = new HashMap<>();
 
     @Override
     public void refreshAll() {
@@ -38,13 +38,10 @@ public abstract class AbstractEntryProvider<T extends Entry> implements EntryPro
      * have any arguments the event object will not be passed to it when it's
      * called.
      *
-     * @param eventType
-     *            the type of the listened event. Events of this type or its
-     *            subclasses activate the listener.
-     * @param method
-     *            the consumer to receive the event.
-     * @param <E>
-     *            the event type
+     * @param eventType the type of the listened event. Events of this type or its
+     *                  subclasses activate the listener.
+     * @param method    the consumer to receive the event.
+     * @param <E>       the event type
      * @return a registration for the listener
      */
     protected <E> Registration addListener(Class<E> eventType, SerializableConsumer<E> method) {
@@ -66,10 +63,9 @@ public abstract class AbstractEntryProvider<T extends Entry> implements EntryPro
     /**
      * Sends the event to all listeners.
      *
-     * @param event
-     *            the Event to be sent to all listeners.
+     * @param event the Event to be sent to all listeners.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected void fireEvent(EventObject event) {
         listeners.entrySet().stream()
                 .filter(entry -> entry.getKey().isAssignableFrom(event.getClass()))
@@ -83,12 +79,13 @@ public abstract class AbstractEntryProvider<T extends Entry> implements EntryPro
     /**
      * Sets the calendar. Throws an exception, when there is already a calendar set and it is not the
      * same instance as the given one.
+     *
      * @param calendar calendar to set
      * @throws UnsupportedOperationException when setting another calendar
      */
     @Override
     public void setCalendar(FullCalendar calendar) {
-        if (this.calendar != null && this.calendar != calendar) {
+        if (this.calendar != null && calendar != null && this.calendar != calendar) {
             throw new UnsupportedOperationException("Calendar must be set only once. Please create a new instance instead.");
         }
 

@@ -3,12 +3,15 @@ package org.vaadin.stefan.fullcalendar.dataprovider;
 import lombok.*;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.Timezone;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
+ * A class to provide filter parameters for an {@link EntryProvider} fetch query.
  * @author Stefan Uebe
  */
 @Getter
@@ -29,6 +32,14 @@ public class EntryQuery {
         this.end = end;
     }
 
+    public EntryQuery(Instant start, Instant end) {
+        this(start, end, AllDay.BOTH);
+    }
+
+    public EntryQuery(Instant start, Instant end, AllDay allDay) {
+        this(LocalDateTime.ofInstant(start, Timezone.ZONE_ID_UTC), LocalDateTime.ofInstant(end, Timezone.ZONE_ID_UTC), allDay);
+    }
+
     /**
      * Convenience implementation to filter a stream based on this query.
      * <p></p>
@@ -47,11 +58,11 @@ public class EntryQuery {
         }
 
         stream = stream.filter(item -> {
-            if (start != null && item.getStart().isAfter(start)) {
+            if (end != null && item.getStart().isAfter(end)) {
                 return false;
             }
 
-            return !(end != null && item.getEnd().isBefore(end));
+            return !(start != null && item.getEnd().isBefore(start));
         });
 
         if (allDay != AllDay.BOTH) {

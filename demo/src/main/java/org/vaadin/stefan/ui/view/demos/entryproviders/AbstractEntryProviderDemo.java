@@ -13,70 +13,63 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.Route;
-import lombok.NonNull;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.dataprovider.AbstractEntryProvider;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
-import org.vaadin.stefan.ui.MainLayout;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.util.EntryManager;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * @author Stefan Uebe
  */
-@Route(value = "entry-provider", layout = MainLayout.class)
-@org.vaadin.stefan.ui.menu.MenuItem(label = "Entry Provider")
-public class EntryProviderDemo extends VerticalLayout {
+@Getter(AccessLevel.PROTECTED)
+public abstract class AbstractEntryProviderDemo extends VerticalLayout {
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
     public static final int MAX_ITEMS_PER_UI = 3000;
 
-    private final EntryServiceWithReadOnlyDatabase service;
-    private final BackendEntryProvider entryProvider;
+    private final EntryService entryService;
+    private final EntryProvider<Entry> entryProvider;
 
-    private MenuBar toolbar;
-    private FullCalendar calendar;
+    private final MenuBar toolbar;
+    private final FullCalendar calendar;
     private ComboBox<CalendarView> comboBoxView;
     private ComboBox<Timezone> timezoneComboBox;
     private Button buttonDatePicker;
     private MenuItem addDailyItems;
-    private MenuItem addThousandItems;
 
+    public AbstractEntryProviderDemo(boolean editable, String description) {
+        toolbar = createToolbar(editable);
 
-    public EntryProviderDemo(EntryServiceWithReadOnlyDatabase service) {
-        this.service = service;
-        createToolbar();
-        //        toolbar.addItem("Add entry", event -> )
+        entryService = EntryService.createInstance();
+        entryProvider = createEntryProvider(entryService);
 
         calendar = new FullCalendar();
         calendar.setHeightByParent();
-        calendar.addDatesRenderedListener(event -> {
-            updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart());
-            System.out.println("dates rendered: " + event.getStart() + " " + event.getEnd());
-        });
+        calendar.addDatesRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
-
-        entryProvider = new BackendEntryProvider(service);
         calendar.setEntryProvider(entryProvider);
 
-        setSizeFull();
-        Span description = new Span("This demo shows the usage of an Entry Provider. Entry Providers allow the lazy loading of " +
-                "calendar items based on the current view. This prevents unnecessary memory overhead on client " +
-                "and server, but increases the network traffic, as items are created and fetched on the fly everytime. This demo" +
-                "shows an exemplary database ranging from the beginning of 2000 up to 20 years in the future.");
-
-        add(description, toolbar, calendar);
+        Span descriptionElement = new Span(description);
+        add(descriptionElement, toolbar, calendar);
         setFlexGrow(1, calendar);
-        setHorizontalComponentAlignment(Alignment.STRETCH, calendar, description);
+        setHorizontalComponentAlignment(Alignment.STRETCH, calendar, descriptionElement);
         setHorizontalComponentAlignment(Alignment.CENTER, toolbar);
+
+        setSizeFull();
     }
 
-    private void createToolbar() {
-        toolbar = new MenuBar();
+    protected abstract EntryProvider<Entry> createEntryProvider(EntryService service);
+
+    private MenuBar createToolbar(boolean editable) {
+        MenuBar toolbar = new MenuBar();
         toolbar.setWidthFull();
 
         toolbar.addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
@@ -98,8 +91,44 @@ public class EntryProviderDemo extends VerticalLayout {
         toolbar.addItem(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
         toolbar.addItem("Today", e -> calendar.today());
 
+        if (editable) {
+
+            SubMenu calendarItems = toolbar.addItem("Calendar Items").getSubMenu();
+            addDailyItems = calendarItems.addItem("Add sample entries", event -> {
+                LocalDateTime max = LocalDate.of(2022, Month.DECEMBER, 31).atStartOfDay();
+                LocalDateTime date = LocalDate.now().atTime(10, 0);
+
+                List<Entry> entries = new LinkedList<>();
+                while (!date.isAfter(max)) {
+                    Entry entry = new Entry();
+                    EntryManager.setValues(calendar, entry, "DAILY", date, 60, ChronoUnit.MINUTES, null);
+                    entries.add(entry);
+                    date = date.plusDays(1);
+                }
+
+                onSamplesCreated(entries);
+
+                event.getSource().setEnabled(false);
+                Notification.show("Added " + entries.size() + " entries, one per day at 10:00 UTC");
+            });
+
+            calendarItems.addItem("Remove all entries", e -> {
+                onSamplesRemoved();
+
+                addDailyItems.setEnabled(true);
+
+                Notification.show("All entries removed. Reload this page to create a new set of samples or use the Add sample entries button.");
+            });
+        }
+
         createSettingsSubMenu(toolbar);
+        return toolbar;
     }
+
+
+    protected abstract void onSamplesCreated(List<Entry> entries);
+
+    protected abstract void onSamplesRemoved();
 
 
     private void createSettingsSubMenu(MenuBar menuBar) {
@@ -118,11 +147,6 @@ public class EntryProviderDemo extends VerticalLayout {
         });
         comboBoxView.setWidthFull();
         subMenu.add(comboBoxView);
-
-//        Button toogleFixedWeekCount = new Button("Toggle fixed week count", event -> {
-//            calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
-//            Notification.show("Updated fixedWeekCount value from " + Boolean.toString(!calendar.getFixedWeekCount()) + " to " + Boolean.toString(calendar.getFixedWeekCount()));
-//        });
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> comboBoxLocales = new ComboBox<>("Locale");
@@ -154,7 +178,15 @@ public class EntryProviderDemo extends VerticalLayout {
         });
         showOnlySomeTimezones.addValueChangeListener(event -> updateTimezonesComboBox(calendar, timezoneComboBox, event.getValue()));
 
-        subMenu.add(/*toogleFixedWeekCount, */comboBoxLocales, timezoneComboBox, showOnlySomeTimezones);
+        subMenu.add(comboBoxLocales, timezoneComboBox, showOnlySomeTimezones);
+
+        subMenu.addItem("Detach/Attach Calendar", event -> {
+            if (calendar.getParent().isPresent()) {
+                remove(calendar);
+            } else {
+                add(calendar);
+            }
+        });
     }
 
     private void updateTimezonesComboBox(FullCalendar calendar, ComboBox<Timezone> timezoneComboBox, boolean showOnlySome) {
@@ -224,23 +256,5 @@ public class EntryProviderDemo extends VerticalLayout {
         intervalLabel.setText(text);
     }
 
-
-    private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
-        private final EntryServiceWithReadOnlyDatabase service;
-
-        public BackendEntryProvider(EntryServiceWithReadOnlyDatabase service) {
-            this.service = service;
-        }
-
-        @Override
-        public Stream<Entry> fetch(@NonNull EntryQuery query) {
-            return service.streamEntries(query);
-        }
-
-        @Override
-        public Optional<Entry> fetchById(@NonNull String id) {
-            return service.getEntry(id);
-        }
-    }
 
 }

@@ -24,6 +24,8 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import lombok.Getter;
+import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
@@ -35,7 +37,6 @@ import java.io.Serializable;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -74,20 +75,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private static final String JSON_INITIAL_OPTIONS = "initialOptions";
 
-    //    private final Map<String, Entry> entries = new HashMap<>();
     private final Map<String, Serializable> options = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
+    @Getter
     private EntryProvider<Entry> entryProvider;
     private List<Registration> entryProviderDataListeners;
-
-//    private final Set<Entry> tmpAdd = new HashSet<>();
-//    private final Set<Entry> tmpChange = new HashSet<>();
-//    private final Set<Entry> tmpRemove = new HashSet<>();
-
-//    private boolean updateRegistered;
-//    private boolean detached;
-//    private boolean resendAll;
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
@@ -96,11 +89,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private boolean firstAttach = true;
 
+    @Getter
+    private boolean attached;
+
     private String latestKnownViewName;
     private LocalDate latestKnownIntervalStart;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
+     * <p></p>
+     * Uses {@link EagerInMemoryEntryProvider} by default.
      */
     public FullCalendar() {
         this(-1);
@@ -116,6 +114,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Passing a negative number disabled the entry limit (same as passing no number at all).
      * <br><br>
      * Sets the locale to {@link CalendarLocale#getDefault()}
+     * <p></p>
+     * Uses {@link EagerInMemoryEntryProvider} by default.
      *
      * @param entryLimit The max number of stacked event levels within a given day. This includes the +more link if present. The rest will show up in a popover.
      */
@@ -150,6 +150,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <br><br>
      * Also, options set this way are not cached in the server side state. Calling any of the
      * {@code getOption(...)} methods will result in {@code null} (or the respective native default).
+     * <p></p>
+     * Uses {@link EagerInMemoryEntryProvider} by default.
      *
      * @param initialOptions initial options
      * @throws NullPointerException when null is passed
@@ -165,7 +167,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Called after the constructor has been initialized.
      */
     private void postConstruct() {
-        entryProvider = new InMemoryEntryProvider<>();
+        entryProvider = new EagerInMemoryEntryProvider<>();
         entryProvider.setCalendar(this);
 
         addDatesRenderedListener(event -> {
@@ -176,6 +178,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
+        attached = true;
         super.onAttach(attachEvent);
         if (firstAttach) {
             firstAttach = false;
@@ -197,14 +200,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                     }
 
                     // entries
-//                    JsonArray entriesJson = Json.createArray();
-//                    entries.values().forEach(entry -> entriesJson.set(entriesJson.length(), entry.toJson()));
+                    boolean eagerLoadingEntryProvider = isEagerLoadingEntryProvider();
+
 
                     // We do not use setProperty since that would also store the jsonified state in this instance.
                     // Especially with a huge amount of entries this could lead to memory issues.
                     getElement().callJsFunction("_restoreStateFromServer",
                             optionsJson,
-                            Json.createArray(), // TODO
+                            eagerLoadingEntryProvider,
                             JsonUtils.toJsonValue(latestKnownViewName),
                             JsonUtils.toJsonValue(latestKnownIntervalStart));
 
@@ -212,11 +215,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             });
         }
 
-        if (entryProvider instanceof InMemoryEntryProvider && ((InMemoryEntryProvider<Entry>) entryProvider).isEagerLoading()) {
-            entryProvider.refreshAll(); // trigger the client side update
+        if (isEagerLoadingEntryProvider()) {
+            entryProvider.refreshAll(); // if lazy, the client side will automatically take care of refreshing
         }
     }
 
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        attached = false;
+        super.onDetach(detachEvent);
+    }
 
     /**
      * Sets a property to allow or disallow (re-)rendering of dates, when an option changes. When allowed,
@@ -250,10 +258,22 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         getElement().callJsFunction("today");
     }
 
-    public void setEntryProvider(EntryProvider<Entry> entryProvider) {
+    /**
+     * Sets the entry provider for this instance. The previous entry provider will be removed and the
+     * client side will be updated.
+     * <p/>
+     * By default a new full calendar is initialized with an {@link EagerInMemoryEntryProvider}.
+     *
+     * @param entryProvider entry provider
+     */
+    public void setEntryProvider(@NotNull EntryProvider<Entry> entryProvider) {
         Objects.requireNonNull(entryProvider);
 
         if (this.entryProvider != entryProvider) {
+            if (this.entryProvider != null) {
+                this.entryProvider.setCalendar(null);
+            }
+
             this.entryProvider = entryProvider;
             entryProvider.setCalendar(this);
 
@@ -261,8 +281,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                 entryProviderDataListeners.forEach(Registration::remove);
             }
 
-            if (entryProvider instanceof InMemoryEntryProvider && ((InMemoryEntryProvider<Entry>) entryProvider).isEagerLoading()) {
-                entryProvider.refreshAll();
+            boolean eagerLoadingInMemory = isEagerLoadingEntryProvider();
+            if (eagerLoadingInMemory) {
+                entryProvider.refreshAll(); // triggers to push all data to the client
             } else {
                 entryProviderDataListeners = Arrays.asList(
                         entryProvider.addEntriesChangeListener(event -> getElement().callJsFunction("refreshAllEntries")),
@@ -270,16 +291,26 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                         entryProvider.addEntryRefreshListener(event -> getElement().callJsFunction("refreshAllEntries"))
                 );
 
-                getElement().callJsFunction("setHasLazyLoadingEntryProvider", true);
             }
 
+            getElement().callJsFunction("setHasLazyLoadingEntryProvider", !eagerLoadingInMemory);
         }
 
     }
 
+    /**
+     * Indicates, if the entry provider is eager loading, i.e. takes care of pushing entries manually as
+     * json array, or not, i.e. the client side takes care of fetching data from the server.
+     *
+     * @return is eager loading
+     */
+    private boolean isEagerLoadingEntryProvider() {
+        return entryProvider instanceof EagerInMemoryEntryProvider;
+    }
+
     @ClientCallable
-    public JsonArray fetchFromServer(JsonObject query) {
-        if (entryProvider == null || entryProvider instanceof InMemoryEntryProvider) {
+    protected JsonArray fetchFromServer(JsonObject query) {
+        if (entryProvider == null) {
             throw new UnsupportedOperationException("No entry provider set.");
         }
 
@@ -301,7 +332,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param id id
      * @return entry or empty
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetchById(String)} instead
      */
+    @Deprecated
     public Optional<Entry> getEntryById(@NotNull String id) {
         Objects.requireNonNull(id);
         return entryProvider.fetchById(id);
@@ -319,7 +352,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <b>This behavior may change in future.</b>
      *
      * @return entries entries
+     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetchAll()} instead
      */
+    @Deprecated
     public List<Entry> getEntries() {
         return entryProvider.fetchAll().collect(Collectors.toList());
     }
@@ -332,7 +367,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param filterStart start point of filter timespan or null to have no limit
      * @param filterEnd   end point of filter timespan or null to have no limit
      * @return entries
+     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
      */
+    @Deprecated
     public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
         return getEntries(Timezone.UTC.convertToLocalDateTime(filterStart), Timezone.UTC.convertToLocalDateTime(filterEnd));
     }
@@ -345,23 +382,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param filterStart start point of filter timespan or null to have no limit
      * @param filterEnd   end point of filter timespan or null to have no limit
      * @return entries
+     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
      */
+    @Deprecated
     public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
-        if (filterStart == null && filterEnd == null) {
-            return getEntries();
-        }
-
-        Stream<Entry> stream = getEntries().stream();
-
-        if (filterStart != null) {
-            stream = stream.filter(e -> e.getEnd() != null && e.getEnd().isAfter(filterStart));
-        }
-
-        if (filterEnd != null) {
-            stream = stream.filter(e -> e.getStart() != null && e.getStart().isBefore(filterEnd));
-        }
-
-        return stream.collect(Collectors.toList());
+        return entryProvider.fetch(new EntryQuery(filterStart, filterEnd)).collect(Collectors.toList());
     }
 
     /**
@@ -370,44 +395,53 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param date end point of filter timespan
      * @return entries
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
      */
+    @Deprecated
     public List<Entry> getEntries(@NotNull Instant date) {
         return getEntries(Timezone.UTC.convertToLocalDateTime(date));
     }
 
     /**
      * Returns all entries registered in this instance which timespan crosses the given date as a new list.
-
      *
      * @param date end point of filter timespan
      * @return entries
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
      */
+    @Deprecated
     public List<Entry> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
-        return getEntries(date.atStartOfDay());
+        return getEntries(date.atStartOfDay(), date.atStartOfDay().plusDays(1));
     }
 
 
     /**
      * Returns all entries registered in this instance which timespan crosses the given date as a new list.
-
      *
      * @param dateTime end point of filter timespan
      * @return entries
      * @throws NullPointerException when null is passed
-     * */
+     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
+     */
+    @Deprecated
     public List<Entry> getEntries(@NotNull LocalDateTime dateTime) {
         Objects.requireNonNull(dateTime);
-        return getEntries(dateTime, dateTime.plusDays(1));
+        return getEntries(dateTime, dateTime);
     }
 
     /**
      * Adds an entry to this calendar. Noop if the entry id is already registered.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
+     * (default on new calendars).
      *
      * @param entry entry
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#addEntry(Entry)} instead
      */
+    @Deprecated
     public void addEntry(@NotNull Entry entry) {
         Objects.requireNonNull(entry);
         addEntries(Collections.singletonList(entry));
@@ -415,10 +449,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Adds an array of entries to the calendar. Noop for the entry id is already registered.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
+     * (default on new calendars).
      *
      * @param arrayOfEntries array of entries
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#addEntries(Entry[])} instead
      */
+    @Deprecated
     public void addEntries(@NotNull Entry... arrayOfEntries) {
         addEntries(Arrays.asList(arrayOfEntries));
     }
@@ -431,22 +470,40 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return (InMemoryEntryProvider<Entry>) entryProvider;
     }
 
+    protected EagerInMemoryEntryProvider<Entry> assureEagerInMemoryProvider() {
+        if (!(entryProvider instanceof EagerInMemoryEntryProvider)) {
+            throw new UnsupportedOperationException("Needs an EagerInMemoryEntryProvider to work.");
+        }
+
+        return (EagerInMemoryEntryProvider<Entry>) entryProvider;
+    }
+
     /**
      * Adds a list of entries to the calendar. Noop for the entry id is already registered.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
+     * (default on new calendars).
      *
      * @param iterableEntries list of entries
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#addEntries(Iterable)} instead
      */
+    @Deprecated
     public void addEntries(@NotNull Iterable<Entry> iterableEntries) {
         assureInMemoryProvider().addEntries(iterableEntries);
     }
 
     /**
      * Updates the given entry on the client side. Will check if the id is already registered, otherwise a noop.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link EagerInMemoryEntryProvider}
+     * (default on new calendars).
      *
      * @param entry entry to update
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link EagerInMemoryEntryProvider#updateEntry(Entry)} instead
      */
+    @Deprecated
     public void updateEntry(@NotNull Entry entry) {
         Objects.requireNonNull(entry);
         updateEntries(Collections.singletonList(entry));
@@ -454,10 +511,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Updates the given entries on the client side. Ignores non-registered entries.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link EagerInMemoryEntryProvider}
+     * (default on new calendars).
      *
      * @param arrayOfEntries entries to update
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link EagerInMemoryEntryProvider#updateEntries(Entry[])} instead
      */
+    @Deprecated
     public void updateEntries(@NotNull Entry... arrayOfEntries) {
         updateEntries(Arrays.asList(arrayOfEntries));
     }
@@ -465,20 +527,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Updates the given entries on the client side. Ignores non-registered entries.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link EagerInMemoryEntryProvider}
+     * (default on new calendars).
      *
      * @param iterableEntries entries to update
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link EagerInMemoryEntryProvider#updateEntries(Iterable)} instead
      */
+    @Deprecated
     public void updateEntries(@NotNull Iterable<Entry> iterableEntries) {
-        assureInMemoryProvider().updateEntries(iterableEntries);
+        assureEagerInMemoryProvider().updateEntries(iterableEntries);
     }
 
     /**
      * Removes the given entry. Noop if the id is not registered.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
+     * (default on new calendars).
      *
      * @param entry entry
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#removeEntry(Entry)} instead
      */
+    @Deprecated
     public void removeEntry(@NotNull Entry entry) {
         Objects.requireNonNull(entry);
         removeEntries(Collections.singletonList(entry));
@@ -486,27 +558,43 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Removes the given entries. Noop for not registered entries.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
+     * (default on new calendars).
      *
      * @param arrayOfEntries entries to remove
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#removeEntries(Entry[])} instead
      */
+    @Deprecated
     public void removeEntries(@NotNull Entry... arrayOfEntries) {
         removeEntries(Arrays.asList(arrayOfEntries));
     }
 
     /**
      * Removes the given entries. Noop for not registered entries.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
+     * (default on new calendars).
      *
      * @param iterableEntries entries to remove
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#removeEntries(Iterable)} instead
      */
+    @Deprecated
     public void removeEntries(@NotNull Iterable<Entry> iterableEntries) {
         assureInMemoryProvider().removeEntries(iterableEntries);
     }
 
     /**
      * Remove all entries.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
+     * (default on new calendars).
+     *
+     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#removeAllEntries()} instead
      */
+    @Deprecated
     public void removeAllEntries() {
         assureInMemoryProvider().removeAllEntries();
     }
@@ -993,6 +1081,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Returns the editable flag. By default true.
+     *
+     * @return editable editable
+     */
+    public boolean getEntryDurationEditable() {
+        return (boolean) getOption(Option.ENTRY_DURATION_EDITABLE).orElse(true);
+    }
+
+    /**
      * Allow events’ durations to be editable through resizing.
      * <p>
      * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setDurationEditable(boolean)}
@@ -1004,12 +1101,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Returns the editable flag. By default true.
+     * Returns the editable flag. By default false.
      *
      * @return editable editable
      */
-    public boolean getEntryDurationEditable() {
-        return (boolean) getOption(Option.ENTRY_DURATION_EDITABLE).orElse(true);
+    public boolean getEntryResizableFromStart() {
+        return (boolean) getOption(Option.ENTRY_RESIZABLE_FROM_START).orElse(false);
     }
 
     /**
@@ -1022,12 +1119,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Returns the editable flag. By default false.
+     * Returns the editable flag. By default true.
      *
      * @return editable editable
      */
-    public boolean getEntryResizableFromStart() {
-        return (boolean) getOption(Option.ENTRY_RESIZABLE_FROM_START).orElse(false);
+    public boolean getEntryStartEditable() {
+        return (boolean) getOption(Option.ENTRY_START_EDITABLE).orElse(true);
     }
 
     /**
@@ -1042,12 +1139,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Returns the editable flag. By default true.
+     * Returns the editable flag. By default false.
      *
      * @return editable editable
      */
-    public boolean getEntryStartEditable() {
-        return (boolean) getOption(Option.ENTRY_START_EDITABLE).orElse(true);
+    public boolean getEditable() {
+        return (boolean) getOption(Option.EDITABLE).orElse(false);
     }
 
     /**
@@ -1064,15 +1161,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void setEditable(boolean editable) {
         setOption(Option.EDITABLE, editable);
-    }
-
-    /**
-     * Returns the editable flag. By default false.
-     *
-     * @return editable editable
-     */
-    public boolean getEditable() {
-        return (boolean) getOption(Option.EDITABLE).orElse(false);
     }
 
     /**
@@ -1113,21 +1201,21 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
-     *
-     * @param columnHeader
-     */
-    public void setColumnHeader(boolean columnHeader) {
-        setOption(Option.COLUMN_HEADER, columnHeader);
-    }
-
-    /**
      * Returns the columnHeader.
      *
      * @return columnHeader
      */
     public boolean getColumnHeader() {
         return (boolean) getOption(Option.COLUMN_HEADER).orElse(true);
+    }
+
+    /**
+     * Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
+     *
+     * @param columnHeader
+     */
+    public void setColumnHeader(boolean columnHeader) {
+        setOption(Option.COLUMN_HEADER, columnHeader);
     }
 
     /**
