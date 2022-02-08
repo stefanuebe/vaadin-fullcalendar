@@ -17,8 +17,7 @@ import java.util.stream.Collectors;
 public class InMemoryEntryProviderWithEagerLoadingDemo extends AbstractEntryProviderDemo {
 
     public InMemoryEntryProviderWithEagerLoadingDemo() {
-        super(true, "This demo shows an EntryProvider implementation, that fetches its data from " +
-                "a simulated database. Items are created temporary based on the respective backend entities.");
+        super(true, "TBD: eager in memory provider");
     }
 
     @Override

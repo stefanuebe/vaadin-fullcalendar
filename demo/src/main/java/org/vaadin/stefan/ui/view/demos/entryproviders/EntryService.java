@@ -42,6 +42,10 @@ public class EntryService {
         return Optional.ofNullable(database.get(id)).map(this::toEntry);
     }
 
+    public Entry getEntryOrNull(String id) {
+        return getEntry(id).orElse(null);
+    }
+
     public int count() {
         return database.size();
     }
