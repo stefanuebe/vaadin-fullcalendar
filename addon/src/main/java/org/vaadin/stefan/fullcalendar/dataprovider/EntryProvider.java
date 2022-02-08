@@ -4,6 +4,7 @@ import com.vaadin.flow.data.provider.DataProviderListener;
 import com.vaadin.flow.shared.Registration;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -45,6 +46,14 @@ public interface EntryProvider<T extends Entry> {
      * provider.
      */
     void refreshAll();
+
+    /**
+     * Registers the used calendar. This method will be called once automatically, when setting
+     * this entry provider to the calendar. The given parameter might be stored internally, but that
+     * is optionally. It is more a support method, if the calendar is necessary for internal usage.
+     * @param calendar calendar
+     */
+    void setCalendar(FullCalendar calendar);
 
     /**
      * Creates a new data provider of the given collection. The collection is NOT used as backend reference,

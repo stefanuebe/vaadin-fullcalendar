@@ -4,12 +4,13 @@ import lombok.Getter;
 import org.vaadin.stefan.fullcalendar.Entry;
 
 import java.io.Serializable;
+import java.util.EventObject;
 
 /**
  * @author Stefan Uebe
  */
 @Getter
-public class EntryRefreshEvent<T extends Entry> extends EntriesChangeEvent<T> {
+public class EntryRefreshEvent<T extends Entry> extends EventObject {
     private final T itemToRefresh;
 
     /**
@@ -23,9 +24,14 @@ public class EntryRefreshEvent<T extends Entry> extends EntriesChangeEvent<T> {
         this.itemToRefresh = itemToRefresh;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public EntryProvider<T> getSource() {
+        return (EntryProvider<T>) super.getSource();
+    }
 
     @FunctionalInterface
     public interface EntryRefreshListener<T extends Entry> extends Serializable {
-        void onDataRefresh(EntriesChangeEvent<T> event);
+        void onDataRefresh(EntryRefreshEvent<T> event);
     }
 }

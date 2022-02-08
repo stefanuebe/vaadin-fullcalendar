@@ -5,8 +5,8 @@ import com.vaadin.flow.internal.JsonUtils;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import lombok.Getter;
 import lombok.NonNull;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Timezone;
@@ -18,16 +18,18 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Stefan Uebe
  */
-public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvider<T>{
+public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvider<T> {
 
     // TODO implement lazy loading by client side, where only query matching entries are fetched
 
     private final Map<String, T> entries = new HashMap<>();
-    private FullCalendar calendar;
+
+    private final boolean lazyLoading;
 
     private final Set<T> vItemsToAdd = new HashSet<>();
     private final Set<T> vItemsToChange = new HashSet<>();
@@ -37,29 +39,72 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     private boolean detached;
     private boolean resendAll;
 
-    public InMemoryEntryProvider() {
+    public InMemoryEntryProvider(boolean lazyLoading) {
+        this.lazyLoading = lazyLoading;
+
+        if (isEagerLoading()) {
+            addEntriesChangeListener(event -> {
+                for (T value : entries.values()) {
+                    value.markAsDirty();
+                }
+                triggerClientSideUpdate();
+            });
+
+            addEntryRefreshListener(event -> {
+                event.getItemToRefresh().markAsDirty();
+                triggerClientSideUpdate();
+            });
+
+        }
     }
 
-    public InMemoryEntryProvider(Collection<T> entries) {
+    public InMemoryEntryProvider(boolean lazyLoading, Iterable<T> entries) {
+        this(lazyLoading);
         addEntries(entries);
     }
 
-    public void initForCalendar(FullCalendar calendar) {
-        if (this.calendar != null) {
-            throw new UnsupportedOperationException("Calendar must be set only once. Please create a new instance instead.");
-        }
+    public InMemoryEntryProvider() {
+        this(false);
+    }
 
-        this.calendar = calendar;
-        this.calendar.addAttachListener(event -> {
-            if (detached) {
-                this.resendAll = true;
+    public InMemoryEntryProvider(Iterable<T> entries) {
+        this(false, entries);
+    }
+
+    /**
+     * Connects this instance with the calendar. Not intended to be called manually, the FC will take care of this.
+     * NOOP when called for the same calendar instance multiple times.
+     *
+     * @param calendar calendar to "connect" to.
+     */
+    @Override
+    public void setCalendar(FullCalendar calendar) {
+        super.setCalendar(calendar);
+        if (getCalendar() == null) {
+            entries.values().forEach(e -> e.setCalendar(calendar));
+
+            if (isEagerLoading()) {
                 triggerClientSideUpdate();
-                this.detached = false;
             }
-        });
+        }
+    }
 
-        entries.values().forEach(this::applyCalendar);
-        triggerClientSideUpdate();
+    @Override
+    public Stream<T> fetch(@NonNull EntryQuery query) {
+        return query.applyFilter(entries.values().stream());
+    }
+
+    @Override
+    public Optional<T> fetchById(@NonNull String id) {
+        return Optional.ofNullable(entries.get(id));
+    }
+
+    public boolean isLazyLoading() {
+        return lazyLoading;
+    }
+
+    public boolean isEagerLoading() {
+        return isEagerLoading();
     }
 
     /**
@@ -69,9 +114,9 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @return entry or empty
      * @throws NullPointerException when null is passed
      */
-    public Optional<Entry> getEntryById(@NotNull String id) {
+    public Optional<T> getEntryById(@NotNull String id) {
         Objects.requireNonNull(id);
-        return Optional.ofNullable(entries.get(id));
+        return fetchById(id);
     }
 
     /**
@@ -87,33 +132,8 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      *
      * @return entries entries
      */
-    public List<Entry> getEntries() {
-        // TODO this should be an unmodifiable list, as most api in the addon does it that way.
-        return new ArrayList<>(entries.values());
-    }
-
-    /**
-     * Returns all entries registered in this instance which timespan crosses the given time span. You may
-     * pass null for the parameters to have the timespan search only on one side. Passing null for both
-     * parameters return all entries.
-     * <br><br>
-     * Changes in an entry instance is reflected in the
-     * calendar instance on server side, but not client side. If you change an entry make sure to call
-     * {@link #updateEntry(Entry)} afterwards.
-     * <br><br>
-     * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
-     * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
-     * exclusive to the date.
-     * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
-     * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
-     * include it.
-     *
-     * @param filterStart start point of filter timespan or null to have no limit
-     * @param filterEnd   end point of filter timespan or null to have no limit
-     * @return entries
-     */
-    public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
-        return getEntries(Timezone.UTC.convertToLocalDateTime(filterStart), Timezone.UTC.convertToLocalDateTime(filterEnd));
+    public List<T> getEntries() {
+        return fetchAll().collect(Collectors.toList());
     }
 
     /**
@@ -138,22 +158,32 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param filterEnd   end point of filter timespan or null to have no limit
      * @return entries
      */
-    public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
-        if (filterStart == null && filterEnd == null) {
-            return getEntries();
-        }
+    public List<T> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
+        return fetch(new EntryQuery(filterStart, filterEnd)).collect(Collectors.toList());
+    }
 
-        Stream<Entry> stream = getEntries().stream();
-
-        if (filterStart != null) {
-            stream = stream.filter(e -> e.getEnd() != null && e.getEnd().isAfter(filterStart));
-        }
-
-        if (filterEnd != null) {
-            stream = stream.filter(e -> e.getStart() != null && e.getStart().isBefore(filterEnd));
-        }
-
-        return stream.collect(Collectors.toList());
+    /**
+     * Returns all entries registered in this instance which timespan crosses the given time span. You may
+     * pass null for the parameters to have the timespan search only on one side. Passing null for both
+     * parameters return all entries.
+     * <br><br>
+     * Changes in an entry instance is reflected in the
+     * calendar instance on server side, but not client side. If you change an entry make sure to call
+     * {@link #updateEntry(Entry)} afterwards.
+     * <br><br>
+     * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
+     * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
+     * exclusive to the date.
+     * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
+     * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
+     * include it.
+     *
+     * @param filterStart start point of filter timespan or null to have no limit
+     * @param filterEnd   end point of filter timespan or null to have no limit
+     * @return entries
+     */
+    public List<T> getEntries(Instant filterStart, Instant filterEnd) {
+        return getEntries(Timezone.UTC.convertToLocalDateTime(filterStart), Timezone.UTC.convertToLocalDateTime(filterEnd));
     }
 
     /**
@@ -167,7 +197,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @return entries
      * @throws NullPointerException when null is passed
      */
-    public List<Entry> getEntries(@NotNull Instant date) {
+    public List<T> getEntries(@NotNull Instant date) {
         return getEntries(Timezone.UTC.convertToLocalDateTime(date));
     }
 
@@ -184,7 +214,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @return entries
      * @throws NullPointerException when null is passed
      */
-    public List<Entry> getEntries(@NotNull LocalDate date) {
+    public List<T> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
         return getEntries(date.atStartOfDay());
     }
@@ -203,7 +233,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @return entries
      * @throws NullPointerException when null is passed
      */
-    public List<Entry> getEntries(@NotNull LocalDateTime dateTime) {
+    public List<T> getEntries(@NotNull LocalDateTime dateTime) {
         Objects.requireNonNull(dateTime);
         return getEntries(dateTime, dateTime.plusDays(1));
     }
@@ -236,18 +266,25 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param iterableEntries list of entries
      * @throws NullPointerException when null is passed
      */
-    public void addEntries(@NotNull Collection<T> iterableEntries) {
+    public void addEntries(@NotNull Iterable<T> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
+
+        boolean eagerLoading = isEagerLoading();
 
         iterableEntries.forEach(entry -> {
             String id = entry.getId();
 
             if (!entries.containsKey(id)) {
-                applyCalendar(entry);
+                entry.setCalendar(calendar);
                 entries.put(id, entry);
-                vItemsToAdd.add(entry);
+
+                if (eagerLoading) {
+                    vItemsToAdd.add(entry);
+                }
             }
         });
+
+        triggerClientSideUpdate();
     }
 
     /**
@@ -275,14 +312,17 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
 
     /**
      * Updates the given entries on the client side. Ignores non-registered entries.
+     * NOOP for lazy loading variants.
      *
      * @param iterableEntries entries to update
      * @throws NullPointerException when null is passed
      */
-    public void updateEntries(@NotNull Collection<T> iterableEntries) {
+    public void updateEntries(@NotNull Iterable<T> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
-        vItemsToChange.addAll(iterableEntries);
-        triggerClientSideUpdate();
+        if (isEagerLoading()) {
+            vItemsToChange.addAll(StreamSupport.stream(iterableEntries.spliterator(), true).collect(Collectors.toSet()));
+            triggerClientSideUpdate();
+        }
     }
 
     /**
@@ -313,14 +353,19 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param iterableEntries entries to remove
      * @throws NullPointerException when null is passed
      */
-    public void removeEntries(@NotNull Collection<T> iterableEntries) {
+    public void removeEntries(@NotNull Iterable<T> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
+
+        boolean eagerLoading = isEagerLoading();
 
         iterableEntries.forEach(entry -> {
             String id = entry.getId();
             if (entries.remove(id) != null) {
-                removeCalendar(entry);
-                vItemsToDelete.add(entry);
+                entry.setCalendar(null);
+
+                if (eagerLoading) {
+                    vItemsToDelete.add(entry);
+                }
             }
         });
 
@@ -332,7 +377,6 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      */
     public void removeAllEntries() {
         removeEntries(new ArrayList<>(entries.values())); // prevent concurrent mod exception
-        triggerClientSideUpdate();
     }
 
     /**
@@ -344,7 +388,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * to their respective json items. The resulting json objects are then send to the client.
      */
     private void triggerClientSideUpdate() {
-        if (!updateRegistered) {
+        if (isEagerLoading() && !updateRegistered) {
             updateRegistered = true;
             calendar.getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(calendar, pExecutionContext -> {
@@ -407,12 +451,12 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
         }
     }
 
-    protected JsonArray convertItemsToJson(@NotNull final Collection<T> pItems, final SerializableFunction<T, JsonValue> pItemConversionCallback) {
-        Objects.requireNonNull(pItems);
+    protected JsonArray convertItemsToJson(@NotNull final Collection<T> items, final SerializableFunction<T, JsonValue> conversionCallback) {
+        Objects.requireNonNull(items);
 
         JsonArray array = JsonUtils.createArray();
-        for (T item : pItems) {
-            JsonValue convertedItem = pItemConversionCallback.apply(item);
+        for (T item : items) {
+            JsonValue convertedItem = conversionCallback.apply(item);
             if (convertedItem != null) {
                 array.set(array.length(), convertedItem);
             }
@@ -421,49 +465,5 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
         return array;
     }
 
-    private void applyCalendar(Entry entry) {
-        if (entry.getCalendar().isPresent() && entry.getCalendar().get() != calendar) {
-            throw new UnsupportedOperationException("Please remove this entry from its old calendar first.");
-        }
 
-        try {
-            FieldUtils.writeField(FieldUtils.getField(Entry.class, "calendar", true), entry, calendar, true);
-        } catch (IllegalAccessException e) {
-            throw new UnsupportedOperationException(e);
-        }
-    }
-
-
-    private void removeCalendar(Entry entry) {
-        if (entry.getCalendar().isPresent()) {
-            try {
-                FieldUtils.writeField(FieldUtils.getField(Entry.class, "calendar", true), entry, null, true);
-            } catch (IllegalAccessException e) {
-                throw new UnsupportedOperationException(e);
-            }
-        }
-    }
-
-    @Override
-    public Stream<T> fetch(@NonNull EntryQuery query) {
-        return null;
-    }
-
-    @Override
-    public Optional<T> fetchById(@NonNull String id) {
-        return Optional.empty();
-    }
-
-    @Override
-    public void refreshItem(T item) {
-
-    }
-
-    @Override
-    public void refreshAll() {
-        for (T value : entries.values()) {
-            value.markAsDirty();
-        }
-        triggerClientSideUpdate();
-    }
 }

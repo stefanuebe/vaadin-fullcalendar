@@ -26,7 +26,7 @@ public class EntriesChangeEvent<T extends Entry> extends EventObject {
     }
 
     @FunctionalInterface
-    public static interface EntriesChangeListener<T extends Entry> extends Serializable {
+    public interface EntriesChangeListener<T extends Entry> extends Serializable {
         void onDataChange(EntriesChangeEvent<T> event);
     }
 

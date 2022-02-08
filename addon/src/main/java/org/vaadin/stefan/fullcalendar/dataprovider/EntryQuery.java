@@ -24,6 +24,11 @@ public class EntryQuery {
     @NonNull
     private AllDay allDay = AllDay.BOTH;
 
+    public EntryQuery(LocalDateTime start, LocalDateTime end) {
+        this.start = start;
+        this.end = end;
+    }
+
     /**
      * Convenience implementation to filter a stream based on this query.
      * <p></p>

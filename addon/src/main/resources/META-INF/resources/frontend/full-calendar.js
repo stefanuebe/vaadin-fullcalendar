@@ -80,7 +80,7 @@ export class FullCalendar extends PolymerElement {
                 type: String,
                 value: "popover"
             },
-            hasEntryProvider: {
+            hasLazyLoadingEntryProvider: {
                 type: Boolean,
                 value: false
             }
@@ -528,8 +528,8 @@ export class FullCalendar extends PolymerElement {
         this.getCalendar().gotoDate(date);
     }
 
-    setHasEntryProvider(hasEntryProvider) {
-        if (hasEntryProvider && !this.hasEntryProvider) {
+    setHasLazyLoadingEntryProvider(hasLazyLoadingEntryProvider) {
+        if (hasLazyLoadingEntryProvider && !this.hasLazyLoadingEntryProvider) {
             this.setOption("events", (info, successCallback, failureCallback)=> {
                 this.$server.fetchFromServer({
                     start: this._formatDate(info.start),
@@ -544,7 +544,7 @@ export class FullCalendar extends PolymerElement {
 
                 // failureCallback(err);
             });
-        } else if(!hasEntryProvider && this.hasEntryProvider) {
+        } else if(!hasLazyLoadingEntryProvider && this.hasLazyLoadingEntryProvider) {
             this.setOption("events", []);
         }
     }
