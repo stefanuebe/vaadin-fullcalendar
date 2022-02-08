@@ -42,8 +42,6 @@ import java.util.*;
  * <br><br>
  * To create a recurring entry, simply set any of the "recurring" properties. With any of them set the entry
  * is automatically recurring.
- * <br><br>
- * <i><b>Note: </b>Creation of an entry might be exported to a builder later.</i>
  */
 public class Entry extends JsonItem<String> {
 
@@ -60,10 +58,8 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * The calendar instance to be used internally. There is NO automatic removal or add when the calendar changes.
+     * The referenced calendar instance. Can be null.
      */
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.PROTECTED)
     private FullCalendar calendar;
 
     /**
@@ -83,7 +79,6 @@ public class Entry extends JsonItem<String> {
      */
     public Entry(String id) {
         super(id == null ? UUID.randomUUID().toString() : id);
-        setEditable(true);
     }
 
     /**
@@ -103,8 +98,8 @@ public class Entry extends JsonItem<String> {
     }
 
     @Override
-    protected void writeJsonOnUpdate(JsonObject jsonObject) {
-        if (isRecurring() || isMarkedAsChangedProperty(EntryKey.RECURRING_DAYS_OF_WEEKS)) {
+    protected void toJson(JsonObject jsonObject, boolean changedValuesOnly) {
+        if (changedValuesOnly && (isRecurring() || isMarkedAsChangedProperty(EntryKey.RECURRING_DAYS_OF_WEEKS))) {
             // Current issues with built in properties (therefore the special handlings of recurring and resources)
             // - https://github.com/fullcalendar/fullcalendar/issues/4393
             // - https://github.com/fullcalendar/fullcalendar/issues/5166
@@ -112,12 +107,13 @@ public class Entry extends JsonItem<String> {
             // Therefore this if will lead to a lot of "reset event", due to the fact, that resource editable
             // etc. might be set often.
 
-            super.writeJsonOnAdd(jsonObject);
+            super.toJson(jsonObject, false); // override the "changed" and write all values
             writeHardResetToJson(jsonObject);
         } else {
-            super.writeJsonOnUpdate(jsonObject);
+            super.toJson(jsonObject, changedValuesOnly);
         }
     }
+
 
     /**
      * Returns the start of the entry as local date time. Represents the UTC date time this entry starts, which
@@ -1373,7 +1369,6 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key START_EDITABLE = JsonItem.Key.builder()
                 .name("startEditable")
                 .allowedType(Boolean.class)
-                .defaultValue(true)
                 .build();
 
         /**
@@ -1385,7 +1380,6 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key DURATION_EDITABLE = JsonItem.Key.builder()
                 .name("durationEditable")
                 .allowedType(Boolean.class)
-                .defaultValue(true)
                 .build();
 
         /**

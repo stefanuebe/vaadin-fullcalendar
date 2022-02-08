@@ -78,7 +78,7 @@ public abstract class JsonItem<ID_TYPE> {
      * @param <T>                  return type
      * @return property value (can be null)
      */
-    public <T> T getOrInit(Key key, SerializableFunction<JsonItem, T> defaultValueCallback) {
+    public <T> T getOrInit(Key key, SerializableFunction<JsonItem<ID_TYPE>, T> defaultValueCallback) {
         if (!has(key)) {
             T defaultValue = defaultValueCallback.apply(this);
             set(key, defaultValue);
@@ -258,16 +258,27 @@ public abstract class JsonItem<ID_TYPE> {
      *
      * @param key key
      * @return is empty
+     * @deprecated use {@link #isEmptyString(Key)} instead
      */
+    @Deprecated
     public boolean isEmpty(Key key) {
-        Object serializable = get(key);
-        return serializable == null || serializable.toString().isEmpty();
+        return isEmptyString(key);
+    }
+
+    /**
+     * Checks if the property identified by the given key is an empty string.
+     *
+     * @param key key
+     * @return is empty
+     */
+    public boolean isEmptyString(Key key) {
+        return isEmpty(key, "");
     }
 
     /**
      * Checks if the property identified by the given key is empty. Since empty is
      * relative to the type, the second parameter has to determine the "default" empty
-     * value (e.g. 0 or false). Must not be null.
+     * value (e.g. 0 or false).
      *
      * @param key   key
      * @param empty empty represent
@@ -299,7 +310,7 @@ public abstract class JsonItem<ID_TYPE> {
      */
     public void setNotEmpty(Key key, @NotNull String value) {
         if (StringUtils.isEmpty(value)) {
-            throw new IllegalArgumentException(key.getName() + " does not allow empty strings");
+            throw new IllegalArgumentException(key.getName() + " does not allow null or empty strings");
         }
         set(key, value);
     }
@@ -313,7 +324,7 @@ public abstract class JsonItem<ID_TYPE> {
      */
     public void setNotBlank(Key key, @NotNull String value) {
         if (StringUtils.isBlank(value)) {
-            throw new IllegalArgumentException(key.getName() + " does not allow blank strings");
+            throw new IllegalArgumentException(key.getName() + " does not allow null or blank strings");
         }
         set(key, value);
     }
@@ -359,8 +370,34 @@ public abstract class JsonItem<ID_TYPE> {
         return knownToTheClient;
     }
 
+    /**
+     * Checks, if the given key is currently marked as "changed", either due to a value change or
+     * by calling {@link #markAsChangedProperty}.
+     * <p/>
+     * As long as this instance is not known to the client, this method returns false.
+     * @param key key
+     * @return is marked as a changed property
+     */
     public boolean isMarkedAsChangedProperty(Key key) {
         return changedProperties.contains(key);
+    }
+
+    /**
+     * Manually marks the given keys as "changed" without changing the value itself. This should be used,
+     * if a property itself does not change, but is related to another property, that has changed.
+     * Does also check, if the property might be marked as a changed property at all by calling
+     * {@link #isToBeMarkedAsChangedProperty(Key)} first. Therefore it is NOOP for items not known to the client.
+     *
+     * @param keys keys to be marked as changed
+     */
+    public void markAsChangedProperty(Key... keys) {
+        if (isKnownToTheClient()) {
+            for (Key key : keys) {
+                if (has(key) && isToBeMarkedAsChangedProperty(key)) {
+                    changedProperties.add(key);
+                }
+            }
+        }
     }
 
     /**
@@ -412,7 +449,7 @@ public abstract class JsonItem<ID_TYPE> {
      *
      * @return json object representing this instance
      */
-    public final JsonObject toJson() {
+    public JsonObject toJson() {
         return toJson(false);
     }
 
@@ -423,98 +460,53 @@ public abstract class JsonItem<ID_TYPE> {
      * @param changedValuesOnly only write changed values
      * @return json object representing this instance
      */
-    public final JsonObject toJson(boolean changedValuesOnly) {
+    public JsonObject toJson(boolean changedValuesOnly) {
         JsonObject jsonObject = Json.createObject();
+        toJson(jsonObject, changedValuesOnly);
+        return jsonObject;
+    }
+
+    /**
+     * Called by {@link #toJson(boolean)} to write this instance's values to the given json object depending
+     * on the given boolean parameter.
+     * @param jsonObject json object
+     * @param changedValuesOnly changed values only
+     */
+    protected void toJson(JsonObject jsonObject, boolean changedValuesOnly) {
         if (changedValuesOnly) {
             writeValuesToJsonWhenChanged(jsonObject);
+            writeIdToJson(jsonObject);
         } else {
             writeValuesToJson(jsonObject, false);
         }
-        return jsonObject;
     }
 
     /**
-     * Converts this instance to a json object, which can be used, when an item has been added to the calendar.
-     * Creates the json object and passes it to {@link #writeJsonOnAdd(JsonObject)}.
+     * Converts this instance to a json object, that only contains the id. This still represents
+     * this item but without any data.
      *
      * @return json object representing this instance
      */
-    public final JsonObject toJsonOnAdd() {
+    public JsonObject toJsonWithIdOnly() {
         JsonObject jsonObject = Json.createObject();
-        writeJsonOnAdd(jsonObject);
-        return jsonObject;
-    }
-
-    /**
-     * This method is called when this instance is added to the calendar to convert and write all necessary properties
-     * to the given json object, that are needed to inform the client side.
-     * <p/>
-     * Calls by default {@link #writeValuesToJson} with writeUnsetProperties == {@code false}.
-     *
-     * @param jsonObject json object to fill
-     */
-    protected void writeJsonOnAdd(JsonObject jsonObject) {
-        writeValuesToJson(jsonObject, false);
-    }
-
-    /**
-     * Converts this instance to a json object, which can be called, when an existing item shall
-     * be updated in the calendar.
-     * Creates the json object and passes it to {@link #writeJsonOnUpdate(JsonObject)}.
-     * <p/>
-     * It is recommended to call {@link #clearDirtyState()} afterwards.
-     *
-     * @return json object representing this instance
-     */
-    public final JsonObject toJsonOnUpdate() {
-        JsonObject jsonObject = Json.createObject();
-        writeJsonOnUpdate(jsonObject);
-        return jsonObject;
-    }
-
-    /**
-     * This method is called when this instance is updated to convert and write all necessary properties
-     * to the given json object, that are needed to inform the client side.
-     * <p/>
-     * Calls by default {@link #writeValuesToJsonWhenChanged(JsonObject)} and also writes the id to the json object.
-     * The id is always written after the changed values have been written.
-     *
-     * @param jsonObject json object to fill
-     */
-    protected void writeJsonOnUpdate(JsonObject jsonObject) {
-        writeValuesToJsonWhenChanged(jsonObject);
         writeIdToJson(jsonObject);
-    }
-
-    /**
-     * Converts this instance to a json object, which can be called, when an existing item shall
-     * be removed from the calendar.
-     * Creates the json object and passes it to {@link #writeJsonOnDelete(JsonObject)}.
-     *
-     * @return json object representing this instance
-     */
-    public final JsonObject toJsonOnDelete() {
-        JsonObject jsonObject = Json.createObject();
-        writeJsonOnDelete(jsonObject);
         return jsonObject;
     }
 
     /**
-     * This method is called when this instance is deleted from the calendar to convert and write all necessary properties
-     * to the given json object, that are needed to inform the client side.
-     * <p/>
-     * Writes by default only the id to the json object.
-     *
-     * @param jsonObject json object to fill
+     * Writes the id to the given json object.
+     * @param jsonObject json object
      */
-    protected void writeJsonOnDelete(JsonObject jsonObject) {
-        writeIdToJson(jsonObject);
-    }
-
     protected void writeIdToJson(JsonObject jsonObject) {
         writeValueToJson(jsonObject, getIdKey());
     }
 
+    /**
+     * Writes a "hard reset" flag to the given json object.
+     * @param jsonObject json object
+     * @deprecated might be removed in future
+     */
+    @Deprecated
     protected void writeHardResetToJson(JsonObject jsonObject) {
         writeRawValueToJson(jsonObject, _HARD_RESET, JsonUtils.toJsonValue(true));
     }
@@ -940,15 +932,6 @@ public abstract class JsonItem<ID_TYPE> {
     }
 
     /**
-     * Manually marks the given keys as "changed" without changing the value itself. This should be used,
-     * if a property itself does not change, but is related to another property, that has changed.
-     * @param keys keys to be marked as changed
-     */
-    public void markAsChangedProperty(Key... keys) {
-        changedProperties.addAll(Arrays.asList(keys));
-    }
-
-    /**
      * Manually marks the given keys, where {@link #has(Key)} returns true, as "changed" without changing the value
      * itself. This should be used, if a property itself does not change, but is related to another property, that has changed.
      * @param keys keys to be marked as changed
@@ -1010,6 +993,7 @@ public abstract class JsonItem<ID_TYPE> {
     @RequiredArgsConstructor
     @EqualsAndHashCode(of = "name")
     @Builder
+    @ToString(of = "name")
     public static class Key {
         /**
          * The name of the key. Must be unique inside its using scope.

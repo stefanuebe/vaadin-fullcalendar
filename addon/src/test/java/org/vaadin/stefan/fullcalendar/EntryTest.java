@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.vaadin.stefan.fullcalendar.Entry.*;
 
@@ -177,16 +174,18 @@ public class EntryTest {
     @Test
     void testToJsonEmpty() {
         Entry entry = new Entry();
-        JsonObject jsonObject = entry.toJsonOnAdd();
+        JsonObject jsonObject = entry.toJson(false);
+
+        Set<Key> defaultKeys = new HashSet<>(Arrays.asList(EntryKey.ID, EntryKey.EDITABLE));
 
         Assertions.assertEquals(entry.getId(), jsonObject.getString("id"));
         Set<Key> keys = Key.readAndRegisterKeys(EntryKey.class);
 
         for (Key key : keys) {
-            if (key != EntryKey.ID && key.getDefaultValue() == null) {
-                Assertions.assertFalse(jsonObject.hasKey(key.getName()), key.getName());
-            } else {
+            if (defaultKeys.contains(key)) {
                 Assertions.assertTrue(jsonObject.hasKey(key.getName()), key.getName());
+            } else {
+                Assertions.assertFalse(jsonObject.hasKey(key.getName()), key.getName());
             }
         }
     }
