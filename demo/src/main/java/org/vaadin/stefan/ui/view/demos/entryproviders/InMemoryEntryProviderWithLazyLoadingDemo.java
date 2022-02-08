@@ -18,8 +18,7 @@ import java.util.stream.Collectors;
 public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProviderDemo {
 
     public InMemoryEntryProviderWithLazyLoadingDemo() {
-        super(true, "This demo shows an EntryProvider implementation, that fetches its data from " +
-                "a simulated database. Items are created temporary based on the respective backend entities.");
+        super(true, "TBD: lazy in memory provider");
     }
 
     @Override
