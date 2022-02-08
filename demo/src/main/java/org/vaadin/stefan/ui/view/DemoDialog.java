@@ -249,7 +249,7 @@ public class DemoDialog extends Dialog {
                 dialogEntry.setEnd(entry.isAllDay() ? endDate.atStartOfDay().plusDays(1) : endDate.atTime(entry.getRecurringEndTime()));
             } else {
                 dialogEntry.setStart(entry.getStartWithOffset(timezone));
-                dialogEntry.setEnd(entry.getStartWithOffset(timezone));
+                dialogEntry.setEnd(entry.getEndWithOffset(timezone));
             }
 
             return dialogEntry;
@@ -273,10 +273,8 @@ public class DemoDialog extends Dialog {
                 entry.clearEnd();
 
                 entry.setRecurringStartDate(start.toLocalDate());
-                entry.setRecurringStartDate(start.toLocalDate());
                 entry.setRecurringStartTime(allDay ? null : start.toLocalTime());
 
-                entry.setRecurringEndDate(end.toLocalDate());
                 entry.setRecurringEndDate(end.toLocalDate());
                 entry.setRecurringEndTime(allDay ? null : end.toLocalTime());
             } else {
