@@ -275,25 +275,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return entries entries
      */
     public List<Entry> getEntries() {
-        // TODO this should be an unmodifiable list, as most api in the addon does it that way.
         return new ArrayList<>(entries.values());
     }
 
     /**
-     * Returns all entries registered in this instance which timespan crosses the given time span. You may
+     * Returns all entries registered in this instance which timespan crosses the given time span as a new list. You may
      * pass null for the parameters to have the timespan search only on one side. Passing null for both
      * parameters return all entries.
-     * <br><br>
-     * Changes in an entry instance is reflected in the
-     * calendar instance on server side, but not client side. If you change an entry make sure to call
-     * {@link #updateEntry(Entry)} afterwards.
-     * <br><br>
-     * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
-     * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
-     * exclusive to the date.
-     * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
-     * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
-     * include it.
      *
      * @param filterStart start point of filter timespan or null to have no limit
      * @param filterEnd   end point of filter timespan or null to have no limit
@@ -304,22 +292,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * // TODO OUTDATED DOCS
-     * Returns all entries registered in this instance which timespan crosses the given time span. You may
+     * Returns all entries registered in this instance which timespan crosses the given time span as a new list. You may
      * pass null for the parameters to have the timespan search only on one side. Passing null for both
-     * parameters return all entries. The times are converted
-     * to UTC before searching. The conversion is done with the calendars timezone.
-     * <br><br>
-     * Changes in an entry instance is reflected in the
-     * calendar instance on server side, but not client side. If you change an entry make sure to call
-     * {@link #updateEntry(Entry)} afterwards.
-     * <br><br>
-     * Please be aware that the filter and entry times are exclusive due to the nature of the FC entries
-     * to range from e.g. 07:00-08:00 or "day 1, 0:00" to "day 2, 0:00" where the end is a marker but somehow
-     * exclusive to the date.
-     * That means, that search for 06:00-07:00 or 08:00-09:00 will NOT include the given time example.
-     * Searching for anything between these two timespans (like 06:00-07:01, 07:30-10:00, 07:59-09:00, etc.) will
-     * include it.
+     * parameters return all entries.
      *
      * @param filterStart start point of filter timespan or null to have no limit
      * @param filterEnd   end point of filter timespan or null to have no limit
@@ -344,11 +319,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Returns all entries registered in this instance which timespan crosses the given date.
-     * <br><br>
-     * Changes in an entry instance is reflected in the
-     * calendar instance on server side, but not client side. If you change an entry make sure to call
-     * {@link #updateEntry(Entry)} afterwards.
+     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
      *
      * @param date end point of filter timespan
      * @return entries
@@ -359,13 +330,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * // TODO OUTDATED DOCS
-     * Returns all entries registered in this instance which timespan crosses the given date. The date is converted
-     * to UTC before searching. The conversion is done with the calendars timezone.
-     * <br><br>
-     * Changes in an entry instance is reflected in the
-     * calendar instance on server side, but not client side. If you change an entry make sure to call
-     * {@link #updateEntry(Entry)} afterwards.
+     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
+
      *
      * @param date end point of filter timespan
      * @return entries
@@ -378,18 +344,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
 
     /**
-     * // TODO OUTDATED DOCS
-     * Returns all entries registered in this instance which timespan crosses the given date time. The date time is converted
-     * to UTC before searching. The conversion is done with the calendars timezone.
-     * <br><br>
-     * Changes in an entry instance is reflected in the
-     * calendar instance on server side, but not client side. If you change an entry make sure to call
-     * {@link #updateEntry(Entry)} afterwards.
+     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
+
      *
      * @param dateTime end point of filter timespan
      * @return entries
      * @throws NullPointerException when null is passed
-     */
+     * */
     public List<Entry> getEntries(@NotNull LocalDateTime dateTime) {
         Objects.requireNonNull(dateTime);
         return getEntries(dateTime, dateTime.plusDays(1));
@@ -546,7 +507,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                     tmpChange.removeAll(tmpRemove);
 
                     JsonArray entriesToAdd = convertItemsToJson(tmpAdd, item -> {
-                        JsonObject json = item.toJsonOnAdd();
+                        JsonObject json = item.toJson(false);
                         item.setKnownToTheClient(true);
                         item.clearDirtyState();
                         return json;
@@ -556,7 +517,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                         String id = item.getId();
                         if (item.isDirty() && entries.containsKey(id)) {
                             item.setKnownToTheClient(true);
-                            JsonObject json = item.toJsonOnUpdate();
+                            JsonObject json = item.toJson(true);
                             item.clearDirtyState();
                             return json;
                         }
@@ -565,7 +526,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
                     JsonArray entriesToRemove = convertItemsToJson(tmpRemove, item -> {
                         // only send some json to delete, if the item has not been created previously internally
-                        JsonObject jsonObject = item.toJsonOnDelete();
+                        JsonObject jsonObject = item.toJsonWithIdOnly();
                         item.setKnownToTheClient(false);
                         return jsonObject;
                     });
