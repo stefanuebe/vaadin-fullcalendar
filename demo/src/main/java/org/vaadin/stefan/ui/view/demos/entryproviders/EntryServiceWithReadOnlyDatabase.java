@@ -1,6 +1,5 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
-import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -19,45 +19,48 @@ import java.util.stream.Stream;
  * @author Stefan Uebe
  */
 @Service
-@UIScope
-public class EntryService {
+public class EntryServiceWithReadOnlyDatabase {
 
     private final Map<String, EntryData> database = new HashMap<>();
+
+
+    public EntryServiceWithReadOnlyDatabase() {
+        System.out.println("Initialize entry service readonly database");
+        LocalDate date = LocalDate.of(2010, 1, 1).withDayOfYear(1);
+        LocalDate end = LocalDate.now().plusYears(10);
+
+        Random random = new Random();
+
+        while (date.isBefore(end)) {
+            int maxDays = date.lengthOfMonth();
+            for (int i = 0; i < 8; i++) {
+                LocalDate start = date.withDayOfMonth(random.nextInt(maxDays) + 1);
+                createAt(start, random.nextBoolean());
+            }
+
+            date = date.plusMonths(1);
+        }
+
+        System.out.println("Created " + count() + " dates");
+    }
 
     public Optional<Entry> getEntry(String id) {
         return Optional.ofNullable(database.get(id)).map(this::toEntry);
     }
 
-    @Data
-    @AllArgsConstructor
-    private static class EntryData {
-        private final String id;
-        private String title;
-        private LocalDateTime start;
-        private LocalDateTime end;
-        private boolean allDay;
+    public int count() {
+        return database.size();
     }
 
-    public EntryService() {
-        initDatabase();
-    }
-
-    private void initDatabase() {
-        LocalDate date = LocalDate.now().withDayOfYear(1);
-        LocalDate end = date.plusYears(1);
-
-        int ids = 0;
-        while (date.isBefore(end)) {
-            LocalDate start = date.withDayOfMonth(10);
-
-            EntryData day = new EntryData("" + ids++, "Day event " + date.getMonth(), start.atStartOfDay(), start.plusDays(1).atStartOfDay(), true);
-            EntryData time = new EntryData("" + ids++, "Time event " + date.getMonth(), start.atStartOfDay(), start.atTime(10,0), false);
-
+    private void createAt(LocalDate date, boolean allDay) {
+        if (allDay) {
+            EntryData day = new EntryData("" + database.size(), "Day event " + database.size(), date.atStartOfDay(), date.plusDays(1).atStartOfDay(), true);
             database.put(day.getId(), day);
+        } else {
+            EntryData time = new EntryData("" + database.size(), "Time event " + database.size(), date.atStartOfDay(), date.atTime(10, 0), false);
             database.put(time.getId(), time);
-
-            date = date.plusMonths(1);
         }
+
     }
 
     public Stream<Entry> streamEntries(EntryQuery query) {
@@ -101,5 +104,15 @@ public class EntryService {
         entry.setEnd(entryData.getEnd());
         entry.setAllDay(entryData.isAllDay());
         return entry;
+    }
+
+    @Data
+    @AllArgsConstructor
+    private static class EntryData {
+        private final String id;
+        private String title;
+        private LocalDateTime start;
+        private LocalDateTime end;
+        private boolean allDay;
     }
 }

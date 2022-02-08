@@ -44,6 +44,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.backgroundevent.DemoCalendarWithBackgroundEvent;
+import org.vaadin.stefan.ui.view.demos.entryproviders.EntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
 import org.vaadin.stefan.ui.view.demos.customdaygrid.DemoDayGridWeekWithSixWeeks;
 import org.vaadin.stefan.ui.view.demos.customtimeline.DemoTimelineWith28Days;
@@ -148,8 +149,9 @@ public class MainLayout extends AppLayoutRouterLayout {
                 .addToSection(HEADER, header)
                 .addToSection(FOOTER, footerLayout);
 
-        addMenu(menuBuilder, BasicDemo.class);
         addMenu(menuBuilder, FullDemo.class);
+        addMenu(menuBuilder, BasicDemo.class);
+        addMenu(menuBuilder, EntryProviderDemo.class);
         addMenu(menuBuilder, DemoWithTooltip.class);
         addMenu(menuBuilder, DemoCustomProperties.class);
         addMenu(menuBuilder, DemoCalendarWithBackgroundEvent.class);
