@@ -19,7 +19,6 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
-import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -75,20 +74,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private static final String JSON_INITIAL_OPTIONS = "initialOptions";
 
-    private final Map<String, Entry> entries = new HashMap<>();
+    //    private final Map<String, Entry> entries = new HashMap<>();
     private final Map<String, Serializable> options = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
-    private EntryProvider<Entry> entryProvider;
+    private EntryProvider<Entry> entryProvider = new InMemoryEntryProvider<>();
     private List<Registration> entryProviderDataListeners;
 
-    private final Set<Entry> tmpAdd = new HashSet<>();
-    private final Set<Entry> tmpChange = new HashSet<>();
-    private final Set<Entry> tmpRemove = new HashSet<>();
+//    private final Set<Entry> tmpAdd = new HashSet<>();
+//    private final Set<Entry> tmpChange = new HashSet<>();
+//    private final Set<Entry> tmpRemove = new HashSet<>();
 
-    private boolean updateRegistered;
-    private boolean detached;
-    private boolean resendAll;
+//    private boolean updateRegistered;
+//    private boolean detached;
+//    private boolean resendAll;
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
@@ -118,7 +117,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <br><br>
      * Sets the locale to {@link CalendarLocale#getDefault()}
      *
-     *
      * @param entryLimit The max number of stacked event levels within a given day. This includes the +more link if present. The rest will show up in a popover.
      */
     public FullCalendar(int entryLimit) {
@@ -137,7 +135,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * initial options, that the calendar would normally receive. Theoretically you can set all options,
      * as long as they are not based on a client side variable (as for instance "plugins" or "locales").
      * Complex objects are possible, too, for instance for view-specific settings.
-     *  Please refer to the official FC documentation regarding potential options.
+     * Please refer to the official FC documentation regarding potential options.
      * <br><br>
      * Client side event handlers, that are technically also a part of the options are still applied to
      * the options object. However you may set your own event handlers with the correct name. In that case
@@ -153,10 +151,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Also, options set this way are not cached in the server side state. Calling any of the
      * {@code getOption(...)} methods will result in {@code null} (or the respective native default).
      *
-     * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
-     *
      * @param initialOptions initial options
      * @throws NullPointerException when null is passed
+     * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendar(@NotNull JsonObject initialOptions) {
         getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
@@ -171,14 +168,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         addDatesRenderedListener(event -> {
             latestKnownViewName = event.getName();
             latestKnownIntervalStart = event.getIntervalStart();
-        });
-
-        addAttachListener(event -> {
-            if (detached) {
-                this.resendAll = true;
-                triggerClientSideUpdate();
-                this.detached = false;
-            }
         });
     }
 
@@ -205,8 +194,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                     }
 
                     // entries
-                    JsonArray entriesJson = Json.createArray();
-                    entries.values().forEach(entry -> entriesJson.set(entriesJson.length(), entry.toJson()));
+//                    JsonArray entriesJson = Json.createArray();
+//                    entries.values().forEach(entry -> entriesJson.set(entriesJson.length(), entry.toJson()));
 
                     // We do not use setProperty since that would also store the jsonified state in this instance.
                     // Especially with a huge amount of entries this could lead to memory issues.
@@ -215,8 +204,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                             Json.createArray(), // TODO
                             JsonUtils.toJsonValue(latestKnownViewName),
                             JsonUtils.toJsonValue(latestKnownIntervalStart));
+
                 });
             });
+        }
+
+        if (entryProvider instanceof InMemoryEntryProvider && ((InMemoryEntryProvider<Entry>) entryProvider).isEagerLoading()) {
+            entryProvider.refreshAll(); // trigger the client side update
         }
     }
 
@@ -254,26 +248,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     public void setEntryProvider(EntryProvider<Entry> entryProvider) {
+        Objects.requireNonNull(entryProvider);
+
         if (this.entryProvider != entryProvider) {
+            this.entryProvider = entryProvider;
+            entryProvider.setCalendar(this);
+
             if (entryProviderDataListeners != null) {
                 entryProviderDataListeners.forEach(Registration::remove);
             }
 
-            if (entryProvider == null || entryProvider instanceof InMemoryEntryProvider) {
-                // todo
+            if (entryProvider instanceof InMemoryEntryProvider && ((InMemoryEntryProvider<Entry>) entryProvider).isEagerLoading()) {
+                entryProvider.refreshAll();
             } else {
                 entryProviderDataListeners = Arrays.asList(
                         entryProvider.addEntriesChangeListener(event -> getElement().callJsFunction("refreshAllEntries")),
-
                         // TODO can this be improved?
                         entryProvider.addEntryRefreshListener(event -> getElement().callJsFunction("refreshAllEntries"))
                 );
 
-                getElement().callJsFunction("setHasEntryProvider", true);
+                getElement().callJsFunction("setHasLazyLoadingEntryProvider", true);
             }
+
         }
 
-        this.entryProvider = entryProvider;
     }
 
     @ClientCallable
@@ -303,7 +301,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public Optional<Entry> getEntryById(@NotNull String id) {
         Objects.requireNonNull(id);
-        return entryProvider != null ? entryProvider.fetchById(id) : Optional.ofNullable(entries.get(id));
+        return entryProvider.fetchById(id);
     }
 
     /**
@@ -320,7 +318,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return entries entries
      */
     public List<Entry> getEntries() {
-        return new ArrayList<>(entries.values());
+        return entryProvider.fetchAll().collect(Collectors.toList());
     }
 
     /**
@@ -422,6 +420,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         addEntries(Arrays.asList(arrayOfEntries));
     }
 
+    protected InMemoryEntryProvider<Entry> assureInMemoryProvider() {
+        if (!(entryProvider instanceof InMemoryEntryProvider)) {
+            throw new UnsupportedOperationException("Needs an InMemoryEntryProvider to work.");
+        }
+
+        return (InMemoryEntryProvider<Entry>) entryProvider;
+    }
+
     /**
      * Adds a list of entries to the calendar. Noop for the entry id is already registered.
      *
@@ -429,19 +435,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @throws NullPointerException when null is passed
      */
     public void addEntries(@NotNull Iterable<Entry> iterableEntries) {
-        Objects.requireNonNull(iterableEntries);
-
-        iterableEntries.forEach(entry -> {
-            String id = entry.getId();
-
-            if (!entries.containsKey(id)) {
-                entry.setCalendar(this);
-                entries.put(id, entry);
-                tmpAdd.add(entry);
-            }
-        });
-
-        triggerClientSideUpdate();
+        assureInMemoryProvider().addEntries(iterableEntries);
     }
 
     /**
@@ -473,9 +467,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @throws NullPointerException when null is passed
      */
     public void updateEntries(@NotNull Iterable<Entry> iterableEntries) {
-        Objects.requireNonNull(iterableEntries);
-        iterableEntries.forEach(tmpChange::add);
-        triggerClientSideUpdate();
+        assureInMemoryProvider().updateEntries(iterableEntries);
     }
 
     /**
@@ -506,111 +498,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @throws NullPointerException when null is passed
      */
     public void removeEntries(@NotNull Iterable<Entry> iterableEntries) {
-        Objects.requireNonNull(iterableEntries);
-
-        iterableEntries.forEach(entry -> {
-            String id = entry.getId();
-            if (entries.remove(id) != null) {
-                entry.setCalendar(null);
-                tmpRemove.add(entry);
-            }
-        });
-
-        triggerClientSideUpdate();
+        assureInMemoryProvider().removeEntries(iterableEntries);
     }
 
     /**
      * Remove all entries.
      */
     public void removeAllEntries() {
-        removeEntries(new ArrayList<>(entries.values())); // prevent concurrent mod exception
-        triggerClientSideUpdate();
-    }
-
-    /**
-     * This method is used to inform this component, that some data items have changed. Can be called multiple times
-     * (continuing calls are noop).
-     * <p/>
-     * Registers a single time task before the response is sent to the client. This task will check for
-     * added, updated and removed items, filter them depending on each other and then convert the items
-     * to their respective json items. The resulting json objects are then send to the client.
-     */
-    private void triggerClientSideUpdate() {
-//        if (!updateRegistered) {
-//            updateRegistered = true;
-//            getElement().getNode().runWhenAttached(ui -> {
-//                ui.beforeClientResponse(this, pExecutionContext -> {
-//                    if (resendAll) {
-//                        tmpAdd.addAll(entries.values());
-//                    }
-//
-//                    // items that are not yet on the client need no update
-//                    tmpChange.removeAll(tmpAdd);
-//
-//                    // items to be deleted, need not to be added or updated on the client
-//                    tmpAdd.removeAll(tmpRemove);
-//                    tmpChange.removeAll(tmpRemove);
-//
-//                    JsonArray entriesToAdd = convertItemsToJson(tmpAdd, item -> {
-//                        JsonObject json = item.toJsonOnAdd();
-//                        item.setKnownToTheClient(true);
-//                        item.clearDirtyState();
-//                        return json;
-//                    });
-//
-//                    JsonArray entriesToUpdate = convertItemsToJson(tmpChange, item -> {
-//                        String id = item.getId();
-//                        if (item.isDirty() && entries.containsKey(id)) {
-//                            item.setKnownToTheClient(true);
-//                            JsonObject json = item.toJsonOnUpdate();
-//                            item.clearDirtyState();
-//                            return json;
-//                        }
-//                        return null;
-//                    });
-//
-//                    JsonArray entriesToRemove = convertItemsToJson(tmpRemove, item -> {
-//                        // only send some json to delete, if the item has not been created previously internally
-//                        JsonObject jsonObject = item.toJsonOnDelete();
-//                        item.setKnownToTheClient(false);
-//                        return jsonObject;
-//                    });
-//
-//                    if (entriesToAdd.length() > 0) {
-//                        getElement().callJsFunction("addEvents", entriesToAdd);
-//                    }
-//                    if (entriesToUpdate.length() > 0) {
-//                        getElement().callJsFunction("updateEvents", entriesToUpdate);
-//                    }
-//                    if (entriesToRemove.length() > 0) {
-//                        getElement().callJsFunction("removeEvents", entriesToRemove);
-//                    }
-//
-//                    tmpAdd.clear();
-//                    tmpChange.clear();
-//                    tmpRemove.clear();
-//
-//                    updateRegistered = false;
-//
-//                    // if there is a request to resend all, it must be removed here
-//                    resendAll = false;
-//                });
-//            });
-//        }
-    }
-
-    protected JsonArray convertItemsToJson(@NotNull final Collection<Entry> pItems, final SerializableFunction<Entry, JsonValue> pItemConversionCallback) {
-        Objects.requireNonNull(pItems);
-
-        JsonArray array = com.vaadin.flow.internal.JsonUtils.createArray();
-        for (Entry item : pItems) {
-            JsonValue convertedItem = pItemConversionCallback.apply(item);
-            if (convertedItem != null) {
-                array.set(array.length(), convertedItem);
-            }
-        }
-
-        return array;
+        assureInMemoryProvider().removeAllEntries();
     }
 
     /**
@@ -825,14 +720,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setWeekNumbersVisible(boolean weekNumbersVisible) {
         setOption(Option.WEEK_NUMBERS, weekNumbersVisible);
     }
-    
+
     /**
      * Determines the styling for week numbers in Month and DayGrid views.
      *
      * @param weekNumbersWithinDays by default to false
      */
     public void setWeekNumbersWithinDays(boolean weekNumbersWithinDays) {
-    	setOption(Option.WEEK_NUMBERS_WITHIN_DAYS, weekNumbersWithinDays);
+        setOption(Option.WEEK_NUMBERS_WITHIN_DAYS, weekNumbersWithinDays);
     }
 
     /**
@@ -907,7 +802,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setEntryClassNamesCallback(String s) {
         getElement().callJsFunction("setEventClassNamesCallback", s);
     }
-    
+
     /**
      * The given string will be interpreted as JS function on the client side
      * and attached to the calendar as the eventContent callback. It must be a valid JavaScript function.
@@ -938,7 +833,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setEntryContentCallback(String s) {
         getElement().callJsFunction("setEventContentCallback", s);
     }
-    
+
     /**
      * Deprecated. Use {@link #setEntryDidMountCallback(String s)} instead.
      *
@@ -946,9 +841,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     @Deprecated
     public void setEventDidMountCallback(String s) {
-    	setEntryDidMountCallback(s);
+        setEntryDidMountCallback(s);
     }
-    
+
     /**
      * The given string will be interpreted as JS function on the client side
      * and attached to the calendar as the eventDidMount callback. It must be a valid JavaScript function.
@@ -964,7 +859,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void setEntryDidMountCallback(String s) {
         getElement().callJsFunction("setEventDidMountCallback", s);
     }
-    
+
     /**
      * Deprecated. Use {@link #setEntryWillUnmountCallback(String s)} instead.
      *
@@ -972,9 +867,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     @Deprecated
     public void setEventWillUnmountCallback(String s) {
-    	setEntryWillUnmountCallback(s);
+        setEntryWillUnmountCallback(s);
     }
-    
+
     /**
      * The given string will be interpreted as JS function on the client side
      * and attached to the calendar as the eventWillUnmount callback. It must be a valid JavaScript function.
@@ -1049,11 +944,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Determines the number of weeks displayed in a month view.
-     * If true, the calendar will always be 6 weeks tall. 
+     * If true, the calendar will always be 6 weeks tall.
      * If false, the calendar will have either 4, 5, or 6 weeks, depending on the month.
-     * 
+     *
      * @param fixedWeekCount
-     * 
      */
     public void setFixedWeekCount(boolean fixedWeekCount) {
         setOption(Option.FIXED_WEEK_COUNT, fixedWeekCount);
@@ -1078,11 +972,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return time zone
      */
     public Timezone getTimezone() {
-    	return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
+        return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
     }
 
     /**
      * Sets the timezone the calendar shall show. Does not affect the entries directly but only their client side displayment.
+     *
      * @param timezone
      */
     public void setTimezone(Timezone timezone) {
@@ -1090,91 +985,91 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         Timezone oldTimezone = getTimezone();
         if (!timezone.equals(oldTimezone)) {
-        	setOption(Option.TIMEZONE, timezone.getClientSideValue(), timezone);
+            setOption(Option.TIMEZONE, timezone.getClientSideValue(), timezone);
         }
     }
 
     /**
      * Allow events’ durations to be editable through resizing.
-     * 
+     * <p>
      * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setDurationEditable(boolean)}
-     * 
+     *
      * @param editable editable
      */
     public void setEntryDurationEditable(boolean editable) {
-    	setOption(Option.ENTRY_DURATION_EDITABLE, editable);
+        setOption(Option.ENTRY_DURATION_EDITABLE, editable);
     }
-    
+
     /**
      * Returns the editable flag. By default true.
      *
      * @return editable editable
      */
     public boolean getEntryDurationEditable() {
-    	return (boolean) getOption(Option.ENTRY_DURATION_EDITABLE).orElse(true);
+        return (boolean) getOption(Option.ENTRY_DURATION_EDITABLE).orElse(true);
     }
 
     /**
      * Whether the user can resize an event from its starting edge.
-     * 
+     *
      * @param editable editable
      */
     public void setEntryResizableFromStart(boolean editable) {
-    	setOption(Option.ENTRY_RESIZABLE_FROM_START, editable);
+        setOption(Option.ENTRY_RESIZABLE_FROM_START, editable);
     }
-    
+
     /**
      * Returns the editable flag. By default false.
      *
      * @return editable editable
      */
     public boolean getEntryResizableFromStart() {
-    	return (boolean) getOption(Option.ENTRY_RESIZABLE_FROM_START).orElse(false);
+        return (boolean) getOption(Option.ENTRY_RESIZABLE_FROM_START).orElse(false);
     }
 
     /**
      * Allow events’ start times to be editable through dragging.
-     * 
+     * <p>
      * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setStartEditable(boolean)}
-     * 
+     *
      * @param editable editable
      */
     public void setEntryStartEditable(boolean editable) {
-    	setOption(Option.ENTRY_START_EDITABLE, editable);
+        setOption(Option.ENTRY_START_EDITABLE, editable);
     }
-    
+
     /**
      * Returns the editable flag. By default true.
      *
      * @return editable editable
      */
     public boolean getEntryStartEditable() {
-    	return (boolean) getOption(Option.ENTRY_START_EDITABLE).orElse(true);
+        return (boolean) getOption(Option.ENTRY_START_EDITABLE).orElse(true);
     }
 
     /**
      * Determines whether the events on the calendar can be modified.
-     * 
-     * This determines if the events can be dragged and resized. 
-     * Enables/disables both at the same time. 
+     * <p>
+     * This determines if the events can be dragged and resized.
+     * Enables/disables both at the same time.
      * If you don’t want both, use the more specific {@link #setEntryStartEditable(boolean)} and {@link #setEntryDurationEditable(boolean)} instead.
      * <br><br>
      * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setEditable(boolean)}.
      * However, Background Events can not be dragged or resized.
-     * 
+     *
      * @param editable editable
      */
     public void setEditable(boolean editable) {
-    	setOption(Option.EDITABLE, editable);
+        setOption(Option.EDITABLE, editable);
     }
-    
+
     /**
      * Returns the editable flag. By default false.
      *
      * @return editable editable
      */
     public boolean getEditable() {
-    	return (boolean) getOption(Option.EDITABLE).orElse(false);
+        return (boolean) getOption(Option.EDITABLE).orElse(false);
     }
 
     /**
@@ -1188,40 +1083,39 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Whether to include Saturday/Sunday columns in any of the calendar views.
-     * 
+     *
      * @param weekends
-     * 
      */
     public void setWeekends(boolean weekends) {
         setOption(Option.WEEKENDS, weekends);
     }
 
 
-    /** display the header.
-     * 
+    /**
+     * display the header.
+     *
      * @param header
-     * 
      */
     public void setHeaderToolbar(Header header) {
-    	setOption(Option.HEADER_TOOLBAR, header.toJson());
+        setOption(Option.HEADER_TOOLBAR, header.toJson());
     }
 
-    /**display the footer.
-     * 
+    /**
+     * display the footer.
+     *
      * @param footer
-     * 
      */
     public void setFooterToolbar(Footer footer) {
-    	setOption(Option.FOOTER_TOOLBAR, footer.toJson());
+        setOption(Option.FOOTER_TOOLBAR, footer.toJson());
     }
 
-    /**Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
-     * 
+    /**
+     * Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
+     *
      * @param columnHeader
-     * 
      */
     public void setColumnHeader(boolean columnHeader) {
-    	setOption(Option.COLUMN_HEADER, columnHeader);
+        setOption(Option.COLUMN_HEADER, columnHeader);
     }
 
     /**
@@ -1230,9 +1124,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return columnHeader
      */
     public boolean getColumnHeader() {
-    	 return (boolean) getOption(Option.COLUMN_HEADER).orElse(true);
+        return (boolean) getOption(Option.COLUMN_HEADER).orElse(true);
     }
-    
+
     /**
      * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone,
      * except for when the FC builder has been used with the auto timezone parameter.
@@ -1247,6 +1141,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Sets the browser time zone. This method is intended to be used by the client only.
+     *
      * @param timezoneId timezone id
      */
     @ClientCallable
@@ -1314,6 +1209,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      * <br><br>
      * Returns {@code null} for initial options. Please use #getRawOption(String)
+     *
      * @param option               option
      * @param forceClientSideValue explicitly return the value that has been sent to client
      * @param <T>                  type of value
@@ -1497,10 +1393,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * This method allows to add a custom css string to the full calendar to customize its styling without
      * the need of subclassing the client side or using css properties.
-     *<br><br>
+     * <br><br>
      * The given string is set as the innerHTML of a client side styles element. <b>Attention:</b> The given
      * string is taken as it is. Please be advised, that this method can be used to introduce malicious code into your
      * page, so you should be sure, that the added css code is safe (e.g. not taken from user input or the databse).
+     *
      * @param customStylesString custom css string
      */
     public void addCustomStyles(String customStylesString) {
@@ -1511,8 +1408,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Sets an action, that shall happen, when a user clicks the "+x more" link in the calendar (which occurs when the max
      * entries per day are exceeded). Default value is {@code POPUP}. Passing {@code null} will reset the default.
      *
-     * @see MoreLinkClickAction
      * @param moreLinkClickAction action to set
+     * @see MoreLinkClickAction
      */
     public void setMoreLinkClickAction(MoreLinkClickAction moreLinkClickAction) {
         getElement().setProperty("moreLinkClickAction", (moreLinkClickAction != null ? moreLinkClickAction : MoreLinkClickAction.POPUP).getClientSideValue());
@@ -1524,7 +1421,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <br><br>
      * Please refer to the FullCalendar client library documentation for possible options:
      * https://fullcalendar.io/docs
-     *
      */
     public enum Option {
         FIRST_DAY("firstDay"),
@@ -1541,15 +1437,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         SLOT_MAX_TIME("slotMaxTime"),
         FIXED_WEEK_COUNT("fixedWeekCount"),
         WEEKENDS("weekends"),
-    	HEADER_TOOLBAR("headerToolbar"),
-    	FOOTER_TOOLBAR("footerToolbar"),
-    	COLUMN_HEADER("columnHeader"),
-    	WEEK_NUMBERS_WITHIN_DAYS("weekNumbersWithinDays"),
-    	ENTRY_DURATION_EDITABLE("eventDurationEditable"),
-    	ENTRY_RESIZABLE_FROM_START("eventResizableFromStart"),
-    	ENTRY_START_EDITABLE("eventStartEditable"),
+        HEADER_TOOLBAR("headerToolbar"),
+        FOOTER_TOOLBAR("footerToolbar"),
+        COLUMN_HEADER("columnHeader"),
+        WEEK_NUMBERS_WITHIN_DAYS("weekNumbersWithinDays"),
+        ENTRY_DURATION_EDITABLE("eventDurationEditable"),
+        ENTRY_RESIZABLE_FROM_START("eventResizableFromStart"),
+        ENTRY_START_EDITABLE("eventStartEditable"),
         ENTRY_TIME_FORMAT("eventTimeFormat"),
-    	EDITABLE("editable");
+        EDITABLE("editable");
 
         private final String optionKey;
 
@@ -1565,7 +1461,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Possible actions, that shall happen on the client side.
      */
-    public enum MoreLinkClickAction implements ClientSideValue{
+    public enum MoreLinkClickAction implements ClientSideValue {
         /**
          * Shows a popup on the client side. This popup is purely client side rendered. Entries shown in that
          * popup will fire the same click event as "normal" entries do.
