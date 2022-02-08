@@ -5,7 +5,6 @@ import com.vaadin.flow.internal.JsonUtils;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-import lombok.Getter;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
@@ -275,7 +274,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
             String id = entry.getId();
 
             if (!entries.containsKey(id)) {
-                entry.setCalendar(calendar);
+                entry.setCalendar(getCalendar());
                 entries.put(id, entry);
 
                 if (eagerLoading) {
@@ -388,8 +387,9 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * to their respective json items. The resulting json objects are then send to the client.
      */
     private void triggerClientSideUpdate() {
-        if (isEagerLoading() && !updateRegistered) {
+        if (isEagerLoading() && !updateRegistered && getCalendar() != null) {
             updateRegistered = true;
+            FullCalendar calendar = getCalendar();
             calendar.getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(calendar, pExecutionContext -> {
                     if (resendAll) {
@@ -404,7 +404,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
                     vItemsToChange.removeAll(vItemsToDelete);
 
                     JsonArray entriesToAdd = convertItemsToJson(vItemsToAdd, item -> {
-                        JsonObject json = item.toJsonOnAdd();
+                        JsonObject json = item.toJson(false);
                         item.setKnownToTheClient(true);
                         item.clearDirtyState();
                         return json;
@@ -414,7 +414,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
                         String id = item.getId();
                         if (item.isDirty() && entries.containsKey(id)) {
                             item.setKnownToTheClient(true);
-                            JsonObject json = item.toJsonOnUpdate();
+                            JsonObject json = item.toJson(true);
                             item.clearDirtyState();
                             return json;
                         }
@@ -423,7 +423,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
 
                     JsonArray entriesToRemove = convertItemsToJson(vItemsToDelete, item -> {
                         // only send some json to delete, if the item has not been created previously internally
-                        JsonObject jsonObject = item.toJsonOnDelete();
+                        JsonObject jsonObject = item.toJsonWithIdOnly();
                         item.setKnownToTheClient(false);
                         return jsonObject;
                     });
