@@ -1092,7 +1092,7 @@ public abstract class JsonItem<ID_TYPE> {
          * @return set of keys
          * @throws DuplicateKeyException if any key or json key is registered twice
          */
-        protected static Set<Key> readAndRegisterKeysAsUnmodifiable(Class<?> type) {
+        public static Set<Key> readAndRegisterKeysAsUnmodifiable(Class<?> type) {
             return Collections.unmodifiableSet(readAndRegisterKeys(type));
         }
 
@@ -1103,7 +1103,7 @@ public abstract class JsonItem<ID_TYPE> {
          * @return set of keys
          * @throws DuplicateKeyException if any key or json key is registered twice
          */
-        protected static Set<Key> readAndRegisterKeys(Class<?> type) {
+        public static Set<Key> readAndRegisterKeys(Class<?> type) {
             List<Key> result = new ArrayList<>();
 
             while (type != Object.class) {
@@ -1134,7 +1134,7 @@ public abstract class JsonItem<ID_TYPE> {
          * @param type class to read fields from
          * @return set of keys
          */
-        private static List<Key> readStaticKeyFields(Class<?> type) {
+        public static List<Key> readStaticKeyFields(Class<?> type) {
             return Arrays.stream(type.getDeclaredFields())
                     .map(Key::readStaticField)
                     .filter(Objects::nonNull)
