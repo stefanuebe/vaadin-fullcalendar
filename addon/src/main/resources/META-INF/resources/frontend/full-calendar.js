@@ -701,12 +701,15 @@ export class FullCalendar extends PolymerElement {
 
     removeEvents(array) {
         // TODO use batch rendering?
-        for (var i = 0; i < array.length; i++) {
-            let event = this.getCalendar().getEventById(array[i].id);
-            if (event != null) {
-                event.remove();
+        let calendar = this.getCalendar();
+        calendar.batchRendering(function () {
+            for (var i = 0; i < array.length; i++) {
+                let event = calendar.getEventById(array[i].id);
+                if (event != null) {
+                    event.remove();
+                }
             }
-        }
+        });
     }
 
     removeAllEvents() {
