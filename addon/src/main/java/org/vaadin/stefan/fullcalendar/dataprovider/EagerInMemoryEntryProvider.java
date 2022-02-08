@@ -192,7 +192,7 @@ public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemor
                         calendar.getElement().callJsFunction("updateEvents", entriesToUpdate);
                     }
                     if (entriesToRemove.length() > 0) {
-                        calendar.getElement().callJsFunction("removeEvents", entriesToUpdate);
+                        calendar.getElement().callJsFunction("removeEvents", entriesToRemove);
                     }
 
                     vItemsToAdd.clear();

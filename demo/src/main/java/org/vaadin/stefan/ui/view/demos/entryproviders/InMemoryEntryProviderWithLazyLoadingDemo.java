@@ -23,20 +23,20 @@ public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProvi
     }
 
     @Override
-    protected EagerInMemoryEntryProvider<Entry> getEntryProvider() {
-        return (EagerInMemoryEntryProvider<Entry>) super.getEntryProvider();
+    protected LazyInMemoryEntryProvider<Entry> getEntryProvider() {
+        return (LazyInMemoryEntryProvider<Entry>) super.getEntryProvider();
     }
 
     @Override
     protected void onSamplesCreated(List<Entry> entries) {
-        EagerInMemoryEntryProvider<Entry> provider = getEntryProvider();
+        LazyInMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.addEntries(entries);
         provider.refreshAll();
     }
 
     @Override
     protected void onSamplesRemoved() {
-        EagerInMemoryEntryProvider<Entry> provider = getEntryProvider();
+        LazyInMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.removeAllEntries();
         provider.refreshAll();
     }
