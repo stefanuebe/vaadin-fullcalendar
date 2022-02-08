@@ -63,7 +63,7 @@ import static com.github.appreciated.app.layout.entity.Section.HEADER;
 @CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
 public class MainLayout extends AppLayoutRouterLayout {
-    public static final String ADDON_VERSION = "4.0.2";
+    public static final String ADDON_VERSION = "4.0.3";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")
