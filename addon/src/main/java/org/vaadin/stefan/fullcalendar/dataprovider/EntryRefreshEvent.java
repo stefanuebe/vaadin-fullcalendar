@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.EventObject;
 
 /**
+ * This event is fired, when a single item shall be refreshed.
  * @author Stefan Uebe
  */
 @Getter
