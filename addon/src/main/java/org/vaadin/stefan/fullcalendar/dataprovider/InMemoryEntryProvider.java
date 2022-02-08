@@ -103,7 +103,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     }
 
     public boolean isEagerLoading() {
-        return isEagerLoading();
+        return !isLazyLoading();
     }
 
     /**

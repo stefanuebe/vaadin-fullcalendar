@@ -78,7 +78,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private final Map<String, Serializable> options = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
-    private EntryProvider<Entry> entryProvider = new InMemoryEntryProvider<>();
+    private EntryProvider<Entry> entryProvider;
     private List<Registration> entryProviderDataListeners;
 
 //    private final Set<Entry> tmpAdd = new HashSet<>();
@@ -165,6 +165,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Called after the constructor has been initialized.
      */
     private void postConstruct() {
+        entryProvider = new InMemoryEntryProvider<>();
+        entryProvider.setCalendar(this);
+
         addDatesRenderedListener(event -> {
             latestKnownViewName = event.getName();
             latestKnownIntervalStart = event.getIntervalStart();
@@ -286,7 +289,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         JsonArray array = Json.createArray();
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
                 .peek(entry -> entry.setCalendar(this))
-                .map(Entry::toJsonOnAdd)
+                .map(Entry::toJson)
                 .forEach(jsonObject -> array.set(array.length(), jsonObject));
 
         return array;

@@ -49,11 +49,11 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Route(value = "full-demo", layout = MainLayout.class)
+@Route(value = "playground", layout = MainLayout.class)
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
-@PageTitle("Full Demo")
-@org.vaadin.stefan.ui.menu.MenuItem(label = "Full Demo")
+@PageTitle("Playground")
+@org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
 public class FullDemo extends VerticalLayout {
 
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));

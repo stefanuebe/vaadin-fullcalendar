@@ -1,7 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
 import com.vaadin.flow.component.HasText;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -9,6 +8,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
@@ -19,28 +19,23 @@ import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.AbstractEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.ui.MainLayout;
-import org.vaadin.stefan.util.EntryManager;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
  * @author Stefan Uebe
  */
 @Route(value = "entry-provider", layout = MainLayout.class)
+@org.vaadin.stefan.ui.menu.MenuItem(label = "Entry Provider")
 public class EntryProviderDemo extends VerticalLayout {
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
+    public static final int MAX_ITEMS_PER_UI = 3000;
 
-    private final EntryService service;
+    private final EntryServiceWithReadOnlyDatabase service;
     private final BackendEntryProvider entryProvider;
 
     private MenuBar toolbar;
@@ -48,9 +43,11 @@ public class EntryProviderDemo extends VerticalLayout {
     private ComboBox<CalendarView> comboBoxView;
     private ComboBox<Timezone> timezoneComboBox;
     private Button buttonDatePicker;
+    private MenuItem addDailyItems;
+    private MenuItem addThousandItems;
 
 
-    public EntryProviderDemo(EntryService service) {
+    public EntryProviderDemo(EntryServiceWithReadOnlyDatabase service) {
         this.service = service;
         createToolbar();
         //        toolbar.addItem("Add entry", event -> )
@@ -62,19 +59,24 @@ public class EntryProviderDemo extends VerticalLayout {
             System.out.println("dates rendered: " + event.getStart() + " " + event.getEnd());
         });
 
-        add(toolbar, calendar);
-        setFlexGrow(1, calendar);
 
         entryProvider = new BackendEntryProvider(service);
         calendar.setEntryProvider(entryProvider);
 
         setSizeFull();
-        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+        Span description = new Span("This demo shows the usage of an Entry Provider. Entry Providers allow the lazy loading of " +
+                "calendar items based on the current view. This prevents unnecessary memory overhead on client " +
+                "and server, but increases the network traffic, as items are created and fetched on the fly everytime. This demo" +
+                "shows an exemplary database ranging from the beginning of 2000 up to 20 years in the future.");
+
+        add(description, toolbar, calendar);
+        setFlexGrow(1, calendar);
+        setHorizontalComponentAlignment(Alignment.STRETCH, calendar, description);
+        setHorizontalComponentAlignment(Alignment.CENTER, toolbar);
     }
 
     private void createToolbar() {
         toolbar = new MenuBar();
-        toolbar.setOpenOnHover(true);
         toolbar.setWidthFull();
 
         toolbar.addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
@@ -93,61 +95,12 @@ public class EntryProviderDemo extends VerticalLayout {
         buttonDatePicker.addClickListener(event -> gotoDate.open());
         buttonDatePicker.setWidthFull();
         toolbar.addItem(buttonDatePicker);
-
         toolbar.addItem(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
-
         toolbar.addItem("Today", e -> calendar.today());
-
-        SubMenu calendarItems = toolbar.addItem("Calendar Items").getSubMenu();
-        calendarItems.addItem("Add 1k entries", event -> {
-            MenuItem source = event.getSource();
-            source.setEnabled(false);
-            source.setText("Creating...");
-            Optional<UI> optionalUI = getUI();
-            optionalUI.ifPresent(ui -> {
-                Executors.newSingleThreadExecutor().execute(() -> {
-                    LocalDateTime start = LocalDateTime.now();
-                    LocalDateTime end = LocalDateTime.now().plus(1, ChronoUnit.DAYS);
-                    List<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
-                        Entry entry = new ResourceEntry();
-                        entry.setStart(start);
-                        entry.setEnd(end);
-                        entry.setAllDay(true);
-                        entry.setTitle("Generated " + (i + 1));
-                        return entry;
-                    }).collect(Collectors.toList());
-
-                    ui.access(() -> {
-                        calendar.addEntries(list);
-                        source.setEnabled(true);
-                        source.setText("Add 1k entries");
-                        Notification.show("Added 1,000 entries for today");
-                    });
-                });
-            });
-        });
-
-        calendarItems.addItem("Add daily items up to year's end", event -> {
-
-            LocalDateTime max = LocalDate.of(2022, Month.DECEMBER, 31).atStartOfDay();
-            LocalDateTime date = LocalDate.now().atTime(10, 0);
-
-            List<Entry> entries = new LinkedList<>();
-            while (!date.isAfter(max)) {
-                ResourceEntry entry = new ResourceEntry();
-                EntryManager.setValues(calendar, entry, "DAILY", date, 60, ChronoUnit.MINUTES, "red");
-                entries.add(entry);
-                date = date.plusDays(1);
-            }
-            calendar.addEntries(entries);
-            Notification.show("Added " + entries.size() + " entries, one per day at 10:00 UTC");
-        });
-
-        calendarItems.addItem("Remove all entries", e -> calendar.removeAllEntries());
-        calendarItems.addItem("Remove all resources", e -> ((FullCalendarScheduler) calendar).removeAllResources());
 
         createSettingsSubMenu(toolbar);
     }
+
 
     private void createSettingsSubMenu(MenuBar menuBar) {
         SubMenu subMenu = menuBar.addItem("Settings").getSubMenu();
@@ -273,9 +226,9 @@ public class EntryProviderDemo extends VerticalLayout {
 
 
     private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
-        private final EntryService service;
+        private final EntryServiceWithReadOnlyDatabase service;
 
-        public BackendEntryProvider(EntryService service) {
+        public BackendEntryProvider(EntryServiceWithReadOnlyDatabase service) {
             this.service = service;
         }
 
