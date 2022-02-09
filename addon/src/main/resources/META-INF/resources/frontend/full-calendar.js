@@ -429,7 +429,7 @@ export class FullCalendar extends PolymerElement {
         this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
         for (let key in options) {
             let value = options[key];
-            this._checkAndDispatchEventOnTimezoneChange(calendar, key, value);
+            this._handleTimeZoneChange(calendar, key, value);
             calendar.setOption(key, value);
         }
         this.noDatesRenderEvent = false;
