@@ -1,26 +1,14 @@
 package org.vaadin.stefan.ui.view.demos.customdaygrid;
 
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.UUID;
 
-import elemental.json.Json;
-import elemental.json.JsonFactory;
 import elemental.json.JsonObject;
-import elemental.json.impl.JreJsonFactory;
-import elemental.json.impl.JreJsonObject;
-import org.vaadin.stefan.AbstractCalendarView;
-import org.vaadin.stefan.CalendarViewToolbar;
+import org.vaadin.stefan.ui.view.AbstractCalendarView;
+import org.vaadin.stefan.ui.view.CalendarViewToolbar;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.model.Header;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
@@ -39,7 +27,7 @@ public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
 
     // we create a new view with a fixed number of weeks by using the initial options
     // https://fullcalendar.io/docs/custom-views
-    private static final CustomDayGridWeekCalendarView CUSTOM_VIEW = new CustomDayGridWeekCalendarView(NUMBER_OF_WEEKS);
+    private static final CustomFixedDayGridWeekCalendarView CUSTOM_VIEW = new CustomFixedDayGridWeekCalendarView(NUMBER_OF_WEEKS);
 
     @Override
     protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {

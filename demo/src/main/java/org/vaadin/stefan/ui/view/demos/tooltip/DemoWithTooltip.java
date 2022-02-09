@@ -20,17 +20,14 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
-import org.vaadin.stefan.AbstractCalendarView;
+import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
-
-import java.util.Collection;
 
 @Route(value = "tooltip", layout = MainLayout.class)
 @CssImport("./styles.css")
@@ -54,5 +51,11 @@ public class DemoWithTooltip extends AbstractCalendarView {
                 .build();
 
         return calendar;
+    }
+
+    @Override
+    protected String createDescription() {
+        return "This demo shows the integration of the Tippy tooltip library. Every calendar entry will show a tooltip based on the entry's description. The integration " +
+                "is done in a simple client side extension of the base javascript class of the FullCalendar.";
     }
 }

@@ -1,4 +1,4 @@
-package org.vaadin.stefan;
+package org.vaadin.stefan.ui.view;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasText;
@@ -11,9 +11,11 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.select.Select;
 import lombok.Builder;
+import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.util.EntryManager;
 
@@ -65,6 +67,8 @@ public class CalendarViewToolbar extends MenuBar {
         this.editable = editable;
         this.viewChangeable = viewChangeable;
         this.dateChangeable = dateChangeable;
+
+        addThemeVariants(MenuBarVariant.LUMO_SMALL);
 
         initMenuBar();
     }
@@ -205,7 +209,10 @@ public class CalendarViewToolbar extends MenuBar {
                 }
             } else {
                 calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
-                calendarViews.addAll(Arrays.asList(SchedulerView.values()));
+
+                if (calendar instanceof Scheduler) {
+                    calendarViews.addAll(Arrays.asList(SchedulerView.values()));
+                }
             }
 
             calendarViews.sort(Comparator.comparing(CalendarView::getName));
@@ -213,6 +220,7 @@ public class CalendarViewToolbar extends MenuBar {
             viewSelector = new Select<>();
             viewSelector.setLabel("View");
             viewSelector.setItems(calendarViews);
+            viewSelector.setItemLabelGenerator(item -> StringUtils.capitalize(String.join(" ", StringUtils.splitByCharacterTypeCamelCase(item.getClientSideValue()))));
             viewSelector.setValue(initialView);
             viewSelector.setWidthFull();
             CalendarView finalInitialView = initialView;
@@ -278,9 +286,7 @@ public class CalendarViewToolbar extends MenuBar {
         String text = "--";
         Locale locale = calendar.getLocale();
 
-        if (view == null) {
-            text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
-        } else if (view instanceof CalendarViewImpl) {
+        if (view instanceof CalendarViewImpl) {
             switch ((CalendarViewImpl) view) {
                 default:
                 case DAY_GRID_MONTH:
@@ -322,6 +328,10 @@ public class CalendarViewToolbar extends MenuBar {
                     text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
                     break;
             }
+        } else {
+            String pattern = view != null && view.getDateTimeFormatPattern() != null ? view.getDateTimeFormatPattern() : "MMMM yyyy";
+            text = intervalStart.format(DateTimeFormatter.ofPattern(pattern).withLocale(locale));
+
         }
 
         intervalLabel.setText(text);

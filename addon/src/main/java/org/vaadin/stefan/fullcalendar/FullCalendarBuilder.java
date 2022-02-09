@@ -70,7 +70,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withInitialEntries(@NotNull Collection<Entry> initialEntries) {
-        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, Objects.requireNonNull(initialEntries));
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, Objects.requireNonNull(initialEntries));
     }
 
     /**
@@ -82,7 +82,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withCustomType(@NotNull Class<? extends FullCalendar> customType) {
-        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, Objects.requireNonNull(customType), initialEntries);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, Objects.requireNonNull(customType), initialEntries);
     }
 
     /**
@@ -93,7 +93,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withEntryProvider(@NotNull EntryProvider<? extends Entry> entryProvider) {
-        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, Objects.requireNonNull(entryProvider), customType, initialEntries);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, Objects.requireNonNull(entryProvider), customType, initialEntries);
     }
 
     /**

@@ -1,14 +1,18 @@
-package org.vaadin.stefan;
+package org.vaadin.stefan.ui.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.vaadin.stefan.CalendarViewToolbar.CalendarViewToolbarBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.vaadin.stefan.ui.menu.MenuItem;
+import org.vaadin.stefan.ui.view.CalendarViewToolbar;
+import org.vaadin.stefan.ui.view.CalendarViewToolbar.CalendarViewToolbarBuilder;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
@@ -56,10 +60,25 @@ public abstract class AbstractCalendarView extends VerticalLayout {
             });
         }
 
+
+        VerticalLayout titleAndDescription = new VerticalLayout();
+        titleAndDescription.setSpacing(false);
+        titleAndDescription.setPadding(false);
+
+        Component titleElement = createTitleElement();
+        if (titleElement != null) {
+            titleAndDescription.add(titleElement);
+        }
+
         Component descriptionElement = createDescriptionElement();
         if (descriptionElement != null) {
-            add(descriptionElement);
-            setHorizontalComponentAlignment(Alignment.STRETCH, descriptionElement);
+            titleAndDescription.add(descriptionElement);
+            titleAndDescription.setHorizontalComponentAlignment(Alignment.STRETCH, descriptionElement);
+        }
+
+        if (titleElement != null || descriptionElement != null) {
+            add(titleAndDescription);
+            setHorizontalComponentAlignment(Alignment.STRETCH, titleAndDescription);
         }
 
         if (toolbar != null) {
@@ -211,11 +230,39 @@ public abstract class AbstractCalendarView extends VerticalLayout {
 
     protected Component createDescriptionElement() {
         String description = createDescription();
-        return description == null ? null : new Span(description);
+        if (description == null) {
+            return null;
+        }
+        Span descriptionElement = new Span(description);
+        descriptionElement.getStyle() // TODO move to css at some point
+                .set("font-size", "0.8rem")
+                .set("color", "#666");
+
+        return descriptionElement;
     }
 
     protected String createDescription() {
         return null;
+    }
+
+
+    protected Component createTitleElement() {
+        String title = createTitle();
+        if (title == null) {
+            return null;
+        }
+        Span titleElement = new Span(title);
+        titleElement.getStyle() // TODO move to css at some point
+                .set("font-size", "1.1rem")
+                .set("font-weight", "600")
+                .set("color", "#666");
+
+        return titleElement;
+    }
+
+    protected String createTitle() {
+        MenuItem item = getClass().getAnnotation(MenuItem.class);
+        return item != null ? item.label() : String.join(" ", StringUtils.splitByCharacterTypeCamelCase(getClass().getSimpleName()));
     }
 
     /**

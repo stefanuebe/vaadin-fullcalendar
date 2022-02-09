@@ -82,7 +82,7 @@ public class EntryService {
         EntryData entry = new EntryData(id);
         entry.setTitle(title);
         entry.setStart(start);
-        entry.setEnd(entry.getStart().plusMinutes(1));
+        entry.setEnd(entry.getStart().plusMinutes(minutes));
         entry.setAllDay(false);
         entry.setColor(color);
         return entry;
@@ -92,7 +92,7 @@ public class EntryService {
         EntryData entry = new EntryData(id);
         entry.setTitle(title);
         entry.setStart(start.atStartOfDay());
-        entry.setEnd(entry.getStart().plusDays(1));
+        entry.setEnd(entry.getStart().plusDays(days));
         entry.setAllDay(true);
         entry.setColor(color);
         return entry;
