@@ -73,9 +73,11 @@ public class FullDemo extends VerticalLayout {
 
         createToolbar();
         add(toolbar);
+        setHorizontalComponentAlignment(Alignment.CENTER, toolbar);
 
         createCalendarInstance();
         add(calendar);
+        setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
         setFlexGrow(1, calendar);
 
@@ -84,13 +86,11 @@ public class FullDemo extends VerticalLayout {
 
     private void initView() {
         setSizeFull();
-        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
     }
 
     private void createToolbar() {
         toolbar = new MenuBar();
         toolbar.setOpenOnHover(true);
-        toolbar.setWidthFull();
 
         toolbar.addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
 

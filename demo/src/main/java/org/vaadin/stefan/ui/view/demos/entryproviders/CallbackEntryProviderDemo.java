@@ -6,7 +6,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * @author Stefan Uebe
@@ -25,7 +25,7 @@ public class CallbackEntryProviderDemo extends AbstractEntryProviderDemo {
     }
 
     @Override
-    protected void onSamplesCreated(Set<Entry> entries) {
+    protected void onSamplesCreated(Collection<Entry> entries) {
         getEntryService().addEntries(entries);
         getEntryProvider().refreshAll();
     }
@@ -37,7 +37,7 @@ public class CallbackEntryProviderDemo extends AbstractEntryProviderDemo {
     }
 
     @Override
-    protected void onSamplesRemoved(Set<Entry> entries) {
+    protected void onSamplesRemoved(Collection<Entry> entries) {
         getEntryService().removeAll();
         getEntryProvider().refreshAll();
     }

@@ -13,7 +13,8 @@ import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * A basic class for simple calendar views, e.g. for demo or testing purposes.
@@ -27,6 +28,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     private final FullCalendar calendar;
 
     public AbstractCalendarView() {
+
         entryService = initEntryService(EntryService.createInstance());
 
         calendar = createFullCalendar();
@@ -83,40 +85,67 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * <p></p>
      * Initializes the calendar by default with a custom time format, an entry limit of 3, no scheduler and timezone UTC.
      * You can override {@link #createFullCalendarBuilder(JsonObject)} to customize that or create your own builder.
+     *
      * @return calendar instance
      */
-    private FullCalendar createFullCalendar() {
+    protected FullCalendar createFullCalendar() {
         JsonObject initialOptions = Json.createObject();
         JsonObject eventTimeFormat = Json.createObject();
         //{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
         eventTimeFormat.put("hour", "2-digit");
         eventTimeFormat.put("minute", "2-digit");
         eventTimeFormat.put("timeZoneName", "short");
-        eventTimeFormat.put("meridiem",false);
-        eventTimeFormat.put("hour12",false);
+        eventTimeFormat.put("meridiem", false);
+        eventTimeFormat.put("hour12", false);
         initialOptions.put("eventTimeFormat", eventTimeFormat);
 
-        return createFullCalendarBuilder(initialOptions).build();
+
+        FullCalendar calendar = createFullCalendarBuilder(createInitialOptions(initialOptions)).build();
+
+        calendar.setNowIndicatorShown(true);
+
+        return calendar;
+    }
+
+    /**
+     * Creates the initial options for the full calendar. The given json object has set by default a custom time format. You may
+     * either modify, override or replace it. Return null for no initial options.
+     *
+     * @param initialOptions initial options
+     * @return initial options or null
+     */
+    protected JsonObject createInitialOptions(JsonObject initialOptions) {
+        return initialOptions;
     }
 
     /**
      * Creates the builder used by {@link #createFullCalendar()}. By default creates a builder with the initial
      * options and an entry limit of 3.
-     * @param initialOptions initial options
+     *
+     * @param initialOptions initial options (might be null)
      * @return FC builder
      */
     protected FullCalendarBuilder createFullCalendarBuilder(JsonObject initialOptions) {
-        return FullCalendarBuilder.create()
-                .withInitialOptions(initialOptions)
+        FullCalendarBuilder builder = FullCalendarBuilder.create();
+
+        if (initialOptions != null) {
+            builder = builder.withInitialOptions(initialOptions);
+        }
+
+        return builder
                 .withEntryLimit(3);
     }
 
     /**
      * Allows modifying the used entry server. This method is called before all others. You may also return
      * a new instance to be used instead, but not null.
+     * <p></p>
+     * Initializes the entry service by default with random sample data ({@link EntryService#fillDatabaseWithRandomData()}.
+     *
      * @param entryService entry service
      */
     protected EntryService initEntryService(EntryService entryService) {
+        entryService.fillDatabaseWithRandomData();
         return entryService;
     }
 
@@ -133,6 +162,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * Inits the toolbar. Calendar and the "onSample" callbacks are already set. Change view and date
      * parameters are also enabled by default. Either update the given variable or create a new one, if
      * necessary. Return null for no toolbar at all.
+     *
      * @param toolbarBuilder toolbar builder
      * @return modified or new instance
      */
@@ -144,6 +174,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * Creates the toolbar. The parameter might be null depending on a custom implementation of
      * {@link #initToolbarBuilder(CalendarViewToolbarBuilder)}. Return null if no toolbar shall
      * be available.
+     *
      * @param toolbarBuilder builder or null
      * @return toolbar or null
      */
@@ -161,16 +192,22 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected void onEntryClick(EntryClickedEvent event) {
     }
 
-
+    /**
+     * Creates the entry provider to be used. Instantiates by default a lazy in memory variant using the
+     * items of the entry service. Return a different version for the calendar or null to let it use its
+     * default entry provider.
+      * @param service service
+     * @return entry provider
+     */
     protected EntryProvider<Entry> createEntryProvider(EntryService service) {
-        return null;
+        return EntryProvider.lazyInMemoryFromItems(service.streamEntries().collect(Collectors.toList()));
     }
 
-    protected void onSamplesCreated(Set<Entry> entries) {
+    protected void onSamplesCreated(Collection<Entry> entries) {
         throw new UnsupportedOperationException("Implement me");
     }
 
-    protected void onSamplesRemoved(Set<Entry> entries) {
+    protected void onSamplesRemoved(Collection<Entry> entries) {
         throw new UnsupportedOperationException("Implement me");
     }
 

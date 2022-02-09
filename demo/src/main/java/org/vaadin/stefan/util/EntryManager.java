@@ -15,6 +15,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Resource;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
 
+@Deprecated
 public class EntryManager {
 	public static void createRecurringEvents(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
@@ -30,7 +31,9 @@ public class EntryManager {
         recurring.setRecurringEndTime(LocalTime.of(17, 0));
         recurring.setResourceEditable(true);
 
-        calendar.addEntry(recurring);
+        if (calendar != null && calendar.getEntryProvider().isInMemory()) {
+            calendar.addEntry(recurring);
+        }
     }
 
 	public static void createDayEntry(FullCalendar calendar, String title, LocalDate start, int days, String color) {
@@ -38,7 +41,9 @@ public class EntryManager {
         setValues(calendar, entry, title, start.atStartOfDay(), days, ChronoUnit.DAYS, color);
         entry.setResourceEditable(true);
 
-        calendar.addEntry(entry);
+        if (calendar != null && calendar.getEntryProvider().isInMemory()) {
+            calendar.addEntry(entry);
+        }
     }
 
 	public static void createDayBackgroundEntry(FullCalendar calendar, LocalDate start, int days, String color) {
@@ -48,7 +53,9 @@ public class EntryManager {
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         entry.setResourceEditable(true);
 
-        calendar.addEntry(entry);
+        if (calendar != null && calendar.getEntryProvider().isInMemory()) {
+            calendar.addEntry(entry);
+        }
     }
 
 	public static void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color) {
@@ -57,7 +64,9 @@ public class EntryManager {
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         entry.setResourceEditable(true);
 
-        calendar.addEntry(entry);
+        if (calendar != null && calendar.getEntryProvider().isInMemory()) {
+            calendar.addEntry(entry);
+        }
     }
 	
 	public static void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color, Resource... resources) {
@@ -69,7 +78,9 @@ public class EntryManager {
         }
         entry.setResourceEditable(true);
 
-        calendar.addEntry(entry);
+        if (calendar != null && calendar.getEntryProvider().isInMemory()) {
+            calendar.addEntry(entry);
+        }
     }
 	
 	public static Entry createTimedEntry(FullCalendar calendar, String title, LocalDateTime start, int minutes, String color) {
@@ -77,7 +88,9 @@ public class EntryManager {
         setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color);
         entry.setResourceEditable(true);
 
-        calendar.addEntry(entry);
+        if (calendar != null && calendar.getEntryProvider().isInMemory()) {
+            calendar.addEntry(entry);
+        }
         return entry;
     }
 	
@@ -88,7 +101,9 @@ public class EntryManager {
             entry.assignResources(Arrays.asList(resources));
         }
         entry.setResourceEditable(true);
-        calendar.addEntry(entry);
+        if (calendar != null && calendar.getEntryProvider().isInMemory()) {
+            calendar.addEntry(entry);
+        }
         return entry;
     }
     
@@ -99,7 +114,9 @@ public class EntryManager {
             entry.assignResources(Arrays.asList(resources));
         entry.setResourceEditable(true);
         entry.setEditable(false);
-        calendar.addEntry(entry);
+        if (calendar != null && calendar.getEntryProvider().isInMemory()) {
+            calendar.addEntry(entry);
+        }
     }
 
 	public static void setValues(FullCalendar calendar, Entry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {
