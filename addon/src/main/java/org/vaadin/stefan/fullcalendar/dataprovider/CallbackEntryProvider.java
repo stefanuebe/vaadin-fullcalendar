@@ -6,13 +6,14 @@ import org.vaadin.stefan.fullcalendar.Entry;
 
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
+ * An {@link EntryProvider} using a predefined callback to fetch items when necessary.
+ *
  * @author Stefan Uebe
  */
-public class CallbackEntryProvider<T extends Entry> extends AbstractEntryProvider<T>{
+public class CallbackEntryProvider<T extends Entry> extends AbstractEntryProvider<T> {
     private final SerializableFunction<EntryQuery, Stream<T>> fetchItems;
 
     public CallbackEntryProvider(@NotNull SerializableFunction<EntryQuery, Stream<T>> fetchItems) {

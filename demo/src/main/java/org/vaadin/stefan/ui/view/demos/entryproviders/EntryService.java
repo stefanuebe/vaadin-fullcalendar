@@ -93,12 +93,20 @@ public class EntryService {
         return entry;
     }
 
+    public void addEntry(Entry entries) {
+        addEntries(Arrays.asList(entries));
+    }
+
     public void addEntries(List<Entry> entries) {
         entries.forEach(entry -> database.put(entry.getId(), new EntryData(entry.getId(), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay())));
     }
 
     public void updateEntry(Entry entry) {
         database.put(entry.getId(), new EntryData(entry.getId(), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay()));
+    }
+
+    public void removeEntry(Entry entry) {
+
     }
 
     public void removeAll() {

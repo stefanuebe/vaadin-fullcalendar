@@ -144,8 +144,8 @@ public interface EntryProvider<T extends Entry> {
     void refreshItem(T item);
 
     /**
-     * Refreshes all data based on currently available data in the underlying
-     * provider.
+     * Refreshes all data of this instance on the client. Depending on the implementation this can be
+     * based on the current shown timespan or all data.
      */
     void refreshAll();
 
