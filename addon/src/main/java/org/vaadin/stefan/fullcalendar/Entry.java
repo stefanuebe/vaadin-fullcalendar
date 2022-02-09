@@ -82,6 +82,19 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
+     * Creates an entry based on the given json object. The id is taken from the json object. Providing none will
+     * lead to an exception.
+     * @param object json object
+     * @return entry based on the object
+     */
+    public static Entry fromJson(JsonObject object) {
+        Entry entry = new Entry(object.getString(Entry.EntryKey.ID.getName()));
+        entry.updateFromJson(object, false);
+        return entry;
+
+    }
+
+    /**
      * Returns the calendar instance of this entry. Is empty when not yet added to a calendar.
      *
      * @return calendar instance

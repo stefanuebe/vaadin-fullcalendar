@@ -37,7 +37,7 @@ public class EntryQuery {
     }
 
     public EntryQuery(Instant start, Instant end, AllDay allDay) {
-        this(LocalDateTime.ofInstant(start, Timezone.ZONE_ID_UTC), LocalDateTime.ofInstant(end, Timezone.ZONE_ID_UTC), allDay);
+        this(start != null ? LocalDateTime.ofInstant(start, Timezone.ZONE_ID_UTC) : null, end != null ? LocalDateTime.ofInstant(end, Timezone.ZONE_ID_UTC) : null, allDay);
     }
 
     /**

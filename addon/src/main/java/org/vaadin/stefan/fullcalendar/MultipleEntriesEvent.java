@@ -53,7 +53,7 @@ public abstract class MultipleEntriesEvent extends ComponentEvent<FullCalendar> 
         this.entries = entryIds
                 .stream()
                 .map(id -> {
-                    Optional<Entry> entry = source.getEntryById(id);
+                    Optional<Entry> entry = source.getCachedEntryFromFetch(id);
                     if (!entry.isPresent()) {
                         throw new IllegalArgumentException("No item found with id " + id);
                     }

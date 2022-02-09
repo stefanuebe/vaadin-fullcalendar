@@ -85,15 +85,6 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
     void removeEntries(@NotNull Iterable<T> iterableEntries);
 
     /**
-     * Returns a single entry identified by the given id or an empty optional.
-     * @param id id
-     * @return optional entry or empty
-     */
-    default Optional<T> getEntryById(@NotNull String id) {
-        return fetchById(id);
-    }
-
-    /**
      * Returns all entries of this instance.
      * @return all entries
      */

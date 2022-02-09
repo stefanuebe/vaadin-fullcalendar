@@ -75,10 +75,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private static final String JSON_INITIAL_OPTIONS = "initialOptions";
 
+    /**
+     * Caches the last fetched entries for entry based events.
+     */
+    private final Map<String, Entry> lastFetchedEntries = new HashMap<>();
     private final Map<String, Serializable> options = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
-    @Getter
     private EntryProvider<Entry> entryProvider;
     private List<Registration> entryProviderDataListeners;
 
@@ -299,6 +302,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Returns the entry provider of this calendar. Never null.
+     * @param <T> entry provider class or subclass
+     * @return entry provider
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends EntryProvider<Entry>> T getEntryProvider() {
+        return (T) entryProvider;
+    }
+
+    /**
      * This method requests an entry refresh from the client side. Registers a single time task before the response
      * is sent to the client. Multiple calls during the same requests will thus lead to a single refresh
      * request only.
@@ -330,17 +343,21 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     @ClientCallable
-    protected JsonArray fetchFromServer(JsonObject query) {
-        if (entryProvider == null) {
-            throw new UnsupportedOperationException("No entry provider set.");
-        }
+    protected JsonArray fetchFromServer(@NotNull JsonObject query) {
+        Objects.requireNonNull(query);
+        Objects.requireNonNull(entryProvider);
 
-        LocalDateTime start = JsonUtils.parseClientSideDateTime(query.getString("start"));
-        LocalDateTime end = JsonUtils.parseClientSideDateTime(query.getString("end"));
+        lastFetchedEntries.clear();
+
+        LocalDateTime start = query.hasKey("start") ? JsonUtils.parseClientSideDateTime(query.getString("start")) : null;
+        LocalDateTime end = query.hasKey("end") ? JsonUtils.parseClientSideDateTime(query.getString("end")) : null;
 
         JsonArray array = Json.createArray();
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
-                .peek(entry -> entry.setCalendar(this))
+                .peek(entry -> {
+                    entry.setCalendar(this);
+                    lastFetchedEntries.put(entry.getId(), entry);
+                })
                 .map(Entry::toJson)
                 .forEach(jsonObject -> array.set(array.length(), jsonObject));
 
@@ -348,17 +365,38 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Returns an entry with the given id from the last fetched set of entries. Returns an empty instance,
+     * when there was no fetch yet or the id is unknown.
+     * <p></p>
+     * Uses {@link EagerInMemoryEntryProvider#getEntryById(String)} when the eager in memory provider is used.
+     * <p></p>
+     * This method is an internal method, intended to be used by entry based events only. Do not use it for
+     * any other purpose as the implementation or scope may change in future.
+     *
+     * @param id id
+     * @return cached entry from last fetch or empty
+     */
+    public Optional<Entry> getCachedEntryFromFetch(String id) {
+        return isEagerLoadingEntryProvider() ? assureEagerInMemoryProvider().getEntryById(id) : Optional.ofNullable(lastFetchedEntries.get(id));
+    }
+
+    /**
      * Returns the entry with the given id. Is empty when the id is not registered.
+     * <p></p>
+     * <b>Be careful</b>, since this method only works when using an {@link EagerInMemoryEntryProvider}
+     * (default on new calendars).
+     * <p/>
+     * <b>Note for developers:</b> Do not use this method inside of events to get an entry for an event.
+     * Use
      *
      * @param id id
      * @return entry or empty
      * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetchById(String)} instead
+     * @deprecated use {@link #getEntryProvider()} plus {@link EagerInMemoryEntryProvider#getEntryById(String)} instead
      */
     @Deprecated
     public Optional<Entry> getEntryById(@NotNull String id) {
-        Objects.requireNonNull(id);
-        return entryProvider.fetchById(id);
+        return assureEagerInMemoryProvider().getEntryById(id);
     }
 
     /**

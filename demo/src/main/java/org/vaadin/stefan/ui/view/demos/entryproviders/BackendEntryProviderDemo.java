@@ -51,11 +51,6 @@ public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
         public Stream<Entry> fetch(@NonNull EntryQuery query) {
             return service.streamEntries(query);
         }
-
-        @Override
-        public Optional<Entry> fetchById(@NonNull String id) {
-            return service.getEntry(id);
-        }
     }
 
 }

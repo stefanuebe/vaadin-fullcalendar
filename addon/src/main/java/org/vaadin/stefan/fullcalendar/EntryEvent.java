@@ -40,6 +40,6 @@ public abstract class EntryEvent extends ComponentEvent<FullCalendar> {
      */
     public EntryEvent(FullCalendar source, boolean fromClient, String entryId) {
         super(source, fromClient);
-        this.entry = source.getEntryById(entryId).orElseThrow(IllegalArgumentException::new);
+        this.entry = source.getCachedEntryFromFetch(entryId).orElseThrow(IllegalArgumentException::new);
     }
 }

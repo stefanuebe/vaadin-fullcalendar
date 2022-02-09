@@ -3,21 +3,31 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEventBusUtil;
 import com.vaadin.flow.dom.Element;
 import elemental.json.Json;
+import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
+import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.time.*;
-import java.time.temporal.ChronoField;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.vaadin.stefan.fullcalendar.TestUtils.*;
 
 @SuppressWarnings("ALL")
 public class FullCalendarTest {
@@ -35,6 +45,13 @@ public class FullCalendarTest {
         return setupTestCalendar(new FullCalendar());
     }
 
+    private FullCalendar setupTestCalendar(FullCalendar calendar) {
+        // to simulate a client timezone, we have to use the server time zone, since all the LocalDate... instances
+        // will not be on utc, but on the server timezone.
+        calendar.setTimezone(Timezone.getSystem());
+        return calendar;
+    }
+
     private FullCalendar createTestCalendar(int entries) {
         return setupTestCalendar(new FullCalendar(entries));
     }
@@ -43,20 +60,13 @@ public class FullCalendarTest {
         return setupTestCalendar(new FullCalendar(options));
     }
 
-    private FullCalendar setupTestCalendar(FullCalendar calendar) {
-        // to simulate a client timezone, we have to use the server time zone, since all the LocalDate... instances
-        // will not be on utc, but on the server timezone.
-        calendar.setTimezone(Timezone.getSystem());
-        return calendar;
-    }
-
     @Test
     void testNonArgsConstructor() {
         FullCalendar calendar = new FullCalendar();
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 1);
-        Assertions.assertSame(CalendarLocale.getDefault(), calendar.getLocale());
+        assertSame(CalendarLocale.getDefault(), calendar.getLocale());
     }
 
     @Test
@@ -67,9 +77,9 @@ public class FullCalendarTest {
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 1);
-        Assertions.assertSame(CalendarLocale.getDefault(), calendar.getLocale());
+        assertSame(CalendarLocale.getDefault(), calendar.getLocale());
 
-        Assertions.assertEquals(entryLimit, calendar.getElement().getProperty("dayMaxEvents", -1));
+        assertEquals(entryLimit, calendar.getElement().getProperty("dayMaxEvents", -1));
     }
 
     @Test
@@ -83,14 +93,14 @@ public class FullCalendarTest {
         assertExistingOptionCount(calendar, 0);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
-        Assertions.assertTrue(returnedOptions instanceof JsonObject, "Returned initial options not instanceof JsonObject");
+        assertTrue(returnedOptions instanceof JsonObject, "Returned initial options not instanceof JsonObject");
 
         // TODO integrate Testbench test
 
     }
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
-        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
+        assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
     }
 
     @Test
@@ -141,10 +151,10 @@ public class FullCalendarTest {
         Locale locale = CalendarLocale.GREEK;
 
         // we want to be sure to not use the default to test.
-        Assertions.assertNotEquals(CalendarLocale.getDefault(), locale);
+        assertNotEquals(CalendarLocale.getDefault(), locale);
 
         calendar.setLocale(locale);
-        Assertions.assertSame(locale, calendar.getLocale());
+        assertSame(locale, calendar.getLocale());
         assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
         assertOptionalEquals(locale.toLanguageTag().toLowerCase(), calendar.getOption(Option.LOCALE, true));
 
@@ -160,13 +170,13 @@ public class FullCalendarTest {
         calendar.setBusinessHours(hours);
 
         Optional<Object> option = calendar.getOption(Option.BUSINESS_HOURS);
-        Assertions.assertTrue(option.isPresent());
-        Assertions.assertTrue(option.get() instanceof BusinessHours[]);
-        Assertions.assertEquals(hours, ((BusinessHours[]) option.get())[0]);
+        assertTrue(option.isPresent());
+        assertTrue(option.get() instanceof BusinessHours[]);
+        assertEquals(hours, ((BusinessHours[]) option.get())[0]);
 
         calendar.removeBusinessHours();
         option = calendar.getOption(Option.BUSINESS_HOURS);
-        Assertions.assertFalse(option.isPresent());
+        assertFalse(option.isPresent());
     }
 
     private void assertCorrectBooleanOption(FullCalendar calendar, Option optionToCheck, Consumer<Boolean> function) {
@@ -175,31 +185,18 @@ public class FullCalendarTest {
                 + optionToCheck.name() + " failed. Option returned false.");
     }
 
-    private <T> void assertOptionalEquals(T expected, Optional<T> value) {
-        Assertions.assertTrue(value.isPresent());
-        Assertions.assertEquals(expected, value.get());
-    }
-
-    private <T> void assertOptionalEquals(T expected, Optional<T> value, String supplier) {
-        Assertions.assertTrue(value.isPresent(), supplier);
-        Assertions.assertEquals(expected, value.get(), supplier);
-    }
-
-    private void assertNPE(FullCalendar calendar, Consumer<FullCalendar> function) {
-        Assertions.assertThrows(NullPointerException.class, () -> function.accept(calendar));
-    }
-
-    private void assertIAE(FullCalendar calendar, Consumer<FullCalendar> function) {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> function.accept(calendar));
-    }
 
     @Test
     void testEmptyOptionalOnFetchingNonExistingEntryById() {
         FullCalendar calendar = createTestCalendar();
 
-        Optional<Entry> optional = calendar.getEntryById("");
-        Assertions.assertNotNull(optional);
-        Assertions.assertFalse(optional.isPresent());
+        Optional<Entry> optional = getEntryProvider(calendar).getEntryById("");
+        assertNotNull(optional);
+        assertFalse(optional.isPresent());
+    }
+
+    private EagerInMemoryEntryProvider<Entry> getEntryProvider(FullCalendar calendar) {
+        return calendar.getEntryProvider();
     }
 
     @Test
@@ -209,8 +206,8 @@ public class FullCalendarTest {
         Entry entry = new Entry();
         calendar.addEntry(entry);
 
-        Optional<Entry> optional = calendar.getEntryById(entry.getId());
-        Assertions.assertNotNull(optional);
+        Optional<Entry> optional = getEntryProvider(calendar).getEntryById(entry.getId());
+        assertNotNull(optional);
         assertOptionalEquals(entry, optional);
     }
 
@@ -227,15 +224,15 @@ public class FullCalendarTest {
         calendar.addEntry(entry3);
 
         Collection<Entry> entries = calendar.getEntries();
-        Assertions.assertEquals(3, entries.size());
+        assertEquals(3, entries.size());
 
-        Assertions.assertTrue(entries.contains(entry1));
-        Assertions.assertTrue(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
+        assertTrue(entries.contains(entry1));
+        assertTrue(entries.contains(entry2));
+        assertTrue(entries.contains(entry3));
 
-        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
+        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
+        assertOptionalEquals(entry2, getEntryProvider(calendar).getEntryById(entry2.getId()));
+        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
     }
 
     @Test
@@ -253,16 +250,16 @@ public class FullCalendarTest {
         calendar.removeEntry(entry2);
 
         Collection<Entry> entries = calendar.getEntries();
-        Assertions.assertEquals(2, entries.size());
+        assertEquals(2, entries.size());
 
-        Assertions.assertTrue(entries.contains(entry1));
-        Assertions.assertFalse(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
+        assertTrue(entries.contains(entry1));
+        assertFalse(entries.contains(entry2));
+        assertTrue(entries.contains(entry3));
 
-        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
+        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
+        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
 
-        Assertions.assertFalse(calendar.getEntryById(entry2.getId()).isPresent());
+        assertFalse(getEntryProvider(calendar).getEntryById(entry2.getId()).isPresent());
     }
 
     @Test
@@ -270,8 +267,8 @@ public class FullCalendarTest {
         FullCalendar calendar = createTestCalendar();
 
         Collection<Entry> entries = calendar.getEntries();
-        Assertions.assertNotNull(entries);
-        Assertions.assertEquals(0, entries.size());
+        assertNotNull(entries);
+        assertEquals(0, entries.size());
     }
 
     @Test
@@ -295,328 +292,31 @@ public class FullCalendarTest {
         calendar.updateEntry(entry3);
 
         Collection<Entry> entries = calendar.getEntries();
-        Assertions.assertEquals(3, entries.size());
+        assertEquals(3, entries.size());
 
-        Assertions.assertTrue(entries.contains(entry1));
-        Assertions.assertTrue(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
+        assertTrue(entries.contains(entry1));
+        assertTrue(entries.contains(entry2));
+        assertTrue(entries.contains(entry3));
 
-        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
+        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
+        assertOptionalEquals(entry2, getEntryProvider(calendar).getEntryById(entry2.getId()));
+        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
     }
-    
+
     private Entry createEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
-    	Entry entry = new Entry(id);
-    	
-    	entry.setTitle(title);
+        Entry entry = new Entry(id);
+
+        entry.setTitle(title);
         entry.setStart(start);
         entry.setEnd(end);
         entry.setAllDay(allDay);
         entry.setEditable(editable);
         entry.setColor(color);
         entry.setDescription(description);
-        
+
         return entry;
     }
 
-    @Test
-    void testGetEntriesByClosedDateTimeInterval() {
-        FullCalendar calendar = createTestCalendar();
-
-        LocalDate ref = LocalDate.of(2000, 1, 1);
-        LocalDateTime refStartOfDay = ref.atStartOfDay();
-        LocalDateTime refEndOfDay = ref.atTime(23, 0);
-
-        LocalDateTime filterStart = ref.atTime(7, 0);
-        LocalDateTime filterEnd = ref.atTime(8, 0);
-
-        List<Entry> entriesNotMatching = new ArrayList<>();
-        List<Entry> entriesMatching = new ArrayList<>();
-
-        // completely out
-        entriesNotMatching.add(createEntry(null, "NM: Start / end at start of day", refStartOfDay, refStartOfDay, false, true, null, null));
-        entriesNotMatching.add(createEntry(null, "NM: Start / end at end of day", refEndOfDay, refEndOfDay, false, true, null, null));
-
-        // matching only with exclusive start filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Start of day to filter start", refStartOfDay, filterStart, false, true, null, null));
-
-        // matching only with exclusive end filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Filter end to end of day", filterEnd, refEndOfDay, false, true, null, null));
-
-        // 0 timespan - matching only with exclusive start filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Filter start to filter start", filterStart, filterStart, false, true, null, null));
-
-        // 0 timespan - matching only with exclusive end filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Filter end to filter end", filterEnd, filterEnd, false, true, null, null));
-
-        // crossing filter timespan (match by 1 nanosecond)
-        entriesMatching.add(createEntry(null, "M: Start of day to filter start + 1ns", refStartOfDay, filterStart.plusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter end - 1ns to end of day", filterEnd.minusNanos(1), refEndOfDay, false, true, null, null));
-
-        // matches filter timespan completely
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end", filterStart, filterEnd, false, true, null, null));
-
-        // inner filter period match
-        entriesMatching.add(createEntry(null, "M: Filter start + 1ns to filter end", filterStart.plusNanos(1), filterEnd, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
-
-        entriesNotMatching.forEach(calendar::addEntry);
-        entriesMatching.forEach(calendar::addEntry);
-
-        List<Entry> entriesFound = calendar.getEntries(filterStart, filterEnd);
-
-        // sort so that we have matching lists
-        entriesMatching.sort(Comparator.comparing(Entry::getTitle));
-        entriesFound.sort(Comparator.comparing(Entry::getTitle));
-
-        Assertions.assertEquals(entriesMatching.size(), entriesFound.size(), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-        Assertions.assertEquals(entriesMatching, new ArrayList<>(entriesFound), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-    }
-
-    @Test
-    void testGetEntriesByDateTimeIntervalWithoutFilterStart() {
-        FullCalendar calendar = createTestCalendar();
-
-        LocalDate ref = LocalDate.of(2000, 1, 1);
-        LocalDateTime refStartOfDay = ref.atStartOfDay();
-        LocalDateTime refEndOfDay = ref.atTime(23, 0);
-
-        LocalDateTime filterStart = ref.atTime(7, 0);
-        LocalDateTime filterEnd = ref.atTime(8, 0);
-
-        List<Entry> entriesNotMatching = new ArrayList<>();
-        List<Entry> entriesMatching = new ArrayList<>();
-
-        // completely out
-        entriesNotMatching.add(createEntry(null, "NM: Start / end at end of day", refEndOfDay, refEndOfDay, false, true, null, null));
-
-        // matching only with exclusive end filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Filter end to end of day", filterEnd, refEndOfDay, false, true, null, null));
-
-        // 0 timespan - matching only with exclusive end filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Filter end to filter end", filterEnd, filterEnd, false, true, null, null));
-
-        // these three are now matching since open filter start (@see testGetEntriesByDateTimeInterval())
-        entriesMatching.add(createEntry(null, "M: Start / end at start of day", refStartOfDay, refStartOfDay, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Start of day to filter start", refStartOfDay, filterStart, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter start to filter start", filterStart, filterStart, false, true, null, null));
-
-        // crossing filter timespan (match by 1 nanosecond)
-        entriesMatching.add(createEntry(null, "M: Start of day to filter start + 1ns", refStartOfDay, filterStart.plusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter end - 1ns to end of day", filterEnd.minusNanos(1), refEndOfDay, false, true, null, null));
-
-        // matches filter timespan completely
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end", filterStart, filterEnd, false, true, null, null));
-
-        // inner filter period match
-        entriesMatching.add(createEntry(null, "M: Filter start + 1ns to filter end", filterStart.plusNanos(1), filterEnd, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
-
-        entriesNotMatching.forEach(calendar::addEntry);
-        entriesMatching.forEach(calendar::addEntry);
-
-        List<Entry> entriesFound = calendar.getEntries(null, filterEnd);
-
-        // sort so that we have matching lists
-        entriesMatching.sort(Comparator.comparing(Entry::getTitle));
-        entriesFound.sort(Comparator.comparing(Entry::getTitle));
-
-        Assertions.assertEquals(entriesMatching.size(), entriesFound.size(), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-        Assertions.assertEquals(entriesMatching, new ArrayList<>(entriesFound), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-    }
-
-    @Test
-    void testGetEntriesByClosedDateTimeIntervalWithoutFilterEnd() {
-        FullCalendar calendar = createTestCalendar();
-
-        LocalDate ref = LocalDate.of(2000, 1, 1);
-        LocalDateTime refStartOfDay = ref.atStartOfDay();
-        LocalDateTime refEndOfDay = ref.atTime(23, 0);
-
-        LocalDateTime filterStart = ref.atTime(7, 0);
-        LocalDateTime filterEnd = ref.atTime(8, 0);
-
-        List<Entry> entriesNotMatching = new ArrayList<>();
-        List<Entry> entriesMatching = new ArrayList<>();
-
-        // completely out
-        entriesNotMatching.add(createEntry(null, "NM: Start / end at start of day", refStartOfDay, refStartOfDay, false, true, null, null));
-
-        // matching only with exclusive start filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Start of day to filter start", refStartOfDay, filterStart, false, true, null, null));
-
-
-        // 0 timespan - matching only with exclusive start filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Filter start to filter start", filterStart, filterStart, false, true, null, null));
-
-        // these three are now matching since open filter start (@see testGetEntriesByDateTimeInterval())
-        entriesMatching.add(createEntry(null, "M: Start / end at end of day", refEndOfDay, refEndOfDay, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter end to end of day", filterEnd, refEndOfDay, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter end to filter end", filterEnd, filterEnd, false, true, null, null));
-
-        // crossing filter timespan (match by 1 nanosecond)
-        entriesMatching.add(createEntry(null, "M: Start of day to filter start + 1ns", refStartOfDay, filterStart.plusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter end - 1ns to end of day", filterEnd.minusNanos(1), refEndOfDay, false, true, null, null));
-
-        // matches filter timespan completely
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end", filterStart, filterEnd, false, true, null, null));
-
-        // inner filter period match
-        entriesMatching.add(createEntry(null, "M: Filter start + 1ns to filter end", filterStart.plusNanos(1), filterEnd, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
-
-        entriesNotMatching.forEach(calendar::addEntry);
-        entriesMatching.forEach(calendar::addEntry);
-
-        List<Entry> entriesFound = calendar.getEntries(filterStart, null);
-
-        // sort so that we have matching lists
-        entriesMatching.sort(Comparator.comparing(Entry::getTitle));
-        entriesFound.sort(Comparator.comparing(Entry::getTitle));
-
-        Assertions.assertEquals(entriesMatching.size(), entriesFound.size(), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-        Assertions.assertEquals(entriesMatching, new ArrayList<>(entriesFound), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-    }
-
-    @Test
-    void testGetEntriesByClosedDateTimeIntervalWithoutParameters() {
-        FullCalendar calendar = createTestCalendar();
-
-        LocalDate ref = LocalDate.of(2000, 1, 1);
-        LocalDateTime refStartOfDay = ref.atStartOfDay();
-        LocalDateTime refEndOfDay = ref.atTime(23, 0);
-
-        LocalDateTime filterStart = ref.atTime(7, 0);
-        LocalDateTime filterEnd = ref.atTime(8, 0);
-
-        List<Entry> entriesNotMatching = new ArrayList<>();
-        List<Entry> entriesMatching = new ArrayList<>();
-
-        // completely out
-        entriesMatching.add(createEntry(null, "M: Start / end at start of day", refStartOfDay, refStartOfDay, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Start / end at end of day", refEndOfDay, refEndOfDay, false, true, null, null));
-
-        // matching only with exclusive start filter time so not matching at all
-        entriesMatching.add(createEntry(null, "M: Start of day to filter start", refStartOfDay, filterStart, false, true, null, null));
-
-        // matching only with exclusive end filter time so not matching at all
-        entriesMatching.add(createEntry(null, "M: Filter end to end of day", filterEnd, refEndOfDay, false, true, null, null));
-
-        // 0 timespan - matching only with exclusive start filter time so not matching at all
-        entriesMatching.add(createEntry(null, "M: Filter start to filter start", filterStart, filterStart, false, true, null, null));
-
-        // 0 timespan - matching only with exclusive end filter time so not matching at all
-        entriesMatching.add(createEntry(null, "M: Filter end to filter end", filterEnd, filterEnd, false, true, null, null));
-
-        // crossing filter timespan (match by 1 nanosecond)
-        entriesMatching.add(createEntry(null, "M: Start of day to filter start + 1ns", refStartOfDay, filterStart.plusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter end - 1ns to end of day", filterEnd.minusNanos(1), refEndOfDay, false, true, null, null));
-
-        // matches filter timespan completely
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end", filterStart, filterEnd, false, true, null, null));
-
-        // inner filter period match
-        entriesMatching.add(createEntry(null, "M: Filter start + 1ns to filter end", filterStart.plusNanos(1), filterEnd, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", filterStart, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Inside of filter timespan", filterStart.plus(29, ChronoUnit.MINUTES), filterStart.plus(31, ChronoUnit.MINUTES), false, true, null, null));
-
-        entriesNotMatching.forEach(calendar::addEntry); // should be empty
-        entriesMatching.forEach(calendar::addEntry);
-
-        List<Entry> entriesFound = calendar.getEntries((LocalDateTime) null, null);
-        List<Entry> allEntries = calendar.getEntries();
-
-        // sort so that we have matching lists
-        entriesMatching.sort(Comparator.comparing(Entry::getTitle));
-        entriesFound.sort(Comparator.comparing(Entry::getTitle));
-        allEntries.sort(Comparator.comparing(Entry::getTitle));
-
-        Assertions.assertEquals(entriesMatching.size(), entriesFound.size(), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-        Assertions.assertEquals(entriesMatching, new ArrayList<>(entriesFound), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-
-        Assertions.assertEquals(allEntries.size(), entriesFound.size(), () -> buildListBasedErrorString(allEntries, entriesFound));
-        Assertions.assertEquals(allEntries, new ArrayList<>(entriesFound), () -> buildListBasedErrorString(allEntries, entriesFound));
-
-    }
-
-    @Test
-    void testGetEntriesByDate() {
-        FullCalendar calendar = createTestCalendar();
-        assertNPE(calendar, c -> c.getEntries((LocalDateTime) null));
-
-        LocalDateTime ref = LocalDate.of(2000, 1, 1).atStartOfDay();
-        LocalDateTime filterEnd = ref.plusDays(1);
-
-        List<Entry> entriesNotMatching = new ArrayList<>();
-        List<Entry> entriesMatching = new ArrayList<>();
-
-        // TODO additional / other / better test cases?
-
-        // completely out
-        entriesNotMatching.add(createEntry(null, "NM: Last year", ref.minus(1, ChronoUnit.YEARS), ref.minus(1, ChronoUnit.YEARS), false, true, null, null));
-
-        // matching only with exclusive start filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Last year to filter start", ref.minus(1, ChronoUnit.YEARS), ref, false, true, null, null));
-
-        // matching only with exclusive end filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Filter end to end of month", filterEnd, ref.with(ChronoField.DAY_OF_MONTH, 31), false, true, null, null));
-
-        // 0 timespan - matching only with exclusive end filter time so not matching at all
-        entriesNotMatching.add(createEntry(null, "NM: Filter end to filter end", filterEnd, filterEnd, false, true, null, null));
-
-        // crossing filter timespan (match by 1 nanosecond)
-        entriesMatching.add(createEntry(null, "M: Last year to filter start + 1ns", ref.minus(1, ChronoUnit.YEARS), ref.plusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter end - 1ns to end of month", filterEnd.minusNanos(1), ref.with(ChronoField.DAY_OF_MONTH, 31), false, true, null, null));
-
-        // matches filter timespan completely
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end", ref, filterEnd, false, true, null, null));
-
-        // inner filter period match
-        entriesMatching.add(createEntry(null, "M: Filter start + 1ns to filter end", ref.plusNanos(1), filterEnd, false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Filter start to filter end - 1ns", ref, filterEnd.minusNanos(1), false, true, null, null));
-        entriesMatching.add(createEntry(null, "M: Inside of filter timespan", ref.plus(29, ChronoUnit.MINUTES), filterEnd.plus(31, ChronoUnit.MINUTES), false, true, null, null));
-
-        calendar.addEntries(entriesNotMatching);
-        calendar.addEntries(entriesMatching);
-
-        List<Entry> entriesFound = new ArrayList<>(calendar.getEntries(ref));
-
-        // sort so that we have matching lists
-        entriesMatching.sort(Comparator.comparing(Entry::getTitle));
-        entriesFound.sort(Comparator.comparing(Entry::getTitle));
-
-        Assertions.assertEquals(entriesMatching.size(), entriesFound.size(), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-        Assertions.assertEquals(entriesMatching, new ArrayList<>(entriesFound), () -> buildListBasedErrorString(entriesMatching, entriesFound));
-    }
-
-    private String buildListBasedErrorString(List<Entry> entriesMatching, Collection<Entry> entriesFound) {
-        StringBuffer sb = new StringBuffer("Searched for:");
-        entriesMatching.stream().map(Entry::getTitle).forEach(s -> sb.append(s).append("\n"));
-        sb.append("\n\nbut found:");
-        entriesFound.stream().map(Entry::getTitle).forEach(s -> sb.append(s).append("\n"));
-
-        ArrayList<Entry> missingMatching = new ArrayList<>(entriesMatching);
-        missingMatching.removeAll(entriesFound);
-
-        ArrayList<Entry> missingFound = new ArrayList<>(entriesFound);
-        missingFound.removeAll(entriesMatching);
-
-        if (!missingMatching.isEmpty()) {
-            sb.append("\n\nExpected these to be found, but we did not:\n");
-            missingMatching.stream().map(Entry::getTitle).forEach(s -> sb.append(s).append("\n"));
-        }
-
-        if (!missingFound.isEmpty()) {
-            sb.append("\n\nThese have been found, but should not match:\n");
-            missingFound.stream().map(Entry::getTitle).forEach(s -> sb.append(s).append("\n"));
-        }
-
-        return sb.toString();
-    }
 
     @Test
     void testRemoveAll() {
@@ -625,10 +325,10 @@ public class FullCalendarTest {
         calendar.addEntry(new Entry());
         calendar.addEntry(new Entry());
 
-        Assertions.assertEquals(3, calendar.getEntries().size());
+        assertEquals(3, calendar.getEntries().size());
 
         calendar.removeAllEntries();
-        Assertions.assertEquals(0, calendar.getEntries().size());
+        assertEquals(0, calendar.getEntries().size());
     }
 
     @Test
@@ -639,10 +339,10 @@ public class FullCalendarTest {
         calendar.addEntry(new Entry());
 
         Collection<Entry> entries = calendar.getEntries();
-        Assertions.assertEquals(3, entries.size());
+        assertEquals(3, entries.size());
 
         calendar.removeAllEntries();
-        Assertions.assertEquals(3, entries.size());
+        assertEquals(3, entries.size());
     }
 
     @Test
@@ -654,10 +354,10 @@ public class FullCalendarTest {
         assertNPE(calendar, c -> c.setOption((Option) null, "someValue"));
 
         calendar.setOption(Option.LOCALE, "someValue");
-        Assertions.assertTrue(calendar.getOption(Option.LOCALE).isPresent());
+        assertTrue(calendar.getOption(Option.LOCALE).isPresent());
 
         calendar.setOption(Option.LOCALE, null);
-        Assertions.assertFalse(calendar.getOption(Option.LOCALE).isPresent());
+        assertFalse(calendar.getOption(Option.LOCALE).isPresent());
     }
 
     @Test
@@ -671,10 +371,10 @@ public class FullCalendarTest {
         String optionKey = Option.LOCALE.getOptionKey();
 
         calendar.setOption(optionKey, "someValue");
-        Assertions.assertTrue(calendar.getOption(optionKey).isPresent());
+        assertTrue(calendar.getOption(optionKey).isPresent());
 
         calendar.setOption(optionKey, null);
-        Assertions.assertFalse(calendar.getOption(optionKey).isPresent());
+        assertFalse(calendar.getOption(optionKey).isPresent());
     }
 
     @Test
@@ -730,11 +430,11 @@ public class FullCalendarTest {
 
         JsonObject jsonData = Json.createObject();
         jsonData.put("id", allDayEntry.getId());
-        Assertions.assertSame(allDayEntry, new EntryClickedEvent(calendar, true, jsonData).getEntry());
+        assertSame(allDayEntry, new EntryClickedEvent(calendar, true, jsonData).getEntry());
 
         jsonData = Json.createObject();
         jsonData.put("id", timedEntry.getId());
-        Assertions.assertSame(timedEntry, new EntryClickedEvent(calendar, true, jsonData).getEntry());
+        assertSame(timedEntry, new EntryClickedEvent(calendar, true, jsonData).getEntry());
     }
 
     @Test
@@ -759,14 +459,14 @@ public class FullCalendarTest {
         TimeslotsSelectedEvent event;
         // now we simulate the conversion to the server side timezone
         event = new TimeslotsSelectedEvent(calendar, true, JsonUtils.formatClientSideDateString(refDateStart), JsonUtils.formatClientSideDateString(refDateEnd), true);
-        Assertions.assertEquals((refDateStart).atStartOfDay(), event.getStart());
-        Assertions.assertEquals((refDateEnd).atStartOfDay(), event.getEnd());
-        Assertions.assertTrue(event.isAllDay());
+        assertEquals((refDateStart).atStartOfDay(), event.getStart());
+        assertEquals((refDateEnd).atStartOfDay(), event.getEnd());
+        assertTrue(event.isAllDay());
 
         event = new TimeslotsSelectedEvent(calendar, true, JsonUtils.formatClientSideDateTimeString(refDateTimeStart), JsonUtils.formatClientSideDateTimeString(refDateTimeEnd), false);
-        Assertions.assertEquals((refDateTimeStart), event.getStart());
-        Assertions.assertEquals((refDateTimeEnd), event.getEnd());
-        Assertions.assertFalse(event.isAllDay());
+        assertEquals((refDateTimeStart), event.getStart());
+        assertEquals((refDateTimeEnd), event.getEnd());
+        assertFalse(event.isAllDay());
     }
 
     @Test
@@ -783,7 +483,7 @@ public class FullCalendarTest {
         T event;
         Constructor<T> constructor = ComponentEventBusUtil.getEventConstructor(eventClass);
         event = constructor.newInstance(calendar, true, JsonUtils.formatClientSideDateString(refDate));
-        Assertions.assertEquals((refDate), event.getDate());
+        assertEquals((refDate), event.getDate());
     }
 
     private <T extends DateTimeEvent> void subTestDateTimeEventSubClass(Class<T> eventClass) throws Exception {
@@ -795,12 +495,12 @@ public class FullCalendarTest {
         T event;
         Constructor<T> constructor = ComponentEventBusUtil.getEventConstructor(eventClass);
         event = constructor.newInstance(calendar, true, JsonUtils.formatClientSideDateTimeString(refDate), true);
-        Assertions.assertEquals((refDate).atStartOfDay(), event.getDateTime());
-        Assertions.assertTrue(event.isAllDay());
+        assertEquals((refDate).atStartOfDay(), event.getDateTime());
+        assertTrue(event.isAllDay());
 
         event = constructor.newInstance(calendar, true, JsonUtils.formatClientSideDateTimeString(refDateTime), false);
-        Assertions.assertEquals((refDateTime), event.getDateTime());
-        Assertions.assertFalse(event.isAllDay());
+        assertEquals((refDateTime), event.getDateTime());
+        assertFalse(event.isAllDay());
 
     }
 
@@ -837,7 +537,7 @@ public class FullCalendarTest {
             Day event
          */
         T event = constructor.newInstance(calendar, true, jsonModifiedAllDayEntry, jsonDelta);
-        Assertions.assertEquals(delta, event.getDelta());
+        assertEquals(delta, event.getDelta());
 
         // not changed automatically
         EntryTest.assertFullEqualsByJsonAttributes(allDayEntry, event.getEntry());
@@ -851,7 +551,7 @@ public class FullCalendarTest {
          */
         event = constructor.newInstance(calendar, true, jsonModifiedTimedEntry, jsonDelta);
 
-        Assertions.assertEquals(delta, event.getDelta());
+        assertEquals(delta, event.getDelta());
 
         // not changed automatically
         EntryTest.assertFullEqualsByJsonAttributes(timedEntry, event.getEntry());
@@ -862,108 +562,45 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testAddEntriesArray() {
-        FullCalendar calendar = createTestCalendar();
-        assertNPE(calendar, c -> c.addEntries((Entry[]) null));
+    void test_fetchFromServer() {
+        Entry entry1 = new Entry("1");
+        Entry entry2 = new Entry("2");
+        Entry entry3 = new Entry("3");
 
-        Entry entry1 = new Entry();
-        Entry entry2 = new Entry();
-        Entry entry3 = new Entry();
+        Set<Entry> entries = Stream.of(entry1, entry2, entry3).collect(Collectors.toSet());
 
-        calendar.addEntries(entry1, entry2, entry3, entry3);
-
-        Collection<Entry> entries = calendar.getEntries();
-        Assertions.assertEquals(3, entries.size());
-
-        Assertions.assertTrue(entries.contains(entry1));
-        Assertions.assertTrue(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
-
-        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
-    }
-
-    @Test
-    void testAddEntriesIterable() {
-        FullCalendar calendar = createTestCalendar();
-        assertNPE(calendar, c -> c.addEntries((Iterable<Entry>) null));
-
-        Entry entry1 = new Entry();
-        Entry entry2 = new Entry();
-        Entry entry3 = new Entry();
-
-        calendar.addEntries(Arrays.asList(entry1, entry2, entry3, entry3));
-
-        Collection<Entry> entries = calendar.getEntries();
-        Assertions.assertEquals(3, entries.size());
-
-        Assertions.assertTrue(entries.contains(entry1));
-        Assertions.assertTrue(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
-
-        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
-    }
-
-    @Test
-    void testUpdateEntries() {
-        // checks only for exceptions
+        entry1.setStart(LocalDate.of(2000, 1, 1).atTime(10, 0));
+        entry1.setEnd(LocalDate.of(2000, 1, 1).atTime(11, 0));
+        entry2.setStart(LocalDate.of(2000, 2, 1).atTime(10, 0));
+        entry2.setEnd(LocalDate.of(2000, 2, 1).atTime(11, 0));
+        entry3.setStart(LocalDate.of(2000, 3, 1).atTime(10, 0));
+        entry3.setEnd(LocalDate.of(2000, 3, 1).atTime(11, 0));
 
         FullCalendar calendar = createTestCalendar();
-        assertNPE(calendar, c -> c.updateEntries((Entry[]) null));
-        assertNPE(calendar, c -> c.updateEntries((Iterable<Entry>) null));
+        EntryProvider<Entry> provider = EntryProvider.fromCallbacks(query -> query.applyFilter(Stream.of(entry1, entry2, entry3)));
+        calendar.setEntryProvider(provider);
+
+        JsonArray array = calendar.fetchFromServer(Json.createObject());
+        Set<Entry> converted = TestUtils.toSet(array, jsonValue -> Entry.fromJson((JsonObject) jsonValue));
+
+        assertEqualAsSet(entries, converted);
+        assertTrue(calendar.getCachedEntryFromFetch("1").isPresent());
+        assertTrue(calendar.getCachedEntryFromFetch("2").isPresent());
+        assertTrue(calendar.getCachedEntryFromFetch("3").isPresent());
+
+        JsonObject clientSideRequest = Json.createObject();
+        clientSideRequest.put("start", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2000, 1, 1, 0, 0)));
+        clientSideRequest.put("end", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2000, 1, 2, 0, 0)));
+
+        array = calendar.fetchFromServer(clientSideRequest);
+        converted = TestUtils.toSet(array, jsonValue -> Entry.fromJson((JsonObject) jsonValue));
+
+        assertEqualAsSet(Stream.of(entry1).collect(Collectors.toSet()), converted);
+        assertTrue(calendar.getCachedEntryFromFetch("1").isPresent());
+        assertFalse(calendar.getCachedEntryFromFetch("2").isPresent());
+        assertFalse(calendar.getCachedEntryFromFetch("3").isPresent());
 
 
-        Entry entry1 = new Entry();
-        Entry entry2 = new Entry();
-        Entry entry3 = new Entry();
-
-        calendar.addEntries(entry1, entry2, entry3, entry3);
-        calendar.updateEntries(entry1, entry2, entry3, entry3);
-        calendar.updateEntries(Arrays.asList(entry1, entry2, entry3, entry3));
     }
 
-    @Test
-    void testRemoveEntriesArray() {
-        FullCalendar calendar = createTestCalendar();
-
-        assertNPE(calendar, c -> c.removeEntries((Entry[]) null));
-
-        Entry entry1 = new Entry();
-        Entry entry2 = new Entry();
-        Entry entry3 = new Entry();
-
-        calendar.addEntries(entry1, entry2, entry3);
-        calendar.removeEntries(entry1, entry2);
-
-        Collection<Entry> entries = calendar.getEntries();
-        Assertions.assertEquals(1, entries.size());
-
-        Assertions.assertFalse(entries.contains(entry1));
-        Assertions.assertFalse(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
-    }
-
-    @Test
-    void testRemoveEntriesIterable() {
-        FullCalendar calendar = createTestCalendar();
-
-        assertNPE(calendar, c -> c.removeEntries((Iterable<Entry>) null));
-
-        Entry entry1 = new Entry();
-        Entry entry2 = new Entry();
-        Entry entry3 = new Entry();
-
-        calendar.addEntries(entry1, entry2, entry3);
-        calendar.removeEntries(Arrays.asList(entry1, entry2));
-
-        Collection<Entry> entries = calendar.getEntries();
-        Assertions.assertEquals(1, entries.size());
-
-        Assertions.assertFalse(entries.contains(entry1));
-        Assertions.assertFalse(entries.contains(entry2));
-        Assertions.assertTrue(entries.contains(entry3));
-    }
 }

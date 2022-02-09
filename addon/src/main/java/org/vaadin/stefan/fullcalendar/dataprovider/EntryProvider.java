@@ -7,6 +7,8 @@ import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -27,8 +29,17 @@ public interface EntryProvider<T extends Entry> {
      * @param <T> type
      * @return callback entry provider
      */
-    static <T extends Entry> EntryProvider<T> fromCallbacks(SerializableFunction<EntryQuery, Stream<T>> fetchItems, SerializableFunction<String, T> fetchSingleItem) {
-        return new CallbackEntryProvider<>(fetchItems, fetchSingleItem);
+    static <T extends Entry> CallbackEntryProvider<T> fromCallbacks(SerializableFunction<EntryQuery, Stream<T>> fetchItems) {
+        return new CallbackEntryProvider<>(fetchItems);
+    }
+
+    /**
+     * Creates a lazy loading instance with no initial entries.
+     * @param <T> type
+     * @return lazy loading in memory provider
+     */
+    static <T extends Entry> LazyInMemoryEntryProvider<T> lazyInMemory() {
+        return InMemoryEntryProvider.lazyInstance();
     }
 
     /**
@@ -52,6 +63,15 @@ public interface EntryProvider<T extends Entry> {
      */
     static <T extends Entry> LazyInMemoryEntryProvider<T> lazyInMemoryFromItems(Iterable<T> entries) {
         return InMemoryEntryProvider.lazyInstance(entries);
+    }
+
+    /**
+     * Creates an eager loading instance with no initial entries.
+     * @param <T> type
+     * @return eager loading in memory provider
+     */
+    static <T extends Entry> EagerInMemoryEntryProvider<T> eagerInMemory() {
+        return InMemoryEntryProvider.eagerInstance();
     }
 
     /**
@@ -87,19 +107,33 @@ public interface EntryProvider<T extends Entry> {
     }
 
     /**
+     * Shortcut method for calling fetch with an EntryQuery. The two given dates will be used as
+     * filter start and end (can be null).
+     * @param start start
+     * @param end end
+     * @return stream containing matching entries
+     */
+    default Stream<T> fetch(LocalDateTime start, LocalDateTime end) {
+        return fetch(new EntryQuery(start, end));
+    }
+
+    /**
+     * Shortcut method for calling fetch with an EntryQuery. The two given dates will be used as
+     * filter start and end (can be null).
+     * @param start start
+     * @param end end
+     * @return stream containing matching entries
+     */
+    default Stream<T> fetch(Instant start, Instant end) {
+        return fetch(new EntryQuery(start, end));
+    }
+
+    /**
      * Streams entries based on the given query. The query might be empty to fetch all available items.
      * @param query query
      * @return stream containing entries matching the query filter
      */
     Stream<T> fetch(@NonNull EntryQuery query);
-
-    /**
-     * Returns a single entry represented by the given id or an empty optional, if there is no entry
-     * with this id.
-     * @param id id
-     * @return optional entry or empty
-     */
-    Optional<T> fetchById(@NonNull String id);
 
     /**
      * Refreshes a single item.

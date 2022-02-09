@@ -222,6 +222,7 @@ public final class JsonUtils {
      *
      * @param jsonValue          json value to read
      * @param toObjectCallback   callback to convert json objects
+     * @param toObjectJsonTypes  optional collection of additional types beside OBJECT the object converter callback shall be applied on
      * @param convertArrayToType target collection type json arrays shall be converted to.
      * @param <T>                return type
      * @return converted Java object
