@@ -1,8 +1,8 @@
 package org.vaadin.stefan;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import elemental.json.Json;
 import elemental.json.JsonObject;
@@ -10,53 +10,51 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.vaadin.stefan.CalendarViewToolbar.CalendarViewToolbarBuilder;
 import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
- * A basic class for simple calendar views, e.g. for demo or testing purposes.
+ * A basic class for simple calendar views, e.g. for demo or testing purposes. Takes care of
+ * creating a toolbar, a description element and embedding the created calendar into the view.
+ * Also registers a dates rendered listener to update the toolbar.
  */
 @Getter(AccessLevel.PROTECTED)
 public abstract class AbstractCalendarView extends VerticalLayout {
-    private final EntryService entryService;
-    private final EntryProvider<Entry> entryProvider;
-
     private final CalendarViewToolbar toolbar;
     private final FullCalendar calendar;
 
     public AbstractCalendarView() {
+        calendar = createCalendar(createDefaultInitialOptions());
 
-        entryService = initEntryService(EntryService.createInstance());
-
-        calendar = createFullCalendar();
-        CalendarViewToolbarBuilder toolbarBuilder = CalendarViewToolbar.builder()
-                .calendar(calendar)
-                .viewChangeable(true)
-                .dateChangeable(true)
-                .onSamplesCreated(this::onSamplesCreated)
-                .onSamplesRemoved(this::onSamplesRemoved);
-
-        CalendarViewToolbarBuilder modifiedToolbarBuilder = initToolbarBuilder(toolbarBuilder);
-        toolbar = createToolbar(modifiedToolbarBuilder);
-
-        entryProvider = createEntryProvider(entryService);
-        if (entryProvider != null) {
-            calendar.setEntryProvider(entryProvider);
-        }
-
-        calendar.setHeightByParent();
-        calendar.addDatesRenderedListener(event -> {
-            if (toolbar != null) {
-                toolbar.updateInterval(event.getIntervalStart());
-            }
-        });
-        calendar.addDayNumberClickedListener(event -> Notification.show("Clicked day number " + event.getDate()));
         calendar.addEntryClickedListener(this::onEntryClick);
         calendar.addEntryDroppedListener(this::onEntryDropped);
         calendar.addEntryResizedListener(this::onEntryResized);
+        calendar.addDayNumberClickedListener(this::onDayNumberClicked);
+        calendar.addBrowserTimezoneObtainedListener(this::onBrowserTimezoneObtained);
+        calendar.addMoreLinkClickedListener(this::onMoreLinkClicked);
+        calendar.addTimeslotClickedListener(this::onTimeslotClicked);
+        calendar.addTimeslotsSelectedListener(this::onTimeslotsSelected);
+        calendar.addViewSkeletonRenderedListener(this::onViewSkeletonRendered);
+        calendar.addDatesRenderedListener(this::onDatesRendered);
+        calendar.addWeekNumberClickedListener(this::onWeekNumberClicked);
+
+        toolbar = createToolbar(CalendarViewToolbar.builder()
+                .calendar(calendar)
+                .viewChangeable(true)
+                .dateChangeable(true)
+                .editable(true)
+                .onSamplesCreated(this::onEntriesCreated)
+                .onSamplesRemoved(this::onEntriesRemoved));
+
+        calendar.setHeightByParent();
+
+        if (toolbar != null) {
+            calendar.addDatesRenderedListener(event -> {
+                toolbar.updateInterval(event.getIntervalStart());
+            });
+        }
 
         Component descriptionElement = createDescriptionElement();
         if (descriptionElement != null) {
@@ -78,17 +76,23 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     }
 
     /**
-     * Creates the plain full calendar instance with all initial options. If {@link #createEntryProvider(EntryService)}
-     * returns a custom entry provider, it will be set at a later point automatically.
+     * Creates the plain full calendar instance with all initial options. The given default initial options are created by
+     * {@link #createDefaultInitialOptions()} beforehand.
      * <p></p>
-     * Also the height is set afterwards.
-     * <p></p>
-     * Initializes the calendar by default with a custom time format, an entry limit of 3, no scheduler and timezone UTC.
-     * You can override {@link #createFullCalendarBuilder(JsonObject)} to customize that or create your own builder.
+     * The calender is automatically embedded afterwards and connected with the toolbar (if one is created, which
+     * is the default). Also all event listeners will be initialized with a default callback method.
      *
+     * @param defaultInitialOptions default initial options
      * @return calendar instance
      */
-    protected FullCalendar createFullCalendar() {
+    protected abstract FullCalendar createCalendar(JsonObject defaultInitialOptions);
+
+    /**
+     * Creates a default set of initial options.
+     *
+     * @return initial options
+     */
+    protected JsonObject createDefaultInitialOptions() {
         JsonObject initialOptions = Json.createObject();
         JsonObject eventTimeFormat = Json.createObject();
         //{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
@@ -98,67 +102,111 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         eventTimeFormat.put("meridiem", false);
         eventTimeFormat.put("hour12", false);
         initialOptions.put("eventTimeFormat", eventTimeFormat);
-
-        FullCalendarBuilder builder = createFullCalendarBuilder(createInitialOptions(initialOptions));
-        FullCalendar calendar = buildFullCalendar(builder, initialOptions);
-
-        calendar.setNowIndicatorShown(true);
-
-        return calendar;
-    }
-
-    /**
-     * This method is called by {@link #createFullCalendar()}. Parameters are the fully configured builder to
-     * create the full calendar. Creates by default the calendar from the builder by calling {@link FullCalendarBuilder#build()}.
-     * You can additionally modify the resulting calendar, return a self customized one using the given options or return
-     * a custom variant.
-     * But do not return null.
-     * @return calendar instance
-     */
-    protected FullCalendar buildFullCalendar(FullCalendarBuilder builder, JsonObject initialOptions) {
-        return builder.build();
-    }
-
-    /**
-     * Creates the initial options for the full calendar. The given json object has set by default a custom time format. You may
-     * either modify, override or replace it. Return null for no initial options.
-     *
-     * @param initialOptions initial options
-     * @return initial options or null
-     */
-    protected JsonObject createInitialOptions(JsonObject initialOptions) {
         return initialOptions;
     }
 
     /**
-     * Creates the builder used by {@link #createFullCalendar()}. By default creates a builder with the initial
-     * options and an entry limit of 3.
-     *
-     * @param initialOptions initial options (might be null)
-     * @return FC builder
+     * Called by the calendar's entry click listener. Noop by default.
+     * @see FullCalendar#addEntryClickedListener(ComponentEventListener)
+     * @param event event
      */
-    protected FullCalendarBuilder createFullCalendarBuilder(JsonObject initialOptions) {
-        FullCalendarBuilder builder = FullCalendarBuilder.create();
-
-        if (initialOptions != null) {
-            builder = builder.withInitialOptions(initialOptions);
-        }
-
-        return builder
-                .withEntryLimit(3);
+    protected void onEntryClick(EntryClickedEvent event) {
     }
 
     /**
-     * Allows modifying the used entry server. This method is called before all others. You may also return
-     * a new instance to be used instead, but not null.
-     * <p></p>
-     * Initializes the entry service by default with random sample data ({@link EntryService#fillDatabaseWithRandomData()}.
-     *
-     * @param entryService entry service
+     * Called by the calendar's entry drop listener (i. e. an entry has been dragged around / moved by the user).
+     * Applies the changes to the entry and calls {@link #onEntryChanged(Entry)} by default.
+     * @see FullCalendar#addEntryDroppedListener(ComponentEventListener)
+     * @param event event
      */
-    protected EntryService initEntryService(EntryService entryService) {
-        entryService.fillDatabaseWithRandomData();
-        return entryService;
+    protected void onEntryDropped(EntryDroppedEvent event) {
+        event.applyChangesOnEntry();
+        onEntryChanged(event.getEntry());
+    }
+
+    /**
+     * Called by the calendar's entry resize listener.
+     * Applies the changes to the entry and calls {@link #onEntryChanged(Entry)} by default.
+     * @see FullCalendar#addEntryResizedListener(ComponentEventListener)
+     * @param event event
+     */
+    protected void onEntryResized(EntryResizedEvent event) {
+        event.applyChangesOnEntry();
+        onEntryChanged(event.getEntry());
+    }
+
+    /**
+     * Called by the calendar's week number click listener. Noop by default.
+     * @see FullCalendar#addWeekNumberClickedListener(ComponentEventListener)
+     * @param event event
+     */
+    private void onWeekNumberClicked(WeekNumberClickedEvent event) {
+
+    }
+
+    /**
+     * Called by the calendar's dates rendered listener. Noop by default.
+     * Please note, that there is a separate dates rendered listener taking
+     * care of updating the toolbar.
+     * @see FullCalendar#addDatesRenderedListener(ComponentEventListener)
+     * @param event event
+     */
+    private void onDatesRendered(DatesRenderedEvent event) {
+
+    }
+
+    /**
+     * Called by the calendar's view skeleton rendered listener. Noop by default.
+     * @see FullCalendar#addViewSkeletonRenderedListener(ComponentEventListener)
+     * @param event event
+     */
+    private void onViewSkeletonRendered(ViewSkeletonRenderedEvent event) {
+
+    }
+    /**
+     * Called by the calendar's timeslot selected listener. Noop by default.
+     * @see FullCalendar#addTimeslotsSelectedListener(ComponentEventListener)
+     * @param event event
+     */
+    private void onTimeslotsSelected(TimeslotsSelectedEvent event) {
+
+    }
+
+    /**
+     * Called by the calendar's timeslot clicked listener. Noop by default.
+     * @see FullCalendar#addTimeslotClickedListener(ComponentEventListener)
+     * @param event event
+     */
+    private void onTimeslotClicked(TimeslotClickedEvent event) {
+
+    }
+
+    /**
+     * Called by the calendar's "more" link clicked listener. Noop by default.
+     * @see FullCalendar#addMoreLinkClickedListener(ComponentEventListener)
+     * @param event event
+     */
+    private void onMoreLinkClicked(MoreLinkClickedEvent event) {
+    }
+
+    /**
+     * Called by the calendar's browser timezone obtained listener. Noop by default.
+     * Please note, that the full calendar builder registers also a listener, when the
+     * {@link FullCalendarBuilder#withAutoBrowserTimezone()} option is used.
+     * @see FullCalendar#addBrowserTimezoneObtainedListener(ComponentEventListener)
+     * @param event event
+     */
+    private void onBrowserTimezoneObtained(BrowserTimezoneObtainedEvent event) {
+
+    }
+
+    /**
+     * Called by the calendar's day number click listener. Noop by default.
+     * @see FullCalendar#addDayNumberClickedListener(ComponentEventListener)
+     * @param event event
+     */
+    private void onDayNumberClicked(DayNumberClickedEvent event) {
+
     }
 
     protected Component createDescriptionElement() {
@@ -194,33 +242,65 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         return toolbarBuilder != null ? toolbarBuilder.build() : null;
     }
 
-    protected void onEntryResized(EntryResizedEvent event) {
-
+    /**
+     * Called by the toolbar, when one of the "Create sample entries" button has been pressed to simulate the
+     * creation of new data. Might be called by any other source, too.
+     * <p></p>
+     * Intended to update the used backend. By default it will check, if the used entry provider is eager in memory
+     * and in that case automatically update the entry provider (to prevent unnecessary code duplication when
+     * the default entry provider is used).
+     * @param entries entries to add
+     */
+    protected void onEntriesCreated(Collection<Entry> entries) {
+        // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
+        // the data to the client - no refresh call is needed (or even recommended here)
+        if (getCalendar().isEagerLoadingEntryProvider()) {
+            ((EagerInMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).addEntries(entries);
+        }
     }
-
-    protected void onEntryDropped(EntryDroppedEvent event) {
+    /**
+     * Called by the toolbar, when the "Remove entries" button has been pressed to simulate the removal of entries.
+     * Might be called by any other source, too.
+     * <p></p>
+     * Intended to update the used backend. By default it will check, if the used entry provider is eager in memory
+     * and in that case automatically update the entry provider (to prevent unnecessary code duplication when
+     * the default entry provider is used).
+     *
+     * @param entries entries to remove
+     */
+    protected void onEntriesRemoved(Collection<Entry> entries) {
+        // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
+        // the data to the client - no refresh call is needed (or even recommended here)
+        if (getCalendar().isEagerLoadingEntryProvider()) {
+            ((EagerInMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).removeEntries(entries);
+        }
     }
-
-    protected void onEntryClick(EntryClickedEvent event) {
+    /**
+     * Called, when one of the sample entries have been modified, e. g. by an event.
+     * Might be called by any other source, too.
+     * <p></p>
+     * Intended to update the used backend. By default it will check, if the used entry provider is eager in memory
+     * and in that case automatically update the entry provider (to prevent unnecessary code duplication when
+     * the default entry provider is used).
+     *
+     * @param entry entry that has changed
+     */
+    protected void onEntryChanged(Entry entry) {
+        // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
+        // the data to the client - no refresh call is needed (or even recommended here)
+        if (getCalendar().isEagerLoadingEntryProvider()) {
+            ((EagerInMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).updateEntry(entry);
+        }
     }
 
     /**
-     * Creates the entry provider to be used. Instantiates by default a lazy in memory variant using the
-     * items of the entry service. Return a different version for the calendar or null to let it use its
-     * default entry provider.
-      * @param service service
-     * @return entry provider
+     * Returns the entry provider set to the calendar. Will be available after {@link #createCalendar(JsonObject)}
+     * has been called.
+     * @return entry provider or null
      */
-    protected EntryProvider<Entry> createEntryProvider(EntryService service) {
-        return EntryProvider.lazyInMemoryFromItems(service.streamEntries().collect(Collectors.toList()));
+    protected EntryProvider<Entry> getEntryProvider() {
+        return getCalendar().getEntryProvider();
     }
 
-    protected void onSamplesCreated(Collection<Entry> entries) {
-        throw new UnsupportedOperationException("Implement me");
-    }
-
-    protected void onSamplesRemoved(Collection<Entry> entries) {
-        throw new UnsupportedOperationException("Implement me");
-    }
 
 }

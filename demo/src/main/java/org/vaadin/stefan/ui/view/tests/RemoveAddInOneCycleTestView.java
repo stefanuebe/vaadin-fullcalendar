@@ -2,10 +2,13 @@ package org.vaadin.stefan.ui.view.tests;
 
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
+import elemental.json.JsonObject;
 import org.vaadin.stefan.AbstractCalendarView;
 import org.vaadin.stefan.CalendarViewToolbar;
 import org.vaadin.stefan.fullcalendar.Delta;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
@@ -44,7 +47,7 @@ public class RemoveAddInOneCycleTestView extends AbstractCalendarView {
     }
 
     @Override
-    protected EntryProvider<Entry> createEntryProvider(EntryService service) {
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         LocalDate now = LocalDate.now();
 
         entry1 = new Entry("1");
@@ -72,7 +75,11 @@ public class RemoveAddInOneCycleTestView extends AbstractCalendarView {
         });
 
         testProvider.addEntries(entry1, entry2);
-        return testProvider;
+
+        return FullCalendarBuilder.create()
+                .withInitialOptions(defaultInitialOptions)
+                .withEntryProvider(testProvider)
+                .build();
     }
 
 }

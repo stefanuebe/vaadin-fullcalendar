@@ -3,13 +3,14 @@ package org.vaadin.stefan.ui.view.tests;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import elemental.json.JsonObject;
 import org.vaadin.stefan.AbstractCalendarView;
 import org.vaadin.stefan.CalendarViewToolbar;
 import org.vaadin.stefan.fullcalendar.Delta;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.ui.layouts.TestLayout;
-import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -22,11 +23,12 @@ import java.util.List;
 @RouteAlias(value = "", layout = TestLayout.class)
 public class AddRemoveInOneCycleTestView extends AbstractCalendarView {
 
-    private final Entry entry1;
-    private final Entry entry2;
-    private final List<Entry> entries;
+    private Entry entry1;
+    private Entry entry2;
+    private List<Entry> entries;
 
-    public AddRemoveInOneCycleTestView() {
+    @Override
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         LocalDate now = LocalDate.now();
 
         entry1 = new Entry("1");
@@ -42,6 +44,23 @@ public class AddRemoveInOneCycleTestView extends AbstractCalendarView {
         entry2.setEnd(now.atTime(11, 0));
 
         entries = Arrays.asList(entry1, entry2);
+
+        TestProvider testProvider = new TestProvider(thisInstance -> {
+            if (thisInstance.isRecording()) {
+                System.out.println();
+                System.out.println("::: RECORDED DATA ::: ");
+                System.out.println("::: Entry map");
+                System.out.println(thisInstance.getTmpItemSnapshots());
+                System.out.println("::: Json arrays ");
+                System.out.println(thisInstance.getCreatedJsonArraysAsSets());
+                System.out.println();
+            }
+        });
+
+        return FullCalendarBuilder.create()
+                .withInitialOptions(defaultInitialOptions)
+                .withEntryProvider(testProvider)
+                .build();
     }
 
     @Override
@@ -63,21 +82,6 @@ public class AddRemoveInOneCycleTestView extends AbstractCalendarView {
         });
 
         return toolbar;
-    }
-
-    @Override
-    protected EntryProvider<Entry> createEntryProvider(EntryService service) {
-        return new TestProvider(thisInstance -> {
-            if (thisInstance.isRecording()) {
-                System.out.println();
-                System.out.println("::: RECORDED DATA ::: ");
-                System.out.println("::: Entry map");
-                System.out.println(thisInstance.getTmpItemSnapshots());
-                System.out.println("::: Json arrays ");
-                System.out.println(thisInstance.getCreatedJsonArraysAsSets());
-                System.out.println();
-            }
-        });
     }
 
 }
