@@ -73,17 +73,13 @@ public class EntryService {
         LocalDateTime start = query.getStart();
         LocalDateTime end = query.getEnd();
 
-        if (start == null && end == null) {
-            return stream;
+        if (start != null) {
+            stream = stream.filter(e -> e.getEnd() != null && e.getEnd().isAfter(start));
         }
 
-        stream = stream.filter(item -> {
-            if (end != null && item.getStart().isAfter(end)) {
-                return false;
-            }
-
-            return !(start != null && item.getEnd().isBefore(start));
-        });
+        if (end != null) {
+            stream = stream.filter(e -> e.getStart() != null && e.getStart().isBefore(end));
+        }
 
         return stream;
     }
