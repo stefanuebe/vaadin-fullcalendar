@@ -4,6 +4,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import elemental.json.Json;
+import elemental.json.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.vaadin.stefan.CalendarViewToolbar.CalendarViewToolbarBuilder;
@@ -27,14 +29,17 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     public AbstractCalendarView() {
         entryService = initEntryService(EntryService.createInstance());
 
-        calendar = new FullCalendar();
+        calendar = createFullCalendar();
         CalendarViewToolbarBuilder toolbarBuilder = CalendarViewToolbar.builder()
                 .calendar(calendar)
+                .viewChangeable(true)
+                .dateChangeable(true)
                 .onSamplesCreated(this::onSamplesCreated)
                 .onSamplesRemoved(this::onSamplesRemoved);
 
         CalendarViewToolbarBuilder modifiedToolbarBuilder = initToolbarBuilder(toolbarBuilder);
         toolbar = createToolbar(modifiedToolbarBuilder);
+
         entryProvider = createEntryProvider(entryService);
         if (entryProvider != null) {
             calendar.setEntryProvider(entryProvider);
@@ -68,6 +73,42 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
         setSizeFull();
+    }
+
+    /**
+     * Creates the plain full calendar instance with all initial options. If {@link #createEntryProvider(EntryService)}
+     * returns a custom entry provider, it will be set at a later point automatically.
+     * <p></p>
+     * Also the height is set afterwards.
+     * <p></p>
+     * Initializes the calendar by default with a custom time format, an entry limit of 3, no scheduler and timezone UTC.
+     * You can override {@link #createFullCalendarBuilder(JsonObject)} to customize that or create your own builder.
+     * @return calendar instance
+     */
+    private FullCalendar createFullCalendar() {
+        JsonObject initialOptions = Json.createObject();
+        JsonObject eventTimeFormat = Json.createObject();
+        //{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
+        eventTimeFormat.put("hour", "2-digit");
+        eventTimeFormat.put("minute", "2-digit");
+        eventTimeFormat.put("timeZoneName", "short");
+        eventTimeFormat.put("meridiem",false);
+        eventTimeFormat.put("hour12",false);
+        initialOptions.put("eventTimeFormat", eventTimeFormat);
+
+        return createFullCalendarBuilder(initialOptions).build();
+    }
+
+    /**
+     * Creates the builder used by {@link #createFullCalendar()}. By default creates a builder with the initial
+     * options and an entry limit of 3.
+     * @param initialOptions initial options
+     * @return FC builder
+     */
+    protected FullCalendarBuilder createFullCalendarBuilder(JsonObject initialOptions) {
+        return FullCalendarBuilder.create()
+                .withInitialOptions(initialOptions)
+                .withEntryLimit(3);
     }
 
     /**

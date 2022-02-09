@@ -2,6 +2,7 @@ package org.vaadin.stefan;
 
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasText;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -23,8 +24,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Stefan Uebe
@@ -36,10 +39,8 @@ public class CalendarViewToolbar extends MenuBar {
     private final boolean allTimezones;
     private final boolean allLocales;
     private final boolean editable;
-    @Builder.Default
-    private boolean viewChangeable = true;
-    @Builder.Default
-    private boolean dateChangeable = true;
+    private final boolean viewChangeable;
+    private final boolean dateChangeable;
     private final Consumer<Set<Entry>> onSamplesCreated;
     private final Consumer<Set<Entry>> onSamplesRemoved;
 
@@ -74,6 +75,8 @@ public class CalendarViewToolbar extends MenuBar {
         if (editable) {
             initEditItems();
         }
+
+        initGeneralSettings();
     }
 
     private void initDateItems() {
@@ -98,27 +101,62 @@ public class CalendarViewToolbar extends MenuBar {
     }
 
     protected SubMenu initEditItems() {
-        SubMenu calendarItems = addItem("Edit").getSubMenu();
+        SubMenu calendarItems = addItem("Entries").getSubMenu();
 
         MenuItem addDailyItems;
+        MenuItem addThousandItems;
         if (onSamplesCreated != null) {
             addDailyItems = calendarItems.addItem("Add sample entries", event -> {
-                LocalDateTime max = LocalDate.of(2022, Month.DECEMBER, 31).atStartOfDay();
-                LocalDateTime date = LocalDate.now().atTime(10, 0);
-
-                Set<Entry> entries = new HashSet<>();
-                while (!date.isAfter(max)) {
-                    Entry entry = new Entry();
-                    EntryManager.setValues(calendar, entry, "DAILY", date, 60, ChronoUnit.MINUTES, null);
-                    entries.add(entry);
-                    date = date.plusDays(1);
-                }
-                onSamplesCreated.accept(entries);
                 event.getSource().setEnabled(false);
-                Notification.show("Added " + entries.size() + " entries, one per day at 10:00 UTC");
+                Optional<UI> optionalUI = getUI();
+                optionalUI.ifPresent(ui -> {
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        LocalDateTime max = LocalDate.of(2022, Month.DECEMBER, 31).atStartOfDay();
+                        LocalDateTime date = LocalDate.now().atTime(10, 0);
+
+                        Set<Entry> entries = new HashSet<>();
+                        while (!date.isAfter(max)) {
+                            Entry entry = new Entry();
+                            EntryManager.setValues(calendar, entry, "DAILY", date, 60, ChronoUnit.MINUTES, null);
+                            entries.add(entry);
+                            date = date.plusDays(1);
+                        }
+                        ui.access(() -> {
+                            onSamplesCreated.accept(entries);
+                            Notification.show("Added " + entries.size() + " entries, one per day at 10:00 UTC");
+                        });
+                    });
+                });
             });
+
+            addThousandItems = calendarItems.addItem("Add 1k entries", event -> {
+                MenuItem source = event.getSource();
+                source.setEnabled(false);
+                Optional<UI> optionalUI = getUI();
+                optionalUI.ifPresent(ui -> {
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        LocalDateTime start = LocalDateTime.now();
+                        LocalDateTime end = LocalDateTime.now().plus(1, ChronoUnit.DAYS);
+                        Set<Entry> list = IntStream.range(0, 1000).mapToObj(i -> {
+                            Entry entry = new Entry();
+                            entry.setStart(start);
+                            entry.setEnd(end);
+                            entry.setAllDay(true);
+                            entry.setTitle("Generated " + (i + 1));
+                            return entry;
+                        }).collect(Collectors.toSet());
+
+                        ui.access(() -> {
+                            onSamplesCreated.accept(list);
+                            Notification.show("Added 1,000 entries for today");
+                        });
+                    });
+                });
+            });
+
         } else {
             addDailyItems = null;
+            addThousandItems = null;
         }
 
         if (onSamplesRemoved != null) {
@@ -127,31 +165,36 @@ public class CalendarViewToolbar extends MenuBar {
                 if (addDailyItems != null) {
                     addDailyItems.setEnabled(true);
                 }
-                Notification.show("All entries removed. Reload this page to create a new set of samples or use the Add sample entries button.");
+                if (addThousandItems != null) {
+                    addThousandItems.setEnabled(true);
+                }
+                Notification.show("All entries removed. Reload this page to create a new set of samples or use the Add sample entries buttons.");
             });
         }
 
         return calendarItems;
     }
 
-    private SubMenu initGeneralSettings(MenuBar menuBar) {
-        SubMenu subMenu = menuBar.addItem("Settings").getSubMenu();
+    private SubMenu initGeneralSettings() {
+        SubMenu subMenu = addItem("Settings").getSubMenu();
 
-        List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
-        calendarViews.addAll(Arrays.asList(SchedulerView.values()));
-        calendarViews.sort(Comparator.comparing(CalendarView::getName));
+        if (viewChangeable) {
+            List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
+            calendarViews.addAll(Arrays.asList(SchedulerView.values()));
+            calendarViews.sort(Comparator.comparing(CalendarView::getName));
 
-        viewSelector = new Select<>();
-        viewSelector.setLabel("View");
-        viewSelector.setItems(calendarViews);
-        viewSelector.setValue(CalendarViewImpl.DAY_GRID_MONTH);
-        viewSelector.setWidthFull();
-        viewSelector.addValueChangeListener(e -> {
-            CalendarView value = e.getValue();
-            calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
-        });
-        viewSelector.setWidthFull();
-        subMenu.add(viewSelector);
+            viewSelector = new Select<>();
+            viewSelector.setLabel("View");
+            viewSelector.setItems(calendarViews);
+            viewSelector.setValue(CalendarViewImpl.DAY_GRID_MONTH);
+            viewSelector.setWidthFull();
+            viewSelector.addValueChangeListener(e -> {
+                CalendarView value = e.getValue();
+                calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
+            });
+            viewSelector.setWidthFull();
+            subMenu.add(viewSelector);
+        }
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> localeSelector = new ComboBox<>("Locale");
@@ -189,7 +232,7 @@ public class CalendarViewToolbar extends MenuBar {
             if (calendar.getParent().isPresent()) {
                 calendarParent = (HasComponents) calendar.getParent().get();
                 calendarParent.remove(calendar);
-            } else if(calendarParent != null){
+            } else if (calendarParent != null) {
                 calendarParent.add(calendar);
             }
         });
