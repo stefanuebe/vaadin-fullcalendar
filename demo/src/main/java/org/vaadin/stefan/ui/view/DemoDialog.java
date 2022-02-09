@@ -17,13 +17,17 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.function.SerializableConsumer;
 import lombok.Data;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Set;
 
 public class DemoDialog extends Dialog {
@@ -34,8 +38,10 @@ public class DemoDialog extends Dialog {
     private final CustomDateTimePicker fieldStart;
     private final CustomDateTimePicker fieldEnd;
     private final CheckboxGroup<DayOfWeek> fieldRDays;
+    private SerializableConsumer<Entry> onSaveConsumer;
+    private SerializableConsumer<Entry> onDeleteConsumer;
 
-    public DemoDialog(FullCalendar calendar, ResourceEntry entry, boolean newInstance) {
+    public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
         this.dialogEntry = DialogEntry.of(entry, calendar.getTimezone());
 
         setCloseOnEsc(true);
@@ -109,10 +115,23 @@ public class DemoDialog extends Dialog {
                     dialogEntry.setEnd(dialogEntry.getEnd().plusDays(1));
                 }
 
-                if (newInstance) {
-                    calendar.addEntry(dialogEntry.updateEntry());
-                } else {
-                    calendar.updateEntry(dialogEntry.updateEntry());
+                Entry updatedEntry = dialogEntry.updateEntry();
+
+                if (onSaveConsumer != null) {
+                    onSaveConsumer.accept(updatedEntry);
+                } else if (calendar.isInMemoryEntryProvider()) {
+                    boolean eagerInMemoryEntryProvider = calendar.isEagerInMemoryEntryProvider();
+
+                    if (newInstance) {
+                        calendar.addEntry(updatedEntry);
+                        if (!eagerInMemoryEntryProvider) {
+                            calendar.getEntryProvider().refreshAll();
+                        }
+                    } else if(eagerInMemoryEntryProvider){
+                        calendar.updateEntry(updatedEntry);
+                    } else {
+                        calendar.getEntryProvider().refreshItem(updatedEntry);
+                    }
                 }
                 close();
             }
@@ -126,7 +145,14 @@ public class DemoDialog extends Dialog {
 
         if (!newInstance) {
             Button buttonRemove = new Button("Remove", e -> {
-                calendar.removeEntry(entry);
+                if (onDeleteConsumer != null) {
+                    onDeleteConsumer.accept(entry);
+                } else if(calendar.isInMemoryEntryProvider()){
+                    calendar.removeEntry(entry);
+                    if (!calendar.isEagerInMemoryEntryProvider()) {
+                        calendar.getEntryProvider().refreshAll();
+                    }
+                }
                 close();
             });
             buttonRemove.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
@@ -154,6 +180,14 @@ public class DemoDialog extends Dialog {
 
         updateRecurringFieldsState(dialogEntry.isRecurring());
         fieldTitle.focus();
+    }
+
+    public void setSaveConsumer(SerializableConsumer<Entry> onSaveConsumer) {
+        this.onSaveConsumer = onSaveConsumer;
+    }
+
+    public void setDeleteConsumer(SerializableConsumer<Entry> onDeleteConsumer) {
+        this.onDeleteConsumer = onDeleteConsumer;
     }
 
     protected void updateRecurringFieldsState(boolean recurring) {
@@ -223,9 +257,9 @@ public class DemoDialog extends Dialog {
         private boolean recurring;
         private Set<DayOfWeek> recurringDays;
         private Timezone timezone;
-        private ResourceEntry entry;
+        private Entry entry;
 
-        public static DialogEntry of(ResourceEntry entry, Timezone timezone) {
+        public static DialogEntry of(Entry entry, Timezone timezone) {
             DialogEntry dialogEntry = new DialogEntry();
 
             dialogEntry.setTimezone(timezone);

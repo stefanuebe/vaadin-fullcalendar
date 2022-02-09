@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -53,6 +54,11 @@ public abstract class AbstractInMemoryEntryProvider<T extends Entry> extends Abs
     @Override
     public Stream<T> fetch(@NonNull EntryQuery query) {
         return query.applyFilter(entriesMap.values().stream());
+    }
+
+    @Override
+    public Optional<T> fetchById(@NonNull String id) {
+        return Optional.ofNullable(entriesMap.get(id));
     }
 
     /**

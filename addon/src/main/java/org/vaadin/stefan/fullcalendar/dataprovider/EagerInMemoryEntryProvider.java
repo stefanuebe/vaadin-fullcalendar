@@ -61,16 +61,6 @@ public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemor
     }
 
     /**
-     * Returns a single entry identified by the given id or an empty optional.
-     *
-     * @param id id
-     * @return optional entry or empty
-     */
-    public Optional<T> getEntryById(@NotNull String id) {
-        return Optional.ofNullable(getEntriesMap().get(Objects.requireNonNull(id)));
-    }
-
-    /**
      * Adds a list of entries to the calendar. Noop for already registered entries.
      *
      * @param iterableEntries list of entries

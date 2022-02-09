@@ -529,11 +529,13 @@ export class FullCalendar extends PolymerElement {
 
     setHasLazyLoadingEntryProvider(hasLazyLoadingEntryProvider) {
         if (hasLazyLoadingEntryProvider && !this.hasLazyLoadingEntryProvider) {
+            let calendar = this.getCalendar();
             this.setOption("events", (info, successCallback, failureCallback)=> {
                 this.$server.fetchFromServer({
                     start: this._formatDate(info.start),
                     end: this._formatDate(info.end)
                 }).then(array => {
+                    calendar.removeAllEvents(); // this is necessary to also remove previously manually pushed events (e.g. refreshItem on lazy loading)
                     if (Array.isArray(array)) {
                         successCallback(array);
                     } else {
@@ -548,8 +550,13 @@ export class FullCalendar extends PolymerElement {
         }
     }
 
-    refreshAllEntries() {
+    refreshAllEvents() {
         this.getCalendar().refetchEvents();
+    }
+
+    refreshSingleEvent(entryJson) {
+        entryJson['_hardReset'] = true;
+        this.updateEvents([entryJson]); // method expects array parameter
     }
 
     addEvents(eventsCreateInfo) {
@@ -576,7 +583,8 @@ export class FullCalendar extends PolymerElement {
                     // Therefore this if will lead to a lot of "reset event", due to the fact, that resource editable
                     // etc. might be set often.
 
-                    if (obj['_hardReset'] === true) {
+                    if (obj['_hardReset'] === true) { // also used by this.refreshEvent();
+                        delete obj["_hardReset"];
                         eventToUpdate.remove();
                         this.addEvents([obj]);
                     } else {

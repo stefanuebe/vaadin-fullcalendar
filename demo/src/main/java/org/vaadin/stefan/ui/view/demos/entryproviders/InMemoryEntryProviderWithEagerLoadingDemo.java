@@ -32,6 +32,11 @@ public class InMemoryEntryProviderWithEagerLoadingDemo extends AbstractEntryProv
     }
 
     @Override
+    protected Entry createNewEntry() {
+        return new Entry();
+    }
+
+    @Override
     protected void onEntriesCreated(Collection<Entry> entries) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
@@ -42,7 +47,7 @@ public class InMemoryEntryProviderWithEagerLoadingDemo extends AbstractEntryProv
     protected void onEntriesRemoved(Collection<Entry> entries) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        getEntryProvider().removeAllEntries();
+        getEntryProvider().removeEntries(entries);
     }
 
     @Override

@@ -16,7 +16,10 @@ public class CallbackEntryProviderSample extends AbstractSample {
     @Override
     protected void buildSample(FullCalendar calendar) {
         // the callback provider uses the given callback to fetch entries when necessary
-        CallbackEntryProvider<Entry> entryProvider = EntryProvider.fromCallbacks(query -> backend.streamEntries(query));
+        CallbackEntryProvider<Entry> entryProvider = EntryProvider.fromCallbacks(
+                query -> backend.streamEntries(query),
+                entryId -> backend.getEntry(entryId).orElse(null)
+        );
 
         // set entry provider
         calendar.setEntryProvider(entryProvider);

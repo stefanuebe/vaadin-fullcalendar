@@ -8,6 +8,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -25,8 +26,8 @@ public interface EntryProvider<T extends Entry> {
      * @param <T> type
      * @return callback entry provider
      */
-    static <T extends Entry> CallbackEntryProvider<T> fromCallbacks(SerializableFunction<EntryQuery, Stream<T>> fetchItems) {
-        return new CallbackEntryProvider<>(fetchItems);
+    static <T extends Entry> CallbackEntryProvider<T> fromCallbacks(SerializableFunction<EntryQuery, Stream<T>> fetchItems, SerializableFunction<String, T> fetchSingleItem) {
+        return new CallbackEntryProvider<>(fetchItems, fetchSingleItem);
     }
 
     /**
@@ -130,6 +131,14 @@ public interface EntryProvider<T extends Entry> {
      * @return stream containing entries matching the query filter
      */
     Stream<T> fetch(@NonNull EntryQuery query);
+
+    /**
+     * Returns a single entry represented by the given id or an empty optional, if there is no entry
+     * with this id.
+     * @param id id
+     * @return optional entry or empty
+     */
+    Optional<T> fetchById(@NonNull String id);
 
     /**
      * Refreshes a single item.

@@ -2,9 +2,12 @@ package org.vaadin.stefan.ui.view.demos.entryproviders;
 
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.EntryClickedEvent;
+import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
+import org.vaadin.stefan.ui.view.DemoDialog;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +35,11 @@ public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProvi
     }
 
     @Override
+    protected Entry createNewEntry() {
+        return new Entry();
+    }
+
+    @Override
     protected void onEntriesCreated(Collection<Entry> entries) {
         // The lazy in memory provider provides API to modify its internal cache. To inform the client about
         // the change a refresh call is necessary.
@@ -45,7 +53,7 @@ public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProvi
         // The lazy in memory provider provides API to modify its internal cache. To inform the client about
         // the change a refresh call is necessary.
         LazyInMemoryEntryProvider<Entry> provider = getEntryProvider();
-        provider.removeAllEntries();
+        provider.removeEntries(entries);
         provider.refreshAll();
     }
 

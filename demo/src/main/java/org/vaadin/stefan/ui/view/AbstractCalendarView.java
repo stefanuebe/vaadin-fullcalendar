@@ -2,7 +2,6 @@ package org.vaadin.stefan.ui.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import elemental.json.Json;
@@ -11,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.ui.menu.MenuItem;
-import org.vaadin.stefan.ui.view.CalendarViewToolbar;
 import org.vaadin.stefan.ui.view.CalendarViewToolbar.CalendarViewToolbarBuilder;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
@@ -160,7 +158,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addWeekNumberClickedListener(ComponentEventListener)
      * @param event event
      */
-    private void onWeekNumberClicked(WeekNumberClickedEvent event) {
+    protected void onWeekNumberClicked(WeekNumberClickedEvent event) {
 
     }
 
@@ -171,7 +169,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addDatesRenderedListener(ComponentEventListener)
      * @param event event
      */
-    private void onDatesRendered(DatesRenderedEvent event) {
+    protected void onDatesRendered(DatesRenderedEvent event) {
 
     }
 
@@ -180,7 +178,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addViewSkeletonRenderedListener(ComponentEventListener)
      * @param event event
      */
-    private void onViewSkeletonRendered(ViewSkeletonRenderedEvent event) {
+    protected void onViewSkeletonRendered(ViewSkeletonRenderedEvent event) {
 
     }
     /**
@@ -188,7 +186,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addTimeslotsSelectedListener(ComponentEventListener)
      * @param event event
      */
-    private void onTimeslotsSelected(TimeslotsSelectedEvent event) {
+    protected void onTimeslotsSelected(TimeslotsSelectedEvent event) {
 
     }
 
@@ -197,7 +195,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addTimeslotClickedListener(ComponentEventListener)
      * @param event event
      */
-    private void onTimeslotClicked(TimeslotClickedEvent event) {
+    protected void onTimeslotClicked(TimeslotClickedEvent event) {
 
     }
 
@@ -206,7 +204,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addMoreLinkClickedListener(ComponentEventListener)
      * @param event event
      */
-    private void onMoreLinkClicked(MoreLinkClickedEvent event) {
+    protected void onMoreLinkClicked(MoreLinkClickedEvent event) {
     }
 
     /**
@@ -216,7 +214,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addBrowserTimezoneObtainedListener(ComponentEventListener)
      * @param event event
      */
-    private void onBrowserTimezoneObtained(BrowserTimezoneObtainedEvent event) {
+    protected void onBrowserTimezoneObtained(BrowserTimezoneObtainedEvent event) {
 
     }
 
@@ -225,7 +223,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addDayNumberClickedListener(ComponentEventListener)
      * @param event event
      */
-    private void onDayNumberClicked(DayNumberClickedEvent event) {
+    protected void onDayNumberClicked(DayNumberClickedEvent event) {
 
     }
 
@@ -302,7 +300,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected void onEntriesCreated(Collection<Entry> entries) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        if (getCalendar().isEagerLoadingEntryProvider()) {
+        if (getCalendar().isEagerInMemoryEntryProvider()) {
             ((EagerInMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).addEntries(entries);
         }
     }
@@ -319,7 +317,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected void onEntriesRemoved(Collection<Entry> entries) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        if (getCalendar().isEagerLoadingEntryProvider()) {
+        if (getCalendar().isEagerInMemoryEntryProvider()) {
             ((EagerInMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).removeEntries(entries);
         }
     }
@@ -336,7 +334,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected void onEntryChanged(Entry entry) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        if (getCalendar().isEagerLoadingEntryProvider()) {
+        if (getCalendar().isEagerInMemoryEntryProvider()) {
             ((EagerInMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).updateEntry(entry);
         }
     }

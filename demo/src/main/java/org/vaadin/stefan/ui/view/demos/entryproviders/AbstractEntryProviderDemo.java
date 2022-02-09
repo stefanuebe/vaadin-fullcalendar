@@ -7,6 +7,9 @@ import lombok.Getter;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.ui.view.DemoDialog;
+
+import java.util.Collections;
 
 /**
  * An abstract demo class for the different entry provider variants. Does not provide much functionality
@@ -44,9 +47,27 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
     protected abstract EntryProvider<Entry> createEntryProvider(EntryService entryService);
 
     @Override
+    protected void onTimeslotsSelected(TimeslotsSelectedEvent event) {
+        Entry entry = createNewEntry();
+
+        entry.setStart(event.getStart());
+        entry.setEnd(event.getEnd());
+        entry.setAllDay(event.isAllDay());
+
+        entry.setColor("green");
+        DemoDialog dialog = new DemoDialog(event.getSource(), entry, true);
+        dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
+        dialog.open();
+    }
+
+    protected abstract Entry createNewEntry();
+
+    @Override
     protected void onEntryClick(EntryClickedEvent event) {
-        super.onEntryClick(event);
-        Notification.show("Entry clicked " + event.getEntry().getId());
+        DemoDialog dialog = new DemoDialog(event.getSource(), event.getEntry(), false);
+        dialog.setSaveConsumer(this::onEntryChanged);
+        dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
+        dialog.open();
     }
 
     @Override
