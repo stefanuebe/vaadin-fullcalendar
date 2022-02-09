@@ -4,7 +4,7 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
-import org.vaadin.stefan.ui.MainLayout;
+import org.vaadin.stefan.ui.layouts.MainLayout;
 
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -22,6 +22,15 @@ public class EntryService {
     }
 
     public EntryService() {
+        fillDatabaseWithRandomData();
+    }
+
+    /**
+     * Deletes all current values and (re)fills the database with new entries in a range of -3 years to +3 years
+     * (related to today). The entry ids will always start with 0.
+     */
+    public void fillDatabaseWithRandomData() {
+        database.clear();
         LocalDate date = LocalDate.now().minusYears(3).withDayOfYear(1);
         LocalDate end = LocalDate.now().plusYears(3);
 

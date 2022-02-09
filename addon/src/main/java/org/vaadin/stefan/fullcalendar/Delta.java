@@ -17,6 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -67,6 +68,7 @@ public class Delta {
      * @param minutes minutes delta
      * @param seconds seconds delta
      */
+    @Builder
     public Delta(int years, int months, int days, int hours, int minutes, int seconds) {
 
         this.years = years;

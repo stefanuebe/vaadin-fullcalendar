@@ -14,7 +14,7 @@ import com.vaadin.flow.router.RouteAlias;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.ui.MainLayout;
+import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.util.EntryManager;
 

@@ -40,7 +40,7 @@ import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
-import org.vaadin.stefan.ui.MainLayout;
+import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.*;

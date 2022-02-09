@@ -14,7 +14,7 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.vaadin.stefan.ui;
+package org.vaadin.stefan.ui.layouts;
 
 import com.github.appreciated.app.layout.component.appbar.AppBarBuilder;
 import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
@@ -41,19 +41,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.ui.menu.MenuItem;
-import org.vaadin.stefan.ui.view.demos.backgroundevent.DemoCalendarWithBackgroundEvent;
-import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
-import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
-import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderWithEagerLoadingDemo;
-import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderWithLazyLoadingDemo;
-import org.vaadin.stefan.ui.view.demos.full.FullDemo;
-import org.vaadin.stefan.ui.view.demos.customdaygrid.DemoDayGridWeekWithSixWeeks;
-import org.vaadin.stefan.ui.view.demos.customtimeline.DemoTimelineWith28Days;
-import org.vaadin.stefan.ui.view.demos.customproperties.DemoCustomProperties;
-import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
-import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
 import java.util.Locale;
 
@@ -66,12 +56,12 @@ import static com.github.appreciated.app.layout.entity.Section.HEADER;
 @Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
-public class MainLayout extends AppLayoutRouterLayout {
+public abstract class AbstractLayout extends AppLayoutRouterLayout {
     public static final String ADDON_VERSION = "4.1.0-SNAPSHOT";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")
-    public MainLayout() {
+    public AbstractLayout() {
         selectCurrentLocale();
 
         Component appBar = generateHeaderBar();
@@ -85,7 +75,7 @@ public class MainLayout extends AppLayoutRouterLayout {
                 .build());
     }
 
-    private void selectCurrentLocale() {
+    protected void selectCurrentLocale() {
         Locale locale = (Locale) VaadinRequest.getCurrent().getWrappedSession().getAttribute("locale");
         if (locale == null) {
             locale = UI.getCurrent().getLocale();
@@ -93,13 +83,13 @@ public class MainLayout extends AppLayoutRouterLayout {
         } else
             UI.getCurrent().setLocale(locale);
     }
-    
-    private Component generateTitle(String title) {
-    	Span span = new Span(title);
-    	
+
+    protected Component generateTitle(String title) {
+        Span span = new Span(title);
+
         span.setWidthFull();
         span.getStyle()
-        		.set("margin-left", "var(--app-layout-menu-toggle-button-padding)")
+                .set("margin-left", "var(--app-layout-menu-toggle-button-padding)")
                 .set("overflow", "hidden")
                 .set("text-overflow", "ellipsis")
                 .set("text-align", "center");
@@ -107,64 +97,56 @@ public class MainLayout extends AppLayoutRouterLayout {
         return span;
     }
 
-    private FlexLayout generateHeaderBar() {
+    protected FlexLayout generateHeaderBar() {
         AppBarBuilder builder = AppBarBuilder.get();
 
         return builder.build();
     }
 
-    private void addMenu(Object menuBuilder, Class<? extends Component> clazz) {
+    protected void addMenu(Object menuBuilder, Class<? extends Component> clazz) {
         MenuItem item = clazz.getAnnotation(MenuItem.class);
-        if (menuBuilder instanceof LeftAppMenuBuilder)
-            //((LeftAppMenuBuilder)menuBuilder).add(new LeftNavigationItem(item.label(), item.icon().create(), clazz));
-            ((LeftAppMenuBuilder) menuBuilder).add(new LeftNavigationItem(item.label(), new Icon(), clazz));
-        else
-            //((LeftSubMenuBuilder)menuBuilder).add(new LeftNavigationItem(item.label(), item.icon().create(), clazz));
-            ((LeftSubMenuBuilder) menuBuilder).add(new LeftNavigationItem(item.label(), new Icon(), clazz));
+        String caption = item != null ? item.label() : String.join(" ", StringUtils.splitByCharacterTypeCamelCase(clazz.getSimpleName()));
+        ;
+        if (menuBuilder instanceof LeftAppMenuBuilder) {
+            ((LeftAppMenuBuilder) menuBuilder).add(new LeftNavigationItem(caption, new Icon(), clazz));
+        } else {
+            ((LeftSubMenuBuilder) menuBuilder).add(new LeftNavigationItem(caption, new Icon(), clazz));
+        }
     }
 
-	protected Component generateMenu() {
-		
+    protected Component generateMenu() {
         H4 header = new H4("Samples");
         header.addClassName("header");
-        
+
         VerticalLayout footerLayout = new VerticalLayout();
-        
+
         Button toggleButton = new Button("Toggle dark theme", click -> {
             ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 
             if (themeList.contains(Lumo.DARK)) {
-              themeList.remove(Lumo.DARK);
+                themeList.remove(Lumo.DARK);
             } else {
-              themeList.add(Lumo.DARK);
+                themeList.add(Lumo.DARK);
             }
-          });
+        });
         toggleButton.setWidthFull();
-        
+
         Div footer = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.8.3. " +
                 "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
-        
+
         footerLayout.addClassName("footer");
         footerLayout.add(toggleButton, footer);
-        
+
         LeftAppMenuBuilder menuBuilder = LeftAppMenuBuilder
                 .get()
                 .addToSection(HEADER, header)
                 .addToSection(FOOTER, footerLayout);
 
-        addMenu(menuBuilder, FullDemo.class);
-        addMenu(menuBuilder, BasicDemo.class);
-        addMenu(menuBuilder, InMemoryEntryProviderWithEagerLoadingDemo.class);
-        addMenu(menuBuilder, InMemoryEntryProviderWithLazyLoadingDemo.class);
-        addMenu(menuBuilder, CallbackEntryProviderDemo.class);
-        addMenu(menuBuilder, BackendEntryProviderDemo.class);
-        addMenu(menuBuilder, DemoWithTooltip.class);
-        addMenu(menuBuilder, DemoCustomProperties.class);
-        addMenu(menuBuilder, DemoCalendarWithBackgroundEvent.class);
-        addMenu(menuBuilder, DemoTimelineWith28Days.class);
-        addMenu(menuBuilder, DemoDayGridWeekWithSixWeeks.class);
+        createMenuEntries(menuBuilder);
 
         return menuBuilder.build();
     }
+
+    protected abstract void createMenuEntries(LeftAppMenuBuilder menuBuilder);
 }
 

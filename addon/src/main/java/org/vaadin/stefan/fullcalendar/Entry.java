@@ -20,10 +20,8 @@ import elemental.json.JsonNull;
 import elemental.json.JsonObject;
 import elemental.json.JsonString;
 import elemental.json.JsonValue;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
@@ -453,6 +451,33 @@ public class Entry extends JsonItem<String> {
      */
     public void clearEnd() {
         setEnd((LocalDateTime) null);
+    }
+
+    /**
+     * Moves the entry by the given delta. Negative deltas will result in moving the entry to the past.
+     * @param delta delta to be applied
+     */
+    public void moveStartEnd(@NotNull Delta delta) {
+        moveStart(delta);
+        moveEnd(delta);
+    }
+
+    /**
+     * Moves the entry's start by the given delta without modifying the end.
+     * Negative deltas will result in moving the start to the past.
+     * @param delta delta to be applied to the entry' start
+     */
+    public void moveStart(Delta delta) {
+        setStart(delta.applyOn(getStart()));
+    }
+
+    /**
+     * Moves the entry's end by the given delta without modifying the start.
+     * Negative deltas will result in moving the end to the past.
+     * @param delta delta to be applied to the entry' end
+     */
+    public void moveEnd(Delta delta) {
+        setEnd(delta.applyOn(getEnd()));
     }
 
     /**

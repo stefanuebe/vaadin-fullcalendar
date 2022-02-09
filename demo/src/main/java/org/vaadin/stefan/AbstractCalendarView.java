@@ -25,8 +25,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     private final FullCalendar calendar;
 
     public AbstractCalendarView() {
-
-        entryService = EntryService.createInstance();
+        entryService = initEntryService(EntryService.createInstance());
 
         calendar = new FullCalendar();
         CalendarViewToolbarBuilder toolbarBuilder = CalendarViewToolbar.builder()
@@ -55,19 +54,29 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         Component descriptionElement = createDescriptionElement();
         if (descriptionElement != null) {
             add(descriptionElement);
+            setHorizontalComponentAlignment(Alignment.STRETCH, descriptionElement);
         }
 
         if (toolbar != null) {
             add(toolbar);
+            setHorizontalComponentAlignment(Alignment.CENTER, toolbar);
         }
 
         add(calendar);
 
         setFlexGrow(1, calendar);
-        setHorizontalComponentAlignment(Alignment.STRETCH, calendar, descriptionElement);
-        setHorizontalComponentAlignment(Alignment.CENTER, toolbar);
+        setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
         setSizeFull();
+    }
+
+    /**
+     * Allows modifying the used entry server. This method is called before all others. You may also return
+     * a new instance to be used instead, but not null.
+     * @param entryService entry service
+     */
+    protected EntryService initEntryService(EntryService entryService) {
+        return entryService;
     }
 
     protected Component createDescriptionElement() {
@@ -116,8 +125,12 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         return null;
     }
 
-    protected abstract void onSamplesCreated(Set<Entry> entries);
+    protected void onSamplesCreated(Set<Entry> entries) {
+        throw new UnsupportedOperationException("Implement me");
+    }
 
-    protected abstract void onSamplesRemoved(Set<Entry> entries);
+    protected void onSamplesRemoved(Set<Entry> entries) {
+        throw new UnsupportedOperationException("Implement me");
+    }
 
 }
