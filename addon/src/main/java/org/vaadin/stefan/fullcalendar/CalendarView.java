@@ -26,4 +26,12 @@ public interface CalendarView extends ClientSideValue {
      */
     String getName();
 
+    /**
+     * Can provide a recommended date time format pattern, that represents the shown timespan scope (e. g. MM yyyy for a month based view).
+     * When null, it indicates, that no specific format is recommended. Does not affect the client side in any way. By default null.
+     * @return recommended date time format pattern or null
+     */
+    default String getDateTimeFormatPattern() {
+        return null;
+    }
 }

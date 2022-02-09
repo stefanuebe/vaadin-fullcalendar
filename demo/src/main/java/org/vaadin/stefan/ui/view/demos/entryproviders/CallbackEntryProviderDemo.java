@@ -1,9 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
-import elemental.json.JsonObject;
-import org.vaadin.stefan.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;

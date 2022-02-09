@@ -4,18 +4,14 @@ import elemental.json.Json;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.CalendarView;
 
-import elemental.json.JsonFactory;
-import elemental.json.impl.JreJsonFactory;
-import elemental.json.impl.JreJsonObject;
-
 /**
  * Custom implementation of a calendar view. The customization happens via the initial options
  * of the calendar, which will be transported to the client side.
  */
-public class CustomDayGridWeekCalendarView implements CalendarView {
+public class CustomFixedDayGridWeekCalendarView implements CalendarView {
 	private final int numberOfWeeks;
 
-    public CustomDayGridWeekCalendarView(int numberOfWeeks) {
+    public CustomFixedDayGridWeekCalendarView(int numberOfWeeks) {
         this.numberOfWeeks = numberOfWeeks;
     }
 

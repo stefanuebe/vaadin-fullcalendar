@@ -1,11 +1,7 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
 import com.vaadin.flow.router.Route;
-import elemental.json.JsonObject;
-import org.vaadin.stefan.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;

@@ -4,13 +4,9 @@ import com.vaadin.flow.component.notification.Notification;
 import elemental.json.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.vaadin.stefan.AbstractCalendarView;
-import org.vaadin.stefan.CalendarViewToolbar;
+import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-
-import java.util.*;
 
 /**
  * An abstract demo class for the different entry provider variants. Does not provide much functionality
