@@ -97,6 +97,10 @@ public class EntryService {
         entries.forEach(entry -> database.put(entry.getId(), new EntryData(entry.getId(), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay())));
     }
 
+    public void updateEntry(Entry entry) {
+        database.put(entry.getId(), new EntryData(entry.getId(), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay()));
+    }
+
     public void removeAll() {
         database.clear();
     }

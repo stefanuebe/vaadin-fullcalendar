@@ -31,6 +31,12 @@ public class CallbackEntryProviderDemo extends AbstractEntryProviderDemo {
     }
 
     @Override
+    protected void onSampleChanged(Entry entry) {
+        getEntryService().updateEntry(entry);
+        getEntryProvider().refreshAll();
+    }
+
+    @Override
     protected void onSamplesRemoved() {
         getEntryService().removeAll();
         getEntryProvider().refreshAll();

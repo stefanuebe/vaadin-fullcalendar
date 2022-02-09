@@ -45,6 +45,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.backgroundevent.DemoCalendarWithBackgroundEvent;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
+import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderWithEagerLoadingDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderWithLazyLoadingDemo;
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
@@ -155,6 +156,7 @@ public class MainLayout extends AppLayoutRouterLayout {
         addMenu(menuBuilder, BasicDemo.class);
         addMenu(menuBuilder, InMemoryEntryProviderWithEagerLoadingDemo.class);
         addMenu(menuBuilder, InMemoryEntryProviderWithLazyLoadingDemo.class);
+        addMenu(menuBuilder, CallbackEntryProviderDemo.class);
         addMenu(menuBuilder, BackendEntryProviderDemo.class);
         addMenu(menuBuilder, DemoWithTooltip.class);
         addMenu(menuBuilder, DemoCustomProperties.class);

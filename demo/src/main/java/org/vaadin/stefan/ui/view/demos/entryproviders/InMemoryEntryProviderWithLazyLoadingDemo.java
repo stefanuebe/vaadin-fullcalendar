@@ -41,6 +41,11 @@ public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProvi
     }
 
     @Override
+    protected void onSampleChanged(Entry entry) {
+        getEntryProvider().refreshItem(entry);
+    }
+
+    @Override
     protected EntryProvider<Entry> createEntryProvider(EntryService service) {
         return new LazyInMemoryEntryProvider<>(service.streamEntries().collect(Collectors.toList()));
     }
