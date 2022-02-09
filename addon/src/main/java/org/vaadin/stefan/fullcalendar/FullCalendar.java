@@ -212,7 +212,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                     // Especially with a huge amount of entries this could lead to memory issues.
                     getElement().callJsFunction("_restoreStateFromServer",
                             optionsJson,
-                            eagerLoadingEntryProvider,
+                            !eagerLoadingEntryProvider,
                             JsonUtils.toJsonValue(latestKnownViewName),
                             JsonUtils.toJsonValue(latestKnownIntervalStart));
 
