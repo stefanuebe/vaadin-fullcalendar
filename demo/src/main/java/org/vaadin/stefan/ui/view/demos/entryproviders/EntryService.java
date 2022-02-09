@@ -52,10 +52,10 @@ public class EntryService {
 
     private void createAt(LocalDate date, boolean allDay) {
         if (allDay) {
-            EntryData day = new EntryData("" + database.size(), "Day event " + database.size(), date.atStartOfDay(), date.plusDays(1).atStartOfDay(), true);
+            EntryData day = new EntryData("" + database.size(), "Entry " + database.size(), date.atStartOfDay(), date.plusDays(1).atStartOfDay(), true);
             database.put(day.getId(), day);
         } else {
-            EntryData time = new EntryData("" + database.size(), "Time event " + database.size(), date.atStartOfDay(), date.atTime(10, 0), false);
+            EntryData time = new EntryData("" + database.size(), "Entry " + database.size(), date.atStartOfDay(), date.atTime(10, 0), false);
             database.put(time.getId(), time);
         }
     }
@@ -85,7 +85,7 @@ public class EntryService {
     }
 
     public Entry toEntry(EntryData entryData) {
-        Entry entry = new Entry();
+        Entry entry = new Entry(entryData.getId());
         entry.setTitle(entryData.getTitle());
         entry.setStart(entryData.getStart());
         entry.setEnd(entryData.getEnd());
