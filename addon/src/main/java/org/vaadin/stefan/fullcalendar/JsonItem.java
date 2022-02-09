@@ -878,6 +878,8 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Creates a copy of this instance. Unset properties are initialized with a null value, when the boolean
      * parameter is set to true. Otherwise they will not be initialized.
+     * <p/>
+     * When this instance is known to the client, the new one will also be marked as known to the client.
      *
      * @param initializeUnsetProperties initialize unset properties
      * @param <T>                       return type
@@ -902,6 +904,8 @@ public abstract class JsonItem<ID_TYPE> {
                     copy.setWithoutDirtyChange(key, value);
                 }
             }
+            copy.setKnownToTheClient(isKnownToTheClient());
+
             return copy;
         } catch (Exception e) {
             throw new RuntimeException(e);

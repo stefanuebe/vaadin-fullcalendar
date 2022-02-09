@@ -360,6 +360,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
                 .peek(entry -> {
                     entry.setCalendar(this);
+                    entry.setKnownToTheClient(true); // mark entry as "has been sent to client"
                     lastFetchedEntries.put(entry.getId(), entry);
                 })
                 .map(Entry::toJson)

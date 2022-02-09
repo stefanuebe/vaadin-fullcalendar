@@ -143,6 +143,10 @@ public class TestUtils {
         Assertions.assertThrows(IllegalArgumentException.class, () -> function.accept(testObject));
     }
 
+    public static Entry createEntry(String id, String title) {
+        return createEntry(id, title, null, null, false, true, null, null);
+    }
+
     public static Entry createEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
         Entry entry = new Entry(id);
 
@@ -182,16 +186,28 @@ public class TestUtils {
         return sb.toString();
     }
 
-    public static void assertEqualAsSet(Set<Entry> expected, Collection<Entry> test) {
+    public static <T> void assertEqualAsSet(Set<T> expected, Collection<T> test) {
         assertEquals(expected, test instanceof Set ? test : new HashSet<>(test));
     }
 
-    public static void assertEqualAsSet(Set<Entry> expected, Stream<Entry> test) {
+    public static <T> void assertEqualAsSet(Set<T> expected, Collection<T> test, String message) {
+        assertEquals(expected, test instanceof Set ? test : new HashSet<>(test), message);
+    }
+
+    public static <T> void assertEqualAsSet(Set<T> expected, Stream<T> test) {
         assertEquals(expected, test.collect(Collectors.toSet()));
     }
 
-    public static void assertEqualAsSet(Stream<Entry> expected, Stream<Entry> test) {
+    public static <T> void assertEqualAsSet(Set<T> expected, Stream<T> test, String message) {
+        assertEquals(expected, test.collect(Collectors.toSet()), message);
+    }
+
+    public static <T> void assertEqualAsSet(Stream<T> expected, Stream<T> test) {
         assertEquals(expected.collect(Collectors.toSet()), test.collect(Collectors.toSet()));
+    }
+
+    public static <T> void assertEqualAsSet(Stream<T> expected, Stream<T> test, String message) {
+        assertEquals(expected.collect(Collectors.toSet()), test.collect(Collectors.toSet()), message);
     }
 
     public static <T> Set<T> toSet(JsonArray array, SerializableFunction<JsonValue, Object> converter) {

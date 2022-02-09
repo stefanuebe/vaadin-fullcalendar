@@ -42,6 +42,11 @@ import java.util.*;
  * <br><br>
  * To create a recurring entry, simply set any of the "recurring" properties. With any of them set the entry
  * is automatically recurring.
+ * <p></p>
+ * You will find, that the entry implements a concept of being "known to the client". This concept is mainly
+ * used by the eager loading in memory provider and is an artifact of earlier versions. In theory it should
+ * not be important for any type of lazy loading provider, but the flag of "known to the client" will be
+ * set at important points anyway (e. g.see {@link FullCalendar#fetchFromServer(JsonObject)}.
  */
 public class Entry extends JsonItem<String> {
 

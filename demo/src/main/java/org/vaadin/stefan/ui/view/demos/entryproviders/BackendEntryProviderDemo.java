@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
 
     public BackendEntryProviderDemo() {
-        super(true, "This demo shows an EntryProvider implementation, that fetches its data from " +
+        super("This demo shows an EntryProvider implementation, that fetches its data from " +
                 "a simulated database. Items are created temporary based on the respective backend entities.");
     }
 
@@ -29,13 +29,13 @@ public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
     }
 
     @Override
-    protected void onSamplesCreated(List<Entry> entries) {
+    protected void onSamplesCreated(Set<Entry> entries) {
         getEntryService().addEntries(entries);
         getEntryProvider().refreshAll();
     }
 
     @Override
-    protected void onSamplesRemoved() {
+    protected void onSamplesRemoved(Set<Entry> entries) {
         getEntryService().removeAll();
         getEntryProvider().refreshAll();
     }

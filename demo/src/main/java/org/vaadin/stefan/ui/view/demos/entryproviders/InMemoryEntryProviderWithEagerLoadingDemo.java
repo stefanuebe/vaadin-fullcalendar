@@ -7,6 +7,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.ui.MainLayout;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class InMemoryEntryProviderWithEagerLoadingDemo extends AbstractEntryProviderDemo {
 
     public InMemoryEntryProviderWithEagerLoadingDemo() {
-        super(true, "TBD: eager in memory provider");
+        super("TBD: eager in memory provider");
     }
 
     @Override
@@ -26,13 +27,13 @@ public class InMemoryEntryProviderWithEagerLoadingDemo extends AbstractEntryProv
     }
 
     @Override
-    protected void onSamplesCreated(List<Entry> entries) {
+    protected void onSamplesCreated(Set<Entry> entries) {
         EagerInMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.addEntries(entries);
     }
 
     @Override
-    protected void onSamplesRemoved() {
+    protected void onSamplesRemoved(Set<Entry> entries) {
         EagerInMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.removeAllEntries();
     }

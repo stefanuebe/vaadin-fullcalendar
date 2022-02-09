@@ -3,11 +3,10 @@ package org.vaadin.stefan.ui.view.demos.entryproviders;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
 import org.vaadin.stefan.ui.MainLayout;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProviderDemo {
 
     public InMemoryEntryProviderWithLazyLoadingDemo() {
-        super(true, "TBD: lazy in memory provider");
+        super("TBD: lazy in memory provider");
     }
 
     @Override
@@ -27,14 +26,14 @@ public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProvi
     }
 
     @Override
-    protected void onSamplesCreated(List<Entry> entries) {
+    protected void onSamplesCreated(Set<Entry> entries) {
         LazyInMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.addEntries(entries);
         provider.refreshAll();
     }
 
     @Override
-    protected void onSamplesRemoved() {
+    protected void onSamplesRemoved(Set<Entry> entries) {
         LazyInMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.removeAllEntries();
         provider.refreshAll();
