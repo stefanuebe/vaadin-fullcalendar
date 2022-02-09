@@ -1,4 +1,4 @@
-package org.vaadin.stefan.samples;
+package org.vaadin.stefan.ui.view.samples;
 
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;

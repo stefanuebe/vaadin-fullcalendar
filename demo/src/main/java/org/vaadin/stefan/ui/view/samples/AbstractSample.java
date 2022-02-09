@@ -1,4 +1,4 @@
-package org.vaadin.stefan.samples;
+package org.vaadin.stefan.ui.view.samples;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
