@@ -17,8 +17,11 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
+import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -34,13 +37,20 @@ public class FullCalendarBuilder {
     private final int entryLimit;
     private final String schedulerLicenseKey;
     private final JsonObject initialOptions;
+    private final EntryProvider<Entry> entryProvider;
+    private final Class<? extends FullCalendar> customType;
+    private final Collection<Entry> initialEntries;
 
-    private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone, String schedulerLicenseKey, JsonObject initialOptions) {
+    @SuppressWarnings("unchecked")
+    private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone, String schedulerLicenseKey, JsonObject initialOptions, EntryProvider<? extends Entry> entryProvider, Class<? extends FullCalendar> customType, Collection<Entry> initialEntries) {
         this.scheduler = scheduler;
         this.entryLimit = entryLimit;
         this.autoBrowserTimezone = autoBrowserTimezone;
         this.schedulerLicenseKey = schedulerLicenseKey;
         this.initialOptions = initialOptions;
+        this.entryProvider = (EntryProvider<Entry>) entryProvider;
+        this.customType = customType;
+        this.initialEntries = initialEntries;
     }
 
     /**
@@ -49,7 +59,41 @@ public class FullCalendarBuilder {
      * @return builder instance
      */
     public static FullCalendarBuilder create() {
-        return new FullCalendarBuilder(false, -1, false, null, null);
+        return new FullCalendarBuilder(false, -1, false, null, null, null, null, null);
+    }
+
+    /**
+     * Allows to define an initial collection of entries to be added to the default entry provider of the new calendar instance. Will be ignored, when
+     * a custom entry provider is set.
+     *
+     * @param initialEntries initial entries
+     * @return new immutable instance with updated settings
+     */
+    public FullCalendarBuilder withInitialEntries(@NotNull Collection<Entry> initialEntries) {
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, Objects.requireNonNull(initialEntries));
+    }
+
+    /**
+     * Allows to define a subclass of the FullCalendar to be used as the new instance's type. Please make sure, that this
+     * class inherits all necessary constructors of the FullCalendar or Scheduler to prevent any exceptions at build time.
+     * Also the constructors needs to be public.
+     *
+     * @param customType custom type to be used
+     * @return new immutable instance with updated settings
+     */
+    public FullCalendarBuilder withCustomType(@NotNull Class<? extends FullCalendar> customType) {
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, Objects.requireNonNull(customType), initialEntries);
+    }
+
+    /**
+     * Initializes the calendar with the given entry provider. By default it will be created with an instance of
+     * {@link org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider}.
+     *
+     * @param entryProvider entry provider to be used
+     * @return new immutable instance with updated settings
+     */
+    public FullCalendarBuilder withEntryProvider(@NotNull EntryProvider<? extends Entry> entryProvider) {
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, Objects.requireNonNull(entryProvider), customType, initialEntries);
     }
 
     /**
@@ -62,7 +106,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withScheduler() {
-        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions);
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries);
     }
 
     /**
@@ -75,7 +119,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withScheduler(String licenseKey) {
-        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, licenseKey, initialOptions);
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, licenseKey, initialOptions, entryProvider, customType, initialEntries);
     }
 
     /**
@@ -88,7 +132,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withEntryLimit(int entryLimit) {
-        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries);
     }
 
     /**
@@ -97,7 +141,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withAutoBrowserTimezone() {
-        return new FullCalendarBuilder(scheduler, entryLimit, true, schedulerLicenseKey, initialOptions);
+        return new FullCalendarBuilder(scheduler, entryLimit, true, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries);
     }
 
     /**
@@ -129,7 +173,7 @@ public class FullCalendarBuilder {
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendarBuilder withInitialOptions(@NotNull JsonObject initialOptions) {
-        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, Objects.requireNonNull(initialOptions));
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, Objects.requireNonNull(initialOptions), entryProvider, customType, initialEntries);
     }
 
     /**
@@ -151,6 +195,12 @@ public class FullCalendarBuilder {
             calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
         }
 
+        if (entryProvider != null) {
+            calendar.setEntryProvider(entryProvider);
+        } else if (initialEntries != null) {
+            ((EagerInMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(initialEntries);
+        }
+
         return (T) calendar;
     }
 
@@ -163,12 +213,22 @@ public class FullCalendarBuilder {
         if (initialOptions != null) {
             extendInitialOptions();
 
-            FullCalendar calendar = new FullCalendar(initialOptions);
+            FullCalendar calendar = null;
+            try {
+                calendar = customType != null ? customType.getDeclaredConstructor(JsonObject.class).newInstance(initialOptions) : new FullCalendar(initialOptions);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
             extendFcWithInitialOptions(calendar);
             return calendar;
         }
 
-        return new FullCalendar(entryLimit);
+        try {
+            return customType != null ? customType.getDeclaredConstructor(int.class).newInstance(entryLimit) : new FullCalendar(entryLimit);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void extendInitialOptions() {
@@ -197,7 +257,7 @@ public class FullCalendarBuilder {
      */
     protected FullCalendar createFullCalendarSchedulerInstance(String schedulerLicenseKey) {
         try {
-            Class<?> loadClass = getClass().getClassLoader().loadClass("org.vaadin.stefan.fullcalendar.FullCalendarScheduler");
+            Class<?> loadClass = customType != null ? customType : getClass().getClassLoader().loadClass("org.vaadin.stefan.fullcalendar.FullCalendarScheduler");
 
             FullCalendar scheduler;
 

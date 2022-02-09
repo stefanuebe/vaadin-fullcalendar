@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 
 @NpmPackage(value = "tippy.js", version = "6.2.3")
@@ -18,5 +19,12 @@ public class FullCalendarWithTooltip extends FullCalendarScheduler {
         super(3);
     }
 
+    public FullCalendarWithTooltip(int entryLimit) {
+        super(entryLimit);
+    }
+
+    public FullCalendarWithTooltip(JsonObject initialOptions) {
+        super(initialOptions);
+    }
 
 }

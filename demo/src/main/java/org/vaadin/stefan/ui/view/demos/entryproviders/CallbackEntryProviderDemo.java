@@ -1,7 +1,10 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
-import org.vaadin.stefan.fullcalendar.Entry;
+import elemental.json.JsonObject;
+import org.vaadin.stefan.AbstractCalendarView;
+import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
@@ -9,38 +12,51 @@ import org.vaadin.stefan.ui.layouts.MainLayout;
 import java.util.Collection;
 
 /**
+ * This sample shows the usage of the CallbackEntryProvider. This variant can be instantiated on the
+ * fly providing a single callback to stream entries for the requested timespan.
  * @author Stefan Uebe
  */
 @Route(value = "callback-entry-provider", layout = MainLayout.class)
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Callback Entry Provider")
 public class CallbackEntryProviderDemo extends AbstractEntryProviderDemo {
 
-    public CallbackEntryProviderDemo() {
-        super("TBD: callback entry provider");
+    @Override
+    protected EntryProvider<Entry> createEntryProvider(EntryService entryService) {
+        // Variant A - the backend service takes care of filtering the entries before returning them
+        CallbackEntryProvider<Entry> entryProvider = EntryProvider.fromCallbacks(query -> entryService.streamEntries(query));
+
+        // Variant B - the backend service returns a plain stream an the callback takes care of filtering the returned entries (may be less performant)
+        // entryProvider = EntryProvider.fromCallbacks(query -> {
+        //     Stream<Entry> stream = entryService.streamEntries();
+        //     stream = query.applyFilter(stream); // a query built in method to filter entry streams based on the query
+        //     return stream;
+        // });
+
+        return entryProvider;
     }
 
-    @Override
-    protected EntryProvider<Entry> createEntryProvider(EntryService service) {
-        return new CallbackEntryProvider<>(service::streamEntries);
-    }
 
     @Override
-    protected void onSamplesCreated(Collection<Entry> entries) {
+    protected void onEntriesCreated(Collection<Entry> entries) {
         getEntryService().addEntries(entries);
         getEntryProvider().refreshAll();
     }
 
     @Override
-    protected void onSampleChanged(Entry entry) {
+    protected void onEntryChanged(Entry entry) {
         getEntryService().updateEntry(entry);
         getEntryProvider().refreshAll();
     }
 
     @Override
-    protected void onSamplesRemoved(Collection<Entry> entries) {
+    protected void onEntriesRemoved(Collection<Entry> entries) {
         getEntryService().removeAll();
         getEntryProvider().refreshAll();
     }
 
-
+    @Override
+    protected String createDescription() {
+        return "This sample shows the usage of the CallbackEntryProvider. This variant can be instantiated on the " +
+                "fly providing a single callback to stream entries for the requested timespan.";
+    }
 }

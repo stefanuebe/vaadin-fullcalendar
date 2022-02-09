@@ -6,90 +6,64 @@ import com.vaadin.flow.router.Route;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
-import org.vaadin.stefan.fullcalendar.CalendarLocale;
-import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
+import elemental.json.Json;
+import elemental.json.JsonFactory;
+import elemental.json.JsonObject;
+import elemental.json.impl.JreJsonFactory;
+import elemental.json.impl.JreJsonObject;
+import org.vaadin.stefan.AbstractCalendarView;
+import org.vaadin.stefan.CalendarViewToolbar;
+import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
+import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
+/**
+ * Shows the integration of a customized calendar view.
+ */
 @Route(value = "demodaygridsixweeks", layout = MainLayout.class)
 @PageTitle("FC with Six Weeks Grid")
 @MenuItem(label = "Six Weeks Grid")
-public class DemoDayGridWeekWithSixWeeks extends VerticalLayout {
+public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
     private static final long serialVersionUID = 1L;
-    
+    public static final int NUMBER_OF_WEEKS = 6;
+
     private FullCalendar calendar;
 
-    public DemoDayGridWeekWithSixWeeks() {
-    	initView();
-    	
-    	createCalendarInstance();
-    	
-    	add(calendar);
-        setFlexGrow(1, calendar);
+    // we create a new view with a fixed number of weeks by using the initial options
+    // https://fullcalendar.io/docs/custom-views
+    private static final CustomDayGridWeekCalendarView CUSTOM_VIEW = new CustomDayGridWeekCalendarView(NUMBER_OF_WEEKS);
 
-    	addEntries();
+    @Override
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
+        // extend the initial options with the necessary client side settings to add the custom view
+        CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
+
+        FullCalendar calendar = FullCalendarBuilder.create()
+                .withInitialOptions(defaultInitialOptions)
+                .withInitialEntries(EntryService.createRandomInstance().getEntries())
+                .build();
+
+        calendar.changeView(CUSTOM_VIEW);
+        return calendar;
     }
-    
-    private void initView() {
-        setSizeFull();
-        setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
+
+    @Override
+    protected CalendarViewToolbar createToolbar(CalendarViewToolbar.CalendarViewToolbarBuilder toolbarBuilder) {
+        toolbarBuilder.customCalendarViews(Collections.singletonList(CUSTOM_VIEW));
+        return super.createToolbar(toolbarBuilder);
     }
 
-    private void createCalendarInstance() {
-        CustomDayGridWeekCalendarView calendarView = new CustomDayGridWeekCalendarView(6);
-        
-        calendar = FullCalendarBuilder.create().withInitialOptions(calendarView.getInitialOptions()).build();
-        calendar.setLocale(CalendarLocale.getDefault());
-        calendar.setHeightByParent();
-
-        Header testHeader = new Header();
-        
-        HeaderFooterPart headerLeft = testHeader.getStart();
-        headerLeft.addItem(HeaderFooterItem.TITLE);
-        
-        HeaderFooterPart headerRight = testHeader.getEnd();
-        headerRight.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
-        headerRight.addItem(HeaderFooterItem.BUTTON_TODAY);
-        headerRight.addItem(HeaderFooterItem.BUTTON_NEXT);
-        
-        calendar.setHeaderToolbar(testHeader);
-
-        calendar.changeView(calendarView);
-    }
-    
-    private void addEntries() {
-    	LocalDate now = LocalDate.now();
-        
-        Entry entry_1 = new Entry(UUID.randomUUID().toString());
-        
-        entry_1.setColor("lightgreen");
-        entry_1.setTitle("Entry 1 - testgroup");
-        entry_1.setStart(now.atStartOfDay());
-        entry_1.setEnd(now.plusDays(1).atTime(LocalTime.MAX));
-        entry_1.setGroupId("testgroup");
-        
-        Entry entry_2 = new Entry(UUID.randomUUID().toString());
-        
-        entry_2.setColor("lightgreen");
-        entry_2.setTitle("Entry 2 - testgroup");
-        entry_2.setStart(now.minusDays(3).atStartOfDay());
-        entry_2.setEnd(now.minusDays(2).atTime(LocalTime.MAX));
-        entry_2.setGroupId("testgroup");
-        
-        Entry entry_3 = new Entry(UUID.randomUUID().toString());
-        
-        entry_3.setColor("lightsalmon");
-        entry_3.setTitle("Entry 3 - ungrouped");
-        entry_3.setStart(now.plusDays(2).atStartOfDay());
-        entry_3.setEnd(now.plusDays(5).atTime(LocalTime.MAX));
-        
-        calendar.addEntries(entry_1, entry_2, entry_3);
+    @Override
+    protected String createDescription() {
+        return "This demo shows the integration of a customized calendar view using initial options. For additional details " +
+                "on how to create custom views, please visit: https://fullcalendar.io/docs/custom-views";
     }
 }

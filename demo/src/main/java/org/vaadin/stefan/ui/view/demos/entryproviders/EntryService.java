@@ -9,6 +9,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -23,6 +24,18 @@ public class EntryService {
 
     public static EntryService createInstance() {
         return new EntryService();
+    }
+
+    public static EntryService createRandomInstance() {
+        EntryService instance = createInstance();
+        instance.fillDatabaseWithRandomData();
+        return instance;
+    }
+
+    public static EntryService createSimpleInstance() {
+        EntryService instance = createInstance();
+        instance.fillDatabaseWithSimpleData();
+        return instance;
     }
 
     /**
@@ -113,6 +126,10 @@ public class EntryService {
 
     public int count() {
         return database.size();
+    }
+
+    public List<Entry> getEntries() {
+        return streamEntries().collect(Collectors.toList());
     }
 
     public Stream<Entry> streamEntries() {

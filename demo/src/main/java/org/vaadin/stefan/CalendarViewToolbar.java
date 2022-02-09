@@ -43,6 +43,7 @@ public class CalendarViewToolbar extends MenuBar {
     private final boolean dateChangeable;
     private final Consumer<Collection<Entry>> onSamplesCreated;
     private final Consumer<Collection<Entry>> onSamplesRemoved;
+    private final List<CalendarView> customCalendarViews;
 
     private Button buttonDatePicker;
     private Select<CalendarView> viewSelector;
@@ -50,10 +51,11 @@ public class CalendarViewToolbar extends MenuBar {
     private HasComponents calendarParent;
 
     @Builder
-    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved) {
+    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customCalendarViews) {
         this.calendar = calendar;
         this.onSamplesCreated = onSamplesCreated;
         this.onSamplesRemoved = onSamplesRemoved;
+        this.customCalendarViews = customCalendarViews;
         if (calendar == null) {
             throw new IllegalArgumentException("Calendar instance is required");
         }
@@ -193,18 +195,30 @@ public class CalendarViewToolbar extends MenuBar {
         SubMenu subMenu = addItem("Settings").getSubMenu();
 
         if (viewChangeable) {
-            List<CalendarView> calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
-            calendarViews.addAll(Arrays.asList(SchedulerView.values()));
+            List<CalendarView> calendarViews;
+            CalendarView initialView = CalendarViewImpl.DAY_GRID_MONTH;
+            if (customCalendarViews != null && !customCalendarViews.isEmpty()) {
+                calendarViews = customCalendarViews;
+                if (!customCalendarViews.contains(initialView)) {
+                    // TODO extend calendar to get the current view and use it here instead
+                    initialView = customCalendarViews.get(0);
+                }
+            } else {
+                calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
+                calendarViews.addAll(Arrays.asList(SchedulerView.values()));
+            }
+
             calendarViews.sort(Comparator.comparing(CalendarView::getName));
 
             viewSelector = new Select<>();
             viewSelector.setLabel("View");
             viewSelector.setItems(calendarViews);
-            viewSelector.setValue(CalendarViewImpl.DAY_GRID_MONTH);
+            viewSelector.setValue(initialView);
             viewSelector.setWidthFull();
+            CalendarView finalInitialView = initialView;
             viewSelector.addValueChangeListener(e -> {
                 CalendarView value = e.getValue();
-                calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
+                calendar.changeView(value == null ? finalInitialView : value);
             });
             viewSelector.setWidthFull();
             subMenu.add(viewSelector);

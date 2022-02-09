@@ -1,11 +1,17 @@
 package org.vaadin.stefan.ui.view.demos.customdaygrid;
 
+import elemental.json.Json;
+import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.CalendarView;
 
 import elemental.json.JsonFactory;
 import elemental.json.impl.JreJsonFactory;
 import elemental.json.impl.JreJsonObject;
 
+/**
+ * Custom implementation of a calendar view. The customization happens via the initial options
+ * of the calendar, which will be transported to the client side.
+ */
 public class CustomDayGridWeekCalendarView implements CalendarView {
 	private final int numberOfWeeks;
 
@@ -28,23 +34,18 @@ public class CustomDayGridWeekCalendarView implements CalendarView {
      *
      * @return
      */
-    public JreJsonObject getInitialOptions() {
-        JsonFactory factory = new JreJsonFactory();
-        JreJsonObject initialOptions = new JreJsonObject(factory);
-        
-        JreJsonObject durationHolder = new JreJsonObject(factory);
-        durationHolder.set("weeks", factory.create(numberOfWeeks));
-        
-        JreJsonObject customViewHolder = new JreJsonObject(factory);
-        customViewHolder.set("type", factory.create("dayGridWeek"));
-        customViewHolder.set("duration", durationHolder);
-        
-        JreJsonObject viewsHolder = new JreJsonObject(factory);
-        viewsHolder.set(getName(), customViewHolder);
-        
-        initialOptions.set("views", viewsHolder);
-        
-        return initialOptions;
+    public void extendInitialOptions(JsonObject initialOptions) {
+        JsonObject durationHolder = Json.createObject();
+        durationHolder.put("weeks", Json.create(numberOfWeeks));
+
+        JsonObject customViewHolder = Json.createObject();
+        customViewHolder.put("type", Json.create("dayGridWeek"));
+        customViewHolder.put("duration", durationHolder);
+
+        JsonObject viewsHolder = Json.createObject();
+        viewsHolder.put("customDayGridWeek", customViewHolder);
+
+        initialOptions.put("views", viewsHolder);
     }
 
     @Override

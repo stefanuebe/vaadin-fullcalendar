@@ -5,8 +5,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.AbstractCalendarView;
-import org.vaadin.stefan.fullcalendar.BusinessHours;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
@@ -20,22 +19,22 @@ import java.time.DayOfWeek;
 public class BasicDemo extends AbstractCalendarView {
 
     @Override
-    protected EntryService initEntryService(EntryService entryService) {
-        entryService.fillDatabaseWithSimpleData();
-        return entryService;
-    }
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
+        EntryService simpleInstance = EntryService.createSimpleInstance();
 
-    @Override
-    protected FullCalendar createFullCalendar() {
-        FullCalendar calendar = super.createFullCalendar();
+        FullCalendar calendar = FullCalendarBuilder.create()
+                .withInitialOptions(defaultInitialOptions)
+                .withInitialEntries(simpleInstance.getEntries())
+                .withEntryLimit(3)
+                .build();
+
         calendar.setBusinessHours(new BusinessHours(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
+
         return calendar;
     }
 
     @Override
-    protected JsonObject createInitialOptions(JsonObject initialOptions) {
-        initialOptions.put("locale", "de");
-        return initialOptions;
+    protected String createDescription() {
+        return "A very basic demo showing the basic interaction events with the calendar and allow basic modification of entries.";
     }
-
 }
