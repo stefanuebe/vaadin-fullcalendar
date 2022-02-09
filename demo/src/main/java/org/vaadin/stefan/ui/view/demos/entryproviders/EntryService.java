@@ -47,6 +47,16 @@ public class EntryService {
         }
     }
 
+    private void createAt(LocalDate date, boolean allDay) {
+        if (allDay) {
+            EntryData day = new EntryData("" + database.size(), "Entry " + database.size(), date.atStartOfDay(), date.plusDays(1).atStartOfDay(), true);
+            database.put(day.getId(), day);
+        } else {
+            EntryData time = new EntryData("" + database.size(), "Entry " + database.size(), date.atTime(10, 0), date.atTime(11, 30), false);
+            database.put(time.getId(), time);
+        }
+    }
+
     public Optional<Entry> getEntry(String id) {
         return Optional.ofNullable(database.get(id)).map(this::toEntry);
     }
@@ -57,16 +67,6 @@ public class EntryService {
 
     public int count() {
         return database.size();
-    }
-
-    private void createAt(LocalDate date, boolean allDay) {
-        if (allDay) {
-            EntryData day = new EntryData("" + database.size(), "Entry " + database.size(), date.atStartOfDay(), date.plusDays(1).atStartOfDay(), true);
-            database.put(day.getId(), day);
-        } else {
-            EntryData time = new EntryData("" + database.size(), "Entry " + database.size(), date.atStartOfDay(), date.atTime(10, 0), false);
-            database.put(time.getId(), time);
-        }
     }
 
     public Stream<Entry> streamEntries() {
