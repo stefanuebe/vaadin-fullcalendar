@@ -338,7 +338,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @return is eager loading
      */
-    private boolean isEagerLoadingEntryProvider() {
+    public boolean isEagerLoadingEntryProvider() {
         return entryProvider instanceof EagerInMemoryEntryProvider;
     }
 

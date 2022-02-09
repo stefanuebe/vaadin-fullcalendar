@@ -55,6 +55,19 @@ public abstract class AbstractEntryProviderDemo extends VerticalLayout {
         calendar.setHeightByParent();
         calendar.addDatesRenderedListener(event -> updateIntervalLabel(buttonDatePicker, comboBoxView.getValue(), event.getIntervalStart()));
 
+        calendar.addDayNumberClickedListener(event -> Notification.show("Clicked day number " + event.getDate()));
+        calendar.addEntryClickedListener(event -> Notification.show("Clicked entry " + event.getEntry().getId()));
+        calendar.addEntryDroppedListener(event -> {
+            applyChanges(event);
+            Notification.show("Dropped entry " + event.getEntry().getId());
+        });
+        calendar.addEntryResizedListener(event -> {
+            applyChanges(event);
+            Notification.show("Resized entry " + event.getEntry().getId());
+        });
+
+
+
         calendar.setEntryProvider(entryProvider);
 
         Span descriptionElement = new Span(description);
@@ -64,6 +77,13 @@ public abstract class AbstractEntryProviderDemo extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.CENTER, toolbar);
 
         setSizeFull();
+    }
+
+    private void applyChanges(EntryDataEvent event) {
+        event.applyChangesOnEntry();
+        if (!event.getSource().isEagerLoadingEntryProvider()) {
+            event.getSource().getEntryProvider().refreshAll();
+        }
     }
 
     protected abstract EntryProvider<Entry> createEntryProvider(EntryService service);
