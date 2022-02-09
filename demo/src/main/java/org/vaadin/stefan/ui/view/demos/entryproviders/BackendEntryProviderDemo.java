@@ -46,17 +46,17 @@ public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
         getEntryProvider().refreshAll();
     }
 
-    private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
-        private final EntryService service;
+private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
+    private final EntryService service;
 
-        public BackendEntryProvider(EntryService service) {
-            this.service = service;
-        }
-
-        @Override
-        public Stream<Entry> fetch(@NonNull EntryQuery query) {
-            return service.streamEntries(query);
-        }
+    public BackendEntryProvider(EntryService service) {
+        this.service = service;
     }
+
+    @Override
+    public Stream<Entry> fetch(@NonNull EntryQuery query) {
+        return service.streamEntries(query);
+    }
+}
 
 }
