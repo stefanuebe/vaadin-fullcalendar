@@ -65,7 +65,7 @@ public class AddRemoveInOneCycleTestView extends AbstractCalendarView {
 
     @Override
     protected CalendarViewToolbar createToolbar(CalendarViewToolbar.CalendarViewToolbarBuilder toolbarBuilder) {
-        CalendarViewToolbar toolbar = super.createToolbar(toolbarBuilder);
+        CalendarViewToolbar toolbar = CalendarViewToolbar.builder().calendar(getCalendar()).build();
 
         toolbar.addItem("Add and Remove", event -> {
             TestProvider testProvider = (TestProvider) getEntryProvider();

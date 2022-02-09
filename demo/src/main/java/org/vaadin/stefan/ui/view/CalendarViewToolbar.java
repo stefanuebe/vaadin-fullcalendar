@@ -43,6 +43,7 @@ public class CalendarViewToolbar extends MenuBar {
     private final boolean editable;
     private final boolean viewChangeable;
     private final boolean dateChangeable;
+    private final boolean settingsAvailable;
     private final Consumer<Collection<Entry>> onSamplesCreated;
     private final Consumer<Collection<Entry>> onSamplesRemoved;
     private final List<CalendarView> customCalendarViews;
@@ -53,8 +54,9 @@ public class CalendarViewToolbar extends MenuBar {
     private HasComponents calendarParent;
 
     @Builder
-    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customCalendarViews) {
+    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, boolean settingsAvailable, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customCalendarViews) {
         this.calendar = calendar;
+        this.settingsAvailable = settingsAvailable;
         this.onSamplesCreated = onSamplesCreated;
         this.onSamplesRemoved = onSamplesRemoved;
         this.customCalendarViews = customCalendarViews;
@@ -82,7 +84,10 @@ public class CalendarViewToolbar extends MenuBar {
             initEditItems();
         }
 
-        initGeneralSettings();
+        if (settingsAvailable) {
+            initGeneralSettings();
+        }
+
     }
 
     private void initDateItems() {
