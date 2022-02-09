@@ -122,7 +122,7 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
     }
 
     /**
-     * Returns all entries, that cross the given point of time.
+     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
      * @param dateTime point of time to check
      * @return crossing entries
      */
@@ -131,22 +131,23 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
     }
 
     /**
-     * Returns all entries, that cross the given point of time.
-     * @param dateTime point of time to check
-     * @return crossing entries
-     */
-    default List<T> getEntries(@NotNull LocalDateTime dateTime) {
-        Objects.requireNonNull(dateTime);
-        return getEntries(dateTime, dateTime);
-    }
-    /**
-     * Returns all entries, that cross the given date or lay within it.
+     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
      * @param date date to check
      * @return crossing entries
      */
     default List<T> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
-        return getEntries(date.atStartOfDay(), date.atStartOfDay().plusDays(1));
+        return getEntries(date.atStartOfDay());
+    }
+
+    /**
+     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
+     * @param dateTime point of time to check
+     * @return crossing entries
+     */
+    default List<T> getEntries(@NotNull LocalDateTime dateTime) {
+        Objects.requireNonNull(dateTime);
+        return getEntries(dateTime, dateTime.plusDays(1));
     }
 
     /**

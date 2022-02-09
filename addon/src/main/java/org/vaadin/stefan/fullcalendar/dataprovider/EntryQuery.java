@@ -57,13 +57,14 @@ public class EntryQuery {
             return stream;
         }
 
-        stream = stream.filter(item -> {
-            if (end != null && item.getStart().isAfter(end)) {
-                return false;
-            }
+        if (start != null) {
+            stream = stream.filter(e -> e.getEnd() != null && e.getEnd().isAfter(start));
+        }
 
-            return !(start != null && item.getEnd().isBefore(start));
-        });
+        if (end != null) {
+            stream = stream.filter(e -> e.getStart() != null && e.getStart().isBefore(end));
+        }
+
 
         if (allDay != AllDay.BOTH) {
             Predicate<T> allDayFilter = Entry::isAllDay;

@@ -95,6 +95,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private String latestKnownViewName;
     private LocalDate latestKnownIntervalStart;
 
+    private boolean refreshRequested;
+
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
      * <p></p>
@@ -286,17 +288,36 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                 entryProvider.refreshAll(); // triggers to push all data to the client
             } else {
                 entryProviderDataListeners = Arrays.asList(
-                        entryProvider.addEntriesChangeListener(event -> getElement().callJsFunction("refreshAllEntries")),
-                        // TODO can this be improved?
-                        entryProvider.addEntryRefreshListener(event -> getElement().callJsFunction("refreshAllEntries"))
+                        entryProvider.addEntriesChangeListener(event -> requestRefresh(null)),
+                        entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh()))
                 );
 
             }
 
             getElement().callJsFunction("setHasLazyLoadingEntryProvider", !eagerLoadingInMemory);
         }
-
     }
+
+    /**
+     * This method requests an entry refresh from the client side. Registers a single time task before the response
+     * is sent to the client. Multiple calls during the same requests will thus lead to a single refresh
+     * request only.
+     * <p/>
+     * <i>The given entry parameter is not used at this moment, since the client
+     * does not support fetching a single item at this point. It is placed there for later usage.</i>
+     */
+    protected void requestRefresh(Entry item) {
+        if (!refreshRequested) {
+            refreshRequested = true;
+            getElement().getNode().runWhenAttached(ui -> {
+                ui.beforeClientResponse(this, pExecutionContext -> {
+                    getElement().callJsFunction("refreshAllEntries");
+                    refreshRequested = false;
+                });
+            });
+        }
+    }
+
 
     /**
      * Indicates, if the entry provider is eager loading, i.e. takes care of pushing entries manually as
@@ -413,7 +434,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     @Deprecated
     public List<Entry> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
-        return getEntries(date.atStartOfDay(), date.atStartOfDay().plusDays(1));
+        return getEntries(date.atStartOfDay());
     }
 
 
@@ -428,7 +449,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     @Deprecated
     public List<Entry> getEntries(@NotNull LocalDateTime dateTime) {
         Objects.requireNonNull(dateTime);
-        return getEntries(dateTime, dateTime);
+        return getEntries(dateTime, dateTime.plusDays(1));
     }
 
     /**
