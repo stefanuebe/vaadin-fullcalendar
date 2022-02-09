@@ -601,8 +601,6 @@ public class FullCalendarTest {
         assertTrue(calendar.getCachedEntryFromFetch("1").isPresent());
         assertFalse(calendar.getCachedEntryFromFetch("2").isPresent());
         assertFalse(calendar.getCachedEntryFromFetch("3").isPresent());
-
-
     }
 
 }

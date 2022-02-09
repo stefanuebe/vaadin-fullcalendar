@@ -177,20 +177,24 @@ public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemor
         // items to be deleted, need not to be added or updated on the client
         tmpUpdate.removeAll(tmpRemove);
 
-//        tmpAdd.removeAll(tmpRemove);
-
         convertItemsAndSendToClient("removeEvents", tmpRemove, item -> {
-            // only send some json to delete, if the item has not been created previously internally
-            JsonObject jsonObject = item.toJsonWithIdOnly();
-            item.setKnownToTheClient(false);
-            return jsonObject;
+            // only send some json to delete, if the item has already been sent to the client once
+            if (item.isKnownToTheClient()) {
+                JsonObject jsonObject = item.toJsonWithIdOnly();
+                item.setKnownToTheClient(false);
+                return jsonObject;
+            }
+            return null;
         });
 
         convertItemsAndSendToClient("addEvents", tmpAdd, item -> {
-            JsonObject json = item.toJson(false);
-            item.setKnownToTheClient(true);
-            item.clearDirtyState();
-            return json;
+            if (entriesMap.containsKey(item.getId())) { // prevent accidentally adding items, that have been removed after adding
+                JsonObject json = item.toJson(false);
+                item.setKnownToTheClient(true);
+                item.clearDirtyState();
+                return json;
+            }
+            return null;
         });
 
         convertItemsAndSendToClient("updateEvents", tmpUpdate, item -> {
