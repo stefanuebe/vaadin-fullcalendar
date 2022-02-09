@@ -38,6 +38,11 @@ public class InMemoryEntryProviderWithEagerLoadingDemo extends AbstractEntryProv
     }
 
     @Override
+    protected void onSampleChanged(Entry entry) {
+        getEntryProvider().updateEntry(entry);
+    }
+
+    @Override
     protected EagerInMemoryEntryProvider<Entry> getEntryProvider() {
         return (EagerInMemoryEntryProvider<Entry>) super.getEntryProvider();
     }

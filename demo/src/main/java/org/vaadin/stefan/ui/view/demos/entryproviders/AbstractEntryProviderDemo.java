@@ -81,9 +81,7 @@ public abstract class AbstractEntryProviderDemo extends VerticalLayout {
 
     private void applyChanges(EntryDataEvent event) {
         event.applyChangesOnEntry();
-        if (!event.getSource().isEagerLoadingEntryProvider()) {
-            event.getSource().getEntryProvider().refreshAll();
-        }
+        onSampleChanged(event.getEntry());
     }
 
     protected abstract EntryProvider<Entry> createEntryProvider(EntryService service);
@@ -147,6 +145,8 @@ public abstract class AbstractEntryProviderDemo extends VerticalLayout {
 
 
     protected abstract void onSamplesCreated(List<Entry> entries);
+
+    protected abstract void onSampleChanged(Entry entry);
 
     protected abstract void onSamplesRemoved();
 

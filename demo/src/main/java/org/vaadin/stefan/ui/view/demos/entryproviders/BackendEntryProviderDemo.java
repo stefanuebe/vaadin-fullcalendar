@@ -40,6 +40,12 @@ public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
         getEntryProvider().refreshAll();
     }
 
+    @Override
+    protected void onSampleChanged(Entry entry) {
+        getEntryService().updateEntry(entry);
+        getEntryProvider().refreshAll();
+    }
+
     private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
         private final EntryService service;
 
