@@ -99,12 +99,24 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         eventTimeFormat.put("hour12", false);
         initialOptions.put("eventTimeFormat", eventTimeFormat);
 
-
-        FullCalendar calendar = createFullCalendarBuilder(createInitialOptions(initialOptions)).build();
+        FullCalendarBuilder builder = createFullCalendarBuilder(createInitialOptions(initialOptions));
+        FullCalendar calendar = buildFullCalendar(builder, initialOptions);
 
         calendar.setNowIndicatorShown(true);
 
         return calendar;
+    }
+
+    /**
+     * This method is called by {@link #createFullCalendar()}. Parameters are the fully configured builder to
+     * create the full calendar. Creates by default the calendar from the builder by calling {@link FullCalendarBuilder#build()}.
+     * You can additionally modify the resulting calendar, return a self customized one using the given options or return
+     * a custom variant.
+     * But do not return null.
+     * @return calendar instance
+     */
+    protected FullCalendar buildFullCalendar(FullCalendarBuilder builder, JsonObject initialOptions) {
+        return builder.build();
     }
 
     /**

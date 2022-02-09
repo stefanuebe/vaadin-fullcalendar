@@ -146,6 +146,7 @@ public class EntryService {
         entry.setEnd(entryData.getEnd());
         entry.setAllDay(entryData.isAllDay());
         entry.setColor(entryData.getColor());
+        entry.setDescription("Description of " + entry.getTitle());
         return entry;
     }
 
