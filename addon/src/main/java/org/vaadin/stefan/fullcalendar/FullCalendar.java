@@ -347,6 +347,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         Objects.requireNonNull(query);
         Objects.requireNonNull(entryProvider);
 
+        if (isEagerLoadingEntryProvider()) {
+            throw new UnsupportedOperationException("This method must not be called for eager loading entry providers");
+        }
+
         lastFetchedEntries.clear();
 
         LocalDateTime start = query.hasKey("start") ? JsonUtils.parseClientSideDateTime(query.getString("start")) : null;
