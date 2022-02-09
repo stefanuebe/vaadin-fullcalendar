@@ -5,27 +5,21 @@ import com.vaadin.flow.internal.JsonUtils;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Timezone;
 
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
  * @author Stefan Uebe
  */
 public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemoryEntryProvider<T> {
-    private final Set<T> vItemsToAdd = new HashSet<>();
-    private final Set<T> vItemsToChange = new HashSet<>();
-    private final Set<T> vItemsToDelete = new HashSet<>();
+    private final Set<T> tmpAdd = new HashSet<>();
+    private final Set<T> tmpUpdate = new HashSet<>();
+    private final Set<T> tmpRemove = new HashSet<>();
 
     private boolean updateRegistered;
 
@@ -89,7 +83,7 @@ public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemor
 
     @Override
     protected void onEntryAdd(T entry) {
-        vItemsToAdd.add(entry);
+        tmpAdd.add(entry);
     }
 
     /**
@@ -122,7 +116,10 @@ public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemor
      */
     public void updateEntries(@NotNull Iterable<T> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
-        vItemsToChange.addAll(StreamSupport.stream(iterableEntries.spliterator(), true).collect(Collectors.toSet()));
+        Map<String, T> entriesMap = getEntriesMap();
+        tmpUpdate.addAll(StreamSupport.stream(iterableEntries.spliterator(), true)
+                .filter(entry -> entriesMap.containsKey(entry.getId()) && entry.isKnownToTheClient())
+                .collect(Collectors.toSet()));
         triggerClientSideUpdate();
     }
 
@@ -139,7 +136,7 @@ public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemor
 
     @Override
     protected void onEntryRemove(T entry) {
-        vItemsToDelete.add(entry);
+        tmpRemove.add(entry);
     }
 
     /**
@@ -156,66 +153,82 @@ public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemor
             updateRegistered = true;
             calendar.getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(calendar, pExecutionContext -> {
-
-                    Map<String, T> entriesMap = getEntriesMap();
-
-                    if (resendAll) {
-                        vItemsToAdd.addAll(entriesMap.values());
-                    }
-
-                    // items that are not yet on the client need no update
-                    vItemsToChange.removeAll(vItemsToAdd);
-
-                    // items to be deleted, need not to be added or updated on the client
-                    vItemsToAdd.removeAll(vItemsToDelete);
-                    vItemsToChange.removeAll(vItemsToDelete);
-
-                    JsonArray entriesToAdd = convertItemsToJson(vItemsToAdd, item -> {
-                        JsonObject json = item.toJson(false);
-                        item.setKnownToTheClient(true);
-                        item.clearDirtyState();
-                        return json;
-                    });
-
-                    JsonArray entriesToUpdate = convertItemsToJson(vItemsToChange, item -> {
-                        String id = item.getId();
-                        if (item.isDirty() && entriesMap.containsKey(id)) {
-                            item.setKnownToTheClient(true);
-                            JsonObject json = item.toJson(true);
-                            item.clearDirtyState();
-                            return json;
-                        }
-                        return null;
-                    });
-
-                    JsonArray entriesToRemove = convertItemsToJson(vItemsToDelete, item -> {
-                        // only send some json to delete, if the item has not been created previously internally
-                        JsonObject jsonObject = item.toJsonWithIdOnly();
-                        item.setKnownToTheClient(false);
-                        return jsonObject;
-                    });
-
-                    if (entriesToAdd.length() > 0) {
-                        calendar.getElement().callJsFunction("addEvents", entriesToAdd);
-                    }
-                    if (entriesToUpdate.length() > 0) {
-                        calendar.getElement().callJsFunction("updateEvents", entriesToUpdate);
-                    }
-                    if (entriesToRemove.length() > 0) {
-                        calendar.getElement().callJsFunction("removeEvents", entriesToRemove);
-                    }
-
-                    vItemsToAdd.clear();
-                    vItemsToChange.clear();
-                    vItemsToDelete.clear();
-
-                    updateRegistered = false;
-
-                    // if there is a request to resend all, it must be removed here
-                    resendAll = false;
+                    executeClientSideUpdate();
                 });
             });
         }
+    }
+
+    /**
+     * Executes the client side update. This method is not intended to be called manually, but by
+     * {@link #triggerClientSideUpdate()} only (or for test purposes).
+     */
+    protected void executeClientSideUpdate() {
+        Map<String, T> entriesMap = getEntriesMap();
+
+        if (resendAll) {
+            tmpRemove.addAll(entriesMap.values());
+            tmpAdd.addAll(entriesMap.values());
+        }
+
+        // items that are not yet on the client need no update
+        tmpUpdate.removeAll(tmpAdd);
+
+        // items to be deleted, need not to be added or updated on the client
+        tmpUpdate.removeAll(tmpRemove);
+
+//        tmpAdd.removeAll(tmpRemove);
+
+        convertItemsAndSendToClient("removeEvents", tmpRemove, item -> {
+            // only send some json to delete, if the item has not been created previously internally
+            JsonObject jsonObject = item.toJsonWithIdOnly();
+            item.setKnownToTheClient(false);
+            return jsonObject;
+        });
+
+        convertItemsAndSendToClient("addEvents", tmpAdd, item -> {
+            JsonObject json = item.toJson(false);
+            item.setKnownToTheClient(true);
+            item.clearDirtyState();
+            return json;
+        });
+
+        convertItemsAndSendToClient("updateEvents", tmpUpdate, item -> {
+            String id = item.getId();
+            if (item.isDirty() && entriesMap.containsKey(id)) {
+                JsonObject json = item.toJson(true);
+                item.clearDirtyState();
+                return json;
+            }
+            return null;
+        });
+
+
+        tmpAdd.clear();
+        tmpUpdate.clear();
+        tmpRemove.clear();
+
+        updateRegistered = false;
+
+        // if there is a request to resend all, it must be removed here
+        resendAll = false;
+    }
+
+    /**
+     * Converts the given set of items to a json array and sends it to the client using the given client side method.
+     * Returns the created array for test purposes.
+     * @param clientSideMethod client side method to call
+     * @param items items to convert
+     * @param conversionCallback conversion callback for each item
+     * @return created json array
+     */
+    protected JsonArray convertItemsAndSendToClient(String clientSideMethod, @NotNull final Collection<T> items, final SerializableFunction<T, JsonValue> conversionCallback) {
+        JsonArray entriesToSend = convertItemsToJson(items, conversionCallback);
+        if (entriesToSend.length() > 0) {
+            getCalendar().getElement().callJsFunction(clientSideMethod, entriesToSend);
+        }
+
+        return entriesToSend;
     }
 
     protected JsonArray convertItemsToJson(@NotNull final Collection<T> items, final SerializableFunction<T, JsonValue> conversionCallback) {

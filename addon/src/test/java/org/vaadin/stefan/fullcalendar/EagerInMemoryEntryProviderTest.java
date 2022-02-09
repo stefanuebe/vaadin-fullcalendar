@@ -1,5 +1,10 @@
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.function.SerializableFunction;
+import elemental.json.JsonArray;
+import elemental.json.JsonValue;
+import lombok.Getter;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,12 +52,12 @@ public class EagerInMemoryEntryProviderTest {
     @Test
     void test_fetchAndGetVariants() {
 
-        entry1.setStart(LocalDate.of(2000, 1, 1).atTime(10,0));
-        entry1.setEnd(LocalDate.of(2000, 1, 1).atTime(11,0));
-        entry2.setStart(LocalDate.of(2000, 2, 1).atTime(10,0));
-        entry2.setEnd(LocalDate.of(2000, 2, 1).atTime(11,0));
-        entry3.setStart(LocalDate.of(2000, 3, 1).atTime(10,0));
-        entry3.setEnd(LocalDate.of(2000, 3, 1).atTime(11,0));
+        entry1.setStart(LocalDate.of(2000, 1, 1).atTime(10, 0));
+        entry1.setEnd(LocalDate.of(2000, 1, 1).atTime(11, 0));
+        entry2.setStart(LocalDate.of(2000, 2, 1).atTime(10, 0));
+        entry2.setEnd(LocalDate.of(2000, 2, 1).atTime(11, 0));
+        entry3.setStart(LocalDate.of(2000, 3, 1).atTime(10, 0));
+        entry3.setEnd(LocalDate.of(2000, 3, 1).atTime(11, 0));
 
         LocalDateTime filterStart = LocalDate.of(2000, 1, 1).atStartOfDay();
         LocalDateTime filterEnd = LocalDate.of(2000, 1, 1).atStartOfDay().plusDays(1);
@@ -440,6 +445,130 @@ public class EagerInMemoryEntryProviderTest {
 
         Assertions.assertEquals(entriesMatching.size(), entriesFound.size(), () -> buildListBasedErrorString(entriesMatching, entriesFound));
         Assertions.assertEquals(entriesMatching, new ArrayList<>(entriesFound), () -> buildListBasedErrorString(entriesMatching, entriesFound));
+    }
+
+    @Test
+    void test_removeAndAddDifferentEntriesWithSameIdInOneCycle() throws IllegalAccessException {
+        FullCalendar calendar = new FullCalendar();
+        FieldUtils.writeField(calendar, "attached", true, true);
+
+        TestProvider provider = new TestProvider();
+        calendar.setEntryProvider(provider);
+
+        Entry oldEntry1 = createEntry("1", "Entry 1");
+        Entry oldEntry2 = createEntry("2", "Entry 2");
+        Entry oldEntry3 = createEntry("3", "Entry 3");
+
+        List<Entry> oldEntries = Arrays.asList(oldEntry1, oldEntry2, oldEntry3);
+        provider.addEntries(oldEntries);
+        provider.executeClientSideUpdate(); // simulate client side update
+
+        provider.startRecord();
+        provider.removeAllEntries();
+        Entry newEntry1 = createEntry("1", "Entry A");
+        Entry newEntry2 = createEntry("2", "Entry B");
+        Entry newEntry3 = createEntry("3", "Entry C");
+        List<Entry> newEntries = Arrays.asList(newEntry1, newEntry2, newEntry3);
+        provider.addEntries(newEntries);
+        provider.executeClientSideUpdate(); // simulate client side update
+
+        Map<String, Set<String>> tmpItemSnapshots = provider.getTmpItemSnapshots();
+        // in both cases they need to have the same entries, since hashCode bases only on the id
+        assertEqualAsSet(tmpItemSnapshots.get("removeEvents"), oldEntries.stream().map(JsonItem::toString), "remove events snapshots");
+        assertEqualAsSet(tmpItemSnapshots.get("addEvents"), newEntries.stream().map(JsonItem::toString), "add events snapshots");
+
+        Map<String, JsonArray> jsonArrays = provider.getCreatedJsonArrays();
+
+        // check, if the json array "sent" to the client contains the same values as it would to be expected
+        Set<?> manuallyConverted = JsonUtils.ofJsonValue(provider.convertItemsToJson(oldEntries, JsonItem::toJsonWithIdOnly), HashSet.class);
+        Set<?> triggerConverted = JsonUtils.ofJsonValue(jsonArrays.get("removeEvents"), HashSet.class);
+        assertEquals(manuallyConverted, triggerConverted, "remove events json array");
+
+        // check, if the json array "sent" to the client contains the same values as it would to be expected
+        manuallyConverted = JsonUtils.ofJsonValue(provider.convertItemsToJson(newEntries, JsonItem::toJson), HashSet.class);
+        triggerConverted = JsonUtils.ofJsonValue(jsonArrays.get("addEvents"), HashSet.class);
+        assertEquals(manuallyConverted, triggerConverted, "add events json array");
+    }
+
+    @Test
+    void test_removeAndReadSameEntriesInOneCycle() throws IllegalAccessException {
+        FullCalendar calendar = new FullCalendar();
+        FieldUtils.writeField(calendar, "attached", true, true);
+
+        TestProvider provider = new TestProvider();
+        calendar.setEntryProvider(provider);
+
+        Entry entry1 = createEntry("1", "Entry 1");
+        Entry entry2 = createEntry("2", "Entry 2");
+        Entry entry = createEntry("3", "Entry 3");
+
+        List<Entry> entries = Arrays.asList(entry1, entry2, entry);
+        provider.addEntries(entries);
+        provider.executeClientSideUpdate(); // simulate client side update
+
+        provider.startRecord();
+        provider.removeAllEntries();
+        entry1.setTitle("Entry A");
+        entry2.setTitle("Entry B");
+        entry3.setTitle("Entry C");
+
+        provider.addEntries(entries);
+        provider.executeClientSideUpdate(); // simulate client side update
+
+        Map<String, Set<String>> tmpItemSnapshots = provider.getTmpItemSnapshots();
+        // in both cases they need to have the same entries, since hashCode bases only on the id
+        assertEqualAsSet(tmpItemSnapshots.get("removeEvents"), entries.stream().map(JsonItem::toString), "remove events snapshots");
+        assertEqualAsSet(tmpItemSnapshots.get("addEvents"), entries.stream().map(JsonItem::toString), "add events snapshots");
+
+        Map<String, JsonArray> jsonArrays = provider.getCreatedJsonArrays();
+
+        // check, if the json array "sent" to the client contains the same values as it would to be expected
+        Set<?> manuallyConverted = JsonUtils.ofJsonValue(provider.convertItemsToJson(entries, JsonItem::toJsonWithIdOnly), HashSet.class);
+        Set<?> triggerConverted = JsonUtils.ofJsonValue(jsonArrays.get("removeEvents"), HashSet.class);
+        assertEquals(manuallyConverted, triggerConverted, "remove events json array");
+
+        // check, if the json array "sent" to the client contains the same values as it would to be expected
+        manuallyConverted = JsonUtils.ofJsonValue(provider.convertItemsToJson(entries, JsonItem::toJson), HashSet.class);
+        triggerConverted = JsonUtils.ofJsonValue(jsonArrays.get("addEvents"), HashSet.class);
+        assertEquals(manuallyConverted, triggerConverted, "add events json array");
+    }
+
+    @Getter
+    private static class TestProvider extends EagerInMemoryEntryProvider<Entry> {
+
+        private final Map<String, JsonArray> createdJsonArrays = new HashMap<>();
+        private final Map<String, Set<String>> tmpItemSnapshots = new HashMap<>();
+        private boolean record;
+
+        @Override
+        protected JsonArray convertItemsAndSendToClient(String clientSideMethod, Collection<Entry> items, SerializableFunction<Entry, JsonValue> conversionCallback) {
+            if (record) {
+                // snapshot the items at this point
+                tmpItemSnapshots.put(clientSideMethod, items.stream().map(JsonItem::toString).collect(Collectors.toSet()));
+            }
+            JsonArray jsonArray = super.convertItemsAndSendToClient(clientSideMethod, items, conversionCallback);
+
+            if (record) {
+                // snapshot the array
+                createdJsonArrays.put(clientSideMethod, jsonArray);
+            }
+
+            return jsonArray;
+        }
+
+        @Override
+        protected void executeClientSideUpdate() {
+            super.executeClientSideUpdate();
+        }
+
+        @Override
+        protected JsonArray convertItemsToJson(Collection<Entry> items, SerializableFunction<Entry, JsonValue> conversionCallback) {
+            return super.convertItemsToJson(items, conversionCallback);
+        }
+
+        protected void startRecord() {
+            this.record = true;
+        }
     }
 
 }

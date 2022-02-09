@@ -97,7 +97,7 @@ public class EntryService {
         addEntries(Arrays.asList(entries));
     }
 
-    public void addEntries(List<Entry> entries) {
+    public void addEntries(Collection<Entry> entries) {
         entries.forEach(entry -> database.put(entry.getId(), new EntryData(entry.getId(), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay())));
     }
 
