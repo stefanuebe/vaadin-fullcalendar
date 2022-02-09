@@ -5,18 +5,16 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Timezone;
 
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
  * Basic abstract implementation of an in memory entry provider utilizing a hashmap.
+ *
  * @author Stefan Uebe
  */
 public abstract class AbstractInMemoryEntryProvider<T extends Entry> extends AbstractEntryProvider<T> implements InMemoryEntryProvider<T> {
@@ -55,11 +53,6 @@ public abstract class AbstractInMemoryEntryProvider<T extends Entry> extends Abs
     @Override
     public Stream<T> fetch(@NonNull EntryQuery query) {
         return query.applyFilter(entriesMap.values().stream());
-    }
-
-    @Override
-    public Optional<T> fetchById(@NonNull String id) {
-        return Optional.ofNullable(entriesMap.get(id));
     }
 
     /**

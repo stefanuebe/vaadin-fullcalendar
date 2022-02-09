@@ -1,15 +1,17 @@
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.JsonBoolean;
-import elemental.json.JsonObject;
-import elemental.json.JsonString;
-import elemental.json.JsonValue;
+import com.vaadin.flow.function.SerializableFunction;
+import elemental.json.*;
 import org.junit.jupiter.api.Assertions;
 
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestUtils {
 
@@ -122,4 +124,77 @@ public class TestUtils {
 //            setter.accept(dateTime);
 //        }
 //    }
+
+    public static <T> void assertOptionalEquals(T expected, Optional<T> value) {
+        Assertions.assertTrue(value.isPresent());
+        Assertions.assertEquals(expected, value.get());
+    }
+
+    public static <T> void assertOptionalEquals(T expected, Optional<T> value, String supplier) {
+        Assertions.assertTrue(value.isPresent(), supplier);
+        Assertions.assertEquals(expected, value.get(), supplier);
+    }
+
+    public static <T> void assertNPE(T testObject, Consumer<T> function) {
+        Assertions.assertThrows(NullPointerException.class, () -> function.accept(testObject));
+    }
+
+    public static <T> void assertIAE(T testObject, Consumer<T> function) {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> function.accept(testObject));
+    }
+
+    public static Entry createEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
+        Entry entry = new Entry(id);
+
+        entry.setTitle(title);
+        entry.setStart(start);
+        entry.setEnd(end);
+        entry.setAllDay(allDay);
+        entry.setEditable(editable);
+        entry.setColor(color);
+        entry.setDescription(description);
+
+        return entry;
+    }
+
+    public static String buildListBasedErrorString(List<Entry> entriesMatching, Collection<Entry> entriesFound) {
+        StringBuffer sb = new StringBuffer("Searched for:");
+        entriesMatching.stream().map(Entry::getTitle).forEach(s -> sb.append(s).append("\n"));
+        sb.append("\n\nbut found:");
+        entriesFound.stream().map(Entry::getTitle).forEach(s -> sb.append(s).append("\n"));
+
+        ArrayList<Entry> missingMatching = new ArrayList<>(entriesMatching);
+        missingMatching.removeAll(entriesFound);
+
+        ArrayList<Entry> missingFound = new ArrayList<>(entriesFound);
+        missingFound.removeAll(entriesMatching);
+
+        if (!missingMatching.isEmpty()) {
+            sb.append("\n\nExpected these to be found, but we did not:\n");
+            missingMatching.stream().map(Entry::getTitle).forEach(s -> sb.append(s).append("\n"));
+        }
+
+        if (!missingFound.isEmpty()) {
+            sb.append("\n\nThese have been found, but should not match:\n");
+            missingFound.stream().map(Entry::getTitle).forEach(s -> sb.append(s).append("\n"));
+        }
+
+        return sb.toString();
+    }
+
+    public static void assertEqualAsSet(Set<Entry> expected, Collection<Entry> test) {
+        assertEquals(expected, test instanceof Set ? test : new HashSet<>(test));
+    }
+
+    public static void assertEqualAsSet(Set<Entry> expected, Stream<Entry> test) {
+        assertEquals(expected, test.collect(Collectors.toSet()));
+    }
+
+    public static void assertEqualAsSet(Stream<Entry> expected, Stream<Entry> test) {
+        assertEquals(expected.collect(Collectors.toSet()), test.collect(Collectors.toSet()));
+    }
+
+    public static <T> Set<T> toSet(JsonArray array, SerializableFunction<JsonValue, Object> converter) {
+        return JsonUtils.ofJsonValue(array, converter, null, HashSet.class);
+    }
 }

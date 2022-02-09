@@ -14,11 +14,9 @@ import java.util.stream.Stream;
  */
 public class CallbackEntryProvider<T extends Entry> extends AbstractEntryProvider<T>{
     private final SerializableFunction<EntryQuery, Stream<T>> fetchItems;
-    private final SerializableFunction<String, T> fetchSingleItem;
 
-    public CallbackEntryProvider(@NotNull SerializableFunction<EntryQuery, Stream<T>> fetchItems, @NotNull SerializableFunction<String, T> fetchSingleItem) {
+    public CallbackEntryProvider(@NotNull SerializableFunction<EntryQuery, Stream<T>> fetchItems) {
         this.fetchItems = Objects.requireNonNull(fetchItems);
-        this.fetchSingleItem = Objects.requireNonNull(fetchSingleItem);
     }
 
     @Override
@@ -26,8 +24,4 @@ public class CallbackEntryProvider<T extends Entry> extends AbstractEntryProvide
         return fetchItems.apply(query);
     }
 
-    @Override
-    public Optional<T> fetchById(@NonNull String id) {
-        return Optional.ofNullable(fetchSingleItem.apply(id));
-    }
 }
