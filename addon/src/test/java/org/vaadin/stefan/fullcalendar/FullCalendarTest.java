@@ -577,6 +577,8 @@ public class FullCalendarTest {
         entry3.setEnd(LocalDate.of(2000, 3, 1).atTime(11, 0));
 
         FullCalendar calendar = createTestCalendar();
+        assertThrows(UnsupportedOperationException.class, () -> calendar.fetchFromServer(Json.createObject()));
+
         EntryProvider<Entry> provider = EntryProvider.fromCallbacks(query -> query.applyFilter(Stream.of(entry1, entry2, entry3)));
         calendar.setEntryProvider(provider);
 
