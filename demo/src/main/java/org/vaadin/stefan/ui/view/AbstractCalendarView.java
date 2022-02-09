@@ -46,6 +46,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
 
         toolbar = createToolbar(CalendarViewToolbar.builder()
                 .calendar(calendar)
+                .settingsAvailable(true)
                 .viewChangeable(true)
                 .dateChangeable(true)
                 .editable(true)
