@@ -198,7 +198,9 @@ public class CalendarViewToolbar extends MenuBar {
     }
 
     public void updateInterval(LocalDate intervalStart) {
-        updateIntervalLabel(buttonDatePicker, viewSelector.getValue(), intervalStart);
+        if (buttonDatePicker != null && viewSelector != null) {
+            updateIntervalLabel(buttonDatePicker, viewSelector.getValue(), intervalStart);
+        }
     }
 
     void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {

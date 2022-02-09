@@ -6,7 +6,7 @@ import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.AbstractEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
-import org.vaadin.stefan.ui.MainLayout;
+import org.vaadin.stefan.ui.layouts.MainLayout;
 
 import java.util.*;
 import java.util.stream.Stream;
