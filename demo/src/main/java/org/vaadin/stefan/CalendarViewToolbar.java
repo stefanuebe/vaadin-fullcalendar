@@ -41,8 +41,8 @@ public class CalendarViewToolbar extends MenuBar {
     private final boolean editable;
     private final boolean viewChangeable;
     private final boolean dateChangeable;
-    private final Consumer<Set<Entry>> onSamplesCreated;
-    private final Consumer<Set<Entry>> onSamplesRemoved;
+    private final Consumer<Collection<Entry>> onSamplesCreated;
+    private final Consumer<Collection<Entry>> onSamplesRemoved;
 
     private Button buttonDatePicker;
     private Select<CalendarView> viewSelector;
@@ -50,7 +50,7 @@ public class CalendarViewToolbar extends MenuBar {
     private HasComponents calendarParent;
 
     @Builder
-    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, Consumer<Set<Entry>> onSamplesCreated, Consumer<Set<Entry>> onSamplesRemoved) {
+    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved) {
         this.calendar = calendar;
         this.onSamplesCreated = onSamplesCreated;
         this.onSamplesRemoved = onSamplesRemoved;
@@ -104,8 +104,18 @@ public class CalendarViewToolbar extends MenuBar {
         SubMenu calendarItems = addItem("Entries").getSubMenu();
 
         MenuItem addDailyItems;
+        MenuItem addSingleItem;
         MenuItem addThousandItems;
         if (onSamplesCreated != null) {
+            addSingleItem = calendarItems.addItem("Add single entry", event -> {
+                event.getSource().setEnabled(false);
+                Entry entry = new Entry();
+                entry.setStart(LocalDate.now().atTime(10, 0));
+                entry.setEnd(LocalDate.now().atTime(11, 0));
+                entry.setTitle("Single entry");
+                onSamplesCreated.accept(Collections.singletonList(entry));
+            });
+
             addDailyItems = calendarItems.addItem("Add sample entries", event -> {
                 event.getSource().setEnabled(false);
                 Optional<UI> optionalUI = getUI();
@@ -155,6 +165,7 @@ public class CalendarViewToolbar extends MenuBar {
             });
 
         } else {
+            addSingleItem = null;
             addDailyItems = null;
             addThousandItems = null;
         }
@@ -167,6 +178,9 @@ public class CalendarViewToolbar extends MenuBar {
                 }
                 if (addThousandItems != null) {
                     addThousandItems.setEnabled(true);
+                }
+                if (addSingleItem != null) {
+                    addSingleItem.setEnabled(true);
                 }
                 Notification.show("All entries removed. Reload this page to create a new set of samples or use the Add sample entries buttons.");
             });

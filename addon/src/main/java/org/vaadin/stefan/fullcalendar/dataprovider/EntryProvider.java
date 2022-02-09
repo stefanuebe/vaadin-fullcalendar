@@ -1,6 +1,5 @@
 package org.vaadin.stefan.fullcalendar.dataprovider;
 
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 import lombok.NonNull;
@@ -9,9 +8,6 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -158,17 +154,12 @@ public interface EntryProvider<T extends Entry> {
     void setCalendar(FullCalendar calendar);
 
     /**
-     * Creates a new data provider of the given collection. The collection is NOT used as backend reference,
-     * as it is for instance in the {@link com.vaadin.flow.data.provider.ListDataProvider}
-     *
-     * @param <T>
-     *            the data item type
-     * @param items
-     *            the collection of data, not <code>null</code>
-     * @return a new list data provider
+     * Indicates, if this instance is an in memory instance or not. By default checks, if this instance
+     * implements {@link InMemoryEntryProvider}.
+     * @return is in memory
      */
-    static <T extends Entry> EagerInMemoryEntryProvider<T> ofCollection(Collection<T> items) {
-        return new EagerInMemoryEntryProvider<T>(items);
+    default boolean isInMemory() {
+        return this instanceof InMemoryEntryProvider;
     }
 
     /**

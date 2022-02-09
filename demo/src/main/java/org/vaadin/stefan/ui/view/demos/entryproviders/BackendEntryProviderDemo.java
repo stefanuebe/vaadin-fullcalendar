@@ -29,13 +29,13 @@ public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
     }
 
     @Override
-    protected void onSamplesCreated(Set<Entry> entries) {
+    protected void onSamplesCreated(Collection<Entry> entries) {
         getEntryService().addEntries(entries);
         getEntryProvider().refreshAll();
     }
 
     @Override
-    protected void onSamplesRemoved(Set<Entry> entries) {
+    protected void onSamplesRemoved(Collection<Entry> entries) {
         getEntryService().removeAll();
         getEntryProvider().refreshAll();
     }

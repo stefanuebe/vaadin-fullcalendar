@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view.demos.entryproviders;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 
@@ -15,14 +16,13 @@ import java.util.stream.Stream;
  */
 public class EntryService {
 
-    private final Map<String, EntryData> database = new HashMap<>();
+    private final Map<Integer, EntryData> database = new HashMap<>();
+
+    public EntryService() {
+    }
 
     public static EntryService createInstance() {
         return new EntryService();
-    }
-
-    public EntryService() {
-        fillDatabaseWithRandomData();
     }
 
     /**
@@ -40,21 +40,67 @@ public class EntryService {
             int maxDays = date.lengthOfMonth();
             for (int i = 0; i < 8; i++) {
                 LocalDate start = date.withDayOfMonth(random.nextInt(maxDays) + 1);
-                createAt(start, random.nextBoolean());
+                if (random.nextBoolean()) {
+                    addDay("Entry " + database.size(), start);
+                } else {
+                    addTimed("Entry " + database.size(), start.atTime(10, 0));
+                }
             }
 
             date = date.plusMonths(1);
         }
     }
 
-    private void createAt(LocalDate date, boolean allDay) {
-        if (allDay) {
-            EntryData day = new EntryData("" + database.size(), "Entry " + database.size(), date.atStartOfDay(), date.plusDays(1).atStartOfDay(), true);
-            database.put(day.getId(), day);
-        } else {
-            EntryData time = new EntryData("" + database.size(), "Entry " + database.size(), date.atTime(10, 0), date.atTime(11, 30), false);
-            database.put(time.getId(), time);
-        }
+    /**
+     * Deletes all current values and (re)fills the database with a few entries for this month.
+     */
+    public void fillDatabaseWithSimpleData() {
+        database.clear();
+        LocalDate now = LocalDate.now();
+        addTimed("Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "blue");
+        addTimed("Dentist", now.withDayOfMonth(20).atTime(11, 30), 60, "red");
+        addTimed("Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "green");
+        addDay("Short trip", now.withDayOfMonth(17), 2, "green");
+        addDay("John's Birthday", now.withDayOfMonth(23), 1, "violet");
+        addDay("This special holiday", now.withDayOfMonth(4), 1, "gray");
+    }
+
+    private EntryData createTimed(int id, String title, LocalDateTime start, int minutes, String color) {
+        EntryData entry = new EntryData(id);
+        entry.setTitle(title);
+        entry.setStart(start);
+        entry.setEnd(entry.getStart().plusMinutes(1));
+        entry.setAllDay(false);
+        entry.setColor(color);
+        return entry;
+    }
+
+    private EntryData createDay(int id, String title, LocalDate start, int days, String color) {
+        EntryData entry = new EntryData(id);
+        entry.setTitle(title);
+        entry.setStart(start.atStartOfDay());
+        entry.setEnd(entry.getStart().plusDays(1));
+        entry.setAllDay(true);
+        entry.setColor(color);
+        return entry;
+    }
+
+    public void addDay(String title, LocalDate start, int days, String color) {
+        EntryData data = createDay(database.size(), title, start, days, color);
+        database.put(data.getId(), data);
+    }
+
+    public void addDay(String title, LocalDate start) {
+        addDay(title, start, 1, null);
+    }
+
+    public void addTimed(String title, LocalDateTime start, int minutes, String color) {
+        EntryData data = createTimed(database.size(), title, start, minutes, color);
+        database.put(data.getId(), data);
+    }
+
+    public void addTimed(String title, LocalDateTime start) {
+        addTimed(title, start, 60, null);
     }
 
     public Optional<Entry> getEntry(String id) {
@@ -94,11 +140,12 @@ public class EntryService {
     }
 
     public Entry toEntry(EntryData entryData) {
-        Entry entry = new Entry(entryData.getId());
+        Entry entry = new Entry("" + entryData.getId());
         entry.setTitle(entryData.getTitle());
         entry.setStart(entryData.getStart());
         entry.setEnd(entryData.getEnd());
         entry.setAllDay(entryData.isAllDay());
+        entry.setColor(entryData.getColor());
         return entry;
     }
 
@@ -107,15 +154,19 @@ public class EntryService {
     }
 
     public void addEntries(Collection<Entry> entries) {
-        entries.forEach(entry -> database.put(entry.getId(), new EntryData(entry.getId(), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay())));
+        entries.forEach(entry -> database.put(getDatabaseId(entry), new EntryData(getDatabaseId(entry), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay(), null)));
     }
 
     public void updateEntry(Entry entry) {
-        database.put(entry.getId(), new EntryData(entry.getId(), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay()));
+        database.put(getDatabaseId(entry), new EntryData(getDatabaseId(entry), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay(), null));
     }
 
     public void removeEntry(Entry entry) {
+        database.remove(getDatabaseId(entry));
+    }
 
+    private int getDatabaseId(Entry entry) {
+        return Integer.parseInt(entry.getId());
     }
 
     public void removeAll() {
@@ -123,12 +174,14 @@ public class EntryService {
     }
 
     @Data
+    @RequiredArgsConstructor
     @AllArgsConstructor
     private static class EntryData {
-        private final String id;
+        private final int id;
         private String title;
         private LocalDateTime start;
         private LocalDateTime end;
         private boolean allDay;
+        private String color;
     }
 }

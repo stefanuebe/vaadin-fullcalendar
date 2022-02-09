@@ -1,6 +1,5 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -56,11 +55,11 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
 
     protected abstract EntryProvider<Entry> createEntryProvider(EntryService service);
 
-    protected abstract void onSamplesCreated(Set<Entry> entries);
+    protected abstract void onSamplesCreated(Collection<Entry> entries);
 
     protected abstract void onSampleChanged(Entry entry);
 
-    protected abstract void onSamplesRemoved(Set<Entry> entries);
+    protected abstract void onSamplesRemoved(Collection<Entry> entries);
 
 
 

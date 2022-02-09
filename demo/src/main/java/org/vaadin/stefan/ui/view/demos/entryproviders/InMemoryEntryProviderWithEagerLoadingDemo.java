@@ -6,7 +6,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 
-import java.util.Set;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
@@ -26,13 +26,13 @@ public class InMemoryEntryProviderWithEagerLoadingDemo extends AbstractEntryProv
     }
 
     @Override
-    protected void onSamplesCreated(Set<Entry> entries) {
+    protected void onSamplesCreated(Collection<Entry> entries) {
         EagerInMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.addEntries(entries);
     }
 
     @Override
-    protected void onSamplesRemoved(Set<Entry> entries) {
+    protected void onSamplesRemoved(Collection<Entry> entries) {
         EagerInMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.removeAllEntries();
     }
