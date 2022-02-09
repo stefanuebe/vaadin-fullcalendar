@@ -5,7 +5,6 @@ import com.vaadin.flow.dom.Element;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
@@ -579,7 +578,9 @@ public class FullCalendarTest {
         FullCalendar calendar = createTestCalendar();
         assertThrows(UnsupportedOperationException.class, () -> calendar.fetchFromServer(Json.createObject()));
 
-        EntryProvider<Entry> provider = EntryProvider.fromCallbacks(query -> query.applyFilter(Stream.of(entry1, entry2, entry3)));
+        EntryProvider<Entry> provider = EntryProvider.fromCallbacks(
+                query -> query.applyFilter(entries.stream())
+                , s -> entries.stream().filter(e -> s.equals(e.getId())).findFirst().orElse(null));
         calendar.setEntryProvider(provider);
 
         JsonArray array = calendar.fetchFromServer(Json.createObject());

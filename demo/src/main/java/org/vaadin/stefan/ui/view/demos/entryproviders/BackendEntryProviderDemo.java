@@ -9,6 +9,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -26,6 +27,11 @@ public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
     }
 
     @Override
+    protected Entry createNewEntry() {
+        return getEntryService().createNewInstance();
+    }
+
+    @Override
     protected void onEntriesCreated(Collection<Entry> entries) {
         getEntryService().addEntries(entries);
         getEntryProvider().refreshAll();
@@ -33,13 +39,13 @@ public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
 
     @Override
     protected void onEntriesRemoved(Collection<Entry> entries) {
-        getEntryService().removeAll();
+        getEntryService().removeEntries(entries);
         getEntryProvider().refreshAll();
     }
 
     protected void onEntryChanged(Entry entry) {
         getEntryService().updateEntry(entry);
-        getEntryProvider().refreshAll();
+        getEntryProvider().refreshItem(entry);
     }
 
     @Override
@@ -59,6 +65,11 @@ public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
         @Override
         public Stream<Entry> fetch(@NonNull EntryQuery query) {
             return service.streamEntries(query);
+        }
+
+        @Override
+        public Optional<Entry> fetchById(@NonNull String id) {
+            return service.getEntry(id);
         }
     }
 

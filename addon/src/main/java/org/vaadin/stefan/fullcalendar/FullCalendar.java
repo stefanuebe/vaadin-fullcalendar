@@ -83,7 +83,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
     private EntryProvider<Entry> entryProvider;
-    private List<Registration> entryProviderDataListeners;
+    private final List<Registration> entryProviderDataListeners = new LinkedList<>();
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
@@ -98,7 +98,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private String latestKnownViewName;
     private LocalDate latestKnownIntervalStart;
 
-    private boolean refreshRequested;
+    private boolean refreshAllRequested;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
@@ -205,7 +205,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                     }
 
                     // entries
-                    boolean eagerLoadingEntryProvider = isEagerLoadingEntryProvider();
+                    boolean eagerLoadingEntryProvider = isEagerInMemoryEntryProvider();
 
 
                     // We do not use setProperty since that would also store the jsonified state in this instance.
@@ -220,7 +220,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             });
         }
 
-        if (isEagerLoadingEntryProvider()) {
+        if (isEagerInMemoryEntryProvider()) {
             entryProvider.refreshAll(); // if lazy, the client side will automatically take care of refreshing
         }
     }
@@ -282,18 +282,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             this.entryProvider = entryProvider;
             entryProvider.setCalendar(this);
 
-            if (entryProviderDataListeners != null) {
-                entryProviderDataListeners.forEach(Registration::remove);
-            }
+            entryProviderDataListeners.forEach(Registration::remove);
+            entryProviderDataListeners.clear();
 
-            boolean eagerLoadingInMemory = isEagerLoadingEntryProvider();
+            entryProviderDataListeners.add(entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
+
+            boolean eagerLoadingInMemory = isEagerInMemoryEntryProvider();
+            // refresh all is handled manually by the eager memory provider, therefore we have to check this
+            // might change in future
             if (eagerLoadingInMemory) {
                 entryProvider.refreshAll(); // triggers to push all data to the client
             } else {
-                entryProviderDataListeners = Arrays.asList(
-                        entryProvider.addEntriesChangeListener(event -> requestRefresh(null)),
-                        entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh()))
-                );
+
+                entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAll()));
 
             }
 
@@ -312,20 +313,44 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * This method requests an entry refresh from the client side. Registers a single time task before the response
-     * is sent to the client. Multiple calls during the same requests will thus lead to a single refresh
-     * request only.
-     * <p/>
-     * <i>The given entry parameter is not used at this moment, since the client
-     * does not support fetching a single item at this point. It is placed there for later usage.</i>
+     * This method requests an entry refresh from the client side. Every call of this method will register
+     * a client side call, since it might be called for different items. Calls are handled in the order
+     * they are requested. This method will not interfere or "communicate" with {@link #requestRefreshAll()}.
+     * <p></p>
+     * <i>The native client itself does not support fetching single items. Instead we convert the item and
+     * push it directly to the client, where it will be handled.</i>
+     * @param item item to refresh
      */
-    protected void requestRefresh(Entry item) {
-        if (!refreshRequested) {
-            refreshRequested = true;
+    protected void requestRefresh(@NotNull Entry item) {
+        getElement().getNode().runWhenAttached(ui -> {
+            ui.beforeClientResponse(this, pExecutionContext -> {
+                getEntryProvider()
+                        .fetchById(item.getId())
+                        .ifPresent(refreshedEntry -> {
+                            lastFetchedEntries.put(refreshedEntry.getId(), refreshedEntry);
+                            getElement().callJsFunction("refreshSingleEvent", refreshedEntry.toJson());
+                        });
+                refreshAllRequested = false;
+            });
+        });
+    }
+
+    /**
+     * Informs the client side, that a "refresh all" has been requested. Subsequent calls to this method during the
+     * same request cycle will still just result in one fetch from the client side (in fact, only one call to the
+     * client will be executed). This behavior might change in future, if it appears to be problematic regarding
+     * other client side calls.
+     * <p></p>
+     * When parallel to this call {@link #requestRefresh(Entry)} is called, the calls will be handled in the order
+     * they are called, whereas only the first call of this method is relevant.
+     */
+    protected void requestRefreshAll() {
+        if (!refreshAllRequested) {
+            refreshAllRequested = true;
             getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(this, pExecutionContext -> {
-                    getElement().callJsFunction("refreshAllEntries");
-                    refreshRequested = false;
+                    getElement().callJsFunction("refreshAllEvents");
+                    refreshAllRequested = false;
                 });
             });
         }
@@ -338,8 +363,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @return is eager loading
      */
-    public boolean isEagerLoadingEntryProvider() {
+    public boolean isEagerInMemoryEntryProvider() {
         return entryProvider instanceof EagerInMemoryEntryProvider;
+    }
+
+    /**
+     * Indicates, if the entry provider is a in memory provider.
+     *
+     * @return is eager loading
+     */
+    public boolean isInMemoryEntryProvider() {
+        return entryProvider instanceof InMemoryEntryProvider;
     }
 
     @ClientCallable
@@ -347,7 +381,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         Objects.requireNonNull(query);
         Objects.requireNonNull(entryProvider);
 
-        if (isEagerLoadingEntryProvider()) {
+        if (isEagerInMemoryEntryProvider()) {
             throw new UnsupportedOperationException("This method must not be called for eager loading entry providers");
         }
 
@@ -382,7 +416,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return cached entry from last fetch or empty
      */
     public Optional<Entry> getCachedEntryFromFetch(String id) {
-        return isEagerLoadingEntryProvider() ? assureEagerInMemoryProvider().getEntryById(id) : Optional.ofNullable(lastFetchedEntries.get(id));
+        return isEagerInMemoryEntryProvider() ? assureEagerInMemoryProvider().getEntryById(id) : Optional.ofNullable(lastFetchedEntries.get(id));
     }
 
     /**

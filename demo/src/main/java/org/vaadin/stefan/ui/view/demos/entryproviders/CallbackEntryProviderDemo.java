@@ -20,18 +20,24 @@ public class CallbackEntryProviderDemo extends AbstractEntryProviderDemo {
     @Override
     protected EntryProvider<Entry> createEntryProvider(EntryService entryService) {
         // Variant A - the backend service takes care of filtering the entries before returning them
-        CallbackEntryProvider<Entry> entryProvider = EntryProvider.fromCallbacks(query -> entryService.streamEntries(query));
-
+        CallbackEntryProvider<Entry> entryProvider = EntryProvider.fromCallbacks(
+                query -> entryService.streamEntries(query),
+                entryId -> entryService.getEntry(entryId).orElse(null)
+        );
         // Variant B - the backend service returns a plain stream an the callback takes care of filtering the returned entries (may be less performant)
         // entryProvider = EntryProvider.fromCallbacks(query -> {
         //     Stream<Entry> stream = entryService.streamEntries();
         //     stream = query.applyFilter(stream); // a query built in method to filter entry streams based on the query
         //     return stream;
-        // });
+        // }, entryId -> entryService.getEntry(entryId).orElse(null));
 
         return entryProvider;
     }
 
+    @Override
+    protected Entry createNewEntry() {
+        return getEntryService().createNewInstance();
+    }
 
     @Override
     protected void onEntriesCreated(Collection<Entry> entries) {
@@ -42,12 +48,12 @@ public class CallbackEntryProviderDemo extends AbstractEntryProviderDemo {
     @Override
     protected void onEntryChanged(Entry entry) {
         getEntryService().updateEntry(entry);
-        getEntryProvider().refreshAll();
+        getEntryProvider().refreshItem(entry);
     }
 
     @Override
     protected void onEntriesRemoved(Collection<Entry> entries) {
-        getEntryService().removeAll();
+        getEntryService().removeEntries(entries);
         getEntryProvider().refreshAll();
     }
 

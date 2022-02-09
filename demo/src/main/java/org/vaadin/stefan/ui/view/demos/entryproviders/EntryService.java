@@ -117,7 +117,7 @@ public class EntryService {
     }
 
     public Optional<Entry> getEntry(String id) {
-        return Optional.ofNullable(database.get(id)).map(this::toEntry);
+        return Optional.ofNullable(database.get(getDatabaseId(id))).map(this::toEntry);
     }
 
     public Entry getEntryOrNull(String id) {
@@ -184,11 +184,23 @@ public class EntryService {
     }
 
     private int getDatabaseId(Entry entry) {
-        return Integer.parseInt(entry.getId());
+        return getDatabaseId(entry.getId());
+    }
+
+    private int getDatabaseId(String id) {
+        return Integer.parseInt(id);
     }
 
     public void removeAll() {
         database.clear();
+    }
+
+    public void removeEntries(Collection<Entry> entries) {
+        entries.forEach(entry -> database.remove(getDatabaseId(entry)));
+    }
+
+    public Entry createNewInstance() {
+        return new Entry(String.valueOf(database.size()));
     }
 
     @Data
