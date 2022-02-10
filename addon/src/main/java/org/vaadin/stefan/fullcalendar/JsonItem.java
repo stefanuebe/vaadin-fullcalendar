@@ -867,12 +867,28 @@ public abstract class JsonItem<ID_TYPE> {
 
     /**
      * Creates a copy of this instance. Unset properties stay uninitialized.
+     * <p></p>
+     * The target type must be public and have a public no-args constructor.
      *
      * @param <T> return type
      * @return copy
      */
     public <T extends JsonItem> T copy() {
         return copy(false);
+    }
+
+    /**
+     * Creates a copy of this instance as the given target type. Passing null will create a copy of this type.
+     * Unset properties stay uninitialized.
+     * <p></p>
+     * The target type must be public and have a public no-args constructor.
+     *
+     * @param targetType optional target type
+     * @param <T> return type
+     * @return copy
+     */
+    public <T extends JsonItem> T copy(Class<T> targetType) {
+        return copy(targetType, false);
     }
 
     /**
@@ -887,8 +903,27 @@ public abstract class JsonItem<ID_TYPE> {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends JsonItem> T copy(boolean initializeUnsetProperties) {
+        return copy(null, initializeUnsetProperties);
+    }
+
+    /**
+     * Creates a copy of this instance as the given target type. Passing null will create a copy of this type.
+     * Unset properties are initialized with a null value,
+     * when the boolean parameter is set to true. Otherwise they will not be initialized.
+     * <p></p>
+     * The target type must be public and have a public no-args constructor.
+     * <p/>
+     * When this instance is known to the client, the new one will also be marked as known to the client.
+     *
+     * @param targetType optional target type
+     * @param initializeUnsetProperties initialize unset properties
+     * @param <T>                       return type
+     * @return copy
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T extends JsonItem> T copy(Class<T> targetType, boolean initializeUnsetProperties) {
         try {
-            T copy = (T) getClass().newInstance();
+            T copy = (T) (targetType != null ? targetType.newInstance() : getClass().newInstance());
 
             Set<Key> keys = getKeys();
             for (Key key : keys) {
