@@ -2,12 +2,9 @@ package org.vaadin.stefan.ui.view.demos.entryproviders;
 
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.EntryClickedEvent;
-import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
-import org.vaadin.stefan.ui.view.DemoDialog;
 
 import java.util.Collection;
 import java.util.List;

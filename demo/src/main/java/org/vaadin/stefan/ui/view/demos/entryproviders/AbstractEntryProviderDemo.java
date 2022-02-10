@@ -7,7 +7,7 @@ import lombok.Getter;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-import org.vaadin.stefan.ui.view.DemoDialog;
+import org.vaadin.stefan.ui.dialogs.DemoDialog;
 
 import java.util.Collections;
 
@@ -55,7 +55,8 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
         entry.setAllDay(event.isAllDay());
 
         entry.setColor("green");
-        DemoDialog dialog = new DemoDialog(event.getSource(), entry, true);
+        entry.setCalendar(event.getSource());
+        DemoDialog dialog = new DemoDialog(entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
         dialog.open();
     }
@@ -64,7 +65,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
 
     @Override
     protected void onEntryClick(EntryClickedEvent event) {
-        DemoDialog dialog = new DemoDialog(event.getSource(), event.getEntry(), false);
+        DemoDialog dialog = new DemoDialog(event.getEntry(), false);
         dialog.setSaveConsumer(this::onEntryChanged);
         dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
         dialog.open();

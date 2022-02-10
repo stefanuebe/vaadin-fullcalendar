@@ -138,7 +138,7 @@ public class EntryService {
 
     public Stream<Entry> streamEntries(EntryQuery query) {
         Stream<EntryData> stream = database.values().stream();
-        return applyFilter(stream, query).map(this::toEntry)/*.peek(e -> e.setCalendar(query.getSource()))*/;
+        return  applyFilter(stream, query).map(this::toEntry);
     }
 
     public Stream<EntryData> applyFilter(Stream<EntryData> stream, EntryQuery query) {

@@ -24,6 +24,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
         <lombok.version>1.18.22</lombok.version>
+        <multi-combo-box.version>3.0.2</multi-combo-box.version> <!--3.0.2 is for Vaadin 14+, 4.0.0+ is for Vaadin 22+-->
     </properties>
 
     <licenses>
@@ -98,6 +99,12 @@
                     <artifactId>vaadin-core</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.vaadin.gatanaso</groupId>
+            <artifactId>multiselect-combo-box-flow</artifactId>
+            <version>${multi-combo-box.version}</version>
         </dependency>
 
 		<dependency>
