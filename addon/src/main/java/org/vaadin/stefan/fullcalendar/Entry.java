@@ -1051,6 +1051,23 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
+     * Returns the recurring end. This method is a shortcut for combining {@link #getRecurringEndDate()}
+     * and {@link #getRecurringEndTime()}. Will return null, when no recurrence date is defined. When only a
+     * end date is defined, the returned date time will be at the end of that day.
+     * @see #isRecurring()
+     * @return end date time of recurrence
+     */
+    public LocalDateTime getRecurringEnd() {
+        LocalDate endDate = getRecurringEndDate();
+        if (endDate == null) {
+            return null;
+        }
+
+        LocalTime endTime = getRecurringEndTime();
+        return endTime != null ? endDate.atTime(endTime) : endDate.atStartOfDay();
+    }
+
+    /**
      * Sets the given local date as recurring end. It is converted to an instant by using the
      * calendar's server end timezone.
      *
@@ -1083,6 +1100,23 @@ public class Entry extends JsonItem<String> {
      */
     public LocalTime getRecurringStartTime() {
         return get(EntryKey.RECURRING_START_TIME);
+    }
+
+    /**
+     * Returns the recurring start. This method is a shortcut for combining {@link #getRecurringStartDate()}
+     * and {@link #getRecurringStartTime()}. Will return null, when no recurrence date is defined. When only a
+     * start date is defined, the returned date time will be at the start of that day.
+     * @see #isRecurring()
+     * @return start date time of recurrence
+     */
+    public LocalDateTime getRecurringStart() {
+        LocalDate startDate = getRecurringStartDate();
+        if (startDate == null) {
+            return null;
+        }
+
+        LocalTime startTime = getRecurringStartTime();
+        return startTime != null ? startDate.atTime(startTime) : startDate.atStartOfDay();
     }
 
     /**
