@@ -37,7 +37,8 @@ public abstract class JsonItem<ID_TYPE> {
     }
 
     /**
-     * Returns the value of the property identified by the given key. Returned value might be null.
+     * Returns the value of the property identified by the given key. Returned value might be null or the
+     * key's default, if defined.
      *
      * @param key property key
      * @param <T> return type
@@ -642,16 +643,19 @@ public abstract class JsonItem<ID_TYPE> {
     private void writeValueToJsonInternal(JsonObject jsonObject, Key key) {
         Object value = get(key);
 
-        JsonValue jsonValue = Optional.ofNullable(key.getConverter())
-                .map(c -> ((JsonPropertyConverter) c).toJsonValue(value, this))
-                .orElseGet(() -> {
-                    if (JsonUtils.isCollectable(value) && key.getCollectableItemConverter() != null) { // see docs of collectionItemConverter
-                        SerializableFunction<Object, JsonValue> converter = key.getCollectableItemConverter();
-                        return JsonUtils.toJsonValue(value, converter);
-                    } else {
-                        return JsonUtils.toJsonValue(value);
-                    }
-                });
+        JsonValue jsonValue;
+
+        JsonPropertyConverter<?, ?> converter = key.getConverter();
+        if (converter != null) {
+            jsonValue = ((JsonPropertyConverter) converter).toJsonValue(value, this);
+        } else {
+            if (JsonUtils.isCollectable(value) && key.getCollectableItemConverter() != null) { // see docs of collectionItemConverter
+                SerializableFunction<Object, JsonValue> collectableItemConverter = key.getCollectableItemConverter();
+                jsonValue = JsonUtils.toJsonValue(value, collectableItemConverter);
+            } else {
+                jsonValue = JsonUtils.toJsonValue(value);
+            }
+        }
 
         writeRawValueToJson(jsonObject, key, jsonValue);
     }
@@ -869,6 +873,10 @@ public abstract class JsonItem<ID_TYPE> {
      * Creates a copy of this instance. Unset properties stay uninitialized.
      * <p></p>
      * The target type must be public and have a public no-args constructor.
+     * <p></p>
+     * Copying bases on using the keys and their expected official data types. If you use
+     * custom data types or keys, this method might not work out of the box and need to be
+     * overridden.
      *
      * @param <T> return type
      * @return copy
@@ -882,6 +890,11 @@ public abstract class JsonItem<ID_TYPE> {
      * Unset properties stay uninitialized.
      * <p></p>
      * The target type must be public and have a public no-args constructor.
+     * <p></p>
+     * Copying bases on using the keys and their expected official data types. If you use
+     * custom data types or keys, this method might not work out of the box and need to be
+     * overridden.
+
      *
      * @param targetType optional target type
      * @param <T> return type
@@ -896,6 +909,11 @@ public abstract class JsonItem<ID_TYPE> {
      * parameter is set to true. Otherwise they will not be initialized.
      * <p/>
      * When this instance is known to the client, the new one will also be marked as known to the client.
+     * <p></p>
+     * Copying bases on using the keys and their expected official data types. If you use
+     * custom data types or keys, this method might not work out of the box and need to be
+     * overridden.
+
      *
      * @param initializeUnsetProperties initialize unset properties
      * @param <T>                       return type
@@ -914,6 +932,11 @@ public abstract class JsonItem<ID_TYPE> {
      * The target type must be public and have a public no-args constructor.
      * <p/>
      * When this instance is known to the client, the new one will also be marked as known to the client.
+     * <p></p>
+     * Copying bases on using the keys and their expected official data types. If you use
+     * custom data types or keys, this method might not work out of the box and need to be
+     * overridden.
+
      *
      * @param targetType optional target type
      * @param initializeUnsetProperties initialize unset properties
@@ -924,26 +947,59 @@ public abstract class JsonItem<ID_TYPE> {
     public <T extends JsonItem> T copy(Class<T> targetType, boolean initializeUnsetProperties) {
         try {
             T copy = (T) (targetType != null ? targetType.newInstance() : getClass().newInstance());
-
-            Set<Key> keys = getKeys();
-            for (Key key : keys) {
-                if (initializeUnsetProperties || has(key)) {
-                    Object value = get(key);
-
-                    if (value instanceof Collection) {
-                        value = copyCollection((Collection) value, initializeUnsetProperties);
-                    } else if (value instanceof Iterable) {
-                        value = copyIterable((Iterable) value, initializeUnsetProperties);
-                    } else if (value instanceof Object[]) {
-                        value = copyObjectArray((Object[]) value, initializeUnsetProperties);
-                    }
-
-                    copy.setWithoutDirtyChange(key, value);
-                }
-            }
-            copy.setKnownToTheClient(isKnownToTheClient());
+            copy.copyFrom(this);
+//            Set<Key> keys = getKeys();
+//            for (Key key : keys) {
+//                if (initializeUnsetProperties || has(key)) {
+//                    Object value = get(key);
+//
+//                    if (value instanceof Collection) {
+//                        value = copyCollection((Collection) value, initializeUnsetProperties);
+//                    } else if (value instanceof Iterable) {
+//                        value = copyIterable((Iterable) value, initializeUnsetProperties);
+//                    } else if (value instanceof Object[]) {
+//                        value = copyObjectArray((Object[]) value, initializeUnsetProperties);
+//                    }
+//
+//                    copy.setWithoutDirtyChange(key, value);
+//                }
+//            }
+//            copy.setKnownToTheClient(isKnownToTheClient());
 
             return copy;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Creates a copy of this instance as the given target type. Passing null will create a copy of this type.
+     * Unset properties are initialized with a null value,
+     * when the boolean parameter is set to true. Otherwise they will not be initialized.
+     * <p/>
+     * When this instance is known to the client, the new one will also be marked as known to the client.
+     * <p></p>
+     * Copying bases on using the keys and their expected official data types. If you use
+     * custom data types or keys, this method might not work out of the box and need to be
+     * overridden.
+
+     *
+     * @param otherItemToCopyFrom item to copy from
+     */
+    public void copyFrom(JsonItem<ID_TYPE> otherItemToCopyFrom) {
+        try {
+            properties.clear();
+            setKnownToTheClient(isKnownToTheClient());
+
+            JsonObject jsonObject = otherItemToCopyFrom.toJson();
+            Set<Key> keys = otherItemToCopyFrom.getKeys();
+            for (Key key : keys) {
+                if (jsonObject.hasKey(key.getName())) {
+                    Object copiedValue = convertJsonValueToObject(jsonObject, key);
+                    set(key, copiedValue);
+                }
+            }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -957,6 +1013,10 @@ public abstract class JsonItem<ID_TYPE> {
                 if (object == null) {
                     instance.add(null);
                 } else if (object.getClass().isEnum()) {
+                    instance.add(object);
+                } else if (object.getClass().isPrimitive()) {
+                    instance.add(object);
+                } else if (object instanceof String) {
                     instance.add(object);
                 } else if(object instanceof Cloneable){
 //                    instance.add(((Cloneable)object).clone())
@@ -1126,7 +1186,7 @@ public abstract class JsonItem<ID_TYPE> {
 
         /**
          * Indicates, if this property might be changed from the client side in general. This could be for instance
-         * the case on start and end time, but not the id.
+         * the case on start and end time, but not the id. Also this flag is ignored, when using the "copy" methods.
          */
         private final boolean updateFromClientAllowed;
 

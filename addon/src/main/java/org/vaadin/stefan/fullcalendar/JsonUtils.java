@@ -22,6 +22,7 @@ import elemental.json.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -121,6 +122,14 @@ public final class JsonUtils {
                 || value instanceof Stream<?>;
     }
 
+    public static String formatClientSideTimeString(LocalTime localTime) {
+        return localTime != null ? localTime + "Z" : null;
+    }
+
+    public static String formatClientSideTimeString(LocalDateTime localDateTime) {
+        return localDateTime != null ? formatClientSideTimeString(localDateTime.toLocalTime()) : null;
+    }
+
     public static String formatClientSideDateString(LocalDate localDate) {
         return localDate != null ? localDate.toString() : null;
     }
@@ -138,9 +147,9 @@ public final class JsonUtils {
     }
 
     /**
-     * Parses a date string sent from the client side. Will be converted to a UTC.
+     * Parses a date string sent from the client side.
      *
-     * @return UTC based date time instance
+     * @return date instance
      * @throws NullPointerException when null is passed for not null parameters
      */
     public static LocalDate parseClientSideDate(@NotNull String dateString) {
@@ -153,6 +162,12 @@ public final class JsonUtils {
         return LocalDate.parse(dateString);
     }
 
+    /**
+     * Parses a date string sent from the client side. Will be converted to a UTC.
+     *
+     * @return UTC based date time instance
+     * @throws NullPointerException when null is passed for not null parameters
+     */
     public static LocalDateTime parseClientSideDateTime(@NotNull String dateTimeString) {
         if (dateTimeString.length() <= 10) {
             return parseClientSideDate(dateTimeString).atStartOfDay();
@@ -163,6 +178,22 @@ public final class JsonUtils {
         }
 
         throw new IllegalArgumentException("Parsing non utc date time string: " + dateTimeString);
+    }
+
+    /**
+     * Parses a time string sent from the client side. Will be converted to a UTC.
+     *
+     * @return UTC based date time instance
+     * @throws NullPointerException when null is passed for not null parameters
+     */
+    public static LocalTime parseClientSideTime(@NotNull String timeString) {
+        Objects.requireNonNull(timeString, "timeString");
+
+        if (!timeString.endsWith("Z")) {
+            throw new IllegalArgumentException("Parsing non utc time string: " + timeString);
+        }
+
+        return LocalTime.parse(timeString.substring(0, timeString.length() - 1));
     }
 
     /**
@@ -467,4 +498,5 @@ public final class JsonUtils {
 
         return set;
     }
+
 }

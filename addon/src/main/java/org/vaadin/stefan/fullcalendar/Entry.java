@@ -974,79 +974,30 @@ public class Entry extends JsonItem<String> {
 //    }
 
     /**
-     * Sets the given local date as recurring start. It is converted to an instant by using the
-     * calendar's server start timezone.
+     * Sets the given local date as recurring start. Does not change the start time.
      *
      * @param recurringStart start
+     * @see #setRecurringStart(LocalDate)
      */
     public void setRecurringStartDate(LocalDate recurringStart) {
-//        setRecurringStartDate(recurringStart, getStartTimezoneServer());
         set(EntryKey.RECURRING_START_DATE, recurringStart);
     }
 
     /**
-     * Sets the given local date as recurring start. It is converted to an instant by using the
-     * calendar's server start timezone.
-     *
-     * @param recurringStart start
-     * @deprecated use {@link #setRecurringStartDate(LocalDate)}
-     */
-    @Deprecated
-    public void setRecurringStart(LocalDate recurringStart) {
-        setRecurringStartDate(recurringStart);
-    }
-
-    /**
-     * Returns the recurring start of the entry as local date time based on the timezone returned by
+     * Returns the recurring start of the entry as local date time based on utc.
      *
      * @return start as local date time
      */
     public LocalDate getRecurringStartDate() {
-//        return getRecurringStartDate(getStartTimezoneServer());
         return get(EntryKey.RECURRING_START_DATE);
     }
 
-//    /**
-//     * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-//     * is recurring).
-//     *
-//     * @see #isRecurring()
-//     * @return end date of recurrence
-//     */
-//    public Instant getRecurringEndDateUTC() {
-//        return get(EntryKey.RECURRING_END_DATE);
-//    }
-
-//    /**
-//     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
-//     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the past.
-//     * @see #isRecurring()
-//     * @param end end date
-//     */
-//    public void setRecurringEndDateUTC(Instant end) {
-//        set(EntryKey.RECURRING_END_DATE, end);
-//    }
-
-//    /**
-//     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
-//     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the past.
-//     * @see #isRecurring()
-//     * @param end end date
-//     *
-//     * @deprecated use {@link #setRecurringEndDateUTC(Instant)} instead
-//     */
-//    @Deprecated
-//    public void setRecurringEndDate(Instant end) {
-//        setRecurringEndDateUTC(end);
-//    }
-
     /**
-     * Returns the recurring end of the entry as local date time based on the timezone returned by
+     * Returns the recurring end of the entry as local date time based on utc.
      *
      * @return start as local date time
      */
     public LocalDate getRecurringEndDate() {
-//        return getRecurringEndDate(getEndTimezoneServer());
         return get(EntryKey.RECURRING_END_DATE);
     }
 
@@ -1068,28 +1019,13 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Sets the given local date as recurring end. It is converted to an instant by using the
-     * calendar's server end timezone.
+     * Sets the given local date as recurring end.
      *
      * @param recurringEnd end
      */
     public void setRecurringEndDate(LocalDate recurringEnd) {
-//        setRecurringEndDate(recurringEnd, getEndTimezoneServer());
         set(EntryKey.RECURRING_END_DATE, recurringEnd);
     }
-
-    /**
-     * Sets the given local date as recurring end. It is converted to an instant by using the
-     * calendar's server end timezone.
-     *
-     * @param recurringEnd end
-     * @deprecated use {@link #setRecurringEndDate(LocalDate)}
-     */
-    @Deprecated
-    public void setRecurringEnd(LocalDate recurringEnd) {
-        setRecurringEndDate(recurringEnd);
-    }
-
 
     /**
      * The start time of recurrence per day. When not defined, recurrence will extend to the end of day for
@@ -1153,14 +1089,62 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
+     * Sets the given local date as recurring start. Will be set at the start of day.
+     *
+     * @param recurringStart start
+     */
+    public void setRecurringStart(LocalDate recurringStart) {
+        setRecurringStart(recurringStart != null ? recurringStart.atStartOfDay() : null);
+    }
+
+    /**
+     * Sets the recurring start as local date time. Shortcut for calling {@link #setRecurringStartDate(LocalDate)}
+     * and {@link #setRecurringStartTime(LocalTime)}.
+     *
+     * @param recurringStart recurring start
+     */
+    public void setRecurringStart(Instant recurringStart) {
+        setRecurringStart(recurringStart != null ? LocalDateTime.ofInstant(recurringStart, Timezone.ZONE_ID_UTC) : null);
+    }
+
+    /**
      * Sets the recurring start as local date time. Shortcut for calling {@link #setRecurringStartDate(LocalDate)}
      * and {@link #setRecurringStartTime(LocalTime)}.
      *
      * @param recurringStart recurring start
      */
     public void setRecurringStart(LocalDateTime recurringStart) {
-        setRecurringStartDate(recurringStart.toLocalDate());
-        setRecurringStartTime(recurringStart.toLocalTime());
+        setRecurringStartDate(recurringStart != null ? recurringStart.toLocalDate() : null);
+        setRecurringStartTime(recurringStart != null ? recurringStart.toLocalTime() : null);
+
+    }
+
+    /**
+     * Clears the current recurring start . Convenience method to prevent unnecessary casting when using
+     * setRecurringStart(null).
+     */
+    public void clearRecurringStart() {
+        setRecurringStart((LocalDateTime) null);
+    }
+
+    /**
+     * Sets the given local date as recurring end. Will be set at the start of day.
+     *
+     * @param recurringEnd end
+     * @deprecated use {@link #setRecurringEndDate(LocalDate)}
+     */
+    public void setRecurringEnd(LocalDate recurringEnd) {
+        setRecurringEnd(recurringEnd != null ? recurringEnd.atStartOfDay() : null);
+    }
+
+    /**
+     * Sets the recurring end as local date time. Shortcut for calling {@link #setRecurringEndDate(LocalDate)}
+     * and {@link #setRecurringEndTime(LocalTime)}.
+     *
+     * @param recurringEnd recurring end
+     */
+    public void setRecurringEnd(Instant recurringEnd) {
+        setRecurringEnd(recurringEnd != null ? LocalDateTime.ofInstant(recurringEnd, Timezone.ZONE_ID_UTC) : null);
     }
 
     /**
@@ -1170,8 +1154,16 @@ public class Entry extends JsonItem<String> {
      * @param recurringEnd recurring end
      */
     public void setRecurringEnd(LocalDateTime recurringEnd) {
-        setRecurringEndDate(recurringEnd.toLocalDate());
-        setRecurringEndTime(recurringEnd.toLocalTime());
+        setRecurringEndDate(recurringEnd != null ? recurringEnd.toLocalDate() : null);
+        setRecurringEndTime(recurringEnd != null ? recurringEnd.toLocalTime() : null);
+    }
+
+    /**
+     * Clears the current recurring end . Convenience method to prevent unnecessary casting when using
+     * setRecurringEnd(null).
+     */
+    public void clearRecurringEnd() {
+        setRecurringEnd((LocalDateTime) null);
     }
 
     /**
@@ -1321,8 +1313,7 @@ public class Entry extends JsonItem<String> {
 
     @Getter
     @RequiredArgsConstructor
-    public static class DateTimeUTCConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalDateTime, T> {
-//        private final SerializableFunction<T, Timezone> timezoneSupplier;
+    public static class ClientDateTimeConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalDateTime, T> {
 
         @Override
         public JsonValue toJsonValue(LocalDateTime serverValue, T currentInstance) {
@@ -1345,8 +1336,7 @@ public class Entry extends JsonItem<String> {
 
     @Getter
     @RequiredArgsConstructor
-    public static class DateUTCConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalDate, T> {
-//        private final SerializableFunction<T, zone> timezoneSupplier;
+    public static class ClientDateConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalDate, T> {
 
         @Override
         public JsonValue toJsonValue(LocalDate serverValue, T currentInstance) {
@@ -1364,6 +1354,36 @@ public class Entry extends JsonItem<String> {
             }
 
             throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString");
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class ClientTimeConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalTime, T> {
+        @Override
+        public JsonValue toJsonValue(LocalTime serverValue, T currentInstance) {
+            return JsonUtils.toJsonValue(JsonUtils.formatClientSideTimeString(serverValue));
+        }
+
+        @Override
+        public LocalTime ofJsonValue(JsonValue clientValue, T currentInstance) {
+            if (clientValue instanceof JsonNull) {
+                return null;
+            }
+
+            if (clientValue instanceof JsonString) {
+                return JsonUtils.parseClientSideTime(clientValue.asString());
+            }
+
+            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString");
+        }
+    }
+
+    private static class RecurringTimeConverter<T extends Entry> extends ClientTimeConverter<T> {
+        @Override
+        public JsonValue toJsonValue(LocalTime serverValue, T currentInstance) {
+            // recurring time must not be sent, when all day
+            return currentInstance.isAllDay() ? null : super.toJsonValue(serverValue, currentInstance);
         }
     }
 
@@ -1393,7 +1413,7 @@ public class Entry extends JsonItem<String> {
                 .name("start")
                 .allowedType(Instant.class)
                 .updateFromClientAllowed(true)
-                .converter(new DateTimeUTCConverter<>())
+                .converter(new ClientDateTimeConverter<>())
                 .build();
 
         /**
@@ -1403,7 +1423,7 @@ public class Entry extends JsonItem<String> {
                 .name("end")
                 .allowedType(Instant.class)
                 .updateFromClientAllowed(true)
-                .converter(new DateTimeUTCConverter<>())
+                .converter(new ClientDateTimeConverter<>())
                 .build();
 
         /**
@@ -1423,6 +1443,7 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key CLASS_NAMES = JsonItem.Key.builder()
                 .name("classNames")
                 .allowedType(Set.class) // Set<String>
+                .jsonArrayToCollectionConversionType(HashSet.class) // for copyFrom()
                 .build();
 
         /**
@@ -1515,13 +1536,8 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key RECURRING_DAYS_OF_WEEKS = JsonItem.Key.builder()
                 .name("daysOfWeek")
-                .allowedType(Set.class) // Set<DayOfWeek>
-//                .converter((Set<DayOfWeek> recurringDaysOfWeeks, Entry currentInstance) ->
-//                        JsonUtils.toJsonValue(
-//                                recurringDaysOfWeeks == null || recurringDaysOfWeeks.isEmpty()
-//                                        ? null
-//                                        : recurringDaysOfWeeks.stream().map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())))
                 .collectableItemConverter(dayOfWeek -> JsonUtils.toJsonValue(dayOfWeek == DayOfWeek.SUNDAY ? 0 : ((DayOfWeek) dayOfWeek).getValue()))
+                .jsonArrayToCollectionConversionType(HashSet.class) // for copyFrom()
                 .build();
 
         /**
@@ -1531,7 +1547,7 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key RECURRING_START_DATE = JsonItem.Key.builder()
                 .name("startRecur")
                 .allowedType(Instant.class)
-                .converter(new DateUTCConverter<>())
+                .converter(new ClientDateConverter<>())
                 .build();
 
         /**
@@ -1540,6 +1556,7 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key RECURRING_START_TIME = JsonItem.Key.builder()
                 .name("startTime")
                 .allowedType(LocalTime.class)
+                .converter(new RecurringTimeConverter<>())
                 .build();
 
         /**
@@ -1549,7 +1566,7 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key RECURRING_END_DATE = JsonItem.Key.builder()
                 .name("endRecur")
                 .allowedType(Instant.class)
-                .converter(new DateUTCConverter<>())
+                .converter(new ClientDateConverter<>())
                 .build();
 
         /**
@@ -1558,6 +1575,7 @@ public class Entry extends JsonItem<String> {
         public static final JsonItem.Key RECURRING_END_TIME = JsonItem.Key.builder()
                 .name("endTime")
                 .allowedType(LocalTime.class)
+                .converter(new RecurringTimeConverter<>())
                 .build();
 
         /**
