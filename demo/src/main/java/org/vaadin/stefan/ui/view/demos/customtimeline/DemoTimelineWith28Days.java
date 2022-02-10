@@ -14,7 +14,6 @@ import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 @Route(value = "demotimelinecustomdays", layout = MainLayout.class)
-@PageTitle("FC with 28 days timeline")
 @MenuItem(label = "28 Days Timeline")
 public class DemoTimelineWith28Days extends VerticalLayout {
     private static final long serialVersionUID = 1L;

@@ -16,7 +16,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "demoextendedprops", layout = MainLayout.class)
-@PageTitle("FC with Custom Properties")
 @MenuItem(label = "Custom Properties")
 public class DemoCustomProperties extends VerticalLayout {
 	private static final long serialVersionUID = -117988331031719049L;

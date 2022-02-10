@@ -14,7 +14,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
 @Route(value = "demobackgroundevent", layout = MainLayout.class)
-@PageTitle("FC with Background Events")
 @MenuItem(label = "Background Events")
 public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
     private static final long serialVersionUID = 1L;

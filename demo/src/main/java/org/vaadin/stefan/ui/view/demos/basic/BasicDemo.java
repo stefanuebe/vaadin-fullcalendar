@@ -14,7 +14,6 @@ import java.time.DayOfWeek;
 
 // not sure if we still need the basic demo now with the cleaned up full demo
 //@Route(value = "basic-demo", layout = MainLayout.class)
-//@PageTitle("Basic FullCalendar Demo")
 //@MenuItem(label = "Basic Demo")
 //public class BasicDemo extends AbstractCalendarView {
 //
