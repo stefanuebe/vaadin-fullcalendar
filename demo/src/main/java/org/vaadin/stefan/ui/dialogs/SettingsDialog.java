@@ -1,4 +1,4 @@
-package org.vaadin.stefan.ui.view;
+package org.vaadin.stefan.ui.dialogs;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;

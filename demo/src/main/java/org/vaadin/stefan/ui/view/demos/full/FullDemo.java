@@ -37,7 +37,7 @@ import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.ui.layouts.MainLayout;
-import org.vaadin.stefan.ui.view.DemoDialog;
+import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 
@@ -296,8 +296,12 @@ public class FullDemo extends VerticalLayout {
         calendar.addEntryResizedListener(event -> System.out.println(event.applyChangesOnEntry()));
 
         calendar.addEntryClickedListener(event -> {
-            if (event.getEntry().getRenderingMode() != RenderingMode.BACKGROUND && event.getEntry().getRenderingMode() != RenderingMode.INVERSE_BACKGROUND)
-                new DemoDialog(calendar, (ResourceEntry) event.getEntry(), false).open();
+            if (event.getEntry().getRenderingMode() != RenderingMode.BACKGROUND && event.getEntry().getRenderingMode() != RenderingMode.INVERSE_BACKGROUND) {
+                DemoDialog dialog = new DemoDialog(event.getEntry(), false);
+                dialog.setSaveConsumer(calendar::addEntry);
+                dialog.setDeleteConsumer(calendar::removeEntry);
+                dialog.open();
+            }
         });
 
         ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
@@ -308,7 +312,11 @@ public class FullDemo extends VerticalLayout {
             entry.setAllDay(event.isAllDay());
 
             entry.setColor("dodgerblue");
-            new DemoDialog(calendar, entry, true).open();
+            entry.setCalendar(calendar);
+
+            DemoDialog dialog = new DemoDialog(entry, true);
+            dialog.setSaveConsumer(calendar::addEntry);
+            dialog.open();
         });
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
