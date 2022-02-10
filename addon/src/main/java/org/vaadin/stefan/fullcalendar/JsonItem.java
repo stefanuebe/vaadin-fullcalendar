@@ -645,9 +645,9 @@ public abstract class JsonItem<ID_TYPE> {
 
         JsonValue jsonValue;
 
-        JsonPropertyConverter<?, ?> converter = key.getConverter();
+        JsonItemPropertyConverter<?, ?> converter = key.getConverter();
         if (converter != null) {
-            jsonValue = ((JsonPropertyConverter) converter).toJsonValue(value, this);
+            jsonValue = ((JsonItemPropertyConverter) converter).toJsonValue(value, this);
         } else {
             if (JsonUtils.isCollectable(value) && key.getCollectableItemConverter() != null) { // see docs of collectionItemConverter
                 SerializableFunction<Object, JsonValue> collectableItemConverter = key.getCollectableItemConverter();
@@ -753,7 +753,7 @@ public abstract class JsonItem<ID_TYPE> {
      * <p/>
      * Each key will be mapped with the json object. For
      * each key (when the value shall be written, see details below), the value will either be converted by
-     * the key's {@link JsonPropertyConverter} or the {@link JsonUtils}. Json arrays will be converted
+     * the key's {@link JsonItemPropertyConverter} or the {@link JsonUtils}. Json arrays will be converted
      * to {@link ArrayList}.
      * <p></p>
      * The changes applied will not lead to a "dirty" object. For details see
@@ -771,7 +771,7 @@ public abstract class JsonItem<ID_TYPE> {
      * <p/>
      * Each key will be mapped with the json object. The keys are obtained from {@link #getKeys()}. For
      * each key , the value will either be converted by
-     * the key's {@link JsonPropertyConverter} or the {@link JsonUtils}. Json arrays will be converted
+     * the key's {@link JsonItemPropertyConverter} or the {@link JsonUtils}. Json arrays will be converted
      * to {@link ArrayList}.
      * <p></p>
      * The boolean parameter indicates, if changes written to this instance shall be marked
@@ -793,7 +793,7 @@ public abstract class JsonItem<ID_TYPE> {
 
     /**
      * Reads the json value with the given key. When the value shall be written, see details below, the value will
-     * either be converted by the key's {@link JsonPropertyConverter} or the {@link JsonUtils}.
+     * either be converted by the key's {@link JsonItemPropertyConverter} or the {@link JsonUtils}.
      * Json arrays will be converted to {@link ArrayList}.
      * <p></p>
      * The boolean parameter indicates, if changes written to this instance shall be marked
@@ -836,9 +836,13 @@ public abstract class JsonItem<ID_TYPE> {
     protected Object convertJsonValueToObject(JsonObject jsonObject, Key key) {
         Object value;
         JsonValue jsonValue = jsonObject.get(key.getName());
-        value = Optional.ofNullable(key.getConverter())
-                .map(c -> ((JsonPropertyConverter) c).ofJsonValue(jsonValue, this))
-                .orElseGet(() -> convertJsonValueToObjectWithJsonUtils(jsonValue, key));
+        JsonItemPropertyConverter converter = key.getConverter();
+        if (converter != null) {
+            value = converter.ofJsonValue(jsonValue, this);
+        } else {
+            value = convertJsonValueToObjectWithJsonUtils(jsonValue, key);
+        }
+
         return value;
     }
 
@@ -862,9 +866,11 @@ public abstract class JsonItem<ID_TYPE> {
         Optional<SerializableFunction<JsonValue, Object>> jsonObjectConverter = Optional.ofNullable(key.getJsonToObjectConverter());
         Class<? extends Collection> convertArrayToType = key.getJsonArrayToCollectionConversionType();
 
-        return jsonObjectConverter.isPresent()
+        Object value = jsonObjectConverter.isPresent()
                 ? JsonUtils.ofJsonValue(jsonValue, jsonObjectConverter.get(), key.getJsonObjectToConverterTypes(), convertArrayToType)
                 : JsonUtils.ofJsonValue(jsonValue, convertArrayToType);
+
+        return value;
     }
 
 
@@ -1084,18 +1090,6 @@ public abstract class JsonItem<ID_TYPE> {
     }
 
 
-    /**
-     * @param <SERVER_TYPE>
-     */
-    public interface JsonPropertyConverter<SERVER_TYPE, T extends JsonItem> {
-        JsonValue toJsonValue(SERVER_TYPE serverValue, T currentInstance);
-
-        default SERVER_TYPE ofJsonValue(JsonValue clientValue, T currentInstance) {
-            throw new UnsupportedOperationException("Conversion from client to server not implemented or supported");
-        }
-    }
-
-
     @Override
     public String toString() {
         final JsonObject jsonObject = Json.createObject();
@@ -1161,8 +1155,12 @@ public abstract class JsonItem<ID_TYPE> {
          * If no converter is passed, then the keys will be converted using the JsonUtils and,
          * if necessary to update the server side part from the client, the {@link #jsonArrayToCollectionConversionType}
          * and {@link #jsonToObjectConverter}.
+         * <p></p>
+         * There are more detailed ways of converting a value from and to the model, but this convert can be
+         * seen as the "last bastion" if any of the other ways fails for your custom key. Don't hesitate to
+         * use it, even if it means a bit more code.
          */
-        private final JsonPropertyConverter<?, ?> converter;
+        private final JsonItemPropertyConverter<?, ?> converter;
 
         /**
          * A convenience converter that can be applied, when a value for this key is a collectable (see

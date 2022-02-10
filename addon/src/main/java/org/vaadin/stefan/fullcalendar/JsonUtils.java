@@ -51,6 +51,7 @@ public final class JsonUtils {
      * there is no default conversion found for the given value. Can be null to convert it to a simple string.
      *
      * @param value value
+     * @param customConverter optional custom converter
      * @return object
      */
     @SuppressWarnings("unchecked")

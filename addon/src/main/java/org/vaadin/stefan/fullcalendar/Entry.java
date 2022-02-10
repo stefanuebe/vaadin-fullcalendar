@@ -16,10 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.JsonNull;
-import elemental.json.JsonObject;
-import elemental.json.JsonString;
-import elemental.json.JsonValue;
+import elemental.json.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.validation.constraints.NotNull;
 import java.time.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents a simple calendar item. Each entry is at least defined by an id, a title and some kind of timespan.
@@ -45,6 +43,9 @@ import java.util.*;
  * used by the eager loading in memory provider and is an artifact of earlier versions. In theory it should
  * not be important for any type of lazy loading provider, but the flag of "known to the client" will be
  * set at important points anyway (e. g.see {@link FullCalendar#fetchFromServer(JsonObject)}.
+ * <p></p>
+ * Timezones are currently not supported by the native client side library and therefore this instance
+ * does not provide official offset api for recurrence times: https://github.com/fullcalendar/fullcalendar/issues/5273
  */
 public class Entry extends JsonItem<String> {
 
@@ -1313,7 +1314,7 @@ public class Entry extends JsonItem<String> {
 
     @Getter
     @RequiredArgsConstructor
-    public static class ClientDateTimeConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalDateTime, T> {
+    public static class ClientDateTimeConverter<T extends JsonItem> implements JsonItemPropertyConverter<LocalDateTime, T> {
 
         @Override
         public JsonValue toJsonValue(LocalDateTime serverValue, T currentInstance) {
@@ -1330,13 +1331,13 @@ public class Entry extends JsonItem<String> {
                 return JsonUtils.parseClientSideDateTime(clientValue.asString());
             }
 
-            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString");
+            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
         }
     }
 
     @Getter
     @RequiredArgsConstructor
-    public static class ClientDateConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalDate, T> {
+    public static class ClientDateConverter<T extends JsonItem> implements JsonItemPropertyConverter<LocalDate, T> {
 
         @Override
         public JsonValue toJsonValue(LocalDate serverValue, T currentInstance) {
@@ -1353,13 +1354,13 @@ public class Entry extends JsonItem<String> {
                 return JsonUtils.parseClientSideDate(clientValue.asString());
             }
 
-            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString");
+            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
         }
     }
 
     @Getter
     @RequiredArgsConstructor
-    public static class ClientTimeConverter<T extends JsonItem> implements JsonItem.JsonPropertyConverter<LocalTime, T> {
+    public static class ClientTimeConverter<T extends JsonItem> implements JsonItemPropertyConverter<LocalTime, T> {
         @Override
         public JsonValue toJsonValue(LocalTime serverValue, T currentInstance) {
             return JsonUtils.toJsonValue(JsonUtils.formatClientSideTimeString(serverValue));
@@ -1375,7 +1376,7 @@ public class Entry extends JsonItem<String> {
                 return JsonUtils.parseClientSideTime(clientValue.asString());
             }
 
-            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString");
+            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
         }
     }
 
@@ -1384,6 +1385,33 @@ public class Entry extends JsonItem<String> {
         public JsonValue toJsonValue(LocalTime serverValue, T currentInstance) {
             // recurring time must not be sent, when all day
             return currentInstance.isAllDay() ? null : super.toJsonValue(serverValue, currentInstance);
+        }
+    }
+
+    private static class DayOfWeekItemConverter implements JsonItemPropertyConverter<Set<DayOfWeek>, Entry> {
+        @Override
+        public JsonValue toJsonValue(Set<DayOfWeek> serverValue, Entry currentInstance) {
+            if (serverValue == null) {
+                return Json.createNull();
+            }
+
+            return JsonUtils.toJsonValue(serverValue
+                    .stream()
+                    .map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())
+                    .collect(Collectors.toList()));
+        }
+
+        @Override
+        public Set<DayOfWeek> ofJsonValue(JsonValue clientValue, Entry currentInstance) {
+            Set<Number> daysOfWeek = JsonUtils.ofJsonValue(clientValue, HashSet.class);
+            return daysOfWeek != null ? daysOfWeek.stream().map(n -> {
+                int dayOfWeek = n.intValue();
+                if (dayOfWeek == 0) {
+                    dayOfWeek = 7;
+                }
+
+                return DayOfWeek.of(dayOfWeek);
+            }).collect(Collectors.toSet()) : null;
         }
     }
 
@@ -1536,8 +1564,7 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key RECURRING_DAYS_OF_WEEKS = JsonItem.Key.builder()
                 .name("daysOfWeek")
-                .collectableItemConverter(dayOfWeek -> JsonUtils.toJsonValue(dayOfWeek == DayOfWeek.SUNDAY ? 0 : ((DayOfWeek) dayOfWeek).getValue()))
-                .jsonArrayToCollectionConversionType(HashSet.class) // for copyFrom()
+                .converter(new DayOfWeekItemConverter())
                 .build();
 
         /**
