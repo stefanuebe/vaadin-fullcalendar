@@ -50,6 +50,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
                 .viewChangeable(true)
                 .dateChangeable(true)
                 .editable(true)
+                .allowAddingRandomItemsInitially(true)
                 .onSamplesCreated(this::onEntriesCreated)
                 .onSamplesRemoved(this::onEntriesRemoved));
 

@@ -17,11 +17,7 @@
 package org.vaadin.stefan.ui.layouts;
 
 import com.github.appreciated.app.layout.component.menu.left.builder.LeftAppMenuBuilder;
-import org.vaadin.stefan.ui.view.demos.backgroundevent.DemoCalendarWithBackgroundEvent;
-import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
 import org.vaadin.stefan.ui.view.demos.customdaygrid.DemoDayGridWeekWithSixWeeks;
-import org.vaadin.stefan.ui.view.demos.customproperties.DemoCustomProperties;
-import org.vaadin.stefan.ui.view.demos.customtimeline.DemoTimelineWith28Days;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderWithEagerLoadingDemo;
@@ -34,15 +30,15 @@ public class MainLayout extends AbstractLayout {
     @Override
     protected void createMenuEntries(LeftAppMenuBuilder menuBuilder) {
         addMenu(menuBuilder, FullDemo.class);
-        addMenu(menuBuilder, BasicDemo.class);
+//        addMenu(menuBuilder, BasicDemo.class);
         addMenu(menuBuilder, InMemoryEntryProviderWithEagerLoadingDemo.class);
         addMenu(menuBuilder, InMemoryEntryProviderWithLazyLoadingDemo.class);
         addMenu(menuBuilder, CallbackEntryProviderDemo.class);
         addMenu(menuBuilder, BackendEntryProviderDemo.class);
         addMenu(menuBuilder, DemoWithTooltip.class);
-        addMenu(menuBuilder, DemoCustomProperties.class);
-        addMenu(menuBuilder, DemoCalendarWithBackgroundEvent.class);
-        addMenu(menuBuilder, DemoTimelineWith28Days.class);
+//        addMenu(menuBuilder, DemoCustomProperties.class); // TODO overhaul the demo first
+//        addMenu(menuBuilder, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
+//        addMenu(menuBuilder, DemoTimelineWith28Days.class); // TODO overhaul the demo first
         addMenu(menuBuilder, DemoDayGridWeekWithSixWeeks.class);
 
 
