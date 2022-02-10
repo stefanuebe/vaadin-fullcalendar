@@ -391,6 +391,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         LocalDateTime end = query.hasKey("end") ? JsonUtils.parseClientSideDateTime(query.getString("end")) : null;
 
         JsonArray array = Json.createArray();
+        System.out.println("Fetched: " + entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH)).map(JsonItem::getId).sorted().collect(Collectors.toList()));
+
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
                 .peek(entry -> {
                     entry.setCalendar(this);

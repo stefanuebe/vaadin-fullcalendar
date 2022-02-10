@@ -161,6 +161,20 @@ public class TestUtils {
         return entry;
     }
 
+    public static Entry createRecEntry(String id, String title, LocalDateTime start, LocalDateTime end, boolean allDay, boolean editable, String color, String description) {
+        Entry entry = new Entry(id);
+
+        entry.setTitle(title);
+        entry.setRecurringStart(start);
+        entry.setRecurringEnd(end);
+        entry.setAllDay(allDay);
+        entry.setEditable(editable);
+        entry.setColor(color);
+        entry.setDescription(description);
+
+        return entry;
+    }
+
     public static String buildListBasedErrorString(List<Entry> entriesMatching, Collection<Entry> entriesFound) {
         StringBuffer sb = new StringBuffer("Searched for:");
         entriesMatching.stream().map(Entry::getTitle).forEach(s -> sb.append(s).append("\n"));

@@ -37,15 +37,15 @@ public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
         getEntryProvider().refreshAll();
     }
 
+    protected void onEntryChanged(Entry entry) {
+        getEntryService().updateEntry(entry);
+        getEntryProvider().refreshItem(entry);
+    }
+
     @Override
     protected void onEntriesRemoved(Collection<Entry> entries) {
         getEntryService().removeEntries(entries);
         getEntryProvider().refreshAll();
-    }
-
-    protected void onEntryChanged(Entry entry) {
-        getEntryService().updateEntry(entry);
-        getEntryProvider().refreshItem(entry);
     }
 
     @Override

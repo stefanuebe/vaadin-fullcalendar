@@ -2,11 +2,12 @@ package org.vaadin.stefan.fullcalendar.dataprovider;
 
 import lombok.*;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -58,11 +59,31 @@ public class EntryQuery {
         }
 
         if (start != null) {
-            stream = stream.filter(e -> e.getEnd() != null && e.getEnd().isAfter(start));
+            stream = stream.filter(e -> {
+                if (e.isRecurring()) {
+                    LocalDateTime recurringEnd = e.getRecurringEnd();
+
+                    // recurring events, that have no end may go indefinitely to the future. So we return
+                    // them always
+                    return recurringEnd == null || recurringEnd.isAfter(start);
+                }
+
+                return e.getEnd() != null && e.getEnd().isAfter(start);
+            });
         }
 
         if (end != null) {
-            stream = stream.filter(e -> e.getStart() != null && e.getStart().isBefore(end));
+            stream = stream.filter(e -> {
+                if (e.isRecurring()) {
+                    LocalDateTime recurringStart = e.getRecurringStart();
+
+                    // recurring events, that have no start may go indefinitely to the past. So we return
+                    // them always
+                    return recurringStart == null || recurringStart.isBefore(end);
+                }
+
+                return e.getStart() != null && e.getStart().isBefore(end);
+            });
         }
 
 
