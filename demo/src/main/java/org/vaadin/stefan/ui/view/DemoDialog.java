@@ -9,9 +9,11 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.dialog.DialogVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -42,11 +44,14 @@ public class DemoDialog extends Dialog {
     private SerializableConsumer<Entry> onDeleteConsumer;
 
     public DemoDialog(FullCalendar calendar, Entry entry, boolean newInstance) {
+
+
         this.dialogEntry = DialogEntry.of(entry, calendar.getTimezone());
 
         setCloseOnEsc(true);
         setCloseOnOutsideClick(true);
 
+        addThemeVariants(DialogVariant.LUMO_NO_PADDING);
         setWidth("500px");
 
         // init fields
@@ -142,6 +147,8 @@ public class DemoDialog extends Dialog {
         buttonCancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         HorizontalLayout buttons = new HorizontalLayout(buttonSave, buttonCancel);
+        buttons.setPadding(true);
+        buttons.getStyle().set("border-top", "1px solid #ddd");
 
         if (!newInstance) {
             Button buttonRemove = new Button("Remove", e -> {
@@ -170,10 +177,17 @@ public class DemoDialog extends Dialog {
 
         mainLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
         mainLayout.setSizeFull();
+        mainLayout.setSpacing(false);
 
-        mainLayout.getElement().getStyle().set("overflow-y", "auto");
-
-        add(mainLayout, buttons);
+        Scroller scroller = new Scroller(mainLayout);
+        VerticalLayout outer = new VerticalLayout();
+        outer.add(scroller, buttons);
+        outer.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
+        outer.setFlexGrow(1, scroller);
+        outer.setSizeFull();
+        outer.setPadding(false);
+        outer.setSpacing(false);
+        add(outer);
 
 
         // additional layout init
