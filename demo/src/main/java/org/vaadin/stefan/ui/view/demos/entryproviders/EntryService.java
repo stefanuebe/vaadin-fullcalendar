@@ -1,8 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 
@@ -13,11 +11,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * Simulates an service, that provides access to some kind of database, storing the entry data.
+ *
  * @author Stefan Uebe
  */
 public class EntryService {
 
-    private final Map<Integer, EntryData> database = new HashMap<>();
+    private final Map<String, EntryData> database = new HashMap<>();
 
     public EntryService() {
     }
@@ -117,7 +117,7 @@ public class EntryService {
     }
 
     public Optional<Entry> getEntry(String id) {
-        return Optional.ofNullable(database.get(getDatabaseId(id))).map(this::toEntry);
+        return Optional.ofNullable(database.get(id)).map(this::toEntry);
     }
 
     public Entry getEntryOrNull(String id) {
@@ -146,25 +146,33 @@ public class EntryService {
         LocalDateTime end = query.getEnd();
 
         if (start != null) {
-            stream = stream.filter(e -> e.getEnd() != null && e.getEnd().isAfter(start));
+            stream = stream.filter(e -> {
+                if (e.isRecurring()) {
+                    LocalDateTime recurringEnd = e.getRecurringEnd();
+
+                    // recurring events, that have no end may go indefinitely to the future. So we return
+                    // them always
+                    return recurringEnd == null || recurringEnd.isAfter(start);
+                }
+
+                return e.getEnd() != null && e.getEnd().isAfter(start);
+            });
         }
 
         if (end != null) {
-            stream = stream.filter(e -> e.getStart() != null && e.getStart().isBefore(end));
+            stream = stream.filter(e -> {
+                if (e.isRecurring()) {
+                    LocalDateTime recurringStart = e.getRecurringStart();
+
+                    // recurring events, that have no start may go indefinitely to the past. So we return
+                    // them always
+                    return recurringStart == null || recurringStart.isBefore(end);
+                }
+
+                return e.getStart() != null && e.getStart().isBefore(end);
+            });
         }
-
         return stream;
-    }
-
-    public Entry toEntry(EntryData entryData) {
-        Entry entry = new Entry("" + entryData.getId());
-        entry.setTitle(entryData.getTitle());
-        entry.setStart(entryData.getStart());
-        entry.setEnd(entryData.getEnd());
-        entry.setAllDay(entryData.isAllDay());
-        entry.setColor(entryData.getColor());
-        entry.setDescription("Description of " + entry.getTitle());
-        return entry;
     }
 
     public void addEntry(Entry entries) {
@@ -172,23 +180,15 @@ public class EntryService {
     }
 
     public void addEntries(Collection<Entry> entries) {
-        entries.forEach(entry -> database.put(getDatabaseId(entry), new EntryData(getDatabaseId(entry), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay(), null)));
+        entries.forEach(entry -> database.put(entry.getId(), toEntryData(entry)));
     }
 
     public void updateEntry(Entry entry) {
-        database.put(getDatabaseId(entry), new EntryData(getDatabaseId(entry), entry.getTitle(), entry.getStart(), entry.getEnd(), entry.isAllDay(), null));
+        database.put(entry.getId(), toEntryData(entry));
     }
 
     public void removeEntry(Entry entry) {
-        database.remove(getDatabaseId(entry));
-    }
-
-    private int getDatabaseId(Entry entry) {
-        return getDatabaseId(entry.getId());
-    }
-
-    private int getDatabaseId(String id) {
-        return Integer.parseInt(id);
+        database.remove(entry.getId());
     }
 
     public void removeAll() {
@@ -196,22 +196,33 @@ public class EntryService {
     }
 
     public void removeEntries(Collection<Entry> entries) {
-        entries.forEach(entry -> database.remove(getDatabaseId(entry)));
+        entries.forEach(entry -> database.remove(entry.getId()));
     }
 
     public Entry createNewInstance() {
         return new Entry(String.valueOf(database.size()));
     }
 
-    @Data
-    @RequiredArgsConstructor
-    @AllArgsConstructor
-    private static class EntryData {
-        private final int id;
-        private String title;
-        private LocalDateTime start;
-        private LocalDateTime end;
-        private boolean allDay;
-        private String color;
+    public Entry toEntry(EntryData entryData) {
+        return entryData.copy(Entry.class);
+    }
+
+    public EntryData toEntryData(Entry entry) {
+        return entry.copy(EntryData.class);
+    }
+
+    /**
+     * Simulates a database entry. We extend from entry here to not need writing everything twice.
+     */
+    @NoArgsConstructor
+    public static class EntryData extends Entry {
+        public EntryData(String id) {
+            super(id);
+        }
+
+        public EntryData(int id) {
+            this(String.valueOf(id));
+        }
+
     }
 }

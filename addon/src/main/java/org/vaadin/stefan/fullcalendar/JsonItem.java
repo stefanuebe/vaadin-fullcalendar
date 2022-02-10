@@ -930,7 +930,9 @@ public abstract class JsonItem<ID_TYPE> {
                 if (initializeUnsetProperties || has(key)) {
                     Object value = get(key);
 
-                    if (value instanceof Iterable) {
+                    if (value instanceof Collection) {
+                        value = copyCollection((Collection) value, initializeUnsetProperties);
+                    } else if (value instanceof Iterable) {
                         value = copyIterable((Iterable) value, initializeUnsetProperties);
                     } else if (value instanceof Object[]) {
                         value = copyObjectArray((Object[]) value, initializeUnsetProperties);
@@ -947,9 +949,31 @@ public abstract class JsonItem<ID_TYPE> {
         }
     }
 
-    protected Iterable<Object> copyIterable(Iterable<Object> iterable, boolean writeUnsetProperties) {
-        System.err.println("Iterable not yet implemented for deep copy");
-        return iterable;
+    @SuppressWarnings("unchecked")
+    protected Collection<Object> copyCollection(Collection<Object> collection, boolean writeUnsetProperties) {
+        try {
+            Collection<Object> instance = collection.getClass().newInstance();
+            for (Object object : collection) {
+                if (object == null) {
+                    instance.add(null);
+                } else if (object.getClass().isEnum()) {
+                    instance.add(object);
+                } else if(object instanceof Cloneable){
+//                    instance.add(((Cloneable)object).clone())
+                    System.out.println("Found cloneable, but yeah, thanks Java, clone is not public");
+                } else if (object instanceof JsonItem) {
+                    JsonItem copy = ((JsonItem<?>) object).copy();
+                    instance.add(copy);
+                } else {
+                    System.err.println("cannot create copy collection item: " + object);
+                }
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return collection;
     }
 
     @SuppressWarnings("unchecked")
@@ -958,7 +982,9 @@ public abstract class JsonItem<ID_TYPE> {
         for (int i = 0; i < array.length; i++) {
             Object value = array[i];
 
-            if (value instanceof Iterable) {
+            if (value instanceof Collection) {
+                value = copyCollection((Collection<Object>) value, writeUnsetProperties);
+            } else if (value instanceof Iterable) {
                 value = copyIterable((Iterable<Object>) value, writeUnsetProperties);
             } else if (value instanceof Object[]) {
                 value = copyObjectArray((Object[]) value, writeUnsetProperties);
@@ -968,6 +994,11 @@ public abstract class JsonItem<ID_TYPE> {
         }
 
         return newArray;
+    }
+
+    protected Iterable<Object> copyIterable(Iterable<Object> iterable, boolean writeUnsetProperties) {
+        System.err.println("Iterable not implemented for deep copy");
+        return iterable;
     }
 
     /**
