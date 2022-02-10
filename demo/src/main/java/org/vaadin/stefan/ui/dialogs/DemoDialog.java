@@ -178,7 +178,7 @@ public class DemoDialog extends Dialog {
             } else {
                 entry.setStartWithOffset(tmpEntry.getStart());
                 entry.setEndWithOffset(tmpEntry.getEnd());
-                entry.setRecurringDaysOfWeek(null); // remove the
+                entry.setRecurringDaysOfWeek(); // remove the DoW
                 entry.clearRecurringStart();
                 entry.clearRecurringEnd();
             }
@@ -220,85 +220,4 @@ public class DemoDialog extends Dialog {
     public void setSaveConsumer(SerializableConsumer<Entry> onSaveConsumer) {
         this.onSaveConsumer = onSaveConsumer;
     }
-
-    //    @Data
-//    private static class DialogEntry {
-//        private String id;
-//        private String title;
-//        private String color;
-//        private String description;
-//        private LocalDateTime start;
-//        private LocalDateTime end;
-//        private boolean allDay;
-//        private boolean recurring;
-//        private Set<DayOfWeek> recurringDays;
-//        private Timezone timezone;
-//        private Entry entry;
-//
-//        public static DialogEntry of(Entry entry, Timezone timezone) {
-//            DialogEntry dialogEntry = new DialogEntry();
-//
-//            dialogEntry.setTimezone(timezone);
-//            dialogEntry.setEntry(entry);
-//
-//            dialogEntry.setTitle(entry.getTitle());
-//            dialogEntry.setColor(entry.getColor());
-//            dialogEntry.setDescription(entry.getDescription());
-//            dialogEntry.setAllDay(entry.isAllDay());
-//
-//            boolean recurring = entry.isRecurring();
-//            dialogEntry.setRecurring(recurring);
-//
-//            if (recurring) {
-//                dialogEntry.setRecurringDays(entry.getRecurringDaysOfWeek());
-//
-//                LocalDate startDate = entry.getRecurringStartDate();
-//                LocalDate endDate = entry.getRecurringEndDate();
-//
-//                dialogEntry.setStart(entry.isAllDay() ? startDate.atStartOfDay() : startDate.atTime(entry.getRecurringStartTime()));
-//                dialogEntry.setEnd(entry.isAllDay() ? endDate.atStartOfDay() : endDate.atTime(entry.getRecurringEndTime()));
-//            } else {
-//                dialogEntry.setStart(entry.getStartWithOffset(timezone));
-//                dialogEntry.setEnd(entry.getEndWithOffset(timezone));
-//            }
-//
-//            return dialogEntry;
-//        }
-//
-//        /**
-//         * Updates the stored entry instance and returns it after updating.
-//         *
-//         * @return entry instnace
-//         */
-//        private Entry updateEntry() {
-//            entry.setTitle(title);
-//            entry.setColor(color);
-//            entry.setDescription(description);
-//            entry.setAllDay(allDay);
-//
-//            if (recurring) {
-//                entry.setRecurringDaysOfWeek(getRecurringDays());
-//
-//                entry.clearStart();
-//                entry.clearEnd();
-//
-//                entry.setRecurringStartDate(start.toLocalDate());
-//                entry.setRecurringStartTime(allDay ? null : start.toLocalTime());
-//
-//                entry.setRecurringEndDate(end.toLocalDate());
-//                entry.setRecurringEndTime(allDay ? null : end.toLocalTime());
-//            } else {
-//                entry.setStartWithOffset(start, timezone);
-//                entry.setEndWithOffset(end, timezone);
-//
-//                entry.setRecurringStartDate(null);
-//                entry.setRecurringStartTime(null);
-//                entry.setRecurringEndDate(null);
-//                entry.setRecurringEndTime(null);
-//                entry.setRecurringDaysOfWeek(null);
-//            }
-//
-//            return entry;
-//        }
-//    }
 }
