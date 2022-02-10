@@ -37,6 +37,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.dom.ThemeList;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.theme.Theme;
@@ -51,13 +53,13 @@ import static com.github.appreciated.app.layout.entity.Section.FOOTER;
 import static com.github.appreciated.app.layout.entity.Section.HEADER;
 
 @Push
-@PageTitle("FullCalendar Demo")
+@PageTitle("::FullCalendar Demo::")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 @Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
-public abstract class AbstractLayout extends AppLayoutRouterLayout {
-    public static final String ADDON_VERSION = "4.1.0-SNAPSHOT";
+public abstract class AbstractLayout extends AppLayoutRouterLayout implements AfterNavigationObserver {
+    public static final String ADDON_VERSION = "4.1.0";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")
@@ -148,5 +150,12 @@ public abstract class AbstractLayout extends AppLayoutRouterLayout {
     }
 
     protected abstract void createMenuEntries(LeftAppMenuBuilder menuBuilder);
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        getUI().ifPresent(ui -> {
+            ui.getPage().setTitle("::: FullCalendar Demo :::");
+        });
+    }
 }
 

@@ -39,7 +39,6 @@ import java.util.List;
 @Route(value = "", layout = MainLayout.class)
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
-@PageTitle("Playground")
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
 public class FullDemo extends AbstractCalendarView {
 

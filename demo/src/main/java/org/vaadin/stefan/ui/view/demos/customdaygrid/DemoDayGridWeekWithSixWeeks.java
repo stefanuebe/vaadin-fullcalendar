@@ -17,7 +17,6 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
  * Shows the integration of a customized calendar view.
  */
 @Route(value = "demodaygridsixweeks", layout = MainLayout.class)
-@PageTitle("FC with Six Weeks Grid")
 @MenuItem(label = "Six Weeks Grid")
 public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
     private static final long serialVersionUID = 1L;
