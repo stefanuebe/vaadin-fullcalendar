@@ -53,7 +53,6 @@ import static com.github.appreciated.app.layout.entity.Section.FOOTER;
 import static com.github.appreciated.app.layout.entity.Section.HEADER;
 
 @Push
-@PageTitle("::FullCalendar Demo::")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 @Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @CssImport("./app-layout-styles.css")
