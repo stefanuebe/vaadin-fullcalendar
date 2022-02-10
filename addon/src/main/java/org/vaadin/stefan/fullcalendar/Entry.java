@@ -932,12 +932,25 @@ public class Entry extends JsonItem<String> {
     /**
      * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
      * as recurring. Pass null or an empty set may remove the recurring.
-     * @see #isRecurring()
+     *
      * @param daysOfWeek day of week
+     * @see #isRecurring()
      */
     public void setRecurringDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
         set(EntryKey.RECURRING_DAYS_OF_WEEKS, daysOfWeek);
     }
+
+    /**
+     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
+     * as recurring. Pass null or an empty set may remove the recurring.
+     *
+     * @param daysOfWeek day of week
+     * @see #isRecurring()
+     */
+    public void setRecurringDaysOfWeek(DayOfWeek... daysOfWeek) {
+        setRecurringDaysOfWeek(daysOfWeek.length == 0 ? null : new HashSet<>(Arrays.asList(daysOfWeek)));
+    }
+
 
 //    /**
 //     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
@@ -978,10 +991,20 @@ public class Entry extends JsonItem<String> {
      * Sets the given local date as recurring start. Does not change the start time.
      *
      * @param recurringStart start
-     * @see #setRecurringStart(LocalDate)
      */
     public void setRecurringStartDate(LocalDate recurringStart) {
         set(EntryKey.RECURRING_START_DATE, recurringStart);
+    }
+
+    /**
+     * Sets the given local date as recurring start.
+     *
+     * @param recurringStart start
+     * @deprecated use {@link #setRecurringStartDate(LocalDate)}
+     */
+    @Deprecated
+    public void setRecurringStart(LocalDate recurringStart) {
+        setRecurringStartDate(recurringStart);
     }
 
     /**
@@ -1028,12 +1051,24 @@ public class Entry extends JsonItem<String> {
         set(EntryKey.RECURRING_END_DATE, recurringEnd);
     }
 
+
+    /**
+     * Sets the given local date as recurring end.
+     *
+     * @param recurringEnd end
+     * @deprecated use {@link #setRecurringEndDate(LocalDate)}
+     */
+    @Deprecated
+    public void setRecurringEnd(LocalDate recurringEnd) {
+        setRecurringEndDate(recurringEnd);
+    }
+
     /**
      * The start time of recurrence per day. When not defined, recurrence will extend to the end of day for
      * a recurring entry.
      *
-     * @see #isRecurring()
      * @return start time of recurrence
+     * @see #isRecurring()
      */
     public LocalTime getRecurringStartTime() {
         return get(EntryKey.RECURRING_START_TIME);
@@ -1090,67 +1125,25 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Sets the given local date as recurring start. Will be set at the start of day.
-     *
-     * @param recurringStart start
-     */
-    public void setRecurringStart(LocalDate recurringStart) {
-        setRecurringStart(recurringStart != null ? recurringStart.atStartOfDay() : null);
-    }
-
-    /**
      * Sets the recurring start as local date time. Shortcut for calling {@link #setRecurringStartDate(LocalDate)}
      * and {@link #setRecurringStartTime(LocalTime)}.
-     *
-     * @param recurringStart recurring start
-     */
-    public void setRecurringStart(Instant recurringStart) {
-        setRecurringStart(recurringStart != null ? LocalDateTime.ofInstant(recurringStart, Timezone.ZONE_ID_UTC) : null);
-    }
-
-    /**
-     * Sets the recurring start as local date time. Shortcut for calling {@link #setRecurringStartDate(LocalDate)}
-     * and {@link #setRecurringStartTime(LocalTime)}.
+     * <p></p>
+     * <b>Please note</b>, that despite being a LocalDateTime the date and time must not necessarily be related
+     * to each other due to the nature of a recurring entry. It is just a shortcut method.
      *
      * @param recurringStart recurring start
      */
     public void setRecurringStart(LocalDateTime recurringStart) {
         setRecurringStartDate(recurringStart != null ? recurringStart.toLocalDate() : null);
         setRecurringStartTime(recurringStart != null ? recurringStart.toLocalTime() : null);
-
-    }
-
-    /**
-     * Clears the current recurring start . Convenience method to prevent unnecessary casting when using
-     * setRecurringStart(null).
-     */
-    public void clearRecurringStart() {
-        setRecurringStart((LocalDateTime) null);
-    }
-
-    /**
-     * Sets the given local date as recurring end. Will be set at the start of day.
-     *
-     * @param recurringEnd end
-     * @deprecated use {@link #setRecurringEndDate(LocalDate)}
-     */
-    public void setRecurringEnd(LocalDate recurringEnd) {
-        setRecurringEnd(recurringEnd != null ? recurringEnd.atStartOfDay() : null);
     }
 
     /**
      * Sets the recurring end as local date time. Shortcut for calling {@link #setRecurringEndDate(LocalDate)}
      * and {@link #setRecurringEndTime(LocalTime)}.
-     *
-     * @param recurringEnd recurring end
-     */
-    public void setRecurringEnd(Instant recurringEnd) {
-        setRecurringEnd(recurringEnd != null ? LocalDateTime.ofInstant(recurringEnd, Timezone.ZONE_ID_UTC) : null);
-    }
-
-    /**
-     * Sets the recurring end as local date time. Shortcut for calling {@link #setRecurringEndDate(LocalDate)}
-     * and {@link #setRecurringEndTime(LocalTime)}.
+     * <p></p>
+     * <b>Please note</b>, that despite being a LocalDateTime the date and time must not necessarily be related
+     * to each other due to the nature of a recurring entry. It is just a shortcut method.
      *
      * @param recurringEnd recurring end
      */
@@ -1160,11 +1153,19 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Clears the current recurring end . Convenience method to prevent unnecessary casting when using
-     * setRecurringEnd(null).
+     * Clears the current recurring start date and time.
+     */
+    public void clearRecurringStart() {
+        setRecurringStartDate(null);
+        setRecurringStartTime(null);
+    }
+
+    /**
+     * Clears the current recurring end date and time.
      */
     public void clearRecurringEnd() {
-        setRecurringEnd((LocalDateTime) null);
+        setRecurringEndDate(null);
+        setRecurringEndTime(null);
     }
 
     /**

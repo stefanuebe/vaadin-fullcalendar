@@ -27,6 +27,8 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     private final CalendarViewToolbar toolbar;
     private final FullCalendar calendar;
 
+    // TODO add scheduler support
+
     public AbstractCalendarView() {
         calendar = createCalendar(createDefaultInitialOptions());
 

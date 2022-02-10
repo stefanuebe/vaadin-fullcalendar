@@ -19,10 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.util.EntryManager;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -55,6 +52,7 @@ public class CalendarViewToolbar extends MenuBar {
 
     @Builder
     private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, boolean settingsAvailable, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customCalendarViews) {
+
         this.calendar = calendar;
         this.settingsAvailable = settingsAvailable;
         this.onSamplesCreated = onSamplesCreated;
@@ -115,6 +113,7 @@ public class CalendarViewToolbar extends MenuBar {
         SubMenu calendarItems = addItem("Entries").getSubMenu();
 
         MenuItem addDailyItems;
+        MenuItem addRecurringItems;
         MenuItem addSingleItem;
         MenuItem addThousandItems;
         if (onSamplesCreated != null) {
@@ -125,6 +124,33 @@ public class CalendarViewToolbar extends MenuBar {
                 entry.setEnd(LocalDate.now().atTime(11, 0));
                 entry.setTitle("Single entry");
                 onSamplesCreated.accept(Collections.singletonList(entry));
+            });
+
+            addRecurringItems = calendarItems.addItem("Add recurring entries", event -> {
+                event.getSource().setEnabled(false);
+                Optional<UI> optionalUI = getUI();
+                optionalUI.ifPresent(ui -> {
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        LocalDate endDate = LocalDate.now().withDayOfYear(1).plusYears(1);
+
+                        Entry entry = new Entry();
+                        entry.setTitle("Weekly");
+                        entry.setRecurringStartDate(LocalDate.now().withDayOfYear(1));
+                        entry.setRecurringStartTime(LocalTime.of(10, 0));
+                        entry.setRecurringEndDate(entry.getRecurringStartDate().plusYears(1));
+                        entry.setRecurringEndTime(entry.getRecurringStartTime().plusMinutes(60));
+                        entry.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
+                        entry.setDescription("Our weekly meeting at 10");
+                        entry.setColor("lightblue");
+                        entry.setBorderColor("blue");
+                        entry.setCalendar(calendar);
+
+                        ui.access(() -> {
+                            onSamplesCreated.accept(Collections.singletonList(entry));
+                            Notification.show("Added a recurring entry for this year, each monday at 10:00 UTC");
+                        });
+                    });
+                });
             });
 
             addDailyItems = calendarItems.addItem("Add sample entries", event -> {
@@ -179,6 +205,7 @@ public class CalendarViewToolbar extends MenuBar {
             addSingleItem = null;
             addDailyItems = null;
             addThousandItems = null;
+            addRecurringItems = null;
         }
 
         if (onSamplesRemoved != null) {
@@ -186,6 +213,9 @@ public class CalendarViewToolbar extends MenuBar {
                 onSamplesRemoved.accept(calendar.getEntryProvider().fetchAll().collect(Collectors.toSet()));
                 if (addDailyItems != null) {
                     addDailyItems.setEnabled(true);
+                }
+                if (addRecurringItems != null) {
+                    addRecurringItems.setEnabled(true);
                 }
                 if (addThousandItems != null) {
                     addThousandItems.setEnabled(true);
@@ -340,5 +370,15 @@ public class CalendarViewToolbar extends MenuBar {
         }
 
         intervalLabel.setText(text);
+    }
+
+    /**
+     * Sets the timezone in the timezone selector. May lead to client side updates.
+     * @param timezone timezone
+     */
+    public void setTimezone(Timezone timezone) {
+        if (timezoneSelector != null) {
+            timezoneSelector.setValue(timezone);
+        }
     }
 }
