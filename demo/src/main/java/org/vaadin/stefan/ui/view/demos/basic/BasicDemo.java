@@ -12,29 +12,29 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
 import java.time.DayOfWeek;
 
-@Route(value = "basic-demo", layout = MainLayout.class)
-@RouteAlias(value = "", layout = MainLayout.class)
-@PageTitle("Basic FullCalendar Demo")
-@MenuItem(label = "Basic Demo")
-public class BasicDemo extends AbstractCalendarView {
-
-    @Override
-    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
-        EntryService simpleInstance = EntryService.createSimpleInstance();
-
-        FullCalendar calendar = FullCalendarBuilder.create()
-                .withInitialOptions(defaultInitialOptions)
-                .withInitialEntries(simpleInstance.getEntries())
-                .withEntryLimit(3)
-                .build();
-
-        calendar.setBusinessHours(new BusinessHours(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
-
-        return calendar;
-    }
-
-    @Override
-    protected String createDescription() {
-        return "A very basic demo showing the basic interaction events with the calendar and allow basic modification of entries.";
-    }
-}
+// not sure if we still need the basic demo now with the cleaned up full demo
+//@Route(value = "basic-demo", layout = MainLayout.class)
+//@PageTitle("Basic FullCalendar Demo")
+//@MenuItem(label = "Basic Demo")
+//public class BasicDemo extends AbstractCalendarView {
+//
+//    @Override
+//    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
+//        EntryService simpleInstance = EntryService.createSimpleInstance();
+//
+//        FullCalendar calendar = FullCalendarBuilder.create()
+//                .withInitialOptions(defaultInitialOptions)
+//                .withInitialEntries(simpleInstance.getEntries())
+//                .withEntryLimit(3)
+//                .build();
+//
+//        calendar.setBusinessHours(new BusinessHours(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
+//
+//        return calendar;
+//    }
+//
+//    @Override
+//    protected String createDescription() {
+//        return "A reduced version of the playground demo, showing the basic interaction events with the calendar and allow basic modification of entries.";
+//    }
+//}

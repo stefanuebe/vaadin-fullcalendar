@@ -17,7 +17,7 @@ import com.vaadin.flow.component.select.Select;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.util.EntryManager;
+import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -41,6 +41,7 @@ public class CalendarViewToolbar extends MenuBar {
     private final boolean viewChangeable;
     private final boolean dateChangeable;
     private final boolean settingsAvailable;
+    private final boolean allowAddingRandomItemsInitially;
     private final Consumer<Collection<Entry>> onSamplesCreated;
     private final Consumer<Collection<Entry>> onSamplesRemoved;
     private final List<CalendarView> customCalendarViews;
@@ -51,10 +52,11 @@ public class CalendarViewToolbar extends MenuBar {
     private HasComponents calendarParent;
 
     @Builder
-    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, boolean settingsAvailable, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customCalendarViews) {
+    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, boolean settingsAvailable, boolean allowAddingRandomItemsInitially, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customCalendarViews) {
 
         this.calendar = calendar;
         this.settingsAvailable = settingsAvailable;
+        this.allowAddingRandomItemsInitially = allowAddingRandomItemsInitially;
         this.onSamplesCreated = onSamplesCreated;
         this.onSamplesRemoved = onSamplesRemoved;
         this.customCalendarViews = customCalendarViews;
@@ -112,7 +114,7 @@ public class CalendarViewToolbar extends MenuBar {
     protected SubMenu initEditItems() {
         SubMenu calendarItems = addItem("Entries").getSubMenu();
 
-        MenuItem addDailyItems;
+        MenuItem addRandomItems;
         MenuItem addRecurringItems;
         MenuItem addSingleItem;
         MenuItem addThousandItems;
@@ -124,6 +126,7 @@ public class CalendarViewToolbar extends MenuBar {
                 entry.setEnd(LocalDate.now().atTime(11, 0));
                 entry.setTitle("Single entry");
                 onSamplesCreated.accept(Collections.singletonList(entry));
+                Notification.show("Added a single entry for today");
             });
 
             addRecurringItems = calendarItems.addItem("Add recurring entries", event -> {
@@ -153,28 +156,22 @@ public class CalendarViewToolbar extends MenuBar {
                 });
             });
 
-            addDailyItems = calendarItems.addItem("Add sample entries", event -> {
+            addRandomItems = calendarItems.addItem("Add random entries", event -> {
                 event.getSource().setEnabled(false);
                 Optional<UI> optionalUI = getUI();
                 optionalUI.ifPresent(ui -> {
                     Executors.newSingleThreadExecutor().execute(() -> {
-                        LocalDateTime max = LocalDate.of(2022, Month.DECEMBER, 31).atStartOfDay();
-                        LocalDateTime date = LocalDate.now().atTime(10, 0);
-
-                        Set<Entry> entries = new HashSet<>();
-                        while (!date.isAfter(max)) {
-                            Entry entry = new Entry();
-                            EntryManager.setValues(calendar, entry, "DAILY", date, 60, ChronoUnit.MINUTES, null);
-                            entries.add(entry);
-                            date = date.plusDays(1);
-                        }
+                        List<Entry> entries = EntryService.createRandomInstance().getEntries();
                         ui.access(() -> {
                             onSamplesCreated.accept(entries);
-                            Notification.show("Added " + entries.size() + " entries, one per day at 10:00 UTC");
+                            Notification.show("Added " + entries.size() + " random entries");
                         });
                     });
                 });
             });
+            if (!allowAddingRandomItemsInitially) {
+                addRandomItems.setEnabled(false);
+            }
 
             addThousandItems = calendarItems.addItem("Add 1k entries", event -> {
                 MenuItem source = event.getSource();
@@ -203,7 +200,7 @@ public class CalendarViewToolbar extends MenuBar {
 
         } else {
             addSingleItem = null;
-            addDailyItems = null;
+            addRandomItems = null;
             addThousandItems = null;
             addRecurringItems = null;
         }
@@ -211,8 +208,8 @@ public class CalendarViewToolbar extends MenuBar {
         if (onSamplesRemoved != null) {
             calendarItems.addItem("Remove all entries", e -> {
                 onSamplesRemoved.accept(calendar.getEntryProvider().fetchAll().collect(Collectors.toSet()));
-                if (addDailyItems != null) {
-                    addDailyItems.setEnabled(true);
+                if (addRandomItems != null) {
+                    addRandomItems.setEnabled(true);
                 }
                 if (addRecurringItems != null) {
                     addRecurringItems.setEnabled(true);
@@ -255,7 +252,15 @@ public class CalendarViewToolbar extends MenuBar {
             viewSelector = new Select<>();
             viewSelector.setLabel("View");
             viewSelector.setItems(calendarViews);
-            viewSelector.setItemLabelGenerator(item -> StringUtils.capitalize(String.join(" ", StringUtils.splitByCharacterTypeCamelCase(item.getClientSideValue()))));
+            CalendarView finalInitialView1 = initialView;
+            viewSelector.setItemLabelGenerator(item -> {
+                String name = StringUtils.capitalize(String.join(" ", StringUtils.splitByCharacterTypeCamelCase(item.getClientSideValue())));
+                if (item == finalInitialView1) {
+                    name += " (default)";
+                }
+
+                return name;
+            });
             viewSelector.setValue(initialView);
             viewSelector.setWidthFull();
             CalendarView finalInitialView = initialView;
@@ -299,14 +304,14 @@ public class CalendarViewToolbar extends MenuBar {
 
         subMenu.add(localeSelector, timezoneSelector);
 
-        subMenu.addItem("Detach/Attach Calendar", event -> {
-            if (calendar.getParent().isPresent()) {
-                calendarParent = (HasComponents) calendar.getParent().get();
-                calendarParent.remove(calendar);
-            } else if (calendarParent != null) {
-                calendarParent.add(calendar);
-            }
-        });
+//        subMenu.addItem("Detach/Attach Calendar", event -> {
+//            if (calendar.getParent().isPresent()) {
+//                calendarParent = (HasComponents) calendar.getParent().get();
+//                calendarParent.remove(calendar);
+//            } else if (calendarParent != null) {
+//                calendarParent.add(calendar);
+//            }
+//        });
 
         return subMenu;
     }

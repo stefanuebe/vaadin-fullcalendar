@@ -70,7 +70,6 @@ public class Delta {
      */
     @Builder
     public Delta(int years, int months, int days, int hours, int minutes, int seconds) {
-
         this.years = years;
         this.months = months;
         this.days = days;
@@ -112,6 +111,17 @@ public class Delta {
         int minutes = toInt(jsonObject, "minutes");
         int seconds = toInt(jsonObject, "seconds");
         return new Delta(years, months, days, hours, minutes, seconds);
+    }
+
+    public static Delta fromLocalDates(LocalDateTime deltaFrom, LocalDateTime deltaTo) {
+        return new Delta(
+                deltaTo.getYear() - deltaFrom.getYear(),
+                deltaTo.getMonthValue() - deltaFrom.getMonthValue(),
+                deltaTo.getDayOfMonth() - deltaFrom.getDayOfMonth(),
+                deltaTo.getHour() - deltaFrom.getHour(),
+                deltaTo.getMinute() - deltaFrom.getMinute(),
+                deltaTo.getSecond()- deltaFrom.getSecond()
+                );
     }
 
     private static int toInt(JsonObject delta, String key) {

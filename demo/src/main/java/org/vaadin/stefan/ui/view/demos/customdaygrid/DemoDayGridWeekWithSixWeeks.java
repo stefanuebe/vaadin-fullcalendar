@@ -37,6 +37,7 @@ public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
         FullCalendar calendar = FullCalendarBuilder.create()
                 .withInitialOptions(defaultInitialOptions)
                 .withInitialEntries(EntryService.createRandomInstance().getEntries())
+                .withEntryLimit(3)
                 .build();
 
         calendar.changeView(CUSTOM_VIEW);
@@ -45,13 +46,16 @@ public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
 
     @Override
     protected CalendarViewToolbar createToolbar(CalendarViewToolbar.CalendarViewToolbarBuilder toolbarBuilder) {
-        toolbarBuilder.customCalendarViews(Collections.singletonList(CUSTOM_VIEW));
-        return super.createToolbar(toolbarBuilder);
+        return super.createToolbar(toolbarBuilder
+                .customCalendarViews(Collections.singletonList(CUSTOM_VIEW))
+                .allowAddingRandomItemsInitially(false)
+        );
     }
 
     @Override
     protected String createDescription() {
-        return "This demo shows the integration of a customized calendar view using initial options. For additional details " +
+        return "This demo shows the integration of a customized calendar view using initial options. In this case, the monthly view is" +
+                "fixed on showing six weeks per month. For additional details " +
                 "on how to create custom views, please visit: https://fullcalendar.io/docs/custom-views";
     }
 }

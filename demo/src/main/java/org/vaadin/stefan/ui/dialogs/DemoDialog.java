@@ -17,9 +17,12 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.function.SerializableConsumer;
 import lombok.Setter;
 import org.vaadin.gatanaso.MultiselectComboBox;
+import org.vaadin.stefan.fullcalendar.Delta;
 import org.vaadin.stefan.fullcalendar.Entry;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.TextStyle;
 
 public class DemoDialog extends Dialog {
@@ -42,9 +45,11 @@ public class DemoDialog extends Dialog {
     private final Binder<Entry> binder;
     private boolean recurring;
     private final Entry entry;
+    private boolean initTimeWhenActivated;
 
     public DemoDialog(Entry entry, boolean newInstance) {
         this.entry = entry;
+        this.initTimeWhenActivated = entry.isAllDay();
 
         // tmp entry is a copy. we will use its start and end to represent either the start/end or the recurring start/end
         this.tmpEntry = entry.copy();
@@ -76,9 +81,9 @@ public class DemoDialog extends Dialog {
         fieldStart = new CustomDateTimePicker("Start");
         fieldEnd = new CustomDateTimePicker("End");
 
-        boolean allDay = this.tmpEntry.isAllDay();
-        fieldStart.setDateOnly(allDay);
-        fieldEnd.setDateOnly(allDay);
+//        boolean allDay = this.tmpEntry.isAllDay();
+//        fieldStart.setDateOnly(allDay);
+//        fieldEnd.setDateOnly(allDay);
 
         Span infoEnd = new Span("End is always exclusive, e.g. for a 1 day event you need to set for instance 4th of May as start and 5th of May as end.");
         infoEnd.getStyle().set("font-size", "0.8em");
@@ -99,6 +104,12 @@ public class DemoDialog extends Dialog {
         fieldAllDay.addValueChangeListener(event -> {
             fieldStart.setDateOnly(event.getValue());
             fieldEnd.setDateOnly(event.getValue());
+
+            if (initTimeWhenActivated && !event.getValue()) {
+                initTimeWhenActivated = false; // init the time once with "now"
+                fieldStart.setValue(fieldStart.getValue().toLocalDate().atTime(LocalTime.now()));
+                fieldEnd.setValue(fieldEnd.getValue().toLocalDate().atTime(LocalTime.now().plusHours(1)));
+            }
         });
 
         fieldRecurring.addValueChangeListener(event -> onRecurringChanged(event.getValue()));
@@ -122,6 +133,18 @@ public class DemoDialog extends Dialog {
 
         binder.setBean(this.tmpEntry);
 
+        fieldStart.addValueChangeListener(event -> {
+            LocalDateTime oldStart = event.getOldValue();
+            LocalDateTime newStart = event.getValue();
+            LocalDateTime end = fieldEnd.getValue();
+
+
+            if (oldStart != null && newStart != null && end != null) {
+                Delta delta = Delta.fromLocalDates(oldStart, newStart);
+                end = delta.applyOn(end);
+                fieldEnd.setValue(end);
+            }
+        });
 
         // init buttons
         Button buttonSave = new Button("Save");

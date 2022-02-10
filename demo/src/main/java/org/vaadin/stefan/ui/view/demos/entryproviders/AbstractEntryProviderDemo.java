@@ -8,6 +8,7 @@ import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
+import org.vaadin.stefan.ui.view.CalendarViewToolbar;
 
 import java.util.Collections;
 
@@ -37,6 +38,11 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
                 .withInitialOptions(defaultInitialOptions)
                 .withEntryLimit(3)
                 .build();
+    }
+
+    @Override
+    protected CalendarViewToolbar createToolbar(CalendarViewToolbar.CalendarViewToolbarBuilder toolbarBuilder) {
+        return super.createToolbar(toolbarBuilder.allowAddingRandomItemsInitially(false));
     }
 
     /**

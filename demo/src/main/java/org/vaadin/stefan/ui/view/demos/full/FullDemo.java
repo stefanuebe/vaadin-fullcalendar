@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-@Route(value = "playground", layout = MainLayout.class)
+@Route(value = "", layout = MainLayout.class)
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
 @PageTitle("Playground")
@@ -57,7 +57,6 @@ public class FullDemo extends AbstractCalendarView {
         ((FullCalendarScheduler) calendar).setSlotMinWidth("100");
         ((FullCalendarScheduler) calendar).setResourcesInitiallyExpanded(false);
 
-        calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
@@ -202,6 +201,12 @@ public class FullDemo extends AbstractCalendarView {
         EntryManager.createTimedBackgroundEntry(calendar, now.withDayOfMonth(20).atTime(11, 0), 150, "#ff0000");
 
         EntryManager.createRecurringEvents(calendar);
+    }
+
+    @Override
+    protected String createDescription() {
+        return "Welcome to the FullCalendar demo playground. In this instance you see a basic set of different calendar entry types to play around with. " +
+                "You may also create new ones or delete them. Have fun :)";
     }
 
     @Override
