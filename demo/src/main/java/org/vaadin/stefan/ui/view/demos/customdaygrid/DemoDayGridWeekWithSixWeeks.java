@@ -33,8 +33,8 @@ public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
         // extend the initial options with the necessary client side settings to add the custom view
         CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
 
-        FullCalendar calendar = FullCalendarBuilder.create()
-                .withInitialOptions(defaultInitialOptions)
+FullCalendar calendar = FullCalendarBuilder.create()
+        .withInitialOptions(defaultInitialOptions)
                 .withInitialEntries(EntryService.createRandomInstance().getEntries())
                 .withEntryLimit(3)
                 .build();

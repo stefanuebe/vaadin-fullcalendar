@@ -22,9 +22,7 @@ import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 
 /**
  * Occurs when the user selects one or multiple timeslots on the calendar. The selected timeslots may contain
@@ -43,7 +41,16 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      */
     private final boolean allDay;
 
+    /**
+     * Returns the start of the event as local date time. Represents the UTC date time this event starts, which
+     * means the time is the same as when calling {@link #getStartAsInstant()}.
+     */
     private final LocalDateTime start;
+
+    /**
+     * Returns the end of the event as local date time. Represents the UTC date time this event ends, which
+     * means the time is the same as when calling {@link #getEndAsInstant()}.
+     */
     private final LocalDateTime end;
 
     /**
@@ -64,24 +71,59 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
         this.end = JsonUtils.parseClientSideDateTime(end);
     }
 
+    /**
+     * Returns the entry's start as an {@link Instant}. The contained time is the same as when calling
+     * {@link #getStart()}.
+     *
+     * @return start as Instant
+     */
     public Instant getStartAsInstant() {
         return Timezone.UTC.convertToInstant(start);
     }
+
+    /**
+     * Returns the entry's end as an {@link Instant}. The contained time is the same as when calling
+     * {@link #getEnd()}.
+     *
+     * @return end as Instant
+     */
     public Instant getEndAsInstant() {
         return Timezone.UTC.convertToInstant(end);
     }
 
-    public Instant getStartWithOffset() {
-        return getSource().getTimezone().convertToInstant(start);
-    }
-    public Instant getEndWithOffset() {
-        return getSource().getTimezone().convertToInstant(end);
+    /**
+     * Returns the start time as a local date time after applying the timezone's offset to
+     * the utc based start date ({@link #getStart()}). By default the timezone is
+     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * <p/>
+     * @return start with offset
+     */
+    public LocalDateTime getStartWithOffset() {
+        return getSource().getTimezone().applyTimezoneOffset(start);
     }
 
+    /**
+     * Returns the end time as a local date time after applying the timezone's offset to
+     * the utc based end date ({@link #getEnd()}). By default the timezone is
+     * the calendar's timezone or, if no calendar is set yet, UTC.
+     * @return end with offset
+     */
+    public LocalDateTime getEndWithOffset() {
+        return getSource().getTimezone().applyTimezoneOffset(end);
+    }
+
+    /**
+     * Returns the start of the event as local date.
+     * @return start as local date
+     */
     public LocalDate getStartDate() {
         return start.toLocalDate();
     }
 
+    /**
+     * Returns the end of the event as local date.
+     * @return end as local date
+     */
     public LocalDate getEndDate() {
         return end.toLocalDate();
     }
