@@ -46,7 +46,7 @@ public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
     @Override
     protected CalendarViewToolbar createToolbar(CalendarViewToolbar.CalendarViewToolbarBuilder toolbarBuilder) {
         return super.createToolbar(toolbarBuilder
-                .customCalendarViews(Collections.singletonList(CUSTOM_VIEW))
+                .customViews(Collections.singletonList(CUSTOM_VIEW))
                 .allowAddingRandomItemsInitially(false)
         );
     }
