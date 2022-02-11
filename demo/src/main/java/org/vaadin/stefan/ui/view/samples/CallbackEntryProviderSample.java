@@ -27,7 +27,7 @@ public class CallbackEntryProviderSample extends AbstractSample {
         // CRUD operations
         // to add
         Entry entry = new Entry();          // ... plus some init
-        backend.addEntry(entry);            // register in your backend
+        backend.addEntries(entry);            // register in your backend
         entryProvider.refreshAll();         // call refresh to inform the client about the data change and trigger a refetch
 
         // after some change
@@ -35,7 +35,7 @@ public class CallbackEntryProviderSample extends AbstractSample {
         entryProvider.refreshItem(entry);   // call refresh to inform the client about the data change and trigger a refetch
 
         // to remove
-        backend.removeEntry(entry);         // remove from your backend
+        backend.removeEntries(entry);         // remove from your backend
         entryProvider.refreshAll();   // call refresh to inform the client about the data change and trigger a refetch
     }
 }

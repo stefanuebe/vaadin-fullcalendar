@@ -34,6 +34,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.dom.ThemeList;
@@ -75,6 +76,7 @@ public abstract class AbstractLayout extends AppLayoutRouterLayout implements Af
                 .withAppMenu(appMenu)
                 .build());
     }
+
 
     protected void selectCurrentLocale() {
         Locale locale = (Locale) VaadinRequest.getCurrent().getWrappedSession().getAttribute("locale");
@@ -152,9 +154,7 @@ public abstract class AbstractLayout extends AppLayoutRouterLayout implements Af
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        getUI().ifPresent(ui -> {
-            ui.getPage().setTitle("::: FullCalendar Demo :::");
-        });
+        UI.getCurrent().getPage().setTitle("::: FullCalendar Demo :::");
     }
 }
 

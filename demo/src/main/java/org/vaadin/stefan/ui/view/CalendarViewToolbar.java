@@ -32,7 +32,7 @@ import java.util.stream.IntStream;
  * @author Stefan Uebe
  */
 public class CalendarViewToolbar extends MenuBar {
-    public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
+    public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, new Timezone(ZoneId.of("Europe/Berlin")), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
 
     private final FullCalendar calendar;
     private final boolean allTimezones;
