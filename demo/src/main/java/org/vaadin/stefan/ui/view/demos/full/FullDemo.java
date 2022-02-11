@@ -30,6 +30,7 @@ import org.vaadin.stefan.util.ResourceManager;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,6 +78,12 @@ public class FullDemo extends AbstractCalendarView {
         });
 
         ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
+            System.out.println( "ZoneId: " + event.getSource().getTimezone().getZoneId() );
+            LocalDateTime startDate = event.getStart();
+            System.out.println( "getStart(): " + event.getStart() );
+            System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
+
+
             ResourceEntry entry = new ResourceEntry();
 
             entry.setStart(event.getStart());
