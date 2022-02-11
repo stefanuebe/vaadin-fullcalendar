@@ -44,22 +44,23 @@ public class CalendarViewToolbar extends MenuBar {
     private final boolean allowAddingRandomItemsInitially;
     private final Consumer<Collection<Entry>> onSamplesCreated;
     private final Consumer<Collection<Entry>> onSamplesRemoved;
-    private final List<CalendarView> customCalendarViews;
+    private final List<CalendarView> customViews;
 
+    private CalendarView selectedView = CalendarViewImpl.DAY_GRID_MONTH;
     private Button buttonDatePicker;
-    private Select<CalendarView> viewSelector;
+    private MenuItem viewSelector;
     private Select<Timezone> timezoneSelector;
     private HasComponents calendarParent;
 
     @Builder
-    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, boolean settingsAvailable, boolean allowAddingRandomItemsInitially, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customCalendarViews) {
+    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, boolean settingsAvailable, boolean allowAddingRandomItemsInitially, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customViews) {
 
         this.calendar = calendar;
         this.settingsAvailable = settingsAvailable;
         this.allowAddingRandomItemsInitially = allowAddingRandomItemsInitially;
         this.onSamplesCreated = onSamplesCreated;
         this.onSamplesRemoved = onSamplesRemoved;
-        this.customCalendarViews = customCalendarViews;
+        this.customViews = customViews;
         if (calendar == null) {
             throw new IllegalArgumentException("Calendar instance is required");
         }
@@ -78,6 +79,10 @@ public class CalendarViewToolbar extends MenuBar {
     protected void initMenuBar() {
         if (dateChangeable) {
             initDateItems();
+        }
+
+        if (viewChangeable) {
+            initViewSelector();
         }
 
         if (editable) {
@@ -230,48 +235,6 @@ public class CalendarViewToolbar extends MenuBar {
     private SubMenu initGeneralSettings() {
         SubMenu subMenu = addItem("Settings").getSubMenu();
 
-        if (viewChangeable) {
-            List<CalendarView> calendarViews;
-            CalendarView initialView = CalendarViewImpl.DAY_GRID_MONTH;
-            if (customCalendarViews != null && !customCalendarViews.isEmpty()) {
-                calendarViews = customCalendarViews;
-                if (!customCalendarViews.contains(initialView)) {
-                    // TODO extend calendar to get the current view and use it here instead
-                    initialView = customCalendarViews.get(0);
-                }
-            } else {
-                calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
-
-                if (calendar instanceof Scheduler) {
-                    calendarViews.addAll(Arrays.asList(SchedulerView.values()));
-                }
-            }
-
-            calendarViews.sort(Comparator.comparing(CalendarView::getName));
-
-            viewSelector = new Select<>();
-            viewSelector.setLabel("View");
-            viewSelector.setItems(calendarViews);
-            CalendarView finalInitialView1 = initialView;
-            viewSelector.setItemLabelGenerator(item -> {
-                String name = StringUtils.capitalize(String.join(" ", StringUtils.splitByCharacterTypeCamelCase(item.getClientSideValue())));
-                if (item == finalInitialView1) {
-                    name += " (default)";
-                }
-
-                return name;
-            });
-            viewSelector.setValue(initialView);
-            viewSelector.setWidthFull();
-            CalendarView finalInitialView = initialView;
-            viewSelector.addValueChangeListener(e -> {
-                CalendarView value = e.getValue();
-                calendar.changeView(value == null ? finalInitialView : value);
-            });
-            viewSelector.setWidthFull();
-            subMenu.add(viewSelector);
-        }
-
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> localeSelector = new ComboBox<>("Locale");
         localeSelector.setClearButtonVisible(true);
@@ -316,9 +279,48 @@ public class CalendarViewToolbar extends MenuBar {
         return subMenu;
     }
 
+    private void initViewSelector() {
+        List<CalendarView> calendarViews;
+        if (customViews != null && !customViews.isEmpty()) {
+            calendarViews = customViews;
+            if (!customViews.contains(selectedView)) {
+                selectedView = customViews.get(0);
+            }
+        } else {
+            calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
+            //                if (calendar instanceof Scheduler) {
+            //                    calendarViews.addAll(Arrays.asList(SchedulerView.values()));
+            //                }
+        }
+
+        calendarViews.sort(Comparator.comparing(CalendarView::getName));
+
+        viewSelector = addItem("View: " + getViewName(selectedView));
+        SubMenu subMenu = viewSelector.getSubMenu();
+        calendarViews.stream()
+                .sorted(Comparator.comparing(this::getViewName))
+                .forEach(view -> {
+                    String viewName = getViewName(view);
+                    subMenu.addItem(viewName, event -> {
+                        calendar.changeView(view);
+                        viewSelector.setText("View: " + viewName);
+                        selectedView = view;
+                    });
+                });
+    }
+
+    private String getViewName(CalendarView view) {
+        String name = null /*customViewNames.get(view)*/;
+        if (name == null) {
+            name = StringUtils.capitalize(String.join(" ", StringUtils.splitByCharacterTypeCamelCase(view.getClientSideValue())));
+        }
+
+        return name;
+    }
+
     public void updateInterval(LocalDate intervalStart) {
-        if (buttonDatePicker != null && viewSelector != null) {
-            updateIntervalLabel(buttonDatePicker, viewSelector.getValue(), intervalStart);
+        if (buttonDatePicker != null && selectedView != null) {
+            updateIntervalLabel(buttonDatePicker, selectedView, intervalStart);
         }
     }
 
