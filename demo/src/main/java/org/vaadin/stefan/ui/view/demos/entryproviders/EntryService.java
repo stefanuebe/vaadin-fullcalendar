@@ -54,9 +54,9 @@ public class EntryService {
             for (int i = 0; i < 8; i++) {
                 LocalDate start = date.withDayOfMonth(random.nextInt(maxDays) + 1);
                 if (random.nextBoolean()) {
-                    addDay("Entry " + database.size(), start);
+                    addDefaultDay("Entry " + database.size(), start);
                 } else {
-                    addTimed("Entry " + database.size(), start.atTime(10, 0));
+                    addDefaultTimed("Entry " + database.size(), start.atTime(10, 0));
                 }
             }
 
@@ -78,6 +78,9 @@ public class EntryService {
         addDay("This special holiday", now.withDayOfMonth(4), 1, "gray");
     }
 
+    /**
+     * Creates a timed backend entry.
+     */
     private EntryData createTimed(int id, String title, LocalDateTime start, int minutes, String color) {
         EntryData entry = new EntryData(id);
         entry.setTitle(title);
@@ -88,6 +91,9 @@ public class EntryService {
         return entry;
     }
 
+    /**
+     * Creates an all day backend entry.
+     */
     private EntryData createDay(int id, String title, LocalDate start, int days, String color) {
         EntryData entry = new EntryData(id);
         entry.setTitle(title);
@@ -98,49 +104,97 @@ public class EntryService {
         return entry;
     }
 
-    public void addDay(String title, LocalDate start, int days, String color) {
+    /**
+     * Creates and adds an all day backend entry.
+     */
+    private void addDay(String title, LocalDate start, int days, String color) {
         EntryData data = createDay(database.size(), title, start, days, color);
         database.put(data.getId(), data);
     }
 
-    public void addDay(String title, LocalDate start) {
-        addDay(title, start, 1, null);
-    }
-
-    public void addTimed(String title, LocalDateTime start, int minutes, String color) {
+    /**
+     * Creates and adds a timed backend entry.
+     */
+    private void addTimed(String title, LocalDateTime start, int minutes, String color) {
         EntryData data = createTimed(database.size(), title, start, minutes, color);
         database.put(data.getId(), data);
     }
 
-    public void addTimed(String title, LocalDateTime start) {
-        addTimed(title, start, 60, null);
+    /**
+     * Creates and adds an all day backend entry with a duration of 1 day.
+     */
+    private void addDefaultDay(String title, LocalDate start) {
+        EntryData data = createDay(database.size(), title, start, 1, null);
+        database.put(data.getId(), data);
     }
 
+    /**
+     * Creates and adds a timed backend entry with a duration of 60 minutes.
+     */
+    private void addDefaultTimed(String title, LocalDateTime start) {
+        EntryData data = createTimed(database.size(), title, start, 60, null);
+        database.put(data.getId(), data);
+    }
+
+    /**
+     * Fetches a single calendar entry from the backend and converts it to an entry.
+     * @param id id
+     * @return entry or empty
+     */
     public Optional<Entry> getEntry(String id) {
         return Optional.ofNullable(database.get(id)).map(this::toEntry);
     }
 
+    /**
+     * Same as {@link #getEntry(String)} but as non optional (returns null)
+     * @param id id
+     * @return entry or null
+     */
     public Entry getEntryOrNull(String id) {
         return getEntry(id).orElse(null);
     }
 
+    /**
+     * Returns the amount of backend entries.
+     * @return count
+     */
     public int count() {
         return database.size();
     }
 
+    /**
+     * Returns {@link #streamEntries()} as list.
+     * @return list of entries
+     */
     public List<Entry> getEntries() {
         return streamEntries().collect(Collectors.toList());
     }
 
+    /**
+     * Reads all items from the backend and converts to entries.
+     * @return entries
+     */
     public Stream<Entry> streamEntries() {
         return database.values().stream().map(this::toEntry);
     }
 
+    /**
+     * Reads items from the backend, filters them by the given query and converts the matching items to entries.
+     * @return filtered entries
+     */
     public Stream<Entry> streamEntries(EntryQuery query) {
         Stream<EntryData> stream = database.values().stream();
         return  applyFilter(stream, query).map(this::toEntry);
     }
 
+    /**
+     * Applies the filter to the given stream. All entries, that do not cross the filter timespan (either
+     * by recurrence or normal start/end) are filtered out. The {@link EntryQuery#getAllDay()} is not taken
+     * into account. Query might be empty, but must not be null.
+     * @param stream stream
+     * @param query query
+     * @return filtered stream
+     */
     public Stream<EntryData> applyFilter(Stream<EntryData> stream, EntryQuery query) {
         LocalDateTime start = query.getStart();
         LocalDateTime end = query.getEnd();
@@ -175,39 +229,76 @@ public class EntryService {
         return stream;
     }
 
-    public void addEntry(Entry entries) {
+    /**
+     * Adds the given entries to the backend. Existing items might be replaced.
+     * @param entries entries
+     */
+    public void addEntries(Entry... entries) {
         addEntries(Arrays.asList(entries));
     }
 
+    /**
+     * Adds the given entries to the backend. Existing items might be replaced.
+     * @param entries entries
+     */
     public void addEntries(Collection<Entry> entries) {
         entries.forEach(entry -> database.put(entry.getId(), toEntryData(entry)));
     }
 
+    /**
+     * Updates the given entry in the backend.
+     * @param entry entry
+     */
     public void updateEntry(Entry entry) {
         database.put(entry.getId(), toEntryData(entry));
     }
 
-    public void removeEntry(Entry entry) {
-        database.remove(entry.getId());
+    /**
+     * Removes the given entries from the backend.
+     * @param entries entries
+     */
+    public void removeEntries(Entry... entries) {
+        removeEntries(Arrays.asList(entries));
     }
 
-    public void removeAll() {
-        database.clear();
-    }
-
+    /**
+     * Removes the given entries from the backend.
+     * @param entries entries
+     */
     public void removeEntries(Collection<Entry> entries) {
         entries.forEach(entry -> database.remove(entry.getId()));
     }
 
+    /**
+     * Removes everything from the backend.
+     */
+    public void removeAll() {
+        database.clear();
+    }
+
+    /**
+     * Creates a new entry instance with a valid id.
+     * @return new instance
+     */
     public Entry createNewInstance() {
         return new Entry(String.valueOf(database.size()));
     }
 
-    public Entry toEntry(EntryData entryData) {
+    /**
+     * Converts the backend item to an entry.
+     * @param entryData backend item
+     * @return entry
+     */
+    private Entry toEntry(EntryData entryData) {
         return entryData.copy(Entry.class);
     }
 
-    public EntryData toEntryData(Entry entry) {
+    /**
+     * Converts the entry to a backend item.
+     * @param entry entry
+     * @return backend item
+     */
+    private EntryData toEntryData(Entry entry) {
         return entry.copy(EntryData.class);
     }
 
