@@ -18,6 +18,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <junit.version>5.5.2</junit.version>
+        <mockito.version>4.3.1</mockito.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <lombok.version>1.18.22</lombok.version>
 
@@ -164,6 +165,21 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
