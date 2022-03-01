@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view.demos.entryproviders;
 
 import lombok.NoArgsConstructor;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 
 import java.time.LocalDate;
@@ -15,25 +16,43 @@ import java.util.stream.Stream;
  *
  * @author Stefan Uebe
  */
-public class EntryService {
+public class EntryService<T extends Entry> {
 
     private final Map<String, EntryData> database = new HashMap<>();
+    private final boolean resourceEntries;
 
-    public EntryService() {
+    public EntryService(boolean resourceEntries) {
+        this.resourceEntries = resourceEntries;
     }
 
-    public static EntryService createInstance() {
-        return new EntryService();
+    public static EntryService<Entry> createInstance() {
+        return new EntryService<>(false);
     }
 
-    public static EntryService createRandomInstance() {
-        EntryService instance = createInstance();
+    public static EntryService<Entry> createRandomInstance() {
+        EntryService<Entry> instance = createInstance();
         instance.fillDatabaseWithRandomData();
         return instance;
     }
 
-    public static EntryService createSimpleInstance() {
-        EntryService instance = createInstance();
+    public static EntryService<Entry> createSimpleInstance() {
+        EntryService<Entry> instance = createInstance();
+        instance.fillDatabaseWithSimpleData();
+        return instance;
+    }
+
+    public static EntryService<ResourceEntry> createResourceInstance() {
+        return new EntryService<>(true);
+    }
+
+    public static EntryService<ResourceEntry> createRandomResourceInstance() {
+        EntryService<ResourceEntry> instance = createResourceInstance();
+        instance.fillDatabaseWithRandomData();
+        return instance;
+    }
+
+    public static EntryService<ResourceEntry> createSimpleResourceInstance() {
+        EntryService<ResourceEntry> instance = createResourceInstance();
         instance.fillDatabaseWithSimpleData();
         return instance;
     }
@@ -54,9 +73,9 @@ public class EntryService {
             for (int i = 0; i < 8; i++) {
                 LocalDate start = date.withDayOfMonth(random.nextInt(maxDays) + 1);
                 if (random.nextBoolean()) {
-                    addDefaultDay("Entry " + database.size(), start);
+                    addDefaultDay("T " + database.size(), start);
                 } else {
-                    addDefaultTimed("Entry " + database.size(), start.atTime(10, 0));
+                    addDefaultTimed("T " + database.size(), start.atTime(10, 0));
                 }
             }
 
@@ -141,7 +160,7 @@ public class EntryService {
      * @param id id
      * @return entry or empty
      */
-    public Optional<Entry> getEntry(String id) {
+    public Optional<T> getEntry(String id) {
         return Optional.ofNullable(database.get(id)).map(this::toEntry);
     }
 
@@ -150,7 +169,7 @@ public class EntryService {
      * @param id id
      * @return entry or null
      */
-    public Entry getEntryOrNull(String id) {
+    public T getEntryOrNull(String id) {
         return getEntry(id).orElse(null);
     }
 
@@ -166,7 +185,7 @@ public class EntryService {
      * Returns {@link #streamEntries()} as list.
      * @return list of entries
      */
-    public List<Entry> getEntries() {
+    public List<T> getEntries() {
         return streamEntries().collect(Collectors.toList());
     }
 
@@ -174,7 +193,7 @@ public class EntryService {
      * Reads all items from the backend and converts to entries.
      * @return entries
      */
-    public Stream<Entry> streamEntries() {
+    public Stream<T> streamEntries() {
         return database.values().stream().map(this::toEntry);
     }
 
@@ -182,7 +201,7 @@ public class EntryService {
      * Reads items from the backend, filters them by the given query and converts the matching items to entries.
      * @return filtered entries
      */
-    public Stream<Entry> streamEntries(EntryQuery query) {
+    public Stream<T> streamEntries(EntryQuery query) {
         Stream<EntryData> stream = database.values().stream();
         return  applyFilter(stream, query).map(this::toEntry);
     }
@@ -233,7 +252,8 @@ public class EntryService {
      * Adds the given entries to the backend. Existing items might be replaced.
      * @param entries entries
      */
-    public void addEntries(Entry... entries) {
+    @SafeVarargs
+    public final void addEntries(T... entries) {
         addEntries(Arrays.asList(entries));
     }
 
@@ -241,7 +261,7 @@ public class EntryService {
      * Adds the given entries to the backend. Existing items might be replaced.
      * @param entries entries
      */
-    public void addEntries(Collection<Entry> entries) {
+    public void addEntries(Collection<T> entries) {
         entries.forEach(entry -> database.put(entry.getId(), toEntryData(entry)));
     }
 
@@ -249,7 +269,7 @@ public class EntryService {
      * Updates the given entry in the backend.
      * @param entry entry
      */
-    public void updateEntry(Entry entry) {
+    public void updateEntry(T entry) {
         database.put(entry.getId(), toEntryData(entry));
     }
 
@@ -257,7 +277,8 @@ public class EntryService {
      * Removes the given entries from the backend.
      * @param entries entries
      */
-    public void removeEntries(Entry... entries) {
+    @SafeVarargs
+    public final void removeEntries(T... entries) {
         removeEntries(Arrays.asList(entries));
     }
 
@@ -265,7 +286,7 @@ public class EntryService {
      * Removes the given entries from the backend.
      * @param entries entries
      */
-    public void removeEntries(Collection<Entry> entries) {
+    public void removeEntries(Collection<T> entries) {
         entries.forEach(entry -> database.remove(entry.getId()));
     }
 
@@ -280,8 +301,9 @@ public class EntryService {
      * Creates a new entry instance with a valid id.
      * @return new instance
      */
-    public Entry createNewInstance() {
-        return new Entry(String.valueOf(database.size()));
+    @SuppressWarnings("unchecked")
+    public T createNewInstance() {
+        return (T) (resourceEntries ? new ResourceEntry(String.valueOf(database.size())) : new Entry(String.valueOf(database.size())));
     }
 
     /**
@@ -289,8 +311,9 @@ public class EntryService {
      * @param entryData backend item
      * @return entry
      */
-    private Entry toEntry(EntryData entryData) {
-        return entryData.copy(Entry.class);
+    @SuppressWarnings("unchecked")
+    private T toEntry(EntryData entryData) {
+        return (T) (resourceEntries ? entryData.copy(ResourceEntry.class) : entryData.copy(Entry.class));
     }
 
     /**
@@ -298,7 +321,7 @@ public class EntryService {
      * @param entry entry
      * @return backend item
      */
-    private EntryData toEntryData(Entry entry) {
+    private EntryData toEntryData(T entry) {
         return entry.copy(EntryData.class);
     }
 

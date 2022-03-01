@@ -82,7 +82,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private final Map<String, Serializable> options = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
-    private EntryProvider<Entry> entryProvider;
+    private EntryProvider<? extends Entry> entryProvider;
     private final List<Registration> entryProviderDataListeners = new LinkedList<>();
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
@@ -271,7 +271,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @param entryProvider entry provider
      */
-    public void setEntryProvider(@NotNull EntryProvider<Entry> entryProvider) {
+    public void setEntryProvider(@NotNull EntryProvider<? extends Entry> entryProvider) {
         Objects.requireNonNull(entryProvider);
 
         if (this.entryProvider != entryProvider) {
@@ -308,7 +308,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return entry provider
      */
     @SuppressWarnings("unchecked")
-    public <T extends EntryProvider<Entry>> T getEntryProvider() {
+    public <T extends EntryProvider<? extends Entry>> T getEntryProvider() {
         return (T) entryProvider;
     }
 

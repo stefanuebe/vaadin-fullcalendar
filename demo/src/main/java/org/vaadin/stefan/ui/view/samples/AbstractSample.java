@@ -13,12 +13,16 @@ public abstract class AbstractSample extends VerticalLayout {
     private final FullCalendar calendar;
 
     public AbstractSample() {
-        calendar = new FullCalendar();
+        calendar = createCalendar();
         add(calendar);
         setFlexGrow(1, calendar);
         setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
         buildSample(calendar);
+    }
+
+    protected FullCalendar createCalendar() {
+        return new FullCalendar();
     }
 
     protected abstract void buildSample(FullCalendar calendar);

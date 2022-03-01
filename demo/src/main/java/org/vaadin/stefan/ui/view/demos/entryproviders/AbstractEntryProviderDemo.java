@@ -50,7 +50,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
      * @param entryService entry service
      * @return entry provider
      */
-    protected abstract EntryProvider<Entry> createEntryProvider(EntryService entryService);
+    protected abstract EntryProvider<Entry> createEntryProvider(EntryService<Entry> entryService);
 
     @Override
     protected void onTimeslotsSelected(TimeslotsSelectedEvent event) {

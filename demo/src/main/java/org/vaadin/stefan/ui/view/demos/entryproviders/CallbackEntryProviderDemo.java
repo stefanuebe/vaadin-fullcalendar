@@ -18,7 +18,7 @@ import java.util.Collection;
 public class CallbackEntryProviderDemo extends AbstractEntryProviderDemo {
 
     @Override
-    protected EntryProvider<Entry> createEntryProvider(EntryService entryService) {
+    protected EntryProvider<Entry> createEntryProvider(EntryService<Entry> entryService) {
         // Variant A - the backend service takes care of filtering the entries before returning them
         CallbackEntryProvider<Entry> entryProvider = EntryProvider.fromCallbacks(
                 query -> entryService.streamEntries(query),
