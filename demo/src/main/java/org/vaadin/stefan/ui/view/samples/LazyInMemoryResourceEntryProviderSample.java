@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view.samples;
 
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
@@ -12,24 +13,24 @@ import java.util.stream.Collectors;
 /**
  * @author Stefan Uebe
  */
-public class LazyInMemoryEntryProviderSample extends AbstractSample {
+public class LazyInMemoryResourceEntryProviderSample extends AbstractSchedulerSample {
 
-    private EntryService<Entry> backend = EntryService.createInstance();
+    private EntryService<ResourceEntry> backend = EntryService.createResourceInstance();
 
     @Override
     protected void buildSample(FullCalendar calendar) {
         // load items from backend
-        List<Entry> entryList = backend.streamEntries().collect(Collectors.toList());
+        List<ResourceEntry> entryList = backend.streamEntries().collect(Collectors.toList());
 
         // init lazy loading provider based on given collection - does NOT use the collection as backend as ListDataProvider does
-        LazyInMemoryEntryProvider<Entry> entryProvider = EntryProvider.lazyInMemoryFromItems(entryList);
+        LazyInMemoryEntryProvider<ResourceEntry> entryProvider = EntryProvider.lazyInMemoryFromItems(entryList);
 
         // set entry provider
         calendar.setEntryProvider(entryProvider);
 
         // CRUD operations
         // to add
-        Entry entry = new Entry();       // ... plus some init
+        ResourceEntry entry = new ResourceEntry();       // ... plus some init
         entryProvider.addEntries(entry); // register in data provider
         entryProvider.refreshAll();         // call refresh to inform the client about the data change and trigger a refetch
 

@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 public class BackendEntryProviderDemo extends AbstractEntryProviderDemo {
 
     @Override
-    protected EntryProvider<Entry> createEntryProvider(EntryService entryService) {
+    protected EntryProvider<Entry> createEntryProvider(EntryService<Entry> entryService) {
         return new BackendEntryProvider(entryService);
     }
 

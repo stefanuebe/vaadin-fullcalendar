@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class InMemoryEntryProviderWithEagerLoadingDemo extends AbstractEntryProviderDemo {
 
     @Override
-    protected EntryProvider<Entry> createEntryProvider(EntryService entryService) {
+    protected EntryProvider<Entry> createEntryProvider(EntryService<Entry> entryService) {
         List<Entry> entriesFromBackend = entryService.streamEntries().collect(Collectors.toList());
 
         // The list is used to initialize the in memory provider, but different to the ListDataProvider it is

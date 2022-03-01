@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view.samples;
 
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
@@ -9,14 +10,14 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 /**
  * @author Stefan Uebe
  */
-public class CallbackEntryProviderSample extends AbstractSample {
+public class CallbackResourceEntryProviderSample extends AbstractSchedulerSample {
 
-    private EntryService<Entry> backend = EntryService.createInstance();
+    private EntryService<ResourceEntry> backend = EntryService.createResourceInstance();
 
     @Override
     protected void buildSample(FullCalendar calendar) {
         // the callback provider uses the given callback to fetch entries when necessary
-        CallbackEntryProvider<Entry> entryProvider = EntryProvider.fromCallbacks(
+        CallbackEntryProvider<ResourceEntry> entryProvider = EntryProvider.fromCallbacks(
                 query -> backend.streamEntries(query),
                 entryId -> backend.getEntry(entryId).orElse(null)
         );
@@ -26,7 +27,7 @@ public class CallbackEntryProviderSample extends AbstractSample {
 
         // CRUD operations
         // to add
-        Entry entry = new Entry();          // ... plus some init
+        ResourceEntry entry = new ResourceEntry();          // ... plus some init
         backend.addEntries(entry);            // register in your backend
         entryProvider.refreshAll();         // call refresh to inform the client about the data change and trigger a refetch
 
