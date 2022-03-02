@@ -18,7 +18,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import java.util.Collection;
 
 /**
- * A basic class for simple calendar views, e.g. for demo or testing purposes. Takes care of
+ * A basic class for calendar views, e.g. for demo or testing purposes. Takes care of
  * creating a toolbar, a description element and embedding the created calendar into the view.
  * Also registers a dates rendered listener to update the toolbar.
  */

@@ -5,6 +5,8 @@ import lombok.Getter;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 /**
+ * A simple base class for samples. If you want to create a real demo view, please use
+ * {@link org.vaadin.stefan.ui.view.AbstractCalendarView}
  * @author Stefan Uebe
  */
 @Getter
