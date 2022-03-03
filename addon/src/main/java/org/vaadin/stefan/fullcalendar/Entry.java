@@ -1145,11 +1145,50 @@ public class Entry extends JsonItem<String> {
      * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
      * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
      * start of day.
+     * <p></p>
+     * Setting an end time will explicitly <b>remove</b> any previously set recurring duration. That means,
+     * calling {@link #getRecurringDuration()} afterwards will return {@code null}. If you manually
+     * set the recurring duration afterwards using {@link #set(Key, Object)}, the duration is used.
+     *
      * @see #isRecurring()
      * @param end start time
      */
     public void setRecurringEndTime(LocalTime end) {
+        setRecurringDuration(null);
         set(EntryKey.RECURRING_END_TIME, end);
+    }
+
+    /**
+     * Sets the duration of the recurrence based on the start time. This allows to set
+     * recurrences spanning over the end of the day (which is not possible using {@link #setRecurringEndTime(LocalTime)}
+     * due to the 24h limitation of {@link LocalTime}).
+     * <p></p>
+     * For instance setting a duration of 1 hour on a start recurrence of 10:00 will result in an entry
+     * that recurs "every day" on 10-11 o'clock. Setting a duration of 25 hours will instead result in an
+     * entry, which recurrence starts "today" at 10:00 and goes on up to "tomorrow" 11:00.
+     * <p></p>
+     * Setting a duration will explicitly <b>remove</b> any previously set recurring end time. That means,
+     * calling {@link #getRecurringEndTime()} afterwards will return {@code null}. If you manually
+     * set the recurring end time afterwards using {@link #set(Key, Object)}, the duration is used.
+     *
+     * @param duration recurrence duration
+     */
+    public void setRecurringDuration(Duration duration) {
+        setRecurringEndTime(null);
+        set(EntryKey.RECURRING_DURATION, duration);
+    }
+
+    /**
+     * Returns the duration of the recurrence based on the start time.
+     * <p></p>
+     * For instance a duration of 1 hour on a start recurrence of 10:00 will result in an entry
+     * that recurs "every day" on 10-11 o'clock. A duration of 25 hours will instead result in an
+     * entry, which recurrence starts "today" at 10:00 and goes on up to "tomorrow" 11:00.
+     *
+     * @return recurrence duration
+     */
+    public Duration getRecurringDuration() {
+        return get(EntryKey.RECURRING_DURATION);
     }
 
     /**
@@ -1189,11 +1228,12 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Clears the current recurring end date and time.
+     * Clears the current recurring end date and time plus the duration.
      */
     public void clearRecurringEnd() {
         setRecurringEndDate(null);
         setRecurringEndTime(null);
+        setRecurringDuration(null);
     }
 
     /**
@@ -1417,6 +1457,43 @@ public class Entry extends JsonItem<String> {
         }
     }
 
+    private static class RecurringTimeOrDurationConverter<T extends Entry> extends ClientTimeConverter<T> {
+        static final int DOUBLE_DIGIT = 10;
+        static final int MINUTES_PER_HOUR = 60;
+        static final int SECONDS_PER_MINUTE = 60;
+        static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
+
+        @Override
+        public JsonValue toJsonValue(LocalTime serverValue, T currentInstance) {
+            if (currentInstance.isAllDay()) {
+                return null;
+            }
+
+            // Duration is always preferred. Using the official api, it should alway be either one or the other, but
+            // it might be overridable using #set()
+            Duration duration = currentInstance.getRecurringDuration();
+            if (duration != null) {
+                LocalTime startTime = currentInstance.getRecurringStartTime();
+                if (startTime == null) {
+                    return JsonUtils.toJsonValue(asIsoTime(duration));
+                } else {
+                    return JsonUtils.toJsonValue(asIsoTime(duration.plusHours(startTime.getHour()).plusMinutes(startTime.getMinute())));
+                }
+            }
+
+            return super.toJsonValue(serverValue, currentInstance);
+        }
+
+        static String asIsoTime(Duration duration) {
+            // @see Duration#toString()
+            long seconds = duration.getSeconds();
+            long hours = seconds / SECONDS_PER_HOUR;
+            int minutes = (int) ((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+
+            return (hours < DOUBLE_DIGIT ? "0" : "") + hours + (minutes < DOUBLE_DIGIT ? ":0" : ":") + minutes;
+        }
+    }
+
     private static class DayOfWeekItemConverter implements JsonItemPropertyConverter<Set<DayOfWeek>, Entry> {
         @Override
         public JsonValue toJsonValue(Set<DayOfWeek> serverValue, Entry currentInstance) {
@@ -1634,12 +1711,23 @@ public class Entry extends JsonItem<String> {
                 .build();
 
         /**
-         * The start time of recurrence. Passing null on a recurring entry will make it appear as an all day event.
+         * The end time of recurrence. Passing null on a recurring entry may make it appear as an all day event, if
+         * no duration is set.
          */
         public static final JsonItem.Key RECURRING_END_TIME = JsonItem.Key.builder()
                 .name("endTime")
                 .allowedType(LocalTime.class)
-                .converter(new RecurringTimeConverter<>())
+                .converter(new RecurringTimeOrDurationConverter<>())
+                .build();
+
+        /**
+         * The duration of recurrence. Passing null on a recurring entry may make it appear as an all day event, if
+         * no end time is set.
+         */
+        public static final JsonItem.Key RECURRING_DURATION = JsonItem.Key.builder()
+                .name("recurringDuration")
+                .allowedType(Duration.class)
+                .transientProperty(true)
                 .build();
 
         /**

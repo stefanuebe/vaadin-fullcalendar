@@ -613,7 +613,7 @@ public abstract class JsonItem<ID_TYPE> {
      */
     protected void writeValuesToJson(JsonObject jsonObject, boolean writeUnsetProperties, Collection<Key> keysToWrite) {
         for (Key key : keysToWrite) {
-            if (writeUnsetProperties || has(key) || key.getDefaultValue() != null) {
+            if (!key.isTransientProperty() && (writeUnsetProperties || has(key) || key.getDefaultValue() != null)) {
                 writeValueToJson(jsonObject, key);
             }
         }
@@ -634,7 +634,8 @@ public abstract class JsonItem<ID_TYPE> {
      * This method takes care of parsing the property value and setting it based on the key to the given
      * json object. If the key has a converter, the converter will be taken into account to convert the
      * value, otherwise the method {@link JsonUtils#toJsonValue} will be used.
-     * Will not check for changes or unset properties - this has to be done by the caller.
+     * Will not check for changes or unset properties - this has to be done by the caller. Also does not check,
+     * if the property is transient.
      *
      * @param jsonObject json object to write to
      * @param key        key of the property to write
@@ -712,7 +713,7 @@ public abstract class JsonItem<ID_TYPE> {
     public final void updateFromJson(JsonObject jsonObject) {
         updateFromJson(jsonObject, true);
     }
-    
+
     /**
      * Updates this instance based on the given json object. Checks, if the json object is a
      * valid source for this instance and then calls {@link #readJson(JsonObject, boolean)}.
@@ -804,7 +805,7 @@ public abstract class JsonItem<ID_TYPE> {
     public void readJson(@NotNull JsonObject jsonObject, boolean markAppliedAsDirty) {
     	readJson(jsonObject, false, false);
     }
-    
+
     /**
      * Updates this instance based on the given json object. Does not check prior, if the source object is a valid
      * source (use {@link #updateFromJson(JsonObject)} in that case).
@@ -854,7 +855,7 @@ public abstract class JsonItem<ID_TYPE> {
         Objects.requireNonNull(jsonObject);
         Objects.requireNonNull(key);
 
-        if ((isExternal || key.isUpdateFromClientAllowed()) && jsonObject.hasKey(key.getName())) {
+        if (!key.isTransientProperty() && (isExternal || key.isUpdateFromClientAllowed()) && jsonObject.hasKey(key.getName())) {
             Object value = convertJsonValueToObject(jsonObject, key);
             if (markAppliedAsDirty) {
                 set(key, value);
@@ -1261,6 +1262,12 @@ public abstract class JsonItem<ID_TYPE> {
          * When set, the value must not be null.
          */
         private final boolean nonNull;
+
+        /**
+         * A transient property will never be send to the client. Such properties are intended to be handled
+         * on the server side only. They may influence other properties.
+         */
+        private final boolean transientProperty;
 
         /**
          * Reads all static {@link Key} fields of the given type, including inherited and/or non public ones and returns
