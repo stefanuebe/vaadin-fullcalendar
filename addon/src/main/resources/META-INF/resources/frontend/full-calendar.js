@@ -748,7 +748,7 @@ export class FullCalendar extends PolymerElement {
 
     setEventDidMountCallback(s) {
         let calendar = this.getCalendar();
-        this.eventDidMountCallback = new Function("return " + s)();
+        calendar.setOption('eventDidMount', new Function("return " + s)());
     }
 
     setEventWillUnmountCallback(s) {
