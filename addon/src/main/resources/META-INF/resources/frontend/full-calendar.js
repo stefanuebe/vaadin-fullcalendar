@@ -276,14 +276,12 @@ export class FullCalendar extends PolymerElement {
             eventMouseEnter: (eventInfo) => {
                 let event = eventInfo.event;
                 return {
-                    id: event.id, 
                     data: this._toEventData(event)
                 }
             },
             eventMouseLeave: (eventInfo) => {
                 let event = eventInfo.event;
                 return {
-                    id: event.id, 
                     data: this._toEventData(event)
                 }
             },
