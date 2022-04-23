@@ -538,6 +538,10 @@ export class FullCalendar extends PolymerElement {
     gotoDate(date) {
         this.getCalendar().gotoDate(date);
     }
+    
+    scrollToTime(duration){
+    	this.getCalendar().scrollToTime(duration);
+    }
 
     setHasLazyLoadingEntryProvider(hasLazyLoadingEntryProvider) {
         if (hasLazyLoadingEntryProvider && !this.hasLazyLoadingEntryProvider) {
