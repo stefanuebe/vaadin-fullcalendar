@@ -273,6 +273,18 @@ export class FullCalendar extends PolymerElement {
                     data: this._toEventData(event)
                 }
             },
+            eventMouseEnter: (eventInfo) => {
+                let event = eventInfo.event;
+                return {
+                    data: this._toEventData(event)
+                }
+            },
+            eventMouseLeave: (eventInfo) => {
+                let event = eventInfo.event;
+                return {
+                    data: this._toEventData(event)
+                }
+            },
             eventResize: (eventInfo) => {
                 return {
                     data: this._toEventData(eventInfo.event),
