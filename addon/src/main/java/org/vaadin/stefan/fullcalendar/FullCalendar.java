@@ -35,6 +35,7 @@ import org.vaadin.stefan.fullcalendar.model.Header;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -717,6 +718,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void gotoDate(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
         getElement().callJsFunction("gotoDate", date.toString());
+    }
+    
+    /**
+     * Programatically scroll the current view to the given time in the format `hh:mm:ss.sss`, `hh:mm:sss` or `hh:mm`. For example, '05:00' signifies 5 hours.
+     * 
+     * @param duration duration
+     * @throws NullPointerException when null is passed
+     */
+    public void scrollToTime(@NotNull String duration) {
+        Objects.requireNonNull(duration);	// No format check, it is already done in the calendar code
+        getElement().callJsFunction("scrollToTime", duration);
+    }
+    
+    /**
+     * Programatically scroll the current view to the given time in the format `hh:mm:ss.sss`, `hh:mm:sss` or `hh:mm`. For example, '05:00' signifies 5 hours.
+     * 
+     * @param duration duration
+     * @throws NullPointerException when null is passed
+     */
+    public void scrollToTime(@NotNull LocalTime duration) {
+        Objects.requireNonNull(duration);
+        getElement().callJsFunction("scrollToTime", duration.format(DateTimeFormatter.ISO_LOCAL_TIME));
     }
 
     /**
