@@ -787,6 +787,24 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
+     * Sets the entry Constraint.
+     * Null or empty string resets the color to the FC's default.
+     *
+     * @param constraint constraint
+     */
+    public void setConstraint(String constraint) {
+        set(EntryKey.CONSTRAINT, StringUtils.trimToNull(constraint));
+    }
+    
+    /**
+     * Returns the entry Constraint.
+     * @return constraint
+     */
+    public String getConstraint() {
+        return get(EntryKey.CONSTRAINT);
+    }
+
+    /**
      * Sets the color for this entry. This is interpreted as background and border color on the client side.
      * Null or empty string resets the color to the FC's default.
      *
@@ -1514,6 +1532,14 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key COLOR = JsonItem.Key.builder()
                 .name("color")
+                .allowedType(String.class)
+                .build();
+        
+        /**
+         * The entry constraint.
+         */
+        public static final JsonItem.Key CONSTRAINT = JsonItem.Key.builder()
+                .name("constraint")
                 .allowedType(String.class)
                 .build();
 
