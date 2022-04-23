@@ -1461,6 +1461,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         Objects.requireNonNull(listener);
         return addListener(EntryClickedEvent.class, listener);
     }
+    
+    /**
+     * Registers a listener to be informed when the user mouses over an entry.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addEntryMouseEnterListener(@NotNull ComponentEventListener<EntryMouseEnterEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryMouseEnterEvent.class, listener);
+    }
+    
+    /**
+     * Registers a listener to be informed when the user mouses out of an entry.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addEntryMouseLeaveListener(@NotNull ComponentEventListener<EntryMouseLeaveEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryMouseLeaveEvent.class, listener);
+    }
 
     /**
      * Registers a listener to be informed when an entry resized event occurred.
