@@ -1,6 +1,5 @@
 package org.vaadin.stefan.ui.view.demos.customdaygrid;
 
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import java.util.Collections;
@@ -33,11 +32,19 @@ public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
         // extend the initial options with the necessary client side settings to add the custom view
         CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
 
-FullCalendar calendar = FullCalendarBuilder.create()
+        FullCalendar calendar = FullCalendarBuilder.create()
         .withInitialOptions(defaultInitialOptions)
                 .withInitialEntries(EntryService.createRandomInstance().getEntries())
                 .withEntryLimit(3)
                 .build();
+        
+        calendar.addEntryMouseEnterListener(ev -> {
+        	System.out.println("Entry mouse ENTER: " + ev.getEntry().toString());
+        });
+
+        calendar.addEntryMouseLeaveListener(ev -> {
+        	System.out.println("Entry mouse LEAVE: " + ev.getEntry().toString());
+        });
 
         calendar.changeView(CUSTOM_VIEW);
         return calendar;
