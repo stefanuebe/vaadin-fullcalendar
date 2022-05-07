@@ -294,13 +294,19 @@ export class FullCalendar extends PolymerElement {
             eventDrop: (eventInfo) => {
                 return {
                     data: this._toEventData(eventInfo.event, eventInfo.oldResource, eventInfo.newResource),
-                    delta: eventInfo.delta,
+                    delta: eventInfo.delta
                 }
             },
             eventReceive: (eventInfo) => {
-            	console.log(eventInfo);
             	return {
-            		data: this._toEventData(eventInfo.event, null, null, true),
+            		data: this._toEventData(eventInfo.event, null, null, true)
+                }
+            },
+            drop: (eventInfo) => {
+            	return {
+            		date: this._formatDate(eventInfo.date, eventInfo.allDay),
+                    allDay: eventInfo.allDay,
+                    resource: eventInfo.resource ? eventInfo.resource.id : null
                 }
             },
             datesSet: (eventInfo) => {
