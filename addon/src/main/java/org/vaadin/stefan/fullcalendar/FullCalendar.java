@@ -1488,6 +1488,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
        Objects.requireNonNull(listener);
        return addListener(ExternalEntryReceivedEvent.class, listener);
    }
+   
+   public Registration addDroppedListener(@NotNull ComponentEventListener<DroppedEvent> listener) {
+       Objects.requireNonNull(listener);
+       return addListener(DroppedEvent.class, listener);
+   }
 
     /**
      * Registers a listener to be informed when a timeslot click event occurred.

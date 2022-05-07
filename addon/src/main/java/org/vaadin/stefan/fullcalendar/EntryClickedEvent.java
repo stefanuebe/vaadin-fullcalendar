@@ -40,5 +40,4 @@ public class EntryClickedEvent extends EntryDataEvent {
     public EntryClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject entryData) {
         super(source, fromClient, entryData);
     }
-
 }

@@ -30,14 +30,9 @@ import lombok.ToString;
  */
 @DomEvent("eventReceive")
 @ToString(callSuper = true)
-@Getter
-public class ExternalEntryReceivedEvent extends ComponentEvent<FullCalendar> {
+public class ExternalEntryReceivedEvent extends EntryChangedEvent {
+
 	/**
-     * The entry, for which the event occurred.
-     */
-    private final Entry entry;
-    
-    /**
      * New instance. Awaits the changed data object for the entry plus the json object for the delta information.
      * @param source source component
      * @param fromClient is from client
@@ -45,8 +40,6 @@ public class ExternalEntryReceivedEvent extends ComponentEvent<FullCalendar> {
      * @param jsonDelta json object with delta information
      */
     public ExternalEntryReceivedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject jsonEntry) {
-    	super(source, fromClient);
-    	
-    	this.entry = Entry.fromJson(jsonEntry, true);
+    	super(source, fromClient, jsonEntry);
     }
 }
