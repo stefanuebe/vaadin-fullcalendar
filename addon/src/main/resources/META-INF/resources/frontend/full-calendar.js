@@ -21,7 +21,7 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
 
 import {Calendar} from '@fullcalendar/core';
-import interaction from '@fullcalendar/interaction';
+import interaction, {Draggable} from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
@@ -297,6 +297,12 @@ export class FullCalendar extends PolymerElement {
                     delta: eventInfo.delta,
                 }
             },
+            eventReceive: (eventInfo) => {
+            	console.log(eventInfo);
+            	return {
+            		data: this._toEventData(eventInfo.event, null, null, true),
+                }
+            },
             datesSet: (eventInfo) => {
                 if (!this.noDatesRenderEvent) {
                     let view = eventInfo.view;
@@ -342,6 +348,12 @@ export class FullCalendar extends PolymerElement {
             }
 
         };
+    }
+    
+    setExternalDraggableElement(component, event) {
+    	new Draggable(component, {
+    		eventData: event
+    	});
     }
 
     /**
@@ -489,35 +501,51 @@ export class FullCalendar extends PolymerElement {
     }
 
 
-    _toEventData(event, oldResourceInfo, newResourceInfo) {
+    _toEventData(event, oldResourceInfo, newResourceInfo, isExternal = false) {
         let allDay = event.allDay;
 
         let start = this._formatDate(event.start, allDay);
         let end = event.end;
 
         // TODO add allDay parameters?
-        if (end != null) {
+        if (end != null)
             end = this._formatDate(end, allDay);
-        } else if (event.allDay) { // when moved from time slotted to all day
+         else if (event.allDay) // when moved from time slotted to all day
             end = this._formatDate(new Date(event.start.valueOf() + 86400000), allDay); // + 1 day
-        } else { // when moved from all day to time slotted
+         else // when moved from all day to time slotted
             end = this._formatDate(new Date(event.start.valueOf() + 3600000), allDay); // + 1 hour
-        }
 
         let data = {
             id: event.id,
             start,
             end,
-            allDay,
+            allDay//,
             // editable: event.extendedProps.editable // FIXME necessary? editable state should not be defined on client, but server only
         };
 
-        if (oldResourceInfo != null) {
+        if (oldResourceInfo != null)
             data.oldResource = oldResourceInfo.id;
-        }
 
-        if (newResourceInfo != null) {
+        if (newResourceInfo != null) 
             data.newResource = newResourceInfo.id;
+        
+        // Add the data for the external entry dropped on the calendar
+        if(isExternal) {
+        	data.groupId = event.groupId;
+        	data.title = event.title;
+        	data.url = event.url;
+        	data.constraint = event.constraint;
+        	data.customProperties = event.extendedProps
+        	data.classNames = event.classNames;
+        	data.editable = event.editable;
+        	data.startEditable = event.startEditable;
+        	data.durationEditable = event.durationEditable;
+        	data.color = event.color;
+        	data.backgroundColor = event.backgroundColor;
+        	data.borderColor = event.borderColor;
+        	data.textColor = event.textColor;
+        	data.display = event.display;
+        	data.overlap = event.overlap;
         }
 
         return data;

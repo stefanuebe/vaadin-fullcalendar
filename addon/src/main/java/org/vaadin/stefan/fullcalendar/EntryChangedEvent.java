@@ -36,6 +36,4 @@ public abstract class EntryChangedEvent extends EntryDataEvent {
     public EntryChangedEvent(FullCalendar source, boolean fromClient, JsonObject jsonObject) {
         super(source, fromClient, jsonObject);
     }
-
-
 }

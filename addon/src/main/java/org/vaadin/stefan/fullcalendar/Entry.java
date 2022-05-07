@@ -92,10 +92,20 @@ public class Entry extends JsonItem<String> {
      * @return entry based on the object
      */
     public static Entry fromJson(JsonObject object) {
+        return fromJson(object, false);
+    }
+    
+    /**
+     * Creates an entry based on the given json object. The id is taken from the json object. Providing none will
+     * lead to an exception.
+     * @param object 			 json object
+     * @param isExternal		 indicate an external entry, used to ignore the updateFromClientAllowed
+     * @return entry based on the object
+     */
+    public static Entry fromJson(JsonObject object, boolean isExternal) {
         Entry entry = new Entry(object.getString(Entry.EntryKey.ID.getName()));
-        entry.updateFromJson(object, false);
+        entry.updateFromJson(object, false, isExternal);
         return entry;
-
     }
 
     /**

@@ -41,5 +41,4 @@ public class EntryMouseEnterEvent extends EntryDataEvent {
     public EntryMouseEnterEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject entryData) {
         super(source, fromClient, entryData);
     }
-
 }

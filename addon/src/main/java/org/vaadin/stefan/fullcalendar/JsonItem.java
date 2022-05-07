@@ -712,8 +712,7 @@ public abstract class JsonItem<ID_TYPE> {
     public final void updateFromJson(JsonObject jsonObject) {
         updateFromJson(jsonObject, true);
     }
-
-
+    
     /**
      * Updates this instance based on the given json object. Checks, if the json object is a
      * valid source for this instance and then calls {@link #readJson(JsonObject, boolean)}.
@@ -729,8 +728,28 @@ public abstract class JsonItem<ID_TYPE> {
      * @see #readJson(JsonObject, boolean)
      */
     public final void updateFromJson(JsonObject jsonObject, boolean markAppliedAsDirty) {
+    	updateFromJson(jsonObject, true, false);
+    }
+
+
+    /**
+     * Updates this instance based on the given json object. Checks, if the json object is a
+     * valid source for this instance and then calls {@link #readJson(JsonObject, boolean)}.
+     * <p></p>
+     * The boolean parameter indicates, if changes written to this instance shall be marked
+     * as dirty / changed properties. This can lead to additional load of data sent to the client
+     * on the next update. If false, then any property, that was marked as dirty before and is now
+     * overridden by the given json object data, will be reset to "not dirty".
+     *
+     * @param jsonObject         json object to read from
+     * @param markAppliedAsDirty applied changes shall be marked as dirty (changed) values
+     * @param isExternal		 indicate an external entry, used to ignore the updateFromClientAllowed
+     * @see #isValidJsonSource(JsonObject)
+     * @see #readJson(JsonObject, boolean)
+     */
+    public final void updateFromJson(JsonObject jsonObject, boolean markAppliedAsDirty, boolean isExternal) {
         if (isValidJsonSource(jsonObject)) {
-            readJson(jsonObject, markAppliedAsDirty);
+            readJson(jsonObject, markAppliedAsDirty, isExternal);
         } else {
             throw new IllegalArgumentException("Not a valid json source. Cannot update this instance with the given json object.");
         }
@@ -783,11 +802,33 @@ public abstract class JsonItem<ID_TYPE> {
      * @param markAppliedAsDirty applied changes shall be marked as dirty (changed) values
      */
     public void readJson(@NotNull JsonObject jsonObject, boolean markAppliedAsDirty) {
+    	readJson(jsonObject, false, false);
+    }
+    
+    /**
+     * Updates this instance based on the given json object. Does not check prior, if the source object is a valid
+     * source (use {@link #updateFromJson(JsonObject)} in that case).
+     * <p/>
+     * Each key will be mapped with the json object. The keys are obtained from {@link #getKeys()}. For
+     * each key , the value will either be converted by
+     * the key's {@link JsonItemPropertyConverter} or the {@link JsonUtils}. Json arrays will be converted
+     * to {@link ArrayList}.
+     * <p></p>
+     * The boolean parameter indicates, if changes written to this instance shall be marked
+     * as dirty / changed properties. This can lead to additional load of data sent to the client
+     * on the next update. If false, then any property, that was marked as dirty before and is now
+     * overridden by the given json object data, will be reset to "not dirty".
+     *
+     * @param jsonObject         json object to read
+     * @param markAppliedAsDirty applied changes shall be marked as dirty (changed) values
+     * @param isExternal		 indicate an external entry, used to ignore the updateFromClientAllowed
+     */
+    public void readJson(@NotNull JsonObject jsonObject, boolean markAppliedAsDirty, boolean isExternal) {
         Objects.requireNonNull(jsonObject);
 
         Set<Key> keys = getKeys();
         for (Key key : keys) {
-            readJsonValue(jsonObject, key, markAppliedAsDirty);
+            readJsonValue(jsonObject, key, markAppliedAsDirty, isExternal);
         }
     }
 
@@ -804,15 +845,16 @@ public abstract class JsonItem<ID_TYPE> {
      * @param jsonObject         json object to read
      * @param key                key to obtain
      * @param markAppliedAsDirty applied changes shall be marked as dirty (changed) values
+     * @param isExternal		 indicate an external entry, used to ignore the updateFromClientAllowed
      */
     protected void readJsonValue(@NotNull JsonObject jsonObject,
                                  @NotNull JsonItem.Key key,
-                                 boolean markAppliedAsDirty) {
+                                 boolean markAppliedAsDirty, boolean isExternal) {
 
         Objects.requireNonNull(jsonObject);
         Objects.requireNonNull(key);
 
-        if (key.isUpdateFromClientAllowed() && jsonObject.hasKey(key.getName())) {
+        if ((isExternal || key.isUpdateFromClientAllowed()) && jsonObject.hasKey(key.getName())) {
             Object value = convertJsonValueToObject(jsonObject, key);
             if (markAppliedAsDirty) {
                 set(key, value);

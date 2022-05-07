@@ -1460,6 +1460,34 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public void render() {
         getElement().callJsFunction("render");
     }
+    
+    /**
+     * This method set a vaadin component as draggable and can interact with the calendar.
+     * When you drop an external entry on the calendar the drop event will fire, or the eventReceive.
+     * 
+     * You can access those methods with calendar.addExternalEntryDroppedListener and calendar.addExternalEntryReveicedListener.
+     * 
+     * @param draggableComponent
+     * @param externalEntryDetails
+     */
+    public void setExternalDraggableElement(@NotNull Component draggableComponent, @NotNull Entry externalEntryDetails) {
+    	Objects.requireNonNull(draggableComponent);
+    	Objects.requireNonNull(externalEntryDetails);
+   	 
+    	getElement().callJsFunction("setExternalDraggableElement", draggableComponent, externalEntryDetails.toJson());
+    }
+
+    /**
+     * Registers a listener to be informed when an external entry dropped event occurred.
+    *
+    * @param listener listener
+    * @return registration to remove the listener
+    * @throws NullPointerException when null is passed
+    */
+   public Registration addExternalEntryReceivedListener(@NotNull ComponentEventListener<ExternalEntryReceivedEvent> listener) {
+       Objects.requireNonNull(listener);
+       return addListener(ExternalEntryReceivedEvent.class, listener);
+   }
 
     /**
      * Registers a listener to be informed when a timeslot click event occurred.
