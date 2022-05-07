@@ -273,6 +273,18 @@ export class FullCalendar extends PolymerElement {
                     data: this._toEventData(event)
                 }
             },
+            eventMouseEnter: (eventInfo) => {
+                let event = eventInfo.event;
+                return {
+                    data: this._toEventData(event)
+                }
+            },
+            eventMouseLeave: (eventInfo) => {
+                let event = eventInfo.event;
+                return {
+                    data: this._toEventData(event)
+                }
+            },
             eventResize: (eventInfo) => {
                 return {
                     data: this._toEventData(eventInfo.event),
@@ -526,6 +538,10 @@ export class FullCalendar extends PolymerElement {
     gotoDate(date) {
         this.getCalendar().gotoDate(date);
     }
+    
+    scrollToTime(duration){
+    	this.getCalendar().scrollToTime(duration);
+    }
 
     setHasLazyLoadingEntryProvider(hasLazyLoadingEntryProvider) {
         if (hasLazyLoadingEntryProvider && !this.hasLazyLoadingEntryProvider) {
@@ -748,7 +764,7 @@ export class FullCalendar extends PolymerElement {
 
     setEventDidMountCallback(s) {
         let calendar = this.getCalendar();
-        this.eventDidMountCallback = new Function("return " + s)();
+        calendar.setOption('eventDidMount', new Function("return " + s)());
     }
 
     setEventWillUnmountCallback(s) {
