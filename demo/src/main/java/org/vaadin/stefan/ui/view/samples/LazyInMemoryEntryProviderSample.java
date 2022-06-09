@@ -3,6 +3,7 @@ package org.vaadin.stefan.ui.view.samples;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
@@ -26,6 +27,9 @@ public class LazyInMemoryEntryProviderSample extends AbstractSample {
 
         // set entry provider
         calendar.setEntryProvider(entryProvider);
+
+        InMemoryEntryProvider<Entry> provider = calendar.getEntryProvider();
+        provider.addEntries();
 
         // CRUD operations
         // to add
