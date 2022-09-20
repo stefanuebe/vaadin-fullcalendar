@@ -1288,11 +1288,11 @@ export class FullCalendar extends PolymerElement {
                     bottom: -20px
                 }
 
-                .fc-event-selected {
+                .fc-event-selected, .fc-event:focus {
                     box-shadow: 0 2px 5px rgba(0, 0, 0, .2)
                 }
 
-                .fc-event-selected:before {
+                .fc-event-selected:before, .fc-event:focus:before {
                     content: "";
                     position: absolute;
                     z-index: 3;
@@ -1302,7 +1302,7 @@ export class FullCalendar extends PolymerElement {
                     bottom: 0
                 }
 
-                .fc-event-selected:after {
+                .fc-event-selected:after, .fc-event:focus:after {
                     content: "";
                     background: rgba(0, 0, 0, .25);
                     background: var(--fc-event-selected-overlay-color, rgba(0, 0, 0, .25));
@@ -1377,34 +1377,34 @@ export class FullCalendar extends PolymerElement {
                 .fc-direction-ltr .fc-h-event:not(.fc-event-selected) .fc-event-resizer-start, .fc-direction-rtl .fc-h-event:not(.fc-event-selected) .fc-event-resizer-end {
                     cursor: w-resize;
                     left: -4px;
-                    left: calc(var(--fc-event-resizer-thickness, 8px) / -2)
+                    left: calc(-.5 * var(--fc-event-resizer-thickness, 8px));
                 }
 
                 .fc-direction-ltr .fc-h-event:not(.fc-event-selected) .fc-event-resizer-end, .fc-direction-rtl .fc-h-event:not(.fc-event-selected) .fc-event-resizer-start {
                     cursor: e-resize;
                     right: -4px;
-                    right: calc(var(--fc-event-resizer-thickness, 8px) / -2)
+                    right: calc(-.5 * var(--fc-event-resizer-thickness, 8px));
                 }
 
                 .fc-h-event.fc-event-selected .fc-event-resizer {
                     top: 50%;
                     margin-top: -4px;
-                    margin-top: calc(var(--fc-event-resizer-dot-total-width, 8px) / -2)
+                    margin-top: calc(-.5 * var(--fc-event-resizer-dot-total-width, 8px));
                 }
 
                 .fc-direction-ltr .fc-h-event.fc-event-selected .fc-event-resizer-start, .fc-direction-rtl .fc-h-event.fc-event-selected .fc-event-resizer-end {
                     left: -4px;
-                    left: calc(var(--fc-event-resizer-dot-total-width, 8px) / -2)
+                    left: calc(-.5 * var(--fc-event-resizer-dot-total-width, 8px));
                 }
 
                 .fc-direction-ltr .fc-h-event.fc-event-selected .fc-event-resizer-end, .fc-direction-rtl .fc-h-event.fc-event-selected .fc-event-resizer-start {
                     right: -4px;
-                    right: calc(var(--fc-event-resizer-dot-total-width, 8px) / -2)
+                    right: calc(-.5 * var(--fc-event-resizer-dot-total-width, 8px));
                 }
 
                 .fc .fc-popover {
                     position: absolute;
-                    z-index: 190;
+                    z-index: 9999;
                     box-shadow: 0 2px 6px rgba(0, 0, 0, .15)
                 }
 
@@ -1652,7 +1652,6 @@ export class FullCalendar extends PolymerElement {
                 }
 
                 .fc-v-event {
-                    display: block;
                     border: 1px solid #3788d8;
                     border: 1px solid var(--fc-event-border-color, #3788d8);
                     background-color: #3788d8;
@@ -1835,7 +1834,7 @@ export class FullCalendar extends PolymerElement {
                     position: relative
                 }
 
-                .fc-liquid-hack .fc-timegrid-col-frame {
+                .fc-media-screen.fc-liquid-hack .fc-timegrid-col-frame {
                     height: auto;
                     position: absolute;
                     top: 0;
@@ -2040,6 +2039,15 @@ export class FullCalendar extends PolymerElement {
                     top: 0;
                     background: var(--fc-page-bg-color, #fff)
                 }
+                
+                .fc .fc-list-table thead {
+					position: absolute;
+					left: -10000px;
+				}
+				
+				.fc .fc-list-table tbody>tr:first-child th {
+					border-top: 0;
+				}
 
                 .fc .fc-list-table th {
                     padding: 0
@@ -2110,8 +2118,26 @@ export class FullCalendar extends PolymerElement {
                 }
 
                 .fc-theme-bootstrap a:not([href]) {
-                    color: inherit
-                }
+					color: inherit;
+				}
+				
+				.fc-theme-bootstrap5 a:not([href]) {
+					color: inherit;
+					text-decoration: inherit;
+				}
+				
+				.fc-theme-bootstrap5 .fc-list,.fc-theme-bootstrap5 .fc-scrollgrid,.fc-theme-bootstrap5 td,.fc-theme-bootstrap5 th {
+					border: 1px solid var(--bs-gray-400);
+				}
+				
+				.fc-theme-bootstrap5 .fc-scrollgrid {
+					border-right-width: 0;
+					border-bottom-width: 0;
+				}
+				
+				.fc-theme-bootstrap5-shaded {
+					background-color: var(--bs-gray-200);
+				}
             </style>
         `;
     }
