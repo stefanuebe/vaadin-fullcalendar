@@ -48,7 +48,7 @@ public class FullDemo extends AbstractCalendarView {
                 .withAutoBrowserTimezone()
                 .withInitialOptions(defaultInitialOptions)
                 .withEntryLimit(3)
-                .withScheduler("GPL-My-Project-Is-Open-Source")
+                .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
                 .build();
 
         calendar.setHeightByParent();

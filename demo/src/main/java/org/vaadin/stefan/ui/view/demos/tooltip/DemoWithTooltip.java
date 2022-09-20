@@ -42,13 +42,13 @@ public class DemoWithTooltip extends AbstractCalendarView {
     protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         EntryService entryService = EntryService.createSimpleInstance();
 
-        FullCalendar calendar = FullCalendarBuilder.create()
+        FullCalendarWithTooltip calendar = FullCalendarBuilder.create()
                 .withCustomType(FullCalendarWithTooltip.class) // create a new instance with a custom type
                 .withInitialOptions(defaultInitialOptions)
                 .withEntryLimit(3)
                 .withInitialEntries(entryService.getEntries()) // init with some sample data
                 .build();
-        
+
         calendar.setEntryDidMountCallback("" +
         		"function(info) {" +
         		" info.el.style.color = 'red';" +
