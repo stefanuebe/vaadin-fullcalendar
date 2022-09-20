@@ -19,7 +19,6 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
-import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -27,7 +26,6 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
 
-import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
@@ -41,8 +39,6 @@ import java.io.Serializable;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -55,14 +51,13 @@ import java.util.stream.Stream;
 @NpmPackage(value = "@fullcalendar/daygrid", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "moment", version = "2.29.1")
-@NpmPackage(value = "moment-timezone", version = "0.5.32")
+@NpmPackage(value = "moment", version = "2.29.4")
+@NpmPackage(value = "moment-timezone", version = "0.5.37")
 @NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
 @Tag("full-calendar")
 @JsModule("./full-calendar.js")
 public class FullCalendar extends Component implements HasStyle, HasSize {
-
     /**
      * The library base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
