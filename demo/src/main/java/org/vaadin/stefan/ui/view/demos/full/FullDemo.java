@@ -17,7 +17,6 @@
 package org.vaadin.stefan.ui.view.demos.full;
 
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
@@ -79,10 +78,8 @@ public class FullDemo extends AbstractCalendarView {
 
         ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
             System.out.println( "ZoneId: " + event.getSource().getTimezone().getZoneId() );
-            LocalDateTime startDate = event.getStart();
             System.out.println( "getStart(): " + event.getStart() );
             System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
-
 
             ResourceEntry entry = new ResourceEntry();
 

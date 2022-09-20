@@ -17,6 +17,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
+
+import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -38,8 +40,8 @@ public abstract class EntryEvent extends ComponentEvent<FullCalendar> {
      * @param fromClient from client
      * @param entryId affected entry id
      */
-    public EntryEvent(FullCalendar source, boolean fromClient, String entryId) {
+    public EntryEvent(FullCalendar source, boolean fromClient, JsonObject jsonObject) {
         super(source, fromClient);
-        this.entry = source.getCachedEntryFromFetch(entryId).orElseThrow(IllegalArgumentException::new);
+        this.entry = source.getCachedEntryFromFetch(jsonObject.getString("id")).orElse(Entry.fromJson(jsonObject));
     }
 }

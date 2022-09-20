@@ -17,6 +17,7 @@
 package org.vaadin.stefan.ui.view.demos.tooltip;
 
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
@@ -49,7 +50,29 @@ public class DemoWithTooltip extends AbstractCalendarView {
                 .withEntryLimit(3)
                 .withInitialEntries(entryService.getEntries()) // init with some sample data
                 .build();
+        
+        calendar.setEntryDidMountCallback("" +
+        		"function(info) {" +
+        		" info.el.style.color = 'red';" +
+        		" return info.el; " +
+        		"}"
+        		);
 
+        Label lbl = new Label("External DnD Entry");
+        add(lbl);
+
+        Entry entry = new Entry();
+        entry.setTitle("External DnD Entry");
+        
+        calendar.setExternalDraggableElement(lbl, entry);
+        
+        calendar.addExternalEntryReceivedListener(ev -> {
+        	System.out.println("External entry received: " + ev.getEntry().toString());
+        });
+        
+        calendar.addDroppedListener(ev -> {
+        	System.out.println("Dropped event: " + ev.toString());
+        });
         return calendar;
     }
 

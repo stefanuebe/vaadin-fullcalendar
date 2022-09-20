@@ -1,7 +1,10 @@
 package org.vaadin.stefan.ui.view.demos.customdaygrid;
 
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
 
+import java.time.LocalDate;
 import java.util.Collections;
 
 import elemental.json.JsonObject;
@@ -38,12 +41,21 @@ public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
                 .withEntryLimit(3)
                 .build();
         
-        calendar.addEntryMouseEnterListener(ev -> {
-        	System.out.println("Entry mouse ENTER: " + ev.getEntry().toString());
-        });
+        Label lbl = new Label("External DnD Entry");
+        add(lbl);
+        
+        Entry newEntry = new Entry();
+        
+        newEntry.setTitle("Test external DND");
 
-        calendar.addEntryMouseLeaveListener(ev -> {
-        	System.out.println("Entry mouse LEAVE: " + ev.getEntry().toString());
+        calendar.setExternalDraggableElement(lbl, newEntry);
+        
+        calendar.addExternalEntryReceivedListener(ev -> {
+        	System.out.println("External entry received: " + ev.getEntry().toString());
+        });
+        
+        calendar.addDroppedListener(ev -> {
+        	System.out.println("Dropped event: " + ev.toString());
         });
 
         calendar.changeView(CUSTOM_VIEW);

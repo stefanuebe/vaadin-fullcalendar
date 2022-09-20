@@ -1154,7 +1154,9 @@ public class Entry extends JsonItem<String> {
      * @param end start time
      */
     public void setRecurringEndTime(LocalTime end) {
-        setRecurringDuration(null);
+    	if(getRecurringDuration() != null)
+    		setRecurringDuration(null);
+    	
         set(EntryKey.RECURRING_END_TIME, end);
     }
 
@@ -1174,7 +1176,9 @@ public class Entry extends JsonItem<String> {
      * @param duration recurrence duration
      */
     public void setRecurringDuration(Duration duration) {
-        setRecurringEndTime(null);
+    	if(getRecurringEndTime() != null)
+    		setRecurringEndTime(null);
+    	
         set(EntryKey.RECURRING_DURATION, duration);
     }
 
