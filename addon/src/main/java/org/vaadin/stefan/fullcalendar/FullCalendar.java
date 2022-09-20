@@ -19,16 +19,20 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
+
+import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
 
@@ -38,6 +42,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -357,7 +362,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         }
     }
 
-
     /**
      * Indicates, if the entry provider is eager loading, i.e. takes care of pushing entries manually as
      * json array, or not, i.e. the client side takes care of fetching data from the server.
@@ -420,147 +424,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return isEagerInMemoryEntryProvider() ? assureEagerInMemoryProvider().getEntryById(id) : Optional.ofNullable(lastFetchedEntries.get(id));
     }
 
-    /**
-     * Returns the entry with the given id. Is empty when the id is not registered.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link EagerInMemoryEntryProvider}
-     * (default on new calendars).
-     * <p/>
-     * <b>Note for developers:</b> Do not use this method inside of events to get an entry for an event.
-     * Use
-     *
-     * @param id id
-     * @return entry or empty
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link EagerInMemoryEntryProvider#getEntryById(String)} instead
-     */
-    @Deprecated
-    public Optional<Entry> getEntryById(@NotNull String id) {
-        return assureEagerInMemoryProvider().getEntryById(id);
-    }
-
-    /**
-     * Returns all entries registered in this instance. Changes in an entry instance is reflected in the
-     * calendar instance on server side, but not client side. If you change an entry make sure to call
-     * {@link #updateEntry(Entry)} afterwards.
-     * <br><br>
-     * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
-     * of the list is <b>unsorted</b> and may vary with each call. The return of a list is due to presenting
-     * a convenient way of using the returned values without the need to encapsulate them yourselves.
-     * <br>
-     * <b>This behavior may change in future.</b>
-     *
-     * @return entries entries
-     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetchAll()} instead
-     */
-    @Deprecated
-    public List<Entry> getEntries() {
-        return entryProvider.fetchAll().collect(Collectors.toList());
-    }
-
-    /**
-     * Returns all entries registered in this instance which timespan crosses the given time span as a new list. You may
-     * pass null for the parameters to have the timespan search only on one side. Passing null for both
-     * parameters return all entries.
-     *
-     * @param filterStart start point of filter timespan or null to have no limit
-     * @param filterEnd   end point of filter timespan or null to have no limit
-     * @return entries
-     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
-     */
-    @Deprecated
-    public List<Entry> getEntries(Instant filterStart, Instant filterEnd) {
-        return getEntries(Timezone.UTC.convertToLocalDateTime(filterStart), Timezone.UTC.convertToLocalDateTime(filterEnd));
-    }
-
-    /**
-     * Returns all entries registered in this instance which timespan crosses the given time span as a new list. You may
-     * pass null for the parameters to have the timespan search only on one side. Passing null for both
-     * parameters return all entries.
-     *
-     * @param filterStart start point of filter timespan or null to have no limit
-     * @param filterEnd   end point of filter timespan or null to have no limit
-     * @return entries
-     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
-     */
-    @Deprecated
-    public List<Entry> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
-        return entryProvider.fetch(new EntryQuery(filterStart, filterEnd)).collect(Collectors.toList());
-    }
-
-    /**
-     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
-     *
-     * @param date end point of filter timespan
-     * @return entries
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
-     */
-    @Deprecated
-    public List<Entry> getEntries(@NotNull Instant date) {
-        return getEntries(Timezone.UTC.convertToLocalDateTime(date));
-    }
-
-    /**
-     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
-     *
-     * @param date end point of filter timespan
-     * @return entries
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
-     */
-    @Deprecated
-    public List<Entry> getEntries(@NotNull LocalDate date) {
-        Objects.requireNonNull(date);
-        return getEntries(date.atStartOfDay());
-    }
-
-
-    /**
-     * Returns all entries registered in this instance which timespan crosses the given date as a new list.
-     *
-     * @param dateTime end point of filter timespan
-     * @return entries
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link EntryProvider#fetch(EntryQuery)} instead
-     */
-    @Deprecated
-    public List<Entry> getEntries(@NotNull LocalDateTime dateTime) {
-        Objects.requireNonNull(dateTime);
-        return getEntries(dateTime, dateTime.plusDays(1));
-    }
-
-    /**
-     * Adds an entry to this calendar. Noop if the entry id is already registered.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @param entry entry
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#addEntry(Entry)} instead
-     */
-    @Deprecated
-    public void addEntry(@NotNull Entry entry) {
-        Objects.requireNonNull(entry);
-        addEntries(Collections.singletonList(entry));
-    }
-
-    /**
-     * Adds an array of entries to the calendar. Noop for the entry id is already registered.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @param arrayOfEntries array of entries
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#addEntries(Entry[])} instead
-     */
-    @Deprecated
-    public void addEntries(@NotNull Entry... arrayOfEntries) {
-        addEntries(Arrays.asList(arrayOfEntries));
-    }
-
     protected InMemoryEntryProvider<Entry> assureInMemoryProvider() {
         if (!(entryProvider instanceof InMemoryEntryProvider)) {
             throw new UnsupportedOperationException("Needs an InMemoryEntryProvider to work.");
@@ -576,127 +439,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         return (EagerInMemoryEntryProvider<Entry>) entryProvider;
     }
-
-    /**
-     * Adds a list of entries to the calendar. Noop for the entry id is already registered.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @param iterableEntries list of entries
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#addEntries(Iterable)} instead
-     */
-    @Deprecated
-    public void addEntries(@NotNull Iterable<Entry> iterableEntries) {
-        assureInMemoryProvider().addEntries(iterableEntries);
+    
+    public void setEntries(Entry... entries) {
+    	EagerInMemoryEntryProvider<Entry> entryProvider = EntryProvider.eagerInMemoryFromItems(entries);
+    	setEntryProvider(entryProvider);
     }
-
-    /**
-     * Updates the given entry on the client side. Will check if the id is already registered, otherwise a noop.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link EagerInMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @param entry entry to update
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link EagerInMemoryEntryProvider#updateEntry(Entry)} instead
-     */
-    @Deprecated
-    public void updateEntry(@NotNull Entry entry) {
-        Objects.requireNonNull(entry);
-        updateEntries(Collections.singletonList(entry));
-    }
-
-    /**
-     * Updates the given entries on the client side. Ignores non-registered entries.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link EagerInMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @param arrayOfEntries entries to update
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link EagerInMemoryEntryProvider#updateEntries(Entry[])} instead
-     */
-    @Deprecated
-    public void updateEntries(@NotNull Entry... arrayOfEntries) {
-        updateEntries(Arrays.asList(arrayOfEntries));
-    }
-
-
-    /**
-     * Updates the given entries on the client side. Ignores non-registered entries.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link EagerInMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @param iterableEntries entries to update
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link EagerInMemoryEntryProvider#updateEntries(Iterable)} instead
-     */
-    @Deprecated
-    public void updateEntries(@NotNull Iterable<Entry> iterableEntries) {
-        assureEagerInMemoryProvider().updateEntries(iterableEntries);
-    }
-
-    /**
-     * Removes the given entry. Noop if the id is not registered.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @param entry entry
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#removeEntry(Entry)} instead
-     */
-    @Deprecated
-    public void removeEntry(@NotNull Entry entry) {
-        Objects.requireNonNull(entry);
-        removeEntries(Collections.singletonList(entry));
-    }
-
-    /**
-     * Removes the given entries. Noop for not registered entries.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @param arrayOfEntries entries to remove
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#removeEntries(Entry[])} instead
-     */
-    @Deprecated
-    public void removeEntries(@NotNull Entry... arrayOfEntries) {
-        removeEntries(Arrays.asList(arrayOfEntries));
-    }
-
-    /**
-     * Removes the given entries. Noop for not registered entries.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @param iterableEntries entries to remove
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#removeEntries(Iterable)} instead
-     */
-    @Deprecated
-    public void removeEntries(@NotNull Iterable<Entry> iterableEntries) {
-        assureInMemoryProvider().removeEntries(iterableEntries);
-    }
-
-    /**
-     * Remove all entries.
-     * <p></p>
-     * <b>Be careful</b>, since this method only works when using an {@link InMemoryEntryProvider}
-     * (default on new calendars).
-     *
-     * @deprecated use {@link #getEntryProvider()} plus {@link InMemoryEntryProvider#removeAllEntries()} instead
-     */
-    @Deprecated
-    public void removeAllEntries() {
-        assureInMemoryProvider().removeAllEntries();
-    }
+    
+	public void setEntries(boolean lazy, Entry... entries) {
+		if(lazy) {
+			LazyInMemoryEntryProvider<Entry> entryProvider = EntryProvider.lazyInMemoryFromItems(entries);
+			setEntryProvider(entryProvider);
+		} else {
+			setEntries(entries);
+		}
+	}
 
     /**
      * Change the view of the calendar (e. g. from monthly to weekly)
@@ -1047,16 +803,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Deprecated. Use {@link #setEntryDidMountCallback(String s)} instead.
-     *
-     * @param s function to be attached
-     */
-    @Deprecated
-    public void setEventDidMountCallback(String s) {
-        setEntryDidMountCallback(s);
-    }
-
-    /**
      * The given string will be interpreted as JS function on the client side
      * and attached to the calendar as the eventDidMount callback. It must be a valid JavaScript function.
      * <br><br>
@@ -1070,16 +816,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void setEntryDidMountCallback(String s) {
         getElement().callJsFunction("setEventDidMountCallback", s);
-    }
-
-    /**
-     * Deprecated. Use {@link #setEntryWillUnmountCallback(String s)} instead.
-     *
-     * @param s function to be attached
-     */
-    @Deprecated
-    public void setEventWillUnmountCallback(String s) {
-        setEntryWillUnmountCallback(s);
     }
 
     /**
