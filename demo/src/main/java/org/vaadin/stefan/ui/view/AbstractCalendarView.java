@@ -114,15 +114,16 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @return initial options
      */
     protected JsonObject createDefaultInitialOptions() {
-JsonObject initialOptions = Json.createObject();
-JsonObject eventTimeFormat = Json.createObject();
-//{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
-eventTimeFormat.put("hour", "2-digit");
-eventTimeFormat.put("minute", "2-digit");
-eventTimeFormat.put("timeZoneName", "short");
-eventTimeFormat.put("meridiem", false);
-eventTimeFormat.put("hour12", false);
-initialOptions.put("eventTimeFormat", eventTimeFormat);
+		JsonObject initialOptions = Json.createObject();
+		JsonObject eventTimeFormat = Json.createObject();
+		//{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
+		eventTimeFormat.put("hour", "2-digit");
+		eventTimeFormat.put("minute", "2-digit");
+		eventTimeFormat.put("timeZoneName", "short");
+		eventTimeFormat.put("meridiem", false);
+		eventTimeFormat.put("hour12", false);
+		initialOptions.put("eventTimeFormat", eventTimeFormat);
+		
         return initialOptions;
     }
 

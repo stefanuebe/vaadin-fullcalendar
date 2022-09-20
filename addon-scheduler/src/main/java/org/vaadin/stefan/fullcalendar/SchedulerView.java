@@ -43,7 +43,6 @@ public enum SchedulerView implements CalendarView {
     RESOURCE_TIME_GRID_DAY("resourceTimeGridDay"), // was AGENDA_DAY
     /** Week timegrid showing also resources */
     RESOURCE_TIME_GRID_WEEK("resourceTimeGridWeek"), // was AGENDA_WEEK
-
     ;
 
     private final String clientSideName;

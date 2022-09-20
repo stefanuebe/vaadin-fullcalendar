@@ -288,9 +288,8 @@ public class CalendarViewToolbar extends MenuBar {
             }
         } else {
             calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
-            //                if (calendar instanceof Scheduler) {
-            //                    calendarViews.addAll(Arrays.asList(SchedulerView.values()));
-            //                }
+            if (calendar instanceof Scheduler) 
+                calendarViews.addAll(Arrays.asList(SchedulerView.values()));
         }
 
         calendarViews.sort(Comparator.comparing(CalendarView::getName));
