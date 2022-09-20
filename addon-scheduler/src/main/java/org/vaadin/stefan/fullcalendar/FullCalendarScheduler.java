@@ -220,7 +220,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     private void removeFromEntries(Iterable<Resource> iterableResources) {
         List<Resource> resources = StreamSupport.stream(iterableResources.spliterator(), false).collect(Collectors.toList());
-        getEntries().stream().filter(e -> e instanceof ResourceEntry).forEach(e -> ((ResourceEntry) e).unassignResources(resources));
+        getEntryProvider().fetchAll().collect(Collectors.toList()).stream().filter(e -> e instanceof ResourceEntry).forEach(e -> ((ResourceEntry) e).unassignResources(resources));
     }
 
     @Override

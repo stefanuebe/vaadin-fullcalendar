@@ -24,12 +24,12 @@ import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
+import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -155,7 +155,7 @@ public class FullDemo extends AbstractCalendarView {
         List<Resource> computerRoom2Children = Arrays.asList(computer2A, computer2B, computer2C);
         computerRoom2.addChildren(computerRoom2Children);
         ((Scheduler) calendar).addResources(computerRoom2Children);
-
+        
         EntryManager.createTimedEntry(calendar, "Meeting 1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
 
         EntryManager.createTimedEntry(calendar, "Meeting 2", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomOrange);

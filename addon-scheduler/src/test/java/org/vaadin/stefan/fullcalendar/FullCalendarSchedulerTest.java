@@ -221,18 +221,18 @@ public class FullCalendarSchedulerTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        calendar.addEntries(entry1, entry2, entry3, entry3);
+        calendar.setEntries(entry1, entry2, entry3, entry3);
 
-        Collection<Entry> entries = calendar.getEntries();
+        Collection<Entry> entries = getEntryProvider(calendar).getEntries();
         Assertions.assertEquals(3, entries.size());
 
         Assertions.assertTrue(entries.contains(entry1));
         Assertions.assertTrue(entries.contains(entry2));
         Assertions.assertTrue(entries.contains(entry3));
 
-        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
+        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
+        assertOptionalEquals(entry2, getEntryProvider(calendar).getEntryById(entry2.getId()));
+        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
     }
 
     @Test
@@ -243,18 +243,18 @@ public class FullCalendarSchedulerTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        calendar.addEntries(Arrays.asList(entry1, entry2, entry3, entry3));
+        calendar.setEntries(Arrays.asList(entry1, entry2, entry3, entry3));
 
-        Collection<Entry> entries = calendar.getEntries();
+        Collection<Entry> entries = getEntryProvider(calendar).getEntries();
         Assertions.assertEquals(3, entries.size());
 
         Assertions.assertTrue(entries.contains(entry1));
         Assertions.assertTrue(entries.contains(entry2));
         Assertions.assertTrue(entries.contains(entry3));
 
-        assertOptionalEquals(entry1, calendar.getEntryById(entry1.getId()));
-        assertOptionalEquals(entry2, calendar.getEntryById(entry2.getId()));
-        assertOptionalEquals(entry3, calendar.getEntryById(entry3.getId()));
+        assertOptionalEquals(entry1, getEntryProvider(calendar).getEntryById(entry1.getId()));
+        assertOptionalEquals(entry2, getEntryProvider(calendar).getEntryById(entry2.getId()));
+        assertOptionalEquals(entry3, getEntryProvider(calendar).getEntryById(entry3.getId()));
     }
 
     @Test
@@ -265,10 +265,10 @@ public class FullCalendarSchedulerTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        calendar.addEntries(entry1, entry2, entry3);
-        calendar.removeEntries(entry1, entry2);
+        calendar.setEntries(entry1, entry2, entry3);
+        getEntryProvider(calendar).removeEntries(entry1, entry2);
 
-        Collection<Entry> entries = calendar.getEntries();
+        Collection<Entry> entries = getEntryProvider(calendar).getEntries();
         Assertions.assertEquals(1, entries.size());
 
         Assertions.assertFalse(entries.contains(entry1));
@@ -284,10 +284,10 @@ public class FullCalendarSchedulerTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        calendar.addEntries(entry1, entry2, entry3);
-        calendar.removeEntries(Arrays.asList(entry1, entry2));
+        getEntryProvider(calendar).addEntries(entry1, entry2, entry3);
+        getEntryProvider(calendar).removeEntries(Arrays.asList(entry1, entry2));
 
-        Collection<Entry> entries = calendar.getEntries();
+        Collection<Entry> entries = getEntryProvider(calendar).getEntries();
         Assertions.assertEquals(1, entries.size());
 
         Assertions.assertFalse(entries.contains(entry1));

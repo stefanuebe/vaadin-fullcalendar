@@ -369,7 +369,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return is eager loading
      */
     public boolean isEagerInMemoryEntryProvider() {
-        return entryProvider instanceof EagerInMemoryEntryProvider;
+        return entryProvider.isEager();
+    }
+    
+    /**
+     * Indicates, if the entry provider is lazy loading
+     *
+     * @return is lazy loading
+     */
+    public boolean isLazyInMemoryEntryProvider() {
+        return entryProvider.isLazy();
     }
 
     /**
@@ -378,7 +387,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return is eager loading
      */
     public boolean isInMemoryEntryProvider() {
-        return entryProvider instanceof InMemoryEntryProvider;
+        return entryProvider.isInMemory();
     }
 
     @ClientCallable
@@ -440,12 +449,54 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return (EagerInMemoryEntryProvider<Entry>) entryProvider;
     }
     
-    public void setEntries(Entry... entries) {
+    /**
+     * Create an in memory eager variant
+     *
+     * @param entries entries to set
+     * @throws NullPointerException when null is passed
+     */
+    public void setEntries(@NotNull Entry... entries) {
+    	Objects.requireNonNull(entries);
+    	
+    	setEntries(Arrays.asList(entries));
+    }
+    
+    /**
+     * Create an in memory eager variant
+     *
+     * @param entries entries to set
+     * @throws NullPointerException when null is passed
+     */
+    public void setEntries(@NotNull Iterable<Entry> entries) {
+    	Objects.requireNonNull(entries);
+    	
     	EagerInMemoryEntryProvider<Entry> entryProvider = EntryProvider.eagerInMemoryFromItems(entries);
     	setEntryProvider(entryProvider);
     }
     
-	public void setEntries(boolean lazy, Entry... entries) {
+    /**
+     * Create an in memory eager or lazy variant depending on the lazy flag
+     *
+     * @param lazy set to true for an in memory lazy variant
+     * @param entries entries to set
+     * @throws NullPointerException when null is passed
+     */
+    public void setEntries(boolean lazy, @NotNull Entry... entries) {
+    	Objects.requireNonNull(entries);
+    	
+    	setEntries(lazy, Arrays.asList(entries));
+    }
+    
+    /**
+     * Create an in memory eager or lazy variant depending on the lazy flag
+     *
+     * @param lazy set to true for an in memory lazy variant
+     * @param entries entries to set
+     * @throws NullPointerException when null is passed
+     */
+	public void setEntries(boolean lazy, @NotNull Iterable<Entry> entries) {
+		Objects.requireNonNull(entries);
+		
 		if(lazy) {
 			LazyInMemoryEntryProvider<Entry> entryProvider = EntryProvider.lazyInMemoryFromItems(entries);
 			setEntryProvider(entryProvider);

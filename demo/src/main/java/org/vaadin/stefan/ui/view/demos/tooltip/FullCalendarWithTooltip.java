@@ -26,5 +26,4 @@ public class FullCalendarWithTooltip extends FullCalendarScheduler {
     public FullCalendarWithTooltip(JsonObject initialOptions) {
         super(initialOptions);
     }
-
 }

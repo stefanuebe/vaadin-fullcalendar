@@ -1,10 +1,8 @@
 package org.vaadin.stefan.ui.view.demos.customdaygrid;
 
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
 
-import java.time.LocalDate;
 import java.util.Collections;
 
 import elemental.json.JsonObject;
@@ -23,8 +21,6 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
     private static final long serialVersionUID = 1L;
     public static final int NUMBER_OF_WEEKS = 6;
-
-    private FullCalendar calendar;
 
     // we create a new view with a fixed number of weeks by using the initial options
     // https://fullcalendar.io/docs/custom-views

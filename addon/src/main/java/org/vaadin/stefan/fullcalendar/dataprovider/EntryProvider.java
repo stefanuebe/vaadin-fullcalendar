@@ -170,6 +170,24 @@ public interface EntryProvider<T extends Entry> {
     default boolean isInMemory() {
         return this instanceof InMemoryEntryProvider;
     }
+    
+    /**
+     * Indicates, if this instance is an in memory instance or not. By default checks, if this instance
+     * implements {@link InMemoryEntryProvider}.
+     * @return is in memory
+     */
+    default boolean isEager() {
+        return this instanceof EagerInMemoryEntryProvider;
+    }
+    
+    /**
+     * Indicates, if this instance is an in memory instance or not. By default checks, if this instance
+     * implements {@link InMemoryEntryProvider}.
+     * @return is in memory
+     */
+    default boolean isLazy() {
+        return this instanceof LazyInMemoryEntryProvider;
+    }
 
     /**
      * Adds a listener, that will be notified, when the entries are about to change (e.g. due to a refresh).
