@@ -112,11 +112,12 @@ public class FullDemo extends AbstractCalendarView {
 
         calendar.setEntryDidMountCallback(
                 "function(info) { "
-                        + "    if(info.event.extendedProps.cursors != undefined) { "
+                		+ "let cr = info.event.getCustomProperty('cursors', undefined);"
+                        + "    if(cr != undefined) { "
                         + "        if(!info.event.startEditable) { "
-                        + "            info.el.style.cursor = info.event.extendedProps.cursors.disabled;"
+                        + "            info.el.style.cursor = cr.disabled;"
                         + "        } else { "
-                        + "            info.el.style.cursor = info.event.extendedProps.cursors.enabled;"
+                        + "            info.el.style.cursor = cr.enabled;"
                         + "        }"
                         + "    }"
                         + "}");
