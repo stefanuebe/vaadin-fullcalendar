@@ -36,19 +36,29 @@ public class DemoCustomProperties extends VerticalLayout {
     
     private void createCalendarInstance() {
     	calendar = FullCalendarBuilder.create()
-                .withEntryContent("function (info) {" +
-                        "    info.backgroundColor = info.event.getCustomProperty('selected', false) ? 'lightblue' : 'lightgreen';" +
-                        "}")
                 .build();
     	
     	calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH);
 
+        calendar.setEntryDidMountCallback("function (info) {" +
+                "info.el.style.backgroundColor = info.event.getCustomProperty('selected', false) ? 'lightblue' : 'lightgreen';" +
+                "}");
+
         calendar.addEntryClickedListener(e -> {
             Entry oldSelected = this.selected;
-            oldSelected.setCustomProperty("selected", false);
+            if (oldSelected != null) {
+                oldSelected.setCustomProperty("selected", false);
+            }
             this.selected = e.getEntry();
             this.selected.setCustomProperty("selected", true);
-            calendar.updateEntries(oldSelected, this.selected);
+            if (oldSelected != null) {
+                calendar.removeEntries(oldSelected, this.selected);
+                calendar.addEntries(oldSelected, this.selected);
+
+            } else {
+                calendar.removeEntries(this.selected);
+                calendar.addEntries(this.selected);
+            }
         });
 
         calendar.setHeightByParent();
