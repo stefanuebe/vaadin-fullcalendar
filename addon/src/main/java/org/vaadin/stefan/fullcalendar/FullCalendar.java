@@ -101,6 +101,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private boolean refreshAllRequested;
 
+    private final JsonObject initialOptions;
+
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
      * <p></p>
@@ -133,6 +135,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             getElement().setProperty("dayMaxEvents", false);
         }
 
+        initialOptions = Json.createObject();
+
         postConstruct();
     }
 
@@ -164,7 +168,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendar(@NotNull JsonObject initialOptions) {
-        getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
+        this.initialOptions = initialOptions;
+
+        updateInitialOptions();
 
         postConstruct();
     }
@@ -180,6 +186,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             latestKnownViewName = event.getName();
             latestKnownIntervalStart = event.getIntervalStart();
         });
+    }
+
+    /**
+     * Updates the client side with the latest state of the initial options object. Please be aware, that after
+     * attaching the calendar to the client side, the client side will ignore any changes to the object, which
+     * makes this method kind of noop.
+     */
+    protected void updateInitialOptions() {
+        this.getElement().setPropertyJson("initialOptions", (JsonValue)Objects.requireNonNull(initialOptions));
     }
 
     @Override
@@ -1016,8 +1031,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * The given string will be interpreted as JS function on the client side
-     * and attached to the calendar as the eventContent callback. It must be a valid JavaScript function.
+     * The given string will be interpreted as JS on the client side
+     * and attached to the calendar as the "eventContent" callback. It must be a valid JavaScript expression or
+     * function as described in <a href="https://fullcalendar.io/docs/content-injection">the official FC docs</a>.
+     * <br><br>
+     * As the entry content can only be set initially, calling this method after attaching the component to the
+     * client side will have no effect.
      * <br><br>
      * A Content Injection Input. Generated content is inserted inside the inner-most wrapper of the event element.
      * If supplied as a callback function, it is called every time the associated event data changes.
@@ -1041,9 +1060,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * </pre>
      *
      * @param s function to be attached
+     *
+     * @deprecated This method sets the given string as initial options parameter. It is recommended to modify
+     * the initial options directly or use the {@link FullCalendarBuilder#withEntryContent(String)} method instead.
      */
+    @Deprecated
     public void setEntryContentCallback(String s) {
-        getElement().callJsFunction("setEventContentCallback", s);
+        getInitialOptions().put("eventContent", s);
+        updateInitialOptions();
     }
 
     /**
@@ -1649,6 +1673,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void setMoreLinkClickAction(MoreLinkClickAction moreLinkClickAction) {
         getElement().setProperty("moreLinkClickAction", (moreLinkClickAction != null ? moreLinkClickAction : MoreLinkClickAction.POPUP).getClientSideValue());
+    }
+
+    /**
+     * Returns the initial options object (not a copy). When making changes to this object, make sure to call
+     * {@link #updateInitialOptions()} afterwards to update the client side. Changes after client side attachment
+     * have no effect.
+     *
+     * @see #updateInitialOptions()
+     * @return the initial options object
+     */
+    protected JsonObject getInitialOptions() {
+        return initialOptions;
     }
 
     /**
