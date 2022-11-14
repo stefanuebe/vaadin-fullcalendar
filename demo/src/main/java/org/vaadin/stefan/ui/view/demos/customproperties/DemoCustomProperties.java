@@ -35,14 +35,13 @@ public class DemoCustomProperties extends VerticalLayout {
     }
     
     private void createCalendarInstance() {
-    	calendar = FullCalendarBuilder.create().build();
+    	calendar = FullCalendarBuilder.create()
+                .withEntryContent("function (info) {" +
+                        "    info.backgroundColor = info.event.getCustomProperty('selected', false) ? 'lightblue' : 'lightgreen';" +
+                        "}")
+                .build();
     	
     	calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH);
-
-        calendar.setEntryContentCallback("" +
-            "function (info) {" +
-            "    info.backgroundColor = info.event.getCustomProperty('selected', false) ? 'lightblue' : 'lightgreen';" +
-            "}");
 
         calendar.addEntryClickedListener(e -> {
             Entry oldSelected = this.selected;

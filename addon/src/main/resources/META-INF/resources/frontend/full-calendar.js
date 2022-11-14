@@ -113,26 +113,23 @@ export class FullCalendar extends PolymerElement {
 
             // if the calendar is options to modify the event appearance, we extend the custom api here
             // see _initCalendar for details
-            if (options.eventDidMount) {
+            if (typeof options.eventDidMount === "function") {
                 let initEventDidMount = options.eventDidMount;
-                options['eventDidMount'] = (info) => {
+                    options.eventDidMount = (info) => {
+                        let event = info.event;
+                        this._addCustomAPI(event);
+
+                        return initEventDidMount.call(this._calendar, info);
+                    };
+                }
+
+            if (typeof options.eventContent === "function") {
+            let initEventContent = options.eventContent;
+                options.eventContent = (info) => {
                     let event = info.event;
                     this._addCustomAPI(event);
 
-                    if (initEventDidMount) {
-                        initEventDidMount.call(this._calendar, info);
-                    }
-                };
-            }
-            if (options.eventContent) {
-                let initEventContent = options.eventContent;
-                options['eventContent'] = (info) => {
-                    let event = info.event;
-                    this._addCustomAPI(event);
-
-                    if (initEventContent) {
-                        initEventContent.call(this._calendar, info);
-                    }
+                    return initEventContent.call(this._calendar, info);
                 };
             }
 
@@ -392,6 +389,11 @@ export class FullCalendar extends PolymerElement {
 
         options['locales'] = allLocales;
         options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
+
+        // be aware of never setting or passing in any harmful content from the serverside
+        if (typeof options.eventContent === "string") {
+            options.eventContent = new Function("return " + options.eventContent)();
+        }
 
         return options;
     }
@@ -758,8 +760,10 @@ export class FullCalendar extends PolymerElement {
     }
 
     setEventContentCallback(s) {
-        let calendar = this.getCalendar();
-        calendar.setOption('eventContent', new Function("return " + s)());
+        if (this.calendar) {
+            console.warn("DEPRECATED: Setting the event content callback after the calendar has" +
+                " been initialized is no longer supported. Please use the initial options to set the 'eventContent'.");
+        }
     }
 
     setEventDidMountCallback(s) {

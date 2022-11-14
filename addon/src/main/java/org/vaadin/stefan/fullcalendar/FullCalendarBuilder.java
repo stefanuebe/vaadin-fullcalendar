@@ -40,9 +40,10 @@ public class FullCalendarBuilder {
     private final EntryProvider<Entry> entryProvider;
     private final Class<? extends FullCalendar> customType;
     private final Collection<Entry> initialEntries;
+    private final String entryContent;
 
     @SuppressWarnings("unchecked")
-    private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone, String schedulerLicenseKey, JsonObject initialOptions, EntryProvider<? extends Entry> entryProvider, Class<? extends FullCalendar> customType, Collection<Entry> initialEntries) {
+    private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone, String schedulerLicenseKey, JsonObject initialOptions, EntryProvider<? extends Entry> entryProvider, Class<? extends FullCalendar> customType, Collection<Entry> initialEntries, String entryContent) {
         this.scheduler = scheduler;
         this.entryLimit = entryLimit;
         this.autoBrowserTimezone = autoBrowserTimezone;
@@ -51,6 +52,7 @@ public class FullCalendarBuilder {
         this.entryProvider = (EntryProvider<Entry>) entryProvider;
         this.customType = customType;
         this.initialEntries = initialEntries;
+        this.entryContent = entryContent;
     }
 
     /**
@@ -59,7 +61,7 @@ public class FullCalendarBuilder {
      * @return builder instance
      */
     public static FullCalendarBuilder create() {
-        return new FullCalendarBuilder(false, -1, false, null, null, null, null, null);
+        return new FullCalendarBuilder(false, -1, false, null, null, null, null, null, null);
     }
 
     /**
@@ -70,7 +72,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withInitialEntries(@NotNull Collection<Entry> initialEntries) {
-        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, Objects.requireNonNull(initialEntries));
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, Objects.requireNonNull(initialEntries), entryContent);
     }
 
     /**
@@ -82,7 +84,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withCustomType(@NotNull Class<? extends FullCalendar> customType) {
-        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, Objects.requireNonNull(customType), initialEntries);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, Objects.requireNonNull(customType), initialEntries, entryContent);
     }
 
     /**
@@ -93,7 +95,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withEntryProvider(@NotNull EntryProvider<? extends Entry> entryProvider) {
-        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, Objects.requireNonNull(entryProvider), customType, initialEntries);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, Objects.requireNonNull(entryProvider), customType, initialEntries, entryContent);
     }
 
     /**
@@ -106,7 +108,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withScheduler() {
-        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries);
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent);
     }
 
     /**
@@ -119,7 +121,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withScheduler(String licenseKey) {
-        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, licenseKey, initialOptions, entryProvider, customType, initialEntries);
+        return new FullCalendarBuilder(true, entryLimit, autoBrowserTimezone, licenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent);
     }
 
     /**
@@ -132,7 +134,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withEntryLimit(int entryLimit) {
-        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent);
     }
 
     /**
@@ -141,7 +143,7 @@ public class FullCalendarBuilder {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder withAutoBrowserTimezone() {
-        return new FullCalendarBuilder(scheduler, entryLimit, true, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries);
+        return new FullCalendarBuilder(scheduler, entryLimit, true, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent);
     }
 
     /**
@@ -173,7 +175,44 @@ public class FullCalendarBuilder {
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendarBuilder withInitialOptions(@NotNull JsonObject initialOptions) {
-        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, Objects.requireNonNull(initialOptions), entryProvider, customType, initialEntries);
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, Objects.requireNonNull(initialOptions), entryProvider, customType, initialEntries, entryContent);
+    }
+
+    /**
+     * The given string will be interpreted as JS on the client side
+     * and attached to the calendar as the "eventContent" callback. It must be a valid JavaScript expression or
+     * function as described in <a href="https://fullcalendar.io/docs/content-injection">the official FC docs</a>.
+     * <br><br>
+     * Internally this method will modify the initial options. If you set the "eventContent" at some custom
+     * initial options, calling this method will override the respective custom initial option value (in short:
+     * calling this method will always win).
+     * <br><br>
+     * A Content Injection Input. Generated content is inserted inside the inner-most wrapper of the event element.
+     * If supplied as a callback function, it is called every time the associated event data changes.
+     * <br><br>
+     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
+     * other security mechanism applied on this string, so check it yourself before passing it to the client.
+     * <br><br>
+     * <b>Example</b>
+     * <pre>
+     * calendar.setEntryContentCallback("" +
+     * "function(arg) { " +
+     * "  let italicEl = document.createElement('i');" +
+     * "  if (arg.event.getCustomProperty('isUrgent', false)) {" +
+     * "    italicEl.innerHTML = 'urgent event';" +
+     * "  } else {" +
+     * "    italicEl.innerHTML = 'normal event';" +
+     * "  }" +
+     * "  let arrayOfDomNodes = [ italicEl ];" +
+     * "  return { domNodes: arrayOfDomNodes }" +
+     * "}");
+     * </pre>
+     *
+     * @param entryContent function to be attached
+     *
+     */
+    public FullCalendarBuilder withEntryContent(@NotNull String entryContent) {
+        return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent);
     }
 
     /**
@@ -235,6 +274,10 @@ public class FullCalendarBuilder {
         if (initialOptions != null) {
             if (entryLimit > 0 && !initialOptions.hasKey("dayMaxEvents")) {
                 initialOptions.put("dayMaxEvents", entryLimit);
+            }
+
+            if (entryContent != null) {
+                initialOptions.put("eventContent", entryContent);
             }
         }
     }
