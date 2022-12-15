@@ -59,7 +59,7 @@ import static com.github.appreciated.app.layout.entity.Section.HEADER;
 @CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
 public abstract class AbstractLayout extends AppLayoutRouterLayout implements AfterNavigationObserver {
-    public static final String ADDON_VERSION = "4.1.4";
+    public static final String ADDON_VERSION = "4.1.5";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")
