@@ -20,8 +20,8 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import {afterNextRender} from '@polymer/polymer/lib/utils/render-status.js';
 
-import '@fullcalendar/core'; // https://github.com/stefanuebe/vaadin_fullcalendar/issues/159
-import {Calendar} from '@fullcalendar/core';
+import '@fullcalendar/core/vdom'; // https://github.com/stefanuebe/vaadin_fullcalendar/issues/159
+import '@fullcalendar/core'; // https://github.com/stefanuebe/vaadin_fullcalendar/issues/159import {Calendar} from '@fullcalendar/core';
 import interaction from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
