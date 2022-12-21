@@ -1,0 +1,3 @@
+.fc a:not(:any-link) {
+    color: var(--lumo-body-text-color) !important;
+}

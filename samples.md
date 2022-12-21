@@ -395,7 +395,7 @@ as a tooltip when hovering the entry inside the FC. Please customize the example
 full-calendar-with-tooltips.js
 
 ```javascript
-import {FullCalendarScheduler} from '@vaadin/flow-frontend/full-calendar-scheduler.js';
+import {FullCalendarScheduler} from '@vaadin/flow-frontend/full-calendar-scheduler.ts';
 import tippy from 'tippy.js';
 
 export class FullCalendarWithTooltip extends FullCalendarScheduler {
@@ -443,7 +443,7 @@ customElements.define(FullCalendarWithTooltip.is, FullCalendarWithTooltip);
 
 ```java
 @Tag("full-calendar-with-tooltip")
-@JsModule("./full-calendar-with-tooltip.js")
+@JsModule("./full-calendar-with-tooltip.ts")
 @CssImport("tippy.js/dist/tippy.css")
 @CssImport("tippy.js/themes/light.css")
 public class FullCalendarWithTooltip extends FullCalendarScheduler {

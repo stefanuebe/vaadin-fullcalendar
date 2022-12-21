@@ -9,7 +9,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 
 @NpmPackage(value = "tippy.js", version = "6.2.3")
 @Tag("full-calendar-with-tooltip")
-@JsModule("./full-calendar-with-tooltip.js")
+@JsModule("./full-calendar-with-tooltip.ts")
 @CssImport("tippy.js/dist/tippy.css")
 @CssImport("tippy.js/themes/light.css")
 public class FullCalendarWithTooltip extends FullCalendarScheduler {

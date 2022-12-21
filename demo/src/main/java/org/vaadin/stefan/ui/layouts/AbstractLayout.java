@@ -16,33 +16,24 @@
  */
 package org.vaadin.stefan.ui.layouts;
 
-import com.github.appreciated.app.layout.component.appbar.AppBarBuilder;
-import com.github.appreciated.app.layout.component.applayout.LeftLayouts;
-import com.github.appreciated.app.layout.component.builder.AppLayoutBuilder;
-import com.github.appreciated.app.layout.component.menu.left.builder.LeftAppMenuBuilder;
-import com.github.appreciated.app.layout.component.menu.left.builder.LeftSubMenuBuilder;
-import com.github.appreciated.app.layout.component.menu.left.items.LeftNavigationItem;
-import com.github.appreciated.app.layout.component.router.AppLayoutRouterLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.VaadinRequest;
-import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
@@ -50,31 +41,19 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.util.Locale;
 
-import static com.github.appreciated.app.layout.entity.Section.FOOTER;
-import static com.github.appreciated.app.layout.entity.Section.HEADER;
-
-@Push
-@Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
-@Theme(value = Lumo.class, variant = Lumo.LIGHT)
 @CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
-public abstract class AbstractLayout extends AppLayoutRouterLayout implements AfterNavigationObserver {
-    public static final String ADDON_VERSION = "4.1.6";
+public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
+    public static final String ADDON_VERSION = "6.0.0-SNAPSHOT";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")
     public AbstractLayout() {
         selectCurrentLocale();
 
-        Component appBar = generateHeaderBar();
-
-        Component appMenu = generateMenu();
-
-        init(AppLayoutBuilder.get(LeftLayouts.LeftResponsiveHybrid.class)
-                .withTitle(generateTitle("FullCalendar " + ADDON_VERSION + " for Vaadin Flow"))
-                .withAppBar(appBar)
-                .withAppMenu(appMenu)
-                .build());
+        setPrimarySection(Section.DRAWER);
+        addHeaderContent();
+        addDrawerContent();
     }
 
 
@@ -100,30 +79,22 @@ public abstract class AbstractLayout extends AppLayoutRouterLayout implements Af
         return span;
     }
 
-    protected FlexLayout generateHeaderBar() {
-        AppBarBuilder builder = AppBarBuilder.get();
+    protected void addHeaderContent() {
+        DrawerToggle toggle = new DrawerToggle();
+        toggle.getElement().setAttribute("aria-label", "Menu toggle");
 
-        return builder.build();
+        Component title = generateTitle("FullCalendar " + ADDON_VERSION + " for Vaadin Flow");
+
+        addToNavbar(true, toggle, title);
     }
 
-    protected void addMenu(Object menuBuilder, Class<? extends Component> clazz) {
-        MenuItem item = clazz.getAnnotation(MenuItem.class);
-        String caption = item != null ? item.label() : String.join(" ", StringUtils.splitByCharacterTypeCamelCase(clazz.getSimpleName()));
-        ;
-        if (menuBuilder instanceof LeftAppMenuBuilder) {
-            ((LeftAppMenuBuilder) menuBuilder).add(new LeftNavigationItem(caption, new Icon(), clazz));
-        } else {
-            ((LeftSubMenuBuilder) menuBuilder).add(new LeftNavigationItem(caption, new Icon(), clazz));
-        }
-    }
-
-    protected Component generateMenu() {
+    protected void addDrawerContent() {
         H4 header = new H4("Samples");
         header.addClassName("header");
 
-        VerticalLayout footerLayout = new VerticalLayout();
+        VerticalLayout footer = new VerticalLayout();
 
-        Button toggleButton = new Button("Toggle dark theme", click -> {
+        Button themeToggle = new Button("Toggle dark theme", click -> {
             ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 
             if (themeList.contains(Lumo.DARK)) {
@@ -132,25 +103,29 @@ public abstract class AbstractLayout extends AppLayoutRouterLayout implements Af
                 themeList.add(Lumo.DARK);
             }
         });
-        toggleButton.setWidthFull();
+        themeToggle.setWidthFull();
 
-        Div footer = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 14.9.3. " +
+        Div footerText = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 23.3.1. " +
                 "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
 
-        footerLayout.addClassName("footer");
-        footerLayout.add(toggleButton, footer);
+        footer.addClassName("footer");
+        footer.add(themeToggle, footerText);
 
-        LeftAppMenuBuilder menuBuilder = LeftAppMenuBuilder
-                .get()
-                .addToSection(HEADER, header)
-                .addToSection(FOOTER, footerLayout);
+        AppNav nav = new AppNav();
+        createMenuEntries(nav);
 
-        createMenuEntries(menuBuilder);
+        addToDrawer(header, new Scroller(nav), footer);
 
-        return menuBuilder.build();
     }
 
-    protected abstract void createMenuEntries(LeftAppMenuBuilder menuBuilder);
+    protected abstract void createMenuEntries(AppNav menuBuilder);
+
+    protected void addMenu(AppNav navigation, Class<? extends Component> clazz) {
+        MenuItem item = clazz.getAnnotation(MenuItem.class);
+        String caption = item != null ? item.label() : String.join(" ", StringUtils.splitByCharacterTypeCamelCase(clazz.getSimpleName()));
+
+        navigation.addItem(new AppNavItem(caption, clazz, "la"));
+    }
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
