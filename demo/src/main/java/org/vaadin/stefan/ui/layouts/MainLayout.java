@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.ui.layouts;
 
-import com.github.appreciated.app.layout.component.menu.left.builder.LeftAppMenuBuilder;
 import org.vaadin.stefan.ui.view.demos.customdaygrid.DemoDayGridWeekWithSixWeeks;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
@@ -28,18 +27,18 @@ import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
 public class MainLayout extends AbstractLayout {
     @Override
-    protected void createMenuEntries(LeftAppMenuBuilder menuBuilder) {
-        addMenu(menuBuilder, FullDemo.class);
-//        addMenu(menuBuilder, BasicDemo.class);
-        addMenu(menuBuilder, InMemoryEntryProviderWithEagerLoadingDemo.class);
-        addMenu(menuBuilder, InMemoryEntryProviderWithLazyLoadingDemo.class);
-        addMenu(menuBuilder, CallbackEntryProviderDemo.class);
-        addMenu(menuBuilder, BackendEntryProviderDemo.class);
-        addMenu(menuBuilder, DemoWithTooltip.class);
-//        addMenu(menuBuilder, DemoCustomProperties.class); // TODO overhaul the demo first
-//        addMenu(menuBuilder, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
-//        addMenu(menuBuilder, DemoTimelineWith28Days.class); // TODO overhaul the demo first
-        addMenu(menuBuilder, DemoDayGridWeekWithSixWeeks.class);
+    protected void createMenuEntries(AppNav nav) {
+        addMenu(nav, FullDemo.class);
+//        addMenu(nav, BasicDemo.class);
+        addMenu(nav, InMemoryEntryProviderWithEagerLoadingDemo.class);
+        addMenu(nav, InMemoryEntryProviderWithLazyLoadingDemo.class);
+        addMenu(nav, CallbackEntryProviderDemo.class);
+        addMenu(nav, BackendEntryProviderDemo.class);
+        addMenu(nav, DemoWithTooltip.class);
+//        addMenu(nav, DemoCustomProperties.class); // TODO overhaul the demo first
+//        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
+//        addMenu(nav, DemoTimelineWith28Days.class); // TODO overhaul the demo first
+        addMenu(nav, DemoDayGridWeekWithSixWeeks.class);
 
 
     }

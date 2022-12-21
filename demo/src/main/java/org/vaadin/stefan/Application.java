@@ -1,6 +1,8 @@
 package org.vaadin.stefan;
 
-import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.component.page.Viewport;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -9,10 +11,9 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  * The entry point of the Spring Boot application.
  */
 @SpringBootApplication
-@NpmPackage(value = "lumo-css-framework", version = "^4.0.10")
-@NpmPackage(value = "line-awesome", version = "1.3.0")
-public class Application extends SpringBootServletInitializer {
-
+@Push
+@Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
+public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
     public static void main(String[] args) throws Throwable {
         SpringApplication.run(Application.class, args);
     }

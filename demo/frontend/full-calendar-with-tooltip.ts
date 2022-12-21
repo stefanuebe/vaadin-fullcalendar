@@ -1,5 +1,5 @@
 /*
-   Copyright 2020, Stefan Uebe
+   Copyright 2022, Stefan Uebe
 
    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
    documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -16,22 +16,22 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {FullCalendarScheduler} from '@vaadin/flow-frontend/full-calendar-scheduler.js';
+import {FullCalendarScheduler} from '@vaadin/flow-frontend/full-calendar/full-calendar-scheduler';
 import tippy from 'tippy.js';
+import {customElement} from "lit/decorators.js";
 
+
+@customElement("full-calendar-with-tooltip")
 export class FullCalendarWithTooltip extends FullCalendarScheduler {
-    static get is() {
-        return 'full-calendar-with-tooltip';
-    }
+    initCalendar() {
+        super.initCalendar();
 
-    _initCalendar() {
-        super._initCalendar();
-        this.getCalendar().setOption("eventDidMount", e => {
+        this.calendar!.setOption("eventDidMount", e => {
             this.initTooltip(e);
         });
     }
 
-    initTooltip(e) {
+    initTooltip(e: any) {
         if (e.event.title && !e.isMirror) {
             e.el.addEventListener("mouseenter", () => {
                 let tooltip = e.event.getCustomProperty("description", e.event.title);
@@ -53,5 +53,3 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
         }
     }
 }
-
-customElements.define(FullCalendarWithTooltip.is, FullCalendarWithTooltip);

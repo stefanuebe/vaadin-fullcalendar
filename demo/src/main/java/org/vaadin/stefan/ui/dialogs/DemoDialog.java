@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.dialog.DialogVariant;
 import com.vaadin.flow.component.html.Span;
@@ -16,7 +17,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.function.SerializableConsumer;
 import lombok.Setter;
-import org.vaadin.gatanaso.MultiselectComboBox;
 import org.vaadin.stefan.fullcalendar.Delta;
 import org.vaadin.stefan.fullcalendar.Entry;
 
@@ -41,7 +41,7 @@ public class DemoDialog extends Dialog {
 
     private final CustomDateTimePicker fieldStart;
     private final CustomDateTimePicker fieldEnd;
-    private final MultiselectComboBox<DayOfWeek> fieldRDays;
+    private final MultiSelectComboBox<DayOfWeek> fieldRDays;
     private final Binder<Entry> binder;
     private boolean recurring;
     private final Entry entry;
@@ -89,7 +89,7 @@ public class DemoDialog extends Dialog {
         infoEnd.getStyle().set("font-size", "0.8em");
         infoEnd.getStyle().set("color", "gray");
 
-        fieldRDays = new MultiselectComboBox<>("Recurrence days of week", DayOfWeek.values());
+        fieldRDays = new MultiSelectComboBox<>("Recurrence days of week", DayOfWeek.values());
         fieldRDays.setItemLabelGenerator(item -> item.getDisplayName(TextStyle.FULL, getLocale()));
 
         // layouting - MUST be initialized here, otherwise might lead to null pointer exception

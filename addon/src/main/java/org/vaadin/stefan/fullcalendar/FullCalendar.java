@@ -17,6 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
@@ -50,19 +51,22 @@ import java.util.stream.Collectors;
 @NpmPackage(value = "@fullcalendar/daygrid", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "moment", version = "2.29.1")
-@NpmPackage(value = "moment-timezone", version = "0.5.32")
+@NpmPackage(value = "moment", version = "2.29.4")
+@NpmPackage(value = "moment-timezone", version = "0.5.40")
 @NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
 @Tag("full-calendar")
-@JsModule("./full-calendar.js")
+@JsModule("./full-calendar/full-calendar.ts")
+
+// since we are now in the light dom with our styles, some values may bleed in from lumo, thus we "fix" them here.
+@CssImport("./full-calendar/style-workarounds.css")
 public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * The library base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_CLIENT_VERSION = "5.10.1";
+    public static final String FC_CLIENT_VERSION = "6.0.0";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
