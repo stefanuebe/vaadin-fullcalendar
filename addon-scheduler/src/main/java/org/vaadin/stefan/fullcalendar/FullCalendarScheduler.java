@@ -144,7 +144,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public void setEntryResourceEditable(boolean eventResourceEditable) {
     	setOption("eventResourceEditable", eventResourceEditable);
     }
-    
+
+    @Deprecated
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource) {
         Objects.requireNonNull(iterableResource);
@@ -163,7 +164,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         getElement().callJsFunction("addResources", array, true);
     }
-    
+
+    @Deprecated
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource, boolean scrollToLast) {
         Objects.requireNonNull(iterableResource);
@@ -182,6 +184,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         getElement().callJsFunction("addResources", array, scrollToLast);
     }
 
+    @Deprecated
     /**
      * Adds resources to the internal resources map. Does not update the client side. This method is mainly intended
      * to be used for child resources of registered resources, as the toJson method takes care for recursive child registration
@@ -195,6 +198,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         }
     }
 
+    @Deprecated
     @Override
     public void removeResources(@NotNull Iterable<Resource> iterableResources) {
         Objects.requireNonNull(iterableResources);
@@ -215,26 +219,31 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     }
 
+    @Deprecated
     /**
      * Removes the given resources from the known entries of this calendar.
      * @param iterableResources resources
      */
     private void removeFromEntries(Iterable<Resource> iterableResources) {
         List<Resource> resources = StreamSupport.stream(iterableResources.spliterator(), false).collect(Collectors.toList());
-        getEntries().stream().filter(e -> e instanceof ResourceEntry).forEach(e -> ((ResourceEntry) e).unassignResources(resources));
+        // TODO integrate in memory resource provider
+//        getEntries().stream().filter(e -> e instanceof ResourceEntry).forEach(e -> ((ResourceEntry) e).unassignResources(resources));
     }
 
+    @Deprecated
     @Override
     public Optional<Resource> getResourceById(@NotNull String id) {
         Objects.requireNonNull(id);
         return Optional.ofNullable(resources.get(id));
     }
 
+    @Deprecated
     @Override
     public Set<Resource> getResources() {
         return new LinkedHashSet<>(resources.values());
     }
 
+    @Deprecated
     @Override
     public void removeAllResources() {
         removeFromEntries(resources.values());

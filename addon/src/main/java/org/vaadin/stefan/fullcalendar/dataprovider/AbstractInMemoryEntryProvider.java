@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Basic abstract implementation of an in memory entry provider utilizing a hashmap.
@@ -108,6 +110,24 @@ public abstract class AbstractInMemoryEntryProvider<T extends Entry> extends Abs
     }
 
     protected void onEntryRemove(T entry) {
+
+    }
+
+    /**
+     * Updates the given entries on the client side. Ignores non-registered entries.
+     *
+     * @param iterableEntries entries to update
+     * @throws NullPointerException when null is passed
+     */
+    public void updateEntries(@NotNull Iterable<T> iterableEntries) {
+        Objects.requireNonNull(iterableEntries);
+        Map<String, T> entriesMap = getEntriesMap();
+        StreamSupport.stream(iterableEntries.spliterator(), true)
+                .filter(entry -> entriesMap.containsKey(entry.getId()) && entry.isKnownToTheClient())
+                .forEach(this::onEntryUpdate);
+    }
+
+    public void onEntryUpdate(T entry) {
 
     }
 

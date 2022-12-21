@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -203,7 +204,7 @@ public class FullCalendarTest {
         FullCalendar calendar = createTestCalendar();
 
         Entry entry = new Entry();
-        calendar.addEntry(entry);
+        calendar.getEntryProvider().asInMemory().addEntry(entry);
 
         Optional<Entry> optional = getEntryProvider(calendar).getEntryById(entry.getId());
         assertNotNull(optional);
@@ -218,11 +219,12 @@ public class FullCalendarTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        calendar.addEntry(entry1);
-        calendar.addEntry(entry2);
-        calendar.addEntry(entry3);
+        var entryProvider = calendar.getEntryProvider().asInMemory();
+        entryProvider.addEntry(entry1);
+        entryProvider.addEntry(entry2);
+        entryProvider.addEntry(entry3);
 
-        Collection<Entry> entries = calendar.getEntries();
+        Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(3, entries.size());
 
         assertTrue(entries.contains(entry1));
@@ -242,13 +244,15 @@ public class FullCalendarTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        calendar.addEntry(entry1);
-        calendar.addEntry(entry2);
-        calendar.addEntry(entry3);
+        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
 
-        calendar.removeEntry(entry2);
+        entryProvider.addEntry(entry1);
+        entryProvider.addEntry(entry2);
+        entryProvider.addEntry(entry3);
 
-        Collection<Entry> entries = calendar.getEntries();
+        entryProvider.removeEntry(entry2);
+
+        Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(2, entries.size());
 
         assertTrue(entries.contains(entry1));
@@ -265,7 +269,7 @@ public class FullCalendarTest {
     void testInitialEmptyCollection() {
         FullCalendar calendar = createTestCalendar();
 
-        Collection<Entry> entries = calendar.getEntries();
+        Collection<Entry> entries = calendar.getEntryProvider().asInMemory().getEntries();
         assertNotNull(entries);
         assertEquals(0, entries.size());
     }
@@ -278,19 +282,20 @@ public class FullCalendarTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        calendar.addEntry(entry1);
-        calendar.addEntry(entry2);
-        calendar.addEntry(entry3);
+        var entryProvider = calendar.getEntryProvider().asInMemory();
+        entryProvider.addEntry(entry1);
+        entryProvider.addEntry(entry2);
+        entryProvider.addEntry(entry3);
 
         entry1.setTitle("1");
         entry2.setTitle("2");
         entry3.setTitle("3");
 
-        calendar.updateEntry(entry1);
-        calendar.updateEntry(entry2);
-        calendar.updateEntry(entry3);
+        entryProvider.updateEntry(entry1);
+        entryProvider.updateEntry(entry2);
+        entryProvider.updateEntry(entry3);
 
-        Collection<Entry> entries = calendar.getEntries();
+        Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(3, entries.size());
 
         assertTrue(entries.contains(entry1));
@@ -320,27 +325,32 @@ public class FullCalendarTest {
     @Test
     void testRemoveAll() {
         FullCalendar calendar = createTestCalendar();
-        calendar.addEntry(new Entry());
-        calendar.addEntry(new Entry());
-        calendar.addEntry(new Entry());
 
-        assertEquals(3, calendar.getEntries().size());
 
-        calendar.removeAllEntries();
-        assertEquals(0, calendar.getEntries().size());
+        var entryProvider = calendar.getEntryProvider().asInMemory();
+        entryProvider.addEntry(new Entry());
+        entryProvider.addEntry(new Entry());
+        entryProvider.addEntry(new Entry());
+
+        assertEquals(3, entryProvider.getEntries().size());
+
+        entryProvider.removeAllEntries();
+        assertEquals(0, entryProvider.getEntries().size());
     }
 
     @Test
     void testGetEntriesReturnListCopy() {
         FullCalendar calendar = createTestCalendar();
-        calendar.addEntry(new Entry());
-        calendar.addEntry(new Entry());
-        calendar.addEntry(new Entry());
 
-        Collection<Entry> entries = calendar.getEntries();
+        var entryProvider = calendar.getEntryProvider().asInMemory();
+        entryProvider.addEntry(new Entry());
+        entryProvider.addEntry(new Entry());
+        entryProvider.addEntry(new Entry());
+
+        Collection<Entry> entries = entryProvider.getEntries();
         assertEquals(3, entries.size());
 
-        calendar.removeAllEntries();
+        entryProvider.removeAllEntries();
         assertEquals(3, entries.size());
     }
 
@@ -424,8 +434,10 @@ public class FullCalendarTest {
         // check all day and time entries
         Entry allDayEntry = createEntry("allDay", "title", refDateAsDateTime, refDateAsDateTime.plus(1, ChronoUnit.DAYS), true, true, "color", null);
         Entry timedEntry = createEntry("timed", "title", refDateTime, refDateTime.plus(1, ChronoUnit.HOURS), false, true, "color", null);
-        calendar.addEntry(allDayEntry);
-        calendar.addEntry(timedEntry);
+
+        var entryProvider = calendar.getEntryProvider().asInMemory();
+        entryProvider.addEntry(allDayEntry);
+        entryProvider.addEntry(timedEntry);
 
         JsonObject jsonData = Json.createObject();
         jsonData.put("id", allDayEntry.getId());
@@ -512,8 +524,10 @@ public class FullCalendarTest {
         // check all day and time entries
         Entry allDayEntry = createEntry("allDay", "title", refDate, refDate.plus(1, ChronoUnit.DAYS), true, true, "color", null);
         Entry timedEntry = createEntry("timed", "title", refDateTime, refDateTime.plus(1, ChronoUnit.HOURS), false, true, "color", null);
-        calendar.addEntry(allDayEntry);
-        calendar.addEntry(timedEntry);
+
+        var entryProvider = calendar.getEntryProvider().asInMemory();
+        entryProvider.addEntry(allDayEntry);
+        entryProvider.addEntry(timedEntry);
 
         // the original entry will be modified by the event. we test if the modified original event matches the json source
         Delta delta = new Delta(1, 1, 1, 1, 1, 1);

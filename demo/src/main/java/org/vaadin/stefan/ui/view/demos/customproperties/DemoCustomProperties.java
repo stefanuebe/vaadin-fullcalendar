@@ -9,6 +9,7 @@ import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
@@ -49,15 +50,18 @@ public class DemoCustomProperties extends VerticalLayout {
             if (oldSelected != null) {
                 oldSelected.setCustomProperty("selected", false);
             }
+
+            var entryProvider = calendar.getEntryProvider().asInMemory();
+
             this.selected = e.getEntry();
             this.selected.setCustomProperty("selected", true);
             if (oldSelected != null) {
-                calendar.removeEntries(oldSelected, this.selected);
-                calendar.addEntries(oldSelected, this.selected);
+                entryProvider.removeEntries(oldSelected, this.selected);
+                entryProvider.addEntries(oldSelected, this.selected);
 
             } else {
-                calendar.removeEntries(this.selected);
-                calendar.addEntries(this.selected);
+                entryProvider.removeEntries(this.selected);
+                entryProvider.addEntries(this.selected);
             }
         });
 
@@ -78,7 +82,7 @@ public class DemoCustomProperties extends VerticalLayout {
                 entry.setCustomProperty("selected", true);
                 selected = entry;
             }
-            calendar.addEntry(entry);
+            calendar.getEntryProvider().asInMemory().addEntry(entry);
         }
     }
     

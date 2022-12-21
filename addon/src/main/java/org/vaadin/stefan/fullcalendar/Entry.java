@@ -125,7 +125,7 @@ public class Entry extends JsonItem<String> {
             // etc. might be set often.
 
             super.toJson(jsonObject, false); // override the "changed" and write all values
-            writeHardResetToJson(jsonObject);
+//            writeHardResetToJson(jsonObject);
         } else {
             super.toJson(jsonObject, changedValuesOnly);
         }
@@ -158,18 +158,6 @@ public class Entry extends JsonItem<String> {
      */
     public LocalDate getStartAsLocalDate() {
         return getOrNull(EntryKey.START, LocalDateTime::toLocalDate);
-    }
-
-    /**
-     * Returns the entry's start as an {@link Instant}. The contained time is the same as when calling
-     * {@link #getStart()}.
-     *
-     * @return start as Instant
-     * @deprecated use {@link #getStartAsInstant()}
-     */
-    @Deprecated
-    public Instant getStartUTC() {
-        return getStartAsInstant();
     }
 
     /**
@@ -319,18 +307,6 @@ public class Entry extends JsonItem<String> {
      */
     public LocalDate getEndAsLocalDate() {
         return getOrNull(EntryKey.END, LocalDateTime::toLocalDate);
-    }
-
-    /**
-     * Returns the entry's end as an {@link Instant}. The contained time is the same as when calling
-     * {@link #getEnd()}.
-     *
-     * @return end as Instant
-     * @deprecated use {@link #getEndAsInstant()}
-     */
-    @Deprecated
-    public Instant getEndUTC() {
-        return getEndAsInstant();
     }
 
     /**
@@ -643,53 +619,6 @@ public class Entry extends JsonItem<String> {
         set(EntryKey.GROUP_ID, groupId);
     }
 
-
-
-//    /**
-//     * Sets the start of this entry as an UTC based instant.
-//     * @param start start
-//     * @deprecated use {@link #setStartUTC(Instant)}
-//     */
-//    @Deprecated
-//    public void setStart(Instant start) {
-//        setStartUTC(start);
-//    }
-
-//    /**
-//     * Sets the start of this entry as an UTC based instant.
-//     * @param start start
-//     */
-//    public void setStartUTC(Instant start) {
-//        set(EntryKey.START, start);
-//    }
-
-//    /**
-//     * Returns the end of the entry based on UTC.
-//     *
-//     * @return start
-//     */
-//    public Instant getEndUTC() {
-//        return get(EntryKey.END);
-//    }
-
-//    /**
-//     * Sets the end of this entry as an UTC based instant.
-//     * @param end end
-//     * @deprecated use {@link #setEndUTC(Instant)} instead
-//     */
-//    @Deprecated
-//    public void setEnd(Instant end) {
-//        set(EntryKey.END, end);
-//    }
-
-//    /**
-//     * Sets the end of this entry as an UTC based instant.
-//     * @param end end
-//     */
-//    public void setEndUTC(Instant end) {
-//        set(EntryKey.END, end);
-//    }
-
     /**
      * Indicates, if this entry is an all day entry. Default ist false.
      *
@@ -924,30 +853,6 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Returns a set of recurring days of week. Might be null.
-     * @see #isRecurring()
-     * @deprecated method name has a typo, will be removed in future. use {@link #getRecurringDaysOfWeek()} instead
-     * @return days of week
-     */
-    @Deprecated
-    public Set<DayOfWeek> getRecurringDaysOfWeeks() {
-        return getRecurringDaysOfWeek();
-    }
-
-
-    /**
-     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
-     * as recurring. Pass null or an empty set may remove the recurring.
-     * @see #isRecurring()
-     * @param daysOfWeek day of week
-     * @deprecated method name has a typo, will be removed in future. use {@link #setRecurringDaysOfWeek} instead
-     */
-    @Deprecated
-    public void setRecurringDaysOfWeeks(Set<DayOfWeek> daysOfWeek) {
-        setRecurringDaysOfWeek(daysOfWeek);
-    }
-
-    /**
      * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
      * as recurring. Pass null or an empty set may remove the recurring.
      *
@@ -969,42 +874,6 @@ public class Entry extends JsonItem<String> {
         setRecurringDaysOfWeek(daysOfWeek.length == 0 ? null : new HashSet<>(Arrays.asList(daysOfWeek)));
     }
 
-
-//    /**
-//     * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-//     * is recurring).
-//     *
-//     * @see #isRecurring()
-//     * @return start date of recurrence
-//     */
-//    public Instant getRecurringStartDateUTC() {
-//        return get(EntryKey.RECURRING_START_DATE);
-//    }
-//
-//
-//    /**
-//     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
-//     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the future.
-//     * @see #isRecurring()
-//     * @param start start date
-//     */
-//    public void setRecurringStartDateUTC(Instant start) {
-//        set(EntryKey.RECURRING_START_DATE, start);
-//    }
-
-//    /**
-//     * Sets the start date for a recurring entry. Passing a date automatically marks this entry
-//     * as recurring. Passing null may remove the recurrence or let the recurring entry extend infinitely to the future.
-//     * @see #isRecurring()
-//     * @param start start date
-//     * @deprecated use {@link #setRecurringStartDateUTC(Instant)} instead
-//     *
-//     */
-//    @Deprecated
-//    public void setRecurringStartDate(Instant start) {
-//        setRecurringStartDateUTC(start);
-//    }
-
     /**
      * Sets the given local date as recurring start. Does not change the start time.
      *
@@ -1012,17 +881,6 @@ public class Entry extends JsonItem<String> {
      */
     public void setRecurringStartDate(LocalDate recurringStart) {
         set(EntryKey.RECURRING_START_DATE, recurringStart);
-    }
-
-    /**
-     * Sets the given local date as recurring start.
-     *
-     * @param recurringStart start
-     * @deprecated use {@link #setRecurringStartDate(LocalDate)}
-     */
-    @Deprecated
-    public void setRecurringStart(LocalDate recurringStart) {
-        setRecurringStartDate(recurringStart);
     }
 
     /**
@@ -1067,18 +925,6 @@ public class Entry extends JsonItem<String> {
      */
     public void setRecurringEndDate(LocalDate recurringEnd) {
         set(EntryKey.RECURRING_END_DATE, recurringEnd);
-    }
-
-
-    /**
-     * Sets the given local date as recurring end.
-     *
-     * @param recurringEnd end
-     * @deprecated use {@link #setRecurringEndDate(LocalDate)}
-     */
-    @Deprecated
-    public void setRecurringEnd(LocalDate recurringEnd) {
-        setRecurringEndDate(recurringEnd);
     }
 
     /**
@@ -1264,7 +1110,7 @@ public class Entry extends JsonItem<String> {
 
     /**
      * Returns the map of the custom properties of this instance. This map is editable and any changes
-     * will be sent to the client using {@link FullCalendar#updateEntry(Entry)}.
+     * will be sent to the client when entries are refreshed.
      * <p></p>
      * Might be null.
      * <p/>
@@ -1308,7 +1154,7 @@ public class Entry extends JsonItem<String> {
 
     /**
      * Returns the map of the custom properties of this instance. This map is editable and any changes
-     * will be sent to the client using {@link FullCalendar#updateEntry(Entry)}.
+     * will be sent to the client when the entry provider is refreshed.
      * <p/>
      * Creates and registers a new map, if none is there yet.
      * <p></p>
@@ -1439,24 +1285,23 @@ public class Entry extends JsonItem<String> {
         /**
          * The entry's id.
          */
-        public static final JsonItem.Key ID = JsonItem.Key.builder().name("id").allowedType(String.class).build();
+        public static final JsonItem.Key ID = JsonItem.Key.builder().name("id").build();
 
         /**
          * Events that share a groupId will be dragged and resized together automatically.
          */
-        public static final JsonItem.Key GROUP_ID = JsonItem.Key.builder().name("groupId").allowedType(String.class).build();
+        public static final JsonItem.Key GROUP_ID = JsonItem.Key.builder().name("groupId").build();
 
         /**
          * The entry's title. This title will be shown on the client side.
          */
-        public static final JsonItem.Key TITLE = JsonItem.Key.builder().name("title").allowedType(String.class).build();
+        public static final JsonItem.Key TITLE = JsonItem.Key.builder().name("title").build();
 
         /**
          * The entry's start as UTC.
          */
         public static final JsonItem.Key START = JsonItem.Key.builder()
                 .name("start")
-                .allowedType(Instant.class)
                 .updateFromClientAllowed(true)
                 .converter(new ClientDateTimeConverter<>())
                 .build();
@@ -1466,7 +1311,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key END = JsonItem.Key.builder()
                 .name("end")
-                .allowedType(Instant.class)
                 .updateFromClientAllowed(true)
                 .converter(new ClientDateTimeConverter<>())
                 .build();
@@ -1478,7 +1322,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key ALL_DAY = JsonItem.Key.builder()
                 .name("allDay")
-                .allowedType(Boolean.class)
                 .updateFromClientAllowed(true)
                 .build();
 
@@ -1487,7 +1330,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key CLASS_NAMES = JsonItem.Key.builder()
                 .name("classNames")
-                .allowedType(Set.class) // Set<String>
                 .jsonArrayToCollectionConversionType(HashSet.class) // for copyFrom()
                 .build();
 
@@ -1499,7 +1341,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key EDITABLE = JsonItem.Key.builder()
                 .name("editable")
-                .allowedType(Boolean.class)
                 .defaultValue(true)
                 .build();
 
@@ -1511,7 +1352,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key START_EDITABLE = JsonItem.Key.builder()
                 .name("startEditable")
-                .allowedType(Boolean.class)
                 .build();
 
         /**
@@ -1522,7 +1362,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key DURATION_EDITABLE = JsonItem.Key.builder()
                 .name("durationEditable")
-                .allowedType(Boolean.class)
                 .build();
 
         /**
@@ -1530,7 +1369,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key COLOR = JsonItem.Key.builder()
                 .name("color")
-                .allowedType(String.class)
                 .build();
         
         /**
@@ -1538,7 +1376,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key CONSTRAINT = JsonItem.Key.builder()
                 .name("constraint")
-                .allowedType(String.class)
                 .build();
 
         /**
@@ -1546,7 +1383,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key BACKGROUND_COLOR = JsonItem.Key.builder()
                 .name("backgroundColor")
-                .allowedType(String.class)
                 .build();
 
         /**
@@ -1554,7 +1390,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key BORDER_COLOR = JsonItem.Key.builder()
                 .name("borderColor")
-                .allowedType(String.class)
                 .build();
 
         /**
@@ -1562,7 +1397,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key TEXT_COLOR = JsonItem.Key.builder()
                 .name("textColor")
-                .allowedType(String.class)
                 .build();
 
         /**
@@ -1572,7 +1406,7 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key CUSTOM_PROPERTIES = JsonItem.Key.builder()
                 .name("customProperties")
-                .allowedType(Map.class) // Map<String, Object>
+                // Map<String, Object>
                 .build();
 
         /**
@@ -1580,7 +1414,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key RENDERING_MODE = JsonItem.Key.builder()
                 .name("display")
-                .allowedType(RenderingMode.class)
                 .build();
 
         /**
@@ -1598,7 +1431,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key RECURRING_START_DATE = JsonItem.Key.builder()
                 .name("startRecur")
-                .allowedType(Instant.class)
                 .converter(new ClientDateConverter<>())
                 .build();
 
@@ -1607,7 +1439,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key RECURRING_START_TIME = JsonItem.Key.builder()
                 .name("startTime")
-                .allowedType(LocalTime.class)
                 .converter(new RecurringTimeConverter<>())
                 .build();
 
@@ -1617,7 +1448,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key RECURRING_END_DATE = JsonItem.Key.builder()
                 .name("endRecur")
-                .allowedType(Instant.class)
                 .converter(new ClientDateConverter<>())
                 .build();
 
@@ -1626,7 +1456,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key RECURRING_END_TIME = JsonItem.Key.builder()
                 .name("endTime")
-                .allowedType(LocalTime.class)
                 .converter(new RecurringTimeConverter<>())
                 .build();
 
@@ -1636,7 +1465,6 @@ public class Entry extends JsonItem<String> {
          */
         public static final JsonItem.Key OVERLAP = JsonItem.Key.builder()
                 .name("overlap")
-                .allowedType(Boolean.class)
                 .build();
     }
 

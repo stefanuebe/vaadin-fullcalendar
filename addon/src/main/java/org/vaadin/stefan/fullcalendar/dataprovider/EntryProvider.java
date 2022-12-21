@@ -184,4 +184,13 @@ public interface EntryProvider<T extends Entry> {
      * @return registration to remove the listener
      */
     Registration addEntryRefreshListener(EntryRefreshEvent.EntryRefreshListener<T> listener);
+
+    /**
+     * Casts this instance to an {@link InMemoryEntryProvider}.
+     * @return this instance as an in memory instance
+     * @throws ClassCastException if this instance is not implementing the {@link InMemoryEntryProvider} interface
+     */
+    default InMemoryEntryProvider<T> asInMemory() {
+        return (InMemoryEntryProvider<T>) this;
+    }
 }

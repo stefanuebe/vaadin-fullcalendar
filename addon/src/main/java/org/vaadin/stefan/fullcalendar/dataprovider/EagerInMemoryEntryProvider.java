@@ -77,43 +77,6 @@ public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemor
     }
 
     /**
-     * Updates the given entry on the client side. Will check if the id is already registered, otherwise a noop.
-     *
-     * @param entry entry to update
-     * @throws NullPointerException when null is passed
-     */
-    public void updateEntry(@NotNull T entry) {
-        Objects.requireNonNull(entry);
-        updateEntries(Collections.singletonList(entry));
-    }
-
-    /**
-     * Updates the given entries on the client side. Ignores non-registered entries.
-     *
-     * @param arrayOfEntries entries to update
-     * @throws NullPointerException when null is passed
-     */
-    @SafeVarargs
-    public final void updateEntries(@NotNull T... arrayOfEntries) {
-        updateEntries(Arrays.asList(arrayOfEntries));
-    }
-
-    /**
-     * Updates the given entries on the client side. Ignores non-registered entries.
-     *
-     * @param iterableEntries entries to update
-     * @throws NullPointerException when null is passed
-     */
-    public void updateEntries(@NotNull Iterable<T> iterableEntries) {
-        Objects.requireNonNull(iterableEntries);
-        Map<String, T> entriesMap = getEntriesMap();
-        tmpUpdate.addAll(StreamSupport.stream(iterableEntries.spliterator(), true)
-                .filter(entry -> entriesMap.containsKey(entry.getId()) && entry.isKnownToTheClient())
-                .collect(Collectors.toSet()));
-        triggerClientSideUpdate();
-    }
-
-    /**
      * Removes the given entries. Noop for not registered entries.
      *
      * @param iterableEntries entries to remove
@@ -127,6 +90,22 @@ public class EagerInMemoryEntryProvider<T extends Entry> extends AbstractInMemor
     @Override
     protected void onEntryRemove(T entry) {
         tmpRemove.add(entry);
+    }
+
+    /**
+     * Updates the given entries on the client side. Ignores non-registered entries.
+     *
+     * @param iterableEntries entries to update
+     * @throws NullPointerException when null is passed
+     */
+    public void updateEntries(@NotNull Iterable<T> iterableEntries) {
+        super.updateEntries(iterableEntries);
+        triggerClientSideUpdate();
+    }
+
+    @Override
+    public void onEntryUpdate(T entry) {
+        tmpUpdate.add(entry);
     }
 
     /**

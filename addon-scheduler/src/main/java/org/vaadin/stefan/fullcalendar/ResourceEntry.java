@@ -217,22 +217,10 @@ public class ResourceEntry extends Entry {
         if (changedValuesOnly && (getColor() == null && hasResources() || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCES) || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCE_EDITABLE))) {
             // set correctly. Might change in future, if not performant
             super.toJson(jsonObject, false);
-            writeHardResetToJson(jsonObject);
+//            writeHardResetToJson(jsonObject);
         } else {
             super.toJson(jsonObject, changedValuesOnly);
         }
-    }
-
-    /**
-     * Applies resource change information from an {@link EntryDroppedSchedulerEvent}. This method
-     * exists for backward compatibility (normaly update did this). Might be moved to the event in future.
-     *
-     * @param eventData event data
-     * @deprecated try to not use this method (except for inside the {@link EntryDroppedSchedulerEvent}).
-     */
-    @Deprecated
-    public void updateResourcesFromEvent(JsonObject eventData) {
-        EntryDroppedSchedulerEvent.updateResourcesFromEventResourceDelta(this, eventData);
     }
 
     public static class ResourceEntryKey extends EntryKey {
@@ -246,12 +234,10 @@ public class ResourceEntry extends Entry {
                 .name("resourceEditable")
                 .defaultValue(true)
                 .updateFromClientAllowed(false)
-                .allowedType(Boolean.class)
                 .build();
 
         public static final Key RESOURCES = Key.builder()
                 .name("resourceIds")
-                .allowedType(Set.class)
                 .updateFromClientAllowed(true)
                 .collectableItemConverter(item -> JsonUtils.toJsonValue(((Resource) item).getId()))
                 .build();

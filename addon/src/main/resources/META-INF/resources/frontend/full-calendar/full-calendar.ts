@@ -104,7 +104,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
             // other way then hook into e.g. eventDidMount or eventContent to do this.
             let _setOptionCallbackWithCustomApi = (key: any, value: any) => {
                 let callback = (info: any) => {
-                    this._addCustomAPI(info.event);
+                    this.addCustomAPI(info.event);
                     value.call(this._calendar, info);
                 };
 
@@ -120,35 +120,47 @@ export class FullCalendar extends ThemableMixin(LitElement) {
                 }
             }
 
-            // TODO remove
-            this.setHasLazyLoadingEntryProvider();
-
             this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
         }
     }
 
-    /**
-     * Restores the state from the server. All values are optional and might be undefined.
-     * @param options options to set
-     * @param lazyLoadingDataProvider indicates, if the server uses a lazy loading data provider
-     * @param view view name to set
-     * @param date date to go to
-     * @private
-     */
-    _restoreStateFromServer(options: {} = {}, lazyLoadingDataProvider: any, view: any, date: any) {
-        this.calendar?.batchRendering(() => {
-            this.setOptions(options);
+    _createInitOptions(initialOptions = {}): any {
+        let events = this.createEventHandlers();
 
-            if (view) {
-                this.changeView(view, date);
-            }
-            if (date) {
-                this.gotoDate(date);
-            }
+        let options = {
+            height: '100%',
+            timeZone: 'UTC',
 
-            this.setHasLazyLoadingEntryProvider(lazyLoadingDataProvider);
-        });
+            // // no native control elements
+            headerToolbar: false,
+            weekNumbers: true,
+            dayMaxEvents: this.dayMaxEvents,
+            navLinks: this.navLinks,
+            editable: this.editable,
+            selectable: this.selectable,
+            dragScroll: this.dragScroll,
+            stickyHeaderDates: true,
+            stickyFooterScrollbar: true,
+            // eventTimeFormat: { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' },
+            ...initialOptions,
+        };
 
+        this.addEventHandlersToOptions(options, events);
+        this.addEventProvider(options);
+
+        // @ts-ignore
+        options['locales'] = allLocales;
+        // @ts-ignore
+        options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
+
+        // be aware of never setting or passing in any harmful content from the serverside
+        // @ts-ignore
+        if (typeof options.eventContent === "string") {
+            // @ts-ignore
+            options.eventContent = new Function("return " + options.eventContent)();
+        }
+
+        return options;
     }
 
     /**
@@ -180,20 +192,20 @@ export class FullCalendar extends ThemableMixin(LitElement) {
      * </pre>
      * @returns an eventhandler definition object
      */
-    _createEventHandlers() {
+    protected createEventHandlers() {
         // definition of the client to server event mapping
         return {
             dateClick: (eventInfo: any) => {
                 return {
-                    date: this._formatDate(eventInfo.date, eventInfo.allDay),
+                    date: this.formatDate(eventInfo.date, eventInfo.allDay),
                     allDay: eventInfo.allDay,
                     resource: eventInfo.resource ? eventInfo.resource.id : null
                 }
             },
             select: (eventInfo: any) => {
                 return {
-                    start: this._formatDate(eventInfo.start, eventInfo.allDay),
-                    end: this._formatDate(eventInfo.end, eventInfo.allDay),
+                    start: this.formatDate(eventInfo.start, eventInfo.allDay),
+                    end: this.formatDate(eventInfo.end, eventInfo.allDay),
                     allDay: eventInfo.allDay,
                     resource: eventInfo.resource ? eventInfo.resource.id : null
                 }
@@ -202,30 +214,30 @@ export class FullCalendar extends ThemableMixin(LitElement) {
                 let event = eventInfo.event;
                 return {
                     id: event.id, // we keep this for backward compatibility, but not used by us on server side
-                    data: this._toEventData(event)
+                    data: this.convertToEventData(event)
                 }
             },
             eventMouseEnter: (eventInfo: any) => {
                 let event = eventInfo.event;
                 return {
-                    data: this._toEventData(event)
+                    data: this.convertToEventData(event)
                 }
             },
             eventMouseLeave: (eventInfo: any) => {
                 let event = eventInfo.event;
                 return {
-                    data: this._toEventData(event)
+                    data: this.convertToEventData(event)
                 }
             },
             eventResize: (eventInfo: any) => {
                 return {
-                    data: this._toEventData(eventInfo.event),
+                    data: this.convertToEventData(eventInfo.event),
                     delta: eventInfo.endDelta
                 }
             },
             eventDrop: (eventInfo: any) => {
                 return {
-                    data: this._toEventData(eventInfo.event, eventInfo.oldResource, eventInfo.newResource),
+                    data: this.convertToEventData(eventInfo.event, eventInfo.oldResource, eventInfo.newResource),
                     delta: eventInfo.delta,
                 }
             },
@@ -234,10 +246,10 @@ export class FullCalendar extends ThemableMixin(LitElement) {
                     let view = eventInfo.view;
                     return {
                         name: view.type,
-                        intervalStart: this._formatDate(view.currentStart, true),
-                        intervalEnd: this._formatDate(view.currentEnd, true),
-                        start: this._formatDate(view.activeStart, true),
-                        end: this._formatDate(view.activeEnd, true)
+                        intervalStart: this.formatDate(view.currentStart, true),
+                        intervalEnd: this.formatDate(view.currentEnd, true),
+                        start: this.formatDate(view.activeStart, true),
+                        end: this.formatDate(view.activeEnd, true)
                     }
                 }
 
@@ -245,22 +257,22 @@ export class FullCalendar extends ThemableMixin(LitElement) {
             },
             navLinkDayClick: (date: any) => {
                 return {
-                    date: this._formatDate(date, true),
+                    date: this.formatDate(date, true),
                     allDay: true
                 }
             },
             navLinkWeekClick: (weekStart: any) => {
                 return {
-                    date: this._formatDate(weekStart, true),
+                    date: this.formatDate(weekStart, true),
                     allDay: true
                 }
             },
             moreLinkClick: (eventInfo: any) => {
                 let events = eventInfo.allSegs.map((seg: { event: any; }) => {
-                    return this._toEventData(seg.event);
+                    return this.convertToEventData(seg.event);
                 });
                 return {
-                    date: this._formatDate(eventInfo.date, true),
+                    date: this.formatDate(eventInfo.date, true),
                     allSegs: events
                 }
             },
@@ -268,201 +280,29 @@ export class FullCalendar extends ThemableMixin(LitElement) {
                 let view = eventInfo.view;
                 return {
                     name: view.type,
-                    intervalStart: this._formatDate(view.currentStart, true),
-                    intervalEnd: this._formatDate(view.currentEnd, true),
-                    start: this._formatDate(view.activeStart, true),
-                    end: this._formatDate(view.activeEnd, true)
+                    intervalStart: this.formatDate(view.currentStart, true),
+                    intervalEnd: this.formatDate(view.currentEnd, true),
+                    start: this.formatDate(view.activeStart, true),
+                    end: this.formatDate(view.activeEnd, true)
                 }
             }
 
         };
     }
 
-    /**
-     * Formats the given date as an iso string. Setting asDay to true will cut of any time information. Also ignores
-     * potential timezone offsets. Should be used for events where the server side works with a LocalDate instance.
-     * @param date date
-     * @param asDay format as day iso string (optional)
-     * @returns {*}
-     * @private
-     */
-    _formatDate(date: string | Date, asDay = false) {
-        if (!(date instanceof Date)) {
-            date = new Date(date);
-        }
-
-        let moment = toMoment(date, this.calendar!);
-        if (asDay) {
-            let dateString = moment.startOf('day').format().substr(0, 10);
-            return dateString;
-        }
-
-        let dateString = moment.utc().format();
-        return dateString;
-    }
-
-    _createInitOptions(initialOptions = {}): any {
-        let events = this._createEventHandlers();
-
-        let options = {
-            height: '100%',
-            timeZone: 'UTC',
-
-            // // no native control elements
-            headerToolbar: false,
-            weekNumbers: true,
-            dayMaxEvents: this.dayMaxEvents,
-            navLinks: this.navLinks,
-            editable: this.editable,
-            selectable: this.selectable,
-            dragScroll: this.dragScroll,
-            stickyHeaderDates: true,
-            stickyFooterScrollbar: true,
-            // eventTimeFormat: { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' },
-            ...initialOptions
-        };
-
-        this._addEventHandlersToOptions(options, events);
-
-        // @ts-ignore
-        options['locales'] = allLocales;
-        // @ts-ignore
-        options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
-
-        // be aware of never setting or passing in any harmful content from the serverside
-        // @ts-ignore
-        if (typeof options.eventContent === "string") {
-            // @ts-ignore
-            options.eventContent = new Function("return " + options.eventContent)();
-        }
-
-        return options;
-    }
-
-    // @ts-ignore
-
-    _addCustomAPI(event) {
-        if (!event.getCustomProperty) {
-            // @ts-ignore
-            event.getCustomProperty = (key, defaultValue = undefined) => {
-                return FullCalendar.getCustomProperty(event, key, defaultValue);
-            }
-        }
-    }
-
-    /**
-     * Takes care of registering the events in the options object. Can be overriden for custom handling
-     * of special events.
-     * @see _createInitOptions
-     * @see _createEventHandlers
-     *
-     * @param options options
-     * @param events events
-     */
-    _addEventHandlersToOptions(options: any, events: any) {
-        for (let eventName in events) {
-            if (events.hasOwnProperty(eventName)) {
-                options[eventName] = (eventInfo: any) => {
-                    const eventDetails = events[eventName](eventInfo);
-                    if (eventDetails) {
-                        this.dispatchEvent(new CustomEvent(eventName, {
-                            detail: eventDetails
-                        }));
-
-                        if (eventName === "moreLinkClick") {
-                            return this.moreLinkClickAction; // necessary to prevent showing a popup
-                        }
-                    }
-
-                    return undefined;
-                }
-            }
-        }
-    }
-
-    /**
-     * Allows to set a bunch of options at a time.
-     * @param options options to set
-     */
-    setOptions(options: any = {}) {
-        let calendar = this.calendar;
-
-        if (calendar) {
-            this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
-
-            for (let key in options) {
-                let value: any = options[key];
-                this._handleTimeZoneChange(calendar, /*key, */value);
-                // @ts-ignore
-                calendar.setOption(key, value);
-            }
-            this.noDatesRenderEvent = false;
-        } else {
-            console.warn("setOptions called before calendar init - implement initialOptions update");
-        }
-    }
-
-    setOption(key: string, value: any) {
-        let calendar = this.calendar;
-
-        if (calendar) {
-            // @ts-ignore
-            let oldValue = calendar.getOption(key);
-            if (oldValue != value) {
-                this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
-
-                // @ts-ignore
-                calendar.setOption(key, value);
-                this.noDatesRenderEvent = false;
-
-                if (key === "timeZone") {
-                    this._handleTimeZoneChange(calendar, value);
-                }
-            }
-        } else {
-            console.warn("setOption called before calendar init - implement initialOptions update");
-        }
-    }
-
-    /**
-     * Special executions for the case that the timezone had changed.
-     * @param calendar calendar
-     * @param value value
-     * @private
-     */
-    _handleTimeZoneChange(calendar: Calendar, value: string) {
-        calendar.refetchEvents();
-
-        this.dispatchEvent(new CustomEvent("timezone-changed", {
-            detail: {
-                timezone: value
-            }
-        }));
-    }
-
-    /**
-     * Calls the getOption method of the calendar.
-     * @param key key
-     * @returns {*}
-     */
-    getOption(key: string) {
-        // @ts-ignore
-        return this.calendar.getOption(key);
-    }
-
-    _toEventData(event: any, oldResourceInfo: any = undefined, newResourceInfo: any = undefined) {
+    protected convertToEventData(event: any, oldResourceInfo: any = undefined, newResourceInfo: any = undefined) {
         let allDay = event.allDay;
 
-        let start = this._formatDate(event.start, allDay);
+        let start = this.formatDate(event.start, allDay);
         let end = event.end;
 
         // TODO add allDay parameters?
         if (end != null) {
-            end = this._formatDate(end, allDay);
+            end = this.formatDate(end, allDay);
         } else if (event.allDay) { // when moved from time slotted to all day
-            end = this._formatDate(new Date(event.start.valueOf() + 86400000), allDay); // + 1 day
+            end = this.formatDate(new Date(event.start.valueOf() + 86400000), allDay); // + 1 day
         } else { // when moved from all day to time slotted
-            end = this._formatDate(new Date(event.start.valueOf() + 3600000), allDay); // + 1 hour
+            end = this.formatDate(new Date(event.start.valueOf() + 3600000), allDay); // + 1 hour
         }
 
         let data = {
@@ -486,6 +326,182 @@ export class FullCalendar extends ThemableMixin(LitElement) {
         return data;
     }
 
+    /**
+     * Formats the given date as an iso string. Setting asDay to true will cut of any time information. Also ignores
+     * potential timezone offsets. Should be used for events where the server side works with a LocalDate instance.
+     * @param date date
+     * @param asDay format as day iso string (optional)
+     * @returns {*}
+     * @private
+     */
+    protected formatDate(date: string | Date, asDay = false) {
+        if (!(date instanceof Date)) {
+            date = new Date(date);
+        }
+
+        let moment = toMoment(date, this.calendar!);
+        if (asDay) {
+            let dateString = moment.startOf('day').format().substr(0, 10);
+            return dateString;
+        }
+
+        let dateString = moment.utc().format();
+        return dateString;
+    }
+
+    /**
+     * Takes care of registering the events in the options object. Can be overriden for custom handling
+     * of special events.
+     * @see _createInitOptions
+     * @see createEventHandlers
+     *
+     * @param options options
+     * @param events events
+     */
+    protected addEventHandlersToOptions(options: any, events: any) {
+        for (let eventName in events) {
+            if (events.hasOwnProperty(eventName)) {
+                options[eventName] = (eventInfo: any) => {
+                    const eventDetails = events[eventName](eventInfo);
+                    if (eventDetails) {
+                        this.dispatchEvent(new CustomEvent(eventName, {
+                            detail: eventDetails
+                        }));
+
+                        if (eventName === "moreLinkClick") {
+                            return this.moreLinkClickAction; // necessary to prevent showing a popup
+                        }
+                    }
+
+                    return undefined;
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets the events callback (usage of server side event provider) to the options.
+     * @param options
+     * @private
+     */
+    protected addEventProvider(options: any) {
+        options.events = (info: any, successCallback: any, failureCallback: any) => {
+            // @ts-ignore
+            this.$server.fetchFromServer({
+                start: this.formatDate(info.start),
+                end: this.formatDate(info.end)
+            }).then((array: any | any[]) => {
+                this.calendar?.removeAllEvents(); // this is necessary to also remove previously manually pushed events (e.g. refreshItem on lazy loading)
+                if (Array.isArray(array)) {
+                    successCallback(array);
+                } else {
+                    failureCallback("could not fetch");
+                }
+            })
+        };
+    }
+
+    private addCustomAPI(event: any) {
+        if (!event.getCustomProperty) {
+            // @ts-ignore
+            event.getCustomProperty = (key, defaultValue = undefined) => {
+                return FullCalendar.getCustomProperty(event, key, defaultValue);
+            }
+        }
+    }
+
+    /**
+     * Restores the state from the server. All values are optional and might be undefined.
+     * @param options options to set
+     * @param view view name to set
+     * @param date date to go to
+     * @private
+     */
+    protected restoreStateFromServer(options: {} = {}, view: any, date: any) {
+        this.calendar?.batchRendering(() => {
+            this.setOptions(options);
+
+            // TODO necessary to restore the data fetching?
+
+            if (view) {
+                this.changeView(view, date);
+            }
+            if (date) {
+                this.gotoDate(date);
+            }
+        });
+    }
+
+    /**
+     * Allows to set a bunch of options at a time.
+     * @param options options to set
+     */
+    setOptions(options: any = {}) {
+        let calendar = this.calendar;
+
+        if (calendar) {
+            this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
+
+            for (let key in options) {
+                let value: any = options[key];
+                this.handleTimeZoneChange(calendar, /*key, */value);
+                // @ts-ignore
+                calendar.setOption(key, value);
+            }
+            this.noDatesRenderEvent = false;
+        } else {
+            console.warn("setOptions called before calendar init - implement initialOptions update");
+        }
+    }
+
+    setOption(key: string, value: any) {
+        let calendar = this.calendar;
+
+        if (calendar) {
+            // @ts-ignore
+            let oldValue = calendar.getOption(key);
+            if (oldValue != value) {
+                this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
+
+                // @ts-ignore
+                calendar.setOption(key, value);
+                this.noDatesRenderEvent = false;
+
+                if (key === "timeZone") {
+                    this.handleTimeZoneChange(calendar, value);
+                }
+            }
+        } else {
+            console.warn("setOption called before calendar init - implement initialOptions update");
+        }
+    }
+
+    /**
+     * Special executions for the case that the timezone had changed.
+     * @param calendar calendar
+     * @param value value
+     * @private
+     */
+    protected handleTimeZoneChange(calendar: Calendar, value: string) {
+        calendar.refetchEvents();
+
+        this.dispatchEvent(new CustomEvent("timezone-changed", {
+            detail: {
+                timezone: value
+            }
+        }));
+    }
+
+    /**
+     * Calls the getOption method of the calendar.
+     * @param key key
+     * @returns {*}
+     */
+    getOption(key: string) {
+        // @ts-ignore
+        return this.calendar.getOption(key);
+    }
+
     next() {
         this.calendar?.next();
     }
@@ -504,34 +520,6 @@ export class FullCalendar extends ThemableMixin(LitElement) {
 
     scrollToTime(duration: DurationInput) {
         this.calendar?.scrollToTime(duration);
-    }
-
-    // TODO rename and remove parameter
-
-    setHasLazyLoadingEntryProvider(hasLazyLoadingEntryProvider = true) {
-        if (hasLazyLoadingEntryProvider && !this.hasLazyLoadingEntryProvider) {
-            let calendar = this.calendar;
-
-            // @ts-ignore
-            this.setOption("events", (info, successCallback, failureCallback) => {
-                // @ts-ignore
-                this.$server.fetchFromServer({
-                    start: this._formatDate(info.start),
-                    end: this._formatDate(info.end)
-                }).then((array: any | any[]) => {
-                    calendar?.removeAllEvents(); // this is necessary to also remove previously manually pushed events (e.g. refreshItem on lazy loading)
-                    if (Array.isArray(array)) {
-                        successCallback(array);
-                    } else {
-                        failureCallback("could not fetch");
-                    }
-                })
-
-                // failureCallback(err);
-            });
-        } else if (!hasLazyLoadingEntryProvider && this.hasLazyLoadingEntryProvider) {
-            this.setOption("events", []);
-        }
     }
 
     refreshAllEvents() {
@@ -566,26 +554,6 @@ export class FullCalendar extends ThemableMixin(LitElement) {
         event.extendedProps.customProperties[key] = value;
     }
 
-    /**
-     * Checks entries coming from the server side if they are recurring.
-     * @param event
-     * @returns {boolean}
-     * @private
-     */
-    _isServerSideRecurring(event: any) {
-        return (event.daysOfWeek != null && Array.isArray(event.daysOfWeek) && event.daysOfWeek.length) || event.startTime != null || event.endTime != null || event.startRecur != null || event.endRecur != null || event.groupId != null;
-    }
-
-    /**
-     * Checks entries existing on the client side if they are recurring (experimental)
-     * @param event
-     * @returns {boolean|boolean}
-     * @private
-     */
-    _isClientSideRecurring(event: any) {
-        return typeof event._def.recurringDef === "object" && event._def.recurringDef != null
-    }
-
     changeView(viewName: string, date: DateInput | DateRangeInput | undefined) {
         this.calendar?.changeView(viewName, date);
     }
@@ -611,13 +579,6 @@ export class FullCalendar extends ThemableMixin(LitElement) {
 
     setEventWillUnmountCallback(s: string) {
         this.calendar?.setOption('eventWillUnmount', new Function("return " + s)());
-    }
-
-    addCustomStyles(customStylesString: string) {
-        console.warn("custom styles");
-        let customStylesElement = document.createElement('style');
-        customStylesElement.innerHTML = customStylesString;
-        this.shadowRoot!.appendChild(customStylesElement);
     }
 
     get calendar(): Calendar | undefined {
