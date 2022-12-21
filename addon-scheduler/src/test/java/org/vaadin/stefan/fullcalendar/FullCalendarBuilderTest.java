@@ -9,11 +9,6 @@ public class FullCalendarBuilderTest {
 
     private FullCalendarBuilder builder;
 
-    @BeforeAll
-    static void beforeAll() {
-        TestUtils.initVaadinService(FullCalendarSchedulerTest.COMPONENT_HTMLS);
-    }
-
     @BeforeEach
     public void init() {
         builder = FullCalendarBuilder.create();

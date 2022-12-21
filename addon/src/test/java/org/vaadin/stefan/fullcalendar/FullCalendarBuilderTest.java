@@ -10,11 +10,6 @@ public class FullCalendarBuilderTest {
     public static final String EVENT_LIMIT = "eventLimit";
     private FullCalendarBuilder builder;
 
-    @BeforeAll
-    static void beforeAll() {
-        TestUtils.initVaadinService(FullCalendarTest.FULL_CALENDAR_HTML);
-    }
-
     @BeforeEach
     public void init() {
         builder = FullCalendarBuilder.create();

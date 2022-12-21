@@ -77,6 +77,35 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
     void addEntries(@NotNull Iterable<T> iterableEntries);
 
     /**
+     * Updates the given entry on the client side. Will check if the id is already registered, otherwise a noop.
+     *
+     * @param entry entry to update
+     * @throws NullPointerException when null is passed
+     */
+    default void updateEntry(@NotNull T entry) {
+        Objects.requireNonNull(entry);
+        updateEntries(Collections.singletonList(entry));
+    }
+
+    /**
+     * Updates the given entries on the client side. Ignores non-registered entries.
+     *
+     * @param arrayOfEntries entries to update
+     * @throws NullPointerException when null is passed
+     */
+    default void updateEntries(@NotNull T... arrayOfEntries) {
+        updateEntries(Arrays.asList(arrayOfEntries));
+    }
+
+    /**
+     * Updates the given entries on the client side. Ignores non-registered entries.
+     *
+     * @param iterableEntries entries to update
+     * @throws NullPointerException when null is passed
+     */
+    void updateEntries(@NotNull Iterable<T> iterableEntries);
+
+    /**
      * Removes the given entries. Noop for not registered entries.
      *
      * @param iterableEntries entries to remove

@@ -22,11 +22,6 @@ public class ResourceEntryTest {
     public static final String DEFAULT_COLOR = DEFAULT_STRING + 3;
     public static final String DEFAULT_DESCRIPTION = DEFAULT_STRING + 4;
 
-    @BeforeAll
-    static void beforeAll() {
-        TestUtils.initVaadinService(FullCalendarSchedulerTest.COMPONENT_HTMLS);
-    }
-
     @Test
     void testNoArgsConstructor() {
         Entry entry = new ResourceEntry();

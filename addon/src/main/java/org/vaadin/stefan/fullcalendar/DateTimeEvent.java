@@ -58,15 +58,6 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
 
     /**
      * The utc based date time related to this event. For day slots the time will be at start of the day.
-     * @deprecated use {@link #getDateTimeAsInstant()} instead
-     */
-    @Deprecated
-    public Instant getDateTimeUTC() {
-        return getDateTimeAsInstant();
-    }
-
-    /**
-     * The utc based date time related to this event. For day slots the time will be at start of the day.
      */
     public Instant getDateTimeAsInstant() {
         return Timezone.UTC.convertToInstant(dateTime);

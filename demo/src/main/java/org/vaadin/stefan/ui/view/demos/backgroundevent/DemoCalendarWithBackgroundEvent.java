@@ -60,6 +60,6 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
         entry.setRenderingMode(renderingMode);
         entry.setResourceEditable(true);
         
-        calendar.addEntry(entry);
+        calendar.getEntryProvider().asInMemory().addEntry(entry);
     }
 }

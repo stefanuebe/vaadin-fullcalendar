@@ -299,7 +299,7 @@ public class EntryTest {
 
         FullCalendar calendar = new FullCalendar();
         calendar.setTimezone(timezone);
-        calendar.addEntry(entry);
+        calendar.getEntryProvider().asInMemory().addEntry(entry);
 
         Assertions.assertEquals(now, entry.getStart());
         Assertions.assertEquals(nowInstant, entry.getStartAsInstant());
@@ -470,7 +470,7 @@ public class EntryTest {
 
         FullCalendar calendar = new FullCalendar();
         calendar.setTimezone(timezone);
-        calendar.addEntry(entry);
+        calendar.getEntryProvider().asInMemory().addEntry(entry);
 
         Assertions.assertEquals(now, entry.getEnd());
         Assertions.assertEquals(nowInstant, entry.getEndAsInstant());

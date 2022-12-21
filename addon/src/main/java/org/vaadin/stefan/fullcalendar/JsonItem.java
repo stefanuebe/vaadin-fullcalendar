@@ -259,18 +259,6 @@ public abstract class JsonItem<ID_TYPE> {
      *
      * @param key key
      * @return is empty
-     * @deprecated use {@link #isEmptyString(Key)} instead
-     */
-    @Deprecated
-    public boolean isEmpty(Key key) {
-        return isEmptyString(key);
-    }
-
-    /**
-     * Checks if the property identified by the given key is an empty string.
-     *
-     * @param key key
-     * @return is empty
      */
     public boolean isEmptyString(Key key) {
         return isEmpty(key, "");
@@ -503,16 +491,6 @@ public abstract class JsonItem<ID_TYPE> {
     }
 
     /**
-     * Writes a "hard reset" flag to the given json object.
-     * @param jsonObject json object
-     * @deprecated might be removed in future
-     */
-    @Deprecated
-    protected void writeHardResetToJson(JsonObject jsonObject) {
-        writeRawValueToJson(jsonObject, _HARD_RESET, JsonUtils.toJsonValue(true));
-    }
-
-    /**
      * Writes all property values to the json object, regardless of if they have changes or not. Recommended
      * for new items or on full redraw of an item.
      * <p/>
@@ -687,19 +665,6 @@ public abstract class JsonItem<ID_TYPE> {
         }
     }
 
-    /**
-     * Updates this instance based on the given json object. Calls {@link #updateFromJson(JsonObject, boolean)}
-     * with "true" as second parameter. This may lead to a dirty object.
-     *
-     * @param jsonObject json object to read from
-     * @see #isValidJsonSource(JsonObject)
-     * @see #readJson(JsonObject, boolean)
-     * @deprecated this method will be removed in one of the next versions, use {@link #updateFromJson(JsonObject)} instead
-     */
-    @Deprecated
-    public final void update(JsonObject jsonObject) {
-        updateFromJson(jsonObject);
-    }
 
     /**
      * Updates this instance based on the given json object. Calls {@link #updateFromJson(JsonObject, boolean)}
@@ -1131,12 +1096,6 @@ public abstract class JsonItem<ID_TYPE> {
          * The name of the key. Must be unique inside its using scope.
          */
         private final String name;
-
-        /**
-         * Defines the allowed type for a property. Currently not used, might be removed later.
-         */
-        @Deprecated
-        private final Class<?> allowedType; // TODO needed?
 
         /**
          * Sets a default value, that shall be send to the client or returned by the {@link JsonItem#get(Key)}

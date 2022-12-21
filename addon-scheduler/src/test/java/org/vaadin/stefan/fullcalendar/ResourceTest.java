@@ -23,11 +23,6 @@ public class ResourceTest {
     public static final String CHILD2 = CHILD + "2";
     public static final String CHILD1_1 = CHILD + "1_1";
 
-    @BeforeAll
-    static void beforeAll() {
-        TestUtils.initVaadinService(FullCalendarSchedulerTest.COMPONENT_HTMLS);
-    }
-
     static void assertEmptyDefaults(Resource resource) {
         try {
             //noinspection ResultOfMethodCallIgnored - @IntelliJ
