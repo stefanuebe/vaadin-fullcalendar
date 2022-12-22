@@ -2,8 +2,8 @@ package org.vaadin.stefan.ui.view.samples;
 
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * @author Stefan Uebe
  */
-public class EagerInMemoryEntryProviderSample extends AbstractSample {
+public class InMemoryEntryProviderSample extends AbstractSample {
 
     private EntryService<Entry> backend = EntryService.createInstance();
 
@@ -21,21 +21,23 @@ public class EagerInMemoryEntryProviderSample extends AbstractSample {
         // load items from backend
         List<Entry> entryList = backend.streamEntries().collect(Collectors.toList());
 
-        // since the calendar is initialized with an eager in memory provider, the next two calls are optional
-        EagerInMemoryEntryProvider<Entry> entryProvider = EntryProvider.eagerInMemoryFromItems(entryList);
+        // init lazy loading provider based on given collection - does NOT use the collection as backend as ListDataProvider does
+        InMemoryEntryProvider<Entry> entryProvider = EntryProvider.inMemoryFrom(entryList);
+
+        // set entry provider
         calendar.setEntryProvider(entryProvider);
 
-        // CRUD operations - we should not call refreshAll, since that will send ALL data back to the client
-        // The eager in memory provider takes care of that itself.
-
+        // CRUD operations
         // to add
         Entry entry = new Entry();       // ... plus some init
         entryProvider.addEntries(entry); // register in data provider
+        entryProvider.refreshAll();         // call refresh to inform the client about the data change and trigger a refetch
 
         // after some change
-        entryProvider.updateEntry(entry);
+        entryProvider.refreshItem(entry); // call refresh to inform the client about the data change and trigger a refetch
 
         // to remove
         entryProvider.removeEntry(entry);
+        entryProvider.refreshAll(); // call refresh to inform the client about the data change and trigger a refetch
     }
 }

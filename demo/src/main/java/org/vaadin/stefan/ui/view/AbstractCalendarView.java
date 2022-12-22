@@ -9,10 +9,10 @@ import elemental.json.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.CalendarViewToolbar.CalendarViewToolbarBuilder;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 
 import java.util.Collection;
@@ -303,8 +303,8 @@ initialOptions.put("eventTimeFormat", eventTimeFormat);
     protected void onEntriesCreated(Collection<Entry> entries) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        if (getCalendar().isEagerInMemoryEntryProvider()) {
-            ((EagerInMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).addEntries(entries);
+        if (getCalendar().isInMemoryEntryProvider()) {
+            ((InMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).addEntries(entries);
         }
     }
     /**
@@ -320,8 +320,8 @@ initialOptions.put("eventTimeFormat", eventTimeFormat);
     protected void onEntriesRemoved(Collection<Entry> entries) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        if (getCalendar().isEagerInMemoryEntryProvider()) {
-            ((EagerInMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).removeEntries(entries);
+        if (getCalendar().isInMemoryEntryProvider()) {
+            ((InMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).removeEntries(entries);
         }
     }
     /**
@@ -337,8 +337,9 @@ initialOptions.put("eventTimeFormat", eventTimeFormat);
     protected void onEntryChanged(Entry entry) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        if (getCalendar().isEagerInMemoryEntryProvider()) {
-            ((EagerInMemoryEntryProvider<Entry>) getCalendar().getEntryProvider()).updateEntry(entry);
+        if (getCalendar().isInMemoryEntryProvider()) {
+            // TODO was update before, refreshItem correct here?
+            getCalendar().getEntryProvider().refreshItem(entry);
         }
     }
 

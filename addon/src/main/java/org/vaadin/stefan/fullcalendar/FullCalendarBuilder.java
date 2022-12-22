@@ -17,8 +17,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 import elemental.json.JsonObject;
-import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
@@ -31,7 +31,6 @@ import java.util.Objects;
 public class FullCalendarBuilder {
 
     // TODO convert to lombok based builder
-
     private final boolean autoBrowserTimezone;
     private final boolean scheduler;
     private final int entryLimit;
@@ -89,7 +88,7 @@ public class FullCalendarBuilder {
 
     /**
      * Initializes the calendar with the given entry provider. By default it will be created with an instance of
-     * {@link org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider}.
+     * {@link org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider}.
      *
      * @param entryProvider entry provider to be used
      * @return new immutable instance with updated settings
@@ -237,7 +236,7 @@ public class FullCalendarBuilder {
         if (entryProvider != null) {
             calendar.setEntryProvider(entryProvider);
         } else if (initialEntries != null) {
-            ((EagerInMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(initialEntries);
+            ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(initialEntries);
         }
 
         return (T) calendar;
@@ -252,7 +251,7 @@ public class FullCalendarBuilder {
         if (initialOptions != null) {
             extendInitialOptions();
 
-            FullCalendar calendar = null;
+            FullCalendar calendar;
             try {
                 calendar = customType != null ? customType.getDeclaredConstructor(JsonObject.class).newInstance(initialOptions) : new FullCalendar(initialOptions);
             } catch (Exception e) {
