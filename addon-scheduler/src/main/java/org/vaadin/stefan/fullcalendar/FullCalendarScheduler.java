@@ -70,7 +70,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      *
      *
      * @param entryLimit max entries to shown per day
+     * @deprecated use the {@link FullCalendarBuilder#withEntryLimit(int)} instead
      */
+    @Deprecated
     public FullCalendarScheduler(int entryLimit) {
         super(entryLimit);
     }
