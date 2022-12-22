@@ -99,7 +99,8 @@ public class FullCalendarSchedulerTest {
     @Test
     void testArgsConstructor() {
         int entryLimit = 5;
-        FullCalendar calendar = new FullCalendarScheduler(entryLimit);
+        FullCalendar calendar = new FullCalendarScheduler();
+        calendar.setMaxEntriesPerDay(entryLimit);
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 1);

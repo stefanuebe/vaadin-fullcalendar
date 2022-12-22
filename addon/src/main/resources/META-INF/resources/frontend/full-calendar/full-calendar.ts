@@ -16,7 +16,7 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {customElement} from "lit/decorators.js";
+import {customElement, property} from "lit/decorators.js";
 import {html, LitElement, PropertyValues} from "lit";
 
 import {Calendar, DateInput, DateRangeInput, DurationInput} from '@fullcalendar/core';
@@ -29,21 +29,27 @@ import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all.js';
 import {ThemableMixin} from "@vaadin/vaadin-themable-mixin";
 
+// Simple type, that allows JS object property access via ["xyz"]
+type IterableObject = {
+    [key: string]: any,
+    hasOwnProperty: (key: string) => boolean;
+};
+
 @customElement("full-calendar")
 export class FullCalendar extends ThemableMixin(LitElement) {
 
     private _calendar?: Calendar;
 
-    dayMaxEvents = false;
-    navLinks = true;
-    editable = true;
-    selectable = true;
-    dragScroll = true;
-    noDatesRenderEventOnOptionSetting = true;
-    initialOptions = {};
-    moreLinkClickAction = "popover"
-    hasLazyLoadingEntryProvider = false;
     private noDatesRenderEvent = false;
+    noDatesRenderEventOnOptionSetting = true;
+
+    // stores any options, that are set before the calendar is attached using "setOption"
+    private initialOptions: IterableObject = {}
+
+    moreLinkClickAction = "popover"
+
+    // pre-alpha / experimental and not yet full supported or implemented
+    prefetchEnabled = false;
 
     protected render() {
         return html`
@@ -72,6 +78,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
 
             this._calendar = new Calendar(this, options);
 
+            this.initEventProviderCallbacks();
 
             // override set option to allow a combination of internal and custom eventDidMount events
             // hacky and needs to be maintained on updates, but currently there seems to be no other way
@@ -113,19 +120,12 @@ export class FullCalendar extends ThemableMixin(LitElement) {
             // // no native control elements
             headerToolbar: false,
             weekNumbers: true,
-            dayMaxEvents: this.dayMaxEvents,
-            navLinks: this.navLinks,
-            editable: this.editable,
-            selectable: this.selectable,
-            dragScroll: this.dragScroll,
             stickyHeaderDates: true,
             stickyFooterScrollbar: true,
-            // eventTimeFormat: { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' },
             ...initialOptions,
         };
 
         this.addEventHandlersToOptions(options, events);
-        this.addEventProvider(options);
 
         // @ts-ignore
         options['locales'] = allLocales;
@@ -322,6 +322,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
 
         let moment = toMoment(date, this.calendar!);
         if (asDay) {
+            // maybe also utc necessary?
             return moment.startOf('day').format().substring(0, 10);
         }
 
@@ -359,18 +360,24 @@ export class FullCalendar extends ThemableMixin(LitElement) {
     }
 
     /**
-     * Sets the events callback (usage of server side event provider) to the options.
-     * @param options
+     * Sets the events callback (usage of server side event provider) to the calendar. Must be called after
+     * this.calendar has been initialized, as it is necessary for the format date.
      * @private
      */
-    protected addEventProvider(options: any) {
-        options.events = (info: any, successCallback: any, failureCallback: any) => {
+    protected initEventProviderCallbacks() {
+        const callback = (info: any, successCallback: any, failureCallback: any) => {
+
+            if (this.prefetchEnabled) {
+                // some basic test of prefetch
+                (info.start as Date).setMonth(info.start.getMonth() - 1);
+                (info.end as Date).setMonth(info.end.getMonth() + 1);
+            }
+
             // @ts-ignore
             this.$server.fetchFromServer({
                 start: this.formatDate(info.start),
                 end: this.formatDate(info.end)
             }).then((array: any | any[]) => {
-                this.calendar?.removeAllEvents(); // this is necessary to also remove previously manually pushed events (e.g. refreshItem on lazy loading)
                 if (Array.isArray(array)) {
                     successCallback(array);
                 } else {
@@ -378,6 +385,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
                 }
             })
         };
+        this.calendar?.setOption("events", callback);
     }
 
     private applyCustomPropertiesApi(options: any) {
@@ -454,14 +462,18 @@ export class FullCalendar extends ThemableMixin(LitElement) {
             }
             this.noDatesRenderEvent = false;
         } else {
-            console.warn("setOptions called before calendar init - implement initialOptions update");
+            this.initialOptions = {...options};
         }
     }
 
     setOption(key: string, value: any) {
         let calendar = this.calendar;
-
         if (calendar) {
+            if (key === "eventContent") {
+                console.warn("DEPRECATED: Setting the event content callback after the calendar has" +
+                    " been initialized is no longer supported. Please use the initial options to set the 'eventContent'.");
+            }
+
             // @ts-ignore
             let oldValue = calendar.getOption(key);
             if (oldValue != value) {
@@ -476,7 +488,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
                 }
             }
         } else {
-            console.warn("setOption called before calendar init - implement initialOptions update");
+            this.initialOptions[key] = value;
         }
     }
 
@@ -499,11 +511,10 @@ export class FullCalendar extends ThemableMixin(LitElement) {
     /**
      * Calls the getOption method of the calendar.
      * @param key key
-     * @returns {*}
      */
-    getOption(key: string) {
+    getOption(key: string): unknown {
         // @ts-ignore
-        return this.calendar.getOption(key);
+        return this.calendar ? this.calendar.getOption(key) : this.initialOptions[key];
     }
 
     next() {
@@ -568,13 +579,6 @@ export class FullCalendar extends ThemableMixin(LitElement) {
 
     setEventClassNamesCallback(s: string) {
         this.calendar?.setOption('eventClassNames', new Function("return " + s)());
-    }
-
-    setEventContentCallback(s: string | undefined = undefined) {
-        if (this.calendar) {
-            console.warn("DEPRECATED: Setting the event content callback after the calendar has" +
-                " been initialized is no longer supported. Please use the initial options to set the 'eventContent'.");
-        }
     }
 
     setEventDidMountCallback(s: string) {

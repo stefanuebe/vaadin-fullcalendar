@@ -8,8 +8,8 @@ import elemental.json.JsonObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
-import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -51,9 +51,9 @@ public class FullCalendarTest {
         return calendar;
     }
 
-    private FullCalendar createTestCalendar(int entries) {
-        return setupTestCalendar(new FullCalendar(entries));
-    }
+//    private FullCalendar createTestCalendar(int entries) {
+//        return setupTestCalendar(new FullCalendar(entries));
+//    }
 
     private FullCalendar createTestCalendar(JsonObject options) {
         return setupTestCalendar(new FullCalendar(options));
@@ -72,7 +72,8 @@ public class FullCalendarTest {
     void testArgsConstructor_dayMaxEvents() {
         int entryLimit = 5;
 
-        FullCalendar calendar = new FullCalendar(entryLimit);
+        FullCalendar calendar = new FullCalendar();
+        calendar.setMaxEntriesPerDay(entryLimit);
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 1);

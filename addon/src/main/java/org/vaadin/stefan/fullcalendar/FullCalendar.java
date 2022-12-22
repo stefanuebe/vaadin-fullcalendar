@@ -103,15 +103,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private boolean refreshAllRequested;
 
-    private final JsonObject initialOptions;
-
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
      * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      */
     public FullCalendar() {
-        this(-1);
+        setMaxEntriesPerDayUnlimited();
+        postConstruct();
     }
 
     /**
@@ -127,17 +126,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      *
-     * @param entryLimit The max number of stacked event levels within a given day. This includes the +more link if present. The rest will show up in a popover.
+     * @param entryLimit The max number of stacked event levels within a given day. This excludes the +more link if present. The rest will show up in a popover.
+     * @deprecated use the {@link FullCalendarBuilder#withEntryLimit(int)} instead.
      */
+    @Deprecated
     public FullCalendar(int entryLimit) {
-        setLocale(CalendarLocale.getDefault());
         if (entryLimit >= 0) {
-            getElement().setProperty("dayMaxEvents", entryLimit);
+            setMaxEntriesPerDay(entryLimit);
         } else {
-            getElement().setProperty("dayMaxEvents", false);
+            setMaxEntriesPerDayUnlimited();
         }
 
-        initialOptions = Json.createObject();
+        setLocale(CalendarLocale.getDefault());
 
         postConstruct();
     }
@@ -163,6 +163,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Also, options set this way are not cached in the server side state. Calling any of the
      * {@code getOption(...)} methods will result in {@code null} (or the respective native default).
      * <p></p>
+     * Any "set some option" calls will override the given initial options, when they use the same key.
+     * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      *
      * @param initialOptions initial options
@@ -170,9 +172,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendar(@NotNull JsonObject initialOptions) {
-        this.initialOptions = initialOptions;
+        this.getElement().setPropertyJson("initialOptions", Objects.requireNonNull(initialOptions));
 
-        updateInitialOptions();
+        if (!initialOptions.hasKey(Option.LOCALE.getOptionKey())) {
+            // fallback to prevent strange locale effects on the client side
+            setLocale(CalendarLocale.getDefault());
+        }
 
         postConstruct();
     }
@@ -190,14 +195,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         });
     }
 
-    /**
-     * Updates the client side with the latest state of the initial options object. Please be aware, that after
-     * attaching the calendar to the client side, the client side will ignore any changes to the object, which
-     * makes this method kind of noop.
-     */
-    protected void updateInitialOptions() {
-        this.getElement().setPropertyJson("initialOptions", (JsonValue)Objects.requireNonNull(initialOptions));
-    }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -690,7 +687,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void setLocale(@NotNull Locale locale) {
         Objects.requireNonNull(locale);
-        setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
+        setOption(Option.LOCALE, toClientSideLocale(locale), locale);
+    }
+
+    protected String toClientSideLocale(@NotNull Locale locale) {
+        return locale.toLanguageTag().toLowerCase();
     }
 
     /**
@@ -769,6 +770,23 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void setEntryWillUnmountCallback(String s) {
         getElement().callJsFunction("setEventWillUnmountCallback", s);
+    }
+
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as the "eventContent" callback. It must be a valid JavaScript function.
+     * <br><br>
+     * Called right after the element has been added to the DOM.
+     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
+     * other security mechanism applied on this string, so check it yourself before passing it to the client.
+     * <br><br>
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">https://fullcalendar.io/docs/event-render-hooks</a>
+     * @see <a href="https://fullcalendar.io/docs/content-injection">https://fullcalendar.io/docs/content-injection</a>
+     *
+     * @param s function to be attached
+     */
+    public void setEntryContentCallback(String s) {
+        setOption("eventContent", s);
     }
 
     /**
@@ -958,6 +976,42 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * This method will limit the maximal entries shown per day to the given number (not including
+     * the "+ x more entries" link). Must be a number > 0.
+     *
+     * @see #setMaxEntriesPerDayFitToCell()
+     * @see #setMaxEntriesPerDayUnlimited()
+     * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
+     *
+     * @param maxEntriesPerDay maximal entries per day
+     */
+    public void setMaxEntriesPerDay(int maxEntriesPerDay) {
+        setOption(Option.MAX_ENTRIES_PER_DAY, maxEntriesPerDay);
+    }
+
+    /**
+     * When calling this method, the entries shown per day will be limited to fit the cell height.
+     *
+     * @see #setMaxEntriesPerDay(int)
+     * @see #setMaxEntriesPerDayUnlimited()
+     * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
+     */
+    public void setMaxEntriesPerDayFitToCell() {
+        setOption(Option.MAX_ENTRIES_PER_DAY, true);
+    }
+
+    /**
+     * When calling this method, the entries shown per day will be unlimited and take all the space needed.
+     *
+     * @see #setMaxEntriesPerDay(int)
+     * @see #setMaxEntriesPerDayFitToCell()
+     * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
+     */
+    public void setMaxEntriesPerDayUnlimited() {
+        setOption(Option.MAX_ENTRIES_PER_DAY, false);
+    }
+
+    /**
      * Returns the weekends display status. By default true.
      *
      * @return weekends
@@ -1110,22 +1164,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return Optional.ofNullable((T) options.get(option));
 //        return Optional.ofNullable((T) options.get(option));
     }
-
-//    /**
-//     * Tries to get the current option from the client. Opposite to the other {@code getOption(...)} methods, this
-//     * method does not refer to internal caches of the server, but uses the client side only. This means, that
-//     * the returned value can be manipulated by the client. You should use this method only for test purposes.
-//     *
-//     * @param option option key
-//     * @param <T> return type to be expected
-//     * @return optional
-//     * @throws ExecutionException when an error has occured execution the client side call
-//     * @throws InterruptedException when the client side call has been interrupted
-//     */
-//    public <T> Optional<T> getRawClientSideOption(@NotNull String option) throws ExecutionException, InterruptedException {
-//        return (Optional<T>) Optional.ofNullable(getElement().callJsFunction("getOption", option).toCompletableFuture().get().toNative());
-//    }
-
 
     /**
      * Force the client side instance to re-render it's content.
@@ -1311,20 +1349,32 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Returns the initial options object (not a copy). When making changes to this object, make sure to call
-     * {@link #updateInitialOptions()} afterwards to update the client side. Changes after client side attachment
-     * have no effect.
+     * Activates or deactivates the automatic calendar scrolling, when dragging an entry to the borders.
      *
-     * @see #updateInitialOptions()
-     * @return the initial options object
+     * @see <a href="https://fullcalendar.io/docs/dragScroll">https://fullcalendar.io/docs/dragScroll</a>
+     * @param dragScrollActive activate drag scroll
      */
-    protected JsonObject getInitialOptions() {
-        return initialOptions;
+    public void setDragScrollActive(boolean dragScrollActive) {
+        setOption(Option.DRAG_SCROLL, dragScrollActive);
     }
 
+//    /**
+//     * Returns the initial options object (not a copy). When making changes to this object, make sure to call
+//     * {@link #updateInitialOptions()} afterwards to update the client side. Changes after client side attachment
+//     * have no effect.
+//     *
+//     * @see #updateInitialOptions()
+//     * @return the initial options object
+//     */
+//    protected JsonObject getInitialOptions() {
+//        return initialOptions;
+//    }
+
     /**
-     * Enumeration of possible options, that can be applied to this calendar instance to have an effect on the client side.
-     * This list does not contain all options, but the most common used ones.
+     * Enumeration of possible options, that can be applied to the calendar. Contains only options, that affect
+     * the client side library, but not internal options. Also this list may not contain all options, but the most
+     * common used ones. Any missing option can be set manually using one of the {@link FullCalendar#setOption} methods
+     * using a string key.
      * <br><br>
      * Please refer to the FullCalendar client library documentation for possible options:
      * https://fullcalendar.io/docs
@@ -1352,7 +1402,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         ENTRY_RESIZABLE_FROM_START("eventResizableFromStart"),
         ENTRY_START_EDITABLE("eventStartEditable"),
         ENTRY_TIME_FORMAT("eventTimeFormat"),
-        EDITABLE("editable");
+        EDITABLE("editable"),
+        DRAG_SCROLL("dragScroll"),
+        MAX_ENTRIES_PER_DAY("dayMaxEvents")
+        ;
 
         private final String optionKey;
 

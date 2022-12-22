@@ -32,10 +32,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Route(value = "", layout = MainLayout.class)
 @CssImport("./styles.css")
@@ -47,6 +44,7 @@ public class FullDemo extends AbstractCalendarView {
     protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         FullCalendar calendar = FullCalendarBuilder.create()
                 .withAutoBrowserTimezone()
+                .withAutoBrowserLocale()
                 .withInitialOptions(defaultInitialOptions)
                 .withEntryLimit(3)
                 .withScheduler("GPL-My-Project-Is-Open-Source")
@@ -82,7 +80,6 @@ public class FullDemo extends AbstractCalendarView {
             LocalDateTime startDate = event.getStart();
             System.out.println( "getStart(): " + event.getStart() );
             System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
-
 
             ResourceEntry entry = new ResourceEntry();
 

@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
  *
  * @author Stefan Uebe
  */
-@Route(value = "in-memory-entry-provider-with-lazy-loading", layout = MainLayout.class)
-@org.vaadin.stefan.ui.menu.MenuItem(label = "In Memory Entry Provider (lazy)")
+@Route(value = "in-memory-entry-provider", layout = MainLayout.class)
+@org.vaadin.stefan.ui.menu.MenuItem(label = "In Memory Entry Provider")
 public class InMemoryEntryProviderDemo extends AbstractEntryProviderDemo {
 
 

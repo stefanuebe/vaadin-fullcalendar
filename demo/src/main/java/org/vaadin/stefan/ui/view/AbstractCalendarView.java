@@ -9,11 +9,11 @@ import elemental.json.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.CalendarViewToolbar.CalendarViewToolbarBuilder;
-import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 
 import java.util.Collection;
 
@@ -114,15 +114,15 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @return initial options
      */
     protected JsonObject createDefaultInitialOptions() {
-JsonObject initialOptions = Json.createObject();
-JsonObject eventTimeFormat = Json.createObject();
-//{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
-eventTimeFormat.put("hour", "2-digit");
-eventTimeFormat.put("minute", "2-digit");
-eventTimeFormat.put("timeZoneName", "short");
-eventTimeFormat.put("meridiem", false);
-eventTimeFormat.put("hour12", false);
-initialOptions.put("eventTimeFormat", eventTimeFormat);
+        JsonObject initialOptions = Json.createObject();
+        JsonObject eventTimeFormat = Json.createObject();
+        //{ hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }
+        eventTimeFormat.put("hour", "2-digit");
+        eventTimeFormat.put("minute", "2-digit");
+        eventTimeFormat.put("timeZoneName", "short");
+        eventTimeFormat.put("meridiem", false);
+        eventTimeFormat.put("hour12", false);
+        initialOptions.put("eventTimeFormat", eventTimeFormat);
         return initialOptions;
     }
 

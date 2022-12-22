@@ -14,7 +14,9 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
 /**
  * Shows the integration of a customized calendar view.
+ * @deprecated <a href="https://fullcalendar.io/docs/fixedWeekCount">https://fullcalendar.io/docs/fixedWeekCount</a>
  */
+@Deprecated
 @Route(value = "demodaygridsixweeks", layout = MainLayout.class)
 @MenuItem(label = "Six Weeks Grid")
 public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
@@ -33,10 +35,9 @@ public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
         CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
 
         FullCalendar calendar = FullCalendarBuilder.create()
-        .withInitialOptions(defaultInitialOptions)
-                .withInitialEntries(EntryService.createRandomInstance().getEntries())
-                .withEntryLimit(3)
-                .build();
+            .withInitialOptions(defaultInitialOptions)
+            .withInitialEntries(EntryService.createRandomInstance().getEntries())
+            .build();
         
         calendar.addEntryMouseEnterListener(ev -> {
         	System.out.println("Entry mouse ENTER: " + ev.getEntry().toString());
