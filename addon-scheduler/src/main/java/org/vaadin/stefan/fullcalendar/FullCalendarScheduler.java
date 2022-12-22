@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -105,6 +106,19 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public FullCalendarScheduler(@NotNull JsonObject initialOptions) {
         super(initialOptions);
+    }
+
+    // TODO integrate resource provider
+    @ClientCallable
+    public JsonArray fetchResourcesFromServer() {
+        JsonArray array = Json.createArray();
+
+        int i = 0;
+        for (Resource value : resources.values()) {
+            array.set(i++, value.toJson());
+        }
+
+        return array;
     }
 
     @Override
