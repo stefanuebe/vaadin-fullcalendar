@@ -15,7 +15,6 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Resource;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
 public class EntryManager {
 	public static void createRecurringEvents(FullCalendar calendar) {

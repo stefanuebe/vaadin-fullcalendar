@@ -26,10 +26,9 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
-import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
-import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
 
@@ -38,7 +37,6 @@ import java.io.Serializable;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -110,7 +108,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
      * <p></p>
-     * Uses {@link EagerInMemoryEntryProvider} by default.
+     * Uses {@link InMemoryEntryProvider} by default.
      */
     public FullCalendar() {
         this(-1);
@@ -127,7 +125,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <br><br>
      * Sets the locale to {@link CalendarLocale#getDefault()}
      * <p></p>
-     * Uses {@link EagerInMemoryEntryProvider} by default.
+     * Uses {@link InMemoryEntryProvider} by default.
      *
      * @param entryLimit The max number of stacked event levels within a given day. This includes the +more link if present. The rest will show up in a popover.
      */
@@ -165,7 +163,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Also, options set this way are not cached in the server side state. Calling any of the
      * {@code getOption(...)} methods will result in {@code null} (or the respective native default).
      * <p></p>
-     * Uses {@link EagerInMemoryEntryProvider} by default.
+     * Uses {@link InMemoryEntryProvider} by default.
      *
      * @param initialOptions initial options
      * @throws NullPointerException when null is passed
@@ -183,7 +181,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Called after the constructor has been initialized.
      */
     private void postConstruct() {
-        entryProvider = new EagerInMemoryEntryProvider<>();
+        entryProvider = EntryProvider.emptyInMemory();
         entryProvider.setCalendar(this);
 
         addDatesRenderedListener(event -> {
@@ -235,9 +233,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             });
         }
 
-        if (isEagerInMemoryEntryProvider()) {
-            entryProvider.refreshAll(); // if lazy, the client side will automatically take care of refreshing
-        }
+        // TODO remove
+//        if (isEagerInMemoryEntryProvider()) {
+//            entryProvider.refreshAll(); // if lazy, the client side will automatically take care of refreshing
+//        }
     }
 
     @Override
@@ -282,7 +281,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Sets the entry provider for this instance. The previous entry provider will be removed and the
      * client side will be updated.
      * <p/>
-     * By default a new full calendar is initialized with an {@link EagerInMemoryEntryProvider}.
+     * By default a new full calendar is initialized with an {@link InMemoryEntryProvider}.
      *
      * @param entryProvider entry provider
      */
@@ -302,18 +301,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
             entryProviderDataListeners.add(entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
 
-            boolean eagerLoadingInMemory = isEagerInMemoryEntryProvider();
-            // refresh all is handled manually by the eager memory provider, therefore we have to check this
-            // might change in future
-            if (eagerLoadingInMemory) {
-                entryProvider.refreshAll(); // triggers to push all data to the client
-            } else {
-
+//            boolean eagerLoadingInMemory = isEagerInMemoryEntryProvider();
+//            // refresh all is handled manually by the eager memory provider, therefore we have to check this
+//            // might change in future
+//            if (eagerLoadingInMemory) {
+//                entryProvider.refreshAll(); // triggers to push all data to the client
+//            } else {
                 entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAll()));
-
-            }
-
-            getElement().callJsFunction("setHasLazyLoadingEntryProvider", !eagerLoadingInMemory);
+//            }
         }
     }
 
@@ -371,17 +366,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         }
     }
 
-
-    /**
-     * Indicates, if the entry provider is eager loading, i.e. takes care of pushing entries manually as
-     * json array, or not, i.e. the client side takes care of fetching data from the server.
-     *
-     * @return is eager loading
-     */
-    public boolean isEagerInMemoryEntryProvider() {
-        return entryProvider instanceof EagerInMemoryEntryProvider;
-    }
-
     /**
      * Indicates, if the entry provider is a in memory provider.
      *
@@ -395,10 +379,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     protected JsonArray fetchFromServer(@NotNull JsonObject query) {
         Objects.requireNonNull(query);
         Objects.requireNonNull(entryProvider);
-
-        if (isEagerInMemoryEntryProvider()) {
-            throw new UnsupportedOperationException("This method must not be called for eager loading entry providers");
-        }
 
         lastFetchedEntries.clear();
 
@@ -422,7 +402,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Returns an entry with the given id from the last fetched set of entries. Returns an empty instance,
      * when there was no fetch yet or the id is unknown.
      * <p></p>
-     * Uses {@link EagerInMemoryEntryProvider#getEntryById(String)} when the eager in memory provider is used.
+     * Uses {@link InMemoryEntryProvider#getEntryById(String)} when the eager in memory provider is used.
      * <p></p>
      * This method is an internal method, intended to be used by entry based events only. Do not use it for
      * any other purpose as the implementation or scope may change in future.
@@ -431,7 +411,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @return cached entry from last fetch or empty
      */
     public Optional<Entry> getCachedEntryFromFetch(String id) {
-        return isEagerInMemoryEntryProvider() ? assureEagerInMemoryProvider().getEntryById(id) : Optional.ofNullable(lastFetchedEntries.get(id));
+        return Optional.ofNullable(lastFetchedEntries.get(id));
     }
 
     protected InMemoryEntryProvider<Entry> assureInMemoryProvider() {
@@ -440,14 +420,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         }
 
         return (InMemoryEntryProvider<Entry>) entryProvider;
-    }
-
-    protected EagerInMemoryEntryProvider<Entry> assureEagerInMemoryProvider() {
-        if (!(entryProvider instanceof EagerInMemoryEntryProvider)) {
-            throw new UnsupportedOperationException("Needs an EagerInMemoryEntryProvider to work.");
-        }
-
-        return (EagerInMemoryEntryProvider<Entry>) entryProvider;
     }
 
     /**

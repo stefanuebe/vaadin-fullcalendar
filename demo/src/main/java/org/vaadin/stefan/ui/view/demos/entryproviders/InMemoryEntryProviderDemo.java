@@ -3,7 +3,7 @@ package org.vaadin.stefan.ui.view.demos.entryproviders;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 
 import java.util.Collection;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This demo shows the usage of the LazyInMemoryEntryProvider. It stores all its data on the server side
+ * This demo shows the usage of the InMemoryEntryProvider. It stores all its data on the server side
  * while the client only receives the necessary data. This allows a mixture of easy in memory editing
  * via the CRUD API without a heavy memory impact on the client.
  *
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 @Route(value = "in-memory-entry-provider-with-lazy-loading", layout = MainLayout.class)
 @org.vaadin.stefan.ui.menu.MenuItem(label = "In Memory Entry Provider (lazy)")
-public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProviderDemo {
+public class InMemoryEntryProviderDemo extends AbstractEntryProviderDemo {
 
 
     @Override
@@ -28,7 +28,7 @@ public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProvi
 
         // The list is used to initialize the in memory provider, but different to the ListDataProvider it is
         // not used as the backing collection.
-        return EntryProvider.lazyInMemoryFromItems(entries);
+        return EntryProvider.inMemoryFrom(entries);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProvi
     protected void onEntriesCreated(Collection<Entry> entries) {
         // The lazy in memory provider provides API to modify its internal cache. To inform the client about
         // the change a refresh call is necessary.
-        LazyInMemoryEntryProvider<Entry> provider = getEntryProvider();
+        InMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.addEntries(entries);
         provider.refreshAll();
     }
@@ -49,7 +49,7 @@ public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProvi
     protected void onEntriesRemoved(Collection<Entry> entries) {
         // The lazy in memory provider provides API to modify its internal cache. To inform the client about
         // the change a refresh call is necessary.
-        LazyInMemoryEntryProvider<Entry> provider = getEntryProvider();
+        InMemoryEntryProvider<Entry> provider = getEntryProvider();
         provider.removeEntries(entries);
         provider.refreshAll();
     }
@@ -61,13 +61,13 @@ public class InMemoryEntryProviderWithLazyLoadingDemo extends AbstractEntryProvi
     }
 
     @Override
-    protected LazyInMemoryEntryProvider<Entry> getEntryProvider() {
-        return (LazyInMemoryEntryProvider<Entry>) super.getEntryProvider();
+    protected InMemoryEntryProvider<Entry> getEntryProvider() {
+        return (InMemoryEntryProvider<Entry>) super.getEntryProvider();
     }
 
     @Override
     protected String createDescription() {
-        return "This demo shows the usage of the LazyInMemoryEntryProvider. It stores all its data on the server side " +
+        return "This demo shows the usage of the InMemoryEntryProvider. It stores all its data on the server side " +
                 "while the client only receives the necessary data. This allows a mixture of easy in memory editing " +
                 "via the CRUD API without a heavy memory impact on the client.";
     }

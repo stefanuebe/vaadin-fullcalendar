@@ -1,6 +1,10 @@
 package org.vaadin.stefan.fullcalendar.dataprovider;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
 import javax.validation.constraints.NotNull;
@@ -10,17 +14,28 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
- * A subtype of {@link EntryProvider} representing a provider, that keeps its entries in memory. It provides
- * additional api to modify the contained entry set (add / remove). Implementations may either use lazy loading
- * mechanism or push their items manually. Please also see the two reference implementations for direct use.
+ * Basic abstract implementation of an in memory entry provider utilizing a hashmap.
  *
- * @see LazyInMemoryEntryProvider
- * @see EagerInMemoryEntryProvider
  * @author Stefan Uebe
  */
-public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T> {
+public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvider<T> implements EntryProvider<T> {
+
+    /**
+     * Maps the entry ids to their respective entry instance. Any change to this map reflects directly
+     * to this instance.
+     */
+    @Getter(AccessLevel.PROTECTED)
+    private final Map<String, T> entriesMap = new HashMap<>();
+
+    public InMemoryEntryProvider() {
+    }
+
+    public InMemoryEntryProvider(Iterable<T> entries) {
+        addEntries(entries);
+    }
 
     /**
      * Creates a lazy loading instance. The given entries are used as initial items. Leave empty, if there
@@ -30,8 +45,8 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @return lazy loading in memory provider
      */
     @SafeVarargs
-    static <T extends Entry> LazyInMemoryEntryProvider<T> lazyInstance(T... entries) {
-        return new LazyInMemoryEntryProvider<>(Arrays.asList(entries));
+    public static <T extends Entry> InMemoryEntryProvider<T> from(T... entries) {
+        return new InMemoryEntryProvider<>(Arrays.asList(entries));
     }
 
     /**
@@ -41,31 +56,34 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param <T> type
      * @return lazy loading in memory provider
      */
-    static <T extends Entry> LazyInMemoryEntryProvider<T> lazyInstance(Iterable<T> entries) {
-        return new LazyInMemoryEntryProvider<>(entries);
+    public static <T extends Entry> InMemoryEntryProvider<T> from(Iterable<T> entries) {
+        return new InMemoryEntryProvider<>(entries);
     }
 
     /**
-     * Creates an eager loading instance. The given entries are used as initial items. Leave empty, if there
-     * are no initial entries.
-     * @param entries initial entries
-     * @param <T> type
-     * @return eager loading in memory provider
+     * Connects this instance with the calendar. Not intended to be called manually, the FC will take care of this.
+     * NOOP when called for the same calendar instance multiple times.
+     *
+     * @param calendar calendar to "connect" to.
      */
-    @SafeVarargs
-    static <T extends Entry> EagerInMemoryEntryProvider<T> eagerInstance(T... entries) {
-        return new EagerInMemoryEntryProvider<>(Arrays.asList(entries));
+    @Override
+    public void setCalendar(FullCalendar calendar) {
+        FullCalendar oldCalendar = getCalendar();
+        super.setCalendar(calendar);
+
+        if (oldCalendar != calendar) {
+            entriesMap.values().forEach(e -> e.setCalendar(calendar));
+        }
     }
 
-    /**
-     * Creates an eager loading instance. The given entries are used as initial items, but the given iterable
-     * is not used as the backing collection or similar. It will never be modified by this provider.
-     * @param entries initial entries
-     * @param <T> type
-     * @return eager loading in memory provider
-     */
-    static <T extends Entry> EagerInMemoryEntryProvider<T> eagerInstance(Iterable<T> entries) {
-        return new EagerInMemoryEntryProvider<>(entries);
+    @Override
+    public Stream<T> fetch(@NonNull EntryQuery query) {
+        return query.applyFilter(entriesMap.values().stream());
+    }
+
+    @Override
+    public Optional<T> fetchById(@NonNull String id) {
+        return Optional.ofNullable(entriesMap.get(id));
     }
 
     /**
@@ -74,27 +92,46 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param iterableEntries list of entries
      * @throws NullPointerException when null is passed
      */
-    void addEntries(@NotNull Iterable<T> iterableEntries);
+    public void addEntries(@NotNull Iterable<T> iterableEntries) {
+        Objects.requireNonNull(iterableEntries);
 
-    /**
-     * Updates the given entry on the client side. Will check if the id is already registered, otherwise a noop.
-     *
-     * @param entry entry to update
-     * @throws NullPointerException when null is passed
-     */
-    default void updateEntry(@NotNull T entry) {
-        Objects.requireNonNull(entry);
-        updateEntries(Collections.singletonList(entry));
+        iterableEntries.forEach(entry -> {
+            String id = entry.getId();
+
+            if (!entriesMap.containsKey(id)) {
+                entriesMap.put(id, entry);
+                entry.setCalendar(getCalendar());
+                onEntryAdd(entry);
+            }
+        });
     }
 
+    protected void onEntryAdd(T entry) {
+
+    }
+
+
     /**
-     * Updates the given entries on the client side. Ignores non-registered entries.
+     * Removes the given entries. Noop for not registered entries.
      *
-     * @param arrayOfEntries entries to update
+     * @param iterableEntries entries to remove
      * @throws NullPointerException when null is passed
      */
-    default void updateEntries(@NotNull T... arrayOfEntries) {
-        updateEntries(Arrays.asList(arrayOfEntries));
+    public void removeEntries(@NotNull Iterable<T> iterableEntries) {
+        Objects.requireNonNull(iterableEntries);
+
+        iterableEntries.forEach(entry -> {
+            String id = entry.getId();
+            if (entriesMap.remove(id) != null) {
+                entry.setCalendar(null);
+
+                onEntryRemove(entry);
+            }
+        });
+    }
+
+    protected void onEntryRemove(T entry) {
+
     }
 
     /**
@@ -103,22 +140,25 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param iterableEntries entries to update
      * @throws NullPointerException when null is passed
      */
-    void updateEntries(@NotNull Iterable<T> iterableEntries);
+    public void updateEntries(@NotNull Iterable<T> iterableEntries) {
+        Objects.requireNonNull(iterableEntries);
+        Map<String, T> entriesMap = getEntriesMap();
+        StreamSupport.stream(iterableEntries.spliterator(), true)
+                .filter(entry -> entriesMap.containsKey(entry.getId()) && entry.isKnownToTheClient())
+                .forEach(this::onEntryUpdate);
+    }
 
-    /**
-     * Removes the given entries. Noop for not registered entries.
-     *
-     * @param iterableEntries entries to remove
-     * @throws NullPointerException when null is passed
-     */
-    void removeEntries(@NotNull Iterable<T> iterableEntries);
+    public void onEntryUpdate(T entry) {
+
+    }
+
 
     /**
      * Returns a single entry identified by the given id or an empty optional.
      * @param id id
      * @return optional entry or empty
      */
-    default Optional<T> getEntryById(@NotNull String id) {
+    public Optional<T> getEntryById(@NotNull String id) {
         return fetchById(id);
     }
 
@@ -126,7 +166,7 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * Returns all entries of this instance.
      * @return all entries
      */
-    default List<T> getEntries() {
+    public List<T> getEntries() {
         return fetchAll().collect(Collectors.toList());
     }
 
@@ -136,7 +176,7 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param filterEnd end
      * @return matching entries
      */
-    default List<T> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
+    public List<T> getEntries(LocalDateTime filterStart, LocalDateTime filterEnd) {
         return fetch(new EntryQuery(filterStart, filterEnd)).collect(Collectors.toList());
     }
 
@@ -146,7 +186,7 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param filterEnd end
      * @return matching entries
      */
-    default List<T> getEntries(Instant filterStart, Instant filterEnd) {
+    public List<T> getEntries(Instant filterStart, Instant filterEnd) {
         return getEntries(Timezone.UTC.convertToLocalDateTime(filterStart), Timezone.UTC.convertToLocalDateTime(filterEnd));
     }
 
@@ -155,7 +195,7 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param dateTime point of time to check
      * @return crossing entries
      */
-    default List<T> getEntries(@NotNull Instant dateTime) {
+    public List<T> getEntries(@NotNull Instant dateTime) {
         return getEntries(Timezone.UTC.convertToLocalDateTime(dateTime));
     }
 
@@ -164,7 +204,7 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param date date to check
      * @return crossing entries
      */
-    default List<T> getEntries(@NotNull LocalDate date) {
+    public List<T> getEntries(@NotNull LocalDate date) {
         Objects.requireNonNull(date);
         return getEntries(date.atStartOfDay());
     }
@@ -174,7 +214,7 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param dateTime point of time to check
      * @return crossing entries
      */
-    default List<T> getEntries(@NotNull LocalDateTime dateTime) {
+    public List<T> getEntries(@NotNull LocalDateTime dateTime) {
         Objects.requireNonNull(dateTime);
         return getEntries(dateTime, dateTime.plusDays(1));
     }
@@ -185,10 +225,11 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param entry entry
      * @throws NullPointerException when null is passed
      */
-    default void addEntry(@NotNull T entry) {
+    public void addEntry(T entry) {
         Objects.requireNonNull(entry);
         addEntries(Collections.singletonList(entry));
     }
+
     /**
      * Adds an array of entries to the calendar. Noop for the entry id is already registered.
      *
@@ -196,11 +237,9 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @throws NullPointerException when null is passed
      */
     @SuppressWarnings("unchecked")
-    default void addEntries(@NotNull T... arrayOfEntries) {
+    public void addEntries(@NotNull T... arrayOfEntries) {
         addEntries(Arrays.asList(arrayOfEntries));
     }
-
-
 
     /**
      * Removes the given entry. Noop if the id is not registered.
@@ -208,7 +247,7 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param entry entry
      * @throws NullPointerException when null is passed
      */
-    default void removeEntry(@NotNull T entry) {
+    public void removeEntry(T entry) {
         Objects.requireNonNull(entry);
         removeEntries(Collections.singletonList(entry));
     }
@@ -219,15 +258,14 @@ public interface InMemoryEntryProvider<T extends Entry> extends EntryProvider<T>
      * @param arrayOfEntries entries to remove
      * @throws NullPointerException when null is passed
      */
-    default void removeEntries(@NotNull T... arrayOfEntries) {
+    public void removeEntries(@NotNull T... arrayOfEntries) {
         removeEntries(Arrays.asList(arrayOfEntries));
     }
 
     /**
      * Remove all entries.
      */
-    default void removeAllEntries() {
+    public void removeAllEntries() {
         removeEntries(fetchAll().collect(Collectors.toList())); // prevent concurrent mod exception
     }
-
 }

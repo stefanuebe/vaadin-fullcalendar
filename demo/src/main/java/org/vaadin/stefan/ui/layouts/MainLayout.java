@@ -19,8 +19,7 @@ package org.vaadin.stefan.ui.layouts;
 import org.vaadin.stefan.ui.view.demos.customdaygrid.DemoDayGridWeekWithSixWeeks;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
-import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderWithEagerLoadingDemo;
-import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderWithLazyLoadingDemo;
+import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
 import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
@@ -30,8 +29,7 @@ public class MainLayout extends AbstractLayout {
     protected void createMenuEntries(AppNav nav) {
         addMenu(nav, FullDemo.class);
 //        addMenu(nav, BasicDemo.class);
-        addMenu(nav, InMemoryEntryProviderWithEagerLoadingDemo.class);
-        addMenu(nav, InMemoryEntryProviderWithLazyLoadingDemo.class);
+        addMenu(nav, InMemoryEntryProviderDemo.class);
         addMenu(nav, CallbackEntryProviderDemo.class);
         addMenu(nav, BackendEntryProviderDemo.class);
         addMenu(nav, DemoWithTooltip.class);

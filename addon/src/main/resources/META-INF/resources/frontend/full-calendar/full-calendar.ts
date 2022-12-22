@@ -57,40 +57,18 @@ export class FullCalendar extends ThemableMixin(LitElement) {
         this.initCalendar();
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        try {
+            (this as any).$server.setBrowserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+        } catch (e) {
+            console.log("Could not obtain browsers time zone", e);
+        }
+    }
+
     protected initCalendar() {
         if (!this._calendar) {
-            try {
-                // @ts-ignore
-                this.$server.setBrowserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-            } catch (e) {
-                console.log("Could not obtain browsers time zone", e);
-            }
-
-            let options = this._createInitOptions(this.initialOptions);
-
-
-            // // if the calendar is options to modify the event appearance, we extend the custom api here
-            // // see _initCalendar for details
-            // if (typeof options.eventDidMount === "function") {
-            //     let initEventDidMount = options.eventDidMount;
-            //         options.eventDidMount = (info) => {
-            //             let event = info.event;
-            //             this._addCustomAPI(event);
-            //
-            //             return initEventDidMount.call(this._calendar, info);
-            //         };
-            //     }
-            //
-            // if (typeof options.eventContent === "function") {
-            // let initEventContent = options.eventContent;
-            //     options.eventContent = (info) => {
-            //         let event = info.event;
-            //         this._addCustomAPI(event);
-            //
-            //         return initEventContent.call(this._calendar, info);
-            //     };
-            // }
-
+            let options = this.createInitOptions(this.initialOptions);
 
             this._calendar = new Calendar(this, options);
 
@@ -111,6 +89,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
                 _setOption.call(this._calendar, key, callback);
             };
 
+            // TODO this is somehow double to the initial options variant, might be reduced to one variant?
             this._calendar.setOption = (key, value) => {
                 if (key === "eventDidMount" || key === "eventContent") {
                     // in these cases add custom api to the event to allow for instance accessing custom properties
@@ -124,7 +103,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
         }
     }
 
-    _createInitOptions(initialOptions = {}): any {
+    protected createInitOptions(initialOptions = {}): any {
         let events = this.createEventHandlers();
 
         let options = {
@@ -159,6 +138,8 @@ export class FullCalendar extends ThemableMixin(LitElement) {
             // @ts-ignore
             options.eventContent = new Function("return " + options.eventContent)();
         }
+
+        this.applyCustomPropertiesApi(options);
 
         return options;
     }
@@ -341,18 +322,16 @@ export class FullCalendar extends ThemableMixin(LitElement) {
 
         let moment = toMoment(date, this.calendar!);
         if (asDay) {
-            let dateString = moment.startOf('day').format().substr(0, 10);
-            return dateString;
+            return moment.startOf('day').format().substring(0, 10);
         }
 
-        let dateString = moment.utc().format();
-        return dateString;
+        return moment.utc().format();
     }
 
     /**
      * Takes care of registering the events in the options object. Can be overriden for custom handling
      * of special events.
-     * @see _createInitOptions
+     * @see createInitOptions
      * @see createEventHandlers
      *
      * @param options options
@@ -401,14 +380,39 @@ export class FullCalendar extends ThemableMixin(LitElement) {
         };
     }
 
-    private addCustomAPI(event: any) {
+    private applyCustomPropertiesApi(options: any) {
+        // if the calendar is options to modify the event appearance, we extend the custom api here
+        // see _initCalendar for details
+        if (typeof options.eventDidMount === "function") {
+            let initEventDidMount = options.eventDidMount;
+            options.eventDidMount = (info: any) => {
+                let event = info.event;
+                this.addCustomAPI(event);
+
+                return initEventDidMount.call(this._calendar, info);
+            };
+        }
+
+        if (typeof options.eventContent === "function") {
+            let initEventContent = options.eventContent;
+            options.eventContent = (info: any, createElement: any) => {
+                let event = info.event;
+                this.addCustomAPI(event);
+
+                return initEventContent.call(this._calendar, info, createElement);
+            };
+        }
+    }
+
+
+    private addCustomAPI = (event: any) => {
         if (!event.getCustomProperty) {
             // @ts-ignore
             event.getCustomProperty = (key, defaultValue = undefined) => {
                 return FullCalendar.getCustomProperty(event, key, defaultValue);
             }
         }
-    }
+    };
 
     /**
      * Restores the state from the server. All values are optional and might be undefined.

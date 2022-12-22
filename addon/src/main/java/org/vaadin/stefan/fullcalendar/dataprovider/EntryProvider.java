@@ -35,8 +35,8 @@ public interface EntryProvider<T extends Entry> {
      * @param <T> type
      * @return lazy loading in memory provider
      */
-    static <T extends Entry> LazyInMemoryEntryProvider<T> lazyInMemory() {
-        return InMemoryEntryProvider.lazyInstance();
+    static <T extends Entry> InMemoryEntryProvider<T> emptyInMemory() {
+        return InMemoryEntryProvider.from();
     }
 
     /**
@@ -47,8 +47,8 @@ public interface EntryProvider<T extends Entry> {
      * @return lazy loading in memory provider
      */
     @SafeVarargs
-    static <T extends Entry> LazyInMemoryEntryProvider<T> lazyInMemoryFromItems(T... entries) {
-        return InMemoryEntryProvider.lazyInstance(entries);
+    static <T extends Entry> InMemoryEntryProvider<T> inMemoryFrom(T... entries) {
+        return InMemoryEntryProvider.from(entries);
     }
 
     /**
@@ -58,40 +58,8 @@ public interface EntryProvider<T extends Entry> {
      * @param <T> type
      * @return lazy loading in memory provider
      */
-    static <T extends Entry> LazyInMemoryEntryProvider<T> lazyInMemoryFromItems(Iterable<T> entries) {
-        return InMemoryEntryProvider.lazyInstance(entries);
-    }
-
-    /**
-     * Creates an eager loading instance with no initial entries.
-     * @param <T> type
-     * @return eager loading in memory provider
-     */
-    static <T extends Entry> EagerInMemoryEntryProvider<T> eagerInMemory() {
-        return InMemoryEntryProvider.eagerInstance();
-    }
-
-    /**
-     * Creates an eager loading instance. The given entries are used as initial items. Leave empty, if there
-     * are no initial entries.
-     * @param entries initial entries
-     * @param <T> type
-     * @return eager loading in memory provider
-     */
-    @SafeVarargs
-    static <T extends Entry> EagerInMemoryEntryProvider<T> eagerInMemoryFromItems(T... entries) {
-        return InMemoryEntryProvider.eagerInstance(entries);
-    }
-
-    /**
-     * Creates an eager loading instance. The given entries are used as initial items, but the given iterable
-     * is not used as the backing collection or similar. It will never be modified by this provider.
-     * @param entries initial entries
-     * @param <T> type
-     * @return eager loading in memory provider
-     */
-    static <T extends Entry> EagerInMemoryEntryProvider<T> eagerInMemoryFromItems(Iterable<T> entries) {
-        return InMemoryEntryProvider.eagerInstance(entries);
+    static <T extends Entry> InMemoryEntryProvider<T> inMemoryFrom(Iterable<T> entries) {
+        return InMemoryEntryProvider.from(entries);
     }
 
     /**

@@ -1,10 +1,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.dataprovider.EagerInMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
 import java.util.Arrays;
@@ -295,7 +293,7 @@ public class FullCalendarSchedulerTest {
         Assertions.assertTrue(entries.contains(entry3));
     }
 
-    private EagerInMemoryEntryProvider<Entry> getEntryProvider(FullCalendar calendar) {
+    private InMemoryEntryProvider<Entry> getEntryProvider(FullCalendar calendar) {
         return calendar.getEntryProvider();
     }
 }

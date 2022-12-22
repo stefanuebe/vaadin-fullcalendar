@@ -24,7 +24,7 @@ import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
-import org.vaadin.stefan.fullcalendar.dataprovider.LazyInMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
@@ -36,7 +36,7 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 @MenuItem(label = "Tooltips")
 public class DemoWithTooltip extends AbstractCalendarView {
     private static final long serialVersionUID = 1L;
-    private LazyInMemoryEntryProvider<Entry> entryProvider;
+    private InMemoryEntryProvider<Entry> entryProvider;
 
 
     @Override
