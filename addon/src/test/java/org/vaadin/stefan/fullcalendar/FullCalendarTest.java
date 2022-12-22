@@ -79,7 +79,7 @@ public class FullCalendarTest {
         assertExistingOptionCount(calendar, 1);
         assertSame(CalendarLocale.getDefault(), calendar.getLocale());
 
-        assertEquals(entryLimit, calendar.getElement().getProperty("dayMaxEvents", -1));
+        assertEquals(entryLimit, calendar.getOption(Option.MAX_ENTRIES_PER_DAY).orElse(-1));
     }
 
     @Test
@@ -90,7 +90,8 @@ public class FullCalendarTest {
         Element element = calendar.getElement();
 
         // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 0);
+        // only the default language should be set
+        assertExistingOptionCount(calendar, 1);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
         assertTrue(returnedOptions instanceof JsonObject, "Returned initial options not instanceof JsonObject");

@@ -106,7 +106,7 @@ public class FullCalendarSchedulerTest {
         assertExistingOptionCount(calendar, 1);
         Assertions.assertSame(CalendarLocale.getDefault(), calendar.getLocale());
 
-        Assertions.assertEquals(entryLimit, calendar.getElement().getProperty("dayMaxEvents", -1));
+        Assertions.assertEquals(entryLimit, calendar.getOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY).orElse(-1));
     }
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
