@@ -42,7 +42,9 @@ export class FullCalendarScheduler extends FullCalendar {
         return options;
     }
 
-
+    refreshAllResources() {
+        this.calendar?.refetchEvents();
+    }
 
     setResourceLabelClassNamesCallback(s: string) {
         this.calendar?.setOption('resourceLabelClassNames', new Function("return " + s)());

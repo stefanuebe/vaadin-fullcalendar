@@ -27,6 +27,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -123,42 +124,42 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     public void setSchedulerLicenseKey(String schedulerLicenseKey) {
-        setOption("schedulerLicenseKey", schedulerLicenseKey);
+        setOption(SchedulerOption.LICENSE_KEY, schedulerLicenseKey);
     }
 
     @Override
     public void setResourceAreaHeaderContent(String resourceAreaHeaderContent) {
-        setOption("resourceAreaHeaderContent", resourceAreaHeaderContent);
+        setOption(SchedulerOption.RESOURCE_AREA_HEADER_CONTENT, resourceAreaHeaderContent);
     }
     
     @Override
     public void setResourceAreaWidth(String resourceAreaWidth) {
-        setOption("resourceAreaWidth", resourceAreaWidth);
+        setOption(SchedulerOption.RESOURCE_AREA_WIDTH, resourceAreaWidth);
     }
     
     @Override
     public void setSlotMinWidth(String slotMinWidth) {
-        setOption("slotMinWidth", slotMinWidth);
+        setOption(SchedulerOption.SLOT_MIN_WIDTH, slotMinWidth);
     }
     
     @Override
     public void setResourcesInitiallyExpanded(boolean resourcesInitiallyExpanded) {
-        setOption("resourcesInitiallyExpanded", resourcesInitiallyExpanded);
+        setOption(SchedulerOption.RESOURCES_INITIALLY_EXPANDED, resourcesInitiallyExpanded);
     }
     
     @Override
     public void setFilterResourcesWithEvents(boolean filterResourcesWithEvents) {
-        setOption("filterResourcesWithEvents", filterResourcesWithEvents);
+        setOption(SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES, filterResourcesWithEvents);
     }
 
     @Override
     public void setResourceOrder(String resourceOrder) {
-        setOption("resourceOrder", resourceOrder);
+        setOption(SchedulerOption.RESOURCE_ORDER, resourceOrder);
     }
     
     @Override
     public void setEntryResourceEditable(boolean eventResourceEditable) {
-    	setOption("eventResourceEditable", eventResourceEditable);
+    	setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, eventResourceEditable);
     }
 
     @Deprecated
@@ -312,16 +313,16 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         switch (groupEntriesBy) {
             default:
             case NONE:
-                setOption("groupByResource", false);
-                setOption("groupByDateAndResource", false);
+                setOption(SchedulerOption.GROUP_BY_RESOURCE, false);
+                setOption(SchedulerOption.GROUP_BY_DATE_AND_RESOURCE, false);
                 break;
             case RESOURCE_DATE:
-                setOption("groupByDateAndResource", false);
-                setOption("groupByResource", true);
+                setOption(SchedulerOption.GROUP_BY_DATE_AND_RESOURCE, false);
+                setOption(SchedulerOption.GROUP_BY_RESOURCE, true);
                 break;
             case DATE_RESOURCE:
-                setOption("groupByResource", false);
-                setOption("groupByDateAndResource", true);
+                setOption(SchedulerOption.GROUP_BY_RESOURCE, false);
+                setOption(SchedulerOption.GROUP_BY_DATE_AND_RESOURCE, true);
                 break;
         }
     }
@@ -352,5 +353,105 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public Registration addEntryDroppedSchedulerListener(@NotNull ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryDroppedSchedulerEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Sets a option for this instance. Passing a null value removes the option.
+     * <br><br>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     *
+     * @param option option
+     * @param value  value
+     * @throws NullPointerException when null is passed
+     */
+    public void setOption(@NotNull SchedulerOption option, Serializable value) {
+        setOption(option, value, null);
+    }
+
+    /**
+     * Sets a option for this instance. Passing a null value removes the option. The third parameter
+     * might be used to explicitly store a "more complex" variant of the option's value to be returned
+     * by {@link #getOption(SchedulerOption)}. It is always stored when not equal to the value except for null.
+     * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
+     * <pre>
+     * Please be aware that this method does not check the passed value. Explicit setter
+     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     *
+     * @param option             option
+     * @param value              value
+     * @param valueForServerSide value to be stored on server side
+     * @throws NullPointerException when null is passed
+     */
+    public void setOption(@NotNull SchedulerOption option, Serializable value, Object valueForServerSide) {
+        setOption(option.getOptionKey(), value, valueForServerSide);
+    }
+
+    /**
+     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
+     * If a server side version of the value has been set
+     * via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
+     * <br><br>
+     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     *
+     * @param option option
+     * @param <T>    type of value
+     * @return optional value or empty
+     * @throws NullPointerException when null is passed
+     */
+    public <T> Optional<T> getOption(@NotNull SchedulerOption option) {
+        return getOption(option, false);
+    }
+
+    /**
+     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
+     * If the second parameter is false and a server side version of the
+     * value has been set via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
+     * <br><br>
+     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     *
+     * @param option               option
+     * @param forceClientSideValue explicitly return the value that has been sent to client
+     * @param <T>                  type of value
+     * @return optional value or empty
+     * @throws NullPointerException when null is passed
+     */
+    public <T> Optional<T> getOption(@NotNull SchedulerOption option, boolean forceClientSideValue) {
+        return getOption(option.getOptionKey(), forceClientSideValue);
+    }
+
+    /**
+     * Enumeration of possible scheduler options, that can be applied to the calendar.
+     * Contains only options, that affect the client side library, but not internal options.
+     * Also this list may not contain all options, but the most common used ones.
+     * Any missing option can be set manually using one of the {@link FullCalendar#setOption} methods
+     * using a string key.
+     * <br><br>
+     * Please refer to the FullCalendar client library documentation for possible options:
+     * https://fullcalendar.io/docs
+     */
+    public enum SchedulerOption {
+        ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
+        FILTER_RESOURCES_WITH_ENTRIES("filterResourcesWithEvents"),
+        GROUP_BY_DATE_AND_RESOURCE("groupByDateAndResource"),
+        GROUP_BY_RESOURCE("groupByResource"),
+        LICENSE_KEY("schedulerLicenseKey"),
+        REFETCH_RESOURCES_ON_NAVIGATE("refetchResourcesOnNavigate"),
+        RESOURCE_AREA_HEADER_CONTENT("resourceAreaHeaderContent"),
+        RESOURCE_AREA_WIDTH("resourceAreaWidth"),
+        RESOURCES_INITIALLY_EXPANDED("resourcesInitiallyExpanded"),
+        RESOURCE_ORDER("resourceOrder"),
+        SLOT_MIN_WIDTH("slotMinWidth"),
+        ;
+
+        private final String optionKey;
+
+        SchedulerOption(String optionKey) {
+            this.optionKey = optionKey;
+        }
+
+        String getOptionKey() {
+            return optionKey;
+        }
     }
 }
