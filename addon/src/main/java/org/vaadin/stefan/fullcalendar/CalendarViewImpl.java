@@ -27,17 +27,19 @@ import lombok.RequiredArgsConstructor;
 public enum CalendarViewImpl implements CalendarView {
 
     /** Day based grid view of a month */
-    DAY_GRID_MONTH("dayGridMonth"), // was MONTH
+    DAY_GRID_MONTH("dayGridMonth"),
 
     /** Timegrid day view */
-    TIME_GRID_DAY("timeGridDay"), // was AGENDA_DAY
+    TIME_GRID_DAY("timeGridDay"),
     /** Timegrid week view */
-    TIME_GRID_WEEK("timeGridWeek"), // was AGENDA_WEEK
+    TIME_GRID_WEEK("timeGridWeek"),
 
     /** Day based grid view of a day (simply a single rectangle showing the day) */
-    DAY_GRID_DAY("dayGridDay"), // was BASIC_DAY
+    DAY_GRID_DAY("dayGridDay"),
     /** Day based grid view of a week */
-    DAY_GRID_WEEK("dayGridWeek"), // was BASIC_WEEK
+    DAY_GRID_WEEK("dayGridWeek"),
+    /** Day based grid view of a year */
+    DAY_GRID_YEAR("dayGridYear"),
 
     /** Entries list for a week */
     LIST_WEEK("listWeek"),
@@ -47,6 +49,9 @@ public enum CalendarViewImpl implements CalendarView {
     LIST_MONTH("listMonth"),
     /** Entries list for a year */
     LIST_YEAR("listYear"),
+
+    /** Shows all months of the year*/
+    MULTI_MONTH("multiMonthYear")
     ;
 
     private final String clientSideValue;

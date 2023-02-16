@@ -24,6 +24,7 @@ import interaction from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
+import multiMonthPlugin from '@fullcalendar/multimonth';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all';
@@ -130,7 +131,14 @@ export class FullCalendar extends ThemableMixin(LitElement) {
         // @ts-ignore
         options['locales'] = allLocales;
         // @ts-ignore
-        options['plugins'] = [interaction, dayGridPlugin, timeGridPlugin, listPlugin, momentTimezonePlugin];
+        options['plugins'] = [
+            interaction,
+            dayGridPlugin,
+            timeGridPlugin,
+            listPlugin,
+            multiMonthPlugin,
+            momentTimezonePlugin
+        ];
 
         // be aware of never setting or passing in any harmful content from the serverside
         // @ts-ignore
