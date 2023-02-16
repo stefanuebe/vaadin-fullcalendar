@@ -8,6 +8,7 @@ import elemental.json.JsonValue;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;

@@ -1,4 +1,4 @@
-package org.vaadin.stefan.fullcalendar;
+package org.vaadin.stefan.fullcalendar.converters;
 
 import elemental.json.JsonValue;
 
@@ -8,7 +8,10 @@ import elemental.json.JsonValue;
  *
  * @param <SERVER_TYPE>
  */
-public interface JsonItemPropertyConverter<SERVER_TYPE, T extends JsonItem> {
+public interface JsonItemPropertyConverter<SERVER_TYPE, T> {
+
+    boolean supports(Object type);
+
     JsonValue toJsonValue(SERVER_TYPE serverValue, T currentInstance);
 
     default SERVER_TYPE ofJsonValue(JsonValue clientValue, T currentInstance) {
