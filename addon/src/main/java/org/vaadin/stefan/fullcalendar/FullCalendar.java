@@ -191,6 +191,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         entryProvider = EntryProvider.emptyInMemory();
         entryProvider.setCalendar(this);
 
+        setPrefetchEnabled(true);
+
         addDatesRenderedListener(event -> {
             latestKnownViewName = event.getName();
             latestKnownIntervalStart = event.getIntervalStart();
@@ -1351,6 +1353,42 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void setDragScrollActive(boolean dragScrollActive) {
         setOption(Option.DRAG_SCROLL, dragScrollActive);
+    }
+
+    /**
+     * Enables prefetching of entries of adjacent time ranges (enabled by default).
+     * <p></p>
+     * Prefetching means, that entries of adjacent periods are also fetched. For instance, when the current view is
+     * month based and prefetching is enabled, the client will not only fetch the entries of the shown month, but also
+     * the one before and after. This prevents flickering / jumping calendar cells, when switching to the previous
+     * or next time period.
+     * <p></p>
+     * The additional fetched entries are not cached on the client side. When switching to an adjacent period,
+     * the client will fetch the entries for that period again (inclusive its own adjacent periods). Therefore,
+     * if network performance is more important than visual appearence, you should disable prefetching.
+     *
+     * @param prefetchEnabled enable prefetch
+     */
+    public void setPrefetchEnabled(boolean prefetchEnabled) {
+        getElement().setProperty("prefetchEnabled", prefetchEnabled);
+    }
+
+    /**
+     * Indicates, if prefetching of entries of adjacent time ranges is enabled (enabled by default).
+     * <p></p>
+     * Prefetching means, that entries of adjacent periods are also fetched. For instance, when the current view is
+     * month based and prefetching is enabled, the client will not only fetch the entries of the shown month, but also
+     * the one before and after. This prevents flickering / jumping calendar cells, when switching to the previous
+     * or next time period.
+     * <p></p>
+     * The additional fetched entries are not cached on the client side. When switching to an adjacent period,
+     * the client will fetch the entries for that period again (inclusive its own adjacent periods). Therefore,
+     * if network performance is more important than visual appearence, you should disable prefetching.
+     *
+     * @return prefetch is enabled
+     */
+    public boolean isPrefetchEnabled() {
+        return getElement().getProperty("prefetchEnabled", false);
     }
 
 //    /**
