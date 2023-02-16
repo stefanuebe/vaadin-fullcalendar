@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -25,6 +24,7 @@ import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -49,7 +49,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * The scheduler base version used in this addon. Some additionl libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_SCHEDULER_CLIENT_VERSION = "6.0.0";
+    public static final String FC_SCHEDULER_CLIENT_VERSION = "6.1.4";
     private final Map<String, Resource> resources = new HashMap<>();
 
     /**
@@ -109,19 +109,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         super(initialOptions);
     }
 
-    // TODO integrate resource provider
-    @ClientCallable
-    public JsonArray fetchResourcesFromServer() {
-        JsonArray array = Json.createArray();
-
-        int i = 0;
-        for (Resource value : resources.values()) {
-            array.set(i++, value.toJson());
-        }
-
-        return array;
-    }
-
     @Override
     public void setSchedulerLicenseKey(String schedulerLicenseKey) {
         setOption(SchedulerOption.LICENSE_KEY, schedulerLicenseKey);
@@ -162,7 +149,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     	setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, eventResourceEditable);
     }
 
-    @Deprecated
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource) {
         Objects.requireNonNull(iterableResource);
@@ -182,7 +168,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         getElement().callJsFunction("addResources", array, true);
     }
 
-    @Deprecated
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource, boolean scrollToLast) {
         Objects.requireNonNull(iterableResource);
@@ -201,7 +186,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         getElement().callJsFunction("addResources", array, scrollToLast);
     }
 
-    @Deprecated
     /**
      * Adds resources to the internal resources map. Does not update the client side. This method is mainly intended
      * to be used for child resources of registered resources, as the toJson method takes care for recursive child registration
@@ -215,7 +199,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         }
     }
 
-    @Deprecated
     @Override
     public void removeResources(@NotNull Iterable<Resource> iterableResources) {
         Objects.requireNonNull(iterableResources);
@@ -236,7 +219,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     }
 
-    @Deprecated
     /**
      * Removes the given resources from the known entries of this calendar.
      * @param iterableResources resources
@@ -244,7 +226,14 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     private void removeFromEntries(Iterable<Resource> iterableResources) {
         List<Resource> resources = StreamSupport.stream(iterableResources.spliterator(), false).collect(Collectors.toList());
         // TODO integrate in memory resource provider
-//        getEntries().stream().filter(e -> e instanceof ResourceEntry).forEach(e -> ((ResourceEntry) e).unassignResources(resources));
+        EntryProvider<Entry> entryProvider = getEntryProvider();
+        if (entryProvider.isInMemory()) {
+            entryProvider.asInMemory()
+                    .getEntries()
+                    .stream()
+                    .filter(e -> e instanceof ResourceEntry)
+                    .forEach(e -> ((ResourceEntry) e).unassignResources(resources));
+        }
     }
 
     @Deprecated

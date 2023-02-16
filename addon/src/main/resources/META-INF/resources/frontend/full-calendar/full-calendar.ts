@@ -26,7 +26,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
-import allLocales from '@fullcalendar/core/locales-all.js';
+import allLocales from '@fullcalendar/core/locales-all';
 import {ThemableMixin} from "@vaadin/vaadin-themable-mixin";
 
 // Simple type, that allows JS object property access via ["xyz"]
@@ -374,7 +374,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
             }
 
             // @ts-ignore
-            this.$server.fetchFromServer({
+            this.$server.fetchEntriesFromServer({
                 start: this.formatDate(info.start),
                 end: this.formatDate(info.end)
             }).then((array: any | any[]) => {
@@ -538,6 +538,11 @@ export class FullCalendar extends ThemableMixin(LitElement) {
     }
 
     refreshAllEvents() {
+        this.calendar?.refetchEvents();
+    }
+
+    refreshSingleEvent(id: string) {
+        console.debug(`refetch all events due to unsupported refresh single event ${id}`);
         this.calendar?.refetchEvents();
     }
 

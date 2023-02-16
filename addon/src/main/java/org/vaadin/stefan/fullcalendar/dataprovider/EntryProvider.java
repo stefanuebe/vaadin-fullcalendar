@@ -112,7 +112,9 @@ public interface EntryProvider<T extends Entry> {
      * Refreshes a single item.
      * <p></p>
      * <i>Please note, that this functionality is currently not directly supported by the client side. Therefore,
-     * in most cases calling this method will currently refetch all items of the currently shown interval.</i>
+     * in most cases calling this method will currently refetch all items of the currently shown interval.
+     * Also see <a href="https://github.com/fullcalendar/fullcalendar/issues/7215">related github issue.</a></i>
+     *
      */
     void refreshItem(T item);
 
