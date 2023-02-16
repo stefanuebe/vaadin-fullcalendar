@@ -123,28 +123,53 @@ public final class JsonUtils {
                 || value instanceof Stream<?>;
     }
 
-    public static String formatClientSideTimeString(LocalTime localTime) {
-        return localTime != null ? localTime + "Z" : null;
+    public static String formatClientSideTimeString(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof LocalTime) {
+            return value + "Z";
+        }
+
+        if (value instanceof LocalDateTime) {
+            return formatClientSideTimeString(((LocalDateTime) value).toLocalTime());
+        }
+
+        throw new IllegalArgumentException("Unsupported class: " + value.getClass());
     }
 
-    public static String formatClientSideTimeString(LocalDateTime localDateTime) {
-        return localDateTime != null ? formatClientSideTimeString(localDateTime.toLocalTime()) : null;
+
+    public static String formatClientSideDateString(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof LocalDate) {
+            return value.toString();
+        }
+
+        if (value instanceof LocalDateTime) {
+            return formatClientSideDateString(((LocalDateTime) value).toLocalDate());
+        }
+
+        throw new IllegalArgumentException("Unsupported class: " + value.getClass());
     }
 
-    public static String formatClientSideDateString(LocalDate localDate) {
-        return localDate != null ? localDate.toString() : null;
-    }
+    public static String formatClientSideDateTimeString(Object value) {
+        if (value == null) {
+            return null;
+        }
 
-    public static String formatClientSideDateString(LocalDateTime localDateTiem) {
-        return localDateTiem != null ? localDateTiem.toLocalDate().toString() : null;
-    }
+        if (value instanceof LocalDate) {
+            return formatClientSideDateTimeString(((LocalDate) value).atStartOfDay());
+        }
 
-    public static String formatClientSideDateTimeString(LocalDateTime localDateTime) {
-        return localDateTime == null ? null : localDateTime + "Z";
-    }
+        if (value instanceof LocalDateTime) {
+            return value + "Z";
+        }
 
-    public static String formatClientSideDateTimeString(LocalDate localDate) {
-        return localDate == null ? null : localDate.atStartOfDay() + "Z";
+        throw new IllegalArgumentException("Unsupported class: " + value.getClass());
     }
 
     /**

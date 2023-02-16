@@ -16,50 +16,70 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.*;
+import com.vaadin.flow.data.binder.BeanPropertySet;
+import com.vaadin.flow.data.binder.PropertySet;
+import com.vaadin.flow.function.SerializableFunction;
+import com.vaadin.flow.function.ValueProvider;
+import elemental.json.Json;
+import elemental.json.JsonObject;
+import elemental.json.JsonValue;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.vaadin.stefan.fullcalendar.converters.ClientDateTimeConverter;
+import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
+import org.vaadin.stefan.fullcalendar.json.JsonName;
 
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.Field;
 import java.time.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
-/**
- * Represents a simple calendar item. Each entry is at least defined by an id, a title and some kind of timespan.
- * If not stated differently, time (e.g. LocalDateTime) are always referring to UTC, e.g. getStart() returns a
- * LocalDateTime representing the start of the entry at UTC time (so it would be equal to an Instant representing
- * the same "time string" or a zoned date time with zone UTC). The client side takes care of displaying
- * entries in the calendar's current timezone
- * <br><br>
- * If you handle entries on the client side please be aware, that the FC library names them as "event". We name
- * them Entry here to prevent naming conflicts with UI Events (like "click" events, etc).
- * <br><br>
- * To create a recurring entry, simply set any of the "recurring" properties. With any of them set the entry
- * is automatically recurring.
- * <p></p>
- * You will find, that the entry implements a concept of being "known to the client". This concept is mainly
- * used by the eager loading in memory provider and is an artifact of earlier versions. In theory it should
- * not be important for any type of lazy loading provider, but the flag of "known to the client" will be
- * set at important points anyway (e. g.see {@link FullCalendar#fetchEntriesFromServer(JsonObject)}.
- * <p></p>
- * Timezones are currently not supported by the native client side library and therefore this instance
- * does not provide official offset api for recurrence times: https://github.com/fullcalendar/fullcalendar/issues/5273
- */
-public class Entry extends JsonItem<String> {
+@Getter
+@Setter
+@EqualsAndHashCode(of = "id")
+public class Entry {
 
-    private static final Set<JsonItem.Key> KEYS = JsonItem.Key.readAndRegisterKeysAsUnmodifiable(EntryKey.class);
+    public static final RenderingMode DEFAULT_RENDERING_MODE = RenderingMode.AUTO;
+    private static final PropertySet<Entry> PROPERTIES = BeanPropertySet.get(Entry.class);
 
-    /**
-     * Returns the set of known keys of this instance. By default all defined keys of {@link EntryKey}.
-     *
-     * @see EntryKey
-     * @return keys
-     */
-    public Set<JsonItem.Key> getKeys() {
-        return KEYS;
-    }
+    private final String id;
+    private String groupId;
+    private String title;
+
+    @JsonConverter(ClientDateTimeConverter.class)
+    private LocalDateTime start;
+
+    @JsonConverter(ClientDateTimeConverter.class)
+    private LocalDateTime end;
+
+    private boolean allDay;
+    private boolean editable = true;
+    private boolean startEditable = true;
+    private boolean durationEditable = true;
+    private String color;
+    private String constraint;
+    private String backgroundColor;
+    private String borderColor;
+    private String textColor;
+    private boolean overlap = true;
+
+    @NonNull
+    private RenderingMode renderingMode = DEFAULT_RENDERING_MODE;
+    private LocalDate recurringStartDate;
+    private LocalDate recurringEndDate;
+    private RecurringTime recurringStartTime; // see #139
+    private RecurringTime recurringEndTime; // see #139
+
+    private Set<DayOfWeek> recurringDaysOfWeek;
+    private Set<String> classNames;
+    private Map<String, Object> customProperties;
 
     /**
      * The referenced calendar instance. Can be null.
@@ -82,20 +102,7 @@ public class Entry extends JsonItem<String> {
      * @param id id
      */
     public Entry(String id) {
-        super(id == null ? UUID.randomUUID().toString() : id);
-    }
-
-    /**
-     * Creates an entry based on the given json object. The id is taken from the json object. Providing none will
-     * lead to an exception.
-     * @param object json object
-     * @return entry based on the object
-     */
-    public static Entry fromJson(JsonObject object) {
-        Entry entry = new Entry(object.getString(Entry.EntryKey.ID.getName()));
-        entry.updateFromJson(object, false);
-        return entry;
-
+        this.id = id == null ? UUID.randomUUID().toString() : id;
     }
 
     /**
@@ -114,32 +121,61 @@ public class Entry extends JsonItem<String> {
         this.calendar = calendar;
     }
 
-    @Override
-    protected void toJson(JsonObject jsonObject, boolean changedValuesOnly) {
-        if (changedValuesOnly && (isRecurring() || isMarkedAsChangedProperty(EntryKey.RECURRING_DAYS_OF_WEEKS))) {
-            // Current issues with built in properties (therefore the special handlings of recurring and resources)
-            // - https://github.com/fullcalendar/fullcalendar/issues/4393
-            // - https://github.com/fullcalendar/fullcalendar/issues/5166
-            // - https://github.com/fullcalendar/fullcalendar/issues/5262
-            // Therefore this if will lead to a lot of "reset event", due to the fact, that resource editable
-            // etc. might be set often.
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public JsonObject toJson() {
+        // The toJson is implemented in a dynamic fashion to not need to extend it every time a
+        // new property comes out.
 
-            super.toJson(jsonObject, false); // override the "changed" and write all values
-//            writeHardResetToJson(jsonObject);
-        } else {
-            super.toJson(jsonObject, changedValuesOnly);
-        }
+        JsonObject json = Json.createObject();
+
+        PROPERTIES.getProperties().forEach(def -> {
+            String name = def.getName();
+            Field field = FieldUtils.getField(Entry.class, name);
+            try {
+                if (field.getAnnotation(JsonIgnore.class) == null) {
+                    ValueProvider<Entry, ?> getter = def.getGetter();
+                    Object value = getter.apply(this);
+
+                    JsonValue jsonValue;
+
+                    JsonConverter converterAnnotation = field.getAnnotation(JsonConverter.class);
+                    JsonItemPropertyConverter converter = null;
+                    if (converterAnnotation != null) {
+                        converter = converterAnnotation.value().getConstructor().newInstance();
+                    }
+
+                    if (converter != null && converter.supports(value)) {
+                        jsonValue = converter.toJsonValue(value, this);
+                    } else {
+                        jsonValue = JsonUtils.toJsonValue(value);
+                    }
+
+                    String jsonName = name;
+                    JsonName nameAnnotation = field.getAnnotation(JsonName.class);
+                    if (nameAnnotation != null) {
+                        jsonName = nameAnnotation.value();
+                    }
+
+                    json.put(jsonName, jsonValue);
+                }
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        });
+
+        return json;
     }
 
-
     /**
-     * Returns the start of the entry as local date time. Represents the UTC date time this entry starts, which
-     * means the time is the same as when calling {@link #getStartAsInstant()}.
+     * Converts this instance to a json object, that only contains the id. This still represents
+     * this item but without any data.
      *
-     * @return start as local date time or null
+     * @return json object representing this instance
      */
-    public LocalDateTime getStart() {
-        return get(EntryKey.START);
+    public JsonObject toJsonWithIdOnly() {
+        JsonObject jsonObject = Json.createObject();
+        jsonObject.put("id", getId());
+        return jsonObject;
     }
 
     /**
@@ -149,7 +185,7 @@ public class Entry extends JsonItem<String> {
      * @return start as Instant or null
      */
     public Instant getStartAsInstant() {
-        return getOrNull(EntryKey.START, (LocalDateTime start) -> start.toInstant(ZoneOffset.UTC));
+        return convertNullable(getStart(), (LocalDateTime start) -> start.toInstant(ZoneOffset.UTC));
     }
 
     /**
@@ -157,7 +193,7 @@ public class Entry extends JsonItem<String> {
      * @return start date or null
      */
     public LocalDate getStartAsLocalDate() {
-        return getOrNull(EntryKey.START, LocalDateTime::toLocalDate);
+        return convertNullable(getStart(), LocalDateTime::toLocalDate);
     }
 
     /**
@@ -205,7 +241,7 @@ public class Entry extends JsonItem<String> {
      * @param start utc start
      */
     public void setStart(LocalDateTime start) {
-        set(EntryKey.START, start);
+        this.start = start;
     }
 
     /**
@@ -282,23 +318,13 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Returns the end of the entry as local date time. Represents the UTC date time this entry ends, which
-     * means the time is the same as when calling {@link #getStartAsInstant()}.
-     *
-     * @return end as local date time or null
-     */
-    public LocalDateTime getEnd() {
-        return get(EntryKey.END);
-    }
-
-    /**
      * Returns the entry's end as an {@link Instant}. The contained time is the same as when calling
      * {@link #getEnd()}.
      *
      * @return end as Instant or null
      */
     public Instant getEndAsInstant() {
-        return getOrNull(EntryKey.END, (LocalDateTime end) -> end.toInstant(ZoneOffset.UTC));
+        return convertNullable(getEnd(), (LocalDateTime end) -> end.toInstant(ZoneOffset.UTC));
     }
 
     /**
@@ -306,7 +332,7 @@ public class Entry extends JsonItem<String> {
      * @return end date or null
      */
     public LocalDate getEndAsLocalDate() {
-        return getOrNull(EntryKey.END, LocalDateTime::toLocalDate);
+        return convertNullable(getEnd(), LocalDateTime::toLocalDate);
     }
 
     /**
@@ -354,7 +380,7 @@ public class Entry extends JsonItem<String> {
      * @param end utc end
      */
     public void setEnd(LocalDateTime end) {
-        set(EntryKey.END, end);
+        this.end = end;
     }
 
     /**
@@ -478,11 +504,31 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
+     * Returns the set of class names or creates a new, empty one, if none exists yet. The returned set is
+     * the same as used internally, therefore any changes to it will be reflected to the client side on the
+     * next refresh.
+     *
+     * @return class names set
+     * @see #getClassNames()
+     */
+    public Set<String> getOrCreateClassNames() {
+        Set<String> classNames = getClassNames();
+        if (classNames == null) {
+            classNames = new LinkedHashSet<>();
+            setClassNames(classNames);
+        }
+
+        return classNames;
+    }
+
+    /**
      * Assign an additional className to this entry. Already assigned classNames will be kept.
      *
      * @param className class name to assign
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #addClassNames(String...)}
      */
+    @Deprecated
     public void assignClassName(String className) {
         assignClassNames(Objects.requireNonNull(className));
     }
@@ -492,7 +538,9 @@ public class Entry extends JsonItem<String> {
      *
      * @param classNames class names to assign
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #addClassNames(String...)}
      */
+    @Deprecated
     public void assignClassNames(@NotNull String... classNames) {
         assignClassNames(Arrays.asList(classNames));
     }
@@ -502,11 +550,33 @@ public class Entry extends JsonItem<String> {
      *
      * @param classNames class names to assign
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #addClassNames(Collection)}
      */
+    @Deprecated
     public void assignClassNames(@NotNull Collection<String> classNames) {
         Objects.requireNonNull(classNames);
         getOrCreateClassNames().addAll(classNames);
-        markAsChangedProperty(EntryKey.CLASS_NAMES);
+    }
+
+    /**
+     * Adds css class names to this entry. Duplicates will automatically be filtered out.
+     *
+     * @param classNames class names to add
+     * @throws NullPointerException when null is passed
+     */
+    public void addClassNames(@NotNull String... classNames) {
+        assignClassNames(Arrays.asList(classNames));
+    }
+
+    /**
+     * Adds css class names to this entry. Duplicates will automatically be filtered out.
+     *
+     * @param classNames class names to add
+     * @throws NullPointerException when null is passed
+     */
+    public void addClassNames(@NotNull Collection<String> classNames) {
+        Objects.requireNonNull(classNames);
+        getOrCreateClassNames().addAll(classNames);
     }
 
     /**
@@ -514,7 +584,9 @@ public class Entry extends JsonItem<String> {
      *
      * @param className class name to unassign
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #removeClassNames(String...)}
      */
+    @Deprecated
     public void unassignClassName(String className) {
         unassignClassNames(Objects.requireNonNull(className));
     }
@@ -524,7 +596,9 @@ public class Entry extends JsonItem<String> {
      *
      * @param classNames class names to unassign
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #removeClassNames(String...)}
      */
+    @Deprecated
     public void unassignClassNames(@NotNull String... classNames) {
         unassignClassNames(Arrays.asList(classNames));
     }
@@ -534,25 +608,51 @@ public class Entry extends JsonItem<String> {
      *
      * @param classNamesToRemove class names to unassign
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #removeClassNames(Collection)}
      */
+    @Deprecated
     public void unassignClassNames(@NotNull Collection<String> classNamesToRemove) {
-        Set<String> classNames = getClassNames();
-        if (classNames != null) {
-            classNames.removeAll(classNamesToRemove);
-            markAsChangedProperty(EntryKey.CLASS_NAMES);
-        }
-
+        removeClassNames(classNamesToRemove);
     }
 
     /**
      * Unassigns all classNames from this entry.
+     *
+     * @deprecated use {@link #removeClassNames()}
      */
+    @Deprecated
     public void unassignAllClassNames() {
+        removeClassNames();
+    }
+
+    /**
+     * Removes the given classNames from this entry.
+     *
+     * @param classNames class names to remove
+     * @throws NullPointerException when null is passed
+     */
+    public void removeClassNames(@NotNull String... classNames) {
+        removeClassNames(Arrays.asList(classNames));
+    }
+
+    /**
+     * Removes the given classNames from this entry.
+     *
+     * @param classNamesToRemove class names to remove
+     * @throws NullPointerException when null is passed
+     */
+    public void removeClassNames(@NotNull Collection<String> classNamesToRemove) {
         Set<String> classNames = getClassNames();
         if (classNames != null) {
-            classNames.clear();
-            setClassNames(null);
+            classNames.removeAll(classNamesToRemove);
         }
+    }
+
+    /**
+     * Removes the class names from this entry. Copies of the internal class name set will be unaffected;
+     */
+    public void removeClassNames() {
+        setClassNames(null);
     }
 
     /**
@@ -575,144 +675,22 @@ public class Entry extends JsonItem<String> {
         return classNames != null && !classNames.isEmpty();
     }
 
-    @Override
-    protected JsonItem.Key getIdKey() {
-        return EntryKey.ID;
-    }
-
-    protected Key getCustomPropertiesKey() {
-        return EntryKey.CUSTOM_PROPERTIES;
-    }
-
     /**
-     * Returns the title of this entry.
-     * @return title
-     */
-    public String getTitle() {
-        return get(EntryKey.TITLE);
-    }
-
-    /**
-     * Sets the title of this entry. When the rendering of the entry is not customized, the title will be shown
-     * as "name / title / description" of this entry on the client side.
-     * @param title title
-     */
-    public void setTitle(String title) {
-        set(EntryKey.TITLE, title);
-    }
-
-    /**
-     * Returns the group id of this entry. A non null, non empty string means, that this entry is recurring.
-     * @see #isRecurring()
-     * @return group id
-     */
-    public String getGroupId() {
-        return get(EntryKey.GROUP_ID);
-    }
-
-    /**
-     * Sets a group id. When passing a non null / non empty string, this entry will become a recurring entry.
-     * @see #isRecurring()
-     * @param groupId group id
-     */
-    public void setGroupId(String groupId) {
-        set(EntryKey.GROUP_ID, groupId);
-    }
-
-    /**
-     * Indicates, if this entry is an all day entry. Default ist false.
-     *
-     * @return is all day
-     */
-    public boolean isAllDay() {
-        return getBoolean(EntryKey.ALL_DAY);
-    }
-
-    /**
-     * Sets, if this entry is an all day entry. In this case the client side will ignore any time information
-     * on start / end and use date information only.
-     * @param allDay all day
-     */
-    public void setAllDay(boolean allDay) {
-        set(EntryKey.ALL_DAY, allDay);
-    }
-
-    /**
-     * Indicates, if this entry may overlap with other entries. Default ist true.
+     * Same as {@link #isOverlap()}.
      *
      * @return is overlap allowed
      */
     public boolean isOverlapAllowed() {
-        return getBoolean(EntryKey.OVERLAP, true);
+        return isOverlap();
     }
 
     /**
-     * Sets, if this entry may overlap with other entries.
+     * Same as {@link #setOverlap(boolean)}
+     *
      * @param overlap overlapping is allowed
      */
     public void setOverlapAllowed(boolean overlap) {
-        set(EntryKey.OVERLAP, overlap);
-    }
-
-    /**
-     * Returns a set of the class names of this instance. Might be null.
-     * @see #getOrCreateClassNames()
-     *
-     * @return Set
-     */
-    public Set<String> getClassNames() {
-        return get(EntryKey.CLASS_NAMES);
-    }
-
-    /**
-     * Returns the set of class names or creates a new, empty one, if none exists yet.
-     * @see #getClassNames()
-     * @return class names set
-     */
-    public Set<String> getOrCreateClassNames() {
-        Set<String> classNames = getClassNames();
-        if (classNames == null) {
-            classNames = new LinkedHashSet<>();
-            setClassNames(classNames);
-        }
-
-        return classNames;
-    }
-
-    public void setClassNames(Set<String> classNames) {
-        set(EntryKey.CLASS_NAMES, classNames);
-    }
-
-    public boolean isEditable() {
-        return getBoolean(EntryKey.EDITABLE, true);
-    }
-
-    public void setEditable(boolean editable) {
-        set(EntryKey.EDITABLE, editable);
-    }
-
-    public boolean isStartEditable() {
-        return getBoolean(EntryKey.START_EDITABLE, true);
-    }
-
-    public void setStartEditable(boolean editable) {
-        set(EntryKey.START_EDITABLE, editable);
-    }
-
-    public boolean isDurationEditable() {
-        return getBoolean(EntryKey.DURATION_EDITABLE, true);
-    }
-
-    public void setDurationEditable(boolean editable) {
-        set(EntryKey.DURATION_EDITABLE, editable);
-    }
-
-    /**
-     * Returns the color of the entry. This is interpreted as background and border color on the client side.
-     * @return color
-     */
-    public String getColor() {
-        return get(EntryKey.COLOR);
+        setOverlap(true);
     }
 
     /**
@@ -722,15 +700,7 @@ public class Entry extends JsonItem<String> {
      * @param constraint constraint
      */
     public void setConstraint(String constraint) {
-        set(EntryKey.CONSTRAINT, StringUtils.trimToNull(constraint));
-    }
-    
-    /**
-     * Returns the entry Constraint.
-     * @return constraint
-     */
-    public String getConstraint() {
-        return get(EntryKey.CONSTRAINT);
+        this.constraint = StringUtils.trimToNull(constraint);
     }
 
     /**
@@ -740,15 +710,7 @@ public class Entry extends JsonItem<String> {
      * @param color color
      */
     public void setColor(String color) {
-        set(EntryKey.COLOR, StringUtils.trimToNull(color));
-    }
-
-    /**
-     * Returns the background color of the entry.
-     * @return background color
-     */
-    public String getBackgroundColor() {
-        return get(EntryKey.BACKGROUND_COLOR);
+        this.color = StringUtils.trimToNull(color);
     }
 
     /**
@@ -757,15 +719,7 @@ public class Entry extends JsonItem<String> {
      * @param backgroundColor background color
      */
     public void setBackgroundColor(String backgroundColor) {
-        set(EntryKey.BACKGROUND_COLOR, StringUtils.trimToNull(backgroundColor));
-    }
-
-    /**
-     * Returns the text color of the entry.
-     * @return text color
-     */
-    public String getTextColor() {
-        return get(EntryKey.TEXT_COLOR);
+        this.backgroundColor = StringUtils.trimToNull(backgroundColor);
     }
 
     /**
@@ -774,15 +728,7 @@ public class Entry extends JsonItem<String> {
      * @param textColor text color
      */
     public void setTextColor(String textColor) {
-        set(EntryKey.TEXT_COLOR, StringUtils.trimToNull(textColor));
-    }
-
-    /**
-     * Returns the border color of the entry.
-     * @return border color
-     */
-    public String getBorderColor() {
-        return get(EntryKey.BORDER_COLOR);
+        this.textColor = StringUtils.trimToNull(textColor);
     }
 
     /**
@@ -791,7 +737,7 @@ public class Entry extends JsonItem<String> {
      * @param borderColor border color
      */
     public void setBorderColor(String borderColor) {
-        set(EntryKey.BORDER_COLOR, StringUtils.trimToNull(borderColor));
+        this.borderColor = StringUtils.trimToNull(borderColor);
     }
 
     /**
@@ -813,20 +759,11 @@ public class Entry extends JsonItem<String> {
     }
 
     /**
-     * Returns the rendering mode ("display"). If not set, it will return AUTO (default), which display
-     * the entry as a "normal" one.
-     * @return rendering mode
-     */
-    public RenderingMode getRenderingMode() {
-        return get(EntryKey.RENDERING_MODE, RenderingMode.AUTO);
-    }
-
-    /**
      * Sets the rendering mode ("display") for this entry. Passing null will reset it to the default.
      * @param renderingMode rengeringMode
      */
     public void setRenderingMode(RenderingMode renderingMode) {
-        setOrDefault(EntryKey.RENDERING_MODE, renderingMode, RenderingMode.AUTO);
+        this.renderingMode = renderingMode != null ? renderingMode : DEFAULT_RENDERING_MODE;
     }
 
     /**
@@ -839,28 +776,8 @@ public class Entry extends JsonItem<String> {
         return (daysOfWeek != null && !daysOfWeek.isEmpty())
                 || getRecurringEndDate() != null
                 || getRecurringStartDate() != null
-                || getRecurringStartTime() != null
-                || getRecurringEndTime() != null;
-    }
-
-    /**
-     * Returns a set of recurring days of week. Might be null.
-     * @see #isRecurring()
-     * @return days of week
-     */
-    public Set<DayOfWeek> getRecurringDaysOfWeek() {
-        return get(EntryKey.RECURRING_DAYS_OF_WEEKS);
-    }
-
-    /**
-     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
-     * as recurring. Pass null or an empty set may remove the recurring.
-     *
-     * @param daysOfWeek day of week
-     * @see #isRecurring()
-     */
-    public void setRecurringDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
-        set(EntryKey.RECURRING_DAYS_OF_WEEKS, daysOfWeek);
+                || getRecurringStartTimeAsLocalTime() != null
+                || getRecurringEndTimeAsLocalTime() != null;
     }
 
     /**
@@ -871,79 +788,119 @@ public class Entry extends JsonItem<String> {
      * @see #isRecurring()
      */
     public void setRecurringDaysOfWeek(DayOfWeek... daysOfWeek) {
-        setRecurringDaysOfWeek(daysOfWeek.length == 0 ? null : new HashSet<>(Arrays.asList(daysOfWeek)));
+        setRecurringDaysOfWeek(daysOfWeek.length == 0 ? null : new HashSet<>(List.of(daysOfWeek)));
+    }
+
+    public void setRecurringDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
+        this.recurringDaysOfWeek = daysOfWeek;
     }
 
     /**
-     * Sets the given local date as recurring start. Does not change the start time.
+     * Returns the recurring start time as a recurring time instance. <br>
+     * Since the FC allows recurring times to be
+     * above the normal 24h span of a day, this format is used to represent start and end "times".
      *
-     * @param recurringStart start
+     * @return recurring start time
      */
-    public void setRecurringStartDate(LocalDate recurringStart) {
-        set(EntryKey.RECURRING_START_DATE, recurringStart);
+    public RecurringTime getRecurringStartTime() {
+        return recurringStartTime;
     }
 
     /**
-     * Returns the recurring start of the entry as local date time based on utc.
+     * Returns the recurring start time as a local time.<br>
+     * Since the FC allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
+     * issues, as it does not support times of 24h or above.
      *
-     * @return start as local date time
+     * @return LocalTime instance
+     * @throws DateTimeException if this instance represents a time of 24 hours or above.
      */
-    public LocalDate getRecurringStartDate() {
-        return get(EntryKey.RECURRING_START_DATE);
+    public LocalTime getRecurringStartTimeAsLocalTime() {
+        return recurringStartTime != null ? recurringStartTime.toLocalTime() : null;
     }
 
     /**
-     * Returns the recurring end of the entry as local date time based on utc.
+     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry
+     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
+     * end of day.
      *
-     * @return start as local date time
-     */
-    public LocalDate getRecurringEndDate() {
-        return get(EntryKey.RECURRING_END_DATE);
-    }
-
-    /**
-     * Returns the recurring end. This method is a shortcut for combining {@link #getRecurringEndDate()}
-     * and {@link #getRecurringEndTime()}. Will return null, when no recurrence date is defined. When only a
-     * end date is defined, the returned date time will be at the end of that day.
-     * @see #isRecurring()
-     * @return end date time of recurrence
-     */
-    public LocalDateTime getRecurringEnd() {
-        LocalDate endDate = getRecurringEndDate();
-        if (endDate == null) {
-            return null;
-        }
-
-        LocalTime endTime = getRecurringEndTime();
-        return endTime != null ? endDate.atTime(endTime) : endDate.atStartOfDay();
-    }
-
-    /**
-     * Sets the given local date as recurring end.
-     *
-     * @param recurringEnd end
-     */
-    public void setRecurringEndDate(LocalDate recurringEnd) {
-        set(EntryKey.RECURRING_END_DATE, recurringEnd);
-    }
-
-    /**
-     * The start time of recurrence per day. When not defined, recurrence will extend to the end of day for
-     * a recurring entry.
-     *
-     * @return start time of recurrence
+     * @param start start time
      * @see #isRecurring()
      */
-    public LocalTime getRecurringStartTime() {
-        return get(EntryKey.RECURRING_START_TIME);
+    public void setRecurringStartTime(RecurringTime start) {
+        this.recurringStartTime = start;
+    }
+
+    /**
+     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry
+     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
+     * end of day.
+     *
+     * @param start start time
+     * @see #isRecurring()
+     */
+    public void setRecurringStartTime(LocalTime start) {
+        setRecurringStartTime(start != null ? new RecurringTime(start) : null);
+    }
+
+    /**
+     * Returns the recurring end time as a recurring time instance. <br>
+     * Since the FC allows recurring times to be
+     * above the normal 24h span of a day, this format is used to represent end and end "times".
+     *
+     * @return recurring end time
+     */
+    public RecurringTime getRecurringEndTime() {
+        return recurringEndTime;
+    }
+
+    /**
+     * Returns the recurring end time as a local time.<br>
+     * Since the FC allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
+     * issues, as it does not support times of 24h or above.
+     *
+     * @return LocalTime instance
+     * @throws DateTimeException if this instance represents a time of 24 hours or above.
+     */
+    public LocalTime getRecurringEndTimeAsLocalTime() {
+        return recurringEndTime != null ? recurringEndTime.toLocalTime() : null;
+    }
+
+    /**
+     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
+     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
+     * end of day.
+     *
+     * @param end end time
+     * @see #isRecurring()
+     */
+    public void setRecurringEndTime(RecurringTime end) {
+        this.recurringEndTime = end;
+    }
+
+    /**
+     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
+     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
+     * end of day.
+     *
+     * @param end end time
+     * @see #isRecurring()
+     */
+    public void setRecurringEndTime(LocalTime end) {
+        setRecurringEndTime(end != null ? new RecurringTime(end) : null);
     }
 
     /**
      * Returns the recurring start. This method is a shortcut for combining {@link #getRecurringStartDate()}
-     * and {@link #getRecurringStartTime()}. Will return null, when no recurrence date is defined. When only a
-     * start date is defined, the returned date time will be at the start of that day.
-     * @see #isRecurring()
+     * and {@link #getRecurringStartTimeAsLocalTime()}. <br>
+     * Will return null, when no recurrence date is defined. When only
+     * a start date is defined, the returned date time will be at the start of that day.
+     * <p></p>
+     * Be careful, as LocalTime does not support times of 24h or
+     * above and thus an exception will be thrown, if the start time is above that limit.
+     *
      * @return start date time of recurrence
+     * @throws DateTimeException if the start time represents a time of 24 hours or above.
+     * @see #isRecurring()
      */
     public LocalDateTime getRecurringStart() {
         LocalDate startDate = getRecurringStartDate();
@@ -951,41 +908,30 @@ public class Entry extends JsonItem<String> {
             return null;
         }
 
-        LocalTime startTime = getRecurringStartTime();
+        LocalTime startTime = getRecurringStartTimeAsLocalTime();
         return startTime != null ? startDate.atTime(startTime) : startDate.atStartOfDay();
     }
 
     /**
-     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * end of day.
-     * @see #isRecurring()
-     * @param start start time
-     */
-    public void setRecurringStartTime(LocalTime start) {
-        set(EntryKey.RECURRING_START_TIME, start);
-    }
-
-    /**
-     * The end time of recurrence per day. When not defined, recurrence will extend to the start of day for
-     * a recurring entry.
+     * Returns the recurring end. This method is a shortcut for combining {@link #getRecurringEndDate()}
+     * and {@link #getRecurringEndTimeAsLocalTime()}. <br>Will return null, when no recurrence date is defined. When only a
+     * end date is defined, the returned date time will be at the end of that day.
+     * <p></p>
+     * Be careful, as LocalTime does not support times of 24h or
+     * above and thus an exception will be thrown, if the end time is above that limit.
      *
+     * @return end date time of recurrence
+     * @throws DateTimeException if the end time represents a time of 24 hours or above.
      * @see #isRecurring()
-     * @return end time of recurrence
      */
-    public LocalTime getRecurringEndTime() {
-        return get(EntryKey.RECURRING_END_TIME);
-    }
+    public LocalDateTime getRecurringEnd() {
+        LocalDate endDate = getRecurringEndDate();
+        if (endDate == null) {
+            return null;
+        }
 
-    /**
-     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * start of day.
-     * @see #isRecurring()
-     * @param end start time
-     */
-    public void setRecurringEndTime(LocalTime end) {
-        set(EntryKey.RECURRING_END_TIME, end);
+        LocalTime endTime = getRecurringEndTimeAsLocalTime();
+        return endTime != null ? endDate.atTime(endTime) : endDate.atStartOfDay();
     }
 
     /**
@@ -1021,7 +967,7 @@ public class Entry extends JsonItem<String> {
      */
     public void clearRecurringStart() {
         setRecurringStartDate(null);
-        setRecurringStartTime(null);
+        setRecurringStartTime((RecurringTime) null);
     }
 
     /**
@@ -1029,7 +975,7 @@ public class Entry extends JsonItem<String> {
      */
     public void clearRecurringEnd() {
         setRecurringEndDate(null);
-        setRecurringEndTime(null);
+        setRecurringEndTime((RecurringTime) null);
     }
 
     /**
@@ -1042,7 +988,7 @@ public class Entry extends JsonItem<String> {
      * @param customProperties custom properties
      */
     public void setCustomProperties(Map<String, Object> customProperties) {
-        set(getCustomPropertiesKey(), customProperties);
+        this.customProperties = customProperties;
     }
 
     /**
@@ -1059,7 +1005,6 @@ public class Entry extends JsonItem<String> {
     public void setCustomProperty(@NotNull String key, Object value) {
         Objects.requireNonNull(key);
         getOrCreateCustomProperties().put(key, value);
-        markAsChangedProperty(getCustomPropertiesKey());
     }
 
     /**
@@ -1089,7 +1034,6 @@ public class Entry extends JsonItem<String> {
         if (customProperties != null) {
             // FIXME this will currently not remove the custom property from the client side!
             customProperties.remove(Objects.requireNonNull(key));
-            markAsChangedProperty(getCustomPropertiesKey());
         }
     }
 
@@ -1104,7 +1048,6 @@ public class Entry extends JsonItem<String> {
         if (customProperties != null) {
             // FIXME this will currently not remove the custom property from the client side!
             customProperties.remove(Objects.requireNonNull(key), Objects.requireNonNull(value));
-            markAsChangedProperty(getCustomPropertiesKey());
         }
     }
 
@@ -1124,32 +1067,18 @@ public class Entry extends JsonItem<String> {
      * @see #getOrCreateCustomProperties()
      */
     public Map<String, Object> getCustomProperties() {
-        return get(getCustomPropertiesKey());
+        return customProperties;
     }
-
-//    /**
-//     * Returns the key to be used to assign custom properties. Throws an {@link UnsupportedOperationException} by
-//     * default. Only necessary to be overridden, when custom properties shall be usable.
-//     *
-//     * @return custom properties key.
-//     */
-//    protected Key getCustomPropertiesKey() {
-//        throw new UnsupportedOperationException("Override getCustomPropertiesKey to use custom properties.");
-//    }
 
     /**
      * Returns the custom properties map or an empty one, if none has yet been created. The map is not writable.
-     * <p></p>
-     * Be aware, that any non standard property you
-     * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
      *
      * @return map
      * @see #getCustomProperties()
      * @see #getOrCreateCustomProperties()
      */
     public Map<String, Object> getCustomPropertiesOrEmpty() {
-        Map<String, Object> map = get(getCustomPropertiesKey());
-        return map != null ? Collections.unmodifiableMap(map) : Collections.emptyMap();
+        return customProperties != null ? Collections.unmodifiableMap(customProperties) : Collections.emptyMap();
     }
 
     /**
@@ -1166,306 +1095,14 @@ public class Entry extends JsonItem<String> {
      * @see #getCustomProperties()
      */
     public Map<String, Object> getOrCreateCustomProperties() {
-        Map<String, Object> map = get(getCustomPropertiesKey());
-        if (map == null) {
-            map = new HashMap<>();
-            setCustomProperties(map);
+        if (customProperties == null) {
+            customProperties = new HashMap<>();
         }
-        return map;
+        return customProperties;
     }
 
-
-    @Getter
-    @RequiredArgsConstructor
-    public static class ClientDateTimeConverter<T extends JsonItem> implements JsonItemPropertyConverter<LocalDateTime, T> {
-
-        @Override
-        public JsonValue toJsonValue(LocalDateTime serverValue, T currentInstance) {
-            return JsonUtils.toJsonValue(JsonUtils.formatClientSideDateTimeString(serverValue));
-        }
-
-        @Override
-        public LocalDateTime ofJsonValue(JsonValue clientValue, T currentInstance) {
-            if (clientValue instanceof JsonNull) {
-                return null;
-            }
-
-            if (clientValue instanceof JsonString) {
-                return JsonUtils.parseClientSideDateTime(clientValue.asString());
-            }
-
-            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
-        }
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    public static class ClientDateConverter<T extends JsonItem> implements JsonItemPropertyConverter<LocalDate, T> {
-
-        @Override
-        public JsonValue toJsonValue(LocalDate serverValue, T currentInstance) {
-            return JsonUtils.toJsonValue(JsonUtils.formatClientSideDateString(serverValue));
-        }
-
-        @Override
-        public LocalDate ofJsonValue(JsonValue clientValue, T currentInstance) {
-            if (clientValue instanceof JsonNull) {
-                return null;
-            }
-
-            if (clientValue instanceof JsonString) {
-                return JsonUtils.parseClientSideDate(clientValue.asString());
-            }
-
-            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
-        }
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    public static class ClientTimeConverter<T extends JsonItem> implements JsonItemPropertyConverter<LocalTime, T> {
-        @Override
-        public JsonValue toJsonValue(LocalTime serverValue, T currentInstance) {
-            return JsonUtils.toJsonValue(JsonUtils.formatClientSideTimeString(serverValue));
-        }
-
-        @Override
-        public LocalTime ofJsonValue(JsonValue clientValue, T currentInstance) {
-            if (clientValue instanceof JsonNull) {
-                return null;
-            }
-
-            if (clientValue instanceof JsonString) {
-                return JsonUtils.parseClientSideTime(clientValue.asString());
-            }
-
-            throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
-        }
-    }
-
-    private static class RecurringTimeConverter<T extends Entry> extends ClientTimeConverter<T> {
-        @Override
-        public JsonValue toJsonValue(LocalTime serverValue, T currentInstance) {
-            // recurring time must not be sent, when all day
-            return currentInstance.isAllDay() ? null : super.toJsonValue(serverValue, currentInstance);
-        }
-    }
-
-    private static class DayOfWeekItemConverter implements JsonItemPropertyConverter<Set<DayOfWeek>, Entry> {
-        @Override
-        public JsonValue toJsonValue(Set<DayOfWeek> serverValue, Entry currentInstance) {
-            if (serverValue == null) {
-                return Json.createNull();
-            }
-
-            return JsonUtils.toJsonValue(serverValue
-                    .stream()
-                    .map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())
-                    .collect(Collectors.toList()));
-        }
-
-        @Override
-        public Set<DayOfWeek> ofJsonValue(JsonValue clientValue, Entry currentInstance) {
-            Set<Number> daysOfWeek = JsonUtils.ofJsonValue(clientValue, HashSet.class);
-            return daysOfWeek != null ? daysOfWeek.stream().map(n -> {
-                int dayOfWeek = n.intValue();
-                if (dayOfWeek == 0) {
-                    dayOfWeek = 7;
-                }
-
-                return DayOfWeek.of(dayOfWeek);
-            }).collect(Collectors.toSet()) : null;
-        }
-    }
-
-    /**
-     * Predefined set of known Entry keys.
-     */
-    public static class EntryKey {
-        /**
-         * The entry's id.
-         */
-        public static final JsonItem.Key ID = JsonItem.Key.builder().name("id").build();
-
-        /**
-         * Events that share a groupId will be dragged and resized together automatically.
-         */
-        public static final JsonItem.Key GROUP_ID = JsonItem.Key.builder().name("groupId").build();
-
-        /**
-         * The entry's title. This title will be shown on the client side.
-         */
-        public static final JsonItem.Key TITLE = JsonItem.Key.builder().name("title").build();
-
-        /**
-         * The entry's start as UTC.
-         */
-        public static final JsonItem.Key START = JsonItem.Key.builder()
-                .name("start")
-                .updateFromClientAllowed(true)
-                .converter(new ClientDateTimeConverter<>())
-                .build();
-
-        /**
-         * The entry's end as UTC.
-         */
-        public static final JsonItem.Key END = JsonItem.Key.builder()
-                .name("end")
-                .updateFromClientAllowed(true)
-                .converter(new ClientDateTimeConverter<>())
-                .build();
-
-        /**
-         * Indicates if this entry is all day or not. There might be time values set for start or end even if this
-         * value is false. Changes on this field do <b>not</b> modifiy the date values directly. Any
-         * changes on date values are done by the FC by event, but not this class.
-         */
-        public static final JsonItem.Key ALL_DAY = JsonItem.Key.builder()
-                .name("allDay")
-                .updateFromClientAllowed(true)
-                .build();
-
-        /**
-         * Determines which HTML classNames will be attached to the rendered event.
-         */
-        public static final JsonItem.Key CLASS_NAMES = JsonItem.Key.builder()
-                .name("classNames")
-                .jsonArrayToCollectionConversionType(HashSet.class) // for copyFrom()
-                .build();
-
-        /**
-         * Indicates if this entry is editable by the users. This value
-         * is passed to the client side and interpreted there, but can also be used for server side checks.
-         * <br><br>
-         * This value has no impact on the resource API of this class.
-         */
-        public static final JsonItem.Key EDITABLE = JsonItem.Key.builder()
-                .name("editable")
-                .defaultValue(true)
-                .build();
-
-        /**
-         * Indicates if this entry's start is editable by the users. This value
-         * is passed to the client side and interpreted there, but can also be used for server side checks.
-         * <br><br>
-         * This value has no impact on the resource API of this class.
-         */
-        public static final JsonItem.Key START_EDITABLE = JsonItem.Key.builder()
-                .name("startEditable")
-                .build();
-
-        /**
-         * Indicates if this entry's end is editable by the users. This value
-         * is passed to the client side and interpreted there, but can also be used for server side checks.
-         * <br><br>
-         * This value has no impact on the resource API of this class.
-         */
-        public static final JsonItem.Key DURATION_EDITABLE = JsonItem.Key.builder()
-                .name("durationEditable")
-                .build();
-
-        /**
-         * The color of this entry. Any valid css color is allowed (e.g. #f00, #ff0000, rgb(255,0,0), or red).
-         */
-        public static final JsonItem.Key COLOR = JsonItem.Key.builder()
-                .name("color")
-                .build();
-        
-        /**
-         * The entry constraint.
-         */
-        public static final JsonItem.Key CONSTRAINT = JsonItem.Key.builder()
-                .name("constraint")
-                .build();
-
-        /**
-         * The background color of this entry. Any valid css color is allowed (e.g. #f00, #ff0000, rgb(255,0,0), or red).
-         */
-        public static final JsonItem.Key BACKGROUND_COLOR = JsonItem.Key.builder()
-                .name("backgroundColor")
-                .build();
-
-        /**
-         * The border color of this entry. Any valid css color is allowed (e.g. #f00, #ff0000, rgb(255,0,0), or red).
-         */
-        public static final JsonItem.Key BORDER_COLOR = JsonItem.Key.builder()
-                .name("borderColor")
-                .build();
-
-        /**
-         * The text color of this entry. Any valid css color is allowed (e.g. #f00, #ff0000, rgb(255,0,0), or red).
-         */
-        public static final JsonItem.Key TEXT_COLOR = JsonItem.Key.builder()
-                .name("textColor")
-                .build();
-
-        /**
-         * The custom property list. Contains any non standard property. Please see also the fullcalendar
-         * documentation regarding extended properties. Be aware, that any non standard property you
-         * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
-         */
-        public static final JsonItem.Key CUSTOM_PROPERTIES = JsonItem.Key.builder()
-                .name("customProperties")
-                // Map<String, Object>
-                .build();
-
-        /**
-         * The rendering mode of this entry. Never null
-         */
-        public static final JsonItem.Key RENDERING_MODE = JsonItem.Key.builder()
-                .name("display")
-                .build();
-
-        /**
-         * Returns the days of weeks on which this event should recur. Null or empty when
-         * no recurring is defined.
-         */
-        public static final JsonItem.Key RECURRING_DAYS_OF_WEEKS = JsonItem.Key.builder()
-                .name("daysOfWeek")
-                .converter(new DayOfWeekItemConverter())
-                .build();
-
-        /**
-         * The start date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-         * is recurring).
-         */
-        public static final JsonItem.Key RECURRING_START_DATE = JsonItem.Key.builder()
-                .name("startRecur")
-                .converter(new ClientDateConverter<>())
-                .build();
-
-        /**
-         * The start time of recurrence. When not defined, the event will appear as an all day event.
-         */
-        public static final JsonItem.Key RECURRING_START_TIME = JsonItem.Key.builder()
-                .name("startTime")
-                .converter(new RecurringTimeConverter<>())
-                .build();
-
-        /**
-         * The end date of recurrence. When not defined, recurrence will extend infinitely to the past (when the entry
-         * is recurring).
-         */
-        public static final JsonItem.Key RECURRING_END_DATE = JsonItem.Key.builder()
-                .name("endRecur")
-                .converter(new ClientDateConverter<>())
-                .build();
-
-        /**
-         * The start time of recurrence. Passing null on a recurring entry will make it appear as an all day event.
-         */
-        public static final JsonItem.Key RECURRING_END_TIME = JsonItem.Key.builder()
-                .name("endTime")
-                .converter(new RecurringTimeConverter<>())
-                .build();
-
-        /**
-         * Indicates, if this single entry may overlap with other entries. If false, prevents this entry from being
-         * dragged/resized over other entries. Also prevents other entries from being dragged/resized over this entry.
-         */
-        public static final JsonItem.Key OVERLAP = JsonItem.Key.builder()
-                .name("overlap")
-                .build();
+    protected <T, R> R convertNullable(T value, SerializableFunction<T, R> converter) {
+        return value != null ? converter.apply(value) : null;
     }
 
     /**
@@ -1522,7 +1159,6 @@ public class Entry extends JsonItem<String> {
         public String getClientSideValue() {
             return clientSideName;
         }
-
     }
 
 
