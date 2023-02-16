@@ -78,6 +78,13 @@ public class Delta {
         this.seconds = seconds;
     }
 
+    /**
+     * @deprecated Since this is just a simple comparison, this method should not be used anymore.
+     * @param name
+     * @param current
+     * @param lessThanThis
+     */
+    @Deprecated
     static void assertLessThan(String name, int current, int lessThanThis) {
         if (current >= lessThanThis) {
             throw new IllegalArgumentException("Value'" + name + "' must be less than or equal to '" + lessThanThis + "' (as absolute) but was '" + current + "'!");
@@ -120,8 +127,8 @@ public class Delta {
                 deltaTo.getDayOfMonth() - deltaFrom.getDayOfMonth(),
                 deltaTo.getHour() - deltaFrom.getHour(),
                 deltaTo.getMinute() - deltaFrom.getMinute(),
-                deltaTo.getSecond()- deltaFrom.getSecond()
-                );
+                deltaTo.getSecond() - deltaFrom.getSecond()
+        );
     }
 
     private static int toInt(JsonObject delta, String key) {

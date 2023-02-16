@@ -10,11 +10,17 @@ import java.time.LocalDateTime;
 
 public class DeltaTest {
 
+    private static void assertLessThan(String name, int current, int lessThanThis) {
+        if (current >= lessThanThis) {
+            throw new IllegalArgumentException("Value'" + name + "' must be less than or equal to '" + lessThanThis + "' (as absolute) but was '" + current + "'!");
+        }
+    }
+
     @Test
     void testAssertLessThanThisWorks() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> Delta.assertLessThan("test 1 < 1", 1, 1));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> Delta.assertLessThan("test 2 < 1", 2, 1));
-        Delta.assertLessThan("test 1 < 2", 1, 2);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> assertLessThan("test 1 < 1", 1, 1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> assertLessThan("test 2 < 1", 2, 1));
+        assertLessThan("test 1 < 2", 1, 2);
     }
 
     @Test
