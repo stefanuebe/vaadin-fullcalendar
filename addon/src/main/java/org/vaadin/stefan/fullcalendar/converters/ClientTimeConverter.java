@@ -25,12 +25,12 @@ public class ClientTimeConverter<T extends Entry> implements JsonItemPropertyCon
 
 
     @Override
-    public JsonValue toJsonValue(LocalTime serverValue, T currentInstance) {
+    public JsonValue toClientModel(LocalTime serverValue, T currentInstance) {
         return JsonUtils.toJsonValue(JsonUtils.formatClientSideTimeString(serverValue));
     }
 
     @Override
-    public LocalTime ofJsonValue(JsonValue clientValue, T currentInstance) {
+    public LocalTime toServerModel(JsonValue clientValue, T currentInstance) {
         if (clientValue instanceof JsonNull) {
             return null;
         }

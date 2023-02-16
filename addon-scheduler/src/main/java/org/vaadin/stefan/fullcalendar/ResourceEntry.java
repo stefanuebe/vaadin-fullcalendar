@@ -16,19 +16,36 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.data.binder.BeanPropertySet;
+import com.vaadin.flow.data.binder.PropertyDefinition;
+import com.vaadin.flow.data.binder.PropertySet;
 import elemental.json.JsonObject;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Represents an entry that can be connected with a resource. Needed for timeline views.
  */
+@Getter
+@Setter
 @NoArgsConstructor
 public class ResourceEntry extends Entry {
 
-    private static final Set<Key> KEYS = Key.readAndRegisterKeysAsUnmodifiable(ResourceEntryKey.class);
+    private static final PropertySet<Entry> PROPERTIES = BeanPropertySet.get(ResourceEntry.class);
+
+    private boolean resourceEditable = true;
+
+    @JsonUpdateAllowed
+    @JsonName("resourceIds")
+    private Set<Resource> resources;
 
     /**
      * Creates a new entry with the given id. Null will lead to a generated id.
@@ -43,8 +60,8 @@ public class ResourceEntry extends Entry {
     }
 
     @Override
-    public Set<Key> getKeys() {
-        return KEYS;
+    protected Stream<PropertyDefinition<Entry, ?>> streamProperties() {
+        return Stream.concat(super.streamProperties(), PROPERTIES.getProperties());
     }
 
     /**
@@ -59,27 +76,6 @@ public class ResourceEntry extends Entry {
             throw new IllegalArgumentException("ResourceEntries must be added to a FullCalendar that implements Scheduler");
         }
         super.setCalendar(calendar);
-    }
-
-    /**
-     * Indicates, if the user can move entries between resources (by using drag and drop). This value
-     * is passed to the client side and interpreted there, but can also be used for server side checks.
-     * <br><br>
-     * This value has no impact on the resource API of this class.
-     *
-     */
-    public boolean isResourceEditable() {
-        return getBoolean(ResourceEntryKey.RESOURCE_EDITABLE, true);
-    }
-
-    /**
-     * Defines, if the user can move entries between resources (by using drag and drop). This value
-     * is passed to the client side and interpreted there, but can also be used for server side checks.
-     * <br><br>
-     * This value has no impact on the resource API of this class.
-     */
-    public void setResourceEditable(boolean resourceEditable) {
-        set(ResourceEntryKey.RESOURCE_EDITABLE, resourceEditable);
     }
 
     /**
@@ -100,20 +96,29 @@ public class ResourceEntry extends Entry {
      * @return unmodifiable set of resources
      */
     public Set<Resource> getResourcesOrEmpty() {
-        Set<Resource> resources = getResources();
+        Set<Resource> resources = getOrCreateResources();
         return resources != null ? Collections.unmodifiableSet(resources) : Collections.emptySet();
     }
 
     /**
-     * Returns a copy of the entry's assigned resources. Any changes to this set are reflected to the
+     * Returns the entry's assigned resources. Any changes to this set are reflected to the
      * backend and will be applied to the client on the next entry's update.
      * <p></p>
      * In earlier versions this set might have been unmodifiable. This is not the case anymore.
      *
      * @return entry's resources
      */
+    public Set<Resource> getOrCreateResources() {
+        if (resources == null) {
+            resources = new LinkedHashSet<>();
+        }
+
+        return resources;
+    }
+
+    @Nullable
     public Set<Resource> getResources() {
-        return getOrInit(ResourceEntryKey.RESOURCES, entry -> new LinkedHashSet<>());
+        return this.resources;
     }
 
     /**
@@ -135,25 +140,25 @@ public class ResourceEntry extends Entry {
     }
 
     /**
+     * Assigns additional resources to this entry. Already assigned resources will be kept.
+     *
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    @Deprecated
+    public void assignResources(@NotNull Resource... resources) {
+        addResources(resources);
+    }
+
+    /**
      * Assign an additional resource to this entry. Already assigned resources will be kept.
      *
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
+    @Deprecated
     public void assignResource(@NotNull Resource resource) {
-        assignResources(Objects.requireNonNull(resource));
-    }
-
-    /**
-     * Assign additional resources to this entry. Already assigned resources will be kept.
-     *
-     * @param resources resources
-     * @throws NullPointerException when null is passed
-     */
-    public void assignResources(@NotNull Collection<Resource> resources) {
-        Objects.requireNonNull(resources);
-        getResources().addAll(resources);
-        markAsChangedProperty(ResourceEntryKey.RESOURCES);
+        addResources(Objects.requireNonNull(resource));
     }
 
     /**
@@ -162,8 +167,19 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    public void assignResources(@NotNull Resource... resources) {
-        assignResources(Arrays.asList(resources));
+    public void addResources(@NotNull Resource... resources) {
+        addResources(Arrays.asList(resources));
+    }
+
+    /**
+     * Assign additional resources to this entry. Already assigned resources will be kept.
+     *
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    public void addResources(@NotNull Collection<Resource> resources) {
+        Objects.requireNonNull(resources);
+        getOrCreateResources().addAll(resources);
     }
 
     /**
@@ -172,8 +188,9 @@ public class ResourceEntry extends Entry {
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
+    @Deprecated
     public void unassignResource(@NotNull Resource resource) {
-        unassignResources(Objects.requireNonNull(resource));
+        removeResources(Objects.requireNonNull(resource));
     }
 
     /**
@@ -182,8 +199,9 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
+    @Deprecated
     public void unassignResources(@NotNull Resource... resources) {
-        unassignResources(Arrays.asList(resources));
+        removeResources(resources);
     }
 
     /**
@@ -192,54 +210,66 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
+    @Deprecated
     public void unassignResources(@NotNull Collection<Resource> resources) {
+        removeResources(resources);
+    }
+
+    /**
+     * Unassigns the given resources from this entry.
+     *
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    public void removeResources(@NotNull Resource... resources) {
+        removeResources(Arrays.asList(resources));
+    }
+
+    /**
+     * Unassigns the given resources from this entry.
+     *
+     * @param resources resources
+     * @throws NullPointerException when null is passed
+     */
+    public void removeResources(@NotNull Collection<Resource> resources) {
         if (hasResources()) {
-            getResources().removeAll(resources);
-            markAsChangedProperty(ResourceEntryKey.RESOURCES);
+            getOrCreateResources().removeAll(resources);
         }
     }
 
     /**
      * Unassigns all resources from this entry.
      */
+    @Deprecated
     public void unassignAllResources() {
-        remove(ResourceEntryKey.RESOURCES);
+        removeAllResources();
     }
 
-    @Override
-    protected void toJson(JsonObject jsonObject, boolean changedValuesOnly) {
+    /**
+     * Unassigns all resources from this entry.
+     */
+    public void removeAllResources() {
+        setResources(null);
+    }
+
+//    @Override
+//    protected void toJson(JsonObject jsonObject) {
+
         // Current issues with built in properties (therefore the special handlings of recurring and resources)
         // - https://github.com/fullcalendar/fullcalendar/issues/4393
         // - https://github.com/fullcalendar/fullcalendar/issues/5166
         // - https://github.com/fullcalendar/fullcalendar/issues/5262
         // Therefore this if will lead to a lot of "reset event", due to the fact, that resource editable
         // etc. might be set often.
-        if (changedValuesOnly && (getColor() == null && hasResources() || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCES) || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCE_EDITABLE))) {
-            // set correctly. Might change in future, if not performant
-            super.toJson(jsonObject, false);
-//            writeHardResetToJson(jsonObject);
-        } else {
-            super.toJson(jsonObject, changedValuesOnly);
-        }
-    }
+//        if (changedValuesOnly && (getColor() == null && hasResources() || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCES) || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCE_EDITABLE))) {
+//            // set correctly. Might change in future, if not performant
+//            super.toJson(jsonObject, false);
+////            writeHardResetToJson(jsonObject);
+//        } else {
+//            super.toJson(jsonObject, changedValuesOnly);
+//        }
+//
+//    }
 
-    public static class ResourceEntryKey extends EntryKey {
-        /**
-         * Defines, if the user can move entries between resources (by using drag and drop). This value
-         * is passed to the client side and interpreted there, but can also be used for server side checks.
-         * <br><br>
-         * This value has no impact on the resource API of this class.
-         */
-        public static final Key RESOURCE_EDITABLE = Key.builder()
-                .name("resourceEditable")
-                .defaultValue(true)
-                .updateFromClientAllowed(false)
-                .build();
 
-        public static final Key RESOURCES = Key.builder()
-                .name("resourceIds")
-                .updateFromClientAllowed(true)
-                .collectableItemConverter(item -> JsonUtils.toJsonValue(((Resource) item).getId()))
-                .build();
-    }
 }

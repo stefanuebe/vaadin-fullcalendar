@@ -236,20 +236,17 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         }
     }
 
-    @Deprecated
     @Override
     public Optional<Resource> getResourceById(@NotNull String id) {
         Objects.requireNonNull(id);
         return Optional.ofNullable(resources.get(id));
     }
 
-    @Deprecated
     @Override
     public Set<Resource> getResources() {
         return new LinkedHashSet<>(resources.values());
     }
 
-    @Deprecated
     @Override
     public void removeAllResources() {
         removeFromEntries(resources.values());

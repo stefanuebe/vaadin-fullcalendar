@@ -20,13 +20,13 @@ public class RecurringTimeConverter<T extends Entry> implements JsonItemProperty
     }
 
     @Override
-    public JsonValue toJsonValue(RecurringTime serverValue, T currentInstance) {
+    public JsonValue toClientModel(RecurringTime serverValue, T currentInstance) {
         // recurring time must not be sent, when all day
         return serverValue == null || currentInstance.isAllDay() ? null : Json.create(serverValue.toFormattedString());
     }
 
     @Override
-    public RecurringTime ofJsonValue(JsonValue clientValue, T currentInstance) {
+    public RecurringTime toServerModel(JsonValue clientValue, T currentInstance) {
         if (clientValue instanceof JsonNull) {
             return null;
         }

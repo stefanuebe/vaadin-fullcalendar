@@ -71,7 +71,7 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
                     .map(JsonValue::asString)
                     .flatMap(calendar::getResourceById)
                     .map(Collections::singleton)
-                    .ifPresent(entry::assignResources);
+                    .ifPresent(entry::addResources);
         });
     }
 

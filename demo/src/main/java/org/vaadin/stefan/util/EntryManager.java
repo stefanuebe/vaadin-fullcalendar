@@ -74,7 +74,7 @@ public class EntryManager {
         setValues(calendar, entry, start, minutes, ChronoUnit.MINUTES, color);
         entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
         if (resources != null && resources.length > 0) {
-            entry.assignResources(Arrays.asList(resources));
+            entry.addResources(Arrays.asList(resources));
         }
         entry.setResourceEditable(true);
 
@@ -98,7 +98,7 @@ public class EntryManager {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color);
         if (resources != null && resources.length > 0) {
-            entry.assignResources(Arrays.asList(resources));
+            entry.addResources(Arrays.asList(resources));
         }
         entry.setResourceEditable(true);
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
@@ -111,7 +111,7 @@ public class EntryManager {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, title, start, minutes, ChronoUnit.MINUTES, color, extendedProps);
         if (resources != null && resources.length > 0) 
-            entry.assignResources(Arrays.asList(resources));
+            entry.addResources(Arrays.asList(resources));
         entry.setResourceEditable(true);
         entry.setEditable(false);
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {

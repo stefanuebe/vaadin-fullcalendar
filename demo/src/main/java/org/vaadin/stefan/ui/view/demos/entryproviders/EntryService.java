@@ -313,7 +313,7 @@ public class EntryService<T extends Entry> {
      */
     @SuppressWarnings("unchecked")
     private T toEntry(EntryData entryData) {
-        return (T) (resourceEntries ? entryData.copy(ResourceEntry.class) : entryData.copy(Entry.class));
+        return (T) (resourceEntries ? entryData.copyAsType(ResourceEntry.class) : entryData.copyAsType(Entry.class));
     }
 
     /**
@@ -322,7 +322,7 @@ public class EntryService<T extends Entry> {
      * @return backend item
      */
     private EntryData toEntryData(T entry) {
-        return entry.copy(EntryData.class);
+        return entry.copyAsType(EntryData.class);
     }
 
     /**

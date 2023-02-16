@@ -40,7 +40,7 @@ public abstract class EntryDataEvent extends EntryEvent {
      * @param jsonObject json object with changed data
      */
     public EntryDataEvent(FullCalendar source, boolean fromClient, JsonObject jsonObject) {
-        super(source, fromClient, jsonObject.getString("id"));
+        super(source, fromClient, jsonObject.getString(Entry.Fields.ID));
         this.jsonObject = jsonObject;
     }
 
@@ -51,7 +51,7 @@ public abstract class EntryDataEvent extends EntryEvent {
      */
     public Entry applyChangesOnEntry() {
         Entry entry = getEntry();
-        entry.updateFromJson(getJsonObject(), true);//        getSource().updateEntry(entry); // TODO this is an extra roundtrip, not needed currently?
+        entry.updateFromJson(getJsonObject());//        getSource().updateEntry(entry); // TODO this is an extra roundtrip, not needed currently?
         return entry;
     }
 
@@ -65,7 +65,7 @@ public abstract class EntryDataEvent extends EntryEvent {
             Entry copy = getEntry().copy();
 
             JsonObject jsonObject = getJsonObject();
-            copy.updateFromJson(jsonObject, false);
+            copy.updateFromJson(jsonObject);
 
             return (R) copy; // we use R here, since in most cases event listeners do not specify a generic type
 
