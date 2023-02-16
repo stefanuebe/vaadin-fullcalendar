@@ -535,40 +535,40 @@ public class InMemoryEntryProviderTest {
 //    }
 
     // TODO deprecated?
-    @Test
-    @Disabled
-    void test_addAndRemoveSameEntriesInOneCycle() throws IllegalAccessException {
-        FullCalendar calendar = new FullCalendar();
-        FieldUtils.writeField(calendar, "attached", true, true);
-
-        TestProvider provider = new TestProvider();
-        calendar.setEntryProvider(provider);
-
-        Entry entry1 = createEntry("1", "Entry 1");
-        Entry entry2 = createEntry("2", "Entry 2");
-        Entry entry = createEntry("3", "Entry 3");
-
-        provider.startRecord();
-        List<Entry> entries = Arrays.asList(entry1, entry2, entry);
-        provider.addEntries(entries);
-        provider.removeAllEntries();
-
-        provider.refreshAll(); // simulate client side update
-
-        Map<String, Set<String>> tmpItemSnapshots = provider.getTmpItemSnapshots();
-        // the registered items should be still the full items list
-        assertEqualAsSet(tmpItemSnapshots.get("removeEvents"), entries.stream().map(JsonItem::toString), "remove events snapshots");
-        assertEqualAsSet(tmpItemSnapshots.get("addEvents"), entries.stream().map(JsonItem::toString), "add events snapshots");
-
-        // ... but the resulting json array should be empty
-        Map<String, JsonArray> jsonArrays = provider.getCreatedJsonArrays();
-
-        // check, if the json array "sent" to the client contains the same values as it would to be expected
-        assertEquals(0, jsonArrays.get("removeEvents").length(), "remove events json array");
-
-        // check, if the json array "sent" to the client contains the same values as it would to be expected
-        assertEquals(0, jsonArrays.get("addEvents").length(), "add events json array");
-    }
+//    @Test
+//    @Disabled
+//    void test_addAndRemoveSameEntriesInOneCycle() throws IllegalAccessException {
+//        FullCalendar calendar = new FullCalendar();
+//        FieldUtils.writeField(calendar, "attached", true, true);
+//
+//        TestProvider provider = new TestProvider();
+//        calendar.setEntryProvider(provider);
+//
+//        Entry entry1 = createEntry("1", "Entry 1");
+//        Entry entry2 = createEntry("2", "Entry 2");
+//        Entry entry = createEntry("3", "Entry 3");
+//
+//        provider.startRecord();
+//        List<Entry> entries = Arrays.asList(entry1, entry2, entry);
+//        provider.addEntries(entries);
+//        provider.removeAllEntries();
+//
+//        provider.refreshAll(); // simulate client side update
+//
+//        Map<String, Set<String>> tmpItemSnapshots = provider.getTmpItemSnapshots();
+//        // the registered items should be still the full items list
+//        assertEqualAsSet(tmpItemSnapshots.get("removeEvents"), entries.stream().map(JsonItem::toString), "remove events snapshots");
+//        assertEqualAsSet(tmpItemSnapshots.get("addEvents"), entries.stream().map(JsonItem::toString), "add events snapshots");
+//
+//        // ... but the resulting json array should be empty
+//        Map<String, JsonArray> jsonArrays = provider.getCreatedJsonArrays();
+//
+//        // check, if the json array "sent" to the client contains the same values as it would to be expected
+//        assertEquals(0, jsonArrays.get("removeEvents").length(), "remove events json array");
+//
+//        // check, if the json array "sent" to the client contains the same values as it would to be expected
+//        assertEquals(0, jsonArrays.get("addEvents").length(), "add events json array");
+//    }
 
     @Getter
     private static class TestProvider extends InMemoryEntryProvider<Entry> {

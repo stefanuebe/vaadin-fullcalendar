@@ -17,7 +17,9 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.data.binder.BeanPropertySet;
+import com.vaadin.flow.data.binder.PropertyDefinition;
 import com.vaadin.flow.data.binder.PropertySet;
+import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
 import elemental.json.Json;
@@ -26,7 +28,6 @@ import elemental.json.JsonValue;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -35,15 +36,18 @@ import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.time.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Getter
-@Setter
+@lombok.Setter // prevent conflicts with Vaadin Setter
 @EqualsAndHashCode(of = "id")
+@FieldNameConstants
 public class Entry {
 
     public static final RenderingMode DEFAULT_RENDERING_MODE = RenderingMode.AUTO;
@@ -80,6 +84,9 @@ public class Entry {
     private Set<DayOfWeek> recurringDaysOfWeek;
     private Set<String> classNames;
     private Map<String, Object> customProperties;
+
+    @JsonIgnore
+    private boolean knownToTheClient; // not sure if still needed?
 
     /**
      * The referenced calendar instance. Can be null.
@@ -128,13 +135,12 @@ public class Entry {
 
         JsonObject json = Json.createObject();
 
-        PROPERTIES.getProperties().forEach(def -> {
+        streamProperties().forEach(def -> {
             String name = def.getName();
             Field field = FieldUtils.getField(Entry.class, name);
             try {
                 if (field.getAnnotation(JsonIgnore.class) == null) {
-                    ValueProvider<Entry, ?> getter = def.getGetter();
-                    Object value = getter.apply(this);
+                    Object value = ((ValueProvider) def.getGetter()).apply(this);
 
                     JsonValue jsonValue;
 
@@ -145,7 +151,7 @@ public class Entry {
                     }
 
                     if (converter != null && converter.supports(value)) {
-                        jsonValue = converter.toJsonValue(value, this);
+                        jsonValue = converter.toClientModel(value, this);
                     } else {
                         jsonValue = JsonUtils.toJsonValue(value);
                     }
@@ -166,6 +172,147 @@ public class Entry {
         return json;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void updateFromJson(JsonObject jsonObject) {
+        streamProperties().forEach(def -> {
+            String name = def.getName();
+            Field field = FieldUtils.getField(Entry.class, name);
+            try {
+                if (field.getAnnotation(JsonIgnore.class) == null
+                        && field.getAnnotation(JsonUpdateAllowed.class) != null) {
+
+                    Setter<Entry, Object> setter = (Setter<Entry, Object>) def.getSetter()
+                            .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + name));
+
+                    String jsonName = name;
+                    JsonName nameAnnotation = field.getAnnotation(JsonName.class);
+                    if (nameAnnotation != null) {
+                        jsonName = nameAnnotation.value();
+                    }
+
+                    if (jsonObject.hasKey(jsonName)) {
+                        JsonConverter converterAnnotation = field.getAnnotation(JsonConverter.class);
+                        JsonItemPropertyConverter converter = null;
+                        if (converterAnnotation != null) {
+                            converter = converterAnnotation.value().getConstructor().newInstance();
+                        }
+
+                        Object newValue;
+                        JsonValue jsonValue = jsonObject.get(jsonName);
+
+                        if (converter != null) {
+                            newValue = converter.toServerModel(jsonValue, this);
+                        } else {
+                            newValue = JsonUtils.ofJsonValue(jsonValue);
+                        }
+
+                        setter.accept(this, newValue);
+                    }
+                }
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        });
+    }
+
+    /**
+     * Checks whether the given json object is a valid source to update this instance.
+     *
+     * @param jsonObject json object to check
+     * @return is a valid source
+     */
+    protected boolean isValidJsonSource(JsonObject jsonObject) {
+        return jsonObject.hasKey(Fields.ID) && Objects.equals(jsonObject.getString(Fields.ID), getId());
+    }
+
+    /**
+     * Creates a copy of this instance. Collection, Map and Array values are copied (but their values are taken
+     * as they are, so no deep copy).
+     *
+     * @param <T> Type of copy
+     * @return copy
+     */
+    public <T extends Entry> T copy() {
+        try {
+            T copy = (T) getClass().getConstructor(String.class).newInstance(getId());
+            copy(this, copy, false);
+
+            return copy;
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    /**
+     * Creates a copy of this instance. Collection, Map and Array values are copied (but their values are taken
+     * as they are, so no deep copy).
+     * <p></p>
+     * Please make sure, that both types are compatible in their properties. Any property, that exists in the source
+     * but not the target type might lead to an exception. Also the target type must have a public constructor, taking
+     * the id as the parameter.
+     *
+     * @param <T> Type of copy
+     * @return copy
+     */
+    public <T extends Entry> T copyAsType(Class<T> targetType) {
+        try {
+            T copy = (T) targetType.getConstructor(String.class).newInstance(getId());
+            copy(this, copy, true);
+
+            return copy;
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    public void copyFrom(Entry source) {
+        copyFrom(source, false);
+    }
+
+    public void copyFrom(Entry source, boolean ignoreId) {
+        if (!ignoreId && !source.getId().equals(getId())) {
+            throw new IllegalArgumentException("IDs must match");
+        }
+        copy(source, this, false);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void copy(Entry source, Entry target, boolean ignoreTypeDifference) {
+        if (!ignoreTypeDifference && !source.getClass().equals(target.getClass())) {
+            throw new IllegalArgumentException("Both parameters must be of the SAME class.");
+        }
+
+        source.streamProperties().forEach(def -> {
+            try {
+                String name = def.getName();
+                ValueProvider getter = def.getGetter();
+                Setter<Entry, Object> setter = (Setter<Entry, Object>) def.getSetter()
+                        .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + name));
+
+                Object value = getter.apply(source);
+                if (value instanceof Collection) {
+                    Collection collection = (Collection) value.getClass().getConstructor().newInstance();
+                    collection.addAll((Collection) value);
+                    value = collection;
+                } else if (value instanceof Map) {
+                    Map map = (Map) value.getClass().getConstructor().newInstance();
+                    map.putAll((Map) value);
+                    value = map;
+                } else if (value instanceof Object[]) {
+                    value = ((Object[]) value).clone();
+                }
+
+                setter.accept(target, value);
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        });
+    }
+
+    protected Stream<PropertyDefinition<Entry, ?>> streamProperties() {
+        return PROPERTIES.getProperties();
+    }
+
     /**
      * Converts this instance to a json object, that only contains the id. This still represents
      * this item but without any data.
@@ -174,7 +321,7 @@ public class Entry {
      */
     public JsonObject toJsonWithIdOnly() {
         JsonObject jsonObject = Json.createObject();
-        jsonObject.put("id", getId());
+        jsonObject.put(Fields.ID, getId());
         return jsonObject;
     }
 
@@ -1104,6 +1251,7 @@ public class Entry {
     protected <T, R> R convertNullable(T value, SerializableFunction<T, R> converter) {
         return value != null ? converter.apply(value) : null;
     }
+
 
     /**
      * Defines known custom properties, for instance since they are widely used.

@@ -12,9 +12,9 @@ public interface JsonItemPropertyConverter<SERVER_TYPE, T> {
 
     boolean supports(Object type);
 
-    JsonValue toJsonValue(SERVER_TYPE serverValue, T currentInstance);
+    JsonValue toClientModel(SERVER_TYPE serverValue, T currentInstance);
 
-    default SERVER_TYPE ofJsonValue(JsonValue clientValue, T currentInstance) {
+    default SERVER_TYPE toServerModel(JsonValue clientValue, T currentInstance) {
         throw new UnsupportedOperationException("Conversion from client to server not implemented or supported");
     }
 }

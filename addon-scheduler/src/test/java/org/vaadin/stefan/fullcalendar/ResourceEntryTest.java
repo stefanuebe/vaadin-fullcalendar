@@ -4,7 +4,6 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -106,14 +105,14 @@ public class ResourceEntryTest {
         Assertions.assertEquals(expected.isAllDay(), actual.isAllDay());
         Assertions.assertEquals(expected.isEditable(), actual.isEditable());
         Assertions.assertEquals(expected.getColor(), actual.getColor());
-        Assertions.assertEquals(expected.getResources(), actual.getResources());
+        Assertions.assertEquals(expected.getOrCreateResources(), actual.getOrCreateResources());
     }
 
     @Test
     void testToJson() {
         ResourceEntry entry = new ResourceEntry();
         Set<Resource> resources = new LinkedHashSet<>(Arrays.asList(new Resource(), new Resource(), new Resource()));
-        entry.assignResources(resources);
+        entry.addResources(resources);
 
         JsonObject jsonObject = entry.toJson(); // rest of toJson is asserted in basis tests
 
@@ -147,7 +146,7 @@ public class ResourceEntryTest {
         entry.setCalendar(calendar);
 
         Set<Resource> resourceList = new LinkedHashSet<>(Arrays.asList(resource1, resource2));
-        entry.assignResources(resourceList);
+        entry.addResources(resourceList);
 
         JsonObject jsonObject = Json.createObject();
         jsonObject.put("id", entry.getId());
@@ -167,7 +166,7 @@ public class ResourceEntryTest {
         Assertions.assertFalse(entry.isAllDay());
         Assertions.assertEquals(DEFAULT_START, entry.getStart());
         Assertions.assertEquals(DEFAULT_END, entry.getEnd());
-        Assertions.assertEquals(resourceList, entry.getResources()); // should not have changed yet
+        Assertions.assertEquals(resourceList, entry.getOrCreateResources()); // should not have changed yet
 
         Assertions.assertNull(entry.getTitle());
         Assertions.assertTrue(entry.isEditable());
@@ -192,7 +191,7 @@ public class ResourceEntryTest {
         jsonObject.put("id", entry.getId());
         jsonObject.put("newResource", "3");
         EntryDroppedSchedulerEvent.updateResourcesFromEventResourceDelta(entry, jsonObject);
-        Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource2, resource3)), entry.getResources());
+        Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource2, resource3)), entry.getOrCreateResources());
     }
 
     @Test
@@ -211,7 +210,7 @@ public class ResourceEntryTest {
         jsonObject.put("id", entry.getId());
         jsonObject.put("oldResource", resource2.getId());
         EntryDroppedSchedulerEvent.updateResourcesFromEventResourceDelta(entry, jsonObject);
-        Assertions.assertEquals(Collections.singleton(resource1), entry.getResources());
+        Assertions.assertEquals(Collections.singleton(resource1), entry.getOrCreateResources());
     }
 
     @Test
@@ -232,7 +231,7 @@ public class ResourceEntryTest {
         jsonObject.put("oldResource", "2");
         jsonObject.put("newResource", "3");
         EntryDroppedSchedulerEvent.updateResourcesFromEventResourceDelta(entry, jsonObject);
-        Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource3)), entry.getResources());
+        Assertions.assertEquals(new LinkedHashSet<>(Arrays.asList(resource1, resource3)), entry.getOrCreateResources());
     }
 
 }

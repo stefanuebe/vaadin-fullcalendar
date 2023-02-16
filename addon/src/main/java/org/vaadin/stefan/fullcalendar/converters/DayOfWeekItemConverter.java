@@ -21,7 +21,7 @@ public class DayOfWeekItemConverter<T extends Entry> implements JsonItemProperty
     }
 
     @Override
-    public JsonValue toJsonValue(Set<DayOfWeek> serverValue, T currentInstance) {
+    public JsonValue toClientModel(Set<DayOfWeek> serverValue, T currentInstance) {
         if (serverValue == null) {
             return Json.createNull();
         }
@@ -33,7 +33,7 @@ public class DayOfWeekItemConverter<T extends Entry> implements JsonItemProperty
     }
 
     @Override
-    public Set<DayOfWeek> ofJsonValue(JsonValue clientValue, T currentInstance) {
+    public Set<DayOfWeek> toServerModel(JsonValue clientValue, T currentInstance) {
         Set<Number> daysOfWeek = JsonUtils.ofJsonValue(clientValue, HashSet.class);
         return daysOfWeek != null ? daysOfWeek.stream().map(n -> {
             int dayOfWeek = n.intValue();

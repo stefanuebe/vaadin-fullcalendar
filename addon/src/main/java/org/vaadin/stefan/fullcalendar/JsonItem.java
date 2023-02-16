@@ -626,7 +626,7 @@ public abstract class JsonItem<ID_TYPE> {
 
         JsonItemPropertyConverter<?, ?> converter = key.getConverter();
         if (converter != null) {
-            jsonValue = ((JsonItemPropertyConverter) converter).toJsonValue(value, this);
+            jsonValue = ((JsonItemPropertyConverter) converter).toClientModel(value, this);
         } else {
             if (JsonUtils.isCollectable(value) && key.getCollectableItemConverter() != null) { // see docs of collectionItemConverter
                 SerializableFunction<Object, JsonValue> collectableItemConverter = key.getCollectableItemConverter();
@@ -804,7 +804,7 @@ public abstract class JsonItem<ID_TYPE> {
         JsonValue jsonValue = jsonObject.get(key.getName());
         JsonItemPropertyConverter converter = key.getConverter();
         if (converter != null) {
-            value = converter.ofJsonValue(jsonValue, this);
+            value = converter.toServerModel(jsonValue, this);
         } else {
             value = convertJsonValueToObjectWithJsonUtils(jsonValue, key);
         }
@@ -954,7 +954,6 @@ public abstract class JsonItem<ID_TYPE> {
      * Copying bases on using the keys and their expected official data types. If you use
      * custom data types or keys, this method might not work out of the box and need to be
      * overridden.
-
      *
      * @param otherItemToCopyFrom item to copy from
      */
