@@ -65,14 +65,14 @@ public interface Scheduler {
     /**
      * Determines the width of the area that contains the list of resources.
      * Can be specified as a number of pixels, or a CSS string value, like "25%".
-     * @param String resourceAreaWidth
+     * @param resourceAreaWidth
      */
     void setResourceAreaWidth(String resourceAreaWidth);
     
     /**
      * Determines how wide each of the time-axis slots will be. Specified as a number of pixels.
      * When not specified, a reasonable value will be automatically computed.
-     * @param String slotMinWidth
+     * @param slotMinWidth
      */
     void setSlotMinWidth(String slotMinWidth);
     
@@ -83,14 +83,14 @@ public interface Scheduler {
      * 
      * Only supported in Timeline view.
      * 
-     * @param boolean resourcesInitiallyExpanded
+     * @param resourcesInitiallyExpanded
      */
     void setResourcesInitiallyExpanded(boolean resourcesInitiallyExpanded);
     
     /**
      * When this setting is activated, only resources that have associated events will be displayed.
      * When activated, please be aware that in order for resources to render, event data will need to finish being fetched.
-     * @param boolean filterResourcesWithEvents
+     * @param filterResourcesWithEvents
      */
     void setFilterResourcesWithEvents(boolean filterResourcesWithEvents);
     
@@ -98,14 +98,14 @@ public interface Scheduler {
      * Determines the ordering of the resource list.
      * If prefixed with a minus sign like '-propertyName', the ordering will be descending.
      * If no resourceOrder is given (the default), resources will be ordered by their id, then by title.
-     * @param String resourceOrder
+     * @param resourceOrder
      */
     void setResourceOrder(String resourceOrder);
     
     /**
      * Determines whether the user can drag events between resources.
      * The default value is inherited from the master editable flag, which is false by default.
-     * @param boolean eventResourceEditable
+     * @param eventResourceEditable
      */
     void setEntryResourceEditable(boolean eventResourceEditable);
 
@@ -228,11 +228,11 @@ public interface Scheduler {
     /**
      * The given string will be interpreted as JS function on the client side
      * and attached to the calendar as callback. It must be a valid JavaScript function.
-     * 
+     * <p></p>
      * A resource "label" is anywhere the name of a resource is displayed. 
      * They exist in the header of vertical resource view and the side section of resource timeline view.
      *
-     * @param String JS function to be attached
+     * @param s JS function to be attached
      */
 
     void setResourceLabelClassNamesCallback(String s);
@@ -244,7 +244,7 @@ public interface Scheduler {
      * A resource "label" is anywhere the name of a resource is displayed. 
      * They exist in the header of vertical resource view and the side section of resource timeline view.
      *
-     * @param String JS function to be attached
+     * @param s JS function to be attached
      */
     void setResourceLabelContentCallback(String s);
 
@@ -255,7 +255,7 @@ public interface Scheduler {
      * A resource "label" is anywhere the name of a resource is displayed. 
      * They exist in the header of vertical resource view and the side section of resource timeline view.
      *
-     * @param String JS function to be attached
+     * @param s JS function to be attached
      */
     void setResourceLabelDidMountCallback(String s);
 
@@ -266,7 +266,7 @@ public interface Scheduler {
      * A resource "label" is anywhere the name of a resource is displayed. 
      * They exist in the header of vertical resource view and the side section of resource timeline view.
      *
-     * @param String JS function to be attached
+     * @param s JS function to be attached
      */
     void setResourceLablelWillUnmountCallback(String s);
     
@@ -277,7 +277,7 @@ public interface Scheduler {
      * A resource "lane" is an element in resource-timeline view. 
      * It runs horizontally across the timeline slots for each resource.
      *
-     * @param String JS function to be attached
+     * @param s JS function to be attached
      */
     void setResourceLaneClassNamesCallback(String s);
 
@@ -288,7 +288,7 @@ public interface Scheduler {
      * A resource "lane" is an element in resource-timeline view. 
      * It runs horizontally across the timeline slots for each resource.
      *
-     * @param String JS function to be attached
+     * @param s JS function to be attached
      */
     void setResourceLaneContentCallback(String s);
 
@@ -299,7 +299,7 @@ public interface Scheduler {
      * A resource "lane" is an element in resource-timeline view. 
      * It runs horizontally across the timeline slots for each resource.
      *
-     * @param String JS function to be attached
+     * @param s JS function to be attached
      */
     void setResourceLaneDidMountCallback(String s);
 
@@ -310,7 +310,7 @@ public interface Scheduler {
      * A resource "lane" is an element in resource-timeline view. 
      * It runs horizontally across the timeline slots for each resource.
      *
-     * @param String JS function to be attached
+     * @param s JS function to be attached
      */
     void setResourceLaneWillUnmountCallback(String s);
 

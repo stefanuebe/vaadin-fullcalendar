@@ -64,7 +64,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * The library base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_CLIENT_VERSION = "6.0.0";
+    public static final String FC_CLIENT_VERSION = "6.1.4";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
@@ -101,7 +101,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private String latestKnownViewName;
     private LocalDate latestKnownIntervalStart;
 
-    private boolean refreshAllRequested;
+    private boolean refreshAllEntriesRequested;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
@@ -297,15 +297,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             entryProviderDataListeners.clear();
 
             entryProviderDataListeners.add(entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
-
-//            boolean eagerLoadingInMemory = isEagerInMemoryEntryProvider();
-//            // refresh all is handled manually by the eager memory provider, therefore we have to check this
-//            // might change in future
-//            if (eagerLoadingInMemory) {
-//                entryProvider.refreshAll(); // triggers to push all data to the client
-//            } else {
-                entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAll()));
-//            }
+            entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAllEntries()));
         }
     }
 
@@ -322,10 +314,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * This method requests an entry refresh from the client side. Every call of this method will register
      * a client side call, since it might be called for different items. Calls are handled in the order
-     * they are requested. This method will not interfere or "communicate" with {@link #requestRefreshAll()}.
-     * <p></p>
-     * <i>The native client itself does not support fetching single items. Instead we convert the item and
-     * push it directly to the client, where it will be handled.</i>
+     * they are requested. This method will not interfere or "communicate" with {@link #requestRefreshAllEntries()}.
+     *
      * @param item item to refresh
      */
     protected void requestRefresh(@NotNull Entry item) {
@@ -335,14 +325,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                         .fetchById(item.getId())
                         .ifPresent(refreshedEntry -> {
                             lastFetchedEntries.put(refreshedEntry.getId(), refreshedEntry);
-                            getElement().callJsFunction("refreshSingleEvent", refreshedEntry.toJson());
+                            getElement().callJsFunction("refreshSingleEvent", refreshedEntry.getId());
                         });
-                refreshAllRequested = false;
+
+
+                // refreshAllRequested = false; // why was this here?
             });
         });
     }
 
     /**
+     * This method is intended to be triggered by the entry provider "refreshAll" methods.
      * Informs the client side, that a "refresh all" has been requested. Subsequent calls to this method during the
      * same request cycle will still just result in one fetch from the client side (in fact, only one call to the
      * client will be executed). This behavior might change in future, if it appears to be problematic regarding
@@ -351,13 +344,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * When parallel to this call {@link #requestRefresh(Entry)} is called, the calls will be handled in the order
      * they are called, whereas only the first call of this method is relevant.
      */
-    protected void requestRefreshAll() {
-        if (!refreshAllRequested) {
-            refreshAllRequested = true;
+    protected void requestRefreshAllEntries() {
+        if (!refreshAllEntriesRequested) {
+            refreshAllEntriesRequested = true;
             getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(this, pExecutionContext -> {
                     getElement().callJsFunction("refreshAllEvents");
-                    refreshAllRequested = false;
+                    refreshAllEntriesRequested = false;
                 });
             });
         }
@@ -373,7 +366,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     @ClientCallable
-    protected JsonArray fetchFromServer(@NotNull JsonObject query) {
+    protected JsonArray fetchEntriesFromServer(@NotNull JsonObject query) {
         Objects.requireNonNull(query);
         Objects.requireNonNull(entryProvider);
 

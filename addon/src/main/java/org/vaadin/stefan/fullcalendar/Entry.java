@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * You will find, that the entry implements a concept of being "known to the client". This concept is mainly
  * used by the eager loading in memory provider and is an artifact of earlier versions. In theory it should
  * not be important for any type of lazy loading provider, but the flag of "known to the client" will be
- * set at important points anyway (e. g.see {@link FullCalendar#fetchFromServer(JsonObject)}.
+ * set at important points anyway (e. g.see {@link FullCalendar#fetchEntriesFromServer(JsonObject)}.
  * <p></p>
  * Timezones are currently not supported by the native client side library and therefore this instance
  * does not provide official offset api for recurrence times: https://github.com/fullcalendar/fullcalendar/issues/5273

@@ -603,7 +603,7 @@ public class FullCalendarTest {
                 , s -> entries.stream().filter(e -> s.equals(e.getId())).findFirst().orElse(null));
         calendar.setEntryProvider(provider);
 
-        JsonArray array = calendar.fetchFromServer(Json.createObject());
+        JsonArray array = calendar.fetchEntriesFromServer(Json.createObject());
         Set<Entry> converted = TestUtils.toSet(array, jsonValue -> Entry.fromJson((JsonObject) jsonValue));
 
         assertEqualAsSet(entries, converted);
@@ -615,7 +615,7 @@ public class FullCalendarTest {
         clientSideRequest.put("start", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2000, 1, 1, 0, 0)));
         clientSideRequest.put("end", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2000, 1, 2, 0, 0)));
 
-        array = calendar.fetchFromServer(clientSideRequest);
+        array = calendar.fetchEntriesFromServer(clientSideRequest);
         converted = TestUtils.toSet(array, jsonValue -> Entry.fromJson((JsonObject) jsonValue));
 
         assertEqualAsSet(Stream.of(entry1).collect(Collectors.toSet()), converted);
