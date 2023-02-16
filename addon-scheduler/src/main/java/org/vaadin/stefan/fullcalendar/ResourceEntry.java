@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 public class ResourceEntry extends Entry {
 
-    private static final PropertySet<Entry> PROPERTIES = BeanPropertySet.get(ResourceEntry.class);
+    private static final Set PROPERTIES = BeanProperties.read(ResourceEntry.class);
 
     private boolean resourceEditable = true;
 
@@ -60,8 +60,8 @@ public class ResourceEntry extends Entry {
     }
 
     @Override
-    protected Stream<PropertyDefinition<Entry, ?>> streamProperties() {
-        return Stream.concat(super.streamProperties(), PROPERTIES.getProperties());
+    protected Stream<BeanProperties<Entry>> streamProperties() {
+        return Stream.concat(super.streamProperties(), PROPERTIES.stream());
     }
 
     /**

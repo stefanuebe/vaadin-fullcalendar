@@ -16,13 +16,11 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.data.binder.BeanPropertySet;
-import com.vaadin.flow.data.binder.PropertyDefinition;
-import com.vaadin.flow.data.binder.PropertySet;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
 import elemental.json.Json;
+import elemental.json.JsonNull;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.EqualsAndHashCode;
@@ -51,7 +49,7 @@ import java.util.stream.Stream;
 public class Entry {
 
     public static final RenderingMode DEFAULT_RENDERING_MODE = RenderingMode.AUTO;
-    private static final PropertySet<Entry> PROPERTIES = BeanPropertySet.get(Entry.class);
+    private static final Set<BeanProperties<Entry>> PROPERTIES = BeanProperties.read(Entry.class);
 
     private final String id;
     private String groupId;
@@ -75,12 +73,22 @@ public class Entry {
     private boolean overlap = true;
 
     @NonNull
+    @JsonName("display")
     private RenderingMode renderingMode = DEFAULT_RENDERING_MODE;
+
+    @JsonName("startRecur")
     private LocalDate recurringStartDate;
+
+    @JsonName("endRecur")
     private LocalDate recurringEndDate;
+
+    @JsonName("startTime")
     private RecurringTime recurringStartTime; // see #139
+
+    @JsonName("endTime")
     private RecurringTime recurringEndTime; // see #139
 
+    @JsonName("daysOfWeek")
     private Set<DayOfWeek> recurringDaysOfWeek;
     private Set<String> classNames;
     private Map<String, Object> customProperties;
@@ -137,8 +145,11 @@ public class Entry {
 
         streamProperties().forEach(def -> {
             String name = def.getName();
-            Field field = FieldUtils.getField(Entry.class, name);
+            Field field = def.getField();
             try {
+
+                // TODO all the reflection stuff could be moved to an initial static block to spare it to be done
+                //  on each conversion
                 if (field.getAnnotation(JsonIgnore.class) == null) {
                     Object value = ((ValueProvider) def.getGetter()).apply(this);
 
@@ -156,13 +167,15 @@ public class Entry {
                         jsonValue = JsonUtils.toJsonValue(value);
                     }
 
-                    String jsonName = name;
-                    JsonName nameAnnotation = field.getAnnotation(JsonName.class);
-                    if (nameAnnotation != null) {
-                        jsonName = nameAnnotation.value();
-                    }
+                    if (jsonValue != null && !(jsonValue instanceof JsonNull)) {
+                        String jsonName = name;
+                        JsonName nameAnnotation = field.getAnnotation(JsonName.class);
+                        if (nameAnnotation != null) {
+                            jsonName = nameAnnotation.value();
+                        }
 
-                    json.put(jsonName, jsonValue);
+                        json.put(jsonName, jsonValue);
+                    }
                 }
             } catch (Throwable throwable) {
                 throw new RuntimeException(throwable);
@@ -176,12 +189,12 @@ public class Entry {
     public void updateFromJson(JsonObject jsonObject) {
         streamProperties().forEach(def -> {
             String name = def.getName();
-            Field field = FieldUtils.getField(Entry.class, name);
+            Field field = def.getField();
             try {
                 if (field.getAnnotation(JsonIgnore.class) == null
                         && field.getAnnotation(JsonUpdateAllowed.class) != null) {
 
-                    Setter<Entry, Object> setter = (Setter<Entry, Object>) def.getSetter()
+                    Setter<Entry, Object> setter = def.getSetter()
                             .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + name));
 
                     String jsonName = name;
@@ -276,6 +289,15 @@ public class Entry {
         copy(source, this, false);
     }
 
+    /**
+     * Copies all values from source to target (except for the id). When the boolean is set to false,
+     * both objects have to be of the <b>same</b> type. Otherwise it is up to the developer to guarantee,
+     * that the target can take all properties of the source.<br>
+     * Properties without a setter are ignored.
+     * @param source source
+     * @param target target
+     * @param ignoreTypeDifference difference
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static void copy(Entry source, Entry target, boolean ignoreTypeDifference) {
         if (!ignoreTypeDifference && !source.getClass().equals(target.getClass())) {
@@ -283,34 +305,32 @@ public class Entry {
         }
 
         source.streamProperties().forEach(def -> {
-            try {
-                String name = def.getName();
-                ValueProvider getter = def.getGetter();
-                Setter<Entry, Object> setter = (Setter<Entry, Object>) def.getSetter()
-                        .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + name));
+            ValueProvider getter = def.getGetter();
+            def.getSetter().ifPresent(setter -> {
+                try {
+                    Object value = getter.apply(source);
+                    if (value instanceof Collection) {
+                        Collection collection = (Collection) value.getClass().getConstructor().newInstance();
+                        collection.addAll((Collection) value);
+                        value = collection;
+                    } else if (value instanceof Map) {
+                        Map map = (Map) value.getClass().getConstructor().newInstance();
+                        map.putAll((Map) value);
+                        value = map;
+                    } else if (value instanceof Object[]) {
+                        value = ((Object[]) value).clone();
+                    }
 
-                Object value = getter.apply(source);
-                if (value instanceof Collection) {
-                    Collection collection = (Collection) value.getClass().getConstructor().newInstance();
-                    collection.addAll((Collection) value);
-                    value = collection;
-                } else if (value instanceof Map) {
-                    Map map = (Map) value.getClass().getConstructor().newInstance();
-                    map.putAll((Map) value);
-                    value = map;
-                } else if (value instanceof Object[]) {
-                    value = ((Object[]) value).clone();
+                    setter.accept(target, value);
+                } catch (Throwable throwable) {
+                    throw new RuntimeException(throwable);
                 }
-
-                setter.accept(target, value);
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
+            });
         });
     }
 
-    protected Stream<PropertyDefinition<Entry, ?>> streamProperties() {
-        return PROPERTIES.getProperties();
+    protected Stream<BeanProperties<Entry>> streamProperties() {
+        return PROPERTIES.stream();
     }
 
     /**
