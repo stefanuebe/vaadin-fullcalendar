@@ -49,6 +49,8 @@ import java.util.*;
 @NpmPackage(value = "@fullcalendar/daygrid", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/multimonth", version = FullCalendar.FC_CLIENT_VERSION)
+// TODO still necessary?
 @NpmPackage(value = "moment", version = "2.29.4")
 @NpmPackage(value = "moment-timezone", version = "0.5.40")
 @NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
@@ -1397,7 +1399,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         ENTRY_TIME_FORMAT("eventTimeFormat"),
         EDITABLE("editable"),
         DRAG_SCROLL("dragScroll"),
-        MAX_ENTRIES_PER_DAY("dayMaxEvents")
+        MAX_ENTRIES_PER_DAY("dayMaxEvents"),
+        MULTI_MONTH_MAX_COLUMNS("multiMonthMaxColumns")
         ;
 
         private final String optionKey;

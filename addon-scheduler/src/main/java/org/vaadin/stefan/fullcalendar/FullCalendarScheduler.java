@@ -178,7 +178,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             if (!resources.containsKey(id)) {
                 resources.put(id, resource);
                 array.set(array.length(), resource.toJson()); // this automatically sends sub resources to the client side
-            }
+        }
 
             // now also register child resources
             registerResourcesInternally(resource.getChildren());
@@ -213,8 +213,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                 this.resources.remove(id);
                 array.set(array.length(), resource.toJson());
             }
-        });
-        
+                });
+
         getElement().callJsFunction("removeResources", array);
 
     }
