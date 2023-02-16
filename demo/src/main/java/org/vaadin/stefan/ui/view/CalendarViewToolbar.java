@@ -5,6 +5,7 @@ import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
@@ -265,7 +267,16 @@ public class CalendarViewToolbar extends MenuBar {
             }
         });
 
-        subMenu.add(localeSelector, timezoneSelector);
+        Checkbox enablePrefetching = new Checkbox("Enable Prefetching", calendar.isPrefetchEnabled());
+        enablePrefetching.addValueChangeListener(event -> calendar.setPrefetchEnabled(event.getValue()));
+
+        VerticalLayout verticalLayout = new VerticalLayout(localeSelector, timezoneSelector, enablePrefetching);
+        verticalLayout.setSpacing(false);
+        verticalLayout.setPadding(false);
+        verticalLayout.setMargin(true);
+        verticalLayout.setSizeUndefined();
+        subMenu.add(verticalLayout);
+
 
 //        subMenu.addItem("Detach/Attach Calendar", event -> {
 //            if (calendar.getParent().isPresent()) {

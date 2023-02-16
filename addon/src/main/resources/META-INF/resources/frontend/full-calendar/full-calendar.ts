@@ -16,7 +16,7 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {customElement, property} from "lit/decorators.js";
+import {customElement} from "lit/decorators.js";
 import {html, LitElement, PropertyValues} from "lit";
 
 import {Calendar, DateInput, DateRangeInput, DurationInput} from '@fullcalendar/core';
@@ -31,7 +31,7 @@ import allLocales from '@fullcalendar/core/locales-all';
 import {ThemableMixin} from "@vaadin/vaadin-themable-mixin";
 
 // Simple type, that allows JS object property access via ["xyz"]
-type IterableObject = {
+export type IterableObject = {
     [key: string]: any,
     hasOwnProperty: (key: string) => boolean;
 };
@@ -49,8 +49,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
 
     moreLinkClickAction = "popover"
 
-    // pre-alpha / experimental and not yet full supported or implemented
-    prefetchEnabled = false;
+    private prefetchEnabled = false;
 
     protected render() {
         return html`
@@ -376,9 +375,40 @@ export class FullCalendar extends ThemableMixin(LitElement) {
         const callback = (info: any, successCallback: any, failureCallback: any) => {
 
             if (this.prefetchEnabled) {
-                // some basic test of prefetch
-                (info.start as Date).setMonth(info.start.getMonth() - 1);
-                (info.end as Date).setMonth(info.end.getMonth() + 1);
+                let rangeUnit = (this.calendar?.view as any)?.getCurrentData()?.dateProfile?.currentRangeUnit;
+                if (!rangeUnit) {
+                    console.warn("Could not prefetch, as the range unit could not be determined. If you " +
+                        "see this warning, please create an issue about it at " +
+                        "https://github.com/stefanuebe/vaadin_fullcalendar/issues")
+                } else if (!(info.start instanceof Date) || !(info.end instanceof Date)) {
+                    console.warn("View range is not of type Date. If you " +
+                        "see this warning, please create an issue about it at " +
+                        "https://github.com/stefanuebe/vaadin_fullcalendar/issues")
+
+                } else {
+                    let getter: (() => number) | undefined = undefined;
+                    let setter: ((amount: number) => any) | undefined = undefined;
+
+                    switch (rangeUnit) {
+                        case 'day':
+                            getter = Date.prototype.getDate;
+                            setter = Date.prototype.setDate;
+                            break;
+                        case 'month':
+                            getter = Date.prototype.getMonth;
+                            setter = Date.prototype.setMonth;
+                            break;
+                        case 'year':
+                            getter = Date.prototype.getFullYear;
+                            setter = Date.prototype.setFullYear;
+                            break;
+                    }
+
+                    if (setter && getter) {
+                        setter.call(info.start, getter.call(info.start) - 1);
+                        setter.call(info.end, getter.call(info.end) + 1);
+                    }
+                }
             }
 
             // @ts-ignore
