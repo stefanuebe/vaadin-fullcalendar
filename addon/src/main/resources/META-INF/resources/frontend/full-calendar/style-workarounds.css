@@ -1,3 +1,9 @@
+/* Fixes a color issue, where otherwise day numbers would appear as the disabled text color (Idk why)*/
 .fc a:not(:any-link) {
     color: var(--lumo-body-text-color) !important;
+}
+
+/* Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/108*/
+.fc .fc-scrollgrid-section-sticky > * {
+    z-index: 1;
 }
