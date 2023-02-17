@@ -26,6 +26,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
+import org.apache.commons.text.CaseUtils;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
@@ -206,6 +207,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             currentViewName = event.getViewName();
             currentView = event.getCalendarView().orElse(null);
         });
+
+        // currently disabled, since a ResizeObserver is registered on the client side
+        setOption("handleWindowResize", false);
     }
 
     @Override
@@ -1442,7 +1446,53 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return (Optional<T>) CalendarViewImpl.ofClientSideValue(viewName);
     }
 
+    public void setEntryRenderingMode(Entry.RenderingMode renderingMode) {
+        this.setOption(Option.ENTRY_RENDERING_MODE, renderingMode != null ? renderingMode : Entry.DEFAULT_RENDERING_MODE);
+    }
 
+    /**
+     * Sets a valid range, that is open into the future.
+     * @param start start of range
+     */
+    public void setValidRangeStart(LocalDate start) {
+        setValidRange(start, null);
+    }
+
+    /**
+     * Sets a valid range, that is open into the past.
+     * @param end end of range
+     */
+    public void setValidRangeEnd(LocalDate end) {
+        setValidRange(null, end);
+    }
+
+    /**
+     * Creates a valid range between the given dates. If one of the dates is null, the range will be open to
+     * that direction. If both are null, the valid range will be cleared.
+     * @param start start
+     * @param end end
+     */
+    public void setValidRange(LocalDate start, LocalDate end) {
+        if (start != null && end != null && !(start.isBefore(end))) {
+            throw new IllegalArgumentException("Start must be before end");
+        }
+
+        JsonObject jsonObject = Json.createObject();
+        if (start != null) {
+            jsonObject.put("start", JsonUtils.formatClientSideDateString(start));
+        }
+        if (end != null) {
+            jsonObject.put("end", JsonUtils.formatClientSideDateString(end));
+        }
+        setOption(Option.VALID_RANGE, jsonObject);
+    }
+
+    /**
+     * Clears the valid range.
+     */
+    public void clearValidRange() {
+        setValidRange(null, null);
+    }
 
 //    /**
 //     * Returns the initial options object (not a copy). When making changes to this object, make sure to call
@@ -1466,35 +1516,84 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * https://fullcalendar.io/docs
      */
     public enum Option {
-        FIRST_DAY("firstDay"),
-        HEIGHT("height"),
-        LOCALE("locale"),
-        SELECTABLE("selectable"),
-        WEEK_NUMBERS("weekNumbers"),
-        NOW_INDICATOR("nowIndicator"),
-        NAV_LINKS("navLinks"),
-        BUSINESS_HOURS("businessHours"),
-        TIMEZONE("timeZone"),
-        SNAP_DURATION("snapDuration"),
-        SLOT_MIN_TIME("slotMinTime"),
-        SLOT_MAX_TIME("slotMaxTime"),
-        FIXED_WEEK_COUNT("fixedWeekCount"),
-        WEEKENDS("weekends"),
-        HEADER_TOOLBAR("headerToolbar"),
-        FOOTER_TOOLBAR("footerToolbar"),
-        COLUMN_HEADER("columnHeader"),
-        WEEK_NUMBERS_WITHIN_DAYS("weekNumbersWithinDays"),
-        ENTRY_DURATION_EDITABLE("eventDurationEditable"),
-        ENTRY_RESIZABLE_FROM_START("eventResizableFromStart"),
-        ENTRY_START_EDITABLE("eventStartEditable"),
-        ENTRY_TIME_FORMAT("eventTimeFormat"),
-        EDITABLE("editable"),
-        DRAG_SCROLL("dragScroll"),
+        ALL_DAY_SLOT,
+        ASPECT_RATIO,
+        BUSINESS_HOURS,
+        COLUMN_HEADER,
+        CONTENT_HEIGHT,
+        DAY_HEADERS,
+        DAY_HEADER_FORMAT,
+        DAY_MIN_WIDTH,
+        DISPLAY_ENTRY_TIME,
+        DIRECTION,
+        DRAG_SCROLL,
+        EDITABLE,
+        ENTRY_BACKGROUND_COLOR,
+        ENTRY_BORDER_COLOR,
+        ENTRY_COLOR,
+        ENTRY_DURATION_EDITABLE,
+        ENTRY_MAX_STACK,
+        ENTRY_MIN_HEIGHT,
+        ENTRY_ORDER,
+        ENTRY_ORDER_STRICT,
+        ENTRY_RENDERING_MODE,
+        ENTRY_RESIZABLE_FROM_START,
+        ENTRY_SHORT_HEIGHT,
+        ENTRY_START_EDITABLE,
+        ENTRY_TEXT_COLOR,
+        ENTRY_TIME_FORMAT,
+        EXPAND_ROWS,
+        FIRST_DAY,
+        FIXED_WEEK_COUNT,
+        FOOTER_TOOLBAR,
+        HEADER_TOOLBAR,
+        HEIGHT,
+        HIDDEN_DAYS,
+        LIST_DAY_FORMAT,
+        LIST_DAY_SIDE_FORMAT,
+        LOCALE,
         MAX_ENTRIES_PER_DAY("dayMaxEvents"),
-        MULTI_MONTH_MAX_COLUMNS("multiMonthMaxColumns")
-        ;
+        MONTH_START_FORMAT,
+        MULTI_MONTH_MAX_COLUMNS,
+        MULTI_MONTH_MIN_WIDTH,
+        MULTI_MONTH_TITLE_FORMAT,
+        NAV_LINKS,
+        NEXT_DAY_THRESHOLD,
+        NOW_INDICATOR,
+        SCROLL_TIME,
+        SCROLL_TIME_RESET,
+        SELECTABLE,
+        SELECT_CONSTRAINT,
+        SELECT_MIN_DISTANCE,
+        SELECT_MIRROR,
+        SELECT_OVERLAP, // function not yet supported
+        SHOW_NON_CURRENT_DATES,
+        SLOT_DURATION,
+        SLOT_ENTRY_OVERLAP,
+        SLOT_LABEL_FORMAT,
+        SLOT_LABEL_INTERVAL,
+        SLOT_MAX_TIME,
+        SLOT_MIN_TIME,
+        SNAP_DURATION,
+        STICKY_FOOTER_SCROLLBAR,
+        STICKY_HEADER_DATES,
+        TIMEZONE("timeZone"),
+        UNSELECT_AUTO,
+        UNSELECT_CANCEL,
+        VALID_RANGE, // function not yet supported, but should not be necessary
+        WEEKENDS,
+        WEEK_NUMBERS,
+        WEEK_NUMBERS_WITHIN_DAYS,
+        WEEK_NUMBER_CALCULATION,
+        WEEK_NUMBER_FORMAT,
+        WEEK_TEXT,
+        WEEK_TEXT_LONG;
 
         private final String optionKey;
+
+        Option() {
+            this.optionKey = CaseUtils.toCamelCase(name().replace("ENTRY", "EVENT"), false, '_');
+        }
 
         Option(String optionKey) {
             this.optionKey = optionKey;
