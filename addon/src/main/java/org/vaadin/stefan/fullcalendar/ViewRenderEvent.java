@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.vaadin.stefan.fullcalendar.JsonUtils.parseClientSideDate;
 
@@ -35,9 +36,9 @@ import static org.vaadin.stefan.fullcalendar.JsonUtils.parseClientSideDate;
 public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
 
     /**
-     * The name of the view (client side: "type").
+     * The client side name of the view.
      */
-    private final String name;
+    private final String viewName;
 
     /**
      * The current shown interval's start date.
@@ -62,6 +63,9 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
      */
     private final LocalDate end;
 
+
+    private final CalendarView calendarView;
+
     /**
      * Creates a new event using the given source and indicator whether the
      * event originated from the client side or the server side.
@@ -72,11 +76,32 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
     public ViewRenderEvent(FullCalendar source, boolean fromClient, JsonObject eventData) {
         super(source, fromClient);
 
-        this.name = eventData.getString("name");
+        this.viewName = eventData.getString("name");
+
+        this.calendarView = source.lookupViewName(viewName).orElse(null);
 
         this.intervalStart = parseClientSideDate(eventData.getString("intervalStart"));
         this.intervalEnd = parseClientSideDate(eventData.getString("intervalEnd"));
         this.start = parseClientSideDate(eventData.getString("start"));
         this.end = parseClientSideDate(eventData.getString("end"));
+    }
+
+    /**
+     * Same as {@link #getViewName()}
+     * @deprecated use {@link #getViewName()} instead
+     * @return Client side name of the view
+     */
+    @Deprecated
+    public String getName() {
+        return viewName;
+    }
+
+    /**
+     * The calendar view of this event. Empty, if the view name could not be matched with one of the predefined
+     * views (e.g. in case of a custom view).
+     * @return calendar view
+     */
+    public Optional<CalendarView> getCalendarView() {
+        return Optional.ofNullable(calendarView);
     }
 }

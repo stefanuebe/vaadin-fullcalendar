@@ -100,8 +100,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     @Getter
     private boolean attached;
 
-    private String latestKnownViewName;
-    private LocalDate latestKnownIntervalStart;
+    private String currentViewName;
+    private LocalDate currentIntervalStart;
+    private CalendarView currentView;
 
     private boolean refreshAllEntriesRequested;
 
@@ -193,12 +194,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         setPrefetchEnabled(true);
 
+        // just to prevent, that those are null
+        currentView = CalendarViewImpl.DAY_GRID_MONTH;
+        currentViewName = currentView.getName();
+
         addDatesRenderedListener(event -> {
-            latestKnownViewName = event.getName();
-            latestKnownIntervalStart = event.getIntervalStart();
+            currentIntervalStart = event.getIntervalStart();
+        });
+
+        addViewSkeletonRenderedListener(event -> {
+            currentViewName = event.getViewName();
+            currentView = event.getCalendarView().orElse(null);
         });
     }
-
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -227,8 +235,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                     // Especially with a huge amount of entries this could lead to memory issues.
                     getElement().callJsFunction("restoreStateFromServer",
                             optionsJson,
-                            JsonUtils.toJsonValue(latestKnownViewName),
-                            JsonUtils.toJsonValue(latestKnownIntervalStart));
+                            JsonUtils.toJsonValue(currentViewName),
+                            JsonUtils.toJsonValue(currentIntervalStart));
 
                 });
             });
@@ -424,7 +432,27 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void changeView(@NotNull CalendarView view) {
         Objects.requireNonNull(view);
-        getElement().callJsFunction("changeView", view.getClientSideValue());
+
+        currentView = view;
+        currentViewName = view.getClientSideValue();
+
+        getElement().callJsFunction("changeView", currentViewName);
+    }
+
+    /**
+     * The name of the current view.
+     * @return view name
+     */
+    public String getCurrentViewName() {
+        return currentViewName;
+    }
+    /**
+     * The current view of this isntance. Empty, if the current view could not be matched with one of the predefined
+     * views (e.g. in case of a custom view).
+     * @return calendar view
+     */
+    public Optional<CalendarView> getCurrentView() {
+        return Optional.ofNullable(currentView);
     }
 
     /**
@@ -1390,6 +1418,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public boolean isPrefetchEnabled() {
         return getElement().getProperty("prefetchEnabled", false);
     }
+
+    /**
+     * Tries to find the calendar view based on the given name. Empty, when the view name is not known on the Java
+     * side (can be the case with custom views).
+     * @param viewName view name to lookup
+     * @return calendar view
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends CalendarView> Optional<T> lookupViewName(String viewName) {
+        return (Optional<T>) CalendarViewImpl.ofClientSideValue(viewName);
+    }
+
+
 
 //    /**
 //     * Returns the initial options object (not a copy). When making changes to this object, make sure to call

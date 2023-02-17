@@ -406,6 +406,16 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         return getOption(option.getOptionKey(), forceClientSideValue);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends CalendarView> Optional<T> lookupViewName(String viewName) {
+        Optional<T> optional = super.lookupViewName(viewName);
+        if (optional.isEmpty()) {
+            optional = (Optional<T>) SchedulerView.ofClientSideValue(viewName);
+        }
+        return optional;
+    }
+
     /**
      * Enumeration of possible scheduler options, that can be applied to the calendar.
      * Contains only options, that affect the client side library, but not internal options.
