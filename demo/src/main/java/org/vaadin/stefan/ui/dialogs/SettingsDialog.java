@@ -38,7 +38,7 @@ public class SettingsDialog extends Dialog {
         comboBoxLocales.setValue(calendar.getLocale());
         comboBoxLocales.addValueChangeListener(event -> {
             Locale value = event.getValue();
-            calendar.setLocale(value != null ? value : CalendarLocale.getDefault());
+            calendar.setLocale(value != null ? value : CalendarLocale.getDefaultLocale());
             Notification.show("Locale changed to " + calendar.getLocale().toLanguageTag());
         });
         comboBoxLocales.setRequired(true);

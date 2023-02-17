@@ -139,7 +139,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             setMaxEntriesPerDayUnlimited();
         }
 
-        setLocale(CalendarLocale.getDefault());
+        setLocale(CalendarLocale.getDefaultLocale());
 
         postConstruct();
     }
@@ -178,7 +178,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         if (!initialOptions.hasKey(Option.LOCALE.getOptionKey())) {
             // fallback to prevent strange locale effects on the client side
-            setLocale(CalendarLocale.getDefault());
+            setLocale(CalendarLocale.getDefaultLocale());
         }
 
         postConstruct();
@@ -668,8 +668,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public Locale getLocale() {
         Optional<Object> option = getOption(Option.LOCALE);
 
-        if (!option.isPresent()) {
-            return CalendarLocale.getDefault();
+        if (option.isEmpty()) {
+            return CalendarLocale.getDefaultLocale();
         }
 
         Object value = option.get();

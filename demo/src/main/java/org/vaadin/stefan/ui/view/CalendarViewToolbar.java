@@ -241,10 +241,10 @@ public class CalendarViewToolbar extends MenuBar {
         ComboBox<Locale> localeSelector = new ComboBox<>("Locale");
         localeSelector.setClearButtonVisible(true);
         localeSelector.setItems(items);
-        localeSelector.setValue(CalendarLocale.getDefault());
+        localeSelector.setValue(CalendarLocale.getDefaultLocale());
         localeSelector.addValueChangeListener(event -> {
             Locale value = event.getValue();
-            calendar.setLocale(value != null ? value : CalendarLocale.getDefault());
+            calendar.setLocale(value != null ? value : CalendarLocale.getDefaultLocale());
             Notification.show("Locale changed to " + calendar.getLocale().toLanguageTag());
         });
         localeSelector.setPreventInvalidInput(true);

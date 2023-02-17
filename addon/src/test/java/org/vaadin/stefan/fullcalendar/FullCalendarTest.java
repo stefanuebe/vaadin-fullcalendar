@@ -65,7 +65,7 @@ public class FullCalendarTest {
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 1);
-        assertSame(CalendarLocale.getDefault(), calendar.getLocale());
+        assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class FullCalendarTest {
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 1);
-        assertSame(CalendarLocale.getDefault(), calendar.getLocale());
+        assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
 
         assertEquals(entryLimit, calendar.getOption(Option.MAX_ENTRIES_PER_DAY).orElse(-1));
     }
@@ -149,10 +149,10 @@ public class FullCalendarTest {
 
         assertNPE(calendar, c -> c.setLocale(null));
 
-        Locale locale = CalendarLocale.GREEK;
+        Locale locale = CalendarLocale.GREEK.getLocale();
 
         // we want to be sure to not use the default to test.
-        assertNotEquals(CalendarLocale.getDefault(), locale);
+        assertNotEquals(CalendarLocale.getDefaultLocale(), locale);
 
         calendar.setLocale(locale);
         assertSame(locale, calendar.getLocale());

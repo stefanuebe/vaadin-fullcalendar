@@ -93,7 +93,7 @@ public class FullCalendarSchedulerTest {
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 1);
-        Assertions.assertSame(CalendarLocale.getDefault(), calendar.getLocale());
+        Assertions.assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
     }
 
     @Test
@@ -104,7 +104,7 @@ public class FullCalendarSchedulerTest {
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 1);
-        Assertions.assertSame(CalendarLocale.getDefault(), calendar.getLocale());
+        Assertions.assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
 
         Assertions.assertEquals(entryLimit, calendar.getOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY).orElse(-1));
     }

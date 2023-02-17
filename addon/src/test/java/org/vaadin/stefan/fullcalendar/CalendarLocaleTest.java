@@ -18,7 +18,7 @@ public class CalendarLocaleTest {
 
     @Test
     void testDefaultLocaleIsDefinedAndValidCalendarLocale() {
-        Locale locale = CalendarLocale.getDefault();
+        Locale locale = CalendarLocale.getDefaultLocale();
         Assertions.assertNotNull(locale);
 
         Locale[] locales = CalendarLocale.getAvailableLocales();
