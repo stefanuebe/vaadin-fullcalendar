@@ -28,9 +28,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.vaadin.stefan.fullcalendar.converters.ClientDateTimeConverter;
-import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
+import org.vaadin.stefan.fullcalendar.converters.*;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
@@ -55,10 +53,10 @@ public class Entry {
     private String groupId;
     private String title;
 
-    @JsonConverter(ClientDateTimeConverter.class)
+    @JsonConverter(LocalDateTimeConverter.class)
     private LocalDateTime start;
 
-    @JsonConverter(ClientDateTimeConverter.class)
+    @JsonConverter(LocalDateTimeConverter.class)
     private LocalDateTime end;
 
     private boolean allDay;
@@ -77,20 +75,27 @@ public class Entry {
     private RenderingMode renderingMode = DEFAULT_RENDERING_MODE;
 
     @JsonName("startRecur")
+    @JsonConverter(LocalDateConverter.class)
     private LocalDate recurringStartDate;
 
     @JsonName("endRecur")
+    @JsonConverter(LocalDateConverter.class)
     private LocalDate recurringEndDate;
 
     @JsonName("startTime")
+    @JsonConverter(RecurringTimeConverter.class)
     private RecurringTime recurringStartTime; // see #139
 
     @JsonName("endTime")
+    @JsonConverter(RecurringTimeConverter.class)
     private RecurringTime recurringEndTime; // see #139
 
     @JsonName("daysOfWeek")
+    @JsonConverter(DayOfWeekItemConverter.class)
     private Set<DayOfWeek> recurringDaysOfWeek;
+
     private Set<String> classNames;
+
     private Map<String, Object> customProperties;
 
     @JsonIgnore

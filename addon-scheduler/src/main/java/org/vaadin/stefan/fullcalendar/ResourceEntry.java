@@ -16,13 +16,12 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.data.binder.BeanPropertySet;
-import com.vaadin.flow.data.binder.PropertyDefinition;
-import com.vaadin.flow.data.binder.PropertySet;
 import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.vaadin.stefan.fullcalendar.converter.ResourceConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 
@@ -39,12 +38,14 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 public class ResourceEntry extends Entry {
 
+    @SuppressWarnings("rawtypes")
     private static final Set PROPERTIES = BeanProperties.read(ResourceEntry.class);
 
     private boolean resourceEditable = true;
 
     @JsonUpdateAllowed
     @JsonName("resourceIds")
+    @JsonConverter(ResourceConverter.class)
     private Set<Resource> resources;
 
     /**
@@ -60,6 +61,7 @@ public class ResourceEntry extends Entry {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected Stream<BeanProperties<Entry>> streamProperties() {
         return Stream.concat(super.streamProperties(), PROPERTIES.stream());
     }
@@ -252,7 +254,13 @@ public class ResourceEntry extends Entry {
         setResources(null);
     }
 
-//    @Override
+    @Override
+    public JsonObject toJson() {
+        JsonObject json = super.toJson();
+        return json;
+    }
+
+    //    @Override
 //    protected void toJson(JsonObject jsonObject) {
 
         // Current issues with built in properties (therefore the special handlings of recurring and resources)

@@ -9,33 +9,32 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 /**
  * @author Stefan Uebe
  */
 @Getter
 @RequiredArgsConstructor
-public class ClientDateTimeConverter<T extends Entry> implements JsonItemPropertyConverter<LocalDateTime, T> {
+public class LocalDateConverter<T extends Entry> implements JsonItemPropertyConverter<LocalDate, T> {
 
     @Override
     public boolean supports(Object type) {
-        return type == null || type instanceof LocalDateTime;
+        return type == null || type instanceof LocalDate;
     }
 
     @Override
-    public JsonValue toClientModel(LocalDateTime serverValue, T currentInstance) {
-        return JsonUtils.toJsonValue(JsonUtils.formatClientSideDateTimeString(serverValue));
+    public JsonValue toClientModel(LocalDate serverValue, T currentInstance) {
+        return JsonUtils.toJsonValue(JsonUtils.formatClientSideDateString(serverValue));
     }
 
     @Override
-    public LocalDateTime toServerModel(JsonValue clientValue, T currentInstance) {
+    public LocalDate toServerModel(JsonValue clientValue, T currentInstance) {
         if (clientValue instanceof JsonNull) {
             return null;
         }
 
         if (clientValue instanceof JsonString) {
-            return JsonUtils.parseClientSideDateTime(clientValue.asString());
+            return JsonUtils.parseClientSideDate(clientValue.asString());
         }
 
         throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);

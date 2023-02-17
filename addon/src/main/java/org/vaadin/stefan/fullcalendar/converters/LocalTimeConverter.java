@@ -8,33 +8,34 @@ import lombok.RequiredArgsConstructor;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
 
-import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * @author Stefan Uebe
  */
 @Getter
 @RequiredArgsConstructor
-public class ClientDateConverter<T extends Entry> implements JsonItemPropertyConverter<LocalDate, T> {
+public class LocalTimeConverter<T extends Entry> implements JsonItemPropertyConverter<LocalTime, T> {
 
     @Override
     public boolean supports(Object type) {
-        return type == null || type instanceof LocalDate;
+        return type == null || type instanceof LocalTime;
+    }
+
+
+    @Override
+    public JsonValue toClientModel(LocalTime serverValue, T currentInstance) {
+        return JsonUtils.toJsonValue(JsonUtils.formatClientSideTimeString(serverValue));
     }
 
     @Override
-    public JsonValue toClientModel(LocalDate serverValue, T currentInstance) {
-        return JsonUtils.toJsonValue(JsonUtils.formatClientSideDateString(serverValue));
-    }
-
-    @Override
-    public LocalDate toServerModel(JsonValue clientValue, T currentInstance) {
+    public LocalTime toServerModel(JsonValue clientValue, T currentInstance) {
         if (clientValue instanceof JsonNull) {
             return null;
         }
 
         if (clientValue instanceof JsonString) {
-            return JsonUtils.parseClientSideDate(clientValue.asString());
+            return JsonUtils.parseClientSideTime(clientValue.asString());
         }
 
         throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
