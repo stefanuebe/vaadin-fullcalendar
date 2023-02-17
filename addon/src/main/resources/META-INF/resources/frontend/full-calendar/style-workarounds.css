@@ -7,3 +7,14 @@
 .fc .fc-scrollgrid-section-sticky > * {
     z-index: 1;
 }
+
+/* integrated lumo like toggle for resources (see https://github.com/stefanuebe/vaadin_fullcalendar/issues/162) */
+.fc-icon-minus-square:before, .fc-icon-plus-square:before {
+    font-family: 'lumo-icons';
+    content: var(--lumo-icons-angle-right);
+    display: inline-block
+}
+
+.fc-icon-minus-square:before {
+    transform: rotate(90deg);
+}
