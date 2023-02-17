@@ -7,3 +7,4 @@
 
 Minor, but important
 * getResources now may return null. Use getOrCreateResources. Has been aligned to other namings in Entry.
+* CalendarLocale is now an enum. Use getLocale() to obtain the contained locale value.

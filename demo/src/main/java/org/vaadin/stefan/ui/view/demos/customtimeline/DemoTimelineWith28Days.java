@@ -38,7 +38,7 @@ public class DemoTimelineWith28Days extends VerticalLayout {
         CustomDaysTimelineCalendarView calendarView = new CustomDaysTimelineCalendarView(28);
         
         calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").withInitialOptions(calendarView.getInitialOptions()).build();
-        calendar.setLocale(CalendarLocale.getDefault());
+        calendar.setLocale(CalendarLocale.getDefaultLocale());
         calendar.setHeightByParent();
 
         Header testHeader = new Header();

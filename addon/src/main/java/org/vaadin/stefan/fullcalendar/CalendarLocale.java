@@ -16,101 +16,176 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * A list of all supported locales.
  */
-public class CalendarLocale {
-    public static final Locale AFRIKAANS = Locale.forLanguageTag("af");
-    public static final Locale ARABIC = Locale.forLanguageTag("ar");
-    public static final Locale ARABIC_ALGERIA = Locale.forLanguageTag("ar-dz");
-    public static final Locale ARABIC_KUWAIT = Locale.forLanguageTag("ar-kw");
-    public static final Locale ARABIC_LYBIA = Locale.forLanguageTag("ar-ly");
-    public static final Locale ARABIC_MOROCCO = Locale.forLanguageTag("ar-ma");
-    public static final Locale ARABIC_SAUDI_ARABIA = Locale.forLanguageTag("ar-sa");
-    public static final Locale ARABIC_TUNESIA = Locale.forLanguageTag("ar-tn");
-    public static final Locale BULGARIAN = Locale.forLanguageTag("bg");
-    public static final Locale BOSNIAN = Locale.forLanguageTag("bs");
-    public static final Locale CATALAN = Locale.forLanguageTag("ca");
-    public static final Locale CZECH = Locale.forLanguageTag("cs");
-    public static final Locale DANISH = Locale.forLanguageTag("da");
-    public static final Locale GERMAN = Locale.forLanguageTag("de");
-    public static final Locale GERMAN_AUSTRIA = Locale.forLanguageTag("de-at");
-    public static final Locale GERMAN_SWITZERLAND = Locale.forLanguageTag("de-ch");
-    public static final Locale GREEK = Locale.forLanguageTag("el");
-    public static final Locale ENGLISH = Locale.forLanguageTag("en");
-    public static final Locale ENGLISH_AUSTRALIA = Locale.forLanguageTag("en-au");
-    public static final Locale ENGLISH_CANADA = Locale.forLanguageTag("en-ca");
-    public static final Locale ENGLISH_UK = Locale.forLanguageTag("en-gb");
-    public static final Locale ENGLISH_IRELAND = Locale.forLanguageTag("en-ie");
-    public static final Locale ENGLISH_NEW_ZEALAND = Locale.forLanguageTag("en-nz");
-    public static final Locale SPANISH = Locale.forLanguageTag("es");
-    public static final Locale SPANICH_DOMINICAN_REPUBLIC = Locale.forLanguageTag("es-do");
-    public static final Locale SPANISH_US = Locale.forLanguageTag("es-us");
-    public static final Locale ESTONIAN = Locale.forLanguageTag("et");
-    public static final Locale BASQUE = Locale.forLanguageTag("eu");
-    public static final Locale PERSIAN = Locale.forLanguageTag("fa");
-    public static final Locale FINNISH = Locale.forLanguageTag("fi");
-    public static final Locale FRENCH = Locale.forLanguageTag("fr");
-    public static final Locale FRENCH_CANADA = Locale.forLanguageTag("fr-ca");
-    public static final Locale FRENCH_SWITZERLAND = Locale.forLanguageTag("fr-ch");
-    public static final Locale GALICIAN = Locale.forLanguageTag("gl");
-    public static final Locale HEBREW = Locale.forLanguageTag("he");
-    public static final Locale HINDI = Locale.forLanguageTag("hi");
-    public static final Locale CROATIAN = Locale.forLanguageTag("hr");
-    public static final Locale HUNGARIAN = Locale.forLanguageTag("hu");
-    public static final Locale INDONESIAN = Locale.forLanguageTag("id");
-    public static final Locale ICELANDIC = Locale.forLanguageTag("is");
-    public static final Locale ITALIAN = Locale.forLanguageTag("it");
-    public static final Locale JAPANESE = Locale.forLanguageTag("ja");
-    public static final Locale GEORGIAN = Locale.forLanguageTag("ka");
-    public static final Locale KAZAKH = Locale.forLanguageTag("kk");
-    public static final Locale KOREAN = Locale.forLanguageTag("ko");
-    public static final Locale LUXEMBOURGISH = Locale.forLanguageTag("lb");
-    public static final Locale LITHUNIAN = Locale.forLanguageTag("lt");
-    public static final Locale LATVIAN = Locale.forLanguageTag("lv");
-    public static final Locale MACEDONIAN = Locale.forLanguageTag("mk");
-    public static final Locale MALAY = Locale.forLanguageTag("ms");
-    public static final Locale MALAYSIA = Locale.forLanguageTag("ms-my");
-    public static final Locale NORWEGIAN_BOKMAL = Locale.forLanguageTag("nb");
-    public static final Locale DUTCH = Locale.forLanguageTag("nl");
-    public static final Locale DUTCH_BELGIUM = Locale.forLanguageTag("nl-be");
-    public static final Locale NORWEGIAN_NYNORSK = Locale.forLanguageTag("nn");
-    public static final Locale POLISH = Locale.forLanguageTag("pl");
-    public static final Locale PORTUGUESE = Locale.forLanguageTag("pt");
-    public static final Locale PORTUGUESE_BRAZIL = Locale.forLanguageTag("pt-br");
-    public static final Locale ROMANIAN = Locale.forLanguageTag("ro");
-    public static final Locale RUSSIAN = Locale.forLanguageTag("ru");
-    public static final Locale SLOVAK = Locale.forLanguageTag("sk");
-    public static final Locale SLOVENIAN = Locale.forLanguageTag("sl");
-    public static final Locale ALBANIAN = Locale.forLanguageTag("sq");
-    public static final Locale SERBIAN = Locale.forLanguageTag("sr");
-    public static final Locale SERBIAN_CYRILLIC = Locale.forLanguageTag("sr-cyrl");
-    public static final Locale SWEDISH = Locale.forLanguageTag("sv");
-    public static final Locale THAI = Locale.forLanguageTag("th");
-    public static final Locale TURKISH = Locale.forLanguageTag("tr");
-    public static final Locale UKRAINIAN = Locale.forLanguageTag("uk");
-    public static final Locale VIETNAMESE = Locale.forLanguageTag("vi");
-    public static final Locale CHINESE = Locale.forLanguageTag("zh-cn");
-    public static final Locale CHINESE_TAIWAN = Locale.forLanguageTag("zh-tw");
+public enum CalendarLocale {
+    AFRIKAANS("af"),
+    ARABIC("ar"),
+    ARABIC_ALGERIA("ar-dz"),
+    ARABIC_KUWAIT("ar-kw"),
+    ARABIC_LYBIA("ar-ly"),
+    ARABIC_MOROCCO("ar-ma"),
+    ARABIC_SAUDI_ARABIA("ar-sa"),
+    ARABIC_TUNESIA("ar-tn"),
+    BULGARIAN("bg"),
+    BOSNIAN("bs"),
+    CATALAN("ca"),
+    CZECH("cs"),
+    DANISH("da"),
+    GERMAN("de"),
+    GERMAN_GERMANY("de-de"),
+    GERMAN_AUSTRIA("de-at"),
+    GERMAN_SWITZERLAND("de-ch"),
+    GREEK("el"),
+    ENGLISH("en"),
+    ENGLISH_AUSTRALIA("en-au"),
+    ENGLISH_CANADA("en-ca"),
+    ENGLISH_UK("en-gb"),
+    ENGLISH_IRELAND("en-ie"),
+    ENGLISH_NEW_ZEALAND("en-nz"),
+    SPANISH("es"),
+    SPANICH_DOMINICAN_REPUBLIC("es-do"),
+    SPANISH_US("es-us"),
+    ESTONIAN("et"),
+    BASQUE("eu"),
+    PERSIAN("fa"),
+    FINNISH("fi"),
+    FRENCH("fr"),
+    FRENCH_CANADA("fr-ca"),
+    FRENCH_SWITZERLAND("fr-ch"),
+    GALICIAN("gl"),
+    HEBREW("he"),
+    HINDI("hi"),
+    CROATIAN("hr"),
+    HUNGARIAN("hu"),
+    INDONESIAN("id"),
+    ICELANDIC("is"),
+    ITALIAN("it"),
+    JAPANESE("ja"),
+    GEORGIAN("ka"),
+    KAZAKH("kk"),
+    KOREAN("ko"),
+    LUXEMBOURGISH("lb"),
+    LITHUNIAN("lt"),
+    LATVIAN("lv"),
+    MACEDONIAN("mk"),
+    MALAY("ms"),
+    MALAYSIA("ms-my"),
+    NORWEGIAN_BOKMAL("nb"),
+    DUTCH("nl"),
+    DUTCH_BELGIUM("nl-be"),
+    NORWEGIAN_NYNORSK("nn"),
+    POLISH("pl"),
+    PORTUGUESE("pt"),
+    PORTUGUESE_BRAZIL("pt-br"),
+    ROMANIAN("ro"),
+    RUSSIAN("ru"),
+    SLOVAK("sk"),
+    SLOVENIAN("sl"),
+    ALBANIAN("sq"),
+    SERBIAN("sr"),
+    SERBIAN_CYRILLIC("sr-cyrl"),
+    SWEDISH("sv"),
+    THAI("th"),
+    TURKISH("tr"),
+    UKRAINIAN("uk"),
+    VIETNAMESE("vi"),
+    CHINESE("zh-cn"),
+    CHINESE_TAIWAN("zh-tw");
 
-    private static final Locale[] availableLocales = {AFRIKAANS, ARABIC, ARABIC_ALGERIA, ARABIC_KUWAIT, ARABIC_LYBIA,
-            ARABIC_MOROCCO, ARABIC_SAUDI_ARABIA, ARABIC_TUNESIA, BULGARIAN, BOSNIAN, CATALAN, CZECH, DANISH, GERMAN,
-            GERMAN_AUSTRIA, GERMAN_SWITZERLAND, GREEK, ENGLISH, ENGLISH_AUSTRALIA, ENGLISH_CANADA, ENGLISH_UK,
-            ENGLISH_IRELAND, ENGLISH_NEW_ZEALAND, SPANISH, SPANICH_DOMINICAN_REPUBLIC, SPANISH_US, ESTONIAN, BASQUE,
-            PERSIAN, FINNISH, FRENCH, FRENCH_CANADA, FRENCH_SWITZERLAND, GALICIAN, HEBREW, HINDI, CROATIAN, HUNGARIAN,
-            INDONESIAN, ICELANDIC, ITALIAN, JAPANESE, GEORGIAN, KAZAKH, KOREAN, LUXEMBOURGISH, LITHUNIAN, LATVIAN,
-            MACEDONIAN, MALAY, MALAYSIA, NORWEGIAN_BOKMAL, DUTCH, DUTCH_BELGIUM, NORWEGIAN_NYNORSK, POLISH, PORTUGUESE,
-            PORTUGUESE_BRAZIL, ROMANIAN, RUSSIAN, SLOVAK, SLOVENIAN, ALBANIAN, SERBIAN, SERBIAN_CYRILLIC, SWEDISH,
-            THAI, TURKISH, UKRAINIAN, VIETNAMESE, CHINESE, CHINESE_TAIWAN};
+    private static final Locale[] availableLocales = Stream.of(values())
+            .map(CalendarLocale::getLocale)
+            .toArray(Locale[]::new);
 
+
+    private static CalendarLocale defaultLocale = valueOf(Locale.getDefault()).orElse(ENGLISH);
+
+    /**
+     * The {@link Locale} instance representing this value
+     */
+    @Getter
+    private final Locale locale;
+
+
+    CalendarLocale(String languageTag) {
+        locale = Objects.requireNonNull(Locale.forLanguageTag(languageTag),
+                "Could not interprete language tag " + languageTag);
+    }
+
+    /**
+     * Returns a matching instead for the given locale or empty, if no match has been found.
+     *
+     * @param locale locale to lookup
+     * @return calendar locale instance
+     */
+    public static Optional<CalendarLocale> valueOf(Locale locale) {
+        for (CalendarLocale calendarLocale : values()) {
+            if (calendarLocale.getLocale().equals(locale)) {
+                return Optional.of(calendarLocale);
+            }
+        }
+        return Optional.empty();
+    }
+
+
+    /**
+     * Get all available locales as an array of {@link Locale}.
+     *
+     * @return available locales
+     */
     public static Locale[] getAvailableLocales() {
         return Arrays.copyOf(availableLocales, availableLocales.length);
     }
 
+    /**
+     * Returns the default locale. This is by default the system language. If the system language is not supported
+     * by the calender, english will be used instead.
+     * <p>
+     * This value is used as a fallback in different places, if no locale could be
+     * determined from the browser (or that should not be used).
+     *
+     * @return default locale
+     * @deprecated will be replaced with the enum type in some future version. Please use {@link #getDefaultLocale()}
+     * instead.
+     */
+    @Deprecated
     public static Locale getDefault() {
-        return CalendarLocale.ENGLISH;
+        return getDefaultLocale();
+    }
+
+    /**
+     * Returns the default locale. This is by default the system language. If the system language is not supported
+     * by the calender, english will be used instead.
+     * <p>
+     * This value is used as a fallback in different places, if no locale could be
+     * determined from the browser (or that should not be used).
+     *
+     * @return default locale
+     */
+    public static Locale getDefaultLocale() {
+        return defaultLocale.getLocale();
+    }
+
+    /**
+     * Sets the default locale. This is by default the system language. If the system language is not supported
+     * by the calender, english will be used instead.
+     * <p>
+     * This value is used as a fallback in different places, if no locale could be
+     * determined from the browser (or that should not be used).
+     *
+     * @param locale default calendar locale
+     */
+    public static void setDefault(CalendarLocale locale) {
+        defaultLocale = Objects.requireNonNull(locale, "Parameter must not be null");
     }
 }
