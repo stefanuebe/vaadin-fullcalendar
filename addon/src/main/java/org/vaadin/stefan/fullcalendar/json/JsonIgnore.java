@@ -3,7 +3,8 @@ package org.vaadin.stefan.fullcalendar.json;
 import java.lang.annotation.*;
 
 /**
- * @author Stefan Uebe
+ * Marks a property to be completely ignored, when converting the object to or from json. Any other
+ * json related annotation will be ignored.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
