@@ -1283,7 +1283,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
 
     /**
-     * Registers a listener to be informed when a view skeleton rendered event occurred.
+     * Registers a listener to be informed when a view skeleton rendered event occurred. This happens, when
+     * the view has been rendered (intially or after a view change).
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1292,6 +1293,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public Registration addViewSkeletonRenderedListener(@NotNull ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(ViewSkeletonRenderedEvent.class, listener);
+    }
+
+    /**
+     * Same as {@link #addViewSkeletonRenderedListener(ComponentEventListener)} but with a more intuitive naming.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addViewChangedListener(@NotNull ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
+        return addViewSkeletonRenderedListener(listener);
     }
 
 
