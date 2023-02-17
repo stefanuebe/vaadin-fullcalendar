@@ -16,6 +16,7 @@ import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.IntegerField;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.*;
@@ -270,7 +271,16 @@ public class CalendarViewToolbar extends MenuBar {
         Checkbox enablePrefetching = new Checkbox("Enable Prefetching", calendar.isPrefetchEnabled());
         enablePrefetching.addValueChangeListener(event -> calendar.setPrefetchEnabled(event.getValue()));
 
-        VerticalLayout verticalLayout = new VerticalLayout(localeSelector, timezoneSelector, enablePrefetching);
+        IntegerField multiMonthColumns = new IntegerField();
+        multiMonthColumns.setStep(1);
+        multiMonthColumns.setMin(1);
+        multiMonthColumns.setMax(12);
+        multiMonthColumns.setStepButtonsVisible(true);
+        multiMonthColumns.setValue(3);
+        multiMonthColumns.addValueChangeListener(event ->
+                calendar.setOption(FullCalendar.Option.MULTI_MONTH_MAX_COLUMNS, event.getValue()));
+
+        VerticalLayout verticalLayout = new VerticalLayout(localeSelector, timezoneSelector, enablePrefetching, multiMonthColumns);
         verticalLayout.setSpacing(false);
         verticalLayout.setPadding(false);
         verticalLayout.setMargin(true);

@@ -17,6 +17,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 
+import java.util.Optional;
+
 /**
  * Marks a class as a client side setting, which returns client side representation for an instance of this class.
  * An enumeration for instance would return a client side parseable version of the server side enum instance,
@@ -29,4 +31,14 @@ public interface ClientSideValue {
      * @return String
      */
     String getClientSideValue();
+
+    static <T extends ClientSideValue> Optional<T> ofClientSideValue(String clientSideValue, Class<T> targetType) {
+        for (T value : targetType.getEnumConstants()) {
+            if (value.getClientSideValue().equals(clientSideValue)) {
+                return Optional.of(value);
+            }
+        }
+
+        return Optional.empty();
+    }
 }

@@ -16,6 +16,8 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import java.util.Optional;
+
 /**
  * Enumeration of possible scheduler views.
  */
@@ -50,6 +52,10 @@ public enum SchedulerView implements CalendarView {
 
     SchedulerView(String clientSideName) {
         this.clientSideName = clientSideName;
+    }
+
+    public static Optional<SchedulerView> ofClientSideValue(String clientSideValue) {
+        return ClientSideValue.ofClientSideValue(clientSideValue, SchedulerView.class);
     }
 
     @Override

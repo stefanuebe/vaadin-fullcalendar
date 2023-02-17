@@ -19,6 +19,8 @@ package org.vaadin.stefan.fullcalendar;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+
 /**
  * Basic enumeration of possible calendar views.
  */
@@ -59,5 +61,9 @@ public enum CalendarViewImpl implements CalendarView {
     @Override
     public String getName() {
         return name();
+    }
+
+    public static Optional<CalendarViewImpl> ofClientSideValue(String clientSideValue) {
+        return ClientSideValue.ofClientSideValue(clientSideValue, CalendarViewImpl.class);
     }
 }
