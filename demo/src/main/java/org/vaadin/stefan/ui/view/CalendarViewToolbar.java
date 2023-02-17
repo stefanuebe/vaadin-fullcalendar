@@ -284,7 +284,41 @@ public class CalendarViewToolbar extends MenuBar {
                 calendar.setOption(FullCalendar.Option.MULTI_MONTH_MAX_COLUMNS, event.getValue()));
         multiMonthColumns.setWidthFull();
 
-        VerticalLayout verticalLayout = new VerticalLayout(localeSelector, timezoneSelector, enablePrefetching, multiMonthColumns);
+        DatePicker validRangeStart = new DatePicker("Valid Range Start");
+        validRangeStart.setClearButtonVisible(true);
+
+        DatePicker validRangeEnd = new DatePicker("Valid Range End");
+        validRangeEnd.setClearButtonVisible(true);
+
+        validRangeStart.addValueChangeListener(event -> {
+            calendar.setValidRange(validRangeStart.getValue(), validRangeEnd.getValue());
+
+            if (event.getValue() != null) {
+                validRangeEnd.setMin(event.getValue().plusDays(1));
+            } else {
+                validRangeEnd.setMin(null);
+            }
+
+        });
+        validRangeEnd.addValueChangeListener(event -> {
+            calendar.setValidRange(validRangeStart.getValue(), validRangeEnd.getValue());
+
+            if (event.getValue() != null) {
+                validRangeStart.setMax(event.getValue().minusDays(1));
+            } else {
+                validRangeStart.setMax(null);
+            }
+
+        });
+
+        VerticalLayout verticalLayout = new VerticalLayout(
+                localeSelector,
+                timezoneSelector,
+                enablePrefetching,
+                multiMonthColumns,
+                validRangeStart,
+                validRangeEnd
+        );
         verticalLayout.setSpacing(false);
         verticalLayout.setPadding(false);
         verticalLayout.setMargin(true);
