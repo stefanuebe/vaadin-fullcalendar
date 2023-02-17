@@ -107,6 +107,31 @@ export class FullCalendar extends ThemableMixin(LitElement) {
             }
 
             this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
+
+            // Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/97
+            // calling updateSize or render inside the resize observer leads to an error in combination
+            // with the Vaadin AppLayout. To prevent having errors on every collapse/expand of the app layout's
+            // sidebar, this error handler will catch this error and ignore it. the error seem to come up due to
+            // the transition / animation. Normal resizes should not bringt it up
+            const e = window.onerror as any;
+            window.onerror = function(err) {
+                if(typeof err === "string" && err.startsWith('ResizeObserver loop limit exceeded')) {
+                    console.debug('Ignored: ResizeObserver loop limit exceeded');
+                    return false;
+                } else {
+                    return e(...arguments);
+                }
+            }
+
+            new ResizeObserver((entries) => {
+
+                if (!Array.isArray(entries) || !entries.length) {
+                    return;
+                }
+                requestAnimationFrame(() => {
+                    this.calendar?.updateSize();
+                });
+            }).observe(this);
         }
     }
 
