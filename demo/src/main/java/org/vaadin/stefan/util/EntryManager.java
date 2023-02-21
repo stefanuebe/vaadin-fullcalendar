@@ -24,8 +24,8 @@ public class EntryManager {
 
         recurring.setRecurringStartDate(now.with(TemporalAdjusters.firstDayOfYear()));
         recurring.setRecurringEndDate(now.with(TemporalAdjusters.lastDayOfYear()));
-        recurring.setRecurringStartTime(LocalTime.of(14, 0));
-        recurring.setRecurringEndTime(LocalTime.of(17, 0));
+        recurring.setRecurringStartTime(RecurringTime.of(14, 0));
+        recurring.setRecurringEndTime(RecurringTime.of(17, 0));
         recurring.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {

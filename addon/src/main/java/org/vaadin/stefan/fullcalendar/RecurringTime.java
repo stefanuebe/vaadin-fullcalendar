@@ -14,38 +14,41 @@ import java.time.LocalTime;
 @Getter
 @EqualsAndHashCode
 public class RecurringTime {
-    private final int hours;
-    private final int minutes;
+    private final int hour;
+    private final int minute;
 
     /**
      * New instance. Both parameters must not be negative. Hours has no limit (except for the technical one).
      * Passing 60 minutes or more will automatically increase the given hours value.
      *
-     * @param hours   hours
-     * @param minutes minutes
+     * @param hour   hours
+     * @param minute minutes
      */
-    public RecurringTime(int hours, int minutes) {
-        if (hours < 0) {
+    private RecurringTime(int hour, int minute) {
+        if (hour < 0) {
             throw new IllegalArgumentException("Hours must not be negative");
         }
-        if (minutes < 0) {
+        if (minute < 0) {
             throw new IllegalArgumentException("Minutes must not be negative");
         }
 
-        this.hours = hours + (minutes / 60);
-        this.minutes = minutes % 60;
+        this.hour = hour + (minute / 60);
+        this.minute = minute % 60;
     }
 
-    public RecurringTime(LocalTime time) {
-        this(time.getHour(), time.getMinute());
+    public static RecurringTime of(int hours, int minutes) {
+        return new RecurringTime(hours, minutes);
     }
 
-    public RecurringTime(String string) {
+    public static RecurringTime of(LocalTime time) {
+        return of(time.getHour(), time.getMinute());
+    }
+
+    public static RecurringTime of(String string) {
         String[] split = string.split(":");
 
         // add additional exception handling, if necessary
-        hours = Integer.parseInt(split[0]);
-        minutes = Integer.parseInt(split[1]);
+        return of(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
     }
 
     /**
@@ -56,7 +59,7 @@ public class RecurringTime {
      * @throws DateTimeException if this instance represents a time of 24 hours or above.
      */
     public LocalTime toLocalTime() {
-        return LocalTime.of(hours, minutes);
+        return LocalTime.of(hour, minute);
     }
 
     /**
@@ -65,7 +68,7 @@ public class RecurringTime {
      * @return duration instance
      */
     public Duration toDuration() {
-        return Duration.ofHours(hours).plusMinutes(minutes);
+        return Duration.ofHours(hour).plusMinutes(minute);
     }
 
     /**
@@ -74,7 +77,7 @@ public class RecurringTime {
      * @return formatted string
      */
     public String toFormattedString() {
-        return (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes;
+        return (hour < 10 ? "0" : "") + hour + ":" + (minute < 10 ? "0" : "") + minute;
     }
 
     /**
@@ -85,7 +88,7 @@ public class RecurringTime {
      * @return new instace with changed hours
      */
     public RecurringTime plusHours(int hours) {
-        return new RecurringTime(this.hours + hours, minutes);
+        return new RecurringTime(this.hour + hours, minute);
     }
 
     /**
@@ -97,6 +100,38 @@ public class RecurringTime {
      * @return new instace with changed minutes
      */
     public RecurringTime plusMinutes(int minutes) {
-        return new RecurringTime(hours, this.minutes + minutes);
+        return new RecurringTime(hour, this.minute + minutes);
     }
+
+    public boolean isValidLocalTime() {
+        return hour < 24;
+    }
+
+    public boolean equals(LocalTime localTime) {
+        return equals(RecurringTime.of(localTime));
+    }
+
+    public boolean isAfter(RecurringTime recurringTime) {
+        return toTotalMinutes() > recurringTime.toTotalMinutes();
+    }
+
+    public boolean isBefore(RecurringTime recurringTime) {
+        return toTotalMinutes() < recurringTime.toTotalMinutes();
+    }
+
+    public boolean isAfter(LocalTime recurringTime) {
+        return isAfter(RecurringTime.of(recurringTime));
+    }
+
+    public boolean isBefore(LocalTime recurringTime) {
+        return isBefore(RecurringTime.of(recurringTime));
+    }
+
+    private int toTotalMinutes() {
+        return hour * 60 + minute;
+    }
+
+
+
 }
+
