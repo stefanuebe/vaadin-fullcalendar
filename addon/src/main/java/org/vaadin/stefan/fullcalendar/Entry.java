@@ -46,7 +46,6 @@ import java.util.stream.Stream;
 @FieldNameConstants
 public class Entry {
 
-    public static final RenderingMode DEFAULT_RENDERING_MODE = RenderingMode.AUTO;
     private static final Set<BeanProperties<Entry>> PROPERTIES = BeanProperties.read(Entry.class);
 
     private final String id;
@@ -72,7 +71,7 @@ public class Entry {
 
     @NonNull
     @JsonName("display")
-    private RenderingMode renderingMode = DEFAULT_RENDERING_MODE;
+    private DisplayMode displayMode = DisplayMode.AUTO;
 
     @JsonName("startRecur")
     @JsonConverter(LocalDateConverter.class)
@@ -156,7 +155,7 @@ public class Entry {
                 // TODO all the reflection stuff could be moved to an initial static block to spare it to be done
                 //  on each conversion
                 if (field.getAnnotation(JsonIgnore.class) == null) {
-                    Object value = ((ValueProvider) def.getGetter()).apply(this);
+                    Object value = def.getGetter().apply(this);
 
                     JsonValue jsonValue;
 
@@ -931,11 +930,21 @@ public class Entry {
     }
 
     /**
-     * Sets the rendering mode ("display") for this entry. Passing null will reset it to the default.
-     * @param renderingMode rengeringMode
+     * Sets the display mode for this entry. Passing null will reset it to the default.
+     * @param displayMode how to display the entry
      */
-    public void setRenderingMode(RenderingMode renderingMode) {
-        this.renderingMode = renderingMode != null ? renderingMode : DEFAULT_RENDERING_MODE;
+    public void setDisplayMode(DisplayMode displayMode) {
+        this.displayMode = displayMode != null ? displayMode : DisplayMode.AUTO;
+    }
+
+    /**
+     * Sets the rendering mode ("display") for this entry. Passing null will reset it to the default.
+     * @param displayMode rengeringMode
+     * @deprecated use {@link #setDisplayMode(DisplayMode)}
+     */
+    @Deprecated
+    public void setRenderingMode(DisplayMode displayMode) {
+        setDisplayMode(displayMode);
     }
 
     /**
@@ -1286,52 +1295,6 @@ public class Entry {
          * Key for an entry's description.
          */
         public static final String DESCRIPTION = "description";
-    }
-
-    /**
-     * Constants for rendering of an entry.
-     */
-    public enum RenderingMode implements ClientSideValue {
-        /**
-         * Does not render the entry.
-         */
-        NONE(null),
-
-        /**
-         * Renders as a solid rectangle in day grid
-         */
-        BLOCK("block"),
-
-        /**
-         * Renders with a dot when in day grid
-         */
-        LIST_ITEM("list-item"),
-
-        /**
-         * Renders as 'block' if all-day or multi-day, otherwise will display as 'list-item'
-         */
-        AUTO("auto"),
-
-        /**
-         * Renders as background entry (marks the area of the entry interval).
-         */
-        BACKGROUND("background"),
-
-        /**
-         * Renders as inversed background entry (marks everything except the entry interval).
-         */
-        INVERSE_BACKGROUND("inverse-background");
-
-        private final String clientSideName;
-
-        RenderingMode(String clientSideName) {
-            this.clientSideName = clientSideName;
-        }
-
-        @Override
-        public String getClientSideValue() {
-            return clientSideName;
-        }
     }
 
 
