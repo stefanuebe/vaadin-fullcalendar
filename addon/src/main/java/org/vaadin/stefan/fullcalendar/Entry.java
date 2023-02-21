@@ -52,13 +52,17 @@ public class Entry {
     private String groupId;
     private String title;
 
+    @JsonUpdateAllowed
     @JsonConverter(LocalDateTimeConverter.class)
     private LocalDateTime start;
 
+    @JsonUpdateAllowed
     @JsonConverter(LocalDateTimeConverter.class)
     private LocalDateTime end;
 
+    @JsonUpdateAllowed
     private boolean allDay;
+
     private boolean editable = true;
     private boolean startEditable = true;
     private boolean durationEditable = true;
