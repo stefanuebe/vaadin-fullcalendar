@@ -33,7 +33,7 @@ public class RecurringTimeConverter<T extends Entry> implements JsonItemProperty
 
         if (clientValue instanceof JsonString) {
             String string = clientValue.asString();
-            return new RecurringTime(string);
+            return RecurringTime.of(string);
         }
 
         throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);

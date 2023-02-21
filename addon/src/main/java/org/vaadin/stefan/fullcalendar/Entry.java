@@ -1052,7 +1052,7 @@ public class Entry {
      * @see #isRecurring()
      */
     public void setRecurringStartTime(LocalTime start) {
-        setRecurringStartTime(start != null ? new RecurringTime(start) : null);
+        setRecurringStartTime(start != null ? RecurringTime.of(start) : null);
     }
 
     /**
@@ -1099,7 +1099,7 @@ public class Entry {
      * @see #isRecurring()
      */
     public void setRecurringEndTime(LocalTime end) {
-        setRecurringEndTime(end != null ? new RecurringTime(end) : null);
+        setRecurringEndTime(end != null ? RecurringTime.of(end) : null);
     }
 
     /**
@@ -1107,9 +1107,9 @@ public class Entry {
      * and {@link #getRecurringStartTimeAsLocalTime()}. <br>
      * Will return null, when no recurrence date is defined. When only
      * a start date is defined, the returned date time will be at the start of that day.
-     * <p></p>
-     * Be careful, as LocalTime does not support times of 24h or
-     * above and thus an exception will be thrown, if the start time is above that limit.
+     * <br>
+     * In case that the recurring start time is 24h or greater, the date part will shift depending on the
+     * resulting additional days. See {@link LocalDateTime#plusHours(long)}.
      *
      * @return start date time of recurrence
      * @throws DateTimeException if the start time represents a time of 24 hours or above.
@@ -1121,20 +1121,24 @@ public class Entry {
             return null;
         }
 
-        LocalTime startTime = getRecurringStartTimeAsLocalTime();
-        return startTime != null ? startDate.atTime(startTime) : startDate.atStartOfDay();
+        RecurringTime startTime = getRecurringStartTime();
+        if (startTime == null) {
+            return startDate.atStartOfDay();
+        }
+
+        return startDate.atStartOfDay().plusHours(startTime.getHour()).plusMinutes(startTime.getMinute());
     }
 
     /**
      * Returns the recurring end. This method is a shortcut for combining {@link #getRecurringEndDate()}
-     * and {@link #getRecurringEndTimeAsLocalTime()}. <br>Will return null, when no recurrence date is defined. When only a
-     * end date is defined, the returned date time will be at the end of that day.
-     * <p></p>
-     * Be careful, as LocalTime does not support times of 24h or
-     * above and thus an exception will be thrown, if the end time is above that limit.
+     * and {@link #getRecurringEndTime()}.<br>
+     * Will return null, when no recurrence date is defined. When only a
+     * end date is defined, the returned date time will be at the end of that day (23:59:99).<br>
+     * <br>
+     * In case that the recurring end time is 24h or greater, the date part will shift depending on the
+     * resulting additional days. See {@link LocalDateTime#plusHours(long)}.
      *
      * @return end date time of recurrence
-     * @throws DateTimeException if the end time represents a time of 24 hours or above.
      * @see #isRecurring()
      */
     public LocalDateTime getRecurringEnd() {
@@ -1143,8 +1147,13 @@ public class Entry {
             return null;
         }
 
-        LocalTime endTime = getRecurringEndTimeAsLocalTime();
-        return endTime != null ? endDate.atTime(endTime) : endDate.atStartOfDay();
+        RecurringTime endTime = getRecurringEndTime();
+
+        if (endTime == null) {
+            return endDate.plusDays(1).atStartOfDay().minusSeconds(1);
+        }
+
+        return endDate.atStartOfDay().plusHours(endTime.getHour()).plusMinutes(endTime.getMinute());
     }
 
     /**
