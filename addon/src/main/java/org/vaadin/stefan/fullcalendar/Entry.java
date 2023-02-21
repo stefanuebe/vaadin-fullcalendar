@@ -313,26 +313,48 @@ public class Entry {
             def.getSetter().ifPresent(setter -> {
                 try {
                     Object value = getter.apply(source);
+
                     if (value instanceof Collection) {
                         // fails on unmodifiable
-//                        Collection collection = (Collection) value.getClass().getConstructor().newInstance();
-//                        collection.addAll((Collection) value);
-//                        value = collection;
+                        Collection collection = newInstance((Collection) value);
+                        collection.addAll((Collection) value);
+                        value = collection;
                     } else if (value instanceof Map) {
                         // fails on unmodifiable
-//                        Map map = (Map) value.getClass().getConstructor().newInstance();
-//                        map.putAll((Map) value);
-//                        value = map;
+                        Map map = newInstance((Map) value);
+                        map.putAll((Map) value);
+                        value = map;
                     } else if (value instanceof Object[]) {
                         value = ((Object[]) value).clone();
                     }
 
                     setter.accept(target, value);
                 } catch (Throwable throwable) {
-                    throw new RuntimeException(throwable);
+                    throw new RuntimeException("Property " + def.getName() + " threw an exception", throwable);
                 }
             });
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T newInstance(T value) throws Exception {
+        try {
+            return (T) value.getClass().getConstructor().newInstance();
+        } catch (NoSuchMethodException e) {
+            if (value instanceof Set) {
+                return (T) new LinkedHashSet<>();
+            }
+
+            if (value instanceof Collection) {
+                return (T) new ArrayList<>();
+            }
+
+            if (value instanceof Map) {
+                return (T) new HashMap<>();
+            }
+
+            throw new IllegalArgumentException("Type " + value.getClass() + " has no public no-args constructor and no fallback.");
+        }
     }
 
     protected Stream<BeanProperties<Entry>> streamProperties() {
@@ -976,6 +998,10 @@ public class Entry {
 
     public void setRecurringDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
         this.recurringDaysOfWeek = daysOfWeek;
+    }
+
+    public Set<DayOfWeek> getRecurringDaysOfWeek() {
+        return recurringDaysOfWeek;
     }
 
     /**
