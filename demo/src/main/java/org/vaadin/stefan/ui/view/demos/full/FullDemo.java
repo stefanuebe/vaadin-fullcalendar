@@ -17,11 +17,10 @@
 package org.vaadin.stefan.ui.view.demos.full;
 
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
+import org.vaadin.stefan.fullcalendar.DisplayMode;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
@@ -96,7 +95,7 @@ public class FullDemo extends AbstractCalendarView {
         });
 
         calendar.addEntryClickedListener(event -> {
-            if (event.getEntry().getRenderingMode() != RenderingMode.BACKGROUND && event.getEntry().getRenderingMode() != RenderingMode.INVERSE_BACKGROUND) {
+            if (event.getEntry().getDisplayMode() != DisplayMode.BACKGROUND && event.getEntry().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
                 DemoDialog dialog = new DemoDialog(event.getEntry(), false);
                 dialog.setSaveConsumer(this::onEntryChanged);
                 dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));

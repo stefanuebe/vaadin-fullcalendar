@@ -10,10 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Resource;
-import org.vaadin.stefan.fullcalendar.ResourceEntry;
+import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 
 public class EntryManager {
@@ -50,7 +47,7 @@ public class EntryManager {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, start.atStartOfDay(), days, ChronoUnit.DAYS, color);
 
-        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        entry.setDisplayMode(DisplayMode.BACKGROUND);
         entry.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
@@ -61,7 +58,7 @@ public class EntryManager {
 	public static void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color) {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, start, minutes, ChronoUnit.MINUTES, color);
-        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        entry.setDisplayMode(DisplayMode.BACKGROUND);
         entry.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {
@@ -72,7 +69,7 @@ public class EntryManager {
 	public static void createTimedBackgroundEntry(FullCalendar calendar, LocalDateTime start, int minutes, String color, Resource... resources) {
         ResourceEntry entry = new ResourceEntry();
         setValues(calendar, entry, start, minutes, ChronoUnit.MINUTES, color);
-        entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+        entry.setDisplayMode(DisplayMode.BACKGROUND);
         if (resources != null && resources.length > 0) {
             entry.addResources(Arrays.asList(resources));
         }

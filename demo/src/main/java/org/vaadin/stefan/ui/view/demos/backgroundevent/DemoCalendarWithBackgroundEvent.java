@@ -1,11 +1,10 @@
 package org.vaadin.stefan.ui.view.demos.backgroundevent;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
+import org.vaadin.stefan.fullcalendar.DisplayMode;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
@@ -24,8 +23,8 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
     	initView();
 
         createCalendarInstance();
-        addBackgroundEvent(Entry.RenderingMode.BACKGROUND, 4, "This special holiday");
-        addBackgroundEvent(Entry.RenderingMode.BACKGROUND, 6, "");
+        addBackgroundEvent(DisplayMode.BACKGROUND, 4, "This special holiday");
+        addBackgroundEvent(DisplayMode.BACKGROUND, 6, "");
 
         add(calendar);
         setFlexGrow(1, calendar);
@@ -47,7 +46,7 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
         calendar.changeView(SchedulerView.TIMELINE_MONTH);
     }
 
-    private void addBackgroundEvent(RenderingMode renderingMode, int offset, String title) {
+    private void addBackgroundEvent(DisplayMode displayMode, int offset, String title) {
         LocalDate now = LocalDate.now();
         
         ResourceEntry entry = new ResourceEntry();
@@ -57,7 +56,7 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
         entry.setEnd(entry.getStart().plus(1, ChronoUnit.DAYS));
         entry.setAllDay(true);
         entry.setColor("red");
-        entry.setRenderingMode(renderingMode);
+        entry.setDisplayMode(displayMode);
         entry.setResourceEditable(true);
         
         calendar.getEntryProvider().asInMemory().addEntry(entry);

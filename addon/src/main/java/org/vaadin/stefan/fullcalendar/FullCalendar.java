@@ -687,9 +687,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Determines the styling for week numbers in Month and DayGrid views.
      *
      * @param weekNumbersWithinDays by default to false
+     * @deprecated this functionality is no longer supported, thus you can remove the call
      */
+    @Deprecated
     public void setWeekNumbersWithinDays(boolean weekNumbersWithinDays) {
-        setOption(Option.WEEK_NUMBERS_WITHIN_DAYS, weekNumbersWithinDays);
+        // NOOP
     }
 
     /**
@@ -1446,8 +1448,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return (Optional<T>) CalendarViewImpl.ofClientSideValue(viewName);
     }
 
-    public void setEntryRenderingMode(Entry.RenderingMode renderingMode) {
-        this.setOption(Option.ENTRY_RENDERING_MODE, renderingMode != null ? renderingMode : Entry.DEFAULT_RENDERING_MODE);
+    public void setEntryDisplay(DisplayMode displayMode) {
+        this.setOption(Option.ENTRY_DISPLAY, displayMode != null ? displayMode : DisplayMode.AUTO);
     }
 
     /**
@@ -1494,18 +1496,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         setValidRange(null, null);
     }
 
-//    /**
-//     * Returns the initial options object (not a copy). When making changes to this object, make sure to call
-//     * {@link #updateInitialOptions()} afterwards to update the client side. Changes after client side attachment
-//     * have no effect.
-//     *
-//     * @see #updateInitialOptions()
-//     * @return the initial options object
-//     */
-//    protected JsonObject getInitialOptions() {
-//        return initialOptions;
-//    }
-
     /**
      * Enumeration of possible options, that can be applied to the calendar. Contains only options, that affect
      * the client side library, but not internal options. Also this list may not contain all options, but the most
@@ -1516,77 +1506,363 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * https://fullcalendar.io/docs
      */
     public enum Option {
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/allDaySlot">allDaySlot</a>
+         */
         ALL_DAY_SLOT,
+
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/aspectRatio">aspectRatio</a>
+         */
         ASPECT_RATIO,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/businessHours">businessHours</a>
+         */
         BUSINESS_HOURS,
-        COLUMN_HEADER,
-        CONTENT_HEIGHT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dayHeaders">dayHeaders</a>
+         */
         DAY_HEADERS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dayHeaders">dayHeaders</a>
+         * @deprecated use {@link #DAY_HEADERS} instead
+         */
+        @Deprecated
+        COLUMN_HEADER("dayHeaders"),
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/contentHeight">contentHeight</a>
+         */
+        CONTENT_HEIGHT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dayHeaderFormat">dayHeaderFormat</a>
+         */
         DAY_HEADER_FORMAT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dayMinWidth">dayMinWidth</a>
+         */
         DAY_MIN_WIDTH,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/displayEventTime">displayEventTime</a>
+         */
         DISPLAY_ENTRY_TIME,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/direction">direction</a>
+         */
         DIRECTION,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dragScroll">dragScroll</a>
+         */
         DRAG_SCROLL,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/editable">editable</a>
+         */
         EDITABLE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventBackgroundColor">eventBackgroundColor</a>
+         */
         ENTRY_BACKGROUND_COLOR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventBorderColor">eventBorderColor</a>
+         */
         ENTRY_BORDER_COLOR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventColor">eventColor</a>
+         */
         ENTRY_COLOR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventDurationEditable">eventDurationEditable</a>
+         */
         ENTRY_DURATION_EDITABLE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventMaxStack">eventMaxStack</a>
+         */
         ENTRY_MAX_STACK,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventMinHeight">eventMinHeight</a>
+         */
         ENTRY_MIN_HEIGHT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventOrder">eventOrder</a>
+         */
         ENTRY_ORDER,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventOrderStrict">eventOrderStrict</a>
+         */
         ENTRY_ORDER_STRICT,
-        ENTRY_RENDERING_MODE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventDisplay">eventDisplay</a>
+         */
+        ENTRY_DISPLAY,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventResizableFromStart">eventResizableFromStart</a>
+         */
         ENTRY_RESIZABLE_FROM_START,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventShortHeight">eventShortHeight</a>
+         */
         ENTRY_SHORT_HEIGHT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventStartEditable">eventStartEditable</a>
+         */
         ENTRY_START_EDITABLE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventTextColor">eventTextColor</a>
+         */
         ENTRY_TEXT_COLOR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventTimeFormat">eventTimeFormat</a>
+         */
         ENTRY_TIME_FORMAT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/expandRows">expandRows</a>
+         */
         EXPAND_ROWS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/firstDay">firstDay</a>
+         */
         FIRST_DAY,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/fixedWeekCount">fixedWeekCount</a>
+         */
         FIXED_WEEK_COUNT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/footerToolbar">footerToolbar</a>
+         */
         FOOTER_TOOLBAR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
+         */
         HEADER_TOOLBAR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/height">height</a>
+         */
         HEIGHT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/hiddenDays">hiddenDays</a>
+         */
         HIDDEN_DAYS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/listDayFormat">listDayFormat</a>
+         */
         LIST_DAY_FORMAT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/listDaySideFormat">listDaySideFormat</a>
+         */
         LIST_DAY_SIDE_FORMAT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
+         */
         LOCALE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">dayMaxEvents</a>
+         */
         MAX_ENTRIES_PER_DAY("dayMaxEvents"),
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/monthStartFormat">monthStartFormat</a>
+         */
         MONTH_START_FORMAT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/multiMonthMaxColumns">multiMonthMaxColumns</a>
+         */
         MULTI_MONTH_MAX_COLUMNS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/multiMonthMinWidth">multiMonthMinWidth</a>
+         */
         MULTI_MONTH_MIN_WIDTH,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/multiMonthTitleFormat">multiMonthTitleFormat</a>
+         */
         MULTI_MONTH_TITLE_FORMAT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/navLinks">navLinks</a>
+         */
         NAV_LINKS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/nextDayThreshold">nextDayThreshold</a>
+         */
         NEXT_DAY_THRESHOLD,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/nowIndicator">nowIndicator</a>
+         */
         NOW_INDICATOR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/scrollTime">scrollTime</a>
+         */
         SCROLL_TIME,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/scrollTimeReset">scrollTimeReset</a>
+         */
         SCROLL_TIME_RESET,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/selectable">selectable</a>
+         */
         SELECTABLE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/selectConstraint">selectConstraint</a>
+         */
         SELECT_CONSTRAINT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/selectMinDistance">selectMinDistance</a>
+         */
         SELECT_MIN_DISTANCE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/selectMirror">selectMirror</a>
+         */
         SELECT_MIRROR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/selectOverlap">selectOverlap</a>
+         */
         SELECT_OVERLAP, // function not yet supported
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/showNonCurrentDates">showNonCurrentDates</a>
+         */
         SHOW_NON_CURRENT_DATES,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/slotDuration">slotDuration</a>
+         */
         SLOT_DURATION,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/slotEventOverlap">slotEventOverlap</a>
+         */
         SLOT_ENTRY_OVERLAP,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/slotLabelFormat">slotLabelFormat</a>
+         */
         SLOT_LABEL_FORMAT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/slotLabelInterval">slotLabelInterval</a>
+         */
         SLOT_LABEL_INTERVAL,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/slotMaxTime">slotMaxTime</a>
+         */
         SLOT_MAX_TIME,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/slotMinTime">slotMinTime</a>
+         */
         SLOT_MIN_TIME,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/snapDuration">snapDuration</a>
+         */
         SNAP_DURATION,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/stickyFooterScrollbar">stickyFooterScrollbar</a>
+         */
         STICKY_FOOTER_SCROLLBAR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/stickyHeaderDates">stickyHeaderDates</a>
+         */
         STICKY_HEADER_DATES,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/timeZone">timeZone</a>
+         */
         TIMEZONE("timeZone"),
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/unselectAuto">unselectAuto</a>
+         */
         UNSELECT_AUTO,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/unselectCancel">unselectCancel</a>
+         */
         UNSELECT_CANCEL,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/validRange">validRange</a>
+         */
         VALID_RANGE, // function not yet supported, but should not be necessary
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/weekends">weekends</a>
+         */
         WEEKENDS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/weekNumbers">weekNumbers</a>
+         */
         WEEK_NUMBERS,
-        WEEK_NUMBERS_WITHIN_DAYS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/weekNumberCalculation">weekNumberCalculation</a>
+         */
         WEEK_NUMBER_CALCULATION,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/weekNumberFormat">weekNumberFormat</a>
+         */
         WEEK_NUMBER_FORMAT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/weekText">weekText</a>
+         */
         WEEK_TEXT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/weekTextLong">weekTextLong</a>
+         */
         WEEK_TEXT_LONG;
 
         private final String optionKey;

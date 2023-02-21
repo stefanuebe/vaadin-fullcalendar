@@ -8,3 +8,5 @@
 Minor, but important
 * getResources now may return null. Use getOrCreateResources. Has been aligned to other namings in Entry.
 * CalendarLocale is now an enum. Use getLocale() to obtain the contained locale value.
+* week numbers within days is no longer available, weeknumbers are now always display inside days. simply remove
+* RenderingMode and alike namings have been named to DisplayMode / display to match the FC library naming. Also DisplayMode is now a top level class.
