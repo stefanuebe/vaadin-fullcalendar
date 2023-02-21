@@ -314,13 +314,15 @@ public class Entry {
                 try {
                     Object value = getter.apply(source);
                     if (value instanceof Collection) {
-                        Collection collection = (Collection) value.getClass().getConstructor().newInstance();
-                        collection.addAll((Collection) value);
-                        value = collection;
+                        // fails on unmodifiable
+//                        Collection collection = (Collection) value.getClass().getConstructor().newInstance();
+//                        collection.addAll((Collection) value);
+//                        value = collection;
                     } else if (value instanceof Map) {
-                        Map map = (Map) value.getClass().getConstructor().newInstance();
-                        map.putAll((Map) value);
-                        value = map;
+                        // fails on unmodifiable
+//                        Map map = (Map) value.getClass().getConstructor().newInstance();
+//                        map.putAll((Map) value);
+//                        value = map;
                     } else if (value instanceof Object[]) {
                         value = ((Object[]) value).clone();
                     }

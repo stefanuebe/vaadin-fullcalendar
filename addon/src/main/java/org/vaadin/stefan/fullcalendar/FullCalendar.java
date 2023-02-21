@@ -38,6 +38,7 @@ import java.io.Serializable;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -176,7 +177,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendar(@NotNull JsonObject initialOptions) {
-        this.getElement().setPropertyJson("initialOptions", Objects.requireNonNull(initialOptions));
+        this.getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
 
         if (!initialOptions.hasKey(Option.LOCALE.getOptionKey())) {
             // fallback to prevent strange locale effects on the client side
@@ -190,8 +191,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Called after the constructor has been initialized.
      */
     private void postConstruct() {
-        entryProvider = EntryProvider.emptyInMemory();
-        entryProvider.setCalendar(this);
+        setEntryProvider(EntryProvider.emptyInMemory());
 
         setPrefetchEnabled(true);
 
@@ -245,11 +245,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                 });
             });
         }
-
-        // TODO remove
-//        if (isEagerInMemoryEntryProvider()) {
-//            entryProvider.refreshAll(); // if lazy, the client side will automatically take care of refreshing
-//        }
     }
 
     @Override
@@ -607,6 +602,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @throws NullPointerException when null is passed
      */
     public void setOption(@NotNull String option, Serializable value, Object valueForServerSide) {
+        callOptionUpdate(option, value, valueForServerSide, "setOption");
+    }
+
+    private void callOptionUpdate(@NotNull String option, Serializable value, Object valueForServerSide, String method, Serializable... additionalParameters) {
         Objects.requireNonNull(option);
 
         if (value == null) {
@@ -621,7 +620,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                 serverSideOptions.put(option, valueForServerSide);
             }
         }
-        getElement().callJsFunction("setOption", option, value);
+
+        Serializable[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Serializable[]::new);
+        getElement().callJsFunction(method, parameters);
     }
 
     /**
