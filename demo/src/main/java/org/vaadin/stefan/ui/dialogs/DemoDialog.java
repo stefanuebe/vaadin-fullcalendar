@@ -45,11 +45,12 @@ public class DemoDialog extends Dialog {
     private final Binder<Entry> binder;
     private boolean recurring;
     private final Entry entry;
-    private boolean initTimeWhenActivated;
+    private boolean resetPeriodOnAllDayChange;
+    private boolean anyTimeHasChangedByUser;
 
     public DemoDialog(Entry entry, boolean newInstance) {
         this.entry = entry;
-        this.initTimeWhenActivated = entry.isAllDay();
+        this.resetPeriodOnAllDayChange = entry.isAllDay();
 
         // tmp entry is a copy. we will use its start and end to represent either the start/end or the recurring start/end
         this.tmpEntry = entry.copy();
@@ -105,10 +106,21 @@ public class DemoDialog extends Dialog {
             fieldStart.setDateOnly(event.getValue());
             fieldEnd.setDateOnly(event.getValue());
 
-            if (initTimeWhenActivated && !event.getValue()) {
-                initTimeWhenActivated = false; // init the time once with "now"
-                fieldStart.setValue(fieldStart.getValue().toLocalDate().atTime(LocalTime.now()));
-                fieldEnd.setValue(fieldEnd.getValue().toLocalDate().atTime(LocalTime.now().plusHours(1)));
+            if (resetPeriodOnAllDayChange) {
+                if (event.getValue()) {
+                    LocalDateTime start = fieldStart.getValue().toLocalDate().atStartOfDay();
+
+                    // reset the start to the same day with one hour difference
+                    fieldStart.setValue(start);
+                    fieldEnd.setValue(start.plusDays(1));
+
+                } else {
+                    LocalDateTime start = fieldStart.getValue().toLocalDate().atTime(LocalTime.now());
+
+                    // reset the start to the same day with one hour difference
+                    fieldStart.setValue(start);
+                    fieldEnd.setValue(start.plusHours(1));
+                }
             }
         });
 
@@ -134,6 +146,10 @@ public class DemoDialog extends Dialog {
         binder.setBean(this.tmpEntry);
 
         fieldStart.addValueChangeListener(event -> {
+            if (event.isFromClient()) {
+                resetPeriodOnAllDayChange = false;
+            }
+
             LocalDateTime oldStart = event.getOldValue();
             LocalDateTime newStart = event.getValue();
             LocalDateTime end = fieldEnd.getValue();
@@ -143,6 +159,12 @@ public class DemoDialog extends Dialog {
                 Delta delta = Delta.fromLocalDates(oldStart, newStart);
                 end = delta.applyOn(end);
                 fieldEnd.setValue(end);
+            }
+        });
+
+        fieldEnd.addValueChangeListener(event -> {
+            if (event.isFromClient()) {
+                resetPeriodOnAllDayChange = false;
             }
         });
 

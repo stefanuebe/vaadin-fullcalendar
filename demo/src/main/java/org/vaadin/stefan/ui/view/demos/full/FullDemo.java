@@ -91,6 +91,7 @@ public class FullDemo extends AbstractCalendarView {
 
             DemoDialog dialog = new DemoDialog(entry, true);
             dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
+            dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
             dialog.open();
         });
 
@@ -109,16 +110,20 @@ public class FullDemo extends AbstractCalendarView {
 
         ((FullCalendarScheduler) calendar).setEntryResourceEditable(false);
 
-        calendar.setEntryDidMountCallback(
-                "function(info) { "
-                        + "    if(info.event.extendedProps.cursors != undefined) { "
-                        + "        if(!info.event.startEditable) { "
-                        + "            info.el.style.cursor = info.event.extendedProps.cursors.disabled;"
-                        + "        } else { "
-                        + "            info.el.style.cursor = info.event.extendedProps.cursors.enabled;"
-                        + "        }"
-                        + "    }"
-                        + "}");
+//        calendar.setEntryContentCallback("" +
+//                "function(arg, createElement) {" +
+//                "  return createElement('i', {}, 'HELLO');" +
+//                "}");
+//        calendar.setEntryDidMountCallback(
+//                "function(info) { "
+//                        + "    if(info.event.extendedProps.cursors != undefined) { "
+//                        + "        if(!info.event.startEditable) { "
+//                        + "            info.el.style.cursor = info.event.extendedProps.cursors.disabled;"
+//                        + "        } else { "
+//                        + "            info.el.style.cursor = info.event.extendedProps.cursors.enabled;"
+//                        + "        }"
+//                        + "    }"
+//                        + "}");
 
         createTestEntries(calendar);
 
