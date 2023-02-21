@@ -24,6 +24,7 @@ import org.vaadin.stefan.fullcalendar.DisplayMode;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
+import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 
@@ -37,7 +38,7 @@ import java.util.*;
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
-public class FullDemo extends AbstractCalendarView {
+public class FullDemo extends AbstractSchedulerView {
 
     @Override
     protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
@@ -66,43 +67,6 @@ public class FullDemo extends AbstractCalendarView {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
         );
-
-        ((FullCalendarScheduler) calendar).addEntryDroppedSchedulerListener(event -> {
-            System.out.println("Old resource: " + event.getOldResource());
-            System.out.println("New resource: " + event.getNewResource());
-            Entry entry = event.getEntry();
-            System.out.println(entry.getStart() + " / " + entry.getStart());
-        });
-
-        ((FullCalendarScheduler) calendar).addTimeslotsSelectedSchedulerListener((event) -> {
-            System.out.println( "ZoneId: " + event.getSource().getTimezone().getZoneId() );
-            LocalDateTime startDate = event.getStart();
-            System.out.println( "getStart(): " + event.getStart() );
-            System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
-
-            ResourceEntry entry = new ResourceEntry();
-
-            entry.setStart(event.getStart());
-            entry.setEnd(event.getEnd());
-            entry.setAllDay(event.isAllDay());
-
-            entry.setColor("dodgerblue");
-            entry.setCalendar(calendar);
-
-            DemoDialog dialog = new DemoDialog(entry, true);
-            dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
-            dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
-            dialog.open();
-        });
-
-        calendar.addEntryClickedListener(event -> {
-            if (event.getEntry().getDisplayMode() != DisplayMode.BACKGROUND && event.getEntry().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
-                DemoDialog dialog = new DemoDialog(event.getEntry(), false);
-                dialog.setSaveConsumer(this::onEntryChanged);
-                dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
-                dialog.open();
-            }
-        });
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             getToolbar().setTimezone(event.getTimezone());
@@ -218,7 +182,7 @@ public class FullDemo extends AbstractCalendarView {
 
     @Override
     protected void onTimeslotsSelected(TimeslotsSelectedEvent event) {
-        super.onTimeslotsSelected(event);
+//        super.onTimeslotsSelected(event); // this is handled by onTimeslotSelectedScheduler
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
@@ -248,7 +212,7 @@ public class FullDemo extends AbstractCalendarView {
 
     @Override
     protected void onEntryDropped(EntryDroppedEvent event) {
-        super.onEntryDropped(event);
+//        super.onEntryDropped(event); this is handled by onEntryDroppedScheduler
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
@@ -256,6 +220,13 @@ public class FullDemo extends AbstractCalendarView {
     protected void onEntryClick(EntryClickedEvent event) {
         super.onEntryClick(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
+
+        if (event.getEntry().getDisplayMode() != DisplayMode.BACKGROUND && event.getEntry().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
+            DemoDialog dialog = new DemoDialog(event.getEntry(), false);
+            dialog.setSaveConsumer(this::onEntryChanged);
+            dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
+            dialog.open();
+        }
     }
 
     @Override
@@ -278,7 +249,44 @@ public class FullDemo extends AbstractCalendarView {
 
     @Override
     protected void onTimeslotClicked(TimeslotClickedEvent event) {
-        super.onTimeslotClicked(event);
+//        super.onTimeslotClicked(event); // this is handled by onTimeslotClickedScheduler
         System.out.println(event.getClass().getSimpleName() + ": " + event);
+    }
+
+    @Override
+    protected void onEntryDroppedScheduler(EntryDroppedSchedulerEvent event) {
+        super.onEntryDroppedScheduler(event);
+        System.out.println(event.getClass().getSimpleName() + ": " + event);
+    }
+
+    @Override
+    protected void onTimeslotClickedScheduler(TimeslotClickedSchedulerEvent event) {
+        super.onTimeslotClickedScheduler(event);
+        System.out.println(event.getClass().getSimpleName() + ": " + event);
+    }
+
+    @Override
+    protected void onTimeslotsSelectedScheduler(TimeslotsSelectedSchedulerEvent event) {
+        super.onTimeslotsSelectedScheduler(event);
+        System.out.println(event.getClass().getSimpleName() + ": " + event);
+
+        System.out.println( "ZoneId: " + event.getSource().getTimezone().getZoneId() );
+        LocalDateTime startDate = event.getStart();
+        System.out.println( "getStart(): " + event.getStart() );
+        System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
+
+        ResourceEntry entry = new ResourceEntry();
+
+        entry.setStart(event.getStart());
+        entry.setEnd(event.getEnd());
+        entry.setAllDay(event.isAllDay());
+
+        entry.setColor("dodgerblue");
+        entry.setCalendar(event.getSource());
+
+        DemoDialog dialog = new DemoDialog(entry, true);
+        dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
+        dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
+        dialog.open();
     }
 }

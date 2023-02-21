@@ -19,6 +19,7 @@ import com.vaadin.flow.function.SerializableConsumer;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.Delta;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.ResourceEntry;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -37,7 +38,7 @@ public class DemoDialog extends Dialog {
     @Setter
     private SerializableConsumer<Entry> onDeleteConsumer;
 
-    private final Entry tmpEntry;
+    private final ResourceEntry tmpEntry;
 
     private final CustomDateTimePicker fieldStart;
     private final CustomDateTimePicker fieldEnd;
@@ -106,7 +107,7 @@ public class DemoDialog extends Dialog {
             fieldStart.setDateOnly(event.getValue());
             fieldEnd.setDateOnly(event.getValue());
 
-            if (resetPeriodOnAllDayChange) {
+            if (resetPeriodOnAllDayChange && event.isFromClient()) {
                 if (event.getValue()) {
                     LocalDateTime start = fieldStart.getValue().toLocalDate().atStartOfDay();
 

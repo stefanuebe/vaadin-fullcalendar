@@ -64,7 +64,7 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
                     .map(JsonValue::asString)
                     .flatMap(calendar::getResourceById)
                     .map(Collections::singleton)
-                    .ifPresent(entry::unassignResources);
+                    .ifPresent(entry::removeResources);
 
             Optional.<JsonValue>ofNullable(object.get("newResource"))
                     .filter(o -> o instanceof JsonString)
