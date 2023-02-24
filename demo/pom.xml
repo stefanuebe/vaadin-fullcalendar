@@ -5,25 +5,22 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar-demo</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
+    <version>24.0.0-SNAPSHOT</version>
 
     <name>Full Calendar web component demo</name>
 
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>23.3.1</vaadin.version>
-
-        <fullcalendar.version>6.0.0-SNAPSHOT</fullcalendar.version>
-        <fullcalendar.scheduler.version>6.0.0-SNAPSHOT</fullcalendar.scheduler.version>
-        <maven.compiler.release>11</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+        <vaadin.version>24.0.0.beta4</vaadin.version>
+        <fullcalendar.version>24.0.0-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.scheduler.version>24.0.0-SNAPSHOT</fullcalendar.scheduler.version>
 
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
         <lombok.version>1.18.24</lombok.version>
-        <spring-boot.version>2.7.5</spring-boot.version>
+        <spring-boot.version>3.0.2</spring-boot.version>
     </properties>
 
     <licenses>
@@ -107,13 +104,6 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.vaadin.stefan</groupId>
             <artifactId>fullcalendar2-scheduler</artifactId>
             <version>${fullcalendar.scheduler.version}</version>
@@ -132,6 +122,12 @@
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

@@ -4,18 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
+    <version>24.0.0-SNAPSHOT</version>
 
     <name>FullCalendar for Flow</name>
     <description>A web component that wraps the FullCalendar (https://fullcalendar.io).</description>
 
     <properties>
-        <vaadin.version>23.3.6</vaadin.version>
-
-        <maven.compiler.release>11</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
+        <maven.compiler.release>17</maven.compiler.release>
+        <vaadin.version>24.0.0.beta4</vaadin.version>
         <junit.version>5.5.2</junit.version>
         <mockito.version>4.3.1</mockito.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>

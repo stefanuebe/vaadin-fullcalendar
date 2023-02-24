@@ -5,19 +5,16 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2-scheduler</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
+    <version>24.0.0-SNAPSHOT</version>
 
     <name>FullCalendar Scheduler for Flow</name>
     <description>A web component that wraps the FullCalendar Scheduler extension (https://fullcalendar.io).
     </description>
 
     <properties>
-        <vaadin.version>23.3.1</vaadin.version>
-
-        <fullcalendar.version>6.0.0-SNAPSHOT</fullcalendar.version>
-        <maven.compiler.release>11</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+        <vaadin.version>24.0.0.beta4</vaadin.version>
+        <fullcalendar.version>24.0.0-SNAPSHOT</fullcalendar.version>
         <junit.version>5.5.2</junit.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <lombok.version>1.18.24</lombok.version>

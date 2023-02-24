@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.*;
 
 /**

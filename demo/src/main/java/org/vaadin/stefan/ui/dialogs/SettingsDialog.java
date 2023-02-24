@@ -42,7 +42,7 @@ public class SettingsDialog extends Dialog {
             Notification.show("Locale changed to " + calendar.getLocale().toLanguageTag());
         });
         comboBoxLocales.setRequired(true);
-        comboBoxLocales.setPreventInvalidInput(true);
+//        comboBoxLocales.setPreventInvalidInput(true);
 
         Checkbox showOnlySomeTimezones = new Checkbox("Show only some timezones", true);
 

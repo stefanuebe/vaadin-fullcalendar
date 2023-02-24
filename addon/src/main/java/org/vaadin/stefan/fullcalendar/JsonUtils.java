@@ -19,12 +19,11 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.function.SerializableFunction;
 import elemental.json.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**

@@ -1,10 +1,10 @@
 package org.vaadin.stefan.fullcalendar.dataprovider;
 
 import com.vaadin.flow.function.SerializableFunction;
+import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
 
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
