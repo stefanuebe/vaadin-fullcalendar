@@ -105,7 +105,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         });
         themeToggle.setWidthFull();
 
-        Div footerText = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 24.0.0.beta4. " +
+        Div footerText = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 24.0.0.rc1. " +
                 "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
 
         footer.addClassName("footer");

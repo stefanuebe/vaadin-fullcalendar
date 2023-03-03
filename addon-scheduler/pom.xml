@@ -13,7 +13,7 @@
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
-        <vaadin.version>24.0.0.beta4</vaadin.version>
+        <vaadin.version>24.0.0.rc1</vaadin.version>
         <fullcalendar.version>24.0.0-SNAPSHOT</fullcalendar.version>
         <junit.version>5.5.2</junit.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>

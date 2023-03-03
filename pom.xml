@@ -9,7 +9,7 @@
 
     <properties>
         <java.version>19</java.version>
-        <vaadin.version>24.0.0.beta4</vaadin.version>
+        <vaadin.version>24.0.0.rc1</vaadin.version>
     </properties>
 
     <packaging>pom</packaging>

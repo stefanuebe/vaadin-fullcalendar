@@ -11,7 +11,7 @@
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
-        <vaadin.version>24.0.0.beta4</vaadin.version>
+        <vaadin.version>24.0.0.rc1</vaadin.version>
         <junit.version>5.5.2</junit.version>
         <mockito.version>4.3.1</mockito.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
