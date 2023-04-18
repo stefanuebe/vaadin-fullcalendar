@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.customproperties;
 
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -17,7 +18,8 @@ import com.vaadin.flow.router.Route;
 @Route(value = "demoextendedprops", layout = MainLayout.class)
 @MenuItem(label = "Custom Properties")
 public class DemoCustomProperties extends VerticalLayout {
-	private static final long serialVersionUID = -117988331031719049L;
+	@Serial
+    private static final long serialVersionUID = -117988331031719049L;
 
 	private FullCalendar calendar;
 	

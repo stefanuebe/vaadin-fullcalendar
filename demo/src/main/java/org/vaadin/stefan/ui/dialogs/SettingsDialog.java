@@ -10,6 +10,7 @@ import org.vaadin.stefan.fullcalendar.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
+import java.io.Serial;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Objects;
 
 public class SettingsDialog extends Dialog {
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public SettingsDialog(FullCalendar calendar) {
@@ -26,9 +28,9 @@ public class SettingsDialog extends Dialog {
         VerticalLayout layout = new VerticalLayout();
         Timezone initialTimezone = calendar.getTimezone();
 
-        Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
+        Button toggleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
             calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
-            Notification.show("Updated fixedWeekCount value from " + Boolean.toString(!calendar.getFixedWeekCount()) + " to " + Boolean.toString(calendar.getFixedWeekCount()));
+            Notification.show("Updated fixedWeekCount value from " + !calendar.getFixedWeekCount() + " to " + calendar.getFixedWeekCount());
         });
 
 
@@ -63,7 +65,7 @@ public class SettingsDialog extends Dialog {
         timeboxLayout.setPadding(false);
         timeboxLayout.setSpacing(false);
 
-        layout.add(toogleFixedWeekCount, comboBoxLocales, timeboxLayout);
+        layout.add(toggleFixedWeekCount, comboBoxLocales, timeboxLayout);
         add(layout);
     }
 

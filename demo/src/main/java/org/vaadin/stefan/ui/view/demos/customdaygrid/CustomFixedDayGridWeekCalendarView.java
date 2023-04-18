@@ -28,7 +28,6 @@ public class CustomFixedDayGridWeekCalendarView implements CalendarView {
      * }
      * },
      *
-     * @return
      */
     public void extendInitialOptions(JsonObject initialOptions) {
         JsonObject durationHolder = Json.createObject();

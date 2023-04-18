@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  */
 public class InMemoryEntryProviderSample extends AbstractSample {
 
-    private EntryService<Entry> backend = EntryService.createInstance();
+    private final EntryService<Entry> backend = EntryService.createInstance();
 
     @Override
     protected void buildSample(FullCalendar calendar) {

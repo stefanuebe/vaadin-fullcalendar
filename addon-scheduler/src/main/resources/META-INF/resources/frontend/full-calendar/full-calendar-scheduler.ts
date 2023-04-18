@@ -99,7 +99,7 @@ export class FullCalendarScheduler extends FullCalendar {
         this.calendar?.setOption('resourceLabelDidMount', new Function("return " + s)());
     }
 
-    setResourceLablelWillUnmountCallback(s: string) {
+    setResourceLabelWillUnmountCallback(s: string) {
         // @ts-ignore
         this.calendar?.setOption('resourceLabelWillUnmount', new Function("return " + s)());
     }

@@ -7,13 +7,16 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 
+import java.io.Serial;
+
 @NpmPackage(value = "tippy.js", version = "6.2.3")
 @Tag("full-calendar-with-tooltip")
 @JsModule("./full-calendar-with-tooltip.ts")
 @CssImport("tippy.js/dist/tippy.css")
 @CssImport("tippy.js/themes/light.css")
 public class FullCalendarWithTooltip extends FullCalendarScheduler {
-	private static final long serialVersionUID = 1L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 
     public FullCalendarWithTooltip() {
         super(3);

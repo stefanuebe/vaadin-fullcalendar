@@ -68,16 +68,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * The library base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_CLIENT_VERSION = "6.1.4";
+    public static final String FC_CLIENT_VERSION = "6.1.5";
 
     /**
-     * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
+     * This is the default duration of a timeslot event in hours. Will be dynamic settable in a later version.
      */
+    // TODO: Still needed?
     public static final int DEFAULT_TIMED_EVENT_DURATION = 1;
 
     /**
-     * This is the default duration of an daily event in days. Will be dynamic settable in a later version.
+     * This is the default duration of a daily event in days. Will be dynamic settable in a later version.
      */
+    // TODO: Still needed?
     public static final int DEFAULT_DAY_EVENT_DURATION = 1;
 
     private static final String JSON_INITIAL_OPTIONS = "initialOptions";
@@ -109,7 +111,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private boolean refreshAllEntriesRequested;
 
     /**
-     * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
+     * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
      * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      */
@@ -122,12 +124,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Creates a new instance.
      * <br><br>
      * Expects the default limit of entries shown per day. This does not affect basic or
-     * list views. This value has to be set here and cannot be modified afterwards due to
-     * technical reasons of FC. If set afterwards the entry limit would overwrite settings
+     * list views. This value has to be set here and cannot be modified afterward due to
+     * technical reasons of FC. If set afterward the entry limit would overwrite settings
      * and would show the limit also for basic views where it makes no sense (might change in future).
      * Passing a negative number disabled the entry limit (same as passing no number at all).
      * <br><br>
-     * Sets the locale to {@link CalendarLocale#getDefault()}
+     * Sets the locale to {@link CalendarLocale#getDefaultLocale()}
      * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      *
@@ -155,11 +157,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Please refer to the official FC documentation regarding potential options.
      * <br><br>
      * Client side event handlers, that are technically also a part of the options are still applied to
-     * the options object. However you may set your own event handlers with the correct name. In that case
+     * the options object. However, you may set your own event handlers with the correct name. In that case
      * they will be taken into account instead of the default ones.
      * <br><br>
      * Plugins (key "plugins") will always be set on the client side (and thus override any key passed with this
-     * object), since they are needed for a functional calendar. This may change in future. Same for locales
+     * object), since they are needed for a functional calendar. This may change in the future. Same for locales
      * (key "locales").
      * <br><br>
      * Please be aware, that incorrect options or event handler overriding can lead to unpredictable errors,
@@ -199,9 +201,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         currentView = CalendarViewImpl.DAY_GRID_MONTH;
         currentViewName = currentView.getName();
 
-        addDatesRenderedListener(event -> {
-            currentIntervalStart = event.getIntervalStart();
-        });
+        addDatesRenderedListener(event -> currentIntervalStart = event.getIntervalStart());
 
         addViewSkeletonRenderedListener(event -> {
             currentViewName = event.getViewName();
@@ -219,31 +219,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         if (firstAttach) {
             firstAttach = false;
         } else {
-            getElement().getNode().runWhenAttached(ui -> {
-                ui.beforeClientResponse(this, executionContext -> {
-                    // options
-                    Serializable initialOptions = getElement().getPropertyRaw(JSON_INITIAL_OPTIONS);
-                    JsonObject optionsJson = Json.createObject();
-                    if (initialOptions instanceof JsonObject) {
-                        JsonObject initialOptionsJson = (JsonObject) initialOptions;
-                        for (String key : initialOptionsJson.keys()) {
-                            optionsJson.put(key, (JsonValue) initialOptionsJson.get(key));
-                        }
+            getElement().getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, executionContext -> {
+                // options
+                Serializable initialOptions = getElement().getPropertyRaw(JSON_INITIAL_OPTIONS);
+                JsonObject optionsJson = Json.createObject();
+                if (initialOptions instanceof JsonObject initialOptionsJson) {
+                    for (String key : initialOptionsJson.keys()) {
+                        optionsJson.put(key, (JsonValue) initialOptionsJson.get(key));
                     }
+                }
 
-                    if (!options.isEmpty()) {
-                        options.forEach((key, value) -> optionsJson.put(key, JsonUtils.toJsonValue(value)));
-                    }
+                if (!options.isEmpty()) {
+                    options.forEach((key, value) -> optionsJson.put(key, JsonUtils.toJsonValue(value)));
+                }
 
-                    // We do not use setProperty since that would also store the jsonified state in this instance.
-                    // Especially with a huge amount of entries this could lead to memory issues.
-                    getElement().callJsFunction("restoreStateFromServer",
-                            optionsJson,
-                            JsonUtils.toJsonValue(currentViewName),
-                            JsonUtils.toJsonValue(currentIntervalStart));
+                // We do not use setProperty since that would also store the jsonified state in this instance.
+                // Especially with a huge amount of entries this could lead to memory issues.
+                getElement().callJsFunction("restoreStateFromServer",
+                        optionsJson,
+                        JsonUtils.toJsonValue(currentViewName),
+                        JsonUtils.toJsonValue(currentIntervalStart));
 
-                });
-            });
+            }));
         }
     }
 
@@ -260,26 +257,27 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      *
      * @param allow allow
      */
+    // TODO: Still needed??
     public void allowDatesRenderEventOnOptionChange(boolean allow) {
         getElement().setProperty("noDatesRenderEventOnOptionSetting", !allow);
     }
 
     /**
-     * Moves to the next interval (e. g. next month if current view is monthly based).
+     * Moves to the next interval (e.g. next month if current view is monthly based).
      */
     public void next() {
         getElement().callJsFunction("next");
     }
 
     /**
-     * Moves to the previous interval (e. g. previous month if current view is monthly based).
+     * Moves to the previous interval (e.g. previous month if current view is monthly based).
      */
     public void previous() {
         getElement().callJsFunction("previous");
     }
 
     /**
-     * Moves to the current interval (e. g. current month if current view is monthly based).
+     * Moves to the current interval (e.g. current month if current view is monthly based).
      */
     public void today() {
         getElement().callJsFunction("today");
@@ -289,7 +287,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Sets the entry provider for this instance. The previous entry provider will be removed and the
      * client side will be updated.
      * <p/>
-     * By default a new full calendar is initialized with an {@link InMemoryEntryProvider}.
+     * By default, a new full calendar is initialized with an {@link InMemoryEntryProvider}.
      *
      * @param entryProvider entry provider
      */
@@ -330,26 +328,24 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param item item to refresh
      */
     protected void requestRefresh(@NotNull Entry item) {
-        getElement().getNode().runWhenAttached(ui -> {
-            ui.beforeClientResponse(this, pExecutionContext -> {
-                getEntryProvider()
-                        .fetchById(item.getId())
-                        .ifPresent(refreshedEntry -> {
-                            lastFetchedEntries.put(refreshedEntry.getId(), refreshedEntry);
-                            getElement().callJsFunction("refreshSingleEvent", refreshedEntry.getId());
-                        });
+        getElement().getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, pExecutionContext -> {
+            getEntryProvider()
+                    .fetchById(item.getId())
+                    .ifPresent(refreshedEntry -> {
+                        lastFetchedEntries.put(refreshedEntry.getId(), refreshedEntry);
+                        getElement().callJsFunction("refreshSingleEvent", refreshedEntry.getId());
+                    });
 
 
-                // refreshAllRequested = false; // why was this here?
-            });
-        });
+            // refreshAllRequested = false; // why was this here?
+        }));
     }
 
     /**
      * This method is intended to be triggered by the entry provider "refreshAll" methods.
      * Informs the client side, that a "refresh all" has been requested. Subsequent calls to this method during the
      * same request cycle will still just result in one fetch from the client side (in fact, only one call to the
-     * client will be executed). This behavior might change in future, if it appears to be problematic regarding
+     * client will be executed). This behavior might change in the future, if it appears to be problematic regarding
      * other client side calls.
      * <p></p>
      * When parallel to this call {@link #requestRefresh(Entry)} is called, the calls will be handled in the order
@@ -358,17 +354,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     protected void requestRefreshAllEntries() {
         if (!refreshAllEntriesRequested) {
             refreshAllEntriesRequested = true;
-            getElement().getNode().runWhenAttached(ui -> {
-                ui.beforeClientResponse(this, pExecutionContext -> {
-                    getElement().callJsFunction("refreshAllEvents");
-                    refreshAllEntriesRequested = false;
-                });
-            });
+            getElement().getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, pExecutionContext -> {
+                getElement().callJsFunction("refreshAllEvents");
+                refreshAllEntriesRequested = false;
+            }));
         }
     }
 
     /**
-     * Indicates, if the entry provider is a in memory provider.
+     * Indicates, if the entry provider is an in memory provider.
      *
      * @return is eager loading
      */
@@ -376,6 +370,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return entryProvider instanceof InMemoryEntryProvider;
     }
 
+    // TODO: Still needed??
     @ClientCallable
     protected JsonArray fetchEntriesFromServer(@NotNull JsonObject query) {
         Objects.requireNonNull(query);
@@ -406,7 +401,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Uses {@link InMemoryEntryProvider#getEntryById(String)} when the eager in memory provider is used.
      * <p></p>
      * This method is an internal method, intended to be used by entry based events only. Do not use it for
-     * any other purpose as the implementation or scope may change in future.
+     * any other purpose as the implementation or scope may change in the future.
      *
      * @param id id
      * @return cached entry from last fetch or empty
@@ -415,6 +410,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return Optional.ofNullable(lastFetchedEntries.get(id));
     }
 
+    // TODO: Still needed??
     protected InMemoryEntryProvider<Entry> assureInMemoryProvider() {
         if (!(entryProvider instanceof InMemoryEntryProvider)) {
             throw new UnsupportedOperationException("Needs an InMemoryEntryProvider to work.");
@@ -424,7 +420,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Change the view of the calendar (e. g. from monthly to weekly)
+     * Change the view of the calendar (e.g. from monthly to weekly)
      *
      * @param view view to set
      * @throws NullPointerException when null is passed
@@ -446,7 +442,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         return currentViewName;
     }
     /**
-     * The current view of this isntance. Empty, if the current view could not be matched with one of the predefined
+     * The current view of this instance. Empty, if the current view could not be matched with one of the predefined
      * views (e.g. in case of a custom view).
      * @return calendar view
      */
@@ -455,7 +451,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Switch to the interval containing the given date (e. g. to month "October" if the "15th October ..." is passed).
+     * Switch to the interval containing the given date (e.g. to month "October" if the "15th October ..." is passed).
      *
      * @param date date to goto
      * @throws NullPointerException when null is passed
@@ -466,7 +462,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
     
     /**
-     * Programatically scroll the current view to the given time in the format `hh:mm:ss.sss`, `hh:mm:sss` or `hh:mm`. For example, '05:00' signifies 5 hours.
+     * Programmatically scroll the current view to the given time in the format `hh:mm:ss.sss`, `hh:mm:sss` or `hh:mm`. For example, '05:00' signifies 5 hours.
      * 
      * @param duration duration
      * @throws NullPointerException when null is passed
@@ -477,7 +473,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
     
     /**
-     * Programatically scroll the current view to the given time in the format `hh:mm:ss.sss`, `hh:mm:sss` or `hh:mm`. For example, '05:00' signifies 5 hours.
+     * Programmatically scroll the current view to the given time in the format `hh:mm:ss.sss`, `hh:mm:sss` or `hh:mm`. For example, '05:00' signifies 5 hours.
      * 
      * @param duration duration
      * @throws NullPointerException when null is passed
@@ -488,10 +484,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option.
+     * Sets an option for this instance. Passing a null value removes the option.
      * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * methods should be preferred (e.g. {@link #setLocale(Locale)}).
      *
      * @param option option
      * @param value  value
@@ -502,21 +498,21 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option. The third parameter
+     * Sets an option for this instance. Passing a null value removes the option. The third parameter
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
      * <br><br>
      * Example:
      * <pre>
-     * // sends a client parseable version to client and stores original in server side
+     * // sends a client parsable version to client and stores original in server side
      * calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
      *
      * // returns the original locale (as optional)
      * Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
      * </pre>
      * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * methods should be preferred (e.g. {@link #setLocale(Locale)}).
      *
      * @param option             option
      * @param value              value
@@ -531,10 +527,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Sets a custom option for this instance. Passing a null value removes the option.
      * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * methods should be preferred (e.g. {@link #setLocale(Locale)}).
      * <br><br>
-     * For a full overview of possible options have a look at the FullCalendar documentation
-     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     * For a full overview of possible options have a look at the FullCalendar <a href="https://fullcalendar.io/docs">documentation</a>
      *
      * @param option option
      * @param value  value
@@ -551,11 +546,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
      * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * methods should be preferred (e.g. {@link #setLocale(Locale)}).
      * <p>
      * <br><br>
-     * For a full overview of possible options have a look at the FullCalendar documentation
-     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     * For a full overview of possible options have a look at the FullCalendar <a href="https://fullcalendar.io/docs">documentation</a>
      *
      * @param option             option
      * @param value              value
@@ -567,13 +561,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option.
+     * Sets an option for this instance. Passing a null value removes the option.
      * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * methods should be preferred (e.g. {@link #setLocale(Locale)}).
      * <br><br>
-     * For a full overview of possible options have a look at the FullCalendar documentation
-     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     * For a full overview of possible options have a look at the FullCalendar <a href="https://fullcalendar.io/docs">documentation</a>
      *
      * @param option option
      * @param value  value
@@ -584,17 +577,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option. The third parameter
+     * Sets an option for this instance. Passing a null value removes the option. The third parameter
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
      * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * methods should be preferred (e.g. {@link #setLocale(Locale)}).
      * <p>
      * <br><br>
-     * For a full overview of possible options have a look at the FullCalendar documentation
-     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
+     * For a full overview of possible options have a look at the FullCalendar <a href="https://fullcalendar.io/docs">documentation</a>
      *
      * @param option             option
      * @param value              value
@@ -685,17 +677,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Determines the styling for week numbers in Month and DayGrid views.
-     *
-     * @param weekNumbersWithinDays by default to false
-     * @deprecated this functionality is no longer supported, thus you can remove the call
-     */
-    @Deprecated
-    public void setWeekNumbersWithinDays(boolean weekNumbersWithinDays) {
-        // NOOP
-    }
-
-    /**
      * Returns the current set locale.
      *
      * @return locale
@@ -727,7 +708,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * If true is passed then the calendar will show a indicator for the current time, depending on the view.
+     * If true is passed then the calendar will show an indicator for the current time, depending on the view.
      *
      * @param shown show indicator for now
      */
@@ -865,11 +846,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void setSlotMinTime(@NotNull LocalTime slotMinTime) {
         Objects.requireNonNull(slotMinTime);
-        setOption(Option.SLOT_MIN_TIME, JsonUtils.toJsonValue(slotMinTime != null ? slotMinTime : "00:00:00"));
+        setOption(Option.SLOT_MIN_TIME, JsonUtils.toJsonValue(slotMinTime));
     }
 
     /**
-     * Returns the fixedWeekCount. By default true.
+     * Returns the fixedWeekCount. By default, true.
      *
      * @return fixedWeekCount
      */
@@ -882,7 +863,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * If true, the calendar will always be 6 weeks tall.
      * If false, the calendar will have either 4, 5, or 6 weeks, depending on the month.
      *
-     * @param fixedWeekCount
+     * @param fixedWeekCount specify if the week count is fixed
      */
     public void setFixedWeekCount(boolean fixedWeekCount) {
         setOption(Option.FIXED_WEEK_COUNT, fixedWeekCount);
@@ -897,7 +878,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void setSlotMaxTime(@NotNull LocalTime slotMaxTime) {
         Objects.requireNonNull(slotMaxTime);
-        setOption(Option.SLOT_MAX_TIME, JsonUtils.toJsonValue(slotMaxTime != null ? slotMaxTime : "24:00:00"));
+        setOption(Option.SLOT_MAX_TIME, JsonUtils.toJsonValue(slotMaxTime));
     }
 
     /**
@@ -913,7 +894,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Sets the timezone the calendar shall show. Does not affect the entries directly but only their client side displayment.
      *
-     * @param timezone
+     * @param timezone specify the timezone
      */
     public void setTimezone(Timezone timezone) {
         Objects.requireNonNull(timezone);
@@ -1055,7 +1036,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Whether to include Saturday/Sunday columns in any of the calendar views.
      *
-     * @param weekends
+     * @param weekends enable the weekends
      */
     public void setWeekends(boolean weekends) {
         setOption(Option.WEEKENDS, weekends);
@@ -1065,7 +1046,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * display the header.
      *
-     * @param header
+     * @param header header object
      */
     public void setHeaderToolbar(Header header) {
         setOption(Option.HEADER_TOOLBAR, header.toJson());
@@ -1074,7 +1055,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * display the footer.
      *
-     * @param footer
+     * @param footer footer object
      */
     public void setFooterToolbar(Footer footer) {
         setOption(Option.FOOTER_TOOLBAR, footer.toJson());
@@ -1092,7 +1073,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
      *
-     * @param columnHeader
+     * @param columnHeader enable the column headers
      */
     public void setColumnHeader(boolean columnHeader) {
         setOption(Option.COLUMN_HEADER, columnHeader);
@@ -1128,7 +1109,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * If a server side version of the value has been set
      * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
      * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     * If there is an explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
      * @param <T>    type of value
@@ -1144,7 +1125,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
      * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     * If there is an explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option               option
      * @param forceClientSideValue explicitly return the value that has been sent to client
@@ -1161,7 +1142,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * If a server side version of the value has been set
      * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
      * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     * If there is an explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
      * @param <T>    type of value
@@ -1177,7 +1158,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
      * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     * If there is an explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      * <br><br>
      * Returns {@code null} for initial options. Please use #getRawOption(String)
      *
@@ -1499,12 +1480,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Enumeration of possible options, that can be applied to the calendar. Contains only options, that affect
-     * the client side library, but not internal options. Also this list may not contain all options, but the most
+     * the client side library, but not internal options. Also, this list may not contain all options, but the most
      * common used ones. Any missing option can be set manually using one of the {@link FullCalendar#setOption} methods
      * using a string key.
      * <br><br>
      * Please refer to the FullCalendar client library documentation for possible options:
-     * https://fullcalendar.io/docs
+     * <a href="https://fullcalendar.io/docs">docs</a>
      */
     public enum Option {
 

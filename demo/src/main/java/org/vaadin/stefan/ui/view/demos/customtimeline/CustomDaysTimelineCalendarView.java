@@ -26,7 +26,6 @@ public class CustomDaysTimelineCalendarView implements CalendarView {
      * }
      * }
      *
-     * @return
      */
     public JreJsonObject getInitialOptions() {
         JsonFactory factory = new JreJsonFactory();

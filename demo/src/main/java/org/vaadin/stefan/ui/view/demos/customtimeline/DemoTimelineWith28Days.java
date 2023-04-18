@@ -1,9 +1,7 @@
 package org.vaadin.stefan.ui.view.demos.customtimeline;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
 import org.vaadin.stefan.fullcalendar.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
@@ -13,9 +11,12 @@ import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
+import java.io.Serial;
+
 @Route(value = "demotimelinecustomdays", layout = MainLayout.class)
 @MenuItem(label = "28 Days Timeline")
 public class DemoTimelineWith28Days extends VerticalLayout {
+    @Serial
     private static final long serialVersionUID = 1L;
     
     private FullCalendar calendar;

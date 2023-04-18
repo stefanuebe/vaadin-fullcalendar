@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  */
 public class InMemoryResourceEntryProviderSample extends AbstractSchedulerSample {
 
-    private EntryService<ResourceEntry> backend = EntryService.createResourceInstance();
+    private final EntryService<ResourceEntry> backend = EntryService.createResourceInstance();
 
     @Override
     protected void buildSample(FullCalendar calendar) {

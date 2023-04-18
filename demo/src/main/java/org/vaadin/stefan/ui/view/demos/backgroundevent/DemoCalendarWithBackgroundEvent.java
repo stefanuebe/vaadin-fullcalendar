@@ -8,6 +8,7 @@ import org.vaadin.stefan.fullcalendar.DisplayMode;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -15,6 +16,7 @@ import java.util.Locale;
 @Route(value = "demobackgroundevent", layout = MainLayout.class)
 @MenuItem(label = "Background Events")
 public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
+    @Serial
     private static final long serialVersionUID = 1L;
     
     private FullCalendar calendar;

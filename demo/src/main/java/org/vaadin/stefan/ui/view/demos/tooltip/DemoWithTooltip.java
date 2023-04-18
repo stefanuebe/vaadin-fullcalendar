@@ -29,28 +29,29 @@ import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
+import java.io.Serial;
+
 @Route(value = "tooltip", layout = MainLayout.class)
 @CssImport("./styles.css")
 @CssImport("./styles-scheduler.css")
 @PageTitle("FC with Tooltips")
 @MenuItem(label = "Tooltips")
 public class DemoWithTooltip extends AbstractCalendarView {
+    @Serial
     private static final long serialVersionUID = 1L;
     private InMemoryEntryProvider<Entry> entryProvider;
 
 
     @Override
     protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
-        EntryService entryService = EntryService.createSimpleInstance();
+        EntryService<Entry> entryService = EntryService.createSimpleInstance();
 
-        FullCalendar calendar = FullCalendarBuilder.create()
+        return FullCalendarBuilder.create()
                 .withCustomType(FullCalendarWithTooltip.class) // create a new instance with a custom type
                 .withInitialOptions(defaultInitialOptions)
                 .withEntryLimit(3)
                 .withInitialEntries(entryService.getEntries()) // init with some sample data
                 .build();
-
-        return calendar;
     }
 
     @Override

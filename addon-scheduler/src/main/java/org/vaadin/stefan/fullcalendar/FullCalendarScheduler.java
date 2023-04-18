@@ -49,11 +49,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * The scheduler base version used in this addon. Some additionl libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_SCHEDULER_CLIENT_VERSION = "6.1.4";
+    public static final String FC_SCHEDULER_CLIENT_VERSION = "6.1.5";
     private final Map<String, Resource> resources = new HashMap<>();
 
     /**
-     * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
+     * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
      */
     public FullCalendarScheduler() {
         super();
@@ -63,12 +63,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * Creates a new instance.
      * <br><br>
      * Expects the default limit of entries shown per day. This does not affect basic or
-     * list views. This value has to be set here and cannot be modified afterwards due to
-     * technical reasons of FC. If set afterwards the entry limit would overwrite settings
+     * list views. This value has to be set here and cannot be modified afterward due to
+     * technical reasons of FC. If set afterward the entry limit would overwrite settings
      * and would show the limit also for basic views where it makes no sense (might change in future).
      * Passing a negative number or 0 disabled the entry limit (same as passing no number at all).
      * <br><br>
-     * Sets the locale to {@link CalendarLocale#getDefault()}
+     * Sets the locale to {@link CalendarLocale#getDefaultLocale()}
      *
      *
      * @param entryLimit max entries to shown per day
@@ -87,11 +87,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      *  Please refer to the official FC documentation regarding potential options.
      * <br><br>
      * Client side event handlers, that are technically also a part of the options are still applied to
-     * the options object. However you may set your own event handlers with the correct name. In that case
+     * the options object. However, you may set your own event handlers with the correct name. In that case
      * they will be taken into account instead of the default ones.
      * <br><br>
      * Plugins (key "plugins") will always be set on the client side (and thus override any key passed with this
-     * object), since they are needed for a functional calendar. This may change in future. Same for locales
+     * object), since they are needed for a functional calendar. This may change in the future. Same for locales
      * (key "locales").
      * <br><br>
      * Please be aware, that incorrect options or event handler overriding can lead to unpredictable errors,
@@ -232,7 +232,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                     .getEntries()
                     .stream()
                     .filter(e -> e instanceof ResourceEntry)
-                    .forEach(e -> ((ResourceEntry) e).unassignResources(resources));
+                    .forEach(e -> ((ResourceEntry) e).removeResources(resources));
         }
     }
 
@@ -271,7 +271,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     
     @Override
     public void setResourceLablelWillUnmountCallback(String s) {
-        getElement().callJsFunction("setResourceLablelWillUnmountCallback", s);
+        getElement().callJsFunction("setResourceLabelWillUnmountCallback", s);
     }
     
     @Override
@@ -297,19 +297,18 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
         switch (groupEntriesBy) {
-            default:
-            case NONE:
+            default -> {
                 setOption(SchedulerOption.GROUP_BY_RESOURCE, false);
                 setOption(SchedulerOption.GROUP_BY_DATE_AND_RESOURCE, false);
-                break;
-            case RESOURCE_DATE:
+            }
+            case RESOURCE_DATE -> {
                 setOption(SchedulerOption.GROUP_BY_DATE_AND_RESOURCE, false);
                 setOption(SchedulerOption.GROUP_BY_RESOURCE, true);
-                break;
-            case DATE_RESOURCE:
+            }
+            case DATE_RESOURCE -> {
                 setOption(SchedulerOption.GROUP_BY_RESOURCE, false);
                 setOption(SchedulerOption.GROUP_BY_DATE_AND_RESOURCE, true);
-                break;
+            }
         }
     }
 
@@ -342,10 +341,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option.
+     * Sets an option for this instance. Passing a null value removes the option.
      * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * methods should be preferred (e.g. {@link #setLocale(Locale)}).
      *
      * @param option option
      * @param value  value
@@ -356,13 +355,13 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option. The third parameter
+     * Sets an option for this instance. Passing a null value removes the option. The third parameter
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(SchedulerOption)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
      * <pre>
      * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * methods should be preferred (e.g. {@link #setLocale(Locale)}).
      *
      * @param option             option
      * @param value              value
@@ -378,7 +377,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * If a server side version of the value has been set
      * via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
      * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     * If there is an explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
      * @param <T>    type of value
@@ -394,7 +393,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
      * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
+     * If there is an explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option               option
      * @param forceClientSideValue explicitly return the value that has been sent to client
@@ -419,12 +418,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     /**
      * Enumeration of possible scheduler options, that can be applied to the calendar.
      * Contains only options, that affect the client side library, but not internal options.
-     * Also this list may not contain all options, but the most common used ones.
+     * Also, this list may not contain all options, but the most common used ones.
      * Any missing option can be set manually using one of the {@link FullCalendar#setOption} methods
      * using a string key.
      * <br><br>
      * Please refer to the FullCalendar client library documentation for possible options:
-     * https://fullcalendar.io/docs
+     * <a href="https://fullcalendar.io/docs">documentation</a>
      */
     public enum SchedulerOption {
         ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),

@@ -1,6 +1,5 @@
 package org.vaadin.stefan.ui.view.samples;
 
-import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
@@ -12,13 +11,13 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
  */
 public class CallbackResourceEntryProviderSample extends AbstractSchedulerSample {
 
-    private EntryService<ResourceEntry> backend = EntryService.createResourceInstance();
+    private final EntryService<ResourceEntry> backend = EntryService.createResourceInstance();
 
     @Override
     protected void buildSample(FullCalendar calendar) {
         // the callback provider uses the given callback to fetch entries when necessary
         CallbackEntryProvider<ResourceEntry> entryProvider = EntryProvider.fromCallbacks(
-                query -> backend.streamEntries(query),
+                backend::streamEntries,
                 entryId -> backend.getEntry(entryId).orElse(null)
         );
 

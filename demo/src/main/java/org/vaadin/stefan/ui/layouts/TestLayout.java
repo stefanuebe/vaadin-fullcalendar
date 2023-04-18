@@ -28,9 +28,7 @@ public class TestLayout extends AbstractLayout {
                 .getAvailableRoutes()
                 .stream()
                 .filter(routeData -> routeData.getParentLayout().isAssignableFrom(TestLayout.class))
-                .forEach(routeData -> {
-                    addMenu(menuBuilder, routeData.getNavigationTarget());
-                });
+                .forEach(routeData -> addMenu(menuBuilder, routeData.getNavigationTarget()));
     }
 }
 

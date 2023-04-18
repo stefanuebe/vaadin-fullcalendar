@@ -21,13 +21,15 @@ import org.vaadin.stefan.fullcalendar.Delta;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
 
+import java.io.Serial;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
 
 public class DemoDialog extends Dialog {
-	private static final long serialVersionUID = 1L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 
     private static final String[] COLORS = {"tomato", "orange", "dodgerblue", "mediumseagreen", "gray", "slateblue", "violet"};
     private final VerticalLayout componentsLayout;
@@ -111,14 +113,14 @@ public class DemoDialog extends Dialog {
                 if (event.getValue()) {
                     LocalDateTime start = fieldStart.getValue().toLocalDate().atStartOfDay();
 
-                    // reset the start to the same day with one hour difference
+                    // reset the start to the same day with one-hour difference
                     fieldStart.setValue(start);
                     fieldEnd.setValue(start.plusDays(1));
 
                 } else {
                     LocalDateTime start = fieldStart.getValue().toLocalDate().atTime(LocalTime.now());
 
-                    // reset the start to the same day with one hour difference
+                    // reset the start to the same day with one-hour difference
                     fieldStart.setValue(start);
                     fieldEnd.setValue(start.plusHours(1));
                 }
@@ -246,7 +248,7 @@ public class DemoDialog extends Dialog {
         if (recurring) {
             fieldStart.setLabel("Start of recurrence");
             fieldEnd.setLabel("End of recurrence");
-            if (!fieldRDays.getParent().isPresent()) {
+            if (fieldRDays.getParent().isEmpty()) {
                 componentsLayout.add(fieldRDays);
             }
         } else {

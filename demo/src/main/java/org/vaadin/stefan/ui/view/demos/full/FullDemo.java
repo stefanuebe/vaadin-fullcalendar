@@ -20,10 +20,8 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.DisplayMode;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.layouts.MainLayout;
-import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
@@ -32,7 +30,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 @Route(value = "", layout = MainLayout.class)
 @CssImport("./styles.css")
@@ -68,9 +69,7 @@ public class FullDemo extends AbstractSchedulerView {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
         );
 
-        calendar.addBrowserTimezoneObtainedListener(event -> {
-            getToolbar().setTimezone(event.getTimezone());
-        });
+        calendar.addBrowserTimezoneObtainedListener(event -> getToolbar().setTimezone(event.getTimezone()));
 
         ((FullCalendarScheduler) calendar).setEntryResourceEditable(false);
 
@@ -129,7 +128,7 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createTimedEntry(calendar, "Meeting 2", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomOrange);
         EntryManager.createTimedEntry(calendar, "Meeting 3", now.withDayOfMonth(7).atTime(11, 30), 120, null, meetingRoomRed);
 
-        HashMap<String, Object> extendedProps = new HashMap<String, Object>();
+        HashMap<String, Object> extendedProps = new HashMap<>();
         HashMap<String, Object> cursors = new HashMap<String, Object>();
         cursors.put("enabled", "pointer");
         cursors.put("disabled", "not-allowed");
@@ -271,7 +270,6 @@ public class FullDemo extends AbstractSchedulerView {
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
         System.out.println( "ZoneId: " + event.getSource().getTimezone().getZoneId() );
-        LocalDateTime startDate = event.getStart();
         System.out.println( "getStart(): " + event.getStart() );
         System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
 

@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view.demos.customdaygrid;
 
 import com.vaadin.flow.router.Route;
 
+import java.io.Serial;
 import java.util.Collections;
 
 import elemental.json.JsonObject;
@@ -20,6 +21,7 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 @Route(value = "demodaygridsixweeks", layout = MainLayout.class)
 @MenuItem(label = "Six Weeks Grid")
 public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
+    @Serial
     private static final long serialVersionUID = 1L;
     public static final int NUMBER_OF_WEEKS = 6;
 
@@ -39,13 +41,9 @@ public class DemoDayGridWeekWithSixWeeks extends AbstractCalendarView {
             .withInitialEntries(EntryService.createRandomInstance().getEntries())
             .build();
         
-        calendar.addEntryMouseEnterListener(ev -> {
-        	System.out.println("Entry mouse ENTER: " + ev.getEntry().toString());
-        });
+        calendar.addEntryMouseEnterListener(ev -> System.out.println("Entry mouse ENTER: " + ev.getEntry().toString()));
 
-        calendar.addEntryMouseLeaveListener(ev -> {
-        	System.out.println("Entry mouse LEAVE: " + ev.getEntry().toString());
-        });
+        calendar.addEntryMouseLeaveListener(ev -> System.out.println("Entry mouse LEAVE: " + ev.getEntry().toString()));
 
         calendar.changeView(CUSTOM_VIEW);
         return calendar;
