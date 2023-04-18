@@ -13,12 +13,11 @@
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
-        <vaadin.version>24.0.0.rc1</vaadin.version>
+        <vaadin.version>24.0.4</vaadin.version>
         <fullcalendar.version>24.0.0-SNAPSHOT</fullcalendar.version>
         <junit.version>5.5.2</junit.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <lombok.version>1.18.24</lombok.version>
-
     </properties>
 
     <licenses>
@@ -80,7 +79,13 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>2.1.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--        <dependency>-->
 <!--            <groupId>com.vaadin</groupId>-->
 <!--            <artifactId>vaadin-testbench</artifactId>-->
 <!--            <scope>test</scope>-->
