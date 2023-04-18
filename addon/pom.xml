@@ -11,12 +11,11 @@
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
-        <vaadin.version>24.0.0.rc1</vaadin.version>
+        <vaadin.version>24.0.4</vaadin.version>
         <junit.version>5.5.2</junit.version>
         <mockito.version>4.3.1</mockito.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <lombok.version>1.18.24</lombok.version>
-
     </properties>
 
     <licenses>
@@ -187,6 +186,18 @@
             <version>${lombok.version}</version>
             <optional>true</optional>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
+            <scope>compile</scope>
         </dependency>
 
 
