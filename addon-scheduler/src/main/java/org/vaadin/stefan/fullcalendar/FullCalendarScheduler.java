@@ -41,8 +41,7 @@ import java.util.stream.StreamSupport;
 @NpmPackage(value = "@fullcalendar/resource", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/resource-timeline", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/resource-timegrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
-@Tag("full-calendar-scheduler")
-@JsModule("./full-calendar/full-calendar-scheduler.ts")
+@JsModule("./vaadin-full-calendar/full-calendar-scheduler.ts")
 public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     /**
