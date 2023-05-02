@@ -18,10 +18,8 @@
 */
 import {FullCalendarScheduler} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar-scheduler';
 import tippy from 'tippy.js';
-import {customElement} from "lit/decorators.js";
 
 
-@customElement("full-calendar-with-tooltip")
 export class FullCalendarWithTooltip extends FullCalendarScheduler {
     initCalendar() {
         super.initCalendar();
@@ -53,3 +51,5 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
         }
     }
 }
+
+customElements.define("full-calendar-with-tooltip", FullCalendarWithTooltip);

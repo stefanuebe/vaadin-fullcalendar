@@ -19,9 +19,7 @@
 import {FullCalendar, IterableObject} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
-import {customElement} from "lit/decorators.js";
 
-@customElement("vaadin-full-calendar-scheduler")
 export class FullCalendarScheduler extends FullCalendar {
 
     // stores any options, that are set before the calendar is attached using "setOption"
@@ -123,3 +121,5 @@ export class FullCalendarScheduler extends FullCalendar {
         this.setOption('resourceLaneWillUnmount', new Function("return " + s)());
     }
 }
+
+customElements.define("vaadin-full-calendar-scheduler", FullCalendarScheduler);

@@ -16,9 +16,6 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {customElement} from "lit/decorators.js";
-import {html, LitElement, PropertyValues} from "lit";
-
 import {Calendar, DateInput, DateRangeInput, DurationInput} from '@fullcalendar/core';
 import interaction from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -28,7 +25,6 @@ import multiMonthPlugin from '@fullcalendar/multimonth';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all';
-import {ThemableMixin} from "@vaadin/vaadin-themable-mixin";
 
 // Simple type, that allows JS object property access via ["xyz"]
 export type IterableObject = {
@@ -38,8 +34,7 @@ export type IterableObject = {
 
 type InitialCommand = (calendar: Calendar) => void;
 
-@customElement("vaadin-full-calendar")
-export class FullCalendar extends ThemableMixin(LitElement) {
+export class FullCalendar extends HTMLElement {
 
     private _calendar?: Calendar;
 
@@ -54,21 +49,10 @@ export class FullCalendar extends ThemableMixin(LitElement) {
 
     private prefetchEnabled = false;
 
-
-    protected render() {
-        return html`
-            <slot></slot>
-        `;
-    }
-
-    protected firstUpdated(_changedProperties: PropertyValues) {
-        super.firstUpdated(_changedProperties);
-
-        this.initCalendar();
-    }
-
     connectedCallback() {
-        super.connectedCallback();
+        if (!this._calendar) {
+            this.initCalendar();
+        }
         try {
             (this as any).$server.setBrowserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
         } catch (e) {
@@ -665,9 +649,9 @@ export class FullCalendar extends ThemableMixin(LitElement) {
     }
 
     get calendar(): Calendar | undefined {
-        // if (!this._calendar) {
-        //     console.warn("get calendar called before first updated. Needs a fix?");
-        // }
+        if (!this._calendar) {
+            this.initCalendar();
+        }
 
         return this._calendar;
     }
@@ -677,8 +661,10 @@ export class FullCalendar extends ThemableMixin(LitElement) {
         if (this.calendar) {
             callback.call(this, this.calendar);
         } else {
-            this.initialCommands.push(callback);
+            // this.initialCommands.push(callback);
         }
     }
 
 }
+
+customElements.define("vaadin-full-calendar", FullCalendar);
