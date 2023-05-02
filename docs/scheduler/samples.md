@@ -52,7 +52,7 @@ calendar.setGroupEntriesBy(GroupEntriesBy.RESOURCE_DATE);
 ResourceEntry entry = new ResourceEntry();
 // ... setup entry details, including addResource()
 
-entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+entry.setDisplayMode(DisplayMode.BACKGROUND);
 calendar.addEntry(entry);
 
 # Creating hierarchical resources
@@ -81,5 +81,5 @@ parent.removeChild(child);
 resourceEntry.setResourceEditableOnClientSide(true);
 
 // update the entry on the client side, if it is already added to the calendar
-calendar.updateEntry(resourceEntry);
+calendar.refreshAll();
 ```

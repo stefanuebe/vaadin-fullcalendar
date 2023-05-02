@@ -18,5 +18,4 @@ Fullcalendar Scheduler: https://vaadin.com/directory/component/full-calendar-sch
 
 ## Additional links and information
 * Homepage about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
-* For a Vaadin 10-13 version (built on FC 3.10.x) https://vaadin.com/directory/component/full-calendar-web-component-vaadin10
 * GitHub profile of Carlo: https://github.com/aetasoul

@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * Basic abstract implementation of an in memory entry provider utilizing a hashmap.
+ * Basic implementation of an in memory entry provider utilizing a hashmap.
  *
  * @author Stefan Uebe
  */

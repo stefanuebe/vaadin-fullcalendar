@@ -3,10 +3,18 @@
 
 /* Also see https://fullcalendar.io/docs/css-customization*/
 
+/* change the border color of the fc in a global way*/
 .fc {
     --fc-border-color: #ddd;
 }
 
+/* change the border color of the fc for dark themes*/
+[theme~="dark"] .fc {
+    --fc-border-color: #666;
+}
+
+
+/* change the appearance of the week and day number to a more button like style when hovering */
 .fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number) {
     background: transparent;
     font-size: 12px;
@@ -23,3 +31,4 @@
     padding-left: 6px;
     padding-right: 6px;
 }
+

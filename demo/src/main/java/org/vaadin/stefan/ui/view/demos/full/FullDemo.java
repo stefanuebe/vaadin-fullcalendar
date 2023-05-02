@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.ui.view.demos.full;
 
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
@@ -47,7 +48,11 @@ public class FullDemo extends AbstractSchedulerView {
                 .withScheduler("GPL-My-Project-Is-Open-Source")
                 .build();
 
-        calendar.setHeightByParent();
+//        calendar.setHeightAuto();
+
+        calendar.setHeight("300px");
+//        calendar.setWidth(400, Unit.PIXELS);
+
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotMinWidth("100");
         ((FullCalendarScheduler) calendar).setResourcesInitiallyExpanded(false);
@@ -55,8 +60,10 @@ public class FullDemo extends AbstractSchedulerView {
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
-        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
-        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
+
+        // initally change the view and go to a specific date
+//        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
+//        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
 
         calendar.setSlotMinTime(LocalTime.of(7, 0));
         calendar.setSlotMaxTime(LocalTime.of(17, 0));
