@@ -10,7 +10,7 @@ vaadin-full-calendar {
 }
 
 /* Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/108*/
-.fc .fc-scrollgrid-section-sticky > * {
+.fc *:is(.fc-scrollgrid-section-sticky, .fc-scroller-harness) > * {
     z-index: 1;
 }
 
