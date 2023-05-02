@@ -19,8 +19,9 @@
 import {FullCalendar, IterableObject} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
+import {customElement} from "lit/decorators.js";
 
-@customElement("vaadin-full-calendar")
+@customElement("vaadin-full-calendar-scheduler")
 export class FullCalendarScheduler extends FullCalendar {
 
     // stores any options, that are set before the calendar is attached using "setOption"
@@ -84,41 +85,41 @@ export class FullCalendarScheduler extends FullCalendar {
 
     setResourceLabelClassNamesCallback(s: string) {
         // @ts-ignore
-        this.calendar?.setOption('resourceLabelClassNames', new Function("return " + s)());
+        this.setOption('resourceLabelClassNames', new Function("return " + s)());
     }
 
     setResourceLabelContentCallback(s: string) {
         // @ts-ignore
-        this.calendar?.setOption('resourceLabelContent', new Function("return " + s)());
+        this.setOption('resourceLabelContent', new Function("return " + s)());
     }
 
     setResourceLabelDidMountCallback(s: string) {
         // @ts-ignore
-        this.calendar?.setOption('resourceLabelDidMount', new Function("return " + s)());
+        this.setOption('resourceLabelDidMount', new Function("return " + s)());
     }
 
     setResourceLablelWillUnmountCallback(s: string) {
         // @ts-ignore
-        this.calendar?.setOption('resourceLabelWillUnmount', new Function("return " + s)());
+        this.setOption('resourceLabelWillUnmount', new Function("return " + s)());
     }
 
     setResourceLaneClassNamesCallback(s: string) {
         // @ts-ignore
-        this.calendar?.setOption('resourceLaneClassNames', new Function("return " + s)());
+        this.setOption('resourceLaneClassNames', new Function("return " + s)());
     }
 
     setResourceLaneContentCallback(s: string) {
         // @ts-ignore
-        this.calendar?.setOption('resourceLaneContent', new Function("return " + s)());
+        this.setOption('resourceLaneContent', new Function("return " + s)());
     }
 
     setResourceLaneDidMountCallback(s: string) {
         // @ts-ignore
-        this.calendar?.setOption('resourceLaneDidMount', new Function("return " + s)());
+        this.setOption('resourceLaneDidMount', new Function("return " + s)());
     }
 
     setResourceLaneWillUnmountCallback(s: string) {
         // @ts-ignore
-        this.calendar?.setOption('resourceLaneWillUnmount', new Function("return " + s)());
+        this.setOption('resourceLaneWillUnmount', new Function("return " + s)());
     }
 }
