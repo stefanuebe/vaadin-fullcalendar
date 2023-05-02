@@ -57,11 +57,10 @@ import java.util.stream.Stream;
 @NpmPackage(value = "moment-timezone", version = "0.5.40")
 @NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
-@Tag("full-calendar")
-@JsModule("./full-calendar/full-calendar.ts")
 
-// since we are now in the light dom with our styles, some values may bleed in from lumo, thus we "fix" them here.
-@CssImport("./full-calendar/style-workarounds.css")
+@JsModule("./vaadin-full-calendar/full-calendar.ts")
+@CssImport("./vaadin-full-calendar/style-workarounds.css")
+@Tag("vaadin-full-calendar")
 public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**

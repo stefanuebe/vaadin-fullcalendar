@@ -16,13 +16,11 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {customElement} from "lit/decorators.js";
-
-import {FullCalendar, IterableObject} from "@vaadin/flow-frontend/full-calendar/full-calendar";
+import {FullCalendar, IterableObject} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 
-@customElement("full-calendar-scheduler")
+@customElement("vaadin-full-calendar")
 export class FullCalendarScheduler extends FullCalendar {
 
     // stores any options, that are set before the calendar is attached using "setOption"
