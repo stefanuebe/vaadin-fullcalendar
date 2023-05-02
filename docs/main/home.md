@@ -1,9 +1,11 @@
 # FullCalendar web component addon
-This addon is an integration of the FullCalendar as a Flow component for Vaadin 14+.
+This addon is an integration of the FullCalendar as a Flow component for Vaadin 23+.
 
-It is based on the latest version of the FullCalendar library 5.x.
+It is based on the latest version of the FullCalendar library 6.x. For Vaadin 14-22, please use 4.x.
 
-**Note** Version 3.x.x will only receive maintenance fixes. Version 2.x is deprecated and will no longer be maintained.
+**Note** Any version prior to the current major version is not supported anymore. If you need a fix for such a version
+feel free to fork the project. You may create an issue, but due to limited time it is very unlikely, that we will fix
+it.
 
 Please also have a look at the demo for some basic examples and source code of how to integrate the FC.
 For more examples please have a look into the example section.

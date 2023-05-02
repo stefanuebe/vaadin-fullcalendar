@@ -1,13 +1,15 @@
-The following functions are currently implemented and available to use from server side:
-- adding / updating / removing calendar items,
+This addon uses a 3rd party library called FullCalendar. We try to integrate all features the library provides. Therefore
+the following list might not include all available features, but should list the most important ones. If you find
+a feature in the FC library, that this addon not yet supports, please create an feature request in the issues page.
+
+Supported features are
+- adding / updating / removing calendar entries using a data provider like mechanism,
 - switching between shown intervals (next month, previous month, etc.),
 - goto a specific date or today,
 - switch the calendar view (month, basic views for days and weeks, agenda views for days and weeks, list views for day to year),
 - setting a locale to be used for displaying week days, formatting values, calculating the first day of the week, etc. (supported locales are provided as constant list)
 - setting the first day of week to be shown (overrides the locale setting),
-- show of week numbers
 - limit max shown entries per day (except basic views)
-- showing now indicator
 - activating day / week numbers / names to be links
 - setting a eventRender JS function from server side
 - setting business hours information (multiple entries possible)
@@ -32,3 +34,4 @@ The following functions are currently implemented and available to use from serv
     - editable / read only
     - rendering mode (normal, background, inversed background)
     - recurring data (day of week, start / end date and time)
+    - etc.
