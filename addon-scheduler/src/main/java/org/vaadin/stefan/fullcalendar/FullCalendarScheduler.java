@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
@@ -42,6 +43,8 @@ import java.util.stream.StreamSupport;
 @NpmPackage(value = "@fullcalendar/resource-timeline", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/resource-timegrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @JsModule("./vaadin-full-calendar/full-calendar-scheduler.ts")
+@CssImport("./vaadin-full-calendar/full-calendar-scheduler-styles.css")
+
 @Tag("vaadin-full-calendar-scheduler")
 public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 

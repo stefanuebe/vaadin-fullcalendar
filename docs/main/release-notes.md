@@ -5,7 +5,7 @@
 
 # 6.0.x
 - updated to FullCalendar 6.1.6
-- Migrated from Polymer 3 to Lit 2
+- Migrated from Polymer 3 to simple HTML Element based web component (no Lit nor Polymer)
 - Migrated source code from JavaScript to TypeScript (ongoing process, not yet finished)
 - Folder structures changed
 - Tag names prefixed with "vaadin-"

@@ -1,3 +1,9 @@
+vaadin-full-calendar {
+    display: block;
+}
+
+/* FIXES AND WORKAROUNDS */
+
 /* Fixes a color issue, where otherwise day numbers would appear as the disabled text color (Idk why)*/
 .fc a:not(:any-link) {
     color: var(--lumo-body-text-color) !important;
@@ -9,13 +15,13 @@
 }
 
 /* integrated lumo like toggle for resources (see https://github.com/stefanuebe/vaadin_fullcalendar/issues/162) */
-.fc-icon-minus-square:before, .fc-icon-plus-square:before {
+.fc :is(.fc-icon-minus-square:before, .fc-icon-plus-square:before) {
     font-family: 'lumo-icons';
     content: var(--lumo-icons-angle-right);
     display: inline-block
 }
 
-.fc-icon-minus-square:before {
+.fc .fc-icon-minus-square:before {
     transform: rotate(90deg);
 }
 

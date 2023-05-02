@@ -1,5 +1,5 @@
 * FC6
-* Lit 2
+* Removed Polymer
 * TS
 * folder structure changed (important for subclasses / extensions)
 * element tags changed, prefixed with "vaadin-" now

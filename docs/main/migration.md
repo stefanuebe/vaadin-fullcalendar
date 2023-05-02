@@ -15,7 +15,7 @@ as smoothly as possible.
 * [3.x > 4.0](#migrating-from-3x--40)
 
 # Migrating from 4.1 > 6.0
-## Lit integration
+## Removed polymer, moved to light dom
 ## Styling
 ## Entry is "static" again, JsonItem is gone
 ## No more EagerInMemoryEntryProvider

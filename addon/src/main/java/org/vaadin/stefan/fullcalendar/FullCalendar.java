@@ -59,7 +59,7 @@ import java.util.stream.Stream;
 @NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
 
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
-@CssImport("./vaadin-full-calendar/style-workarounds.css")
+@CssImport("./vaadin-full-calendar/full-calendar-styles.css")
 @Tag("vaadin-full-calendar")
 public class FullCalendar extends Component implements HasStyle, HasSize {
 
