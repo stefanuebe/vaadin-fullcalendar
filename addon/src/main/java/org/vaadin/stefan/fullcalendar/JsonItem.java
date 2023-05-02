@@ -125,7 +125,7 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Removes the property value for this instance and returns it. Will also remove the "changed property" marker
      * for this property.
-     * <p/>
+     * <p></p>
      * This removal is server side only, the client side will not be informed. If you want to remove something for
      * the client, please use {@link #set} and pass an empty value matching the expected type.
      *
@@ -322,7 +322,7 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Sets the value of the property identified by the given key, when the value differs to the current one.
      * Can be null to clear the value.
-     * <p/>
+     * <p></p>
      * When this instance is known to the client, the property is also registered as "has changed".
      *
      * @param key   key
@@ -363,7 +363,7 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Checks, if the given key is currently marked as "changed", either due to a value change or
      * by calling {@link #markAsChangedProperty}.
-     * <p/>
+     * <p></p>
      * As long as this instance is not known to the client, this method returns false.
      * @param key key
      * @return is marked as a changed property
@@ -392,7 +392,7 @@ public abstract class JsonItem<ID_TYPE> {
 
     /**
      * Sets the value of the property identified by the given key. Can be null to clear the value.
-     * <p/>
+     * <p></p>
      * The property is not marked as "dirty". This method should be used, when reading values from the client side.
      *
      * @param key   key
@@ -494,7 +494,7 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Writes all property values to the json object, regardless of if they have changes or not. Recommended
      * for new items or on full redraw of an item.
-     * <p/>
+     * <p></p>
      * The second parameter allows to exclude unset properties from being written and send to the client. This may
      * spare unused overhead, since otherwise if an object has for instance 9 of 10 properties unset,
      * they would all be send as "null" by default. Passing {@code false} will leave these properties out.
@@ -522,7 +522,7 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Returns the item's internal id. Every id must be unique for a calendar instance in the item's scope, otherwise
      * it will replace existing items.
-     * <p/>
+     * <p></p>
      * Never null.
      *
      * @return id
@@ -551,13 +551,13 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Writes all property values mapped by the given keys to the json object,
      * regardless of if they have changes or not. Recommended for new items or on full redraw of an item.
-     * <p/>
+     * <p></p>
      * The second parameter allows to exclude unset properties from being written and send to the client. This may
      * spare unused overhead, since otherwise if an object has for instance 9 of 10 properties unset,
      * they would all be send as "null" by default. Passing {@code false} will leave these properties out.
      * Please note, that any property having explicitly set {@code null} or an "empty" value will still be sent
      * to the client.
-     * <p/>
+     * <p></p>
      * Passing an empty keys object leads to an empty json object.
      *
      * @param jsonObject           json object to write to
@@ -574,13 +574,13 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Writes all property values mapped by the given keys to the json object,
      * regardless of if they have changes or not. Recommended for new items or on full redraw of an item.
-     * <p/>
+     * <p></p>
      * The second parameter allows to exclude unset properties from being written and send to the client. This may
      * spare unused overhead, since otherwise if an object has for instance 9 of 10 properties unset,
      * they would all be send as "null" by default. Passing {@code false} will leave these properties out.
      * Please note, that any property having explicitly set {@code null} or an "empty" value will still be sent
      * to the client. Same goes for properties, where the key has a default value.
-     * <p/>
+     * <p></p>
      * Passing an empty keys object leads to an empty json object.
      *
      * @param jsonObject           json object to write to
@@ -654,7 +654,7 @@ public abstract class JsonItem<ID_TYPE> {
      * Writes all changed values to the given json object. Changed also means that the property might have been set
      * to {@code null} or an empty default value.
      * Noop for items without ID or without changes or unset properties.
-     * <p/>
+     * <p></p>
      * Does NOT remove the dirty state - this has to be done by the caller.
      *
      * @param jsonObject object to write to
@@ -716,7 +716,7 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Updates this instance based on the given json object. Does not check prior, if the source object is a valid
      * source (use {@link #updateFromJson(JsonObject)} in that case).
-     * <p/>
+     * <p></p>
      * Each key will be mapped with the json object. For
      * each key (when the value shall be written, see details below), the value will either be converted by
      * the key's {@link JsonItemPropertyConverter} or the {@link JsonUtils}. Json arrays will be converted
@@ -734,7 +734,7 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Updates this instance based on the given json object. Does not check prior, if the source object is a valid
      * source (use {@link #updateFromJson(JsonObject)} in that case).
-     * <p/>
+     * <p></p>
      * Each key will be mapped with the json object. The keys are obtained from {@link #getKeys()}. For
      * each key , the value will either be converted by
      * the key's {@link JsonItemPropertyConverter} or the {@link JsonUtils}. Json arrays will be converted
@@ -817,10 +817,10 @@ public abstract class JsonItem<ID_TYPE> {
      * the {@link JsonUtils} to convert the given json value to an Object. By default the methods
      * {@link JsonUtils#ofJsonValue(JsonValue, Class)} or
      * {@link JsonUtils#ofJsonValue(JsonValue, SerializableFunction, Collection, Class)} are called.
-     * <p/>
+     * <p></p>
      * The intention of this method is to allow easy change of the used {@link JsonUtils#ofJsonValue} method for
      * a custom json array conversion type.
-     * <p/>
+     * <p></p>
      * This method should not do anything else.
      *
      * @param jsonValue value to convert
@@ -879,7 +879,7 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * Creates a copy of this instance. Unset properties are initialized with a null value, when the boolean
      * parameter is set to true. Otherwise they will not be initialized.
-     * <p/>
+     * <p></p>
      * When this instance is known to the client, the new one will also be marked as known to the client.
      * <p></p>
      * Copying bases on using the keys and their expected official data types. If you use
@@ -902,7 +902,7 @@ public abstract class JsonItem<ID_TYPE> {
      * when the boolean parameter is set to true. Otherwise they will not be initialized.
      * <p></p>
      * The target type must be public and have a public no-args constructor.
-     * <p/>
+     * <p></p>
      * When this instance is known to the client, the new one will also be marked as known to the client.
      * <p></p>
      * Copying bases on using the keys and their expected official data types. If you use
@@ -948,7 +948,7 @@ public abstract class JsonItem<ID_TYPE> {
      * Creates a copy of this instance as the given target type. Passing null will create a copy of this type.
      * Unset properties are initialized with a null value,
      * when the boolean parameter is set to true. Otherwise they will not be initialized.
-     * <p/>
+     * <p></p>
      * When this instance is known to the client, the new one will also be marked as known to the client.
      * <p></p>
      * Copying bases on using the keys and their expected official data types. If you use
@@ -1100,7 +1100,7 @@ public abstract class JsonItem<ID_TYPE> {
         /**
          * Sets a default value, that shall be send to the client or returned by the {@link JsonItem#get(Key)}
          * method, if the key is not initialized. Will not be used, when the key is initialized with null.
-         * <p/>
+         * <p></p>
          * Having a default value means, that this property will always be initialized or send to the client
          * for a new object.
          */

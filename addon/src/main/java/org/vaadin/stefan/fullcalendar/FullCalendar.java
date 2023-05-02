@@ -288,7 +288,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * Sets the entry provider for this instance. The previous entry provider will be removed and the
      * client side will be updated.
-     * <p/>
+     * <p></p>
      * By default a new full calendar is initialized with an {@link InMemoryEntryProvider}.
      *
      * @param entryProvider entry provider
@@ -1101,7 +1101,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     /**
      * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone,
      * except for when the FC builder has been used with the auto timezone parameter.
-     * <p/>
+     * <p></p>
      * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
      *
      * @return optional client side timezone

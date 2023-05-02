@@ -398,7 +398,7 @@ public class Entry {
     /**
      * Returns the start time as a zoned date time using this entry's start time zone. By default this is
      * the calendar's timezone or, if no calendar is set yet, UTC.
-     * <p/>
+     * <p></p>
      * Calling {@link ZonedDateTime#toLocalDateTime()} returns the time including the offset as LocalDateTime.
      * @return start at current timezone or null
      */
@@ -410,7 +410,7 @@ public class Entry {
      * Returns the start time as a local date time after applying the timezone's offset to
      * the utc based start date ({@link #getStart()}). By default the timezone is
      * the calendar's timezone or, if no calendar is set yet, UTC.
-     * <p/>
+     * <p></p>
      * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone()} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
      * @return start with offset or null
@@ -422,10 +422,10 @@ public class Entry {
     /**
      * Returns the start time as a local date time after applying the timezone's offset to
      * the utc based start date ({@link #getStart()}).
-     * <p/>
+     * <p></p>
      * This method is intended to be used for new entrys that have not yet been added to the
      * calender and thus have no reference to its timezone.
-     * <p/>
+     * <p></p>
      * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone()} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
      * @return start with offset or null
@@ -463,10 +463,10 @@ public class Entry {
 
     /**
      * Sets the entry's start based on the zoned date time instance. The given date time will be converted to UTC.
-     * <p/>
+     * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting start time will be ...T00:00.
-     * <p/>
+     * <p></p>
      * @param startWithTimezone start with time zone
      */
     public void setStartWithTimezone(ZonedDateTime startWithTimezone) {
@@ -476,13 +476,13 @@ public class Entry {
     /**
      * Sets the entry's start. The given date time will be interpreted as having the offset of the
      * start time zone applied. The time will be converted to UTC.
-     * <p/>
+     * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting start time will be ...T00:00.
-     * <p/>
+     * <p></p>
      * This method is intended to be used in cases where the start time is edited in relation to
      * the current time zone (like a calendar entry editor).
-     * <p/>
+     * <p></p>
      *
      * @param startWithTimezone start with time zone
      */
@@ -493,13 +493,13 @@ public class Entry {
     /**
      * Sets the entry's start. The given date time will be interpreted as having the offset of the
      * given time zone applied. The time will be converted to UTC.
-     * <p/>
+     * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting start time will be ...T00:00.
-     * <p/>
+     * <p></p>
      * This method is intended to be used in cases where entry is not yet added to the calender and thus
      * cannot use its timezone to interpret the offset.
-     * <p/>
+     * <p></p>
      *
      * @param startWithTimezone start with time zone
      * @param timezone timezone
@@ -537,7 +537,7 @@ public class Entry {
     /**
      * Returns the end time as a zoned date time using this entry's end time zone. By default this is
      * the calendar's timezone or, if no calendar is set yet, UTC.
-     * <p/>
+     * <p></p>
      * Calling {@link ZonedDateTime#toLocalDateTime()} returns the time including the offset as LocalDateTime.
      * @return end at current timezone or null
      */
@@ -549,7 +549,7 @@ public class Entry {
      * Returns the end time as a local date time after applying the timezone's offset to
      * the utc based end date ({@link #getEnd()}). By default the timezone is
      * the calendar's timezone or, if no calendar is set yet, UTC.
-     * <p/>
+     * <p></p>
      * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone()} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
      * @return end with offset or null
@@ -561,10 +561,10 @@ public class Entry {
     /**
      * Returns the end time as a local date time after applying the timezone's offset to
      * the utc based end date ({@link #getEnd()}).
-     * <p/>
+     * <p></p>
      * This method is intended to be used for new entrys that have not yet been added to the
      * calender and thus have no reference to its timezone.
-     * <p/>
+     * <p></p>
      * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone()} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
      * @return end with offset or null
@@ -602,10 +602,10 @@ public class Entry {
 
     /**
      * Sets the entry's end based on the zoned date time instance. The given date time will be converted to UTC.
-     * <p/>
+     * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting end time will be ...T00:00.
-     * <p/>
+     * <p></p>
      * @param endWithTimezone end with time zone
      */
     public void setEndWithTimezone(ZonedDateTime endWithTimezone) {
@@ -615,13 +615,13 @@ public class Entry {
     /**
      * Sets the entry's end. The given date time will be interpreted as having the offset of the
      * end time zone applied. The time will be converted to UTC.
-     * <p/>
+     * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting end time will be ...T00:00.
-     * <p/>
+     * <p></p>
      * This method is intended to be used in cases where the end time is edited in relation to
      * the current time zone (like a calendar entry editor).
-     * <p/>
+     * <p></p>
      *
      * @param endWithTimezone end with time zone
      */
@@ -632,13 +632,13 @@ public class Entry {
     /**
      * Sets the entry's end. The given date time will be interpreted as having the offset of the
      * given time zone applied. The time will be converted to UTC.
-     * <p/>
+     * <p></p>
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting end time will be ...T00:00.
-     * <p/>
+     * <p></p>
      * This method is intended to be used in cases where entry is not yet added to the calender and thus
      * cannot use its timezone to interpret the offset.
-     * <p/>
+     * <p></p>
      *
      * @param endWithTimezone end with time zone
      * @param timezone timezone
@@ -1202,7 +1202,7 @@ public class Entry {
 
     /**
      * Sets custom properties.
-     * <p/>
+     * <p></p>
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
@@ -1215,7 +1215,7 @@ public class Entry {
 
     /**
      * Sets custom property for this entry. An existing property will be overwritten.
-     * <p/>
+     * <p></p>
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
@@ -1231,7 +1231,7 @@ public class Entry {
 
     /**
      * Returns a custom property (or null if not defined).
-     * <p/>
+     * <p></p>
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
@@ -1278,7 +1278,7 @@ public class Entry {
      * will be sent to the client when entries are refreshed.
      * <p></p>
      * Might be null.
-     * <p/>
+     * <p></p>
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
@@ -1306,7 +1306,7 @@ public class Entry {
     /**
      * Returns the map of the custom properties of this instance. This map is editable and any changes
      * will be sent to the client when the entry provider is refreshed.
-     * <p/>
+     * <p></p>
      * Creates and registers a new map, if none is there yet.
      * <p></p>
      * Be aware, that any non standard property you
