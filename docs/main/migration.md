@@ -10,8 +10,24 @@ If we missed something or anything is unclear, please ping us on GitHub. We hope
 as smoothly as possible.
 
 # Index
+* [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
+
+# Migrating from 4.1 > 6.0
+## Lit integration
+## Styling
+## Entry is "static" again, JsonItem is gone
+## No more EagerInMemoryEntryProvider
+## Minor things
+* deprecated stuff removed
+* CalendarLocale now an enum
+* week numbers within days is no longer available, weeknumbers are now always display inside days. simply remove
+* RenderingMode and alike namings have been named to DisplayMode / display to match the FC library naming. Also DisplayMode is now a top level class.
+* resize observer
+* options are not handled correctly on client side
+* new builder option to auto use browser locale
+
 
 # Migrating from 4.0 > 4.1
 ## Entry Provider and old CRUD operations

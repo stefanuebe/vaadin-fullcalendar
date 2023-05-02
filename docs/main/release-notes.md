@@ -2,7 +2,10 @@
 * [4.1.x](#41x)
 * [4.0.x](#40x)
 
-# 4.1.x (in progress)
+# 6.0.x
+TBD
+
+# 4.1.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-4.1.x)
 - added EntryProvider, a data provider like callback based class to allow lazy loading entries based on the actual displayed timespan
 

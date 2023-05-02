@@ -5,9 +5,6 @@ Take a look here  for a workaround https://github.com/stefanuebe/vaadin_fullcale
 
 Another good way to fix it is to provide the resources/events as JSON feed and refetch the events instead of removing and adding them back
 
-# Calendar size does not work anymore (V15)
-For some, currently unknown reason, the sizing by parent does not work anymore in V15. Please apply a concrete height for the calendar by using either `FullCalendar#setHeight(int)` or `FullCalendar#setHeightAuto()`. The 2nd one should work in combination with Vaadin's  `setHeight(String)` method.
-
 # Calendar crashes when clicking (V14+)
 For some, currently unknown reason, sizing a calendar after the view has changed manually on a newly created calendar lets the calendar crash, when clicking inside somewhere. I have no idea, why that is so. Please see https://github.com/stefanuebe/vaadin_fullcalendar/issues/45 for details and progress.
 
@@ -22,22 +19,3 @@ If the annotation is not added or added without any parameter and the issue occu
 the package `org.vaadin.stefan` plus other necessary package, that have to be scanned, as parameters.
 
 This should enable Spring to analyze all relevant npm dependencies at runtime. Other CDI version should work the same.
-
-If you are not using Spring, but have similiar issues try to add also the goal `build-frontend` to the vaadin maven plugin. This should resolve transitive npm dependencies at build time.
-
-For instance:
-```
-<plugin>
-    <groupId>com.vaadin</groupId>
-    <artifactId>vaadin-maven-plugin</artifactId>
-    <version>${vaadin.version}</version>
-    <executions>
-        <execution>
-            <goals>
-                <goal>prepare-frontend</goal>
-                <goal>build-frontend</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
-``` 
