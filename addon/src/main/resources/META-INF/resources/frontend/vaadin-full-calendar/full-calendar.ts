@@ -38,7 +38,7 @@ export type IterableObject = {
 
 type InitialCommand = (calendar: Calendar) => void;
 
-@customElement("full-calendar")
+@customElement("vaadin-full-calendar")
 export class FullCalendar extends ThemableMixin(LitElement) {
 
     private _calendar?: Calendar;
