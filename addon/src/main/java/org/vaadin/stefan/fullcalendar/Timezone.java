@@ -116,7 +116,7 @@ public class Timezone implements ClientSideValue {
     /**
      * Creates a zoned date time based on this timezone interpreting the given local date time as UTC time.
      * Passing ...T00:00 to a GMT+1 instance will result in local date time ...T01:00+01:00
-     * <p/>
+     * <p></p>
      * For the UTC instance this method will not modify anything. Passing null will return null.
      * @param localDateTime local date time to convert to a zoned date time
      * @return zoned date time representing the given local date time at this timezone
@@ -128,7 +128,7 @@ public class Timezone implements ClientSideValue {
     /**
      * Creates a UTC zoned date time by interpreting the given local date time as a timestamp of this time zone.
      * Passing ...T01:00 to a GMT+1 instance will result in local date time ...T00:00Z
-     * <p/>
+     * <p></p>
      * For the UTC instance this method will not modify anything.. Passing null will return null.
      * @param localDateTime local date time to convert to a zoned date time
      * @return zoned date time representing the given local date time at this timezone
@@ -143,7 +143,7 @@ public class Timezone implements ClientSideValue {
      * Creates a local date time based by apply the zone offset of this timezone onto the given local date time.
      * Any offset modifies like daylight saving will be based on the given local date time.
      * Passing ...T00:00 to a GMT+1 instance will result in local date time ...T01:00
-     * <p/>
+     * <p></p>
      * For the UTC instance this method will not modify anything, but return a new local date time instance.
      * Passing null will return null.
      * @param localDateTime local date time to convert to a zoned date time
@@ -157,7 +157,7 @@ public class Timezone implements ClientSideValue {
      * Creates a local date time based by removing the zone offset of this timezone from the given local date time.
      * Any offset modifies like daylight saving will be based on the given local date time.
      * Passing ...T01:00 to a GMT+1 instance will result in local date time ...T00:00
-     * <p/>
+     * <p></p>
      * For the UTC instance this method will not modify anything, but return a new local date time instance.
      * Passing null will return null.
      * @param localDateTime local date time to convert to a zoned date time

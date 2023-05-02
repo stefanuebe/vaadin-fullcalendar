@@ -95,7 +95,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * Returns the start time as a local date time after applying the timezone's offset to
      * the utc based start date ({@link #getStart()}). By default the timezone is
      * the calendar's timezone or, if no calendar is set yet, UTC.
-     * <p/>
+     * <p></p>
      * @return start with offset
      */
     public LocalDateTime getStartWithOffset() {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2</artifactId>
@@ -8,6 +9,7 @@
 
     <name>FullCalendar for Flow</name>
     <description>A web component that wraps the FullCalendar (https://fullcalendar.io).</description>
+    <url>https://vaadin.com/directory/component/full-calendar-flow</url>
 
     <properties>
         <vaadin.version>23.3.6</vaadin.version>
@@ -20,7 +22,6 @@
         <mockito.version>4.3.1</mockito.version>
         <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
         <lombok.version>1.18.24</lombok.version>
-
     </properties>
 
     <licenses>
@@ -30,6 +31,20 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/stefanuebe/vaadin_fullcalendar.git</connection>
+        <developerConnection>scm:git:ssh://github.com:stefanuebe/vaadin_fullcalendar.git</developerConnection>
+        <url>http://github.com/stefanuebe/vaadin_fullcalendar/tree/master</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Stefan Uebe</name>
+            <email>stefan.uebe@gmail.com</email>
+            <url>https://github.com/stefanuebe</url>
+        </developer>
+    </developers>
 
     <repositories>
         <!-- The order of definitions matters. Explicitly defining central here to make sure it has the highest priority. -->
@@ -213,6 +228,13 @@
         <!--        </dependency>-->
     </dependencies>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <!-- testing -->
@@ -241,7 +263,6 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
@@ -295,6 +316,116 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>maven-central</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- can lead to probs with lombok -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.5.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <quiet>true</quiet>
+                            <failOnError>false</failOnError>
+                            <failOnWarnings>false</failOnWarnings>
+                            <doclint>none</doclint>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <configuration>
+                            <archive>
+                                <index>true</index>
+                                <manifest>
+                                    <addClasspath>false</addClasspath>
+                                    <addDefaultImplementationEntries>true
+                                    </addDefaultImplementationEntries>
+                                </manifest>
+                                <manifestEntries>
+                                    <Vaadin-Package-Version>1</Vaadin-Package-Version>
+                                    <Implementation-Vendor>n/a</Implementation-Vendor>
+                                </manifestEntries>
+                            </archive>
+                            <!-- Generated file that shouldn't be included in add-ons -->
+                            <excludes>
+                                <exclude>META-INF/VAADIN/config/flow-build-info.json</exclude>
+                                <exclude>rebel.xml</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+
+<!--                    <plugin>-->
+<!--                        <groupId>net.ju-n.maven.plugins</groupId>-->
+<!--                        <artifactId>checksum-maven-plugin</artifactId>-->
+<!--                        <version>1.2</version>-->
+<!--                        <executions>-->
+<!--                            <execution>-->
+<!--                                <goals>-->
+<!--                                    <goal>artifacts</goal>-->
+<!--                                </goals>-->
+<!--                            </execution>-->
+<!--                        </executions>-->
+<!--                    </plugin>-->
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
 
         <profile>
             <id>directory</id>
