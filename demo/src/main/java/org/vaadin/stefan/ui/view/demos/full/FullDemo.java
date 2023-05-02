@@ -20,19 +20,17 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.DisplayMode;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.layouts.MainLayout;
-import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.*;
+import java.time.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 @Route(value = "", layout = MainLayout.class)
 @CssImport("./styles.css")
@@ -57,6 +55,8 @@ public class FullDemo extends AbstractSchedulerView {
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
 
         calendar.setSlotMinTime(LocalTime.of(7, 0));
         calendar.setSlotMaxTime(LocalTime.of(17, 0));
@@ -73,8 +73,12 @@ public class FullDemo extends AbstractSchedulerView {
 
         ((FullCalendarScheduler) calendar).setEntryResourceEditable(false);
 
+//        calendar.setEntryClassNamesCallback("function(arg) {\n" +
+//                "    return [ 'hello','world' ]\n" +
+//                "}");
 //        calendar.setEntryContentCallback("" +
 //                "function(arg, createElement) {" +
+//                " console.warn('hello');" +
 //                "  return createElement('i', {}, 'HELLO');" +
 //                "}");
 //        calendar.setEntryDidMountCallback(

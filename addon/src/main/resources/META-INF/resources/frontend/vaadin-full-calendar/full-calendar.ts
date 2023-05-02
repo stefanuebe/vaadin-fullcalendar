@@ -36,6 +36,8 @@ export type IterableObject = {
     hasOwnProperty: (key: string) => boolean;
 };
 
+type InitialCommand = (calendar: Calendar) => void;
+
 @customElement("full-calendar")
 export class FullCalendar extends ThemableMixin(LitElement) {
 
@@ -46,10 +48,12 @@ export class FullCalendar extends ThemableMixin(LitElement) {
 
     // stores any options, that are set before the calendar is attached using "setOption"
     private initialOptions: IterableObject = {}
+    private initialCommands: InitialCommand[] = [];
 
     moreLinkClickAction = "popover"
 
     private prefetchEnabled = false;
+
 
     protected render() {
         return html`
@@ -132,6 +136,9 @@ export class FullCalendar extends ThemableMixin(LitElement) {
                     this.calendar?.updateSize();
                 });
             }).observe(this);
+
+            // run all commands, that have been queued up before initialization
+            this.initialCommands.forEach(command => command.call(this, this._calendar!));
         }
     }
 
@@ -581,32 +588,32 @@ export class FullCalendar extends ThemableMixin(LitElement) {
     }
 
     next() {
-        this.calendar?.next();
+        this.executeWhenReady(calendar => calendar.next());
     }
 
     previous() {
-        this.calendar?.prev();
+        this.executeWhenReady(calendar => calendar.prev());
     }
 
     today() {
-        this.calendar?.today();
+        this.executeWhenReady(calendar => calendar.today());
     }
 
     gotoDate(date: DateInput) {
-        this.calendar?.gotoDate(date);
+        this.executeWhenReady(calendar => calendar.gotoDate(date));
     }
 
     scrollToTime(duration: DurationInput) {
-        this.calendar?.scrollToTime(duration);
+        this.executeWhenReady(calendar => calendar.scrollToTime(duration));
     }
 
     refreshAllEvents() {
-        this.calendar?.refetchEvents();
+        this.executeWhenReady(calendar => calendar.refetchEvents());
     }
 
     refreshSingleEvent(id: string) {
         console.debug(`refetch all events due to unsupported refresh single event ${id}`);
-        this.calendar?.refetchEvents();
+        this.executeWhenReady(calendar => calendar.refetchEvents());
     }
 
     /**
@@ -638,31 +645,42 @@ export class FullCalendar extends ThemableMixin(LitElement) {
     }
 
     changeView(viewName: string, date: DateInput | DateRangeInput | undefined) {
-        this.calendar?.changeView(viewName, date);
+        this.executeWhenReady(calendar => calendar.changeView(viewName, date));
     }
 
     renderCalendar() {
-        this.calendar?.render();
+        if (this.calendar) {
+            this.calendar.render();
+        }
     }
 
     setEventClassNamesCallback(s: string) {
-        this.calendar?.setOption('eventClassNames', new Function("return " + s)());
+        this.setOption('eventClassNames', new Function("return " + s)())
     }
 
     setEventDidMountCallback(s: string) {
-        this.calendar?.setOption('eventDidMount', new Function("return " + s)());
+        this.setOption('eventDidMount', new Function("return " + s)());
     }
 
     setEventWillUnmountCallback(s: string) {
-        this.calendar?.setOption('eventWillUnmount', new Function("return " + s)());
+        this.setOption('eventWillUnmount', new Function("return " + s)());
     }
 
     get calendar(): Calendar | undefined {
-        if (!this._calendar) {
-            console.warn("get calendar called before first updated. Needs a fix?");
-        }
+        // if (!this._calendar) {
+        //     console.warn("get calendar called before first updated. Needs a fix?");
+        // }
 
         return this._calendar;
+    }
+
+    private executeWhenReady(callback: InitialCommand) {
+        // TODO provide a proxy to make the calendar call more intuitive?
+        if (this.calendar) {
+            callback.call(this, this.calendar);
+        } else {
+            this.initialCommands.push(callback);
+        }
     }
 
 }
