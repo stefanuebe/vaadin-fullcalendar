@@ -26,7 +26,7 @@ import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import org.vaadin.stefan.fullcalendar.NotNull;
 import java.util.*;
 import java.util.stream.Stream;
 

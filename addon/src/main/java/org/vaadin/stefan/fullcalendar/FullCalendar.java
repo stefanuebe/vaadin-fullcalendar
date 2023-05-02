@@ -33,7 +33,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
 
-import javax.validation.constraints.NotNull;
+import org.vaadin.stefan.fullcalendar.NotNull;
 import java.io.Serializable;
 import java.time.*;
 import java.time.format.DateTimeFormatter;

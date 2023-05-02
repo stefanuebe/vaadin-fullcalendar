@@ -4,7 +4,7 @@ import com.vaadin.flow.function.SerializableFunction;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
 
-import javax.validation.constraints.NotNull;
+import org.vaadin.stefan.fullcalendar.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;

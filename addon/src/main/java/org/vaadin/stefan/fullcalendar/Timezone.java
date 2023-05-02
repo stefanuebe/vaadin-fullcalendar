@@ -16,7 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import javax.validation.constraints.NotNull;
+import org.vaadin.stefan.fullcalendar.NotNull;
 import java.time.*;
 import java.util.*;
 

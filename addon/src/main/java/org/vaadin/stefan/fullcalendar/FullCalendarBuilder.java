@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
-import javax.validation.constraints.NotNull;
+import org.vaadin.stefan.fullcalendar.NotNull;
 import java.util.Collection;
 import java.util.Objects;
 

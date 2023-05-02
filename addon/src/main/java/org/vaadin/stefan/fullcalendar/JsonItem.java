@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 
-import javax.validation.constraints.NotNull;
+import org.vaadin.stefan.fullcalendar.NotNull;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;

@@ -250,7 +250,6 @@ public class CalendarViewToolbar extends MenuBar {
             calendar.setLocale(value != null ? value : CalendarLocale.getDefaultLocale());
             Notification.show("Locale changed to " + calendar.getLocale().toLanguageTag());
         });
-        localeSelector.setPreventInvalidInput(true);
 
         timezoneSelector = new Select<>();
         timezoneSelector.setLabel("Timezone");

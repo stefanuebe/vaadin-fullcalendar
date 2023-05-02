@@ -70,7 +70,6 @@ public class DemoDialog extends Dialog {
 
         TextField fieldTitle = new TextField("Title");
         ComboBox<String> fieldColor = new ComboBox<>("Color", COLORS);
-        fieldColor.setPreventInvalidInput(false);
         fieldColor.setAllowCustomValue(true);
         fieldColor.addCustomValueSetListener(event -> fieldColor.setValue(event.getDetail()));
         fieldColor.setClearButtonVisible(true);

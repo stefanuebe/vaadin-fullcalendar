@@ -27,7 +27,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 
-import javax.validation.constraints.NotNull;
+import org.vaadin.stefan.fullcalendar.NotNull;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;

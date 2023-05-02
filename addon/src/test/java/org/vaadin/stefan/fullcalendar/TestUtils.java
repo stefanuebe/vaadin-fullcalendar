@@ -4,7 +4,7 @@ import com.vaadin.flow.function.SerializableFunction;
 import elemental.json.*;
 import org.junit.jupiter.api.Assertions;
 
-import javax.validation.constraints.NotNull;
+import org.vaadin.stefan.fullcalendar.NotNull;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
