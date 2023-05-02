@@ -56,9 +56,9 @@ public class FullDemo extends AbstractSchedulerView {
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
 
-        // initally change the view and go to a specific date
-        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
-        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
+        // initally change the view and go to a specific date - attention: this will not fire listeners as the client side is not initialized yet
+//        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
+//        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
 
         calendar.setSlotMinTime(LocalTime.of(7, 0));
         calendar.setSlotMaxTime(LocalTime.of(17, 0));

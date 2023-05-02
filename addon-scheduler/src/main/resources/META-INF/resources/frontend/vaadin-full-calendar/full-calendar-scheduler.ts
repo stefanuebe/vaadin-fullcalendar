@@ -16,19 +16,18 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {FullCalendar, IterableObject} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
+import {FullCalendar} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 
 export class FullCalendarScheduler extends FullCalendar {
 
     // stores any options, that are set before the calendar is attached using "setOption"
-    private initialSchedulerOptions: IterableObject = {}
 
     protected createInitOptions(initialOptions: any) {
         const options = super.createInitOptions(initialOptions);
 
-        options.resources = this.initialSchedulerOptions.resources ?? options.resources ?? [];
+        options.resources = options.resources ?? [];
 
         options.plugins.push(resourceTimeGridPlugin, resourceTimelinePlugin);
 
@@ -37,48 +36,30 @@ export class FullCalendarScheduler extends FullCalendar {
 
     addResources(array: any[], scrollToLast: boolean) {
         let calendar = this.calendar;
-        if (calendar) {
-            calendar.batchRendering(function () {
-                for (let i = 0; i < array.length; i++) {
-                    calendar!.addResource(array[i], scrollToLast);
-                }
-            });
-        } else {
-            if (!this.initialSchedulerOptions.resources) {
-                this.initialSchedulerOptions.resources = [];
+        calendar.batchRendering(function () {
+            for (let i = 0; i < array.length; i++) {
+                calendar.addResource(array[i], scrollToLast);
             }
-
-            this.initialSchedulerOptions.resources.push(...array);
-        }
+        });
     }
 
     removeResources(array: any[]) {
         let calendar = this.calendar;
-        if (calendar) {
-            calendar.batchRendering(function () {
-                for (let i = 0; i < array.length; i++) {
-                    const resource = calendar!.getResourceById(array[i].id);
-                    if (resource != null) {
-                        resource.remove();
-                    }
+        calendar.batchRendering(function () {
+            for (let i = 0; i < array.length; i++) {
+                const resource = calendar.getResourceById(array[i].id);
+                if (resource != null) {
+                    resource.remove();
                 }
-            });
-        } else {
-            console.warn("Removing specific resources before attaching is currently not supported. Please" +
-                " create a github issue at https://github.com/stefanuebe/vaadin_fullcalendar/issues," +
-                " if you need this function.")
-        }
+            }
+        });
     }
 
     removeAllResources() {
         let calendar = this.calendar;
-        if (calendar) {
-            calendar.batchRendering(function () {
-                calendar!.getResources().forEach(r => r.remove());
-            });
-        } else {
-            delete this.initialSchedulerOptions.resources;
-        }
+        calendar.batchRendering(function () {
+            calendar.getResources().forEach(r => r.remove());
+        });
     }
 
     setResourceLabelClassNamesCallback(s: string) {
