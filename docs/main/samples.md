@@ -172,6 +172,23 @@ private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
 }
 ```
 
+## Activate prefetch mode (experimental)
+By default the entry provider will always fetch data for the current period. Switching to an adjacent one can
+lead to flickering, since the calendar will resize itself due to the shown entries. 
+
+To prevent that flickering, the calendar can be set to "prefetch mode". When activated, the calendar will always
+fetch the previous and next period together with the current one. This means, that on switching to an adjacent
+period will initially show the previously fetched entries and update those with the latest state from the server.
+This leads to an increased amount of data transported between server and client, but will lead to a better
+user experience as the above mentioned flickering will be prevented.
+
+The prefetch mode tries to obtain the necessary period based on the current view range unit. The supported units
+are "day", "month" and "year". If no range unit could be determined, a warning will show up. If the range unit
+is not supported, prefetch will not work (in this case the calendar behaves as if prefetch has been disabled).
+
+Please note, that this functionality is still experimental, but should work fine in most use cases. Thus ee recommend
+to activate it to improve the user experience.
+
 # Setting the calendar's dimensions
 You may set the dimensions as with every other Vaadin component. The FC library also brings in some additional
 settings for content height or an aspect ratio, that should be taken into account. These can be set

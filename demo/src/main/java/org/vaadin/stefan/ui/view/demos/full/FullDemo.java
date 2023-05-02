@@ -48,11 +48,6 @@ public class FullDemo extends AbstractSchedulerView {
                 .withScheduler("GPL-My-Project-Is-Open-Source")
                 .build();
 
-//        calendar.setHeightAuto();
-
-        calendar.setHeight("300px");
-//        calendar.setWidth(400, Unit.PIXELS);
-
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
         ((FullCalendarScheduler) calendar).setSlotMinWidth("100");
         ((FullCalendarScheduler) calendar).setResourcesInitiallyExpanded(false);
