@@ -31,7 +31,6 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
 @Route(value = "tooltip", layout = MainLayout.class)
 @CssImport("./styles.css")
-@CssImport("./styles-scheduler.css")
 @PageTitle("FC with Tooltips")
 @MenuItem(label = "Tooltips")
 public class DemoWithTooltip extends AbstractCalendarView {
