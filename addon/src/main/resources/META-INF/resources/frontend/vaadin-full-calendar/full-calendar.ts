@@ -36,14 +36,10 @@ type InitialCommand = (calendar: Calendar) => void;
 
 export class FullCalendar extends HTMLElement {
 
-    private _calendar?: Calendar;
+    private _calendar!: Calendar;
 
     private noDatesRenderEvent = false;
     noDatesRenderEventOnOptionSetting = true;
-
-    // stores any options, that are set before the calendar is attached using "setOption"
-    private initialOptions: IterableObject = {}
-    private initialCommands: InitialCommand[] = [];
 
     moreLinkClickAction = "popover"
 
@@ -62,7 +58,7 @@ export class FullCalendar extends HTMLElement {
 
     protected initCalendar() {
         if (!this._calendar) {
-            let options = this.createInitOptions(this.initialOptions);
+            let options = this.createInitOptions();
 
             this._calendar = new Calendar(this, options);
 
@@ -85,7 +81,7 @@ export class FullCalendar extends HTMLElement {
             };
 
             // TODO this is somehow double to the initial options variant, might be reduced to one variant?
-            this._calendar.setOption = (key, value) => {
+            this._calendar.setOption = (key: any, value: any) => {
                 if (key === "eventDidMount" || key === "eventContent") {
                     // in these cases add custom api to the event to allow for instance accessing custom properties
                     _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
@@ -120,9 +116,6 @@ export class FullCalendar extends HTMLElement {
                     this.calendar?.updateSize();
                 });
             }).observe(this);
-
-            // run all commands, that have been queued up before initialization
-            this.initialCommands.forEach(command => command.call(this, this._calendar!));
         }
     }
 
@@ -502,45 +495,36 @@ export class FullCalendar extends HTMLElement {
      */
     setOptions(options: any = {}) {
         let calendar = this.calendar;
+        this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
 
-        if (calendar) {
-            this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
-
-            for (let key in options) {
-                let value: any = options[key];
-                this.handleTimeZoneChange(calendar, /*key, */value);
-                // @ts-ignore
-                calendar.setOption(key, value);
-            }
-            this.noDatesRenderEvent = false;
-        } else {
-            this.initialOptions = {...options};
+        for (let key in options) {
+            let value: any = options[key];
+            this.handleTimeZoneChange(calendar, /*key, */value);
+            // @ts-ignore
+            calendar.setOption(key, value);
         }
+        this.noDatesRenderEvent = false;
     }
 
     setOption(key: string, value: any) {
         let calendar = this.calendar;
-        if (calendar) {
-            if (key === "eventContent") {
-                console.warn("DEPRECATED: Setting the event content callback after the calendar has" +
-                    " been initialized is no longer supported. Please use the initial options to set the 'eventContent'.");
-            }
+        if (key === "eventContent") {
+            console.warn("DEPRECATED: Setting the event content callback after the calendar has" +
+                " been initialized is no longer supported. Please use the initial options to set the 'eventContent'.");
+        }
+
+        // @ts-ignore
+        let oldValue = calendar.getOption(key);
+        if (oldValue != value) {
+            this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
 
             // @ts-ignore
-            let oldValue = calendar.getOption(key);
-            if (oldValue != value) {
-                this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
+            calendar.setOption(key, value);
+            this.noDatesRenderEvent = false;
 
-                // @ts-ignore
-                calendar.setOption(key, value);
-                this.noDatesRenderEvent = false;
-
-                if (key === "timeZone") {
-                    this.handleTimeZoneChange(calendar, value);
-                }
+            if (key === "timeZone") {
+                this.handleTimeZoneChange(calendar, value);
             }
-        } else {
-            this.initialOptions[key] = value;
         }
     }
 
@@ -570,32 +554,32 @@ export class FullCalendar extends HTMLElement {
     }
 
     next() {
-        this.executeWhenReady(calendar => calendar.next());
+        this.calendar.next();
     }
 
     previous() {
-        this.executeWhenReady(calendar => calendar.prev());
+        this.calendar.prev();
     }
 
     today() {
-        this.executeWhenReady(calendar => calendar.today());
+        this.calendar.today();
     }
 
     gotoDate(date: DateInput) {
-        this.executeWhenReady(calendar => calendar.gotoDate(date));
+        this.calendar.gotoDate(date);
     }
 
     scrollToTime(duration: DurationInput) {
-        this.executeWhenReady(calendar => calendar.scrollToTime(duration));
+        this.calendar.scrollToTime(duration);
     }
 
     refreshAllEvents() {
-        this.executeWhenReady(calendar => calendar.refetchEvents());
+        this.calendar.refetchEvents();
     }
 
     refreshSingleEvent(id: string) {
         console.debug(`refetch all events due to unsupported refresh single event ${id}`);
-        this.executeWhenReady(calendar => calendar.refetchEvents());
+        this.calendar.refetchEvents();
     }
 
     /**
@@ -627,7 +611,7 @@ export class FullCalendar extends HTMLElement {
     }
 
     changeView(viewName: string, date: DateInput | DateRangeInput | undefined) {
-        this.executeWhenReady(calendar => calendar.changeView(viewName, date));
+        this.calendar.changeView(viewName, date);
     }
 
     renderCalendar() {
@@ -648,23 +632,13 @@ export class FullCalendar extends HTMLElement {
         this.setOption('eventWillUnmount', new Function("return " + s)());
     }
 
-    get calendar(): Calendar | undefined {
+    get calendar(): Calendar{
         if (!this._calendar) {
             this.initCalendar();
         }
 
         return this._calendar;
     }
-
-    private executeWhenReady(callback: InitialCommand) {
-        // TODO provide a proxy to make the calendar call more intuitive?
-        if (this.calendar) {
-            callback.call(this, this.calendar);
-        } else {
-            // this.initialCommands.push(callback);
-        }
-    }
-
 }
 
 customElements.define("vaadin-full-calendar", FullCalendar);
