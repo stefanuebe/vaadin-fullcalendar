@@ -18,3 +18,8 @@
 .fc-icon-minus-square:before {
     transform: rotate(90deg);
 }
+
+/* fix the header */
+.fc thead tr.fc-scrollgrid-section-header th {
+    background: transparent;
+}

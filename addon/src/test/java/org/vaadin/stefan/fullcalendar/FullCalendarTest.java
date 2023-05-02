@@ -138,15 +138,6 @@ public class FullCalendarTest {
         assertOptionalEquals(DayOfWeek.SUNDAY, calendar.getOption(Option.FIRST_DAY));
         assertOptionalEquals(0, calendar.getOption(Option.FIRST_DAY, true));
 
-        calendar.setHeight(500);
-        assertOptionalEquals(500, calendar.getOption(Option.HEIGHT));
-
-        calendar.setHeightByParent();
-        assertOptionalEquals("parent", calendar.getOption(Option.HEIGHT));
-
-        calendar.setHeightAuto();
-        assertOptionalEquals("auto", calendar.getOption(Option.HEIGHT));
-
         assertNPE(calendar, c -> c.setLocale(null));
 
         Locale locale = CalendarLocale.GREEK.getLocale();

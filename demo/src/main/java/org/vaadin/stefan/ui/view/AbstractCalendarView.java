@@ -54,8 +54,6 @@ public abstract class AbstractCalendarView extends VerticalLayout {
                 .onSamplesCreated(this::onEntriesCreated)
                 .onSamplesRemoved(this::onEntriesRemoved));
 
-        calendar.setHeightByParent();
-
         if (toolbar != null) {
             calendar.addDatesRenderedListener(event -> {
                 toolbar.updateInterval(event.getIntervalStart());
@@ -90,7 +88,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
 
         add(calendar);
 
-        setFlexGrow(1, calendar);
+//        setFlexGrow(1, calendar);
         setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
         setSizeFull();

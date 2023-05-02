@@ -51,7 +51,7 @@ public abstract class EntryDataEvent extends EntryEvent {
      */
     public Entry applyChangesOnEntry() {
         Entry entry = getEntry();
-        entry.updateFromJson(getJsonObject());//        getSource().updateEntry(entry); // TODO this is an extra roundtrip, not needed currently?
+        entry.updateFromJson(getJsonObject());
         return entry;
     }
 

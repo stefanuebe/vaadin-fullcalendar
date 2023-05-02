@@ -146,9 +146,7 @@ export class FullCalendar extends ThemableMixin(LitElement) {
         let events = this.createEventHandlers();
 
         let options = {
-            height: '100%',
             timeZone: 'UTC',
-
             // // no native control elements
             headerToolbar: false,
             weekNumbers: true,

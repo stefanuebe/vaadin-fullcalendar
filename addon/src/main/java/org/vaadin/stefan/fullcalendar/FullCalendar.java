@@ -209,6 +209,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         // currently disabled, since a ResizeObserver is registered on the client side
         setOption("handleWindowResize", false);
+
+        setHeightFull(); // default from previous versions
     }
 
     @Override
@@ -640,29 +642,42 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     *
      * Sets the calendar's height to a fixed amount of pixels.
      *
      * @param heightInPixels height in pixels (e.g. 300)
+     * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
      */
+    @Deprecated
     public void setHeight(int heightInPixels) {
-        setOption(Option.HEIGHT, heightInPixels);
+        setHeight(heightInPixels, Unit.PIXELS);
     }
 
     /**
      * Sets the calendar's height to be calculated from parents height. Please be aware, that a block parent with
      * relative height (e. g. 100%) might not work properly. In this case use flex layout or set a fixed height for
      * the parent or the calendar.
+     * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
      */
+    @Deprecated
     public void setHeightByParent() {
-        setOption(Option.HEIGHT, "parent");
+        setHeight("100%");
     }
 
     /**
      * Sets the calendar's height to be calculated automatically. In current implementation this means by the calendars
      * width-height-ratio.
+     * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
      */
+    @Deprecated
     public void setHeightAuto() {
-        setOption(Option.HEIGHT, "auto");
+        setHeight("auto");
+    }
+
+    @Override
+    public void setHeight(String height) {
+        // we use the calendar option as it would otherwise override the plain style set by Vaadin
+        setOption(Option.HEIGHT, height);
     }
 
     /**

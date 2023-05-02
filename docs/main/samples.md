@@ -1,5 +1,6 @@
 # Creating a basic calendar instance and add an entry
-The FullCalendar is a normal Vaadin component, that can be added to your view as any other component. By default it uses an eager loading in memory entry provider, with which you simply can add, update or remove calendar entries.
+The FullCalendar is a normal Vaadin component, that can be added to your view as any other component. By default it uses
+an eager loading in memory entry provider, with which you simply can add, update or remove calendar entries.
 
 ```java
 
@@ -80,39 +81,16 @@ calendar.addEntryClickListener(event -> /* ... */);
 # Entry providers
 > Introduced in version 4.1
 
-Entry providers allow you to minimize the memory footprint by activating lazy loading for calendar entries. The only exception from that is the `EagerInMemoryEntryProvider`, which simulates the old behavior of the FullCalendar.
+Entry providers allow you to minimize the memory footprint by activating lazy loading for calendar entries. The only 
+exception from that is the `EagerInMemoryEntryProvider`, which simulates the old behavior of the FullCalendar.
 
-The following examples show the different types of `EntryProvider`s and how to use them. The eager variant is the way to get rid of the deprecated API in the `FullCalendar`.
+The following examples show the different types of `EntryProvider`s and how to use them. The eager variant is the way 
+to get rid of the deprecated API in the `FullCalendar`.
 
-## In memory eager loading
-The eager in memory entry provider keeps all entries in server and client side memory. It takes care of automatically update the client side on changes. Please be aware, that this approach might have a huge impact on your memory and performance. On the other hand it may lead to faster calendar period switches, when the network connection is slow.
-
-Follow this example, when you want to replace the deprecated FullCalendar Entry CRUD API
-
-```java
-// load items from backend
-List<Entry> entryList = backend.streamEntries().collect(Collectors.toList());
-
-// since the calendar is initialized with an eager in memory provider, the next two calls are optional
-EagerInMemoryEntryProvider<Entry> entryProvider = EntryProvider.eagerInMemoryFromItems(entryList);
-calendar.setEntryProvider(entryProvider);
-
-// CRUD operations - we should not call refreshAll, since that will send ALL data back to the client
-// The eager in memory provider takes care of that itself.
-
-// to add
-Entry entry = new Entry();       // ... plus some init
-entryProvider.addEntries(entry); // register in data provider
-
-// after some change
-entryProvider.updateEntry(entry);
-
-// to remove
-entryProvider.removeEntry(entry);
-```
-
-## In memory lazy loading
-The `LazyInMemoryEntryProvider` caches all registered entries on the server side, but provides only a subset of them to the client (i. e. the entries of the current shown timespan). This way you can use the CRUD API on the server side without the need of implementing it yourself. On the other hand the client will be kept free of unnecessary information.
+## In memory entry provider
+The `InMemoryEntryProvider` caches all registered entries on the server side, but provides only a subset of them to 
+the client (i. e. the entries of the current shown period). This way you can use the CRUD API on the server side 
+without the need of implementing it yourself. On the other hand the client will be kept free of unnecessary information.
 
 ```java
 // load items from backend
@@ -139,7 +117,9 @@ entryProvider.refreshAll(); // call refresh to inform the client about the data 
 ```
 
 ## Using callbacks
-The callback entry provider is a base implementation of the `EntryProvider` interface. It does care about how the backend creates or stores the entry data, but only fetches the entries to show from it by passing a query. The backend is responsible for providing the entries and handle any changes to the data (e. g. due to calendar entry events).
+The callback entry provider is a base implementation of the `EntryProvider` interface. It does care about how the 
+backend creates or stores the entry data, but only fetches the entries to show from it by passing a query. The backend 
+is responsible for providing the entries and handle any changes to the data (e. g. due to calendar entry events).
 
 ```java
 // the callback provider uses the given callback to fetch entries when necessary
@@ -167,7 +147,8 @@ entryProvider.refreshAll();   // call refresh to inform the client about the
 ```
 
 ## Custom implementation
-Feel free to create your own custom implementation, for instance to provide advanced internal caching on the server side. We recommend to extend the `AbstractEntryProvider` to start with.
+Feel free to create your own custom implementation, for instance to provide advanced internal caching on the server 
+side. We recommend to extend the `AbstractEntryProvider` to start with.
 
 The simples variant is similar to the callback variant, but with its own class:
 
@@ -191,33 +172,12 @@ private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
 }
 ```
 
-
 # Setting the calendar's dimensions
-```java
-// The embedded calendar has its own height calculation based on the container. That has to be
-// respected, when emebedding the calendar. 
-// Depending on the parent's "display" setting, it may differ how you want to set the calendar's height.
+You may set the dimensions as with every other Vaadin component. The FC library also brings in some additional
+settings for content height or an aspect ratio, that should be taken into account. These can be set
+via the Options API.
 
-// Variant 1: parent is a flex-box container (e.g. VerticalLayout)
-// Here we recommend to use setHeightByParent together with flex-box properties.
-calendar.setHeightByParent(); // calculate the height by parent
-calendar.getElement().getStyle().set("flex-grow", "1");
-
-// if parent is for instance a vertical layout, you may also use the dedicated java api here
-VerticalLayout parent = ...;
-calendar.setHeightByParent();
-parent.add(calendar);
-parent.setFlexGrow(1, calendar);
-parent.setHorizontalAlignment(Alignment.STRETCH);
-
-// Variant 2: parent is a block container (e.g. normal Divs).
-// you can set the height in different ways        
-calendar.setHeight(500); // fixed pixel height
-calendar.setHeightAuto(); // auto height
-calendar.setHeightByParent(); // height by parent
-        
-calendar.setSizeFull(); // also set the size full to take all the content
-```
+See https://fullcalendar.io/docs/sizing for details.
 
 # Using timezones
 ```java
@@ -267,7 +227,7 @@ The following example shows the default initial options as they are set internal
 
 ```java
 JsonObject initialOptions = Json.createObject();
-initialOptions.put("height", "parent");
+initialOptions.put("height", "100%");
 initialOptions.put("timeZone", "UTC");
 initialOptions.put("header", false);
 initialOptions.put("weekNumbers", true);
@@ -278,92 +238,41 @@ calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initi
 ```
 
 # Style the calendar
-## Modifiy the calendar's appearance by using a custom polymer class.
-Create a custom component, that extends FullCalendar or FullCalendarScheduler.
-Override the static template method and reuse the parent's methods to create the basic styles.
+## Global styles
+Since 6.0 the component is part of the light dom and thus can be styles via plain css. For any details
+on styling the FC please refer to the FC docs (regarding css properties, classes, etc.).
 
-The following example shows how a custom class extends the basic fc class and adds it's own styles. It will
-set the background of the "today" cell to red.
+The styles can be defined as you are used to using the Vaadin theme mechanism or `@CssImport`s.
 
-Please note, that you also need a Java class using this Polymer class on the server side. The Scheduler is
-working the same way, please have a look at its implementation for further details.
-
-```javascript
-import {html} from '@polymer/polymer/polymer-element.js';
-import {FullCalendar} from '@vaadin/flow-frontend/full-calendar';
-
-export class MyFullCalendar extends FullCalendar {
-    static get template() {
-        return html`
-            ${this.templateCalendarCss} // defined in the parent class
-            
-            ${this.templateCustomCalendarCss} // defined in this class
-        
-            ${this.templateElementCss} // defined in the parent class
-            ${this.templateContainer} // defined in the parent class
-        `;
-    }
-
-    static get templateCustomCalendarCss() {
-        return html`
-        <style>
-             .fc-unthemed td.fc-today {
-               background: red;
-             }
-        </style>
-        `;
-    }
-}
-
-customElements.define('my-full-calendar', MyFullCalendar);
-```
-
-## Modify the calendar's appearance by adding a custom style element
-You can add a style tag to the existing full calendar implementation to add custom styles.  
-Please be advised, that this method can be used to introduce malicious code into your
-page, so you should be sure, that the added css code is safe (e.g. not taken from user input or the databse).
-
-```java
-String customCss = "" +
-    ".fc-today.fc-day {" + // marks today with red
-    "   background-color: red !important;" +
-    "}";
-calendar.addCustomStyles(customCss);
-```
-
-## Modify the calendar's appearance by using css variables (deprecated with 4.x)
-
-**Please note, that this approach is no longer supported with the version 4.x and we will not provide any support, when using this functionality. Please use one of the other approaches.**
-
-1. Copy the styles.css from the GitHub demo or create your own css file and place it in your
-   applications frontend folder (e. g. frontend/styles/my-custom-full-calendar-styles.css)
-
-An example file can be found from here:
-https://github.com/stefanuebe/vaadin_fullcalendar/blob/master/demo/frontend/styles.css
-
-Please be aware, that these custom properties are generated from the original styles. Since some dom elements
-have classes, which are not used in the css files, there are no generated custom attributes for these class
-combinations. In that case you'll have to subclass the Polymer class.
-Also with version 4.x the css properties will not be maintained any longer.
-
-
-2. Modify the styles as needed.
+Sample styles.css
 ```css
-html{
-    /* light blue to be used instead of default light yellow*/
-    --fc-unthemed_tdfc-today-background: #81DAF5 !important;
-    
-    /* and some fancy border */
-    --fc_td-border-style: dotted !important;
-    --fc_td-border-width: 2px !important;
+/* change the border color of the fc in a global way*/
+.fc {
+    --fc-border-color: #ddd; 
 }
-```
 
-3. Use the styles file in your application.
-```java
-@CssImport("./styles/my-custom-full-calendar-styles.css")
-public class FullCalendarApplication extends ... {
-    // ...
+/* change the border color of the fc for dark themes*/
+[theme~="dark"] .fc {
+    --fc-border-color: #333; 
+}
+
+
+/* change the appearance of the week and day number to a more button like style when hovering */
+.fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number) {
+    background: transparent;
+    font-size: 12px;
+    transition: background 200ms ;
+    border-radius: 3px;
+}
+
+.fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number):hover {
+    background: var(--lumo-primary-color-10pct);
+    text-decoration: none;
+}
+
+.fc a.fc-daygrid-day-number {
+    padding-left: 6px;
+    padding-right: 6px;
 }
 ```
 
@@ -441,7 +350,7 @@ FullCalendar calendar = FullCalendarBuilder.create()
 ```
 
 # Creating a subclass of FullCalendar for custom mods
-1. Create a custom Polymer component
+1. Create a custom Lit component
    Create a custom component, that extends FullCalendar or FullCalendarScheduler.
 
 For changes on the appeareance, override the static template method and reuse the parent's methods
@@ -450,10 +359,11 @@ to create the basic styles and layout (see example for modifying FC's appearance
 For changes on the initial options see the following example.
 
 ```javascript
-import {html} from '@polymer/polymer/polymer-element.js';
-import {FullCalendar} from '@vaadin/flow-frontend/full-calendar';
+import {FullCalendar} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar';
+import {customElement} from "lit/decorators.js";
 
-export class MyFullCalendar extends FullCalendar {
+@customElement("my-full-calendar")
+export class FullCalendarWithTooltip extends FullCalendar {
     _createInitOptions() {
         var options = super._createInitOptions();
         options.eventContent = function (event, element) {
@@ -463,8 +373,6 @@ export class MyFullCalendar extends FullCalendar {
         return options;
     }
 }
-
-customElements.define('my-full-calendar', MyFullCalendar);
 ```
 
 2. Create a subclass of FullCalendar
@@ -502,7 +410,7 @@ calendar = new MyFullCalendar(5);
 Entry entry = new Entry();
 // ... setup entry details
         
-entry.setRenderingMode(Entry.RenderingMode.BACKGROUND);
+entry.setDisplayMode(DisplayMode.BACKGROUND);
 calendar.addEntry(entry);
 
 # Adding business hours
@@ -532,7 +440,9 @@ full-calendar-with-tooltips.js
 ```javascript
 import {FullCalendarScheduler} from '@vaadin/flow-frontend/full-calendar-scheduler.js';
 import tippy from 'tippy.js';
+import {customElement} from "lit/decorators.js";
 
+@customElement("full-calendar-with-tooltip")
 export class FullCalendarWithTooltip extends FullCalendarScheduler {
     static get is() {
         return 'full-calendar-with-tooltip';
@@ -571,7 +481,6 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
     }
 }
 
-customElements.define(FullCalendarWithTooltip.is, FullCalendarWithTooltip);
 ```
 
 2. Now create a simple JavaClass, that utilizes your js file. This Java class also imports the needed CSS files.
@@ -588,57 +497,25 @@ public class FullCalendarWithTooltip extends FullCalendarScheduler {
     }
 }
 ```
-# Use the low level JsonItem API to modify a calendar item
-> Introduced in version 4.0
+# Entry data utilities
+## Handling data changes in events
+When an event occurs, you may want to check or apply the event's changes against the related calendar item.
 
-In normal use cases you should use the provided high level api to access the `Entry`'s properties, e.g.
-`setTitle(String)` or `getStart()`.
+You may either do this manually or use the provided utility functions, that are part of the `EntryDataEvent` classe 
+(and subclasses).
 
-But there might be scenarios, where you want to override the provided behavior for some reasons, e.g.
-due to a bug or missing feature.
+It might come in handy, that you get changes from an event in form of an `Entry` object instead of the different
+changed values of the event itself. 
 
-Subclasses of `JsonItem` (for instance `Entry` and `ResourceEntry`, there might be additional in future) provide
-a  `set(Key, ...)` and a `get(Key)` method (and variants), which are also used internal. With these you may access
-a property of a predefined `Key` or define your own using the `KeyBuilder`.
+To do so, you can simply call the method `createCopyBasedOnChanges()` method, that the `EntryDataEvent` provides.
+This will create complete copy of the entry but with the changes of the event applied. This copy will not be added to 
+the calendar and is simply intended for data checks.
 
-Let's say we've forgotten to create a high level api to set the "foo" property of the entry. You can simply create
-your own key and either set/get the respective value on the Entry instance directly or extend it with
-your own Entry class.
+To apply any incoming changes to the related `Entry`, the event class provides the method `applyChangesOnEntry()`.
+This will override the entry with the event data, but not automatically update the client side. This is up to you
+to do with an `refreshItem()` or `refreshAll()` call. Also any backend updates (except for the in memory provider)
+needs to be handled by your logic.
 
-```java
-public class ExtendedEntry extends Entry {
-
-    private static final Set<Key> KEYS = Key.readAndRegisterKeysAsUnmodifiable(ExtendedKey.class);
-
-    @Override
-    public Set<Key> getKeys() {
-        return KEYS;
-    }
-
-    public boolean isFoo() {
-        return get(KEY_FOO , false); // alternatively we can use native based methods like getBoolean(Key)
-    }
-
-    public void setFoo(boolean foo) {
-        set(KEY_FOO , foo);
-    }
-
-   public static class ExtendedKey extends EntryKey {
-       private static final Key KEY_FOO = JsonItem.Key.builder()
-           .name("foo")
-           .updateFromClientAllowed(true)
-           .build();
-   }
-}
-```
-
-That's all. You may provide additional information on the key, like a converter or some restrictions,
-but for now that is all you need. The JsonItem will take care of converting the given property and its
-value to json and back (if you want that). Also it takes care of only sending changed values to the
-client when updating an existing item, to prevent unnecessary network overhead.
-
-When allowed, events, that apply changes to your server side entries will also take the new property
-into consideration, if it had changed.
 ```java
     // directly apply the changes
     calendar.addEntryDroppedListener(event -> {
@@ -656,9 +533,12 @@ into consideration, if it had changed.
 ```
 
 ## Create a temporary copy
-The JsonItem provides a copy API, that allows you to create a copy of an entry or from a given entry. This allows you easily create temporary instances for an edit dialog without needing to write a lot of "get-set" calls. This is useful, when your binders work with the `setBean` api
+The `Entry` class provides a copy API, that allows you to create a copy of an entry or from a given entry. With this you 
+can easily create temporary instances for an edit dialog without needing to write a lot of "get-set" calls. This is 
+useful, when your binders work with the `setBean` api
 
-Please be aware, that this api is considered "experimental" and might not work in every special use case or with every custom property key.
+Please be aware, that this api is considered "experimental" and might not work in every special use case or with every 
+custom property key.
 
 ```java
 Entry entry = ...;
