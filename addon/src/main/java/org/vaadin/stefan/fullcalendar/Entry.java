@@ -34,7 +34,7 @@ import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 
-import javax.validation.constraints.NotNull;
+import org.vaadin.stefan.fullcalendar.NotNull;
 import java.lang.reflect.Field;
 import java.time.*;
 import java.util.*;
