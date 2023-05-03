@@ -34,7 +34,6 @@ import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.lang.reflect.Field;
 import java.time.*;
 import java.util.*;
@@ -963,16 +962,6 @@ public class Entry {
      */
     public void setDisplayMode(DisplayMode displayMode) {
         this.displayMode = displayMode != null ? displayMode : DisplayMode.AUTO;
-    }
-
-    /**
-     * Sets the rendering mode ("display") for this entry. Passing null will reset it to the default.
-     * @param displayMode rengeringMode
-     * @deprecated use {@link #setDisplayMode(DisplayMode)}
-     */
-    @Deprecated
-    public void setRenderingMode(DisplayMode displayMode) {
-        setDisplayMode(displayMode);
     }
 
     /**

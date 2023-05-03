@@ -15,19 +15,117 @@ as smoothly as possible.
 * [3.x > 4.0](#migrating-from-3x--40)
 
 # Migrating from 4.1 > 6.0
-## Removed polymer, moved to light dom
-## Styling
-## Entry is "static" again, JsonItem is gone
-## No more EagerInMemoryEntryProvider
-## Minor things
-* deprecated stuff removed
-* CalendarLocale now an enum
-* week numbers within days is no longer available, weeknumbers are now always display inside days. simply remove
-* RenderingMode and alike namings have been named to DisplayMode / display to match the FC library naming. Also DisplayMode is now a top level class.
-* resize observer
-* options are not handled correctly on client side
-* new builder option to auto use browser locale
+Depending on your Vaadin version you may need to update also other things, related to Vaadin core and Spring Boot.
+Steps to be taken there, will not be covered here.
 
+## Removed polymer
+Since Polymer has been removed from Vaadin 24, we decided to convert the JS elements to plain, HTML element based
+web components. Thus, this version should work with Vaadin 23 and 24. 
+
+For most cases this should not affect your application. However, if you subclasses the javascript classes, you may need
+to adapt some of the changes. Any Polymer related feature needs to be converted to plain javascript. If you used
+properties, you should still be able to set those via the Flow Java API, but you simply have to declare them as normal
+JS class fields.
+
+Also please note, that the content of the component is now part of the light dom. This will most likely affect
+any custom stylings you may have defined. See the next part for details.
+
+## Styling
+Since the component is now part of the light dom, you have the advantages and disadvantages of it. 
+
+Any custom styles you may have defined via overriding the JS class or via using the Java method `addCustomStyles` 
+can now be simply defined via plain css style files. So simply take your css snippets and move them to your global
+css styles (however they are strucutred :) ).
+
+Please be aware, that due to being part of the light dom, any other stylings may bleed into the FC now or vice versa.
+But our experience showed, that the majority of our user base preferred the light dom variant, thus we decided to
+go this way.
+
+## Folder structure and tags
+We changed the folder structure and tag names a bit to better represent the Vaadin nature of this addon and to
+prevent potential naming conflicts. Therefore the the files will now be placed inside a folder named
+`vaadin-full-calendar`. The file names themselves have not changed.
+
+If you subclasses one of the FC JavaScript classes, simply update the folder structure to be something like
+`@vaadin/flow-frontend/vaadin-full-calendar/full-calendar`. You may need to add the file suffix ".ts".
+
+Additionally we prefixed the element tag names with a `vaadin-`, so that the FC itself now has the tag 
+`vaadin-full-calendar`. This is relevant, if you used the old tag names for styling or dom querying purposes.
+In that case update the tag names.
+
+## TypeScript
+We migrated the old JS files to TypeScript. But this process is not yet done and thus there are many things still in
+progress (mainly the definition of custom types and some code refinement). 
+
+Nevertheless, for the normal use case, this has no effect. If you subclassed the JS classes, feel free to convert
+it to TypeScript, but be aware, we do not yet have any fancy TypeScript stuff. But it will come somewhere in future ;)
+
+## No more EagerInMemoryEntryProvider
+To make maintenance of the client side a bit easier and less error prone, we decided to remove the 
+`EagerInMemoryEntryProvider` and thus have the client side always be in "lazy loading" mode. This means, that there is 
+no official way anymore to move all entries to the client side at once.
+
+Of course you still can override this behavior by using simple JS, but we do not recommend to do
+that as all infrastructure is built around the fetching mechanisms.
+
+The `LazyInMemoryEntryProvider` has been renamed to `InMemoryEntryProvider`. Rename all imports and class occurrences.
+Also the static methods inside EntryProvider have been renamed from `lazyInMemoryFromItems` to `inMemoryFrom`.
+
+Replace any usage of the eager variant with the (now) default one. You also need to call `refreshAll`/`refreshItem` 
+after you changed the data in the provider. This behavior aligns to the behavior to the normal Vaadin data provider.
+
+The `updateMethod` of the eager variant has no replacement in the default one, as items are not pushed to the client,
+but fetched. When the client shall be updated, call the refresh methods instead.
+
+There are also other methods, that where some variant of `Eager`. Simply replace them with the now default one and
+check, if refreshs are necessary in your use cases.
+
+### Prefetch mode
+There is now a prefetch mode, that allows fetching adjacent periods. This shall prevent flickering, when switching
+to the previous/next period. See the samples page for details.
+
+## Entry is "static" again, JsonItem is gone
+This part describes a rare use case and should not be affecting most of the FC users.
+
+With 4.x we tried to make the `Entry` structure more dynamic to allow easier definition of new properties and automate
+the update mechanism a bit. Unfortunately the approach we took was not practicable in all use cases and we even had
+some issues with proxying and mocking mechanisms.
+
+Due to that we decided to go back to the POJO approach as we had it prior to 4.x. This means, if you had extended
+the `Entry` class to add properties using the `Key` mechanism, we are sorry, but you will have to convert your
+subclass. 
+
+### Json annotations
+Nevertheless, some ideas have survived this rollback. Especially automating the conversion and update process is still
+something we do not want to miss. To make life a bit easier, there are now annotations to mark class fields for
+automated conversion and allow them to be updated. Check the `Entry` source code and annotations in the `json` 
+subpackage, if you want or need to use those annotations.
+
+## Deprecated methods have been removed
+### Calendar Entry CRUD
+Replace Calendar Entry CRUD calls with `getEntryProvider().asInMemoryProvider()`, e.g. 
+```java
+// before
+calendar.addEntry(entry);
+
+calendar.getEntryProvider().asInMemoryProvider().addEntry(entry)
+```
+
+We know, this might be cumbersome for use cases, where you only use the in memory provider, but with having a cleaner
+api in mind this is a step we need to take. Sorry for the inconvenience.
+
+### Entry Resource API
+Resource methods in `Entry` are now more aligned to other Vaadin item api, so replace for instance `assignResources`
+with `addResources`.
+
+### Other changes
+* RenderingMode has been renamed to DisplayMode to align with the FC library and is a top class now. 
+  Replace it and related methods respectively.
+* Entry's method `copy(Class<T>)` has been renamed to `copyAsType(Class<T>)`.
+* Entry's method `getResources` now may return `null`. Use `getOrCreateResources`. We wanted to have the names here being aligned to other namings in Entry.
+* `CalendarLocale` is now an enum. This should not affect you in most use cases.
+* The option "week numbers within days" is no longer available, week numbers are now always display inside days by the FC library. Simply remove any calls to that setting.
+* Since we used the javax @NotNull annotation a lot for better dx, but Vaadin 24 will no longer support that due to Spring Boot 3, we decided to add our own annotation to provide additional information without potential naming conflicts. 
 
 # Migrating from 4.0 > 4.1
 ## Entry Provider and old CRUD operations
