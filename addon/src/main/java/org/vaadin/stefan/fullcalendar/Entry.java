@@ -106,6 +106,7 @@ public class Entry {
     /**
      * The referenced calendar instance. Can be null.
      */
+    @JsonIgnore
     private FullCalendar calendar;
 
     /**
@@ -143,6 +144,12 @@ public class Entry {
         this.calendar = calendar;
     }
 
+    /**
+     * Converts the given instance to a json object representing its inner state. This json is intended to be
+     * transported to and interpreted by the client and thus should not be modified manually, except for concrete
+     * reasons.
+     * @return json
+     */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public JsonObject toJson() {
         // The toJson is implemented in a dynamic fashion to not need to extend it every time a
@@ -192,8 +199,35 @@ public class Entry {
         return json;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    /**
+     * Updates this instance with the given json object. Only fields, that are updateable will be overwritten.
+     * Throws an exception, when the given json object has not the same id as this instance.
+     * @param jsonObject json object
+     */
     public void updateFromJson(JsonObject jsonObject) {
+        updateFromJson(jsonObject, true);
+    }
+
+    /**
+     * Updates this instance with the given json object. Only fields, that are updateable will be overwritten.
+     * Based on the boolean parameter, the id will be either ignored (false) or has to be the same as this instance's one
+     * (true), otherwise an exception will be thrown
+     *
+     * @param jsonObject json object
+     * @param requiresMatchingId require the ids to match
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void updateFromJson(JsonObject jsonObject, boolean requiresMatchingId) {
+        if (requiresMatchingId) {
+            if (!jsonObject.hasKey(Fields.ID)) {
+                throw new IllegalArgumentException("JsonObject has no id. Id matching is required.");
+            }
+
+            if (!id.equals(jsonObject.getString(Fields.ID))) {
+                throw new IllegalArgumentException("Id matching is required. This id is " + id + " but the json object provided " + jsonObject.getString(Fields.ID));
+            }
+        }
+
         streamProperties().forEach(def -> {
             String name = def.getName();
             Field field = def.getField();
@@ -362,6 +396,24 @@ public class Entry {
 
     protected Stream<BeanProperties<Entry>> streamProperties() {
         return PROPERTIES.stream();
+    }
+
+    /**
+     * Streams all properties, that are updateable. A property counts as updateable, if it is not annotated with
+     * {@link JsonIgnore}, it is annotated with {@link JsonUpdateAllowed} and has a setter.
+     * @return updateable properties
+     */
+    protected Stream<BeanProperties<Entry>> streamUpdateableProperties() {
+        return streamProperties().filter(def -> {
+            Field field = def.getField();
+            try {
+                return field.getAnnotation(JsonIgnore.class) == null
+                        && field.getAnnotation(JsonUpdateAllowed.class) != null
+                        && def.getSetter().isPresent();
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        });
     }
 
     /**

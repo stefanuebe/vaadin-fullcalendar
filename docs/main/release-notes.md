@@ -17,6 +17,7 @@
 - JsonItem has been removed, Entry is a "normal field" class again due to issues with proxying frameworks
 - setHeight has been minimalized to be more aligned with Vaadin standards. FC internal height settings / options are not
   supported anymore. Calendar content will take only as much space as needed.
+- added type `RecurringTime` to allow setting an entry recurrence of more than 24h
 
 Minor changes:
 - getResources now may return null. Use getOrCreateResources. 

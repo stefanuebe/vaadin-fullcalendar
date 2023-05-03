@@ -6,6 +6,7 @@ import lombok.Getter;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Objects;
 
 /**
  * A simple time class, that allows times above 24 hours, since the FC allows recurring times to "bleed" into the
@@ -13,7 +14,7 @@ import java.time.LocalTime;
  */
 @Getter
 @EqualsAndHashCode
-public class RecurringTime {
+public final class RecurringTime {
     private final int hour;
     private final int minute;
 
@@ -36,19 +37,63 @@ public class RecurringTime {
         this.minute = minute % 60;
     }
 
+    /**
+     * Creates a new instance based on the given integers. Both parameters must not be negative.
+     * Hours has no limit (except for Integer.MAX). Passing 60 minutes or more will automatically increase the given
+     * hours value.
+     * @param hours hours
+     * @param minutes minutes (values 60+ will be merged into hours)
+     * @return new instance
+     * @throws IllegalArgumentException when negative values are passed
+     */
     public static RecurringTime of(int hours, int minutes) {
         return new RecurringTime(hours, minutes);
     }
 
+
+    /**
+     * Creates a new instance based on the given integer. The parameter must not be negative.
+     * Hours has no limit (except for Integer.MAX).
+     * @param hours hours
+     * @return new instance
+     * @throws IllegalArgumentException when negative values are passed
+     */
+    public static RecurringTime of(int hours) {
+        return new RecurringTime(hours, 0);
+    }
+
+    /**
+     * Creates an instance based on the given local time.
+     * @param time local time
+     * @return new instance
+     */
     public static RecurringTime of(LocalTime time) {
         return of(time.getHour(), time.getMinute());
     }
 
+    /**
+     * Creates a new instance of the given string. The string must follow the same rules as the integer based constructor.
+     * Expects hours and minutes in "HH:mm" format. Minutes can be left out (e.g. "1" for 1 hour), leading zeros are also
+     * optional. Passing 60 minutes or more will automatically increase the given hours value.
+     * @param string hours:minutes string
+     * @return new instance
+     * @throws NumberFormatException when the string cannot be parsed to integer(s)
+     * @throws IllegalArgumentException when a blank string or negative values are passed
+     */
     public static RecurringTime of(String string) {
+        if (string.isBlank()) {
+            throw new IllegalArgumentException("String must not be blank");
+        }
+
         String[] split = string.split(":");
 
         // add additional exception handling, if necessary
-        return of(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+        int hours = Integer.parseInt(split[0].trim());
+        if (split.length == 1) {
+            return of(hours);
+        }
+
+        return of(hours, Integer.parseInt(split[1].trim()));
     }
 
     /**
@@ -88,7 +133,11 @@ public class RecurringTime {
      * @return new instace with changed hours
      */
     public RecurringTime plusHours(int hours) {
-        return new RecurringTime(this.hour + hours, minute);
+        int totalMinutes = this.toTotalMinutes();
+        totalMinutes += hours * 60;
+        int[] times = fromTotalMinutes(totalMinutes);
+
+        return new RecurringTime(times[0], times[1]);
     }
 
     /**
@@ -100,7 +149,11 @@ public class RecurringTime {
      * @return new instace with changed minutes
      */
     public RecurringTime plusMinutes(int minutes) {
-        return new RecurringTime(hour, this.minute + minutes);
+        int totalMinutes = this.toTotalMinutes();
+        totalMinutes += minutes;
+        int[] times = fromTotalMinutes(totalMinutes);
+
+        return new RecurringTime(times[0], times[1]);
     }
 
     public boolean isValidLocalTime() {
@@ -131,7 +184,9 @@ public class RecurringTime {
         return hour * 60 + minute;
     }
 
-
+    private int[] fromTotalMinutes(int totalMinutes) {
+        return new int[] {totalMinutes / 60, totalMinutes % 60};
+    }
 
 }
 
