@@ -19,13 +19,17 @@
   supported anymore. Calendar content will take only as much space as needed.
 
 Minor changes:
-- getResources now may return null. Use getOrCreateResources. Has been aligned to other namings in Entry.
+- getResources now may return null. Use getOrCreateResources. 
 - CalendarLocale is now an enum. Use getLocale() to obtain the contained locale value.
-- week numbers within days is no longer available, weeknumbers are now always display inside days. simply remove
+- week numbers within days is no longer available, weeknumbers are now always display inside days.
 - RenderingMode and alike namings have been named to DisplayMode / display to match the FC library naming. Also DisplayMode is now a top level class.
 - added resize observer to client side to automatically take care of resizes
+- added our own @NotNull annotation to allow support for Vaadin 23 and 24
+- Entry's method `copy(Class<T>)` has been renamed to `copyAsType(Class<T>)`.
 
 Other things that we may have overseen :) 
+
+Due to lack of time, we have no release note details at this time. We tried to provide additional info as part of the migration page. 
 
 # 4.1.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-4.1.x)
