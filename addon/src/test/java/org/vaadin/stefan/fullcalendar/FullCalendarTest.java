@@ -3,12 +3,10 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEventBusUtil;
 import com.vaadin.flow.dom.Element;
 import elemental.json.Json;
-import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
 import java.io.Serializable;
@@ -211,7 +209,7 @@ public class FullCalendarTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        var entryProvider = calendar.getEntryProvider().asInMemory();
+        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
         entryProvider.addEntry(entry1);
         entryProvider.addEntry(entry2);
         entryProvider.addEntry(entry3);
@@ -319,7 +317,7 @@ public class FullCalendarTest {
         FullCalendar calendar = createTestCalendar();
 
 
-        var entryProvider = calendar.getEntryProvider().asInMemory();
+        InMemoryEntryProvider entryProvider = calendar.getEntryProvider().asInMemory();
         entryProvider.addEntry(new Entry());
         entryProvider.addEntry(new Entry());
         entryProvider.addEntry(new Entry());
@@ -334,7 +332,7 @@ public class FullCalendarTest {
     void testGetEntriesReturnListCopy() {
         FullCalendar calendar = createTestCalendar();
 
-        var entryProvider = calendar.getEntryProvider().asInMemory();
+        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
         entryProvider.addEntry(new Entry());
         entryProvider.addEntry(new Entry());
         entryProvider.addEntry(new Entry());
@@ -427,7 +425,7 @@ public class FullCalendarTest {
         Entry allDayEntry = createEntry("allDay", "title", refDateAsDateTime, refDateAsDateTime.plus(1, ChronoUnit.DAYS), true, true, "color", null);
         Entry timedEntry = createEntry("timed", "title", refDateTime, refDateTime.plus(1, ChronoUnit.HOURS), false, true, "color", null);
 
-        var entryProvider = calendar.getEntryProvider().asInMemory();
+        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
         entryProvider.addEntry(allDayEntry);
         entryProvider.addEntry(timedEntry);
 
@@ -521,7 +519,7 @@ public class FullCalendarTest {
 //        Entry allDayEntry = createEntry("allDay", "title", refDate, refDate.plus(1, ChronoUnit.DAYS), true, true, "color", null);
 //        Entry timedEntry = createEntry("timed", "title", refDateTime, refDateTime.plus(1, ChronoUnit.HOURS), false, true, "color", null);
 //
-//        var entryProvider = calendar.getEntryProvider().asInMemory();
+//        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
 //        entryProvider.addEntry(allDayEntry);
 //        entryProvider.addEntry(timedEntry);
 //

@@ -25,8 +25,6 @@ import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 
-import javax.annotation.Nullable;
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -118,7 +116,11 @@ public class ResourceEntry extends Entry {
         return resources;
     }
 
-    @Nullable
+    /**
+     * Returns this instance's resources. Can be null.
+     * @see #getOrCreateResources()
+     * @return resources.
+     */
     public Set<Resource> getResources() {
         return this.resources;
     }

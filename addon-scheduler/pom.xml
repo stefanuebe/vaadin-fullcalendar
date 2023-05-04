@@ -12,10 +12,12 @@
     </description>
 
     <properties>
-        <vaadin.version>23.3.12</vaadin.version>
+        <vaadin.version>14.10.0</vaadin.version>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
 
         <fullcalendar.version>6.0.0-SNAPSHOT</fullcalendar.version>
-        <maven.compiler.release>11</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <junit.version>5.5.2</junit.version>

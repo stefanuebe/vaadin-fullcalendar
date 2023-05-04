@@ -12,18 +12,18 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>23.3.12</vaadin.version>
+        <vaadin.version>24.0.5</vaadin.version>
 
         <fullcalendar.version>6.0.0-SNAPSHOT</fullcalendar.version>
         <fullcalendar.scheduler.version>6.0.0-SNAPSHOT</fullcalendar.scheduler.version>
-        <maven.compiler.release>11</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
         <lombok.version>1.18.24</lombok.version>
-        <spring-boot.version>2.7.5</spring-boot.version>
+        <spring-boot.version>3.0.5</spring-boot.version>
     </properties>
 
     <licenses>
@@ -107,13 +107,6 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.vaadin.stefan</groupId>
             <artifactId>fullcalendar2-scheduler</artifactId>
             <version>${fullcalendar.scheduler.version}</version>
@@ -127,31 +120,10 @@
             <scope>provided</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.vaadin</groupId>-->
-<!--            <artifactId>vaadin</artifactId>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.vaadin</groupId>-->
-<!--            <artifactId>vaadin-testbench-unit</artifactId>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
     </dependencies>
 
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>3.3.2</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -195,6 +167,12 @@
                 <configuration>
                     <pnpmEnable>true</pnpmEnable>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
             </plugin>
 
         </plugins>

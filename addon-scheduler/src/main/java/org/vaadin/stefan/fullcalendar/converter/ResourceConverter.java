@@ -42,7 +42,8 @@ public class ResourceConverter implements JsonItemPropertyConverter<Set<Resource
                     .filter(Objects::nonNull)
                     .map(Object::toString)
                     .map(calendar::getResourceById)
-                    .flatMap(Optional::stream)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
         }
 

@@ -413,7 +413,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public <T extends CalendarView> Optional<T> lookupViewName(String viewName) {
         Optional<T> optional = super.lookupViewName(viewName);
-        if (optional.isEmpty()) {
+        if (!optional.isPresent()) {
             optional = (Optional<T>) SchedulerView.ofClientSideValue(viewName);
         }
         return optional;

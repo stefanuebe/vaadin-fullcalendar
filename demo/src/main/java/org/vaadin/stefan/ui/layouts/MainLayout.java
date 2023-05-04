@@ -40,11 +40,7 @@ public class MainLayout extends AbstractLayout {
 //        addMenu(nav, DemoTimelineWith28Days.class); // TODO overhaul the demo first
         addMenu(nav, DemoDayGridWeekWithSixWeeks.class);
         addMenu(nav, MultiMonthSelectionDemo.class);
-        addMenu(nav, InlineCalendarDemo.class);
-
-
-
-
+//        addMenu(nav, InlineCalendarDemo.class);
     }
 }
 

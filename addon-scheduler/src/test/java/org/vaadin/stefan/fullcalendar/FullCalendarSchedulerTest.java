@@ -216,7 +216,7 @@ public class FullCalendarSchedulerTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        var entryProvider = calendar.getEntryProvider().asInMemory();
+        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
         entryProvider.addEntries(entry1, entry2, entry3, entry3);
 
         Collection<Entry> entries = entryProvider.getEntries();
@@ -239,7 +239,7 @@ public class FullCalendarSchedulerTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        var entryProvider = calendar.getEntryProvider().asInMemory();
+        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
         entryProvider.addEntries(Arrays.asList(entry1, entry2, entry3, entry3));
 
         Collection<Entry> entries = entryProvider.getEntries();
@@ -262,7 +262,7 @@ public class FullCalendarSchedulerTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        var entryProvider = calendar.getEntryProvider().asInMemory();
+        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
         entryProvider.addEntries(entry1, entry2, entry3);
         entryProvider.removeEntries(entry1, entry2);
 
@@ -282,7 +282,7 @@ public class FullCalendarSchedulerTest {
         Entry entry2 = new Entry();
         Entry entry3 = new Entry();
 
-        var entryProvider = calendar.getEntryProvider().asInMemory();
+        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
         entryProvider.addEntries(entry1, entry2, entry3);
         entryProvider.removeEntries(Arrays.asList(entry1, entry2));
 

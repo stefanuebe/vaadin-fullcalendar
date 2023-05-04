@@ -1038,7 +1038,7 @@ public class Entry {
      * @see #isRecurring()
      */
     public void setRecurringDaysOfWeek(DayOfWeek... daysOfWeek) {
-        setRecurringDaysOfWeek(daysOfWeek.length == 0 ? null : new HashSet<>(List.of(daysOfWeek)));
+        setRecurringDaysOfWeek(daysOfWeek.length == 0 ? null : new HashSet<>(Arrays.asList(daysOfWeek)));
     }
 
     public void setRecurringDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
