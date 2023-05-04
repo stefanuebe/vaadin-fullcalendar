@@ -46,9 +46,9 @@ public abstract class AbstractCalendarView extends VerticalLayout {
 
         toolbar = createToolbar(CalendarViewToolbar.builder()
                 .calendar(calendar)
-                .settingsAvailable(true)
-                .viewChangeable(true)
-                .dateChangeable(true)
+                .settingsAvailable(isToolbarSettingsAvailable())
+                .viewChangeable(isToolbarViewChangeable())
+                .dateChangeable(isToolbarDateChangeable())
                 .editable(true)
                 .allowAddingRandomItemsInitially(true)
                 .onSamplesCreated(this::onEntriesCreated)
@@ -92,6 +92,24 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
         setSizeFull();
+
+        postConstruct(calendar);
+    }
+
+    protected boolean isToolbarDateChangeable() {
+        return true;
+    }
+
+    protected boolean isToolbarViewChangeable() {
+        return true;
+    }
+
+    protected boolean isToolbarSettingsAvailable() {
+        return true;
+    }
+
+    protected void postConstruct(FullCalendar calendar) {
+        // NOOP
     }
 
     /**

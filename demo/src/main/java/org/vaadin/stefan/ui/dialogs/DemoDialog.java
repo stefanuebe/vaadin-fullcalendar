@@ -38,7 +38,7 @@ public class DemoDialog extends Dialog {
     @Setter
     private SerializableConsumer<Entry> onDeleteConsumer;
 
-    private final ResourceEntry tmpEntry;
+    private final Entry tmpEntry;
 
     private final CustomDateTimePicker fieldStart;
     private final CustomDateTimePicker fieldEnd;
@@ -54,7 +54,7 @@ public class DemoDialog extends Dialog {
         this.resetPeriodOnAllDayChange = entry.isAllDay();
 
         // tmp entry is a copy. we will use its start and end to represent either the start/end or the recurring start/end
-        this.tmpEntry = entry.copy();
+        this.tmpEntry = entry.copyAsType(entry.getClass());
 
         this.recurring = entry.isRecurring();
         tmpEntry.setStart(recurring ? entry.getRecurringStart() : entry.getStartWithOffset());

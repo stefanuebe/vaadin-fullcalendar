@@ -92,7 +92,7 @@ public class FullCalendarSchedulerTest {
     void testNonArgsConstructor() {
 
         // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 1);
+        assertExistingOptionCount(calendar, 2);
         Assertions.assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
     }
 
@@ -103,7 +103,7 @@ public class FullCalendarSchedulerTest {
         calendar.setMaxEntriesPerDay(entryLimit);
 
         // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 1);
+        assertExistingOptionCount(calendar, 2);
         Assertions.assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
 
         Assertions.assertEquals(entryLimit, calendar.getOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY).orElse(-1));

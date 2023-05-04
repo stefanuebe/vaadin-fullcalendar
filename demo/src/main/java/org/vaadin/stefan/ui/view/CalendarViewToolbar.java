@@ -101,7 +101,7 @@ public class CalendarViewToolbar extends MenuBar {
     }
 
     private void initDateItems() {
-        addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
+        addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous()).setId("period-previous-button");
 
         // simulate the date picker light that we can use in polymer
         DatePicker gotoDate = new DatePicker();
@@ -325,14 +325,14 @@ public class CalendarViewToolbar extends MenuBar {
         verticalLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
         subMenu.add(verticalLayout);
 
-//        subMenu.addItem("Detach/Attach Calendar", event -> {
-//            if (calendar.getParent().isPresent()) {
-//                calendarParent = (HasComponents) calendar.getParent().get();
-//                calendarParent.remove(calendar);
-//            } else if (calendarParent != null) {
-//                calendarParent.add(calendar);
-//            }
-//        });
+        subMenu.addItem("Detach/Attach Calendar", event -> {
+            if (calendar.getParent().isPresent()) {
+                calendarParent = (HasComponents) calendar.getParent().get();
+                calendarParent.remove(calendar);
+            } else if (calendarParent != null) {
+                calendarParent.add(calendar);
+            }
+        });
 
         return subMenu;
     }
