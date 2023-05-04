@@ -15,19 +15,19 @@
 
 
 /* change the appearance of the week and day number to a more button like style when hovering */
-.fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number) {
+.fc:not(.inline-calendar) a:is(.fc-daygrid-week-number, .fc-daygrid-day-number) {
     background: transparent;
     font-size: 12px;
     transition: background 200ms ;
     border-radius: 3px;
 }
 
-.fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number):hover {
+.fc:not(.inline-calendar) a:is(.fc-daygrid-week-number, .fc-daygrid-day-number):hover {
     background: var(--lumo-primary-color-10pct);
     text-decoration: none;
 }
 
-.fc a.fc-daygrid-day-number {
+.fc:not(.inline-calendar) a.fc-daygrid-day-number {
     padding-left: 6px;
     padding-right: 6px;
 }
@@ -35,4 +35,7 @@
 full-calendar-with-tooltip {
     display: block;
 }
+
+
+
 

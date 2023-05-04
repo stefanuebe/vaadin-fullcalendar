@@ -38,12 +38,10 @@ export class FullCalendar extends HTMLElement {
 
     private _calendar!: Calendar;
 
-    private noDatesRenderEvent = false;
-    noDatesRenderEventOnOptionSetting = true;
-
-    moreLinkClickAction = "popover"
-
-    private prefetchEnabled = false;
+    protected noDatesRenderEvent = false;
+    protected noDatesRenderEventOnOptionSetting = true;
+    protected moreLinkClickAction = "popover"
+    protected prefetchEnabled = false;
 
     connectedCallback() {
         if (!this._calendar) {
