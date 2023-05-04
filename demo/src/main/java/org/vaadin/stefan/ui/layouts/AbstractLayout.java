@@ -28,8 +28,6 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
-import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -44,7 +42,7 @@ import java.util.Locale;
 @CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
 public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
-    public static final String ADDON_VERSION = "6.0.0.alpha1";
+    public static final String ADDON_VERSION = "6.0.0-SNAPSHOT";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")

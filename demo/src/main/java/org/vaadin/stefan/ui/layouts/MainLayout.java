@@ -21,6 +21,7 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
+import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthSelectionDemo;
 import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
 
@@ -37,6 +38,9 @@ public class MainLayout extends AbstractLayout {
 //        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
 //        addMenu(nav, DemoTimelineWith28Days.class); // TODO overhaul the demo first
         addMenu(nav, DemoDayGridWeekWithSixWeeks.class);
+        addMenu(nav, MultiMonthSelectionDemo.class);
+
+
 
 
     }
