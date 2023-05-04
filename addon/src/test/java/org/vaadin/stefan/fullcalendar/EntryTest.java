@@ -98,7 +98,7 @@ public class EntryTest {
         JsonObject jsonObject = entry.toJson();
 
 
-        Set<String> defaultKeys = Set.of(
+        Set<String> defaultKeys = new HashSet<>(Arrays.asList(
                         Fields.ID,
                         Fields.EDITABLE,
                         Fields.DURATION_EDITABLE,
@@ -106,7 +106,7 @@ public class EntryTest {
                         Fields.ALL_DAY,
                         Fields.OVERLAP,
                         Fields.DISPLAY_MODE
-                )
+                ))
                 .stream()
                 .map(EntryTest::getEntryFieldJsonName)
                 .collect(Collectors.toSet());

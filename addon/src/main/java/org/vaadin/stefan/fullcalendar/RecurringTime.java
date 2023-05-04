@@ -81,7 +81,7 @@ public final class RecurringTime {
      * @throws IllegalArgumentException when a blank string or negative values are passed
      */
     public static RecurringTime of(String string) {
-        if (string.isBlank()) {
+        if (string.trim().isEmpty()) {
             throw new IllegalArgumentException("String must not be blank");
         }
 

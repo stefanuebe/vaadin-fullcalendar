@@ -717,7 +717,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     public Locale getLocale() {
         Optional<Object> option = getOption(Option.LOCALE);
 
-        if (option.isEmpty()) {
+        if (!option.isPresent()) {
             return CalendarLocale.getDefaultLocale();
         }
 
