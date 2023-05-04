@@ -1,4 +1,4 @@
-window.Vaadin.Flow.multiMonthSelectionUtils = {
+window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
 
     // register the multi month selection for the given FC calendar instance
     register: function (calendar) {
@@ -27,11 +27,20 @@ window.Vaadin.Flow.multiMonthSelectionUtils = {
                     this.unmarkSelectedCells(calendar.__multiMonth);
 
                     if (lastHoveredCell) {
-                        // increase last hovered cell date by one day
-                        let date = new Date(lastHoveredCell.dataset.date);
-                        date.setDate(date.getDate() + 1);
+                        let startDate = new Date(startCell.dataset.date);
+                        let endDate = new Date(lastHoveredCell.dataset.date);
 
-                        calendar.select(startCell.dataset.date, date);
+                        // swap dates if necessary
+                        if (startDate > endDate) {
+                            let tmp = startDate;
+                            startDate = endDate;
+                            endDate = tmp;
+                        }
+
+                        // increase end date by one day to match fc behavior of excluding the end date
+                        endDate.setDate(endDate.getDate() + 1);
+
+                        calendar.select(startDate, endDate);
                     } else {
                         calendar.select(startCell.dataset.date);
                     }

@@ -1512,6 +1512,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Clears the current selection. This is only necessary, if after a selection no further click is required
+     * by the user (e.g. through a dialog button). Any click by the user will clear the selection automatically.
+     */
+    public void clearSelection() {
+        getElement().executeJs("this.calendar.unselect()");
+    }
+
+    /**
      * Enumeration of possible options, that can be applied to the calendar. Contains only options, that affect
      * the client side library, but not internal options. Also this list may not contain all options, but the most
      * common used ones. Any missing option can be set manually using one of the {@link FullCalendar#setOption} methods

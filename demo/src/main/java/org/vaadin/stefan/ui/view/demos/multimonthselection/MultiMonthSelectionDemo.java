@@ -27,7 +27,7 @@ public class MultiMonthSelectionDemo extends CallbackEntryProviderDemo {
 
         calendar.addAttachListener(event -> // refire things, when reattached
             calendar.getElement()
-                .executeJs("window.Vaadin.Flow.multiMonthSelectionUtils.register(this.calendar)")
+                .executeJs("window.Vaadin.Flow.multiMonthCrossSelectionUtils.register(this.calendar)")
                 .then(jsonValue -> calendar.changeView(CalendarViewImpl.MULTI_MONTH))
         );
 
