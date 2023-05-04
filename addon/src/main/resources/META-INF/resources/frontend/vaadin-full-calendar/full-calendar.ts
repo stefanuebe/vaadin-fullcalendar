@@ -25,6 +25,7 @@ import multiMonthPlugin from '@fullcalendar/multimonth';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all';
+import { ResizeObserver } from 'resize-observer';
 
 // Simple type, that allows JS object property access via ["xyz"]
 export type IterableObject = {
@@ -32,7 +33,7 @@ export type IterableObject = {
     hasOwnProperty: (key: string) => boolean;
 };
 
-type InitialCommand = (calendar: Calendar) => void;
+// type InitialCommand = (calendar: Calendar) => void;
 
 export class FullCalendar extends HTMLElement {
 
