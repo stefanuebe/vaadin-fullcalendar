@@ -45,7 +45,7 @@ window.Vaadin.Flow.multiMonthSelectionUtils = {
             }
         };
 
-        window.addEventListener("mousedown", calendar.__multiMonth.mouseDownListener);
+        element.addEventListener("mousedown", calendar.__multiMonth.mouseDownListener);
 
         // maps the calendar's date cells to their dates to allow easier access on mouse move
         // will be refreshed on each period change
@@ -129,11 +129,4 @@ window.Vaadin.Flow.multiMonthSelectionUtils = {
         return undefined;
     },
 
-    // clears the initial mouse down listener
-    unregister: function (calendar) {
-        if (calendar.__multiMonth) {
-            window.removeEventListener("mousedown", calendar.__multiMonth.mouseDownListener);
-            delete calendar.__multiMonth;
-        }
-    },
 }

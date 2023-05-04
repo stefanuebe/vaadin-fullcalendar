@@ -23,16 +23,13 @@ public class MultiMonthSelectionDemo extends CallbackEntryProviderDemo {
 
     @Override
     protected void postConstruct(FullCalendar calendar) {
+        calendar.setTimeslotsSelectable(false); // important
 
-
-
-//        calendar.addAttachListener(event ->
-        calendar.getElement()
+        calendar.addAttachListener(event -> // refire things, when reattached
+            calendar.getElement()
                 .executeJs("window.Vaadin.Flow.multiMonthSelectionUtils.register(this.calendar)")
-                .then(jsonValue -> calendar.changeView(CalendarViewImpl.MULTI_MONTH));
-//        );
-        calendar.addDetachListener(event ->
-                calendar.getElement().executeJs("window.Vaadin.Flow.multiMonthSelectionUtils.unregister(this.calendar)"));
+                .then(jsonValue -> calendar.changeView(CalendarViewImpl.MULTI_MONTH))
+        );
 
     }
 }
