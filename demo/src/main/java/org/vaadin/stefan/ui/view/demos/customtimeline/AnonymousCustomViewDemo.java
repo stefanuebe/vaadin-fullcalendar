@@ -13,8 +13,7 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
 import java.util.List;
 
-@Route(value = "anonymous-custom-view", layout = MainLayout.class)
-@MenuItem(label = "Anonymous Custom View")
+// not a registered route since it shall only provide some sample code for the "old" way of adding custom views
 public class AnonymousCustomViewDemo extends AbstractSchedulerView {
 
     private SomeCalendarView calendarView;

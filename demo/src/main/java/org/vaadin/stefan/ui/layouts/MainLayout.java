@@ -37,7 +37,6 @@ public class MainLayout extends AbstractLayout {
 //        addMenu(nav, DemoCustomProperties.class); // TODO overhaul the demo first
 //        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
         addMenu(nav, CustomViewDemo.class);
-        addMenu(nav, AnonymousCustomViewDemo.class);
         addMenu(nav, MultiMonthCrossMonthSelectionDemo.class);
 //        addMenu(nav, InlineCalendarDemo.class);
     }
