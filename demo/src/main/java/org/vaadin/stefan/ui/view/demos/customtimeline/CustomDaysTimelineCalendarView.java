@@ -36,7 +36,7 @@ public class CustomDaysTimelineCalendarView implements CalendarView {
         durationHolder.set("days", factory.create(numberOfDays));
         
         JreJsonObject customViewHolder = new JreJsonObject(factory);
-        customViewHolder.set("type", factory.create("timeline"));
+        customViewHolder.set("type", factory.create("resourceTimeline"));
         customViewHolder.set("duration", durationHolder);
         
         JreJsonObject viewsHolder = new JreJsonObject(factory);

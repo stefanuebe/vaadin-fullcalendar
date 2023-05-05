@@ -1,12 +1,11 @@
 package org.vaadin.stefan.ui.view.demos.customtimeline;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import org.vaadin.stefan.fullcalendar.CalendarLocale;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
+import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
@@ -18,13 +17,16 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 public class DemoTimelineWith28Days extends VerticalLayout {
     private static final long serialVersionUID = 1L;
     
-    private FullCalendar calendar;
+    private FullCalendarScheduler calendar;
+    private final CustomDaysTimelineCalendarView calendarView;
 
     public DemoTimelineWith28Days() {
+        calendarView = new CustomDaysTimelineCalendarView(28);
     	initView();
     	
     	createCalendarInstance();
-    	
+
+        add(new Button("Change", ev -> calendar.changeView(calendarView)));
     	add(calendar);
         setFlexGrow(1, calendar);
     }
@@ -35,11 +37,9 @@ public class DemoTimelineWith28Days extends VerticalLayout {
     }
 
     private void createCalendarInstance() {
-        CustomDaysTimelineCalendarView calendarView = new CustomDaysTimelineCalendarView(28);
-        
         calendar = FullCalendarBuilder.create().withScheduler("GPL-My-Project-Is-Open-Source").withInitialOptions(calendarView.getInitialOptions()).build();
         calendar.setLocale(CalendarLocale.getDefaultLocale());
-        calendar.setHeightByParent();
+        calendar.setHeight("100%");
 
         Header testHeader = new Header();
         
