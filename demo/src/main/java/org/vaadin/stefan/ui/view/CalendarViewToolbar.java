@@ -22,6 +22,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.ui.view.demos.HasIntervalLabel;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 
 import java.time.*;
@@ -376,6 +377,12 @@ public class CalendarViewToolbar extends MenuBar {
         return name;
     }
 
+    public void updateSelectedView(CalendarView view) {
+        if (viewSelector != null) {
+            viewSelector.setText("View: " + getViewName(view));
+        }
+    }
+
     public void updateInterval(LocalDate intervalStart) {
         if (buttonDatePicker != null && selectedView != null) {
             updateIntervalLabel(buttonDatePicker, selectedView, intervalStart);
@@ -386,7 +393,9 @@ public class CalendarViewToolbar extends MenuBar {
         String text = "--";
         Locale locale = calendar.getLocale();
 
-        if (view instanceof CalendarViewImpl) {
+        if (view instanceof HasIntervalLabel intervalLabelView) {
+            text = intervalLabelView.formatIntervalLabel(intervalStart, locale);
+        } else if (view instanceof CalendarViewImpl) {
             switch ((CalendarViewImpl) view) {
                 default:
                 case DAY_GRID_MONTH:
