@@ -55,7 +55,11 @@ public abstract class AbstractCalendarView extends VerticalLayout {
                 .onSamplesRemoved(this::onEntriesRemoved));
 
         if (toolbar != null) {
-            calendar.addViewChangedListener(event -> event.getCalendarView().ifPresent(toolbar::updateSelectedView));
+            calendar.addViewChangedListener(event -> {
+                event.getCalendarView().ifPresent(view -> {
+                    toolbar.updateSelectedView(view);
+                });
+            });
             calendar.addDatesRenderedListener(event -> toolbar.updateInterval(event.getIntervalStart()));
         }
 
