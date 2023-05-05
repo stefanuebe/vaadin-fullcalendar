@@ -1,17 +1,16 @@
 package org.vaadin.stefan.ui.view.demos.customtimeline;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+import elemental.json.Json;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.model.Header;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
+import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
+
+import java.util.List;
 
 @Route(value = "custom-view", layout = MainLayout.class)
 @MenuItem(label = "Custom View")
@@ -22,11 +21,23 @@ public class CustomViewDemo extends AbstractSchedulerView {
     @Override
     protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         calendarView = new FixedDaysCalendarView(28);
+
+        // test for duplicat registration (anonymous and named)
+//        JsonObject initialOptions = Json.createObject();
+//        JsonObject views = Json.createObject();
+//        views.put(calendarView.getClientSideValue(), new FixedDaysCalendarView(5).getViewSettings());
+//        initialOptions.put("views", views);
+
         FullCalendar calendar = FullCalendarBuilder.create()
-                .withScheduler("GPL-My-Project-Is-Open-Source")
-                .withInitialOptions(calendarView.getInitialOptions()).build();
-        calendar.setLocale(CalendarLocale.getDefaultLocale());
-        calendar.setHeight("100%");
+                .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
+//                .withInitialOptions(initialOptions)
+                .withCustomViews(calendarView)
+                .withAutoBrowserLocale()
+                .build();
+
+        List<Entry> entries = EntryService.createRandomInstance().getEntries();
+        calendar.getEntryProvider().asInMemory().addEntries(entries);
+
         return calendar;
     }
 
@@ -45,4 +56,11 @@ public class CustomViewDemo extends AbstractSchedulerView {
     protected String createTitle() {
         return "Custom View Demo";
     }
+
+    @Override
+    protected boolean isToolbarViewChangeable() {
+        return false;
+    }
+
+
 }

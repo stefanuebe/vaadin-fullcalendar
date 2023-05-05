@@ -27,13 +27,13 @@ import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 import lombok.Getter;
 import org.apache.commons.text.CaseUtils;
+import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.io.Serializable;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -91,6 +91,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private EntryProvider<? extends Entry> entryProvider;
     private final List<Registration> entryProviderDataListeners = new LinkedList<>();
 
+    private final Map<String, CustomCalendarView> customCalendarViews = new LinkedHashMap<>();
+
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
 
@@ -133,7 +135,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param entryLimit The max number of stacked event levels within a given day. This excludes the +more link if present. The rest will show up in a popover.
      * @deprecated use the {@link FullCalendarBuilder#withEntryLimit(int)} instead.
      */
-    @Deprecated
     public FullCalendar(int entryLimit) {
         if (entryLimit >= 0) {
             setMaxEntriesPerDay(entryLimit);
@@ -176,12 +177,25 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendar(@NotNull JsonObject initialOptions) {
+        if (initialOptions.hasKey("views")) {
+            JsonObject views = initialOptions.getObject("views");
+
+            // register custom views mentioned in the initial options
+            for (String viewName : views.keys()) {
+                // only register anonmyous views, if there is no real registered variant
+                JsonObject viewSettings = views.getObject(viewName);
+                AnonymousCustomCalendarView anonymousView = new AnonymousCustomCalendarView(viewName, viewSettings);
+                this.customCalendarViews.put(anonymousView.getClientSideValue(), anonymousView);
+            }
+        }
+
         this.getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
 
         if (!initialOptions.hasKey(Option.LOCALE.getOptionKey())) {
             // fallback to prevent strange locale effects on the client side
             setLocale(CalendarLocale.getDefaultLocale());
         }
+
 
         postConstruct();
     }
@@ -432,6 +446,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void changeView(@NotNull CalendarView view) {
         Objects.requireNonNull(view);
+
+        lookupViewByClientSideValue(view.getClientSideValue()).orElseThrow(() -> new IllegalArgumentException("Unknown view: " + view.getClientSideValue() + ". If you want to use a custom view, please register it first by using addCustomView()."));
 
         currentView = view;
         currentViewName = view.getClientSideValue();
@@ -1453,14 +1469,31 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
+     * Tries to find the calendar view based on the given clientSideValue. Empty, when the view name is not known on
+     * the Java side (can be the case with unregistered custom views).
+     * @param clientSideValue view's client side value to lookup
+     * @return calendar view
+     * @deprecated use {@link #lookupViewByClientSideValue(String)} instead
+     */
+    @Deprecated
+    public <T extends CalendarView> Optional<T> lookupViewName(String clientSideValue) {
+        return lookupViewByClientSideValue(clientSideValue);
+    }
+
+    /**
      * Tries to find the calendar view based on the given name. Empty, when the view name is not known on the Java
-     * side (can be the case with custom views).
-     * @param viewName view name to lookup
+     * side (can be the case with unregistered custom views).
+     *
+     * @param clientSideValue view name to lookup
      * @return calendar view
      */
     @SuppressWarnings("unchecked")
-    public <T extends CalendarView> Optional<T> lookupViewName(String viewName) {
-        return (Optional<T>) CalendarViewImpl.ofClientSideValue(viewName);
+    public <T extends CalendarView> Optional<T> lookupViewByClientSideValue(String clientSideValue) {
+        Optional<T> optional = (Optional<T>) CalendarViewImpl.ofClientSideValue(clientSideValue);
+        if (optional.isPresent()) {
+            return optional;
+        }
+        return Optional.ofNullable((T) customCalendarViews.get(clientSideValue));
     }
 
     public void setEntryDisplay(DisplayMode displayMode) {
@@ -1517,6 +1550,47 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public void clearSelection() {
         getElement().executeJs("this.calendar.unselect()");
+    }
+
+    /**
+     * Returns an unmodifiable copy of the custom calendar views. Any changes to this instance's custom views will
+     * be reflected in the returned map.
+     * <br><br>
+     * This map contains any custom calendar view, that has been registered via the builder's method
+     * {@link FullCalendarBuilder#withCustomViews(CustomCalendarView...)} plus anonymous instances for any
+     * view, that has been registered via the initial options. Views, that had been registered in both ways will
+     * return the original type, not an anonymous one.
+     * @return custom calendar views map
+     */
+    public Map<String, CustomCalendarView> getCustomCalendarViews() {
+        return Collections.unmodifiableMap(customCalendarViews);
+    }
+
+    /**
+     * Registers the given custom calendar views. Any custom views, that have been registered via the
+     * initial options will be overridden by the given ones.
+     * This method may be called only once and only before the component
+     * is attached, otherwise an exception will be thrown. Same goes for calendar instances, that have already
+     * registered custom views via the FC builder.
+     * @param customCalendarViews custom calendar views
+     */
+    public void setCustomCalendarViews(CustomCalendarView... customCalendarViews) {
+        if (isAttached()) {
+            throw new UnsupportedOperationException("Views can only be set before the component is attached");
+        }
+
+        if (getElement().hasProperty("customViews")) {
+            throw new UnsupportedOperationException("Custom views can only be set once");
+        }
+
+        JsonObject json = Json.createObject();
+        for (CustomCalendarView customCalendarView : customCalendarViews) {
+            this.customCalendarViews.put(customCalendarView.getClientSideValue(), customCalendarView);
+            json.put(customCalendarView.getClientSideValue(), customCalendarView.getViewSettings());
+        }
+
+        this.getElement().setPropertyJson("customViews", json);
+
     }
 
     /**

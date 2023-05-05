@@ -21,7 +21,7 @@ package org.vaadin.stefan.fullcalendar;
  */
 public interface CalendarView extends ClientSideValue {
     /**
-     * Returns the name of the calendar view.
+     * Returns the name of the calendar view. Can be the same as the clientSideValue, but does not have to.
      * @return calendar view name
      */
     String getName();

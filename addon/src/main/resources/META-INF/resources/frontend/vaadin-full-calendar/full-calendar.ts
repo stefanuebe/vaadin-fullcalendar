@@ -16,7 +16,7 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {Calendar, DateInput, DateRangeInput, DurationInput} from '@fullcalendar/core';
+import {Calendar, CalendarOptions, DateInput, DateRangeInput, DurationInput} from '@fullcalendar/core';
 import interaction from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -43,6 +43,7 @@ export class FullCalendar extends HTMLElement {
 
     // contains any json based initial options (not the ones set via setOption). might be empty in most cases
     protected initialOptions = {};
+    protected customViews: any = {};
 
     connectedCallback() {
         if (!this._calendar) {
@@ -123,7 +124,8 @@ export class FullCalendar extends HTMLElement {
     protected createInitOptions(initialOptions = {}): any {
         let events = this.createEventHandlers();
 
-        let options = {
+        debugger;
+        let options: CalendarOptions = {
             timeZone: 'UTC',
             // // no native control elements
             headerToolbar: false,
@@ -132,6 +134,11 @@ export class FullCalendar extends HTMLElement {
             stickyFooterScrollbar: true,
             ...initialOptions,
         };
+
+        if(this.customViews) {
+            // extend the options with the custom views and override any "anonymous" views
+            options.views = {...options.views, ...this.customViews};
+        }
 
         this.addEventHandlersToOptions(options, events);
 
@@ -640,6 +647,7 @@ export class FullCalendar extends HTMLElement {
 
         return this._calendar;
     }
+
 }
 
 customElements.define("vaadin-full-calendar", FullCalendar);

@@ -45,7 +45,7 @@ public class FullDemo extends AbstractSchedulerView {
                 .withAutoBrowserLocale()
                 .withInitialOptions(defaultInitialOptions)
                 .withEntryLimit(3)
-                .withScheduler("GPL-My-Project-Is-Open-Source")
+                .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
                 .build();
 
         ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");

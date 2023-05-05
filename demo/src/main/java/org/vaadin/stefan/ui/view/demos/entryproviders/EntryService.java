@@ -21,36 +21,66 @@ public class EntryService<T extends Entry> {
     private final Map<String, EntryData> database = new HashMap<>();
     private final boolean resourceEntries;
 
-    public EntryService(boolean resourceEntries) {
+    private EntryService(boolean resourceEntries) {
         this.resourceEntries = resourceEntries;
     }
 
+    /**
+     * Creates a new, empty instance. Will provide {@link Entry} instances.
+     *
+     * @return empty instance
+     */
     public static EntryService<Entry> createInstance() {
         return new EntryService<>(false);
     }
 
+    /**
+     * Creates a new instance, filled with random data. Will provide {@link Entry} instances.
+     *
+     * @return random data instance
+     */
     public static EntryService<Entry> createRandomInstance() {
         EntryService<Entry> instance = createInstance();
         instance.fillDatabaseWithRandomData();
         return instance;
     }
 
+    /**
+     * Creates a new instance, filled with a few entries for the current month. Will provide {@link Entry} instances.
+     *
+     * @return instance with some entries
+     */
     public static EntryService<Entry> createSimpleInstance() {
         EntryService<Entry> instance = createInstance();
         instance.fillDatabaseWithSimpleData();
         return instance;
     }
 
+    /**
+     * Creates a new, empty instance. Will provide {@link ResourceEntry} instances.
+     *
+     * @return empty instance
+     */
     public static EntryService<ResourceEntry> createResourceInstance() {
         return new EntryService<>(true);
     }
 
+    /**
+     * Creates a new instance, filled with random data. Will provide {@link ResourceEntry} instances.
+     *
+     * @return random data instance
+     */
     public static EntryService<ResourceEntry> createRandomResourceInstance() {
         EntryService<ResourceEntry> instance = createResourceInstance();
         instance.fillDatabaseWithRandomData();
         return instance;
     }
 
+    /**
+     * Creates a new instance, filled with a few entries for the current month. Will provide {@link ResourceEntry} instances.
+     *
+     * @return instance with some entries
+     */
     public static EntryService<ResourceEntry> createSimpleResourceInstance() {
         EntryService<ResourceEntry> instance = createResourceInstance();
         instance.fillDatabaseWithSimpleData();

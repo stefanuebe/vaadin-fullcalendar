@@ -11,10 +11,10 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 /**
  * @author Stefan Uebe
  */
-@Route(value = "multi-month-selection", layout = MainLayout.class)
-@MenuItem(label = "Multi Month Selection")
+@Route(value = "multi-month-cross-month-selection", layout = MainLayout.class)
+@MenuItem(label = "Multi Month Cross Selection")
 @JsModule("./multi-month-selection-utils.js")
-public class MultiMonthSelectionDemo extends CallbackEntryProviderDemo {
+public class MultiMonthCrossMonthSelectionDemo extends CallbackEntryProviderDemo {
 
     @Override
     protected boolean isToolbarViewChangeable() {
@@ -30,6 +30,16 @@ public class MultiMonthSelectionDemo extends CallbackEntryProviderDemo {
                 .executeJs("window.Vaadin.Flow.multiMonthCrossSelectionUtils.register(this.calendar)")
                 .then(jsonValue -> calendar.changeView(CalendarViewImpl.MULTI_MONTH))
         );
+    }
 
+    @Override
+    protected String createTitle() {
+        return "Multi Month View - Cross Month Selection";
+    }
+
+    @Override
+    protected String createDescription() {
+        return "This demo shows a sample on how to implement cross month selection for the multi month view. This feature is currently not available" +
+                " in the library itself and thus integrated via a custom java script";
     }
 }

@@ -27,7 +27,6 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -411,10 +410,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends CalendarView> Optional<T> lookupViewName(String viewName) {
-        Optional<T> optional = super.lookupViewName(viewName);
+    public <T extends CalendarView> Optional<T> lookupViewByClientSideValue(String clientSideValue) {
+        Optional<T> optional = super.lookupViewByClientSideValue(clientSideValue);
         if (!optional.isPresent()) {
-            optional = (Optional<T>) SchedulerView.ofClientSideValue(viewName);
+            optional = (Optional<T>) SchedulerView.ofClientSideValue(clientSideValue);
         }
         return optional;
     }

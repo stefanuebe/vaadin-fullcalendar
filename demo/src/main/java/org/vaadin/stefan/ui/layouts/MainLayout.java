@@ -16,12 +16,13 @@
  */
 package org.vaadin.stefan.ui.layouts;
 
+import org.vaadin.stefan.ui.view.demos.customtimeline.AnonymousCustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.customtimeline.CustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
-import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthSelectionDemo;
+import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthCrossMonthSelectionDemo;
 import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
 
@@ -36,7 +37,8 @@ public class MainLayout extends AbstractLayout {
 //        addMenu(nav, DemoCustomProperties.class); // TODO overhaul the demo first
 //        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
         addMenu(nav, CustomViewDemo.class);
-        addMenu(nav, MultiMonthSelectionDemo.class);
+        addMenu(nav, AnonymousCustomViewDemo.class);
+        addMenu(nav, MultiMonthCrossMonthSelectionDemo.class);
 //        addMenu(nav, InlineCalendarDemo.class);
     }
 }

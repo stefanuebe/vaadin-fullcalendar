@@ -25,7 +25,7 @@ web components. Thus, this version should work with Vaadin 23 and 24.
 For most cases this should not affect your application. However, if you subclasses the javascript classes, you may need
 to adapt some of the changes. Any Polymer related feature needs to be converted to plain javascript. If you used
 properties, you should still be able to set those via the Flow Java API, but you simply have to declare them as normal
-JS class fields.
+JS class fields. 
 
 Also please note, that the content of the component is now part of the light dom. This will most likely affect
 any custom stylings you may have defined. See the next part for details.
@@ -63,6 +63,12 @@ progress (mainly the definition of custom types and some code refinement).
 Nevertheless, for the normal use case, this has no effect. If you subclassed the JS classes, feel free to convert
 it to TypeScript, but be aware, we do not yet have any fancy TypeScript stuff. But it will come somewhere in future ;)
 
+Things to have in mind when migrating: We use protected and private modifiers of typescript now. Any underscores 
+have been removed and the methods / fields have become private or protected. For instance the `_initCalendar()` method
+is now named `initCalendar()`. This is one of the most important ones - if you have subclassed the FC, you most likely
+have overridden this method and have to update your code. We recommend to use the `override` modifier, so that the 
+compiler marks any issues regarding such cases.
+
 ### Issues with webpack
 There is a known issue with webpack, that will most likely lead to issues, when starting the application.
 
@@ -91,6 +97,17 @@ check, if refreshs are necessary in your use cases.
 ### Prefetch mode
 There is now a prefetch mode, that allows fetching adjacent periods. This shall prevent flickering, when switching
 to the previous/next period. See the samples page for details.
+
+## Custom views
+Up to now custom views had to be created as a Java class but could only be registered via initial options. To
+make life a bit easier here, the interface `CustomCalendarView` has been added plus methods to register those. 
+
+It is recommended to convert your views and use this new interface. While the old way should still work
+and lead to `AnonymousCustomCalendarView` instances, a warning will be printed onto the error console.
+
+Check the `CustomCalendarView` docs for additional information. The relevant method is `getViewSettings()`.
+
+Please note, that due to limitations of the FC library, views can only be set at initialization time.
 
 ## Entry is "static" again, JsonItem is gone
 This part describes a rare use case and should not be affecting most of the FC users.

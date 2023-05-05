@@ -13,11 +13,14 @@
 - Client side eager loading removed, items will now always be fetched
 - Added prefetch mode to allow smoother transition between periods
 - Breaking changes regarding methods and fields (client side and server side). Also usage of private / protected modifiers in TS.
+- Added support for FC's "multi-month" views. 
+- Added proper API for creating and registering custom views. Also added an internal handling of "anonymous" custom views created by initial options.
 - Deprecated code from previous versions has been removed
 - JsonItem has been removed, Entry is a "normal field" class again due to issues with proxying frameworks
 - setHeight has been minimalized to be more aligned with Vaadin standards. FC internal height settings / options are not
   supported anymore. Calendar content will take only as much space as needed.
 - added type `RecurringTime` to allow setting an entry recurrence of more than 24h
+
 
 Minor changes:
 - getResources now may return null. Use getOrCreateResources. 
