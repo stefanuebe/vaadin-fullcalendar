@@ -237,7 +237,7 @@ public class FullCalendarBuilder {
      * @param customCalendarViews custom calendar views
      * @return new immutable instance with updated settings
      */
-    public FullCalendarBuilder withCustomViews(CustomCalendarView... customCalendarViews) {
+    public FullCalendarBuilder withCustomCalendarViews(CustomCalendarView... customCalendarViews) {
         return new FullCalendarBuilder(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews);
     }
 
