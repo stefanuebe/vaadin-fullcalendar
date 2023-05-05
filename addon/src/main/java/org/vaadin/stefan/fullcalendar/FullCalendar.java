@@ -1557,7 +1557,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * be reflected in the returned map.
      * <br><br>
      * This map contains any custom calendar view, that has been registered via the builder's method
-     * {@link FullCalendarBuilder#withCustomViews(CustomCalendarView...)} plus anonymous instances for any
+     * {@link FullCalendarBuilder#withCustomCalendarViews(CustomCalendarView...)} plus anonymous instances for any
      * view, that has been registered via the initial options. Views, that had been registered in both ways will
      * return the original type, not an anonymous one.
      * @return custom calendar views map

@@ -2,7 +2,6 @@ package org.vaadin.stefan.ui.view.demos.customtimeline;
 
 import com.vaadin.flow.router.Route;
 
-import elemental.json.Json;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.layouts.MainLayout;
@@ -31,7 +30,7 @@ public class CustomViewDemo extends AbstractSchedulerView {
         FullCalendar calendar = FullCalendarBuilder.create()
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
 //                .withInitialOptions(initialOptions)
-                .withCustomViews(calendarView)
+                .withCustomCalendarViews(calendarView)
                 .withAutoBrowserLocale()
                 .build();
 
