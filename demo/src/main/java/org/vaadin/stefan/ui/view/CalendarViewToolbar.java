@@ -381,6 +381,7 @@ public class CalendarViewToolbar extends MenuBar {
         if (viewSelector != null) {
             viewSelector.setText("View: " + getViewName(view));
         }
+        selectedView = view;
     }
 
     public void updateInterval(LocalDate intervalStart) {
