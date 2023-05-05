@@ -25,7 +25,10 @@ vaadin-full-calendar {
     transform: rotate(90deg);
 }
 
-/* fix the header */
+/* fixes for background colors */
+.fc {
+    --fc-page-bg-color: transparent;
+}
 .fc thead tr.fc-scrollgrid-section-header th {
     background: transparent;
 }
