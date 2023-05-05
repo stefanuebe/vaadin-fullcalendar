@@ -22,7 +22,7 @@
 
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
-        <lombok.version>1.18.24</lombok.version>
+        <lombok.version>1.18.26</lombok.version>
         <spring-boot.version>3.0.5</spring-boot.version>
     </properties>
 
