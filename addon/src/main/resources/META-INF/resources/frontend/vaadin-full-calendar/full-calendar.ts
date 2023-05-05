@@ -124,7 +124,6 @@ export class FullCalendar extends HTMLElement {
     protected createInitOptions(initialOptions = {}): any {
         let events = this.createEventHandlers();
 
-        debugger;
         let options: CalendarOptions = {
             timeZone: 'UTC',
             // // no native control elements
