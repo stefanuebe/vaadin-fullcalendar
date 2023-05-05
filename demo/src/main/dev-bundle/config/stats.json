@@ -267,10 +267,10 @@
  ],
  "frontendHashes": {
   "app-layout-styles.css": "ba1c082a1f3e6919f84bc9f36a135b88b624c51d54136bd4707c05909235502c",
-  "styles.css": "0dd9884fd90e29814a1ab647b9c5589755788b1525534c706049541111c728be",
+  "styles.css": "b1163be9508e6a79222da3e21724846188f0ab1a287d967a01e63991ae92d533",
   "inline-calendar.css": "5879fd47bcb65b4b2adae35a498e24c0396b319ee0ac04a6a06ef4ff9ccf4c90",
   "full-calendar-with-tooltip.ts": "e8c61d6977ec44ccdf727fd605653e75313c638102a91a97f14962af30798eb2",
-  "multi-month-selection-utils.js": "26891235390caf9ede18c61aeb9ea24bf79768eda0329028208dc83c8a30e059",
+  "multi-month-selection-utils.js": "4beff4b8506e290468e8f868e03540f1cc6b99f4cb38cc8ece35988765c6988e",
   "vaadin-full-calendar/full-calendar-styles.css": "fab06794d7940a2d835e9f93fb03ca55c238caed0084178cf728d9f1e1aa3077",
   "vaadin-full-calendar/full-calendar-scheduler-styles.css": "57f563192e0e045dedf30626a38b808227e8e889a6a5826b70b307ce3a16906a",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
@@ -288,14 +288,14 @@
   "tooltip.ts": "b7e9af67169277b94cab722d244340c3a9d463bcf4de2aaa84dddcebbd59447b",
   "vaadin-big-decimal-field.js": "0e0f4e3bb8928c708d02e77d07ede09525102440511942e3b24721702352f140",
   "vaadin-full-calendar/full-calendar-scheduler.ts": "cc218e87719b8a53c9b70eeebc2da3c1b7d8c511e5e52b302ea65bbf5f041955",
-  "vaadin-full-calendar/full-calendar.ts": "2d36cc3f9615c154990ef6bf9b1b5c27d8c14343d40d107086326702cefcc50d",
+  "vaadin-full-calendar/full-calendar.ts": "5560de19300acc275bfcf70b66f978bbc0e80b2562f4a46b31b2a3637c0d4fe3",
   "vaadin-grid-flow-selection-column.js": "f365d122c334d411f30c5463fb7c0dbfde705f3ee3924bcd41837f7d0a9a0301",
   "vaadin-time-picker/timepickerConnector.js": "68889ce9748478f71bf1620d488abbbd588f8047618ac558315d9b0b689e75e8",
   "virtualListConnector.js": "e89f6bc6f5cd4765c863ae12721371ebff9079d163679e3989368fb7f74e5e61"
  },
  "themeJsonContents": {},
  "entryScripts": [
-  "VAADIN/build/indexhtml-5ba7a845.js"
+  "VAADIN/build/indexhtml-302aad37.js"
  ],
  "webComponents": [],
  "packageJsonHash": "52b483617cbff5efc47723133078a6411df929a92f7be70a7c7734c5dddd8b32"

@@ -41,6 +41,9 @@ export class FullCalendar extends HTMLElement {
     protected moreLinkClickAction = "popover"
     protected prefetchEnabled = false;
 
+    // contains any json based initial options (not the ones set via setOption). might be empty in most cases
+    protected initialOptions = {};
+
     connectedCallback() {
         if (!this._calendar) {
             this.initCalendar();
@@ -54,7 +57,7 @@ export class FullCalendar extends HTMLElement {
 
     protected initCalendar() {
         if (!this._calendar) {
-            let options = this.createInitOptions();
+            let options = this.createInitOptions(this.initialOptions);
 
             this._calendar = new Calendar(this, options);
 

@@ -6,21 +6,21 @@ import elemental.json.JsonFactory;
 import elemental.json.impl.JreJsonFactory;
 import elemental.json.impl.JreJsonObject;
 
-public class CustomDaysTimelineCalendarView implements CalendarView {
+public class FixedDaysCalendarView implements CalendarView {
 	private final int numberOfDays;
 
-    public CustomDaysTimelineCalendarView(int numberOfDays) {
+    public FixedDaysCalendarView(int numberOfDays) {
         this.numberOfDays = numberOfDays;
     }
 
     @Override
     public String getClientSideValue() {
-        return "customTimeline";
+        return "customView";
     }
 
     /**
      * views: {
-     * customTimeline: {
+     * customView: {
      * type: 'timeline',
      * duration: { days: 31 }
      * }
@@ -31,24 +31,24 @@ public class CustomDaysTimelineCalendarView implements CalendarView {
     public JreJsonObject getInitialOptions() {
         JsonFactory factory = new JreJsonFactory();
         JreJsonObject initialOptions = new JreJsonObject(factory);
-        
+
         JreJsonObject durationHolder = new JreJsonObject(factory);
         durationHolder.set("days", factory.create(numberOfDays));
-        
+
         JreJsonObject customViewHolder = new JreJsonObject(factory);
         customViewHolder.set("type", factory.create("resourceTimeline"));
         customViewHolder.set("duration", durationHolder);
-        
+
         JreJsonObject viewsHolder = new JreJsonObject(factory);
         viewsHolder.set(getName(), customViewHolder);
-        
+
         initialOptions.set("views", viewsHolder);
-        
+
         return initialOptions;
     }
 
     @Override
     public String getName() {
-        return "customTimeline";
+        return "customView";
     }
 }
