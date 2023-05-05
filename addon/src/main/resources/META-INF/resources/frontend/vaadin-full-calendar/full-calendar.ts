@@ -25,15 +25,12 @@ import multiMonthPlugin from '@fullcalendar/multimonth';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all';
-import { ResizeObserver } from 'resize-observer';
 
 // Simple type, that allows JS object property access via ["xyz"]
 export type IterableObject = {
     [key: string]: any,
     hasOwnProperty: (key: string) => boolean;
 };
-
-// type InitialCommand = (calendar: Calendar) => void;
 
 export class FullCalendar extends HTMLElement {
 
@@ -106,7 +103,9 @@ export class FullCalendar extends HTMLElement {
                 }
             }
 
-            new ResizeObserver((entries) => {
+            // we add a ts ignore since webpack has problems with the resize observer
+            // @ts-ignore
+            new ResizeObserver((entries: any) => {
 
                 if (!Array.isArray(entries) || !entries.length) {
                     return;
