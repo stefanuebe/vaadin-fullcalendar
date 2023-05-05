@@ -16,12 +16,11 @@
  */
 package org.vaadin.stefan.ui.layouts;
 
-import org.vaadin.stefan.ui.view.demos.customdaygrid.DemoDayGridWeekWithSixWeeks;
+import org.vaadin.stefan.ui.view.demos.customtimeline.CustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
-import org.vaadin.stefan.ui.view.demos.multimonthselection.InlineCalendarDemo;
 import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthSelectionDemo;
 import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
@@ -30,15 +29,13 @@ public class MainLayout extends AbstractLayout {
     @Override
     protected void createMenuEntries(AppNav nav) {
         addMenu(nav, FullDemo.class);
-//        addMenu(nav, BasicDemo.class);
         addMenu(nav, InMemoryEntryProviderDemo.class);
         addMenu(nav, CallbackEntryProviderDemo.class);
         addMenu(nav, BackendEntryProviderDemo.class);
         addMenu(nav, DemoWithTooltip.class);
 //        addMenu(nav, DemoCustomProperties.class); // TODO overhaul the demo first
 //        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
-//        addMenu(nav, DemoTimelineWith28Days.class); // TODO overhaul the demo first
-        addMenu(nav, DemoDayGridWeekWithSixWeeks.class);
+        addMenu(nav, CustomViewDemo.class);
         addMenu(nav, MultiMonthSelectionDemo.class);
 //        addMenu(nav, InlineCalendarDemo.class);
     }
