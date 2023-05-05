@@ -1,3 +1,29 @@
+# Startup issue when using webpack (Vaadin 14-23)
+You may encounter a TypeScript compilation issue, when using the addon in Vaadin 14 (and later versions with webpack), e.g.
+```
+ERROR in ../node_modules/@vaadin/flow-frontend/vaadin-full-calendar/full-calendar.ts?babel-target=es6
+Module build failed (from ../node_modules/.pnpm/ts-loader@8.0.12_typescript@4.0.3+webpack@4.42.0/node_modules/ts-loader/index.js):
+Error: TypeScript emitted no output for ...
+```
+
+This seems to be a webpack issue, that we cannot fix. 
+
+To overcome this issue, simply modify your tsconfig.json and add the following line to the "include" array
+` "node_modules/@vaadin/flow-frontend/vaadin-full-calendar/*.ts"`, so that it looks something like this
+
+```json
+  // ... other things
+  "include": [
+    "frontend/**/*.ts",
+    "types.d.ts",
+    "node_modules/@vaadin/flow-frontend/vaadin-full-calendar/*.ts"
+  ],
+  // ... other things
+```
+
+For details see: https://github.com/vaadin/flow/issues/11976
+
+
 # Multiline events drag & drop cause the scrollbar to lost position
 The problem appear when you remove the events and add them back, when you remove all the events from the calendar it resize it-self. When the calendar has no events, it is much shorter which explains why the scroll position is changing.
 

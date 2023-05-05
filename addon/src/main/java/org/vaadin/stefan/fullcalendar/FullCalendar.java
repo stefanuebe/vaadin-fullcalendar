@@ -58,8 +58,6 @@ import java.util.stream.Stream;
 @NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
 
-@NpmPackage(value = "resize-observer", version = "1.0.4")
-
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-styles.css")
 @Tag("vaadin-full-calendar")

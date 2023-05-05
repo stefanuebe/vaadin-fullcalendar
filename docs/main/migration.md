@@ -41,6 +41,9 @@ Please be aware, that due to being part of the light dom, any other stylings may
 But our experience showed, that the majority of our user base preferred the light dom variant, thus we decided to
 go this way.
 
+Also since we moved to a new major of the FC library, it might be, that css selectors have changed in their 
+provided styles and thus your custom styles might not work out of the box.
+
 ## Folder structure and tags
 We changed the folder structure and tag names a bit to better represent the Vaadin nature of this addon and to
 prevent potential naming conflicts. Therefore the the files will now be placed inside a folder named
@@ -59,6 +62,11 @@ progress (mainly the definition of custom types and some code refinement).
 
 Nevertheless, for the normal use case, this has no effect. If you subclassed the JS classes, feel free to convert
 it to TypeScript, but be aware, we do not yet have any fancy TypeScript stuff. But it will come somewhere in future ;)
+
+### Issues with webpack
+There is a known issue with webpack, that will most likely lead to issues, when starting the application.
+
+Check the "Known Issues" page for details (> Startup issue when using webpack (Vaadin 14-23)).
 
 ## No more EagerInMemoryEntryProvider
 To make maintenance of the client side a bit easier and less error prone, we decided to remove the 
@@ -126,6 +134,7 @@ with `addResources`.
 * `CalendarLocale` is now an enum. This should not affect you in most use cases.
 * The option "week numbers within days" is no longer available, week numbers are now always display inside days by the FC library. Simply remove any calls to that setting.
 * Since we used the javax @NotNull annotation a lot for better dx, but Vaadin 24 will no longer support that due to Spring Boot 3, we decided to add our own annotation to provide additional information without potential naming conflicts. 
+
 
 # Migrating from 4.0 > 4.1
 ## Entry Provider and old CRUD operations

@@ -9,7 +9,7 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
 
         calendar.__multiMonth.mouseDownListener = e => {
             let startCell = this.findTdFromEvent(e);
-            if (startCell?.dataset?.date) {
+            if (startCell && startCell.dataset && startCell.dataset.date) {
                 let lastHoveredCell = startCell;
                 this.markSelectedCells(calendar.__multiMonth, startCell);
 
@@ -116,21 +116,23 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
 
     unmarkSelectedCells: function (state) {
         state.selectedCells.forEach(td => {
-            td.__multiMonthHighlight?.remove();
-            delete td.__multiMonthHighlight;
+            if (td.__multiMonthHighlight) {
+                td.__multiMonthHighlight.remove();
+                delete td.__multiMonthHighlight;
+            }
         });
         state.selectedCells = [];
     },
 
     // tries to find the td element from the given dom event
     findTdFromEvent(e) {
-        if (e.target.tagName === "TD" && e.target.dataset?.date) { // unlikely but not impossible
+        if (e.target.tagName === "TD" && e.target.dataset && e.target.dataset.date) { // unlikely but not impossible
             return e.target;
         }
 
         let composedPath = e.composedPath();
         for (let i = 0; i < 6 && i < composedPath.length; i++) { // prevent to deep searches up the hierarchy
-            if (composedPath[i].tagName === "TD" && composedPath[i].dataset?.date) {
+            if (composedPath[i].tagName === "TD" && composedPath[i].dataset && composedPath[i].dataset.date) {
                 return composedPath[i];
             }
 

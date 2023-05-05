@@ -267,7 +267,7 @@
  ],
  "frontendHashes": {
   "app-layout-styles.css": "ba1c082a1f3e6919f84bc9f36a135b88b624c51d54136bd4707c05909235502c",
-  "styles.css": "b1163be9508e6a79222da3e21724846188f0ab1a287d967a01e63991ae92d533",
+  "styles.css": "0dd9884fd90e29814a1ab647b9c5589755788b1525534c706049541111c728be",
   "inline-calendar.css": "5879fd47bcb65b4b2adae35a498e24c0396b319ee0ac04a6a06ef4ff9ccf4c90",
   "full-calendar-with-tooltip.ts": "e8c61d6977ec44ccdf727fd605653e75313c638102a91a97f14962af30798eb2",
   "multi-month-selection-utils.js": "26891235390caf9ede18c61aeb9ea24bf79768eda0329028208dc83c8a30e059",
@@ -295,7 +295,7 @@
  },
  "themeJsonContents": {},
  "entryScripts": [
-  "VAADIN/build/indexhtml-95c8b807.js"
+  "VAADIN/build/indexhtml-5ba7a845.js"
  ],
  "webComponents": [],
  "packageJsonHash": "52b483617cbff5efc47723133078a6411df929a92f7be70a7c7734c5dddd8b32"
