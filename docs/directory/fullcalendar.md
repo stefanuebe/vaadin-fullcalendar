@@ -12,12 +12,14 @@ Addon versions prior to the current major version are not supported anymore. If 
 feel free to fork the project. You may create an issue, but due to limited time it is very unlikely, that we will fix
 it.
 
-## Migration guides, examples, release note details
+## Migration guides, samples, release note details
 Since the addon and it's related information grows and grows, we decided to move most of the
 relevant information to our repository's wiki. Here you'll find
 integration examples, **migration guides**, a feature list, etc. We strongly recommend to check it out :)
 
-https://github.com/stefanuebe/vaadin_fullcalendar/wiki
+Main page: https://github.com/stefanuebe/vaadin_fullcalendar/wiki
+
+Samples: https://github.com/stefanuebe/vaadin_fullcalendar/wiki/FullCalendar-Examples
 
 ## Authors of this addon
 This addon is currently maintained by Carlo Zanocco and me. If you have any questions or issues, please
