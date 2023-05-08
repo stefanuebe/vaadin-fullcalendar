@@ -5,8 +5,8 @@ latest version of the addon.
 Some samples use an in-memory entry provider when modifiying the calendar data to keep things simple. You may
 need to adapt those parts, if you use a different entry provider.
 
-Also we tried to keep things short. So you may see variables like `calendar` or `entry` without any declaration. 
-In those cases these represent the basic types `FullCalendar`, `Entry` or `EntryProvider`.
+Also we tried to keep things short. So you may see variables like `calendar`, `entry` or `entryProvider` 
+without any declaration. In those cases these represent the basic types `FullCalendar`, `Entry` or `EntryProvider`.
 
 If you find an outdated sample, please create an issue for that.
 
@@ -16,7 +16,6 @@ The FullCalendar is a normal Vaadin component, that can be added to your view as
 an eager loading in memory entry provider, with which you simply can add, update or remove calendar entries.
 
 ```java
-
 // Create a new calendar instance and attach it to our layout
 FullCalendar calendar = FullCalendarBuilder.create().build();
 container.add(calendar);
@@ -71,7 +70,8 @@ if (!newInstance) {
 }
 ```
 
-# Basic calendar interaction
+# Calendar event handling
+This sample shows how to react on calendar events, that are triggered by the user or the calendar lifecycle.
 
 ```java
 /*
