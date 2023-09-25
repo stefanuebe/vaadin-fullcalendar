@@ -1231,7 +1231,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Force the client side instance to re-render it's content.
      */
     public void render() {
-        getElement().callJsFunction("render");
+        getElement().callJsFunction("renderCalendar");
     }
 
     /**
