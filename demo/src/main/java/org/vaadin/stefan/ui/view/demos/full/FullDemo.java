@@ -48,9 +48,10 @@ public class FullDemo extends AbstractSchedulerView {
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
                 .build();
 
-        ((FullCalendarScheduler) calendar).setResourceAreaWidth("15%");
-        ((FullCalendarScheduler) calendar).setSlotMinWidth("100");
-        ((FullCalendarScheduler) calendar).setResourcesInitiallyExpanded(false);
+        FullCalendarScheduler scheduler = (FullCalendarScheduler) calendar;
+        scheduler.setResourceAreaWidth("15%");
+        scheduler.setSlotMinWidth("100");
+        scheduler.setResourcesInitiallyExpanded(false);
 
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
@@ -73,7 +74,7 @@ public class FullDemo extends AbstractSchedulerView {
             getToolbar().setTimezone(event.getTimezone());
         });
 
-        ((FullCalendarScheduler) calendar).setEntryResourceEditable(false);
+        scheduler.setEntryResourceEditable(false);
 
 //        calendar.setEntryClassNamesCallback("function(arg) {\n" +
 //                "    return [ 'hello','world' ]\n" +
@@ -93,6 +94,18 @@ public class FullDemo extends AbstractSchedulerView {
 //                        + "        }"
 //                        + "    }"
 //                        + "}");
+//
+//        scheduler.setResourceLabelContentCallback(
+//                "function(arg, createElement) {" +
+//                " console.warn('hello');" +
+//                "  return 'Hello';" +
+//                "}");
+//
+//        scheduler.setResourceLaneContentCallback(
+//                "function(arg, createElement) {" +
+//                " console.warn('world');" +
+//                "  return 'World';" +
+//                "}");
 
         createTestEntries(calendar);
 
