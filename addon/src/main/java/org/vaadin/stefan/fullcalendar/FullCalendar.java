@@ -236,22 +236,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         } else {
             getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(this, executionContext -> {
-                    // options
-                    Serializable initialOptions = getElement().getPropertyRaw(JSON_INITIAL_OPTIONS);
-                    JsonObject optionsJson = Json.createObject();
-                    if (initialOptions instanceof JsonObject) {
-                        JsonObject initialOptionsJson = (JsonObject) initialOptions;
-                        for (String key : initialOptionsJson.keys()) {
-                            optionsJson.put(key, (JsonValue) initialOptionsJson.get(key));
-                        }
-                    }
+                    // We do not need to set the initial options again as that is handled by Flow automatically.
+                    // All other options, set by setOption have to be reset, as they are transported to the client
+                    // via function at the moment and thus not stored in the server side state.
 
+                    // options
+                    JsonObject optionsJson = Json.createObject();
                     if (!options.isEmpty()) {
                         options.forEach((key, value) -> optionsJson.put(key, JsonUtils.toJsonValue(value)));
                     }
 
-                    // We do not use setProperty since that would also store the jsonified state in this instance.
-                    // Especially with a huge amount of entries this could lead to memory issues.
                     getElement().callJsFunction("restoreStateFromServer",
                             optionsJson,
                             JsonUtils.toJsonValue(currentViewName),
