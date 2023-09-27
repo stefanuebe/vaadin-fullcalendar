@@ -39,11 +39,17 @@ import java.util.List;
 public class FullDemo extends AbstractSchedulerView {
 
     @Override
-    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
+    protected FullCalendar createCalendar(JsonObject initialOptions) {
+//        initialOptions.put("eventContent",
+//                "function(arg, createElement) {" +
+//                " console.warn('hello');" +
+//                "  return 'WORLD';" +
+//                "}");
+
         FullCalendar calendar = FullCalendarBuilder.create()
                 .withAutoBrowserTimezone()
                 .withAutoBrowserLocale()
-                .withInitialOptions(defaultInitialOptions)
+                .withInitialOptions(initialOptions)
                 .withEntryLimit(3)
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
                 .build();
@@ -82,7 +88,7 @@ public class FullDemo extends AbstractSchedulerView {
 //        calendar.setEntryContentCallback("" +
 //                "function(arg, createElement) {" +
 //                " console.warn('hello');" +
-//                "  return createElement('i', {}, 'HELLO');" +
+//                "  return 'WORLD';" +
 //                "}");
 //        calendar.setEntryDidMountCallback(
 //                "function(info) { "
@@ -108,6 +114,9 @@ public class FullDemo extends AbstractSchedulerView {
 //                "}");
 
         createTestEntries(calendar);
+
+//        calendar.changeView(CalendarViewImpl.MULTI_MONTH);
+//        calendar.gotoDate(LocalDate.now().plusYears(1));
 
         return calendar;
     }
