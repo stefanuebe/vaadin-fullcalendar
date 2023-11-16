@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar-parent</artifactId>
-    <version>6.0.3</version>
+    <version>6.0.4</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

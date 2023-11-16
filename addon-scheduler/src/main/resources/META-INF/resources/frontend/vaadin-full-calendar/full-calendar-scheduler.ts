@@ -19,6 +19,8 @@
 import {FullCalendar} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
+import resourceDayGridPlugin from '@fullcalendar/resource-daygrid';
+import scrollgridPlugin from '@fullcalendar/scrollgrid';
 
 export class FullCalendarScheduler extends FullCalendar {
 
@@ -29,7 +31,7 @@ export class FullCalendarScheduler extends FullCalendar {
 
         options.resources = options.resources ?? [];
 
-        options.plugins.push(resourceTimeGridPlugin, resourceTimelinePlugin);
+        options.plugins.push(scrollgridPlugin, resourceTimeGridPlugin, resourceDayGridPlugin, resourceTimelinePlugin);
 
         return options;
     }

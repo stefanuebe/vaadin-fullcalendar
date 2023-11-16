@@ -41,6 +41,8 @@ import java.util.stream.StreamSupport;
 @NpmPackage(value = "@fullcalendar/resource", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/resource-timeline", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/resource-timegrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/resource-daygrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/scrollgrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @JsModule("./vaadin-full-calendar/full-calendar-scheduler.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-scheduler-styles.css")
 
@@ -51,7 +53,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * The scheduler base version used in this addon. Some additionl libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_SCHEDULER_CLIENT_VERSION = "6.1.6";
+    public static final String FC_SCHEDULER_CLIENT_VERSION = "6.1.9";
     private final Map<String, Resource> resources = new HashMap<>();
 
     /**
