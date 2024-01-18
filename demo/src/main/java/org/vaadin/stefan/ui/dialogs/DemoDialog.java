@@ -202,11 +202,6 @@ public class DemoDialog extends Dialog {
         fieldTitle.focus();
     }
 
-    @Override
-    public void open() {
-        // DO NOT COMMIT THIS
-    }
-
     protected void onSave() {
         if (onSaveConsumer == null) {
             throw new UnsupportedOperationException("No save consumer set");
