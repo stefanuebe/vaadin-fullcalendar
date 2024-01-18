@@ -67,10 +67,6 @@ public class FullDemo extends AbstractSchedulerView {
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
 
-        calendar.setOption(FullCalendar.Option.ENTRY_ORDER, "extendedProps.count");
-        calendar.setOption(FullCalendar.Option.ENTRY_ORDER_STRICT, true);
-
-
         // initally change the view and go to a specific date - attention: this will not fire listeners as the client side is not initialized yet
 //        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 //        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
@@ -84,8 +80,6 @@ public class FullDemo extends AbstractSchedulerView {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
         );
 
-        calendar.addClassName("vaadin-full-calendar");
-
         calendar.addBrowserTimezoneObtainedListener(event -> {
             getToolbar().setTimezone(event.getTimezone());
         });
@@ -98,22 +92,7 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
                 .setCustomProperty("count", "1");
 
-        LocalDateTime start = LocalDateTime.now();
-        LocalDateTime end = LocalDateTime.now().plus(1, ChronoUnit.DAYS);
-        Set<ResourceEntry> list = IntStream.range(0, 100).mapToObj(i -> {
-            ResourceEntry entry = new ResourceEntry();
-            entry.setStart(start);
-            entry.setEnd(end);
-            entry.setAllDay(true);
-            entry.setTitle("Generated " + (i + 1));
-            return entry;
-        }).collect(Collectors.toSet());
-        calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntries(list);
-
         scheduler.setEntryResourceEditable(false);
-
-
-        scheduler.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 
 //        calendar.setEntryClassNamesCallback("function(arg) {\n" +
 //                "    return [ 'hello','world' ]\n" +
