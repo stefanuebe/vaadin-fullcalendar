@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.ui.layouts;
 
+import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RoutePrefix;
 
@@ -23,7 +24,7 @@ import com.vaadin.flow.router.RoutePrefix;
 public class TestLayout extends AbstractLayout {
 
     @Override
-    protected void createMenuEntries(AppNav menuBuilder) {
+    protected void createMenuEntries(SideNav menuBuilder) {
         RouteConfiguration.forApplicationScope()
                 .getAvailableRoutes()
                 .stream()

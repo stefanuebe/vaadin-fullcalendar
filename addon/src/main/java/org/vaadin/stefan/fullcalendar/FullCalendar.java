@@ -38,6 +38,7 @@ import java.io.Serializable;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -61,7 +62,7 @@ import java.util.stream.Stream;
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-styles.css")
 @Tag("vaadin-full-calendar")
-public class FullCalendar extends Component implements HasStyle, HasSize {
+public class FullCalendar extends Component implements HasStyle, HasSize, HasTheme {
 
     /**
      * The library base version used in this addon. Some additional libraries might have a different version number due to
@@ -225,6 +226,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         setOption("handleWindowResize", false);
 
         setHeightFull(); // default from previous versions
+
+        /* to allow class based styling for custom subclasses (e.g. for applying the lumo theme)*/
+        addClassName("vaadin-full-calendar");
     }
 
     @Override
@@ -1584,7 +1588,34 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         }
 
         this.getElement().setPropertyJson("customViews", json);
+    }
 
+    /**
+     * Adds theme variants to the calendar.
+     *
+     * @param variants
+     *            theme variants to add
+     */
+    public void addThemeVariants(FullCalendarVariant... variants) {
+        getThemeNames()
+                .addAll(Stream.of(variants).map(FullCalendarVariant::getVariantName)
+                        .collect(Collectors.toList()));
+    }
+
+    /**
+     * Removes theme variants from the calendar.
+     *
+     * @param variants
+     *            theme variants to remove
+     */
+    public void removeThemeVariants(FullCalendarVariant... variants) {
+        getThemeNames()
+                .removeAll(Stream.of(variants).map(FullCalendarVariant::getVariantName)
+                        .collect(Collectors.toList()));
+    }
+
+    public boolean hasThemeVariant(FullCalendarVariant variant) {
+        return hasThemeName(variant.getVariantName());
     }
 
     /**

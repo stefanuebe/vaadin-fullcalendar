@@ -1,34 +1,42 @@
-vaadin-full-calendar {
-    display: block;
-}
+@import "full-calendar-theme-lumo.css";
 
 /* FIXES AND WORKAROUNDS */
+/* we use the class name selector here to allow subclasses to easily remove it if these styles should not be applied.
+Also these styles automatically are applied to any subclasses and do not bleed into other elements also using "fc"
+as a classname. */
+.vaadin-full-calendar.fc {
+    /*display: block;*/ /*not sure why this was here, keeping it for now, but breaks the normal displayment*/
 
-/* Fixes a color issue, where otherwise day numbers would appear as the disabled text color (Idk why)*/
-.fc a:not(:any-link) {
-    color: var(--lumo-body-text-color) !important;
+    /* Fixes a color issue, where otherwise day numbers would appear as the disabled text color (Idk why)*/
+    a:not(:any-link) {
+        color: var(--lumo-body-text-color);
+    }
+
+    /* Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/108*/
+    *:is(.fc-scrollgrid-section-sticky, .fc-scroller-harness) > * {
+        z-index: 1;
+    }
+
+    /* integrated lumo like toggle for resources (see https://github.com/stefanuebe/vaadin_fullcalendar/issues/162) */
+    :is(.fc-icon-minus-square:before, .fc-icon-plus-square:before) {
+        font-family: 'lumo-icons';
+        content: var(--lumo-icons-angle-right);
+        display: inline-block
+    }
+
+    .fc-icon-minus-square:before {
+        transform: rotate(90deg);
+    }
+
+    /* fixes for background colors */
+    {
+        --fc-page-bg-color: transparent;
+    }
+    thead tr.fc-scrollgrid-section-header th {
+        background: transparent;
+    }
 }
 
-/* Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/108*/
-.fc *:is(.fc-scrollgrid-section-sticky, .fc-scroller-harness) > * {
-    z-index: 1;
-}
 
-/* integrated lumo like toggle for resources (see https://github.com/stefanuebe/vaadin_fullcalendar/issues/162) */
-.fc :is(.fc-icon-minus-square:before, .fc-icon-plus-square:before) {
-    font-family: 'lumo-icons';
-    content: var(--lumo-icons-angle-right);
-    display: inline-block
-}
 
-.fc .fc-icon-minus-square:before {
-    transform: rotate(90deg);
-}
 
-/* fixes for background colors */
-.fc {
-    --fc-page-bg-color: transparent;
-}
-.fc thead tr.fc-scrollgrid-section-header th {
-    background: transparent;
-}

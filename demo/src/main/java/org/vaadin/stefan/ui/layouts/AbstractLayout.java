@@ -28,6 +28,8 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.sidenav.SideNav;
+import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -42,7 +44,7 @@ import java.util.Locale;
 @CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
 public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
-    public static final String ADDON_VERSION = "6.0.3";
+    public static final String ADDON_VERSION = "6.1.0";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")
@@ -103,26 +105,26 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         });
         themeToggle.setWidthFull();
 
-        Div footerText = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 23.3.1. " +
+        Div footerText = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 24.2.3" +
                 "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
 
         footer.addClassName("footer");
         footer.add(themeToggle, footerText);
 
-        AppNav nav = new AppNav();
+        SideNav nav = new SideNav();
         createMenuEntries(nav);
 
         addToDrawer(header, new Scroller(nav), footer);
 
     }
 
-    protected abstract void createMenuEntries(AppNav menuBuilder);
+    protected abstract void createMenuEntries(SideNav menuBuilder);
 
-    protected void addMenu(AppNav navigation, Class<? extends Component> clazz) {
+    protected void addMenu(SideNav navigation, Class<? extends Component> clazz) {
         MenuItem item = clazz.getAnnotation(MenuItem.class);
         String caption = item != null ? item.label() : String.join(" ", StringUtils.splitByCharacterTypeCamelCase(clazz.getSimpleName()));
 
-        navigation.addItem(new AppNavItem(caption, clazz, "la"));
+        navigation.addItem(new SideNavItem(caption, clazz));
     }
 
     @Override
