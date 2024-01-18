@@ -15,6 +15,7 @@ Supported features are
 - setting business hours information (multiple entries possible)
 - creating recurring events
 - setting a client side timezone
+- optional Lumo theme
 
 - Event handling for
     - clicking an empty time spot in the calendar,

@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.ui.layouts;
 
+import com.vaadin.flow.component.sidenav.SideNav;
 import org.vaadin.stefan.ui.view.demos.customtimeline.AnonymousCustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.customtimeline.CustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
@@ -28,7 +29,7 @@ import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
 public class MainLayout extends AbstractLayout {
     @Override
-    protected void createMenuEntries(AppNav nav) {
+    protected void createMenuEntries(SideNav nav) {
         addMenu(nav, FullDemo.class);
         addMenu(nav, InMemoryEntryProviderDemo.class);
         addMenu(nav, CallbackEntryProviderDemo.class);

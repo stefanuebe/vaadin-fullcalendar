@@ -1,7 +1,12 @@
 # Index
+* [6.1.x](#61x)
 * [6.0.x](#60x)
 * [4.1.x](#41x)
 * [4.0.x](#40x)
+
+# 6.1.x
+[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-6.1.x)
+- added an optional Lumo theme for the addon
 
 # 6.0.x
 - updated to FullCalendar 6.1.6
@@ -13,7 +18,7 @@
 - Client side eager loading removed, items will now always be fetched
 - Added prefetch mode to allow smoother transition between periods
 - Breaking changes regarding methods and fields (client side and server side). Also usage of private / protected modifiers in TS.
-- Added support for FC's "multi-month" views. 
+- Added support for FC's "multi-month" views.
 - Added proper API for creating and registering custom views. Also added an internal handling of "anonymous" custom views created by initial options.
 - Deprecated code from previous versions has been removed
 - JsonItem has been removed, Entry is a "normal field" class again due to issues with proxying frameworks
@@ -23,7 +28,7 @@
 
 
 Minor changes:
-- getResources now may return null. Use getOrCreateResources. 
+- getResources now may return null. Use getOrCreateResources.
 - CalendarLocale is now an enum. Use getLocale() to obtain the contained locale value.
 - week numbers within days is no longer available, weeknumbers are now always display inside days.
 - RenderingMode and alike namings have been named to DisplayMode / display to match the FC library naming. Also DisplayMode is now a top level class.
@@ -31,9 +36,9 @@ Minor changes:
 - added our own @NotNull annotation to allow support for Vaadin 23 and 24
 - Entry's method `copy(Class<T>)` has been renamed to `copyAsType(Class<T>)`.
 
-Other things that we may have overseen :) 
+Other things that we may have overseen :)
 
-Due to lack of time, we have no release note details at this time. We tried to provide additional info as part of the migration page. 
+Due to lack of time, we have no release note details at this time. We tried to provide additional info as part of the migration page.
 
 # 4.1.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-4.1.x)

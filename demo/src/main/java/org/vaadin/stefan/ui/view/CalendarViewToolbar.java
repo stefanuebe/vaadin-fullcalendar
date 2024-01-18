@@ -241,6 +241,19 @@ public class CalendarViewToolbar extends MenuBar {
     private SubMenu initGeneralSettings() {
         SubMenu subMenu = addItem("Settings").getSubMenu();
 
+        // overhaul, when other themes are added
+        Checkbox themeSelector = new Checkbox("Use Lumo Theme");
+        themeSelector.setValue(calendar.hasThemeVariant(FullCalendarVariant.LUMO));
+        themeSelector.addValueChangeListener(event -> {
+            boolean useLumo = event.getValue();
+            if (useLumo) {
+                calendar.addThemeVariants(FullCalendarVariant.LUMO);
+            } else {
+                calendar.removeThemeVariants(FullCalendarVariant.LUMO);
+            }
+        });
+
+
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> localeSelector = new ComboBox<>("Locale");
         localeSelector.setClearButtonVisible(true);
@@ -312,6 +325,7 @@ public class CalendarViewToolbar extends MenuBar {
         });
 
         VerticalLayout verticalLayout = new VerticalLayout(
+                themeSelector,
                 localeSelector,
                 timezoneSelector,
                 enablePrefetching,
@@ -456,4 +470,5 @@ public class CalendarViewToolbar extends MenuBar {
             timezoneSelector.setValue(timezone);
         }
     }
+
 }

@@ -295,6 +295,19 @@ calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initi
 
 # Style the calendar
 
+## Lumo Theme
+Since 6.1 the calendar provides a built-in Lumo theme, that changes minor parts of it to use Lumo variables, like
+sizes, colors, etc. At this point, the theme is not applied automatically, but you have to opt-in to use it.
+
+Please also be aware, that with 6.1, it still is considered experimental, so there might be parts, that have been
+forgotten or not looking as expected. Also any additional custom stylings may override the Lumo stylings.
+
+To activate the Lumo theme, simply add the respective theme variant, as you would do with other Vaadin components.
+
+```java
+calendar.addThemeVariant(FullCalendarVariant.LUMO);
+```
+
 ## Global styles
 
 Since 6.0 the component is part of the light dom and thus can be styles via plain css. For any details

@@ -16,11 +16,14 @@
  */
 package org.vaadin.stefan.ui.view.demos.full;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
@@ -28,10 +31,11 @@ import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 
 import java.time.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Route(value = "", layout = MainLayout.class)
 @CssImport("./styles.css")
@@ -63,6 +67,10 @@ public class FullDemo extends AbstractSchedulerView {
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
 
+        calendar.setOption(FullCalendar.Option.ENTRY_ORDER, "extendedProps.count");
+        calendar.setOption(FullCalendar.Option.ENTRY_ORDER_STRICT, true);
+
+
         // initally change the view and go to a specific date - attention: this will not fire listeners as the client side is not initialized yet
 //        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 //        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
@@ -76,11 +84,36 @@ public class FullDemo extends AbstractSchedulerView {
                 new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
         );
 
+        calendar.addClassName("vaadin-full-calendar");
+
         calendar.addBrowserTimezoneObtainedListener(event -> {
             getToolbar().setTimezone(event.getTimezone());
         });
 
+        LocalDate now = LocalDate.now();
+        EntryManager.createDayEntry(calendar, "Test 1", now.withDayOfMonth(12), 2, "lightgreen")
+                .setCustomProperty("count", "3");
+        EntryManager.createDayEntry(calendar, "Test 2", now.withDayOfMonth(12), 2, "tomato")
+                .setCustomProperty("count", "2");
+        EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
+                .setCustomProperty("count", "1");
+
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now().plus(1, ChronoUnit.DAYS);
+        Set<ResourceEntry> list = IntStream.range(0, 100).mapToObj(i -> {
+            ResourceEntry entry = new ResourceEntry();
+            entry.setStart(start);
+            entry.setEnd(end);
+            entry.setAllDay(true);
+            entry.setTitle("Generated " + (i + 1));
+            return entry;
+        }).collect(Collectors.toSet());
+        calendar.<ResourceEntry, EntryProvider<ResourceEntry>>getEntryProvider().asInMemory().addEntries(list);
+
         scheduler.setEntryResourceEditable(false);
+
+
+        scheduler.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 
 //        calendar.setEntryClassNamesCallback("function(arg) {\n" +
 //                "    return [ 'hello','world' ]\n" +
@@ -91,9 +124,10 @@ public class FullDemo extends AbstractSchedulerView {
 //                "  return 'WORLD';" +
 //                "}");
 //        calendar.setEntryDidMountCallback(
-//                "function(info) { "
-//                        + "    if(info.event.extendedProps.cursors != undefined) { "
-//                        + "        if(!info.event.startEditable) { "
+//                "function(info) { " +
+//                        "debugger;"
+//                        + "    if(info.event.extendedProps.cursors != undefined) { " +
+//                         "        if(!info.event.startEditable) { "
 //                        + "            info.el.style.cursor = info.event.extendedProps.cursors.disabled;"
 //                        + "        } else { "
 //                        + "            info.el.style.cursor = info.event.extendedProps.cursors.enabled;"
@@ -113,10 +147,15 @@ public class FullDemo extends AbstractSchedulerView {
 //                "  return 'World';" +
 //                "}");
 
-        createTestEntries(calendar);
+//        createTestEntries(calendar);
 
 //        calendar.changeView(CalendarViewImpl.MULTI_MONTH);
 //        calendar.gotoDate(LocalDate.now().plusYears(1));
+
+        // read all entries from the calendar orderd by their date
+
+
+
 
         return calendar;
     }

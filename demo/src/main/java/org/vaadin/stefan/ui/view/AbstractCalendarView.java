@@ -32,6 +32,8 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     public AbstractCalendarView() {
         calendar = createCalendar(createDefaultInitialOptions());
 
+        calendar.addThemeVariants(FullCalendarVariant.LUMO);
+
         calendar.addEntryClickedListener(this::onEntryClick);
         calendar.addEntryDroppedListener(this::onEntryDropped);
         calendar.addEntryResizedListener(this::onEntryResized);
