@@ -28,11 +28,10 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.sidenav.SideNav;
-import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +41,6 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import java.util.Locale;
 
 @CssImport("./app-layout-styles.css")
-@SuppressWarnings("rawtypes")
 public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
     public static final String ADDON_VERSION = "6.1.1-SNAPSHOT";
     private static final long serialVersionUID = -7479612679602267287L;
@@ -111,20 +109,20 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         footer.addClassName("footer");
         footer.add(themeToggle, footerText);
 
-        SideNav nav = new SideNav();
+        VerticalLayout nav = new VerticalLayout();
         createMenuEntries(nav);
 
         addToDrawer(header, new Scroller(nav), footer);
 
     }
 
-    protected abstract void createMenuEntries(SideNav menuBuilder);
+    protected abstract void createMenuEntries(VerticalLayout menuBuilder);
 
-    protected void addMenu(SideNav navigation, Class<? extends Component> clazz) {
+    protected void addMenu(VerticalLayout navigation, Class<? extends Component> clazz) {
         MenuItem item = clazz.getAnnotation(MenuItem.class);
         String caption = item != null ? item.label() : String.join(" ", StringUtils.splitByCharacterTypeCamelCase(clazz.getSimpleName()));
 
-        navigation.addItem(new SideNavItem(caption, clazz));
+        navigation.add(new RouterLink(caption, clazz));
     }
 
     @Override

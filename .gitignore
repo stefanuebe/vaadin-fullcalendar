@@ -26,3 +26,4 @@ types.d.ts
 vite.config.ts
 vite.generated.ts
 index.html
+/demo/src/main/bundles/prod.bundle

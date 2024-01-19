@@ -4,15 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.vaadin.stefan</groupId>
-    <artifactId>fullcalendar-demo</artifactId>
-    <version>24.0.0</version>
+    <artifactId>fullcalendar-demo-14</artifactId>
+    <version>14.0.0</version>
 
-    <name>Full Calendar web component demo</name>
+    <name>Full Calendar web component demo (14)</name>
 
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>24.3.2</vaadin.version>
+        <vaadin.version>14.11.2</vaadin.version>
 
         <fullcalendar.version>6.1.1-SNAPSHOT</fullcalendar.version>
         <fullcalendar.scheduler.version>6.1.1-SNAPSHOT</fullcalendar.scheduler.version>
@@ -23,7 +23,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
         <lombok.version>1.18.26</lombok.version>
-        <spring-boot.version>3.1.4</spring-boot.version>
+        <spring-boot.version>2.7.8</spring-boot.version>
     </properties>
 
     <licenses>
