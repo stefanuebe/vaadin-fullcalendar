@@ -1,3 +1,4 @@
+# FullCalendar Scheduler for Flow
 This addon extends the **FullCalendar for Flow** addon with the **FullCalendar Scheduler**, which provides
 additional resource based views (Timeline View and Vertical Resource View) for Vaadin 14+.
 

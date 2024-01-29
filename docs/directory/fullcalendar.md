@@ -1,4 +1,4 @@
-# FullCalendar web component addon
+# FullCalendar for Flow
 This addon is an integration of the FullCalendar as a Flow component. It is based on the version 6.1.6 of the
 FullCalendar library.
 
