@@ -451,10 +451,9 @@ always up-to-date.
    Create a custom component, that extends FullCalendar or FullCalendarScheduler.
 
 
-```javascript
+```typescript
 import {FullCalendar} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar';
 
-@customElement("my-full-calendar")
 export class MyFullCalendar extends FullCalendar {
     connectedCallback() {
         super.connectedCallback();
@@ -516,7 +515,7 @@ You can even use the FullCalendarBuilder to create your custom class. Be aware, 
 custom class needs to provide all constructors, that the extended FC class has. This will be fixed in future versions.
 
 ```java
-calendar = FullCalendarBuilder.create().withCustomClass(MyFullCalendar.class).build();
+calendar = FullCalendarBuilder.create().withCustomType(MyFullCalendar.class).build();
 ```   
 
 # Creating a background entry
@@ -559,13 +558,14 @@ like tippy.js.
 This sample shows how to easy integrate tippy.js into a custom subclass of FullCalendar to show an entry's description
 as a tooltip when hovering the entry inside the FC. Please customize the example as needed.
 
-1. Create a new javascript file inside the frontend folder of your project. It needs to extend either FullCalendar or
+1. Create a new TypeScript file inside the frontend folder of your project. It needs to extend either FullCalendar or
    FullCalendarScheduler. This example utilized FullCalendarScheduler. If you want to use the normal FC, simply remove
-   all the -Scheduler parts.
+   all the -Scheduler parts. You may also have a simply JavaScript file, in that case you need to change the
+   following script a bit.
 
-full-calendar-with-tooltips.js
+full-calendar-with-tooltips.ts
 
-```javascript
+```typescript
 import {FullCalendarScheduler} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar-scheduler';
 import tippy from 'tippy.js';
 
