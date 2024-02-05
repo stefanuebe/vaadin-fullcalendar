@@ -379,145 +379,6 @@ private void init() {
 }
 ```
 
-# Customize the entry content
-
-FC allows you to modify the content of an entry. The given string will be interpreted as js function on client side
-and attached as `eventContent` callback. See https://fullcalendar.io/docs/content-injection ("...a function") for
-details.
-
-```java
-calendar.setEntryDidMountCallback(
-   "function(info) {" +
-   "   info.el.style.color = 'red';" +
-   "   return info.el; " +
-   "}"
-);
-
-```
-
-Inside the javascript callback you may access the entry's default properties or custom ones, that
-you can set beforehand, using the custom property api (e. g.`setCustomProperty(String, Object)`).
-In the callback you can access the custom property in a similar way, using `getCustomProperty(key)`
-or `getCustomProperty(key, defaultValue)`.
-
-Please be aware, that the entry content callback has to be set before the client side is attached. Setting it afterwards
-has no effect.
-
-Also make sure, that your callback function does not contain any harmful code or allow cross side scripting.
-
-```java
-// set the custom property beforehand
-entry.setCustomProperty(Entry.EntryCustomProperties.DESCRIPTION, "some description");
-
-// use the custom property
-calendar = FullCalendarBuilder.create()
-        .withEntryContent(
-                "function(info) {" +
-                        "   let entry = info.event;" +
-                        "   console.log(entry.title);" + // standard property
-                        "   console.log(entry.getCustomProperty('" + Entry.EntryCustomProperties.DESCRIPTION+ "'));" + // custom property
-                        "   /* ... do something with the event content ...*/" +
-                        "   return info.el; " +
-                        "}"
-        )
-        // ... other settings
-        .build();
-
-// or use the custom property in the entryDidMountCallback
-```
-
-# Creating a subclass of FullCalendar for custom mods
-Since version 6.0.0, the client side component is based on a simple HTMLElement and thus there is
-no framework lifecycle to hook into. The main entry points for your components are therefore:
-* connectedCallback() - called when the component is attached to the dom
-* initCalendar() - called when the calendar is initialized - only called once
-* createInitOptions(initialOptions) - called when the calendar is initialized. You can modify the initial options here.
-* createEventHandlers() - called when the calendar is initialized. You can modify the event handlers here.
-
-Be aware, that during `connectedCallback()` and before calling `initCalendar()` no internal calendar
-object is available. Calling `this.calendar` will automatically infer `initCalendar()` and thus can lead
-to unwanted side effects. Therefore, if you want to set options, add entries or do other things with the
-calendar object, do it after `super.initCalendar()` has been called.
-
-If you want to modifiy options, that are passed into the calendar object, you can extend the method
-`createInitOptions(initialOptions)` and return a modified options object.
-
-If you want to modify or extend the event handlers, you can override the method `createEventHandlers()`-
-
-We recommend to use the `override` modifier on overridden methods to make sure, that the method is
-always up-to-date.
-
-1. Create a custom web component
-   Create a custom component, that extends FullCalendar or FullCalendarScheduler.
-
-
-```typescript
-import {FullCalendar} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar';
-
-export class MyFullCalendar extends FullCalendar {
-    connectedCallback() {
-        super.connectedCallback();
-     
-        // do something with this.calendar
-        // ...
-    }
-    
-    initCalendar() {
-        super.initCalendar();
-        
-        // do something with this.calendar
-        // ...
-    }
-    
-    createInitOptions(initialOptions) {
-        // modify the initial options
-        // attention: this.calendar is not available here!
-        // ...
-        
-        return initialOptions;
-    }
-    
-    createEventHandlers() {
-        // modify the event handlers
-        // attention: this.calendar is not available here!
-        // ...
-
-        return super.createEventHandlers();
-    }
-}
-
-customElements.define("my-full-calendar", MyFullCalendar);
-```
-
-2. Create a subclass of FullCalendar
-
-```java
-import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.dependency.JsModule;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
-
-@Tag("my-full-calendar")
-@JsModule("./my-full-calendar.js")
-public class MyFullCalendar extends FullCalendar {
-
-    public MyFullCalendar() {
-    }
-}
-```
-
-3. Use this class in your code
-
-```java
-calendar = new MyFullCalendar();
-```
-
-You can even use the FullCalendarBuilder to create your custom class. Be aware, that in the current version your
-custom class needs to provide all constructors, that the extended FC class has. This will be fixed in future versions.
-
-```java
-calendar = FullCalendarBuilder.create().withCustomType(MyFullCalendar.class).build();
-```   
-
 # Creating a background entry
 A background entry is an entry, that is rendered behind all other entries. It is not clickable and
 has no tooltip. It is useful for marking a time range, e. g. for marking a vacation.
@@ -621,6 +482,227 @@ public class FullCalendarWithTooltip extends FullCalendarScheduler {
 ```
 
 As shown in the subclass sample, you may also use the FullCalendarBuilder to create your custom class.
+
+# Customize the entry content
+
+FC allows you to modify the content of an entry. The given string will be interpreted as js function on client side
+and attached as `eventContent` callback. See https://fullcalendar.io/docs/content-injection ("...a function") for
+details.
+
+```java
+calendar.setEntryDidMountCallback(
+   "function(info) {" +
+   "   info.el.style.color = 'red';" +
+   "   return info.el; " +
+   "}"
+);
+
+```
+
+Inside the javascript callback you may access the entry's default properties or custom ones, that
+you can set beforehand, using the custom property api (e. g.`setCustomProperty(String, Object)`).
+In the callback you can access the custom property in a similar way, using `getCustomProperty(key)`
+or `getCustomProperty(key, defaultValue)`.
+
+Please be aware, that the entry content callback has to be set before the client side is attached. Setting it afterwards
+has no effect.
+
+Also make sure, that your callback function does not contain any harmful code or allow cross side scripting.
+
+```java
+// set the custom property beforehand
+entry.setCustomProperty(Entry.EntryCustomProperties.DESCRIPTION, "some description");
+
+// use the custom property
+calendar = FullCalendarBuilder.create()
+        .withEntryContent(
+                "function(info) {" +
+                        "   let entry = info.event;" +
+                        "   console.log(entry.title);" + // standard property
+                        "   console.log(entry.getCustomProperty('" + Entry.EntryCustomProperties.DESCRIPTION+ "'));" + // custom property
+                        "   /* ... do something with the event content ...*/" +
+                        "   return info.el; " +
+                        "}"
+        )
+        // ... other settings
+        .build();
+
+// or use the custom property in the entryDidMountCallback
+```
+
+# Use native javascript events for entries
+With 6.2 custom native event handlers for entries have been added. These allow you to setup JavaScript events for
+each entry, e.g. a mouse over event handler. Inside these event handlers you may also access the created entry dom
+element.
+
+Custom native event handlers are added to the FullCalender object. They will then be applied to each created
+entry object (using the entryDidMount callback).
+
+To add an event handler, simply call the method `addEntryNativeEventListener` on the calendar. The first parameter
+is the JavaScript event name (e.g. "mouseover"), the second parameter is the callback, that shall be used for
+that event. Please be aware, that we do NOT check or sanitize the given JavaScript. It is up to you to prevent
+malicious code from being sent to your users.
+
+Inside the event callback, you may access the entryDidMount argument object, that contains additional information
+about the current entry. See the official docs (https://fullcalendar.io/docs/event-render-hooks)
+for more details about which details it provide.
+
+```java
+FullCalendar calendar = new FullCalendar();
+
+// ... other configurations
+
+// write the js event, the current entry info and the current entry's element to the browser console.
+calendar.addEntryNativeEventListener("mouseover", "e => console.warn(e, info.event, info.el)");
+
+add(calendar);
+```
+
+Please be aware, that due to the design of the used library, these event handlers have to be setup before the
+calendar is initialized on the client side.
+
+This sample will change the element style, when the mouse moves over it and changes back, when leaving the element.
+
+```java
+calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
+calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
+```
+
+You can also access the client side dom to utilize other elements, like the parents. With this you may for instance
+call a server side method.
+
+The following sample shows, how a client callable method in the current view, containing the FullCalendar object, can
+be called, when right clicking the entry. With this info you can for instance open a custom popup as a context menu.
+
+```java
+@Route(...)
+public void MyCalendarView extends VerticalLayout {
+    public MyCalendarView() {
+
+      FullCalendar calender = new FullCalendar();
+      // adds a contextmenu / right client event listener, that calls our openContextMenu. 
+      // "this" is the fc object, "this.el" is the Flow element and "this.el.parentElement" is our current view.
+      // This hierarchy access may changed, when you nest the FC into other containers. 
+      
+      calendar.addEntryNativeEventListener("contextmenu",
+              "e => this.el.parentElement.$server.openContextMenu(info.event, e.clientX, e.clientY)");
+
+      add(calender);
+   }
+
+   @ClientCallable
+   public void openContextMenu(JsonObject e, int pointerX, int pointerY) {
+      System.out.println(e);
+      System.out.println(pointerX);
+      System.out.println(pointerY);
+   }
+} 
+```
+
+You can combine the event handlers with a custom entryDidMount callback, if you want additional customizations
+of the entries. The FC will take care of combining the event handlers and you EDM callback
+```java
+calendar.setEntryDidMountCallback("""
+       function(info) {
+           console.warn("my custom callback");
+       }""");
+
+calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
+calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
+```
+
+# Creating a subclass of FullCalendar for custom mods
+Since version 6.0.0, the client side component is based on a simple HTMLElement and thus there is
+no framework lifecycle to hook into. The main entry points for your components are therefore:
+* connectedCallback() - called when the component is attached to the dom
+* initCalendar() - called when the calendar is initialized - only called once
+* createInitOptions(initialOptions) - called when the calendar is initialized. You can modify the initial options here.
+* createEventHandlers() - called when the calendar is initialized. You can modify the event handlers here.
+
+Be aware, that during `connectedCallback()` and before calling `initCalendar()` no internal calendar
+object is available. Calling `this.calendar` will automatically infer `initCalendar()` and thus can lead
+to unwanted side effects. Therefore, if you want to set options, add entries or do other things with the
+calendar object, do it after `super.initCalendar()` has been called.
+
+If you want to modifiy options, that are passed into the calendar object, you can extend the method
+`createInitOptions(initialOptions)` and return a modified options object.
+
+If you want to modify or extend the event handlers, you can override the method `createEventHandlers()`-
+
+We recommend to use the `override` modifier on overridden methods to make sure, that the method is
+always up-to-date.
+
+1. Create a custom web component
+   Create a custom component, that extends FullCalendar or FullCalendarScheduler.
+
+
+```typescript
+import {FullCalendar} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar';
+
+export class MyFullCalendar extends FullCalendar {
+    connectedCallback() {
+        super.connectedCallback();
+     
+        // do something with this.calendar
+        // ...
+    }
+    
+    initCalendar() {
+        super.initCalendar();
+        
+        // do something with this.calendar
+        // ...
+    }
+    
+    createInitOptions(initialOptions) {
+        // modify the initial options
+        // attention: this.calendar is not available here!
+        // ...
+        
+        return initialOptions;
+    }
+    
+    createEventHandlers() {
+        // modify the event handlers
+        // attention: this.calendar is not available here!
+        // ...
+
+        return super.createEventHandlers();
+    }
+}
+
+customElements.define("my-full-calendar", MyFullCalendar);
+```
+
+2. Create a subclass of FullCalendar
+
+```java
+import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.dependency.JsModule;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
+
+@Tag("my-full-calendar")
+@JsModule("./my-full-calendar.js")
+public class MyFullCalendar extends FullCalendar {
+
+    public MyFullCalendar() {
+    }
+}
+```
+
+3. Use this class in your code
+
+```java
+calendar = new MyFullCalendar();
+```
+
+You can even use the FullCalendarBuilder to create your custom class. Be aware, that in the current version your
+custom class needs to provide all constructors, that the extended FC class has. This will be fixed in future versions.
+
+```java
+calendar = FullCalendarBuilder.create().withCustomType(MyFullCalendar.class).build();
+```   
+
 
 # Entry data utilities
 

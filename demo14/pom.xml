@@ -14,8 +14,8 @@
     <properties>
         <vaadin.version>14.11.2</vaadin.version>
 
-        <fullcalendar.version>6.1.1-SNAPSHOT</fullcalendar.version>
-        <fullcalendar.scheduler.version>6.1.1-SNAPSHOT</fullcalendar.scheduler.version>
+        <fullcalendar.version>6.2.0</fullcalendar.version>
+        <fullcalendar.scheduler.version>6.2.0</fullcalendar.scheduler.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

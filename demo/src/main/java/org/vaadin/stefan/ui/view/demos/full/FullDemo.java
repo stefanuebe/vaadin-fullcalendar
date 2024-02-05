@@ -16,26 +16,24 @@
  */
 package org.vaadin.stefan.ui.view.demos.full;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 
-import java.time.*;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 @Route(value = "", layout = MainLayout.class)
 @CssImport("./styles.css")
@@ -102,17 +100,21 @@ public class FullDemo extends AbstractSchedulerView {
 //                " console.warn('hello');" +
 //                "  return 'WORLD';" +
 //                "}");
-//        calendar.setEntryDidMountCallback(
-//                "function(info) { " +
-//                        "debugger;"
-//                        + "    if(info.event.extendedProps.cursors != undefined) { " +
-//                         "        if(!info.event.startEditable) { "
-//                        + "            info.el.style.cursor = info.event.extendedProps.cursors.disabled;"
-//                        + "        } else { "
-//                        + "            info.el.style.cursor = info.event.extendedProps.cursors.enabled;"
-//                        + "        }"
-//                        + "    }"
-//                        + "}");
+
+
+//        calendar.setEntryDidMountCallback("""
+//                function(info) {
+//                    console.warn("my custom callback");
+//                }""");
+
+//        calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
+//        calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
+
+//        calendar.addEntryNativeEventListener("contextmenu",
+//                "e => this.el.parentElement.$server.openContextMenu(info.event, e.clientX, e.clientY)");
+
+        calendar.addEntryNativeEventListener("contextmenu", "e => console.warn('just a context menu event')");
+
 //
 //        scheduler.setResourceLabelContentCallback(
 //                "function(arg, createElement) {" +
@@ -126,18 +128,20 @@ public class FullDemo extends AbstractSchedulerView {
 //                "  return 'World';" +
 //                "}");
 
-//        createTestEntries(calendar);
+        createTestEntries(calendar);
 
 //        calendar.changeView(CalendarViewImpl.MULTI_MONTH);
 //        calendar.gotoDate(LocalDate.now().plusYears(1));
 
-        // read all entries from the calendar orderd by their date
-
-
-
-
         return calendar;
     }
+
+//    @ClientCallable
+//    public void openContextMenu(JsonObject e, int pointerX, int pointerY) {
+//        System.out.println(e);
+//        System.out.println(pointerX);
+//        System.out.println(pointerY);
+//    }
 
     private void createTestEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();
@@ -174,8 +178,8 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createTimedEntry(calendar, "Meeting 2", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomOrange);
         EntryManager.createTimedEntry(calendar, "Meeting 3", now.withDayOfMonth(7).atTime(11, 30), 120, null, meetingRoomRed);
 
-        HashMap<String, Object> extendedProps = new HashMap<String, Object>();
-        HashMap<String, Object> cursors = new HashMap<String, Object>();
+        HashMap<String, Object> extendedProps = new HashMap<>();
+        HashMap<String, Object> cursors = new HashMap<>();
         cursors.put("enabled", "pointer");
         cursors.put("disabled", "not-allowed");
         extendedProps.put("cursors", cursors);

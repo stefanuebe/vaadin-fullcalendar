@@ -16,6 +16,7 @@ Supported features are
 - creating recurring events
 - setting a client side timezone
 - optional Lumo theme
+- custom native js event handlers for entries
 
 - Event handling for
     - clicking an empty time spot in the calendar,

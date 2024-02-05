@@ -25,12 +25,12 @@ import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
-import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
-import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
 
@@ -99,16 +99,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     private Timezone browserTimezone;
 
-    private boolean firstAttach = true;
-
-    @Getter
-    private boolean attached;
-
     private String currentViewName;
     private LocalDate currentIntervalStart;
     private CalendarView currentView;
 
     private boolean refreshAllEntriesRequested;
+
+    private Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
+    private String eventDidMountCallback;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
@@ -233,11 +231,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        attached = true;
         super.onAttach(attachEvent);
-        if (firstAttach) {
-            firstAttach = false;
-        } else {
+
+        if(!attachEvent.isInitialAttach()) {
             getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(this, executionContext -> {
                     // We do not need to set the initial options again as that is handled by Flow automatically.
@@ -258,12 +254,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                 });
             });
         }
-    }
 
-    @Override
-    protected void onDetach(DetachEvent detachEvent) {
-        attached = false;
-        super.onDetach(detachEvent);
+        updateEntryDidMountCallbackOnAttach();
     }
 
     /**
@@ -809,11 +801,80 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
      * other security mechanism applied on this string, so check it yourself before passing it to the client.
      * <br><br>
+     * Also this method must be called before the calendar is added to the client side. Changes afterwards are
+     * ignored, until the component is re-attached.
+     * <br><br>
+     * If you also setup native event listeners, then these will automatically be attached to the end of your custom
+     * callback function (must end with an closing bracked "}").
      *
      * @param s function to be attached
+     * @see #addEntryNativeEventListener(String, String)
+     *
      */
     public void setEntryDidMountCallback(String s) {
-        getElement().callJsFunction("setEventDidMountCallback", s);
+        eventDidMountCallback = s;
+    }
+
+    /**
+     * Adds a native, client side / java script event listener, that will be added for all entries, when they
+     * are mounted. The first parameter is the java script event name (for instance "click" or "mouseover"), the
+     * second parameter is the javascript callback (e.g. "e => console.warn(e)" or "e => alert('Hello')").
+     * <br><br>
+     * This method does NOT check, if you pass valid event names or callbacks. It will also NOT sanitize the given
+     * content, but pass it to the client as it is. <b>Be careful to not provide harmful code to the user!</b>
+     * Also be aware, that some events may fire very often (e.g. "mousemove") and thus can lead to performance
+     * issues.
+     * <br><br>
+     * Event listeners will be added utilizing the entryDidMount callback ({@link #setEntryDidMountCallback(String)}).
+     * You still can setup a custom callback yourself. The event listener registration will automatically be
+     * attached to the end of your custom function.
+     * <br><br>
+     * Inside the callback you may access the parameter of the entryDidMount callback by using the default name
+     * "info" or the parameter name you used, if you created a custom callback. With that you can access the
+     * entry itself (using "info.event") or the created html element (using "info.el"). For additional details
+     * on which details are available in the callback, see the <a href="https://fullcalendar.io/docs/event-render-hooks">official FC docs</a>.
+     * @see #setEntryDidMountCallback(String)
+     * @param eventName javascript event name
+     * @param eventCallback javascript event callback to be hooked to the event
+     */
+    public void addEntryNativeEventListener(String eventName, String eventCallback) {
+        customNativeEventsMap.put(eventName, eventCallback);
+    }
+
+    private void updateEntryDidMountCallbackOnAttach() {
+        StringBuilder events = null;
+        if (!customNativeEventsMap.isEmpty()) {
+            events = new StringBuilder();
+
+            for (Map.Entry<String, String> entry : customNativeEventsMap.entrySet()) {
+                events.append("arguments[0].el.addEventListener('")
+                        .append(entry.getKey())
+                        .append("', ")
+                        .append(entry.getValue())
+                        .append(")\n");
+            }
+        }
+
+        String s = null;
+        if (StringUtils.isNotBlank(eventDidMountCallback)) {
+
+            if (events != null) {
+                int index = eventDidMountCallback.lastIndexOf("}");
+                s = eventDidMountCallback.substring(0, index);
+                s += events;
+                s += eventDidMountCallback.substring(index);
+            } else {
+                s = eventDidMountCallback;
+            }
+
+        } else if (events != null) {
+            // there is no custom event did mount, so we just setup the native event callbacks
+            s = "function(info) {\n" + events + "}";
+        }
+
+        if (s != null) {
+            getElement().callJsFunction("setEventDidMountCallback", s);
+        }
     }
 
     /**
