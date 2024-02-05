@@ -1,8 +1,14 @@
 # Index
+* [6.2.x](#62x)
 * [6.1.x](#61x)
 * [6.0.x](#60x)
 * [4.1.x](#41x)
 * [4.0.x](#40x)
+
+
+# 6.2.x
+[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-6.2.x)
+- added custom native event handlers for entries
 
 # 6.1.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-6.1.x)
