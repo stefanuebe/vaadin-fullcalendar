@@ -5,7 +5,7 @@ latest version of the addon.
 Some samples use an in-memory entry provider when modifiying the calendar data to keep things simple. You may
 need to adapt those parts, if you use a different entry provider.
 
-Also we tried to keep things short. So you may see variables like `calendar`, `entry` or `entryProvider` 
+Also we tried to keep things short. So you may see variables like `calendar`, `entry` or `entryProvider`
 without any declaration. In those cases these represent the basic types `FullCalendar`, `Entry` or `EntryProvider`.
 
 If you find an outdated sample, please create an issue for that.
@@ -28,11 +28,11 @@ entry.setColor("#ff3333");
 
 // the given times will be interpreted as utc based - useful when the times are fetched from your database
 entry.setStart(LocalDate.now().withDayOfMonth(3).atTime(10, 0));
-entry.setEnd(entry.getStart().plusHours(2));
+        entry.setEnd(entry.getStart().plusHours(2));
 
 // FC uses a data provider concept similar to the Vaadin default's one, with some differences
 // By default the FC uses a in-memory data provider, which is sufficient for most basic use cases.
-calendar.getEntryProvider().asInMemory().addEntries(entry);
+        calendar.getEntryProvider().asInMemory().addEntries(entry);
 ```
 
 # Add, update or remove a calendar entry
@@ -43,29 +43,29 @@ InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMem
 HorizontalLayout buttons = new HorizontalLayout();
 Button buttonSave;
 if (newInstance) {
-   buttonSave = new Button("Create", e -> {
-       if (binder.validate().isOk()) {
-           // add the entry to the calendar instance
-           entryProvider.addEntry(entry);
+buttonSave = new Button("Create", e -> {
+        if (binder.validate().isOk()) {
+        // add the entry to the calendar instance
+        entryProvider.addEntry(entry);
            entryProvider.refreshAll();
        }
-   });
-} else {
-   buttonSave = new Button("Save", e -> {
-       if (binder.validate().isOk()) {
-           // update an existing entry in the client side
-           // this will only send changed data
-           entryProvider.refreshItem(entry);
+               });
+               } else {
+buttonSave = new Button("Save", e -> {
+        if (binder.validate().isOk()) {
+        // update an existing entry in the client side
+        // this will only send changed data
+        entryProvider.refreshItem(entry);
        }
-   });
-}
-buttons.add(buttonSave);
+               });
+               }
+               buttons.add(buttonSave);
 
 if (!newInstance) {
-   Button buttonRemove = new Button("Remove", e -> {
-       entryProvider.removeEntry(entry);
-       entryProvider.refreshAll();
-   });
+Button buttonRemove = new Button("Remove", e -> {
+   entryProvider.removeEntry(entry);
+   entryProvider.refreshAll();
+});
    buttons.add(buttonRemove);
 }
 ```
@@ -75,32 +75,32 @@ This sample shows how to react on calendar events, that are triggered by the use
 
 ```java
 /*
- * The day click event listener is called when a user clicks in an empty space inside of the 
- * calendar. Depending of if the clicked point was a day or time slot the event will provide the 
+ * The day click event listener is called when a user clicks in an empty space inside of the
+ * calendar. Depending of if the clicked point was a day or time slot the event will provide the
  * time details of the clicked point. With this info you can show a dialog to create a new entry.
  */
 calendar.addTimeslotsSelectedListener((event) -> {
-   // react on the selected timeslot, for instance create a new instance and let the user edit it
-   Entry entry = new Entry();
+// react on the selected timeslot, for instance create a new instance and let the user edit it
+Entry entry = new Entry();
    
    entry.setStart(event.getStart()); // also event times are always utc based
-   entry.setEnd(event.getEnd());
-   entry.setAllDay(event.isAllDay());
-   
-   entry.setColor("dodgerblue");
-   
-   // ... show an editor
+        entry.setEnd(event.getEnd());
+        entry.setAllDay(event.isAllDay());
+
+        entry.setColor("dodgerblue");
+
+// ... show an editor
 });
 
-/*
- * The entry click event listener is called when the user clicks on an existing entry. 
- * The event provides the clicked event which might be then opened in a dialog.
- */
-calendar.addEntryClickedListener((event) -> {
-   // react on the clicked entry, for instance let the user edit it
-   Entry entry = event.getEntry();
+        /*
+         * The entry click event listener is called when the user clicks on an existing entry.
+         * The event provides the clicked event which might be then opened in a dialog.
+         */
+        calendar.addEntryClickedListener((event) -> {
+// react on the clicked entry, for instance let the user edit it
+Entry entry = event.getEntry();
 
-   // ... show an editor
+// ... show an editor
 });
 ```
 
@@ -184,21 +184,21 @@ The simples variant is similar to the callback variant, but with its own class:
 
 ```java
 private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
-    private final EntryService service;
+   private final EntryService service;
 
-    public BackendEntryProvider(EntryService service) {
-        this.service = service;
-    }
+   public BackendEntryProvider(EntryService service) {
+      this.service = service;
+   }
 
-    @Override
-    public Stream<Entry> fetch(@NonNull EntryQuery query) {
-        return service.streamEntries(query);
-    }
+   @Override
+   public Stream<Entry> fetch(@NonNull EntryQuery query) {
+      return service.streamEntries(query);
+   }
 
-    @Override
-    public Optional<Entry> fetchById(@NonNull String id) {
-        return service.getEntry(id);
-    }
+   @Override
+   public Optional<Entry> fetchById(@NonNull String id) {
+      return service.getEntry(id);
+   }
 }
 ```
 
@@ -250,15 +250,15 @@ calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.
 
 // If you want to let the calendar obtain the browser time zone automatically, you may simply use the builder.
 // In that case as soon as the client connected, it will set it's timezone in the server side instance.
-FullCalendarBuilder.create().withAutoBrowserTimezone().build();
+        FullCalendarBuilder.create().withAutoBrowserTimezone().build();
 
 // Entries use internally utc to define times. The LocalDateTime and Instant methods setStart/End have the same effect.
 entry.setStart(Instant.now()); // UTC
-entry.setEnd(LocalDateTime.now()); // UTC
+        entry.setEnd(LocalDateTime.now()); // UTC
 
 // Entry provides some additional convenience methods to handle the current calendar's timezone's offset, e.g. to allow easy
 // integration into edit forms.
-calendar.setTimezone(tzBerlinGermany); // times are now 1-2 hours "ahead" (depending on daylight saving)
+        calendar.setTimezone(tzBerlinGermany); // times are now 1-2 hours "ahead" (depending on daylight saving)
 entry.setStart(LocalDate.of(2000, 1, 1).atStartOfDay());
 
 LocalDateTime utcStart = entry.getStart(); // will be 2000-01-01, 00:00
@@ -320,31 +320,31 @@ Sample styles.css
 ```css
 /* change the border color of the fc in a global way*/
 .fc {
-    --fc-border-color: #ddd; 
+   --fc-border-color: #ddd;
 }
 
 /* change the border color of the fc for dark themes*/
 [theme~="dark"] .fc {
-    --fc-border-color: #333; 
+   --fc-border-color: #333;
 }
 
 
 /* change the appearance of the week and day number to a more button like style when hovering */
 .fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number) {
-    background: transparent;
-    font-size: 12px;
-    transition: background 200ms ;
-    border-radius: 3px;
+   background: transparent;
+   font-size: 12px;
+   transition: background 200ms ;
+   border-radius: 3px;
 }
 
 .fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number):hover {
-    background: var(--lumo-primary-color-10pct);
-    text-decoration: none;
+   background: var(--lumo-primary-color-10pct);
+   text-decoration: none;
 }
 
 .fc a.fc-daygrid-day-number {
-    padding-left: 6px;
-    padding-right: 6px;
+   padding-left: 6px;
+   padding-right: 6px;
 }
 ```
 
@@ -354,7 +354,7 @@ Sample styles.css
 private void init() {
    // The element that should show the current interval.
    HasText intervalLabel = new Span();
-   
+
    // combo box to select a view for the calendar, like "monthly", "weekly", ...
    ComboBox<CalendarView> viewBox = new ComboBox<>("", CalendarViewImpl.values());
    viewBox.addValueChangeListener(e -> {
@@ -362,18 +362,18 @@ private void init() {
       calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
    });
    viewBox.setValue(CalendarViewImpl.DAY_GRID_MONTH);
-   
+
    /*
-   * The view rendered listener is called when the view has been rendererd on client side
-   * and FC is aware of the current shown interval. Might be accessible more directly in
-   * future.
-   */
+    * The view rendered listener is called when the view has been rendererd on client side
+    * and FC is aware of the current shown interval. Might be accessible more directly in
+    * future.
+    */
    calendar.addDatesRenderedListener(event -> {
       LocalDate intervalStart = event.getIntervalStart();
       CalendarView cView = viewBox.getValue();
-   
+
       String formattedInterval = ... // format the intervalStart based on cView. See the demos for examples.
-   
+
       intervalLabel.setText(formattedInterval);
    });
 }
@@ -402,13 +402,13 @@ Non-business hours are grayed out in the calendar.
 calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK));
 
 // Multiple instances
-calendar.setBusinessHours(
+        calendar.setBusinessHours(
 new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK),
-new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
-);
+        new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
+        );
 
 // Single instance for "each day from 9am to midnight"
-calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0)));
+        calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0)));
 ```
 
 # Using tippy.js for description tooltips
@@ -432,35 +432,35 @@ import tippy from 'tippy.js';
 
 
 export class FullCalendarWithTooltip extends FullCalendarScheduler {
-    initCalendar() {
-        super.initCalendar();
+   initCalendar() {
+      super.initCalendar();
 
-        this.calendar!.setOption("eventDidMount", e => {
-            this.initTooltip(e);
-        });
-    }
+      this.calendar!.setOption("eventDidMount", e => {
+         this.initTooltip(e);
+      });
+   }
 
-    initTooltip(e: any) {
-        if (e.event.title && !e.isMirror) {
-            e.el.addEventListener("mouseenter", () => {
-                let tooltip = e.event.getCustomProperty("description", e.event.title);
+   initTooltip(e: any) {
+      if (e.event.title && !e.isMirror) {
+         e.el.addEventListener("mouseenter", () => {
+            let tooltip = e.event.getCustomProperty("description", e.event.title);
 
-                e.el._tippy = tippy(e.el, {
-                    theme: 'light',
-                    content: tooltip,
-                    trigger: 'manual'
-                });
+            e.el._tippy = tippy(e.el, {
+               theme: 'light',
+               content: tooltip,
+               trigger: 'manual'
+            });
 
-                e.el._tippy.show();
-            })
+            e.el._tippy.show();
+         })
 
-            e.el.addEventListener("mouseleave", () => {
-                if (e.el._tippy) {
-                    e.el._tippy.destroy();
-                }
-            })
-        }
-    }
+         e.el.addEventListener("mouseleave", () => {
+            if (e.el._tippy) {
+               e.el._tippy.destroy();
+            }
+         })
+      }
+   }
 }
 
 customElements.define("full-calendar-with-tooltip", FullCalendarWithTooltip);
@@ -476,8 +476,8 @@ customElements.define("full-calendar-with-tooltip", FullCalendarWithTooltip);
 @CssImport("tippy.js/themes/light.css")
 public class FullCalendarWithTooltip extends FullCalendarScheduler {
 
-    public FullCalendarWithTooltip() {
-    }
+   public FullCalendarWithTooltip() {
+   }
 }
 ```
 
@@ -492,9 +492,9 @@ details.
 ```java
 calendar.setEntryDidMountCallback(
    "function(info) {" +
-   "   info.el.style.color = 'red';" +
-   "   return info.el; " +
-   "}"
+           "   info.el.style.color = 'red';" +
+           "   return info.el; " +
+           "}"
 );
 
 ```
@@ -523,8 +523,8 @@ calendar = FullCalendarBuilder.create()
                         "   /* ... do something with the event content ...*/" +
                         "   return info.el; " +
                         "}"
-        )
-        // ... other settings
+)
+// ... other settings
         .build();
 
 // or use the custom property in the entryDidMountCallback
@@ -583,7 +583,7 @@ public void MyCalendarView extends VerticalLayout {
       // adds a contextmenu / right client event listener, that calls our openContextMenu. 
       // "this" is the fc object, "this.el" is the Flow element and "this.el.parentElement" is our current view.
       // This hierarchy access may changed, when you nest the FC into other containers. 
-      
+
       calendar.addEntryNativeEventListener("contextmenu",
               "e => this.el.parentElement.$server.openContextMenu(info.event, e.clientX, e.clientY)");
 
@@ -609,6 +609,71 @@ calendar.setEntryDidMountCallback("""
 
 calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
 calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
+```
+
+The following sample shows how to utilize the entryDidMount callback, the native event handlers and the
+[Popup addon](https://vaadin.com/directory/component/popup) to show a context menu. In this sample, the context
+menu is based on a ListBox.
+
+```java
+@Route(...)
+public void MyCalendarView extends VerticalLayout {
+    
+    private Popup popup;
+   
+    public MyCalendarView() {
+
+        FullCalendar calender = new FullCalendar();
+        // adds a contextmenu / right client event listener, that calls our openContextMenu. 
+        // "this" is the fc object, "this.el" is the Flow element and "this.el.parentElement" is our current view.
+        // This hierarchy access may changed, when you nest the FC into other containers. 
+
+        calendar.addEntryNativeEventListener("contextmenu",
+                "e => {" +
+                "   e.preventDefault(); " +
+                "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
+                "}");
+
+        // by default, the entry element has no id attribute. Therefore we have to add it ourselves, using the 
+        // entry id, that is by default an auto generated UUID
+        calendar.setEntryDidMountCallback("""
+                function(info) {
+                    info.el.id = "entry-" + info.event.id;
+                }""");
+
+    }
+
+    @ClientCallable
+    public void openContextMenu (String id){
+        initPopup(); // init the popp
+
+        popup.removeAll(); // remove old content
+
+
+        // setup the context menu
+        // (side note: the list box shows a checkmark, when selecting an item, therefore you may want to use a different 
+        // component for a real application or hide the checkmark with CSS)
+        ListBox<String> listBox = new ListBox<>();
+        listBox.setItems("Option A", "Option B", "Option C");
+        listBox.addValueChangeListener(event -> {
+            Notification.show("Selected " + event.getValue());
+            popup.hide();
+        });
+
+        popup.add(listBox);
+        popup.setFor("entry-" + id);
+
+        popup.show();
+    }
+
+    private void initPopup () {
+        if (popup == null) {
+            popup = new Popup();
+            popup.setFocusTrap(true);
+            add(popup);
+        }
+    }
+} 
 ```
 
 # Creating a subclass of FullCalendar for custom mods
@@ -640,35 +705,35 @@ always up-to-date.
 import {FullCalendar} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar';
 
 export class MyFullCalendar extends FullCalendar {
-    connectedCallback() {
-        super.connectedCallback();
-     
-        // do something with this.calendar
-        // ...
-    }
-    
-    initCalendar() {
-        super.initCalendar();
-        
-        // do something with this.calendar
-        // ...
-    }
-    
-    createInitOptions(initialOptions) {
-        // modify the initial options
-        // attention: this.calendar is not available here!
-        // ...
-        
-        return initialOptions;
-    }
-    
-    createEventHandlers() {
-        // modify the event handlers
-        // attention: this.calendar is not available here!
-        // ...
+   connectedCallback() {
+      super.connectedCallback();
 
-        return super.createEventHandlers();
-    }
+      // do something with this.calendar
+      // ...
+   }
+
+   initCalendar() {
+      super.initCalendar();
+
+      // do something with this.calendar
+      // ...
+   }
+
+   createInitOptions(initialOptions) {
+      // modify the initial options
+      // attention: this.calendar is not available here!
+      // ...
+
+      return initialOptions;
+   }
+
+   createEventHandlers() {
+      // modify the event handlers
+      // attention: this.calendar is not available here!
+      // ...
+
+      return super.createEventHandlers();
+   }
 }
 
 customElements.define("my-full-calendar", MyFullCalendar);
@@ -685,8 +750,8 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 @JsModule("./my-full-calendar.js")
 public class MyFullCalendar extends FullCalendar {
 
-    public MyFullCalendar() {
-    }
+   public MyFullCalendar() {
+   }
 }
 ```
 
@@ -728,18 +793,18 @@ needs to be handled by your logic.
 ```java
 // directly apply the changes
 calendar.addEntryDroppedListener(event -> {
-    event.applyChangesOnEntry(); // includes now the allDay attribute if sent by client
+        event.applyChangesOnEntry(); // includes now the allDay attribute if sent by client
 });
 
 // create a copy to do some business logic checks
-calendar.addEntryDroppedListener(event -> {
-    Entry copy = event.createCopyBasedOnChanges();
+        calendar.addEntryDroppedListener(event -> {
+Entry copy = event.createCopyBasedOnChanges();
 
     if(copy.getStartAsLocalDate().isBefore(someRequiredMinimalDate) /* do some background checks on the changed data */){
         event.applyChangesOnEntry();
         event.getSource().getEntryProvider().refreshItem(event.getEntry()); // refresh the entry to update the UI
-    }
-});
+        }
+        });
 ```
 
 ## Create a temporary copy
@@ -764,8 +829,8 @@ binder.setBean(tmpEntry); // you can of course also use the read/writeBean api
 // modify the bound fields
 
 if (binder.validate().isOk()) {
-    entry.copyFrom(tmpEntry); // this will overwrite the entry with the values of the tmpEntry
-    // ... update the backend as needed, e.g. by calling refreshItem on the entry provider
+        entry.copyFrom(tmpEntry); // this will overwrite the entry with the values of the tmpEntry
+// ... update the backend as needed, e.g. by calling refreshItem on the entry provider
 }
 ```
 
