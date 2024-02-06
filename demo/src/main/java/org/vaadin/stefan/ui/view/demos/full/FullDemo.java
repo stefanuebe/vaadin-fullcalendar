@@ -16,7 +16,15 @@
  */
 package org.vaadin.stefan.ui.view.demos.full;
 
+import com.vaadin.componentfactory.Popup;
+import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.listbox.ListBox;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
@@ -39,6 +47,8 @@ import java.util.List;
 @CssImport("./styles.css")
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
 public class FullDemo extends AbstractSchedulerView {
+
+    private Popup popup;
 
     @Override
     protected FullCalendar createCalendar(JsonObject initialOptions) {
@@ -102,18 +112,20 @@ public class FullDemo extends AbstractSchedulerView {
 //                "}");
 
 
-//        calendar.setEntryDidMountCallback("""
-//                function(info) {
-//                    console.warn("my custom callback");
-//                }""");
 
 //        calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
 //        calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
+//        calendar.addEntryNativeEventListener("contextmenu", "e => console.warn('just a context menu event')");
 
-//        calendar.addEntryNativeEventListener("contextmenu",
-//                "e => this.el.parentElement.$server.openContextMenu(info.event, e.clientX, e.clientY)");
-
-        calendar.addEntryNativeEventListener("contextmenu", "e => console.warn('just a context menu event')");
+        calendar.addEntryNativeEventListener("contextmenu",
+                "e => {" +
+                "   e.preventDefault(); " +
+                "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
+                "}");
+        calendar.setEntryDidMountCallback("""
+                function(info) {
+                    info.el.id = "entry-" + info.event.id;
+                }""");
 
 //
 //        scheduler.setResourceLabelContentCallback(
@@ -133,15 +145,36 @@ public class FullDemo extends AbstractSchedulerView {
 //        calendar.changeView(CalendarViewImpl.MULTI_MONTH);
 //        calendar.gotoDate(LocalDate.now().plusYears(1));
 
+
         return calendar;
     }
 
-//    @ClientCallable
-//    public void openContextMenu(JsonObject e, int pointerX, int pointerY) {
-//        System.out.println(e);
-//        System.out.println(pointerX);
-//        System.out.println(pointerY);
-//    }
+    private void initPopup() {
+        if (popup == null) {
+            popup = new Popup();
+            popup.setFocusTrap(true);
+            add(popup);
+        }
+    }
+
+    @ClientCallable
+    public void openContextMenu(String id) {
+        initPopup();
+
+        popup.removeAll();
+
+        ListBox<String> listBox = new ListBox<>();
+        listBox.setItems("Option A", "Option B", "Option C");
+        listBox.addValueChangeListener(event -> {
+            Notification.show("Selected " + event.getValue());
+            popup.hide();
+        });
+
+        popup.add(listBox);
+        popup.setFor("entry-" + id);
+
+        popup.show();
+    }
 
     private void createTestEntries(FullCalendar calendar) {
         LocalDate now = LocalDate.now();

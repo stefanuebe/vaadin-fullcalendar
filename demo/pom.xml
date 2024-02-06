@@ -14,8 +14,8 @@
     <properties>
         <vaadin.version>24.3.2</vaadin.version>
 
-        <fullcalendar.version>6.2.0</fullcalendar.version>
-        <fullcalendar.scheduler.version>6.2.0</fullcalendar.scheduler.version>
+        <fullcalendar.version>6.2.1-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.scheduler.version>6.2.1-SNAPSHOT</fullcalendar.scheduler.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -118,6 +118,12 @@
             <version>${lombok.version}</version>
             <optional>true</optional>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.vaadin.componentfactory</groupId>
+            <artifactId>popup</artifactId>
+            <version>24.0.4</version>
         </dependency>
 
     </dependencies>
