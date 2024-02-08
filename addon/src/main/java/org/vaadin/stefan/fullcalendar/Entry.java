@@ -1153,7 +1153,6 @@ public class Entry {
      * resulting additional days. See {@link LocalDateTime#plusHours(long)}.
      *
      * @return start date time of recurrence
-     * @throws DateTimeException if the start time represents a time of 24 hours or above.
      * @see #isRecurring()
      */
     public LocalDateTime getRecurringStart() {
