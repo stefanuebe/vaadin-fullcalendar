@@ -33,109 +33,110 @@ Some stylings are inspired from similar Vaadin components, like for instance the
 
     --fc-today-bg-color: transparent; /* handled differently */
     --fc-now-indicator-color: red;
+}
 
-    /* general modifications of the calendar entry / event item */
-    .fc-event {
-        border-radius: var(--lumo-border-radius-m);
-        padding-left: var(--lumo-space-xs);
-        padding-right: var(--lumo-space-xs);
+/* general modifications of the calendar entry / event item */
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-event {
+    border-radius: var(--lumo-border-radius-m);
+    padding-left: var(--lumo-space-xs);
+    padding-right: var(--lumo-space-xs);
 
-        /* to have some visual feedback on hovering, inspired by buttons, not realizable the same way*/
-        &:hover {
-            filter: brightness(90%) contrast(1.2);
-        }
-    }
 
-    /* changing hovering colors for any other type of events, that have no own background color or custom property*/
-    .fc-daygrid-dot-event:hover {
-        background-color: var(--lumo-primary-color-10pct)
-    }
+}
 
-    /* general font sizes*/
-    .fc-col-header-cell,
-    .fc-daygrid-day-number,
-    .fc-daygrid-week-number,
-    .fc-timeline-header-row,
-    .fc-list th .fc-list-day-cushion {
-        font-size: var(--lumo-font-size-s);
-    }
+/* to have some visual feedback on hovering, inspired by buttons, not realizable the same way*/
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-event:hover {
+    filter: brightness(90%) contrast(1.2);
+}
 
-    /* the selection highlight*/
-    .fc-highlight {
-        /* imitates the Grid selection highlighting */
-        background: linear-gradient(var(--fc-highlight-color), var(--fc-highlight-color)) repeat;
-        box-shadow: 0 1px 0 0 var(--fc-highlight-color);
-    }
 
-    /* This part makes the "today" link being shown as a badge */
-    .fc-day-today {
-        a:is(
-            .fc-col-header-cell-cushion,
-            .fc-daygrid-day-number,
-            .fc-list-day-text,
-            .fc-timeline-slot-cushion,
-            .fc-list-day-side-text
-        ):not(:empty) {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            /*padding: 0.4em calc(0.5em + var(--lumo-border-radius-s) / 4);*/
-            padding: 0 var(--lumo-space-s);
-            color: var(--lumo-primary-text-color);
-            background-color: var(--lumo-primary-color-10pct);
-            border-radius: var(--lumo-border-radius-s);
-            font-family: var(--lumo-font-family);
-            font-size: var(--lumo-font-size-s);
-            /*line-height: 1;*/
-            font-weight: 500;
-            text-transform: initial;
-            letter-spacing: initial;
-            min-width: calc(var(--lumo-line-height-xs) * 1em + 0.45em);
-            flex-shrink: 0;
-        }
 
-        a.fc-daygrid-day-number {
-            margin: var(--lumo-space-xs) 0;
-        }
-    }
+/* changing hovering colors for any other type of events, that have no own background color or custom property*/
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-daygrid-dot-event:hover {
+    background-color: var(--lumo-primary-color-10pct)
+}
 
-    /* not sure why FC per default aligns things to the top */
-    th[role="columnheader"],
-    .fc-timeline-header-row th {
-        vertical-align: middle;
-        height: var(--lumo-size-m);
-        box-sizing: content-box; /*otherwise some bottom borders disappear due to the height setting */
-    }
+/* general font sizes*/
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-col-header-cell,
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-daygrid-day-number,
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-daygrid-week-number,
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-timeline-header-row,
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-list th .fc-list-day-cushion {
+    font-size: var(--lumo-font-size-s);
+}
 
-    /* set a fixed styling for all different view headers to allow consistent display of header cells*/
-    th[role="columnheader"] {
-        height: var(--lumo-size-m);
-    }
+/* the selection highlight*/
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-highlight {
+    /* imitates the Grid selection highlighting */
+    background: linear-gradient(var(--fc-highlight-color), var(--fc-highlight-color)) repeat;
+    box-shadow: 0 1px 0 0 var(--fc-highlight-color);
+}
 
-    /* FC adds empty "day numbers", even if they are not needed. This messes up our styling so we hide them */
-    :is(.fc-dayGridWeek-view, .fc-dayGridDay-view) a:is(.fc-daygrid-day-number) {
-        visibility: hidden !important;/*we want to preserve the space for the CW part (?) but not show anything*/
-        /*display: none !important; !*alternative to the visibility hidden*!*/
-    }
+/* This part makes the "today" link being shown as a badge */
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-day-today a:is(
+        .fc-col-header-cell-cushion,
+        .fc-daygrid-day-number,
+        .fc-list-day-text,
+        .fc-timeline-slot-cushion,
+        .fc-list-day-side-text
+    ):not(:empty) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    /*padding: 0.4em calc(0.5em + var(--lumo-border-radius-s) / 4);*/
+    padding: 0 var(--lumo-space-s);
+    color: var(--lumo-primary-text-color);
+    background-color: var(--lumo-primary-color-10pct);
+    border-radius: var(--lumo-border-radius-s);
+    font-family: var(--lumo-font-family);
+    font-size: var(--lumo-font-size-s);
+    /*line-height: 1;*/
+    font-weight: 500;
+    text-transform: initial;
+    letter-spacing: initial;
+    min-width: calc(var(--lumo-line-height-xs) * 1em + 0.45em);
+    flex-shrink: 0;
+}
 
-    /* Today badge stylings for multi month view */
-    .fc-multiMonthYear-view .fc-day-today a.fc-daygrid-day-number {
-        margin: var(--lumo-space-xs) 0;/* to not have the today badge sitting in the corner*/
-    }
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-day-today a.fc-daygrid-day-number {
+    margin: var(--lumo-space-xs) 0;
+}
 
-    /* the "plus n more events". The fc custom properties seem not to work, so we set it here manually*/
-    .fc-more-link {
-        color: var(--lumo-body-text-color);
+/* not sure why FC per default aligns things to the top */
+.vaadin-full-calendar.fc[theme~="lumo"] th[role="columnheader"],
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-timeline-header-row th {
+    vertical-align: middle;
+    height: var(--lumo-size-m);
+    box-sizing: content-box; /*otherwise some bottom borders disappear due to the height setting */
+}
 
-        &:hover {
-            background-color: var(--lumo-contrast-10pct);
-        }
-    }
+/* set a fixed styling for all different view headers to allow consistent display of header cells*/
+.vaadin-full-calendar.fc[theme~="lumo"] th[role="columnheader"] {
+    height: var(--lumo-size-m);
+}
+
+/* FC adds empty "day numbers", even if they are not needed. This messes up our styling so we hide them */
+.vaadin-full-calendar.fc[theme~="lumo"] :is(.fc-dayGridWeek-view, .fc-dayGridDay-view) a:is(.fc-daygrid-day-number) {
+    visibility: hidden !important;/*we want to preserve the space for the CW part (?) but not show anything*/
+    /*display: none !important; !*alternative to the visibility hidden*!*/
+}
+
+/* Today badge stylings for multi month view */
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-multiMonthYear-view .fc-day-today a.fc-daygrid-day-number {
+    margin: var(--lumo-space-xs) 0;/* to not have the today badge sitting in the corner*/
+}
+
+/* the "plus n more events". The fc custom properties seem not to work, so we set it here manually*/
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-more-link {
+    color: var(--lumo-body-text-color);
+}
+
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-more-link:hover {
+    background-color: var(--lumo-contrast-10pct);
+}
 
     /* setting an outer border like the grid does*/
-    .fc-scrollgrid {
-        border-color: var(--fc-outer-border-color);
-    }
-
+.vaadin-full-calendar.fc[theme~="lumo"] .fc-scrollgrid {
+    border-color: var(--fc-outer-border-color);
 }
