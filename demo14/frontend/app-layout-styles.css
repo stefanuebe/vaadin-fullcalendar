@@ -1,0 +1,23 @@
+#menu-header-title {
+	font-weight: bold;
+    font-size: 26px;
+}
+
+#menu-header-subtitle {
+	font-weight: 500;
+    font-size: 11px;
+    padding-bottom: 20px;
+}
+
+.header {
+    align-self: center;
+}
+
+.footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1rem;
+
+    font-size: x-small;
+}

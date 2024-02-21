@@ -42,7 +42,7 @@ import java.util.Locale;
 
 @CssImport("./app-layout-styles.css")
 public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
-    public static final String ADDON_VERSION = "6.2.1-SNAPSHOT";
+    public static final String ADDON_VERSION = "6.2.1";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")
