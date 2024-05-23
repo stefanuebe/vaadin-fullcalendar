@@ -22,7 +22,6 @@ import elemental.json.JsonObject;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.util.*;
 
 /**
@@ -55,11 +54,11 @@ public class Resource {
     private final String color;
 
     /**
-     * The BusinessHours of this resource.
+     * The BusinessHours array of this resource.
      * 
-     * A businessHours declaration that will only apply to this resource.
+     * A businessHours[] declaration that will only apply to this resource.
      */
-    private final BusinessHours businessHours;
+    private final BusinessHours[] businessHoursArray;
     
     /**
      * The childern's of the resource
@@ -118,11 +117,11 @@ public class Resource {
      * @param children children (optional)
      * @param businessHours businessHours (optional)
      */
-    public Resource(String id, String title, String color, Collection<Resource> children, BusinessHours businessHours) {
+    public Resource(String id, String title, String color, Collection<Resource> children, BusinessHours... businessHours) {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
         this.color = color;
-        this.businessHours = businessHours;
+        this.businessHoursArray = businessHours;
 
         if (children != null) {
             addChildren(children);
@@ -279,8 +278,13 @@ public class Resource {
         jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
         jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
         
-        if(getBusinessHours() != null)
-        	jsonObject.put("businessHours", getBusinessHours().toJson());
+        if(getBusinessHoursArray() != null) {
+            JsonArray businessHoursJsonArray = Json.createArray();
+            for(int i=0; i < getBusinessHoursArray().length; i++) {
+                businessHoursJsonArray.set(i, getBusinessHoursArray()[i].toJson());
+            }
+            jsonObject.put("businessHours", businessHoursJsonArray);
+        }
         
         getParent().ifPresent(parent -> jsonObject.put("parentId", parent.getId()));
 
