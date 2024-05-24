@@ -12,10 +12,10 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>24.3.2</vaadin.version>
+        <vaadin.version>24.3.12</vaadin.version>
 
-        <fullcalendar.version>6.2.1</fullcalendar.version>
-        <fullcalendar.scheduler.version>6.2.1</fullcalendar.scheduler.version>
+        <fullcalendar.version>6.2.2-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.scheduler.version>6.2.2-SNAPSHOT</fullcalendar.scheduler.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -23,7 +23,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <lombok.version>1.18.30</lombok.version>
 
-        <spring-boot.version>3.1.4</spring-boot.version>
+        <spring-boot.version>3.2.3</spring-boot.version>
     </properties>
 
     <licenses>
@@ -152,6 +152,7 @@
                         <annotationProcessorPath>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
                         </annotationProcessorPath>
                     </annotationProcessorPaths>
                 </configuration>
