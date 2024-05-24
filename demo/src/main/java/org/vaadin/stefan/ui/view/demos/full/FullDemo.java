@@ -300,7 +300,6 @@ public class FullDemo extends AbstractSchedulerView {
 
     @Override
     protected void onEntryClick(EntryClickedEvent event) {
-        super.onEntryClick(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
         if (event.getEntry().getDisplayMode() != DisplayMode.BACKGROUND && event.getEntry().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
@@ -363,7 +362,6 @@ public class FullDemo extends AbstractSchedulerView {
         entry.setEnd(event.getEnd());
         entry.setAllDay(event.isAllDay());
 
-        entry.setColor("dodgerblue");
         entry.setCalendar(event.getSource());
 
         DemoDialog dialog = new DemoDialog(entry, true);

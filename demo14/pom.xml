@@ -12,10 +12,10 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>14.11.3</vaadin.version>
+        <vaadin.version>14.11.10</vaadin.version>
 
-        <fullcalendar.version>6.2.1</fullcalendar.version>
-        <fullcalendar.scheduler.version>6.2.1</fullcalendar.scheduler.version>
+        <fullcalendar.version>6.2.2-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.scheduler.version>6.2.2-SNAPSHOT</fullcalendar.scheduler.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

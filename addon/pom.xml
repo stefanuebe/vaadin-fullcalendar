@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2</artifactId>
-    <version>6.2.1</version>
+    <version>6.2.2-SNAPSHOT</version>
 
     <name>FullCalendar for Flow</name>
     <description>A web component that wraps the FullCalendar (https://fullcalendar.io).</description>
     <url>https://vaadin.com/directory/component/full-calendar-flow</url>
 
     <properties>
-        <vaadin.version>14.10.7</vaadin.version>
+        <vaadin.version>14.11.10</vaadin.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
