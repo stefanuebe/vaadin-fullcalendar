@@ -101,20 +101,6 @@ public class Resource {
      * @param title    title
      * @param color    color (optional)
      * @param children children (optional)
-     */
-    public Resource(String id, String title, String color, Collection<Resource> children) {
-    	this(id, title, color, children, null);
-    }
-
-    /**
-     * New instance. Awaits id and title. If no id is provided, one will be generated.
-     * <br><br>
-     * Adds the given resources as children using {@link #addChildren(Collection)} if a value != null is passed.
-     *
-     * @param id       id
-     * @param title    title
-     * @param color    color (optional)
-     * @param children children (optional)
      * @param businessHours businessHours (optional)
      */
     public Resource(String id, String title, String color, Collection<Resource> children, BusinessHours... businessHours) {
