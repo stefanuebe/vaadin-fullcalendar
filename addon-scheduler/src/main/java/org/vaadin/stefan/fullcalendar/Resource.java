@@ -34,32 +34,32 @@ public class Resource {
 
     /**
      * The id of this resource.
-     * 
-     * Uniquely identifies this resource. 
+     *
+     * Uniquely identifies this resource.
      */
     private final String id;
 
     /**
      * The title/name of this resource.
-     * 
+     *
      * Text that will be displayed on the resource when it is rendered.
      */
     private final String title;
 
     /**
      * The color of this resource.
-     * 
-     * Events associated with this resources will have their backgrounds and borders colored. 
+     *
+     * Events associated with this resources will have their backgrounds and borders colored.
      */
     private final String color;
 
     /**
      * The BusinessHours array of this resource.
-     * 
+     *
      * A businessHours[] declaration that will only apply to this resource.
      */
     private final BusinessHours[] businessHoursArray;
-    
+
     /**
      * The childern's of the resource
      */
@@ -68,7 +68,7 @@ public class Resource {
      * The parent of the current resource
      */
     private Resource parent;
-    
+
     /**
      * The custom property list
      */
@@ -121,7 +121,7 @@ public class Resource {
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.title = title;
         this.color = color;
-        this.businessHoursArray = businessHours;
+        this.businessHoursArray = (businessHours != null && businessHours.length == 0) ? null : businessHours;
 
         if (children != null) {
             addChildren(children);
@@ -235,7 +235,7 @@ public class Resource {
 
         this.children.removeAll(children);
     }
-    
+
     /**
      * Add custom element to the extendedProp HashMap. This allow to set custom property to the resource.
      *
@@ -245,7 +245,7 @@ public class Resource {
     public void addExtendedProps(@NotNull String key, @NotNull Object value) {
     	extendedProps.put(key, value);
     }
-    
+
     /**
      * Remove the custom property based on the name.
      *
@@ -254,7 +254,7 @@ public class Resource {
     public void removeExtendedProps(@NotNull String key) {
     	extendedProps.remove(key);
     }
-    
+
     /**
      * remove specific custom property where the name and value match.
      *
@@ -277,15 +277,15 @@ public class Resource {
         jsonObject.put("id", getId());
         jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
         jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
-        
-        if(getBusinessHoursArray() != null) {
+
+        if(getBusinessHoursArray() != null && getBusinessHoursArray().length > 0) {
             JsonArray businessHoursJsonArray = Json.createArray();
-            for(int i=0; i < getBusinessHoursArray().length; i++) {
+            for(int i = 0; i < getBusinessHoursArray().length; i++) {
                 businessHoursJsonArray.set(i, getBusinessHoursArray()[i].toJson());
             }
             jsonObject.put("businessHours", businessHoursJsonArray);
         }
-        
+
         getParent().ifPresent(parent -> jsonObject.put("parentId", parent.getId()));
 
         Set<Resource> children = getChildren();
@@ -298,7 +298,7 @@ public class Resource {
 
             jsonObject.put("children", jsonArray);
         }
-        
+
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {
             for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
@@ -327,6 +327,16 @@ public class Resource {
         this.parent = parent;
     }
 
+    /**
+     * Returns the first item from businessHoursArray or null if array is empty
+     *
+     * @return BusinessHours or null
+     */
+    public BusinessHours getBusinessHours() {
+        if(businessHoursArray == null || businessHoursArray.length == 0) return null;
+
+        return businessHoursArray[0];
+    }
 
     @Override
     public String toString() {
