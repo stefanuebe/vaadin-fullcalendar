@@ -12,7 +12,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>24.3.2</vaadin.version>
+        <vaadin.version>24.3.12</vaadin.version>
 
         <fullcalendar.version>6.2.2-SNAPSHOT</fullcalendar.version>
         <fullcalendar.scheduler.version>6.2.2-SNAPSHOT</fullcalendar.scheduler.version>
@@ -23,7 +23,7 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <lombok.version>1.18.30</lombok.version>
 
-        <spring-boot.version>3.1.4</spring-boot.version>
+        <spring-boot.version>3.2.3</spring-boot.version>
     </properties>
 
     <licenses>
