@@ -98,6 +98,7 @@ public class Entry {
 
     private Set<String> classNames;
 
+    @JsonName("extendedProps")
     private Map<String, Object> customProperties;
 
     @JsonIgnore
