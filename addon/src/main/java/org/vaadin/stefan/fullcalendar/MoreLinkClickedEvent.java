@@ -39,6 +39,12 @@ public class MoreLinkClickedEvent extends MultipleEntriesDataEvent {
     private final LocalDate clickedDate;
 
     /**
+     * Contains the id of the clicked "more" link element. Can be used to target it for instance for
+     * a popover.
+     */
+    private final String elementId;
+
+    /**
      * New instance. Awaits the clicked date as iso string (e.g. "2018-10-23") and an array of events, that are
      * shown for that day.
      *
@@ -47,10 +53,11 @@ public class MoreLinkClickedEvent extends MultipleEntriesDataEvent {
      * @param date       clicked time slot as iso string
      */
     public MoreLinkClickedEvent(FullCalendar source, boolean fromClient,
+                                @EventData("event.detail.elementId") String elementId,
                                 @EventData("event.detail.date") String date,
                                 @EventData("event.detail.allSegs") JsonArray coveredItems) {
         super(source, fromClient, coveredItems);
-
+        this.elementId = elementId;
         clickedDate = JsonUtils.parseClientSideDate(date);
     }
 

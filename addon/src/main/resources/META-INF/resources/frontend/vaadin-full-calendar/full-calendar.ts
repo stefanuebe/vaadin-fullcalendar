@@ -45,6 +45,8 @@ export class FullCalendar extends HTMLElement {
     protected initialOptions = {};
     protected customViews: any = {};
 
+    private __moreLinkIdCounter = 0;
+
     connectedCallback() {
         if (!this._calendar) {
             this.initCalendar();
@@ -131,6 +133,10 @@ export class FullCalendar extends HTMLElement {
             weekNumbers: true,
             stickyHeaderDates: true,
             stickyFooterScrollbar: true,
+            moreLinkDidMount: mountArg => {
+                // workaround for https://github.com/stefanuebe/vaadin-fullcalendar/issues/201
+                mountArg.el.id = `more-link-${this.__moreLinkIdCounter++}`;
+            },
             ...initialOptions,
         };
 
@@ -177,19 +183,19 @@ export class FullCalendar extends HTMLElement {
      * Example of the returned object.
      * <pre>
      {
-        select: (eventInfo) => {
-            return {
-                start: eventInfo.startStr,
-                end: eventInfo.endStr,
-                allDay: eventInfo.allDay,
-                resource: eventInfo.resource ? eventInfo.resource.id : null
-            }
-        },
-        eventClick: (eventInfo) => {
-            return {
-                id: eventInfo.event.id
-            }
-        }
+     select: (eventInfo) => {
+     return {
+     start: eventInfo.startStr,
+     end: eventInfo.endStr,
+     allDay: eventInfo.allDay,
+     resource: eventInfo.resource ? eventInfo.resource.id : null
+     }
+     },
+     eventClick: (eventInfo) => {
+     return {
+     id: eventInfo.event.id
+     }
+     }
      }
      * </pre>
      * @returns an eventhandler definition object
@@ -274,6 +280,7 @@ export class FullCalendar extends HTMLElement {
                     return this.convertToEventData(seg.event);
                 });
                 return {
+                    elementId: eventInfo.jsEvent.target.id,
                     date: this.formatDate(eventInfo.date, true),
                     allSegs: events
                 }

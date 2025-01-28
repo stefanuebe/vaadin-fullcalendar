@@ -17,11 +17,7 @@
 package org.vaadin.stefan.ui.view.demos.full;
 
 import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.popover.Popover;
@@ -66,6 +62,8 @@ public class FullDemo extends AbstractSchedulerView {
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
                 .build();
 
+//        calendar.setOption(FullCalendar.Option.ENTRY_MAX_STACK, 2);
+
         FullCalendarScheduler scheduler = (FullCalendarScheduler) calendar;
         scheduler.setResourceAreaWidth("15%");
         scheduler.setSlotMinWidth("100");
@@ -74,6 +72,19 @@ public class FullDemo extends AbstractSchedulerView {
         calendar.setNowIndicatorShown(true);
         calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+
+//        calendar.addMoreLinkClickedListener(event -> {
+//            Popover popover = new Popover(new VerticalLayout(event.getEntries()
+//                    .stream()
+//                    .map(entry -> new Span(entry.getTitle()))
+//                    .toArray(Component[]::new)));
+//
+//            popover.setFor(event.getElementId());
+//            UI.getCurrent().add(popover);
+//            popover.open();
+//        });
+//
+//        calendar.setMoreLinkClickAction(FullCalendar.MoreLinkClickAction.NOTHING);
 
         // initally change the view and go to a specific date - attention: this will not fire listeners as the client side is not initialized yet
 //        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
