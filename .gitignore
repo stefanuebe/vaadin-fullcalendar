@@ -1,6 +1,6 @@
 /build/
-node_modules/
-**/target/
+**/node_modules
+**/target
 /.idea/
 /src/main/resources/application.properties
 .DS_Store
@@ -27,3 +27,4 @@ vite.config.ts
 vite.generated.ts
 index.html
 /demo/src/main/bundles/prod.bundle
+/demo/src/main/java/org/vaadin/stefan/ui/view/demos/IssueView.java

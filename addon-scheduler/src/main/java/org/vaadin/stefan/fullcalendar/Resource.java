@@ -264,10 +264,11 @@ public class Resource {
         jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
         jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
 
-        if(getBusinessHoursArray() != null && getBusinessHoursArray().length > 0) {
+        BusinessHours[] businessHours = getBusinessHoursArray();
+        if(businessHours != null && businessHours.length > 0) {
             JsonArray businessHoursJsonArray = Json.createArray();
-            for(int i = 0; i < getBusinessHoursArray().length; i++) {
-                businessHoursJsonArray.set(i, getBusinessHoursArray()[i].toJson());
+            for(int i = 0; i < businessHours.length; i++) {
+                businessHoursJsonArray.set(i, businessHours[i].toJson());
             }
             jsonObject.put("businessHours", businessHoursJsonArray);
         }

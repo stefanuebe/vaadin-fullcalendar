@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.ui.view.demos.full;
 
-import com.vaadin.componentfactory.Popup;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -25,6 +24,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.popover.Popover;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
@@ -48,7 +48,7 @@ import java.util.List;
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
 public class FullDemo extends AbstractSchedulerView {
 
-    private Popup popup;
+    private Popover popup;
 
     @Override
     protected FullCalendar createCalendar(JsonObject initialOptions) {
@@ -93,12 +93,14 @@ public class FullDemo extends AbstractSchedulerView {
         });
 
         LocalDate now = LocalDate.now();
-        EntryManager.createDayEntry(calendar, "Test 1", now.withDayOfMonth(12), 2, "lightgreen")
+        EntryManager.createDayEntry(calendar, "Test 1", now.minusMonths(1).withDayOfMonth(12), 80, "lightgreen")
                 .setCustomProperty("count", "3");
         EntryManager.createDayEntry(calendar, "Test 2", now.withDayOfMonth(12), 2, "tomato")
                 .setCustomProperty("count", "2");
         EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
                 .setCustomProperty("count", "1");
+
+
 
         scheduler.setEntryResourceEditable(false);
 
@@ -151,8 +153,8 @@ public class FullDemo extends AbstractSchedulerView {
 
     private void initPopup() {
         if (popup == null) {
-            popup = new Popup();
-            popup.setFocusTrap(true);
+            popup = new Popover();
+//            popup.setFocusTrap(true);
             add(popup);
         }
     }
@@ -167,13 +169,13 @@ public class FullDemo extends AbstractSchedulerView {
         listBox.setItems("Option A", "Option B", "Option C");
         listBox.addValueChangeListener(event -> {
             Notification.show("Selected " + event.getValue());
-            popup.hide();
+            popup.close();
         });
 
         popup.add(listBox);
         popup.setFor("entry-" + id);
 
-        popup.show();
+        popup.open();
     }
 
     private void createTestEntries(FullCalendar calendar) {
@@ -352,7 +354,6 @@ public class FullDemo extends AbstractSchedulerView {
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
         System.out.println( "ZoneId: " + event.getSource().getTimezone().getZoneId() );
-        LocalDateTime startDate = event.getStart();
         System.out.println( "getStart(): " + event.getStart() );
         System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
 

@@ -12,10 +12,10 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>24.3.12</vaadin.version>
+        <vaadin.version>24.6.2</vaadin.version>
 
-        <fullcalendar.version>6.2.2-SNAPSHOT</fullcalendar.version>
-        <fullcalendar.scheduler.version>6.2.2-SNAPSHOT</fullcalendar.scheduler.version>
+        <fullcalendar.version>7.0.0-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.scheduler.version>7.0.0-SNAPSHOT</fullcalendar.scheduler.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -119,13 +119,6 @@
             <optional>true</optional>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.vaadin.componentfactory</groupId>
-            <artifactId>popup</artifactId>
-            <version>24.0.4</version>
-        </dependency>
-
     </dependencies>
 
     <build>
