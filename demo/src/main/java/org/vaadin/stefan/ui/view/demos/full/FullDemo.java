@@ -92,16 +92,6 @@ public class FullDemo extends AbstractSchedulerView {
             getToolbar().setTimezone(event.getTimezone());
         });
 
-        LocalDate now = LocalDate.now();
-        EntryManager.createDayEntry(calendar, "Test 1", now.minusMonths(1).withDayOfMonth(12), 80, "lightgreen")
-                .setCustomProperty("count", "3");
-        EntryManager.createDayEntry(calendar, "Test 2", now.withDayOfMonth(12), 2, "tomato")
-                .setCustomProperty("count", "2");
-        EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
-                .setCustomProperty("count", "1");
-
-
-
         scheduler.setEntryResourceEditable(false);
 
 //        calendar.setEntryClassNamesCallback("function(arg) {\n" +

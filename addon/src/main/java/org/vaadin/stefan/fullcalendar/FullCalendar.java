@@ -220,9 +220,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             currentView = event.getCalendarView().orElse(null);
         });
 
-        // currently disabled, since a ResizeObserver is registered on the client side
-        setOption("handleWindowResize", false);
-
         setHeightFull(); // default from previous versions
 
         /* to allow class based styling for custom subclasses (e.g. for applying the lumo theme)*/
@@ -1419,7 +1416,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * <p>
      * Registers a listener to be informed when the user clicked on the "more" link (e.g. "+6 more").
+     * </p><p>
+     *     Please note, that by default the calendar shows a popup with all events for the referenced day.
+     *     To handle the event manually, you need to set the {@link MoreLinkClickAction#NOTHING} using
+     *     {@link #setMoreLinkClickAction(MoreLinkClickAction)}.
+     * </p>
      *
      * @param listener listener
      * @return registration to remove the listener

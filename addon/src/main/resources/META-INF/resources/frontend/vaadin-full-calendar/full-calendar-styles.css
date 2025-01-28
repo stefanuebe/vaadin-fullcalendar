@@ -4,36 +4,51 @@
 /* we use the class name selector here to allow subclasses to easily remove it if these styles should not be applied.
 Also these styles automatically are applied to any subclasses and do not bleed into other elements also using "fc"
 as a classname. */
+/* Fixes a color issue, where otherwise day numbers would appear as the disabled text color (Idk why)*/
+
+/*
+FC uses some z-indexes > 1 in different spots. This breaks the mobile version of the app layout drawer. To prevent
+any overlapping, we simply set the z-index higher.
+ */
+
 .vaadin-full-calendar.fc {
     --fc-page-bg-color: transparent;
-    /*display: block;*/ /*not sure why this was here, keeping it for now, but breaks the normal displayment*/
+
+    /* integrated lumo like toggle for resources (see https://github.com/stefanuebe/vaadin_fullcalendar/issues/162) */
+
+    :is(.fc-icon-minus-square:before, .fc-icon-plus-square:before) {
+        font-family: 'lumo-icons';
+        content: var(--lumo-icons-angle-right);
+        display: inline-block
+    }
+
+    .fc-icon-minus-square:before {
+        transform: rotate(90deg);
+    }
+
+    /* fixes for background colors */
+
+    .fc-table-header-sticky {
+        background: transparent;
+    }
 }
 
-/* Fixes a color issue, where otherwise day numbers would appear as the disabled text color (Idk why)*/
-.vaadin-full-calendar.fc a:not(:any-link) {
-    color: var(--lumo-body-text-color);
+/*
+ The FC sets various elements to a z-index higher than the app layout drawer/backdrop (mobile variants). To prevent
+ any graphic or interaction glitches, we set the z-index to a higher value by default.
+
+ If for any reasons the z-index must be set lower than 10, it can be reset using the custom property
+ --vaadin-app-layout-drawer-z-index. In that case the z-indexes of FC elements might need to be set lower, too.
+ Beware of potential issues in that case.
+ */
+vaadin-app-layout {
+    &::part(drawer),
+    &::part(backdrop) {
+        z-index: var(--vaadin-app-layout-drawer-z-index, 10);
+    }
 }
 
-/* Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/108*/
-.vaadin-full-calendar.fc :is(.fc-scrollgrid-section-sticky, .fc-scroller-harness) > * {
-    z-index: 1;
-}
 
-/* integrated lumo like toggle for resources (see https://github.com/stefanuebe/vaadin_fullcalendar/issues/162) */
-.vaadin-full-calendar.fc :is(.fc-icon-minus-square:before, .fc-icon-plus-square:before) {
-    font-family: 'lumo-icons';
-    content: var(--lumo-icons-angle-right);
-    display: inline-block
-}
-
-.vaadin-full-calendar.fc .fc-icon-minus-square:before {
-    transform: rotate(90deg);
-}
-
-/* fixes for background colors */
-thead tr.fc-scrollgrid-section-header th {
-    background: transparent;
-}
 
 
 
