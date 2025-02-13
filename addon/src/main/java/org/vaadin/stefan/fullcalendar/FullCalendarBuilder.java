@@ -209,17 +209,17 @@ public class FullCalendarBuilder {
      * <br><br>
      * <b>Example</b>
      * <pre>
-     * calendar.setEntryContentCallback("" +
-     * "function(arg) { " +
-     * "  let italicEl = document.createElement('i');" +
-     * "  if (arg.event.getCustomProperty('isUrgent', false)) {" +
-     * "    italicEl.innerHTML = 'urgent event';" +
-     * "  } else {" +
-     * "    italicEl.innerHTML = 'normal event';" +
-     * "  }" +
-     * "  let arrayOfDomNodes = [ italicEl ];" +
-     * "  return { domNodes: arrayOfDomNodes }" +
-     * "}");
+     * calendar.setEntryContentCallback("""
+     *     function(arg) {
+     *         let italicEl = document.createElement('i');
+     *         if (arg.event.getCustomProperty('isUrgent', false)) {
+     *             italicEl.innerHTML = 'urgent event';
+     *         } else {
+     *             italicEl.innerHTML = 'normal event';
+     *         }
+     *         let arrayOfDomNodes = [ italicEl ];
+     *         return { domNodes: arrayOfDomNodes }
+     *     }""");
      * </pre>
      *
      * @param entryContent function to be attached
