@@ -80,13 +80,22 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public static final int DEFAULT_DAY_EVENT_DURATION = 1;
 
-    private static final String JSON_INITIAL_OPTIONS = "initialOptions";
+    private static final String JSON_INITIAL_OPTIONS = "initialJsonOptions";
+    private static final String INITIAL_OPTIONS = "initialOptions";
 
     /**
      * Caches the last fetched entries for entry based events.
      */
     private final Map<String, Entry> lastFetchedEntries = new HashMap<>();
     private final Map<String, Serializable> options = new HashMap<>();
+
+    /**
+     * A map for options, that have been set before the attachment. They are mapped here instead of the options
+     * map to allow a correct init of the client on reattachment plus have something to return in getOption.
+     * The main reason are options, that have to be set before attachment, but must not "bleed" into the option
+     * map, like eventContent
+     */
+    private final Map<String, Serializable> initialOptions = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
     private EntryProvider<? extends Entry> entryProvider;
@@ -237,7 +246,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                     // All other options, set by setOption have to be reset, as they are transported to the client
                     // via function at the moment and thus not stored in the server side state.
 
-                    // options
+                    // options. dont use the initialOptions map here, the component takes care of initialOptions itself
+                    // since that is also cached as a property
                     JsonObject optionsJson = Json.createObject();
                     if (!options.isEmpty()) {
                         options.forEach((key, value) -> optionsJson.put(key, JsonUtils.toJsonValue(value)));
@@ -612,11 +622,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private void callOptionUpdate(@NotNull String option, Serializable value, Object valueForServerSide, String method, Serializable... additionalParameters) {
         Objects.requireNonNull(option);
 
+        boolean attached = isAttached();
+
         if (value == null) {
+            initialOptions.remove(option);
             options.remove(option);
             serverSideOptions.remove(option);
         } else {
-            options.put(option, value);
+            if (attached) {
+                options.put(option, value);
+            } else {
+                initialOptions.put(option, value);
+            }
 
             if (valueForServerSide == null || valueForServerSide.equals(value)) {
                 serverSideOptions.remove(option);
@@ -625,8 +642,22 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             }
         }
 
-        Serializable[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Serializable[]::new);
-        getElement().callJsFunction(method, parameters);
+        if (attached) {
+            Serializable[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Serializable[]::new);
+            getElement().callJsFunction(method, parameters);
+        } else {
+            JsonObject initialOptions = (JsonObject) getElement().getPropertyRaw("initialOptions");
+            if (initialOptions == null) {
+                initialOptions = Json.createObject();
+                getElement().setPropertyJson("initialOptions", initialOptions);
+            }
+
+            if (value == null) {
+                initialOptions.remove(option);
+            } else {
+                initialOptions.put(option, JsonUtils.toJsonValue(value));
+            }
+        }
     }
 
     /**
@@ -1279,8 +1310,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             return Optional.ofNullable((T) serverSideOptions.get(option));
         }
 
-        return Optional.ofNullable((T) options.get(option));
-//        return Optional.ofNullable((T) options.get(option));
+        Serializable value = options.get(option);
+        if(value == null) {
+            value = initialOptions.get(option);
+        }
+        return Optional.ofNullable((T) value);
     }
 
     /**
