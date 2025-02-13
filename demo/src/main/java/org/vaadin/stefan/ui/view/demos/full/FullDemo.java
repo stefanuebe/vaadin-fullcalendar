@@ -61,6 +61,17 @@ public class FullDemo extends AbstractSchedulerView {
         FullCalendar calendar = FullCalendarBuilder.create()
                 .withAutoBrowserTimezone()
                 .withAutoBrowserLocale()
+//                .withEntryContent("""
+//                        function(arg) {
+//                            let italicEl = document.createElement('i');
+//                            if (arg.event.getCustomProperty('isUrgent', false)) {
+//                                italicEl.innerHTML = 'urgent event';
+//                            } else {
+//                                italicEl.innerHTML = 'normal event';
+//                            }
+//                            let arrayOfDomNodes = [ italicEl ];
+//                            return { domNodes: arrayOfDomNodes }
+//                        }""")
                 .withInitialOptions(initialOptions)
                 .withEntryLimit(3)
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
@@ -105,11 +116,11 @@ public class FullDemo extends AbstractSchedulerView {
 //        calendar.setEntryClassNamesCallback("function(arg) {\n" +
 //                "    return [ 'hello','world' ]\n" +
 //                "}");
-//        calendar.setEntryContentCallback("" +
-//                "function(arg, createElement) {" +
-//                " console.warn('hello');" +
-//                "  return 'WORLD';" +
-//                "}");
+        calendar.setEntryContentCallback("" +
+                "function(arg, createElement) {" +
+                " console.warn('hello');" +
+                "  return 'WORLD';" +
+                "}");
 
 
 
@@ -122,10 +133,10 @@ public class FullDemo extends AbstractSchedulerView {
                 "   e.preventDefault(); " +
                 "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
                 "}");
-        calendar.setEntryDidMountCallback("""
-                function(info) {
-                    info.el.id = "entry-" + info.event.id;
-                }""");
+//        calendar.setEntryDidMountCallback("""
+//                function(info) {
+//                    info.el.id = "entry-" + info.event.id;
+//                }""");
 
 //
 //        scheduler.setResourceLabelContentCallback(

@@ -42,6 +42,7 @@ export class FullCalendar extends HTMLElement {
     protected prefetchEnabled = false;
 
     // contains any json based initial options (not the ones set via setOption). might be empty in most cases
+    protected initialJsonOptions = {};
     protected initialOptions = {};
     protected customViews: any = {};
 
@@ -58,7 +59,7 @@ export class FullCalendar extends HTMLElement {
 
     protected initCalendar() {
         if (!this._calendar) {
-            let options = this.createInitOptions(this.initialOptions);
+            let options = this.createInitOptions({...this.initialOptions, ...this.initialJsonOptions});
 
             this._calendar = new Calendar(this, options);
 
@@ -177,19 +178,19 @@ export class FullCalendar extends HTMLElement {
      * Example of the returned object.
      * <pre>
      {
-        select: (eventInfo) => {
-            return {
-                start: eventInfo.startStr,
-                end: eventInfo.endStr,
-                allDay: eventInfo.allDay,
-                resource: eventInfo.resource ? eventInfo.resource.id : null
-            }
-        },
-        eventClick: (eventInfo) => {
-            return {
-                id: eventInfo.event.id
-            }
-        }
+     select: (eventInfo) => {
+     return {
+     start: eventInfo.startStr,
+     end: eventInfo.endStr,
+     allDay: eventInfo.allDay,
+     resource: eventInfo.resource ? eventInfo.resource.id : null
+     }
+     },
+     eventClick: (eventInfo) => {
+     return {
+     id: eventInfo.event.id
+     }
+     }
      }
      * </pre>
      * @returns an eventhandler definition object
@@ -557,7 +558,7 @@ export class FullCalendar extends HTMLElement {
      */
     getOption(key: string): unknown {
         // @ts-ignore
-        return this.calendar ? this.calendar.getOption(key) : this.initialOptions[key];
+        return this.calendar ? this.calendar.getOption(key) : this.initialJsonOptions[key];
     }
 
     next() {
