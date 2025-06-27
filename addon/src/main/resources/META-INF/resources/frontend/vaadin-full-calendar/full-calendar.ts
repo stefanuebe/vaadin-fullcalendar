@@ -75,7 +75,7 @@ export class FullCalendar extends HTMLElement {
             let _setOptionCallbackWithCustomApi = (key: any, value: any) => {
                 let callback = (info: any) => {
                     this.addCustomAPI(info.event);
-                    value.call(this._calendar, info);
+                    return value.call(this._calendar, info);
                 };
 
                 _setOption.call(this._calendar, key, callback);
