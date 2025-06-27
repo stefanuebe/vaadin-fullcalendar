@@ -63,8 +63,8 @@ public class Entry {
     private boolean allDay;
 
     private boolean editable = true;
-    private boolean startEditable = true;
-    private boolean durationEditable = true;
+    private Boolean startEditable;
+    private Boolean durationEditable;
     private String color;
     private String constraint;
     private String backgroundColor;
@@ -941,6 +941,24 @@ public class Entry {
      */
     public void setOverlapAllowed(boolean overlap) {
         setOverlap(true);
+    }
+
+    /**
+     * Checks, if the duration of this entry is editable. This is either the case, when this entry is
+     * editable in general ({@link #isEditable()} or has explicitly set `durationEditable` to be `true`.
+     * @return is duration editable
+     */
+    public boolean isDurationEditable() {
+        return isEditable() || durationEditable == Boolean.TRUE;
+    }
+
+    /**
+     * Checks, if the start of this entry is editable. This is either the case, when this entry is
+     * editable in general ({@link #isEditable()} or has explicitly set `startEditable` to be `true`.
+     * @return is start editable
+     */
+    public boolean isStartEditable() {
+        return isEditable() || startEditable == Boolean.TRUE;
     }
 
     /**
