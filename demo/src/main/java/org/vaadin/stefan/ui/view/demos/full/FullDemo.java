@@ -83,8 +83,18 @@ public class FullDemo extends AbstractSchedulerView {
         scheduler.setResourcesInitiallyExpanded(false);
 
         calendar.setNowIndicatorShown(true);
-        calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+
+        calendar.setNumberClickable(true);
+        calendar.addDayNumberClickedListener(event -> {
+            calendar.changeView(CalendarViewImpl.TIME_GRID_DAY);
+            calendar.gotoDate(event.getDate());
+        });
+
+        calendar.addWeekNumberClickedListener(event -> {
+            calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
+            calendar.gotoDate(event.getDate());
+        });
 
         // initally change the view and go to a specific date - attention: this will not fire listeners as the client side is not initialized yet
 //        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
@@ -247,6 +257,19 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
         EntryManager.createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
         EntryManager.createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
+
+        EntryManager.createTimedEntry(calendar, "Not editable", now.withDayOfMonth(5).atTime(10, 0), 60, "lightgray")
+                .setEditable(false);
+
+        ResourceEntry startOnly = EntryManager.createTimedEntry(calendar, "Only start editable",
+                now.withDayOfMonth(5).atTime(11, 0), 60, "lightgray");
+        startOnly.setEditable(false);
+        startOnly.setStartEditable(true);
+
+        ResourceEntry durationOnly = EntryManager.createTimedEntry(calendar, "Only duration editable",
+                now.withDayOfMonth(5).atTime(12, 0), 60, "lightgray");
+        durationOnly.setEditable(false);
+        durationOnly.setDurationEditable(true);
 
         EntryManager.createDayEntry(calendar, "Multi 1", now.withDayOfMonth(12), 2, "tomato");
         EntryManager.createDayEntry(calendar, "Multi 2", now.withDayOfMonth(12), 2, "tomato");
