@@ -49,4 +49,11 @@ public class CustomDateTimePicker extends CustomField<LocalDateTime> {
         this.dateOnly = dateOnly;
         timePicker.setVisible(!dateOnly);
     }
+
+    @Override
+    public void setReadOnly(boolean readOnly) {
+        super.setReadOnly(readOnly);
+        datePicker.setReadOnly(readOnly);
+        timePicker.setReadOnly(readOnly);
+    }
 }

@@ -180,8 +180,9 @@ public class DemoDialog extends Dialog {
         buttons.setPadding(true);
         buttons.getStyle().set("border-top", "1px solid #ddd");
 
+        Button buttonRemove = null;
         if (!newInstance) {
-            Button buttonRemove = new Button("Remove", e -> onRemove());
+            buttonRemove = new Button("Remove", e -> onRemove());
             buttonRemove.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
             buttons.add(buttonRemove);
         }
@@ -200,6 +201,28 @@ public class DemoDialog extends Dialog {
         // additional layout init
         onRecurringChanged(this.tmpEntry.isRecurring());
         fieldTitle.focus();
+
+        if(!entry.isEditable()) {
+            fieldTitle.setReadOnly(true);
+            fieldDescription.setReadOnly(true);
+            fieldAllDay.setEnabled(false);
+            fieldRecurring.setEnabled(false);
+            fieldStart.setReadOnly(!entry.isStartEditable());
+            fieldEnd.setReadOnly(!entry.isDurationEditable());
+            fieldColor.setReadOnly(true);
+            fieldRDays.setReadOnly(true);
+
+            buttonSave.setVisible(entry.isStartEditable() || entry.isDurationEditable());
+
+            if (!entry.isStartEditable() || entry.isDurationEditable()) {
+                buttonCancel.setText("Close");
+            }
+
+            if (buttonRemove != null) {
+                buttonRemove.setVisible(false);
+            }
+        }
+
     }
 
     protected void onSave() {
