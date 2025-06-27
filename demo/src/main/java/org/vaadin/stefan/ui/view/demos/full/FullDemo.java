@@ -16,6 +16,19 @@
  */
 package org.vaadin.stefan.ui.view.demos.full;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.ui.dialogs.DemoDialog;
+import org.vaadin.stefan.ui.layouts.MainLayout;
+import org.vaadin.stefan.ui.view.AbstractSchedulerView;
+import org.vaadin.stefan.util.EntryManager;
+import org.vaadin.stefan.util.ResourceManager;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.listbox.ListBox;
@@ -23,21 +36,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.popover.Popover;
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
-import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.ui.dialogs.DemoDialog;
-import org.vaadin.stefan.ui.layouts.MainLayout;
-import org.vaadin.stefan.ui.view.AbstractSchedulerView;
-import org.vaadin.stefan.util.EntryManager;
-import org.vaadin.stefan.util.ResourceManager;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 
 @Route(value = "", layout = MainLayout.class)
 @CssImport("./styles.css")
@@ -81,8 +79,18 @@ public class FullDemo extends AbstractSchedulerView {
         scheduler.setResourcesInitiallyExpanded(false);
 
         calendar.setNowIndicatorShown(true);
-        calendar.setNumberClickable(true);
         calendar.setTimeslotsSelectable(true);
+
+        calendar.setNumberClickable(true);
+        calendar.addDayNumberClickedListener(event -> {
+            calendar.changeView(CalendarViewImpl.TIME_GRID_DAY);
+            calendar.gotoDate(event.getDate());
+        });
+
+        calendar.addWeekNumberClickedListener(event -> {
+            calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
+            calendar.gotoDate(event.getDate());
+        });
 
 //        calendar.addMoreLinkClickedListener(event -> {
 //            Popover popover = new Popover(new VerticalLayout(event.getEntries()
@@ -96,10 +104,6 @@ public class FullDemo extends AbstractSchedulerView {
 //        });
 //
 //        calendar.setMoreLinkClickAction(FullCalendar.MoreLinkClickAction.NOTHING);
-
-        // initally change the view and go to a specific date - attention: this will not fire listeners as the client side is not initialized yet
-//        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
-//        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
 
         calendar.setSlotMinTime(LocalTime.of(7, 0));
         calendar.setSlotMaxTime(LocalTime.of(17, 0));
@@ -119,23 +123,16 @@ public class FullDemo extends AbstractSchedulerView {
 //        calendar.setEntryClassNamesCallback("function(arg) {\n" +
 //                "    return [ 'hello','world' ]\n" +
 //                "}");
-        calendar.setEntryContentCallback("" +
-                "function(arg, createElement) {" +
-                " console.warn('hello');" +
-                "  return 'WORLD';" +
-                "}");
-
-
 
 //        calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
 //        calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
 //        calendar.addEntryNativeEventListener("contextmenu", "e => console.warn('just a context menu event')");
 
-        calendar.addEntryNativeEventListener("contextmenu",
-                "e => {" +
-                "   e.preventDefault(); " +
-                "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
-                "}");
+//        calendar.addEntryNativeEventListener("contextmenu",
+//                "e => {" +
+//                "   e.preventDefault(); " +
+//                "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
+//                "}");
 //        calendar.setEntryDidMountCallback("""
 //                function(info) {
 //                    info.el.id = "entry-" + info.event.id;
@@ -156,9 +153,10 @@ public class FullDemo extends AbstractSchedulerView {
 
         createTestEntries(calendar);
 
-//        calendar.changeView(CalendarViewImpl.MULTI_MONTH);
-//        calendar.gotoDate(LocalDate.now().plusYears(1));
 
+        // initally change the view and go to a specific date - attention: this will not fire listeners as the client side is not initialized yet
+//        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
+//        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
 
         return calendar;
     }
@@ -250,6 +248,19 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
         EntryManager.createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
         EntryManager.createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
+
+        EntryManager.createTimedEntry(calendar, "Not editable", now.withDayOfMonth(5).atTime(10, 0), 60, "lightgray")
+                .setEditable(false);
+
+        ResourceEntry startOnly = EntryManager.createTimedEntry(calendar, "Only start editable",
+                now.withDayOfMonth(5).atTime(11, 0), 60, "lightgray");
+        startOnly.setEditable(false);
+        startOnly.setStartEditable(true);
+
+        ResourceEntry durationOnly = EntryManager.createTimedEntry(calendar, "Only duration editable",
+                now.withDayOfMonth(5).atTime(12, 0), 60, "lightgray");
+        durationOnly.setEditable(false);
+        durationOnly.setDurationEditable(true);
 
         EntryManager.createDayEntry(calendar, "Multi 1", now.withDayOfMonth(12), 2, "tomato");
         EntryManager.createDayEntry(calendar, "Multi 2", now.withDayOfMonth(12), 2, "tomato");
