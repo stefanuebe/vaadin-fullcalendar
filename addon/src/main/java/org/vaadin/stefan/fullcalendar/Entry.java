@@ -940,7 +940,7 @@ public class Entry {
      * @param overlap overlapping is allowed
      */
     public void setOverlapAllowed(boolean overlap) {
-        setOverlap(true);
+        setOverlap(overlap);
     }
 
     /**
