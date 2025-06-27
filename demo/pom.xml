@@ -12,7 +12,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>24.6.2</vaadin.version>
+        <vaadin.version>24.8.0</vaadin.version>
 
         <fullcalendar.version>7.0.0-SNAPSHOT</fullcalendar.version>
         <fullcalendar.scheduler.version>7.0.0-SNAPSHOT</fullcalendar.scheduler.version>
@@ -21,9 +21,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <failOnMissingWebXml>false</failOnMissingWebXml>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
 
-        <spring-boot.version>3.2.3</spring-boot.version>
+        <spring-boot.version>3.5.0</spring-boot.version>
     </properties>
 
     <licenses>

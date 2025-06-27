@@ -12,7 +12,7 @@
     </description>
 
     <properties>
-        <vaadin.version>24.6.2</vaadin.version>
+        <vaadin.version>24.8.0</vaadin.version>
 
         <maven.compiler.release>17</maven.compiler.release>
 
