@@ -116,11 +116,11 @@ public class FullDemo extends AbstractSchedulerView {
 //        calendar.setEntryClassNamesCallback("function(arg) {\n" +
 //                "    return [ 'hello','world' ]\n" +
 //                "}");
-        calendar.setEntryContentCallback("" +
-                "function(arg, createElement) {" +
-                " console.warn('hello');" +
-                "  return 'WORLD';" +
-                "}");
+//        calendar.setEntryContentCallback("" +
+//                "function(arg, createElement) {" +
+//                " console.warn('hello');" +
+//                "  return 'WORLD';" +
+//                "}");
 
 
 
