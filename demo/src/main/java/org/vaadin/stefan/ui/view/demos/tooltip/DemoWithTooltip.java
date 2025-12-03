@@ -19,7 +19,6 @@ package org.vaadin.stefan.ui.view.demos.tooltip;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import elemental.json.JsonObject;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;

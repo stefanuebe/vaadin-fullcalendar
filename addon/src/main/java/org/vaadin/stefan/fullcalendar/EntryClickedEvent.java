@@ -18,8 +18,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonObject;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Occurs when an entry has been clicked on the client side.
@@ -37,7 +37,7 @@ public class EntryClickedEvent extends EntryDataEvent {
      * @param fromClient from client
      * @param entryData  entry data
      */
-    public EntryClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject entryData) {
+    public EntryClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
         super(source, fromClient, entryData);
     }
 

@@ -1,7 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
 import com.vaadin.flow.component.notification.Notification;
-import elemental.json.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;

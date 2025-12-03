@@ -1,7 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.basic;
 
 import com.vaadin.flow.router.Route;
-import elemental.json.JsonObject;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.*;

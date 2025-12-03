@@ -18,8 +18,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonObject;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Occurs when an entry time has changed by resizing.
@@ -40,7 +40,7 @@ public class EntryResizedEvent extends EntryTimeChangedEvent {
      * @param jsonEntry json object with changed data
      * @param jsonDelta json object with delta information
      */
-    public EntryResizedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject jsonEntry, @EventData("event.detail.delta") JsonObject jsonDelta) {
+    public EntryResizedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode jsonEntry, @EventData("event.detail.delta") ObjectNode jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
     }
 }

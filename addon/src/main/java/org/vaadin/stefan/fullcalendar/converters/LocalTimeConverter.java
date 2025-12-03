@@ -1,12 +1,12 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
-import elemental.json.JsonNull;
-import elemental.json.JsonString;
-import elemental.json.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.StringNode;
 
 import java.time.LocalTime;
 
@@ -24,20 +24,20 @@ public class LocalTimeConverter<T extends Entry> implements JsonItemPropertyConv
 
 
     @Override
-    public JsonValue toClientModel(LocalTime serverValue, T currentInstance) {
-        return JsonUtils.toJsonValue(JsonUtils.formatClientSideTimeString(serverValue));
+    public JsonNode toClientModel(LocalTime serverValue, T currentInstance) {
+        return JsonUtils.toJsonNode(JsonUtils.formatClientSideTimeString(serverValue));
     }
 
     @Override
-    public LocalTime toServerModel(JsonValue clientValue, T currentInstance) {
-        if (clientValue instanceof JsonNull) {
+    public LocalTime toServerModel(JsonNode clientValue, T currentInstance) {
+        if (clientValue instanceof NullNode) {
             return null;
         }
 
-        if (clientValue instanceof JsonString) {
+        if (clientValue instanceof StringNode) {
             return JsonUtils.parseClientSideTime(clientValue.asString());
         }
 
-        throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
+        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
     }
 }

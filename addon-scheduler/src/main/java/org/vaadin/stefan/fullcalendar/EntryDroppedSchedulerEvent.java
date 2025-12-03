@@ -2,9 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonObject;
 import elemental.json.JsonString;
-import elemental.json.JsonValue;
 import lombok.ToString;
 
 import java.util.Collections;

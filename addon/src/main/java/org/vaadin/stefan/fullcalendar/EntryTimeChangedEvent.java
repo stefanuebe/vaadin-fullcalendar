@@ -16,9 +16,9 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * This specialized version of the entry changed event gives additional information about the changed time as
@@ -43,7 +43,7 @@ public class EntryTimeChangedEvent extends EntryChangedEvent {
      * @param jsonEntry json object with changed data
      * @param jsonDelta json object with delta information
      */
-    public EntryTimeChangedEvent(FullCalendar source, boolean fromClient, JsonObject jsonEntry, JsonObject jsonDelta) {
+    public EntryTimeChangedEvent(FullCalendar source, boolean fromClient, ObjectNode jsonEntry, ObjectNode jsonDelta) {
         super(source, fromClient, jsonEntry);
         this.delta = Delta.fromJson(jsonDelta);
     }

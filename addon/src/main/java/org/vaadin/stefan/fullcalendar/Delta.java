@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.JsonObject;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

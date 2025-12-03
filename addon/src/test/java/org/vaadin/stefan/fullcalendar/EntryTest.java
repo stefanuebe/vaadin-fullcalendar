@@ -1,8 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.function.ValueProvider;
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

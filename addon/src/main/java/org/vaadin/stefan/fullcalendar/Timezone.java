@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import lombok.Getter;
 import org.vaadin.stefan.fullcalendar.NotNull;
 import java.time.*;
 import java.util.*;
@@ -50,7 +51,11 @@ public class Timezone implements ClientSideValue {
     }
 
     private final String clientSideValue;
-    private ZoneId zoneId;
+    /**
+     * The zone id of this instance. Never null.
+     */
+    @Getter
+    private final ZoneId zoneId;
 
     /**
      * Returns all available timezones. This arrayy bases on all constants of this class plus all available zone ids
@@ -102,15 +107,6 @@ public class Timezone implements ClientSideValue {
     @Override
     public String getClientSideValue() {
         return this.clientSideValue;
-    }
-
-    /**
-     * Returns the zone id of this instance. Never null.
-     *
-     * @return zone id
-     */
-    public ZoneId getZoneId() {
-        return zoneId;
     }
 
     /**

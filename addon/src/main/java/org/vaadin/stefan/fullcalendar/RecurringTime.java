@@ -13,7 +13,6 @@ import java.util.Objects;
  * next day. Basically a simple variant of Duration with a specific purpose.
  */
 @Getter
-@EqualsAndHashCode
 public final class RecurringTime {
     private final int hour;
     private final int minute;
@@ -188,5 +187,16 @@ public final class RecurringTime {
         return new int[] {totalMinutes / 60, totalMinutes % 60};
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        RecurringTime that = (RecurringTime) o;
+        return hour == that.hour && minute == that.minute;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(hour, minute);
+    }
 }
 

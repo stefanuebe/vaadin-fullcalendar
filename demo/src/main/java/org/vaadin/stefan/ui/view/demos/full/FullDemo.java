@@ -26,7 +26,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
-import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.layouts.MainLayout;

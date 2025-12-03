@@ -16,8 +16,7 @@
 // */
 //package org.vaadin.stefan.fullcalendar;
 //
-//import elemental.json.JsonObject;
-//import lombok.NoArgsConstructor;
+////import lombok.NoArgsConstructor;
 //
 //import org.vaadin.stefan.fullcalendar.NotNull;
 //import java.util.*;

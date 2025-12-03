@@ -29,7 +29,7 @@ public enum HeaderFooterPartPosition {
 	
 	private final String code;
 	
-	private HeaderFooterPartPosition(String code) {
+	HeaderFooterPartPosition(String code) {
 		this.code = code;
 	}
 }

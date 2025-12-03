@@ -18,8 +18,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonObject;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Occurs when an entry time has changed by drag and drop.
@@ -39,7 +39,7 @@ public class EntryDroppedEvent extends EntryTimeChangedEvent {
      * @param jsonEntry json object with changed data
      * @param jsonDelta json object with delta information
      */
-    public EntryDroppedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject jsonEntry, @EventData("event.detail.delta") JsonObject jsonDelta) {
+    public EntryDroppedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode jsonEntry, @EventData("event.detail.delta") ObjectNode jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
     }
 }

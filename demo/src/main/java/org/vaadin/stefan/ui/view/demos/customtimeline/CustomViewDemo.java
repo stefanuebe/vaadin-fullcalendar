@@ -2,7 +2,6 @@ package org.vaadin.stefan.ui.view.demos.customtimeline;
 
 import com.vaadin.flow.router.Route;
 
-import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;

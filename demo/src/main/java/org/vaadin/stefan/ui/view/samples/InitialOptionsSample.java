@@ -1,7 +1,5 @@
 package org.vaadin.stefan.ui.view.samples;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 

@@ -3,28 +3,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2-scheduler</artifactId>
-    <version>6.3.0</version>
+    <version>7.0.0-SNAPSHOT</version>
 
     <name>FullCalendar Scheduler for Flow</name>
     <description>A web component that wraps the FullCalendar Scheduler extension (https://fullcalendar.io).
     </description>
 
-    <properties>
-        <vaadin.version>14.11.10</vaadin.version>
-
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-
-        <fullcalendar.version>6.3.0</fullcalendar.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <junit.version>5.5.2</junit.version>
-        <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
-        <lombok.version>1.18.26</lombok.version>
-
-    </properties>
+    <parent>
+        <groupId>org.vaadin.stefan</groupId>
+        <artifactId>fullcalendar-parent</artifactId>
+        <version>7.0.0-SNAPSHOT</version>
+    </parent>
 
     <licenses>
         <license>
@@ -45,29 +35,16 @@
         </repository>
     </repositories>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-bom</artifactId>
-                <type>pom</type>
-                <scope>import</scope>
-                <version>${vaadin.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.vaadin.stefan</groupId>
             <artifactId>fullcalendar2</artifactId>
-            <version>${fullcalendar.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
             <optional>true</optional>
             <scope>provided</scope>
         </dependency>
@@ -76,26 +53,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.vaadin</groupId>-->
-<!--            <artifactId>vaadin-testbench</artifactId>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.mockito</groupId>-->
-<!--            <artifactId>mockito-core</artifactId>-->
-<!--            <version>2.21.0</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -104,28 +68,24 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <!-- Lombok should be used as an annotation processor. -->
-                        <annotationProcessorPath>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </annotationProcessorPath>
-                    </annotationProcessorPaths>
-                </configuration>
+<!--                <configuration>-->
+<!--                    <annotationProcessorPaths>-->
+<!--                        &lt;!&ndash; Lombok should be used as an annotation processor. &ndash;&gt;-->
+<!--                        <annotationProcessorPath>-->
+<!--                            <groupId>org.projectlombok</groupId>-->
+<!--                            <artifactId>lombok</artifactId>-->
+<!--                        </annotationProcessorPath>-->
+<!--                    </annotationProcessorPaths>-->
+<!--                </configuration>-->
             </plugin>
 
         </plugins>
@@ -133,63 +93,12 @@
 
     <profiles>
         <profile>
-            <id>create-frontend-folder</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.vaadin</groupId>
-                        <artifactId>vaadin-maven-plugin</artifactId>
-                        <version>${vaadin.version}</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>prepare-frontend</goal>
-                                </goals>
-                                <phase>compile</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <productionMode>false</productionMode>
-                            <pnpmEnable>true</pnpmEnable>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>create-build-frontend-folder</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.vaadin</groupId>
-                        <artifactId>vaadin-maven-plugin</artifactId>
-                        <version>${vaadin.version}</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>prepare-frontend</goal>
-                                    <goal>build-frontend</goal>
-                                </goals>
-                                <phase>compile</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <productionMode>false</productionMode>
-                            <pnpmEnable>true</pnpmEnable>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
             <id>directory</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.3.0</version>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
@@ -208,7 +117,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -241,7 +149,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-jar-plugin</artifactId>
-                        <version>3.1.2</version>
                         <configuration>
                             <archive>
                                 <index>true</index>
@@ -265,7 +172,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.10.1</version>
                         <configuration>
                             <annotationProcessorPaths>
                                 <!-- Lombok should be used as an annotation processor. -->

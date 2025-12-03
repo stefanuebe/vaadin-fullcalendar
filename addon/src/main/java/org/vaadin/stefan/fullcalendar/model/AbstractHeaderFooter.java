@@ -17,12 +17,12 @@
 
 package org.vaadin.stefan.fullcalendar.model;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
+import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.NotNull;
+import tools.jackson.databind.node.ObjectNode;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -91,8 +91,8 @@ public class AbstractHeaderFooter {
      *
      * @return json object
      */
-    public JsonObject toJson() {
-        JsonObject jsonObject = Json.createObject();
+    public ObjectNode toJson() {
+        ObjectNode jsonObject = JsonFactory.createObject();
 
         for (HeaderFooterPart position : parts.values())
             jsonObject.put(

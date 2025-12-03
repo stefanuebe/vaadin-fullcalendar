@@ -18,9 +18,9 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonArray;
 import lombok.Getter;
 import lombok.ToString;
+import tools.jackson.databind.node.ArrayNode;
 
 import java.time.LocalDate;
 
@@ -48,7 +48,7 @@ public class MoreLinkClickedEvent extends MultipleEntriesDataEvent {
      */
     public MoreLinkClickedEvent(FullCalendar source, boolean fromClient,
                                 @EventData("event.detail.date") String date,
-                                @EventData("event.detail.allSegs") JsonArray coveredItems) {
+                                @EventData("event.detail.allSegs") ArrayNode coveredItems) {
         super(source, fromClient, coveredItems);
 
         clickedDate = JsonUtils.parseClientSideDate(date);

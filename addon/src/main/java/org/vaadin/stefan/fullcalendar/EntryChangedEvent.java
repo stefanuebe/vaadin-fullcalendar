@@ -16,8 +16,8 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.JsonObject;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * An event, that occur, when a entry has been changed on the client side.
@@ -33,7 +33,7 @@ public abstract class EntryChangedEvent extends EntryDataEvent {
      * @param fromClient is from client
      * @param jsonObject json object with changed data
      */
-    public EntryChangedEvent(FullCalendar source, boolean fromClient, JsonObject jsonObject) {
+    public EntryChangedEvent(FullCalendar source, boolean fromClient, ObjectNode jsonObject) {
         super(source, fromClient, jsonObject);
     }
 

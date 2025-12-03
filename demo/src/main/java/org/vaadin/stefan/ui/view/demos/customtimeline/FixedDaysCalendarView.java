@@ -1,7 +1,5 @@
 package org.vaadin.stefan.ui.view.demos.customtimeline;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.CalendarView;
 
 import elemental.json.JsonFactory;

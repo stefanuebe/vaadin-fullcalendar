@@ -1,7 +1,5 @@
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

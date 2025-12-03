@@ -18,7 +18,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
 
