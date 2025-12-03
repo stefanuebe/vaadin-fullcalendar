@@ -21,10 +21,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
@@ -33,6 +29,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
 import java.time.*;
@@ -54,8 +51,8 @@ import java.util.stream.Stream;
 @NpmPackage(value = "@fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/multimonth", version = FullCalendar.FC_CLIENT_VERSION)
 // TODO still necessary?
-@NpmPackage(value = "moment", version = "2.29.4")
-@NpmPackage(value = "moment-timezone", version = "0.5.40")
+@NpmPackage(value = "moment", version = "2.30.1")
+@NpmPackage(value = "moment-timezone", version = "0.6.0")
 @NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
 
@@ -68,7 +65,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * The library base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_CLIENT_VERSION = "6.1.9";
+    public static final String FC_CLIENT_VERSION = "6.1.19";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
@@ -184,14 +181,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @throws NullPointerException when null is passed
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
-    public FullCalendar(@NotNull JsonObject initialOptions) {
+    public FullCalendar(@NotNull ObjectNode initialOptions) {
         if (initialOptions.hasKey("views")) {
-            JsonObject views = initialOptions.getObject("views");
+            ObjectNode views = initialOptions.getObject("views");
 
             // register custom views mentioned in the initial options
             for (String viewName : views.keys()) {
                 // only register anonmyous views, if there is no real registered variant
-                JsonObject viewSettings = views.getObject(viewName);
+                ObjectNode viewSettings = views.getObject(viewName);
                 AnonymousCustomCalendarView anonymousView = new AnonymousCustomCalendarView(viewName, viewSettings);
                 this.customCalendarViews.put(anonymousView.getClientSideValue(), anonymousView);
             }
@@ -251,15 +248,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
                     // options. dont use the initialOptions map here, the component takes care of initialOptions itself
                     // since that is also cached as a property
-                    JsonObject optionsJson = Json.createObject();
+                    ObjectNode optionsJson = Json.createObject();
                     if (!options.isEmpty()) {
-                        options.forEach((key, value) -> optionsJson.put(key, JsonUtils.toJsonValue(value)));
+                        options.forEach((key, value) -> optionsJson.put(key, JsonUtils.toJsonNode(value)));
                     }
 
                     getElement().callJsFunction("restoreStateFromServer",
                             optionsJson,
-                            JsonUtils.toJsonValue(currentViewName),
-                            JsonUtils.toJsonValue(currentIntervalStart));
+                            JsonUtils.toJsonNode(currentViewName),
+                            JsonUtils.toJsonNode(currentIntervalStart));
 
                 });
             });
@@ -392,7 +389,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     @ClientCallable
-    protected JsonArray fetchEntriesFromServer(@NotNull JsonObject query) {
+    protected JsonArray fetchEntriesFromServer(@NotNull ObjectNode query) {
         Objects.requireNonNull(query);
         Objects.requireNonNull(entryProvider);
 
@@ -649,7 +646,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             Serializable[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Serializable[]::new);
             getElement().callJsFunction(method, parameters);
         } else {
-            JsonObject initialOptions = (JsonObject) getElement().getPropertyRaw("initialOptions");
+            ObjectNode initialOptions = (ObjectNode) getElement().getPropertyRaw("initialOptions");
             if (initialOptions == null) {
                 initialOptions = Json.createObject();
                 getElement().setPropertyJson("initialOptions", initialOptions);
@@ -658,7 +655,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             if (value == null) {
                 initialOptions.remove(option);
             } else {
-                initialOptions.put(option, JsonUtils.toJsonValue(value));
+                initialOptions.put(option, JsonUtils.toJsonNode(value));
             }
         }
     }
@@ -952,7 +949,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public void setBusinessHours(@NotNull BusinessHours... hours) {
         Objects.requireNonNull(hours);
 
-        setOption(Option.BUSINESS_HOURS, JsonUtils.toJsonValue(Arrays.stream(hours).map(BusinessHours::toJson)), hours);
+        setOption(Option.BUSINESS_HOURS, JsonUtils.toJsonNode(Arrays.stream(hours).map(BusinessHours::toJson)), hours);
     }
 
     /**
@@ -985,7 +982,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public void setSlotMinTime(@NotNull LocalTime slotMinTime) {
         Objects.requireNonNull(slotMinTime);
-        setOption(Option.SLOT_MIN_TIME, JsonUtils.toJsonValue(slotMinTime != null ? slotMinTime : "00:00:00"));
+        setOption(Option.SLOT_MIN_TIME, JsonUtils.toJsonNode(slotMinTime != null ? slotMinTime : "00:00:00"));
     }
 
     /**
@@ -1017,7 +1014,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public void setSlotMaxTime(@NotNull LocalTime slotMaxTime) {
         Objects.requireNonNull(slotMaxTime);
-        setOption(Option.SLOT_MAX_TIME, JsonUtils.toJsonValue(slotMaxTime != null ? slotMaxTime : "24:00:00"));
+        setOption(Option.SLOT_MAX_TIME, JsonUtils.toJsonNode(slotMaxTime != null ? slotMaxTime : "24:00:00"));
     }
 
     /**
@@ -1620,7 +1617,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             throw new IllegalArgumentException("Start must be before end");
         }
 
-        JsonObject jsonObject = Json.createObject();
+        ObjectNode jsonObject = Json.createObject();
         if (start != null) {
             jsonObject.put("start", JsonUtils.formatClientSideDateString(start));
         }
@@ -1676,7 +1673,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             throw new UnsupportedOperationException("Custom views can only be set once");
         }
 
-        JsonObject json = Json.createObject();
+        ObjectNode json = Json.createObject();
         for (CustomCalendarView customCalendarView : customCalendarViews) {
             this.customCalendarViews.put(customCalendarView.getClientSideValue(), customCalendarView);
             json.put(customCalendarView.getClientSideValue(), customCalendarView.getViewSettings());

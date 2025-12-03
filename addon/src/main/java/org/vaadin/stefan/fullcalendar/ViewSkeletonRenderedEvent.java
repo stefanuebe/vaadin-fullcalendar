@@ -18,9 +18,9 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Occurs after a view's non-date-related DOM structure has been rendered. Provides information about the shown timespan.
@@ -41,7 +41,7 @@ public class ViewSkeletonRenderedEvent extends ViewRenderEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param eventData client side event data
      */
-    public ViewSkeletonRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
+    public ViewSkeletonRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") ObjectNode eventData) {
         super(source, fromClient, eventData);
     }
 }

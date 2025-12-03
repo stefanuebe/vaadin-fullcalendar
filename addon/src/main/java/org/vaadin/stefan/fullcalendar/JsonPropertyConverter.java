@@ -1,6 +1,5 @@
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.JsonValue;
 
 /**
  * Converts a server side value to a json value and (optionally) vice versa.

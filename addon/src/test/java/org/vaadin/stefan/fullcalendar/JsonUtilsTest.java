@@ -14,7 +14,7 @@ public class JsonUtilsTest {
 
     @Test
     void testToJsonWithString() {
-        JsonValue value = JsonUtils.toJsonValue("test");
+        JsonValue value = JsonUtils.toJsonNode("test");
 
         Assertions.assertTrue(value instanceof JsonString);
         Assertions.assertEquals("test", value.asString());
@@ -24,19 +24,19 @@ public class JsonUtilsTest {
     void testToJsonWithJsonValue() {
         JsonString someTest = Json.create("test");
 
-        Assertions.assertSame(someTest, JsonUtils.toJsonValue(someTest));
+        Assertions.assertSame(someTest, JsonUtils.toJsonNode(someTest));
     }
 
     @Test
     void testToJsonWithNull() {
-        JsonValue value = JsonUtils.toJsonValue(null);
+        JsonValue value = JsonUtils.toJsonNode(null);
 
         Assertions.assertTrue(value instanceof JsonNull);
     }
 
     @Test
     void testToJsonWithBoolean() {
-        JsonValue value = JsonUtils.toJsonValue(true);
+        JsonValue value = JsonUtils.toJsonNode(true);
 
         Assertions.assertTrue(value instanceof JsonBoolean);
         Assertions.assertTrue(value.asBoolean());
@@ -45,22 +45,22 @@ public class JsonUtilsTest {
 
     @Test
     void testToJsonWithNumber() {
-        JsonValue value = JsonUtils.toJsonValue(1);
+        JsonValue value = JsonUtils.toJsonNode(1);
 
         Assertions.assertTrue(value instanceof JsonNumber);
         Assertions.assertEquals(1, value.asNumber());
 
-        value = JsonUtils.toJsonValue(1.0);
+        value = JsonUtils.toJsonNode(1.0);
 
         Assertions.assertTrue(value instanceof JsonNumber);
         Assertions.assertEquals(1.0, value.asNumber());
 
-        value = JsonUtils.toJsonValue(1.0f);
+        value = JsonUtils.toJsonNode(1.0f);
 
         Assertions.assertTrue(value instanceof JsonNumber);
         Assertions.assertEquals(1.0f, value.asNumber());
 
-        value = JsonUtils.toJsonValue(1L);
+        value = JsonUtils.toJsonNode(1L);
 
         Assertions.assertTrue(value instanceof JsonNumber);
         Assertions.assertEquals(1L, value.asNumber());
@@ -71,24 +71,24 @@ public class JsonUtilsTest {
         JsonValue jsonValue;
 
         List<Object> source = Arrays.asList(null, null, null);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.iterator()), JsonNull.class, v -> null);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.iterator()), JsonNull.class, v -> null);
 
         source = Arrays.asList("1", "2", "3");
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.iterator()), JsonString.class, JsonValue::asString);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.iterator()), JsonString.class, JsonValue::asString);
 
         source = Arrays.asList(1, 2, 3);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.iterator()), JsonNumber.class, v -> (int) v.asNumber());
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.iterator()), JsonNumber.class, v -> (int) v.asNumber());
 
         source = Arrays.asList(1.0, 2.0, 3.0);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.iterator()), JsonNumber.class, JsonValue::asNumber);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.iterator()), JsonNumber.class, JsonValue::asNumber);
 
         source = Arrays.asList(true, false, true);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.iterator()), JsonBoolean.class, JsonValue::asBoolean);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.iterator()), JsonBoolean.class, JsonValue::asBoolean);
 
         Assertions.assertTrue(ClientSideValue.class.isAssignableFrom(CalendarViewImpl.class)); // prevent implemention change
         List<CalendarViewImpl> eSource = Arrays.asList(CalendarViewImpl.values());
 
-        assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonValue(eSource.iterator()), JsonString.class, JsonValue::asString);
+        assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonNode(eSource.iterator()), JsonString.class, JsonValue::asString);
     }
 
     private <T extends JsonValue> void assertEqualArray(Iterator<Object> source, JsonValue converted, Class<T> type, Function<JsonValue, Object> convert) {
@@ -113,74 +113,74 @@ public class JsonUtilsTest {
     @Test
     void testToJsonWithIterable() {
         List<Object> source = Arrays.asList(null, null, null);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source), JsonNull.class, v -> null);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source), JsonNull.class, v -> null);
 
         source = Arrays.asList("1", "2", "3");
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source), JsonString.class, JsonValue::asString);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source), JsonString.class, JsonValue::asString);
 
         source = Arrays.asList(1, 2, 3);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source), JsonNumber.class, v -> (int) v.asNumber());
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source), JsonNumber.class, v -> (int) v.asNumber());
 
         source = Arrays.asList(1.0, 2.0, 3.0);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source), JsonNumber.class, JsonValue::asNumber);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source), JsonNumber.class, JsonValue::asNumber);
 
         source = Arrays.asList(true, false, true);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source), JsonBoolean.class, JsonValue::asBoolean);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source), JsonBoolean.class, JsonValue::asBoolean);
 
 
         Assertions.assertTrue(ClientSideValue.class.isAssignableFrom(CalendarViewImpl.class)); // prevent implemention change
         List<CalendarViewImpl> eSource = Arrays.asList(CalendarViewImpl.values());
 
-        assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonValue(eSource), JsonString.class, JsonValue::asString);
+        assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonNode(eSource), JsonString.class, JsonValue::asString);
 
     }
 
     @Test
     void testToJsonWithStream() {
         List<Object> source = Arrays.asList(null, null, null);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.stream()), JsonNull.class, v -> null);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.stream()), JsonNull.class, v -> null);
 
         source = Arrays.asList("1", "2", "3");
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.stream()), JsonString.class, JsonValue::asString);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.stream()), JsonString.class, JsonValue::asString);
 
         source = Arrays.asList(1, 2, 3);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.stream()), JsonNumber.class, v -> (int) v.asNumber());
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.stream()), JsonNumber.class, v -> (int) v.asNumber());
 
         source = Arrays.asList(1.0, 2.0, 3.0);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.stream()), JsonNumber.class, JsonValue::asNumber);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.stream()), JsonNumber.class, JsonValue::asNumber);
 
         source = Arrays.asList(true, false, true);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.stream()), JsonBoolean.class, JsonValue::asBoolean);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.stream()), JsonBoolean.class, JsonValue::asBoolean);
 
 
         Assertions.assertTrue(ClientSideValue.class.isAssignableFrom(CalendarViewImpl.class)); // prevent implemention change
         List<CalendarViewImpl> eSource = Arrays.asList(CalendarViewImpl.values());
 
-        assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonValue(eSource.stream()), JsonString.class, JsonValue::asString);
+        assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonNode(eSource.stream()), JsonString.class, JsonValue::asString);
     }
 
     @Test
     void testToJsonWithArray() {
         List<Object> source = Arrays.asList(null, null, null);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonNull.class, v -> null);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.toArray()), JsonNull.class, v -> null);
 
         source = Arrays.asList("1", "2", "3");
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonString.class, JsonValue::asString);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.toArray()), JsonString.class, JsonValue::asString);
 
         source = Arrays.asList(1, 2, 3);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonNumber.class, v -> (int) v.asNumber());
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.toArray()), JsonNumber.class, v -> (int) v.asNumber());
 
         source = Arrays.asList(1.0, 2.0, 3.0);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonNumber.class, JsonValue::asNumber);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.toArray()), JsonNumber.class, JsonValue::asNumber);
 
         source = Arrays.asList(true, false, true);
-        assertEqualArray(source.iterator(), JsonUtils.toJsonValue(source.toArray()), JsonBoolean.class, JsonValue::asBoolean);
+        assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.toArray()), JsonBoolean.class, JsonValue::asBoolean);
 
 
         Assertions.assertTrue(ClientSideValue.class.isAssignableFrom(CalendarViewImpl.class)); // prevent implemention change
         List<CalendarViewImpl> eSource = Arrays.asList(CalendarViewImpl.values());
 
-        assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonValue(eSource.toArray()), JsonString.class, JsonValue::asString);
+        assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonNode(eSource.toArray()), JsonString.class, JsonValue::asString);
     }
 
     @Test

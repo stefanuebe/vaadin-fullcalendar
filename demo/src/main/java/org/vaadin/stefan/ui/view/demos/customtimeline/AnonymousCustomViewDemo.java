@@ -2,7 +2,6 @@ package org.vaadin.stefan.ui.view.demos.customtimeline;
 
 import com.vaadin.flow.router.Route;
 import elemental.json.JsonFactory;
-import elemental.json.JsonObject;
 import elemental.json.impl.JreJsonFactory;
 import elemental.json.impl.JreJsonObject;
 import org.vaadin.stefan.fullcalendar.*;

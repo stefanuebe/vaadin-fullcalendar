@@ -1,12 +1,11 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
-import elemental.json.Json;
-import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
+import tools.jackson.databind.JsonNode;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,20 +20,20 @@ public class DayOfWeekItemConverter<T extends Entry> implements JsonItemProperty
     }
 
     @Override
-    public JsonValue toClientModel(Set<DayOfWeek> serverValue, T currentInstance) {
+    public JsonNode toClientModel(Set<DayOfWeek> serverValue, T currentInstance) {
         if (serverValue == null) {
-            return Json.createNull();
+            return JsonFactory.createNull();
         }
 
-        return JsonUtils.toJsonValue(serverValue
+        return JsonUtils.toJsonNode(serverValue
                 .stream()
                 .map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())
                 .collect(Collectors.toList()));
     }
 
     @Override
-    public Set<DayOfWeek> toServerModel(JsonValue clientValue, T currentInstance) {
-        Set<Number> daysOfWeek = JsonUtils.ofJsonValue(clientValue, HashSet.class);
+    public Set<DayOfWeek> toServerModel(JsonNode clientValue, T currentInstance) {
+        Set<Number> daysOfWeek = JsonUtils.ofJsonNode(clientValue, HashSet.class);
         return daysOfWeek != null ? daysOfWeek.stream().map(n -> {
             int dayOfWeek = n.intValue();
             if (dayOfWeek == 0) {

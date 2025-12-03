@@ -16,12 +16,9 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
@@ -150,10 +147,10 @@ public class BusinessHours {
     protected JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
 
-        jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(dayOfWeeks.stream().map(dayOfWeek -> convertToClientSideDow(dayOfWeek))));
+        jsonObject.put("daysOfWeek", JsonUtils.toJsonNode(dayOfWeeks.stream().map(dayOfWeek -> convertToClientSideDow(dayOfWeek))));
 
-        jsonObject.put("startTime", JsonUtils.toJsonValue(start != null ? start : "00:00"));
-        jsonObject.put("endTime", JsonUtils.toJsonValue(end != null ? end : "24:00"));
+        jsonObject.put("startTime", JsonUtils.toJsonNode(start != null ? start : "00:00"));
+        jsonObject.put("endTime", JsonUtils.toJsonNode(end != null ? end : "24:00"));
 
         return jsonObject;
     }

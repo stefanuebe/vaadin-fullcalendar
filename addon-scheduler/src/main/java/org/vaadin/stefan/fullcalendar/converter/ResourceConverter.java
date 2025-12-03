@@ -1,7 +1,6 @@
 package org.vaadin.stefan.fullcalendar.converter;
 
 import elemental.json.JsonNull;
-import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 
@@ -23,7 +22,7 @@ public class ResourceConverter implements JsonItemPropertyConverter<Set<Resource
                 .map(Resource::getId)
                 .collect(Collectors.toList());
 
-        return JsonUtils.toJsonValue(ids);
+        return JsonUtils.toJsonNode(ids);
     }
 
     @Override
@@ -36,7 +35,7 @@ public class ResourceConverter implements JsonItemPropertyConverter<Set<Resource
         FullCalendarScheduler calendar = (FullCalendarScheduler) currentInstance.getCalendar()
                 .orElseThrow(() -> new IllegalStateException("Converting to server model requires an assigned scheduler instance"));
 
-        Object value = JsonUtils.ofJsonValue(clientValue);
+        Object value = JsonUtils.ofJsonNode(clientValue);
         if (value instanceof List) {
             return ((List<?>) value).stream()
                     .filter(Objects::nonNull)

@@ -1,9 +1,6 @@
 //package org.vaadin.stefan.fullcalendar;
 //
-//import elemental.json.Json;
-//import elemental.json.JsonArray;
-//import elemental.json.JsonObject;
-//import org.junit.jupiter.api.Assertions;
+////////import org.junit.jupiter.api.Assertions;
 //import org.junit.jupiter.api.Test;
 //
 //import java.time.LocalDate;

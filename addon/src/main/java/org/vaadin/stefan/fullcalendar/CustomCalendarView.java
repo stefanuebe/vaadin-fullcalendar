@@ -1,6 +1,5 @@
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.JsonObject;
 
 /**
  * Interface for custom calendar views. This is used to create custom views for the calendar.

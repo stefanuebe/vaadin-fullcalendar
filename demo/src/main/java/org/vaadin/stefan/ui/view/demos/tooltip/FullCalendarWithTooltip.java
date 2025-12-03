@@ -4,7 +4,6 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
-import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 
 @NpmPackage(value = "tippy.js", version = "6.2.3")

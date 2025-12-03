@@ -16,13 +16,14 @@
  */
 package org.vaadin.stefan.fullcalendar.model;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
 
 import org.vaadin.stefan.fullcalendar.NotNull;
+import tools.jackson.databind.node.ObjectNode;
+
 import java.util.*;
 
 /**
@@ -95,10 +96,10 @@ public class HeaderFooterPart {
      * Converts the given object into a json object.
      * @return json object
      */
-    protected JsonObject toJson() {
-        JsonObject jsonObject = Json.createObject();
+    protected ObjectNode toJson() {
+        ObjectNode jsonObject = JsonFactory.createObject();
 
-        jsonObject.put(position.getCode(), JsonUtils.toJsonValue(items.stream().map(option -> option.getCode())));
+        jsonObject.set(position.getCode(), JsonUtils.toJsonNode(items.stream().map(HeaderFooterItem::getCode)));
 
         return jsonObject;
     }

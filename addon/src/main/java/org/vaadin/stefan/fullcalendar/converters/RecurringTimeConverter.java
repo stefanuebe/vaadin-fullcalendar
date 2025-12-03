@@ -1,13 +1,11 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
-import elemental.json.Json;
-import elemental.json.JsonNull;
-import elemental.json.JsonString;
-import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.RecurringTime;
-
-import java.time.LocalDate;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.StringNode;
 
 /**
  * @author Stefan Uebe
@@ -20,22 +18,22 @@ public class RecurringTimeConverter<T extends Entry> implements JsonItemProperty
     }
 
     @Override
-    public JsonValue toClientModel(RecurringTime serverValue, T currentInstance) {
+    public JsonNode toClientModel(RecurringTime serverValue, T currentInstance) {
         // recurring time must not be sent, when all day
-        return serverValue == null || currentInstance.isAllDay() ? null : Json.create(serverValue.toFormattedString());
+        return serverValue == null || currentInstance.isAllDay() ? null : JsonFactory.create(serverValue.toFormattedString());
     }
 
     @Override
-    public RecurringTime toServerModel(JsonValue clientValue, T currentInstance) {
-        if (clientValue instanceof JsonNull) {
+    public RecurringTime toServerModel(JsonNode clientValue, T currentInstance) {
+        if (clientValue instanceof NullNode) {
             return null;
         }
 
-        if (clientValue instanceof JsonString) {
+        if (clientValue instanceof StringNode) {
             String string = clientValue.asString();
             return RecurringTime.of(string);
         }
 
-        throw new IllegalArgumentException(clientValue + " must either be of type JsonNull or JsonString, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
+        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
     }
 }

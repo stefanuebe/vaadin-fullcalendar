@@ -19,10 +19,6 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
-import elemental.json.Json;
-import elemental.json.JsonNull;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -33,6 +29,9 @@ import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.lang.reflect.Field;
 import java.time.*;
@@ -151,11 +150,11 @@ public class Entry {
      * @return json
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public JsonObject toJson() {
+    public ObjectNode toJson() {
         // The toJson is implemented in a dynamic fashion to not need to extend it every time a
         // new property comes out.
 
-        JsonObject json = Json.createObject();
+        ObjectNode json = JsonFactory.createObject();
 
         streamProperties().forEach(def -> {
             String name = def.getName();
@@ -167,7 +166,7 @@ public class Entry {
                 if (field.getAnnotation(JsonIgnore.class) == null) {
                     Object value = def.getGetter().apply(this);
 
-                    JsonValue jsonValue;
+                    JsonNode jsonValue;
 
                     JsonConverter converterAnnotation = field.getAnnotation(JsonConverter.class);
                     JsonItemPropertyConverter converter = null;
@@ -178,17 +177,17 @@ public class Entry {
                     if (converter != null && converter.supports(value)) {
                         jsonValue = converter.toClientModel(value, this);
                     } else {
-                        jsonValue = JsonUtils.toJsonValue(value);
+                        jsonValue = JsonUtils.toJsonNode(value);
                     }
 
-                    if (jsonValue != null && !(jsonValue instanceof JsonNull)) {
+                    if (jsonValue != null && !(jsonValue instanceof NullNode)) {
                         String jsonName = name;
                         JsonName nameAnnotation = field.getAnnotation(JsonName.class);
                         if (nameAnnotation != null) {
                             jsonName = nameAnnotation.value();
                         }
 
-                        json.put(jsonName, jsonValue);
+                        json.set(jsonName, jsonValue);
                     }
                 }
             } catch (Throwable throwable) {
@@ -204,7 +203,7 @@ public class Entry {
      * Throws an exception, when the given json object has not the same id as this instance.
      * @param jsonObject json object
      */
-    public void updateFromJson(JsonObject jsonObject) {
+    public void updateFromJson(ObjectNode jsonObject) {
         updateFromJson(jsonObject, true);
     }
 
@@ -217,14 +216,15 @@ public class Entry {
      * @param requiresMatchingId require the ids to match
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void updateFromJson(JsonObject jsonObject, boolean requiresMatchingId) {
+    public void updateFromJson(ObjectNode jsonObject, boolean requiresMatchingId) {
         if (requiresMatchingId) {
-            if (!jsonObject.hasKey(Fields.ID)) {
+            if (!jsonObject.hasNonNull(Fields.ID)) {
                 throw new IllegalArgumentException("JsonObject has no id. Id matching is required.");
             }
 
-            if (!id.equals(jsonObject.getString(Fields.ID))) {
-                throw new IllegalArgumentException("Id matching is required. This id is " + id + " but the json object provided " + jsonObject.getString(Fields.ID));
+            String idString = jsonObject.get(Fields.ID).asString();
+            if (!id.equals(idString)) {
+                throw new IllegalArgumentException("Id matching is required. This id is " + id + " but the json object provided " + idString);
             }
         }
 
@@ -244,7 +244,7 @@ public class Entry {
                         jsonName = nameAnnotation.value();
                     }
 
-                    if (jsonObject.hasKey(jsonName)) {
+                    if (jsonObject.has(jsonName)) {
                         JsonConverter converterAnnotation = field.getAnnotation(JsonConverter.class);
                         JsonItemPropertyConverter converter = null;
                         if (converterAnnotation != null) {
@@ -252,12 +252,12 @@ public class Entry {
                         }
 
                         Object newValue;
-                        JsonValue jsonValue = jsonObject.get(jsonName);
+                        JsonNode jsonValue = jsonObject.get(jsonName);
 
                         if (converter != null) {
                             newValue = converter.toServerModel(jsonValue, this);
                         } else {
-                            newValue = JsonUtils.ofJsonValue(jsonValue);
+                            newValue = JsonUtils.ofJsonNode(jsonValue);
                         }
 
                         setter.accept(this, newValue);
@@ -275,8 +275,8 @@ public class Entry {
      * @param jsonObject json object to check
      * @return is a valid source
      */
-    protected boolean isValidJsonSource(JsonObject jsonObject) {
-        return jsonObject.hasKey(Fields.ID) && Objects.equals(jsonObject.getString(Fields.ID), getId());
+    protected boolean isValidJsonSource(ObjectNode jsonObject) {
+        return jsonObject.hasNonNull(Fields.ID) && Objects.equals(jsonObject.get(Fields.ID).asString(), getId());
     }
 
     /**
@@ -422,8 +422,8 @@ public class Entry {
      *
      * @return json object representing this instance
      */
-    public JsonObject toJsonWithIdOnly() {
-        JsonObject jsonObject = Json.createObject();
+    public ObjectNode toJsonWithIdOnly() {
+        ObjectNode jsonObject = JsonFactory.createObject();
         jsonObject.put(Fields.ID, getId());
         return jsonObject;
     }

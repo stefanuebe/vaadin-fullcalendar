@@ -17,7 +17,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.UI;
-import elemental.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;

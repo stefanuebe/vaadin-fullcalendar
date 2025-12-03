@@ -19,8 +19,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonObject;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Occurs when the user mouses out of an entry
@@ -38,7 +38,7 @@ public class EntryMouseLeaveEvent extends EntryDataEvent {
      * @param fromClient from client
      * @param entryData  entry data
      */
-    public EntryMouseLeaveEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject entryData) {
+    public EntryMouseLeaveEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
         super(source, fromClient, entryData);
     }
 

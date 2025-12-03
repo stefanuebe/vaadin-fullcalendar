@@ -16,9 +16,9 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Extended entry event type, that provides also additional client side entry data, that can be interpreted on the
@@ -31,7 +31,7 @@ public abstract class EntryDataEvent extends EntryEvent {
     /**
      * The json object that contains the changes from client side.
      */
-    private final JsonObject jsonObject;
+    private final ObjectNode jsonObject;
 
     /**
      * New instance. Awaits the changed data object.
@@ -39,14 +39,14 @@ public abstract class EntryDataEvent extends EntryEvent {
      * @param fromClient is from client
      * @param jsonObject json object with changed data
      */
-    public EntryDataEvent(FullCalendar source, boolean fromClient, JsonObject jsonObject) {
-        super(source, fromClient, jsonObject.getString(Entry.Fields.ID));
+    public EntryDataEvent(FullCalendar source, boolean fromClient, ObjectNode jsonObject) {
+        super(source, fromClient, jsonObject.get(Entry.Fields.ID).asString());
         this.jsonObject = jsonObject;
     }
 
     /**
      * Applies the contained changes on the referring entry and returns this instance.
-     * @see Entry#updateFromJson(JsonObject)
+     * @see Entry#updateFromJson(tools.jackson.databind.node.ObjectNode)
      * @return entry
      */
     public Entry applyChangesOnEntry() {
@@ -64,7 +64,7 @@ public abstract class EntryDataEvent extends EntryEvent {
         try {
             Entry copy = getEntry().copy();
 
-            JsonObject jsonObject = getJsonObject();
+            ObjectNode jsonObject = getJsonObject();
             copy.updateFromJson(jsonObject);
 
             return (R) copy; // we use R here, since in most cases event listeners do not specify a generic type

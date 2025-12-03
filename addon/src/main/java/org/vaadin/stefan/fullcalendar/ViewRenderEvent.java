@@ -17,9 +17,9 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
-import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -73,17 +73,17 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      */
-    public ViewRenderEvent(FullCalendar source, boolean fromClient, JsonObject eventData) {
+    public ViewRenderEvent(FullCalendar source, boolean fromClient, ObjectNode eventData) {
         super(source, fromClient);
 
-        this.viewName = eventData.getString("name");
+        this.viewName = eventData.get("name").asString();
 
         this.calendarView = source.lookupViewByClientSideValue(viewName).orElse(null);
 
-        this.intervalStart = parseClientSideDate(eventData.getString("intervalStart"));
-        this.intervalEnd = parseClientSideDate(eventData.getString("intervalEnd"));
-        this.start = parseClientSideDate(eventData.getString("start"));
-        this.end = parseClientSideDate(eventData.getString("end"));
+        this.intervalStart = parseClientSideDate(eventData.get("intervalStart").asString());
+        this.intervalEnd = parseClientSideDate(eventData.get("intervalEnd").asString());
+        this.start = parseClientSideDate(eventData.get("start").asString());
+        this.end = parseClientSideDate(eventData.get("end").asString());
     }
 
     /**

@@ -4,7 +4,6 @@ import com.vaadin.flow.function.SerializableFunction;
 import elemental.json.*;
 import org.junit.jupiter.api.Assertions;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Consumer;
@@ -172,6 +171,6 @@ public class TestUtils {
     }
 
     public static <T> Set<T> toSet(JsonArray array, SerializableFunction<JsonValue, Object> converter) {
-        return JsonUtils.ofJsonValue(array, converter, null, HashSet.class);
+        return JsonUtils.ofJsonNode(array, converter, null, HashSet.class);
     }
 }

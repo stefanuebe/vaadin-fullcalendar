@@ -1,16 +1,12 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.function.SerializableFunction;
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import elemental.json.JsonType;
-import elemental.json.JsonValue;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -612,7 +608,7 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * This method takes care of parsing the property value and setting it based on the key to the given
      * json object. If the key has a converter, the converter will be taken into account to convert the
-     * value, otherwise the method {@link JsonUtils#toJsonValue} will be used.
+     * value, otherwise the method {@link JsonUtils#toJsonNode} will be used.
      * Will not check for changes or unset properties - this has to be done by the caller.
      *
      * @param jsonObject json object to write to
@@ -630,9 +626,9 @@ public abstract class JsonItem<ID_TYPE> {
         } else {
             if (JsonUtils.isCollectable(value) && key.getCollectableItemConverter() != null) { // see docs of collectionItemConverter
                 SerializableFunction<Object, JsonValue> collectableItemConverter = key.getCollectableItemConverter();
-                jsonValue = JsonUtils.toJsonValue(value, collectableItemConverter);
+                jsonValue = JsonUtils.toJsonNode(value, collectableItemConverter);
             } else {
-                jsonValue = JsonUtils.toJsonValue(value);
+                jsonValue = JsonUtils.toJsonNode(value);
             }
         }
 
@@ -815,10 +811,10 @@ public abstract class JsonItem<ID_TYPE> {
     /**
      * This method is used by {@link #convertJsonValueToObject(JsonObject, Key)}. It utilizes
      * the {@link JsonUtils} to convert the given json value to an Object. By default the methods
-     * {@link JsonUtils#ofJsonValue(JsonValue, Class)} or
-     * {@link JsonUtils#ofJsonValue(JsonValue, SerializableFunction, Collection, Class)} are called.
+     * {@link JsonUtils#ofJsonNode(JsonValue, Class)} or
+     * {@link JsonUtils#ofJsonNode(JsonValue, SerializableFunction, Collection, Class)} are called.
      * <p></p>
-     * The intention of this method is to allow easy change of the used {@link JsonUtils#ofJsonValue} method for
+     * The intention of this method is to allow easy change of the used {@link JsonUtils#ofJsonNode} method for
      * a custom json array conversion type.
      * <p></p>
      * This method should not do anything else.
@@ -833,8 +829,8 @@ public abstract class JsonItem<ID_TYPE> {
         Class<? extends Collection> convertArrayToType = key.getJsonArrayToCollectionConversionType();
 
         Object value = jsonObjectConverter.isPresent()
-                ? JsonUtils.ofJsonValue(jsonValue, jsonObjectConverter.get(), key.getJsonObjectToConverterTypes(), convertArrayToType)
-                : JsonUtils.ofJsonValue(jsonValue, convertArrayToType);
+                ? JsonUtils.ofJsonNode(jsonValue, jsonObjectConverter.get(), key.getJsonObjectToConverterTypes(), convertArrayToType)
+                : JsonUtils.ofJsonNode(jsonValue, convertArrayToType);
 
         return value;
     }

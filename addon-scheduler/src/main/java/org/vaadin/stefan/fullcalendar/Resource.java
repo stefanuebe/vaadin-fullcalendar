@@ -16,9 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -261,8 +258,8 @@ public class Resource {
         JsonObject jsonObject = Json.createObject();
 
         jsonObject.put("id", getId());
-        jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
-        jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
+        jsonObject.put("title", JsonUtils.toJsonNode(getTitle()));
+        jsonObject.put("eventColor", JsonUtils.toJsonNode(getColor()));
 
         if(getBusinessHoursArray() != null && getBusinessHoursArray().length > 0) {
             JsonArray businessHoursJsonArray = Json.createArray();
@@ -288,7 +285,7 @@ public class Resource {
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {
             for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
-            	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
+            	jsonObject.put(prop.getKey(), JsonUtils.toJsonNode(prop.getValue()));
             }
         }
 
