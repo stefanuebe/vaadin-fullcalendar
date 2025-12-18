@@ -20,6 +20,7 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Occurs when a new set of dates has been rendered.. Provides information about the shown timespan.
@@ -42,7 +43,7 @@ public class DatesRenderedEvent extends ViewRenderEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param eventData client side event data
      */
-    public DatesRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") JsonObject eventData) {
+    public DatesRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") ObjectNode eventData) {
         super(source, fromClient, eventData);
     }
 }

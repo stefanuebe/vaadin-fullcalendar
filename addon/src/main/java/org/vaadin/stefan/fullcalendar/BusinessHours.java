@@ -18,13 +18,20 @@ package org.vaadin.stefan.fullcalendar;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Definition of business hours for a calendar instance.
+ * <p>
+ *     Use one of the static methods to define the days of week. You can define the range per day using the {@link #start}
+ *     and {@link #end} methods or leave them, to let the business hours range from the start of the day to its end.
+ * </p>
  */
 @EqualsAndHashCode
 @ToString
@@ -32,103 +39,158 @@ public class BusinessHours {
     /**
      * Represents all days of week.
      */
-    public static final DayOfWeek[] ALL_DAYS = DayOfWeek.values();
+    public static final Set<DayOfWeek> ALL_DAYS = Set.of(DayOfWeek.values());
 
     /**
      * Represents default business days (mo-fr).
      */
-    public static final DayOfWeek[] DEFAULT_BUSINESS_WEEK = {DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY};
+    public static final Set<DayOfWeek> DEFAULT_BUSINESS_WEEK = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY);
 
     private final Set<DayOfWeek> dayOfWeeks;
     private final LocalTime start;
     private final LocalTime end;
 
     /**
-     * Creates a new instance. Defines start and end time of the business hours. Passing null means start / end of day.
-     *
-     * @param start start time
-     * @param end   end time
-     */
-    public BusinessHours(LocalTime start, LocalTime end) {
-        this(start, end, ALL_DAYS);
-    }
-
-    /**
-     * Creates a new instance. Defines start of the business hours. End time is automatically end of day.
-     * Passing null means start of day.
-     * @param start start time
-     */
-    public BusinessHours(LocalTime start) {
-        this(start, null, ALL_DAYS);
-    }
-
-    /**
-     * Creates a new instance. Defines the days of business. Time will be all day automatically.
+     * Creates a new instance for the given days of week.
      * <br><br>
-     * Passing null for days is the same as passing an empty set (means no business days at all).
+     *
      *
      * @param dayOfWeeks days of business
+     * @throws IllegalArgumentException if the array is empty
      */
-    public BusinessHours(DayOfWeek... dayOfWeeks) {
-        this(null, null, dayOfWeeks);
+    public static BusinessHours of(DayOfWeek[] dayOfWeeks) {
+        return of(Set.of(dayOfWeeks));
     }
 
     /**
-     * Creates a new instance. Defines the days of business plus start time for each of these days.
-     * End time is automatically end of day.
+     * Creates a new instance for the given days of week.
      * <br><br>
-     * Passing null for days is the same as passing an empty set (means no business days at all).
-     * Passing null for start means start of day.
+     *
+     * @param dayOfWeek days of business
+     * @param additionalDaysOfWeek additional days of business
+     */
+    public static BusinessHours of(DayOfWeek dayOfWeek, DayOfWeek... additionalDaysOfWeek) {
+        return of(Stream.concat(Stream.of(dayOfWeek), Stream.of(additionalDaysOfWeek)).collect(Collectors.toSet()));
+    }
+
+    /**
+     * Creates a new instance for the given days of week.
+     * <br><br>
+     *
      *
      * @param dayOfWeeks days of business
-     * @param start      start time
+     * @throws IllegalArgumentException if the set is empty
      */
-    public BusinessHours(LocalTime start, DayOfWeek... dayOfWeeks) {
-        this(start, null, dayOfWeeks);
+    public static BusinessHours of(Set<DayOfWeek> dayOfWeeks) {
+        return new BusinessHours(LocalTime.MIN, LocalTime.MAX, dayOfWeeks);
     }
+
+    /**
+     * Creates a new instance for all days of week.
+     * <br><br>
+     */
+    public static BusinessHours allDays() {
+        return of(ALL_DAYS);
+    }
+
+
+    /**
+     * Creates a new instance for all days of a normal business week (Mo-Fr).
+     * <br><br>
+     *
+     */
+    public static BusinessHours businessWeek() {
+        return of(DEFAULT_BUSINESS_WEEK);
+    }
+
 
     /**
      * Creates a new instance. Defines the days of business plus start and end time for each of these days.
-     * Passing null for days is the same as passing an empty set (means no business days at all). Passing null for times
+     * Passing null for times
      * means start / end of day.
      *
-     * @param dayOfWeeks days of business
      * @param start      start time
      * @param end        end time
+     * @param dayOfWeeks days of business
      */
-    public BusinessHours(LocalTime start, LocalTime end, DayOfWeek... dayOfWeeks) {
-        Set<DayOfWeek> set;
-        if (dayOfWeeks == null || dayOfWeeks.length == 0) {
-            set = Collections.emptySet();
-        } else {
-            set = new LinkedHashSet<>(Arrays.asList(dayOfWeeks));
-            if (set.stream().anyMatch(Objects::isNull)) {
-                throw new NullPointerException("Day of weeks must not contain null");
-            }
+    private BusinessHours(LocalTime start, LocalTime end, Set<DayOfWeek> dayOfWeeks) {
+        if (dayOfWeeks == null || dayOfWeeks.isEmpty()) {
+            throw new IllegalArgumentException("Days of week must not be null nor empty");
         }
 
-        this.dayOfWeeks = set;
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Times must not be null");
+        }
+
+        if (end.isBefore(start)) {
+            throw new IllegalArgumentException("End must not be before start");
+        }
+
+        this.dayOfWeeks = dayOfWeeks;
         this.start = start;
         this.end = end;
+
     }
 
     /**
-     * Returns the end time or empty if none was set.
+     * Creates a copy of this instance with the given time as its new starting time.
+     * @param start new start time
+     * @return new instance
+     * @throws IllegalArgumentException if the end is before the start
+     */
+    public BusinessHours start(LocalTime start) {
+        return new BusinessHours(start, end, dayOfWeeks);
+    }
+
+    /**
+     * Creates a copy of thist instance with the given time as its new ending time.
+     * @param end new end time
+     * @return new instance
+     * @throws IllegalArgumentException if the end is before the start
+     */
+    public BusinessHours end(LocalTime end) {
+        return new BusinessHours(start, end, dayOfWeeks);
+    }
+
+    /**
+     * Creates a copy of thist instance with the given int as its new starting hour. Must be a value between 0 and 24,
+     * where 24 is converted to {@link java.time.LocalDate#MAX}.
+     * @param startingHour new starting hour
+     * @return new instance
+     * @throws IllegalArgumentException if the end is before the start or the given hour exceeds 24
+     */
+    public BusinessHours start(int startingHour) {
+        return start(startingHour == 24 ? LocalTime.MAX : LocalTime.of(startingHour, 0));
+    }
+
+    /**
+     * Creates a copy of thist instance with the given time as its new ending hour. Must be a value between 0 and 24,
+     * where 24 is converted to {@link java.time.LocalDate#MAX}.
+     * @param endingHour new ending hour
+     * @return new instance
+     * @throws IllegalArgumentException if the end is before the start or the given hour exceeds 24
+     */
+    public BusinessHours end(int endingHour) {
+        return end(endingHour == 24 ? LocalTime.MAX : LocalTime.of(endingHour, 0));
+    }
+
+    /**
+     * Returns the end time. If none has been set, the returned time will be {@link LocalTime#MAX}.
      *
      * @return end time or empty
      */
-    public Optional<LocalTime> getEnd() {
-        return Optional.ofNullable(end);
+    public LocalTime getEnd() {
+        return end;
     }
 
     /**
-     * Returns the start time or empty if none was set.
+     * Returns the start time. If none has been set, the returned time will be {@link LocalTime#MIN}.
      *
      * @return start time or empty
      */
 
-    public Optional<LocalTime> getStart() {
-        return Optional.ofNullable(start);
+    public LocalTime getStart() {
+        return start;
     }
 
     /**
@@ -144,13 +206,13 @@ public class BusinessHours {
      * Converts the given object into a json object.
      * @return json object
      */
-    protected JsonObject toJson() {
-        JsonObject jsonObject = Json.createObject();
+    protected ObjectNode toJson() {
+        ObjectNode jsonObject = JsonFactory.createObject();
 
-        jsonObject.put("daysOfWeek", JsonUtils.toJsonNode(dayOfWeeks.stream().map(dayOfWeek -> convertToClientSideDow(dayOfWeek))));
+        jsonObject.set("daysOfWeek", JsonUtils.toJsonNode(dayOfWeeks.stream().map(BusinessHours::convertToClientSideDow)));
 
-        jsonObject.put("startTime", JsonUtils.toJsonNode(start != null ? start : "00:00"));
-        jsonObject.put("endTime", JsonUtils.toJsonNode(end != null ? end : "24:00"));
+        jsonObject.set("startTime", JsonUtils.toJsonNode(start));
+        jsonObject.set("endTime", JsonUtils.toJsonNode(end == LocalTime.MAX ? "24:00" : end));
 
         return jsonObject;
     }
@@ -161,7 +223,7 @@ public class BusinessHours {
      * @return client side representation
      * @throws NullPointerException when null is passed
      */
-    public static int convertToClientSideDow(@NotNull DayOfWeek dayOfWeek) {
+    public static int convertToClientSideDow(DayOfWeek dayOfWeek) {
         return Objects.requireNonNull(dayOfWeek) == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue();
     }
 

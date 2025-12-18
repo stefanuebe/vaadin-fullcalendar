@@ -1,14 +1,9 @@
 package org.vaadin.stefan.ui.view.demos.customtimeline;
 
-import com.vaadin.flow.router.Route;
-import elemental.json.JsonFactory;
-import elemental.json.impl.JreJsonFactory;
-import elemental.json.impl.JreJsonObject;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.ui.layouts.MainLayout;
-import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
@@ -18,7 +13,7 @@ public class AnonymousCustomViewDemo extends AbstractSchedulerView {
     private SomeCalendarView calendarView;
 
     @Override
-    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
+    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         calendarView = new SomeCalendarView(28);
         FullCalendar calendar = FullCalendarBuilder.create()
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
@@ -61,18 +56,17 @@ public class AnonymousCustomViewDemo extends AbstractSchedulerView {
             return "fixedDaysResourceTimelineAnonymous";
         }
 
-        public JreJsonObject getInitialOptions() {
-            JsonFactory factory = new JreJsonFactory();
-            JreJsonObject initialOptions = new JreJsonObject(factory);
+        public ObjectNode getInitialOptions() {
+            ObjectNode initialOptions = JsonFactory.createObject();
 
-            JreJsonObject durationHolder = new JreJsonObject(factory);
-            durationHolder.set("days", factory.create(numberOfDays));
+            ObjectNode durationHolder = JsonFactory.createObject();
+            durationHolder.set("days", JsonFactory.create(numberOfDays));
 
-            JreJsonObject customViewHolder = new JreJsonObject(factory);
-            customViewHolder.set("type", factory.create("resourceTimeline"));
+            ObjectNode customViewHolder = JsonFactory.createObject();
+            customViewHolder.set("type", JsonFactory.create("resourceTimeline"));
             customViewHolder.set("duration", durationHolder);
 
-            JreJsonObject viewsHolder = new JreJsonObject(factory);
+            ObjectNode viewsHolder = JsonFactory.createObject();
             viewsHolder.set(getClientSideValue(), customViewHolder);
 
             initialOptions.set("views", viewsHolder);

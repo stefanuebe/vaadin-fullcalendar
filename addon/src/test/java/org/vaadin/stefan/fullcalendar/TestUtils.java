@@ -1,8 +1,12 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.function.SerializableFunction;
-import elemental.json.*;
 import org.junit.jupiter.api.Assertions;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BooleanNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.StringNode;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -14,18 +18,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestUtils {
 
-    public static void assertJsonType(JsonObject object, String key, Class<? extends JsonValue> expectedType) {
-        JsonValue jsonValue = object.get(key);
+    public static void assertJsonType(ObjectNode object, String key, Class<? extends JsonNode> expectedType) {
+        JsonNode jsonValue = object.get(key);
         Assertions.assertNotNull(jsonValue, "Json value for key '" + key + "' returned null, expected a json value being a sub type of " + expectedType);
 
-        Class<? extends JsonValue> aClass = jsonValue.getClass();
+        Class<? extends JsonNode> aClass = jsonValue.getClass();
         if (!expectedType.isAssignableFrom(aClass)) {
             Assertions.fail("Json value for key '" + key + "': Expected sub type of " + expectedType + ", but got " + aClass);
         }
     }
 
-    public static void assertJsonMissingKey(JsonObject object, String key) {
-        if (object.hasKey(key)) {
+    public static void assertJsonMissingKey(ObjectNode object, String key) {
+        if (object.has(key)) {
             Assertions.fail("Expected json object to not have key '" + key + "'");
         }
     }
@@ -38,12 +42,12 @@ public class TestUtils {
      * @param setter setter to apply value
      * @throws NullPointerException when null is passed for not null parameters
      */
-    public static void updateString(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<String> setter) {
-        Objects.requireNonNull(object, "JsonObject");
+    public static void updateString(ObjectNode object, String key, Consumer<String> setter) {
+        Objects.requireNonNull(object, "ObjectNode");
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(setter, "setter");
-        if (object.get(key) instanceof JsonString) {
-            setter.accept(object.getString(key));
+        if (object.hasNonNull(key) && object.get(key).isString()) {
+            setter.accept(object.get(key).asString());
         }
     }
 
@@ -55,12 +59,12 @@ public class TestUtils {
      * @param setter setter to apply value
      * @throws NullPointerException when null is passed for not null parameters
      */
-    public static void updateBoolean(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Boolean> setter) {
-        Objects.requireNonNull(object, "JsonObject");
+    public static void updateBoolean(ObjectNode object, String key, Consumer<Boolean> setter) {
+        Objects.requireNonNull(object, "ObjectNode");
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(setter, "setter");
-        if (object.get(key) instanceof JsonBoolean) {
-            setter.accept(object.getBoolean(key));
+        if (object.hasNonNull(key) && object.get(key).isBoolean()) {
+            setter.accept(object.get(key).asBoolean());
         }
     }
 
@@ -73,8 +77,8 @@ public class TestUtils {
 //     * @param timezone timezone
 //     * @throws NullPointerException when null is passed for not null parameters
 //     */
-//    public static void updateDateTime(@NotNull JsonObject object, @NotNull String key, @NotNull Consumer<Instant> setter, @NotNull Timezone timezone) {
-//        Objects.requireNonNull(object, "JsonObject");
+//    public static void updateDateTime(@NotNull ObjectNode object, @NotNull String key, @NotNull Consumer<Instant> setter, @NotNull Timezone timezone) {
+//        Objects.requireNonNull(object, "ObjectNode");
 //        Objects.requireNonNull(key, "key");
 //        Objects.requireNonNull(setter, "setter");
 //        Objects.requireNonNull(timezone, "timezone");
@@ -170,7 +174,7 @@ public class TestUtils {
         assertEquals(expected.collect(Collectors.toSet()), test.collect(Collectors.toSet()), message);
     }
 
-    public static <T> Set<T> toSet(JsonArray array, SerializableFunction<JsonValue, Object> converter) {
+    public static <T> Set<T> toSet(ArrayNode array, SerializableFunction<JsonNode, Object> converter) {
         return JsonUtils.ofJsonNode(array, converter, null, HashSet.class);
     }
 }

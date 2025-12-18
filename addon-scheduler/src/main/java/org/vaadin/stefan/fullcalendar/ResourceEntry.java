@@ -23,6 +23,7 @@ import org.vaadin.stefan.fullcalendar.converter.ResourceConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -148,8 +149,8 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    @Deprecated
-    public void assignResources(@NotNull Resource... resources) {
+    @Deprecated(forRemoval = true)
+    public void assignResources(Resource... resources) {
         addResources(resources);
     }
 
@@ -159,8 +160,8 @@ public class ResourceEntry extends Entry {
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
-    @Deprecated
-    public void assignResource(@NotNull Resource resource) {
+    @Deprecated(forRemoval = true)
+    public void assignResource(Resource resource) {
         addResources(Objects.requireNonNull(resource));
     }
 
@@ -170,7 +171,7 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    public void addResources(@NotNull Resource... resources) {
+    public void addResources(Resource... resources) {
         addResources(Arrays.asList(resources));
     }
 
@@ -180,51 +181,18 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    public void addResources(@NotNull Collection<Resource> resources) {
+    public void addResources(Collection<Resource> resources) {
         Objects.requireNonNull(resources);
         getOrCreateResources().addAll(resources);
     }
 
     /**
-     * Unassigns the given resource from this entry.
-     *
-     * @param resource resource
-     * @throws NullPointerException when null is passed
-     */
-    @Deprecated
-    public void unassignResource(@NotNull Resource resource) {
-        removeResources(Objects.requireNonNull(resource));
-    }
-
-    /**
      * Unassigns the given resources from this entry.
      *
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    @Deprecated
-    public void unassignResources(@NotNull Resource... resources) {
-        removeResources(resources);
-    }
-
-    /**
-     * Unassigns the given resources from this entry.
-     *
-     * @param resources resources
-     * @throws NullPointerException when null is passed
-     */
-    @Deprecated
-    public void unassignResources(@NotNull Collection<Resource> resources) {
-        removeResources(resources);
-    }
-
-    /**
-     * Unassigns the given resources from this entry.
-     *
-     * @param resources resources
-     * @throws NullPointerException when null is passed
-     */
-    public void removeResources(@NotNull Resource... resources) {
+    public void removeResources(Resource... resources) {
         removeResources(Arrays.asList(resources));
     }
 
@@ -234,7 +202,7 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    public void removeResources(@NotNull Collection<Resource> resources) {
+    public void removeResources(Collection<Resource> resources) {
         if (hasResources()) {
             getOrCreateResources().removeAll(resources);
         }
@@ -243,7 +211,7 @@ public class ResourceEntry extends Entry {
     /**
      * Unassigns all resources from this entry.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void unassignAllResources() {
         removeAllResources();
     }
@@ -256,9 +224,8 @@ public class ResourceEntry extends Entry {
     }
 
     @Override
-    public JsonObject toJson() {
-        JsonObject json = super.toJson();
-        return json;
+    public ObjectNode toJson() {
+        return super.toJson();
     }
 
     //    @Override

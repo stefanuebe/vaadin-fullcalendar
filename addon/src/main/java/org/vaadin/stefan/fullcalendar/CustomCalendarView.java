@@ -1,6 +1,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 
+import tools.jackson.databind.node.ObjectNode;
+
 /**
  * Interface for custom calendar views. This is used to create custom views for the calendar.
  * @author Stefan Uebe
@@ -31,7 +33,7 @@ public interface CustomCalendarView extends CalendarView {
      * See the <a href="https://fullcalendar.io/docs/custom-view-with-settings">FullCalendar docs</a> for details.
      * @return view settings
      */
-    JsonObject getViewSettings();
+    ObjectNode getViewSettings();
 
     @Override
     default String getName() {
@@ -44,9 +46,9 @@ public interface CustomCalendarView extends CalendarView {
      */
     class AnonymousCustomCalendarView implements CustomCalendarView {
         private final String name;
-        private final JsonObject viewSettings;
+        private final ObjectNode viewSettings;
 
-        public AnonymousCustomCalendarView(String name, JsonObject viewSettings) {
+        public AnonymousCustomCalendarView(String name, ObjectNode viewSettings) {
             this.name = name;
             this.viewSettings = viewSettings;
         }
@@ -57,7 +59,7 @@ public interface CustomCalendarView extends CalendarView {
         }
 
         @Override
-        public JsonObject getViewSettings() {
+        public ObjectNode getViewSettings() {
             return viewSettings;
         }
     }

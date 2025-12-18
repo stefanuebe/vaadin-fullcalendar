@@ -91,7 +91,7 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
      * @deprecated use {@link #getViewName()} instead
      * @return Client side name of the view
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public String getName() {
         return viewName;
     }

@@ -2,11 +2,10 @@ package org.vaadin.stefan.ui.view.demos.customtimeline;
 
 import org.vaadin.stefan.fullcalendar.CalendarView;
 
-import elemental.json.JsonFactory;
-import elemental.json.impl.JreJsonFactory;
-import elemental.json.impl.JreJsonObject;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView;
+import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.ui.view.demos.HasIntervalLabel;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.text.DateFormat;
 import java.time.LocalDate;
@@ -31,13 +30,13 @@ public class FixedDaysCalendarView implements CustomCalendarView, HasIntervalLab
     }
 
     @Override
-    public JsonObject getViewSettings() {
-        JsonObject days = Json.createObject();
+    public ObjectNode getViewSettings() {
+        ObjectNode days = JsonFactory.createObject();
         days.put("days", numberOfDays);
 
-        JsonObject baseSettings = Json.createObject();
+        ObjectNode baseSettings = JsonFactory.createObject();
         baseSettings.put("type", "resourceTimeline");
-        baseSettings.put("duration", days);
+        baseSettings.set("duration", days);
         return baseSettings;
     }
 

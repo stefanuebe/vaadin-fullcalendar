@@ -20,7 +20,6 @@ package org.vaadin.stefan.fullcalendar.model;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
-import org.vaadin.stefan.fullcalendar.NotNull;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
@@ -47,7 +46,7 @@ public class AbstractHeaderFooter {
      *
      * @param parts parts
      */
-    protected AbstractHeaderFooter(@NotNull Collection<HeaderFooterPart> parts) {
+    protected AbstractHeaderFooter(Collection<HeaderFooterPart> parts) {
         this.parts = Objects.requireNonNull(parts).stream().collect(Collectors.toMap(HeaderFooterPart::getPosition, Function.identity()));
     }
 
@@ -109,7 +108,7 @@ public class AbstractHeaderFooter {
      * Registers the given part. Overrides any previous set definitions.
      * @param part part
      */
-    public void addPart(@NotNull HeaderFooterPart part) {
+    public void addPart(HeaderFooterPart part) {
         parts.put(part.getPosition(), part);
     }
 }

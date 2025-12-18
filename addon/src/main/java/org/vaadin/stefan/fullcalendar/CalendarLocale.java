@@ -17,7 +17,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -145,22 +144,6 @@ public enum CalendarLocale {
      */
     public static Locale[] getAvailableLocales() {
         return Arrays.copyOf(availableLocales, availableLocales.length);
-    }
-
-    /**
-     * Returns the default locale. This is by default the system language. If the system language is not supported
-     * by the calender, english will be used instead.
-     * <p>
-     * This value is used as a fallback in different places, if no locale could be
-     * determined from the browser (or that should not be used).
-     *
-     * @return default locale
-     * @deprecated will be replaced with the enum type in some future version. Please use {@link #getDefaultLocale()}
-     * instead.
-     */
-    @Deprecated
-    public static Locale getDefault() {
-        return getDefaultLocale();
     }
 
     /**

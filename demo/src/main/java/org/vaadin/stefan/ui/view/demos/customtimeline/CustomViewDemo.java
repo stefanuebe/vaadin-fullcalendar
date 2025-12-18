@@ -7,6 +7,7 @@ import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
@@ -17,12 +18,12 @@ public class CustomViewDemo extends AbstractSchedulerView {
     private FixedDaysCalendarView calendarView;
 
     @Override
-    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
+    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         calendarView = new FixedDaysCalendarView(28);
 
         // test for duplicat registration (anonymous and named)
-//        JsonObject initialOptions = Json.createObject();
-//        JsonObject views = Json.createObject();
+//        ObjectNode initialOptions = Json.createObject();
+//        ObjectNode views = Json.createObject();
 //        views.put(calendarView.getClientSideValue(), new FixedDaysCalendarView(5).getViewSettings());
 //        initialOptions.put("views", views);
 

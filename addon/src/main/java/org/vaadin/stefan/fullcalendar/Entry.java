@@ -244,7 +244,7 @@ public class Entry {
                         jsonName = nameAnnotation.value();
                     }
 
-                    if (jsonObject.has(jsonName)) {
+                    if (jsonObject.hasNonNull(jsonName)) {
                         JsonConverter converterAnnotation = field.getAnnotation(JsonConverter.class);
                         JsonItemPropertyConverter converter = null;
                         if (converterAnnotation != null) {
@@ -710,7 +710,7 @@ public class Entry {
      * Moves the entry by the given delta. Negative deltas will result in moving the entry to the past.
      * @param delta delta to be applied
      */
-    public void moveStartEnd(@NotNull Delta delta) {
+    public void moveStartEnd(Delta delta) {
         moveStart(delta);
         moveEnd(delta);
     }
@@ -778,7 +778,7 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #addClassNames(String...)}
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void assignClassName(String className) {
         assignClassNames(Objects.requireNonNull(className));
     }
@@ -790,8 +790,8 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #addClassNames(String...)}
      */
-    @Deprecated
-    public void assignClassNames(@NotNull String... classNames) {
+    @Deprecated(forRemoval = true)
+    public void assignClassNames(String... classNames) {
         assignClassNames(Arrays.asList(classNames));
     }
 
@@ -802,8 +802,8 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #addClassNames(Collection)}
      */
-    @Deprecated
-    public void assignClassNames(@NotNull Collection<String> classNames) {
+    @Deprecated(forRemoval = true)
+    public void assignClassNames(Collection<String> classNames) {
         Objects.requireNonNull(classNames);
         getOrCreateClassNames().addAll(classNames);
     }
@@ -814,7 +814,7 @@ public class Entry {
      * @param classNames class names to add
      * @throws NullPointerException when null is passed
      */
-    public void addClassNames(@NotNull String... classNames) {
+    public void addClassNames(String... classNames) {
         assignClassNames(Arrays.asList(classNames));
     }
 
@@ -824,7 +824,7 @@ public class Entry {
      * @param classNames class names to add
      * @throws NullPointerException when null is passed
      */
-    public void addClassNames(@NotNull Collection<String> classNames) {
+    public void addClassNames(Collection<String> classNames) {
         Objects.requireNonNull(classNames);
         getOrCreateClassNames().addAll(classNames);
     }
@@ -836,7 +836,7 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #removeClassNames(String...)}
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void unassignClassName(String className) {
         unassignClassNames(Objects.requireNonNull(className));
     }
@@ -848,8 +848,8 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #removeClassNames(String...)}
      */
-    @Deprecated
-    public void unassignClassNames(@NotNull String... classNames) {
+    @Deprecated(forRemoval = true)
+    public void unassignClassNames(String... classNames) {
         unassignClassNames(Arrays.asList(classNames));
     }
 
@@ -860,8 +860,8 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #removeClassNames(Collection)}
      */
-    @Deprecated
-    public void unassignClassNames(@NotNull Collection<String> classNamesToRemove) {
+    @Deprecated(forRemoval = true)
+    public void unassignClassNames(Collection<String> classNamesToRemove) {
         removeClassNames(classNamesToRemove);
     }
 
@@ -870,7 +870,7 @@ public class Entry {
      *
      * @deprecated use {@link #removeClassNames()}
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void unassignAllClassNames() {
         removeClassNames();
     }
@@ -881,7 +881,7 @@ public class Entry {
      * @param classNames class names to remove
      * @throws NullPointerException when null is passed
      */
-    public void removeClassNames(@NotNull String... classNames) {
+    public void removeClassNames(String... classNames) {
         removeClassNames(Arrays.asList(classNames));
     }
 
@@ -891,7 +891,7 @@ public class Entry {
      * @param classNamesToRemove class names to remove
      * @throws NullPointerException when null is passed
      */
-    public void removeClassNames(@NotNull Collection<String> classNamesToRemove) {
+    public void removeClassNames(Collection<String> classNamesToRemove) {
         Set<String> classNames = getClassNames();
         if (classNames != null) {
             classNames.removeAll(classNamesToRemove);
@@ -1282,7 +1282,7 @@ public class Entry {
      * @param key   the name of the property to set
      * @param value value to set
      */
-    public void setCustomProperty(@NotNull String key, Object value) {
+    public void setCustomProperty(String key, Object value) {
         Objects.requireNonNull(key);
         getOrCreateCustomProperties().put(key, value);
     }
@@ -1300,7 +1300,7 @@ public class Entry {
      * @return custom property value or null
      */
     @SuppressWarnings("unchecked")
-    public <T> T getCustomProperty(@NotNull String key) {
+    public <T> T getCustomProperty(String key) {
         return (T) getCustomPropertiesOrEmpty().get(key);
     }
 
@@ -1309,7 +1309,7 @@ public class Entry {
      *
      * @param key the name of the property to remove
      */
-    public void removeCustomProperty(@NotNull String key) {
+    public void removeCustomProperty(String key) {
         Map<String, Object> customProperties = getCustomProperties();
         if (customProperties != null) {
             // FIXME this will currently not remove the custom property from the client side!
@@ -1323,7 +1323,7 @@ public class Entry {
      * @param key   the name of the property to remove
      * @param value the object to remove
      */
-    public void removeCustomProperty(@NotNull String key, @NotNull Object value) {
+    public void removeCustomProperty(String key, Object value) {
         Map<String, Object> customProperties = getCustomProperties();
         if (customProperties != null) {
             // FIXME this will currently not remove the custom property from the client side!

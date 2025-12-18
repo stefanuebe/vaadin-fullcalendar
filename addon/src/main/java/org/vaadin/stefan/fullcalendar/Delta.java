@@ -21,7 +21,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
+import tools.jackson.databind.node.ObjectNode;
+
 import java.time.*;
 import java.util.concurrent.TimeUnit;
 
@@ -83,7 +84,7 @@ public class Delta {
      * @param current
      * @param lessThanThis
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     static void assertLessThan(String name, int current, int lessThanThis) {
         if (current >= lessThanThis) {
             throw new IllegalArgumentException("Value'" + name + "' must be less than or equal to '" + lessThanThis + "' (as absolute) but was '" + current + "'!");
@@ -95,14 +96,14 @@ public class Delta {
      * @param jsonObject json object
      * @return delta
      */
-    public static Delta fromJson(JsonObject jsonObject) {
-        int years = toInt(jsonObject, "years");
-        int months = toInt(jsonObject, "months");
-        int days = toInt(jsonObject, "days");
+    public static Delta fromJson(ObjectNode jsonObject) {
+        int years = jsonObject.get("years").asInt();
+        int months = jsonObject.get("months").asInt();
+        int days = jsonObject.get("days").asInt();
 
         // new 4.x way
-        if (jsonObject.hasKey("milliseconds")) {
-            long remainingMS = (long) jsonObject.getNumber("milliseconds");
+        if (jsonObject.hasNonNull("milliseconds")) {
+            long remainingMS = (long) jsonObject.get("milliseconds").asLong();
             int hours = (int) TimeUnit.MILLISECONDS.toHours(remainingMS);
             remainingMS -= TimeUnit.HOURS.toMillis(hours);
             int minutes = (int) TimeUnit.MILLISECONDS.toMinutes(remainingMS);
@@ -113,9 +114,9 @@ public class Delta {
         }
 
         // old 3.9 way
-        int hours = toInt(jsonObject, "hours");
-        int minutes = toInt(jsonObject, "minutes");
-        int seconds = toInt(jsonObject, "seconds");
+        int hours = jsonObject.get("hours").asInt();
+        int minutes = jsonObject.get("minutes").asInt();
+        int seconds = jsonObject.get("seconds").asInt();
         return new Delta(years, months, days, hours, minutes, seconds);
     }
 
@@ -130,10 +131,6 @@ public class Delta {
         );
     }
 
-    private static int toInt(JsonObject delta, String key) {
-        return (int) delta.getNumber(key);
-    }
-
     /**
      * Applies this delta instance on the given local date time by adding all day and time related delta values.
      *
@@ -141,7 +138,7 @@ public class Delta {
      * @return modified date time instance
      * @throws NullPointerException when null is passed
      */
-    public LocalDateTime applyOn(@NotNull LocalDateTime dateTime) {
+    public LocalDateTime applyOn(LocalDateTime dateTime) {
         return dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
 
@@ -152,7 +149,7 @@ public class Delta {
      * @return modified date instance
      * @throws NullPointerException when null is passed
      */
-    public LocalDate applyOn(@NotNull LocalDate date) {
+    public LocalDate applyOn(LocalDate date) {
         return date.plusYears(years).plusMonths(months).plusDays(days);
     }
 
@@ -163,7 +160,7 @@ public class Delta {
      * @return updated instance
      * @throws NullPointerException when null is passed
      */
-    public Instant applyOn(@NotNull Instant instant) {
+    public Instant applyOn(Instant instant) {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
         return applyOn(localDateTime).toInstant(ZoneOffset.UTC);
     }

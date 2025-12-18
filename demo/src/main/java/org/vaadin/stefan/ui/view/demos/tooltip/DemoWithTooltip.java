@@ -19,14 +19,15 @@ package org.vaadin.stefan.ui.view.demos.tooltip;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
+import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
+import tools.jackson.databind.node.ObjectNode;
 
 @Route(value = "tooltip", layout = MainLayout.class)
 @CssImport("./styles.css")
@@ -38,7 +39,7 @@ public class DemoWithTooltip extends AbstractCalendarView {
 
 
     @Override
-    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
+    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         EntryService entryService = EntryService.createSimpleInstance();
 
         FullCalendar calendar = FullCalendarBuilder.create()

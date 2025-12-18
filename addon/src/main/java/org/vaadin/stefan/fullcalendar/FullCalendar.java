@@ -29,6 +29,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
+import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
@@ -84,7 +85,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Caches the last fetched entries for entry based events.
      */
     private final Map<String, Entry> lastFetchedEntries = new HashMap<>();
-    private final Map<String, Serializable> options = new HashMap<>();
+    private final Map<String, Object> options = new HashMap<>();
 
     /**
      * A map for options, that have been set before the attachment. They are mapped here instead of the options
@@ -92,7 +93,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * The main reason are options, that have to be set before attachment, but must not "bleed" into the option
      * map, like eventContent
      */
-    private final Map<String, Serializable> initialOptions = new HashMap<>();
+    private final Map<String, Object> initialOptions = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
     private EntryProvider<? extends Entry> entryProvider;
@@ -181,14 +182,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @throws NullPointerException when null is passed
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
-    public FullCalendar(@NotNull ObjectNode initialOptions) {
-        if (initialOptions.hasKey("views")) {
-            ObjectNode views = initialOptions.getObject("views");
+    public FullCalendar(ObjectNode initialOptions) {
+        if (initialOptions.hasNonNull("views")) {
+            ObjectNode views = (ObjectNode) initialOptions.get("views");
 
             // register custom views mentioned in the initial options
-            for (String viewName : views.keys()) {
+            for (String viewName : views.propertyNames()) {
                 // only register anonmyous views, if there is no real registered variant
-                ObjectNode viewSettings = views.getObject(viewName);
+                ObjectNode viewSettings = (ObjectNode) views.get(viewName);
                 AnonymousCustomCalendarView anonymousView = new AnonymousCustomCalendarView(viewName, viewSettings);
                 this.customCalendarViews.put(anonymousView.getClientSideValue(), anonymousView);
             }
@@ -196,7 +197,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         this.getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
 
-        if (!initialOptions.hasKey(Option.LOCALE.getOptionKey())) {
+        if (!initialOptions.hasNonNull(Option.LOCALE.getOptionKey())) {
             // fallback to prevent strange locale effects on the client side
             setLocale(CalendarLocale.getDefaultLocale());
         }
@@ -248,9 +249,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
                     // options. dont use the initialOptions map here, the component takes care of initialOptions itself
                     // since that is also cached as a property
-                    ObjectNode optionsJson = Json.createObject();
+                    ObjectNode optionsJson = JsonFactory.createObject();
                     if (!options.isEmpty()) {
-                        options.forEach((key, value) -> optionsJson.put(key, JsonUtils.toJsonNode(value)));
+                        options.forEach((key, value) -> optionsJson.set(key, JsonUtils.toJsonNode(value)));
                     }
 
                     getElement().callJsFunction("restoreStateFromServer",
@@ -305,7 +306,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @param entryProvider entry provider
      */
-    public void setEntryProvider(@NotNull EntryProvider<? extends Entry> entryProvider) {
+    public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
         Objects.requireNonNull(entryProvider);
 
         if (this.entryProvider != entryProvider) {
@@ -341,7 +342,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @param item item to refresh
      */
-    protected void requestRefresh(@NotNull Entry item) {
+    protected void requestRefresh(Entry item) {
         getElement().getNode().runWhenAttached(ui -> {
             ui.beforeClientResponse(this, pExecutionContext -> {
                 getEntryProvider()
@@ -389,16 +390,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     @ClientCallable
-    protected JsonArray fetchEntriesFromServer(@NotNull ObjectNode query) {
+    protected ArrayNode fetchEntriesFromServer(ObjectNode query) {
         Objects.requireNonNull(query);
         Objects.requireNonNull(entryProvider);
 
         lastFetchedEntries.clear();
 
-        LocalDateTime start = query.hasKey("start") ? JsonUtils.parseClientSideDateTime(query.getString("start")) : null;
-        LocalDateTime end = query.hasKey("end") ? JsonUtils.parseClientSideDateTime(query.getString("end")) : null;
+        LocalDateTime start = query.hasNonNull("start") ? JsonUtils.parseClientSideDateTime(query.get("start").asString()) : null;
+        LocalDateTime end = query.hasNonNull("end") ? JsonUtils.parseClientSideDateTime(query.get("end").asString()) : null;
 
-        JsonArray array = Json.createArray();
+        ArrayNode array = JsonFactory.createArray();
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
                 .peek(entry -> {
                     entry.setCalendar(this);
@@ -406,7 +407,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                     lastFetchedEntries.put(entry.getId(), entry);
                 })
                 .map(Entry::toJson)
-                .forEach(jsonObject -> array.set(array.length(), jsonObject));
+                .forEach(array::add);
 
         return array;
     }
@@ -441,7 +442,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param view view to set
      * @throws NullPointerException when null is passed
      */
-    public void changeView(@NotNull CalendarView view) {
+    public void changeView(CalendarView view) {
         Objects.requireNonNull(view);
 
         lookupViewByClientSideValue(view.getClientSideValue()).orElseThrow(() -> new IllegalArgumentException("Unknown view: " + view.getClientSideValue() + ". If you want to use a custom view, please register it first by using addCustomView()."));
@@ -474,7 +475,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param date date to goto
      * @throws NullPointerException when null is passed
      */
-    public void gotoDate(@NotNull LocalDate date) {
+    public void gotoDate(LocalDate date) {
         Objects.requireNonNull(date);
         getElement().callJsFunction("gotoDate", date.toString());
     }
@@ -485,7 +486,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param duration duration
      * @throws NullPointerException when null is passed
      */
-    public void scrollToTime(@NotNull String duration) {
+    public void scrollToTime(String duration) {
         Objects.requireNonNull(duration);	// No format check, it is already done in the calendar code
         getElement().callJsFunction("scrollToTime", duration);
     }
@@ -496,7 +497,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param duration duration
      * @throws NullPointerException when null is passed
      */
-    public void scrollToTime(@NotNull LocalTime duration) {
+    public void scrollToTime(LocalTime duration) {
         Objects.requireNonNull(duration);
         getElement().callJsFunction("scrollToTime", duration.format(DateTimeFormatter.ISO_LOCAL_TIME));
     }
@@ -511,12 +512,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull Option option, Serializable value) {
+    public void setOption(Option option, Object value) {
         setOption(option, value, null);
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option. The third parameter
+     * Sets an option for this instance. Passing a null value removes the option. The third parameter
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
@@ -537,12 +538,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull Option option, Serializable value, Object valueForServerSide) {
+    public void setOption(Option option, Object value, Object valueForServerSide) {
         setOption(option.getOptionKey(), value, valueForServerSide);
     }
 
     /**
-     * Sets a custom option for this instance. Passing a null value removes the option.
+     * Sets an option for this instance. Passing a null value removes the option.
      * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
@@ -554,12 +555,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull String option, JsonValue value) {
+    public void setOption(String option, Object value) {
         setOption(option, value, null);
     }
 
     /**
-     * Sets a custom option for this instance. Passing a null value removes the option. The third parameter
+     * Sets an option for this instance. Passing a null value removes the option. The third parameter
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
@@ -576,50 +577,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull String option, JsonValue value, Object valueForServerSide) {
-        setOption(option, (Serializable) value, valueForServerSide);
-    }
-
-    /**
-     * Sets a option for this instance. Passing a null value removes the option.
-     * <br><br>
-     * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
-     * <br><br>
-     * For a full overview of possible options have a look at the FullCalendar documentation
-     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
-     *
-     * @param option option
-     * @param value  value
-     * @throws NullPointerException when null is passed
-     */
-    public void setOption(@NotNull String option, Serializable value) {
-        setOption(option, value, null);
-    }
-
-    /**
-     * Sets a option for this instance. Passing a null value removes the option. The third parameter
-     * might be used to explicitly store a "more complex" variant of the option's value to be returned
-     * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
-     * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <br><br>
-     * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
-     * <p>
-     * <br><br>
-     * For a full overview of possible options have a look at the FullCalendar documentation
-     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
-     *
-     * @param option             option
-     * @param value              value
-     * @param valueForServerSide value to be stored on server side
-     * @throws NullPointerException when null is passed
-     */
-    public void setOption(@NotNull String option, Serializable value, Object valueForServerSide) {
+    public void setOption(String option, Object value, Object valueForServerSide) {
         callOptionUpdate(option, value, valueForServerSide, "setOption");
     }
 
-    private void callOptionUpdate(@NotNull String option, Serializable value, Object valueForServerSide, String method, Serializable... additionalParameters) {
+    private void callOptionUpdate(String option, Object value, Object valueForServerSide, String method, Serializable... additionalParameters) {
         Objects.requireNonNull(option);
 
         boolean attached = isAttached();
@@ -643,19 +605,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
 
         if (attached) {
-            Serializable[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Serializable[]::new);
+            Object[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Object[]::new);
             getElement().callJsFunction(method, parameters);
         } else {
             ObjectNode initialOptions = (ObjectNode) getElement().getPropertyRaw("initialOptions");
             if (initialOptions == null) {
-                initialOptions = Json.createObject();
+                initialOptions = JsonFactory.createObject();
                 getElement().setPropertyJson("initialOptions", initialOptions);
             }
 
             if (value == null) {
                 initialOptions.remove(option);
             } else {
-                initialOptions.put(option, JsonUtils.toJsonNode(value));
+                initialOptions.set(option, JsonUtils.toJsonNode(value));
             }
         }
     }
@@ -669,7 +631,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param firstDay first day to be shown
      * @throws NullPointerException when null is passed
      */
-    public void setFirstDay(@NotNull DayOfWeek firstDay) {
+    public void setFirstDay(DayOfWeek firstDay) {
         Objects.requireNonNull(firstDay);
         int value = firstDay == DayOfWeek.SUNDAY ? 0 : firstDay.getValue();
         setOption(Option.FIRST_DAY, value, firstDay);
@@ -682,7 +644,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param heightInPixels height in pixels (e.g. 300)
      * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void setHeight(int heightInPixels) {
         setHeight(heightInPixels, Unit.PIXELS);
     }
@@ -693,7 +655,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * the parent or the calendar.
      * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void setHeightByParent() {
         setHeight("100%");
     }
@@ -703,7 +665,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * width-height-ratio.
      * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void setHeightAuto() {
         setHeight("auto");
     }
@@ -738,7 +700,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param weekNumbersWithinDays by default to false
      * @deprecated this functionality is no longer supported, thus you can remove the call
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void setWeekNumbersWithinDays(boolean weekNumbersWithinDays) {
         // NOOP
     }
@@ -765,12 +727,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param locale locale
      * @throws NullPointerException when null is passed
      */
-    public void setLocale(@NotNull Locale locale) {
+    public void setLocale(Locale locale) {
         Objects.requireNonNull(locale);
         setOption(Option.LOCALE, toClientSideLocale(locale), locale);
     }
 
-    protected String toClientSideLocale(@NotNull Locale locale) {
+    protected String toClientSideLocale(Locale locale) {
         return locale.toLanguageTag().toLowerCase();
     }
 
@@ -946,7 +908,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param hours hours to set
      * @throws NullPointerException when null is passed
      */
-    public void setBusinessHours(@NotNull BusinessHours... hours) {
+    public void setBusinessHours(BusinessHours... hours) {
         Objects.requireNonNull(hours);
 
         setOption(Option.BUSINESS_HOURS, JsonUtils.toJsonNode(Arrays.stream(hours).map(BusinessHours::toJson)), hours);
@@ -968,7 +930,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param duration duration to set in format hh:mm
      * @throws NullPointerException when null is passed
      */
-    public void setSnapDuration(@NotNull String duration) {
+    public void setSnapDuration(String duration) {
         Objects.requireNonNull(duration);
         setOption(Option.SNAP_DURATION, duration);
     }
@@ -980,7 +942,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param slotMinTime slotMinTime to set
      * @throws NullPointerException when null is passed
      */
-    public void setSlotMinTime(@NotNull LocalTime slotMinTime) {
+    public void setSlotMinTime(LocalTime slotMinTime) {
         Objects.requireNonNull(slotMinTime);
         setOption(Option.SLOT_MIN_TIME, JsonUtils.toJsonNode(slotMinTime != null ? slotMinTime : "00:00:00"));
     }
@@ -1012,7 +974,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param slotMaxTime slotMaxTime to set
      * @throws NullPointerException when null is passed
      */
-    public void setSlotMaxTime(@NotNull LocalTime slotMaxTime) {
+    public void setSlotMaxTime(LocalTime slotMaxTime) {
         Objects.requireNonNull(slotMaxTime);
         setOption(Option.SLOT_MAX_TIME, JsonUtils.toJsonNode(slotMaxTime != null ? slotMaxTime : "24:00:00"));
     }
@@ -1053,7 +1015,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Allow events’ durations to be editable through resizing.
      * <p>
-     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setDurationEditable(boolean)}
+     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setDurationEditable(Boolean)}
      *
      * @param editable editable
      */
@@ -1091,7 +1053,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Allow events’ start times to be editable through dragging.
      * <p>
-     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setStartEditable(boolean)}
+     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setStartEditable(Boolean)}
      *
      * @param editable editable
      */
@@ -1243,7 +1205,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
-     * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
+     * via {@link #setOption(Option, Object, Object)}, that will be returned instead.
      * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
@@ -1252,14 +1214,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@NotNull Option option) {
+    public <T> Optional<T> getOption(Option option) {
         return getOption(option, false);
     }
 
     /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
-     * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
+     * value has been set via {@link #setOption(Option, Object, Object)}, that will be returned instead.
      * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
@@ -1269,14 +1231,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@NotNull Option option, boolean forceClientSideValue) {
+    public <T> Optional<T> getOption(Option option, boolean forceClientSideValue) {
         return getOption(option.getOptionKey(), forceClientSideValue);
     }
 
     /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
-     * via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
+     * via {@link #setOption(Option, Object, Object)}, that will be returned instead.
      * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
@@ -1285,14 +1247,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@NotNull String option) {
+    public <T> Optional<T> getOption(String option) {
         return getOption(option, false);
     }
 
     /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
-     * value has been set via {@link #setOption(Option, Serializable, Object)}, that will be returned instead.
+     * value has been set via {@link #setOption(Option, Object, Object)}, that will be returned instead.
      * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      * <br><br>
@@ -1304,13 +1266,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@NotNull String option, boolean forceClientSideValue) {
+    public <T> Optional<T> getOption(String option, boolean forceClientSideValue) {
         Objects.requireNonNull(option);
         if (!forceClientSideValue && serverSideOptions.containsKey(option)) {
             return Optional.ofNullable((T) serverSideOptions.get(option));
         }
 
-        Serializable value = options.get(option);
+        Object value = options.get(option);
         if(value == null) {
             value = initialOptions.get(option);
         }
@@ -1331,7 +1293,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotClickedListener(@NotNull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+    public Registration addTimeslotClickedListener(ComponentEventListener<? extends TimeslotClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotClickedEvent.class, (ComponentEventListener<TimeslotClickedEvent>) listener);
     }
@@ -1343,7 +1305,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryClickedListener(@NotNull ComponentEventListener<EntryClickedEvent> listener) {
+    public Registration addEntryClickedListener(ComponentEventListener<EntryClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryClickedEvent.class, listener);
     }
@@ -1355,7 +1317,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryMouseEnterListener(@NotNull ComponentEventListener<EntryMouseEnterEvent> listener) {
+    public Registration addEntryMouseEnterListener(ComponentEventListener<EntryMouseEnterEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryMouseEnterEvent.class, listener);
     }
@@ -1367,7 +1329,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryMouseLeaveListener(@NotNull ComponentEventListener<EntryMouseLeaveEvent> listener) {
+    public Registration addEntryMouseLeaveListener(ComponentEventListener<EntryMouseLeaveEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryMouseLeaveEvent.class, listener);
     }
@@ -1379,7 +1341,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryResizedListener(@NotNull ComponentEventListener<EntryResizedEvent> listener) {
+    public Registration addEntryResizedListener(ComponentEventListener<EntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryResizedEvent.class, listener);
     }
@@ -1391,7 +1353,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntryDroppedListener(@NotNull ComponentEventListener<EntryDroppedEvent> listener) {
+    public Registration addEntryDroppedListener(ComponentEventListener<EntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryDroppedEvent.class, listener);
     }
@@ -1403,7 +1365,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addDatesRenderedListener(@NotNull ComponentEventListener<DatesRenderedEvent> listener) {
+    public Registration addDatesRenderedListener(ComponentEventListener<DatesRenderedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(DatesRenderedEvent.class, listener);
     }
@@ -1417,7 +1379,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addViewSkeletonRenderedListener(@NotNull ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
+    public Registration addViewSkeletonRenderedListener(ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(ViewSkeletonRenderedEvent.class, listener);
     }
@@ -1429,7 +1391,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addViewChangedListener(@NotNull ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
+    public Registration addViewChangedListener(ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
         return addViewSkeletonRenderedListener(listener);
     }
 
@@ -1444,7 +1406,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotsSelectedListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
+    public Registration addTimeslotsSelectedListener(ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotsSelectedEvent.class, (ComponentEventListener<TimeslotsSelectedEvent>) listener);
     }
@@ -1456,7 +1418,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addMoreLinkClickedListener(@NotNull ComponentEventListener<MoreLinkClickedEvent> listener) {
+    public Registration addMoreLinkClickedListener(ComponentEventListener<MoreLinkClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(MoreLinkClickedEvent.class, listener);
     }
@@ -1470,7 +1432,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addDayNumberClickedListener(@NotNull ComponentEventListener<DayNumberClickedEvent> listener) {
+    public Registration addDayNumberClickedListener(ComponentEventListener<DayNumberClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(DayNumberClickedEvent.class, listener);
     }
@@ -1484,7 +1446,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addWeekNumberClickedListener(@NotNull ComponentEventListener<WeekNumberClickedEvent> listener) {
+    public Registration addWeekNumberClickedListener(ComponentEventListener<WeekNumberClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(WeekNumberClickedEvent.class, listener);
     }
@@ -1496,7 +1458,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addBrowserTimezoneObtainedListener(@NotNull ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
+    public Registration addBrowserTimezoneObtainedListener(ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(BrowserTimezoneObtainedEvent.class, listener);
     }
@@ -1565,7 +1527,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return calendar view
      * @deprecated use {@link #lookupViewByClientSideValue(String)} instead
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public <T extends CalendarView> Optional<T> lookupViewName(String clientSideValue) {
         return lookupViewByClientSideValue(clientSideValue);
     }
@@ -1617,7 +1579,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             throw new IllegalArgumentException("Start must be before end");
         }
 
-        ObjectNode jsonObject = Json.createObject();
+        ObjectNode jsonObject = JsonFactory.createObject();
         if (start != null) {
             jsonObject.put("start", JsonUtils.formatClientSideDateString(start));
         }
@@ -1673,10 +1635,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             throw new UnsupportedOperationException("Custom views can only be set once");
         }
 
-        ObjectNode json = Json.createObject();
+        ObjectNode json = JsonFactory.createObject();
         for (CustomCalendarView customCalendarView : customCalendarViews) {
             this.customCalendarViews.put(customCalendarView.getClientSideValue(), customCalendarView);
-            json.put(customCalendarView.getClientSideValue(), customCalendarView.getViewSettings());
+            json.set(customCalendarView.getClientSideValue(), customCalendarView.getViewSettings());
         }
 
         this.getElement().setPropertyJson("customViews", json);
@@ -1746,7 +1708,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * @see <a href="https://fullcalendar.io/docs/dayHeaders">dayHeaders</a>
          * @deprecated use {@link #DAY_HEADERS} instead
          */
-        @Deprecated
+        @Deprecated(forRemoval = true)
         COLUMN_HEADER("dayHeaders"),
 
         /**

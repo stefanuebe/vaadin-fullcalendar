@@ -2,6 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -71,8 +72,8 @@ public class DeltaTest {
     }
 
     @Test
-    void testCreationFromJsonObject() {
-        JsonObject jsonObject = Json.createObject();
+    void testCreationFromObjectNode() {
+        ObjectNode jsonObject = JsonFactory.createObject();
         jsonObject.put("years", 1);
         jsonObject.put("months", 2);
         jsonObject.put("days", 3);

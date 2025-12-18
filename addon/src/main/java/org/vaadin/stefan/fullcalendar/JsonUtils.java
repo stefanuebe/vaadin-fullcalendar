@@ -165,7 +165,7 @@ public final class JsonUtils {
      * @return date instance
      * @throws NullPointerException when null is passed for not null parameters
      */
-    public static LocalDate parseClientSideDate(@NotNull String dateString) {
+    public static LocalDate parseClientSideDate(String dateString) {
         Objects.requireNonNull(dateString, "dateString");
 
         if (dateString.length() > 10) {
@@ -181,7 +181,7 @@ public final class JsonUtils {
      * @return UTC based date time instance
      * @throws NullPointerException when null is passed for not null parameters
      */
-    public static LocalDateTime parseClientSideDateTime(@NotNull String dateTimeString) {
+    public static LocalDateTime parseClientSideDateTime(String dateTimeString) {
         if (dateTimeString.length() <= 10) {
             return parseClientSideDate(dateTimeString).atStartOfDay();
         }
@@ -199,7 +199,7 @@ public final class JsonUtils {
      * @return UTC based date time instance
      * @throws NullPointerException when null is passed for not null parameters
      */
-    public static LocalTime parseClientSideTime(@NotNull String timeString) {
+    public static LocalTime parseClientSideTime(String timeString) {
         Objects.requireNonNull(timeString, "timeString");
 
         if (!timeString.endsWith("Z")) {
