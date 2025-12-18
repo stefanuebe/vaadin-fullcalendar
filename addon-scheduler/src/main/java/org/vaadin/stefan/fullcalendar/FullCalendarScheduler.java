@@ -23,6 +23,8 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
 import java.util.*;
@@ -54,7 +56,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     private final Map<String, Resource> resources = new HashMap<>();
 
     /**
-     * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
+     * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
      */
     public FullCalendarScheduler() {
         super();
@@ -75,7 +77,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param entryLimit max entries to shown per day
      * @deprecated use the {@link FullCalendarBuilder#withEntryLimit(int)} instead
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public FullCalendarScheduler(int entryLimit) {
         super(entryLimit);
     }
@@ -106,7 +108,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param initialOptions initial options
      * @throws NullPointerException when null is passed
      */
-    public FullCalendarScheduler(@NotNull JsonObject initialOptions) {
+    public FullCalendarScheduler(ObjectNode initialOptions) {
         super(initialOptions);
     }
 
@@ -151,34 +153,20 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
-    public void addResources(@NotNull Iterable<Resource> iterableResource) {
-        Objects.requireNonNull(iterableResource);
-
-        JsonArray array = Json.createArray();
-        iterableResource.forEach(resource -> {
-            String id = resource.getId();
-            if (!resources.containsKey(id)) {
-                resources.put(id, resource);
-                array.set(array.length(), resource.toJson()); // this automatically sends sub resources to the client side
-            }
-
-            // now also register child resources
-            registerResourcesInternally(resource.getChildren());
-        });
-
-        getElement().callJsFunction("addResources", array, true);
+    public void addResources(Iterable<Resource> iterableResource) {
+        addResources(iterableResource, true);
     }
 
     @Override
-    public void addResources(@NotNull Iterable<Resource> iterableResource, boolean scrollToLast) {
+    public void addResources(Iterable<Resource> iterableResource, boolean scrollToLast) {
         Objects.requireNonNull(iterableResource);
 
-        JsonArray array = Json.createArray();
+        ArrayNode array = JsonFactory.createArray();
         iterableResource.forEach(resource -> {
             String id = resource.getId();
             if (!resources.containsKey(id)) {
                 resources.put(id, resource);
-                array.set(array.length(), resource.toJson()); // this automatically sends sub resources to the client side
+                array.add(resource.toJson()); // this automatically sends sub resources to the client side
         }
 
             // now also register child resources
@@ -201,20 +189,20 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
-    public void removeResources(@NotNull Iterable<Resource> iterableResources) {
+    public void removeResources(Iterable<Resource> iterableResources) {
         Objects.requireNonNull(iterableResources);
 
         removeFromEntries(iterableResources);
 
         // create registry of removed items to send to client
-        JsonArray array = Json.createArray();
+        ArrayNode array = JsonFactory.createArray();
         iterableResources.forEach(resource -> {
             String id = resource.getId();
             if (this.resources.containsKey(id)) {
                 this.resources.remove(id);
-                array.set(array.length(), resource.toJson());
+                array.add(resource.toJson());
             }
-                });
+        });
 
         getElement().callJsFunction("removeResources", array);
 
@@ -233,12 +221,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                     .getEntries()
                     .stream()
                     .filter(e -> e instanceof ResourceEntry)
-                    .forEach(e -> ((ResourceEntry) e).unassignResources(resources));
+                    .forEach(e -> ((ResourceEntry) e).removeResources(resources));
         }
     }
 
     @Override
-    public Optional<Resource> getResourceById(@NotNull String id) {
+    public Optional<Resource> getResourceById(String id) {
         Objects.requireNonNull(id);
         return Optional.ofNullable(resources.get(id));
     }
@@ -298,46 +286,50 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
         switch (groupEntriesBy) {
-            default:
-            case NONE:
+            case NONE -> {
                 setOption(SchedulerOption.GROUP_BY_RESOURCE, false);
                 setOption(SchedulerOption.GROUP_BY_DATE_AND_RESOURCE, false);
-                break;
-            case RESOURCE_DATE:
+            }
+            case RESOURCE_DATE -> {
                 setOption(SchedulerOption.GROUP_BY_DATE_AND_RESOURCE, false);
                 setOption(SchedulerOption.GROUP_BY_RESOURCE, true);
-                break;
-            case DATE_RESOURCE:
+            }
+            case DATE_RESOURCE -> {
                 setOption(SchedulerOption.GROUP_BY_RESOURCE, false);
                 setOption(SchedulerOption.GROUP_BY_DATE_AND_RESOURCE, true);
-                break;
+            }
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotsSelectedListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
+    public Registration addTimeslotsSelectedListener(ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
         return addTimeslotsSelectedSchedulerListener((ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotsSelectedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener) {
+    public Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotsSelectedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotClickedListener(@NotNull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+    public Registration addTimeslotClickedListener(ComponentEventListener<? extends TimeslotClickedEvent> listener) {
         return addTimeslotClickedSchedulerListener((ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotClickedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotClickedSchedulerEvent> listener) {
+    public Registration addTimeslotClickedSchedulerListener(ComponentEventListener<? extends TimeslotClickedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotClickedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addEntryDroppedSchedulerListener(@NotNull ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
+    public Registration addEntryDroppedSchedulerListener(ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryDroppedSchedulerEvent.class, (ComponentEventListener) listener);
     }
@@ -352,7 +344,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull SchedulerOption option, Serializable value) {
+    public void setOption(SchedulerOption option, Serializable value) {
         setOption(option, value, null);
     }
 
@@ -370,7 +362,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull SchedulerOption option, Serializable value, Object valueForServerSide) {
+    public void setOption(SchedulerOption option, Serializable value, Object valueForServerSide) {
         setOption(option.getOptionKey(), value, valueForServerSide);
     }
 
@@ -386,7 +378,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@NotNull SchedulerOption option) {
+    public <T> Optional<T> getOption(SchedulerOption option) {
         return getOption(option, false);
     }
 
@@ -403,7 +395,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(@NotNull SchedulerOption option, boolean forceClientSideValue) {
+    public <T> Optional<T> getOption(SchedulerOption option, boolean forceClientSideValue) {
         return getOption(option.getOptionKey(), forceClientSideValue);
     }
 
@@ -411,7 +403,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public <T extends CalendarView> Optional<T> lookupViewByClientSideValue(String clientSideValue) {
         Optional<T> optional = super.lookupViewByClientSideValue(clientSideValue);
-        if (!optional.isPresent()) {
+        if (optional.isEmpty()) {
             optional = (Optional<T>) SchedulerView.ofClientSideValue(clientSideValue);
         }
         return optional;
@@ -425,7 +417,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * using a string key.
      * <br><br>
      * Please refer to the FullCalendar client library documentation for possible options:
-     * https://fullcalendar.io/docs
+     * <a href="https://fullcalendar.io/docs">https://fullcalendar.io/docs</a>
      */
     public enum SchedulerOption {
         ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),

@@ -7,9 +7,8 @@ import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
+import tools.jackson.databind.node.ObjectNode;
 
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
 import java.util.Collections;
 
 @Route(value = "basic-demo", layout = MainLayout.class)
@@ -17,7 +16,7 @@ import java.util.Collections;
 public class BasicDemo extends AbstractCalendarView {
 
     @Override
-    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
+    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         EntryService<Entry> simpleInstance = EntryService.createSimpleInstance();
 
         return FullCalendarBuilder.create()

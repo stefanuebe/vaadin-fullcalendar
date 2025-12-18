@@ -16,7 +16,7 @@ public abstract class AbstractSchedulerView extends AbstractCalendarView {
     }
 
     /**
-     * Called by the calendar's entry drop listener (i. e. an entry has been dragged around / moved by the user).
+     * Called by the calendar's entry drop listener (i.e. an entry has been dragged around / moved by the user).
      * Applies the changes to the entry and calls {@link #onEntryChanged(Entry)} by default.<br>
      * <br>
      * This is the scheduler variant, which also includes resource information.

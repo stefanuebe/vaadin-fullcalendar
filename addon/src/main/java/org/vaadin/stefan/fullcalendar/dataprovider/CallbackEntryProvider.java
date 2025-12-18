@@ -4,7 +4,6 @@ import com.vaadin.flow.function.SerializableFunction;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -18,7 +17,7 @@ public class CallbackEntryProvider<T extends Entry> extends AbstractEntryProvide
     private final SerializableFunction<EntryQuery, Stream<T>> fetchItems;
     private final SerializableFunction<String, T> fetchSingleItem;
 
-    public CallbackEntryProvider(@NotNull SerializableFunction<EntryQuery, Stream<T>> fetchItems, @NotNull SerializableFunction<String, T> fetchSingleItem) {
+    public CallbackEntryProvider(SerializableFunction<EntryQuery, Stream<T>> fetchItems, SerializableFunction<String, T> fetchSingleItem) {
         this.fetchItems = Objects.requireNonNull(fetchItems);
         this.fetchSingleItem = Objects.requireNonNull(fetchSingleItem);
     }

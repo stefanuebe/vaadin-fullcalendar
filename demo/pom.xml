@@ -15,7 +15,7 @@
     </parent>
 
     <properties>
-        <vaadin.version>25.0.0-beta8</vaadin.version>
+        <vaadin.version>25.0.0</vaadin.version>
 
         <fullcalendar.version>7.0.0-SNAPSHOT</fullcalendar.version>
 
@@ -142,6 +142,7 @@
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
+                <version>${vaadin.version}</version>
                 <executions>
                     <execution>
                         <goals>

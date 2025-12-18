@@ -17,7 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
-import org.vaadin.stefan.fullcalendar.NotNull;
+
 import java.time.*;
 import java.util.*;
 
@@ -73,7 +73,7 @@ public class Timezone implements ClientSideValue {
      * @param zoneId zone id
      * @throws NullPointerException when zoneId is null
      */
-    public Timezone(@NotNull ZoneId zoneId) {
+    public Timezone(ZoneId zoneId) {
         this(zoneId, zoneId.getId());
     }
 
@@ -84,7 +84,7 @@ public class Timezone implements ClientSideValue {
      * @param clientSideValue client side value
      * @throws NullPointerException when zoneId is null
      */
-    public Timezone(@NotNull ZoneId zoneId, String clientSideValue) {
+    public Timezone(ZoneId zoneId, String clientSideValue) {
         Objects.requireNonNull(zoneId);
         this.clientSideValue = clientSideValue;
         this.zoneId = zoneId;

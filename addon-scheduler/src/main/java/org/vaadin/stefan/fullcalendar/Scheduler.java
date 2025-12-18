@@ -19,7 +19,6 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -114,11 +113,11 @@ public interface Scheduler {
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
-    default void addResource(@NotNull Resource resource, boolean scrollToLast) {
+    default void addResource(Resource resource, boolean scrollToLast) {
         Objects.requireNonNull(resource);
         addResources(Collections.singletonList(resource), scrollToLast);
     }
-    default void addResource(@NotNull Resource resource) {
+    default void addResource(Resource resource) {
         Objects.requireNonNull(resource);
         addResources(Collections.singletonList(resource));
     }
@@ -129,10 +128,10 @@ public interface Scheduler {
      * @param resources resources to add
      * @throws NullPointerException when null is passed
      */
-    default void addResources(boolean scrollToLast, @NotNull Resource... resources) {
+    default void addResources(boolean scrollToLast, Resource... resources) {
         addResources(Arrays.asList(resources), scrollToLast);
     }
-    default void addResources(@NotNull Resource... resources) {
+    default void addResources(Resource... resources) {
         addResources(Arrays.asList(resources));
     }
 
@@ -142,8 +141,8 @@ public interface Scheduler {
      * @param resources resources to add
      * @throws NullPointerException when null is passed
      */
-    void addResources(@NotNull Iterable<Resource> resources, boolean scrollToLast);
-    void addResources(@NotNull Iterable<Resource> resources);
+    void addResources(Iterable<Resource> resources, boolean scrollToLast);
+    void addResources(Iterable<Resource> resources);
 
     /**
      * Removes the given resource. Also removes it from its related entries.
@@ -152,7 +151,7 @@ public interface Scheduler {
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
-    default void removeResource(@NotNull Resource resource) {
+    default void removeResource(Resource resource) {
         Objects.requireNonNull(resource);
         removeResources(Collections.singletonList(resource));
     }
@@ -166,7 +165,7 @@ public interface Scheduler {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    default void removeResources(@NotNull Resource... resources) {
+    default void removeResources(Resource... resources) {
         removeResources(Arrays.asList(resources));
     }
  /**
@@ -178,7 +177,7 @@ public interface Scheduler {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    void removeResources(@NotNull Iterable<Resource> resources);
+    void removeResources(Iterable<Resource> resources);
 
     /**
      * Returns the resource with the given id. Is empty when the id is not registered.
@@ -187,7 +186,7 @@ public interface Scheduler {
      * @return resource or empty
      * @throws NullPointerException when null is passed
      */
-    Optional<Resource> getResourceById(@NotNull String id);
+    Optional<Resource> getResourceById(String id);
 
     /**
      * Returns all resources registered in this instance, including child resources. Changes in an resource instance is reflected in the
@@ -329,7 +328,7 @@ public interface Scheduler {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    Registration addEntryDroppedSchedulerListener(@NotNull ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener);
+    Registration addEntryDroppedSchedulerListener(ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener);
 
     /**
      * Registers a listener to be informed when a timeslot has been clicked, including scheduler specific data.
@@ -337,7 +336,7 @@ public interface Scheduler {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    Registration addTimeslotClickedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotClickedSchedulerEvent> listener);
+    Registration addTimeslotClickedSchedulerListener(ComponentEventListener<? extends TimeslotClickedSchedulerEvent> listener);
 
     /**
      * Registers a listener to be informed when a timespan has been selected, including scheduler specific data.
@@ -345,5 +344,5 @@ public interface Scheduler {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    Registration addTimeslotsSelectedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener);
+    Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener);
 }

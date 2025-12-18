@@ -1,8 +1,9 @@
 package org.vaadin.stefan.fullcalendar.converter;
 
-import elemental.json.JsonNull;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.NullNode;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,7 +18,7 @@ public class ResourceConverter implements JsonItemPropertyConverter<Set<Resource
     }
 
     @Override
-    public JsonValue toClientModel(Set<Resource> serverValue, ResourceEntry currentInstance) {
+    public JsonNode toClientModel(Set<Resource> serverValue, ResourceEntry currentInstance) {
         List<String> ids = serverValue.stream()
                 .map(Resource::getId)
                 .collect(Collectors.toList());
@@ -26,9 +27,9 @@ public class ResourceConverter implements JsonItemPropertyConverter<Set<Resource
     }
 
     @Override
-    public Set<Resource> toServerModel(JsonValue clientValue, ResourceEntry currentInstance) {
+    public Set<Resource> toServerModel(JsonNode clientValue, ResourceEntry currentInstance) {
 
-        if (clientValue instanceof JsonNull) {
+        if (clientValue instanceof NullNode) {
             return new LinkedHashSet<>();
         }
 

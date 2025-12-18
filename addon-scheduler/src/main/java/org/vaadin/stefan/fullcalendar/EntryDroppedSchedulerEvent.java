@@ -2,8 +2,9 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import elemental.json.JsonString;
 import lombok.ToString;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -24,18 +25,18 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
      * @param jsonDelta  json object with delta information
      */
     public EntryDroppedSchedulerEvent(FullCalendarScheduler source, boolean fromClient,
-                                      @EventData("event.detail.data") JsonObject jsonEntry,
-                                      @EventData("event.detail.delta") JsonObject jsonDelta) {
+                                      @EventData("event.detail.data") ObjectNode jsonEntry,
+                                      @EventData("event.detail.delta") ObjectNode jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
 
-        if(jsonEntry.hasKey("oldResource")) {
-            this.oldResource = source.getResourceById(jsonEntry.getString("oldResource")).orElseThrow(IllegalArgumentException::new);
+        if(jsonEntry.hasNonNull("oldResource")) {
+            this.oldResource = source.getResourceById(jsonEntry.get("oldResource").asString()).orElseThrow(IllegalArgumentException::new);
         } else {
             this.oldResource = null;
         }
 
-        if(jsonEntry.hasKey("newResource")) {
-            this.newResource = source.getResourceById(jsonEntry.getString("newResource")).orElseThrow(IllegalArgumentException::new);
+        if(jsonEntry.has("newResource")) {
+            this.newResource = source.getResourceById(jsonEntry.get("newResource").asString()).orElseThrow(IllegalArgumentException::new);
         } else {
             this.newResource = null;
         }
@@ -48,25 +49,25 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
     @Override
     public Entry applyChangesOnEntry() {
         ResourceEntry entry = (ResourceEntry) super.applyChangesOnEntry();
-        JsonObject object = getJsonObject();
+        ObjectNode object = getJsonObject();
 
         updateResourcesFromEventResourceDelta(entry, object);
 
         return entry;
     }
 
-    public static void updateResourcesFromEventResourceDelta(ResourceEntry entry, JsonObject object) {
+    public static void updateResourcesFromEventResourceDelta(ResourceEntry entry, ObjectNode object) {
         entry.getCalendar().map(c -> (Scheduler) c).ifPresent(calendar -> {
-            Optional.<JsonValue>ofNullable(object.get("oldResource"))
-                    .filter(o -> o instanceof JsonString)
-                    .map(JsonValue::asString)
+            Optional.ofNullable(object.get("oldResource"))
+                    .filter(JsonNode::isString)
+                    .map(JsonNode::asString)
                     .flatMap(calendar::getResourceById)
                     .map(Collections::singleton)
                     .ifPresent(entry::removeResources);
 
-            Optional.<JsonValue>ofNullable(object.get("newResource"))
-                    .filter(o -> o instanceof JsonString)
-                    .map(JsonValue::asString)
+            Optional.ofNullable(object.get("newResource"))
+                    .filter(JsonNode::isString)
+                    .map(JsonNode::asString)
                     .flatMap(calendar::getResourceById)
                     .map(Collections::singleton)
                     .ifPresent(entry::addResources);

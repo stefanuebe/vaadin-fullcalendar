@@ -21,7 +21,6 @@ import lombok.ToString;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
@@ -39,7 +38,7 @@ public class HeaderFooterPart {
 	 * Creates a new instance for the given position.
 	 * @param position position where this part shall be shown
 	 */
-	public HeaderFooterPart(@NotNull HeaderFooterPartPosition position) {
+	public HeaderFooterPart(HeaderFooterPartPosition position) {
 		this(position, null);
 	}
 
@@ -48,7 +47,7 @@ public class HeaderFooterPart {
 	 * @param position position where this part shall be shown
 	 * @param items items to show
 	 */
-	public HeaderFooterPart(@NotNull HeaderFooterPartPosition position, Collection<HeaderFooterItem> items) {
+	public HeaderFooterPart(HeaderFooterPartPosition position, Collection<HeaderFooterItem> items) {
 		this.position = Objects.requireNonNull(position);
 		this.items = items != null ? new LinkedHashSet<>(items) : new LinkedHashSet<>();
 	}
@@ -57,7 +56,7 @@ public class HeaderFooterPart {
 	 * Item to add to this part.
 	 * @param item item
 	 */
-	public void addItem(@NotNull HeaderFooterItem item) {
+	public void addItem(HeaderFooterItem item) {
 		items.add(Objects.requireNonNull(item));
 	}
 

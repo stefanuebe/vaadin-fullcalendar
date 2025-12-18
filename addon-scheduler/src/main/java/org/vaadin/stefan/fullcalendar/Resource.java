@@ -18,6 +18,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 
@@ -31,28 +33,24 @@ public class Resource {
 
     /**
      * The id of this resource.
-     *
      * Uniquely identifies this resource.
      */
     private final String id;
 
     /**
      * The title/name of this resource.
-     *
      * Text that will be displayed on the resource when it is rendered.
      */
     private final String title;
 
     /**
      * The color of this resource.
-     *
      * Events associated with this resources will have their backgrounds and borders colored.
      */
     private final String color;
 
     /**
      * The BusinessHours array of this resource.
-     *
      * A businessHours[] declaration that will only apply to this resource.
      */
     private final BusinessHours[] businessHoursArray;
@@ -69,7 +67,7 @@ public class Resource {
     /**
      * The custom property list
      */
-    private HashMap<String, Object> extendedProps = new HashMap<String, Object>();
+    private final HashMap<String, Object> extendedProps = new HashMap<>();
 
     /**
      * New instance. ID will be generated.
@@ -130,7 +128,7 @@ public class Resource {
      * @param child resources to be added as children
      * @throws NullPointerException when null is passed
      */
-    public void addChild(@NotNull Resource child) {
+    public void addChild(Resource child) {
         addChildren(Objects.requireNonNull(child));
     }
 
@@ -144,7 +142,7 @@ public class Resource {
      * @param children resources to be added as children
      * @throws NullPointerException when null is passed
      */
-    public void addChildren(@NotNull Collection<Resource> children) {
+    public void addChildren(Collection<Resource> children) {
         Objects.requireNonNull(children);
 
         if (this.children == null) {
@@ -169,7 +167,7 @@ public class Resource {
      * @param children resources to be added as children
      * @throws NullPointerException when null is passed
      */
-    public void addChildren(@NotNull Resource... children) {
+    public void addChildren(Resource... children) {
         addChildren(Arrays.asList(children));
     }
 
@@ -182,7 +180,7 @@ public class Resource {
      * @param child child resources to be removed
      * @throws NullPointerException when null is passed
      */
-    public void removeChild(@NotNull Resource child) {
+    public void removeChild(Resource child) {
         removeChildren(Objects.requireNonNull(child));
     }
 
@@ -195,7 +193,7 @@ public class Resource {
      * @param children child resources to be removed
      * @throws NullPointerException when null is passed
      */
-    public void removeChildren(@NotNull Resource... children) {
+    public void removeChildren(Resource... children) {
         removeChildren(Arrays.asList(children));
     }
 
@@ -208,7 +206,7 @@ public class Resource {
      * @param children child resources to be removed
      * @throws NullPointerException when null is passed
      */
-    public void removeChildren(@NotNull Collection<Resource> children) {
+    public void removeChildren(Collection<Resource> children) {
         children.stream()
                 .filter(child -> {
                     Optional<Resource> parent = child.getParent();
@@ -225,7 +223,7 @@ public class Resource {
      *@param key String the name of the property to add
      *@param value Object the object to add
      */
-    public void addExtendedProps(@NotNull String key, @NotNull Object value) {
+    public void addExtendedProps(String key, Object value) {
     	extendedProps.put(key, value);
     }
 
@@ -234,7 +232,7 @@ public class Resource {
      *
      *@param key String the name of the property to remove
      */
-    public void removeExtendedProps(@NotNull String key) {
+    public void removeExtendedProps(String key) {
     	extendedProps.remove(key);
     }
 
@@ -244,7 +242,7 @@ public class Resource {
      *@param key String the name of the property to remove
      *@param value Object the object to remove
      */
-    public void removeExtendedProps(@NotNull String key, @NotNull Object value) {
+    public void removeExtendedProps(String key, Object value) {
     	extendedProps.remove(key, value);
     }
 
@@ -254,38 +252,39 @@ public class Resource {
      *
      * @return json object
      */
-    protected JsonObject toJson() {
-        JsonObject jsonObject = Json.createObject();
+    protected ObjectNode toJson() {
+        ObjectNode jsonObject = JsonFactory.createObject();
 
         jsonObject.put("id", getId());
-        jsonObject.put("title", JsonUtils.toJsonNode(getTitle()));
-        jsonObject.put("eventColor", JsonUtils.toJsonNode(getColor()));
+        jsonObject.set("title", JsonUtils.toJsonNode(getTitle()));
+        jsonObject.set("eventColor", JsonUtils.toJsonNode(getColor()));
 
-        if(getBusinessHoursArray() != null && getBusinessHoursArray().length > 0) {
-            JsonArray businessHoursJsonArray = Json.createArray();
-            for(int i = 0; i < getBusinessHoursArray().length; i++) {
-                businessHoursJsonArray.set(i, getBusinessHoursArray()[i].toJson());
+        BusinessHours[] businessHours = getBusinessHoursArray();
+        if(businessHours != null && businessHours.length > 0) {
+            ArrayNode businessHoursJsonArray = JsonFactory.createArray();
+            for (BusinessHours hour : businessHours) {
+                businessHoursJsonArray.add(hour.toJson());
             }
-            jsonObject.put("businessHours", businessHoursJsonArray);
+            jsonObject.set("businessHours", businessHoursJsonArray);
         }
 
         getParent().ifPresent(parent -> jsonObject.put("parentId", parent.getId()));
 
         Set<Resource> children = getChildren();
         if (!children.isEmpty()) {
-            JsonArray jsonArray = Json.createArray();
+            ArrayNode jsonArray = JsonFactory.createArray();
 
             for (Resource child : children) {
-                jsonArray.set(jsonArray.length(), child.toJson());
+                jsonArray.add(child.toJson());
             }
 
-            jsonObject.put("children", jsonArray);
+            jsonObject.set("children", jsonArray);
         }
 
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {
             for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
-            	jsonObject.put(prop.getKey(), JsonUtils.toJsonNode(prop.getValue()));
+            	jsonObject.set(prop.getKey(), JsonUtils.toJsonNode(prop.getValue()));
             }
         }
 

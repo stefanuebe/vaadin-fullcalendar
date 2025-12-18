@@ -7,7 +7,6 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -92,7 +91,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param iterableEntries list of entries
      * @throws NullPointerException when null is passed
      */
-    public void addEntries(@NotNull Iterable<T> iterableEntries) {
+    public void addEntries(Iterable<T> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
 
         iterableEntries.forEach(entry -> {
@@ -117,7 +116,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param iterableEntries entries to remove
      * @throws NullPointerException when null is passed
      */
-    public void removeEntries(@NotNull Iterable<T> iterableEntries) {
+    public void removeEntries(Iterable<T> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
 
         iterableEntries.forEach(entry -> {
@@ -140,7 +139,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param iterableEntries entries to update
      * @throws NullPointerException when null is passed
      */
-    public void updateEntries(@NotNull Iterable<T> iterableEntries) {
+    public void updateEntries(Iterable<T> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
         Map<String, T> entriesMap = getEntriesMap();
         StreamSupport.stream(iterableEntries.spliterator(), true)
@@ -158,7 +157,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param id id
      * @return optional entry or empty
      */
-    public Optional<T> getEntryById(@NotNull String id) {
+    public Optional<T> getEntryById(String id) {
         return fetchById(id);
     }
 
@@ -195,7 +194,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param dateTime point of time to check
      * @return crossing entries
      */
-    public List<T> getEntries(@NotNull Instant dateTime) {
+    public List<T> getEntries(Instant dateTime) {
         return getEntries(Timezone.UTC.convertToLocalDateTime(dateTime));
     }
 
@@ -204,7 +203,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param date date to check
      * @return crossing entries
      */
-    public List<T> getEntries(@NotNull LocalDate date) {
+    public List<T> getEntries(LocalDate date) {
         Objects.requireNonNull(date);
         return getEntries(date.atStartOfDay());
     }
@@ -214,7 +213,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param dateTime point of time to check
      * @return crossing entries
      */
-    public List<T> getEntries(@NotNull LocalDateTime dateTime) {
+    public List<T> getEntries(LocalDateTime dateTime) {
         Objects.requireNonNull(dateTime);
         return getEntries(dateTime, dateTime.plusDays(1));
     }
@@ -237,7 +236,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @throws NullPointerException when null is passed
      */
     @SuppressWarnings("unchecked")
-    public void addEntries(@NotNull T... arrayOfEntries) {
+    public void addEntries(T... arrayOfEntries) {
         addEntries(Arrays.asList(arrayOfEntries));
     }
 
@@ -258,7 +257,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      * @param arrayOfEntries entries to remove
      * @throws NullPointerException when null is passed
      */
-    public void removeEntries(@NotNull T... arrayOfEntries) {
+    public void removeEntries(T... arrayOfEntries) {
         removeEntries(Arrays.asList(arrayOfEntries));
     }
 

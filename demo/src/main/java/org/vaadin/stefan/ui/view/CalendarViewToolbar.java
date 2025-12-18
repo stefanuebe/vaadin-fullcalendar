@@ -338,7 +338,7 @@ public class CalendarViewToolbar extends MenuBar {
         verticalLayout.setMargin(true);
         verticalLayout.setSizeUndefined();
         verticalLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
-        subMenu.add(verticalLayout);
+        subMenu.addItem(verticalLayout);
 
         subMenu.addItem("Detach/Attach Calendar", event -> {
             if (calendar.getParent().isPresent()) {

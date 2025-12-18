@@ -12,6 +12,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.CalendarViewToolbar.CalendarViewToolbarBuilder;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collection;
 
@@ -124,21 +125,21 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @param defaultInitialOptions default initial options
      * @return calendar instance
      */
-    protected abstract FullCalendar createCalendar(JsonObject defaultInitialOptions);
+    protected abstract FullCalendar createCalendar(ObjectNode defaultInitialOptions);
 
     /**
      * Creates a default set of initial options.
      *
      * @return initial options
      */
-    protected JsonObject createDefaultInitialOptions() {
-        JsonObject initialOptions = Json.createObject();
-        JsonObject eventTimeFormat = Json.createObject();
+    protected ObjectNode createDefaultInitialOptions() {
+        ObjectNode initialOptions = JsonFactory.createObject();
+        ObjectNode eventTimeFormat = JsonFactory.createObject();
         eventTimeFormat.put("hour", "2-digit");
         eventTimeFormat.put("minute", "2-digit");
         eventTimeFormat.put("meridiem", false);
         eventTimeFormat.put("hour12", false);
-        initialOptions.put("eventTimeFormat", eventTimeFormat);
+        initialOptions.set("eventTimeFormat", eventTimeFormat);
         return initialOptions;
     }
 
@@ -364,7 +365,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     }
 
     /**
-     * Returns the entry provider set to the calendar. Will be available after {@link #createCalendar(JsonObject)}
+     * Returns the entry provider set to the calendar. Will be available after {@link #createCalendar(ObjectNode)}
      * has been called.
      * @return entry provider or null
      */

@@ -13,15 +13,15 @@ public class BusinessHoursSample extends AbstractSample {
     @Override
     protected void buildSample(FullCalendar calendar) {
         // Single instance for "normal" business week (mo-fr)
-        calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK));
+        calendar.setBusinessHours(BusinessHours.businessWeek().start(LocalTime.of(9, 0)).end(LocalTime.of(17, 0)));
 
         // Multiple instances
         calendar.setBusinessHours(
-                new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK),
-                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
+                BusinessHours.businessWeek().start(9).end(17),
+                BusinessHours.of(DayOfWeek.SATURDAY).start(10).end(14)
         );
 
         // Single instance for "each day from 9am to midnight"
-        calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0)));
+        calendar.setBusinessHours(BusinessHours.allDays().start(9));
     }
 }

@@ -16,15 +16,11 @@
  */
 package org.vaadin.stefan.ui.view.demos.full;
 
-import com.vaadin.componentfactory.Popup;
 import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.popover.Popover;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
@@ -32,6 +28,7 @@ import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -47,10 +44,10 @@ import java.util.List;
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
 public class FullDemo extends AbstractSchedulerView {
 
-    private Popup popup;
+    private Popover popup;
 
     @Override
-    protected FullCalendar createCalendar(JsonObject initialOptions) {
+    protected FullCalendar createCalendar(ObjectNode initialOptions) {
 //        initialOptions.put("eventContent",
 //                "function(arg, createElement) {" +
 //                " console.warn('hello');" +
@@ -103,9 +100,9 @@ public class FullDemo extends AbstractSchedulerView {
         calendar.setSlotMaxTime(LocalTime.of(17, 0));
 
         calendar.setBusinessHours(
-                new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), BusinessHours.DEFAULT_BUSINESS_WEEK),
-                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY),
-                new BusinessHours(LocalTime.of(12, 0), LocalTime.of(13, 0), DayOfWeek.SUNDAY)
+                BusinessHours.businessWeek().start(9).end(17),
+                BusinessHours.of(DayOfWeek.SATURDAY).start(12).end(15),
+                BusinessHours.of(DayOfWeek.SUNDAY).start(12).end(13)
         );
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
@@ -171,8 +168,8 @@ public class FullDemo extends AbstractSchedulerView {
 
     private void initPopup() {
         if (popup == null) {
-            popup = new Popup();
-            popup.setFocusTrap(true);
+            popup = new Popover();
+//            popup.setFocusTrap(true);
             add(popup);
         }
     }
@@ -187,13 +184,13 @@ public class FullDemo extends AbstractSchedulerView {
         listBox.setItems("Option A", "Option B", "Option C");
         listBox.addValueChangeListener(event -> {
             Notification.show("Selected " + event.getValue());
-            popup.hide();
+            popup.close();
         });
 
         popup.add(listBox);
         popup.setFor("entry-" + id);
 
-        popup.show();
+        popup.open();
     }
 
     private void createTestEntries(FullCalendar calendar) {
@@ -203,7 +200,7 @@ public class FullDemo extends AbstractSchedulerView {
         Resource meetingRoomGreen = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Green", "green");
         Resource meetingRoomBlue = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
         Resource meetingRoomOrange = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Orange", "orange", null,
-                new BusinessHours(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
+                BusinessHours.businessWeek().start(9).end(17));
 
         Resource computer1A = ResourceManager.createResource((Scheduler) calendar, "Computer 1A", "lightbrown");
         Resource computer1B = ResourceManager.createResource((Scheduler) calendar, "Computer 1B", "lightbrown");

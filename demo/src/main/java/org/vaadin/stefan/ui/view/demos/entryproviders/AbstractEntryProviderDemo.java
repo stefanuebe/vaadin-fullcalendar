@@ -3,11 +3,12 @@ package org.vaadin.stefan.ui.view.demos.entryproviders;
 import com.vaadin.flow.component.notification.Notification;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
+import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.ui.view.CalendarViewToolbar;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collections;
 
@@ -28,7 +29,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
     private EntryProvider<Entry> entryProvider;
 
     @Override
-    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
+    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         entryService = EntryService.createRandomInstance();
         entryProvider = createEntryProvider(entryService);
 

@@ -6,23 +6,25 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.vaadin.stefan.fullcalendar.TestUtils.*;
+import static org.vaadin.stefan.fullcalendar.TestUtils.assertNPE;
+import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 @SuppressWarnings("ALL")
 public class FullCalendarTest {
@@ -51,7 +53,7 @@ public class FullCalendarTest {
 //        return setupTestCalendar(new FullCalendar(entries));
 //    }
 
-    private FullCalendar createTestCalendar(JsonObject options) {
+    private FullCalendar createTestCalendar(ObjectNode options) {
         return setupTestCalendar(new FullCalendar(options));
     }
 
@@ -80,7 +82,7 @@ public class FullCalendarTest {
 
     @Test
     void testArgsConstructor_initialOptions() throws ExecutionException, InterruptedException, TimeoutException {
-        JsonObject options = Json.createObject();
+        ObjectNode options = JsonFactory.createObject();
 
         FullCalendar calendar = new FullCalendar(options);
         Element element = calendar.getElement();
@@ -90,7 +92,7 @@ public class FullCalendarTest {
         assertExistingOptionCount(calendar, 2);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
-        assertTrue(returnedOptions instanceof JsonObject, "Returned initial options not instanceof JsonObject");
+        assertTrue(returnedOptions instanceof ObjectNode, "Returned initial options not instanceof JsonObject");
 
         // TODO integrate Testbench test
 
@@ -154,7 +156,7 @@ public class FullCalendarTest {
         assertCorrectBooleanOption(calendar, Option.NAV_LINKS, calendar::setNumberClickable);
 
         assertNPE(calendar, c -> calendar.setBusinessHours(null));
-        BusinessHours hours = new BusinessHours(LocalTime.of(5, 0), LocalTime.of(10, 0), BusinessHours.ALL_DAYS);
+        BusinessHours hours = BusinessHours.allDays().start(5).end(10);
         calendar.setBusinessHours(hours);
 
         Optional<Object> option = calendar.getOption(Option.BUSINESS_HOURS);

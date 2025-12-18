@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar.model;
 
-import org.vaadin.stefan.fullcalendar.NotNull;
 import java.util.Collection;
 
 /**
@@ -34,7 +33,7 @@ public class Header extends AbstractHeaderFooter {
      *
      * @param parts parts
      */
-    public Header(@NotNull Collection<HeaderFooterPart> parts) {
+    public Header(Collection<HeaderFooterPart> parts) {
         super(parts);
     }
 
