@@ -534,7 +534,7 @@ as a tooltip when hovering the entry inside the FC. Please customize the example
 full-calendar-with-tooltips.ts
 
 ```typescript
-import {FullCalendarScheduler} from 'frontend/generated/jar-resources/vaadin-full-calendar/full-calendar-scheduler';
+import {FullCalendarScheduler} from 'Frontend/generated/jar-resources/vaadin-full-calendar/full-calendar-scheduler';
 import tippy from 'tippy.js';
 
 
