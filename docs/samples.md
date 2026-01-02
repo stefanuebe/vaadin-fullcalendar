@@ -21,7 +21,7 @@ FullCalendar calendar = FullCalendarBuilder.create().build();
 calendar.setSizeFull();
 container.add(calendar);
 
-// Create a initial sample entry
+// Create an initial sample entry
 Entry entry = new Entry();
 entry.setTitle("Some event");
 entry.setColor("#ff3333");
@@ -37,9 +37,13 @@ calendar.getEntryProvider().asInMemory().addEntries(entry);
 
 ## Add, update or remove a calendar entry
 
+This sample shows some basic CRUD functions using the in memory entry provider.
+When you use a callback entry provider, the add/remove methods are not available. Instead
+you need to update your data structure and call the refresh methods. See details
+in the [EntryProvider](#Entry-providers) section.
+
 ```java
 // ... create a form and binder to provide editable components to the user
-
 InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
 
 HorizontalLayout buttons = new HorizontalLayout();
@@ -47,7 +51,7 @@ Button buttonSave;
 if (newInstance) {
     buttonSave = new Button("Create", e -> {
         if (binder.validate().isOk()) {
-            // add the entry to the calendar instance
+            // add the entry to the calendar instance and inform the client to update itself
             entryProvider.addEntry(entry);
             entryProvider.refreshAll();
         }
@@ -91,7 +95,7 @@ calendar.addTimeslotsSelectedListener((event) -> {
 
     entry.setColor("dodgerblue");
 
-    // ... show an editor
+    // ... show an editor or do something else with the entry
 });
 
 /*
@@ -102,7 +106,7 @@ calendar.addEntryClickedListener((event) -> {
     // react on the clicked entry, for instance let the user edit it
     Entry entry = event.getEntry();
 
-    // ... show an editor
+    // ... show an editor or do something else with the entry
 });
 ```
 
@@ -132,16 +136,16 @@ calendar.setEntryProvider(entryProvider);
 
 // CRUD operations
 // to add
-Entry entry = new Entry();       // ... plus some init
-entryProvider.addEntries(entry); // register in data provider
+Entry entry = new Entry();          // ... plus some init
+entryProvider.addEntries(entry);    // register in data provider
 entryProvider.refreshAll();         // call refresh to inform the client about the data change and trigger a refetch
 
 // after some change
-entryProvider.refreshItem(entry); // call refresh to inform the client about the data change and trigger a refetch
+entryProvider.refreshItem(entry);   // call refresh to inform the client about the data change and trigger a refetch
 
 // to remove
 entryProvider.removeEntry(entry);
-entryProvider.refreshAll(); // call refresh to inform the client about the data change and trigger a refetch
+entryProvider.refreshAll();         // call refresh to inform the client about the data change and trigger a refetch
 ```
 
 ### Using callbacks
@@ -202,26 +206,28 @@ private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
 }
 ```
 
-### Activate prefetch mode (experimental)
+### Prefetch mode 
+Normally an entry provider would only fetch data for the current period. Switching to an adjacent one could
+lead to flickering, since the calendar will most likely resize itself (because the now shown entries have a different
+size, are on different days, the month is shorter or longer, etc).
 
-By default the entry provider will always fetch data for the current period. Switching to an adjacent one can
-lead to flickering, since the calendar will resize itself due to the shown entries.
+To prevent that flickering, the calendar provides a feature called "prefetch mode". This by default activated feature 
+ensures, that the calendar will additionally fetch the previous and next period together with the current one. 
+When switching to an adjacent period, the calender will not simply be empty, but show the prefetched entries to prevent
+visual glitches. In the same time, the client will fetch the latest state for the current period and update it
+again, so that the shown data is up-to-date. 
 
-To prevent that flickering, the calendar can be set to "prefetch mode". When activated, the calendar will always
-fetch the previous and next period together with the current one. This means, that on switching to an adjacent
-period will initially show the previously fetched entries and update those with the latest state from the server.
-This leads to an increased amount of data transported between server and client, but will lead to a better
-user experience as the above mentioned flickering will be prevented.
+Be aware, that this feature leads to an increased amount of data transported between server and client, but in the same 
+time leads to a better user experience as the above mentioned flickering will be prevented.
 
 The prefetch mode tries to obtain the necessary period based on the current view range unit. The supported units
 are "day", "month" and "year". If no range unit could be determined, a warning will show up. If the range unit
 is not supported, prefetch will not work (in this case the calendar behaves as if prefetch has been disabled).
 
-Please note, that this functionality is still experimental, but should work fine in most use cases. Thus ee recommend
-to activate it to improve the user experience.
+We recomment to let this feature activated, unless you experience issues due to slow bandwidth or other network issues.
 
 ```java
-calendar.setPrefetchEnabled(true);
+calendar.setPrefetchEnabled(false); // disables the prefetch feature
 ```
 
 ## Setting the calendar's dimensions
@@ -233,6 +239,11 @@ via the Options API.
 See https://fullcalendar.io/docs/sizing for details.
 
 ## Using timezones
+You can set a timezone to the calendar, so that your UTC-based entries are automatically shown with the respective
+timezone's offset at the client. 
+
+Please note, that this only affects the FullCalendar. Vaadin date pickers, that are for instance there to edit
+calender entries in a form have to be configured respectively. 
 
 ```java
 // FC allows to show entries in a specifc timezone. Setting a timezone only affects the client side
@@ -275,14 +286,18 @@ offsetStart = entry.getStartWithOffset(); // will be 2000-01-01, 05:00
 
 ## Passing custom initial options in Java
 
-You can fully customize the client side options in Java by passing a JsonObject when creating the FullCalendar.
+You can fully customize the client side options in Java by passing a json object when creating the FullCalendar.
 Please be aware, that some options are always set, regardless of the values you set. Please check the
-ApiDocs of the withInitialOptions method (or respective constructors) for details
+ApiDocs of the `withInitialOptions` method (or respective constructors) for details
 
 The following example shows the default initial options as they are set internally by the web component.
 
 ```java
-JsonObject initialOptions = Json.createObject();
+import org.vaadin.stefan.fullcalendar.JsonFactory;
+
+// ...
+
+ObjectNode initialOptions = JsonFactory.createObject();
 initialOptions.put("height", "100%");
 initialOptions.put("timeZone", "UTC");
 initialOptions.put("header", false);
@@ -290,17 +305,19 @@ initialOptions.put("weekNumbers", true);
 initialOptions.put("eventLimit", false); // pass an int value to limit the entries per day
 initialOptions.put("navLinks", true); 
 initialOptions.put("selectable", true);
+
 calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initialOptions).build();
 ```
 
 ## Style the calendar
 
 ### Lumo Theme
-Since 6.1 the calendar provides a built-in Lumo theme, that changes minor parts of it to use Lumo variables, like
-sizes, colors, etc. At this point, the theme is not applied automatically, but you have to opt-in to use it.
+The calendar provides a built-in Lumo theme, that changes minor parts of it to use Lumo variables, like
+sizes, colors, etc. It is not applied automatically, you have to opt-in to use it.
 
-Please also be aware, that with 6.1, it still is considered experimental, so there might be parts, that have been
-forgotten or not looking as expected. Also any additional custom stylings may override the Lumo stylings.
+Please note, that there might be parts, that have been forgotten or not looking as expected. 
+Also any additional custom stylings may override the Lumo stylings. If you find anything, that looks suspicious,
+please create an issue. 
 
 To activate the Lumo theme, simply add the respective theme variant, as you would do with other Vaadin components.
 
@@ -308,14 +325,14 @@ To activate the Lumo theme, simply add the respective theme variant, as you woul
 calendar.addThemeVariant(FullCalendarVariant.LUMO);
 ```
 
-### Global styles
+### Global / custom styles
 
-Since 6.0 the component is part of the light dom and thus can be styles via plain css. For any details
-on styling the FC please refer to the FC docs (regarding css properties, classes, etc.).
+The FullCalendar client element is part of the light dom and thus can be styles via plain css. For any details
+on styling the FullCalendar please refer to the FC docs (regarding css properties, classes, etc.).
 
-The styles can be defined as you are used to using the Vaadin theme mechanism or `@CssImport`s.
+The styles can be defined as you are used to using the Vaadin theme mechanism.
 
-Sample styles.css
+Sample styles.css, that utilizes custom css properties from Lumo.
 
 ```css
 /* change the border color of the fc in a global way*/
@@ -327,7 +344,6 @@ Sample styles.css
 [theme~="dark"] .fc {
     --fc-border-color: #333;
 }
-
 
 /* change the appearance of the week and day number to a more button like style when hovering */
 .fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number) {
@@ -349,6 +365,9 @@ Sample styles.css
 ```
 
 ## Show the current shown time interval (e. g. month) with Vaadin components
+
+You can use the "dates rendered event" to show details about the current shown period in separate elements instead
+of the built-in FullCalendar header.
 
 ```java
 private void init() {
@@ -392,8 +411,8 @@ calendar.addEntry(entry);
 ```
 
 ## Adding business hours
-You can define business hours for each day of the week. If you don't define any business hours, the calendar will
-assume, that the business hours are from 0:00 to 24:00 for each day.
+You can define business hours for each day of the week to provide visual feedback to the user, when someone is available
+or not. If you don't define any business hours, the calendar will assume, that the business hours are from 0:00 to 24:00 for each day.
 
 Non-business hours are grayed out in the calendar.
 
@@ -412,6 +431,9 @@ calendar.setBusinessHours(BusinessHours.allDays().start(9));
 ```
 
 ## Using the Scheduler
+The scheduler is a commercial plugin of the FullCalendar library, that provides some additional features like
+resource related calendar entries and additional views.  
+
 ### Activating the Scheduler
 
 ```java
@@ -512,7 +534,7 @@ as a tooltip when hovering the entry inside the FC. Please customize the example
 full-calendar-with-tooltips.ts
 
 ```typescript
-import {FullCalendarScheduler} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar-scheduler';
+import {FullCalendarScheduler} from 'frontend/generated/jar-resources/vaadin-full-calendar/full-calendar-scheduler';
 import tippy from 'tippy.js';
 
 
@@ -615,9 +637,9 @@ calendar = FullCalendarBuilder.create()
 ```
 
 ## Use native javascript events for entries
-With 6.2 custom native event handlers for entries have been added. These allow you to setup JavaScript events for
-each entry, e.g. a mouse over event handler. Inside these event handlers you may also access the created entry dom
-element.
+Sometimes the things we give you are not enough. For that purpose, we added native event listeners for calendar entries. 
+These allow you to setup JavaScript events for each entry, e.g. a mouse over event handler. Inside these event handlers 
+you may also access the created entry dom element.
 
 Custom native event handlers are added to the FullCalender object. They will then be applied to each created
 entry object (using the entryDidMount callback).
@@ -761,8 +783,13 @@ public void MyCalendarView extends VerticalLayout {
 ```
 
 ## Creating a subclass of FullCalendar for custom mods
-Since version 6.0.0, the client side component is based on a simple HTMLElement and thus there is
-no framework lifecycle to hook into. The main entry points for your components are therefore:
+The FullCalendar itself is just a simple Vaadin component on the server and client side, that can be extended
+and customized beyond the default behavior - be aware, that anything you do here is on your own risk and that
+support for this use case is limited. 
+
+The client side has the following methods, that you can override / extend to customize the behavior. There are
+others, but they should normally not be overridden - except for you know what you do ;) 
+
 * connectedCallback() - called when the component is attached to the dom
 * initCalendar() - called when the calendar is initialized - only called once
 * createInitOptions(initialOptions) - called when the calendar is initialized. You can modify the initial options here.
@@ -804,11 +831,12 @@ export class MyFullCalendar extends FullCalendar {
     }
 
     createInitOptions(initialOptions) {
+        let options = super.createInitOptions(initialOptions);
         // modify the initial options
         // attention: this.calendar is not available here!
         // ...
 
-        return initialOptions;
+        return options;
     }
 
     createEventHandlers() {
@@ -845,13 +873,12 @@ public class MyFullCalendar extends FullCalendar {
 calendar = new MyFullCalendar();
 ```
 
-You can even use the FullCalendarBuilder to create your custom class. Be aware, that in the current version your
-custom class needs to provide all constructors, that the extended FC class has. This will be fixed in future versions.
+You can even use the FullCalendarBuilder to create your custom class. Be aware, that your
+custom class needs to provide all constructors, that the extended FullCalendar has.
 
 ```java
 calendar = FullCalendarBuilder.create().withCustomType(MyFullCalendar.class).build();
 ```   
-
 
 ## Entry data utilities
 

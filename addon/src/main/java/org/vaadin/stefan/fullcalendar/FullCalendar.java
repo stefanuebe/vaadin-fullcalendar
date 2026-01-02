@@ -1503,7 +1503,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Indicates, if prefetching of entries of adjacent time ranges is enabled (enabled by default).
+     * Indicates, if prefetching of entries of adjacent time ranges is enabled (true by default).
      * <p></p>
      * Prefetching means, that entries of adjacent periods are also fetched. For instance, when the current view is
      * month based and prefetching is enabled, the client will not only fetch the entries of the shown month, but also

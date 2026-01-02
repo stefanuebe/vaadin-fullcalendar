@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class BaseSample extends AbstractSample {
     @Override
     protected void buildSample(FullCalendar calendar) {
-        // Create a initial sample entry
+        // Create an initial sample entry
         Entry entry = new Entry();
         entry.setTitle("Some event");
         entry.setColor("#ff3333");

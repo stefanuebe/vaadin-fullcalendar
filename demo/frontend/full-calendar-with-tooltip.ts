@@ -16,7 +16,7 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {FullCalendarScheduler} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar-scheduler';
+import {FullCalendarScheduler} from 'frontend/generated/jar-resources/vaadin-full-calendar/full-calendar-scheduler';
 import tippy from 'tippy.js';
 
 
