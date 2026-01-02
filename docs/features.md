@@ -1,8 +1,8 @@
-This addon uses a 3rd party library called FullCalendar. We try to integrate all features the library provides. Therefore
-the following list might not include all available features, but should list the most important ones. If you find
-a feature in the FC library, that this addon not yet supports, please create an feature request in the issues page.
+# Features
+This page shows a summary of the most important features of the FullCalendar library, that this addon provides. It is
+not a full list of all features. If you find any library features missing, please create a [feature request](https://github.com/stefanuebe/vaadin-fullcalendar/issues/new?template=BLANK_ISSUE).
 
-Supported features are
+## FullCalendar features
 - adding / updating / removing calendar entries using a data provider like mechanism,
 - switching between shown intervals (next month, previous month, etc.),
 - goto a specific date or today,
@@ -37,3 +37,17 @@ Supported features are
     - rendering mode (normal, background, inversed background)
     - recurring data (day of week, start / end date and time)
     - etc.
+
+## Scheduler features
+The scheduler extension integrates the features of the commercial Scheduler plugin of the FullCalendar library.
+
+- adding / removing resources (hierarchies of resources are supported)
+- Link one or multiple resources with entries.
+- Activation of the Scheduler by method in the FullCalendarBuilder.
+- List of possible Scheduler based views (timeline).
+- List of possible Scheduler entries grouping.
+
+- Event handling for
+  - Timeslot clicked
+  - Timeslots slected
+  - Entry dropped

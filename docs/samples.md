@@ -1,4 +1,4 @@
-# Introduction
+# FullCalendar samples
 This page contains some samples to get you started with the FullCalendar addon. The samples are always based on the
 latest version of the addon.
 
@@ -10,7 +10,7 @@ without any declaration. In those cases these represent the basic types `FullCal
 
 If you find an outdated sample, please create an issue for that.
 
-# Creating a basic calendar instance and add an entry
+## Creating a basic calendar instance and add an entry
 
 The FullCalendar is a normal Vaadin component, that can be added to your view as any other component. By default it uses
 an eager loading in memory entry provider, with which you simply can add, update or remove calendar entries.
@@ -18,8 +18,8 @@ an eager loading in memory entry provider, with which you simply can add, update
 ```java
 // Create a new calendar instance and attach it to our layout
 FullCalendar calendar = FullCalendarBuilder.create().build();
+calendar.setSizeFull();
 container.add(calendar);
-container.setFlexGrow(1, calendar);
 
 // Create a initial sample entry
 Entry entry = new Entry();
@@ -28,49 +28,51 @@ entry.setColor("#ff3333");
 
 // the given times will be interpreted as utc based - useful when the times are fetched from your database
 entry.setStart(LocalDate.now().withDayOfMonth(3).atTime(10, 0));
-        entry.setEnd(entry.getStart().plusHours(2));
+entry.setEnd(entry.getStart().plusHours(2));
 
 // FC uses a data provider concept similar to the Vaadin default's one, with some differences
 // By default the FC uses a in-memory data provider, which is sufficient for most basic use cases.
-        calendar.getEntryProvider().asInMemory().addEntries(entry);
+calendar.getEntryProvider().asInMemory().addEntries(entry);
 ```
 
-# Add, update or remove a calendar entry
+## Add, update or remove a calendar entry
 
 ```java
+// ... create a form and binder to provide editable components to the user
+
 InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
 
 HorizontalLayout buttons = new HorizontalLayout();
 Button buttonSave;
 if (newInstance) {
-buttonSave = new Button("Create", e -> {
+    buttonSave = new Button("Create", e -> {
         if (binder.validate().isOk()) {
-        // add the entry to the calendar instance
-        entryProvider.addEntry(entry);
-           entryProvider.refreshAll();
-       }
-               });
-               } else {
-buttonSave = new Button("Save", e -> {
+            // add the entry to the calendar instance
+            entryProvider.addEntry(entry);
+            entryProvider.refreshAll();
+        }
+    });
+} else {
+    buttonSave = new Button("Save", e -> {
         if (binder.validate().isOk()) {
-        // update an existing entry in the client side
-        // this will only send changed data
-        entryProvider.refreshItem(entry);
-       }
-               });
-               }
-               buttons.add(buttonSave);
+            // update an existing entry in the client side
+            // this will only send changed data
+            entryProvider.refreshItem(entry);
+        }
+   });
+}
+buttons.add(buttonSave);
 
 if (!newInstance) {
-Button buttonRemove = new Button("Remove", e -> {
-   entryProvider.removeEntry(entry);
-   entryProvider.refreshAll();
-});
-   buttons.add(buttonRemove);
+    Button buttonRemove = new Button("Remove", e -> {
+        entryProvider.removeEntry(entry);
+        entryProvider.refreshAll();
+    });
+    buttons.add(buttonRemove);
 }
 ```
 
-# Calendar event handling
+## Calendar event handling
 This sample shows how to react on calendar events, that are triggered by the user or the calendar lifecycle.
 
 ```java
@@ -81,32 +83,30 @@ This sample shows how to react on calendar events, that are triggered by the use
  */
 calendar.addTimeslotsSelectedListener((event) -> {
 // react on the selected timeslot, for instance create a new instance and let the user edit it
-Entry entry = new Entry();
+    Entry entry = new Entry();
    
-   entry.setStart(event.getStart()); // also event times are always utc based
-        entry.setEnd(event.getEnd());
-        entry.setAllDay(event.isAllDay());
+    entry.setStart(event.getStart()); // also event times are always utc based
+    entry.setEnd(event.getEnd());
+    entry.setAllDay(event.isAllDay());
 
-        entry.setColor("dodgerblue");
+    entry.setColor("dodgerblue");
 
-// ... show an editor
+    // ... show an editor
 });
 
-        /*
-         * The entry click event listener is called when the user clicks on an existing entry.
-         * The event provides the clicked event which might be then opened in a dialog.
-         */
-        calendar.addEntryClickedListener((event) -> {
-// react on the clicked entry, for instance let the user edit it
-Entry entry = event.getEntry();
+/*
+ * The entry click event listener is called when the user clicks on an existing entry.
+ * The event provides the clicked event which might be then opened in a dialog.
+ */
+calendar.addEntryClickedListener((event) -> {
+    // react on the clicked entry, for instance let the user edit it
+    Entry entry = event.getEntry();
 
-// ... show an editor
+    // ... show an editor
 });
 ```
 
-# Entry providers
-
-> Introduced in version 4.1
+## Entry providers
 
 Entry providers allow you to minimize the memory footprint by activating lazy loading for calendar entries. The only
 exception from that is the `EagerInMemoryEntryProvider`, which simulates the old behavior of the FullCalendar.
@@ -114,7 +114,7 @@ exception from that is the `EagerInMemoryEntryProvider`, which simulates the old
 The following examples show the different types of `EntryProvider`s and how to use them. The eager variant is the way
 to get rid of the deprecated API in the `FullCalendar`.
 
-## In memory entry provider
+### In memory entry provider
 
 The `InMemoryEntryProvider` caches all registered entries on the server side, but provides only a subset of them to
 the client (i. e. the entries of the current shown period). This way you can use the CRUD API on the server side
@@ -144,7 +144,7 @@ entryProvider.removeEntry(entry);
 entryProvider.refreshAll(); // call refresh to inform the client about the data change and trigger a refetch
 ```
 
-## Using callbacks
+### Using callbacks
 
 The callback entry provider is a base implementation of the `EntryProvider` interface. It does care about how the
 backend creates or stores the entry data, but only fetches the entries to show from it by passing a query. The backend
@@ -175,7 +175,7 @@ backend.removeEntry(entry);         // remove from your backend
 entryProvider.refreshAll();   // call refresh to inform the client about the 
 ```
 
-## Custom implementation
+### Custom implementation
 
 Feel free to create your own custom implementation, for instance to provide advanced internal caching on the server
 side. We recommend to extend the `AbstractEntryProvider` to start with.
@@ -184,25 +184,25 @@ The simples variant is similar to the callback variant, but with its own class:
 
 ```java
 private static class BackendEntryProvider extends AbstractEntryProvider<Entry> {
-   private final EntryService service;
+    private final EntryService service;
 
-   public BackendEntryProvider(EntryService service) {
-      this.service = service;
-   }
+    public BackendEntryProvider(EntryService service) {
+        this.service = service;
+    }
 
-   @Override
-   public Stream<Entry> fetch(@NonNull EntryQuery query) {
-      return service.streamEntries(query);
-   }
+    @Override
+    public Stream<Entry> fetch(@NonNull EntryQuery query) {
+        return service.streamEntries(query);
+    }
 
-   @Override
-   public Optional<Entry> fetchById(@NonNull String id) {
-      return service.getEntry(id);
-   }
+    @Override
+    public Optional<Entry> fetchById(@NonNull String id) {
+        return service.getEntry(id);
+    }
 }
 ```
 
-## Activate prefetch mode (experimental)
+### Activate prefetch mode (experimental)
 
 By default the entry provider will always fetch data for the current period. Switching to an adjacent one can
 lead to flickering, since the calendar will resize itself due to the shown entries.
@@ -224,7 +224,7 @@ to activate it to improve the user experience.
 calendar.setPrefetchEnabled(true);
 ```
 
-# Setting the calendar's dimensions
+## Setting the calendar's dimensions
 
 You may set the dimensions as with every other Vaadin component. The FC library also brings in some additional
 settings for content height or an aspect ratio, that can be taken into account. These can be set
@@ -232,7 +232,7 @@ via the Options API.
 
 See https://fullcalendar.io/docs/sizing for details.
 
-# Using timezones
+## Using timezones
 
 ```java
 // FC allows to show entries in a specifc timezone. Setting a timezone only affects the client side
@@ -250,15 +250,15 @@ calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.
 
 // If you want to let the calendar obtain the browser time zone automatically, you may simply use the builder.
 // In that case as soon as the client connected, it will set it's timezone in the server side instance.
-        FullCalendarBuilder.create().withAutoBrowserTimezone().build();
+FullCalendarBuilder.create().withAutoBrowserTimezone().build();
 
 // Entries use internally utc to define times. The LocalDateTime and Instant methods setStart/End have the same effect.
 entry.setStart(Instant.now()); // UTC
-        entry.setEnd(LocalDateTime.now()); // UTC
+entry.setEnd(LocalDateTime.now()); // UTC
 
 // Entry provides some additional convenience methods to handle the current calendar's timezone's offset, e.g. to allow easy
 // integration into edit forms.
-        calendar.setTimezone(tzBerlinGermany); // times are now 1-2 hours "ahead" (depending on daylight saving)
+calendar.setTimezone(tzBerlinGermany); // times are now 1-2 hours "ahead" (depending on daylight saving)
 entry.setStart(LocalDate.of(2000, 1, 1).atStartOfDay());
 
 LocalDateTime utcStart = entry.getStart(); // will be 2000-01-01, 00:00
@@ -273,7 +273,7 @@ utcStart = entry.getStart(); // will be 2000-01-01, 04:00
 offsetStart = entry.getStartWithOffset(); // will be 2000-01-01, 05:00
 ```
 
-# Passing custom initial options in Java
+## Passing custom initial options in Java
 
 You can fully customize the client side options in Java by passing a JsonObject when creating the FullCalendar.
 Please be aware, that some options are always set, regardless of the values you set. Please check the
@@ -293,9 +293,9 @@ initialOptions.put("selectable", true);
 calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initialOptions).build();
 ```
 
-# Style the calendar
+## Style the calendar
 
-## Lumo Theme
+### Lumo Theme
 Since 6.1 the calendar provides a built-in Lumo theme, that changes minor parts of it to use Lumo variables, like
 sizes, colors, etc. At this point, the theme is not applied automatically, but you have to opt-in to use it.
 
@@ -308,7 +308,7 @@ To activate the Lumo theme, simply add the respective theme variant, as you woul
 calendar.addThemeVariant(FullCalendarVariant.LUMO);
 ```
 
-## Global styles
+### Global styles
 
 Since 6.0 the component is part of the light dom and thus can be styles via plain css. For any details
 on styling the FC please refer to the FC docs (regarding css properties, classes, etc.).
@@ -320,66 +320,66 @@ Sample styles.css
 ```css
 /* change the border color of the fc in a global way*/
 .fc {
-   --fc-border-color: #ddd;
+    --fc-border-color: #ddd;
 }
 
 /* change the border color of the fc for dark themes*/
 [theme~="dark"] .fc {
-   --fc-border-color: #333;
+    --fc-border-color: #333;
 }
 
 
 /* change the appearance of the week and day number to a more button like style when hovering */
 .fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number) {
-   background: transparent;
-   font-size: 12px;
-   transition: background 200ms ;
-   border-radius: 3px;
+    background: transparent;
+    font-size: 12px;
+    transition: background 200ms ;
+    border-radius: 3px;
 }
 
 .fc a:is(.fc-daygrid-week-number, .fc-daygrid-day-number):hover {
-   background: var(--lumo-primary-color-10pct);
-   text-decoration: none;
+    background: var(--lumo-primary-color-10pct);
+    text-decoration: none;
 }
 
 .fc a.fc-daygrid-day-number {
-   padding-left: 6px;
-   padding-right: 6px;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 ```
 
-# Show the current shown time interval (e. g. month) with Vaadin components
+## Show the current shown time interval (e. g. month) with Vaadin components
 
 ```java
 private void init() {
-   // The element that should show the current interval.
-   HasText intervalLabel = new Span();
+    // The element that should show the current interval.
+    HasText intervalLabel = new Span();
 
-   // combo box to select a view for the calendar, like "monthly", "weekly", ...
-   ComboBox<CalendarView> viewBox = new ComboBox<>("", CalendarViewImpl.values());
-   viewBox.addValueChangeListener(e -> {
-      CalendarView value = e.getValue();
-      calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
-   });
-   viewBox.setValue(CalendarViewImpl.DAY_GRID_MONTH);
+    // combo box to select a view for the calendar, like "monthly", "weekly", ...
+    ComboBox<CalendarView> viewBox = new ComboBox<>("", CalendarViewImpl.values());
+    viewBox.addValueChangeListener(e -> {
+        CalendarView value = e.getValue();
+        calendar.changeView(value == null ? CalendarViewImpl.DAY_GRID_MONTH : value);
+    });
+    viewBox.setValue(CalendarViewImpl.DAY_GRID_MONTH);
 
-   /*
-    * The view rendered listener is called when the view has been rendererd on client side
-    * and FC is aware of the current shown interval. Might be accessible more directly in
-    * future.
-    */
-   calendar.addDatesRenderedListener(event -> {
-      LocalDate intervalStart = event.getIntervalStart();
-      CalendarView cView = viewBox.getValue();
+    /*
+     * The view rendered listener is called when the view has been rendererd on client side
+     * and FC is aware of the current shown interval. Might be accessible more directly in
+     * future.
+     */
+    calendar.addDatesRenderedListener(event -> {
+        LocalDate intervalStart = event.getIntervalStart();
+        CalendarView cView = viewBox.getValue();
 
-      String formattedInterval = ... // format the intervalStart based on cView. See the demos for examples.
+        String formattedInterval = ... // format the intervalStart based on cView. See the demos for examples.
 
-      intervalLabel.setText(formattedInterval);
-   });
+        intervalLabel.setText(formattedInterval);
+    });
 }
 ```
 
-# Creating a background entry
+## Creating a background entry
 A background entry is an entry, that is rendered behind all other entries. It is not clickable and
 has no tooltip. It is useful for marking a time range, e. g. for marking a vacation.
 
@@ -391,7 +391,7 @@ entry.setDisplayMode(DisplayMode.BACKGROUND);
 calendar.addEntry(entry);
 ```
 
-# Adding business hours
+## Adding business hours
 You can define business hours for each day of the week. If you don't define any business hours, the calendar will
 assume, that the business hours are from 0:00 to 24:00 for each day.
 
@@ -399,19 +399,104 @@ Non-business hours are grayed out in the calendar.
 
 ```java
 // Single instance for "normal" business week (mo-fr)
-calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK));
+calendar.setBusinessHours(BusinessHours.businessWeek().start(LocalTime.of(9, 0)).end(LocalTime.of(17, 0)));
 
 // Multiple instances
-        calendar.setBusinessHours(
-new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0),BusinessHours.DEFAULT_BUSINESS_WEEK),
-        new BusinessHours(LocalTime.of(12, 0), LocalTime.of(15, 0), DayOfWeek.SATURDAY)
-        );
+calendar.setBusinessHours(
+    BusinessHours.businessWeek().start(9).end(17),
+    BusinessHours.of(DayOfWeek.SATURDAY).start(10).end(14)
+);
 
 // Single instance for "each day from 9am to midnight"
-        calendar.setBusinessHours(new BusinessHours(LocalTime.of(9, 0)));
+calendar.setBusinessHours(BusinessHours.allDays().start(9));
 ```
 
-# Using tippy.js for description tooltips
+## Using the Scheduler
+### Activating the Scheduler
+
+```java
+FullCalendar calendar = FullCalendarBuilder.create().withScheduler().build();
+// scheduler options
+((Scheduler) calendar).setSchedulerLicenseKey("YourFullCalendarSchedulerKey");
+```
+
+### Adding a resource to a calendar and link it with entries
+```java
+Resource resource = new Resource(null, s, color);
+calendar.addResource(resource);
+
+// When we want to link an entry with a resource, we need to use ResourceEntry
+// (a subclass of Entry)
+ResourceEntry entry = new ResourceEntry(null, title, start.atStartOfDay(), start.plusDays(days).atStartOfDay(), true, true, color, "Some description...");
+entry.setResource(resource);
+calendar.addEntry(entry);
+```
+
+### Handling change of an entry's assigned resource by drag and drop
+```java
+calendar.addEntryDroppedListener(event -> {
+    event.applyChangesOnEntry();
+
+    Entry entry = event.getEntry();
+
+    if(entry instanceof ResourceEntry) {
+        Set<Resource> resources = ((ResourceEntry) entry).getResources();
+        if(!resources.isEmpty()) {
+            // do something with the resource info
+        }
+    }
+});
+```
+
+### Switching to a timeline view
+```java
+calendar.changeView(SchedulerView.TIMELINE_DAY);
+```
+
+### Activate vertical resource view
+```java
+calendar.setGroupEntriesBy(GroupEntriesBy.RESOURCE_DATE);
+```
+
+### Creating a resource based background entry
+```java
+ResourceEntry entry = new ResourceEntry();
+// ... setup entry details, including addResource()
+
+entry.setDisplayMode(DisplayMode.BACKGROUND);
+calendar.addEntry(entry);
+```
+
+### Creating hierarchical resources
+```java
+// Create a parent resource. When adding the sub resources first before adding the parent to the calendar,
+// the sub resources are registered automatically on client side and server side.
+
+Resource parent = new Resource();
+parent.addChildren(new Resource(), new Resource(), new Resource());
+
+calendar.addResource(parent); // will add the resource and also it's children to server and client
+
+// add new resources to already registered parents
+Resource child = new Resource()
+parent.addChild(child);
+calendar.addResource(child); // this will update the client side
+
+// or remove them from already registered ones
+calendar.removeResource(child); 
+parent.removeChild(child); 
+```
+
+### Making a resource entry draggable between resources
+```java
+// activate for the client to have an entry being draggable between resources
+resourceEntry.setResourceEditableOnClientSide(true);
+
+// update the entry on the client side, if it is already added to the calendar
+calendar.refreshAll();
+```
+
+## Using tippy.js for description tooltips
 By default the calendar does not provide tooltips for entries. However, you can easily integrate any type of
 tooltip mechanism or library, for instance by simply applying an html title or using a matured tooltip library
 like tippy.js.
@@ -432,35 +517,35 @@ import tippy from 'tippy.js';
 
 
 export class FullCalendarWithTooltip extends FullCalendarScheduler {
-   initCalendar() {
-      super.initCalendar();
+    initCalendar() {
+        super.initCalendar();
 
-      this.calendar!.setOption("eventDidMount", e => {
-         this.initTooltip(e);
-      });
-   }
+        this.calendar!.setOption("eventDidMount", e => {
+            this.initTooltip(e);
+        });
+    }
 
-   initTooltip(e: any) {
-      if (e.event.title && !e.isMirror) {
-         e.el.addEventListener("mouseenter", () => {
-            let tooltip = e.event.getCustomProperty("description", e.event.title);
+    initTooltip(e: any) {
+        if (e.event.title && !e.isMirror) {
+            e.el.addEventListener("mouseenter", () => {
+                let tooltip = e.event.getCustomProperty("description", e.event.title);
 
-            e.el._tippy = tippy(e.el, {
-               theme: 'light',
-               content: tooltip,
-               trigger: 'manual'
-            });
+                e.el._tippy = tippy(e.el, {
+                    theme: 'light',
+                    content: tooltip,
+                    trigger: 'manual'
+                });
 
-            e.el._tippy.show();
-         })
+                e.el._tippy.show();
+            })
 
-         e.el.addEventListener("mouseleave", () => {
-            if (e.el._tippy) {
-               e.el._tippy.destroy();
-            }
-         })
-      }
-   }
+            e.el.addEventListener("mouseleave", () => {
+                if (e.el._tippy) {
+                    e.el._tippy.destroy();
+                }
+            })
+        }
+    }
 }
 
 customElements.define("full-calendar-with-tooltip", FullCalendarWithTooltip);
@@ -476,26 +561,25 @@ customElements.define("full-calendar-with-tooltip", FullCalendarWithTooltip);
 @CssImport("tippy.js/themes/light.css")
 public class FullCalendarWithTooltip extends FullCalendarScheduler {
 
-   public FullCalendarWithTooltip() {
-   }
+    public FullCalendarWithTooltip() {
+    }
 }
 ```
 
 As shown in the subclass sample, you may also use the FullCalendarBuilder to create your custom class.
 
-# Customize the entry content
+## Customize the entry content
 
 FC allows you to modify the content of an entry. The given string will be interpreted as js function on client side
 and attached as `eventContent` callback. See https://fullcalendar.io/docs/content-injection ("...a function") for
 details.
 
 ```java
-calendar.setEntryDidMountCallback(
-   "function(info) {" +
-           "   info.el.style.color = 'red';" +
-           "   return info.el; " +
-           "}"
-);
+calendar.setEntryDidMountCallback("""
+        function(info) {
+            info.el.id = "entry-" + info.event.id;
+        }
+        """);
 
 ```
 
@@ -523,14 +607,14 @@ calendar = FullCalendarBuilder.create()
                         "   /* ... do something with the event content ...*/" +
                         "   return info.el; " +
                         "}"
-)
-// ... other settings
+        )
+        // ... other settings
         .build();
 
 // or use the custom property in the entryDidMountCallback
 ```
 
-# Use native javascript events for entries
+## Use native javascript events for entries
 With 6.2 custom native event handlers for entries have been added. These allow you to setup JavaScript events for
 each entry, e.g. a mouse over event handler. Inside these event handlers you may also access the created entry dom
 element.
@@ -579,23 +663,23 @@ be called, when right clicking the entry. With this info you can for instance op
 public void MyCalendarView extends VerticalLayout {
     public MyCalendarView() {
 
-      FullCalendar calender = new FullCalendar();
-      // adds a contextmenu / right client event listener, that calls our openContextMenu. 
-      // "this" is the fc object, "this.el" is the Flow element and "this.el.parentElement" is our current view.
-      // This hierarchy access may changed, when you nest the FC into other containers. 
+        FullCalendar calender = new FullCalendar();
+        // adds a contextmenu / right client event listener, that calls our openContextMenu. 
+        // "this" is the fc object, "this.el" is the Flow element and "this.el.parentElement" is our current view.
+        // This hierarchy access may changed, when you nest the FC into other containers. 
 
-      calendar.addEntryNativeEventListener("contextmenu",
-              "e => this.el.parentElement.$server.openContextMenu(info.event, e.clientX, e.clientY)");
+        calendar.addEntryNativeEventListener("contextmenu",
+                "e => this.el.parentElement.$server.openContextMenu(info.event, e.clientX, e.clientY)");
 
-      add(calender);
-   }
+        add(calender);
+    }
 
-   @ClientCallable
-   public void openContextMenu(JsonObject e, int pointerX, int pointerY) {
-      System.out.println(e);
-      System.out.println(pointerX);
-      System.out.println(pointerY);
-   }
+    @ClientCallable
+    public void openContextMenu(JsonObject e, int pointerX, int pointerY) {
+        System.out.println(e);
+        System.out.println(pointerX);
+        System.out.println(pointerY);
+    }
 } 
 ```
 
@@ -618,7 +702,7 @@ menu is based on a ListBox.
 ```java
 @Route(...)
 public void MyCalendarView extends VerticalLayout {
-    
+
     private Popup popup;
    
     public MyCalendarView() {
@@ -630,9 +714,9 @@ public void MyCalendarView extends VerticalLayout {
 
         calendar.addEntryNativeEventListener("contextmenu",
                 "e => {" +
-                "   e.preventDefault(); " +
-                "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
-                "}");
+                        "   e.preventDefault(); " +
+                        "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
+                        "}");
 
         // by default, the entry element has no id attribute. Therefore we have to add it ourselves, using the 
         // entry id, that is by default an auto generated UUID
@@ -676,7 +760,7 @@ public void MyCalendarView extends VerticalLayout {
 } 
 ```
 
-# Creating a subclass of FullCalendar for custom mods
+## Creating a subclass of FullCalendar for custom mods
 Since version 6.0.0, the client side component is based on a simple HTMLElement and thus there is
 no framework lifecycle to hook into. The main entry points for your components are therefore:
 * connectedCallback() - called when the component is attached to the dom
@@ -705,35 +789,35 @@ always up-to-date.
 import {FullCalendar} from '@vaadin/flow-frontend/vaadin-full-calendar/full-calendar';
 
 export class MyFullCalendar extends FullCalendar {
-   connectedCallback() {
-      super.connectedCallback();
+    connectedCallback() {
+        super.connectedCallback();
 
-      // do something with this.calendar
-      // ...
-   }
+        // do something with this.calendar
+        // ...
+    }
 
-   initCalendar() {
-      super.initCalendar();
+    initCalendar() {
+        super.initCalendar();
 
-      // do something with this.calendar
-      // ...
-   }
+        // do something with this.calendar
+        // ...
+    }
 
-   createInitOptions(initialOptions) {
-      // modify the initial options
-      // attention: this.calendar is not available here!
-      // ...
+    createInitOptions(initialOptions) {
+        // modify the initial options
+        // attention: this.calendar is not available here!
+        // ...
 
-      return initialOptions;
-   }
+        return initialOptions;
+    }
 
-   createEventHandlers() {
-      // modify the event handlers
-      // attention: this.calendar is not available here!
-      // ...
+    createEventHandlers() {
+        // modify the event handlers
+        // attention: this.calendar is not available here!
+        // ...
 
-      return super.createEventHandlers();
-   }
+        return super.createEventHandlers();
+    }
 }
 
 customElements.define("my-full-calendar", MyFullCalendar);
@@ -750,8 +834,8 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 @JsModule("./my-full-calendar.js")
 public class MyFullCalendar extends FullCalendar {
 
-   public MyFullCalendar() {
-   }
+    public MyFullCalendar() {
+    }
 }
 ```
 
@@ -769,9 +853,9 @@ calendar = FullCalendarBuilder.create().withCustomType(MyFullCalendar.class).bui
 ```   
 
 
-# Entry data utilities
+## Entry data utilities
 
-## Handling data changes in events
+### Handling data changes in events
 
 When an event occurs, you may want to check or apply the event's changes against the related calendar item.
 
@@ -793,21 +877,21 @@ needs to be handled by your logic.
 ```java
 // directly apply the changes
 calendar.addEntryDroppedListener(event -> {
-        event.applyChangesOnEntry(); // includes now the allDay attribute if sent by client
+    event.applyChangesOnEntry(); // includes now the allDay attribute if sent by client
 });
 
 // create a copy to do some business logic checks
-        calendar.addEntryDroppedListener(event -> {
-Entry copy = event.createCopyBasedOnChanges();
+calendar.addEntryDroppedListener(event -> {
+    Entry copy = event.createCopyBasedOnChanges();
 
-    if(copy.getStartAsLocalDate().isBefore(someRequiredMinimalDate) /* do some background checks on the changed data */){
+    if(copy.getStartAsLocalDate().isBefore(someRequiredMinimalDate) /* do some background checks on the changed data */) {
         event.applyChangesOnEntry();
         event.getSource().getEntryProvider().refreshItem(event.getEntry()); // refresh the entry to update the UI
-        }
-        });
+    }
+});
 ```
 
-## Create a temporary copy
+### Create a temporary copy
 
 The `Entry` class provides a copy API, that allows you to create a copy of an entry or from a given entry. With this you
 can easily create temporary instances for an edit dialog without needing to write a lot of "get-set" calls. This is
@@ -829,8 +913,8 @@ binder.setBean(tmpEntry); // you can of course also use the read/writeBean api
 // modify the bound fields
 
 if (binder.validate().isOk()) {
-        entry.copyFrom(tmpEntry); // this will overwrite the entry with the values of the tmpEntry
-// ... update the backend as needed, e.g. by calling refreshItem on the entry provider
+    entry.copyFrom(tmpEntry); // this will overwrite the entry with the values of the tmpEntry
+    // ... update the backend as needed, e.g. by calling refreshItem on the entry provider
 }
 ```
 

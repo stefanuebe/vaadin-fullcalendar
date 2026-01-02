@@ -10,9 +10,27 @@ If we missed something or anything is unclear, please ping us on GitHub. We hope
 as smoothly as possible.
 
 # Index
+* [6.1 > 7.0](#migrating-from-61--70)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
+
+# Migrating from 6.1 > 7.0
+To migrate to version 7 of the addon, you need to bump your Vaadin version to 25 and anything else, that Vaadin 25 
+requires (like Java or Spring Boot).
+
+If you have used any elemental.Json classes, then you need to convert those to their respective Jackson 3 counterparts,
+like for instance `JsonArray` to `ArrayNode` or `JsonObject` to `ObjectNode`.
+
+## Business hours reworked
+The class `BusinessHours` has been reworked. The constructors have been removed and instead
+there are now static methods to define new instance. The api also has been changed to allow a fluid definition
+style of business hours.
+
+Replace your constructors with a matching static construction variant and define start and end using
+the respective fluent api methods `start/end` (optional)
+
+Deprecated APIs have been marked as `forRemoval` and will be removed with one of the next minor releases.
 
 # Migrating from 4.1 > 6.0
 Depending on your Vaadin version you may need to update also other things, related to Vaadin core and Spring Boot.
