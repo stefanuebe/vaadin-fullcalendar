@@ -5,16 +5,20 @@
 * [4.1.x](#41x)
 * [4.0.x](#40x)
 
+## 7.0.x
+- updated to FullCalendar 6.1.19
+- increased required Vaadin version to 25
+- increased required Java version to 21
 
-# 6.2.x
+## 6.2.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-6.2.x)
 - added custom native event handlers for entries
 
-# 6.1.x
+## 6.1.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-6.1.x)
 - added an optional Lumo theme for the addon
 
-# 6.0.x
+## 6.0.x
 - updated to FullCalendar 6.1.6
 - Migrated from Polymer 3 to simple HTML Element based web component (no Lit nor Polymer)
 - Migrated source code from JavaScript to TypeScript (ongoing process, not yet finished)
@@ -46,11 +50,11 @@ Other things that we may have overseen :)
 
 Due to lack of time, we have no release note details at this time. We tried to provide additional info as part of the migration page.
 
-# 4.1.x
+## 4.1.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-4.1.x)
 - added EntryProvider, a data provider like callback based class to allow lazy loading entries based on the actual displayed timespan
 
-# 4.0.x
+## 4.0.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-4.0.x)
 - introduced a new type JsonItem for creating item classes with dynamic property handling and automated conversion from and to json
 - integrated json item api into Entry types for dynamic type conversion. Due to that entries will not send all data to the client, when updating existing ones

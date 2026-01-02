@@ -1,3 +1,4 @@
+# Scheduler license
 The FullCalendar Scheduler library has a different license model then the basic FullCalendar.
 
 For more details please visit https://fullcalendar.io/license and https://fullcalendar.io/docs/plugin-index
