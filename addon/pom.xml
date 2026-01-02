@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2</artifactId>
+    <version>7.0.0-alpha2</version>
+    <packaging>jar</packaging>
 
     <name>FullCalendar for Flow</name>
     <description>A web component that wraps the FullCalendar (https://fullcalendar.io).</description>
     <url>https://vaadin.com/directory/component/full-calendar-flow</url>
-
-    <parent>
-        <groupId>org.vaadin.stefan</groupId>
-        <artifactId>fullcalendar-parent</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
-    </parent>
 
     <licenses>
         <license>
@@ -37,132 +34,127 @@
         </developer>
     </developers>
 
-    <repositories>
-        <!-- The order of definitions matters. Explicitly defining central here to make sure it has the highest priority. -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.release>21</maven.compiler.release>
 
-        <!-- Main Maven repository -->
+        <vaadin.version>25.0.0</vaadin.version>
+        <apache.commons-text.version>1.14.0</apache.commons-text.version>
+        <lombok.version>1.18.42</lombok.version>
+        <junit.version>5.10.0</junit.version> <mockito.version>5.0.0</mockito.version>
+
+        <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>
+        <plugin.version.maven-surefire>3.5.4</plugin.version.maven-surefire>
+        <plugin.version.maven-failsafe>3.5.4</plugin.version.maven-failsafe>
+        <plugin.version.maven-source>3.4.0</plugin.version.maven-source>
+        <plugin.version.maven-jar>3.5.0</plugin.version.maven-jar>
+        <plugin.version.maven-assembly>3.8.0</plugin.version.maven-assembly>
+    </properties>
+
+    <repositories>
         <repository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
-        <!-- Repository used by many Vaadin add-ons -->
         <repository>
             <id>Vaadin Directory</id>
             <url>https://maven.vaadin.com/vaadin-addons</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
-        <!-- Repository needed for the prerelease versions of Vaadin -->
         <repository>
             <id>vaadin-prereleases</id>
             <url>https://maven.vaadin.com/vaadin-prereleases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
         </repository>
-        <!-- Repository needed for the snapshot versions of Vaadin -->
         <repository>
             <id>vaadin-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <snapshots><enabled>true</enabled></snapshots>
         </repository>
     </repositories>
 
-    <pluginRepositories>
-        <!-- Main Maven repository -->
-        <pluginRepository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <!-- Repository needed for the prerelease versions of Vaadin -->
-        <pluginRepository>
-            <id>vaadin-prereleases</id>
-            <url>https://maven.vaadin.com/vaadin-prereleases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <!-- Repository needed for the snapshot versions of Vaadin -->
-        <pluginRepository>
-            <id>vaadin-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/vaadin-snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <version>${vaadin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
+            <version>${apache.commons-text.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
-
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-            <scope>provided</scope>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- testing -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${plugin.version.maven-surefire}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${plugin.version.maven-failsafe}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-<!--                <configuration>-->
-<!--                    <annotationProcessorPaths>-->
-<!--                        &lt;!&ndash; Lombok should be used as an annotation processor. &ndash;&gt;-->
-<!--                        <annotationProcessorPath>-->
-<!--                            <groupId>org.projectlombok</groupId>-->
-<!--                            <artifactId>lombok</artifactId>-->
-<!--                        </annotationProcessorPath>-->
-<!--                    </annotationProcessorPaths>-->
-<!--                </configuration>-->
+                <version>${plugin.version.maven-compiler}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -175,6 +167,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
+                        <version>${plugin.version.maven-assembly}</version>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
@@ -183,9 +176,7 @@
                         </configuration>
                         <executions>
                             <execution>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
+                                <goals><goal>single</goal></goals>
                                 <phase>install</phase>
                             </execution>
                         </executions>
@@ -193,40 +184,37 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
+                        <version>${plugin.version.maven-source}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
                                 <phase>verify</phase>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
+                                <goals><goal>jar-no-fork</goal></goals>
                             </execution>
                         </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-jar-plugin</artifactId>
+                        <version>${plugin.version.maven-jar}</version>
                         <configuration>
                             <archive>
                                 <index>true</index>
                                 <manifest>
                                     <addClasspath>false</addClasspath>
-                                    <addDefaultImplementationEntries>true
-                                    </addDefaultImplementationEntries>
+                                    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                                 </manifest>
                                 <manifestEntries>
                                     <Vaadin-Package-Version>1</Vaadin-Package-Version>
                                     <Implementation-Vendor>n/a</Implementation-Vendor>
                                 </manifestEntries>
                             </archive>
-                            <!-- Generated file that shouldn't be included in add-ons -->
                             <excludes>
                                 <exclude>META-INF/VAADIN/config/flow-build-info.json</exclude>
                                 <exclude>rebel.xml</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
