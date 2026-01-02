@@ -28,14 +28,18 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.theme.aura.Aura;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.apache.commons.lang3.StringUtils;
+import org.vaadin.stefan.fullcalendar.ClientSideValue;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
@@ -46,6 +50,7 @@ import java.util.Locale;
 public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
     public static final String ADDON_VERSION = "6.3.0";
     private static final long serialVersionUID = -7479612679602267287L;
+    private Registration currentStyleSheetRegistration;
 
     @SuppressWarnings("unchecked")
     public AbstractLayout() {
@@ -85,7 +90,18 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
 
         Component title = generateTitle("FullCalendar " + ADDON_VERSION + " for Vaadin Flow");
 
-        addToNavbar(true, toggle, title);
+        Select<Theme> themeSelect = initThemeSelector();
+        themeSelect.getStyle().setMarginLeft("auto");
+
+        Button darkMode = new Button("Dark Mode", e -> {
+            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
+            boolean lightModeActive = !themeList.contains("dark");
+            themeList.set("dark", lightModeActive);
+            e.getSource().setText(lightModeActive ? "Light Mode" : "Dark Mode");
+        });
+
+
+        addToNavbar(toggle, title, themeSelect, darkMode);
     }
 
     protected void addDrawerContent() {
@@ -94,22 +110,9 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
 
         VerticalLayout footer = new VerticalLayout();
 
-        Button themeToggle = new Button("Toggle dark theme", click -> {
-            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-
-            if (themeList.contains(Lumo.DARK)) {
-                themeList.remove(Lumo.DARK);
-            } else {
-                themeList.add(Lumo.DARK);
-            }
-        });
-        themeToggle.setWidthFull();
-
-        Div footerText = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 24.2.3" +
-                "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
-
         footer.addClassName("footer");
-        footer.add(themeToggle, footerText);
+        footer.add(new Html("<span>Using the FullCalendar " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 25.<br> " +
+                " More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
 
         SideNav nav = new SideNav();
         createMenuEntries(nav);
@@ -130,6 +133,40 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         UI.getCurrent().getPage().setTitle("::: FullCalendar Demo :::");
+    }
+
+    private Select<Theme> initThemeSelector() {
+        Select<Theme> themeSelect = new Select<>("", Theme.values());
+        themeSelect.addValueChangeListener(e -> {
+            if(currentStyleSheetRegistration != null) {
+                currentStyleSheetRegistration.remove();
+                currentStyleSheetRegistration = null;
+            }
+
+            Theme theme = e.getValue();
+
+            if (theme.getClientSideValue() != null) {
+                currentStyleSheetRegistration = UI.getCurrent().getPage().addStyleSheet(theme.getClientSideValue());
+            }
+        });
+        themeSelect.setValue(Theme.LUMO);
+        return themeSelect;
+    }
+
+    private enum Theme implements ClientSideValue {
+        LUMO(Lumo.STYLESHEET),
+        AURA(Aura.STYLESHEET);
+
+        private final String value;
+
+        Theme(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getClientSideValue() {
+            return value;
+        }
     }
 }
 

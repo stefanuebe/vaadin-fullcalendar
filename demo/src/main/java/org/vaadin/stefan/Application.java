@@ -15,9 +15,6 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  */
 @SpringBootApplication
 @Push
-@StyleSheet(Lumo.STYLESHEET)
-@StyleSheet(Lumo.UTILITY_STYLESHEET)
-//@StyleSheet(Aura.STYLESHEET)
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
     public static void main(String[] args) throws Throwable {

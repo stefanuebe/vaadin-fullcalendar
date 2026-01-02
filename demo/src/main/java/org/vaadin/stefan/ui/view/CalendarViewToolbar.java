@@ -118,6 +118,7 @@ public class CalendarViewToolbar extends MenuBar {
         buttonDatePicker.addClickListener(event -> gotoDate.open());
         buttonDatePicker.setWidthFull();
         addItem(buttonDatePicker);
+
         addItem(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
         addItem("Today", e -> calendar.today());
     }
