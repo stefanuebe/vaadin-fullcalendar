@@ -22,6 +22,8 @@ requires (like Java or Spring Boot).
 If you have used any elemental.Json classes, then you need to convert those to their respective Jackson 3 counterparts,
 like for instance `JsonArray` to `ArrayNode` or `JsonObject` to `ObjectNode`.
 
+Also, you may need to update used methods, for instance `JsonUtils#ofJsonValue` is now `#ofJsonNode`.
+
 ## Business hours reworked
 The class `BusinessHours` has been reworked. The constructors have been removed and instead
 there are now static methods to define new instance. The api also has been changed to allow a fluid definition
