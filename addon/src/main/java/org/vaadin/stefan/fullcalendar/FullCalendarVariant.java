@@ -10,8 +10,7 @@ import lombok.Getter;
 @Getter
 public enum FullCalendarVariant {
     /**
-     * An experimental theme variant, that applies lumo styles to the calendar to align it more with the
-     * default styling of other Vaadin components.
+     * Applies lumo styles to the calendar to align it more with the theming of other Vaadin components.
      */
     LUMO("lumo");
 
