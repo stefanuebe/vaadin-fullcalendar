@@ -4,7 +4,162 @@ html {
     --vaadin-app-layout-drawer-width: 250px;
     --aura-background-color-light: #d5ddee;
     --aura-background-color-dark: #334;
+    --aura-accent-color-light: #99f;
+    --aura-accent-color-dark: #77d;
 }
 
 
+/* move back to FC later */
+
+
+.vaadin-full-calendar.fc[theme~="vaadin"] {
+
+    background: var(--fc-bg-color, var(--vaadin-background-color));
+
+    --vaadin-fc-highlight-color: var(--lumo-primary-color, var(--aura-accent-color));
+    --vaadin-fc-highlight-color-100: color-mix(in srgb, var(--vaadin-fc-highlight-color) 10%, transparent);
+    --vaadin-fc-highlight-color-200: color-mix(in srgb, var(--vaadin-fc-highlight-color) 20%, transparent);
+    --vaadin-fc-highlight-color-500: color-mix(in srgb, var(--vaadin-fc-highlight-color) 50%, transparent);
+    --vaadin-fc-highlight-color-800: color-mix(in srgb, var(--vaadin-fc-highlight-color) 80%, transparent);
+
+    --vaadin-fc-contrast-color: var(--lumo-contrast, var(--aura-accent-contrast-color));
+    --vaadin-fc-contrast-color-50: color-mix(in srgb, var(--vaadin-fc-contrast-color) 5%, transparent);
+    --vaadin-fc-contrast-color-100: color-mix(in srgb, var(--vaadin-fc-contrast-color) 10%, transparent);
+    --vaadin-fc-contrast-color-200: color-mix(in srgb, var(--vaadin-fc-contrast-color) 20%, transparent);
+    --vaadin-fc-contrast-color-500: color-mix(in srgb, var(--vaadin-fc-contrast-color) 50%, transparent);
+    --vaadin-fc-contrast-color-800: color-mix(in srgb, var(--vaadin-fc-contrast-color) 80%, transparent);
+
+
+    /* TODO apply Vaadin constants */
+
+    --fc-small-font-size: var(--lumo-font-size-s, var(--aura-font-size-s));
+    --fc-page-bg-color: var(--vaadin-background-color); /* for FC popups */
+    --fc-neutral-bg-color: var(--vaadin-fc-contrast-color-50);
+    --fc-neutral-text-color: var(--vaadin-text-color-secondary);
+    --fc-border-color: var(--vaadin-border-color-secondary); /* outer border is overriden separately*/
+    --fc-outer-border-color: var(--vaadin-border-color);
+
+    --fc-event-bg-color: var(--vaadin-fc-highlight-color-500);
+    --fc-event-border-color: var(--vaadin-fc-highlight-color-500);
+    /*--fc-event-text-color: oklch(from var(--fc-event-bg-color) clamp(0,(0.62 - l) * 1000,1) 0 0/clamp(0.8,(0.62 - l) * 1000,1));*/
+
+    --fc-event-selected-overlay-color: var(--lumo-primary-color-10pct);
+    --fc-list-event-hover-bg-color: var(--lumo-primary-color-10pct);
+
+    --fc-event-resizer-thickness: 8px;
+    --fc-event-resizer-dot-total-width: 8px;
+    --fc-event-resizer-dot-border-width: 1px;
+
+    --fc-non-business-color: color-mix(in srgb, var(--vaadin-text-color-disabled) 20%, transparent);
+    --fc-bg-event-color: var(--vaadin-fc-highlight-color-800);
+    --fc-bg-event-opacity: 0.3;
+    --fc-highlight-color: var(--vaadin-fc-highlight-color-200);
+
+    --fc-today-bg-color: transparent; /* handled differently */
+    --fc-now-indicator-color: var(--vaadin-fc-contrast-color-500);
+
+    /* general modifications of the calendar entry / event item */
+    .fc-event {
+        border-radius: var(--vaadin-radius-s);
+        padding-left: var(--vaadin-padding-xs);
+        padding-right: var(--vaadin-padding-xs);
+    }
+
+    /* to have some visual feedback on hovering, inspired by buttons, not realizable the same way*/
+    .fc-event:hover {
+        filter: brightness(90%) contrast(1.2);
+    }
+
+
+
+    /* changing hovering colors for any other type of events, that have no own background color or custom property*/
+    .fc-daygrid-dot-event:hover {
+        background-color: var(--vaadin-fc-highlight-color-100);
+    }
+
+    /* general font sizes*/
+    .fc-col-header-cell,
+    .fc-daygrid-day-number,
+    .fc-daygrid-week-number,
+    .fc-timeline-header-row,
+    .fc-list th .fc-list-day-cushion {
+        font-size: var(--lumo-font-size-s);
+    }
+
+    /* the selection highlight*/
+    .fc-highlight {
+        /* imitates the Grid selection highlighting */
+        background: linear-gradient(var(--fc-highlight-color), var(--fc-highlight-color)) repeat;
+        box-shadow: 0 1px 0 0 var(--fc-highlight-color);
+    }
+
+    /* This part makes the "today" link being shown as a badge */
+    .fc-day-today a:is(
+        .fc-col-header-cell-cushion,
+        .fc-daygrid-day-number,
+        .fc-list-day-text,
+        .fc-timeline-slot-cushion,
+        .fc-list-day-side-text
+    ):not(:empty) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        /*padding: 0.4em calc(0.5em + var(--lumo-border-radius-s) / 4);*/
+        padding: 0 var(--lumo-space-s);
+        color: var(--lumo-primary-text-color);
+        background-color: var(--lumo-primary-color-10pct);
+        border-radius: var(--lumo-border-radius-s);
+        font-family: var(--lumo-font-family);
+        font-size: var(--lumo-font-size-s);
+        /*line-height: 1;*/
+        font-weight: 500;
+        text-transform: initial;
+        letter-spacing: initial;
+        min-width: calc(var(--lumo-line-height-xs) * 1em + 0.45em);
+        flex-shrink: 0;
+    }
+
+    .fc-day-today a.fc-daygrid-day-number {
+        margin: var(--lumo-space-xs) 0;
+    }
+
+    /* not sure why FC per default aligns things to the top */
+    th[role="columnheader"],
+    .fc-timeline-header-row th {
+        vertical-align: middle;
+        height: var(--lumo-size-m);
+        box-sizing: content-box; /*otherwise some bottom borders disappear due to the height setting */
+    }
+
+    /* set a fixed styling for all different view headers to allow consistent display of header cells*/
+    th[role="columnheader"] {
+        height: var(--lumo-size-m);
+    }
+
+    /* FC adds empty "day numbers", even if they are not needed. This messes up our styling so we hide them */
+    :is(.fc-dayGridWeek-view, .fc-dayGridDay-view) a:is(.fc-daygrid-day-number) {
+        visibility: hidden !important;/*we want to preserve the space for the CW part (?) but not show anything*/
+        /*display: none !important; !*alternative to the visibility hidden*!*/
+    }
+
+    /* Today badge stylings for multi month view */
+    .fc-multiMonthYear-view .fc-day-today a.fc-daygrid-day-number {
+        margin: var(--lumo-space-xs) 0;/* to not have the today badge sitting in the corner*/
+    }
+
+    /* the "plus n more events". The fc custom properties seem not to work, so we set it here manually*/
+    .fc-more-link {
+        color: var(--lumo-body-text-color);
+    }
+
+    .fc-more-link:hover {
+        background-color: var(--lumo-contrast-10pct);
+    }
+
+    /* setting an outer border like the grid does*/
+    .fc-scrollgrid {
+        border-color: var(--fc-outer-border-color);
+    }
+}
 
