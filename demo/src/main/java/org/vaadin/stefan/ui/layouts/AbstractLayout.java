@@ -45,10 +45,9 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.util.Locale;
 
-@CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
 public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
-    public static final String ADDON_VERSION = "6.3.0";
+    public static final String ADDON_VERSION = "7.0.0-SNAPSHOT";
     private static final long serialVersionUID = -7479612679602267287L;
     private Registration currentStyleSheetRegistration;
 
@@ -111,6 +110,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         VerticalLayout footer = new VerticalLayout();
 
         footer.addClassName("footer");
+        footer.add(new Span("Version " + ADDON_VERSION));
         footer.add(new Html("<span>Using the FullCalendar " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 25.<br> " +
                 " More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
 

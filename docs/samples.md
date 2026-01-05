@@ -637,7 +637,7 @@ calendar = FullCalendarBuilder.create()
 ```
 
 ## Use native javascript events for entries
-Sometimes the things we give you are not enough. For that purpose, we added native event listeners for calendar entries. 
+Sometimes the available events are not enough. For that purpose, we added native event listeners for calendar entries. 
 These allow you to setup JavaScript events for each entry, e.g. a mouse over event handler. Inside these event handlers 
 you may also access the created entry dom element.
 

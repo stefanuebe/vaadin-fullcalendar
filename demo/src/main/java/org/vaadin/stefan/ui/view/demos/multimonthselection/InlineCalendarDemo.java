@@ -1,7 +1,7 @@
 package org.vaadin.stefan.ui.view.demos.multimonthselection;
 
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Route(value = "inline-calendar", layout = MainLayout.class)
 @MenuItem(label = "Inline Calendar")
 @JsModule("./multi-month-selection-utils.js")
-@CssImport("./inline-calendar.css")
+@StyleSheet("inline-calendar.css")
 public class InlineCalendarDemo extends VerticalLayout {
 
     // basic constructor with full sized items

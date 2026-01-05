@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.ui.view.demos.tooltip;
 
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
@@ -30,7 +29,6 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 import tools.jackson.databind.node.ObjectNode;
 
 @Route(value = "tooltip", layout = MainLayout.class)
-@CssImport("./styles.css")
 @PageTitle("FC with Tooltips")
 @MenuItem(label = "Tooltips")
 public class DemoWithTooltip extends AbstractCalendarView {

@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 
 @Route(value = "", layout = MainLayout.class)
-@CssImport("./styles.css")
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
 public class FullDemo extends AbstractSchedulerView {
 

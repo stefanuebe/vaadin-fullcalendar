@@ -6,9 +6,13 @@
 * [4.0.x](#40x)
 
 ## 7.0.x
+[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-7.0.x)
 - updated to FullCalendar 6.1.19
 - increased required Vaadin version to 25
 - increased required Java version to 21
+- replaced elemental Json with Jackson 3, renamed some related methods
+- reworked BusinessHours
+- added `forRemoval` to deprecated API
 
 ## 6.2.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-6.2.x)
