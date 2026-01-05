@@ -116,7 +116,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private String eventDidMountCallback;
 
     /**
-     * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
+     * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
      * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      */
@@ -134,7 +134,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * and would show the limit also for basic views where it makes no sense (might change in future).
      * Passing a negative number disabled the entry limit (same as passing no number at all).
      * <br><br>
-     * Sets the locale to {@link CalendarLocale#getDefault()}
+     * Sets the locale to {@link CalendarLocale#getDefaultLocale()} ()}
      * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      *

@@ -32,7 +32,11 @@ style of business hours.
 Replace your constructors with a matching static construction variant and define start and end using
 the respective fluent api methods `start/end` (optional)
 
+## Minor changes
 Deprecated APIs have been marked as `forRemoval` and will be removed with one of the next minor releases.
+
+The FullCalendar theme variant `LUMO` has been renamed to `VAADIN`. If you referenced this somewhere, rename
+it accordingly.
 
 # Migrating from 4.1 > 6.0
 Depending on your Vaadin version you may need to update also other things, related to Vaadin core and Spring Boot.

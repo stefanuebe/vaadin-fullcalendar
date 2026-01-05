@@ -115,8 +115,11 @@ public class CalendarViewToolbar extends MenuBar {
                 .setMarginTop("-15px");
 
         gotoDate.setWeekNumbersVisible(true);
+
+        // TODO replace this with a simple text element. Note: using a horizontal layout as container did not work always.
+        //  on Dec 25 it broke the menu bar, so something to investigate
         buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
-        buttonDatePicker.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        buttonDatePicker.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.AURA_TERTIARY);
         buttonDatePicker.getElement().appendChild(gotoDate.getElement());
         buttonDatePicker.addClickListener(event -> gotoDate.open());
         buttonDatePicker.setWidthFull();
@@ -247,13 +250,13 @@ public class CalendarViewToolbar extends MenuBar {
 
         // overhaul, when other themes are added
         Checkbox themeSelector = new Checkbox("Use Lumo Theme");
-        themeSelector.setValue(calendar.hasThemeVariant(FullCalendarVariant.LUMO));
+        themeSelector.setValue(calendar.hasThemeVariant(FullCalendarVariant.VAADIN));
         themeSelector.addValueChangeListener(event -> {
             boolean useLumo = event.getValue();
             if (useLumo) {
-                calendar.addThemeVariants(FullCalendarVariant.LUMO);
+                calendar.addThemeVariants(FullCalendarVariant.VAADIN);
             } else {
-                calendar.removeThemeVariants(FullCalendarVariant.LUMO);
+                calendar.removeThemeVariants(FullCalendarVariant.VAADIN);
             }
         });
 
