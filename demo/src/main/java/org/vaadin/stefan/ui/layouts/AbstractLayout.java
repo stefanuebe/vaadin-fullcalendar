@@ -31,6 +31,7 @@ import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.theme.aura.Aura;
@@ -40,6 +41,7 @@ import org.vaadin.stefan.fullcalendar.ClientSideValue;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
+import java.util.List;
 import java.util.Locale;
 
 @SuppressWarnings("rawtypes")
@@ -47,6 +49,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     public static final String ADDON_VERSION = "7.0.0-SNAPSHOT";
     private static final long serialVersionUID = -7479612679602267287L;
     private Registration currentStyleSheetRegistration;
+    private Select<Theme> themeSelect;
 
     @SuppressWarnings("unchecked")
     public AbstractLayout() {
@@ -119,6 +122,18 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         UI.getCurrent().getPage().setTitle("::: FullCalendar Demo :::");
+
+        List<String> theme = event.getLocation().getQueryParameters().getParameters("theme");
+        if (theme.size() == 1) {
+            try {
+                themeSelect.setValue(Theme.valueOf(theme.getFirst().toUpperCase()));
+            } catch (Exception e) {
+                // we stay on default
+            }
+        } else {
+            themeSelect.setValue(Theme.AURA);
+        }
+
     }
 
     private Select<ColorScheme.Value> initColorSchemeSelector() {
@@ -130,7 +145,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     }
 
     private Select<Theme> initThemeSelector() {
-        Select<Theme> themeSelect = new Select<>("", Theme.values());
+        themeSelect = new Select<>("", Theme.values());
         themeSelect.addValueChangeListener(e -> {
             if(currentStyleSheetRegistration != null) {
                 currentStyleSheetRegistration.remove();
@@ -139,13 +154,12 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
 
             Theme theme = e.getValue();
 
-            if (theme.getClientSideValue() != null) {
-                currentStyleSheetRegistration = UI.getCurrent().getPage().addStyleSheet(theme.getClientSideValue());
-            }
+            currentStyleSheetRegistration = UI.getCurrent().getPage().addStyleSheet(theme.getClientSideValue());
+            UI.getCurrent().navigate(UI.getCurrent().getActiveViewLocation().getPath(), QueryParameters.of("theme", theme.name().toLowerCase()));
+
         });
         themeSelect.getStyle().setMarginLeft("auto");
 
-        themeSelect.setValue(Theme.AURA);
         return themeSelect;
     }
 

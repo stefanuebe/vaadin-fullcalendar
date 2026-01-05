@@ -11,6 +11,11 @@ import tools.jackson.databind.JsonNode;
  */
 public interface JsonItemPropertyConverter<SERVER_TYPE, T> {
 
+    /**
+     * Checks, if the given object is supported.
+     * @param type object
+     * @return
+     */
     boolean supports(Object type);
 
     JsonNode toClientModel(SERVER_TYPE serverValue, T currentInstance);
