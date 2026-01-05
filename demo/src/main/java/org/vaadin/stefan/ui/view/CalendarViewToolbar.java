@@ -19,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.dom.Style;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.*;
@@ -107,10 +108,12 @@ public class CalendarViewToolbar extends MenuBar {
         // simulate the date picker light that we can use in polymer
         DatePicker gotoDate = new DatePicker();
         gotoDate.addValueChangeListener(event1 -> calendar.gotoDate(event1.getValue()));
-        gotoDate.getElement().getStyle().set("visibility", "hidden");
-        gotoDate.getElement().getStyle().set("position", "fixed");
-        gotoDate.setWidth("0px");
-        gotoDate.setHeight("0px");
+        gotoDate.getElement().getStyle()
+                .setPosition(Style.Position.FIXED)
+                .setOpacity("0")
+                .set("pointer-events", "none")
+                .setMarginTop("-15px");
+
         gotoDate.setWeekNumbersVisible(true);
         buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
         buttonDatePicker.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);

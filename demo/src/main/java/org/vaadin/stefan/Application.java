@@ -16,6 +16,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 @SpringBootApplication
 @Push
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
+@StyleSheet("styles/styles.css")
 public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
     public static void main(String[] args) throws Throwable {
         SpringApplication.run(Application.class, args);
