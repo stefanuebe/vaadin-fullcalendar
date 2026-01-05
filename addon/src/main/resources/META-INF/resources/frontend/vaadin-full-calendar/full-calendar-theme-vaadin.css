@@ -5,7 +5,9 @@ bleeding into any other elements, that also have a classname "fc" with a lumo th
 Some stylings are inspired from similar Vaadin components, like for instance the grid.
 */
 
-.vaadin-full-calendar.fc[theme~="lumo"] {
+.vaadin-full-calendar.fc[theme~="vaadin"] {
+
+    /* TODO apply Vaadin constants */
 
     font-family: var(--lumo-font-family); /* should apply by global default but just for the case someone changed it somehow */
 

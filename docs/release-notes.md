@@ -13,6 +13,7 @@
 - replaced elemental Json with Jackson 3, renamed some related methods
 - reworked BusinessHours
 - added `forRemoval` to deprecated API
+- renamed theme variant `LUMO` to `VAADIN`
 
 ## 6.2.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-6.2.x)

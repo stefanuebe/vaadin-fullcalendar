@@ -21,17 +21,14 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.server.VaadinRequest;
@@ -89,18 +86,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
 
         Component title = generateTitle("FullCalendar " + ADDON_VERSION + " for Vaadin Flow");
 
-        Select<Theme> themeSelect = initThemeSelector();
-        themeSelect.getStyle().setMarginLeft("auto");
-
-        Button darkMode = new Button("Dark Mode", e -> {
-            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-            boolean lightModeActive = !themeList.contains("dark");
-            themeList.set("dark", lightModeActive);
-            e.getSource().setText(lightModeActive ? "Light Mode" : "Dark Mode");
-        });
-
-
-        addToNavbar(toggle, title, themeSelect, darkMode);
+        addToNavbar(toggle, title, initThemeSelector(), initColorSchemeSelector());
     }
 
     protected void addDrawerContent() {
@@ -135,6 +121,14 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         UI.getCurrent().getPage().setTitle("::: FullCalendar Demo :::");
     }
 
+    private Select<ColorScheme.Value> initColorSchemeSelector() {
+        Select<ColorScheme.Value> colorSchemeSelector = new Select<>("", ColorScheme.Value.SYSTEM, ColorScheme.Value.LIGHT, ColorScheme.Value.DARK);
+        colorSchemeSelector.addValueChangeListener(event -> UI.getCurrent().getPage().setColorScheme(event.getValue()));
+        colorSchemeSelector.setValue(ColorScheme.Value.SYSTEM);
+
+        return colorSchemeSelector;
+    }
+
     private Select<Theme> initThemeSelector() {
         Select<Theme> themeSelect = new Select<>("", Theme.values());
         themeSelect.addValueChangeListener(e -> {
@@ -149,7 +143,9 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
                 currentStyleSheetRegistration = UI.getCurrent().getPage().addStyleSheet(theme.getClientSideValue());
             }
         });
-        themeSelect.setValue(Theme.LUMO);
+        themeSelect.getStyle().setMarginLeft("auto");
+
+        themeSelect.setValue(Theme.AURA);
         return themeSelect;
     }
 

@@ -10,9 +10,9 @@ import lombok.Getter;
 @Getter
 public enum FullCalendarVariant {
     /**
-     * Applies lumo styles to the calendar to align it more with the theming of other Vaadin components.
+     * Applies Vaadin styles (Lumo / Aura) to the calendar to align it more with the theming of other Vaadin components.
      */
-    LUMO("lumo");
+    VAADIN("vaadin");
 
     private final String variantName;
 
