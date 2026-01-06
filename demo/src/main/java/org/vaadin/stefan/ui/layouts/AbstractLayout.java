@@ -31,6 +31,7 @@ import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.shared.Registration;
@@ -41,7 +42,6 @@ import org.vaadin.stefan.fullcalendar.ClientSideValue;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
-import java.util.List;
 import java.util.Locale;
 
 @SuppressWarnings("rawtypes")
@@ -50,6 +50,8 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     private static final long serialVersionUID = -7479612679602267287L;
     private Registration currentStyleSheetRegistration;
     private Select<Theme> themeSelect;
+    private SideNav sideNav;
+    private Select<ColorScheme.Value> colorSchemeSelector;
 
     @SuppressWarnings("unchecked")
     public AbstractLayout() {
@@ -103,10 +105,10 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         footer.add(new Html("<span>Using the FullCalendar " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 25.<br> " +
                 " More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
 
-        SideNav nav = new SideNav();
-        createMenuEntries(nav);
+        sideNav = new SideNav();
+        createMenuEntries(sideNav);
 
-        addToDrawer(header, new Scroller(nav), footer);
+        addToDrawer(header, new Scroller(sideNav), footer);
 
     }
 
@@ -123,22 +125,44 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     public void afterNavigation(AfterNavigationEvent event) {
         UI.getCurrent().getPage().setTitle("::: FullCalendar Demo :::");
 
-        List<String> theme = event.getLocation().getQueryParameters().getParameters("theme");
-        if (theme.size() == 1) {
-            try {
-                themeSelect.setValue(Theme.valueOf(theme.getFirst().toUpperCase()));
-            } catch (Exception e) {
-                // we stay on default
-            }
-        } else {
-            themeSelect.setValue(Theme.AURA);
-        }
+        QueryParameters queryParameters = event.getLocation().getQueryParameters();
+        sideNav.getItems().forEach(item -> item.setQueryParameters(queryParameters));
 
+        Theme theme = queryParameters.getSingleParameter("theme")
+                .map(String::toUpperCase)
+                .map(Theme::valueOf)
+                .orElse(Theme.AURA);
+
+        themeSelect.setValue(theme);
+
+        ColorScheme.Value scheme = queryParameters.getSingleParameter("scheme")
+                .map(String::toUpperCase)
+                .map(ColorScheme.Value::valueOf)
+                .orElse(ColorScheme.Value.SYSTEM);
+
+        colorSchemeSelector.setValue(scheme);
     }
 
     private Select<ColorScheme.Value> initColorSchemeSelector() {
-        Select<ColorScheme.Value> colorSchemeSelector = new Select<>("", ColorScheme.Value.SYSTEM, ColorScheme.Value.LIGHT, ColorScheme.Value.DARK);
-        colorSchemeSelector.addValueChangeListener(event -> UI.getCurrent().getPage().setColorScheme(event.getValue()));
+        colorSchemeSelector = new Select<>("", ColorScheme.Value.SYSTEM, ColorScheme.Value.LIGHT, ColorScheme.Value.DARK);
+        colorSchemeSelector.addValueChangeListener(event -> {
+            UI ui = UI.getCurrent();
+
+            ColorScheme.Value scheme = event.getValue();
+            ui.getPage().setColorScheme(scheme);
+
+            if (event.isFromClient()) {
+                Location activeViewLocation = ui.getActiveViewLocation();
+                QueryParameters parameters = activeViewLocation.getQueryParameters();
+                if (scheme != ColorScheme.Value.SYSTEM) {
+                    parameters = parameters.merging("scheme", scheme.name().toLowerCase());
+                } else {
+                    parameters = parameters.excluding("scheme");
+                }
+
+                ui.navigate(activeViewLocation.getPath(), parameters);
+            }
+        });
         colorSchemeSelector.setValue(ColorScheme.Value.SYSTEM);
 
         return colorSchemeSelector;
@@ -146,16 +170,28 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
 
     private Select<Theme> initThemeSelector() {
         themeSelect = new Select<>("", Theme.values());
-        themeSelect.addValueChangeListener(e -> {
+        themeSelect.addValueChangeListener(event -> {
             if(currentStyleSheetRegistration != null) {
                 currentStyleSheetRegistration.remove();
                 currentStyleSheetRegistration = null;
             }
 
-            Theme theme = e.getValue();
+            Theme theme = event.getValue();
 
-            currentStyleSheetRegistration = UI.getCurrent().getPage().addStyleSheet(theme.getClientSideValue());
-            UI.getCurrent().navigate(UI.getCurrent().getActiveViewLocation().getPath(), QueryParameters.of("theme", theme.name().toLowerCase()));
+            UI ui = UI.getCurrent();
+            currentStyleSheetRegistration = ui.getPage().addStyleSheet(theme.getClientSideValue());
+
+            if (event.isFromClient()) {
+                Location activeViewLocation = ui.getActiveViewLocation();
+                QueryParameters parameters = activeViewLocation.getQueryParameters();
+                if (theme != Theme.AURA) {
+                    parameters = parameters.merging("theme", theme.name().toLowerCase());
+                } else {
+                    parameters = parameters.excluding("theme");
+                }
+
+                ui.navigate(activeViewLocation.getPath(), parameters);
+            }
 
         });
         themeSelect.getStyle().setMarginLeft("auto");
