@@ -432,8 +432,6 @@ export class FullCalendar extends HTMLElement {
                 end: this.formatDate(info.end)
             }).then((array: any | any[]) => {
                 if (Array.isArray(array)) {
-                    console.warn(array);
-
                     successCallback(array);
                 } else {
                     failureCallback("could not fetch");
