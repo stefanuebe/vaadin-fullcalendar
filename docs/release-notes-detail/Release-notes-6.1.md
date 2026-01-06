@@ -1,5 +1,3 @@
-# Release notes for 6.1
-
 With 6.1, the (for now experimental) Lumo theme has been added to the addon. This theme slightly changes
 the appearance of the calendar to align more with other Vaadin components' Lumo styles.
 
@@ -17,4 +15,3 @@ Major changes:
 * selection colors aligned with Grid selection
 * using the lumo prime color as the default color for events (that have no own color); the default color of background events is not changed at the moment
 * applying several other lumo colors, sizes and spaces to different parts of the calendar
- 

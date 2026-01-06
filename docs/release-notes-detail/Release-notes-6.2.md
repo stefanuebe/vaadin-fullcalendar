@@ -1,5 +1,3 @@
-# Release notes for 6.2
-
 With 6.2 custom native event handlers for entries have been added. These allow you to setup JavaScript events for
 each entry, e.g. a mouse over event handler. Inside these event handlers you may also access the created entry dom
 element.

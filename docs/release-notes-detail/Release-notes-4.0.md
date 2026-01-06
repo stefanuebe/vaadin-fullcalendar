@@ -1,4 +1,3 @@
-# Release notes for 4.0
 This page gives you an overview of the major changes, that came with the release of [FullCalendar for Flow, version 4.0](https://vaadin.com/directory/component/full-calendar-flow).
 
 If you are going to update from 3.x, please also have a look into the [migration guide](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/FullCalendar-MigrationGuides#migrating-from-3x--40).

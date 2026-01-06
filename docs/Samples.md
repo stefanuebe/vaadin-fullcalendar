@@ -1,4 +1,3 @@
-# FullCalendar samples
 This page contains some samples to get you started with the FullCalendar addon. The samples are always based on the
 latest version of the addon.
 
