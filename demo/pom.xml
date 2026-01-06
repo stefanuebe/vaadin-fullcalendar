@@ -3,26 +3,32 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar-demo</artifactId>
     <version>25.0.0-SNAPSHOT</version>
     <name>Full Calendar web component demo</name>
     <packaging>war</packaging>
 
-    <parent>
-        <groupId>org.vaadin.stefan</groupId>
-        <artifactId>fullcalendar-parent</artifactId>
-        <version>7.0.0</version>
-    </parent>
-
     <properties>
-        <vaadin.version>25.0.2</vaadin.version>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <vaadin.version>25.0.2</vaadin.version>
+        <spring-boot.version>4.0.1</spring-boot.version>
         <fullcalendar.version>7.0.0</fullcalendar.version>
 
-        <failOnMissingWebXml>false</failOnMissingWebXml>
 
-        <spring-boot.version>4.0.0</spring-boot.version>
+        <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>
+        <plugin.version.maven-surefire>3.5.4</plugin.version.maven-surefire>
+        <plugin.version.maven-failsafe>3.5.4</plugin.version.maven-failsafe>
+        <plugin.version.maven-source>3.4.0</plugin.version.maven-source>
         <plugin.version.maven-war>3.5.1</plugin.version.maven-war>
+        <plugin.version.maven-assembly>3.8.0</plugin.version.maven-assembly>
+
+        <lombok.version>1.18.42</lombok.version>
+
+        <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
 
     <licenses>
@@ -72,6 +78,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <version>${vaadin.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -133,18 +146,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-<!--                <configuration>-->
-<!--                    <annotationProcessorPaths>-->
-<!--                        &lt;!&ndash; Lombok should be used as an annotation processor. &ndash;&gt;-->
-<!--                        <annotationProcessorPath>-->
-<!--                            <groupId>org.projectlombok</groupId>-->
-<!--                            <artifactId>lombok</artifactId>-->
-<!--                            <version>${lombok.version}</version>-->
-<!--                        </annotationProcessorPath>-->
-<!--                    </annotationProcessorPaths>-->
-<!--                </configuration>-->
+                <version>${plugin.version.maven-compiler}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
@@ -193,6 +205,7 @@
                     <plugin>
                         <groupId>com.vaadin</groupId>
                         <artifactId>vaadin-maven-plugin</artifactId>
+                        <version>${vaadin.version}</version>
                         <executions>
                             <execution>
                                 <goals>
