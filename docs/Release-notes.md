@@ -8,7 +8,7 @@
 
 ## 7.0.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-7.0)
-- updated to FullCalendar 6.1.19
+- updated to FullCalendar 6.1.20
 - increased required Vaadin version to 25
 - increased required Java version to 21
 - replaced elemental Json with Jackson 3, renamed some related methods

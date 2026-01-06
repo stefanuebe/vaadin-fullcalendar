@@ -4,6 +4,8 @@ This page gives you an overview of the major changes, that came with the release
 The main change in version 7.0 is the Vaadin 25 support, which includes the new requirement
 for at least Java 21 and, if used, Spring Boot 4. 
 
+On top of that the used FullCalendar version has been increased to 6.1.20.
+
 ## Major code changes
 Since element Json is gone and Jackson 3 is the new player on the field, json related things have been
 reworked to use Jackson types instead of elemental Json ones. Some method names have changed to align better with 
