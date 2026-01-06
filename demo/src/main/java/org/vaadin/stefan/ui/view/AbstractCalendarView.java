@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.AccessLevel;
@@ -253,9 +254,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
             return null;
         }
         Span descriptionElement = new Span(description);
-        descriptionElement.getStyle() // TODO move to css at some point
-                .set("font-size", "0.8rem")
-                .set("color", "#666");
+        descriptionElement.addClassName("description");
 
         return descriptionElement;
     }
@@ -270,11 +269,8 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         if (title == null) {
             return null;
         }
-        Span titleElement = new Span(title);
-        titleElement.getStyle() // TODO move to css at some point
-                .set("font-size", "1.1rem")
-                .set("font-weight", "600")
-                .set("color", "#666");
+        H2 titleElement = new H2(title);
+        titleElement.addClassName("title");
 
         return titleElement;
     }
