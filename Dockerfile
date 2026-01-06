@@ -1,3 +1,5 @@
+# DOCKERFILE TO BUILD THE DEMO
+
 FROM ghcr.io/jqlang/jq:latest AS jq-stage
 
 FROM eclipse-temurin:21-jdk AS build
@@ -8,7 +10,7 @@ RUN jq --version
 ENV HOME=/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
-COPY . $HOME
+COPY demo/. $HOME
 
 # If you have a Vaadin Pro key, pass it as a secret with id "proKey":
 #
