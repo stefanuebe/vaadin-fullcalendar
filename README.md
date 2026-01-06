@@ -28,6 +28,9 @@ then the basic FullCalendar. For details about the license, visit https://fullca
 **The scheduler addon does not provide any commercial license for the Scheduler. The license model of MIT does only affect
 the additional files of this addon, not the used original files.**
 
+## Documentation and Samples
+Please visit out [github wiki](https://github.com/stefanuebe/vaadin-fullcalendar/wiki) for samples and other information about this addon.
+
 ## Authors of this addon
 This addon is currently maintained by Carlo Zanocco and me. If you have any questions or issues, please
 use the GitHub repository issues page.
