@@ -316,11 +316,11 @@ The calendar provides a built-in Vaadin theme variant, that applies some styling
 sizes, colors, etc. It is active by default. 
 
 Please note, that there might be parts, that have been forgotten or not looking as expected. 
-Also any additional custom stylings may override the Lumo stylings. If you find anything, that looks suspicious,
+Also any additional custom stylings may override the Vaadin stylings. If you find anything, that looks suspicious,
 please create an issue. 
 
 To remove the Vaadin theme, simply remove the theme variant, as you would do with other Vaadin components. Please note,
-that the overall styling still may affect your calendar component in some parts.
+that the overall styling still may affect your calendar component in some ways.
 
 ```java
 calendar.removeThemeVariant(FullCalendarVariant.VAADIN);
