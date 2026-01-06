@@ -6,16 +6,27 @@ Also these styles automatically are applied to any subclasses and do not bleed i
 as a classname. */
 
 /* Fixes a color issue, where otherwise day numbers would appear as the disabled text color (Idk why)*/
-.vaadin-full-calendar.fc a:not(:any-link) {
-    color: var(--vaadin-text-color);
-}
+.vaadin-full-calendar.fc {
+    a:not(:any-link) {
+        color: var(--vaadin-text-color);
+    }
 
-/* Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/108*/
-.vaadin-full-calendar.fc :is(.fc-scrollgrid-section-sticky, .fc-scroller-harness) > * {
-    z-index: 1;
-}
+    /* Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/108*/
+    :is(.fc-scrollgrid-section-sticky, .fc-scroller-harness) > * {
+        z-index: 1;
+    }
 
-/* fixes for background colors */
-thead tr.fc-scrollgrid-section-header th {
-    background: transparent;
+    /* fixes for background colors */
+    thead tr.fc-scrollgrid-section-header th {
+        background: transparent;
+    }
+
+    .fc-multimonth-multicol .fc-daygrid-more-link {
+        --fc-event-border-color: transparent; /* otherwise the multimonth shows a border around the + x more link*/
+    }
+
+    /* to have some visual feedback on hovering, inspired by buttons, not realizable the same way*/
+    .fc-event:not(.fc-bg-event):hover {
+        filter: brightness(90%) contrast(1.2);
+    }
 }
