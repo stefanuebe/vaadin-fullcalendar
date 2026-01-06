@@ -7,7 +7,7 @@
     <artifactId>fullcalendar-demo</artifactId>
     <version>25.0.0-SNAPSHOT</version>
     <name>Full Calendar web component demo</name>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
@@ -41,16 +41,6 @@
 
 
     <repositories>
-        <!-- The order of definitions matters. Explicitly defining central here to make sure it has the highest priority. -->
-        <!-- Main Maven repository -->
-        <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <!-- Repository used by many Vaadin add-ons -->
         <repository>
             <id>Vaadin Directory</id>
             <url>https://maven.vaadin.com/vaadin-addons</url>
@@ -60,16 +50,16 @@
         </repository>
     </repositories>
 
-    <pluginRepositories>
-        <!-- Main Maven repository -->
-        <pluginRepository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+<!--    <pluginRepositories>-->
+<!--        &lt;!&ndash; Main Maven repository &ndash;&gt;-->
+<!--        <pluginRepository>-->
+<!--            <id>central</id>-->
+<!--            <url>https://repo.maven.apache.org/maven2</url>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--        </pluginRepository>-->
+<!--    </pluginRepositories>-->
 
 
     <dependencyManagement>
@@ -168,17 +158,7 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <pnpmEnable>true</pnpmEnable>
-                </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>${plugin.version.maven-war}</version>
-            </plugin>
-
         </plugins>
     </build>
 
@@ -203,6 +183,18 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>${spring-boot.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>repackage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>com.vaadin</groupId>
                         <artifactId>vaadin-maven-plugin</artifactId>
                         <version>${vaadin.version}</version>
@@ -214,9 +206,6 @@
                                 <phase>compile</phase>
                             </execution>
                         </executions>
-                        <configuration>
-                            <pnpmEnable>true</pnpmEnable>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
