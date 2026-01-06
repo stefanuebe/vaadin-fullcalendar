@@ -11,13 +11,13 @@
     <parent>
         <groupId>org.vaadin.stefan</groupId>
         <artifactId>fullcalendar-parent</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>7.0.0</version>
     </parent>
 
     <properties>
         <vaadin.version>25.0.2</vaadin.version>
 
-        <fullcalendar.version>7.0.0-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.version>7.0.0</fullcalendar.version>
 
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
