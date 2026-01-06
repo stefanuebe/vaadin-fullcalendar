@@ -9,17 +9,19 @@ html {
 
     --vaadin-fc-highlight-text-color: var(--lumo-primary-text-color, var(--aura-accent-text-color));
 
-    --vaadin-fc-contrast-color: var(--lumo-contrast, var(--aura-accent-contrast-color));
+    --vaadin-fc-contrast-color: var(--lumo-contrast, var(--aura-accent-contrast-color, #333));
     --vaadin-fc-contrast-color-50: color-mix(in srgb, var(--vaadin-fc-contrast-color) 5%, transparent);
     --vaadin-fc-contrast-color-100: color-mix(in srgb, var(--vaadin-fc-contrast-color) 10%, transparent);
     --vaadin-fc-contrast-color-200: color-mix(in srgb, var(--vaadin-fc-contrast-color) 20%, transparent);
     --vaadin-fc-contrast-color-500: color-mix(in srgb, var(--vaadin-fc-contrast-color) 50%, transparent);
     --vaadin-fc-contrast-color-800: color-mix(in srgb, var(--vaadin-fc-contrast-color) 80%, transparent);
 
+    --vaadin-fc-neutral-color: color-mix(in srgb, var(--vaadin-text-color-disabled) 15%, transparent);
+    --vaadin-fc-hover-color: var(--vaadin-fc-highlight-color-100);
+
     --vaadin-fc-font-size-s: var(--lumo-font-size-s, var(--aura-font-size-s));
     --vaadin-fc-line-height-xs: var(--lumo-line-height-xs, var(--aura-line-height-xs));
 
-    --vaadin-fc-hover-color: var(--vaadin-fc-highlight-color-100);
 }
 
 .vaadin-full-calendar.fc[theme~="vaadin"] {
@@ -28,7 +30,7 @@ html {
 
     --fc-small-font-size: var(--vaadin-fc-font-size-s);
     --fc-page-bg-color: var(--vaadin-background-color); /* for FC popups */
-    --fc-neutral-bg-color: var(--vaadin-fc-contrast-color-50);
+    --fc-neutral-bg-color: var(--vaadin-fc-neutral-color);
     --fc-neutral-text-color: var(--vaadin-text-color-secondary);
     --fc-border-color: var(--vaadin-border-color-secondary); /* outer border is overriden separately*/
     --fc-outer-border-color: var(--vaadin-border-color);
@@ -44,7 +46,7 @@ html {
     --fc-event-resizer-dot-total-width: 8px;
     --fc-event-resizer-dot-border-width: 1px;
 
-    --fc-non-business-color: color-mix(in srgb, var(--vaadin-text-color-disabled) 20%, transparent);
+    --fc-non-business-color: var(--vaadin-fc-neutral-color);
     --fc-bg-event-color: var(--vaadin-fc-highlight-color-800);
     --fc-bg-event-opacity: 0.3;
     --fc-highlight-color: var(--vaadin-fc-highlight-color-200);
@@ -57,11 +59,6 @@ html {
         border-radius: var(--vaadin-radius-s);
         padding-left: var(--vaadin-padding-xs);
         padding-right: var(--vaadin-padding-xs);
-    }
-
-    /* to have some visual feedback on hovering, inspired by buttons, not realizable the same way*/
-    .fc-event:hover {
-        filter: brightness(90%) contrast(1.2);
     }
 
     /* changing hovering colors for any other type of events, that have no own background color or custom property*/
@@ -110,7 +107,6 @@ html {
 
     /* the "plus n more events". The fc custom properties seem not to work, so we set it here manually*/
     .fc-more-link:hover {
-        color: var(--vaadin-fc-contrast-color);
         background-color: var(--vaadin-fc-hover-color);
     }
 
