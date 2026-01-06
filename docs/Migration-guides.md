@@ -9,13 +9,13 @@ to get a detailed insight of what has changed and what needs to be done to get y
 If we missed something or anything is unclear, please ping us on GitHub. We hope, that your upgrade goes through
 as smoothly as possible.
 
-# Index
+## Index
 * [6.1 > 7.0](#migrating-from-61--70)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
 
-# Migrating from 6.1 > 7.0
+## Migrating from 6.1 > 7.0
 To migrate to version 7 of the addon, you need to bump your Vaadin version to 25 and anything else, that Vaadin 25 
 requires (like Java or Spring Boot).
 
@@ -24,7 +24,7 @@ like for instance `JsonArray` to `ArrayNode` or `JsonObject` to `ObjectNode`.
 
 Also, you may need to update used methods, for instance `JsonUtils#ofJsonValue` is now `#ofJsonNode`.
 
-## Business hours reworked
+### Business hours reworked
 The class `BusinessHours` has been reworked. The constructors have been removed and instead
 there are now static methods to define new instance. The api also has been changed to allow a fluid definition
 style of business hours.
@@ -32,17 +32,17 @@ style of business hours.
 Replace your constructors with a matching static construction variant and define start and end using
 the respective fluent api methods `start/end` (optional)
 
-## Minor changes
+### Minor changes
 Deprecated APIs have been marked as `forRemoval` and will be removed with one of the next minor releases.
 
 The FullCalendar theme variant `LUMO` has been renamed to `VAADIN`. If you referenced this somewhere, rename
 it accordingly.
 
-# Migrating from 4.1 > 6.0
+## Migrating from 4.1 > 6.0
 Depending on your Vaadin version you may need to update also other things, related to Vaadin core and Spring Boot.
 Steps to be taken there, will not be covered here.
 
-## Removed polymer
+### Removed polymer
 Since Polymer has been removed from Vaadin 24, we decided to convert the JS elements to plain, HTML element based
 web components. Thus, this version should work with Vaadin 23 and 24. 
 
@@ -54,7 +54,7 @@ JS class fields.
 Also please note, that the content of the component is now part of the light dom. This will most likely affect
 any custom stylings you may have defined. See the next part for details.
 
-## Styling
+### Styling
 Since the component is now part of the light dom, you have the advantages and disadvantages of it. 
 
 Any custom styles you may have defined via overriding the JS class or via using the Java method `addCustomStyles` 
@@ -68,7 +68,7 @@ go this way.
 Also since we moved to a new major of the FC library, it might be, that css selectors have changed in their 
 provided styles and thus your custom styles might not work out of the box.
 
-## Folder structure and tags
+### Folder structure and tags
 We changed the folder structure and tag names a bit to better represent the Vaadin nature of this addon and to
 prevent potential naming conflicts. Therefore the the files will now be placed inside a folder named
 `vaadin-full-calendar`. The file names themselves have not changed.
@@ -80,7 +80,7 @@ Additionally we prefixed the element tag names with a `vaadin-`, so that the FC 
 `vaadin-full-calendar`. This is relevant, if you used the old tag names for styling or dom querying purposes.
 In that case update the tag names.
 
-## TypeScript
+### TypeScript
 We migrated the old JS files to TypeScript. But this process is not yet done and thus there are many things still in
 progress (mainly the definition of custom types and some code refinement). 
 
@@ -93,12 +93,12 @@ is now named `initCalendar()`. This is one of the most important ones - if you h
 have overridden this method and have to update your code. We recommend to use the `override` modifier, so that the 
 compiler marks any issues regarding such cases.
 
-### Issues with webpack
+#### Issues with webpack
 There is a known issue with webpack, that will most likely lead to issues, when starting the application.
 
 Check the "Known Issues" page for details (> Startup issue when using webpack (Vaadin 14-23)).
 
-## No more EagerInMemoryEntryProvider
+### No more EagerInMemoryEntryProvider
 To make maintenance of the client side a bit easier and less error prone, we decided to remove the 
 `EagerInMemoryEntryProvider` and thus have the client side always be in "lazy loading" mode. This means, that there is 
 no official way anymore to move all entries to the client side at once.
@@ -118,11 +118,11 @@ but fetched. When the client shall be updated, call the refresh methods instead.
 There are also other methods, that where some variant of `Eager`. Simply replace them with the now default one and
 check, if refreshs are necessary in your use cases.
 
-### Prefetch mode
+#### Prefetch mode
 There is now a prefetch mode, that allows fetching adjacent periods. This shall prevent flickering, when switching
 to the previous/next period. See the samples page for details.
 
-## Custom views
+### Custom views
 Up to now custom views had to be created as a Java class but could only be registered via initial options. To
 make life a bit easier here, the interface `CustomCalendarView` has been added plus methods to register those. 
 
@@ -133,7 +133,7 @@ Check the `CustomCalendarView` docs for additional information. The relevant met
 
 Please note, that due to limitations of the FC library, views can only be set at initialization time.
 
-## Entry is "static" again, JsonItem is gone
+### Entry is "static" again, JsonItem is gone
 This part describes a rare use case and should not be affecting most of the FC users.
 
 With 4.x we tried to make the `Entry` structure more dynamic to allow easier definition of new properties and automate
@@ -144,14 +144,14 @@ Due to that we decided to go back to the POJO approach as we had it prior to 4.x
 the `Entry` class to add properties using the `Key` mechanism, we are sorry, but you will have to convert your
 subclass. 
 
-### Json annotations
+#### Json annotations
 Nevertheless, some ideas have survived this rollback. Especially automating the conversion and update process is still
 something we do not want to miss. To make life a bit easier, there are now annotations to mark class fields for
 automated conversion and allow them to be updated. Check the `Entry` source code and annotations in the `json` 
 subpackage, if you want or need to use those annotations.
 
-## Deprecated methods have been removed
-### Calendar Entry CRUD
+### Deprecated methods have been removed
+#### Calendar Entry CRUD
 Replace Calendar Entry CRUD calls with `getEntryProvider().asInMemoryProvider()`, e.g. 
 ```java
 // before
@@ -163,11 +163,11 @@ calendar.getEntryProvider().asInMemoryProvider().addEntry(entry)
 We know, this might be cumbersome for use cases, where you only use the in memory provider, but with having a cleaner
 api in mind this is a step we need to take. Sorry for the inconvenience.
 
-### Entry Resource API
+#### Entry Resource API
 Resource methods in `Entry` are now more aligned to other Vaadin item api, so replace for instance `assignResources`
 with `addResources`.
 
-### Other changes
+#### Other changes
 * RenderingMode has been renamed to DisplayMode to align with the FC library and is a top class now. 
   Replace it and related methods respectively.
 * Entry's method `copy(Class<T>)` has been renamed to `copyAsType(Class<T>)`.
@@ -177,17 +177,17 @@ with `addResources`.
 * Since we used the javax @NotNull annotation a lot for better dx, but Vaadin 24 will no longer support that due to Spring Boot 3, we decided to add our own annotation to provide additional information without potential naming conflicts. 
 
 
-# Migrating from 4.0 > 4.1
-## Entry Provider and old CRUD operations
+## Migrating from 4.0 > 4.1
+### Entry Provider and old CRUD operations
 4.1 most important change is the introduction of EntryProviders. Please see the [examples](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/FullCalendar-Examples#entry-providers) for details regarding the different new variants.
 
 By default the FullCalendar uses an `EagerInMemoryEntryProvider`, which behaves the same way as the FullCalendar did before. This means, this should not be a breaking change for your application. Yet we recommend to change to either the `LazyInMemoryEntryProvider` or a callback variant to use the advantages of the new entry providers.
 
 Please note, that the Entry CRUD API on the FullCalendar has been marked as deprecated. It is recommended to replace it with the respective API of the eager in memory provider, if you want to stay with that implementation. See the [examples page](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/FullCalendar-Examples#in-memory-eager-loading) for an example on how that could look like.
 
-# Migrating from 3.x > 4.0
-## Introduction
-### Timezones
+## Migrating from 3.x > 4.0
+### Introduction
+#### Timezones
 The most breaking change when migrating from version 3.x to 4.0 will be that the server side got
 rid of any timezone inclusion regarding date times. You still may set a timezone for the calendar
 or set/get offsetted local date times, but the regular api is now always UTC based and we try to keep
@@ -198,21 +198,21 @@ Part of this change is
 * Timezones are not applied anymore to the server side times
 * Calendar and event time related api is also now UTC based (e.g. finding entries in a timespan)
 
-### JsonItem
+#### JsonItem
 With this version also the foundation of the `Entry` type has changed to a more dynamic, automated way of handling and converting properties, when communicating with the client. This is done in a new class `JsonItem` which `Entry` now extends.
 
 In theory, this should not break your code, unless you have extended the Entry class. In that case please have a look into the examples page or the implementation of Entry to get an idea what has changed. We hope, that we have covered now all basic properties of the client side FullCalendar items and that subclasses are not necessary anymore.
 
 If you still need your subclass, you may have to overhaul the conversion part. For this case it is not really possible to foresee any implementation details and give advices on those, unfortunately.
 
-## Migration steps / manual in detail
-### Timezone
+### Migration steps / manual in detail
+#### Timezone
 Before heading into all UTC and timezone related changes, the first thing to mention is, that the Timezone class now
 has some simple methods to apply or remove the offset of the timezone it represents from a local date time to create
 another ((un)offsetted) local date time to help doing things manual. Just to keep in mind, when one of the following
 things might seem to be a too breaking change.
 
-### Entry start / end and timezone.
+#### Entry start / end and timezone.
 If are using the `Instant` based start / end api only, theoretically you do not need to change your code.
 Please notify that `getStartUTC / getEndUTC` have been deprecated. Replace them at some point with `getStartAsInstant / getEndAsInstant`.
 
@@ -285,8 +285,8 @@ entry.setStartWithOffset(datePicker.getValue(), timezone);
 Summarized we recommend: when working with your backend (persisting, etc), use the UTC variants. When working with some kind
 of edit form, where the user can modify his/her entry based on the calendar's timezone, use the offset variants. For new entries, that have not yet been added to the calendar, use the offset variants with timezone parameter (in the .
 
-### Entry related events date time
-#### Events and timezones
+#### Entry related events date time
+##### Events and timezones
 As with the entries also event times are now always UTC based. We tried to align the api the the entry's one in naming and behavior, so that the "default" date time is always UTC based, while the offset variant api provides the data with the calendar timezone's offset applied.
 
 ```java
@@ -309,13 +309,13 @@ calendar.addTimeslotSelectedEvent(event -> {
 });
 ```
 
-#### Renamed getters
+##### Renamed getters
 Getters in `TimeslotsSelectedEvent` have changed to be more aligned to the entry's and other events names to simplify the code to read a bit (e. g. from `getStartDateTime` to `getStart`). We added respective methods for getting the Instant and the offsetted variant.
 
-#### Removed getters in all-day related events
+##### Removed getters in all-day related events
 See chapter [**All-day behavior**](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/FullCalendar-MigrationGuides#all-day-behavior) for details.
 
-### Recurrence
+#### Recurrence
 `setRecurring(boolean)` is gone. There is no replacement for this method, since recurrence is now detected automatically
 based on if you have set any relevant recurrence property in the entry. See isRecurring() for details, which properties are relevant. This behavior has been taken over from the client side library.
 
@@ -337,7 +337,7 @@ entry.setRecurringStartDate(start.toLocalDate(), timezone);
 entry.setRecurringStartDate(start.toLocalDate());
 ```
 
-### All-day behavior
+#### All-day behavior
 The displayment / interpretion of all-day entries and changing timezones has changed. In version 3.x an all-day entry was not bound to the day alone, but
 also influenced by the timezone. This could lead to effects, that a holiday, which is on a specific day (e. g. New Year),
 spans two days, when switching the timezone. While it might somehow appear to be technically correct, it simply is not from the perspective of a calendar.
@@ -355,7 +355,7 @@ the 1st of March, the returned date may have been pointing to the 28th of Februa
 conversion. Now the returned timestamp will always be the correct day at 00:00 UTC time. Simply ignore the
 time part in this case or use the `LocalDate` getter.
 
-### Accessing custom properties in eventDidMount or eventContent
+#### Accessing custom properties in eventDidMount or eventContent
 Not a required but a recommended change. If you have customized the appearance of your entries using one of the
 callbacks `setEntryDidMount()` or `setEntryContent()` (or the respective client side variants) and you access
 custom properties of an entry (for instance `description`), you should change the access to the newly introduced
@@ -390,12 +390,12 @@ by us as soon as the client side `eventDidMount` or `eventContent` option has be
 and using it will lead to javascript errors.
 
 
-### Deprecation
+#### Deprecation
 Some methods have been deprecated due to typos or ambigious meaning. Please check any compiler warnings and apidocs
 regarding deprecated methods. They might be removed in any upcoming minor or major release without additional
 warning.
 
-## Removed features
+### Removed features
 If you used a feature in your calendar, that an entry could have a different timezone for start and end:
 this is not supported anymore out of the box. We know, that this is a step back regarding functionality,
 but at this point we thing having a straight way of storing the times internally is a bigger and more

@@ -1,4 +1,5 @@
-# Index
+## Index
+* [7.0.x](#70x)
 * [6.2.x](#62x)
 * [6.1.x](#61x)
 * [6.0.x](#60x)
@@ -6,7 +7,7 @@
 * [4.0.x](#40x)
 
 ## 7.0.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-7.0.x)
+[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-7.0)
 - updated to FullCalendar 6.1.19
 - increased required Vaadin version to 25
 - increased required Java version to 21
@@ -16,11 +17,11 @@
 - renamed theme variant `LUMO` to `VAADIN` and integrated Aura into theming
 
 ## 6.2.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-6.2.x)
+[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-6.2)
 - added custom native event handlers for entries
 
 ## 6.1.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-6.1.x)
+[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-6.1)
 - added an optional Lumo theme for the addon
 
 ## 6.0.x
@@ -56,11 +57,11 @@ Other things that we may have overseen :)
 Due to lack of time, we have no release note details at this time. We tried to provide additional info as part of the migration page.
 
 ## 4.1.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-4.1.x)
+[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-4.1)
 - added EntryProvider, a data provider like callback based class to allow lazy loading entries based on the actual displayed timespan
 
 ## 4.0.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-Notes-4.0.x)
+[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-4.0)
 - introduced a new type JsonItem for creating item classes with dynamic property handling and automated conversion from and to json
 - integrated json item api into Entry types for dynamic type conversion. Due to that entries will not send all data to the client, when updating existing ones
 - changed date time handling on server side and communication to be always utc

@@ -1,4 +1,3 @@
-# Features
 This page shows a summary of the most important features of the FullCalendar library, that this addon provides. It is
 not a full list of all features. If you find any library features missing, please create a [feature request](https://github.com/stefanuebe/vaadin-fullcalendar/issues/new?template=BLANK_ISSUE).
 

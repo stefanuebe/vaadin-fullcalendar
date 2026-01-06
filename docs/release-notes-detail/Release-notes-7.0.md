@@ -1,8 +1,10 @@
-# Release notes for 7.0
+This page gives you an overview of the major changes, that came with the release of 
+[FullCalendar for Flow, version 7.0](https://vaadin.com/directory/component/full-calendar-flow).
 
-The main change in version 7 is the requirement for Vaadin 25, which includes the new requirement
-for at least Java 21. 
+The main change in version 7.0 is the Vaadin 25 support, which includes the new requirement
+for at least Java 21 and, if used, Spring Boot 4. 
 
+## Major code changes
 Since element Json is gone and Jackson 3 is the new player on the field, json related things have been
 reworked to use Jackson types instead of elemental Json ones. Some method names have changed to align better with 
 the handled types.
@@ -20,6 +22,4 @@ The class `BusinessHours` has been reworked. The constructors have been removed 
 there are now static methods to define new instance. The api also has been changed to allow a fluent definition
 style of business hours.
 
-
 Deprecated APIs have been marked as `forRemoval` and will be removed with one of the next minor releases.
-
