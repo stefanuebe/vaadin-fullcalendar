@@ -1,8 +1,6 @@
 package org.vaadin.stefan.ui.view;
 
-import com.vaadin.flow.component.HasComponents;
-import com.vaadin.flow.component.HasText;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -12,9 +10,9 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -38,7 +36,7 @@ import java.util.stream.IntStream;
 /**
  * @author Stefan Uebe
  */
-public class CalendarViewToolbar extends MenuBar {
+public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarLayout when V25 ready
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, new Timezone(ZoneId.of("Europe/Berlin")), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
 
     private final FullCalendar calendar;
@@ -78,7 +76,7 @@ public class CalendarViewToolbar extends MenuBar {
         this.viewChangeable = viewChangeable;
         this.dateChangeable = dateChangeable;
 
-        addThemeVariants(MenuBarVariant.LUMO_SMALL);
+        setWrap(true);
 
         initMenuBar();
     }
@@ -103,7 +101,7 @@ public class CalendarViewToolbar extends MenuBar {
     }
 
     private void initDateItems() {
-        addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous()).setId("period-previous-button");
+        addButton(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
 
         // simulate the date picker light that we can use in polymer
         DatePicker gotoDate = new DatePicker();
@@ -115,22 +113,40 @@ public class CalendarViewToolbar extends MenuBar {
                 .setMarginTop("-15px");
 
         gotoDate.setWeekNumbersVisible(true);
+        gotoDate.setTabIndex(-1);
 
-        // TODO replace this with a simple text element. Note: using a horizontal layout as container did not work always.
-        //  on Dec 25 it broke the menu bar, so something to investigate
+        // TODO add month picker
+
         buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
-        buttonDatePicker.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.AURA_TERTIARY);
         buttonDatePicker.getElement().appendChild(gotoDate.getElement());
         buttonDatePicker.addClickListener(event -> gotoDate.open());
-        buttonDatePicker.setWidthFull();
-        addItem(buttonDatePicker);
+        add(buttonDatePicker);
 
-        addItem(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
-        addItem("Today", e -> calendar.today());
+        addButton(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
+        addButton("Today", e -> calendar.today());
+    }
+
+    private Button addButton(Component content, ComponentEventListener<ClickEvent<Button>> listener) {
+        Button button = new Button(content, listener);
+        add(button);
+        return button;
+    }
+
+    private Button addButton(String label, ComponentEventListener<ClickEvent<Button>> listener) {
+        Button button = new Button(label, listener);
+        add(button);
+        return button;
+    }
+
+    private MenuItem addDropDown(String label) {
+        MenuBar menuBar = new MenuBar();
+        add(menuBar);
+
+        return menuBar.addItem(label);
     }
 
     protected SubMenu initEditItems() {
-        SubMenu calendarItems = addItem("Entries").getSubMenu();
+        SubMenu calendarItems = addDropDown("Entries").getSubMenu();
 
         MenuItem addRandomItems;
         MenuItem addRecurringItems;
@@ -246,7 +262,7 @@ public class CalendarViewToolbar extends MenuBar {
     }
 
     private SubMenu initGeneralSettings() {
-        SubMenu subMenu = addItem("Settings").getSubMenu();
+        SubMenu subMenu = addDropDown("Settings").getSubMenu();
 
         // overhaul, when other themes are added
         Checkbox themeSelector = new Checkbox("Use Lumo Theme");
@@ -375,7 +391,7 @@ public class CalendarViewToolbar extends MenuBar {
 
         calendarViews.sort(Comparator.comparing(CalendarView::getName));
 
-        viewSelector = addItem("View: " + getViewName(selectedView));
+        viewSelector = addDropDown("View: " + getViewName(selectedView));
         SubMenu subMenu = viewSelector.getSubMenu();
         calendarViews.stream()
                 .sorted(Comparator.comparing(this::getViewName))
