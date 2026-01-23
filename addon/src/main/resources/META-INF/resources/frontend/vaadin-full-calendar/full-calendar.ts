@@ -104,7 +104,10 @@ export class FullCalendar extends HTMLElement {
                     console.debug('Ignored: ResizeObserver loop limit exceeded');
                     return false;
                 } else {
-                    return e(...arguments);
+                    if (typeof e === "function") {
+                        return e(...arguments);
+                    }
+                    return false;
                 }
             }
 
@@ -507,9 +510,11 @@ export class FullCalendar extends HTMLElement {
 
         for (let key in options) {
             let value: any = options[key];
-            this.handleTimeZoneChange(calendar, /*key, */value);
             // @ts-ignore
             calendar.setOption(key, value);
+            if (key === "timeZone") {
+                this.handleTimeZoneChange(calendar, value);
+            }
         }
         this.noDatesRenderEvent = false;
     }
@@ -598,7 +603,8 @@ export class FullCalendar extends HTMLElement {
      * @return {*} property value
      */
     static getCustomProperty(event: any, key: string, defaultValue: any = undefined) {
-        if (event.extendedProps && event.extendedProps.customProperties && event.extendedProps.customProperties[key]) {
+        if (event.extendedProps && event.extendedProps.customProperties &&
+            Object.prototype.hasOwnProperty.call(event.extendedProps.customProperties, key)) {
             return event.extendedProps.customProperties[key];
         }
 

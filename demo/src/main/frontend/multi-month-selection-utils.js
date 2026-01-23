@@ -2,10 +2,13 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
 
     // register the multi month selection for the given FC calendar instance
     register: function (calendar) {
+        if (calendar.__multiMonth && calendar.__multiMonth.isRegistered) {
+            this.unregister(calendar);
+        }
         let element = calendar.el;
 
         // state object
-        calendar.__multiMonth = {};
+        calendar.__multiMonth = { isRegistered: true };
 
         calendar.__multiMonth.mouseDownListener = e => {
             let startCell = this.findTdFromEvent(e);
@@ -71,6 +74,25 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
             calendar.__multiMonth.selectedCells = [];
 
         });
+    },
+    unregister: function (calendar) {
+        if (!calendar.__multiMonth) {
+            return;
+        }
+
+        let element = calendar.el;
+        if (calendar.__multiMonth.mouseDownListener) {
+            element.removeEventListener("mousedown", calendar.__multiMonth.mouseDownListener);
+        }
+        if (calendar.__multiMonth.mouseMoveListener) {
+            window.removeEventListener("mousemove", calendar.__multiMonth.mouseMoveListener);
+        }
+        if (calendar.__multiMonth.mouseUpListener) {
+            window.removeEventListener("mouseup", calendar.__multiMonth.mouseUpListener);
+        }
+
+        this.unmarkSelectedCells(calendar.__multiMonth);
+        delete calendar.__multiMonth;
     },
 
     markSelectedCells(state, startCell, hoveredCell = startCell) {
