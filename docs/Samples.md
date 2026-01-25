@@ -539,8 +539,16 @@ import tippy from 'tippy.js';
 
 
 export class FullCalendarWithTooltip extends FullCalendarScheduler {
+    private _tooltipInitialized: boolean = false;
+
     initCalendar() {
         super.initCalendar();
+
+        // Prevent duplicate event handler registration on re-initialization
+        if (this._tooltipInitialized) {
+            return;
+        }
+        this._tooltipInitialized = true;
 
         this.calendar!.setOption("eventDidMount", e => {
             this.initTooltip(e);

@@ -12,20 +12,28 @@ FullCalendar for Flow is a Vaadin Flow integration of the FullCalendar JavaScrip
 ## Build Commands
 
 ```bash
-# Build all modules
-mvn package
+# Build all modules (install to local repo for cross-module deps)
+mvn clean install
 
 # Build for production (optimized frontend)
-mvn clean package -Pproduction -DskipTests
+mvn clean install -Pproduction -DskipTests
 
-# Run the demo application
-cd demo && mvn spring-boot:run
+# Run the demo application (requires production profile for full build)
+cd demo && mvn spring-boot:run -Pproduction
 
 # Run unit tests
 mvn test
 
 # Run integration tests
 mvn verify
+
+# Alternative: Use Maven wrapper from demo/ if mvn not available
+./demo/mvnw clean install
+```
+
+**Note**: If build fails with proxy URL errors, unset empty proxy variables:
+```bash
+unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
 ```
 
 ## Module Structure
@@ -98,3 +106,11 @@ Detailed documentation available in `docs/`:
 - `FAQ.md`, `Known-issues.md`
 
 Wiki: https://github.com/stefanuebe/vaadin-fullcalendar/wiki
+
+## Thread Safety & Performance Notes
+
+- `FullCalendar.refreshAllEntriesRequested` uses volatile + synchronized for thread safety
+- `BeanProperties` caches reflection data (annotations, converters) for performance
+- Entry cache is bounded to 10,000 entries max (LRU eviction)
+- ResizeObserver is cleaned up in `disconnectedCallback()` to prevent memory leaks
+- Server-defined JS callbacks use `new Function()` intentionally for dynamic evaluation
