@@ -31,7 +31,18 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
 
     initTooltip(e: any) {
         if (e.event.title && !e.isMirror) {
-            e.el.addEventListener("mouseenter", () => {
+            // Prevent adding duplicate listeners by checking if already initialized
+            if (e.el._tooltipInitialized) {
+                return;
+            }
+            e.el._tooltipInitialized = true;
+
+            const mouseEnterHandler = () => {
+                // Destroy existing tippy instance if any to prevent duplicates
+                if (e.el._tippy) {
+                    e.el._tippy.destroy();
+                }
+
                 let tooltip = e.event.getCustomProperty("description", e.event.title);
 
                 e.el._tippy = tippy(e.el, {
@@ -41,13 +52,20 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
                 });
 
                 e.el._tippy.show();
-            })
+            };
 
-            e.el.addEventListener("mouseleave", () => {
+            const mouseLeaveHandler = () => {
                 if (e.el._tippy) {
                     e.el._tippy.destroy();
+                    e.el._tippy = null;
                 }
-            })
+            };
+
+            e.el.addEventListener("mouseenter", mouseEnterHandler);
+            e.el.addEventListener("mouseleave", mouseLeaveHandler);
+
+            // Store handlers for potential cleanup
+            e.el._tooltipHandlers = { mouseEnterHandler, mouseLeaveHandler };
         }
     }
 }
