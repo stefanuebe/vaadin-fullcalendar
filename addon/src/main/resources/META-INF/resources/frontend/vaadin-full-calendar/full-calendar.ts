@@ -536,6 +536,7 @@ export class FullCalendar extends HTMLElement {
 
         // @ts-ignore
         let oldValue = calendar.getOption(key);
+
         if (oldValue !== value) {
             this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
 
