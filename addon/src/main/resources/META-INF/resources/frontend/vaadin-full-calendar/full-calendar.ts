@@ -35,6 +35,7 @@ export type IterableObject = {
 export class FullCalendar extends HTMLElement {
 
     private _calendar!: Calendar;
+    private _resizeObserver: ResizeObserver | null = null;
 
     protected noDatesRenderEvent = false;
     protected noDatesRenderEventOnOptionSetting = true;
@@ -97,28 +98,36 @@ export class FullCalendar extends HTMLElement {
             // calling updateSize or render inside the resize observer leads to an error in combination
             // with the Vaadin AppLayout. To prevent having errors on every collapse/expand of the app layout's
             // sidebar, this error handler will catch this error and ignore it. the error seem to come up due to
-            // the transition / animation. Normal resizes should not bringt it up
-            const e = window.onerror as any;
-            window.onerror = function(err) {
-                if(typeof err === "string" && err.startsWith('ResizeObserver loop limit exceeded')) {
+            // the transition / animation. Normal resizes should not bring it up.
+            // Using addEventListener instead of replacing window.onerror to avoid conflicts with other error handlers.
+            window.addEventListener('error', (event: ErrorEvent) => {
+                if (event.message && event.message.startsWith('ResizeObserver loop')) {
                     console.debug('Ignored: ResizeObserver loop limit exceeded');
-                    return false;
-                } else {
-                    return e(...arguments);
+                    event.stopImmediatePropagation();
                 }
-            }
+            });
 
-            // we add a ts ignore since webpack has problems with the resize observer
-            // @ts-ignore
-            new ResizeObserver((entries: any) => {
-
+            // Store ResizeObserver reference for cleanup in disconnectedCallback
+            // @ts-ignore - webpack has problems with the resize observer type
+            this._resizeObserver = new ResizeObserver((entries: any) => {
                 if (!Array.isArray(entries) || !entries.length) {
                     return;
                 }
                 requestAnimationFrame(() => {
                     this.calendar?.updateSize();
                 });
-            }).observe(this);
+            });
+            this._resizeObserver.observe(this);
+        }
+    }
+
+    /**
+     * Called when the element is removed from the DOM. Cleans up resources.
+     */
+    disconnectedCallback() {
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect();
+            this._resizeObserver = null;
         }
     }
 
@@ -271,7 +280,8 @@ export class FullCalendar extends HTMLElement {
                 }
             },
             moreLinkClick: (eventInfo: any) => {
-                let events = eventInfo.allSegs.map((seg: { event: any; }) => {
+                const allSegs = eventInfo.allSegs || [];
+                let events = allSegs.map((seg: { event: any; }) => {
                     return this.convertToEventData(seg.event);
                 });
                 return {
@@ -436,6 +446,9 @@ export class FullCalendar extends HTMLElement {
                 } else {
                     failureCallback("could not fetch");
                 }
+            }).catch((error: any) => {
+                console.error("Failed to fetch entries from server:", error);
+                failureCallback(error?.message || "Failed to fetch entries");
             })
         };
         this.calendar?.setOption("events", callback);
@@ -523,7 +536,7 @@ export class FullCalendar extends HTMLElement {
 
         // @ts-ignore
         let oldValue = calendar.getOption(key);
-        if (oldValue != value) {
+        if (oldValue !== value) {
             this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
 
             // @ts-ignore

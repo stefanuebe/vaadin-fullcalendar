@@ -2,10 +2,19 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
 
     // register the multi month selection for the given FC calendar instance
     register: function (calendar) {
+        // Prevent double registration
+        if (calendar.__multiMonth) {
+            console.warn("Multi-month selection already registered for this calendar");
+            return;
+        }
+
         let element = calendar.el;
 
         // state object
-        calendar.__multiMonth = {};
+        calendar.__multiMonth = {
+            dateCellMap: new Map(),
+            selectedCells: []
+        };
 
         calendar.__multiMonth.mouseDownListener = e => {
             let startCell = this.findTdFromEvent(e);
@@ -58,7 +67,7 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
 
         // maps the calendar's date cells to their dates to allow easier access on mouse move
         // will be refreshed on each period change
-        calendar.setOption("datesSet", function (eventInfo) {
+        calendar.__multiMonth.datesSetHandler = function (eventInfo) {
             let view = eventInfo.view;
             // generate dates between two dates
 
@@ -69,14 +78,51 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
 
             calendar.__multiMonth.dateCellMap = map;
             calendar.__multiMonth.selectedCells = [];
+        };
+        calendar.setOption("datesSet", calendar.__multiMonth.datesSetHandler);
+    },
 
-        });
+    // unregister the multi month selection for the given FC calendar instance
+    unregister: function (calendar) {
+        if (!calendar.__multiMonth) {
+            return;
+        }
+
+        let element = calendar.el;
+
+        // Remove window listeners if they exist
+        if (calendar.__multiMonth.mouseMoveListener) {
+            window.removeEventListener("mousemove", calendar.__multiMonth.mouseMoveListener);
+        }
+        if (calendar.__multiMonth.mouseUpListener) {
+            window.removeEventListener("mouseup", calendar.__multiMonth.mouseUpListener);
+        }
+
+        // Remove element listener
+        if (calendar.__multiMonth.mouseDownListener) {
+            element.removeEventListener("mousedown", calendar.__multiMonth.mouseDownListener);
+        }
+
+        // Clean up any remaining highlights
+        this.unmarkSelectedCells(calendar.__multiMonth);
+
+        // Clear state
+        calendar.__multiMonth = null;
     },
 
     markSelectedCells(state, startCell, hoveredCell = startCell) {
+        // Null checks for required state
+        if (!state || !state.dateCellMap) {
+            return;
+        }
         let cellMap = state.dateCellMap;
 
         this.unmarkSelectedCells(state);
+
+        // Validate cell data
+        if (!startCell?.dataset?.date || !hoveredCell?.dataset?.date) {
+            return;
+        }
 
         // iterate over all dates between startCell and hoveredCell
         let fromDate = new Date(startCell.dataset.date);
@@ -91,7 +137,7 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
         let date = new Date(fromDate);
         while (date <= toDate) {
             let td = cellMap.get(date.toISOString().slice(0, 10));
-            if (td) {
+            if (td && td.children && td.children.length > 0) {
                 let highlight = document.createElement("div");
                 // highlight.classList.add("multi-month-highlight");
 
@@ -115,8 +161,11 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
     },
 
     unmarkSelectedCells: function (state) {
+        if (!state || !state.selectedCells) {
+            return;
+        }
         state.selectedCells.forEach(td => {
-            if (td.__multiMonthHighlight) {
+            if (td && td.__multiMonthHighlight) {
                 td.__multiMonthHighlight.remove();
                 delete td.__multiMonthHighlight;
             }
