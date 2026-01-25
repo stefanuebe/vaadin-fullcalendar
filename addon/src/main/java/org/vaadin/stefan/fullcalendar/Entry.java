@@ -158,41 +158,23 @@ public class Entry {
         ObjectNode json = JsonFactory.createObject();
 
         streamProperties().forEach(def -> {
-            String name = def.getName();
-            Field field = def.getField();
-            try {
+            // Use cached annotation data from BeanProperties for performance
+            if (!def.isJsonIgnored()) {
+                Object value = def.getGetter().apply(this);
 
-                // TODO all the reflection stuff could be moved to an initial static block to spare it to be done
-                //  on each conversion
-                if (field.getAnnotation(JsonIgnore.class) == null) {
-                    Object value = def.getGetter().apply(this);
+                JsonNode jsonValue;
 
-                    JsonNode jsonValue;
+                JsonItemPropertyConverter converter = def.getConverter();
 
-                    JsonConverter converterAnnotation = field.getAnnotation(JsonConverter.class);
-                    JsonItemPropertyConverter converter = null;
-                    if (converterAnnotation != null) {
-                        converter = converterAnnotation.value().getConstructor().newInstance();
-                    }
-
-                    if (converter != null && converter.supports(value)) {
-                        jsonValue = converter.toClientModel(value, this);
-                    } else {
-                        jsonValue = JsonUtils.toJsonNode(value);
-                    }
-
-                    if (jsonValue != null && !(jsonValue instanceof NullNode)) {
-                        String jsonName = name;
-                        JsonName nameAnnotation = field.getAnnotation(JsonName.class);
-                        if (nameAnnotation != null) {
-                            jsonName = nameAnnotation.value();
-                        }
-
-                        json.set(jsonName, jsonValue);
-                    }
+                if (converter != null && converter.supports(value)) {
+                    jsonValue = converter.toClientModel(value, this);
+                } else {
+                    jsonValue = JsonUtils.toJsonNode(value);
                 }
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
+
+                if (jsonValue != null && !(jsonValue instanceof NullNode)) {
+                    json.set(def.getJsonName(), jsonValue);
+                }
             }
         });
 
@@ -230,42 +212,29 @@ public class Entry {
         }
 
         streamProperties().forEach(def -> {
-            String name = def.getName();
-            Field field = def.getField();
-            try {
-                if (field.getAnnotation(JsonIgnore.class) == null
-                        && field.getAnnotation(JsonUpdateAllowed.class) != null) {
+            // Use cached annotation data from BeanProperties for performance
+            if (!def.isJsonIgnored() && def.isJsonUpdateAllowed()) {
+                String name = def.getName();
 
-                    Setter<Entry, Object> setter = def.getSetter()
-                            .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + name));
+                Setter<Entry, Object> setter = def.getSetter()
+                        .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + name));
 
-                    String jsonName = name;
-                    JsonName nameAnnotation = field.getAnnotation(JsonName.class);
-                    if (nameAnnotation != null) {
-                        jsonName = nameAnnotation.value();
+                String jsonName = def.getJsonName();
+
+                if (jsonObject.hasNonNull(jsonName)) {
+                    JsonItemPropertyConverter converter = def.getConverter();
+
+                    Object newValue;
+                    JsonNode jsonValue = jsonObject.get(jsonName);
+
+                    if (converter != null) {
+                        newValue = converter.toServerModel(jsonValue, this);
+                    } else {
+                        newValue = JsonUtils.ofJsonNode(jsonValue);
                     }
 
-                    if (jsonObject.hasNonNull(jsonName)) {
-                        JsonConverter converterAnnotation = field.getAnnotation(JsonConverter.class);
-                        JsonItemPropertyConverter converter = null;
-                        if (converterAnnotation != null) {
-                            converter = converterAnnotation.value().getConstructor().newInstance();
-                        }
-
-                        Object newValue;
-                        JsonNode jsonValue = jsonObject.get(jsonName);
-
-                        if (converter != null) {
-                            newValue = converter.toServerModel(jsonValue, this);
-                        } else {
-                            newValue = JsonUtils.ofJsonNode(jsonValue);
-                        }
-
-                        setter.accept(this, newValue);
-                    }
+                    setter.accept(this, newValue);
                 }
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
             }
         });
     }
@@ -293,8 +262,8 @@ public class Entry {
             copy(this, copy, false);
 
             return copy;
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to create copy of entry", e);
         }
     }
 
@@ -315,8 +284,8 @@ public class Entry {
             copy(this, copy, true);
 
             return copy;
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to create copy of entry as type " + targetType.getName(), e);
         }
     }
 
@@ -367,15 +336,15 @@ public class Entry {
                     }
 
                     setter.accept(target, value);
-                } catch (Throwable throwable) {
-                    throw new RuntimeException("Property " + def.getName() + " threw an exception", throwable);
+                } catch (ReflectiveOperationException e) {
+                    throw new RuntimeException("Property " + def.getName() + " threw an exception during copy", e);
                 }
             });
         });
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T newInstance(T value) throws Exception {
+    private static <T> T newInstance(T value) throws ReflectiveOperationException {
         try {
             return (T) value.getClass().getConstructor().newInstance();
         } catch (NoSuchMethodException e) {
@@ -405,16 +374,11 @@ public class Entry {
      * @return updateable properties
      */
     protected Stream<BeanProperties<Entry>> streamUpdateableProperties() {
-        return streamProperties().filter(def -> {
-            Field field = def.getField();
-            try {
-                return field.getAnnotation(JsonIgnore.class) == null
-                        && field.getAnnotation(JsonUpdateAllowed.class) != null
-                        && def.getSetter().isPresent();
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        });
+        return streamProperties().filter(def ->
+                !def.isJsonIgnored()
+                        && def.isJsonUpdateAllowed()
+                        && def.getSetter().isPresent()
+        );
     }
 
     /**
