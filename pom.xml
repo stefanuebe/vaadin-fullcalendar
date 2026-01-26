@@ -28,7 +28,6 @@
         <module>addon-scheduler</module>
         <module>demo</module>
     </modules>
-
 </project>
 
 
