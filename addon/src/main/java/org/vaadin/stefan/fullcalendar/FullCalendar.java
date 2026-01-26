@@ -241,6 +241,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         /* to allow class based styling for custom subclasses (e.g. for applying the lumo theme)*/
         addClassName("vaadin-full-calendar");
+        addThemeVariants(FullCalendarVariant.VAADIN);
     }
 
     @Override
