@@ -50,3 +50,7 @@ The scheduler extension integrates the features of the commercial Scheduler plug
   - Timeslot clicked
   - Timeslots slected
   - Entry dropped
+
+## Developer Tools
+
+- **[MCP Server](MCP-Server)**: Model Context Protocol server for AI assistants (Claude Code, GitHub Copilot, etc.) providing searchable documentation, Java API reference, code examples, and model schemas.
