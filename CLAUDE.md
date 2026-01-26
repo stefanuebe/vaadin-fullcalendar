@@ -31,11 +31,6 @@ mvn verify
 ./demo/mvnw clean install
 ```
 
-**Note**: If build fails with proxy URL errors, unset empty proxy variables:
-```bash
-unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
-```
-
 ## Module Structure
 
 ```
@@ -100,10 +95,14 @@ Uses Jackson 3 for serialization (changed from elemental.json in v7.0). Custom a
 ## Documentation
 
 Detailed documentation available in `docs/`:
+- `Home.md` - Documentation index
 - `Features.md` - Feature overview
 - `Samples.md` - Code examples
 - `Migration-guides.md` - Version migration instructions
-- `FAQ.md`, `Known-issues.md`
+- `Release-notes.md` - Version release notes
+- `Scheduler-license.md` - Scheduler extension licensing info
+- `FAQ.md` - Frequently asked questions
+- `Known-issues.md` - Known issues and workarounds
 
 Wiki: https://github.com/stefanuebe/vaadin-fullcalendar/wiki
 
@@ -114,3 +113,23 @@ Wiki: https://github.com/stefanuebe/vaadin-fullcalendar/wiki
 - Entry cache is bounded to 10,000 entries max (LRU eviction)
 - ResizeObserver is cleaned up in `disconnectedCallback()` to prevent memory leaks
 - Server-defined JS callbacks use `new Function()` intentionally for dynamic evaluation
+
+## MCP Servers and other docs
+
+Vaadin documentation MCP server for component DOM structure and API reference:
+
+```json
+{
+  "mcpServers": {
+    "vaadin": {
+      "type": "http",
+      "url": "https://mcp.vaadin.com/docs"
+    }
+  }
+}
+```
+
+If the MCP server does not have instructions on particular client side elements (web-components) of Vaadin, you
+may also check the typescript api: https://cdn.vaadin.com/vaadin-web-components/25.0.2, where each element has its
+own page, e.g. https://cdn.vaadin.com/vaadin-web-components/25.0.2/elements/vaadin-menu-bar/ . Only use that page as
+a last resort and only open the respective element's page.
