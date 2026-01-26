@@ -103,6 +103,9 @@ Detailed documentation available in `docs/`:
 - `Scheduler-license.md` - Scheduler extension licensing info
 - `FAQ.md` - Frequently asked questions
 - `Known-issues.md` - Known issues and workarounds
+- `MCP-Server.md` - MCP server documentation (copy of `mcp-server/README.md` - keep in sync!)
+
+**Note**: `docs/MCP-Server.md` is a full copy of `mcp-server/README.md`. When updating the MCP server README, also update the docs copy.
 
 Wiki: https://github.com/stefanuebe/vaadin-fullcalendar/wiki
 
@@ -115,6 +118,19 @@ Wiki: https://github.com/stefanuebe/vaadin-fullcalendar/wiki
 - Server-defined JS callbacks use `new Function()` intentionally for dynamic evaluation
 
 ## MCP Servers and other docs
+
+FullCalendar Vaadin MCP server for addon-specific documentation, API reference, and code examples:
+
+```json
+{
+  "mcpServers": {
+    "fullcalendar": {
+      "type": "http",
+      "url": "https://v-herd.eu/vaadin-fullcalendar-mcp/mcp"
+    }
+  }
+}
+```
 
 Vaadin documentation MCP server for component DOM structure and API reference:
 
