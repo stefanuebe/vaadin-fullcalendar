@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(git -C /workspace log --oneline -10)",
+      "Bash(mvn compile:*)",
+      "Bash(./demo/mvnw compile:*)",
+      "Bash(./demo/mvnw test:*)",
+      "Bash(grep:*)",
+      "WebFetch(domain:fullcalendar.io)",
+      "Bash(npm run build:*)",
+      "Bash(./demo/mvnw clean install:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npx playwright install-deps chromium)",
+      "Bash(curl:*)",
+      "Bash(node explore-demo.js:*)",
+      "Bash(apt-cache search:*)",
+      "Bash(node explore-chromium.js:*)",
+      "Bash(mvn clean install:*)",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(node full-exploration.js:*)",
+      "Bash(node diagnose.js:*)",
+      "WebFetch(domain:mcp.vaadin.com)",
+      "mcp__vaadin__get_vaadin_primer",
+      "mcp__vaadin__search_vaadin_docs",
+      "mcp__vaadin__get_full_document",
+      "mcp__vaadin__get_vaadin_version",
+      "mcp__vaadin__get_components_by_version",
+      "mcp__vaadin__get_component_java_api",
+      "mcp__vaadin__get_component_react_api",
+      "mcp__vaadin__get_component_web_component_api",
+      "mcp__vaadin__get_component_styling",
+      "Bash(npm test)",
+      "Bash(npm test:*)",
+      "Bash(git add:*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "vaadin",
+    "playwright"
+  ]
+}
