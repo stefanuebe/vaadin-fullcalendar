@@ -26,7 +26,7 @@ Add the core dependency:
 <dependency>
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2</artifactId>
-    <version>7.0.1</version>
+    <version>7.0.0</version>
 </dependency>
 ```
 
@@ -38,7 +38,7 @@ If you need resource-based views (Timeline, Vertical Resource), add the Schedule
 <dependency>
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2-scheduler</artifactId>
-    <version>7.0.1</version>
+    <version>7.0.0</version>
 </dependency>
 ```
 
