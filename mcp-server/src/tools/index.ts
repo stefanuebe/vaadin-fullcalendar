@@ -237,6 +237,75 @@ export class ToolHandlers {
   }
 
   /**
+   * Get Maven dependency information for project setup
+   */
+  getMavenDependency(params: { includeScheduler?: boolean }): {
+    groupId: string;
+    artifacts: {
+      core: { artifactId: string; description: string };
+      scheduler?: { artifactId: string; description: string; note: string };
+    };
+    latestVersion: string;
+    repository: { id: string; url: string; note: string };
+    compatibility: { version7: string; version6: string };
+    pomExample: string;
+  } {
+    const includeScheduler = params.includeScheduler !== false;
+
+    const coreExample = `<dependency>
+    <groupId>org.vaadin.stefan</groupId>
+    <artifactId>fullcalendar2</artifactId>
+    <version>7.0.0</version>
+</dependency>`;
+
+    const schedulerExample = `<!-- Optional: Scheduler extension (requires commercial FullCalendar license) -->
+<dependency>
+    <groupId>org.vaadin.stefan</groupId>
+    <artifactId>fullcalendar2-scheduler</artifactId>
+    <version>7.0.0</version>
+</dependency>`;
+
+    const repositoryExample = `<repositories>
+    <repository>
+        <id>vaadin-addons</id>
+        <url>https://maven.vaadin.com/vaadin-addons</url>
+    </repository>
+</repositories>`;
+
+    const result = {
+      groupId: 'org.vaadin.stefan',
+      artifacts: {
+        core: {
+          artifactId: 'fullcalendar2',
+          description: 'Core FullCalendar Flow component with all standard views and features',
+        },
+        ...(includeScheduler && {
+          scheduler: {
+            artifactId: 'fullcalendar2-scheduler',
+            description: 'Scheduler extension for resource-based views (Timeline, Vertical Resource)',
+            note: 'The Scheduler extension requires a separate commercial license from FullCalendar LLC for production use.',
+          },
+        }),
+      },
+      latestVersion: '7.0.0',
+      repository: {
+        id: 'vaadin-addons',
+        url: 'https://maven.vaadin.com/vaadin-addons',
+        note: 'This repository must be added to your pom.xml to resolve the addon dependency',
+      },
+      compatibility: {
+        version7: 'Vaadin 25+ / Java 21+',
+        version6: 'Vaadin 14-24 / Java 11+',
+      },
+      pomExample: includeScheduler
+        ? `${repositoryExample}\n\n${coreExample}\n\n${schedulerExample}`
+        : `${repositoryExample}\n\n${coreExample}`,
+    };
+
+    return result;
+  }
+
+  /**
    * Get server info and statistics
    */
   getServerInfo(): {

@@ -33,11 +33,18 @@
       "mcp__vaadin__get_component_styling",
       "Bash(npm test)",
       "Bash(npm test:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "WebFetch(domain:v-herd.eu)",
+      "mcp__fullcalendar__search_docs",
+      "mcp__fullcalendar__get_entry_schema",
+      "mcp__fullcalendar__get_code_example",
+      "mcp__fullcalendar__get_api_reference",
+      "Bash(pkill:*)"
     ]
   },
   "enabledMcpjsonServers": [
     "vaadin",
-    "playwright"
+    "playwright",
+    "fullcalendar"
   ]
 }

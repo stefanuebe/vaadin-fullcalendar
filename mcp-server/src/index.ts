@@ -148,6 +148,16 @@ const TOOLS: MCPTool[] = [
       required: ['path'],
     },
   },
+  {
+    name: 'get_maven_dependency',
+    description: 'Get Maven dependency coordinates, repository configuration, and version compatibility for setting up a new project with FullCalendar for Vaadin Flow.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        includeScheduler: { type: 'boolean', description: 'Include Scheduler extension dependency (default: true)' },
+      },
+    },
+  },
 ];
 
 // Server state
@@ -305,6 +315,9 @@ async function executeToolCall(toolName: string, args: Record<string, unknown>):
 
     case 'get_documentation':
       return tools.getDocumentation(args as { path: string });
+
+    case 'get_maven_dependency':
+      return tools.getMavenDependency(args as { includeScheduler?: boolean });
 
     default:
       throw new Error(`Unknown tool: ${toolName}`);
