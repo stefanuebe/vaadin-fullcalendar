@@ -10,7 +10,7 @@ RUN jq --version
 ENV HOME=/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
-COPY . $HOME
+COPY demo/. $HOME
 
 # If you have a Vaadin Pro key, pass it as a secret with id "proKey":
 #
