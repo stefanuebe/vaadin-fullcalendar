@@ -10,7 +10,7 @@ RUN jq --version
 ENV HOME=/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
-COPY demo/. $HOME
+COPY . $HOME
 
 # If you have a Vaadin Pro key, pass it as a secret with id "proKey":
 #
@@ -26,7 +26,7 @@ RUN --mount=type=cache,target=/root/.m2 \
     --mount=type=secret,id=offlineKey \
     sh -c 'PRO_KEY=$(jq -r ".proKey // empty" /run/secrets/proKey 2>/dev/null || echo "") && \
     OFFLINE_KEY=$(cat /run/secrets/offlineKey 2>/dev/null || echo "") && \
-    ./mvnw clean package -Pproduction -DskipTests -Dvaadin.proKey=${PRO_KEY} -Dvaadin.offlineKey=${OFFLINE_KEY}'
+    ./mvnw clean package -Pproduction -Dfullcalendar.version=7.0.0 -DskipTests -Dvaadin.proKey=${PRO_KEY} -Dvaadin.offlineKey=${OFFLINE_KEY}'
 
 FROM eclipse-temurin:21-jre-alpine
 COPY --from=build /app/target/*.jar app.jar
