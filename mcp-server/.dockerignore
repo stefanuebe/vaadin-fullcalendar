@@ -1,0 +1,11 @@
+node_modules
+dist
+*.log
+.git
+.gitignore
+*.md
+!README.md
+.env*
+.DS_Store
+coverage
+.nyc_output
