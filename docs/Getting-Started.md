@@ -70,3 +70,4 @@ calendar.getEntryProvider().asInMemory().addEntry(entry);
 - Check the [Samples](Samples.md) for more code examples
 - Review [Features](Features.md) for a full feature overview
 - See the [FAQ](FAQ.md) for common questions and troubleshooting
+- If you use AI tools like Claude, Cursor, or Copilot, check out our [MCP Server](MCP-Server) for enhanced assistance with the addon
