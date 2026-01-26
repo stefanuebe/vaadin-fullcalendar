@@ -1,0 +1,12 @@
+{
+  "version": "7.0.1-SNAPSHOT",
+  "extractedAt": "2026-01-26T09:04:16.373Z",
+  "counts": {
+    "documentation": 14,
+    "classes": 69,
+    "examples": 50,
+    "entryProperties": 45,
+    "calendarViews": 44,
+    "eventTypes": 10
+  }
+}
