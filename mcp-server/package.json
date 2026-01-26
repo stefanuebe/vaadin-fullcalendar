@@ -1,0 +1,38 @@
+{
+  "name": "fullcalendar-vaadin-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for FullCalendar Vaadin Flow addon documentation and API reference",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run extract && tsc",
+    "extract": "tsx src/extractors/extract-all.ts",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "fullcalendar",
+    "vaadin",
+    "documentation"
+  ],
+  "author": "Stefan Uebe",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "express": "^4.21.0",
+    "flexsearch": "^0.7.43",
+    "gray-matter": "^4.0.3",
+    "openai": "^4.70.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
