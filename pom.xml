@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar-parent</artifactId>
-    <version>7.0.0</version>
+    <version>7.0.1</version>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
