@@ -1,4 +1,4 @@
-# Phase 3: Core Integration
+# Phase 3: Core Integration — Generic `FullCalendar<T>`
 
 **Goal:** Make `FullCalendar` generic and connect CIP to the component.
 **Prerequisite:** Phase 2 complete, Spike verification 0.2 passed.
@@ -6,7 +6,24 @@
 
 ---
 
-## FullCalendar becomes `FullCalendar<T>`
+## Context
+
+This is the largest phase. `FullCalendar` becomes `FullCalendar<T>`, gains a
+`setCalendarItemProvider()` method alongside the existing `setEntryProvider()`, and the
+internal cache/fetch mechanism dispatches based on which provider is active.
+
+Two update strategies exist (A: mapper setters, B: update handler) with mutual exclusion.
+
+## Module
+
+Primary: `addon/src/main/java/org/vaadin/stefan/fullcalendar/FullCalendar.java`
+Also: `addon/src/main/java/org/vaadin/stefan/fullcalendar/FullCalendarBuilder.java`
+
+---
+
+## Changes to FullCalendar.java
+
+### 1. Class Signature
 
 ```java
 // Before:
@@ -16,44 +33,56 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 public class FullCalendar<T> extends Component implements HasStyle, HasSize, HasTheme
 ```
 
-Existing user code `FullCalendar calendar = new FullCalendar()` becomes a raw type warning.
-No compile errors. All existing methods continue to work.
+Existing code `FullCalendar calendar = new FullCalendar()` becomes a raw type warning.
+No compile errors. All existing methods continue to work identically.
 
----
-
-## Changes to FullCalendar.java
-
-### 1. Fields
+### 2. New Fields
 
 ```java
-public class FullCalendar<T> extends Component implements HasStyle, HasSize, HasTheme {
-    // EXISTING (type-updated):
-    private EntryProvider<? extends Entry> entryProvider;
+// EXISTING (preserved):
+private EntryProvider<? extends Entry> entryProvider;
 
-    // NEW:
-    private CalendarItemProvider<T> calendarItemProvider;
-    private CalendarItemPropertyMapper<T> calendarItemPropertyMapper;
-    private CalendarItemUpdateHandler<T> calendarItemUpdateHandler;
+// NEW:
+private CalendarItemProvider<T> calendarItemProvider;
+private CalendarItemPropertyMapper<T> calendarItemPropertyMapper;
+private CalendarItemUpdateHandler<T> calendarItemUpdateHandler;
+private boolean usingCalendarItemProvider = false;
+```
 
-    // Internal dispatch flag:
-    private boolean usingCalendarItemProvider = false;
+### 3. Cache — Widened Type
 
-    // Cache: widened from Map<String, Entry> to Map<String, Object>
-    private final Map<String, Object> lastFetchedItems = createBoundedItemCache();
+```java
+// Before:
+private final Map<String, Entry> lastFetchedEntries = createBoundedEntryCache();
+
+// After:
+private final Map<String, Object> lastFetchedItems = createBoundedItemCache();
+// Same bounded LRU cache (10,000 max), just with Object values
+
+// Backward-compatible accessor (for Entry events):
+public Optional<Entry> getCachedEntryFromFetch(String id) {
+    Object item = lastFetchedItems.get(id);
+    return item instanceof Entry entry ? Optional.of(entry) : Optional.empty();
+}
+
+// New typed accessor (for CIP events):
+@SuppressWarnings("unchecked")
+public Optional<T> getCachedItemFromFetch(String id) {
+    return Optional.ofNullable((T) lastFetchedItems.get(id));
 }
 ```
 
-### 2. New Public API — `setCalendarItemProvider()`
+### 4. `setCalendarItemProvider()` — New Public API
 
 ```java
 public void setCalendarItemProvider(
         CalendarItemProvider<T> provider,
         CalendarItemPropertyMapper<T> mapper) {
-    Objects.requireNonNull(provider);
-    Objects.requireNonNull(mapper);
+    Objects.requireNonNull(provider, "provider must not be null");
+    Objects.requireNonNull(mapper, "mapper must not be null");
     mapper.validate();  // Fail fast if ID mapping missing
 
-    // Mutual exclusion check: setters vs update handler
+    // Mutual exclusion check
     if (mapper.hasSetters() && calendarItemUpdateHandler != null) {
         throw new IllegalStateException(
             "Cannot use both mapper setters and CalendarItemUpdateHandler. "
@@ -64,23 +93,23 @@ public void setCalendarItemProvider(
     this.calendarItemPropertyMapper = mapper;
     this.usingCalendarItemProvider = true;
 
-    // Clear old entry provider
+    // Clear old entry provider state
     this.entryProvider = null;
     clearEntryProviderListeners();
 
-    // Register CIP listeners
+    // Register CIP listeners (refreshAll, refreshItem)
     registerCalendarItemProviderListeners(provider);
 
-    // Trigger refresh
+    // Trigger client-side refresh
     requestRefreshAllEntries();
 }
 ```
 
-### 3. New Public API — `setCalendarItemUpdateHandler()`
+### 5. `setCalendarItemUpdateHandler()` — Strategy B Registration
 
 ```java
 public void setCalendarItemUpdateHandler(CalendarItemUpdateHandler<T> handler) {
-    // Mutual exclusion check
+    Objects.requireNonNull(handler);
     if (calendarItemPropertyMapper != null && calendarItemPropertyMapper.hasSetters()) {
         throw new IllegalStateException(
             "Cannot use both mapper setters and CalendarItemUpdateHandler. "
@@ -90,31 +119,15 @@ public void setCalendarItemUpdateHandler(CalendarItemUpdateHandler<T> handler) {
 }
 ```
 
-### 4. Refactor Internal Cache
+### 6. `fetchEntriesFromServer()` — Dual Path
 
-```java
-// Backward-compatible accessor (existing, for Entry-based events):
-@SuppressWarnings("unchecked")
-public Optional<Entry> getCachedEntryFromFetch(String id) {
-    Object item = lastFetchedItems.get(id);
-    return item instanceof Entry ? Optional.of((Entry) item) : Optional.empty();
-}
-
-// New typed accessor (for CIP events):
-@SuppressWarnings("unchecked")
-public Optional<T> getCachedItemFromFetch(String id) {
-    return Optional.ofNullable((T) lastFetchedItems.get(id));
-}
-```
-
-### 5. Refactor `fetchEntriesFromServer()`
+The `@ClientCallable` method dispatches based on active provider:
 
 ```java
 @ClientCallable
 protected ArrayNode fetchEntriesFromServer(ObjectNode query) {
     LocalDateTime start = parseDateTime(query, "start");
     LocalDateTime end = parseDateTime(query, "end");
-
     ArrayNode array = JsonNodeFactory.instance.arrayNode();
 
     if (usingCalendarItemProvider) {
@@ -122,11 +135,10 @@ protected ArrayNode fetchEntriesFromServer(ObjectNode query) {
     } else {
         fetchEntries(start, end, array);
     }
-
     return array;
 }
 
-// Entry path (existing logic, extracted to method):
+// Entry path — extracted from existing logic, unchanged behavior:
 private void fetchEntries(LocalDateTime start, LocalDateTime end, ArrayNode array) {
     entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
         .peek(entry -> {
@@ -138,7 +150,7 @@ private void fetchEntries(LocalDateTime start, LocalDateTime end, ArrayNode arra
         .forEach(array::add);
 }
 
-// CIP path (new):
+// CIP path — new:
 private void fetchCalendarItems(LocalDateTime start, LocalDateTime end, ArrayNode array) {
     calendarItemProvider.fetch(new CalendarQuery(start, end))
         .peek(item -> lastFetchedItems.put(calendarItemPropertyMapper.getId(item), item))
@@ -147,35 +159,56 @@ private void fetchCalendarItems(LocalDateTime start, LocalDateTime end, ArrayNod
 }
 ```
 
-### 6. Internal Update Dispatch
+Note: No `setCalendar()` or `setKnownToTheClient()` for POJOs — that bookkeeping is Entry-
+specific. CIP items are tracked purely via the cache.
 
-Used by CIP events when client reports changes (drag/drop/resize):
+### 7. Internal Update Dispatch
+
+Called from CIP events when client reports changes (drag/drop/resize):
 
 ```java
-/**
- * Applies client-side changes to a CIP item using the configured strategy.
- * Called from CalendarItemDataEvent.applyChangesOnItem().
- */
 void applyCalendarItemChanges(T item, ObjectNode jsonDelta) {
     if (calendarItemUpdateHandler != null) {
         // Strategy B: explicit handler
         calendarItemUpdateHandler.handleUpdate(item, new CalendarItemChanges(jsonDelta));
-    } else if (calendarItemPropertyMapper.hasSetters()) {
+    } else if (calendarItemPropertyMapper != null && calendarItemPropertyMapper.hasSetters()) {
         // Strategy A: mapper setters
         calendarItemPropertyMapper.applyChanges(item, jsonDelta);
     } else {
         throw new IllegalStateException(
             "No update strategy configured. Register setters on the mapper "
-            + "or set a CalendarItemUpdateHandler.");
+            + "or set a CalendarItemUpdateHandler via setCalendarItemUpdateHandler().");
     }
 }
 ```
 
-### 7. Deprecate Old Methods
+### 8. `requestRefresh()` — Generic Version
 
 ```java
-/** @deprecated Use {@link #setCalendarItemProvider} for custom POJOs,
-  * or continue using this method for Entry-based calendars. */
+// Existing (for Entry, preserved):
+public void requestRefresh(Entry item) {
+    // ... existing logic
+}
+
+// New (for CIP):
+public void requestRefreshItem(T item) {
+    if (!usingCalendarItemProvider) {
+        throw new IllegalStateException("No CalendarItemProvider set.");
+    }
+    String id = calendarItemPropertyMapper.getId(item);
+    lastFetchedItems.put(id, item);
+    getElement().callJsFunction("refreshSingleEvent", calendarItemPropertyMapper.toJson(item));
+}
+```
+
+### 9. Deprecate `setEntryProvider()`
+
+```java
+/**
+ * Sets the entry provider for this calendar.
+ * @deprecated Use {@link #setCalendarItemProvider} for custom POJOs,
+ * or continue using this method for Entry-based calendars.
+ */
 @Deprecated(since = "7.2", forRemoval = false)
 public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
     this.usingCalendarItemProvider = false;
@@ -186,33 +219,73 @@ public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
 }
 ```
 
----
-
-## FullCalendarBuilder Changes
+### 10. Accessor for Provider State
 
 ```java
-public class FullCalendarBuilder<T> {
-    // NEW:
-    private CalendarItemProvider<T> calendarItemProvider;
-    private CalendarItemPropertyMapper<T> calendarItemPropertyMapper;
-    private CalendarItemUpdateHandler<T> calendarItemUpdateHandler;
+public boolean isUsingCalendarItemProvider() { return usingCalendarItemProvider; }
 
-    public FullCalendarBuilder<T> withCalendarItemProvider(
-            CalendarItemProvider<T> provider,
-            CalendarItemPropertyMapper<T> mapper) {
-        this.calendarItemProvider = provider;
-        this.calendarItemPropertyMapper = mapper;
-        return this;
+@SuppressWarnings("unchecked")
+public <P> CalendarItemProvider<P> getCalendarItemProvider() {
+    return (CalendarItemProvider<P>) calendarItemProvider;
+}
+
+@SuppressWarnings("unchecked")
+public <P> CalendarItemPropertyMapper<P> getCalendarItemPropertyMapper() {
+    return (CalendarItemPropertyMapper<P>) calendarItemPropertyMapper;
+}
+```
+
+---
+
+## Changes to FullCalendarBuilder.java
+
+The builder also becomes generic:
+
+```java
+// Before:
+public class FullCalendarBuilder { ... }
+
+// After:
+public class FullCalendarBuilder<T> { ... }
+```
+
+**New methods:**
+```java
+public FullCalendarBuilder<T> withCalendarItemProvider(
+        CalendarItemProvider<T> provider,
+        CalendarItemPropertyMapper<T> mapper) {
+    this.calendarItemProvider = provider;
+    this.calendarItemPropertyMapper = mapper;
+    return this;
+}
+
+public FullCalendarBuilder<T> withCalendarItemUpdateHandler(
+        CalendarItemUpdateHandler<T> handler) {
+    this.calendarItemUpdateHandler = handler;
+    return this;
+}
+```
+
+**Typed factory method:**
+```java
+// Existing (preserved, raw type):
+public static FullCalendarBuilder create() { ... }
+
+// New typed factory:
+public static <T> FullCalendarBuilder<T> create(Class<T> itemType) { ... }
+```
+
+**`build()` method** applies CIP configuration after construction:
+```java
+public <R extends FullCalendar<T>> R build() {
+    R calendar = ... // existing construction logic
+    if (calendarItemProvider != null) {
+        calendar.setCalendarItemProvider(calendarItemProvider, calendarItemPropertyMapper);
+        if (calendarItemUpdateHandler != null) {
+            calendar.setCalendarItemUpdateHandler(calendarItemUpdateHandler);
+        }
     }
-
-    public FullCalendarBuilder<T> withCalendarItemUpdateHandler(
-            CalendarItemUpdateHandler<T> handler) {
-        this.calendarItemUpdateHandler = handler;
-        return this;
-    }
-
-    // In build(): if CIP is set, call calendar.setCalendarItemProvider()
-    // then optionally calendar.setCalendarItemUpdateHandler()
+    return calendar;
 }
 ```
 
@@ -220,21 +293,37 @@ public class FullCalendarBuilder<T> {
 
 ## Testing
 
-- Test `setCalendarItemProvider()` with a test POJO and verify `fetchEntriesFromServer` produces correct JSON
-- Test switching between EntryProvider and CalendarItemProvider
-- Test cache stores POJOs correctly
-- Test `getCachedEntryFromFetch()` returns empty when CIP is active
-- Test `getCachedItemFromFetch()` returns POJOs
-- Test mutual exclusion: setters + update handler throws
-- Test `applyCalendarItemChanges()` with Strategy A (setters)
-- Test `applyCalendarItemChanges()` with Strategy B (update handler)
-- Test `applyCalendarItemChanges()` with neither throws
+### CIP path
+- `setCalendarItemProvider()` with test POJO → `fetchEntriesFromServer()` returns correct JSON
+- Cache stores POJOs keyed by mapped ID
+- `getCachedItemFromFetch()` returns typed POJO
+- `requestRefreshItem()` sends updated JSON to client
+- Switching from EntryProvider to CIP clears old state
+- Switching from CIP to EntryProvider clears CIP state
+
+### Mutual exclusion
+- Setters on mapper + update handler → `IllegalStateException`
+- Only setters → `applyCalendarItemChanges()` uses setters
+- Only handler → `applyCalendarItemChanges()` calls handler
+- Neither setters nor handler → `applyCalendarItemChanges()` throws
+
+### Backward compatibility
+- `getCachedEntryFromFetch()` returns empty when CIP is active
+- `getCachedEntryFromFetch()` returns Entry when EntryProvider is active
+- `setEntryProvider()` works exactly as before
+- Raw type `FullCalendar calendar = new FullCalendar()` compiles (warning only)
+
+### Builder
+- `FullCalendarBuilder.create(MyPojo.class).withCalendarItemProvider(...)` builds correctly
+- `FullCalendarBuilder.create()` (raw) still works for Entry-based calendars
+
+### Regression
 - Run ALL existing tests — entry provider path must be unaffected
-- Integration test: calendar with CIP renders items correctly in browser
+- No compile errors in addon-scheduler (it still uses Entry/ResourceEntry)
 
 ## Completion Criteria
 
 - CIP can be set on `FullCalendar<T>` and items render in the browser
 - Client changes dispatch to the correct update strategy (A xor B)
 - EntryProvider path works exactly as before
-- No compile errors in addon-scheduler (it still uses Entry)
+- Builder supports both typed CIP and raw Entry paths

@@ -2,37 +2,48 @@
 
 **Goal:** Create all new CIP types as standalone additions. Zero changes to existing code.
 **Prerequisite:** Phase 0 spikes completed.
-**Breaking changes:** None.
+**Breaking changes:** None — purely additive.
 
 ---
 
-## New Classes to Create
+## Context
 
-All in `addon/src/main/java/org/vaadin/stefan/fullcalendar/`
+The CIP feature allows users to provide arbitrary POJOs instead of `Entry` objects as calendar
+items. This phase creates the foundational types: the property mapper, the provider interface,
+query objects, and change events. None of these touch existing code.
+
+## Module
+
+All classes in `addon/src/main/java/org/vaadin/stefan/fullcalendar/` (core module) unless
+noted otherwise. The scheduler mapper extension lives in `addon-scheduler/`.
+
+---
+
+## New Classes
 
 ### 1. `CalendarItemPropertyMapper<T>`
 
-The central mapping class. Maps POJO properties to FullCalendar event properties.
-Supports both read (server->client) and write (client->server) directions.
+Maps POJO properties to FullCalendar event properties. Supports both read (server→client via
+getters) and write (client→server via optional setters).
+
+**Package:** `org.vaadin.stefan.fullcalendar`
 
 ```java
-package org.vaadin.stefan.fullcalendar;
-
 public class CalendarItemPropertyMapper<T> {
 
-    // --- REQUIRED mapping (fail fast if missing) ---
-    private ValueProvider<T, String> idProvider;      // REQUIRED
+    // ─── REQUIRED mapping ───
+    private ValueProvider<T, String> idProvider;                  // REQUIRED, validated
 
-    // --- Core read mappings (server -> client) ---
+    // ─── Read-only mappings (server → client) ───
     private ValueProvider<T, String> titleProvider;
-    private ValueProvider<T, ?> startProvider;         // LocalDateTime, Instant, etc.
+    private ValueProvider<T, ?> startProvider;                    // LocalDateTime, Instant, etc.
     private ValueProvider<T, ?> endProvider;
     private ValueProvider<T, Boolean> allDayProvider;
+    private ValueProvider<T, String> groupIdProvider;
     private ValueProvider<T, String> colorProvider;
     private ValueProvider<T, String> backgroundColorProvider;
     private ValueProvider<T, String> borderColorProvider;
     private ValueProvider<T, String> textColorProvider;
-    private ValueProvider<T, String> groupIdProvider;
     private ValueProvider<T, Boolean> editableProvider;
     private ValueProvider<T, Boolean> startEditableProvider;
     private ValueProvider<T, Boolean> durationEditableProvider;
@@ -42,121 +53,102 @@ public class CalendarItemPropertyMapper<T> {
     private ValueProvider<T, Set<String>> classNamesProvider;
     private ValueProvider<T, Map<String, Object>> customPropertiesProvider;
 
-    // Recurrence mappings (read-only)
+    // ─── Recurrence mappings (read-only) ───
     private ValueProvider<T, LocalDate> recurringStartDateProvider;
     private ValueProvider<T, LocalDate> recurringEndDateProvider;
     private ValueProvider<T, RecurringTime> recurringStartTimeProvider;
     private ValueProvider<T, RecurringTime> recurringEndTimeProvider;
     private ValueProvider<T, Set<DayOfWeek>> recurringDaysOfWeekProvider;
 
-    // --- Optional write mappings (client -> server, for @JsonUpdateAllowed properties) ---
+    // ─── Optional write mappings (client → server) ───
+    // Only for properties the client can change (@JsonUpdateAllowed in Entry):
     private SerializableBiConsumer<T, LocalDateTime> startSetter;
     private SerializableBiConsumer<T, LocalDateTime> endSetter;
     private SerializableBiConsumer<T, Boolean> allDaySetter;
 
-    // --- State flag ---
+    // ─── State ───
     private boolean hasSetters;  // true if any setter is registered
-
-    // Builder API
-    public static <T> CalendarItemPropertyMapper<T> of(Class<T> type) { ... }
-
-    // --- Read-only mapping (single arg) ---
-    public CalendarItemPropertyMapper<T> id(ValueProvider<T, String> provider) { ... }
-    public CalendarItemPropertyMapper<T> title(ValueProvider<T, String> provider) { ... }
-    public CalendarItemPropertyMapper<T> color(ValueProvider<T, String> provider) { ... }
-    // ... etc for all read-only properties
-
-    // --- Bidirectional mapping (getter + setter) for updatable properties ---
-    public CalendarItemPropertyMapper<T> start(ValueProvider<T, ?> getter) { ... }
-    public CalendarItemPropertyMapper<T> start(ValueProvider<T, ?> getter,
-                                                SerializableBiConsumer<T, LocalDateTime> setter) {
-        this.startProvider = getter;
-        this.startSetter = setter;
-        this.hasSetters = true;
-        return this;
-    }
-
-    public CalendarItemPropertyMapper<T> end(ValueProvider<T, ?> getter) { ... }
-    public CalendarItemPropertyMapper<T> end(ValueProvider<T, ?> getter,
-                                              SerializableBiConsumer<T, LocalDateTime> setter) { ... }
-
-    public CalendarItemPropertyMapper<T> allDay(ValueProvider<T, Boolean> getter) { ... }
-    public CalendarItemPropertyMapper<T> allDay(ValueProvider<T, Boolean> getter,
-                                                 SerializableBiConsumer<T, Boolean> setter) { ... }
-
-    // --- String-based mapping (reflection) ---
-    public CalendarItemPropertyMapper<T> id(String propertyName) { ... }
-    public CalendarItemPropertyMapper<T> title(String propertyName) { ... }
-    // ... etc
-
-    // --- Core methods ---
-    public ObjectNode toJson(T item) { ... }          // Serialize POJO to FC-compatible JSON
-    public String getId(T item) { ... }               // Extract ID (shortcut)
-    public void validate() { ... }                    // Fail fast if required mappings missing
-
-    // --- Client-to-server update (Strategy A) ---
-    public boolean hasSetters() { return hasSetters; }
-
-    /**
-     * Applies client-side changes to the POJO using registered setters.
-     * Only works if setters were registered for the changed properties.
-     * @throws IllegalStateException if no setters are registered
-     */
-    public void applyChanges(T item, ObjectNode changes) {
-        if (!hasSetters) {
-            throw new IllegalStateException(
-                "No setters registered on mapper. Use setter overloads "
-                + "(e.g. .start(getter, setter)) or set a CalendarItemUpdateHandler.");
-        }
-        // Apply each changed property via its setter if present
-        if (changes.has("start") && startSetter != null) {
-            startSetter.accept(item, parseDateTime(changes.get("start")));
-        }
-        if (changes.has("end") && endSetter != null) {
-            endSetter.accept(item, parseDateTime(changes.get("end")));
-        }
-        if (changes.has("allDay") && allDaySetter != null) {
-            allDaySetter.accept(item, changes.get("allDay").asBoolean());
-        }
-    }
 }
 ```
 
-**Key design decisions:**
-- `id` is mandatory; `validate()` called at attachment time, throws if missing
-- `toJson()` produces the ObjectNode directly (no intermediate bound mapper — see spike 0.1)
-- String-based mapping uses `BeanProperties.read()` for reflection (reuse existing infra)
-- Immutable after construction (thread-safe)
-- Type conversions for temporal types use existing `JsonItemPropertyConverter` instances
-- Setters are opt-in per property (only for `start`, `end`, `allDay` — the `@JsonUpdateAllowed` fields)
+**Builder-style API:**
+```java
+// Factory
+public static <T> CalendarItemPropertyMapper<T> of(Class<T> type) { ... }
+
+// Read-only mapping (single arg — for all properties)
+public CalendarItemPropertyMapper<T> id(ValueProvider<T, String> provider) { ... }
+public CalendarItemPropertyMapper<T> title(ValueProvider<T, String> provider) { ... }
+public CalendarItemPropertyMapper<T> color(ValueProvider<T, String> provider) { ... }
+// ... etc for all properties
+
+// Bidirectional mapping (getter + setter — only for start, end, allDay)
+public CalendarItemPropertyMapper<T> start(ValueProvider<T, ?> getter,
+                                            SerializableBiConsumer<T, LocalDateTime> setter) { ... }
+public CalendarItemPropertyMapper<T> end(ValueProvider<T, ?> getter,
+                                          SerializableBiConsumer<T, LocalDateTime> setter) { ... }
+public CalendarItemPropertyMapper<T> allDay(ValueProvider<T, Boolean> getter,
+                                             SerializableBiConsumer<T, Boolean> setter) { ... }
+
+// String-based mapping (reflection via BeanProperties.read())
+public CalendarItemPropertyMapper<T> id(String propertyName) { ... }
+public CalendarItemPropertyMapper<T> title(String propertyName) { ... }
+// ... etc
+
+// Core methods
+public ObjectNode toJson(T item) { ... }      // Serialize POJO to FC JSON
+public String getId(T item) { ... }           // Extract ID (shortcut, uses idProvider)
+public boolean hasSetters() { ... }           // Whether any setter is registered
+public void validate() { ... }               // Throws if id mapping is missing
+
+// Client→server update (Strategy A)
+public void applyChanges(T item, ObjectNode changes) {
+    // Throws IllegalStateException if no setters registered
+    // For each changed property with a registered setter: parse JSON value, call setter
+}
+```
+
+**Type conversion rules for `toJson()`:**
+- `LocalDateTime` → ISO-8601 string (reuse `LocalDateTimeConverter`)
+- `LocalDate` → ISO date string (reuse `LocalDateConverter`)
+- `RecurringTime` → formatted string (reuse `RecurringTimeConverter`)
+- `Set<DayOfWeek>` → `List<Integer>` with 0=Sunday (reuse `DayOfWeekItemConverter`)
+- `DisplayMode` → string via `.getClientSideValue()`
+- `Set<String>` (classNames) → JSON array
+- `Map<String, Object>` (customProperties) → JSON object
+- `null` values → property omitted from JSON (FullCalendar uses its own defaults)
+
+**Design decisions (finalized by spike 0.1):**
+- `id` is mandatory; `validate()` throws `IllegalStateException` if not set
+- Immutable after first use (thread-safe); mutations after `toJson()` or `validate()` throw
+- String-based mapping uses `BeanProperties.read()` for reflection (reuses existing infra)
+
+---
 
 ### 2. `CalendarItemUpdateHandler<T>` (Functional Interface)
 
-Strategy B for client-to-server updates:
+Strategy B for client→server updates. Alternative to mapper setters.
+
+**Package:** `org.vaadin.stefan.fullcalendar`
 
 ```java
-package org.vaadin.stefan.fullcalendar;
-
 @FunctionalInterface
 public interface CalendarItemUpdateHandler<T> extends Serializable {
-    /**
-     * Called when the client reports changes to a calendar item (drag/drop/resize).
-     * @param item the original POJO from cache
-     * @param changes convenience object with typed access to changed properties
-     */
     void handleUpdate(T item, CalendarItemChanges changes);
 }
 ```
 
 ### 3. `CalendarItemChanges`
 
-Typed wrapper around the raw JSON delta from the client:
+Typed wrapper around the raw JSON delta sent by the client on drag/drop/resize.
+
+**Package:** `org.vaadin.stefan.fullcalendar`
 
 ```java
-package org.vaadin.stefan.fullcalendar;
-
 public class CalendarItemChanges {
     private final ObjectNode jsonDelta;
+
+    public CalendarItemChanges(ObjectNode jsonDelta) { ... }
 
     public Optional<LocalDateTime> getChangedStart() { ... }
     public Optional<LocalDateTime> getChangedEnd() { ... }
@@ -165,13 +157,16 @@ public class CalendarItemChanges {
 }
 ```
 
+For the scheduler extension, `SchedulerCalendarItemChanges extends CalendarItemChanges`
+adds resource-related change accessors (created in Phase 5).
+
+---
+
 ### 4. `CalendarItemProvider<T>` (Interface)
 
-New in `dataprovider/` package:
+**Package:** `org.vaadin.stefan.fullcalendar.dataprovider`
 
 ```java
-package org.vaadin.stefan.fullcalendar.dataprovider;
-
 public interface CalendarItemProvider<T> extends Serializable {
     Stream<T> fetch(@NonNull CalendarQuery query);
     Optional<T> fetchById(@NonNull String id);
@@ -179,30 +174,50 @@ public interface CalendarItemProvider<T> extends Serializable {
     Registration addItemRefreshListener(CalendarItemRefreshEvent.Listener<T> listener);
     void refreshAll();
     void refreshItem(T item);
+
+    // Convenience factory methods (mirrors EntryProvider pattern)
+    static <T> CallbackCalendarItemProvider<T> fromCallbacks(
+        SerializableFunction<CalendarQuery, Stream<T>> fetch,
+        SerializableFunction<String, T> fetchById) { ... }
+
+    static <T> InMemoryCalendarItemProvider<T> emptyInMemory(
+        SerializableFunction<T, String> idExtractor) { ... }
+
+    @SafeVarargs
+    static <T> InMemoryCalendarItemProvider<T> inMemoryFrom(
+        SerializableFunction<T, String> idExtractor, T... items) { ... }
 }
 ```
 
 ### 5. `CalendarQuery`
 
-Generalized query without Entry-specific filtering:
+**Package:** `org.vaadin.stefan.fullcalendar.dataprovider`
+
+Generalized query without Entry-specific filtering. `EntryQuery` will extend this in Phase 2.
 
 ```java
-package org.vaadin.stefan.fullcalendar.dataprovider;
-
 public class CalendarQuery {
     private final LocalDateTime start;
     private final LocalDateTime end;
-    // No allDay filter — that's Entry-specific.
-    // Filtering is done by the provider implementation using the mapper.
+
+    public CalendarQuery(@NonNull LocalDateTime start, @NonNull LocalDateTime end) { ... }
+    public LocalDateTime getStart() { ... }
+    public LocalDateTime getEnd() { ... }
 }
 ```
 
+No `allDay` filter — that's Entry-specific (lives in `EntryQuery`).
+In-memory providers can use the mapper's start/end accessors for time-range filtering.
+Callback providers receive the range and do their own filtering.
+
 ### 6. `CalendarItemsChangeEvent<T>` and `CalendarItemRefreshEvent<T>`
 
-Generic versions of `EntriesChangeEvent` and `EntryRefreshEvent`:
+**Package:** `org.vaadin.stefan.fullcalendar.dataprovider`
 
 ```java
 public class CalendarItemsChangeEvent<T> extends EventObject {
+    public CalendarItemsChangeEvent(CalendarItemProvider<T> source) { super(source); }
+
     @FunctionalInterface
     public interface Listener<T> extends Serializable {
         void onDataChange(CalendarItemsChangeEvent<T> event);
@@ -211,6 +226,9 @@ public class CalendarItemsChangeEvent<T> extends EventObject {
 
 public class CalendarItemRefreshEvent<T> extends EventObject {
     private final T itemToRefresh;
+
+    public CalendarItemRefreshEvent(CalendarItemProvider<T> source, T item) { ... }
+    public T getItemToRefresh() { return itemToRefresh; }
 
     @FunctionalInterface
     public interface Listener<T> extends Serializable {
@@ -221,31 +239,57 @@ public class CalendarItemRefreshEvent<T> extends EventObject {
 
 ### 7. `AbstractCalendarItemProvider<T>`
 
-Base implementation with listener management:
+**Package:** `org.vaadin.stefan.fullcalendar.dataprovider`
+
+Base implementation with listener management. Mirrors `AbstractEntryProvider` pattern.
 
 ```java
 public abstract class AbstractCalendarItemProvider<T> implements CalendarItemProvider<T> {
-    private final Map<Class<?>, List<SerializableConsumer<?>>> listeners = new HashMap<>();
-    // Same listener management pattern as AbstractEntryProvider
+    // Listener storage: maps event class → list of listeners
+    // Same pattern as AbstractEntryProvider
+    // Provides addItemsChangeListener(), addItemRefreshListener(), fireItemsChangeEvent(), etc.
 }
 ```
 
 ### 8. `InMemoryCalendarItemProvider<T>`
 
+**Package:** `org.vaadin.stefan.fullcalendar.dataprovider`
+
 ```java
-public class InMemoryCalendarItemProvider<T> implements CalendarItemProvider<T> {
-    private final Map<String, T> itemsMap;
+public class InMemoryCalendarItemProvider<T> extends AbstractCalendarItemProvider<T> {
+    private final Map<String, T> itemsMap = new LinkedHashMap<>();
     private final SerializableFunction<T, String> idExtractor;
-    // Constructor requires idExtractor OR CalendarItemPropertyMapper
+
+    public InMemoryCalendarItemProvider(SerializableFunction<T, String> idExtractor) { ... }
+
+    // CRUD
+    public void addItem(T item) { ... }
+    public void addItems(Collection<T> items) { ... }
+    public void removeItem(T item) { ... }
+    public void removeAllItems() { ... }
+    public Collection<T> getItems() { ... }
+
+    // CalendarItemProvider implementation
+    @Override public Stream<T> fetch(CalendarQuery query) { ... }  // returns all items (no time filtering in base impl)
+    @Override public Optional<T> fetchById(String id) { ... }
 }
 ```
 
 ### 9. `CallbackCalendarItemProvider<T>`
 
+**Package:** `org.vaadin.stefan.fullcalendar.dataprovider`
+
 ```java
-public class CallbackCalendarItemProvider<T> implements CalendarItemProvider<T> {
-    private final SerializableFunction<CalendarQuery, Stream<T>> fetchItems;
-    private final SerializableFunction<String, T> fetchSingleItem;
+public class CallbackCalendarItemProvider<T> extends AbstractCalendarItemProvider<T> {
+    private final SerializableFunction<CalendarQuery, Stream<T>> fetchCallback;
+    private final SerializableFunction<String, T> fetchByIdCallback;
+
+    public CallbackCalendarItemProvider(
+        SerializableFunction<CalendarQuery, Stream<T>> fetch,
+        SerializableFunction<String, T> fetchById) { ... }
+
+    @Override public Stream<T> fetch(CalendarQuery query) { return fetchCallback.apply(query); }
+    @Override public Optional<T> fetchById(String id) { return Optional.ofNullable(fetchByIdCallback.apply(id)); }
 }
 ```
 
@@ -253,20 +297,46 @@ public class CallbackCalendarItemProvider<T> implements CalendarItemProvider<T> 
 
 ## Testing
 
-- Unit tests for `CalendarItemPropertyMapper` with a test POJO
-  - All property types mapped via lambda
-  - All property types mapped via string
-  - `toJson()` output matches expected FullCalendar JSON structure
-  - Missing required `id` mapping throws on validate()
-  - Type conversion for temporal types
-  - `applyChanges()` with setters modifies POJO correctly
-  - `applyChanges()` without setters throws IllegalStateException
-- Unit tests for `CalendarItemUpdateHandler` + `CalendarItemChanges`
-- Unit tests for `InMemoryCalendarItemProvider` and `CallbackCalendarItemProvider`
-- Unit tests for `CalendarQuery`
+All tests in `addon/src/test/java/org/vaadin/stefan/fullcalendar/`
+
+### CalendarItemPropertyMapperTest
+- Lambda mapping: all property types mapped, `toJson()` produces correct JSON keys + values
+- String mapping: same properties mapped via string names, same JSON output
+- `id` is mandatory: `validate()` throws `IllegalStateException` if not set
+- `getId(item)` returns the mapped ID string
+- Type conversion: `LocalDateTime` → ISO string, `DayOfWeek` → int array, etc.
+- Null values: unmapped/null properties omitted from JSON
+- Setters: `applyChanges(item, changes)` modifies POJO via registered setters
+- No setters: `applyChanges()` throws `IllegalStateException`
+- `hasSetters()` returns correct boolean
+- Immutability: mutations after first `toJson()`/`validate()` call throw
+
+### CalendarItemChangesTest
+- `getChangedStart()` returns parsed LocalDateTime from JSON
+- `getChangedEnd()` returns parsed LocalDateTime
+- `getChangedAllDay()` returns boolean
+- Missing properties return `Optional.empty()`
+- `getRawJson()` returns original ObjectNode
+
+### InMemoryCalendarItemProviderTest
+- Add/remove items, verify `getItems()`
+- `fetch()` returns all items as stream
+- `fetchById()` returns correct item or empty
+- `refreshAll()` fires `CalendarItemsChangeEvent`
+- `refreshItem()` fires `CalendarItemRefreshEvent`
+
+### CallbackCalendarItemProviderTest
+- Delegates to provided callbacks
+- `fetch()` passes CalendarQuery to callback
+- `fetchById()` passes ID to callback
+
+### CalendarQueryTest
+- Construction with start/end
+- Getters return correct values
 
 ## Completion Criteria
 
-- All new classes compile and have tests
+- All new classes compile and have passing tests
 - No existing code modified
 - No existing tests broken
+- Spike code retained in test sources for reference

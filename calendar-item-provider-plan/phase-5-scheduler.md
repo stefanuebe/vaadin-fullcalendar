@@ -1,74 +1,161 @@
-# Phase 5: Scheduler Extension Integration
+# Phase 5: Scheduler Extension — Generic `FullCalendarScheduler<T>`
 
-**Goal:** Integrate CIP with the addon-scheduler module for resource-based views.
+**Goal:** Make `FullCalendarScheduler` generic and integrate CIP with resource-based views.
 **Prerequisite:** Phase 4 complete.
-**Breaking changes:** None — additive only.
+**Breaking changes:** Raw type warnings for existing `FullCalendarScheduler` users.
 
 ---
 
-## Overview
+## Context
 
-The Scheduler extension adds resource management to FullCalendar. Currently, it uses
-`ResourceEntry extends Entry` with a `Set<Resource> resources` field. For CIP, POJOs
-need a way to declare their resource associations.
+The scheduler extension (`addon-scheduler/`) adds resource management to FullCalendar.
+Currently it uses `ResourceEntry extends Entry` with `Set<Resource> resources`. Making the
+scheduler generic means POJOs can also be used with timeline and resource views.
+
+### Current Scheduler Architecture (Key Points)
+
+**Resource management is item-type-agnostic.** The `Scheduler` interface and `Resource` class
+manage resources independently of entries. Methods like `addResources()`, `getResources()`,
+`removeResources()` work with `Resource` objects, not entries. This part needs no generic changes.
+
+**Entry coupling exists in 3 places:**
+1. `removeFromEntries()` in `FullCalendarScheduler.java:215` — does `instanceof ResourceEntry`
+   check to remove resource associations from entries
+2. `EntryDroppedSchedulerEvent.applyChangesOnEntry()` — casts to `ResourceEntry`
+3. `ResourceConverter` — hardcoded for `Set<Resource>, ResourceEntry`
+
+**Scheduler-specific events** (`TimeslotClickedSchedulerEvent`, `TimeslotsSelectedSchedulerEvent`)
+only add a `Resource` field — they don't reference Entry at all.
+
+## Module
+
+`addon-scheduler/src/main/java/org/vaadin/stefan/fullcalendar/`
 
 ---
 
-## FullCalendarScheduler Typing
+## Changes
+
+### 1. `FullCalendarScheduler<T> extends FullCalendar<T>`
 
 ```java
 // Before:
 public class FullCalendarScheduler extends FullCalendar implements Scheduler
 
-// After — concrete type for Entry-based usage:
-public class FullCalendarScheduler extends FullCalendar<Entry> implements Scheduler
-```
-
-This is the natural choice: the scheduler without CIP always works with Entry/ResourceEntry.
-When a user sets a CIP on the scheduler, the generic type is effectively overridden internally
-(the CIP fields hold the actual `<T>` items, while the class signature stays `<Entry>` for
-backward compatibility with existing code).
-
-**Alternative** (if more type safety is desired):
-```java
+// After:
 public class FullCalendarScheduler<T> extends FullCalendar<T> implements Scheduler
 ```
-This is more flexible but breaks existing `FullCalendarScheduler scheduler = ...` code with
-raw type warnings. Evaluate during implementation.
 
----
+Existing code `FullCalendarScheduler scheduler = ...` becomes raw type warning.
+For Entry-based usage: `FullCalendarScheduler<ResourceEntry>` or `FullCalendarScheduler<Entry>`.
+For CIP usage: `FullCalendarScheduler<Meeting>`.
 
-## SchedulerCalendarItemPropertyMapper<T>
+### 2. `Scheduler` Interface — No Generic Parameter
 
-Extends the base mapper with resource-related mappings. Lives in addon-scheduler:
+The `Scheduler` interface manages resources, not entries. It stays non-generic:
+
+```java
+// Stays as-is:
+public interface Scheduler {
+    void addResources(Iterable<Resource>, boolean);
+    void removeResources(Iterable<Resource>);
+    Set<Resource> getResources();
+    Optional<Resource> getResourceById(String id);
+    // ... all resource management methods unchanged
+}
+```
+
+### 3. `removeFromEntries()` — Dual Path
+
+Currently hardcoded to `ResourceEntry`:
+
+```java
+// Before (line 215-225):
+private void removeFromEntries(Iterable<Resource> resources) {
+    EntryProvider<Entry> entryProvider = getEntryProvider();
+    if (entryProvider.isInMemory()) {
+        entryProvider.asInMemory().getEntries().stream()
+            .filter(e -> e instanceof ResourceEntry)
+            .forEach(e -> ((ResourceEntry) e).removeResources(resources));
+    }
+}
+
+// After — dispatch based on active provider:
+private void removeFromEntries(Iterable<Resource> iterableResources) {
+    List<Resource> resources = StreamSupport.stream(
+        iterableResources.spliterator(), false).toList();
+
+    if (isUsingCalendarItemProvider()) {
+        // CIP path: resource associations are managed by the POJO, not by us.
+        // The user is responsible for updating resource associations.
+        // We only remove from the client-side.
+        return;
+    }
+
+    // Entry path: existing behavior
+    EntryProvider<? extends Entry> entryProvider = getEntryProvider();
+    if (entryProvider.isInMemory()) {
+        entryProvider.asInMemory().getEntries().stream()
+            .filter(e -> e instanceof ResourceEntry)
+            .forEach(e -> ((ResourceEntry) e).removeResources(resources));
+    }
+}
+```
+
+### 4. `SchedulerCalendarItemPropertyMapper<T>`
+
+Extends the base mapper with resource-related mappings:
 
 ```java
 package org.vaadin.stefan.fullcalendar;
 
 public class SchedulerCalendarItemPropertyMapper<T> extends CalendarItemPropertyMapper<T> {
+
+    // Read mapping
     private ValueProvider<T, Set<String>> resourceIdsProvider;
     private ValueProvider<T, Boolean> resourceEditableProvider;
 
-    // Optional setter for resource changes (drag between resources)
+    // Write mapping (for drag between resources)
     private SerializableBiConsumer<T, Set<String>> resourceIdsSetter;
 
+    // Builder API
+    public static <T> SchedulerCalendarItemPropertyMapper<T> of(Class<T> type) { ... }
+
     public SchedulerCalendarItemPropertyMapper<T> resourceIds(
-            ValueProvider<T, Set<String>> provider) { ... }
+            ValueProvider<T, Set<String>> getter) {
+        this.resourceIdsProvider = getter;
+        return this;
+    }
+
     public SchedulerCalendarItemPropertyMapper<T> resourceIds(
             ValueProvider<T, Set<String>> getter,
-            SerializableBiConsumer<T, Set<String>> setter) { ... }
+            SerializableBiConsumer<T, Set<String>> setter) {
+        this.resourceIdsProvider = getter;
+        this.resourceIdsSetter = setter;
+        this.hasSetters = true;  // inherited flag
+        return this;
+    }
 
     public SchedulerCalendarItemPropertyMapper<T> resourceEditable(
-            ValueProvider<T, Boolean> provider) { ... }
+            ValueProvider<T, Boolean> getter) {
+        this.resourceEditableProvider = getter;
+        return this;
+    }
 
     @Override
     public ObjectNode toJson(T item) {
         ObjectNode node = super.toJson(item);
         if (resourceIdsProvider != null) {
-            // Add resourceIds array to JSON
+            Set<String> ids = resourceIdsProvider.apply(item);
+            if (ids != null && !ids.isEmpty()) {
+                ArrayNode arr = node.putArray("resourceIds");
+                ids.forEach(arr::add);
+            }
         }
         if (resourceEditableProvider != null) {
-            node.put("resourceEditable", resourceEditableProvider.apply(item));
+            Boolean val = resourceEditableProvider.apply(item);
+            if (val != null) {
+                node.put("resourceEditable", val);
+            }
         }
         return node;
     }
@@ -77,66 +164,128 @@ public class SchedulerCalendarItemPropertyMapper<T> extends CalendarItemProperty
     public void applyChanges(T item, ObjectNode changes) {
         super.applyChanges(item, changes);
         if (changes.has("resourceIds") && resourceIdsSetter != null) {
-            Set<String> newIds = parseResourceIds(changes.get("resourceIds"));
+            Set<String> newIds = new LinkedHashSet<>();
+            changes.get("resourceIds").forEach(n -> newIds.add(n.asString()));
             resourceIdsSetter.accept(item, newIds);
         }
     }
-
-    public static <T> SchedulerCalendarItemPropertyMapper<T> of(Class<T> type) { ... }
 }
 ```
 
----
+### 5. `SchedulerCalendarItemChanges extends CalendarItemChanges`
 
-## Scheduler Events for CIP
+```java
+package org.vaadin.stefan.fullcalendar;
 
-Extend CIP events with resource info:
+public class SchedulerCalendarItemChanges extends CalendarItemChanges {
+    public SchedulerCalendarItemChanges(ObjectNode jsonDelta) { super(jsonDelta); }
+
+    public Optional<String> getOldResourceId() {
+        return Optional.ofNullable(getRawJson().get("oldResource"))
+            .filter(JsonNode::isString)
+            .map(JsonNode::asString);
+    }
+
+    public Optional<String> getNewResourceId() {
+        return Optional.ofNullable(getRawJson().get("newResource"))
+            .filter(JsonNode::isString)
+            .map(JsonNode::asString);
+    }
+
+    // Convenience: resolve Resource objects from calendar
+    public Optional<Resource> getOldResource(Scheduler scheduler) {
+        return getOldResourceId().flatMap(scheduler::getResourceById);
+    }
+
+    public Optional<Resource> getNewResource(Scheduler scheduler) {
+        return getNewResourceId().flatMap(scheduler::getResourceById);
+    }
+}
+```
+
+### 6. Scheduler-Specific CIP Events
+
+#### CalendarItemDroppedSchedulerEvent<T>
 
 ```java
 public class CalendarItemDroppedSchedulerEvent<T> extends CalendarItemDroppedEvent<T> {
     private final Resource oldResource;
     private final Resource newResource;
 
-    public Optional<Resource> getOldResource() { ... }
-    public Optional<Resource> getNewResource() { ... }
-}
-```
-
-The scheduler overrides the event dispatch to fire these scheduler-specific CIP events
-instead of the base CIP events when resource data is present in the DOM event.
-
----
-
-## FullCalendarScheduler — CIP Overrides
-
-```java
-public class FullCalendarScheduler extends FullCalendar<Entry> implements Scheduler {
-
-    // Override to handle resource removal for both Entry and CIP paths
-    @Override
-    public void removeResources(Resource... resources) {
-        if (!isUsingCalendarItemProvider()) {
-            // Existing behavior: filter instanceof ResourceEntry, remove resources
-            EntryProvider<Entry> entryProvider = getEntryProvider();
-            // ... existing logic
-        }
-        // Both paths: remove from resource registry and client
-        getElement().callJsFunction("removeResources", ...);
+    public CalendarItemDroppedSchedulerEvent(FullCalendarScheduler<T> source,
+            boolean fromClient, ObjectNode itemData, ObjectNode timeDelta) {
+        super(source, fromClient, itemData, timeDelta);
+        Scheduler scheduler = (Scheduler) source;
+        this.oldResource = Optional.ofNullable(itemData.get("oldResource"))
+            .filter(JsonNode::isString)
+            .flatMap(n -> scheduler.getResourceById(n.asString()))
+            .orElse(null);
+        this.newResource = Optional.ofNullable(itemData.get("newResource"))
+            .filter(JsonNode::isString)
+            .flatMap(n -> scheduler.getResourceById(n.asString()))
+            .orElse(null);
     }
+
+    public Optional<Resource> getOldResource() { return Optional.ofNullable(oldResource); }
+    public Optional<Resource> getNewResource() { return Optional.ofNullable(newResource); }
 }
 ```
 
----
+### 7. Existing Scheduler Events — Type Updates
 
-## Builder Support
+Same pattern as Phase 4 for base events:
+
+| Event | Before | After |
+|-------|--------|-------|
+| `EntryDroppedSchedulerEvent` | `extends EntryTimeChangedEvent` with `FullCalendarScheduler source` | `FullCalendarScheduler<Entry> source` |
+| `TimeslotClickedSchedulerEvent` | `extends TimeslotClickedEvent` with `FullCalendarScheduler source` | `FullCalendarScheduler<?> source` |
+| `TimeslotsSelectedSchedulerEvent` | `extends TimeslotsSelectedEvent` with `FullCalendarScheduler source` | `FullCalendarScheduler<?> source` |
+
+### 8. Scheduler Event Dispatch
+
+`FullCalendarScheduler<T>` overrides the CIP event dispatch to fire scheduler-specific events:
 
 ```java
-// Existing builder supports scheduler. CIP + scheduler combo:
+// In FullCalendarScheduler<T>:
+@Override
+protected void setupCalendarItemEventListeners() {
+    super.setupCalendarItemEventListeners();
+
+    // Override eventDrop to fire CalendarItemDroppedSchedulerEvent instead
+    getElement().addEventListener("eventDrop", domEvent -> {
+        if (isUsingCalendarItemProvider()) {
+            ObjectNode data = extractObjectNode(domEvent, "event.detail.data");
+            ObjectNode delta = extractObjectNode(domEvent, "event.detail.delta");
+            fireEvent(new CalendarItemDroppedSchedulerEvent<>(this, true, data, delta));
+        }
+    }).addEventData("event.detail.data").addEventData("event.detail.delta");
+}
+```
+
+### 9. Listener Registration on Scheduler
+
+```java
+// In FullCalendarScheduler<T>:
+@SuppressWarnings("unchecked")
+public Registration addCalendarItemDroppedSchedulerListener(
+        ComponentEventListener<CalendarItemDroppedSchedulerEvent<T>> listener) {
+    return addListener((Class) CalendarItemDroppedSchedulerEvent.class, listener);
+}
+```
+
+### 10. Builder — Scheduler + CIP Combo
+
+The builder already supports scheduler (via `withScheduler()`). CIP is additive:
+
+```java
 FullCalendar<Meeting> calendar = FullCalendarBuilder.create(Meeting.class)
-    .withScheduler("your-license-key")
-    .withCalendarItemProvider(provider, schedulerMapper)
+    .withScheduler("license-key")
+    .withCalendarItemProvider(provider, mapper)
     .build();
 ```
+
+The `build()` method uses reflection to create `FullCalendarScheduler` when `withScheduler()`
+was called. The generic type propagates through the builder.
 
 ---
 
@@ -148,7 +297,8 @@ public class Meeting {
     private String subject;
     private LocalDateTime start;
     private LocalDateTime end;
-    private String roomId;  // Resource ID
+    private String roomId;
+    // getters + setters
 }
 
 var mapper = SchedulerCalendarItemPropertyMapper.of(Meeting.class)
@@ -169,9 +319,16 @@ FullCalendar<Meeting> calendar = FullCalendarBuilder.create(Meeting.class)
     .withCalendarItemProvider(provider, mapper)
     .build();
 
+// Add resources
+((Scheduler) calendar).addResources(
+    new Resource("room1", "Room 1", "blue"),
+    new Resource("room2", "Room 2", "green")
+);
+
+// Listen for drops with resource change
 calendar.addCalendarItemDroppedListener(event -> {
-    Meeting meeting = event.applyChangesOnItem(); // applies start, end, resourceIds via setters
-    meetingService.save(meeting);
+    Meeting m = event.applyChangesOnItem(); // applies start, end, resourceIds
+    meetingService.save(m);
 });
 ```
 
@@ -179,16 +336,38 @@ calendar.addCalendarItemDroppedListener(event -> {
 
 ## Testing
 
-- Test `SchedulerCalendarItemPropertyMapper` adds `resourceIds` to JSON output
-- Test `FullCalendarScheduler` with CIP renders items in correct resource lanes
-- Test scheduler-specific CIP events include old/new resource info
-- Test `applyChanges()` updates resourceIds via setter
-- Test `ResourceEntry`-based EntryProvider still works unchanged
-- Run all existing scheduler tests
+### Scheduler typing
+- `FullCalendarScheduler<ResourceEntry>` compiles and works with existing Entry-based code
+- `FullCalendarScheduler<Meeting>` compiles with CIP
+- Raw `FullCalendarScheduler` produces warnings but compiles
+
+### SchedulerCalendarItemPropertyMapper
+- `resourceIds` mapping produces correct JSON array
+- `resourceEditable` mapping produces correct JSON boolean
+- `applyChanges()` updates resource IDs via setter
+- Inherits all base mapper behavior (start, end, allDay, etc.)
+
+### Scheduler CIP events
+- `CalendarItemDroppedSchedulerEvent` includes old/new resource
+- Scheduler CIP events fire when CIP active on scheduler
+- Entry-based scheduler events still fire when using ResourceEntry
+
+### removeFromEntries()
+- Entry path: still removes resources from ResourceEntry instances
+- CIP path: skips (user manages POJO resource associations)
+
+### Builder
+- `FullCalendarBuilder.create(Meeting.class).withScheduler("key").withCalendarItemProvider(...)` works
+- Existing `FullCalendarBuilder.create().withScheduler("key")` still works (raw type)
+
+### Regression
+- ALL existing scheduler tests pass
+- ResourceEntry-based calendars work identically
 
 ## Completion Criteria
 
 - CIP works with scheduler views (Timeline, ResourceTimeGrid, ResourceDayGrid)
-- Resource associations correctly mapped from POJOs
+- Resource associations correctly mapped from POJOs via `SchedulerCalendarItemPropertyMapper`
 - Resource drag-and-drop works with CIP (via setter or update handler)
-- Existing ResourceEntry users are unaffected
+- Existing ResourceEntry users unaffected
+- All scheduler configuration methods (license, resource area, slots, etc.) work with generic type

@@ -1,14 +1,57 @@
 # Phase 2: Adapter Layer
 
-**Goal:** Wire existing EntryProvider hierarchy into the new CIP type hierarchy.
+**Goal:** Wire existing EntryProvider hierarchy into the new CIP type hierarchy so that
+`EntryProvider` becomes a specialization of `CalendarItemProvider`.
 **Prerequisite:** Phase 1 complete.
-**Breaking changes:** None (existing APIs preserved, new supertypes added).
+**Breaking changes:** None — existing APIs preserved, new supertypes added.
+
+---
+
+## Context
+
+Phase 1 created standalone CIP types. This phase connects them to the existing Entry-based
+types by making `EntryProvider<T extends Entry>` extend `CalendarItemProvider<T>` and
+`EntryQuery` extend `CalendarQuery`. This ensures the Entry path is just a specialized
+case of the generic CIP path.
+
+## Module
+
+All changes in `addon/src/main/java/org/vaadin/stefan/fullcalendar/dataprovider/`
 
 ---
 
 ## Changes
 
-### 1. `EntryProvider<T extends Entry>` extends `CalendarItemProvider<T>`
+### 1. `EntryQuery extends CalendarQuery`
+
+**File:** `addon/src/main/java/org/vaadin/stefan/fullcalendar/dataprovider/EntryQuery.java`
+
+```java
+// Before:
+public class EntryQuery {
+    private final LocalDateTime start;
+    private final LocalDateTime end;
+    private final AllDay allDay;
+    ...
+}
+
+// After:
+public class EntryQuery extends CalendarQuery {
+    private final AllDay allDay;  // Entry-specific filter, retained
+
+    public EntryQuery(LocalDateTime start, LocalDateTime end, AllDay allDay) {
+        super(start, end);        // delegates to CalendarQuery
+        this.allDay = allDay;
+    }
+
+    // applyFilter() stays — it uses Entry-specific methods (isRecurring, getEnd, etc.)
+    // This is fine because EntryQuery is only used with EntryProvider<T extends Entry>
+}
+```
+
+### 2. `EntryProvider<T extends Entry> extends CalendarItemProvider<T>`
+
+**File:** `addon/src/main/java/org/vaadin/stefan/fullcalendar/dataprovider/EntryProvider.java`
 
 ```java
 // Before:
@@ -19,33 +62,30 @@ public interface EntryProvider<T extends Entry> extends CalendarItemProvider<T> 
 ```
 
 The existing `EntryProvider` methods already satisfy `CalendarItemProvider`'s contract:
-- `fetch(EntryQuery)` satisfies `fetch(CalendarQuery)` — `EntryQuery` will extend `CalendarQuery`
-- `fetchById(String)` — same signature
-- Listener methods — map to generic equivalents
-
-**Implementation detail:** Bridge methods may be needed if `CalendarQuery` and `EntryQuery`
-are separate types. Two approaches:
-- (a) `EntryQuery extends CalendarQuery` — cleanest, but adds an `extends Entry` constraint
-  in the superclass filter logic. Feasible since `EntryQuery.applyFilter()` already requires `Entry`.
-- (b) `EntryProvider` implements both interfaces separately with adapter methods.
-
-**Recommended:** Option (a) — `EntryQuery extends CalendarQuery`.
-
-### 2. `EntryQuery` extends `CalendarQuery`
+- `fetch(EntryQuery)` — `EntryQuery extends CalendarQuery`, so this satisfies
+  `fetch(CalendarQuery)`. However, the parameter type difference means we need a bridge:
 
 ```java
-// Before:
-public class EntryQuery { ... }
-
-// After:
-public class EntryQuery extends CalendarQuery {
-    private final AllDay allDay;  // Entry-specific filter retained
-
-    // applyFilter() still works, using Entry-specific methods
+// In EntryProvider, add a default bridge method:
+@Override
+default Stream<T> fetch(@NonNull CalendarQuery query) {
+    // If called with a CalendarQuery (not EntryQuery), wrap it
+    if (query instanceof EntryQuery entryQuery) {
+        return fetch(entryQuery);
+    }
+    return fetch(new EntryQuery(query.getStart(), query.getEnd(), EntryQuery.AllDay.BOTH));
 }
+
+// Keep the existing signature as the primary method:
+Stream<T> fetch(@NonNull EntryQuery query);
 ```
 
-### 3. `AbstractEntryProvider` extends `AbstractCalendarItemProvider`
+- `fetchById(String)` — same signature, no change needed
+- Listener methods — bridge to generic equivalents via default methods
+
+### 3. `AbstractEntryProvider<T extends Entry> extends AbstractCalendarItemProvider<T>`
+
+**File:** `addon/src/main/java/org/vaadin/stefan/fullcalendar/dataprovider/AbstractEntryProvider.java`
 
 ```java
 // Before:
@@ -58,44 +98,65 @@ public abstract class AbstractEntryProvider<T extends Entry>
 ```
 
 Listener management moves to `AbstractCalendarItemProvider`. `AbstractEntryProvider` becomes
-a thin layer that delegates to the parent and adds Entry-specific behavior (setCalendar on items).
+a thin layer that delegates to the parent and adds Entry-specific behavior (e.g., calling
+`entry.setCalendar()` on items).
+
+Duplicate listener fields/methods in `AbstractEntryProvider` are removed; the parent handles
+it. Ensure that existing `EntriesChangeEvent` / `EntryRefreshEvent` listeners still fire
+correctly — they can bridge from the generic `CalendarItemsChangeEvent` / `CalendarItemRefreshEvent`
+via type casting or by firing both event types.
 
 ### 4. Event Type Bridges
 
-`EntriesChangeEvent<T extends Entry>` wraps or extends `CalendarItemsChangeEvent<T>`.
-`EntryRefreshEvent<T extends Entry>` wraps or extends `CalendarItemRefreshEvent<T>`.
-
-This ensures existing listeners still work while internal dispatch uses the new generic types.
-
-### 5. Static Factory Methods
-
-`CalendarItemProvider` gets factory methods mirroring `EntryProvider`:
-
 ```java
-public interface CalendarItemProvider<T> {
-    static <T> CallbackCalendarItemProvider<T> fromCallbacks(
-        SerializableFunction<CalendarQuery, Stream<T>> fetch,
-        SerializableFunction<String, T> fetchById) { ... }
+// EntriesChangeEvent<T extends Entry> bridges to CalendarItemsChangeEvent<T>:
+// Option A: EntriesChangeEvent extends CalendarItemsChangeEvent (cleanest)
+public class EntriesChangeEvent<T extends Entry> extends CalendarItemsChangeEvent<T> { ... }
 
-    static <T> InMemoryCalendarItemProvider<T> emptyInMemory(
-        SerializableFunction<T, String> idExtractor) { ... }
+// Option B: AbstractEntryProvider fires both event types (if A causes issues)
+```
 
-    static <T> InMemoryCalendarItemProvider<T> inMemoryFrom(
-        SerializableFunction<T, String> idExtractor, T... items) { ... }
-}
+Same pattern for `EntryRefreshEvent<T extends Entry>` → `CalendarItemRefreshEvent<T>`.
+
+### 5. `CalendarItemProvider` Factory Methods (from Phase 1) — Verify
+
+Ensure the static factory methods on `CalendarItemProvider` work correctly:
+```java
+CalendarItemProvider.fromCallbacks(query -> ..., id -> ...);
+CalendarItemProvider.emptyInMemory(MyPojo::getId);
+CalendarItemProvider.inMemoryFrom(MyPojo::getId, pojo1, pojo2);
+```
+
+And that `EntryProvider` factory methods still work:
+```java
+EntryProvider.fromCallbacks(query -> ..., id -> ...);
+EntryProvider.emptyInMemory();
+EntryProvider.inMemoryFrom(entry1, entry2);
 ```
 
 ---
 
 ## Testing
 
-- Verify `EntryProvider` is assignable to `CalendarItemProvider` (compile-time check)
-- Verify existing `InMemoryEntryProvider` and `CallbackEntryProvider` still work unchanged
+### Compile-time checks
+- `EntryProvider` is assignable to `CalendarItemProvider` (compile-time)
+- `EntryQuery` is assignable to `CalendarQuery` (compile-time)
+
+### Behavioral tests
+- Existing `InMemoryEntryProvider` works unchanged — add items, fetch, refresh
+- Existing `CallbackEntryProvider` works unchanged — delegates to callbacks
+- `EntryProvider.fetch(CalendarQuery)` bridge works — wraps as EntryQuery internally
+- `EntriesChangeEvent` still fires when entries change
+- `EntryRefreshEvent` still fires on entry refresh
+- New `CalendarItemsChangeEvent` listener on an EntryProvider also fires
+
+### Regression
 - Run ALL existing tests — nothing should break
-- Test that `EntryQuery` works as a `CalendarQuery`
+- No deprecation warnings introduced yet (those come in Phase 3)
 
 ## Completion Criteria
 
 - `EntryProvider extends CalendarItemProvider` compiles
-- All existing tests pass
-- No deprecation warnings introduced yet (those come in Phase 3)
+- `EntryQuery extends CalendarQuery` compiles
+- All existing entry provider tests pass unchanged
+- New CalendarItemProvider listeners work on EntryProvider instances
