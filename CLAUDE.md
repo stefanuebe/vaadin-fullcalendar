@@ -92,6 +92,17 @@ Uses Jackson 3 for serialization (changed from elemental.json in v7.0). Custom a
 3. **Data Provider Pattern**: Similar to Vaadin's DataProvider for managing calendar entries
 4. **Light DOM**: v6+ uses light DOM instead of shadow DOM for easier styling
 
+## Calendar Item Provider (CIP) — Active Feature Branch
+
+The CIP feature (`feature/calendar-item-provider` branch) generalizes `EntryProvider` to support arbitrary POJOs.
+
+- **Requirements**: `calendar-item-provider.md` (project root)
+- **Implementation plan**: `calendar-item-provider-plan/` directory
+  - `STATUS.md` — Status tracker + key architectural decisions
+  - `phase-0-spikes.md` through `phase-6-migration-docs.md` — Phase details
+  - `requirements-review.md` — Gap analysis
+- **Spike code**: `addon/src/test/java/.../spike/` (keep until CIP is complete)
+
 ## Documentation
 
 Detailed documentation available in `docs/`:
@@ -149,3 +160,8 @@ If the MCP server does not have instructions on particular client side elements 
 may also check the typescript api: https://cdn.vaadin.com/vaadin-web-components/25.0.2, where each element has its
 own page, e.g. https://cdn.vaadin.com/vaadin-web-components/25.0.2/elements/vaadin-menu-bar/ . Only use that page as
 a last resort and only open the respective element's page.
+
+## Workflow Guidelines
+
+- **Use custom agents**: Always use specialized subagents (requirements-reviewer, code-reviewer, qa-tester, architecture-guard, etc.) for plan review and implementation quality checks.
+- **Parallel agents**: Launch multiple agents concurrently when tasks are independent (e.g., review + explore, multiple file searches, test + lint).

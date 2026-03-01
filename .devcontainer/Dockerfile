@@ -1,8 +1,8 @@
+# syntax=docker/dockerfile:1
 FROM node:20
 
 ARG TZ
 ENV TZ="$TZ"
-
 ARG CLAUDE_CODE_VERSION=latest
 
 # Install basic development tools
@@ -26,16 +26,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   apt-transport-https \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install OpenJDK 25 (matching local Kubuntu path for IntelliJ compatibility)
-RUN wget -q https://download.java.net/java/GA/jdk25.0.2/b1e0dfa218384cb9959bdcb897162d4e/10/GPL/openjdk-25.0.2_linux-x64_bin.tar.gz -O /tmp/openjdk25.tar.gz && \
+# Install OpenJDK 25 (architecture-aware)
+RUN ARCH=$(dpkg --print-architecture) && \
+  if [ "$ARCH" = "amd64" ]; then JDK_ARCH="x64"; else JDK_ARCH="aarch64"; fi && \
+  wget -q "https://download.java.net/java/GA/jdk25.0.2/b1e0dfa218384cb9959bdcb897162d4e/10/GPL/openjdk-25.0.2_linux-${JDK_ARCH}_bin.tar.gz" -O /tmp/openjdk25.tar.gz && \
   mkdir -p /usr/lib/jvm && \
   tar -xzf /tmp/openjdk25.tar.gz -C /usr/lib/jvm && \
-  mv /usr/lib/jvm/jdk-25.0.2 /usr/lib/jvm/java-25-openjdk-amd64 && \
-  ln -s java-25-openjdk-amd64 /usr/lib/jvm/java-1.25.0-openjdk-amd64 && \
-  ln -s java-25-openjdk-amd64 /usr/lib/jvm/openjdk-25 && \
+  mv /usr/lib/jvm/jdk-25.0.2 /usr/lib/jvm/openjdk-25 && \
   rm /tmp/openjdk25.tar.gz
 
-ENV JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/openjdk-25
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Install Maven
@@ -99,11 +99,15 @@ RUN mkdir -p /workspace /home/node/.claude && \
 
 WORKDIR /workspace
 
+# Install Git Delta (Dynamic Architecture)
 ARG GIT_DELTA_VERSION=0.18.2
 RUN ARCH=$(dpkg --print-architecture) && \
   wget "https://github.com/dandavison/delta/releases/download/${GIT_DELTA_VERSION}/git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb" && \
   sudo dpkg -i "git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb" && \
   rm "git-delta_${GIT_DELTA_VERSION}_${ARCH}.deb"
+
+# Grant sudo access to node user
+RUN echo "node ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/node && chmod 0440 /etc/sudoers.d/node
 
 # Set up non-root user
 USER node
@@ -134,5 +138,7 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
 # Install Playwright globally and download browser
+# HINWEIS: Auf Raspberry Pi (ARM) kann der Chromium Download langsam sein oder fehlschlagen.
+# Falls es hier hakt, nimm 'chromium' aus den apt-Paketen oben dazu.
 RUN npm install -g playwright && \
   npx playwright install chromium
