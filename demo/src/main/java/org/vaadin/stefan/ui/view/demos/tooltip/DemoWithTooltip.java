@@ -37,10 +37,10 @@ public class DemoWithTooltip extends AbstractCalendarView {
 
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar<Entry> createCalendar(ObjectNode defaultInitialOptions) {
         EntryService entryService = EntryService.createSimpleInstance();
 
-        FullCalendar calendar = FullCalendarBuilder.create()
+        FullCalendar<Entry> calendar = FullCalendarBuilder.create()
                 .withCustomType(FullCalendarWithTooltip.class) // create a new instance with a custom type
                 .withInitialOptions(defaultInitialOptions)
                 .withEntryLimit(3)

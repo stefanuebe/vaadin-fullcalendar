@@ -17,7 +17,7 @@ import java.util.Locale;
 public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
     private static final long serialVersionUID = 1L;
     
-    private FullCalendar calendar;
+    private FullCalendar<Entry> calendar;
 
     public DemoCalendarWithBackgroundEvent() {
     	initView();

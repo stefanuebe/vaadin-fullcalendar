@@ -46,7 +46,7 @@ import java.util.stream.StreamSupport;
 @CssImport("./vaadin-full-calendar/full-calendar-scheduler-styles.css")
 
 @Tag("vaadin-full-calendar-scheduler")
-public class FullCalendarScheduler extends FullCalendar implements Scheduler {
+public class FullCalendarScheduler extends FullCalendar<Entry> implements Scheduler {
 
     /**
      * The scheduler base version used in this addon. Some additionl libraries might have a different version number due to
@@ -212,17 +212,19 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * Removes the given resources from the known entries of this calendar.
      * @param iterableResources resources
      */
+    @SuppressWarnings("unchecked")
     private void removeFromEntries(Iterable<Resource> iterableResources) {
         List<Resource> resources = StreamSupport.stream(iterableResources.spliterator(), false).collect(Collectors.toList());
         // TODO integrate in memory resource provider
         EntryProvider<Entry> entryProvider = getEntryProvider();
-        if (entryProvider.isInMemory()) {
-            entryProvider.asInMemory()
-                    .getEntries()
-                    .stream()
-                    .filter(e -> e instanceof ResourceEntry)
-                    .forEach(e -> ((ResourceEntry) e).removeResources(resources));
+        if (entryProvider == null || !entryProvider.isInMemory()) {
+            return;
         }
+        entryProvider.asInMemory()
+                .getEntries()
+                .stream()
+                .filter(e -> e instanceof ResourceEntry)
+                .forEach(e -> ((ResourceEntry) e).removeResources(resources));
     }
 
     @Override
@@ -301,37 +303,32 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotsSelectedListener(ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
-        return addTimeslotsSelectedSchedulerListener((ComponentEventListener) listener);
+    public Registration addTimeslotsSelectedListener(ComponentEventListener<TimeslotsSelectedEvent<Entry>> listener) {
+        return addTimeslotsSelectedSchedulerListener(event -> listener.onComponentEvent(event));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener) {
+    public Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<TimeslotsSelectedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(TimeslotsSelectedSchedulerEvent.class, (ComponentEventListener) listener);
+        return addListener(TimeslotsSelectedSchedulerEvent.class, listener);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotClickedListener(ComponentEventListener<? extends TimeslotClickedEvent> listener) {
-        return addTimeslotClickedSchedulerListener((ComponentEventListener) listener);
+    public Registration addTimeslotClickedListener(ComponentEventListener<TimeslotClickedEvent<Entry>> listener) {
+        return addTimeslotClickedSchedulerListener(event -> listener.onComponentEvent(event));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotClickedSchedulerListener(ComponentEventListener<? extends TimeslotClickedSchedulerEvent> listener) {
+    public Registration addTimeslotClickedSchedulerListener(ComponentEventListener<TimeslotClickedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(TimeslotClickedSchedulerEvent.class, (ComponentEventListener) listener);
+        return addListener(TimeslotClickedSchedulerEvent.class, listener);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addEntryDroppedSchedulerListener(ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
+    public Registration addEntryDroppedSchedulerListener(ComponentEventListener<EntryDroppedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EntryDroppedSchedulerEvent.class, (ComponentEventListener) listener);
+        return addListener(EntryDroppedSchedulerEvent.class, listener);
     }
 
     /**
@@ -401,10 +398,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends CalendarView> Optional<T> lookupViewByClientSideValue(String clientSideValue) {
-        Optional<T> optional = super.lookupViewByClientSideValue(clientSideValue);
+    public <CV extends CalendarView> Optional<CV> lookupViewByClientSideValue(String clientSideValue) {
+        Optional<CV> optional = super.lookupViewByClientSideValue(clientSideValue);
         if (optional.isEmpty()) {
-            optional = (Optional<T>) SchedulerView.ofClientSideValue(clientSideValue);
+            optional = (Optional<CV>) SchedulerView.ofClientSideValue(clientSideValue);
         }
         return optional;
     }

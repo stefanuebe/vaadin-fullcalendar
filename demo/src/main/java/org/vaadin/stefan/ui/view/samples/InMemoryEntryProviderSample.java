@@ -17,7 +17,7 @@ public class InMemoryEntryProviderSample extends AbstractSample {
     private EntryService<Entry> backend = EntryService.createInstance();
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         // load items from backend
         List<Entry> entryList = backend.streamEntries().collect(Collectors.toList());
 

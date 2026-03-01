@@ -11,7 +11,7 @@ public class CreateTemporaryCopyJPAStyleSample extends AbstractSample{
     private Entry entry;
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         createCopy();
     }
 

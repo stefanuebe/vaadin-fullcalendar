@@ -12,7 +12,7 @@ public class CreateTemporaryCopySample extends AbstractSample {
     private Entry entry;
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         Entry tmpEntry = entry.copy(); // create a temporary copy
         // you may also call copyAsType to allow the copy to be of a different type
 

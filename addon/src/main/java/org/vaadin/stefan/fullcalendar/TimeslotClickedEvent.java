@@ -28,7 +28,7 @@ import lombok.ToString;
  */
 @DomEvent("dateClick")
 @ToString(callSuper = true)
-public class TimeslotClickedEvent extends DateTimeEvent {
+public class TimeslotClickedEvent<T> extends DateTimeEvent<T> {
 
     /**
      * New instance. Awaits the clicked date (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
@@ -38,7 +38,7 @@ public class TimeslotClickedEvent extends DateTimeEvent {
      * @param date clicked time slot as iso string
      * @param allDay all day event
      */
-    public TimeslotClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay) {
+    public TimeslotClickedEvent(FullCalendar<T> source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient, date, allDay);
     }
 }

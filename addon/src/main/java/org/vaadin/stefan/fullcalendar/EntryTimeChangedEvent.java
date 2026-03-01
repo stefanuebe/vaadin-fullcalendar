@@ -43,7 +43,7 @@ public class EntryTimeChangedEvent extends EntryChangedEvent {
      * @param jsonEntry json object with changed data
      * @param jsonDelta json object with delta information
      */
-    public EntryTimeChangedEvent(FullCalendar source, boolean fromClient, ObjectNode jsonEntry, ObjectNode jsonDelta) {
+    public EntryTimeChangedEvent(FullCalendar<Entry> source, boolean fromClient, ObjectNode jsonEntry, ObjectNode jsonDelta) {
         super(source, fromClient, jsonEntry);
         this.delta = Delta.fromJson(jsonDelta);
     }

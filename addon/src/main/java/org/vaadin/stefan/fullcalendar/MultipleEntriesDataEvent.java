@@ -45,7 +45,7 @@ public abstract class MultipleEntriesDataEvent extends MultipleEntriesEvent {
      * @param fromClient is from client
      * @param jsonObjects json object with changed data
      */
-    public MultipleEntriesDataEvent(FullCalendar source, boolean fromClient, ArrayNode jsonObjects) {
+    public MultipleEntriesDataEvent(FullCalendar<Entry> source, boolean fromClient, ArrayNode jsonObjects) {
         super(source, fromClient, toCollection(Objects.requireNonNull(jsonObjects)));
         this.jsonObjects = toMap(jsonObjects);
     }

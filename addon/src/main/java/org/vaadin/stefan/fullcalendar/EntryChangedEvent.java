@@ -33,7 +33,7 @@ public abstract class EntryChangedEvent extends EntryDataEvent {
      * @param fromClient is from client
      * @param jsonObject json object with changed data
      */
-    public EntryChangedEvent(FullCalendar source, boolean fromClient, ObjectNode jsonObject) {
+    public EntryChangedEvent(FullCalendar<Entry> source, boolean fromClient, ObjectNode jsonObject) {
         super(source, fromClient, jsonObject);
     }
 

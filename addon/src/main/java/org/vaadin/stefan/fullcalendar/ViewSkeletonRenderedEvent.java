@@ -32,7 +32,7 @@ import tools.jackson.databind.node.ObjectNode;
 @DomEvent("viewDidMount")
 @Getter
 @ToString(callSuper = true)
-public class ViewSkeletonRenderedEvent extends ViewRenderEvent {
+public class ViewSkeletonRenderedEvent<T> extends ViewRenderEvent<T> {
     /**
      * Creates a new event using the given source and indicator whether the
      * event originated from the client side or the server side.
@@ -41,7 +41,7 @@ public class ViewSkeletonRenderedEvent extends ViewRenderEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param eventData client side event data
      */
-    public ViewSkeletonRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") ObjectNode eventData) {
+    public ViewSkeletonRenderedEvent(FullCalendar<T> source, boolean fromClient, @EventData("event.detail") ObjectNode eventData) {
         super(source, fromClient, eventData);
     }
 }

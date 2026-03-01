@@ -34,7 +34,7 @@ import java.time.*;
 @DomEvent("select")
 @Getter
 @ToString
-public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
+public class TimeslotsSelectedEvent<T> extends ComponentEvent<FullCalendar<T>> {
 
     /**
      * If the selection has been for day slots. False means, it has been a selection on time slots inside a day.
@@ -62,7 +62,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * @param end end time slot as iso string
      * @param allDay all day event
      */
-    public TimeslotsSelectedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay) {
+    public TimeslotsSelectedEvent(FullCalendar<T> source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient);
 
         Timezone timezone = source.getTimezone();

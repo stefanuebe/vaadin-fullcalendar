@@ -10,7 +10,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 public class BackgroundEntrySample extends AbstractSample {
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         Entry entry = new Entry();
         // ... setup entry details
 

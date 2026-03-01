@@ -16,7 +16,7 @@ public class CrudSample extends AbstractSample {
     private Entry entry;
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         // ... create a form and binder to provide editable components to the user
 
         InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();

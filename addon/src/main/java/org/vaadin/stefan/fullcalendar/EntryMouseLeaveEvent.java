@@ -38,7 +38,7 @@ public class EntryMouseLeaveEvent extends EntryDataEvent {
      * @param fromClient from client
      * @param entryData  entry data
      */
-    public EntryMouseLeaveEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
+    public EntryMouseLeaveEvent(FullCalendar<Entry> source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
         super(source, fromClient, entryData);
     }
 

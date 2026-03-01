@@ -25,7 +25,7 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-public abstract class EntryEvent extends ComponentEvent<FullCalendar> {
+public abstract class EntryEvent extends ComponentEvent<FullCalendar<Entry>> {
 
     /**
      * The entry, for which the event occurred.
@@ -38,7 +38,7 @@ public abstract class EntryEvent extends ComponentEvent<FullCalendar> {
      * @param fromClient from client
      * @param entryId affected entry id
      */
-    public EntryEvent(FullCalendar source, boolean fromClient, String entryId) {
+    public EntryEvent(FullCalendar<Entry> source, boolean fromClient, String entryId) {
         super(source, fromClient);
         this.entry = source.getCachedEntryFromFetch(entryId).orElseThrow(IllegalArgumentException::new);
     }

@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view.samples;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
+import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 /**
@@ -10,7 +11,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 @Getter
 public abstract class AbstractSample extends VerticalLayout {
 
-    private final FullCalendar calendar;
+    private final FullCalendar<Entry> calendar;
 
     public AbstractSample() {
         calendar = createCalendar();
@@ -21,9 +22,9 @@ public abstract class AbstractSample extends VerticalLayout {
         buildSample(calendar);
     }
 
-    protected FullCalendar createCalendar() {
-        return new FullCalendar();
+    protected FullCalendar<Entry> createCalendar() {
+        return new FullCalendar<>();
     }
 
-    protected abstract void buildSample(FullCalendar calendar);
+    protected abstract void buildSample(FullCalendar<Entry> calendar);
 }

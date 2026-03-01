@@ -7,7 +7,7 @@
 | 0 | Spikes | COMPLETE | Mapper prototype + generic component runtime verification |
 | 1 | Foundation Types | COMPLETE | New CIP types without touching existing code |
 | 2 | Adapter Layer | COMPLETE | Wire existing EntryProvider into CIP hierarchy |
-| 3 | Core Integration | NOT STARTED | Make FullCalendar generic, connect CIP |
+| 3 | Core Integration | COMPLETE | Make FullCalendar generic, connect CIP |
 | 4 | Event System | NOT STARTED | Typed parallel event hierarchy for CIP |
 | 5 | Scheduler Extension | NOT STARTED | Integrate CIP with addon-scheduler |
 | 6 | Migration & Docs | NOT STARTED | Deprecations, migration guide, documentation |
@@ -19,18 +19,22 @@
 erased types — generic parameters do not interfere at runtime. Existing code using raw
 `FullCalendar` gets compiler warnings but no breakage.
 
-### 2. Generic `FullCalendarScheduler<T>` — CONFIRMED
-`FullCalendarScheduler` becomes `FullCalendarScheduler<T> extends FullCalendar<T>`.
-Existing Entry-based usage becomes `FullCalendarScheduler<ResourceEntry>`. CIP usage
-becomes `FullCalendarScheduler<MyPojo>`. Resource management (addResources, getResources,
-etc.) is item-type-agnostic and stays unchanged.
+### 2. Generic `FullCalendarScheduler` — UPDATED
+Phase 3: `FullCalendarScheduler extends FullCalendar<Entry>` (bound to Entry, not generic yet).
+This avoids raw-type issues while scheduler-specific methods (`removeFromEntries()`, etc.)
+still reference Entry. Phase 5 will make it `FullCalendarScheduler<T> extends FullCalendar<T>`
+with proper generic resource management.
 
-### 3. Typed Event Hierarchy — CONFIRMED
-- `EntryEvent extends ComponentEvent<FullCalendar<Entry>>` — existing events, no raw types
-- `CalendarItemEvent<T> extends ComponentEvent<FullCalendar<T>>` — new parallel hierarchy
-- Non-entry events (timeslot, dates, etc.) use `ComponentEvent<FullCalendar<T>>`
-- Scheduler events: `EntryDroppedSchedulerEvent extends ComponentEvent<FullCalendarScheduler<Entry>>`
-  and new `CalendarItemDroppedSchedulerEvent<T> extends ComponentEvent<FullCalendarScheduler<T>>`
+### 3. Typed Event Hierarchy — CONFIRMED (Phase 3 implementation)
+- Entry events: `EntryEvent extends ComponentEvent<FullCalendar<Entry>>` — no raw types
+- Non-entry events are generic: `DateEvent<T>`, `DateTimeEvent<T>`, `TimeslotsSelectedEvent<T>`,
+  `DatesRenderedEvent<T>`, `TimeslotClickedEvent<T>`, etc. — all `extends ComponentEvent<FullCalendar<T>>`
+- Scheduler events: `TimeslotClickedSchedulerEvent extends TimeslotClickedEvent<Entry>`,
+  `TimeslotsSelectedSchedulerEvent extends TimeslotsSelectedEvent<Entry>`, constructors take
+  `FullCalendar<Entry>` and cast to `(Scheduler)` for resource lookup
+- Listener delegation in FullCalendarScheduler uses lambdas (no raw casts):
+  `event -> listener.onComponentEvent(event)`
+- Phase 4 will add the parallel `CalendarItemEvent<T>` hierarchy for CIP
 
 ### 4. Client-to-Server Updates: A+B with Mutual Exclusion — CONFIRMED
 Two mechanisms for applying client-side changes (drag/drop/resize) back to POJOs:

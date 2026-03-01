@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 @DomEvent("select")
 @ToString(callSuper = true)
-public class TimeslotsSelectedSchedulerEvent extends TimeslotsSelectedEvent {
+public class TimeslotsSelectedSchedulerEvent extends TimeslotsSelectedEvent<Entry> {
 
     private Resource resource;
 
@@ -43,11 +43,11 @@ public class TimeslotsSelectedSchedulerEvent extends TimeslotsSelectedEvent {
      * @param allDay    all day event
      * @param resourceId optional resource id
      */
-    public TimeslotsSelectedSchedulerEvent(FullCalendarScheduler source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay, @EventData("event.detail.resource") String resourceId) {
+    public TimeslotsSelectedSchedulerEvent(FullCalendar<Entry> source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay, @EventData("event.detail.resource") String resourceId) {
         super(source, fromClient, start, end, allDay);
 
         if (resourceId != null) {
-            this.resource = source.getResourceById(resourceId).orElseThrow(IllegalArgumentException::new);
+            this.resource = ((Scheduler) source).getResourceById(resourceId).orElseThrow(IllegalArgumentException::new);
         }
     }
 

@@ -40,7 +40,7 @@ public class EntryResizedEvent extends EntryTimeChangedEvent {
      * @param jsonEntry json object with changed data
      * @param jsonDelta json object with delta information
      */
-    public EntryResizedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode jsonEntry, @EventData("event.detail.delta") ObjectNode jsonDelta) {
+    public EntryResizedEvent(FullCalendar<Entry> source, boolean fromClient, @EventData("event.detail.data") ObjectNode jsonEntry, @EventData("event.detail.delta") ObjectNode jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
     }
 }

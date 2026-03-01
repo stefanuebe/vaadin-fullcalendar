@@ -19,7 +19,7 @@ import com.vaadin.flow.router.Route;
 public class DemoCustomProperties extends VerticalLayout {
 	private static final long serialVersionUID = -117988331031719049L;
 
-	private FullCalendar calendar;
+	private FullCalendar<Entry> calendar;
 	
 	private Entry selected;
 

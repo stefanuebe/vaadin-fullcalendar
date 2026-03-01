@@ -8,7 +8,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
  */
 public class BasicInteractionSample extends AbstractSample{
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         calendar.addTimeslotsSelectedListener((event) -> {
             // react on the selected timeslot, for instance create a new instance and let the user edit it
             Entry entry = new Entry();

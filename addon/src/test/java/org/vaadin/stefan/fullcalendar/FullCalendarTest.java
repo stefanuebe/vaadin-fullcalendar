@@ -5,6 +5,8 @@ import com.vaadin.flow.dom.Element;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
+import org.vaadin.stefan.fullcalendar.dataprovider.CalendarItemProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.CalendarQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -14,13 +16,13 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertNPE;
@@ -186,7 +188,7 @@ public class FullCalendarTest {
     }
 
     private InMemoryEntryProvider<Entry> getEntryProvider(FullCalendar calendar) {
-        return calendar.getEntryProvider();
+        return (InMemoryEntryProvider<Entry>) calendar.getEntryProvider();
     }
 
     @Test
@@ -568,6 +570,353 @@ public class FullCalendarTest {
 //        // apply changes and test modifications
 //        event.applyChangesOnEntry();
 //        EntryTest.assertFullEqualsByJsonAttributes(modifiedTimedEntry, event.getEntry());
+    }
+
+    // ---- CIP (Calendar Item Provider) Phase 3 tests ----
+
+    /**
+     * Simple test POJO for CIP tests.
+     */
+    static class TestMeeting {
+        private String id;
+        private String subject;
+        private LocalDateTime begin;
+        private LocalDateTime finish;
+        private boolean allDay;
+
+        TestMeeting(String id, String subject, LocalDateTime begin, LocalDateTime finish, boolean allDay) {
+            this.id = id;
+            this.subject = subject;
+            this.begin = begin;
+            this.finish = finish;
+            this.allDay = allDay;
+        }
+
+        public String getId() { return id; }
+        public String getSubject() { return subject; }
+        public LocalDateTime getBegin() { return begin; }
+        public void setBegin(LocalDateTime begin) { this.begin = begin; }
+        public LocalDateTime getFinish() { return finish; }
+        public void setFinish(LocalDateTime finish) { this.finish = finish; }
+        public boolean isAllDay() { return allDay; }
+        public void setAllDay(boolean allDay) { this.allDay = allDay; }
+    }
+
+    private CalendarItemPropertyMapper<TestMeeting> createReadOnlyMapper() {
+        return CalendarItemPropertyMapper.of(TestMeeting.class)
+                .id(TestMeeting::getId)
+                .title(TestMeeting::getSubject)
+                .start(TestMeeting::getBegin)
+                .end(TestMeeting::getFinish)
+                .allDay(TestMeeting::isAllDay);
+    }
+
+    private CalendarItemPropertyMapper<TestMeeting> createBidirectionalMapper() {
+        return CalendarItemPropertyMapper.of(TestMeeting.class)
+                .id(TestMeeting::getId)
+                .title(TestMeeting::getSubject)
+                .start(TestMeeting::getBegin, TestMeeting::setBegin)
+                .end(TestMeeting::getFinish, TestMeeting::setFinish)
+                .allDay(TestMeeting::isAllDay, TestMeeting::setAllDay);
+    }
+
+    private CalendarItemProvider<TestMeeting> createTestProvider(List<TestMeeting> meetings) {
+        return CalendarItemProvider.fromCallbacks(
+                query -> meetings.stream(),
+                id -> meetings.stream().filter(m -> m.getId().equals(id)).findFirst().orElse(null)
+        );
+    }
+
+    @Test
+    void testSetCalendarItemProvider_fetchReturnsCorrectJson() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        TestMeeting meeting = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of(meeting));
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
+
+        calendar.setCalendarItemProvider(provider, mapper);
+
+        assertTrue(calendar.isUsingCalendarItemProvider());
+        assertSame(provider, calendar.getCalendarItemProvider());
+        assertSame(mapper, calendar.getCalendarItemPropertyMapper());
+        assertNull(calendar.getEntryProvider());
+
+        // Simulate a fetch from server
+        ObjectNode query = JsonFactory.createObject();
+        var result = calendar.fetchEntriesFromServer(query);
+
+        assertEquals(1, result.size());
+        ObjectNode jsonEntry = (ObjectNode) result.get(0);
+        assertEquals("m1", jsonEntry.get("id").asString());
+        assertEquals("Standup", jsonEntry.get("title").asString());
+    }
+
+    @Test
+    void testCachedItemFromFetch_returnsPojo() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        TestMeeting meeting = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of(meeting));
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
+
+        calendar.setCalendarItemProvider(provider, mapper);
+
+        // Trigger fetch
+        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+
+        Optional<TestMeeting> cached = calendar.getCachedItemFromFetch("m1");
+        assertTrue(cached.isPresent());
+        assertSame(meeting, cached.get());
+    }
+
+    @Test
+    void testCachedEntryFromFetch_emptyWhenCipActive() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        TestMeeting meeting = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of(meeting));
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
+
+        calendar.setCalendarItemProvider(provider, mapper);
+        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+
+        // getCachedEntryFromFetch should return empty when CIP is active (items are not Entry instances)
+        Optional<Entry> cached = calendar.getCachedEntryFromFetch("m1");
+        assertFalse(cached.isPresent());
+    }
+
+    @Test
+    void testCachedItemFromFetch_emptyWhenEntryProviderActive() {
+        FullCalendar<Entry> calendar = new FullCalendar<>();
+
+        // Default calendar uses entry provider, not CIP
+        assertFalse(calendar.isUsingCalendarItemProvider());
+
+        Optional<Entry> itemCached = calendar.getCachedItemFromFetch("anything");
+        assertFalse(itemCached.isPresent());
+    }
+
+    @Test
+    void testSwitchFromEntryToCip_clearsEntryState() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        // Initially has entry provider
+        assertNotNull(calendar.getEntryProvider());
+        assertFalse(calendar.isUsingCalendarItemProvider());
+
+        // Switch to CIP
+        TestMeeting meeting = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of(meeting));
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
+
+        calendar.setCalendarItemProvider(provider, mapper);
+
+        assertTrue(calendar.isUsingCalendarItemProvider());
+        assertNull(calendar.getEntryProvider());
+        assertSame(provider, calendar.getCalendarItemProvider());
+    }
+
+    @Test
+    void testSwitchFromCipToEntry_clearsCipState() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        // Set up CIP
+        TestMeeting meeting = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of(meeting));
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
+        calendar.setCalendarItemProvider(provider, mapper);
+
+        assertTrue(calendar.isUsingCalendarItemProvider());
+
+        // Switch back to entry provider
+        calendar.setEntryProvider(org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider.emptyInMemory());
+
+        assertFalse(calendar.isUsingCalendarItemProvider());
+        assertNull(calendar.getCalendarItemProvider());
+        assertNull(calendar.getCalendarItemPropertyMapper());
+        assertNotNull(calendar.getEntryProvider());
+    }
+
+    @Test
+    void testMutualExclusion_settersAndHandler_throws() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        CalendarItemPropertyMapper<TestMeeting> mapperWithSetters = createBidirectionalMapper();
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of());
+
+        // Set update handler first
+        calendar.setCalendarItemUpdateHandler((item, changes) -> {});
+
+        // Now set CIP with mapper that has setters → should throw
+        assertThrows(IllegalStateException.class, () ->
+                calendar.setCalendarItemProvider(provider, mapperWithSetters));
+    }
+
+    @Test
+    void testMutualExclusion_handlerAfterMapperSetters_throws() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        CalendarItemPropertyMapper<TestMeeting> mapperWithSetters = createBidirectionalMapper();
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of());
+
+        // Set CIP with mapper that has setters
+        CalendarItemPropertyMapper<TestMeeting> readOnlyMapper = createReadOnlyMapper();
+        calendar.setCalendarItemProvider(provider, readOnlyMapper);
+
+        // Now replace with mapper that has setters
+        calendar.setCalendarItemProvider(provider, mapperWithSetters);
+
+        // Now try to set handler → should throw
+        assertThrows(IllegalStateException.class, () ->
+                calendar.setCalendarItemUpdateHandler((item, changes) -> {}));
+    }
+
+    @Test
+    void testApplyCalendarItemChanges_usesMapperSetters() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        CalendarItemPropertyMapper<TestMeeting> mapper = createBidirectionalMapper();
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of());
+
+        calendar.setCalendarItemProvider(provider, mapper);
+
+        TestMeeting meeting = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+
+        ObjectNode delta = JsonFactory.createObject();
+        delta.put("start", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2025, 6, 1, 10, 0)));
+        delta.put("end", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2025, 6, 1, 10, 30)));
+
+        calendar.applyCalendarItemChanges(meeting, delta);
+
+        assertEquals(LocalDateTime.of(2025, 6, 1, 10, 0), meeting.getBegin());
+        assertEquals(LocalDateTime.of(2025, 6, 1, 10, 30), meeting.getFinish());
+    }
+
+    @Test
+    void testApplyCalendarItemChanges_usesHandler() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of());
+
+        calendar.setCalendarItemProvider(provider, mapper);
+
+        AtomicBoolean handlerCalled = new AtomicBoolean(false);
+        AtomicReference<TestMeeting> handlerItem = new AtomicReference<>();
+        calendar.setCalendarItemUpdateHandler((item, changes) -> {
+            handlerCalled.set(true);
+            handlerItem.set(item);
+        });
+
+        TestMeeting meeting = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+
+        ObjectNode delta = JsonFactory.createObject();
+        delta.put("start", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2025, 6, 1, 10, 0)));
+
+        calendar.applyCalendarItemChanges(meeting, delta);
+
+        assertTrue(handlerCalled.get());
+        assertSame(meeting, handlerItem.get());
+    }
+
+    @Test
+    void testApplyCalendarItemChanges_noStrategy_throws() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper(); // no setters
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of());
+
+        calendar.setCalendarItemProvider(provider, mapper);
+        // No update handler set, and mapper has no setters
+
+        TestMeeting meeting = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+        ObjectNode delta = JsonFactory.createObject();
+
+        assertThrows(IllegalStateException.class, () ->
+                calendar.applyCalendarItemChanges(meeting, delta));
+    }
+
+    @Test
+    void testBuilderWithCalendarItemProvider() {
+        TestMeeting meeting = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of(meeting));
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
+
+        FullCalendar<TestMeeting> calendar = FullCalendarBuilder.create(TestMeeting.class)
+                .withCalendarItemProvider(provider, mapper)
+                .build();
+
+        assertTrue(calendar.isUsingCalendarItemProvider());
+        assertSame(provider, calendar.getCalendarItemProvider());
+        assertSame(mapper, calendar.getCalendarItemPropertyMapper());
+    }
+
+    @Test
+    void testBuilderRawTypeBackwardCompat() {
+        // The existing raw create() should still work for backward compatibility
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        assertNotNull(calendar);
+        assertFalse(calendar.isUsingCalendarItemProvider());
+        assertNotNull(calendar.getEntryProvider());
+    }
+
+    @Test
+    void testSetCalendarItemProvider_nullProvider_throws() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
+
+        assertThrows(NullPointerException.class, () ->
+                calendar.setCalendarItemProvider(null, mapper));
+    }
+
+    @Test
+    void testSetCalendarItemProvider_nullMapper_throws() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of());
+
+        assertThrows(NullPointerException.class, () ->
+                calendar.setCalendarItemProvider(provider, null));
+    }
+
+    @Test
+    void testFetchWithMultipleItems() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        TestMeeting m1 = new TestMeeting("m1", "Standup", LocalDateTime.of(2025, 6, 1, 9, 0), LocalDateTime.of(2025, 6, 1, 9, 30), false);
+        TestMeeting m2 = new TestMeeting("m2", "Review", LocalDateTime.of(2025, 6, 1, 14, 0), LocalDateTime.of(2025, 6, 1, 15, 0), false);
+        TestMeeting m3 = new TestMeeting("m3", "All Day Event", LocalDateTime.of(2025, 6, 1, 0, 0), LocalDateTime.of(2025, 6, 2, 0, 0), true);
+
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of(m1, m2, m3));
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
+
+        calendar.setCalendarItemProvider(provider, mapper);
+        var result = calendar.fetchEntriesFromServer(JsonFactory.createObject());
+
+        assertEquals(3, result.size());
+
+        // All three items should be cached
+        assertTrue(calendar.getCachedItemFromFetch("m1").isPresent());
+        assertTrue(calendar.getCachedItemFromFetch("m2").isPresent());
+        assertTrue(calendar.getCachedItemFromFetch("m3").isPresent());
+        assertSame(m1, calendar.getCachedItemFromFetch("m1").get());
+        assertSame(m2, calendar.getCachedItemFromFetch("m2").get());
+        assertSame(m3, calendar.getCachedItemFromFetch("m3").get());
+    }
+
+    @Test
+    void testBuilderWithCalendarItemProviderAndUpdateHandler() {
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of());
+        CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper(); // read-only, no setters
+        CalendarItemUpdateHandler<TestMeeting> handler = (item, changes) -> {};
+
+        FullCalendar<TestMeeting> calendar = FullCalendarBuilder.create(TestMeeting.class)
+                .withCalendarItemProvider(provider, mapper)
+                .withCalendarItemUpdateHandler(handler)
+                .build();
+
+        assertTrue(calendar.isUsingCalendarItemProvider());
+        assertSame(provider, calendar.getCalendarItemProvider());
     }
 
 //    @Test

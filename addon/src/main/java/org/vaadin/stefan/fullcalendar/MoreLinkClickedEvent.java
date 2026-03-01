@@ -46,7 +46,7 @@ public class MoreLinkClickedEvent extends MultipleEntriesDataEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param date       clicked time slot as iso string
      */
-    public MoreLinkClickedEvent(FullCalendar source, boolean fromClient,
+    public MoreLinkClickedEvent(FullCalendar<Entry> source, boolean fromClient,
                                 @EventData("event.detail.date") String date,
                                 @EventData("event.detail.allSegs") ArrayNode coveredItems) {
         super(source, fromClient, coveredItems);

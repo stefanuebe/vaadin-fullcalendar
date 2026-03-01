@@ -18,7 +18,7 @@ public class TimezonesSample extends AbstractSample {
     private Entry entry;
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         // FC allows to show entries in a specifc timezone. Setting a timezone only affects the client side
         // and might be interesting, when editing those entries in some kind of edit form
 

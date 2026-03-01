@@ -24,6 +24,8 @@ import com.vaadin.flow.shared.Registration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
+import org.vaadin.stefan.fullcalendar.dataprovider.CalendarItemProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.CalendarQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
@@ -60,7 +62,7 @@ import java.util.stream.Stream;
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-styles.css")
 @Tag("vaadin-full-calendar")
-public class FullCalendar extends Component implements HasStyle, HasSize, HasTheme {
+public class FullCalendar<T> extends Component implements HasStyle, HasSize, HasTheme {
 
     /**
      * The library base version used in this addon. Some additional libraries might have a different version number due to
@@ -87,10 +89,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private static final int MAX_CACHED_ENTRIES = 10000;
 
     /**
-     * Caches the last fetched entries for entry based events.
+     * Caches the last fetched items (entries or CIP items) for event lookups.
      * Uses a bounded LinkedHashMap to prevent unbounded memory growth.
      */
-    private final Map<String, Entry> lastFetchedEntries = createBoundedEntryCache();
+    private final Map<String, Object> lastFetchedItems = createBoundedItemCache();
     private final Map<String, Object> options = new HashMap<>();
 
     /**
@@ -104,6 +106,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     private EntryProvider<? extends Entry> entryProvider;
     private final List<Registration> entryProviderDataListeners = new LinkedList<>();
+
+    private CalendarItemProvider<T> calendarItemProvider;
+    private CalendarItemPropertyMapper<T> calendarItemPropertyMapper;
+    private CalendarItemUpdateHandler<T> calendarItemUpdateHandler;
+    private boolean usingCalendarItemProvider = false;
+    private final List<Registration> calendarItemProviderListeners = new LinkedList<>();
 
     private final Map<String, CustomCalendarView> customCalendarViews = new LinkedHashMap<>();
 
@@ -313,9 +321,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * By default a new full calendar is initialized with an {@link InMemoryEntryProvider}.
      *
      * @param entryProvider entry provider
+     * @deprecated Use {@link #setCalendarItemProvider} for custom POJOs,
+     * or continue using this method for Entry-based calendars.
      */
+    @Deprecated(since = "7.2", forRemoval = false)
     public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
         Objects.requireNonNull(entryProvider);
+
+        // Clear CIP state when switching to entry provider
+        this.usingCalendarItemProvider = false;
+        this.calendarItemProvider = null;
+        this.calendarItemPropertyMapper = null;
+        this.calendarItemUpdateHandler = null;
+        calendarItemProviderListeners.forEach(Registration::remove);
+        calendarItemProviderListeners.clear();
 
         if (this.entryProvider != entryProvider) {
             // Remove old listeners first to ensure cleanup even if setCalendar throws
@@ -352,13 +371,108 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Returns the entry provider of this calendar. Never null.
-     * @param <T> entry provider class or subclass
+     * Returns the entry provider of this calendar. May be null when a CalendarItemProvider is active.
+     * @param <EP> entry provider class or subclass
      * @return entry provider
      */
     @SuppressWarnings("unchecked")
-    public <R extends Entry, T extends EntryProvider<R>> T getEntryProvider() {
-        return (T) entryProvider;
+    public <R extends Entry, EP extends EntryProvider<R>> EP getEntryProvider() {
+        return (EP) entryProvider;
+    }
+
+    /**
+     * Sets the calendar item provider for this instance, enabling the use of arbitrary POJOs
+     * as calendar items instead of {@link Entry} objects.
+     * <p></p>
+     * The previous entry provider (if any) will be removed and the client side will be updated.
+     * The provider and mapper are mutually required.
+     *
+     * @param provider the calendar item provider
+     * @param mapper   the property mapper for converting between POJOs and FullCalendar JSON
+     * @throws NullPointerException  if provider or mapper is null
+     * @throws IllegalStateException if mapper has setters and an update handler is already set
+     */
+    public void setCalendarItemProvider(
+            CalendarItemProvider<T> provider,
+            CalendarItemPropertyMapper<T> mapper) {
+        Objects.requireNonNull(provider, "provider must not be null");
+        Objects.requireNonNull(mapper, "mapper must not be null");
+        mapper.validate();
+
+        if (mapper.hasSetters() && calendarItemUpdateHandler != null) {
+            throw new IllegalStateException(
+                "Cannot use both mapper setters and CalendarItemUpdateHandler. "
+                + "Remove setters from the mapper or remove the update handler.");
+        }
+
+        // Clear old entry provider state
+        if (this.entryProvider != null) {
+            entryProviderDataListeners.forEach(Registration::remove);
+            entryProviderDataListeners.clear();
+            this.entryProvider.setCalendar(null);
+            this.entryProvider = null;
+        }
+
+        // Clear old CIP listeners
+        calendarItemProviderListeners.forEach(Registration::remove);
+        calendarItemProviderListeners.clear();
+
+        this.calendarItemProvider = provider;
+        this.calendarItemPropertyMapper = mapper;
+        this.usingCalendarItemProvider = true;
+
+        // Register CIP listeners
+        calendarItemProviderListeners.add(
+            provider.addItemRefreshListener(event -> requestRefreshCalendarItem(event.getItemToRefresh())));
+        calendarItemProviderListeners.add(
+            provider.addItemsChangeListener(event -> requestRefreshAllEntries()));
+
+        requestRefreshAllEntries();
+    }
+
+    /**
+     * Sets the update handler for calendar items (Strategy B). This handler is called when
+     * client-side changes (drag/drop/resize) need to be applied to items.
+     * <p></p>
+     * Mutually exclusive with mapper setters (Strategy A). If the mapper has setters registered,
+     * this method will throw an exception.
+     *
+     * @param handler the update handler
+     * @throws NullPointerException  if handler is null
+     * @throws IllegalStateException if mapper has setters registered
+     */
+    public void setCalendarItemUpdateHandler(CalendarItemUpdateHandler<T> handler) {
+        Objects.requireNonNull(handler);
+        if (calendarItemPropertyMapper != null && calendarItemPropertyMapper.hasSetters()) {
+            throw new IllegalStateException(
+                "Cannot use both mapper setters and CalendarItemUpdateHandler. "
+                + "Remove setters from the mapper or do not set an update handler.");
+        }
+        this.calendarItemUpdateHandler = handler;
+    }
+
+    /**
+     * Returns whether this calendar is using a CalendarItemProvider (CIP) instead of an EntryProvider.
+     * @return true if CIP is active
+     */
+    public boolean isUsingCalendarItemProvider() {
+        return usingCalendarItemProvider;
+    }
+
+    /**
+     * Returns the calendar item provider, if set. May be null.
+     * @return calendar item provider or null
+     */
+    public CalendarItemProvider<T> getCalendarItemProvider() {
+        return calendarItemProvider;
+    }
+
+    /**
+     * Returns the calendar item property mapper, if set. May be null.
+     * @return calendar item property mapper or null
+     */
+    public CalendarItemPropertyMapper<T> getCalendarItemPropertyMapper() {
+        return calendarItemPropertyMapper;
     }
 
     /**
@@ -374,7 +488,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                 getEntryProvider()
                         .fetchById(item.getId())
                         .ifPresent(refreshedEntry -> {
-                            lastFetchedEntries.put(refreshedEntry.getId(), refreshedEntry);
+                            lastFetchedItems.put(refreshedEntry.getId(), refreshedEntry);
                             getElement().callJsFunction("refreshSingleEvent", refreshedEntry.getId());
                         });
 
@@ -382,6 +496,43 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                 // refreshAllRequested = false; // why was this here?
             });
         });
+    }
+
+    /**
+     * Requests a refresh of a single calendar item (CIP path). Uses runWhenAttached deferral
+     * to ensure the element is attached before calling JS functions.
+     *
+     * @param item item to refresh
+     */
+    protected void requestRefreshCalendarItem(T item) {
+        Objects.requireNonNull(item);
+        getElement().getNode().runWhenAttached(ui -> {
+            ui.beforeClientResponse(this, ctx -> {
+                String id = calendarItemPropertyMapper.getId(item);
+                lastFetchedItems.put(id, item);
+                getElement().callJsFunction("refreshSingleEvent", calendarItemPropertyMapper.toJson(item));
+            });
+        });
+    }
+
+    /**
+     * Applies changes from a client-side event (drag/drop/resize) to a calendar item.
+     * Dispatches to either the update handler (Strategy B) or mapper setters (Strategy A).
+     *
+     * @param item      the item to apply changes to
+     * @param jsonDelta the JSON delta from the client
+     * @throws IllegalStateException if no update strategy is configured
+     */
+    void applyCalendarItemChanges(T item, ObjectNode jsonDelta) {
+        if (calendarItemUpdateHandler != null) {
+            calendarItemUpdateHandler.handleUpdate(item, new CalendarItemChanges(jsonDelta));
+        } else if (calendarItemPropertyMapper != null && calendarItemPropertyMapper.hasSetters()) {
+            calendarItemPropertyMapper.applyChanges(item, jsonDelta);
+        } else {
+            throw new IllegalStateException(
+                "No update strategy configured. Register setters on the mapper "
+                + "or set a CalendarItemUpdateHandler via setCalendarItemUpdateHandler().");
+        }
     }
 
     /**
@@ -422,24 +573,46 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     @ClientCallable
     protected ArrayNode fetchEntriesFromServer(ObjectNode query) {
         Objects.requireNonNull(query);
-        Objects.requireNonNull(entryProvider);
 
-        lastFetchedEntries.clear();
+        lastFetchedItems.clear();
 
         LocalDateTime start = query.hasNonNull("start") ? JsonUtils.parseClientSideDateTime(query.get("start").asString()) : null;
         LocalDateTime end = query.hasNonNull("end") ? JsonUtils.parseClientSideDateTime(query.get("end").asString()) : null;
 
         ArrayNode array = JsonFactory.createArray();
+
+        if (usingCalendarItemProvider) {
+            fetchCalendarItems(start, end, array);
+        } else {
+            fetchEntries(start, end, array);
+        }
+
+        return array;
+    }
+
+    /**
+     * Entry path — extracted from existing fetchEntriesFromServer logic, unchanged behavior.
+     */
+    private void fetchEntries(LocalDateTime start, LocalDateTime end, ArrayNode array) {
+        Objects.requireNonNull(entryProvider);
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
                 .peek(entry -> {
                     entry.setCalendar(this);
-                    entry.setKnownToTheClient(true); // mark entry as "has been sent to client"
-                    lastFetchedEntries.put(entry.getId(), entry);
+                    entry.setKnownToTheClient(true);
+                    lastFetchedItems.put(entry.getId(), entry);
                 })
                 .map(Entry::toJson)
                 .forEach(array::add);
+    }
 
-        return array;
+    /**
+     * CIP path — fetches calendar items via the CalendarItemProvider and maps to JSON.
+     */
+    private void fetchCalendarItems(LocalDateTime start, LocalDateTime end, ArrayNode array) {
+        calendarItemProvider.fetch(new CalendarQuery(start, end))
+                .peek(item -> lastFetchedItems.put(calendarItemPropertyMapper.getId(item), item))
+                .map(calendarItemPropertyMapper::toJson)
+                .forEach(array::add);
     }
 
     /**
@@ -455,7 +628,23 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return cached entry from last fetch or empty
      */
     public Optional<Entry> getCachedEntryFromFetch(String id) {
-        return Optional.ofNullable(lastFetchedEntries.get(id));
+        Object item = lastFetchedItems.get(id);
+        return item instanceof Entry entry ? Optional.of(entry) : Optional.empty();
+    }
+
+    /**
+     * Returns an item with the given id from the last fetched set of items. Returns an empty instance,
+     * when there was no fetch yet, the id is unknown, or the calendar is not using a CalendarItemProvider.
+     *
+     * @param id id
+     * @return cached item from last fetch or empty
+     */
+    @SuppressWarnings("unchecked")
+    public Optional<T> getCachedItemFromFetch(String id) {
+        if (!usingCalendarItemProvider) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable((T) lastFetchedItems.get(id));
     }
 
     protected InMemoryEntryProvider<Entry> assureInMemoryProvider() {
@@ -1323,9 +1512,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotClickedListener(ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+    public Registration addTimeslotClickedListener(ComponentEventListener<TimeslotClickedEvent<T>> listener) {
         Objects.requireNonNull(listener);
-        return addListener(TimeslotClickedEvent.class, (ComponentEventListener<TimeslotClickedEvent>) listener);
+        return addListener((Class) TimeslotClickedEvent.class, (ComponentEventListener) listener);
     }
 
     /**
@@ -1395,9 +1584,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addDatesRenderedListener(ComponentEventListener<DatesRenderedEvent> listener) {
+    public Registration addDatesRenderedListener(ComponentEventListener<DatesRenderedEvent<T>> listener) {
         Objects.requireNonNull(listener);
-        return addListener(DatesRenderedEvent.class, listener);
+        return addListener((Class) DatesRenderedEvent.class, (ComponentEventListener) listener);
     }
 
 
@@ -1409,9 +1598,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addViewSkeletonRenderedListener(ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
+    public Registration addViewSkeletonRenderedListener(ComponentEventListener<ViewSkeletonRenderedEvent<T>> listener) {
         Objects.requireNonNull(listener);
-        return addListener(ViewSkeletonRenderedEvent.class, listener);
+        return addListener((Class) ViewSkeletonRenderedEvent.class, (ComponentEventListener) listener);
     }
 
     /**
@@ -1421,7 +1610,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addViewChangedListener(ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
+    public Registration addViewChangedListener(ComponentEventListener<ViewSkeletonRenderedEvent<T>> listener) {
         return addViewSkeletonRenderedListener(listener);
     }
 
@@ -1436,9 +1625,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotsSelectedListener(ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
+    public Registration addTimeslotsSelectedListener(ComponentEventListener<TimeslotsSelectedEvent<T>> listener) {
         Objects.requireNonNull(listener);
-        return addListener(TimeslotsSelectedEvent.class, (ComponentEventListener<TimeslotsSelectedEvent>) listener);
+        return addListener((Class) TimeslotsSelectedEvent.class, (ComponentEventListener) listener);
     }
 
     /**
@@ -1462,9 +1651,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addDayNumberClickedListener(ComponentEventListener<DayNumberClickedEvent> listener) {
+    public Registration addDayNumberClickedListener(ComponentEventListener<DayNumberClickedEvent<T>> listener) {
         Objects.requireNonNull(listener);
-        return addListener(DayNumberClickedEvent.class, listener);
+        return addListener((Class) DayNumberClickedEvent.class, (ComponentEventListener) listener);
     }
 
     /**
@@ -1476,9 +1665,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addWeekNumberClickedListener(ComponentEventListener<WeekNumberClickedEvent> listener) {
+    public Registration addWeekNumberClickedListener(ComponentEventListener<WeekNumberClickedEvent<T>> listener) {
         Objects.requireNonNull(listener);
-        return addListener(WeekNumberClickedEvent.class, listener);
+        return addListener((Class) WeekNumberClickedEvent.class, (ComponentEventListener) listener);
     }
 
     /**
@@ -1488,9 +1677,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addBrowserTimezoneObtainedListener(ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
+    public Registration addBrowserTimezoneObtainedListener(ComponentEventListener<BrowserTimezoneObtainedEvent<T>> listener) {
         Objects.requireNonNull(listener);
-        return addListener(BrowserTimezoneObtainedEvent.class, listener);
+        return addListener((Class) BrowserTimezoneObtainedEvent.class, (ComponentEventListener) listener);
     }
 
     /**
@@ -1558,7 +1747,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @deprecated use {@link #lookupViewByClientSideValue(String)} instead
      */
     @Deprecated(forRemoval = true)
-    public <T extends CalendarView> Optional<T> lookupViewName(String clientSideValue) {
+    public <CV extends CalendarView> Optional<CV> lookupViewName(String clientSideValue) {
         return lookupViewByClientSideValue(clientSideValue);
     }
 
@@ -1570,12 +1759,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return calendar view
      */
     @SuppressWarnings("unchecked")
-    public <T extends CalendarView> Optional<T> lookupViewByClientSideValue(String clientSideValue) {
-        Optional<T> optional = (Optional<T>) CalendarViewImpl.ofClientSideValue(clientSideValue);
+    public <CV extends CalendarView> Optional<CV> lookupViewByClientSideValue(String clientSideValue) {
+        Optional<CV> optional = (Optional<CV>) CalendarViewImpl.ofClientSideValue(clientSideValue);
         if (optional.isPresent()) {
             return optional;
         }
-        return Optional.ofNullable((T) customCalendarViews.get(clientSideValue));
+        return Optional.ofNullable((CV) customCalendarViews.get(clientSideValue));
     }
 
     public void setEntryDisplay(DisplayMode displayMode) {
@@ -2124,13 +2313,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Creates a bounded LinkedHashMap for caching entries.
+     * Creates a bounded LinkedHashMap for caching items (entries or CIP items).
      * This is a separate method to avoid type name conflicts with java.util.Map.Entry.
      */
-    private static Map<String, Entry> createBoundedEntryCache() {
-        return new LinkedHashMap<String, org.vaadin.stefan.fullcalendar.Entry>(16, 0.75f, true) {
+    private static Map<String, Object> createBoundedItemCache() {
+        return new LinkedHashMap<>(16, 0.75f, true) {
             @Override
-            protected boolean removeEldestEntry(java.util.Map.Entry<String, org.vaadin.stefan.fullcalendar.Entry> eldest) {
+            protected boolean removeEldestEntry(java.util.Map.Entry<String, Object> eldest) {
                 return size() > MAX_CACHED_ENTRIES;
             }
         };

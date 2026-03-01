@@ -25,7 +25,7 @@ import java.util.Collection;
 @Getter(AccessLevel.PROTECTED)
 public abstract class AbstractCalendarView extends VerticalLayout {
     private final CalendarViewToolbar toolbar;
-    private final FullCalendar calendar;
+    private final FullCalendar<Entry> calendar;
 
     // TODO add scheduler support
 
@@ -112,7 +112,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         return true;
     }
 
-    protected void postConstruct(FullCalendar calendar) {
+    protected void postConstruct(FullCalendar<Entry> calendar) {
         // NOOP
     }
 
@@ -126,7 +126,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @param defaultInitialOptions default initial options
      * @return calendar instance
      */
-    protected abstract FullCalendar createCalendar(ObjectNode defaultInitialOptions);
+    protected abstract FullCalendar<Entry> createCalendar(ObjectNode defaultInitialOptions);
 
     /**
      * Creates a default set of initial options.
@@ -179,7 +179,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addWeekNumberClickedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onWeekNumberClicked(WeekNumberClickedEvent event) {
+    protected void onWeekNumberClicked(WeekNumberClickedEvent<Entry> event) {
 
     }
 
@@ -190,7 +190,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addDatesRenderedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onDatesRendered(DatesRenderedEvent event) {
+    protected void onDatesRendered(DatesRenderedEvent<Entry> event) {
 
     }
 
@@ -199,7 +199,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addViewSkeletonRenderedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onViewSkeletonRendered(ViewSkeletonRenderedEvent event) {
+    protected void onViewSkeletonRendered(ViewSkeletonRenderedEvent<Entry> event) {
 
     }
     /**
@@ -207,7 +207,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addTimeslotsSelectedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onTimeslotsSelected(TimeslotsSelectedEvent event) {
+    protected void onTimeslotsSelected(TimeslotsSelectedEvent<Entry> event) {
 
     }
 
@@ -216,7 +216,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addTimeslotClickedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onTimeslotClicked(TimeslotClickedEvent event) {
+    protected void onTimeslotClicked(TimeslotClickedEvent<Entry> event) {
 
     }
 
@@ -235,7 +235,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addBrowserTimezoneObtainedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onBrowserTimezoneObtained(BrowserTimezoneObtainedEvent event) {
+    protected void onBrowserTimezoneObtained(BrowserTimezoneObtainedEvent<Entry> event) {
 
     }
 
@@ -244,7 +244,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
      * @see FullCalendar#addDayNumberClickedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onDayNumberClicked(DayNumberClickedEvent event) {
+    protected void onDayNumberClicked(DayNumberClickedEvent<Entry> event) {
 
     }
 
@@ -336,7 +336,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
         if (getCalendar().isInMemoryEntryProvider()) {
-            InMemoryEntryProvider<Entry> provider = getCalendar().getEntryProvider();
+            InMemoryEntryProvider<Entry> provider = (InMemoryEntryProvider<Entry>) getCalendar().getEntryProvider();
             provider.removeEntries(entries);
             provider.refreshAll();
         }

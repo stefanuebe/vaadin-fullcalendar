@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 @Getter
 @ToString
-public abstract class MultipleEntriesEvent extends ComponentEvent<FullCalendar> {
+public abstract class MultipleEntriesEvent extends ComponentEvent<FullCalendar<Entry>> {
 
     /**
      * The entry, for which the event occurred.
@@ -43,7 +43,7 @@ public abstract class MultipleEntriesEvent extends ComponentEvent<FullCalendar> 
      * @param fromClient from client
      * @param entryIds affected entry id
      */
-    public MultipleEntriesEvent(FullCalendar source, boolean fromClient, Collection<String> entryIds) {
+    public MultipleEntriesEvent(FullCalendar<Entry> source, boolean fromClient, Collection<String> entryIds) {
         super(source, fromClient);
 
         if (entryIds == null || entryIds.isEmpty()) {

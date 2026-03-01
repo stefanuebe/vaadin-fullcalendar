@@ -20,7 +20,7 @@ public class SettingsDialog extends Dialog {
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
     private static final long serialVersionUID = 1L;
 
-    public SettingsDialog(FullCalendar calendar) {
+    public SettingsDialog(FullCalendar<?> calendar) {
         setDraggable(true);
 
         VerticalLayout layout = new VerticalLayout();
@@ -66,7 +66,7 @@ public class SettingsDialog extends Dialog {
         add(layout);
     }
 
-    private void updateTimezonesComboBox(FullCalendar calendar, ComboBox<Timezone> timezoneComboBox, boolean showOnlySome) {
+    private void updateTimezonesComboBox(FullCalendar<?> calendar, ComboBox<Timezone> timezoneComboBox, boolean showOnlySome) {
         if (showOnlySome) {
             timezoneComboBox.setItems(SOME_TIMEZONES);
         } else {

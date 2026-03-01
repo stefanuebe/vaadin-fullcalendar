@@ -29,7 +29,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
     private EntryProvider<Entry> entryProvider;
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar<Entry> createCalendar(ObjectNode defaultInitialOptions) {
         entryService = EntryService.createRandomInstance();
         entryProvider = createEntryProvider(entryService);
 
@@ -53,7 +53,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
     protected abstract EntryProvider<Entry> createEntryProvider(EntryService<Entry> entryService);
 
     @Override
-    protected void onTimeslotsSelected(TimeslotsSelectedEvent event) {
+    protected void onTimeslotsSelected(TimeslotsSelectedEvent<Entry> event) {
         Entry entry = createNewEntry();
 
         entry.setStart(event.getStart());

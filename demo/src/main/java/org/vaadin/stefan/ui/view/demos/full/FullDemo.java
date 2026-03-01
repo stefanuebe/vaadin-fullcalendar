@@ -46,14 +46,14 @@ public class FullDemo extends AbstractSchedulerView {
     private Popover popup;
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode initialOptions) {
+    protected FullCalendar<Entry> createCalendar(ObjectNode initialOptions) {
 //        initialOptions.put("eventContent",
 //                "function(arg, createElement) {" +
 //                " console.warn('hello');" +
 //                "  return 'WORLD';" +
 //                "}");
 
-        FullCalendar calendar = FullCalendarBuilder.create()
+        FullCalendar<Entry> calendar = FullCalendarBuilder.create()
                 .withAutoBrowserTimezone()
                 .withAutoBrowserLocale()
 //                .withEntryContent("""
@@ -192,7 +192,7 @@ public class FullDemo extends AbstractSchedulerView {
         popup.open();
     }
 
-    private void createTestEntries(FullCalendar calendar) {
+    private void createTestEntries(FullCalendar<Entry> calendar) {
         LocalDate now = LocalDate.now();
 
         Resource meetingRoomRed = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Red", "#ff0000");
@@ -292,25 +292,25 @@ public class FullDemo extends AbstractSchedulerView {
     }
 
     @Override
-    protected void onTimeslotsSelected(TimeslotsSelectedEvent event) {
+    protected void onTimeslotsSelected(TimeslotsSelectedEvent<Entry> event) {
 //        super.onTimeslotsSelected(event); // this is handled by onTimeslotSelectedScheduler
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
-    protected void onDayNumberClicked(DayNumberClickedEvent event) {
+    protected void onDayNumberClicked(DayNumberClickedEvent<Entry> event) {
         super.onDayNumberClicked(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
-    protected void onWeekNumberClicked(WeekNumberClickedEvent event) {
+    protected void onWeekNumberClicked(WeekNumberClickedEvent<Entry> event) {
         super.onWeekNumberClicked(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
-    protected void onViewSkeletonRendered(ViewSkeletonRenderedEvent event) {
+    protected void onViewSkeletonRendered(ViewSkeletonRenderedEvent<Entry> event) {
         super.onViewSkeletonRendered(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
@@ -340,13 +340,13 @@ public class FullDemo extends AbstractSchedulerView {
     }
 
     @Override
-    protected void onBrowserTimezoneObtained(BrowserTimezoneObtainedEvent event) {
+    protected void onBrowserTimezoneObtained(BrowserTimezoneObtainedEvent<Entry> event) {
         super.onBrowserTimezoneObtained(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
-    protected void onDatesRendered(DatesRenderedEvent event) {
+    protected void onDatesRendered(DatesRenderedEvent<Entry> event) {
         super.onDatesRendered(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
@@ -358,7 +358,7 @@ public class FullDemo extends AbstractSchedulerView {
     }
 
     @Override
-    protected void onTimeslotClicked(TimeslotClickedEvent event) {
+    protected void onTimeslotClicked(TimeslotClickedEvent<Entry> event) {
 //        super.onTimeslotClicked(event); // this is handled by onTimeslotClickedScheduler
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }

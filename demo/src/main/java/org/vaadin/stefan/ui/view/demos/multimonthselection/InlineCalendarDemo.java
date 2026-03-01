@@ -34,7 +34,7 @@ public class InlineCalendarDemo extends VerticalLayout {
         setSizeFull();
         setAlignItems(Alignment.STRETCH);
 
-        FullCalendar calendar = FullCalendarBuilder.create()
+        FullCalendar<Entry> calendar = FullCalendarBuilder.create()
                 .withAutoBrowserLocale()
                 .build();
         calendar.addClassName("inline-calendar");

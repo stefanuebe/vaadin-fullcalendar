@@ -16,7 +16,7 @@ import java.util.Collections;
 public class BasicDemo extends AbstractCalendarView {
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar<Entry> createCalendar(ObjectNode defaultInitialOptions) {
         EntryService<Entry> simpleInstance = EntryService.createSimpleInstance();
 
         return FullCalendarBuilder.create()
@@ -44,7 +44,7 @@ public class BasicDemo extends AbstractCalendarView {
     }
 
     @Override
-    protected void onTimeslotsSelected(TimeslotsSelectedEvent event) {
+    protected void onTimeslotsSelected(TimeslotsSelectedEvent<Entry> event) {
         super.onTimeslotsSelected(event);
 
         ResourceEntry entry = new ResourceEntry();

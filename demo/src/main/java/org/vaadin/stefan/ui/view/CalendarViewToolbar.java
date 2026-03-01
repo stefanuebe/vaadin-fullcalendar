@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
 public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarLayout when V25 ready
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, new Timezone(ZoneId.of("Europe/Berlin")), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
 
-    private final FullCalendar calendar;
+    private final FullCalendar<Entry> calendar;
     private final boolean allTimezones;
     private final boolean allLocales;
     private final boolean editable;
@@ -58,7 +58,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
     private HasComponents calendarParent;
 
     @Builder
-    private CalendarViewToolbar(FullCalendar calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, boolean settingsAvailable, boolean allowAddingRandomItemsInitially, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customViews) {
+    private CalendarViewToolbar(FullCalendar<Entry> calendar, boolean allTimezones, boolean allLocales, boolean editable, boolean viewChangeable, boolean dateChangeable, boolean settingsAvailable, boolean allowAddingRandomItemsInitially, Consumer<Collection<Entry>> onSamplesCreated, Consumer<Collection<Entry>> onSamplesRemoved, List<CalendarView> customViews) {
 
         this.calendar = calendar;
         this.settingsAvailable = settingsAvailable;

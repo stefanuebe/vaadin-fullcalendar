@@ -13,7 +13,7 @@ public class HandleDataChangeInEventSample extends AbstractSample {
     private LocalDate someRequiredMinimalDate;
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         // directly apply the changes
         calendar.addEntryDroppedListener(event -> {
             event.applyChangesOnEntry(); // includes now the allDay attribute if sent by client

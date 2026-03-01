@@ -32,7 +32,7 @@ import tools.jackson.databind.node.ObjectNode;
 @DomEvent("datesSet")
 @Getter
 @ToString(callSuper = true)
-public class DatesRenderedEvent extends ViewRenderEvent {
+public class DatesRenderedEvent<T> extends ViewRenderEvent<T> {
 
 
     /**
@@ -43,7 +43,7 @@ public class DatesRenderedEvent extends ViewRenderEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param eventData client side event data
      */
-    public DatesRenderedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail") ObjectNode eventData) {
+    public DatesRenderedEvent(FullCalendar<T> source, boolean fromClient, @EventData("event.detail") ObjectNode eventData) {
         super(source, fromClient, eventData);
     }
 }

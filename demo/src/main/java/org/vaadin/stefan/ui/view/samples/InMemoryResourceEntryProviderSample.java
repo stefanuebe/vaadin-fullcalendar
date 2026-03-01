@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.samples;
 
+import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
@@ -17,7 +18,7 @@ public class InMemoryResourceEntryProviderSample extends AbstractSchedulerSample
     private EntryService<ResourceEntry> backend = EntryService.createResourceInstance();
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         // load items from backend
         List<ResourceEntry> entryList = backend.streamEntries().collect(Collectors.toList());
 

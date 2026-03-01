@@ -295,6 +295,6 @@ public class FullCalendarSchedulerTest {
     }
 
     private InMemoryEntryProvider<Entry> getEntryProvider(FullCalendar calendar) {
-        return calendar.getEntryProvider();
+        return (InMemoryEntryProvider<Entry>) calendar.getEntryProvider();
     }
 }

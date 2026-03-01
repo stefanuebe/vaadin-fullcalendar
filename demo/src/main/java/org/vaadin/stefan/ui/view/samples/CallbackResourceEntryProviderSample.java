@@ -15,7 +15,7 @@ public class CallbackResourceEntryProviderSample extends AbstractSchedulerSample
     private EntryService<ResourceEntry> backend = EntryService.createResourceInstance();
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         // the callback provider uses the given callback to fetch entries when necessary
         CallbackEntryProvider<ResourceEntry> entryProvider = EntryProvider.fromCallbacks(
                 query -> backend.streamEntries(query),

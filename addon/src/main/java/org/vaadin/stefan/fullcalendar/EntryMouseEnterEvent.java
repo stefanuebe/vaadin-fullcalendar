@@ -38,7 +38,7 @@ public class EntryMouseEnterEvent extends EntryDataEvent {
      * @param fromClient from client
      * @param entryData  entry data
      */
-    public EntryMouseEnterEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
+    public EntryMouseEnterEvent(FullCalendar<Entry> source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
         super(source, fromClient, entryData);
     }
 

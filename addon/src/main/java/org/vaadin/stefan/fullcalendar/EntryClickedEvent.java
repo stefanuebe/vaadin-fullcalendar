@@ -37,7 +37,7 @@ public class EntryClickedEvent extends EntryDataEvent {
      * @param fromClient from client
      * @param entryData  entry data
      */
-    public EntryClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
+    public EntryClickedEvent(FullCalendar<Entry> source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
         super(source, fromClient, entryData);
     }
 

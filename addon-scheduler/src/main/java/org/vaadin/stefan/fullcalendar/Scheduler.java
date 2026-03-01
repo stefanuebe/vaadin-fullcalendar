@@ -328,7 +328,7 @@ public interface Scheduler {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    Registration addEntryDroppedSchedulerListener(ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener);
+    Registration addEntryDroppedSchedulerListener(ComponentEventListener<EntryDroppedSchedulerEvent> listener);
 
     /**
      * Registers a listener to be informed when a timeslot has been clicked, including scheduler specific data.
@@ -336,7 +336,7 @@ public interface Scheduler {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    Registration addTimeslotClickedSchedulerListener(ComponentEventListener<? extends TimeslotClickedSchedulerEvent> listener);
+    Registration addTimeslotClickedSchedulerListener(ComponentEventListener<TimeslotClickedSchedulerEvent> listener);
 
     /**
      * Registers a listener to be informed when a timespan has been selected, including scheduler specific data.
@@ -344,5 +344,5 @@ public interface Scheduler {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener);
+    Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<TimeslotsSelectedSchedulerEvent> listener);
 }

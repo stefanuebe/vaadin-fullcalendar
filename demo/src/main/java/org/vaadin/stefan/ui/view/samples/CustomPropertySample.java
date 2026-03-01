@@ -12,7 +12,7 @@ public class CustomPropertySample extends AbstractSample{
     private Entry entry;
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         // set the custom property beforehand
                 entry.setCustomProperty(Entry.EntryCustomProperties.DESCRIPTION, "some description");
 

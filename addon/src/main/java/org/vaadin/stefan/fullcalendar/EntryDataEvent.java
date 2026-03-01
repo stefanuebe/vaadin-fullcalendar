@@ -39,7 +39,7 @@ public abstract class EntryDataEvent extends EntryEvent {
      * @param fromClient is from client
      * @param jsonObject json object with changed data
      */
-    public EntryDataEvent(FullCalendar source, boolean fromClient, ObjectNode jsonObject) {
+    public EntryDataEvent(FullCalendar<Entry> source, boolean fromClient, ObjectNode jsonObject) {
         super(source, fromClient, jsonObject.get(Entry.Fields.ID).asString());
         this.jsonObject = jsonObject;
     }

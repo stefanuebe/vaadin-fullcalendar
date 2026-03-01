@@ -13,9 +13,9 @@ public class AnonymousCustomViewDemo extends AbstractSchedulerView {
     private SomeCalendarView calendarView;
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar<Entry> createCalendar(ObjectNode defaultInitialOptions) {
         calendarView = new SomeCalendarView(28);
-        FullCalendar calendar = FullCalendarBuilder.create()
+        FullCalendar<Entry> calendar = FullCalendarBuilder.create()
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
                 .withAutoBrowserLocale()
                 .withInitialOptions(calendarView.getInitialOptions())
@@ -28,7 +28,7 @@ public class AnonymousCustomViewDemo extends AbstractSchedulerView {
     }
 
     @Override
-    protected void postConstruct(FullCalendar calendar) {
+    protected void postConstruct(FullCalendar<Entry> calendar) {
         calendar.changeView(calendarView);
     }
 

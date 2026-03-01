@@ -5,6 +5,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Span;
 import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
+import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.time.LocalDate;
@@ -16,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 public class CurrentTimeIntervalSample extends AbstractSample {
 
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         // The element that should show the current interval.
         HasText intervalLabel = new Span();
 

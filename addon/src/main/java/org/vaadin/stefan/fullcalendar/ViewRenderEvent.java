@@ -33,7 +33,7 @@ import static org.vaadin.stefan.fullcalendar.JsonUtils.parseClientSideDate;
  */
 @Getter
 @ToString
-public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
+public abstract class ViewRenderEvent<T> extends ComponentEvent<FullCalendar<T>> {
 
     /**
      * The client side name of the view.
@@ -73,7 +73,7 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
      * @param source     the source component
      * @param fromClient <code>true</code> if the event originated from the client
      */
-    public ViewRenderEvent(FullCalendar source, boolean fromClient, ObjectNode eventData) {
+    public ViewRenderEvent(FullCalendar<T> source, boolean fromClient, ObjectNode eventData) {
         super(source, fromClient);
 
         this.viewName = eventData.get("name").asString();

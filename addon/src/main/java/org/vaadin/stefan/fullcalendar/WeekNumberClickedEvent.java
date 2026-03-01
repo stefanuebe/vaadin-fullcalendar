@@ -25,7 +25,7 @@ import lombok.ToString;
  */
 @DomEvent("navLinkWeekClick")
 @ToString(callSuper = true)
-public class WeekNumberClickedEvent extends DateEvent {
+public class WeekNumberClickedEvent<T> extends DateEvent<T> {
     /**
      * New instance. Awaits the date (time) as iso string (e.g. "2018-10-23" or "2018-10-23T13:30").
      *
@@ -33,7 +33,7 @@ public class WeekNumberClickedEvent extends DateEvent {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param date       date instance as iso string
      */
-    public WeekNumberClickedEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.date") String date) {
+    public WeekNumberClickedEvent(FullCalendar<T> source, boolean fromClient, @EventData("event.detail.date") String date) {
         super(source, fromClient, date);
     }
 }

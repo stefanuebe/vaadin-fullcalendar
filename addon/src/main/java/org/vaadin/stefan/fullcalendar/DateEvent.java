@@ -27,7 +27,7 @@ import java.time.LocalDate;
  */
 @Getter
 @ToString
-public abstract class DateEvent extends ComponentEvent<FullCalendar> {
+public abstract class DateEvent<T> extends ComponentEvent<FullCalendar<T>> {
 
     /**
      * The date this event is related to.
@@ -42,7 +42,7 @@ public abstract class DateEvent extends ComponentEvent<FullCalendar> {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param dateString date instance as iso string
      */
-    public DateEvent(FullCalendar source, boolean fromClient, String dateString) {
+    public DateEvent(FullCalendar<T> source, boolean fromClient, String dateString) {
         super(source, fromClient);
 
         date = JsonUtils.parseClientSideDate(dateString);

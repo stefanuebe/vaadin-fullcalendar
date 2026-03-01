@@ -18,7 +18,7 @@ public class CustomViewDemo extends AbstractSchedulerView {
     private FixedDaysCalendarView calendarView;
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar<Entry> createCalendar(ObjectNode defaultInitialOptions) {
         calendarView = new FixedDaysCalendarView(28);
 
         // test for duplicat registration (anonymous and named)
@@ -27,7 +27,7 @@ public class CustomViewDemo extends AbstractSchedulerView {
 //        views.put(calendarView.getClientSideValue(), new FixedDaysCalendarView(5).getViewSettings());
 //        initialOptions.put("views", views);
 
-        FullCalendar calendar = FullCalendarBuilder.create()
+        FullCalendar<Entry> calendar = FullCalendarBuilder.create()
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
 //                .withInitialOptions(initialOptions)
                 .withCustomCalendarViews(calendarView)
@@ -41,7 +41,7 @@ public class CustomViewDemo extends AbstractSchedulerView {
     }
 
     @Override
-    protected void postConstruct(FullCalendar calendar) {
+    protected void postConstruct(FullCalendar<Entry> calendar) {
         calendar.changeView(calendarView);
     }
 

@@ -26,7 +26,7 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-public class BrowserTimezoneObtainedEvent extends ComponentEvent<FullCalendar> {
+public class BrowserTimezoneObtainedEvent<T> extends ComponentEvent<FullCalendar<T>> {
 
     /**
      * The timezone obtained by this event.
@@ -41,7 +41,7 @@ public class BrowserTimezoneObtainedEvent extends ComponentEvent<FullCalendar> {
      * @param fromClient <code>true</code> if the event originated from the client
      * @param timezone   client side timezone
      */
-    public BrowserTimezoneObtainedEvent(FullCalendar source, boolean fromClient, Timezone timezone) {
+    public BrowserTimezoneObtainedEvent(FullCalendar<T> source, boolean fromClient, Timezone timezone) {
         super(source, fromClient);
         this.timezone = timezone;
     }

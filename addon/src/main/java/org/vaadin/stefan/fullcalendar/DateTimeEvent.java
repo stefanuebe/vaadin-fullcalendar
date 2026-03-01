@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @ToString
-public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
+public abstract class DateTimeEvent<T> extends ComponentEvent<FullCalendar<T>> {
 
     /**
      * If the event has occurred for a day slot. False means, it has been for a time slot inside a day.
@@ -49,7 +49,7 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
      * @param dateString date instance as iso string
      * @param allDay     all day event
      */
-    public DateTimeEvent(FullCalendar source, boolean fromClient, String dateString, boolean allDay) {
+    public DateTimeEvent(FullCalendar<T> source, boolean fromClient, String dateString, boolean allDay) {
         super(source, fromClient);
 
         this.allDay = allDay;

@@ -10,7 +10,7 @@ import java.time.LocalDate;
  */
 public class BaseSample extends AbstractSample {
     @Override
-    protected void buildSample(FullCalendar calendar) {
+    protected void buildSample(FullCalendar<Entry> calendar) {
         // Create an initial sample entry
         Entry entry = new Entry();
         entry.setTitle("Some event");

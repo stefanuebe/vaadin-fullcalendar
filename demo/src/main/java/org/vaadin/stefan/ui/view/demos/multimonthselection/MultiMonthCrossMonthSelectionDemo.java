@@ -3,6 +3,7 @@ package org.vaadin.stefan.ui.view.demos.multimonthselection;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
+import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -22,7 +23,7 @@ public class MultiMonthCrossMonthSelectionDemo extends CallbackEntryProviderDemo
     }
 
     @Override
-    protected void postConstruct(FullCalendar calendar) {
+    protected void postConstruct(FullCalendar<Entry> calendar) {
         calendar.setTimeslotsSelectable(false); // important
 
         calendar.addAttachListener(event -> // refire things, when reattached
