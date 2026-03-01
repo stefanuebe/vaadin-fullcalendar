@@ -1,18 +1,14 @@
 package org.vaadin.stefan.fullcalendar.dataprovider;
 
-import lombok.Getter;
 import org.vaadin.stefan.fullcalendar.Entry;
 
 import java.io.Serializable;
-import java.util.EventObject;
 
 /**
  * This event is fired, when a single item shall be refreshed.
  * @author Stefan Uebe
  */
-@Getter
-public class EntryRefreshEvent<T extends Entry> extends EventObject {
-    private final T itemToRefresh;
+public class EntryRefreshEvent<T extends Entry> extends CalendarItemRefreshEvent<T> {
 
     /**
      * Constructs a prototypical Event.
@@ -21,8 +17,7 @@ public class EntryRefreshEvent<T extends Entry> extends EventObject {
      * @throws IllegalArgumentException if source is null.
      */
     public EntryRefreshEvent(EntryProvider<T> source, T itemToRefresh) {
-        super(source);
-        this.itemToRefresh = itemToRefresh;
+        super(source, itemToRefresh);
     }
 
     @SuppressWarnings("unchecked")

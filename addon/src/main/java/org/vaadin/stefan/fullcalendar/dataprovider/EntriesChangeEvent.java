@@ -3,14 +3,13 @@ package org.vaadin.stefan.fullcalendar.dataprovider;
 import org.vaadin.stefan.fullcalendar.Entry;
 
 import java.io.Serializable;
-import java.util.EventObject;
 
 /**
  * This event is fired, when then items represents by an {@link EntryProvider} are about to change
  * and a reaction (e.g. fetch) is necessary.
  * @author Stefan Uebe
  */
-public class EntriesChangeEvent<T extends Entry> extends EventObject {
+public class EntriesChangeEvent<T extends Entry> extends CalendarItemsChangeEvent<T> {
     /**
      * Constructs a prototypical Event.
      *

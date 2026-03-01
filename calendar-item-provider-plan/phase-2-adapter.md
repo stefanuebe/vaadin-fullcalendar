@@ -160,3 +160,28 @@ EntryProvider.inMemoryFrom(entry1, entry2);
 - `EntryQuery extends CalendarQuery` compiles
 - All existing entry provider tests pass unchanged
 - New CalendarItemProvider listeners work on EntryProvider instances
+
+---
+
+## Implementation Notes (completed)
+
+**Status: COMPLETE**
+
+Implemented Option A for event bridges (`EntriesChangeEvent extends CalendarItemsChangeEvent`,
+`EntryRefreshEvent extends CalendarItemRefreshEvent`). The `isAssignableFrom()` check in
+`AbstractCalendarItemProvider.fireEvent()` ensures both legacy and CIP listeners fire when
+Entry-specific events are dispatched.
+
+Additional change not in original plan: removed `isInMemory()`/`asInMemory()` default methods
+from `CalendarItemProvider` to avoid covariant return type conflicts with `EntryProvider`.
+These convenience methods remain on `EntryProvider` where they belong.
+
+Files modified:
+- `CalendarItemProvider.java` — removed `isInMemory()`/`asInMemory()` defaults
+- `EntriesChangeEvent.java` — extends `CalendarItemsChangeEvent<T>`
+- `EntryRefreshEvent.java` — extends `CalendarItemRefreshEvent<T>`, removed redundant field
+- `EntryQuery.java` — extends `CalendarQuery`, manual constructors/builder replacing Lombok
+- `EntryProvider.java` — extends `CalendarItemProvider<T>`, bridge `fetch(CalendarQuery)`
+- `AbstractEntryProvider.java` — extends `AbstractCalendarItemProvider<T>`, removed duplicate listener infra
+
+Tests: 215 pass (including new `EntryProviderAdapterTest` with 16 tests).

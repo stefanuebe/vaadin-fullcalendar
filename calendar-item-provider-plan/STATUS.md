@@ -1,12 +1,12 @@
 # Calendar Item Provider (CIP) — Implementation Status
 
-## Overall Status: PLANNING
+## Overall Status: IN PROGRESS
 
 | Phase | Name | Status | Description |
 |-------|------|--------|-------------|
-| 0 | Spikes | NOT STARTED | Mapper prototype + generic component runtime verification |
-| 1 | Foundation Types | NOT STARTED | New CIP types without touching existing code |
-| 2 | Adapter Layer | NOT STARTED | Wire existing EntryProvider into CIP hierarchy |
+| 0 | Spikes | COMPLETE | Mapper prototype + generic component runtime verification |
+| 1 | Foundation Types | COMPLETE | New CIP types without touching existing code |
+| 2 | Adapter Layer | COMPLETE | Wire existing EntryProvider into CIP hierarchy |
 | 3 | Core Integration | NOT STARTED | Make FullCalendar generic, connect CIP |
 | 4 | Event System | NOT STARTED | Typed parallel event hierarchy for CIP |
 | 5 | Scheduler Extension | NOT STARTED | Integrate CIP with addon-scheduler |

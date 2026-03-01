@@ -5,9 +5,7 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -16,21 +14,24 @@ import java.util.stream.Stream;
  * @author Stefan Uebe
  */
 @Getter
-@AllArgsConstructor
-@RequiredArgsConstructor
-@Builder
-public class EntryQuery {
-
-//    private final FullCalendar source; // needed?
-    private LocalDateTime start;
-    private LocalDateTime end;
+public class EntryQuery extends CalendarQuery {
 
     @NonNull
-    private AllDay allDay = AllDay.BOTH;
+    private final AllDay allDay;
+
+    public EntryQuery() {
+        super(null, null);
+        this.allDay = AllDay.BOTH;
+    }
 
     public EntryQuery(LocalDateTime start, LocalDateTime end) {
-        this.start = start;
-        this.end = end;
+        super(start, end);
+        this.allDay = AllDay.BOTH;
+    }
+
+    public EntryQuery(LocalDateTime start, LocalDateTime end, AllDay allDay) {
+        super(start, end);
+        this.allDay = allDay != null ? allDay : AllDay.BOTH;
     }
 
     public EntryQuery(Instant start, Instant end) {
@@ -39,6 +40,14 @@ public class EntryQuery {
 
     public EntryQuery(Instant start, Instant end, AllDay allDay) {
         this(start != null ? LocalDateTime.ofInstant(start, Timezone.ZONE_ID_UTC) : null, end != null ? LocalDateTime.ofInstant(end, Timezone.ZONE_ID_UTC) : null, allDay);
+    }
+
+    /**
+     * Creates a new builder for {@link EntryQuery}.
+     * @return a new builder
+     */
+    public static Builder builder() {
+        return new Builder();
     }
 
     /**
@@ -54,6 +63,9 @@ public class EntryQuery {
      * @return filtered stream
      */
     public <T extends Entry> Stream<T> applyFilter(Stream<T> stream) {
+        LocalDateTime start = getStart();
+        LocalDateTime end = getEnd();
+
         if (start == null && end == null && allDay == AllDay.BOTH) {
             return stream;
         }
@@ -103,5 +115,36 @@ public class EntryQuery {
         BOTH,
         ALL_DAY_ONLY,
         TIMED_ONLY;
+    }
+
+    /**
+     * Builder for {@link EntryQuery}.
+     */
+    public static class Builder {
+        private LocalDateTime start;
+        private LocalDateTime end;
+        private AllDay allDay = AllDay.BOTH;
+
+        Builder() {
+        }
+
+        public Builder start(LocalDateTime start) {
+            this.start = start;
+            return this;
+        }
+
+        public Builder end(LocalDateTime end) {
+            this.end = end;
+            return this;
+        }
+
+        public Builder allDay(AllDay allDay) {
+            this.allDay = allDay;
+            return this;
+        }
+
+        public EntryQuery build() {
+            return new EntryQuery(start, end, allDay);
+        }
     }
 }

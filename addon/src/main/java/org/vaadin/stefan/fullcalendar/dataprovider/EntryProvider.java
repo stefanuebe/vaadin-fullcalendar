@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * on time spans instead of row counts.
  * @author Stefan Uebe
  */
-public interface EntryProvider<T extends Entry> {
+public interface EntryProvider<T extends Entry> extends CalendarItemProvider<T> {
 
     /**
      * Creates a new instance that will fetch its content from the given callbacks. Passing null will lead to an exception.
@@ -67,6 +67,7 @@ public interface EntryProvider<T extends Entry> {
      * of entries may lead to memory or performance issues.
      * @return stream containing all entries
      */
+    @Override
     default Stream<T> fetchAll() {
         return fetch(new EntryQuery());
     }
@@ -99,6 +100,18 @@ public interface EntryProvider<T extends Entry> {
      * @return stream containing entries matching the query filter
      */
     Stream<T> fetch(@NonNull EntryQuery query);
+
+    /**
+     * Bridge method: delegates a generic {@link CalendarQuery} to the Entry-specific
+     * {@link #fetch(EntryQuery)} method.
+     */
+    @Override
+    default Stream<T> fetch(CalendarQuery query) {
+        if (query instanceof EntryQuery entryQuery) {
+            return fetch(entryQuery);
+        }
+        return fetch(new EntryQuery(query.getStart(), query.getEnd(), EntryQuery.AllDay.BOTH));
+    }
 
     /**
      * Returns a single entry represented by the given id or an empty optional, if there is no entry
