@@ -1519,6 +1519,11 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
 
     /**
      * Registers a listener to be informed when an entry click event occurred.
+     * <p>
+     * <b>Important:</b> This listener is for calendars using EntryProvider. When using
+     * CalendarItemProvider, use {@link #addCalendarItemClickedListener} instead.
+     * Using this listener on a CIP calendar will cause an {@link IllegalArgumentException} at runtime
+     * because the item cannot be resolved from the entry-based cache.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1531,6 +1536,11 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     
     /**
      * Registers a listener to be informed when the user mouses over an entry.
+     * <p>
+     * <b>Important:</b> This listener is for calendars using EntryProvider. When using
+     * CalendarItemProvider, use {@link #addCalendarItemMouseEnterListener} instead.
+     * Using this listener on a CIP calendar will cause an {@link IllegalArgumentException} at runtime
+     * because the item cannot be resolved from the entry-based cache.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1543,6 +1553,11 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     
     /**
      * Registers a listener to be informed when the user mouses out of an entry.
+     * <p>
+     * <b>Important:</b> This listener is for calendars using EntryProvider. When using
+     * CalendarItemProvider, use {@link #addCalendarItemMouseLeaveListener} instead.
+     * Using this listener on a CIP calendar will cause an {@link IllegalArgumentException} at runtime
+     * because the item cannot be resolved from the entry-based cache.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1555,6 +1570,11 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
 
     /**
      * Registers a listener to be informed when an entry resized event occurred.
+     * <p>
+     * <b>Important:</b> This listener is for calendars using EntryProvider. When using
+     * CalendarItemProvider, use {@link #addCalendarItemResizedListener} instead.
+     * Using this listener on a CIP calendar will cause an {@link IllegalArgumentException} at runtime
+     * because the item cannot be resolved from the entry-based cache.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1567,6 +1587,11 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
 
     /**
      * Registers a listener to be informed when an entry dropped event occurred.
+     * <p>
+     * <b>Important:</b> This listener is for calendars using EntryProvider. When using
+     * CalendarItemProvider, use {@link #addCalendarItemDroppedListener} instead.
+     * Using this listener on a CIP calendar will cause an {@link IllegalArgumentException} at runtime
+     * because the item cannot be resolved from the entry-based cache.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1575,6 +1600,86 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     public Registration addEntryDroppedListener(ComponentEventListener<EntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryDroppedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener to be informed when a calendar item click event occurred.
+     * <p>
+     * Use this method when the calendar is configured with a CalendarItemProvider.
+     * For calendars using EntryProvider, use {@link #addEntryClickedListener} instead.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    @SuppressWarnings("unchecked")
+    public Registration addCalendarItemClickedListener(ComponentEventListener<CalendarItemClickedEvent<T>> listener) {
+        Objects.requireNonNull(listener);
+        return addListener((Class) CalendarItemClickedEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Registers a listener to be informed when the user mouses over a calendar item.
+     * <p>
+     * Use this method when the calendar is configured with a CalendarItemProvider.
+     * For calendars using EntryProvider, use {@link #addEntryMouseEnterListener} instead.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    @SuppressWarnings("unchecked")
+    public Registration addCalendarItemMouseEnterListener(ComponentEventListener<CalendarItemMouseEnterEvent<T>> listener) {
+        Objects.requireNonNull(listener);
+        return addListener((Class) CalendarItemMouseEnterEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Registers a listener to be informed when the user mouses out of a calendar item.
+     * <p>
+     * Use this method when the calendar is configured with a CalendarItemProvider.
+     * For calendars using EntryProvider, use {@link #addEntryMouseLeaveListener} instead.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    @SuppressWarnings("unchecked")
+    public Registration addCalendarItemMouseLeaveListener(ComponentEventListener<CalendarItemMouseLeaveEvent<T>> listener) {
+        Objects.requireNonNull(listener);
+        return addListener((Class) CalendarItemMouseLeaveEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Registers a listener to be informed when a calendar item dropped event occurred (drag and drop time change).
+     * <p>
+     * Use this method when the calendar is configured with a CalendarItemProvider.
+     * For calendars using EntryProvider, use {@link #addEntryDroppedListener} instead.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    @SuppressWarnings("unchecked")
+    public Registration addCalendarItemDroppedListener(ComponentEventListener<CalendarItemDroppedEvent<T>> listener) {
+        Objects.requireNonNull(listener);
+        return addListener((Class) CalendarItemDroppedEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Registers a listener to be informed when a calendar item resized event occurred.
+     * <p>
+     * Use this method when the calendar is configured with a CalendarItemProvider.
+     * For calendars using EntryProvider, use {@link #addEntryResizedListener} instead.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    @SuppressWarnings("unchecked")
+    public Registration addCalendarItemResizedListener(ComponentEventListener<CalendarItemResizedEvent<T>> listener) {
+        Objects.requireNonNull(listener);
+        return addListener((Class) CalendarItemResizedEvent.class, (ComponentEventListener) listener);
     }
 
     /**

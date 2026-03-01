@@ -8,7 +8,7 @@
 | 1 | Foundation Types | COMPLETE | New CIP types without touching existing code |
 | 2 | Adapter Layer | COMPLETE | Wire existing EntryProvider into CIP hierarchy |
 | 3 | Core Integration | COMPLETE | Make FullCalendar generic, connect CIP |
-| 4 | Event System | NOT STARTED | Typed parallel event hierarchy for CIP |
+| 4 | Event System | COMPLETE | Typed parallel event hierarchy for CIP |
 | 5 | Scheduler Extension | NOT STARTED | Integrate CIP with addon-scheduler |
 | 6 | Migration & Docs | NOT STARTED | Deprecations, migration guide, documentation |
 
@@ -34,7 +34,7 @@ with proper generic resource management.
   `FullCalendar<Entry>` and cast to `(Scheduler)` for resource lookup
 - Listener delegation in FullCalendarScheduler uses lambdas (no raw casts):
   `event -> listener.onComponentEvent(event)`
-- Phase 4 will add the parallel `CalendarItemEvent<T>` hierarchy for CIP
+- Phase 4 added the parallel `CalendarItemEvent<T>` hierarchy for CIP (using @DomEvent, not programmatic dispatch)
 
 ### 4. Client-to-Server Updates: A+B with Mutual Exclusion — CONFIRMED
 Two mechanisms for applying client-side changes (drag/drop/resize) back to POJOs:
