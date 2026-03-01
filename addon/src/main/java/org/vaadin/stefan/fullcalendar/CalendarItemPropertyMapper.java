@@ -43,7 +43,7 @@ public class CalendarItemPropertyMapper<T> implements Serializable {
     // Write mappings (client JSON → server POJO) — only for updatable properties
     private final Map<String, PropertyWriter<T, ?>> writeMappings = new LinkedHashMap<>();
 
-    private boolean frozen;
+    private volatile boolean frozen;
 
     private CalendarItemPropertyMapper(Class<T> type) {
         this.type = Objects.requireNonNull(type, "type");

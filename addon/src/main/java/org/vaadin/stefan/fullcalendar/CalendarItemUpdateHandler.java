@@ -24,6 +24,8 @@ public interface CalendarItemUpdateHandler<T> extends Serializable {
      *
      * @param item    the calendar item to update
      * @param changes the changes received from the client
+     * @apiNote The {@code changes} parameter wraps untrusted client-sent JSON.
+     *          Validate before applying to sensitive properties.
      */
     void handleUpdate(T item, CalendarItemChanges changes);
 }

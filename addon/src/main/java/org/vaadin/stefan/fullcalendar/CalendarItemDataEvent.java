@@ -51,13 +51,18 @@ public abstract class CalendarItemDataEvent<T> extends CalendarItemEvent<T> {
         this.jsonObject = jsonObject;
     }
 
+    private CalendarItemChanges changes;
+
     /**
      * Returns a typed accessor for the changed properties sent by the client.
      *
      * @return typed changes accessor
      */
     public CalendarItemChanges getChanges() {
-        return new CalendarItemChanges(jsonObject);
+        if (changes == null) {
+            changes = new CalendarItemChanges(jsonObject);
+        }
+        return changes;
     }
 
     /**

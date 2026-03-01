@@ -4,6 +4,8 @@ import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.shared.Registration;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
@@ -15,7 +17,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractCalendarItemProvider<T> implements CalendarItemProvider<T> {
 
-    private final Map<Class<?>, List<SerializableConsumer<?>>> listeners = new HashMap<>();
+    private final Map<Class<?>, List<SerializableConsumer<?>>> listeners = new ConcurrentHashMap<>();
 
     @Override
     public void refreshAll() {
@@ -46,7 +48,7 @@ public abstract class AbstractCalendarItemProvider<T> implements CalendarItemPro
      * @return a registration for the listener
      */
     protected <E> Registration addListener(Class<E> eventType, SerializableConsumer<E> method) {
-        List<SerializableConsumer<?>> list = listeners.computeIfAbsent(eventType, key -> new ArrayList<>());
+        List<SerializableConsumer<?>> list = listeners.computeIfAbsent(eventType, key -> new CopyOnWriteArrayList<>());
         return Registration.addAndRemove(list, method);
     }
 

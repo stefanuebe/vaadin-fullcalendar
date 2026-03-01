@@ -9,6 +9,7 @@
 | 2 | Adapter Layer | COMPLETE | Wire existing EntryProvider into CIP hierarchy |
 | 3 | Core Integration | COMPLETE | Make FullCalendar generic, connect CIP |
 | 4 | Event System | COMPLETE | Typed parallel event hierarchy for CIP |
+| 4b | Code Review Fixes | COMPLETE | Thread-safety, null checks, caching, Javadoc fixes |
 | 5 | Scheduler Extension | NOT STARTED | Integrate CIP with addon-scheduler |
 | 6 | Migration & Docs | NOT STARTED | Deprecations, migration guide, documentation |
 

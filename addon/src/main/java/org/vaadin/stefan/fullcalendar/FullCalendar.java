@@ -506,6 +506,10 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      */
     protected void requestRefreshCalendarItem(T item) {
         Objects.requireNonNull(item);
+        if (calendarItemPropertyMapper == null) {
+            throw new IllegalStateException("No CalendarItemPropertyMapper configured. "
+                    + "Set a CalendarItemProvider with a mapper first.");
+        }
         getElement().getNode().runWhenAttached(ui -> {
             ui.beforeClientResponse(this, ctx -> {
                 String id = calendarItemPropertyMapper.getId(item);
@@ -609,6 +613,8 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * CIP path — fetches calendar items via the CalendarItemProvider and maps to JSON.
      */
     private void fetchCalendarItems(LocalDateTime start, LocalDateTime end, ArrayNode array) {
+        Objects.requireNonNull(calendarItemProvider, "calendarItemProvider is not set");
+        Objects.requireNonNull(calendarItemPropertyMapper, "calendarItemPropertyMapper is not set");
         calendarItemProvider.fetch(new CalendarQuery(start, end))
                 .peek(item -> lastFetchedItems.put(calendarItemPropertyMapper.getId(item), item))
                 .map(calendarItemPropertyMapper::toJson)
@@ -2422,7 +2428,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * This is a separate method to avoid type name conflicts with java.util.Map.Entry.
      */
     private static Map<String, Object> createBoundedItemCache() {
-        return new LinkedHashMap<>(16, 0.75f, true) {
+        return new LinkedHashMap<>(16, 0.75f, false) {
             @Override
             protected boolean removeEldestEntry(java.util.Map.Entry<String, Object> eldest) {
                 return size() > MAX_CACHED_ENTRIES;

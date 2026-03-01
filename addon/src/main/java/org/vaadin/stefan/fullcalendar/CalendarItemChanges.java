@@ -62,6 +62,8 @@ public class CalendarItemChanges {
     /**
      * Returns the raw JSON delta object for accessing custom or extension-specific properties.
      *
+     * @apiNote The returned JSON originates from the client and is untrusted.
+     *          Do not use it for security-sensitive operations without validation.
      * @return the original JSON delta
      */
     public ObjectNode getRawJson() {

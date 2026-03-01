@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Collections.synchronizedMap;
+
 /**
  * An in-memory implementation of {@link CalendarItemProvider} backed by a {@link LinkedHashMap}.
  * <p>
@@ -17,7 +19,7 @@ import java.util.stream.Stream;
  */
 public class InMemoryCalendarItemProvider<T> extends AbstractCalendarItemProvider<T> {
 
-    private final Map<String, T> itemsMap = new LinkedHashMap<>();
+    private final Map<String, T> itemsMap = synchronizedMap(new LinkedHashMap<>());
     private final SerializableFunction<T, String> idExtractor;
 
     /**
@@ -42,7 +44,9 @@ public class InMemoryCalendarItemProvider<T> extends AbstractCalendarItemProvide
 
     @Override
     public Stream<T> fetch(CalendarQuery query) {
-        return itemsMap.values().stream();
+        synchronized (itemsMap) {
+            return new ArrayList<>(itemsMap.values()).stream();
+        }
     }
 
     @Override
