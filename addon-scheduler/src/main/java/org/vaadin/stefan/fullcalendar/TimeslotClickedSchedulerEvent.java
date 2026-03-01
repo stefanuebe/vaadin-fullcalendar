@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 @DomEvent("dateClick")
 @ToString(callSuper = true)
-public class TimeslotClickedSchedulerEvent extends TimeslotClickedEvent<Entry> {
+public class TimeslotClickedSchedulerEvent<T> extends TimeslotClickedEvent<T> {
 
     private Resource resource;
 
@@ -42,7 +42,7 @@ public class TimeslotClickedSchedulerEvent extends TimeslotClickedEvent<Entry> {
      * @param allDay all day event
      * @param resourceId optional resource id
      */
-    public TimeslotClickedSchedulerEvent(FullCalendar<Entry> source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay, @EventData("event.detail.resource") String resourceId) {
+    public TimeslotClickedSchedulerEvent(FullCalendar<T> source, boolean fromClient, @EventData("event.detail.date") String date, @EventData("event.detail.allDay") boolean allDay, @EventData("event.detail.resource") String resourceId) {
         super(source, fromClient, date, allDay);
 
         if (resourceId != null) {

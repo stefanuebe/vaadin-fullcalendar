@@ -25,6 +25,8 @@ public class SamplePojo {
     private LocalDate repeatStart;
     private Map<String, Object> metadata;
     private Set<String> tags;
+    private Set<String> resourceIds;
+    private boolean resourceEditable;
 
     public SamplePojo() {
         this.id = UUID.randomUUID().toString();
@@ -74,4 +76,10 @@ public class SamplePojo {
 
     public Set<String> getTags() { return tags; }
     public void setTags(Set<String> tags) { this.tags = tags; }
+
+    public Set<String> getResourceIds() { return resourceIds; }
+    public void setResourceIds(Set<String> resourceIds) { this.resourceIds = resourceIds; }
+
+    public boolean isResourceEditable() { return resourceEditable; }
+    public void setResourceEditable(boolean resourceEditable) { this.resourceEditable = resourceEditable; }
 }

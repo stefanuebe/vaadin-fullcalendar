@@ -46,7 +46,7 @@ import java.util.stream.StreamSupport;
 @CssImport("./vaadin-full-calendar/full-calendar-scheduler-styles.css")
 
 @Tag("vaadin-full-calendar-scheduler")
-public class FullCalendarScheduler extends FullCalendar<Entry> implements Scheduler {
+public class FullCalendarScheduler<T> extends FullCalendar<T> implements Scheduler {
 
     /**
      * The scheduler base version used in this addon. Some additionl libraries might have a different version number due to
@@ -214,9 +214,13 @@ public class FullCalendarScheduler extends FullCalendar<Entry> implements Schedu
      */
     @SuppressWarnings("unchecked")
     private void removeFromEntries(Iterable<Resource> iterableResources) {
+        if (isUsingCalendarItemProvider()) {
+            return; // CIP: user manages POJO resource associations
+        }
+
         List<Resource> resources = StreamSupport.stream(iterableResources.spliterator(), false).collect(Collectors.toList());
         // TODO integrate in memory resource provider
-        EntryProvider<Entry> entryProvider = getEntryProvider();
+        EntryProvider<Entry> entryProvider = (EntryProvider<Entry>) getEntryProvider();
         if (entryProvider == null || !entryProvider.isInMemory()) {
             return;
         }
@@ -303,32 +307,64 @@ public class FullCalendarScheduler extends FullCalendar<Entry> implements Schedu
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotsSelectedListener(ComponentEventListener<TimeslotsSelectedEvent<Entry>> listener) {
-        return addTimeslotsSelectedSchedulerListener(event -> listener.onComponentEvent(event));
+    public Registration addTimeslotsSelectedListener(ComponentEventListener<TimeslotsSelectedEvent<T>> listener) {
+        return addTimeslotsSelectedSchedulerListener((ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<TimeslotsSelectedSchedulerEvent> listener) {
+    public Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<TimeslotsSelectedSchedulerEvent<?>> listener) {
         Objects.requireNonNull(listener);
-        return addListener(TimeslotsSelectedSchedulerEvent.class, listener);
+        return addListener((Class) TimeslotsSelectedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotClickedListener(ComponentEventListener<TimeslotClickedEvent<Entry>> listener) {
-        return addTimeslotClickedSchedulerListener(event -> listener.onComponentEvent(event));
+    public Registration addTimeslotClickedListener(ComponentEventListener<TimeslotClickedEvent<T>> listener) {
+        return addTimeslotClickedSchedulerListener((ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public Registration addTimeslotClickedSchedulerListener(ComponentEventListener<TimeslotClickedSchedulerEvent> listener) {
+    public Registration addTimeslotClickedSchedulerListener(ComponentEventListener<TimeslotClickedSchedulerEvent<?>> listener) {
         Objects.requireNonNull(listener);
-        return addListener(TimeslotClickedSchedulerEvent.class, listener);
+        return addListener((Class) TimeslotClickedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
     @Override
     public Registration addEntryDroppedSchedulerListener(ComponentEventListener<EntryDroppedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryDroppedSchedulerEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener to be informed when a calendar item dropped event occurred in a scheduler view,
+     * along with scheduler-specific data (resource changes).
+     * <p>
+     * Use this method when the calendar is configured with a CalendarItemProvider.
+     * For calendars using EntryProvider, use {@link #addEntryDroppedSchedulerListener} instead.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public Registration addCalendarItemDroppedSchedulerListener(ComponentEventListener<CalendarItemDroppedSchedulerEvent<?>> listener) {
+        Objects.requireNonNull(listener);
+        return addListener((Class) CalendarItemDroppedSchedulerEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Overrides the base calendar's CIP dropped listener to fire the scheduler-specific variant
+     * which includes resource change information.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public Registration addCalendarItemDroppedListener(ComponentEventListener<CalendarItemDroppedEvent<T>> listener) {
+        return addCalendarItemDroppedSchedulerListener((ComponentEventListener) listener);
     }
 
     /**
@@ -371,11 +407,11 @@ public class FullCalendarScheduler extends FullCalendar<Entry> implements Schedu
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
-     * @param <T>    type of value
+     * @param <V>    type of value
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(SchedulerOption option) {
+    public <V> Optional<V> getOption(SchedulerOption option) {
         return getOption(option, false);
     }
 
@@ -388,11 +424,11 @@ public class FullCalendarScheduler extends FullCalendar<Entry> implements Schedu
      *
      * @param option               option
      * @param forceClientSideValue explicitly return the value that has been sent to client
-     * @param <T>                  type of value
+     * @param <V>                  type of value
      * @return optional value or empty
      * @throws NullPointerException when null is passed
      */
-    public <T> Optional<T> getOption(SchedulerOption option, boolean forceClientSideValue) {
+    public <V> Optional<V> getOption(SchedulerOption option, boolean forceClientSideValue) {
         return getOption(option.getOptionKey(), forceClientSideValue);
     }
 

@@ -239,6 +239,44 @@ public class CalendarItemPropertyMapper<T> implements Serializable {
         return mapByReflection("daysOfWeek", propertyName, DAYS_OF_WEEK_CONVERTER);
     }
 
+    // ---- Resource properties (scheduler) ----
+
+    /**
+     * Maps the POJO's resource IDs property (read-only). Used by scheduler views
+     * to associate calendar items with resources.
+     *
+     * @param getter the resource IDs getter (must return {@link Set} of {@link String})
+     * @return this mapper for chaining
+     */
+    public CalendarItemPropertyMapper<T> resourceIds(ValueProvider<T, Set<String>> getter) {
+        return readOnly("resourceIds", getter, null);
+    }
+
+    /**
+     * Maps the POJO's resource IDs property (bidirectional: getter + setter).
+     * Used by scheduler views to associate calendar items with resources.
+     *
+     * @param getter the resource IDs getter
+     * @param setter the resource IDs setter
+     * @return this mapper for chaining
+     */
+    public CalendarItemPropertyMapper<T> resourceIds(ValueProvider<T, Set<String>> getter, Setter<T, Set<String>> setter) {
+        readOnly("resourceIds", getter, null);
+        writeMappings.put("resourceIds", new PropertyWriter<>(setter, CalendarItemPropertyMapper::jsonToStringSet));
+        return this;
+    }
+
+    /**
+     * Maps the POJO's resource-editable property (read-only). Controls whether
+     * the item can be dragged between resources in scheduler views.
+     *
+     * @param getter the resourceEditable getter
+     * @return this mapper for chaining
+     */
+    public CalendarItemPropertyMapper<T> resourceEditable(ValueProvider<T, Boolean> getter) {
+        return readOnly("resourceEditable", getter, null);
+    }
+
     // ---- Bidirectional properties (can be updated from client) ----
 
     /**
@@ -593,6 +631,14 @@ public class CalendarItemPropertyMapper<T> implements Serializable {
         return node.asBoolean();
     }
 
+    static Set<String> jsonToStringSet(JsonNode node) {
+        if (node == null || node instanceof NullNode) return null;
+        if (!node.isArray()) return Set.of();
+        var result = new LinkedHashSet<String>();
+        node.forEach(element -> result.add(element.asString()));
+        return result;
+    }
+
     // ---- Inner types ----
 
     /**
@@ -656,6 +702,13 @@ public class CalendarItemPropertyMapper<T> implements Serializable {
             PropertyMapping endMapping = mapper.readMappings.get("end");
             if (endMapping == null) return null;
             return (LocalDateTime) endMapping.getter.apply(item);
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        public Set<String> getResourceIds() {
+            PropertyMapping resourceIdsMapping = mapper.readMappings.get("resourceIds");
+            if (resourceIdsMapping == null) return null;
+            return (Set<String>) resourceIdsMapping.getter.apply(item);
         }
 
         public T getItem() {

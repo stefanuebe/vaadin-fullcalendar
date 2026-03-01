@@ -10,7 +10,7 @@
 | 3 | Core Integration | COMPLETE | Make FullCalendar generic, connect CIP |
 | 4 | Event System | COMPLETE | Typed parallel event hierarchy for CIP |
 | 4b | Code Review Fixes | COMPLETE | Thread-safety, null checks, caching, Javadoc fixes |
-| 5 | Scheduler Extension | NOT STARTED | Integrate CIP with addon-scheduler |
+| 5 | Scheduler Extension | COMPLETE | Integrate CIP with addon-scheduler |
 | 6 | Migration & Docs | NOT STARTED | Deprecations, migration guide, documentation |
 
 ## Key Architectural Decisions
@@ -20,11 +20,11 @@
 erased types — generic parameters do not interfere at runtime. Existing code using raw
 `FullCalendar` gets compiler warnings but no breakage.
 
-### 2. Generic `FullCalendarScheduler` — UPDATED
-Phase 3: `FullCalendarScheduler extends FullCalendar<Entry>` (bound to Entry, not generic yet).
-This avoids raw-type issues while scheduler-specific methods (`removeFromEntries()`, etc.)
-still reference Entry. Phase 5 will make it `FullCalendarScheduler<T> extends FullCalendar<T>`
-with proper generic resource management.
+### 2. Generic `FullCalendarScheduler<T>` — COMPLETE
+Phase 5: `FullCalendarScheduler<T> extends FullCalendar<T>` — fully generic.
+`removeFromEntries()` has a CIP early-return path. The `Scheduler` interface stays non-generic
+(manages resources, not items). Listener methods on the interface use wildcard event types
+(`TimeslotClickedSchedulerEvent<?>`, etc.) with raw casts in the implementation.
 
 ### 3. Typed Event Hierarchy — CONFIRMED (Phase 3 implementation)
 - Entry events: `EntryEvent extends ComponentEvent<FullCalendar<Entry>>` — no raw types

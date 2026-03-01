@@ -336,7 +336,7 @@ public interface Scheduler {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    Registration addTimeslotClickedSchedulerListener(ComponentEventListener<TimeslotClickedSchedulerEvent> listener);
+    Registration addTimeslotClickedSchedulerListener(ComponentEventListener<TimeslotClickedSchedulerEvent<?>> listener);
 
     /**
      * Registers a listener to be informed when a timespan has been selected, including scheduler specific data.
@@ -344,5 +344,18 @@ public interface Scheduler {
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<TimeslotsSelectedSchedulerEvent> listener);
+    Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<TimeslotsSelectedSchedulerEvent<?>> listener);
+
+    /**
+     * Registers a listener to be informed when a calendar item dropped event occurred in a scheduler view,
+     * along with scheduler-specific data (resource changes).
+     * <p>
+     * Use this method when the calendar is configured with a CalendarItemProvider.
+     * For calendars using EntryProvider, use {@link #addEntryDroppedSchedulerListener} instead.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    Registration addCalendarItemDroppedSchedulerListener(ComponentEventListener<CalendarItemDroppedSchedulerEvent<?>> listener);
 }

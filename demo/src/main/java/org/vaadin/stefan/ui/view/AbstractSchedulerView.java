@@ -7,12 +7,13 @@ import org.vaadin.stefan.fullcalendar.*;
  * @author Stefan Uebe
  */
 public abstract class AbstractSchedulerView extends AbstractCalendarView {
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public AbstractSchedulerView() {
         FullCalendarScheduler calendar = (FullCalendarScheduler) getCalendar();
 
-        calendar.addEntryDroppedSchedulerListener(this::onEntryDroppedScheduler);
-        calendar.addTimeslotsSelectedSchedulerListener(this::onTimeslotsSelectedScheduler);
-        calendar.addTimeslotClickedSchedulerListener(this::onTimeslotClickedScheduler);
+        calendar.addEntryDroppedSchedulerListener(event -> onEntryDroppedScheduler((EntryDroppedSchedulerEvent) event));
+        calendar.addTimeslotsSelectedSchedulerListener(event -> onTimeslotsSelectedScheduler((TimeslotsSelectedSchedulerEvent) event));
+        calendar.addTimeslotClickedSchedulerListener(event -> onTimeslotClickedScheduler((TimeslotClickedSchedulerEvent) event));
     }
 
     /**

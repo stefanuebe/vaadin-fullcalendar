@@ -554,6 +554,104 @@ class CalendarItemPropertyMapperTest {
     }
 
     @Nested
+    @DisplayName("Resource mappings (scheduler)")
+    class ResourceMappings {
+
+        @Test
+        @DisplayName("resourceIds read-only serializes to JSON array")
+        void resourceIdsReadOnly() {
+            pojo.setResourceIds(new LinkedHashSet<>(List.of("r1", "r2", "r3")));
+
+            var mapper = CalendarItemPropertyMapper.of(SamplePojo.class)
+                    .id(SamplePojo::getId)
+                    .resourceIds(SamplePojo::getResourceIds);
+
+            ObjectNode json = mapper.toJson(pojo);
+
+            assertTrue(json.has("resourceIds"));
+            assertTrue(json.get("resourceIds").isArray());
+            var ids = new LinkedHashSet<String>();
+            json.get("resourceIds").forEach(node -> ids.add(node.asString()));
+            assertEquals(Set.of("r1", "r2", "r3"), ids);
+        }
+
+        @Test
+        @DisplayName("resourceIds bidirectional applies changes from JSON")
+        void resourceIdsBidirectional() {
+            pojo.setResourceIds(new LinkedHashSet<>(List.of("r1")));
+
+            var mapper = CalendarItemPropertyMapper.of(SamplePojo.class)
+                    .id(SamplePojo::getId)
+                    .resourceIds(SamplePojo::getResourceIds, SamplePojo::setResourceIds);
+
+            // Verify serialization
+            ObjectNode json = mapper.toJson(pojo);
+            assertTrue(json.get("resourceIds").isArray());
+
+            // Apply changes
+            ObjectNode changes = JsonFactory.createObject();
+            var newIds = JsonFactory.createArray();
+            newIds.add("r4");
+            newIds.add("r5");
+            changes.set("resourceIds", newIds);
+
+            mapper.applyChanges(pojo, changes);
+
+            assertEquals(Set.of("r4", "r5"), pojo.getResourceIds());
+        }
+
+        @Test
+        @DisplayName("resourceEditable read-only serializes to JSON boolean")
+        void resourceEditableReadOnly() {
+            pojo.setResourceEditable(true);
+
+            var mapper = CalendarItemPropertyMapper.of(SamplePojo.class)
+                    .id(SamplePojo::getId)
+                    .resourceEditable(SamplePojo::isResourceEditable);
+
+            ObjectNode json = mapper.toJson(pojo);
+
+            assertTrue(json.has("resourceEditable"));
+            assertTrue(json.get("resourceEditable").asBoolean());
+        }
+
+        @Test
+        @DisplayName("null resourceIds are omitted from JSON")
+        void nullResourceIdsOmitted() {
+            var mapper = CalendarItemPropertyMapper.of(SamplePojo.class)
+                    .id(SamplePojo::getId)
+                    .resourceIds(SamplePojo::getResourceIds);
+
+            ObjectNode json = mapper.toJson(pojo);
+
+            assertFalse(json.hasNonNull("resourceIds"));
+        }
+
+        @Test
+        @DisplayName("BoundMapper getResourceIds() returns mapped value")
+        void boundMapperResourceIds() {
+            pojo.setResourceIds(Set.of("r1", "r2"));
+
+            var mapper = CalendarItemPropertyMapper.of(SamplePojo.class)
+                    .id(SamplePojo::getId)
+                    .resourceIds(SamplePojo::getResourceIds);
+
+            var bound = mapper.forItem(pojo);
+            assertEquals(Set.of("r1", "r2"), bound.getResourceIds());
+        }
+
+        @Test
+        @DisplayName("BoundMapper getResourceIds() returns null when not mapped")
+        void boundMapperResourceIdsNotMapped() {
+            var mapper = CalendarItemPropertyMapper.of(SamplePojo.class)
+                    .id(SamplePojo::getId);
+
+            var bound = mapper.forItem(pojo);
+            assertNull(bound.getResourceIds());
+        }
+    }
+
+    @Nested
     @DisplayName("Comparison to Entry.toJson() baseline")
     class EntryBaseline {
 

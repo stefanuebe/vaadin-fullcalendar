@@ -380,7 +380,9 @@ public class FullDemo extends AbstractSchedulerView {
         super.onTimeslotsSelectedScheduler(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
-        System.out.println( "ZoneId: " + event.getSource().getTimezone().getZoneId() );
+        @SuppressWarnings("unchecked")
+        FullCalendar<Entry> calendar = (FullCalendar<Entry>) event.getSource();
+        System.out.println( "ZoneId: " + calendar.getTimezone().getZoneId() );
         LocalDateTime startDate = event.getStart();
         System.out.println( "getStart(): " + event.getStart() );
         System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
@@ -391,7 +393,7 @@ public class FullDemo extends AbstractSchedulerView {
         entry.setEnd(event.getEnd());
         entry.setAllDay(event.isAllDay());
 
-        entry.setCalendar(event.getSource());
+        entry.setCalendar(calendar);
 
         DemoDialog dialog = new DemoDialog(entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));

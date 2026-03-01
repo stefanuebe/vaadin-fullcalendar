@@ -33,7 +33,7 @@ public class ResourceConverter implements JsonItemPropertyConverter<Set<Resource
             return new LinkedHashSet<>();
         }
 
-        FullCalendarScheduler calendar = (FullCalendarScheduler) currentInstance.getCalendar()
+        Scheduler calendar = (Scheduler) currentInstance.getCalendar()
                 .orElseThrow(() -> new IllegalStateException("Converting to server model requires an assigned scheduler instance"));
 
         Object value = JsonUtils.ofJsonNode(clientValue);
@@ -41,7 +41,7 @@ public class ResourceConverter implements JsonItemPropertyConverter<Set<Resource
             return ((List<?>) value).stream()
                     .filter(Objects::nonNull)
                     .map(Object::toString)
-                    .map(calendar::getResourceById)
+                    .map(id -> calendar.getResourceById(id))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
