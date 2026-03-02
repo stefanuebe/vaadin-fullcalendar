@@ -15,7 +15,7 @@ import java.util.Optional;
 
 /**
  * Demonstrates CIP with a callback provider simulating backend database access.
- * Shows date-range filtering and drag-and-drop with Strategy A (mapper setters).
+ * Shows date-range filtering and drag-and-drop. Changed data is updated directly via setters.
  */
 @Route(value = "cip-callback-demo", layout = MainLayout.class)
 @MenuItem(label = "CIP Callback Demo")

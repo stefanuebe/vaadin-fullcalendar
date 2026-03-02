@@ -71,9 +71,8 @@ public class FullCalendarBuilder<T> {
      *
      * @return builder instance
      */
-    @SuppressWarnings("rawtypes")
-    public static FullCalendarBuilder create() {
-        return new FullCalendarBuilder(false, -1, false, false, null, null, null, null, null, null, null, null, null, null);
+    public static <T> FullCalendarBuilder<T> create() {
+        return new FullCalendarBuilder<>(false, -1, false, false, null, null, null, null, null, null, null, null, null, null);
     }
 
     /**

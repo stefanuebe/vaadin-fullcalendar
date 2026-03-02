@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Demonstrates CIP with an immutable record and Strategy B (CalendarItemUpdateHandler).
+ * Demonstrates CIP with an immutable record and the CalendarItemUpdateHandler.
  * Shows that immutable objects work with CIP by creating new instances on update.
  */
 @Route(value = "cip-update-handler-demo", layout = MainLayout.class)

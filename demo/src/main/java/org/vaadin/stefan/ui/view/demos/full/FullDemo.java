@@ -72,7 +72,7 @@ public class FullDemo extends AbstractSchedulerView {
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
                 .build();
 
-        FullCalendarScheduler scheduler = (FullCalendarScheduler) calendar;
+        FullCalendarScheduler<Entry> scheduler = (FullCalendarScheduler<Entry>) calendar;
         scheduler.setResourceAreaWidth("15%");
         scheduler.setSlotMinWidth("100");
         scheduler.setResourcesInitiallyExpanded(false);
