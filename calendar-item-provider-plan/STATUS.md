@@ -1,6 +1,6 @@
 # Calendar Item Provider (CIP) — Implementation Status
 
-## Overall Status: COMPLETE
+## Overall Status: IN PROGRESS
 
 | Phase | Name | Status | Description |
 |-------|------|--------|-------------|
@@ -12,6 +12,8 @@
 | 4b | Code Review Fixes | COMPLETE | Thread-safety, null checks, caching, Javadoc fixes |
 | 5 | Scheduler Extension | COMPLETE | Integrate CIP with addon-scheduler |
 | 6 | Migration & Docs | COMPLETE | Deprecations, migration guide, documentation, demos |
+| 7 | Internal Unification | NOT STARTED | setEntryProvider() delegates to CIP internally |
+| 8 | Event Unification | NOT STARTED | Entry events extend CIP event counterparts |
 
 ## Key Architectural Decisions
 
@@ -78,3 +80,5 @@ See [phase-0-spikes.md](phase-0-spikes.md) for remaining spike work.
 - [phase-4-events.md](phase-4-events.md) — Typed parallel event hierarchy
 - [phase-5-scheduler.md](phase-5-scheduler.md) — Scheduler generics + CIP integration
 - [phase-6-migration-docs.md](phase-6-migration-docs.md) — Deprecations, docs, demos
+- [phase-7-internal-unification.md](phase-7-internal-unification.md) — setEntryProvider() delegates to CIP
+- [phase-8-event-unification.md](phase-8-event-unification.md) — Entry events extend CIP events
