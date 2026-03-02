@@ -963,3 +963,247 @@ Entry tmpEntry = entry.copy(); // create a temporary copy
 // return a new copy at the end without changing the initial entry
 return tmpEntry.copy();
 ```
+
+## Calendar Item Provider (CIP)
+
+The Calendar Item Provider allows you to display arbitrary POJOs on the calendar without extending `Entry`.
+Use a `CalendarItemPropertyMapper` to define how your POJO maps to FullCalendar properties, and a
+`CalendarItemProvider` to supply the data.
+
+### Basic CIP with a POJO (lambda mapping)
+
+```java
+// Your domain object — no need to extend Entry
+public class Meeting {
+    private String id;
+    private String subject;
+    private LocalDateTime begin;
+    private LocalDateTime finish;
+    private boolean allDay;
+    private String color;
+    // getters, setters...
+}
+
+// Define the property mapping
+var mapper = CalendarItemPropertyMapper.of(Meeting.class)
+    .id(Meeting::getId)
+    .title(Meeting::getSubject)
+    .start(Meeting::getBegin)
+    .end(Meeting::getFinish)
+    .allDay(Meeting::isAllDay)
+    .color(Meeting::getColor);
+
+// Create a provider with some sample data
+var meetings = List.of(
+    new Meeting("1", "Standup", LocalDateTime.now().withHour(9), LocalDateTime.now().withHour(9).plusMinutes(30)),
+    new Meeting("2", "Sprint Review", LocalDateTime.now().withHour(14), LocalDateTime.now().withHour(15))
+);
+var provider = CalendarItemProvider.fromCallbacks(
+    query -> meetings.stream(),
+    id -> meetings.stream().filter(m -> m.getId().equals(id)).findFirst().orElse(null)
+);
+
+// Build the calendar
+FullCalendar<Meeting> calendar = FullCalendarBuilder.<Meeting>create(Meeting.class)
+    .withCalendarItemProvider(provider, mapper)
+    .build();
+```
+
+### CIP with callback provider (lazy loading from database)
+
+```java
+// Callback provider with date-range filtering
+var provider = CalendarItemProvider.fromCallbacks(
+    query -> meetingService.findByDateRange(query.getStart(), query.getEnd()).stream(),
+    id -> meetingService.findById(id)
+);
+
+var mapper = CalendarItemPropertyMapper.of(Meeting.class)
+    .id(Meeting::getId)
+    .title(Meeting::getSubject)
+    .start(Meeting::getBegin, Meeting::setBegin)    // bidirectional — enables drag & drop
+    .end(Meeting::getFinish, Meeting::setFinish)      // bidirectional — enables resize
+    .allDay(Meeting::isAllDay, Meeting::setAllDay);
+
+FullCalendar<Meeting> calendar = FullCalendarBuilder.<Meeting>create(Meeting.class)
+    .withCalendarItemProvider(provider, mapper)
+    .build();
+
+// After modifying backend data, refresh the calendar
+provider.refreshAll();
+```
+
+### CIP with in-memory provider
+
+```java
+// In-memory provider for client-side data management
+var provider = CalendarItemProvider.inMemoryFrom(
+    Meeting::getId,
+    new Meeting("1", "Standup", now.withHour(9), now.withHour(9).plusMinutes(30)),
+    new Meeting("2", "Review", now.withHour(14), now.withHour(15))
+);
+
+FullCalendar<Meeting> calendar = FullCalendarBuilder.<Meeting>create(Meeting.class)
+    .withCalendarItemProvider(provider, mapper)
+    .build();
+
+// Add/remove items via the in-memory provider
+provider.addItems(new Meeting("3", "New Meeting", ...));
+provider.removeItems(meeting);
+provider.refreshAll();
+```
+
+### CIP event handling (click, drag, resize)
+
+```java
+// Click events
+calendar.addCalendarItemClickedListener(event -> {
+    Meeting meeting = event.getItem();
+    Notification.show("Clicked: " + meeting.getSubject());
+});
+
+// Drag and drop — Strategy A (setters on mapper)
+// When start/end have setters registered, applyChangesOnItem() mutates the POJO
+calendar.addCalendarItemDroppedListener(event -> {
+    event.applyChangesOnItem();  // updates meeting.begin and meeting.finish
+    Meeting meeting = event.getItem();
+    meetingService.save(meeting);
+    event.getSource().getCalendarItemProvider().ifPresent(CalendarItemProvider::refreshAll);
+});
+
+// Resize
+calendar.addCalendarItemResizedListener(event -> {
+    event.applyChangesOnItem();
+    meetingService.save(event.getItem());
+});
+
+// Access the changes directly instead of auto-applying
+calendar.addCalendarItemDroppedListener(event -> {
+    CalendarItemChanges changes = event.getChanges();
+    changes.getChangedStart().ifPresent(newStart -> System.out.println("New start: " + newStart));
+    changes.getChangedEnd().ifPresent(newEnd -> System.out.println("New end: " + newEnd));
+    changes.getChangedAllDay().ifPresent(allDay -> System.out.println("All day: " + allDay));
+});
+```
+
+### CIP with update handler (Strategy B, for immutable objects)
+
+```java
+// Immutable record as calendar item
+public record Appointment(String id, String title, LocalDateTime start, LocalDateTime end) {}
+
+var mapper = CalendarItemPropertyMapper.of(Appointment.class)
+    .id(Appointment::id)
+    .title(Appointment::title)
+    .start(Appointment::start)   // read-only — no setter
+    .end(Appointment::end);       // read-only — no setter
+
+var provider = CalendarItemProvider.fromCallbacks(
+    query -> appointmentRepo.findAll().stream(),
+    id -> appointmentRepo.findById(id)
+);
+
+FullCalendar<Appointment> calendar = FullCalendarBuilder.<Appointment>create(Appointment.class)
+    .withCalendarItemProvider(provider, mapper)
+    .build();
+
+// Strategy B: handle updates manually
+calendar.setCalendarItemUpdateHandler((appointment, changes) -> {
+    // Create a new instance with updated values
+    var updated = new Appointment(
+        appointment.id(),
+        appointment.title(),
+        changes.getChangedStart().orElse(appointment.start()),
+        changes.getChangedEnd().orElse(appointment.end())
+    );
+    appointmentRepo.save(updated);
+    provider.refreshAll();
+});
+```
+
+### CIP with scheduler (resource mapping)
+
+```java
+// POJO with resource IDs
+public class Meeting {
+    private String id;
+    private String subject;
+    private LocalDateTime begin;
+    private LocalDateTime finish;
+    private Set<String> resourceIds;
+    // getters, setters...
+}
+
+var mapper = CalendarItemPropertyMapper.of(Meeting.class)
+    .id(Meeting::getId)
+    .title(Meeting::getSubject)
+    .start(Meeting::getBegin, Meeting::setBegin)
+    .end(Meeting::getFinish, Meeting::setFinish)
+    .resourceIds(Meeting::getResourceIds, Meeting::setResourceIds);
+
+var provider = CalendarItemProvider.fromCallbacks(
+    query -> meetingService.findAll().stream(),
+    id -> meetingService.findById(id)
+);
+
+FullCalendar<Meeting> calendar = FullCalendarBuilder.<Meeting>create(Meeting.class)
+    .withScheduler()
+    .withCalendarItemProvider(provider, mapper)
+    .build();
+
+// Add resources
+Scheduler scheduler = (Scheduler) calendar;
+scheduler.addResource(new Resource("room-1", "Conference Room A", null));
+scheduler.addResource(new Resource("room-2", "Conference Room B", null));
+
+// Handle drops between resources
+scheduler.addCalendarItemDroppedSchedulerListener(event -> {
+    event.applyChangesOnItem();
+    event.getOldResource().ifPresent(r -> System.out.println("Moved from: " + r.getTitle()));
+    event.getNewResource().ifPresent(r -> System.out.println("Moved to: " + r.getTitle()));
+    meetingService.save(event.getItem());
+});
+```
+
+### Migration from EntryProvider to CIP (side-by-side comparison)
+
+**Before (EntryProvider):**
+```java
+FullCalendar calendar = FullCalendarBuilder.create().build();
+
+Entry entry = new Entry();
+entry.setTitle("Meeting");
+entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+calendar.getEntryProvider().asInMemory().addEntries(entry);
+
+calendar.addEntryClickedListener(event -> {
+    Entry clicked = event.getEntry();
+    Notification.show("Clicked: " + clicked.getTitle());
+});
+```
+
+**After (CIP):**
+```java
+var mapper = CalendarItemPropertyMapper.of(Meeting.class)
+    .id(Meeting::getId)
+    .title(Meeting::getSubject)
+    .start(Meeting::getBegin)
+    .end(Meeting::getFinish);
+
+Meeting meeting = new Meeting("1", "Meeting",
+    LocalDateTime.of(2025, 6, 1, 9, 0),
+    LocalDateTime.of(2025, 6, 1, 10, 0));
+
+var provider = CalendarItemProvider.inMemoryFrom(Meeting::getId, meeting);
+
+FullCalendar<Meeting> calendar = FullCalendarBuilder.<Meeting>create(Meeting.class)
+    .withCalendarItemProvider(provider, mapper)
+    .build();
+
+calendar.addCalendarItemClickedListener(event -> {
+    Meeting clicked = event.getItem();
+    Notification.show("Clicked: " + clicked.getSubject());
+});
+```

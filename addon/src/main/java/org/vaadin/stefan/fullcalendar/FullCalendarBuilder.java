@@ -117,7 +117,10 @@ public class FullCalendarBuilder<T> {
      *
      * @param entryProvider entry provider to be used
      * @return new immutable instance with updated settings
+     * @deprecated Use {@link #withCalendarItemProvider} for custom POJOs,
+     * or continue using this method for Entry-based calendars.
      */
+    @Deprecated(since = "7.2", forRemoval = false)
     public FullCalendarBuilder<T> withEntryProvider(EntryProvider<? extends Entry> entryProvider) {
         return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, Objects.requireNonNull(entryProvider), customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }

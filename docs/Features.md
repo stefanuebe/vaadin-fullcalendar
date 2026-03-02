@@ -37,6 +37,27 @@ not a full list of all features. If you find any library features missing, pleas
     - recurring data (day of week, start / end date and time)
     - etc.
 
+## Calendar Item Provider (CIP)
+
+The Calendar Item Provider allows displaying arbitrary POJOs on the calendar without extending `Entry`.
+This is useful when your domain model already has its own calendar-like objects (e.g. JPA entities,
+records, or DTOs) and you want to display them directly.
+
+- **CalendarItemPropertyMapper** — fluent builder that maps POJO getters/setters to FullCalendar JSON properties (id, title, start, end, color, allDay, editable, recurring, resources, etc.)
+- **CalendarItemProvider** — data provider interface with callback-based and in-memory implementations
+- **CalendarItemUpdateHandler** — optional handler for applying client-side changes (drag/drop/resize) to POJOs
+- **Two update strategies:**
+  - Strategy A: Register setters on the mapper — `applyChangesOnItem()` mutates the POJO in-place
+  - Strategy B: Register an update handler — full control for immutable objects or custom business logic
+- **Typed event hierarchy** — `CalendarItemClickedEvent<T>`, `CalendarItemDroppedEvent<T>`, `CalendarItemResizedEvent<T>`, etc.
+- **Scheduler support** — map resource IDs and handle resource changes via `CalendarItemDroppedSchedulerEvent<T>`
+
+When to use CIP vs EntryProvider:
+- Use **EntryProvider** when you can work with `Entry` objects directly (simpler, feature-complete)
+- Use **CalendarItemProvider** when your domain model is fixed and you want to avoid mapping to/from `Entry`
+
+See [Samples](Samples.md#calendar-item-provider-cip) for code examples and [Migration Guides](Migration-guides.md#migrating-from-71--72) for upgrade instructions.
+
 ## Scheduler features
 The scheduler extension integrates the features of the commercial Scheduler plugin of the FullCalendar library.
 

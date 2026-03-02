@@ -18,6 +18,10 @@ package org.vaadin.stefan.ui.layouts;
 
 import com.vaadin.flow.component.sidenav.SideNav;
 import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
+import org.vaadin.stefan.ui.view.demos.calendaritemprovider.CalendarItemProviderBasicDemo;
+import org.vaadin.stefan.ui.view.demos.calendaritemprovider.CalendarItemProviderCallbackDemo;
+import org.vaadin.stefan.ui.view.demos.calendaritemprovider.CalendarItemProviderSchedulerDemo;
+import org.vaadin.stefan.ui.view.demos.calendaritemprovider.CalendarItemProviderUpdateHandlerDemo;
 import org.vaadin.stefan.ui.view.demos.customtimeline.AnonymousCustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.customtimeline.CustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
@@ -36,6 +40,10 @@ public class MainLayout extends AbstractLayout {
         addMenu(nav, InMemoryEntryProviderDemo.class);
         addMenu(nav, CallbackEntryProviderDemo.class);
         addMenu(nav, BackendEntryProviderDemo.class);
+        addMenu(nav, CalendarItemProviderBasicDemo.class);
+        addMenu(nav, CalendarItemProviderCallbackDemo.class);
+        addMenu(nav, CalendarItemProviderUpdateHandlerDemo.class);
+        addMenu(nav, CalendarItemProviderSchedulerDemo.class);
         addMenu(nav, DemoWithTooltip.class);
 //        addMenu(nav, DemoCustomProperties.class); // TODO overhaul the demo first
 //        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first

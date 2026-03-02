@@ -10,10 +10,134 @@ If we missed something or anything is unclear, please ping us on GitHub. We hope
 as smoothly as possible.
 
 ## Index
+* [7.1 > 7.2](#migrating-from-71--72)
 * [6.1 > 7.0](#migrating-from-61--70)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
+
+## Migrating from 7.1 > 7.2
+
+Version 7.2 introduces the Calendar Item Provider (CIP), a new way to display arbitrary POJOs on the calendar
+without extending `Entry`. This is a non-breaking change — all existing code continues to work.
+
+### Raw type warnings
+
+`FullCalendar` is now `FullCalendar<T>`. Existing code using raw `FullCalendar` will produce compiler
+warnings but continues to compile and run without changes.
+
+To fix the warnings, add the type parameter:
+
+```java
+// Before (raw type — produces warning)
+FullCalendar calendar = FullCalendarBuilder.create().build();
+
+// After (parameterized — no warning)
+FullCalendar<Entry> calendar = FullCalendarBuilder.create().build();
+```
+
+The same applies to `FullCalendarScheduler<T>` and generic events like `TimeslotsSelectedEvent<T>`,
+`DatesRenderedEvent<T>`, etc.
+
+### Deprecations
+
+`setEntryProvider()` and `FullCalendarBuilder.withEntryProvider()` are deprecated with `forRemoval = false`.
+Entry-based calendars remain a valid, convenient use case. The deprecation signals that CIP is the
+recommended approach for new code with custom domain models.
+
+### Step-by-step migration from Entry to POJO
+
+If you want to migrate from `Entry` to your own POJO:
+
+1. **Define the mapper** — map your POJO's properties to FullCalendar JSON fields:
+```java
+var mapper = CalendarItemPropertyMapper.of(MyPojo.class)
+    .id(MyPojo::getId)
+    .title(MyPojo::getName)
+    .start(MyPojo::getFrom, MyPojo::setFrom)   // setter enables drag & drop
+    .end(MyPojo::getTo, MyPojo::setTo)          // setter enables resize
+    .allDay(MyPojo::isAllDay)
+    .color(MyPojo::getColor);
+```
+
+2. **Create a provider** — either callback-based or in-memory:
+```java
+// Callback (lazy loading)
+var provider = CalendarItemProvider.fromCallbacks(
+    query -> myService.find(query.getStart(), query.getEnd()).stream(),
+    id -> myService.findById(id)
+);
+
+// In-memory
+var provider = CalendarItemProvider.inMemoryFrom(MyPojo::getId, items);
+```
+
+3. **Build the calendar with CIP**:
+```java
+FullCalendar<MyPojo> calendar = FullCalendarBuilder.<MyPojo>create(MyPojo.class)
+    .withCalendarItemProvider(provider, mapper)
+    .build();
+```
+
+4. **Replace entry listeners with CIP listeners**:
+
+| Before (Entry) | After (CIP) |
+|---|---|
+| `addEntryClickedListener` | `addCalendarItemClickedListener` |
+| `addEntryDroppedListener` | `addCalendarItemDroppedListener` |
+| `addEntryResizedListener` | `addCalendarItemResizedListener` |
+| `event.getEntry()` | `event.getItem()` |
+| `event.applyChangesOnEntry()` | `event.applyChangesOnItem()` |
+
+5. **Choose an update strategy** for drag/drop/resize:
+   - **Strategy A (setters):** Register setters on the mapper → call `event.applyChangesOnItem()`
+   - **Strategy B (handler):** Register `calendar.setCalendarItemUpdateHandler((item, changes) -> ...)` for full control
+
+### Property mapping reference
+
+| Mapper method | FullCalendar JSON property | Java type | Notes |
+|---|---|---|---|
+| `id(getter)` | `id` | `String` | **Required** |
+| `title(getter)` | `title` | `String` | |
+| `start(getter [, setter])` | `start` | `LocalDateTime` | Setter enables drag/drop |
+| `end(getter [, setter])` | `end` | `LocalDateTime` | Setter enables resize |
+| `allDay(getter [, setter])` | `allDay` | `boolean` / `Boolean` | |
+| `color(getter)` | `color` | `String` | HTML color |
+| `editable(getter)` | `editable` | `boolean` / `Boolean` | |
+| `displayMode(getter)` | `display` | `DisplayMode` | |
+| `classNames(getter)` | `classNames` | `Set<String>` | CSS classes |
+| `overlap(getter)` | `overlap` | `boolean` / `Boolean` | |
+| `constraint(getter)` | `constraint` | `String` | |
+| `daysOfWeek(getter)` | `daysOfWeek` | `Set<DayOfWeek>` | Recurring |
+| `startRecur(getter)` | `startRecur` | `LocalDate` | Recurring |
+| `endRecur(getter)` | `endRecur` | `LocalDate` | Recurring |
+| `startTime(getter)` | `startTime` | `LocalDateTime` | Recurring |
+| `endTime(getter)` | `endTime` | `LocalDateTime` | Recurring |
+| `resourceIds(getter [, setter])` | `resourceIds` | `Set<String>` | Scheduler only |
+| `resourceEditable(getter)` | `resourceEditable` | `boolean` / `Boolean` | Scheduler only |
+
+### Scheduler: migrating resource-based entries
+
+For scheduler/resource views, map `resourceIds` on the mapper:
+
+```java
+var mapper = CalendarItemPropertyMapper.of(MyPojo.class)
+    .id(MyPojo::getId)
+    .title(MyPojo::getName)
+    .start(MyPojo::getFrom, MyPojo::setFrom)
+    .end(MyPojo::getTo, MyPojo::setTo)
+    .resourceIds(MyPojo::getResourceIds, MyPojo::setResourceIds);
+```
+
+Replace `addEntryDroppedSchedulerListener` with `addCalendarItemDroppedSchedulerListener`:
+
+```java
+scheduler.addCalendarItemDroppedSchedulerListener(event -> {
+    event.applyChangesOnItem();
+    event.getOldResource().ifPresent(r -> ...);
+    event.getNewResource().ifPresent(r -> ...);
+});
+```
 
 ## Migrating from 6.1 > 7.0
 To migrate to version 7 of the addon, you need to bump your Vaadin version to 25 and anything else, that Vaadin 25 

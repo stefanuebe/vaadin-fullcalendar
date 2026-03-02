@@ -6,6 +6,7 @@ the Flow integration of the [FullCalendar library](https://fullcalendar.io).
 - [Getting Started](Getting-Started.md) - Installation and basic setup
 - [Samples](Samples.md) - Code examples
 - [Features](Features.md) - Feature overview
+- [Calendar Item Provider](Features.md#calendar-item-provider-cip) - Display arbitrary POJOs without extending Entry
 - [FAQ](FAQ.md) - Common questions and troubleshooting
 - [Migration Guides](Migration-guides.md) - Upgrading between versions
 

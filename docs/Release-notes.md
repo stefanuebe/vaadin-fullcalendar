@@ -1,10 +1,22 @@
 ## Index
+* [7.2.x](#72x)
 * [7.0.x](#70x)
 * [6.2.x](#62x)
 * [6.1.x](#61x)
 * [6.0.x](#60x)
 * [4.1.x](#41x)
 * [4.0.x](#40x)
+
+## 7.2.x
+[Details](release-notes-detail/Release-notes-7.2.md)
+- added Calendar Item Provider (CIP) for displaying arbitrary POJOs without extending Entry
+- `FullCalendar` is now generic (`FullCalendar<T>`) — existing code gets warnings but no breakage
+- new `CalendarItemPropertyMapper` for fluent POJO-to-JSON mapping
+- new `CalendarItemProvider` with callback and in-memory implementations
+- two update strategies: mapper setters (Strategy A) or update handler (Strategy B)
+- typed CIP event hierarchy: `CalendarItemClickedEvent<T>`, `CalendarItemDroppedEvent<T>`, etc.
+- CIP scheduler support with resource mapping and `CalendarItemDroppedSchedulerEvent<T>`
+- deprecated `setEntryProvider()` and `withEntryProvider()` (forRemoval = false)
 
 ## 7.0.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-7.0)
