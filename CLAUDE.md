@@ -99,9 +99,10 @@ The CIP feature (`feature/calendar-item-provider` branch) generalizes `EntryProv
 - **Requirements**: `calendar-item-provider.md` (project root)
 - **Implementation plan**: `calendar-item-provider-plan/` directory
   - `STATUS.md` — Status tracker + key architectural decisions
-  - `phase-0-spikes.md` through `phase-6-migration-docs.md` — Phase details
+  - `phase-0-spikes.md` through `phase-8-event-unification.md` — Phase details
   - `requirements-review.md` — Gap analysis
-- **Spike code**: `addon/src/test/java/.../spike/` (keep until CIP is complete)
+- **Status**: Phases 0-6 complete. Phases 7 (internal unification) and 8 (event unification) planned but not started.
+- **Spike code**: Deleted in Phase 6
 
 ## Documentation
 
