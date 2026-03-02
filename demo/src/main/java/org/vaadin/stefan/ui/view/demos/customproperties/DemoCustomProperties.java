@@ -39,11 +39,11 @@ public class DemoCustomProperties extends VerticalLayout {
     	
     	calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH);
 
-        calendar.setEntryDidMountCallback("function (info) {" +
+        calendar.setItemDidMountCallback("function (info) {" +
                 "info.el.style.backgroundColor = info.event.getCustomProperty('selected', false) ? 'lightblue' : 'lightgreen';" +
                 "}");
 
-        calendar.addEntryClickedListener(e -> {
+        calendar.addCalendarItemClickedListener(e -> {
             Entry oldSelected = this.selected;
             if (oldSelected != null) {
                 oldSelected.setCustomProperty("selected", false);
@@ -51,7 +51,7 @@ public class DemoCustomProperties extends VerticalLayout {
 
             var entryProvider = calendar.getEntryProvider().asInMemory();
 
-            this.selected = e.getEntry();
+            this.selected = e.getItem();
             this.selected.setCustomProperty("selected", true);
             if (oldSelected != null) {
                 entryProvider.removeEntries(oldSelected, this.selected);

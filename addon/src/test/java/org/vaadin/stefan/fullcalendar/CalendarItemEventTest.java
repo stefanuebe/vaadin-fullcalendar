@@ -91,7 +91,7 @@ class CalendarItemEventTest {
 
         // Simulate a fetch so the item ends up in lastFetchedItems
         ObjectNode query = JsonFactory.createObject();
-        calendar.fetchEntriesFromServer(query);
+        calendar.fetchItemsFromServer(query);
 
         return calendar;
     }
@@ -440,7 +440,7 @@ class CalendarItemEventTest {
 
         // Simulate a fetch so the entry ends up in cache
         ObjectNode query = JsonFactory.createObject();
-        calendar.fetchEntriesFromServer(query);
+        calendar.fetchItemsFromServer(query);
 
         return calendar;
     }

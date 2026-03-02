@@ -101,9 +101,9 @@ calendar.addTimeslotsSelectedListener((event) -> {
  * The entry click event listener is called when the user clicks on an existing entry.
  * The event provides the clicked event which might be then opened in a dialog.
  */
-calendar.addEntryClickedListener((event) -> {
+calendar.addCalendarItemClickedListener((event) -> {
     // react on the clicked entry, for instance let the user edit it
-    Entry entry = event.getEntry();
+    Entry entry = (Entry) event.getItem();
 
     // ... show an editor or do something else with the entry
 });
@@ -456,10 +456,10 @@ calendar.addEntry(entry);
 
 ### Handling change of an entry's assigned resource by drag and drop
 ```java
-calendar.addEntryDroppedListener(event -> {
-    event.applyChangesOnEntry();
+calendar.addCalendarItemDroppedListener(event -> {
+    event.applyChangesOnItem();
 
-    Entry entry = event.getEntry();
+    Entry entry = (Entry) event.getItem();
 
     if(entry instanceof ResourceEntry) {
         Set<Resource> resources = ((ResourceEntry) entry).getResources();
@@ -477,7 +477,7 @@ calendar.changeView(SchedulerView.TIMELINE_DAY);
 
 ### Activate vertical resource view
 ```java
-calendar.setGroupEntriesBy(GroupEntriesBy.RESOURCE_DATE);
+calendar.setGroupItemsBy(GroupEntriesBy.RESOURCE_DATE);
 ```
 
 ### Creating a resource based background entry
@@ -605,7 +605,7 @@ and attached as `eventContent` callback. See https://fullcalendar.io/docs/conten
 details.
 
 ```java
-calendar.setEntryDidMountCallback("""
+calendar.setItemDidMountCallback("""
         function(info) {
             info.el.id = "entry-" + info.event.id;
         }
@@ -629,7 +629,7 @@ entry.setCustomProperty(Entry.EntryCustomProperties.DESCRIPTION, "some descripti
 
 // use the custom property
 calendar = FullCalendarBuilder.create()
-        .withEntryContent(
+        .withCalendarItemContent(
                 "function(info) {" +
                         "   let entry = info.event;" +
                         "   console.log(entry.title);" + // standard property
@@ -713,16 +713,16 @@ public void MyCalendarView extends VerticalLayout {
 } 
 ```
 
-You can combine the event handlers with a custom entryDidMount callback, if you want additional customizations
+You can combine the event handlers with a custom itemDidMount callback, if you want additional customizations
 of the entries. The FC will take care of combining the event handlers and you EDM callback
 ```java
-calendar.setEntryDidMountCallback("""
+calendar.setItemDidMountCallback("""
        function(info) {
            console.warn("my custom callback");
        }""");
 
-calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
-calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
+calendar.addItemNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
+calendar.addItemNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
 ```
 
 The following sample shows how to utilize the entryDidMount callback, the native event handlers and the
@@ -742,15 +742,15 @@ public void MyCalendarView extends VerticalLayout {
         // "this" is the fc object, "this.el" is the Flow element and "this.el.parentElement" is our current view.
         // This hierarchy access may changed, when you nest the FC into other containers. 
 
-        calendar.addEntryNativeEventListener("contextmenu",
+        calendar.addItemNativeEventListener("contextmenu",
                 "e => {" +
                         "   e.preventDefault(); " +
                         "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
                         "}");
 
-        // by default, the entry element has no id attribute. Therefore we have to add it ourselves, using the 
+        // by default, the entry element has no id attribute. Therefore we have to add it ourselves, using the
         // entry id, that is by default an auto generated UUID
-        calendar.setEntryDidMountCallback("""
+        calendar.setItemDidMountCallback("""
                 function(info) {
                     info.el.id = "entry-" + info.event.id;
                 }""");
@@ -911,17 +911,17 @@ needs to be handled by your logic.
 
 ```java
 // directly apply the changes
-calendar.addEntryDroppedListener(event -> {
-    event.applyChangesOnEntry(); // includes now the allDay attribute if sent by client
+calendar.addCalendarItemDroppedListener(event -> {
+    event.applyChangesOnItem(); // includes now the allDay attribute if sent by client
 });
 
 // create a copy to do some business logic checks
-calendar.addEntryDroppedListener(event -> {
+calendar.addCalendarItemDroppedListener(event -> {
     Entry copy = event.createCopyBasedOnChanges();
 
     if(copy.getStartAsLocalDate().isBefore(someRequiredMinimalDate) /* do some background checks on the changed data */) {
-        event.applyChangesOnEntry();
-        event.getSource().getEntryProvider().refreshItem(event.getEntry()); // refresh the entry to update the UI
+        event.applyChangesOnItem();
+        event.getSource().getCalendarItemProvider().refreshItem((Entry) event.getItem()); // refresh the entry to update the UI
     }
 });
 ```
@@ -1178,8 +1178,8 @@ entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
 
 calendar.getEntryProvider().asInMemory().addEntries(entry);
 
-calendar.addEntryClickedListener(event -> {
-    Entry clicked = event.getEntry();
+calendar.addCalendarItemClickedListener(event -> {
+    Entry clicked = (Entry) event.getItem();
     Notification.show("Clicked: " + clicked.getTitle());
 });
 ```

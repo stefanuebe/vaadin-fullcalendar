@@ -75,7 +75,7 @@ class CalendarItemDroppedSchedulerEventTest {
 
         // Simulate a fetch so the item ends up in lastFetchedItems
         ObjectNode query = JsonFactory.createObject();
-        scheduler.fetchEntriesFromServer(query);
+        scheduler.fetchItemsFromServer(query);
 
         return scheduler;
     }
@@ -269,7 +269,7 @@ class CalendarItemDroppedSchedulerEventTest {
 
         // Simulate a fetch
         ObjectNode query = JsonFactory.createObject();
-        scheduler.fetchEntriesFromServer(query);
+        scheduler.fetchItemsFromServer(query);
 
         return scheduler;
     }

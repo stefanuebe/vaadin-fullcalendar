@@ -9,7 +9,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 public class ContentInjectionSample extends AbstractSample {
     @Override
     protected void buildSample(FullCalendar<Entry> calendar) {
-        calendar.setEntryDidMountCallback(
+        calendar.setItemDidMountCallback(
                 "function(info) {" +
                 "   info.el.style.color = 'red';" +
                 "   return info.el; " +

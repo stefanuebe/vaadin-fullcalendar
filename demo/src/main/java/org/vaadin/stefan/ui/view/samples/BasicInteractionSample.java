@@ -22,9 +22,9 @@ public class BasicInteractionSample extends AbstractSample{
             // ... show and editor
         });
 
-        calendar.addEntryClickedListener((event) -> {
+        calendar.addCalendarItemClickedListener((event) -> {
             // react on the clicked entry, for instance let the user edit it
-            Entry entry = event.getEntry();
+            Entry entry = event.getItem();
 
             // ... show and editor
         });

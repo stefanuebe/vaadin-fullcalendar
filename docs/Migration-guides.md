@@ -10,12 +10,93 @@ If we missed something or anything is unclear, please ping us on GitHub. We hope
 as smoothly as possible.
 
 ## Index
+* [7.3 > 7.4](#migrating-from-73--74)
 * [7.2 > 7.3](#migrating-from-72--73)
 * [7.1 > 7.2](#migrating-from-71--72)
 * [6.1 > 7.0](#migrating-from-61--70)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
+
+## Migrating from 7.3 > 7.4
+
+Phase 9 of the Calendar Item Provider (CIP) unification renames Entry-named public API methods to Item-named equivalents. All old methods are retained as **deprecated delegates** for backward compatibility.
+
+### Overview
+
+Entry-specific method names (e.g., `addEntryClickedListener`) have been renamed to generic Item-based names (e.g., `addCalendarItemClickedListener`). This aligns the API across both Entry-based and custom POJO-based calendars.
+
+### JavaScript callback names
+
+If you have custom JavaScript callers that invoke server-side callbacks:
+- `fetchEntriesFromServer()` → `fetchItemsFromServer()` — Update any custom JS to use the new name
+
+### Internal fields
+
+The internal `entryProviderRef` field has been removed. Use `getCalendarItemProvider()` instead, which is now the single source of truth for the calendar's data provider.
+
+### Deprecated Entry-based methods
+
+The following methods are deprecated on `FullCalendar`. They still work but delegate to their Item-based equivalents:
+
+| Deprecated | Replacement |
+|---|---|
+| `getEntryProvider()` | `getCalendarItemProvider()` |
+| `isInMemoryEntryProvider()` | `isInMemoryProvider()` |
+| `getCachedEntryFromFetch(id)` | `getCachedItemFromFetch(id)` |
+| `requestRefreshAllEntries()` | `requestRefreshAllItems()` |
+| `fetchEntriesFromServer(query)` | `fetchItemsFromServer(query)` |
+| `setEntryClassNamesCallback(s)` | `setItemClassNamesCallback(s)` |
+| `setEntryDidMountCallback(s)` | `setItemDidMountCallback(s)` |
+| `addEntryNativeEventListener(name, callback)` | `addItemNativeEventListener(name, callback)` |
+| `setEntryWillUnmountCallback(s)` | `setItemWillUnmountCallback(s)` |
+| `setEntryContentCallback(s)` | `setItemContentCallback(s)` |
+| `getEntryDurationEditable()` | `getItemDurationEditable()` |
+| `setEntryDurationEditable(b)` | `setItemDurationEditable(b)` |
+| `getEntryResizableFromStart()` | `getItemResizableFromStart()` |
+| `setEntryResizableFromStart(b)` | `setItemResizableFromStart(b)` |
+| `getEntryStartEditable()` | `getItemStartEditable()` |
+| `setEntryStartEditable(b)` | `setItemStartEditable(b)` |
+| `setEntryDisplay(mode)` | `setItemDisplay(mode)` |
+| `setMaxEntriesPerDay(n)` | `setMaxItemsPerDay(n)` |
+| `setMaxEntriesPerDayFitToCell()` | `setMaxItemsPerDayFitToCell()` |
+| `setMaxEntriesPerDayUnlimited()` | `setMaxItemsPerDayUnlimited()` |
+
+### Deprecated FullCalendarBuilder methods
+
+| Deprecated | Replacement |
+|---|---|
+| `withEntryLimit(n)` | `withCalendarItemLimit(n)` |
+| `withEntryContent(s)` | `withCalendarItemContent(s)` |
+
+### Deprecated Scheduler/FullCalendarScheduler methods
+
+| Deprecated | Replacement |
+|---|---|
+| `setEntryResourceEditable(b)` | `setItemResourceEditable(b)` |
+| `setGroupEntriesBy(g)` | `setGroupItemsBy(g)` |
+
+### Migration strategy
+
+**Most users can ignore this change.** The deprecated methods work as-is with no code changes required. When ready, gradually replace old method names with new ones:
+
+```java
+// Before (still works, but deprecated)
+calendar.addEntryClickedListener(event -> {
+    Entry entry = event.getEntry();
+});
+
+// After (recommended)
+calendar.addCalendarItemClickedListener(event -> {
+    Entry entry = (Entry) event.getItem();
+});
+```
+
+### No listener method name changes
+
+The listener interface names and annotation-based event registration (`@Listen`) remain unchanged:
+- `@Listen("entry-clicked")` continues to work
+- The listener functional interfaces (`EntryClickedListener`, etc.) remain valid
 
 ## Migrating from 7.2 > 7.3
 

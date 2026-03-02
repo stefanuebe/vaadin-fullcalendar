@@ -30,19 +30,19 @@ public class FullCalendarBuilderTest {
     }
 
     void testEntryLimitFalseOnNegativeNumber() {
-        builder = builder.withEntryLimit(-1);
+        builder = builder.withCalendarItemLimit(-1);
 
         Assertions.assertFalse(Boolean.parseBoolean(builder.build().getElement().getProperty(EVENT_LIMIT)));
     }
 
     void testEntryLimitFalseOnZero() {
-        builder = builder.withEntryLimit(0);
+        builder = builder.withCalendarItemLimit(0);
 
         Assertions.assertFalse(Boolean.parseBoolean(builder.build().getElement().getProperty(EVENT_LIMIT)));
     }
 
     void testEntryLimit() {
-        builder = builder.withEntryLimit(17);
+        builder = builder.withCalendarItemLimit(17);
 
         Assertions.assertEquals(17, Integer.parseInt(builder.build().getElement().getProperty(EVENT_LIMIT)));
     }

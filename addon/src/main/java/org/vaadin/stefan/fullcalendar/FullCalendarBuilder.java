@@ -35,23 +35,23 @@ public class FullCalendarBuilder<T> {
     private final boolean autoBrowserTimezone;
     private final boolean autoBrowserLocale;
     private final boolean scheduler;
-    private final int entryLimit;
+    private final int calendarItemLimit;
     private final String schedulerLicenseKey;
     private final ObjectNode initialOptions;
     private final EntryProvider<Entry> entryProvider;
     @SuppressWarnings("rawtypes")
     private final Class<? extends FullCalendar> customType;
     private final Collection<Entry> initialEntries;
-    private final String entryContent;
+    private final String calendarItemContent;
     private final CustomCalendarView[] customCalendarViews;
     private final CalendarItemProvider<T> calendarItemProvider;
     private final CalendarItemPropertyMapper<T> calendarItemPropertyMapper;
     private final CalendarItemUpdateHandler<T> calendarItemUpdateHandler;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private FullCalendarBuilder(boolean scheduler, int entryLimit, boolean autoBrowserTimezone, boolean autoBrowserLocale, String schedulerLicenseKey, ObjectNode initialOptions, EntryProvider<? extends Entry> entryProvider, Class<? extends FullCalendar> customType, Collection<Entry> initialEntries, String entryContent, CustomCalendarView[] customCalendarViews, CalendarItemProvider<T> calendarItemProvider, CalendarItemPropertyMapper<T> calendarItemPropertyMapper, CalendarItemUpdateHandler<T> calendarItemUpdateHandler) {
+    private FullCalendarBuilder(boolean scheduler, int calendarItemLimit, boolean autoBrowserTimezone, boolean autoBrowserLocale, String schedulerLicenseKey, ObjectNode initialOptions, EntryProvider<? extends Entry> entryProvider, Class<? extends FullCalendar> customType, Collection<Entry> initialEntries, String calendarItemContent, CustomCalendarView[] customCalendarViews, CalendarItemProvider<T> calendarItemProvider, CalendarItemPropertyMapper<T> calendarItemPropertyMapper, CalendarItemUpdateHandler<T> calendarItemUpdateHandler) {
         this.scheduler = scheduler;
-        this.entryLimit = entryLimit;
+        this.calendarItemLimit = calendarItemLimit;
         this.autoBrowserTimezone = autoBrowserTimezone;
         this.autoBrowserLocale = autoBrowserLocale;
         this.schedulerLicenseKey = schedulerLicenseKey;
@@ -59,7 +59,7 @@ public class FullCalendarBuilder<T> {
         this.entryProvider = (EntryProvider<Entry>) entryProvider;
         this.customType = customType;
         this.initialEntries = initialEntries;
-        this.entryContent = entryContent;
+        this.calendarItemContent = calendarItemContent;
         this.customCalendarViews = customCalendarViews;
         this.calendarItemProvider = calendarItemProvider;
         this.calendarItemPropertyMapper = calendarItemPropertyMapper;
@@ -95,7 +95,7 @@ public class FullCalendarBuilder<T> {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder<T> withInitialEntries(Collection<Entry> initialEntries) {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, Objects.requireNonNull(initialEntries), entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, Objects.requireNonNull(initialEntries), calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
 
     /**
@@ -108,7 +108,7 @@ public class FullCalendarBuilder<T> {
      */
     @SuppressWarnings("rawtypes")
     public FullCalendarBuilder<T> withCustomType(Class<? extends FullCalendar> customType) {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, Objects.requireNonNull(customType), initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, Objects.requireNonNull(customType), initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
 
     /**
@@ -122,7 +122,7 @@ public class FullCalendarBuilder<T> {
      */
     @Deprecated(since = "7.2", forRemoval = false)
     public FullCalendarBuilder<T> withEntryProvider(EntryProvider<? extends Entry> entryProvider) {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, Objects.requireNonNull(entryProvider), customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, Objects.requireNonNull(entryProvider), customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
 
     /**
@@ -135,7 +135,7 @@ public class FullCalendarBuilder<T> {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder<T> withScheduler() {
-        return new FullCalendarBuilder<>(true, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(true, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
 
     /**
@@ -148,20 +148,28 @@ public class FullCalendarBuilder<T> {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder<T> withScheduler(String licenseKey) {
-        return new FullCalendarBuilder<>(true, entryLimit, autoBrowserTimezone, autoBrowserLocale, licenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(true, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, licenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
 
     /**
-     * Expects the default limit of entries shown per day. This does not affect basic or
+     * Expects the default limit of items shown per day. This does not affect basic or
      * list views.
      * <br><br>
-     * Passing a negative number disabled the entry limit (same as not using this method at all).
+     * Passing a negative number disables the item limit (same as not using this method at all).
      *
-     * @param entryLimit limit
+     * @param calendarItemLimit limit
      * @return new immutable instance with updated settings
      */
-    public FullCalendarBuilder<T> withEntryLimit(int entryLimit) {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+    public FullCalendarBuilder<T> withCalendarItemLimit(int calendarItemLimit) {
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+    }
+
+    /**
+     * @deprecated Use {@link #withCalendarItemLimit(int)} instead.
+     */
+    @Deprecated(since = "7.3")
+    public FullCalendarBuilder<T> withEntryLimit(int calendarItemLimit) {
+        return withCalendarItemLimit(calendarItemLimit);
     }
 
     /**
@@ -170,7 +178,7 @@ public class FullCalendarBuilder<T> {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder<T> withAutoBrowserTimezone() {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, true, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, true, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
 
     /**
@@ -180,7 +188,7 @@ public class FullCalendarBuilder<T> {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder<T> withAutoBrowserLocale() {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, true, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, true, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
 
     /**
@@ -212,7 +220,7 @@ public class FullCalendarBuilder<T> {
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendarBuilder<T> withInitialOptions(ObjectNode initialOptions) {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
 
 
@@ -246,10 +254,23 @@ public class FullCalendarBuilder<T> {
      *     }""");
      * </pre>
      *
-     * @param entryContent function to be attached
+     * @param calendarItemContent function to be attached
      */
-    public FullCalendarBuilder<T> withEntryContent(String entryContent) {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+    /**
+     * Sets the eventContent callback for the calendar.
+     * @param calendarItemContent function to be attached
+     * @return new immutable instance with updated settings
+     */
+    public FullCalendarBuilder<T> withCalendarItemContent(String calendarItemContent) {
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+    }
+
+    /**
+     * @deprecated Use {@link #withCalendarItemContent(String)} instead.
+     */
+    @Deprecated(since = "7.3")
+    public FullCalendarBuilder<T> withEntryContent(String calendarItemContent) {
+        return withCalendarItemContent(calendarItemContent);
     }
 
     /**
@@ -262,7 +283,7 @@ public class FullCalendarBuilder<T> {
      * @return new immutable instance with updated settings
      */
     public FullCalendarBuilder<T> withCustomCalendarViews(CustomCalendarView... customCalendarViews) {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
 
     /**
@@ -276,7 +297,7 @@ public class FullCalendarBuilder<T> {
     public FullCalendarBuilder<T> withCalendarItemProvider(
             CalendarItemProvider<T> provider,
             CalendarItemPropertyMapper<T> mapper) {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, Objects.requireNonNull(provider), Objects.requireNonNull(mapper), calendarItemUpdateHandler);
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, Objects.requireNonNull(provider), Objects.requireNonNull(mapper), calendarItemUpdateHandler);
     }
 
     /**
@@ -287,7 +308,7 @@ public class FullCalendarBuilder<T> {
      */
     public FullCalendarBuilder<T> withCalendarItemUpdateHandler(
             CalendarItemUpdateHandler<T> handler) {
-        return new FullCalendarBuilder<>(scheduler, entryLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, entryContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, Objects.requireNonNull(handler));
+        return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, entryProvider, customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, Objects.requireNonNull(handler));
     }
 
     /**
@@ -309,8 +330,8 @@ public class FullCalendarBuilder<T> {
             calendar.setCustomCalendarViews(customCalendarViews);
         }
 
-        if (entryLimit > 0) {
-            calendar.setMaxEntriesPerDay(entryLimit);
+        if (calendarItemLimit > 0) {
+            calendar.setMaxItemsPerDay(calendarItemLimit);
         }
 
         if (autoBrowserTimezone) {
@@ -321,8 +342,8 @@ public class FullCalendarBuilder<T> {
             calendar.setLocale(UI.getCurrent().getLocale());
         }
 
-        if (StringUtils.isNotBlank(entryContent)) {
-            calendar.setEntryContentCallback(entryContent);
+        if (StringUtils.isNotBlank(calendarItemContent)) {
+            calendar.setItemContentCallback(calendarItemContent);
         }
 
         if (calendarItemProvider != null && calendarItemPropertyMapper != null) {

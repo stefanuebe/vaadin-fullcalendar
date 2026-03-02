@@ -18,7 +18,7 @@ public class CustomPropertySample extends AbstractSample{
 
         // use the custom property
                 calendar = FullCalendarBuilder.create()
-                        .withEntryContent(
+                        .withCalendarItemContent(
                                 "function(info) {" +
                                         "   let entry = info.event;" +
                                         "   console.log(entry.title);" + // standard property

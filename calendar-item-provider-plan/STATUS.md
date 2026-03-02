@@ -14,6 +14,7 @@
 | 6 | Migration & Docs | COMPLETE | Deprecations, migration guide, documentation, demos |
 | 7 | Internal Unification | COMPLETE | setEntryProvider() delegates to CIP internally |
 | 8 | Event Unification | COMPLETE | Entry events extend CIP event counterparts |
+| 9 | API Naming & Cleanup | COMPLETE | Remove entryProviderRef, rename Entry→Item API, migrate demos |
 
 ## Key Architectural Decisions
 

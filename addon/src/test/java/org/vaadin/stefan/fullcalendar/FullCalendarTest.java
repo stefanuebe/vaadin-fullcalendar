@@ -73,7 +73,7 @@ public class FullCalendarTest {
         int entryLimit = 5;
 
         FullCalendar calendar = new FullCalendar();
-        calendar.setMaxEntriesPerDay(entryLimit);
+        calendar.setMaxItemsPerDay(entryLimit);
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 2);
@@ -644,7 +644,7 @@ public class FullCalendarTest {
 
         // Simulate a fetch from server
         ObjectNode query = JsonFactory.createObject();
-        var result = calendar.fetchEntriesFromServer(query);
+        var result = calendar.fetchItemsFromServer(query);
 
         assertEquals(1, result.size());
         ObjectNode jsonEntry = (ObjectNode) result.get(0);
@@ -663,7 +663,7 @@ public class FullCalendarTest {
         calendar.setCalendarItemProvider(provider, mapper);
 
         // Trigger fetch
-        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+        calendar.fetchItemsFromServer(JsonFactory.createObject());
 
         Optional<TestMeeting> cached = calendar.getCachedItemFromFetch("m1");
         assertTrue(cached.isPresent());
@@ -679,7 +679,7 @@ public class FullCalendarTest {
         CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
 
         calendar.setCalendarItemProvider(provider, mapper);
-        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+        calendar.fetchItemsFromServer(JsonFactory.createObject());
 
         // getCachedEntryFromFetch should return empty when CIP is active (items are not Entry instances)
         Optional<Entry> cached = calendar.getCachedEntryFromFetch("m1");
@@ -703,7 +703,7 @@ public class FullCalendarTest {
         entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
         entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
         ((org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntry(entry);
-        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+        calendar.fetchItemsFromServer(JsonFactory.createObject());
 
         Optional<Entry> cached = calendar.getCachedItemFromFetch("e1");
         assertTrue(cached.isPresent());
@@ -910,7 +910,7 @@ public class FullCalendarTest {
         CalendarItemPropertyMapper<TestMeeting> mapper = createReadOnlyMapper();
 
         calendar.setCalendarItemProvider(provider, mapper);
-        var result = calendar.fetchEntriesFromServer(JsonFactory.createObject());
+        var result = calendar.fetchItemsFromServer(JsonFactory.createObject());
 
         assertEquals(3, result.size());
 
@@ -960,7 +960,7 @@ public class FullCalendarTest {
 //                , s -> entries.stream().filter(e -> s.equals(e.getId())).findFirst().orElse(null));
 //        calendar.setEntryProvider(provider);
 //
-//        JsonArray array = calendar.fetchEntriesFromServer(Json.createObject());
+//        JsonArray array = calendar.fetchItemsFromServer(Json.createObject());
 //        Set<Entry> converted = TestUtils.toSet(array, jsonValue -> Entry.fromJson((JsonObject) jsonValue));
 //
 //        assertEqualAsSet(entries, converted);
@@ -972,7 +972,7 @@ public class FullCalendarTest {
 //        clientSideRequest.put("start", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2000, 1, 1, 0, 0)));
 //        clientSideRequest.put("end", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2000, 1, 2, 0, 0)));
 //
-//        array = calendar.fetchEntriesFromServer(clientSideRequest);
+//        array = calendar.fetchItemsFromServer(clientSideRequest);
 //        converted = TestUtils.toSet(array, jsonValue -> Entry.fromJson((JsonObject) jsonValue));
 //
 //        assertEqualAsSet(Stream.of(entry1).collect(Collectors.toSet()), converted);
@@ -1005,7 +1005,7 @@ public class FullCalendarTest {
         entry.setEnd(LocalDateTime.of(2025, 6, 1, 9, 30));
         ((org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntry(entry);
 
-        var result = calendar.fetchEntriesFromServer(JsonFactory.createObject());
+        var result = calendar.fetchItemsFromServer(JsonFactory.createObject());
         assertEquals(1, result.size());
 
         ObjectNode json = (ObjectNode) result.get(0);
@@ -1021,7 +1021,7 @@ public class FullCalendarTest {
         entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
         ((org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntry(entry);
 
-        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+        calendar.fetchItemsFromServer(JsonFactory.createObject());
 
         // After fetch, Entry should have calendar set and be known to client
         assertTrue(entry.getCalendar().isPresent());
@@ -1037,7 +1037,7 @@ public class FullCalendarTest {
         entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
         ((org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntry(entry);
 
-        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+        calendar.fetchItemsFromServer(JsonFactory.createObject());
 
         // getCachedItemFromFetch should work for Entry items after unification
         Optional<Entry> cached = calendar.getCachedItemFromFetch("e1");

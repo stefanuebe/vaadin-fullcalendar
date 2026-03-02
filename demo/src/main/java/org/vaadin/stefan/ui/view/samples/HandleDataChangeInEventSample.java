@@ -15,17 +15,20 @@ public class HandleDataChangeInEventSample extends AbstractSample {
     @Override
     protected void buildSample(FullCalendar<Entry> calendar) {
         // directly apply the changes
-        calendar.addEntryDroppedListener(event -> {
-            event.applyChangesOnEntry(); // includes now the allDay attribute if sent by client
+        calendar.addCalendarItemDroppedListener(event -> {
+            event.applyChangesOnItem(); // includes now the allDay attribute if sent by client
         });
 
-        // create a copy to do some business logic checks
-        calendar.addEntryDroppedListener(event -> {
-            Entry copy = event.createCopyBasedOnChanges();
+        // apply changes and refresh conditionally after some business logic checks
+        calendar.addCalendarItemDroppedListener(event -> {
+            // Use getChanges() to inspect the incoming new values before applying them
+            boolean startOk = event.getChanges().getChangedStart()
+                    .map(s -> !s.toLocalDate().isBefore(someRequiredMinimalDate))
+                    .orElse(true);
 
-            if(copy.getStartAsLocalDate().isBefore(someRequiredMinimalDate) /* do some background checks on the changed data */){
-                event.applyChangesOnEntry();
-                event.getSource().getEntryProvider().refreshItem(event.getEntry()); // refresh the entry to update the UI
+            if (startOk /* do some background checks on the changed data */) {
+                event.applyChangesOnItem();
+                event.getSource().getEntryProvider().refreshItem(event.getItem()); // refresh the entry to update the UI
             }
         });
     }

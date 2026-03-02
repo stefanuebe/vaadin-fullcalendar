@@ -43,7 +43,7 @@ public class DemoWithTooltip extends AbstractCalendarView {
         FullCalendar<Entry> calendar = FullCalendarBuilder.create()
                 .withCustomType(FullCalendarWithTooltip.class) // create a new instance with a custom type
                 .withInitialOptions(defaultInitialOptions)
-                .withEntryLimit(3)
+                .withCalendarItemLimit(3)
                 .withInitialEntries(entryService.getEntries()) // init with some sample data
                 .build();
 

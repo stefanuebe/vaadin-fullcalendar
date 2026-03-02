@@ -437,7 +437,7 @@ export class FullCalendar extends HTMLElement {
             }
 
             // @ts-ignore
-            this.$server.fetchEntriesFromServer({
+            this.$server.fetchItemsFromServer({
                 start: this.formatDate(info.start),
                 end: this.formatDate(info.end)
             }).then((array: any | any[]) => {
@@ -447,8 +447,8 @@ export class FullCalendar extends HTMLElement {
                     failureCallback("could not fetch");
                 }
             }).catch((error: any) => {
-                console.error("Failed to fetch entries from server:", error);
-                failureCallback(error?.message || "Failed to fetch entries");
+                console.error("Failed to fetch items from server:", error);
+                failureCallback(error?.message || "Failed to fetch items");
             })
         };
         this.calendar?.setOption("events", callback);

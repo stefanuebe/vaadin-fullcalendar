@@ -53,7 +53,7 @@ public class CalendarItemProviderUpdateHandlerDemo extends VerticalLayout {
         // Build calendar
         FullCalendar<Appointment> calendar = FullCalendarBuilder.<Appointment>create(Appointment.class)
                 .withCalendarItemProvider(provider, mapper)
-                .withEntryLimit(3)
+                .withCalendarItemLimit(3)
                 .build();
 
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);

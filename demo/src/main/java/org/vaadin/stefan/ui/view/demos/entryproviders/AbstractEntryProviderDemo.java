@@ -36,7 +36,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
         return FullCalendarBuilder.create()
                 .withEntryProvider(entryProvider)
                 .withInitialOptions(defaultInitialOptions)
-                .withEntryLimit(3)
+                .withCalendarItemLimit(3)
                 .build();
     }
 
@@ -70,22 +70,22 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
     protected abstract Entry createNewEntry();
 
     @Override
-    protected void onEntryClick(EntryClickedEvent event) {
-        DemoDialog dialog = new DemoDialog(event.getEntry(), false);
+    protected void onEntryClick(CalendarItemClickedEvent<Entry> event) {
+        DemoDialog dialog = new DemoDialog(event.getItem(), false);
         dialog.setSaveConsumer(this::onEntryChanged);
         dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
         dialog.open();
     }
 
     @Override
-    protected void onEntryDropped(EntryDroppedEvent event) {
+    protected void onEntryDropped(CalendarItemDroppedEvent<Entry> event) {
         super.onEntryDropped(event);
-        Notification.show("Dropped entry " + event.getEntry().getId());
+        Notification.show("Dropped entry " + event.getItem().getId());
     }
 
     @Override
-    protected void onEntryResized(EntryResizedEvent event) {
+    protected void onEntryResized(CalendarItemResizedEvent<Entry> event) {
         super.onEntryResized(event);
-        Notification.show("Resized entry " + event.getEntry().getId());
+        Notification.show("Resized entry " + event.getItem().getId());
     }
 }

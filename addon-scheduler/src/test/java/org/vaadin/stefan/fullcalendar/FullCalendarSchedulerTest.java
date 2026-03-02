@@ -100,7 +100,7 @@ public class FullCalendarSchedulerTest {
     void testArgsConstructor() {
         int entryLimit = 5;
         FullCalendar calendar = new FullCalendarScheduler();
-        calendar.setMaxEntriesPerDay(entryLimit);
+        calendar.setMaxItemsPerDay(entryLimit);
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 2);

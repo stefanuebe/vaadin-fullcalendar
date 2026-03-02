@@ -148,7 +148,7 @@ public class FullCalendarScheduler<T> extends FullCalendar<T> implements Schedul
     }
     
     @Override
-    public void setEntryResourceEditable(boolean eventResourceEditable) {
+    public void setItemResourceEditable(boolean eventResourceEditable) {
     	setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, eventResourceEditable);
     }
 
@@ -290,7 +290,7 @@ public class FullCalendarScheduler<T> extends FullCalendar<T> implements Schedul
     }
 
     @Override
-    public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
+    public void setGroupItemsBy(GroupEntriesBy groupEntriesBy) {
         switch (groupEntriesBy) {
             case NONE -> {
                 setOption(SchedulerOption.GROUP_BY_RESOURCE, false);

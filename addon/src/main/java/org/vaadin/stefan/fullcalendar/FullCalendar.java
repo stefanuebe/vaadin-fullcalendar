@@ -103,9 +103,6 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     private final Map<String, Object> initialOptions = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
-    // Convenience reference for getEntryProvider() — only set when setEntryProvider() was used
-    private EntryProvider<? extends Entry> entryProviderRef;
-
     private CalendarItemProvider<T> calendarItemProvider;
     private CalendarItemPropertyMapper<T> calendarItemPropertyMapper;
     private CalendarItemUpdateHandler<T> calendarItemUpdateHandler;
@@ -122,7 +119,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     private LocalDate currentIntervalStart;
     private CalendarView currentView;
 
-    private volatile boolean refreshAllEntriesRequested;
+    private volatile boolean refreshAllItemsRequested;
     private final Object refreshLock = new Object();
 
     private Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
@@ -134,7 +131,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * Uses {@link InMemoryEntryProvider} by default.
      */
     public FullCalendar() {
-        setMaxEntriesPerDayUnlimited();
+        setMaxItemsPerDayUnlimited();
         postConstruct();
     }
 
@@ -152,13 +149,14 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * Uses {@link InMemoryEntryProvider} by default.
      *
      * @param entryLimit The max number of stacked event levels within a given day. This excludes the +more link if present. The rest will show up in a popover.
-     * @deprecated use the {@link FullCalendarBuilder#withEntryLimit(int)} instead.
+     * @deprecated use the {@link FullCalendarBuilder#withCalendarItemLimit(int)} instead.
      */
+    @Deprecated(forRemoval = true)
     public FullCalendar(int entryLimit) {
         if (entryLimit >= 0) {
-            setMaxEntriesPerDay(entryLimit);
+            setMaxItemsPerDay(entryLimit);
         } else {
-            setMaxEntriesPerDayUnlimited();
+            setMaxItemsPerDayUnlimited();
         }
 
         setLocale(CalendarLocale.getDefaultLocale());
@@ -277,7 +275,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
             });
         }
 
-        updateEntryDidMountCallbackOnAttach();
+        updateItemDidMountCallbackOnAttach();
     }
 
     /**
@@ -330,37 +328,32 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
         Objects.requireNonNull(entryProvider);
 
-        // EntryProvider lifecycle: setCalendar
-        EntryProvider<? extends Entry> oldRef = this.entryProviderRef;
-        if (oldRef != null && oldRef != entryProvider) {
-            oldRef.setCalendar(null);
-        }
+        // Capture old state for rollback
+        @SuppressWarnings("unchecked")
+        EntryProvider<? extends Entry> oldEntryProvider =
+            calendarItemProvider instanceof EntryProvider<?> ep
+                ? (EntryProvider<? extends Entry>) ep : null;
 
         try {
             entryProvider.setCalendar(this);
-            this.entryProviderRef = entryProvider;
 
-            // Create Entry mapper that delegates to Entry.toJson()
             CalendarItemPropertyMapper<T> mapper = (CalendarItemPropertyMapper<T>)
                     CalendarItemPropertyMapper.of(Entry.class)
                             .id(Entry::getId)
                             .jsonSerializer(Entry::toJson);
 
-            // Delegate to CIP path
             CalendarItemProvider<T> provider = (CalendarItemProvider<T>) entryProvider;
             setCalendarItemProvider(provider, mapper);
 
-            // Set Entry update handler (Strategy B — delegates to entry.updateFromJson)
             CalendarItemUpdateHandler<T> handler = (CalendarItemUpdateHandler<T>)
                     (CalendarItemUpdateHandler<Entry>) (entry, changes) ->
                             entry.updateFromJson(changes.getRawJson());
             setCalendarItemUpdateHandler(handler);
         } catch (RuntimeException e) {
-            // Restore old provider reference on failure
-            this.entryProviderRef = oldRef;
-            if (oldRef != null) {
+            // Restore old provider on failure
+            if (oldEntryProvider != null && oldEntryProvider != entryProvider) {
                 try {
-                    oldRef.setCalendar(this);
+                    oldEntryProvider.setCalendar(this);
                 } catch (RuntimeException suppressed) {
                     e.addSuppressed(suppressed);
                 }
@@ -373,10 +366,12 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * Returns the entry provider of this calendar. May be null when a non-Entry CalendarItemProvider is active.
      * @param <EP> entry provider class or subclass
      * @return entry provider or null
+     * @deprecated Use {@link #getCalendarItemProvider()} instead.
      */
     @SuppressWarnings("unchecked")
+    @Deprecated(since = "7.3")
     public <R extends Entry, EP extends EntryProvider<R>> EP getEntryProvider() {
-        return (EP) entryProviderRef;
+        return calendarItemProvider instanceof EntryProvider ? (EP) calendarItemProvider : null;
     }
 
     /**
@@ -398,12 +393,9 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
         Objects.requireNonNull(mapper, "mapper must not be null");
         mapper.validate();
 
-        // Clear entryProviderRef when called directly with a non-Entry provider
-        if (!(provider instanceof EntryProvider)) {
-            if (this.entryProviderRef != null) {
-                this.entryProviderRef.setCalendar(null);
-                this.entryProviderRef = null;
-            }
+        // Clean up old EntryProvider lifecycle if transitioning away from one
+        if (this.calendarItemProvider instanceof EntryProvider<?> oldEp && oldEp != provider) {
+            oldEp.setCalendar(null);
         }
 
         // Setting a new provider clears any existing update handler.
@@ -421,9 +413,9 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
         calendarItemProviderListeners.add(
             provider.addItemRefreshListener(event -> requestRefreshCalendarItem(event.getItemToRefresh())));
         calendarItemProviderListeners.add(
-            provider.addItemsChangeListener(event -> requestRefreshAllEntries()));
+            provider.addItemsChangeListener(event -> requestRefreshAllItems()));
 
-        requestRefreshAllEntries();
+        requestRefreshAllItems();
     }
 
     /**
@@ -532,24 +524,21 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /**
-     * This method is intended to be triggered by the entry provider "refreshAll" methods.
-     * Informs the client side, that a "refresh all" has been requested. Subsequent calls to this method during the
-     * same request cycle will still just result in one fetch from the client side (in fact, only one call to the
-     * client will be executed). This behavior might change in future, if it appears to be problematic regarding
-     * other client side calls.
+     * Informs the client side that a "refresh all" has been requested. Subsequent calls during the
+     * same request cycle will still result in only one fetch from the client side.
      * <p></p>
-     * When parallel to this call {@link #requestRefresh(Entry)} is called, the calls will be handled in the order
-     * they are called, whereas only the first call of this method is relevant.
+     * When parallel to this call {@link #requestRefreshCalendarItem(Object)} is called, the calls
+     * will be handled in the order they are called, whereas only the first call of this method is relevant.
      */
-    protected void requestRefreshAllEntries() {
+    protected void requestRefreshAllItems() {
         synchronized (refreshLock) {
-            if (!refreshAllEntriesRequested) {
-                refreshAllEntriesRequested = true;
+            if (!refreshAllItemsRequested) {
+                refreshAllItemsRequested = true;
                 getElement().getNode().runWhenAttached(ui -> {
                     ui.beforeClientResponse(this, pExecutionContext -> {
                         getElement().callJsFunction("refreshAllEvents");
                         synchronized (refreshLock) {
-                            refreshAllEntriesRequested = false;
+                            refreshAllItemsRequested = false;
                         }
                     });
                 });
@@ -558,16 +547,36 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /**
+     * @deprecated Use {@link #requestRefreshAllItems()} instead.
+     */
+    @Deprecated(since = "7.3")
+    protected void requestRefreshAllEntries() {
+        requestRefreshAllItems();
+    }
+
+    /**
+     * Indicates if the current provider is an in-memory provider.
+     * Currently only detects {@link InMemoryEntryProvider}.
+     *
+     * @return true if the current provider is an in-memory provider
+     */
+    public boolean isInMemoryProvider() {
+        return calendarItemProvider instanceof InMemoryEntryProvider;
+    }
+
+    /**
      * Indicates, if the entry provider is a in memory provider.
      *
      * @return is eager loading
+     * @deprecated Use {@link #isInMemoryProvider()} instead.
      */
+    @Deprecated(since = "7.3")
     public boolean isInMemoryEntryProvider() {
-        return entryProviderRef instanceof InMemoryEntryProvider;
+        return isInMemoryProvider();
     }
 
     @ClientCallable
-    protected ArrayNode fetchEntriesFromServer(ObjectNode query) {
+    protected ArrayNode fetchItemsFromServer(ObjectNode query) {
         Objects.requireNonNull(query);
 
         lastFetchedItems.clear();
@@ -578,6 +587,16 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
         ArrayNode array = JsonFactory.createArray();
         fetchCalendarItems(start, end, array);
         return array;
+    }
+
+    /**
+     * @deprecated Use {@link #fetchItemsFromServer(ObjectNode)} instead. Kept for backward
+     * compatibility with custom JS that may call this method name.
+     */
+    @ClientCallable
+    @Deprecated(since = "7.3")
+    protected ArrayNode fetchEntriesFromServer(ObjectNode query) {
+        return fetchItemsFromServer(query);
     }
 
     /**
@@ -603,17 +622,18 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * Returns an entry with the given id from the last fetched set of entries. Returns an empty instance,
      * when there was no fetch yet or the id is unknown.
      * <p></p>
-     * Uses {@link InMemoryEntryProvider#getEntryById(String)} when the eager in memory provider is used.
-     * <p></p>
      * This method is an internal method, intended to be used by entry based events only. Do not use it for
      * any other purpose as the implementation or scope may change in future.
      *
      * @param id id
      * @return cached entry from last fetch or empty
+     * @deprecated Use {@link #getCachedItemFromFetch(String)} instead.
      */
+    @Deprecated(since = "7.3")
     public Optional<Entry> getCachedEntryFromFetch(String id) {
-        Object item = lastFetchedItems.get(id);
-        return item instanceof Entry entry ? Optional.of(entry) : Optional.empty();
+        return getCachedItemFromFetch(id)
+                .filter(Entry.class::isInstance)
+                .map(Entry.class::cast);
     }
 
     /**
@@ -629,11 +649,11 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     protected InMemoryEntryProvider<Entry> assureInMemoryProvider() {
-        if (!(entryProviderRef instanceof InMemoryEntryProvider)) {
+        if (!(calendarItemProvider instanceof InMemoryEntryProvider)) {
             throw new UnsupportedOperationException("Needs an InMemoryEntryProvider to work.");
         }
 
-        return (InMemoryEntryProvider<Entry>) entryProviderRef;
+        return (InMemoryEntryProvider<Entry>) calendarItemProvider;
     }
 
     /**
@@ -978,8 +998,20 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      *
      * @param s function to be attached
      */
-    public void setEntryClassNamesCallback(String s) {
+    /**
+     * Sets the eventClassNames callback. See {@link #setEntryClassNamesCallback(String)} for details.
+     * @param s function to be attached
+     */
+    public void setItemClassNamesCallback(String s) {
         getElement().callJsFunction("setEventClassNamesCallback", s);
+    }
+
+    /**
+     * @deprecated Use {@link #setItemClassNamesCallback(String)} instead.
+     */
+    @Deprecated(since = "7.3")
+    public void setEntryClassNamesCallback(String s) {
+        setItemClassNamesCallback(s);
     }
 
     /**
@@ -1001,8 +1033,20 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @see #addEntryNativeEventListener(String, String)
      *
      */
-    public void setEntryDidMountCallback(String s) {
+    /**
+     * Sets the eventDidMount callback. See {@link #setEntryDidMountCallback(String)} for details.
+     * @param s function to be attached
+     */
+    public void setItemDidMountCallback(String s) {
         eventDidMountCallback = s;
+    }
+
+    /**
+     * @deprecated Use {@link #setItemDidMountCallback(String)} instead.
+     */
+    @Deprecated(since = "7.3")
+    public void setEntryDidMountCallback(String s) {
+        setItemDidMountCallback(s);
     }
 
     /**
@@ -1027,11 +1071,25 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @param eventName javascript event name
      * @param eventCallback javascript event callback to be hooked to the event
      */
-    public void addEntryNativeEventListener(String eventName, String eventCallback) {
+    /**
+     * Adds a native, client side event listener for all items when mounted.
+     * See {@link #addEntryNativeEventListener(String, String)} for details.
+     * @param eventName javascript event name
+     * @param eventCallback javascript event callback
+     */
+    public void addItemNativeEventListener(String eventName, String eventCallback) {
         customNativeEventsMap.put(eventName, eventCallback);
     }
 
-    private void updateEntryDidMountCallbackOnAttach() {
+    /**
+     * @deprecated Use {@link #addItemNativeEventListener(String, String)} instead.
+     */
+    @Deprecated(since = "7.3")
+    public void addEntryNativeEventListener(String eventName, String eventCallback) {
+        addItemNativeEventListener(eventName, eventCallback);
+    }
+
+    private void updateItemDidMountCallbackOnAttach() {
         StringBuilder events = null;
         if (!customNativeEventsMap.isEmpty()) {
             events = new StringBuilder();
@@ -1079,8 +1137,20 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      *
      * @param s function to be attached
      */
-    public void setEntryWillUnmountCallback(String s) {
+    /**
+     * Sets the eventWillUnmount callback.
+     * @param s function to be attached
+     */
+    public void setItemWillUnmountCallback(String s) {
         getElement().callJsFunction("setEventWillUnmountCallback", s);
+    }
+
+    /**
+     * @deprecated Use {@link #setItemWillUnmountCallback(String)} instead.
+     */
+    @Deprecated(since = "7.3")
+    public void setEntryWillUnmountCallback(String s) {
+        setItemWillUnmountCallback(s);
     }
 
     /**
@@ -1096,8 +1166,20 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      *
      * @param s function to be attached
      */
-    public void setEntryContentCallback(String s) {
+    /**
+     * Sets the eventContent callback.
+     * @param s function to be attached
+     */
+    public void setItemContentCallback(String s) {
         setOption("eventContent", s);
+    }
+
+    /**
+     * @deprecated Use {@link #setItemContentCallback(String)} instead.
+     */
+    @Deprecated(since = "7.3")
+    public void setEntryContentCallback(String s) {
+        setItemContentCallback(s);
     }
 
     /**
@@ -1204,61 +1286,87 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /**
-     * Returns the editable flag. By default true.
-     *
-     * @return editable editable
+     * Returns whether item durations are editable. By default true.
+     * @return editable
      */
-    public boolean getEntryDurationEditable() {
+    public boolean getItemDurationEditable() {
         return (boolean) getOption(Option.ENTRY_DURATION_EDITABLE).orElse(true);
+    }
+
+    /** @deprecated Use {@link #getItemDurationEditable()} instead. */
+    @Deprecated(since = "7.3")
+    public boolean getEntryDurationEditable() {
+        return getItemDurationEditable();
     }
 
     /**
      * Allow events’ durations to be editable through resizing.
-     * <p>
-     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setDurationEditable(Boolean)}
-     *
      * @param editable editable
      */
-    public void setEntryDurationEditable(boolean editable) {
+    public void setItemDurationEditable(boolean editable) {
         setOption(Option.ENTRY_DURATION_EDITABLE, editable);
     }
 
+    /** @deprecated Use {@link #setItemDurationEditable(boolean)} instead. */
+    @Deprecated(since = "7.3")
+    public void setEntryDurationEditable(boolean editable) {
+        setItemDurationEditable(editable);
+    }
+
     /**
-     * Returns the editable flag. By default false.
-     *
-     * @return editable editable
+     * Returns whether items are resizable from start. By default false.
+     * @return editable
      */
-    public boolean getEntryResizableFromStart() {
+    public boolean getItemResizableFromStart() {
         return (boolean) getOption(Option.ENTRY_RESIZABLE_FROM_START).orElse(false);
+    }
+
+    /** @deprecated Use {@link #getItemResizableFromStart()} instead. */
+    @Deprecated(since = "7.3")
+    public boolean getEntryResizableFromStart() {
+        return getItemResizableFromStart();
     }
 
     /**
      * Whether the user can resize an event from its starting edge.
-     *
      * @param editable editable
      */
-    public void setEntryResizableFromStart(boolean editable) {
+    public void setItemResizableFromStart(boolean editable) {
         setOption(Option.ENTRY_RESIZABLE_FROM_START, editable);
     }
 
+    /** @deprecated Use {@link #setItemResizableFromStart(boolean)} instead. */
+    @Deprecated(since = "7.3")
+    public void setEntryResizableFromStart(boolean editable) {
+        setItemResizableFromStart(editable);
+    }
+
     /**
-     * Returns the editable flag. By default true.
-     *
-     * @return editable editable
+     * Returns whether item start times are editable. By default true.
+     * @return editable
      */
-    public boolean getEntryStartEditable() {
+    public boolean getItemStartEditable() {
         return (boolean) getOption(Option.ENTRY_START_EDITABLE).orElse(true);
+    }
+
+    /** @deprecated Use {@link #getItemStartEditable()} instead. */
+    @Deprecated(since = "7.3")
+    public boolean getEntryStartEditable() {
+        return getItemStartEditable();
     }
 
     /**
      * Allow events’ start times to be editable through dragging.
-     * <p>
-     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setStartEditable(Boolean)}
-     *
      * @param editable editable
      */
-    public void setEntryStartEditable(boolean editable) {
+    public void setItemStartEditable(boolean editable) {
         setOption(Option.ENTRY_START_EDITABLE, editable);
+    }
+
+    /** @deprecated Use {@link #setItemStartEditable(boolean)} instead. */
+    @Deprecated(since = "7.3")
+    public void setEntryStartEditable(boolean editable) {
+        setItemStartEditable(editable);
     }
 
     /**
@@ -1287,39 +1395,57 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /**
-     * This method will limit the maximal entries shown per day to the given number (not including
-     * the "+ x more entries" link). Must be a number > 0.
+     * Limits the maximal items shown per day to the given number (not including
+     * the "+ x more" link). Must be a number &gt; 0.
      *
-     * @see #setMaxEntriesPerDayFitToCell()
-     * @see #setMaxEntriesPerDayUnlimited()
+     * @see #setMaxItemsPerDayFitToCell()
+     * @see #setMaxItemsPerDayUnlimited()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
      *
-     * @param maxEntriesPerDay maximal entries per day
+     * @param maxItemsPerDay maximal items per day
      */
+    public void setMaxItemsPerDay(int maxItemsPerDay) {
+        setOption(Option.MAX_ENTRIES_PER_DAY, maxItemsPerDay);
+    }
+
+    /** @deprecated Use {@link #setMaxItemsPerDay(int)} instead. */
+    @Deprecated(since = "7.3")
     public void setMaxEntriesPerDay(int maxEntriesPerDay) {
-        setOption(Option.MAX_ENTRIES_PER_DAY, maxEntriesPerDay);
+        setMaxItemsPerDay(maxEntriesPerDay);
     }
 
     /**
-     * When calling this method, the entries shown per day will be limited to fit the cell height.
+     * Limits items shown per day to fit the cell height.
      *
-     * @see #setMaxEntriesPerDay(int)
-     * @see #setMaxEntriesPerDayUnlimited()
+     * @see #setMaxItemsPerDay(int)
+     * @see #setMaxItemsPerDayUnlimited()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
      */
-    public void setMaxEntriesPerDayFitToCell() {
+    public void setMaxItemsPerDayFitToCell() {
         setOption(Option.MAX_ENTRIES_PER_DAY, true);
     }
 
+    /** @deprecated Use {@link #setMaxItemsPerDayFitToCell()} instead. */
+    @Deprecated(since = "7.3")
+    public void setMaxEntriesPerDayFitToCell() {
+        setMaxItemsPerDayFitToCell();
+    }
+
     /**
-     * When calling this method, the entries shown per day will be unlimited and take all the space needed.
+     * Removes the per-day item limit — items will take all the space needed.
      *
-     * @see #setMaxEntriesPerDay(int)
-     * @see #setMaxEntriesPerDayFitToCell()
+     * @see #setMaxItemsPerDay(int)
+     * @see #setMaxItemsPerDayFitToCell()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
      */
-    public void setMaxEntriesPerDayUnlimited() {
+    public void setMaxItemsPerDayUnlimited() {
         setOption(Option.MAX_ENTRIES_PER_DAY, false);
+    }
+
+    /** @deprecated Use {@link #setMaxItemsPerDayUnlimited()} instead. */
+    @Deprecated(since = "7.3")
+    public void setMaxEntriesPerDayUnlimited() {
+        setMaxItemsPerDayUnlimited();
     }
 
     /**
@@ -1863,8 +1989,18 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
         return Optional.ofNullable((CV) customCalendarViews.get(clientSideValue));
     }
 
-    public void setEntryDisplay(DisplayMode displayMode) {
+    /**
+     * Sets the display mode for calendar items.
+     * @param displayMode display mode
+     */
+    public void setItemDisplay(DisplayMode displayMode) {
         this.setOption(Option.ENTRY_DISPLAY, displayMode != null ? displayMode : DisplayMode.AUTO);
+    }
+
+    /** @deprecated Use {@link #setItemDisplay(DisplayMode)} instead. */
+    @Deprecated(since = "7.3")
+    public void setEntryDisplay(DisplayMode displayMode) {
+        setItemDisplay(displayMode);
     }
 
     /**

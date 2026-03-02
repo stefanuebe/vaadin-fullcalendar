@@ -22,7 +22,7 @@ public class BasicDemo extends AbstractCalendarView {
         return FullCalendarBuilder.create()
                 .withInitialOptions(defaultInitialOptions)
                 .withInitialEntries(simpleInstance.getEntries())
-                .withEntryLimit(3)
+                .withCalendarItemLimit(3)
                 .build();
     }
 
@@ -32,11 +32,11 @@ public class BasicDemo extends AbstractCalendarView {
     }
 
     @Override
-    protected void onEntryClick(EntryClickedEvent event) {
+    protected void onEntryClick(CalendarItemClickedEvent<Entry> event) {
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
-        if (event.getEntry().getDisplayMode() != DisplayMode.BACKGROUND && event.getEntry().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
-            DemoDialog dialog = new DemoDialog(event.getEntry(), false);
+        if (event.getItem().getDisplayMode() != DisplayMode.BACKGROUND && event.getItem().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
+            DemoDialog dialog = new DemoDialog(event.getItem(), false);
             dialog.setSaveConsumer(this::onEntryChanged);
             dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
             dialog.open();

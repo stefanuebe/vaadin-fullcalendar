@@ -34,9 +34,9 @@ public abstract class AbstractCalendarView extends VerticalLayout {
 
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
-        calendar.addEntryClickedListener(this::onEntryClick);
-        calendar.addEntryDroppedListener(this::onEntryDropped);
-        calendar.addEntryResizedListener(this::onEntryResized);
+        calendar.addCalendarItemClickedListener(this::onEntryClick);
+        calendar.addCalendarItemDroppedListener(this::onEntryDropped);
+        calendar.addCalendarItemResizedListener(this::onEntryResized);
         calendar.addDayNumberClickedListener(this::onDayNumberClicked);
         calendar.addBrowserTimezoneObtainedListener(this::onBrowserTimezoneObtained);
         calendar.addMoreLinkClickedListener(this::onMoreLinkClicked);
@@ -146,32 +146,32 @@ public abstract class AbstractCalendarView extends VerticalLayout {
 
     /**
      * Called by the calendar's entry click listener. Noop by default.
-     * @see FullCalendar#addEntryClickedListener(ComponentEventListener)
+     * @see FullCalendar#addCalendarItemClickedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onEntryClick(EntryClickedEvent event) {
+    protected void onEntryClick(CalendarItemClickedEvent<Entry> event) {
     }
 
     /**
      * Called by the calendar's entry drop listener (i. e. an entry has been dragged around / moved by the user).
      * Applies the changes to the entry and calls {@link #onEntryChanged(Entry)} by default.
-     * @see FullCalendar#addEntryDroppedListener(ComponentEventListener)
+     * @see FullCalendar#addCalendarItemDroppedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onEntryDropped(EntryDroppedEvent event) {
-        event.applyChangesOnEntry();
-        onEntryChanged(event.getEntry());
+    protected void onEntryDropped(CalendarItemDroppedEvent<Entry> event) {
+        event.applyChangesOnItem();
+        onEntryChanged(event.getItem());
     }
 
     /**
      * Called by the calendar's entry resize listener.
      * Applies the changes to the entry and calls {@link #onEntryChanged(Entry)} by default.
-     * @see FullCalendar#addEntryResizedListener(ComponentEventListener)
+     * @see FullCalendar#addCalendarItemResizedListener(ComponentEventListener)
      * @param event event
      */
-    protected void onEntryResized(EntryResizedEvent event) {
-        event.applyChangesOnEntry();
-        onEntryChanged(event.getEntry());
+    protected void onEntryResized(CalendarItemResizedEvent<Entry> event) {
+        event.applyChangesOnItem();
+        onEntryChanged(event.getItem());
     }
 
     /**
@@ -316,7 +316,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected void onEntriesCreated(Collection<Entry> entries) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        if (getCalendar().isInMemoryEntryProvider()) {
+        if (getCalendar().isInMemoryProvider()) {
             InMemoryEntryProvider<Entry> entryProvider = (InMemoryEntryProvider<Entry>) getCalendar().getEntryProvider();
             entryProvider.addEntries(entries);
             entryProvider.refreshAll();
@@ -335,7 +335,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected void onEntriesRemoved(Collection<Entry> entries) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        if (getCalendar().isInMemoryEntryProvider()) {
+        if (getCalendar().isInMemoryProvider()) {
             InMemoryEntryProvider<Entry> provider = (InMemoryEntryProvider<Entry>) getCalendar().getEntryProvider();
             provider.removeEntries(entries);
             provider.refreshAll();
@@ -354,7 +354,7 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected void onEntryChanged(Entry entry) {
         // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
         // the data to the client - no refresh call is needed (or even recommended here)
-        if (getCalendar().isInMemoryEntryProvider()) {
+        if (getCalendar().isInMemoryProvider()) {
             // TODO was update before, refreshItem correct here?
             getCalendar().getEntryProvider().refreshItem(entry);
         }

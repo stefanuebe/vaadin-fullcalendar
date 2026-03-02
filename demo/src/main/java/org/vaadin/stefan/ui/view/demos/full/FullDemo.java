@@ -56,7 +56,7 @@ public class FullDemo extends AbstractSchedulerView {
         FullCalendar<Entry> calendar = FullCalendarBuilder.create()
                 .withAutoBrowserTimezone()
                 .withAutoBrowserLocale()
-//                .withEntryContent("""
+//                .withCalendarItemContent("""
 //                        function(arg) {
 //                            let italicEl = document.createElement('i');
 //                            if (arg.event.getCustomProperty('isUrgent', false)) {
@@ -68,7 +68,7 @@ public class FullDemo extends AbstractSchedulerView {
 //                            return { domNodes: arrayOfDomNodes }
 //                        }""")
                 .withInitialOptions(initialOptions)
-                .withEntryLimit(3)
+                .withCalendarItemLimit(3)
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
                 .build();
 
@@ -116,12 +116,12 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
                 .setCustomProperty("count", "1");
 
-        scheduler.setEntryResourceEditable(false);
+        scheduler.setItemResourceEditable(false);
 
 //        calendar.setEntryClassNamesCallback("function(arg) {\n" +
 //                "    return [ 'hello','world' ]\n" +
 //                "}");
-//        calendar.setEntryContentCallback("" +
+//        calendar.setItemContentCallback("" +
 //                "function(arg, createElement) {" +
 //                " console.warn('hello');" +
 //                "  return 'WORLD';" +
@@ -129,16 +129,16 @@ public class FullDemo extends AbstractSchedulerView {
 
 
 
-//        calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
-//        calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
-//        calendar.addEntryNativeEventListener("contextmenu", "e => console.warn('just a context menu event')");
+//        calendar.addItemNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
+//        calendar.addItemNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
+//        calendar.addItemNativeEventListener("contextmenu", "e => console.warn('just a context menu event')");
 
-        calendar.addEntryNativeEventListener("contextmenu",
+        calendar.addItemNativeEventListener("contextmenu",
                 "e => {" +
                 "   e.preventDefault(); " +
                 "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
                 "}");
-//        calendar.setEntryDidMountCallback("""
+//        calendar.setItemDidMountCallback("""
 //                function(info) {
 //                    info.el.id = "entry-" + info.event.id;
 //                }""");
@@ -316,23 +316,23 @@ public class FullDemo extends AbstractSchedulerView {
     }
 
     @Override
-    protected void onEntryResized(EntryResizedEvent event) {
+    protected void onEntryResized(CalendarItemResizedEvent<Entry> event) {
         super.onEntryResized(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
-    protected void onEntryDropped(EntryDroppedEvent event) {
+    protected void onEntryDropped(CalendarItemDroppedEvent<Entry> event) {
 //        super.onEntryDropped(event); this is handled by onEntryDroppedScheduler
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
-    protected void onEntryClick(EntryClickedEvent event) {
+    protected void onEntryClick(CalendarItemClickedEvent<Entry> event) {
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
-        if (event.getEntry().getDisplayMode() != DisplayMode.BACKGROUND && event.getEntry().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
-            DemoDialog dialog = new DemoDialog(event.getEntry(), false);
+        if (event.getItem().getDisplayMode() != DisplayMode.BACKGROUND && event.getItem().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
+            DemoDialog dialog = new DemoDialog(event.getItem(), false);
             dialog.setSaveConsumer(this::onEntryChanged);
             dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
             dialog.open();
