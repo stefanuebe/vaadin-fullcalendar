@@ -11,7 +11,7 @@ public abstract class AbstractSchedulerView extends AbstractCalendarView {
     public AbstractSchedulerView() {
         FullCalendarScheduler calendar = (FullCalendarScheduler) getCalendar();
 
-        calendar.addCalendarItemDroppedSchedulerListener(event -> onEntryDroppedScheduler((EntryDroppedSchedulerEvent) event));
+        calendar.addCalendarItemDroppedSchedulerListener(event -> onEntryDroppedScheduler((CalendarItemDroppedSchedulerEvent<Entry>) event));
         calendar.addTimeslotsSelectedSchedulerListener(event -> onTimeslotsSelectedScheduler((TimeslotsSelectedSchedulerEvent) event));
         calendar.addTimeslotClickedSchedulerListener(event -> onTimeslotClickedScheduler((TimeslotClickedSchedulerEvent) event));
     }
@@ -25,7 +25,7 @@ public abstract class AbstractSchedulerView extends AbstractCalendarView {
      * @param event event
      * @see FullCalendarScheduler#addCalendarItemDroppedSchedulerListener(ComponentEventListener)
      */
-    protected void onEntryDroppedScheduler(EntryDroppedSchedulerEvent event) {
+    protected void onEntryDroppedScheduler(CalendarItemDroppedSchedulerEvent<Entry> event) {
         event.applyChangesOnItem();
         onEntryChanged(event.getItem());
     }

@@ -128,11 +128,11 @@ expected behavior — two listeners, two event instances. This should be documen
 Deprecated convenience methods that delegate to the CIP equivalents:
 ```java
 /** @deprecated Use {@link #getItem()} */
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 public Entry getEntry() { return getItem(); }
 
 /** @deprecated Use {@link #applyChangesOnItem()} */
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 public void applyChangesOnEntry() { applyChangesOnItem(); }
 ```
 
@@ -169,7 +169,7 @@ and no unique behavior (empty abstract class). It becomes a deprecated thin wrap
 
 ```java
 /** @deprecated Use CalendarItemDataEvent<Entry> or CalendarItemTimeChangedEvent<Entry>. */
-@Deprecated(since = "7.2", forRemoval = true)
+@Deprecated(since = "7.1", forRemoval = true)
 public abstract class EntryChangedEvent extends CalendarItemDataEvent<Entry> { ... }
 ```
 
@@ -257,14 +257,14 @@ Add manual `getEntry()` delegation.
 
 ```java
 /** @deprecated Use {@link CalendarItemEvent} directly. */
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 @ToString
 public abstract class EntryEvent extends CalendarItemEvent<Entry> {
     public EntryEvent(FullCalendar<Entry> source, boolean fromClient, String entryId) {
         super(source, fromClient, entryId);
     }
     /** @deprecated Use {@link #getItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry getEntry() { return getItem(); }
 }
 ```
@@ -282,7 +282,7 @@ public class EntryClickedEvent extends CalendarItemClickedEvent<Entry> {
         super(source, fromClient, entryData);
     }
     /** @deprecated Use {@link #getItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry getEntry() { return getItem(); }
 }
 ```
@@ -299,17 +299,17 @@ Remove `@Getter` from class. Remove `private final ObjectNode jsonObject` field.
 
 ```java
 /** @deprecated Use {@link CalendarItemDataEvent} directly. */
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 @ToString(callSuper = true)
 public abstract class EntryDataEvent extends CalendarItemDataEvent<Entry> {
     protected EntryDataEvent(FullCalendar<Entry> source, boolean fromClient, ObjectNode jsonObject) {
         super(source, fromClient, jsonObject);
     }
     /** @deprecated Use {@link #getItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry getEntry() { return getItem(); }
     /** @deprecated Use {@link #applyChangesOnItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry applyChangesOnEntry() {
         return applyChangesOnItem();
     }
@@ -335,7 +335,7 @@ public abstract class EntryDataEvent extends CalendarItemDataEvent<Entry> {
 
 ```java
 /** @deprecated Use {@link CalendarItemDataEvent} or {@link CalendarItemTimeChangedEvent}. */
-@Deprecated(since = "7.2", forRemoval = true)
+@Deprecated(since = "7.1", forRemoval = true)
 @ToString(callSuper = true)
 public abstract class EntryChangedEvent extends EntryDataEvent {
     public EntryChangedEvent(FullCalendar<Entry> source, boolean fromClient, ObjectNode jsonObject) {
@@ -354,7 +354,7 @@ Remove `@Getter` from class. Remove `private final Delta delta` field.
 
 ```java
 /** @deprecated Use {@link CalendarItemTimeChangedEvent} directly. */
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 @ToString(callSuper = true)
 public abstract class EntryTimeChangedEvent extends CalendarItemTimeChangedEvent<Entry> {
     public EntryTimeChangedEvent(FullCalendar<Entry> source, boolean fromClient,
@@ -362,10 +362,10 @@ public abstract class EntryTimeChangedEvent extends CalendarItemTimeChangedEvent
         super(source, fromClient, jsonEntry, jsonDelta);
     }
     /** @deprecated Use {@link #getItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry getEntry() { return getItem(); }
     /** @deprecated Use {@link #applyChangesOnItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry applyChangesOnEntry() {
         return applyChangesOnItem();
     }
@@ -389,10 +389,10 @@ public class EntryDroppedEvent extends CalendarItemDroppedEvent<Entry> {
         super(source, fromClient, jsonEntry, jsonDelta);
     }
     /** @deprecated Use {@link #getItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry getEntry() { return getItem(); }
     /** @deprecated Use {@link #applyChangesOnItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry applyChangesOnEntry() {
         return applyChangesOnItem();
     }
@@ -417,7 +417,7 @@ public class EntryMouseEnterEvent extends CalendarItemMouseEnterEvent<Entry> {
         super(source, fromClient, entryData);
     }
     /** @deprecated Use {@link #getItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry getEntry() { return getItem(); }
 }
 ```
@@ -440,7 +440,7 @@ public class EntryDroppedSchedulerEvent extends CalendarItemDroppedSchedulerEven
         super(source, fromClient, jsonEntry, jsonDelta);
     }
     /** @deprecated Use {@link #getItem()} */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry getEntry() { return getItem(); }
 
     /**
@@ -448,7 +448,7 @@ public class EntryDroppedSchedulerEvent extends CalendarItemDroppedSchedulerEven
      * @deprecated Use {@link #applyChangesOnItem()} for basic changes,
      *             then update resources via the scheduler changes accessor.
      */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public Entry applyChangesOnEntry() {
         Entry entry = applyChangesOnItem();  // delegates to Entry.updateFromJson via Phase 7 handler
         // Resource delta logic — preserved from existing behavior

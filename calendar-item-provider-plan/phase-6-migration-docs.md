@@ -21,7 +21,7 @@ Entry-based calendars remain a valid, convenient use case.
 ```java
 /** @deprecated Use {@link #setCalendarItemProvider} for custom POJOs,
   * or continue using this method for Entry-based calendars. */
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) { ... }
 ```
 
@@ -32,7 +32,7 @@ The deprecation signals that CIP is the recommended approach for new code with c
 
 ```java
 /** @deprecated Use {@link #withCalendarItemProvider} */
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 public FullCalendarBuilder<T> withEntryProvider(EntryProvider<? extends Entry> provider) { ... }
 ```
 
@@ -59,7 +59,7 @@ Add code samples:
 - Migration from EntryProvider to CIP (side-by-side comparison)
 
 ### 3. `docs/Migration-guides.md`
-Add migration section for 7.1 → 7.2 (or whatever version ships CIP):
+Add migration section for 7.0 → 7.1 (or whatever version ships CIP):
 - Raw type warnings: what they mean, how to fix (`FullCalendar<Entry>`)
 - Step-by-step migration from Entry to POJO
 - Mapping reference: complete table of all properties with types
@@ -114,7 +114,7 @@ Add demo views in `demo/src/main/java/.../`:
 
 ## Release Notes
 
-Add to `docs/Release-notes.md` and create `docs/release-notes-detail/Release-notes-7.2.md`:
+Add to `docs/Release-notes.md` and create `docs/release-notes-detail/Release-notes-7.1.md`:
 - Feature announcement with motivation
 - API overview (CalendarItemProvider, CalendarItemPropertyMapper, events)
 - Generic FullCalendar<T> change and what it means for existing code

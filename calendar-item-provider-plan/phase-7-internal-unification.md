@@ -107,7 +107,7 @@ the String ID (via `calendarItemPropertyMapper.getId(item)`) since that matches 
 
 The `isUsingCalendarItemProvider()` method is used in 8+ test assertions and in
 `FullCalendarScheduler.removeFromEntries()`. Rather than removing it outright:
-- Keep as `@Deprecated(since = "7.2")` with the semantics: returns `true` if the active provider
+- Keep as `@Deprecated(since = "7.1")` with the semantics: returns `true` if the active provider
   is NOT an EntryProvider (i.e., a "pure CIP" calendar with custom POJOs)
 - Implementation: `return !(calendarItemProvider instanceof EntryProvider)`
 - This preserves existing test behavior and scheduler logic
@@ -154,7 +154,7 @@ public ObjectNode toJson(T item) {
 5. Stores `entryProviderRef` for `getEntryProvider()`
 
 ```java
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
     Objects.requireNonNull(entryProvider);
 
@@ -287,7 +287,7 @@ protected void requestRefreshCalendarItem(T item) {
 }
 
 /** @deprecated Use requestRefreshCalendarItem */
-@Deprecated(since = "7.2")
+@Deprecated(since = "7.1")
 protected void requestRefresh(Entry item) {
     @SuppressWarnings("unchecked")
     T typed = (T) item;
@@ -300,7 +300,7 @@ protected void requestRefresh(Entry item) {
 Keep as deprecated with new semantics:
 ```java
 /** @deprecated Check provider type directly instead. */
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 public boolean isUsingCalendarItemProvider() {
     return !(calendarItemProvider instanceof EntryProvider);
 }

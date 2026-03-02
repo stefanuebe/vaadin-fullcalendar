@@ -209,7 +209,7 @@ public void requestRefreshItem(T item) {
  * @deprecated Use {@link #setCalendarItemProvider} for custom POJOs,
  * or continue using this method for Entry-based calendars.
  */
-@Deprecated(since = "7.2", forRemoval = false)
+@Deprecated(since = "7.1", forRemoval = false)
 public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
     this.usingCalendarItemProvider = false;
     this.calendarItemProvider = null;

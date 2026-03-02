@@ -119,7 +119,7 @@ public class FullCalendarBuilder<T> {
      * @deprecated Use {@link #withCalendarItemProvider} for custom POJOs,
      * or continue using this method for Entry-based calendars.
      */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public FullCalendarBuilder<T> withEntryProvider(EntryProvider<? extends Entry> entryProvider) {
         return new FullCalendarBuilder<>(scheduler, calendarItemLimit, autoBrowserTimezone, autoBrowserLocale, schedulerLicenseKey, initialOptions, Objects.requireNonNull(entryProvider), customType, initialEntries, calendarItemContent, customCalendarViews, calendarItemProvider, calendarItemPropertyMapper, calendarItemUpdateHandler);
     }
@@ -166,7 +166,7 @@ public class FullCalendarBuilder<T> {
     /**
      * @deprecated Use {@link #withCalendarItemLimit(int)} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public FullCalendarBuilder<T> withEntryLimit(int calendarItemLimit) {
         return withCalendarItemLimit(calendarItemLimit);
     }
@@ -267,7 +267,7 @@ public class FullCalendarBuilder<T> {
     /**
      * @deprecated Use {@link #withCalendarItemContent(String)} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public FullCalendarBuilder<T> withEntryContent(String calendarItemContent) {
         return withCalendarItemContent(calendarItemContent);
     }

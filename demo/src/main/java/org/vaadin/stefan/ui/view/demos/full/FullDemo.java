@@ -364,7 +364,7 @@ public class FullDemo extends AbstractSchedulerView {
     }
 
     @Override
-    protected void onEntryDroppedScheduler(EntryDroppedSchedulerEvent event) {
+    protected void onEntryDroppedScheduler(CalendarItemDroppedSchedulerEvent<Entry> event) {
         super.onEntryDroppedScheduler(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
     }

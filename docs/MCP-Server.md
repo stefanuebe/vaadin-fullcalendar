@@ -149,7 +149,7 @@ Available pages: `Getting-Started.md`, `Samples.md`, `Features.md`, `FAQ.md`, `M
 - **Calendar Item Provider (CIP)**: Documentation for arbitrary POJO support, property mappers, typed events, and update strategies
 - **Calendar Views**: All 44 views with descriptions (including Scheduler views)
 - **Event Types**: Server-side event documentation (Entry events and CIP events)
-- **Migration Guides**: Version upgrade instructions (including 7.1 → 7.2 CIP migration)
+- **Migration Guides**: Version upgrade instructions (including 7.0 → 7.1 CIP migration)
 - **Maven Setup**: Dependency coordinates and pom.xml snippets
 
 ---

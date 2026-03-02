@@ -109,7 +109,7 @@ public interface Scheduler {
     void setItemResourceEditable(boolean eventResourceEditable);
 
     /** @deprecated Use {@link #setItemResourceEditable(boolean)} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     default void setEntryResourceEditable(boolean eventResourceEditable) {
         setItemResourceEditable(eventResourceEditable);
     }
@@ -327,7 +327,7 @@ public interface Scheduler {
     void setGroupItemsBy(GroupEntriesBy groupEntriesBy);
 
     /** @deprecated Use {@link #setGroupItemsBy(GroupEntriesBy)} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     default void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
         setGroupItemsBy(groupEntriesBy);
     }

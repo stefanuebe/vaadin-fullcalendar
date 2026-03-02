@@ -56,7 +56,7 @@ When to use CIP vs EntryProvider:
 - Use **EntryProvider** when you can work with `Entry` objects directly (simpler, feature-complete)
 - Use **CalendarItemProvider** when your domain model is fixed and you want to avoid mapping to/from `Entry`
 
-See [Samples](Samples.md#calendar-item-provider-cip) for code examples and [Migration Guides](Migration-guides.md#migrating-from-71--72) for upgrade instructions.
+See [Samples](Samples.md#calendar-item-provider-cip) for code examples and [Migration Guides](Migration-guides.md#migrating-from-70--71) for upgrade instructions.
 
 ## Scheduler features
 The scheduler extension integrates the features of the commercial Scheduler plugin of the FullCalendar library.

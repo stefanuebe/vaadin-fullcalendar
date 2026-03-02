@@ -324,7 +324,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * or continue using this method for Entry-based calendars.
      */
     @SuppressWarnings("unchecked")
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
         Objects.requireNonNull(entryProvider);
 
@@ -369,7 +369,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @deprecated Use {@link #getCalendarItemProvider()} instead.
      */
     @SuppressWarnings("unchecked")
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public <R extends Entry, EP extends EntryProvider<R>> EP getEntryProvider() {
         return calendarItemProvider instanceof EntryProvider ? (EP) calendarItemProvider : null;
     }
@@ -448,7 +448,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @return true if the active provider is not an EntryProvider
      * @deprecated Check provider type directly instead.
      */
-    @Deprecated(since = "7.2", forRemoval = false)
+    @Deprecated(since = "7.1", forRemoval = false)
     public boolean isUsingCalendarItemProvider() {
         return calendarItemProvider != null && !(calendarItemProvider instanceof EntryProvider);
     }
@@ -476,7 +476,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @deprecated Use {@link #requestRefreshCalendarItem(Object)} instead.
      */
     @SuppressWarnings("unchecked")
-    @Deprecated(since = "7.2")
+    @Deprecated(since = "7.1")
     protected void requestRefresh(Entry item) {
         requestRefreshCalendarItem((T) item);
     }
@@ -549,7 +549,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     /**
      * @deprecated Use {@link #requestRefreshAllItems()} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     protected void requestRefreshAllEntries() {
         requestRefreshAllItems();
     }
@@ -570,7 +570,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @return is eager loading
      * @deprecated Use {@link #isInMemoryProvider()} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public boolean isInMemoryEntryProvider() {
         return isInMemoryProvider();
     }
@@ -594,7 +594,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * compatibility with custom JS that may call this method name.
      */
     @ClientCallable
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     protected ArrayNode fetchEntriesFromServer(ObjectNode query) {
         return fetchItemsFromServer(query);
     }
@@ -629,7 +629,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @return cached entry from last fetch or empty
      * @deprecated Use {@link #getCachedItemFromFetch(String)} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public Optional<Entry> getCachedEntryFromFetch(String id) {
         return getCachedItemFromFetch(id)
                 .filter(Entry.class::isInstance)
@@ -1009,7 +1009,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     /**
      * @deprecated Use {@link #setItemClassNamesCallback(String)} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setEntryClassNamesCallback(String s) {
         setItemClassNamesCallback(s);
     }
@@ -1044,7 +1044,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     /**
      * @deprecated Use {@link #setItemDidMountCallback(String)} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setEntryDidMountCallback(String s) {
         setItemDidMountCallback(s);
     }
@@ -1084,7 +1084,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     /**
      * @deprecated Use {@link #addItemNativeEventListener(String, String)} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void addEntryNativeEventListener(String eventName, String eventCallback) {
         addItemNativeEventListener(eventName, eventCallback);
     }
@@ -1148,7 +1148,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     /**
      * @deprecated Use {@link #setItemWillUnmountCallback(String)} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setEntryWillUnmountCallback(String s) {
         setItemWillUnmountCallback(s);
     }
@@ -1177,7 +1177,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     /**
      * @deprecated Use {@link #setItemContentCallback(String)} instead.
      */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setEntryContentCallback(String s) {
         setItemContentCallback(s);
     }
@@ -1294,7 +1294,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #getItemDurationEditable()} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public boolean getEntryDurationEditable() {
         return getItemDurationEditable();
     }
@@ -1308,7 +1308,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #setItemDurationEditable(boolean)} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setEntryDurationEditable(boolean editable) {
         setItemDurationEditable(editable);
     }
@@ -1322,7 +1322,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #getItemResizableFromStart()} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public boolean getEntryResizableFromStart() {
         return getItemResizableFromStart();
     }
@@ -1336,7 +1336,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #setItemResizableFromStart(boolean)} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setEntryResizableFromStart(boolean editable) {
         setItemResizableFromStart(editable);
     }
@@ -1350,7 +1350,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #getItemStartEditable()} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public boolean getEntryStartEditable() {
         return getItemStartEditable();
     }
@@ -1364,7 +1364,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #setItemStartEditable(boolean)} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setEntryStartEditable(boolean editable) {
         setItemStartEditable(editable);
     }
@@ -1409,7 +1409,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #setMaxItemsPerDay(int)} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setMaxEntriesPerDay(int maxEntriesPerDay) {
         setMaxItemsPerDay(maxEntriesPerDay);
     }
@@ -1426,7 +1426,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #setMaxItemsPerDayFitToCell()} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setMaxEntriesPerDayFitToCell() {
         setMaxItemsPerDayFitToCell();
     }
@@ -1443,7 +1443,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #setMaxItemsPerDayUnlimited()} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setMaxEntriesPerDayUnlimited() {
         setMaxItemsPerDayUnlimited();
     }
@@ -1998,7 +1998,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /** @deprecated Use {@link #setItemDisplay(DisplayMode)} instead. */
-    @Deprecated(since = "7.3")
+    @Deprecated(since = "7.1")
     public void setEntryDisplay(DisplayMode displayMode) {
         setItemDisplay(displayMode);
     }

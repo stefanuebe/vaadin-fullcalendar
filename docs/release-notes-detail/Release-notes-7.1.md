@@ -1,7 +1,7 @@
 This page gives you an overview of the major changes that came with the release of
-[FullCalendar for Flow, version 7.2](https://vaadin.com/directory/component/full-calendar-flow).
+[FullCalendar for Flow, version 7.1](https://vaadin.com/directory/component/full-calendar-flow).
 
-The main addition in version 7.2 is the **Calendar Item Provider (CIP)**, a new way to display
+The main addition in version 7.1 is the **Calendar Item Provider (CIP)**, a new way to display
 arbitrary POJOs on the calendar without extending `Entry`.
 
 ## Calendar Item Provider (CIP)
@@ -67,5 +67,5 @@ CIP works with scheduler/resource views. Map `resourceIds` on the mapper and use
 
 ## Links
 - [Code samples](Samples.md#calendar-item-provider-cip)
-- [Migration guide](Migration-guides.md#migrating-from-71--72)
+- [Migration guide](Migration-guides.md#migrating-from-70--71)
 - [Feature overview](Features.md#calendar-item-provider-cip)

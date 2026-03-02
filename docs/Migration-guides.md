@@ -10,34 +10,154 @@ If we missed something or anything is unclear, please ping us on GitHub. We hope
 as smoothly as possible.
 
 ## Index
-* [7.3 > 7.4](#migrating-from-73--74)
-* [7.2 > 7.3](#migrating-from-72--73)
-* [7.1 > 7.2](#migrating-from-71--72)
+* [7.0 > 7.1](#migrating-from-70--71)
 * [6.1 > 7.0](#migrating-from-61--70)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
 
-## Migrating from 7.3 > 7.4
+## Migrating from 7.0 > 7.1
 
-Phase 9 of the Calendar Item Provider (CIP) unification renames Entry-named public API methods to Item-named equivalents. All old methods are retained as **deprecated delegates** for backward compatibility.
+Version 7.1 introduces the **Calendar Item Provider (CIP)**, a new way to display arbitrary POJOs on
+the calendar without extending `Entry`. This is the main addition in 7.1 and brings a number of new
+APIs, deprecations, and one event hierarchy change.
 
-### Overview
+The good news: **if you're happy with `Entry`, you don't need to do anything.** All existing
+Entry-based code continues to work. The deprecated methods simply delegate to their new counterparts,
+so you can migrate at your own pace — or not at all.
 
-Entry-specific method names (e.g., `addEntryClickedListener`) have been renamed to generic Item-based names (e.g., `addCalendarItemClickedListener`). This aligns the API across both Entry-based and custom POJO-based calendars.
+### No breaking changes for Entry-based calendars
 
-### JavaScript callback names
+We want to be upfront about this: if you're using `Entry` today and everything works, you can safely
+upgrade to 7.1 without changing a single line of code. Here's what you'll notice:
 
-If you have custom JavaScript callers that invoke server-side callbacks:
-- `fetchEntriesFromServer()` → `fetchItemsFromServer()` — Update any custom JS to use the new name
+- **Compiler warnings** for raw `FullCalendar` usage (it's now generic `FullCalendar<T>`)
+- **Deprecation warnings** on some method names (they still work, just have new equivalents)
 
-### Internal fields
+That's it. Feel free to ignore the warnings for now — they're informational, not urgent.
 
-The internal `entryProviderRef` field has been removed. Use `getCalendarItemProvider()` instead, which is now the single source of truth for the calendar's data provider.
+### Calendar Item Provider (CIP) — what's new
 
-### Deprecated Entry-based methods
+Previously, all calendar items had to be instances of `Entry`. This meant mapping your domain objects
+to `Entry` and back, which adds boilerplate and makes it harder to integrate with existing JPA entities,
+records, or DTOs.
 
-The following methods are deprecated on `FullCalendar`. They still work but delegate to their Item-based equivalents:
+With CIP, you define a **`CalendarItemPropertyMapper`** that tells the calendar how to read (and optionally
+write) your POJO's properties, and a **`CalendarItemProvider`** that supplies the data. There's also an
+optional **`CalendarItemUpdateHandler`** for full control over drag/drop/resize changes.
+
+**When to use CIP vs EntryProvider:**
+- Use **EntryProvider** when you can work with `Entry` objects directly — it's simpler and fully supported
+- Use **CalendarItemProvider** when your domain model is fixed and you want to avoid mapping to/from `Entry`
+
+### Generic FullCalendar\<T\>
+
+`FullCalendar` is now `FullCalendar<T>`, where `T` is the item type. Existing code using raw
+`FullCalendar` will produce compiler warnings but continues to compile and run without changes.
+
+Simply add the type parameter to silence the warning:
+
+```java
+// Before (raw type — produces warning)
+FullCalendar calendar = FullCalendarBuilder.create().build();
+
+// After (parameterized — no warning)
+FullCalendar<Entry> calendar = FullCalendarBuilder.create().build();
+```
+
+The same applies to `FullCalendarScheduler<T>` and generic events like `TimeslotsSelectedEvent<T>`,
+`DatesRenderedEvent<T>`, etc.
+
+### Deprecations
+
+`setEntryProvider()` and `FullCalendarBuilder.withEntryProvider()` are deprecated with `forRemoval = false`.
+Entry-based calendars remain a valid, convenient use case. The deprecation signals that CIP is the
+recommended approach for new code with custom domain models.
+
+Most users can ignore these deprecation warnings for now.
+
+### Event hierarchy changes
+
+Concrete Entry events now extend CIP events instead of the old Entry event base classes. This is
+only relevant if your code uses `instanceof` checks against the intermediate Entry event classes.
+
+| Entry Event | Old parent | New parent |
+|---|---|---|
+| `EntryClickedEvent` | `EntryDataEvent` | `CalendarItemClickedEvent<Entry>` |
+| `EntryDroppedEvent` | `EntryTimeChangedEvent` | `CalendarItemDroppedEvent<Entry>` |
+| `EntryResizedEvent` | `EntryTimeChangedEvent` | `CalendarItemResizedEvent<Entry>` |
+| `EntryMouseEnterEvent` | `EntryDataEvent` | `CalendarItemMouseEnterEvent<Entry>` |
+| `EntryMouseLeaveEvent` | `EntryDataEvent` | `CalendarItemMouseLeaveEvent<Entry>` |
+| `EntryDroppedSchedulerEvent` | `EntryTimeChangedEvent` | `CalendarItemDroppedSchedulerEvent<Entry>` |
+
+The old intermediate classes (`EntryEvent`, `EntryDataEvent`, `EntryChangedEvent`, `EntryTimeChangedEvent`)
+are now deprecated orphans with no concrete subclasses.
+
+#### `instanceof` pattern changes
+
+If your code uses `instanceof` checks against the old intermediate classes, you'll need to update them:
+
+```java
+// Before — no longer matches concrete Entry events
+if (event instanceof EntryTimeChangedEvent) { ... }
+if (event instanceof EntryChangedEvent) { ... }
+if (event instanceof EntryDataEvent) { ... }
+if (event instanceof EntryEvent) { ... }
+
+// After — use the CIP counterparts
+if (event instanceof CalendarItemTimeChangedEvent<?>) { ... }
+if (event instanceof CalendarItemDataEvent<?>) { ... }
+if (event instanceof CalendarItemEvent<?>) { ... }
+```
+
+If you don't use `instanceof` checks on these intermediate classes, you can safely ignore this change.
+
+#### Deprecated event methods
+
+The following methods still work on concrete Entry events but delegate to CIP methods:
+
+| Deprecated method | Replacement |
+|---|---|
+| `event.getEntry()` | `event.getItem()` |
+| `event.applyChangesOnEntry()` | `event.applyChangesOnItem()` |
+
+The most common usage patterns continue to work without changes:
+
+```java
+// Still works — getEntry() is deprecated but functional
+calendar.addEntryDroppedListener(event -> {
+    event.applyChangesOnEntry();
+    onEntryChanged(event.getEntry());
+});
+
+// Recommended — use CIP methods
+calendar.addCalendarItemDroppedListener(event -> {
+    event.applyChangesOnItem();
+    onEntryChanged((Entry) event.getItem());
+});
+```
+
+#### Deprecated listener registration
+
+| Deprecated | Replacement |
+|---|---|
+| `addEntryClickedListener()` | `addCalendarItemClickedListener()` |
+| `addEntryDroppedListener()` | `addCalendarItemDroppedListener()` |
+| `addEntryResizedListener()` | `addCalendarItemResizedListener()` |
+| `addEntryMouseEnterListener()` | `addCalendarItemMouseEnterListener()` |
+| `addEntryMouseLeaveListener()` | `addCalendarItemMouseLeaveListener()` |
+| `addEntryDroppedSchedulerListener()` | `addCalendarItemDroppedSchedulerListener()` |
+
+The listener interface names and annotation-based event registration remain unchanged —
+`@Listen("entry-clicked")` and the functional interfaces (`EntryClickedListener`, etc.) still work.
+
+### API naming: Entry → Item
+
+Entry-specific method names have been renamed to generic Item-based names. This aligns the API across
+both Entry-based and custom POJO-based calendars. All old methods are retained as deprecated delegates,
+so **no code changes are required** — simply replace the old names when you're ready.
+
+#### FullCalendar methods
 
 | Deprecated | Replacement |
 |---|---|
@@ -62,146 +182,29 @@ The following methods are deprecated on `FullCalendar`. They still work but dele
 | `setMaxEntriesPerDayFitToCell()` | `setMaxItemsPerDayFitToCell()` |
 | `setMaxEntriesPerDayUnlimited()` | `setMaxItemsPerDayUnlimited()` |
 
-### Deprecated FullCalendarBuilder methods
+#### FullCalendarBuilder methods
 
 | Deprecated | Replacement |
 |---|---|
 | `withEntryLimit(n)` | `withCalendarItemLimit(n)` |
 | `withEntryContent(s)` | `withCalendarItemContent(s)` |
 
-### Deprecated Scheduler/FullCalendarScheduler methods
+#### Scheduler/FullCalendarScheduler methods
 
 | Deprecated | Replacement |
 |---|---|
 | `setEntryResourceEditable(b)` | `setItemResourceEditable(b)` |
 | `setGroupEntriesBy(g)` | `setGroupItemsBy(g)` |
 
-### Migration strategy
+#### JavaScript callback name
 
-**Most users can ignore this change.** The deprecated methods work as-is with no code changes required. When ready, gradually replace old method names with new ones:
+If you have custom JavaScript that invokes server-side callbacks, update the name:
+- `fetchEntriesFromServer()` → `fetchItemsFromServer()`
 
-```java
-// Before (still works, but deprecated)
-calendar.addEntryClickedListener(event -> {
-    Entry entry = event.getEntry();
-});
+### Migrating from Entry to your own POJO
 
-// After (recommended)
-calendar.addCalendarItemClickedListener(event -> {
-    Entry entry = (Entry) event.getItem();
-});
-```
-
-### No listener method name changes
-
-The listener interface names and annotation-based event registration (`@Listen`) remain unchanged:
-- `@Listen("entry-clicked")` continues to work
-- The listener functional interfaces (`EntryClickedListener`, etc.) remain valid
-
-## Migrating from 7.2 > 7.3
-
-Version 7.3 unifies the event hierarchy so that Entry events now extend their CIP (Calendar Item Provider)
-counterparts. This is a **breaking change** for code that uses `instanceof` checks against intermediate
-Entry event classes.
-
-### Event hierarchy changes
-
-Concrete Entry events now extend CIP events instead of Entry event base classes:
-
-| Entry Event | Old parent | New parent |
-|---|---|---|
-| `EntryClickedEvent` | `EntryDataEvent` | `CalendarItemClickedEvent<Entry>` |
-| `EntryDroppedEvent` | `EntryTimeChangedEvent` | `CalendarItemDroppedEvent<Entry>` |
-| `EntryResizedEvent` | `EntryTimeChangedEvent` | `CalendarItemResizedEvent<Entry>` |
-| `EntryMouseEnterEvent` | `EntryDataEvent` | `CalendarItemMouseEnterEvent<Entry>` |
-| `EntryMouseLeaveEvent` | `EntryDataEvent` | `CalendarItemMouseLeaveEvent<Entry>` |
-| `EntryDroppedSchedulerEvent` | `EntryTimeChangedEvent` | `CalendarItemDroppedSchedulerEvent<Entry>` |
-
-The old intermediate classes (`EntryEvent`, `EntryDataEvent`, `EntryChangedEvent`, `EntryTimeChangedEvent`)
-are now deprecated orphans with no concrete subclasses.
-
-### `instanceof` pattern changes
-
-If your code uses `instanceof` checks against the old intermediate classes, update them:
-
-```java
-// Before — no longer matches concrete Entry events
-if (event instanceof EntryTimeChangedEvent) { ... }
-if (event instanceof EntryChangedEvent) { ... }
-if (event instanceof EntryDataEvent) { ... }
-if (event instanceof EntryEvent) { ... }
-
-// After — use the CIP counterparts
-if (event instanceof CalendarItemTimeChangedEvent<?>) { ... }
-if (event instanceof CalendarItemDataEvent<?>) { ... }
-if (event instanceof CalendarItemEvent<?>) { ... }
-```
-
-### Deprecated methods
-
-The following methods are deprecated on concrete Entry events. They still work but delegate to CIP methods:
-
-| Deprecated method | Replacement |
-|---|---|
-| `event.getEntry()` | `event.getItem()` |
-| `event.applyChangesOnEntry()` | `event.applyChangesOnItem()` |
-| `addEntryClickedListener()` | `addCalendarItemClickedListener()` |
-| `addEntryDroppedListener()` | `addCalendarItemDroppedListener()` |
-| `addEntryResizedListener()` | `addCalendarItemResizedListener()` |
-| `addEntryMouseEnterListener()` | `addCalendarItemMouseEnterListener()` |
-| `addEntryMouseLeaveListener()` | `addCalendarItemMouseLeaveListener()` |
-| `addEntryDroppedSchedulerListener()` | `addCalendarItemDroppedSchedulerListener()` |
-
-### No changes needed for common patterns
-
-The most common usage patterns continue to work without changes:
-
-```java
-// Still works — getEntry() is deprecated but functional
-calendar.addEntryDroppedListener(event -> {
-    event.applyChangesOnEntry();
-    onEntryChanged(event.getEntry());
-});
-
-// Recommended — use CIP methods
-calendar.addCalendarItemDroppedListener(event -> {
-    event.applyChangesOnItem();
-    onEntryChanged((Entry) event.getItem());
-});
-```
-
-## Migrating from 7.1 > 7.2
-
-Version 7.2 introduces the Calendar Item Provider (CIP), a new way to display arbitrary POJOs on the calendar
-without extending `Entry`. This is a non-breaking change — all existing code continues to work.
-
-### Raw type warnings
-
-`FullCalendar` is now `FullCalendar<T>`. Existing code using raw `FullCalendar` will produce compiler
-warnings but continues to compile and run without changes.
-
-To fix the warnings, add the type parameter:
-
-```java
-// Before (raw type — produces warning)
-FullCalendar calendar = FullCalendarBuilder.create().build();
-
-// After (parameterized — no warning)
-FullCalendar<Entry> calendar = FullCalendarBuilder.create().build();
-```
-
-The same applies to `FullCalendarScheduler<T>` and generic events like `TimeslotsSelectedEvent<T>`,
-`DatesRenderedEvent<T>`, etc.
-
-### Deprecations
-
-`setEntryProvider()` and `FullCalendarBuilder.withEntryProvider()` are deprecated with `forRemoval = false`.
-Entry-based calendars remain a valid, convenient use case. The deprecation signals that CIP is the
-recommended approach for new code with custom domain models.
-
-### Step-by-step migration from Entry to POJO
-
-If you want to migrate from `Entry` to your own POJO:
+This section is only relevant if you want to actively switch from `Entry` to your own domain objects.
+If you're happy with `Entry`, feel free to skip this entirely.
 
 1. **Define the mapper** — map your POJO's properties to FullCalendar JSON fields:
 ```java

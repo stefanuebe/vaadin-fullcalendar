@@ -1,5 +1,5 @@
 ## Index
-* [7.2.x](#72x)
+* [7.1.x](#71x)
 * [7.0.x](#70x)
 * [6.2.x](#62x)
 * [6.1.x](#61x)
@@ -7,8 +7,8 @@
 * [4.1.x](#41x)
 * [4.0.x](#40x)
 
-## 7.2.x
-[Details](release-notes-detail/Release-notes-7.2.md)
+## 7.1.x
+[Details](release-notes-detail/Release-notes-7.1.md)
 - added Calendar Item Provider (CIP) for displaying arbitrary POJOs without extending Entry
 - `FullCalendar` is now generic (`FullCalendar<T>`) — existing code gets warnings but no breakage
 - new `CalendarItemPropertyMapper` for fluent POJO-to-JSON mapping
