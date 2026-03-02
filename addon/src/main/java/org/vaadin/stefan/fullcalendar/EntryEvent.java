@@ -16,21 +16,20 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.ComponentEvent;
-import lombok.Getter;
-import lombok.ToString;
-
 /**
- * Simple event that occurred for a specific calendar item.
+ * Simple event that occurred for a specific calendar entry.
+ * <p>
+ * <b>Note:</b> Concrete entry events (e.g. {@link EntryClickedEvent}, {@link EntryDroppedEvent}) no longer
+ * extend this class. They now extend the corresponding CIP event types directly
+ * (e.g. {@link CalendarItemClickedEvent}, {@link CalendarItemDroppedEvent}).
+ * <p>
+ * Use {@code instanceof CalendarItemEvent} instead of {@code instanceof EntryEvent} to match
+ * concrete entry events.
+ *
+ * @deprecated Use {@link CalendarItemEvent} instead. This class has no concrete subclasses.
  */
-@Getter
-@ToString
-public abstract class EntryEvent extends ComponentEvent<FullCalendar<Entry>> {
-
-    /**
-     * The entry, for which the event occurred.
-     */
-    private final Entry entry;
+@Deprecated
+public abstract class EntryEvent extends CalendarItemEvent<Entry> {
 
     /**
      * New instance. Awaits the entry id.
@@ -39,7 +38,17 @@ public abstract class EntryEvent extends ComponentEvent<FullCalendar<Entry>> {
      * @param entryId affected entry id
      */
     public EntryEvent(FullCalendar<Entry> source, boolean fromClient, String entryId) {
-        super(source, fromClient);
-        this.entry = source.getCachedEntryFromFetch(entryId).orElseThrow(IllegalArgumentException::new);
+        super(source, fromClient, entryId);
+    }
+
+    /**
+     * Returns the entry for which the event occurred.
+     *
+     * @return entry
+     * @deprecated Use {@link #getItem()} instead.
+     */
+    @Deprecated
+    public Entry getEntry() {
+        return getItem();
     }
 }

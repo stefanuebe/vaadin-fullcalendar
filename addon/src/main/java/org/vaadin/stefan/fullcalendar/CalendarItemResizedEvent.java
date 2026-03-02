@@ -18,7 +18,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import lombok.Getter;
 import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -35,16 +34,8 @@ import tools.jackson.databind.node.ObjectNode;
  * @param <T> the type of the calendar item POJO
  */
 @DomEvent("eventResize")
-@Getter
 @ToString(callSuper = true)
-public class CalendarItemResizedEvent<T> extends CalendarItemDataEvent<T> {
-
-    /**
-     * The delta information. Provides the amount of time by which the item was resized.
-     * Note that the item data itself already reflects the updated times, so there is no need
-     * to apply the delta manually.
-     */
-    private final Delta delta;
+public class CalendarItemResizedEvent<T> extends CalendarItemTimeChangedEvent<T> {
 
     /**
      * New instance.
@@ -57,7 +48,6 @@ public class CalendarItemResizedEvent<T> extends CalendarItemDataEvent<T> {
     public CalendarItemResizedEvent(FullCalendar<T> source, boolean fromClient,
             @EventData("event.detail.data") ObjectNode jsonItem,
             @EventData("event.detail.delta") ObjectNode jsonDelta) {
-        super(source, fromClient, jsonItem);
-        this.delta = Delta.fromJson(jsonDelta);
+        super(source, fromClient, jsonItem, jsonDelta);
     }
 }

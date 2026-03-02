@@ -27,10 +27,13 @@ import tools.jackson.databind.node.ObjectNode;
  * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  * <br><br>
  * Client side name: eventDrop
+ *
+ * @deprecated Use {@link CalendarItemDroppedEvent} with {@link FullCalendar#addCalendarItemDroppedListener} instead.
  */
 @DomEvent("eventDrop")
 @ToString(callSuper = true)
-public class EntryDroppedEvent extends EntryTimeChangedEvent {
+@Deprecated
+public class EntryDroppedEvent extends CalendarItemDroppedEvent<Entry> {
 
     /**
      * New instance. Awaits the changed data object for the entry plus the json object for the delta information.
@@ -41,5 +44,46 @@ public class EntryDroppedEvent extends EntryTimeChangedEvent {
      */
     public EntryDroppedEvent(FullCalendar<Entry> source, boolean fromClient, @EventData("event.detail.data") ObjectNode jsonEntry, @EventData("event.detail.delta") ObjectNode jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
+    }
+
+    /**
+     * Returns the entry for which the event occurred.
+     *
+     * @return entry
+     * @deprecated Use {@link #getItem()} instead.
+     */
+    @Deprecated
+    public Entry getEntry() {
+        return getItem();
+    }
+
+    /**
+     * Applies the contained changes on the referring entry and returns this instance.
+     *
+     * @return entry
+     * @deprecated Use {@link #applyChangesOnItem()} instead.
+     */
+    @Deprecated
+    public Entry applyChangesOnEntry() {
+        return applyChangesOnItem();
+    }
+
+    /**
+     * Creates a copy based on the referenced entry and the received data.
+     *
+     * @param <R> return type
+     * @return copy
+     * @deprecated Use the CIP event hierarchy with {@link CalendarItemDroppedEvent} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public <R extends Entry> R createCopyBasedOnChanges() {
+        try {
+            Entry copy = getEntry().copy();
+            copy.updateFromJson(getJsonObject());
+            return (R) copy;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

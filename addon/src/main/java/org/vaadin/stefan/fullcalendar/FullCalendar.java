@@ -1509,7 +1509,9 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
+     * @deprecated Use {@link #addCalendarItemClickedListener} instead.
      */
+    @Deprecated
     public Registration addEntryClickedListener(ComponentEventListener<EntryClickedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryClickedEvent.class, listener);
@@ -1526,7 +1528,9 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
+     * @deprecated Use {@link #addCalendarItemMouseEnterListener} instead.
      */
+    @Deprecated
     public Registration addEntryMouseEnterListener(ComponentEventListener<EntryMouseEnterEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryMouseEnterEvent.class, listener);
@@ -1543,7 +1547,9 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
+     * @deprecated Use {@link #addCalendarItemMouseLeaveListener} instead.
      */
+    @Deprecated
     public Registration addEntryMouseLeaveListener(ComponentEventListener<EntryMouseLeaveEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryMouseLeaveEvent.class, listener);
@@ -1560,7 +1566,9 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
+     * @deprecated Use {@link #addCalendarItemResizedListener} instead.
      */
+    @Deprecated
     public Registration addEntryResizedListener(ComponentEventListener<EntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryResizedEvent.class, listener);
@@ -1577,7 +1585,9 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
+     * @deprecated Use {@link #addCalendarItemDroppedListener} instead.
      */
+    @Deprecated
     public Registration addEntryDroppedListener(ComponentEventListener<EntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryDroppedEvent.class, listener);

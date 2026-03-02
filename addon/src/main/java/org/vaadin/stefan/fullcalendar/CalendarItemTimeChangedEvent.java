@@ -16,29 +16,42 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import lombok.Getter;
 import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * An event that occurs when an entry has been changed on the client side.
+ * Abstract event for calendar items whose time has changed (by drag-and-drop or resize).
+ * Provides a {@link Delta} with the amount of time the item was moved or resized.
  * <p>
- * <b>Note:</b> Concrete entry events (e.g. {@link EntryDroppedEvent}, {@link EntryResizedEvent}) no longer
- * extend this class. They now extend the corresponding CIP event types directly.
+ * Concrete subclasses: {@link CalendarItemDroppedEvent}, {@link CalendarItemResizedEvent}.
+ * <p>
+ * This is the CIP counterpart to {@link EntryTimeChangedEvent}.
  *
- * @deprecated This class has no concrete subclasses and will be removed in a future version.
- * Use {@link CalendarItemDataEvent} or {@link CalendarItemTimeChangedEvent} instead.
+ * @param <T> the type of the calendar item POJO
  */
-@Deprecated(forRemoval = true)
+@Getter
 @ToString(callSuper = true)
-public abstract class EntryChangedEvent extends EntryDataEvent {
+public abstract class CalendarItemTimeChangedEvent<T> extends CalendarItemDataEvent<T> {
 
     /**
-     * New instance. Awaits the changed data object.
-     * @param source source component
-     * @param fromClient is from client
-     * @param jsonObject json object with changed data
+     * The delta information. Provides the amount of time by which the item was moved or resized.
+     * Note that the item data itself already reflects the updated times, so there is no need
+     * to apply the delta manually.
      */
-    public EntryChangedEvent(FullCalendar<Entry> source, boolean fromClient, ObjectNode jsonObject) {
-        super(source, fromClient, jsonObject);
+    private final Delta delta;
+
+    /**
+     * New instance.
+     *
+     * @param source     source component
+     * @param fromClient is from client
+     * @param jsonItem   JSON object with updated item data
+     * @param jsonDelta  JSON object with delta information
+     */
+    protected CalendarItemTimeChangedEvent(FullCalendar<T> source, boolean fromClient,
+            ObjectNode jsonItem, ObjectNode jsonDelta) {
+        super(source, fromClient, jsonItem);
+        this.delta = Delta.fromJson(jsonDelta);
     }
 }

@@ -510,7 +510,7 @@ public class FullCalendarTest {
     }
 
     // TODO fix
-    private <T extends EntryTimeChangedEvent> void subTestEntryTimeChangedEventSubClass(Class<T> eventClass) throws Exception {
+    private <T extends CalendarItemTimeChangedEvent<?>> void subTestEntryTimeChangedEventSubClass(Class<T> eventClass) throws Exception {
 
         //        FullCalendar calendar = createTestCalendar();
 //

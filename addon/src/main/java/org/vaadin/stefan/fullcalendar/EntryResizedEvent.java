@@ -28,10 +28,12 @@ import tools.jackson.databind.node.ObjectNode;
  * <br><br>
  * Client side name: eventResize
  *
+ * @deprecated Use {@link CalendarItemResizedEvent} with {@link FullCalendar#addCalendarItemResizedListener} instead.
  */
 @DomEvent("eventResize")
 @ToString(callSuper = true)
-public class EntryResizedEvent extends EntryTimeChangedEvent {
+@Deprecated
+public class EntryResizedEvent extends CalendarItemResizedEvent<Entry> {
 
     /**
      * New instance. Awaits the changed data object for the entry plus the json object for the delta information.
@@ -42,5 +44,46 @@ public class EntryResizedEvent extends EntryTimeChangedEvent {
      */
     public EntryResizedEvent(FullCalendar<Entry> source, boolean fromClient, @EventData("event.detail.data") ObjectNode jsonEntry, @EventData("event.detail.delta") ObjectNode jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
+    }
+
+    /**
+     * Returns the entry for which the event occurred.
+     *
+     * @return entry
+     * @deprecated Use {@link #getItem()} instead.
+     */
+    @Deprecated
+    public Entry getEntry() {
+        return getItem();
+    }
+
+    /**
+     * Applies the contained changes on the referring entry and returns this instance.
+     *
+     * @return entry
+     * @deprecated Use {@link #applyChangesOnItem()} instead.
+     */
+    @Deprecated
+    public Entry applyChangesOnEntry() {
+        return applyChangesOnItem();
+    }
+
+    /**
+     * Creates a copy based on the referenced entry and the received data.
+     *
+     * @param <R> return type
+     * @return copy
+     * @deprecated Use the CIP event hierarchy with {@link CalendarItemResizedEvent} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public <R extends Entry> R createCopyBasedOnChanges() {
+        try {
+            Entry copy = getEntry().copy();
+            copy.updateFromJson(getJsonObject());
+            return (R) copy;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

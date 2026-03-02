@@ -333,6 +333,7 @@ public class FullCalendarScheduler<T> extends FullCalendar<T> implements Schedul
         return addListener((Class) TimeslotClickedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
+    @Deprecated
     @Override
     public Registration addEntryDroppedSchedulerListener(ComponentEventListener<EntryDroppedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);

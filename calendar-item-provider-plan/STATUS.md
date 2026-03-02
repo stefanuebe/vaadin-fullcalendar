@@ -1,6 +1,6 @@
 # Calendar Item Provider (CIP) — Implementation Status
 
-## Overall Status: IN PROGRESS
+## Overall Status: COMPLETE
 
 | Phase | Name | Status | Description |
 |-------|------|--------|-------------|
@@ -13,7 +13,7 @@
 | 5 | Scheduler Extension | COMPLETE | Integrate CIP with addon-scheduler |
 | 6 | Migration & Docs | COMPLETE | Deprecations, migration guide, documentation, demos |
 | 7 | Internal Unification | COMPLETE | setEntryProvider() delegates to CIP internally |
-| 8 | Event Unification | NOT STARTED | Entry events extend CIP event counterparts |
+| 8 | Event Unification | COMPLETE | Entry events extend CIP event counterparts |
 
 ## Key Architectural Decisions
 

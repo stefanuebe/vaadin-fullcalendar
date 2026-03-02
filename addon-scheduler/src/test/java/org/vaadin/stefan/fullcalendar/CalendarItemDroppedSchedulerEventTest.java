@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -255,5 +258,118 @@ class CalendarItemDroppedSchedulerEventTest {
                 new CalendarItemDroppedSchedulerEvent<>(scheduler, true, itemJson, deltaJson));
 
         assertTrue(listenerCalled.get());
+    }
+
+    // ---- Phase 8: Entry event hierarchy unification tests ----
+
+    private FullCalendarScheduler<Entry> createEntrySchedulerWithCachedEntry(Entry entry) {
+        FullCalendarScheduler<Entry> scheduler = new FullCalendarScheduler<>();
+        InMemoryEntryProvider<Entry> entryProvider = EntryProvider.inMemoryFrom(entry);
+        scheduler.setEntryProvider(entryProvider);
+
+        // Simulate a fetch
+        ObjectNode query = JsonFactory.createObject();
+        scheduler.fetchEntriesFromServer(query);
+
+        return scheduler;
+    }
+
+    @Test
+    void entryDroppedSchedulerEvent_isInstanceOfCalendarItemDroppedSchedulerEvent() {
+        ResourceEntry entry = new ResourceEntry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendarScheduler<Entry> scheduler = createEntrySchedulerWithCachedEntry(entry);
+
+        Resource oldRes = new Resource("r1", "Room 1", null);
+        Resource newRes = new Resource("r2", "Room 2", null);
+        scheduler.addResources(oldRes, newRes);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        itemJson.put("oldResource", "r1");
+        itemJson.put("newResource", "r2");
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 1, 0L);
+
+        EntryDroppedSchedulerEvent event = new EntryDroppedSchedulerEvent(scheduler, true, itemJson, deltaJson);
+
+        assertInstanceOf(CalendarItemDroppedSchedulerEvent.class, event);
+        assertInstanceOf(CalendarItemDroppedEvent.class, event);
+        assertInstanceOf(CalendarItemTimeChangedEvent.class, event);
+        assertInstanceOf(CalendarItemDataEvent.class, event);
+        assertInstanceOf(CalendarItemEvent.class, event);
+    }
+
+    @Test
+    void entryDroppedSchedulerEvent_getEntry_and_getItem_returnSameObject() {
+        ResourceEntry entry = new ResourceEntry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendarScheduler<Entry> scheduler = createEntrySchedulerWithCachedEntry(entry);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 0, 0L);
+
+        EntryDroppedSchedulerEvent event = new EntryDroppedSchedulerEvent(scheduler, true, itemJson, deltaJson);
+
+        assertSame(event.getEntry(), event.getItem());
+        assertSame(entry, event.getEntry());
+    }
+
+    @Test
+    void entryDroppedSchedulerEvent_resourceResolution_fromParent() {
+        ResourceEntry entry = new ResourceEntry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendarScheduler<Entry> scheduler = createEntrySchedulerWithCachedEntry(entry);
+
+        Resource oldRes = new Resource("r1", "Room 1", null);
+        Resource newRes = new Resource("r2", "Room 2", null);
+        scheduler.addResources(oldRes, newRes);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        itemJson.put("oldResource", "r1");
+        itemJson.put("newResource", "r2");
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 0, 0L);
+
+        EntryDroppedSchedulerEvent event = new EntryDroppedSchedulerEvent(scheduler, true, itemJson, deltaJson);
+
+        // Resource resolution is inherited from CalendarItemDroppedSchedulerEvent
+        assertTrue(event.getOldResource().isPresent());
+        assertEquals("r1", event.getOldResource().get().getId());
+        assertTrue(event.getNewResource().isPresent());
+        assertEquals("r2", event.getNewResource().get().getId());
+    }
+
+    @Test
+    void entryDroppedSchedulerEvent_applyChangesOnEntry_updatesResources() {
+        ResourceEntry entry = new ResourceEntry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendarScheduler<Entry> scheduler = createEntrySchedulerWithCachedEntry(entry);
+
+        Resource oldRes = new Resource("r1", "Room 1", null);
+        Resource newRes = new Resource("r2", "Room 2", null);
+        scheduler.addResources(oldRes, newRes);
+        entry.addResources(oldRes);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        itemJson.put("oldResource", "r1");
+        itemJson.put("newResource", "r2");
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 0, 0L);
+
+        EntryDroppedSchedulerEvent event = new EntryDroppedSchedulerEvent(scheduler, true, itemJson, deltaJson);
+        event.applyChangesOnEntry();
+
+        // After applyChangesOnEntry, old resource should be removed and new added
+        assertFalse(entry.getResources().contains(oldRes));
+        assertTrue(entry.getResources().contains(newRes));
     }
 }

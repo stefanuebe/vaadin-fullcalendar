@@ -25,10 +25,13 @@ import tools.jackson.databind.node.ObjectNode;
  * Occurs when an entry has been clicked on the client side.
  * <br><br>
  * Client side event: eventClick
+ *
+ * @deprecated Use {@link CalendarItemClickedEvent} with {@link FullCalendar#addCalendarItemClickedListener} instead.
  */
 @DomEvent("eventClick")
 @ToString(callSuper = true)
-public class EntryClickedEvent extends EntryDataEvent {
+@Deprecated
+public class EntryClickedEvent extends CalendarItemClickedEvent<Entry> {
 
     /**
      * New instance. Awaits the id of the clicked entry.
@@ -41,4 +44,33 @@ public class EntryClickedEvent extends EntryDataEvent {
         super(source, fromClient, entryData);
     }
 
+    /**
+     * Returns the entry for which the event occurred.
+     *
+     * @return entry
+     * @deprecated Use {@link #getItem()} instead.
+     */
+    @Deprecated
+    public Entry getEntry() {
+        return getItem();
+    }
+
+    /**
+     * Creates a copy based on the referenced entry and the received data.
+     *
+     * @param <R> return type
+     * @return copy
+     * @deprecated Use the CIP event hierarchy with {@link CalendarItemClickedEvent} instead.
+     */
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public <R extends Entry> R createCopyBasedOnChanges() {
+        try {
+            Entry copy = getEntry().copy();
+            copy.updateFromJson(getJsonObject());
+            return (R) copy;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

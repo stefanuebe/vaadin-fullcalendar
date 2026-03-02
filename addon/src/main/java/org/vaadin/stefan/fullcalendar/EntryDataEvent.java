@@ -16,22 +16,24 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import lombok.Getter;
 import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Extended entry event type, that provides also additional client side entry data, that can be interpreted on the
- * server side.
+ * Extended entry event type that provides additional client-side entry data.
+ * <p>
+ * <b>Note:</b> Concrete entry events (e.g. {@link EntryClickedEvent}, {@link EntryDroppedEvent}) no longer
+ * extend this class. They now extend the corresponding CIP event types directly
+ * (e.g. {@link CalendarItemClickedEvent}, {@link CalendarItemDroppedEvent}).
+ * <p>
+ * Use {@code instanceof CalendarItemDataEvent} instead of {@code instanceof EntryDataEvent} to match
+ * concrete entry events.
+ *
+ * @deprecated Use {@link CalendarItemDataEvent} instead. This class has no concrete subclasses.
  */
-@Getter
+@Deprecated
 @ToString(callSuper = true)
-public abstract class EntryDataEvent extends EntryEvent {
-
-    /**
-     * The json object that contains the changes from client side.
-     */
-    private final ObjectNode jsonObject;
+public abstract class EntryDataEvent extends CalendarItemDataEvent<Entry> {
 
     /**
      * New instance. Awaits the changed data object.
@@ -40,26 +42,39 @@ public abstract class EntryDataEvent extends EntryEvent {
      * @param jsonObject json object with changed data
      */
     public EntryDataEvent(FullCalendar<Entry> source, boolean fromClient, ObjectNode jsonObject) {
-        super(source, fromClient, jsonObject.get(Entry.Fields.ID).asString());
-        this.jsonObject = jsonObject;
+        super(source, fromClient, jsonObject);
+    }
+
+    /**
+     * Returns the entry for which the event occurred.
+     *
+     * @return entry
+     * @deprecated Use {@link #getItem()} instead.
+     */
+    @Deprecated
+    public Entry getEntry() {
+        return getItem();
     }
 
     /**
      * Applies the contained changes on the referring entry and returns this instance.
      * @see Entry#updateFromJson(tools.jackson.databind.node.ObjectNode)
      * @return entry
+     * @deprecated Use {@link #applyChangesOnItem()} instead.
      */
+    @Deprecated
     public Entry applyChangesOnEntry() {
-        Entry entry = getEntry();
-        entry.updateFromJson(getJsonObject());
-        return entry;
+        return applyChangesOnItem();
     }
 
     /**
      * Creates a copy based on the referenced entry and the received data.
      * @param <R> return type
      * @return copy
+     * @deprecated Use the CIP event hierarchy instead.
      */
+    @Deprecated
+    @SuppressWarnings("unchecked")
     public <R extends Entry> R createCopyBasedOnChanges() {
         try {
             Entry copy = getEntry().copy();
@@ -73,6 +88,4 @@ public abstract class EntryDataEvent extends EntryEvent {
             throw new RuntimeException(e);
         }
     }
-
-
 }

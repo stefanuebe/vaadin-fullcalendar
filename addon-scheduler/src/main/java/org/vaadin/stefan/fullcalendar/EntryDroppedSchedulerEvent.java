@@ -9,12 +9,19 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.Collections;
 import java.util.Optional;
 
+/**
+ * Occurs when an entry's time or resource assignment has changed by drag and drop
+ * in a scheduler (resource) view.
+ * <br><br>
+ * Client side name: eventDrop
+ *
+ * @deprecated Use {@link CalendarItemDroppedSchedulerEvent} with
+ * {@link FullCalendarScheduler#addCalendarItemDroppedSchedulerListener} instead.
+ */
 @DomEvent("eventDrop")
 @ToString(callSuper = true)
-public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
-
-    private final Resource oldResource;
-    private final Resource newResource;
+@Deprecated
+public class EntryDroppedSchedulerEvent extends CalendarItemDroppedSchedulerEvent<Entry> {
 
     /**
      * New instance. Awaits the changed data object for the entry plus the json object for the delta information.
@@ -28,28 +35,29 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
                                       @EventData("event.detail.data") ObjectNode jsonEntry,
                                       @EventData("event.detail.delta") ObjectNode jsonDelta) {
         super(source, fromClient, jsonEntry, jsonDelta);
+    }
 
-        Scheduler scheduler = (Scheduler) source;
-        if(jsonEntry.hasNonNull("oldResource")) {
-            this.oldResource = scheduler.getResourceById(jsonEntry.get("oldResource").asString()).orElseThrow(IllegalArgumentException::new);
-        } else {
-            this.oldResource = null;
-        }
-
-        if(jsonEntry.has("newResource")) {
-            this.newResource = scheduler.getResourceById(jsonEntry.get("newResource").asString()).orElseThrow(IllegalArgumentException::new);
-        } else {
-            this.newResource = null;
-        }
+    /**
+     * Returns the entry for which the event occurred.
+     *
+     * @return entry
+     * @deprecated Use {@link #getItem()} instead.
+     */
+    @Deprecated
+    public Entry getEntry() {
+        return getItem();
     }
 
     /**
      * Applies the changes on the entry including updating a resource change.
+     *
      * @return this event's entry instance
+     * @deprecated Use {@link #applyChangesOnItem()} instead. Note that resource changes
+     * need to be handled separately when using the CIP approach.
      */
-    @Override
+    @Deprecated
     public Entry applyChangesOnEntry() {
-        ResourceEntry entry = (ResourceEntry) super.applyChangesOnEntry();
+        ResourceEntry entry = (ResourceEntry) applyChangesOnItem();
         ObjectNode object = getJsonObject();
 
         updateResourcesFromEventResourceDelta(entry, object);
@@ -76,18 +84,21 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
     }
 
     /**
-     * If there has been a change in the resource assignments, this method returns the previous assigned resource.
-     * @return previous resource or empty
+     * Creates a copy based on the referenced entry and the received data.
+     *
+     * @param <R> return type
+     * @return copy
+     * @deprecated Use the CIP event hierarchy with {@link CalendarItemDroppedSchedulerEvent} instead.
      */
-    public Optional<Resource> getOldResource() {
-        return Optional.ofNullable(oldResource);
-    }
-
-    /**
-     * If there has been a change in the resource assignments, this method returns the newly assigned resource.
-     * @return newly resource or empty
-     */
-    public Optional<Resource> getNewResource() {
-        return Optional.ofNullable(newResource);
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public <R extends Entry> R createCopyBasedOnChanges() {
+        try {
+            Entry copy = getEntry().copy();
+            copy.updateFromJson(getJsonObject());
+            return (R) copy;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

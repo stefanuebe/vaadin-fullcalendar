@@ -16,25 +16,24 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import lombok.Getter;
 import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * This specialized version of the entry changed event gives additional information about the changed time as
- * a delta instance.
- * <br><br>
- * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
+ * Specialized entry event for time changes with delta information.
+ * <p>
+ * <b>Note:</b> Concrete entry events ({@link EntryDroppedEvent}, {@link EntryResizedEvent}) no longer
+ * extend this class. They now extend the corresponding CIP event types directly
+ * ({@link CalendarItemDroppedEvent}, {@link CalendarItemResizedEvent}).
+ * <p>
+ * Use {@code instanceof CalendarItemTimeChangedEvent} instead of {@code instanceof EntryTimeChangedEvent}
+ * to match concrete entry events.
+ *
+ * @deprecated Use {@link CalendarItemTimeChangedEvent} instead. This class has no concrete subclasses.
  */
-@Getter
+@Deprecated
 @ToString(callSuper = true)
-public class EntryTimeChangedEvent extends EntryChangedEvent {
-
-    /**
-     * The delta information. Please note, that the entry itself already is up-to-date, so there is no need
-     * to apply the delta on it.
-     */
-    private final Delta delta;
+public class EntryTimeChangedEvent extends CalendarItemTimeChangedEvent<Entry> {
 
     /**
      * New instance. Awaits the changed data object for the entry plus the json object for the delta information.
@@ -44,8 +43,47 @@ public class EntryTimeChangedEvent extends EntryChangedEvent {
      * @param jsonDelta json object with delta information
      */
     public EntryTimeChangedEvent(FullCalendar<Entry> source, boolean fromClient, ObjectNode jsonEntry, ObjectNode jsonDelta) {
-        super(source, fromClient, jsonEntry);
-        this.delta = Delta.fromJson(jsonDelta);
+        super(source, fromClient, jsonEntry, jsonDelta);
     }
 
+    /**
+     * Returns the entry for which the event occurred.
+     *
+     * @return entry
+     * @deprecated Use {@link #getItem()} instead.
+     */
+    @Deprecated
+    public Entry getEntry() {
+        return getItem();
+    }
+
+    /**
+     * Applies the contained changes on the referring entry and returns this instance.
+     *
+     * @return entry
+     * @deprecated Use {@link #applyChangesOnItem()} instead.
+     */
+    @Deprecated
+    public Entry applyChangesOnEntry() {
+        return applyChangesOnItem();
+    }
+
+    /**
+     * Creates a copy based on the referenced entry and the received data.
+     *
+     * @param <R> return type
+     * @return copy
+     * @deprecated Use the CIP event hierarchy instead.
+     */
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public <R extends Entry> R createCopyBasedOnChanges() {
+        try {
+            Entry copy = getEntry().copy();
+            copy.updateFromJson(getJsonObject());
+            return (R) copy;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

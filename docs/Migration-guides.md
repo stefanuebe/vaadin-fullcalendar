@@ -10,11 +10,84 @@ If we missed something or anything is unclear, please ping us on GitHub. We hope
 as smoothly as possible.
 
 ## Index
+* [7.2 > 7.3](#migrating-from-72--73)
 * [7.1 > 7.2](#migrating-from-71--72)
 * [6.1 > 7.0](#migrating-from-61--70)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
+
+## Migrating from 7.2 > 7.3
+
+Version 7.3 unifies the event hierarchy so that Entry events now extend their CIP (Calendar Item Provider)
+counterparts. This is a **breaking change** for code that uses `instanceof` checks against intermediate
+Entry event classes.
+
+### Event hierarchy changes
+
+Concrete Entry events now extend CIP events instead of Entry event base classes:
+
+| Entry Event | Old parent | New parent |
+|---|---|---|
+| `EntryClickedEvent` | `EntryDataEvent` | `CalendarItemClickedEvent<Entry>` |
+| `EntryDroppedEvent` | `EntryTimeChangedEvent` | `CalendarItemDroppedEvent<Entry>` |
+| `EntryResizedEvent` | `EntryTimeChangedEvent` | `CalendarItemResizedEvent<Entry>` |
+| `EntryMouseEnterEvent` | `EntryDataEvent` | `CalendarItemMouseEnterEvent<Entry>` |
+| `EntryMouseLeaveEvent` | `EntryDataEvent` | `CalendarItemMouseLeaveEvent<Entry>` |
+| `EntryDroppedSchedulerEvent` | `EntryTimeChangedEvent` | `CalendarItemDroppedSchedulerEvent<Entry>` |
+
+The old intermediate classes (`EntryEvent`, `EntryDataEvent`, `EntryChangedEvent`, `EntryTimeChangedEvent`)
+are now deprecated orphans with no concrete subclasses.
+
+### `instanceof` pattern changes
+
+If your code uses `instanceof` checks against the old intermediate classes, update them:
+
+```java
+// Before — no longer matches concrete Entry events
+if (event instanceof EntryTimeChangedEvent) { ... }
+if (event instanceof EntryChangedEvent) { ... }
+if (event instanceof EntryDataEvent) { ... }
+if (event instanceof EntryEvent) { ... }
+
+// After — use the CIP counterparts
+if (event instanceof CalendarItemTimeChangedEvent<?>) { ... }
+if (event instanceof CalendarItemDataEvent<?>) { ... }
+if (event instanceof CalendarItemEvent<?>) { ... }
+```
+
+### Deprecated methods
+
+The following methods are deprecated on concrete Entry events. They still work but delegate to CIP methods:
+
+| Deprecated method | Replacement |
+|---|---|
+| `event.getEntry()` | `event.getItem()` |
+| `event.applyChangesOnEntry()` | `event.applyChangesOnItem()` |
+| `addEntryClickedListener()` | `addCalendarItemClickedListener()` |
+| `addEntryDroppedListener()` | `addCalendarItemDroppedListener()` |
+| `addEntryResizedListener()` | `addCalendarItemResizedListener()` |
+| `addEntryMouseEnterListener()` | `addCalendarItemMouseEnterListener()` |
+| `addEntryMouseLeaveListener()` | `addCalendarItemMouseLeaveListener()` |
+| `addEntryDroppedSchedulerListener()` | `addCalendarItemDroppedSchedulerListener()` |
+
+### No changes needed for common patterns
+
+The most common usage patterns continue to work without changes:
+
+```java
+// Still works — getEntry() is deprecated but functional
+calendar.addEntryDroppedListener(event -> {
+    event.applyChangesOnEntry();
+    onEntryChanged(event.getEntry());
+});
+
+// Recommended — use CIP methods
+calendar.addCalendarItemDroppedListener(event -> {
+    event.applyChangesOnItem();
+    onEntryChanged((Entry) event.getItem());
+});
+```
 
 ## Migrating from 7.1 > 7.2
 

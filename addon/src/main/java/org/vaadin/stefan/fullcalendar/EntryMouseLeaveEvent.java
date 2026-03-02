@@ -26,10 +26,13 @@ import tools.jackson.databind.node.ObjectNode;
  * Occurs when the user mouses out of an entry
  * <br><br>
  * Client side event: eventMouseLeave
+ *
+ * @deprecated Use {@link CalendarItemMouseLeaveEvent} with {@link FullCalendar#addCalendarItemMouseLeaveListener} instead.
  */
 @DomEvent("eventMouseLeave")
 @ToString(callSuper = true)
-public class EntryMouseLeaveEvent extends EntryDataEvent {
+@Deprecated
+public class EntryMouseLeaveEvent extends CalendarItemMouseLeaveEvent<Entry> {
 
     /**
      * New instance.
@@ -42,4 +45,14 @@ public class EntryMouseLeaveEvent extends EntryDataEvent {
         super(source, fromClient, entryData);
     }
 
+    /**
+     * Returns the entry for which the event occurred.
+     *
+     * @return entry
+     * @deprecated Use {@link #getItem()} instead.
+     */
+    @Deprecated
+    public Entry getEntry() {
+        return getItem();
+    }
 }

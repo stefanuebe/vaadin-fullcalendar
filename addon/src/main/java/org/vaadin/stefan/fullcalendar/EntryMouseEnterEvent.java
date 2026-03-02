@@ -26,10 +26,13 @@ import tools.jackson.databind.node.ObjectNode;
  * Occurs when the user mouses over an entry
  * <br><br>
  * Client side event: eventMouseEnter
+ *
+ * @deprecated Use {@link CalendarItemMouseEnterEvent} with {@link FullCalendar#addCalendarItemMouseEnterListener} instead.
  */
 @DomEvent("eventMouseEnter")
 @ToString(callSuper = true)
-public class EntryMouseEnterEvent extends EntryDataEvent {
+@Deprecated
+public class EntryMouseEnterEvent extends CalendarItemMouseEnterEvent<Entry> {
 
     /**
      * New instance.
@@ -42,4 +45,14 @@ public class EntryMouseEnterEvent extends EntryDataEvent {
         super(source, fromClient, entryData);
     }
 
+    /**
+     * Returns the entry for which the event occurred.
+     *
+     * @return entry
+     * @deprecated Use {@link #getItem()} instead.
+     */
+    @Deprecated
+    public Entry getEntry() {
+        return getItem();
+    }
 }

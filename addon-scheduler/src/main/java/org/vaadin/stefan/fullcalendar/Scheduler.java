@@ -327,7 +327,9 @@ public interface Scheduler {
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
+     * @deprecated Use {@link #addCalendarItemDroppedSchedulerListener} instead.
      */
+    @Deprecated
     Registration addEntryDroppedSchedulerListener(ComponentEventListener<EntryDroppedSchedulerEvent> listener);
 
     /**

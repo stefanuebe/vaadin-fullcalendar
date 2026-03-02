@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -425,5 +428,221 @@ class CalendarItemEventTest {
         assertSame(meeting, event.getItem());
         assertNotNull(event.getDelta());
         assertEquals(1, event.getDelta().getHours());
+    }
+
+    // ---- Phase 8: Event hierarchy unification tests ----
+
+    /** Helper to create an Entry-based calendar with a cached entry. */
+    private FullCalendar<Entry> createEntryCalendarWithCachedEntry(Entry entry) {
+        FullCalendar<Entry> calendar = new FullCalendar<>();
+        InMemoryEntryProvider<Entry> entryProvider = EntryProvider.inMemoryFrom(entry);
+        calendar.setEntryProvider(entryProvider);
+
+        // Simulate a fetch so the entry ends up in cache
+        ObjectNode query = JsonFactory.createObject();
+        calendar.fetchEntriesFromServer(query);
+
+        return calendar;
+    }
+
+    @Test
+    void calendarItemDroppedEvent_inheritsDeltaFromTimeChangedEvent() {
+        LocalDateTime begin = LocalDateTime.of(2025, 6, 1, 9, 0);
+        LocalDateTime finish = LocalDateTime.of(2025, 6, 1, 9, 30);
+        TestMeeting meeting = new TestMeeting("m1", "Standup", begin, finish, false);
+
+        FullCalendar<TestMeeting> calendar = createCIPCalendarWithCachedItem(meeting, createBidirectionalMapper());
+
+        ObjectNode itemJson = buildItemJson("m1", begin, finish, false);
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 1, 7_200_000L);
+
+        CalendarItemDroppedEvent<TestMeeting> event = new CalendarItemDroppedEvent<>(calendar, true, itemJson, deltaJson);
+
+        // getDelta() is inherited from CalendarItemTimeChangedEvent
+        assertInstanceOf(CalendarItemTimeChangedEvent.class, event);
+        assertNotNull(event.getDelta());
+        assertEquals(1, event.getDelta().getDays());
+        assertEquals(2, event.getDelta().getHours());
+    }
+
+    @Test
+    void calendarItemResizedEvent_inheritsDeltaFromTimeChangedEvent() {
+        LocalDateTime begin = LocalDateTime.of(2025, 6, 1, 9, 0);
+        LocalDateTime finish = LocalDateTime.of(2025, 6, 1, 9, 30);
+        TestMeeting meeting = new TestMeeting("m1", "Standup", begin, finish, false);
+
+        FullCalendar<TestMeeting> calendar = createCIPCalendarWithCachedItem(meeting, createBidirectionalMapper());
+
+        ObjectNode itemJson = buildItemJson("m1", begin, finish, false);
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 0, 1_800_000L);
+
+        CalendarItemResizedEvent<TestMeeting> event = new CalendarItemResizedEvent<>(calendar, true, itemJson, deltaJson);
+
+        assertInstanceOf(CalendarItemTimeChangedEvent.class, event);
+        assertNotNull(event.getDelta());
+        assertEquals(30, event.getDelta().getMinutes());
+    }
+
+    @Test
+    void entryClickedEvent_isInstanceOfCalendarItemClickedEvent() {
+        Entry entry = new Entry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendar<Entry> calendar = createEntryCalendarWithCachedEntry(entry);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        EntryClickedEvent event = new EntryClickedEvent(calendar, true, itemJson);
+
+        assertInstanceOf(CalendarItemClickedEvent.class, event);
+        assertInstanceOf(CalendarItemDataEvent.class, event);
+        assertInstanceOf(CalendarItemEvent.class, event);
+    }
+
+    @Test
+    void entryDroppedEvent_isInstanceOfCalendarItemDroppedEvent() {
+        Entry entry = new Entry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendar<Entry> calendar = createEntryCalendarWithCachedEntry(entry);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 1, 0L);
+        EntryDroppedEvent event = new EntryDroppedEvent(calendar, true, itemJson, deltaJson);
+
+        assertInstanceOf(CalendarItemDroppedEvent.class, event);
+        assertInstanceOf(CalendarItemTimeChangedEvent.class, event);
+        assertInstanceOf(CalendarItemDataEvent.class, event);
+        assertInstanceOf(CalendarItemEvent.class, event);
+    }
+
+    @Test
+    void entryResizedEvent_isInstanceOfCalendarItemResizedEvent() {
+        Entry entry = new Entry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendar<Entry> calendar = createEntryCalendarWithCachedEntry(entry);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 0, 1_800_000L);
+        EntryResizedEvent event = new EntryResizedEvent(calendar, true, itemJson, deltaJson);
+
+        assertInstanceOf(CalendarItemResizedEvent.class, event);
+        assertInstanceOf(CalendarItemTimeChangedEvent.class, event);
+        assertInstanceOf(CalendarItemDataEvent.class, event);
+        assertInstanceOf(CalendarItemEvent.class, event);
+    }
+
+    @Test
+    void entryMouseEnterEvent_isInstanceOfCalendarItemMouseEnterEvent() {
+        Entry entry = new Entry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendar<Entry> calendar = createEntryCalendarWithCachedEntry(entry);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        EntryMouseEnterEvent event = new EntryMouseEnterEvent(calendar, true, itemJson);
+
+        assertInstanceOf(CalendarItemMouseEnterEvent.class, event);
+        assertInstanceOf(CalendarItemDataEvent.class, event);
+        assertInstanceOf(CalendarItemEvent.class, event);
+    }
+
+    @Test
+    void entryMouseLeaveEvent_isInstanceOfCalendarItemMouseLeaveEvent() {
+        Entry entry = new Entry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendar<Entry> calendar = createEntryCalendarWithCachedEntry(entry);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        EntryMouseLeaveEvent event = new EntryMouseLeaveEvent(calendar, true, itemJson);
+
+        assertInstanceOf(CalendarItemMouseLeaveEvent.class, event);
+        assertInstanceOf(CalendarItemDataEvent.class, event);
+        assertInstanceOf(CalendarItemEvent.class, event);
+    }
+
+    @Test
+    void entryEvent_getEntry_and_getItem_returnSameObject() {
+        Entry entry = new Entry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendar<Entry> calendar = createEntryCalendarWithCachedEntry(entry);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        EntryClickedEvent event = new EntryClickedEvent(calendar, true, itemJson);
+
+        assertSame(event.getEntry(), event.getItem());
+        assertSame(entry, event.getEntry());
+    }
+
+    @Test
+    void entryDroppedEvent_createCopyBasedOnChanges_works() {
+        Entry entry = new Entry("e1");
+        entry.setTitle("Original");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendar<Entry> calendar = createEntryCalendarWithCachedEntry(entry);
+
+        LocalDateTime newStart = LocalDateTime.of(2025, 6, 2, 9, 0);
+        LocalDateTime newEnd = LocalDateTime.of(2025, 6, 2, 10, 0);
+        ObjectNode itemJson = buildItemJson("e1", newStart, newEnd, false);
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 1, 0L);
+        EntryDroppedEvent event = new EntryDroppedEvent(calendar, true, itemJson, deltaJson);
+
+        Entry copy = event.createCopyBasedOnChanges();
+        assertNotSame(entry, copy);
+        assertEquals("e1", copy.getId());
+        assertEquals(newStart, copy.getStart());
+        assertEquals(newEnd, copy.getEnd());
+    }
+
+    @Test
+    void entryClickedEvent_createCopyBasedOnChanges_works() {
+        Entry entry = new Entry("e1");
+        entry.setTitle("Original");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendar<Entry> calendar = createEntryCalendarWithCachedEntry(entry);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        EntryClickedEvent event = new EntryClickedEvent(calendar, true, itemJson);
+
+        Entry copy = event.createCopyBasedOnChanges();
+        assertNotSame(entry, copy);
+        assertEquals("e1", copy.getId());
+    }
+
+    @Test
+    void entryDroppedEvent_getDelta_works() {
+        Entry entry = new Entry("e1");
+        entry.setTitle("Meeting");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+
+        FullCalendar<Entry> calendar = createEntryCalendarWithCachedEntry(entry);
+
+        ObjectNode itemJson = buildItemJson("e1", entry.getStart(), entry.getEnd(), false);
+        ObjectNode deltaJson = buildDeltaJson(0, 0, 1, 3_600_000L);
+        EntryDroppedEvent event = new EntryDroppedEvent(calendar, true, itemJson, deltaJson);
+
+        Delta delta = event.getDelta();
+        assertNotNull(delta);
+        assertEquals(1, delta.getDays());
+        assertEquals(1, delta.getHours());
     }
 }
