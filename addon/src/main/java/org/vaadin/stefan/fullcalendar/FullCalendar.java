@@ -335,24 +335,38 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
         if (oldRef != null && oldRef != entryProvider) {
             oldRef.setCalendar(null);
         }
-        entryProvider.setCalendar(this);
-        this.entryProviderRef = entryProvider;
 
-        // Create Entry mapper that delegates to Entry.toJson()
-        CalendarItemPropertyMapper<T> mapper = (CalendarItemPropertyMapper<T>)
-                CalendarItemPropertyMapper.of(Entry.class)
-                        .id(Entry::getId)
-                        .jsonSerializer(Entry::toJson);
+        try {
+            entryProvider.setCalendar(this);
+            this.entryProviderRef = entryProvider;
 
-        // Delegate to CIP path
-        CalendarItemProvider<T> provider = (CalendarItemProvider<T>) entryProvider;
-        setCalendarItemProvider(provider, mapper);
+            // Create Entry mapper that delegates to Entry.toJson()
+            CalendarItemPropertyMapper<T> mapper = (CalendarItemPropertyMapper<T>)
+                    CalendarItemPropertyMapper.of(Entry.class)
+                            .id(Entry::getId)
+                            .jsonSerializer(Entry::toJson);
 
-        // Set Entry update handler (Strategy B — delegates to entry.updateFromJson)
-        CalendarItemUpdateHandler<T> handler = (CalendarItemUpdateHandler<T>)
-                (CalendarItemUpdateHandler<Entry>) (entry, changes) ->
-                        entry.updateFromJson(changes.getRawJson());
-        setCalendarItemUpdateHandler(handler);
+            // Delegate to CIP path
+            CalendarItemProvider<T> provider = (CalendarItemProvider<T>) entryProvider;
+            setCalendarItemProvider(provider, mapper);
+
+            // Set Entry update handler (Strategy B — delegates to entry.updateFromJson)
+            CalendarItemUpdateHandler<T> handler = (CalendarItemUpdateHandler<T>)
+                    (CalendarItemUpdateHandler<Entry>) (entry, changes) ->
+                            entry.updateFromJson(changes.getRawJson());
+            setCalendarItemUpdateHandler(handler);
+        } catch (RuntimeException e) {
+            // Restore old provider reference on failure
+            this.entryProviderRef = oldRef;
+            if (oldRef != null) {
+                try {
+                    oldRef.setCalendar(this);
+                } catch (RuntimeException suppressed) {
+                    e.addSuppressed(suppressed);
+                }
+            }
+            throw e;
+        }
     }
 
     /**

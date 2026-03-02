@@ -6,12 +6,13 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.NullNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import com.vaadin.flow.function.SerializableFunction;
+
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * Maps arbitrary POJO properties to FullCalendar JSON event properties.
@@ -47,7 +48,7 @@ public class CalendarItemPropertyMapper<T> implements Serializable {
     private volatile boolean frozen;
 
     // Optional JSON serializer hook — when set, toJson() delegates to this function instead of using readMappings
-    private Function<T, ObjectNode> jsonSerializer;
+    private SerializableFunction<T, ObjectNode> jsonSerializer;
 
     private CalendarItemPropertyMapper(Class<T> type) {
         this.type = Objects.requireNonNull(type, "type");
@@ -74,7 +75,7 @@ public class CalendarItemPropertyMapper<T> implements Serializable {
      * @param serializer the function that converts a POJO to an ObjectNode
      * @return this mapper for chaining
      */
-    public CalendarItemPropertyMapper<T> jsonSerializer(Function<T, ObjectNode> serializer) {
+    public CalendarItemPropertyMapper<T> jsonSerializer(SerializableFunction<T, ObjectNode> serializer) {
         ensureNotFrozen();
         this.jsonSerializer = Objects.requireNonNull(serializer, "serializer");
         return this;
