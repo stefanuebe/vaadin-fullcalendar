@@ -27,7 +27,6 @@ import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendar
 import org.vaadin.stefan.fullcalendar.dataprovider.CalendarItemProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.CalendarQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
-import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
@@ -104,13 +103,12 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     private final Map<String, Object> initialOptions = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
-    private EntryProvider<? extends Entry> entryProvider;
-    private final List<Registration> entryProviderDataListeners = new LinkedList<>();
+    // Convenience reference for getEntryProvider() — only set when setEntryProvider() was used
+    private EntryProvider<? extends Entry> entryProviderRef;
 
     private CalendarItemProvider<T> calendarItemProvider;
     private CalendarItemPropertyMapper<T> calendarItemPropertyMapper;
     private CalendarItemUpdateHandler<T> calendarItemUpdateHandler;
-    private boolean usingCalendarItemProvider = false;
     private final List<Registration> calendarItemProviderListeners = new LinkedList<>();
 
     private final Map<String, CustomCalendarView> customCalendarViews = new LinkedHashMap<>();
@@ -319,65 +317,52 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * client side will be updated.
      * <p></p>
      * By default a new full calendar is initialized with an {@link InMemoryEntryProvider}.
+     * <p>
+     * Internally delegates to {@link #setCalendarItemProvider} — all calendars use the CIP
+     * pipeline internally. Entry-based calendars are just a convenient preset.
      *
      * @param entryProvider entry provider
      * @deprecated Use {@link #setCalendarItemProvider} for custom POJOs,
      * or continue using this method for Entry-based calendars.
      */
+    @SuppressWarnings("unchecked")
     @Deprecated(since = "7.2", forRemoval = false)
     public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
         Objects.requireNonNull(entryProvider);
 
-        // Clear CIP state when switching to entry provider
-        this.usingCalendarItemProvider = false;
-        this.calendarItemProvider = null;
-        this.calendarItemPropertyMapper = null;
-        this.calendarItemUpdateHandler = null;
-        calendarItemProviderListeners.forEach(Registration::remove);
-        calendarItemProviderListeners.clear();
-
-        if (this.entryProvider != entryProvider) {
-            // Remove old listeners first to ensure cleanup even if setCalendar throws
-            entryProviderDataListeners.forEach(Registration::remove);
-            entryProviderDataListeners.clear();
-
-            EntryProvider<? extends Entry> oldProvider = this.entryProvider;
-            try {
-                if (oldProvider != null) {
-                    oldProvider.setCalendar(null);
-                }
-
-                this.entryProvider = entryProvider;
-                entryProvider.setCalendar(this);
-
-                entryProviderDataListeners.add(entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
-                entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAllEntries()));
-            } catch (RuntimeException e) {
-                // Restore old provider on failure to maintain consistent state
-                this.entryProvider = oldProvider;
-                if (oldProvider != null) {
-                    try {
-                        oldProvider.setCalendar(this);
-                        entryProviderDataListeners.add(oldProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
-                        entryProviderDataListeners.add(oldProvider.addEntriesChangeListener(event -> requestRefreshAllEntries()));
-                    } catch (RuntimeException restoreException) {
-                        // Log and suppress restore exception, throw original
-                        e.addSuppressed(restoreException);
-                    }
-                }
-                throw e;
-            }
+        // EntryProvider lifecycle: setCalendar
+        EntryProvider<? extends Entry> oldRef = this.entryProviderRef;
+        if (oldRef != null && oldRef != entryProvider) {
+            oldRef.setCalendar(null);
         }
+        entryProvider.setCalendar(this);
+        this.entryProviderRef = entryProvider;
+
+        // Create Entry mapper that delegates to Entry.toJson()
+        CalendarItemPropertyMapper<T> mapper = (CalendarItemPropertyMapper<T>)
+                CalendarItemPropertyMapper.of(Entry.class)
+                        .id(Entry::getId)
+                        .jsonSerializer(Entry::toJson);
+
+        // Delegate to CIP path
+        CalendarItemProvider<T> provider = (CalendarItemProvider<T>) entryProvider;
+        setCalendarItemProvider(provider, mapper);
+
+        // Set Entry update handler (Strategy B — delegates to entry.updateFromJson)
+        CalendarItemUpdateHandler<T> handler = (CalendarItemUpdateHandler<T>)
+                (CalendarItemUpdateHandler<Entry>) (entry, changes) ->
+                        entry.updateFromJson(changes.getRawJson());
+        setCalendarItemUpdateHandler(handler);
     }
 
     /**
-     * Returns the entry provider of this calendar. May be null when a CalendarItemProvider is active.
+     * Returns the entry provider of this calendar. May be null when a non-Entry CalendarItemProvider is active.
      * @param <EP> entry provider class or subclass
-     * @return entry provider
+     * @return entry provider or null
      */
     @SuppressWarnings("unchecked")
     public <R extends Entry, EP extends EntryProvider<R>> EP getEntryProvider() {
-        return (EP) entryProvider;
+        return (EP) entryProviderRef;
     }
 
     /**
@@ -399,19 +384,17 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
         Objects.requireNonNull(mapper, "mapper must not be null");
         mapper.validate();
 
-        if (mapper.hasSetters() && calendarItemUpdateHandler != null) {
-            throw new IllegalStateException(
-                "Cannot use both mapper setters and CalendarItemUpdateHandler. "
-                + "Remove setters from the mapper or remove the update handler.");
+        // Clear entryProviderRef when called directly with a non-Entry provider
+        if (!(provider instanceof EntryProvider)) {
+            if (this.entryProviderRef != null) {
+                this.entryProviderRef.setCalendar(null);
+                this.entryProviderRef = null;
+            }
         }
 
-        // Clear old entry provider state
-        if (this.entryProvider != null) {
-            entryProviderDataListeners.forEach(Registration::remove);
-            entryProviderDataListeners.clear();
-            this.entryProvider.setCalendar(null);
-            this.entryProvider = null;
-        }
+        // Setting a new provider clears any existing update handler.
+        // The handler can be (re)set after this call.
+        this.calendarItemUpdateHandler = null;
 
         // Clear old CIP listeners
         calendarItemProviderListeners.forEach(Registration::remove);
@@ -419,7 +402,6 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
 
         this.calendarItemProvider = provider;
         this.calendarItemPropertyMapper = mapper;
-        this.usingCalendarItemProvider = true;
 
         // Register CIP listeners
         calendarItemProviderListeners.add(
@@ -452,11 +434,17 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /**
-     * Returns whether this calendar is using a CalendarItemProvider (CIP) instead of an EntryProvider.
-     * @return true if CIP is active
+     * Returns whether this calendar is using a non-Entry CalendarItemProvider (CIP).
+     * After internal unification, all calendars use CIP internally — this method returns
+     * {@code true} only when the active provider is NOT an EntryProvider (i.e., a "pure CIP"
+     * calendar with custom POJOs).
+     *
+     * @return true if the active provider is not an EntryProvider
+     * @deprecated Check provider type directly instead.
      */
+    @Deprecated(since = "7.2", forRemoval = false)
     public boolean isUsingCalendarItemProvider() {
-        return usingCalendarItemProvider;
+        return calendarItemProvider != null && !(calendarItemProvider instanceof EntryProvider);
     }
 
     /**
@@ -476,30 +464,19 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
     }
 
     /**
-     * This method requests an entry refresh from the client side. Every call of this method will register
-     * a client side call, since it might be called for different items. Calls are handled in the order
-     * they are requested. This method will not interfere or "communicate" with {@link #requestRefreshAllEntries()}.
+     * This method requests an entry refresh from the client side.
      *
      * @param item item to refresh
+     * @deprecated Use {@link #requestRefreshCalendarItem(Object)} instead.
      */
+    @SuppressWarnings("unchecked")
+    @Deprecated(since = "7.2")
     protected void requestRefresh(Entry item) {
-        getElement().getNode().runWhenAttached(ui -> {
-            ui.beforeClientResponse(this, pExecutionContext -> {
-                getEntryProvider()
-                        .fetchById(item.getId())
-                        .ifPresent(refreshedEntry -> {
-                            lastFetchedItems.put(refreshedEntry.getId(), refreshedEntry);
-                            getElement().callJsFunction("refreshSingleEvent", refreshedEntry.getId());
-                        });
-
-
-                // refreshAllRequested = false; // why was this here?
-            });
-        });
+        requestRefreshCalendarItem((T) item);
     }
 
     /**
-     * Requests a refresh of a single calendar item (CIP path). Uses runWhenAttached deferral
+     * Requests a refresh of a single calendar item. Uses runWhenAttached deferral
      * to ensure the element is attached before calling JS functions.
      *
      * @param item item to refresh
@@ -514,7 +491,8 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
             ui.beforeClientResponse(this, ctx -> {
                 String id = calendarItemPropertyMapper.getId(item);
                 lastFetchedItems.put(id, item);
-                getElement().callJsFunction("refreshSingleEvent", calendarItemPropertyMapper.toJson(item));
+                // JS refreshSingleEvent(id) just calls refetchEvents() regardless of argument type
+                getElement().callJsFunction("refreshSingleEvent", id);
             });
         });
     }
@@ -571,7 +549,7 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
      * @return is eager loading
      */
     public boolean isInMemoryEntryProvider() {
-        return entryProvider instanceof InMemoryEntryProvider;
+        return entryProviderRef instanceof InMemoryEntryProvider;
     }
 
     @ClientCallable
@@ -584,39 +562,25 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
         LocalDateTime end = query.hasNonNull("end") ? JsonUtils.parseClientSideDateTime(query.get("end").asString()) : null;
 
         ArrayNode array = JsonFactory.createArray();
-
-        if (usingCalendarItemProvider) {
-            fetchCalendarItems(start, end, array);
-        } else {
-            fetchEntries(start, end, array);
-        }
-
+        fetchCalendarItems(start, end, array);
         return array;
     }
 
     /**
-     * Entry path — extracted from existing fetchEntriesFromServer logic, unchanged behavior.
-     */
-    private void fetchEntries(LocalDateTime start, LocalDateTime end, ArrayNode array) {
-        Objects.requireNonNull(entryProvider);
-        entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
-                .peek(entry -> {
-                    entry.setCalendar(this);
-                    entry.setKnownToTheClient(true);
-                    lastFetchedItems.put(entry.getId(), entry);
-                })
-                .map(Entry::toJson)
-                .forEach(array::add);
-    }
-
-    /**
-     * CIP path — fetches calendar items via the CalendarItemProvider and maps to JSON.
+     * Unified fetch — fetches calendar items via the CalendarItemProvider and maps to JSON.
+     * Handles Entry-specific lifecycle (setCalendar, setKnownToTheClient) via instanceof checks.
      */
     private void fetchCalendarItems(LocalDateTime start, LocalDateTime end, ArrayNode array) {
         Objects.requireNonNull(calendarItemProvider, "calendarItemProvider is not set");
         Objects.requireNonNull(calendarItemPropertyMapper, "calendarItemPropertyMapper is not set");
         calendarItemProvider.fetch(new CalendarQuery(start, end))
-                .peek(item -> lastFetchedItems.put(calendarItemPropertyMapper.getId(item), item))
+                .peek(item -> {
+                    lastFetchedItems.put(calendarItemPropertyMapper.getId(item), item);
+                    if (item instanceof Entry entry) {
+                        entry.setCalendar(this);
+                        entry.setKnownToTheClient(true);
+                    }
+                })
                 .map(calendarItemPropertyMapper::toJson)
                 .forEach(array::add);
     }
@@ -640,25 +604,22 @@ public class FullCalendar<T> extends Component implements HasStyle, HasSize, Has
 
     /**
      * Returns an item with the given id from the last fetched set of items. Returns an empty instance,
-     * when there was no fetch yet, the id is unknown, or the calendar is not using a CalendarItemProvider.
+     * when there was no fetch yet or the id is unknown.
      *
      * @param id id
      * @return cached item from last fetch or empty
      */
     @SuppressWarnings("unchecked")
     public Optional<T> getCachedItemFromFetch(String id) {
-        if (!usingCalendarItemProvider) {
-            return Optional.empty();
-        }
         return Optional.ofNullable((T) lastFetchedItems.get(id));
     }
 
     protected InMemoryEntryProvider<Entry> assureInMemoryProvider() {
-        if (!(entryProvider instanceof InMemoryEntryProvider)) {
+        if (!(entryProviderRef instanceof InMemoryEntryProvider)) {
             throw new UnsupportedOperationException("Needs an InMemoryEntryProvider to work.");
         }
 
-        return (InMemoryEntryProvider<Entry>) entryProvider;
+        return (InMemoryEntryProvider<Entry>) entryProviderRef;
     }
 
     /**

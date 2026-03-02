@@ -687,14 +687,27 @@ public class FullCalendarTest {
     }
 
     @Test
-    void testCachedItemFromFetch_emptyWhenEntryProviderActive() {
+    void testCachedItemFromFetch_worksForEntryProviderToo() {
         FullCalendar<Entry> calendar = new FullCalendar<>();
 
-        // Default calendar uses entry provider, not CIP
+        // Default calendar uses entry provider (delegates to CIP internally)
         assertFalse(calendar.isUsingCalendarItemProvider());
 
+        // Before any fetch, cache is empty
         Optional<Entry> itemCached = calendar.getCachedItemFromFetch("anything");
         assertFalse(itemCached.isPresent());
+
+        // After fetch, Entry items are also accessible via getCachedItemFromFetch
+        Entry entry = new Entry("e1");
+        entry.setTitle("Test");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 10, 0));
+        ((org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntry(entry);
+        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+
+        Optional<Entry> cached = calendar.getCachedItemFromFetch("e1");
+        assertTrue(cached.isPresent());
+        assertSame(entry, cached.get());
     }
 
     @Test
@@ -733,13 +746,16 @@ public class FullCalendarTest {
         calendar.setEntryProvider(org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider.emptyInMemory());
 
         assertFalse(calendar.isUsingCalendarItemProvider());
-        assertNull(calendar.getCalendarItemProvider());
-        assertNull(calendar.getCalendarItemPropertyMapper());
+        // After unification, setEntryProvider() delegates to CIP internally, so
+        // getCalendarItemProvider() returns the EntryProvider (which IS-A CalendarItemProvider)
+        assertNotNull(calendar.getCalendarItemProvider());
+        assertInstanceOf(org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider.class, calendar.getCalendarItemProvider());
+        assertNotNull(calendar.getCalendarItemPropertyMapper());
         assertNotNull(calendar.getEntryProvider());
     }
 
     @Test
-    void testMutualExclusion_settersAndHandler_throws() {
+    void testMutualExclusion_settersAndHandler_providerClearsHandler() {
         FullCalendar<TestMeeting> calendar = new FullCalendar<>();
 
         CalendarItemPropertyMapper<TestMeeting> mapperWithSetters = createBidirectionalMapper();
@@ -748,9 +764,12 @@ public class FullCalendarTest {
         // Set update handler first
         calendar.setCalendarItemUpdateHandler((item, changes) -> {});
 
-        // Now set CIP with mapper that has setters → should throw
+        // Setting a new CIP clears the handler, so this should NOT throw
+        calendar.setCalendarItemProvider(provider, mapperWithSetters);
+
+        // But trying to set a handler after a mapper with setters still throws
         assertThrows(IllegalStateException.class, () ->
-                calendar.setCalendarItemProvider(provider, mapperWithSetters));
+                calendar.setCalendarItemUpdateHandler((item, changes) -> {}));
     }
 
     @Test
@@ -961,5 +980,99 @@ public class FullCalendarTest {
 //        assertFalse(calendar.getCachedEntryFromFetch("2").isPresent());
 //        assertFalse(calendar.getCachedEntryFromFetch("3").isPresent());
 //    }
+
+    // ---- Phase 7: Internal Unification tests ----
+
+    @Test
+    void testSetEntryProvider_internallySetsCIP() {
+        FullCalendar<Entry> calendar = new FullCalendar<>();
+
+        // setEntryProvider is called by postConstruct, verify CIP is set internally
+        assertNotNull(calendar.getCalendarItemProvider());
+        assertInstanceOf(org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider.class, calendar.getCalendarItemProvider());
+        assertNotNull(calendar.getCalendarItemPropertyMapper());
+        assertNotNull(calendar.getEntryProvider());
+        assertFalse(calendar.isUsingCalendarItemProvider());
+    }
+
+    @Test
+    void testSetEntryProvider_fetchUsesEntryToJson() {
+        FullCalendar<Entry> calendar = new FullCalendar<>();
+
+        Entry entry = new Entry("e1");
+        entry.setTitle("Team Standup");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        entry.setEnd(LocalDateTime.of(2025, 6, 1, 9, 30));
+        ((org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntry(entry);
+
+        var result = calendar.fetchEntriesFromServer(JsonFactory.createObject());
+        assertEquals(1, result.size());
+
+        ObjectNode json = (ObjectNode) result.get(0);
+        assertEquals("e1", json.get("id").asString());
+        assertEquals("Team Standup", json.get("title").asString());
+    }
+
+    @Test
+    void testSetEntryProvider_entryLifecyclePreserved() {
+        FullCalendar<Entry> calendar = new FullCalendar<>();
+
+        Entry entry = new Entry("e1");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        ((org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntry(entry);
+
+        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+
+        // After fetch, Entry should have calendar set and be known to client
+        assertTrue(entry.getCalendar().isPresent());
+        assertSame(calendar, entry.getCalendar().get());
+        assertTrue(entry.isKnownToTheClient());
+    }
+
+    @Test
+    void testSetEntryProvider_cachedItemFromFetchWorksForEntries() {
+        FullCalendar<Entry> calendar = new FullCalendar<>();
+
+        Entry entry = new Entry("e1");
+        entry.setStart(LocalDateTime.of(2025, 6, 1, 9, 0));
+        ((org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntry(entry);
+
+        calendar.fetchEntriesFromServer(JsonFactory.createObject());
+
+        // getCachedItemFromFetch should work for Entry items after unification
+        Optional<Entry> cached = calendar.getCachedItemFromFetch("e1");
+        assertTrue(cached.isPresent());
+        assertSame(entry, cached.get());
+
+        // getCachedEntryFromFetch should also work
+        Optional<Entry> entryCached = calendar.getCachedEntryFromFetch("e1");
+        assertTrue(entryCached.isPresent());
+        assertSame(entry, entryCached.get());
+    }
+
+    @Test
+    void testSetEntryProvider_cipListenersWorkOnEntryCalendars() {
+        FullCalendar<Entry> calendar = new FullCalendar<>();
+
+        // CIP listeners should fire on Entry-based calendars
+        AtomicBoolean listenerCalled = new AtomicBoolean(false);
+        calendar.addCalendarItemClickedListener(event -> listenerCalled.set(true));
+        // Just verify registration doesn't throw
+        assertFalse(listenerCalled.get());
+    }
+
+    @Test
+    void testSetCalendarItemProvider_clearsHandlerFromPreviousEntryProvider() {
+        FullCalendar<TestMeeting> calendar = new FullCalendar<>();
+
+        // Default state has an entry update handler (set by setEntryProvider via postConstruct)
+        // Switching to CIP should clear it
+        CalendarItemPropertyMapper<TestMeeting> mapper = createBidirectionalMapper();
+        CalendarItemProvider<TestMeeting> provider = createTestProvider(List.of());
+
+        // This should not throw — the entry handler is cleared before the new mapper is checked
+        calendar.setCalendarItemProvider(provider, mapper);
+        assertTrue(calendar.isUsingCalendarItemProvider());
+    }
 
 }

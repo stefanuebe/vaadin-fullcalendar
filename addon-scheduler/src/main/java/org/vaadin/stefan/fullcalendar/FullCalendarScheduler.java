@@ -214,8 +214,8 @@ public class FullCalendarScheduler<T> extends FullCalendar<T> implements Schedul
      */
     @SuppressWarnings("unchecked")
     private void removeFromEntries(Iterable<Resource> iterableResources) {
-        if (isUsingCalendarItemProvider()) {
-            return; // CIP: user manages POJO resource associations
+        if (!(getCalendarItemProvider() instanceof EntryProvider<?>)) {
+            return; // Not Entry-based — user manages POJO resource associations
         }
 
         List<Resource> resources = StreamSupport.stream(iterableResources.spliterator(), false).collect(Collectors.toList());

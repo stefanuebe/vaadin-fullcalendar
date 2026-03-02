@@ -12,7 +12,7 @@
 | 4b | Code Review Fixes | COMPLETE | Thread-safety, null checks, caching, Javadoc fixes |
 | 5 | Scheduler Extension | COMPLETE | Integrate CIP with addon-scheduler |
 | 6 | Migration & Docs | COMPLETE | Deprecations, migration guide, documentation, demos |
-| 7 | Internal Unification | NOT STARTED | setEntryProvider() delegates to CIP internally |
+| 7 | Internal Unification | COMPLETE | setEntryProvider() delegates to CIP internally |
 | 8 | Event Unification | NOT STARTED | Entry events extend CIP event counterparts |
 
 ## Key Architectural Decisions

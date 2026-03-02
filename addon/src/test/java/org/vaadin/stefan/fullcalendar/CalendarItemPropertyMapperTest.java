@@ -725,4 +725,56 @@ class CalendarItemPropertyMapperTest {
         public String getId() { return id; }
         public DisplayMode getDisplayMode() { return displayMode; }
     }
+
+    @Nested
+    @DisplayName("jsonSerializer hook")
+    class JsonSerializerHook {
+
+        @Test
+        @DisplayName("should delegate toJson to custom serializer")
+        void delegatesToCustomSerializer() {
+            var mapper = CalendarItemPropertyMapper.of(SamplePojo.class)
+                    .id(SamplePojo::getId)
+                    .jsonSerializer(item -> {
+                        ObjectNode json = JsonFactory.createObject();
+                        json.put("id", item.getId());
+                        json.put("customField", "custom-" + item.getName());
+                        return json;
+                    });
+
+            ObjectNode json = mapper.toJson(pojo);
+            assertEquals("meeting-1", json.get("id").asString());
+            assertEquals("custom-Team Standup", json.get("customField").asString());
+            // title/start/end should NOT be present since serializer overrides readMappings
+            assertNull(json.get("title"));
+            assertNull(json.get("start"));
+        }
+
+        @Test
+        @DisplayName("getId should still work with jsonSerializer")
+        void getIdStillWorks() {
+            var mapper = CalendarItemPropertyMapper.of(SamplePojo.class)
+                    .id(SamplePojo::getId)
+                    .jsonSerializer(item -> {
+                        ObjectNode json = JsonFactory.createObject();
+                        json.put("id", item.getId());
+                        return json;
+                    });
+
+            assertEquals("meeting-1", mapper.getId(pojo));
+        }
+
+        @Test
+        @DisplayName("should not allow setting serializer after freeze")
+        void cannotSetAfterFreeze() {
+            var mapper = CalendarItemPropertyMapper.of(SamplePojo.class)
+                    .id(SamplePojo::getId);
+
+            // Freeze by calling toJson
+            mapper.toJson(pojo);
+
+            assertThrows(IllegalStateException.class, () ->
+                    mapper.jsonSerializer(item -> JsonFactory.createObject()));
+        }
+    }
 }

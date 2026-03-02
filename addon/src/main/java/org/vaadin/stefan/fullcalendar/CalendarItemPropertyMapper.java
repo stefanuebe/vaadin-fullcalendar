@@ -11,6 +11,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Maps arbitrary POJO properties to FullCalendar JSON event properties.
@@ -45,6 +46,9 @@ public class CalendarItemPropertyMapper<T> implements Serializable {
 
     private volatile boolean frozen;
 
+    // Optional JSON serializer hook — when set, toJson() delegates to this function instead of using readMappings
+    private Function<T, ObjectNode> jsonSerializer;
+
     private CalendarItemPropertyMapper(Class<T> type) {
         this.type = Objects.requireNonNull(type, "type");
     }
@@ -58,6 +62,22 @@ public class CalendarItemPropertyMapper<T> implements Serializable {
      */
     public static <T> CalendarItemPropertyMapper<T> of(Class<T> type) {
         return new CalendarItemPropertyMapper<>(type);
+    }
+
+    /**
+     * Sets a custom JSON serializer that will be used by {@link #toJson(Object)} instead of
+     * the registered read mappings. This is useful when the POJO already has its own JSON
+     * serialization method (e.g., {@code Entry::toJson}).
+     * <p>
+     * The {@code id} mapping is still required for cache lookups via {@link #getId(Object)}.
+     *
+     * @param serializer the function that converts a POJO to an ObjectNode
+     * @return this mapper for chaining
+     */
+    public CalendarItemPropertyMapper<T> jsonSerializer(Function<T, ObjectNode> serializer) {
+        ensureNotFrozen();
+        this.jsonSerializer = Objects.requireNonNull(serializer, "serializer");
+        return this;
     }
 
     // ---- Mandatory property ----
@@ -397,6 +417,10 @@ public class CalendarItemPropertyMapper<T> implements Serializable {
     public ObjectNode toJson(T item) {
         Objects.requireNonNull(item, "item");
         freezeIfNeeded();
+
+        if (jsonSerializer != null) {
+            return jsonSerializer.apply(item);
+        }
 
         ObjectNode json = JsonFactory.createObject();
 
