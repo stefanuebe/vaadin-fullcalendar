@@ -33,8 +33,6 @@ public class BasicDemo extends AbstractCalendarView {
 
     @Override
     protected void onEntryClick(CalendarItemClickedEvent<Entry> event) {
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
-
         if (event.getItem().getDisplayMode() != DisplayMode.BACKGROUND && event.getItem().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
             DemoDialog dialog = new DemoDialog(event.getItem(), false);
             dialog.setSaveConsumer(this::onEntryChanged);

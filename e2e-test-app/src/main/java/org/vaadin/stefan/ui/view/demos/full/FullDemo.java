@@ -32,7 +32,6 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -294,43 +293,35 @@ public class FullDemo extends AbstractSchedulerView {
     @Override
     protected void onTimeslotsSelected(TimeslotsSelectedEvent<Entry> event) {
 //        super.onTimeslotsSelected(event); // this is handled by onTimeslotSelectedScheduler
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onDayNumberClicked(DayNumberClickedEvent<Entry> event) {
         super.onDayNumberClicked(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onWeekNumberClicked(WeekNumberClickedEvent<Entry> event) {
         super.onWeekNumberClicked(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onViewSkeletonRendered(ViewSkeletonRenderedEvent<Entry> event) {
         super.onViewSkeletonRendered(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onEntryResized(CalendarItemResizedEvent<Entry> event) {
         super.onEntryResized(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onEntryDropped(CalendarItemDroppedEvent<Entry> event) {
 //        super.onEntryDropped(event); this is handled by onEntryDroppedScheduler
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onEntryClick(CalendarItemClickedEvent<Entry> event) {
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
-
         if (event.getItem().getDisplayMode() != DisplayMode.BACKGROUND && event.getItem().getDisplayMode() != DisplayMode.INVERSE_BACKGROUND) {
             DemoDialog dialog = new DemoDialog(event.getItem(), false);
             dialog.setSaveConsumer(this::onEntryChanged);
@@ -342,50 +333,52 @@ public class FullDemo extends AbstractSchedulerView {
     @Override
     protected void onBrowserTimezoneObtained(BrowserTimezoneObtainedEvent<Entry> event) {
         super.onBrowserTimezoneObtained(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onDatesRendered(DatesRenderedEvent<Entry> event) {
         super.onDatesRendered(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onMoreLinkClicked(MoreLinkClickedEvent event) {
         super.onMoreLinkClicked(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onTimeslotClicked(TimeslotClickedEvent<Entry> event) {
 //        super.onTimeslotClicked(event); // this is handled by onTimeslotClickedScheduler
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onEntryDroppedScheduler(CalendarItemDroppedSchedulerEvent<Entry> event) {
         super.onEntryDroppedScheduler(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
     }
 
     @Override
     protected void onTimeslotClickedScheduler(TimeslotClickedSchedulerEvent event) {
         super.onTimeslotClickedScheduler(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
+
+        ResourceEntry entry = new ResourceEntry();
+        entry.setStart(event.getDateTime());
+        entry.setEnd(event.getDateTime().plusHours(1));
+        entry.setAllDay(event.isAllDay());
+        @SuppressWarnings("unchecked")
+        FullCalendar<Entry> calendar = (FullCalendar<Entry>) event.getSource();
+        entry.setCalendar(calendar);
+
+        DemoDialog dialog = new DemoDialog(entry, true);
+        dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
+        dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
+        dialog.open();
     }
 
     @Override
     protected void onTimeslotsSelectedScheduler(TimeslotsSelectedSchedulerEvent event) {
         super.onTimeslotsSelectedScheduler(event);
-        System.out.println(event.getClass().getSimpleName() + ": " + event);
 
         @SuppressWarnings("unchecked")
         FullCalendar<Entry> calendar = (FullCalendar<Entry>) event.getSource();
-        System.out.println( "ZoneId: " + calendar.getTimezone().getZoneId() );
-        LocalDateTime startDate = event.getStart();
-        System.out.println( "getStart(): " + event.getStart() );
-        System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );
 
         ResourceEntry entry = new ResourceEntry();
 

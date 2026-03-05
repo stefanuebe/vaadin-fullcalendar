@@ -55,9 +55,6 @@ public class InlineCalendarDemo extends VerticalLayout {
             LocalDateTime start = event.getStart();
             LocalDateTime end = event.getEnd();
 
-            System.out.println("start: " + start);
-            System.out.println("end: " + end);
-
             Map<LocalDate, Entry> map = entryProvider
                     .fetch(start, end)
                     .collect(Collectors.toMap(entry -> entry.getStartAsLocalDate(), entry -> entry));

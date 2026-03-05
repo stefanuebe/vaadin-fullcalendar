@@ -80,8 +80,8 @@ test.describe('Calendar Interaction Tests', () => {
   test.describe('Create New Entries', () => {
 
     test('should create a new all-day entry by clicking empty cell', async ({ page }) => {
-      // Click on an empty day cell to open create dialog
-      const dayFrame = page.locator('.fc-daygrid-day-frame').nth(5);
+      // Click on an empty day cell without background events to avoid pointer interception
+      const dayFrame = page.locator('.fc-daygrid-day:not(:has(.fc-bg-event)) .fc-daygrid-day-frame').nth(5);
       await dayFrame.click();
       await page.waitForTimeout(1000);
 
@@ -106,9 +106,16 @@ test.describe('Calendar Interaction Tests', () => {
     });
 
     test('should create a new timed entry by clicking empty cell', async ({ page }) => {
-      // Click on an empty day cell to open create dialog
-      const dayFrame = page.locator('.fc-daygrid-day-frame').nth(6);
-      await dayFrame.click();
+      // Switch to Time Grid Week and navigate forward to avoid background events
+      await changeView(page, 'Time Grid Week');
+      await page.locator('vaadin-button:has(vaadin-icon[icon="vaadin:angle-right"])').first().click();
+      await page.waitForTimeout(500);
+      await page.locator('vaadin-button:has(vaadin-icon[icon="vaadin:angle-right"])').first().click();
+      await page.waitForTimeout(500);
+
+      // Click on a time slot to open create dialog
+      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(6);
+      await timeSlot.click();
       await page.waitForTimeout(1000);
 
       // Fill in the entry details
@@ -116,14 +123,7 @@ test.describe('Calendar Interaction Tests', () => {
       await expect(titleInput).toBeVisible({ timeout: 5000 });
       await titleInput.fill('Test Timed Entry');
 
-      // Make sure "All day event" is NOT checked (timed entry)
-      const allDayCheckbox = page.locator('vaadin-checkbox:has-text("All day")');
-      const isChecked = await allDayCheckbox.locator('input[type="checkbox"]').isChecked();
-      if (isChecked) {
-        await allDayCheckbox.click();
-        await page.waitForTimeout(300);
-      }
-
+      // In Time Grid view the entry is already timed (not all-day), just save
       // Click Save
       const saveBtn = page.locator('vaadin-button:has-text("Save")');
       await saveBtn.click();
@@ -368,14 +368,24 @@ test.describe('Calendar Interaction Tests', () => {
   test.describe('Time Grid Week Interactions', () => {
 
     test.beforeEach(async ({ page }) => {
-      // Switch to Time Grid Week view
+      // Switch to Time Grid Week view and navigate forward to avoid
+      // background events that intercept pointer events in the first weeks
       await changeView(page, 'Time Grid Week');
+      await page.locator('vaadin-button:has(vaadin-icon[icon="vaadin:angle-right"])').first().click();
+      await page.waitForTimeout(500);
+      await page.locator('vaadin-button:has(vaadin-icon[icon="vaadin:angle-right"])').first().click();
+      await page.waitForTimeout(500);
     });
 
     test('should create timed entry in Time Grid Week view', async ({ page }) => {
-      // Click on a time slot to open create dialog
-      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(10);
-      await timeSlot.click();
+      // Click on an empty time slot - use the Monday column which has no entries
+      // Get a slot lane for the y-coordinate and the Monday col header for the x-coordinate
+      const slotLane = page.locator('.fc-timegrid-slot-lane').nth(6);
+      const slotBox = await slotLane.boundingBox();
+      const monCol = page.locator('.fc-col-header-cell.fc-day-mon');
+      const monBox = await monCol.boundingBox();
+      // Click at the intersection of Monday column and the slot row
+      await page.mouse.click(monBox.x + monBox.width / 2, slotBox.y + slotBox.height / 2);
       await page.waitForTimeout(1000);
 
       // Fill in entry
@@ -465,9 +475,13 @@ test.describe('Calendar Interaction Tests', () => {
     });
 
     test('should delete created entries in Time Grid Week view', async ({ page }) => {
-      // First create an entry by clicking on a time slot
-      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(15);
-      await timeSlot.click();
+      // First create an entry by clicking on an empty time slot
+      // Use the Monday column which has no entries
+      const slotLane = page.locator('.fc-timegrid-slot-lane').nth(12);
+      const slotBox = await slotLane.boundingBox();
+      const monCol = page.locator('.fc-col-header-cell.fc-day-mon');
+      const monBox = await monCol.boundingBox();
+      await page.mouse.click(monBox.x + monBox.width / 2, slotBox.y + slotBox.height / 2);
       await page.waitForTimeout(1000);
 
       const titleInput = page.locator('vaadin-text-field input').first();

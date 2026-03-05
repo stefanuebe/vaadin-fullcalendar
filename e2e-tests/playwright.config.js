@@ -14,8 +14,8 @@ module.exports = defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
 
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  /* Retry failed tests */
+  retries: 2,
 
   /* Opt out of parallel tests on CI */
   workers: process.env.CI ? 1 : undefined,
@@ -60,9 +60,9 @@ module.exports = defineConfig({
   ],
 
   /* Timeout settings */
-  timeout: 60000,
+  timeout: 30000,
   expect: {
-    timeout: 10000
+    timeout: 5000
   },
 
   /* Output directory for test artifacts */
