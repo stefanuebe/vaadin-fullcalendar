@@ -1,0 +1,18 @@
+@import "app-layout-styles.css";
+
+html {
+    --vaadin-app-layout-drawer-width: 250px;
+    --aura-background-color-light: #d5ddee;
+    --aura-background-color-dark: #334;
+    --aura-accent-color-light: #99f;
+    --aura-accent-color-dark: #77d;
+}
+
+h2.title {
+    font-size: 1.2rem;
+    margin-bottom: 0.4rem;
+}
+
+span.description {
+    font-size: 0.8rem;
+}

@@ -27,6 +27,7 @@ vite.config.ts
 vite.generated.ts
 index.html
 /demo/src/main/bundles/prod.bundle
+/e2e-test-app/src/main/bundles/prod.bundle
 .devcontainer/
 .claude/
 .playwright-mcp/

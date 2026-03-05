@@ -1,0 +1,9 @@
+
+.header {
+    align-self: center;
+}
+
+.footer {
+    padding: var(--vaadin-padding-xs);
+    font-size: 0.65rem;
+}
