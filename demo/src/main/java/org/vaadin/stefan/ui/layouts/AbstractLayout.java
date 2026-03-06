@@ -116,6 +116,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
 
         Scroller navScroller = new Scroller(navContainer);
         navScroller.setWidthFull();
+        navScroller.setMinHeight("0");
         navScroller.getStyle().set("flex", "1 1 auto");
 
         addToDrawer(header, navScroller, footer);
