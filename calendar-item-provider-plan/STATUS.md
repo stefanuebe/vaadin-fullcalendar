@@ -28,9 +28,9 @@ See [demo-rework.md](demo-rework.md) for full plan details.
 | 10.4 | Business Hours View | COMPLETE | Validation view to prove AbstractDemoView design |
 | 10.5 | Playground | COMPLETE | Rewritten on AbstractDemoView, non-deprecated API |
 | 10.6 | Events View | COMPLETE | All FC event listeners with visible feedback |
-| 10.7 | Recurring & BG Items | PENDING | Recurring events and background items |
-| 10.8 | Native Event Listeners | PENDING | Browser-level native event listeners |
-| 10.9 | i18n | PENDING | Timezone and locale customization |
+| 10.7 | Recurring & BG Items | COMPLETE | Recurring events and background items |
+| 10.8 | Native Event Listeners | COMPLETE | Browser-level native event listeners |
+| 10.9 | i18n | COMPLETE | Timezone and locale customization |
 | 10.10 | CIP: In Memory | PENDING | InMemoryCalendarItemProvider with custom POJO |
 | 10.11 | CIP: Callback | PENDING | CallbackCalendarItemProvider with update handler |
 | 10.12 | CIP: Backend | PENDING | Simulated backend service pattern |
