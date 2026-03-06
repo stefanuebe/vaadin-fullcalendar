@@ -1,6 +1,6 @@
 # Calendar Item Provider (CIP) — Implementation Status
 
-## Overall Status: COMPLETE
+## CIP Implementation: COMPLETE
 
 | Phase | Name | Status | Description |
 |-------|------|--------|-------------|
@@ -15,6 +15,30 @@
 | 7 | Internal Unification | COMPLETE | setEntryProvider() delegates to CIP internally |
 | 8 | Event Unification | COMPLETE | Entry events extend CIP event counterparts |
 | 9 | API Naming & Cleanup | COMPLETE | Remove entryProviderRef, rename Entry→Item API, migrate demos |
+
+## Demo Rework: IN PROGRESS
+
+See [demo-rework.md](demo-rework.md) for full plan details.
+
+| Sub-Phase | Name | Status | Description |
+|-----------|------|--------|-------------|
+| 10.1 | Test Decoupling | COMPLETE | Separate e2e-test-app module, all E2E tests green |
+| 10.2 | Demo Infrastructure | IN PROGRESS | AbstractDemoView, Maven resource copy, CIP toolbar |
+| 10.3 | Sidenav + Stubs | PENDING | Flat sidenav with separator labels, empty view stubs |
+| 10.4 | Business Hours View | PENDING | Validation view to prove AbstractDemoView design |
+| 10.5 | Playground | PENDING | Streamline Playground, non-deprecated API |
+| 10.6 | Events View | PENDING | All FC event listeners with visible feedback |
+| 10.7 | Recurring & BG Items | PENDING | Recurring events and background items |
+| 10.8 | Native Event Listeners | PENDING | Browser-level native event listeners |
+| 10.9 | i18n | PENDING | Timezone and locale customization |
+| 10.10 | CIP: In Memory | PENDING | InMemoryCalendarItemProvider with custom POJO |
+| 10.11 | CIP: Callback | PENDING | CallbackCalendarItemProvider with update handler |
+| 10.12 | CIP: Backend | PENDING | Simulated backend service pattern |
+| 10.13 | Entry Provider Streamline | PENDING | Clean up existing EP demos |
+| 10.14 | Multi Month Streamline | PENDING | Clean up Multi Month demo |
+| 10.15 | Callbacks: Custom Props | PENDING | Streamline Custom Properties demo |
+| 10.16 | Callbacks: Remaining | PENDING | ItemClassname, ItemContent, ItemDidMount, etc. |
+| 10.17 | Cleanup | PENDING | Remove old abstract views, dead code, final verification |
 
 ## Key Architectural Decisions
 

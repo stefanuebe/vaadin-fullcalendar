@@ -36,7 +36,7 @@ import java.util.stream.IntStream;
 /**
  * @author Stefan Uebe
  */
-public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarLayout when V25 ready
+public class CalendarViewToolbar extends HorizontalLayout implements DemoToolbar { // TODO use ToolbarLayout when V25 ready
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, new Timezone(ZoneId.of("Europe/Berlin")), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
 
     private final FullCalendar<Entry> calendar;
@@ -241,7 +241,10 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
 
         if (onSamplesRemoved != null) {
             calendarItems.addItem("Remove all entries", e -> {
-                onSamplesRemoved.accept(calendar.getEntryProvider().fetchAll().collect(Collectors.toSet()));
+                // The calendar's provider is always an EntryProvider<Entry> in this context
+                @SuppressWarnings("unchecked")
+                var provider = (org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider<Entry>) calendar.getCalendarItemProvider();
+                onSamplesRemoved.accept(provider.fetchAll().collect(Collectors.toSet()));
                 if (addRandomItems != null) {
                     addRandomItems.setEnabled(true);
                 }
@@ -414,6 +417,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         return name;
     }
 
+    @Override
     public void updateSelectedView(CalendarView view) {
         if (viewSelector != null) {
             viewSelector.setText("View: " + getViewName(view));
@@ -421,6 +425,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         selectedView = view;
     }
 
+    @Override
     public void updateInterval(LocalDate intervalStart) {
         if (buttonDatePicker != null && selectedView != null) {
             updateIntervalLabel(buttonDatePicker, selectedView, intervalStart);

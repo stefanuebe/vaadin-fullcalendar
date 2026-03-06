@@ -25,6 +25,7 @@
         <plugin.version.maven-source>3.4.0</plugin.version.maven-source>
         <plugin.version.maven-war>3.5.1</plugin.version.maven-war>
         <plugin.version.maven-assembly>3.8.0</plugin.version.maven-assembly>
+        <plugin.version.maven-resources>3.3.1</plugin.version.maven-resources>
 
         <lombok.version>1.18.42</lombok.version>
 
@@ -156,6 +157,33 @@
                         <goals>
                             <goal>prepare-frontend</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${plugin.version.maven-resources}</version>
+                <executions>
+                    <execution>
+                        <id>copy-demo-sources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/demo-sources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/java</directory>
+                                    <includes>
+                                        <include>**/*.java</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

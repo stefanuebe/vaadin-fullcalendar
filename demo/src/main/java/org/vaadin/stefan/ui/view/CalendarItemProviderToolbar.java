@@ -1,0 +1,368 @@
+package org.vaadin.stefan.ui.view;
+
+import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.dom.Style;
+import lombok.Builder;
+import org.apache.commons.lang3.StringUtils;
+import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.ui.view.demos.HasIntervalLabel;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+/**
+ * A simplified toolbar for CalendarItemProvider demo views.
+ * <p>
+ * Provides date navigation, view switching, and settings (Lumo theme, locale, timezone,
+ * prefetching, multi-month columns, valid range) — but does NOT include Entry CRUD operations.
+ * This toolbar works with any {@code FullCalendar<?>} regardless of the model type.
+ * </p>
+ */
+public class CalendarItemProviderToolbar extends HorizontalLayout implements DemoToolbar {
+
+    public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(
+            Timezone.UTC,
+            new Timezone(ZoneId.of("Europe/Berlin")),
+            new Timezone(ZoneId.of("America/Los_Angeles")),
+            new Timezone(ZoneId.of("Japan"))
+    );
+
+    private final FullCalendar<?> calendar;
+    private final boolean allTimezones;
+    private final boolean allLocales;
+    private final boolean viewChangeable;
+    private final boolean dateChangeable;
+    private final boolean settingsAvailable;
+    private final List<CalendarView> customViews;
+
+    private CalendarView selectedView = CalendarViewImpl.DAY_GRID_MONTH;
+    private Button buttonDatePicker;
+    private MenuItem viewSelector;
+    private Select<Timezone> timezoneSelector;
+    private HasComponents calendarParent;
+
+    @Builder
+    private CalendarItemProviderToolbar(
+            FullCalendar<?> calendar,
+            boolean allTimezones,
+            boolean allLocales,
+            boolean viewChangeable,
+            boolean dateChangeable,
+            boolean settingsAvailable,
+            List<CalendarView> customViews) {
+
+        if (calendar == null) {
+            throw new IllegalArgumentException("Calendar instance is required");
+        }
+
+        this.calendar = calendar;
+        this.allTimezones = allTimezones;
+        this.allLocales = allLocales;
+        this.viewChangeable = viewChangeable;
+        this.dateChangeable = dateChangeable;
+        this.settingsAvailable = settingsAvailable;
+        this.customViews = customViews;
+
+        setWrap(true);
+
+        initMenuBar();
+    }
+
+    protected void initMenuBar() {
+        if (dateChangeable) {
+            initDateItems();
+        }
+
+        if (viewChangeable) {
+            initViewSelector();
+        }
+
+        if (settingsAvailable) {
+            initGeneralSettings();
+        }
+    }
+
+    private void initDateItems() {
+        addButton(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
+
+        // Hidden date picker wired to the calendar's gotoDate
+        DatePicker gotoDate = new DatePicker();
+        gotoDate.addValueChangeListener(event -> calendar.gotoDate(event.getValue()));
+        gotoDate.getElement().getStyle()
+                .setPosition(Style.Position.FIXED)
+                .setOpacity("0")
+                .set("pointer-events", "none")
+                .setMarginTop("-15px");
+        gotoDate.setWeekNumbersVisible(true);
+        gotoDate.setTabIndex(-1);
+
+        buttonDatePicker = new Button(VaadinIcon.CALENDAR.create());
+        buttonDatePicker.getElement().appendChild(gotoDate.getElement());
+        buttonDatePicker.addClickListener(event -> gotoDate.open());
+        add(buttonDatePicker);
+
+        addButton(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
+        addButton("Today", e -> calendar.today());
+    }
+
+    private Button addButton(Component content, ComponentEventListener<ClickEvent<Button>> listener) {
+        Button button = new Button(content, listener);
+        add(button);
+        return button;
+    }
+
+    private Button addButton(String label, ComponentEventListener<ClickEvent<Button>> listener) {
+        Button button = new Button(label, listener);
+        add(button);
+        return button;
+    }
+
+    private MenuItem addDropDown(String label) {
+        MenuBar menuBar = new MenuBar();
+        add(menuBar);
+        return menuBar.addItem(label);
+    }
+
+    private void initViewSelector() {
+        List<CalendarView> calendarViews;
+        if (customViews != null && !customViews.isEmpty()) {
+            calendarViews = customViews;
+            if (!customViews.contains(selectedView)) {
+                selectedView = customViews.get(0);
+            }
+        } else {
+            calendarViews = new ArrayList<>(Arrays.asList(CalendarViewImpl.values()));
+            if (calendar instanceof Scheduler) {
+                calendarViews.addAll(Arrays.asList(SchedulerView.values()));
+            }
+        }
+
+        viewSelector = addDropDown("View: " + getViewName(selectedView));
+        SubMenu subMenu = viewSelector.getSubMenu();
+        calendarViews.stream()
+                .sorted(Comparator.comparing(this::getViewName))
+                .forEach(view -> {
+                    String viewName = getViewName(view);
+                    subMenu.addItem(viewName, event -> {
+                        calendar.changeView(view);
+                        viewSelector.setText("View: " + viewName);
+                        selectedView = view;
+                    });
+                });
+    }
+
+    private String getViewName(CalendarView view) {
+        return StringUtils.capitalize(
+                String.join(" ", StringUtils.splitByCharacterTypeCamelCase(view.getClientSideValue())));
+    }
+
+    @Override
+    public void updateSelectedView(CalendarView view) {
+        if (viewSelector != null) {
+            viewSelector.setText("View: " + getViewName(view));
+        }
+        selectedView = view;
+    }
+
+    @Override
+    public void updateInterval(LocalDate intervalStart) {
+        if (buttonDatePicker != null && selectedView != null) {
+            updateIntervalLabel(buttonDatePicker, selectedView, intervalStart);
+        }
+    }
+
+    void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
+        String text = "--";
+        Locale locale = calendar.getLocale();
+
+        if (view instanceof HasIntervalLabel intervalLabelView) {
+            text = intervalLabelView.formatIntervalLabel(intervalStart, locale);
+        } else if (view instanceof CalendarViewImpl) {
+            switch ((CalendarViewImpl) view) {
+                default:
+                case DAY_GRID_MONTH:
+                case LIST_MONTH:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
+                    break;
+                case TIME_GRID_DAY:
+                case DAY_GRID_DAY:
+                case LIST_DAY:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
+                    break;
+                case TIME_GRID_WEEK:
+                case DAY_GRID_WEEK:
+                case LIST_WEEK:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale))
+                            + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale))
+                            + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
+                    break;
+                case LIST_YEAR:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
+                    break;
+            }
+        } else if (view instanceof SchedulerView) {
+            switch ((SchedulerView) view) {
+                case TIMELINE_DAY:
+                case RESOURCE_TIMELINE_DAY:
+                case RESOURCE_TIME_GRID_DAY:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy").withLocale(locale));
+                    break;
+                case TIMELINE_WEEK:
+                case RESOURCE_TIMELINE_WEEK:
+                case RESOURCE_TIME_GRID_WEEK:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale))
+                            + " - " + intervalStart.plusDays(6).format(DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(locale))
+                            + " (cw " + intervalStart.format(DateTimeFormatter.ofPattern("ww").withLocale(locale)) + ")";
+                    break;
+                case TIMELINE_MONTH:
+                case RESOURCE_TIMELINE_MONTH:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("MMMM yyyy").withLocale(locale));
+                    break;
+                case TIMELINE_YEAR:
+                case RESOURCE_TIMELINE_YEAR:
+                    text = intervalStart.format(DateTimeFormatter.ofPattern("yyyy").withLocale(locale));
+                    break;
+            }
+        } else {
+            String pattern = view != null && view.getDateTimeFormatPattern() != null
+                    ? view.getDateTimeFormatPattern() : "MMMM yyyy";
+            text = intervalStart.format(DateTimeFormatter.ofPattern(pattern).withLocale(locale));
+        }
+
+        intervalLabel.setText(text);
+    }
+
+    private SubMenu initGeneralSettings() {
+        SubMenu subMenu = addDropDown("Settings").getSubMenu();
+
+        Checkbox themeSelector = new Checkbox("Use Lumo Theme");
+        themeSelector.setValue(calendar.hasThemeVariant(FullCalendarVariant.VAADIN));
+        themeSelector.addValueChangeListener(event -> {
+            if (event.getValue()) {
+                calendar.addThemeVariants(FullCalendarVariant.VAADIN);
+            } else {
+                calendar.removeThemeVariants(FullCalendarVariant.VAADIN);
+            }
+        });
+
+        List<Locale> localeItems = Arrays.asList(CalendarLocale.getAvailableLocales());
+        ComboBox<Locale> localeSelector = new ComboBox<>("Locale");
+        localeSelector.setClearButtonVisible(true);
+        localeSelector.setItems(localeItems);
+        localeSelector.setValue(CalendarLocale.getDefaultLocale());
+        localeSelector.addValueChangeListener(event -> {
+            Locale value = event.getValue();
+            calendar.setLocale(value != null ? value : CalendarLocale.getDefaultLocale());
+            Notification.show("Locale changed to " + calendar.getLocale().toLanguageTag());
+        });
+
+        timezoneSelector = new Select<>();
+        timezoneSelector.setLabel("Timezone");
+        timezoneSelector.setItemLabelGenerator(Timezone::getClientSideValue);
+        if (allTimezones) {
+            timezoneSelector.setItems(Timezone.getAvailableZones());
+        } else {
+            timezoneSelector.setItems(SOME_TIMEZONES);
+        }
+        timezoneSelector.setValue(Timezone.UTC);
+        timezoneSelector.addValueChangeListener(event -> {
+            if (!Objects.equals(calendar.getTimezone(), event.getValue())) {
+                Timezone value = event.getValue();
+                calendar.setTimezone(value != null ? value : Timezone.UTC);
+                Notification.show("Timezone changed to " + calendar.getTimezone());
+            }
+        });
+
+        Checkbox enablePrefetching = new Checkbox("Enable Prefetching", calendar.isPrefetchEnabled());
+        enablePrefetching.addValueChangeListener(event -> calendar.setPrefetchEnabled(event.getValue()));
+
+        IntegerField multiMonthColumns = new IntegerField("Multi Month Columns");
+        multiMonthColumns.setStep(1);
+        multiMonthColumns.setMin(1);
+        multiMonthColumns.setMax(12);
+        multiMonthColumns.setStepButtonsVisible(true);
+        multiMonthColumns.setValue(3);
+        multiMonthColumns.addThemeVariants(TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_CENTER);
+        multiMonthColumns.addValueChangeListener(event ->
+                calendar.setOption(FullCalendar.Option.MULTI_MONTH_MAX_COLUMNS, event.getValue()));
+        multiMonthColumns.setWidthFull();
+
+        DatePicker validRangeStart = new DatePicker("Valid Range Start");
+        validRangeStart.setClearButtonVisible(true);
+
+        DatePicker validRangeEnd = new DatePicker("Valid Range End");
+        validRangeEnd.setClearButtonVisible(true);
+
+        validRangeStart.addValueChangeListener(event -> {
+            calendar.setValidRange(validRangeStart.getValue(), validRangeEnd.getValue());
+            if (event.getValue() != null) {
+                validRangeEnd.setMin(event.getValue().plusDays(1));
+            } else {
+                validRangeEnd.setMin(null);
+            }
+        });
+        validRangeEnd.addValueChangeListener(event -> {
+            calendar.setValidRange(validRangeStart.getValue(), validRangeEnd.getValue());
+            if (event.getValue() != null) {
+                validRangeStart.setMax(event.getValue().minusDays(1));
+            } else {
+                validRangeStart.setMax(null);
+            }
+        });
+
+        VerticalLayout settingsLayout = new VerticalLayout(
+                themeSelector,
+                localeSelector,
+                timezoneSelector,
+                enablePrefetching,
+                multiMonthColumns,
+                validRangeStart,
+                validRangeEnd
+        );
+        settingsLayout.setSpacing(false);
+        settingsLayout.setPadding(false);
+        settingsLayout.setMargin(true);
+        settingsLayout.setSizeUndefined();
+        settingsLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
+        subMenu.addItem(settingsLayout);
+
+        subMenu.addItem("Detach/Attach Calendar", event -> {
+            if (calendar.getParent().isPresent()) {
+                calendarParent = (HasComponents) calendar.getParent().get();
+                calendarParent.remove(calendar);
+            } else if (calendarParent != null) {
+                calendarParent.add(calendar);
+            }
+        });
+
+        return subMenu;
+    }
+
+    /**
+     * Sets the timezone in the timezone selector. May trigger client side updates.
+     *
+     * @param timezone the timezone to select
+     */
+    public void setTimezone(Timezone timezone) {
+        if (timezoneSelector != null) {
+            timezoneSelector.setValue(timezone);
+        }
+    }
+}
