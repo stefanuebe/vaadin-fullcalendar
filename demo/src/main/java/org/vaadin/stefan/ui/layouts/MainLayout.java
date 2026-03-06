@@ -17,39 +17,61 @@
 package org.vaadin.stefan.ui.layouts;
 
 import com.vaadin.flow.component.sidenav.SideNav;
-import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
-import org.vaadin.stefan.ui.view.demos.calendaritemprovider.CalendarItemProviderBasicDemo;
-import org.vaadin.stefan.ui.view.demos.calendaritemprovider.CalendarItemProviderCallbackDemo;
-import org.vaadin.stefan.ui.view.demos.calendaritemprovider.CalendarItemProviderSchedulerDemo;
-import org.vaadin.stefan.ui.view.demos.calendaritemprovider.CalendarItemProviderUpdateHandlerDemo;
-import org.vaadin.stefan.ui.view.demos.customtimeline.AnonymousCustomViewDemo;
-import org.vaadin.stefan.ui.view.demos.customtimeline.CustomViewDemo;
+import org.vaadin.stefan.ui.view.demos.basic.BusinessHoursDemo;
+import org.vaadin.stefan.ui.view.demos.basic.EventsViewDemo;
+import org.vaadin.stefan.ui.view.demos.basic.I18nDemo;
+import org.vaadin.stefan.ui.view.demos.basic.NativeEventListenersDemo;
+import org.vaadin.stefan.ui.view.demos.basic.RecurringAndBgItemsDemo;
+import org.vaadin.stefan.ui.view.demos.callbacks.CustomPropertiesDemo;
+import org.vaadin.stefan.ui.view.demos.callbacks.ItemClassNamesDemo;
+import org.vaadin.stefan.ui.view.demos.callbacks.ItemContentDemo;
+import org.vaadin.stefan.ui.view.demos.callbacks.ItemDidMountDemo;
+import org.vaadin.stefan.ui.view.demos.callbacks.ItemWillUnmountDemo;
+import org.vaadin.stefan.ui.view.demos.callbacks.ResourceLabelCallbacksDemo;
+import org.vaadin.stefan.ui.view.demos.callbacks.ResourceLaneCallbacksDemo;
+import org.vaadin.stefan.ui.view.demos.calendaritemprovider.BackendCipDemo;
+import org.vaadin.stefan.ui.view.demos.calendaritemprovider.CallbackCipDemo;
+import org.vaadin.stefan.ui.view.demos.calendaritemprovider.InMemoryCipDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
 import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthCrossMonthSelectionDemo;
-import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
 
 public class MainLayout extends AbstractLayout {
     @Override
     protected void createMenuEntries(SideNav nav) {
+        addSeparator(nav, "Playground");
         addMenu(nav, FullDemo.class);
-        addMenu(nav, BasicDemo.class);
+
+        addSeparator(nav, "Basic Features");
+        addMenu(nav, EventsViewDemo.class);
+        addMenu(nav, RecurringAndBgItemsDemo.class);
+        addMenu(nav, BusinessHoursDemo.class);
+        addMenu(nav, NativeEventListenersDemo.class);
+        addMenu(nav, I18nDemo.class);
+
+        addSeparator(nav, "Calendar Item Provider");
+        addMenu(nav, InMemoryCipDemo.class);
+        addMenu(nav, CallbackCipDemo.class);
+        addMenu(nav, BackendCipDemo.class);
+
+        addSeparator(nav, "Entry Provider");
         addMenu(nav, InMemoryEntryProviderDemo.class);
         addMenu(nav, CallbackEntryProviderDemo.class);
         addMenu(nav, BackendEntryProviderDemo.class);
-        addMenu(nav, CalendarItemProviderBasicDemo.class);
-        addMenu(nav, CalendarItemProviderCallbackDemo.class);
-        addMenu(nav, CalendarItemProviderUpdateHandlerDemo.class);
-        addMenu(nav, CalendarItemProviderSchedulerDemo.class);
-        addMenu(nav, DemoWithTooltip.class);
-//        addMenu(nav, DemoCustomProperties.class); // TODO overhaul the demo first
-//        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
-        addMenu(nav, CustomViewDemo.class);
+
+        addSeparator(nav, "Multi Month");
         addMenu(nav, MultiMonthCrossMonthSelectionDemo.class);
-//        addMenu(nav, InlineCalendarDemo.class);
+
+        addSeparator(nav, "Callbacks");
+        addMenu(nav, CustomPropertiesDemo.class);
+        addMenu(nav, ItemClassNamesDemo.class);
+        addMenu(nav, ItemContentDemo.class);
+        addMenu(nav, ItemDidMountDemo.class);
+        addMenu(nav, ItemWillUnmountDemo.class);
+        addMenu(nav, ResourceLabelCallbacksDemo.class);
+        addMenu(nav, ResourceLaneCallbacksDemo.class);
     }
 }
-

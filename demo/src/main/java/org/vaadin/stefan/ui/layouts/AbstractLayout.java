@@ -121,6 +121,14 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         navigation.addItem(new SideNavItem(caption, clazz));
     }
 
+    protected void addSeparator(SideNav nav, String label) {
+        SideNavItem item = new SideNavItem(label);
+        item.getStyle().set("font-weight", "bold");
+        item.getStyle().set("pointer-events", "none");
+        item.getStyle().set("margin-top", "var(--lumo-space-m)");
+        nav.addItem(item);
+    }
+
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         UI.getCurrent().getPage().setTitle("::: FullCalendar Demo :::");
