@@ -77,12 +77,12 @@ public class RecurringAndBgItemsDemo extends AbstractDemoView {
         workingHours.setStart(monday.atStartOfDay());
         workingHours.setEnd(friday.plusDays(1).atStartOfDay());
 
-        // Inverse-background entry for Wednesday (highlights unavailability)
+        // Background entry for Wednesday (highlights unavailability)
         LocalDate wednesday = today.with(DayOfWeek.WEDNESDAY);
         Entry offBlock = new Entry();
         offBlock.setTitle("Out of Office");
-        offBlock.setColor("#e74c3c");
-        offBlock.setDisplayMode(DisplayMode.INVERSE_BACKGROUND);
+        offBlock.setColor("#f5b7b1");
+        offBlock.setDisplayMode(DisplayMode.BACKGROUND);
         offBlock.setAllDay(true);
         offBlock.setStart(wednesday.atStartOfDay());
         offBlock.setEnd(wednesday.plusDays(1).atStartOfDay());
@@ -130,6 +130,6 @@ public class RecurringAndBgItemsDemo extends AbstractDemoView {
         return "Recurring events repeat on specified days of the week or follow custom recurrence rules. "
                 + "Background items create colored overlays behind regular events — useful for highlighting "
                 + "time blocks, working hours, or availability. This demo shows weekly recurring meetings, "
-                + "a daily background block, and inverse-background highlighting.";
+                + "a daily background lunch block, and a background overlay marking a day as out-of-office.";
     }
 }

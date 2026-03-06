@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.ui.layouts;
 
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RoutePrefix;
@@ -24,13 +25,14 @@ import com.vaadin.flow.router.RoutePrefix;
 public class TestLayout extends AbstractLayout {
 
     @Override
-    protected void createMenuEntries(SideNav menuBuilder) {
+    protected void createMenuEntries(VerticalLayout container) {
+        SideNav nav = addSection(container, "Tests");
         RouteConfiguration.forApplicationScope()
                 .getAvailableRoutes()
                 .stream()
                 .filter(routeData -> routeData.getParentLayout().isAssignableFrom(TestLayout.class))
                 .forEach(routeData -> {
-                    addMenu(menuBuilder, routeData.getNavigationTarget());
+                    addMenu(nav, routeData.getNavigationTarget());
                 });
     }
 }

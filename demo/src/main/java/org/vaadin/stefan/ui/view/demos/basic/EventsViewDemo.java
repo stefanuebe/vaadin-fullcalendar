@@ -1,6 +1,8 @@
 package org.vaadin.stefan.ui.view.demos.basic;
 
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
@@ -32,8 +34,7 @@ public class EventsViewDemo extends AbstractDemoView {
     public EventsViewDemo() {
         super();
 
-        // Style and add the event log below the calendar (and below the code panel)
-        eventLog.setMaxHeight("220px");
+        // Style the event log panel
         eventLog.getStyle()
                 .set("overflow-y", "auto")
                 .set("border", "1px solid var(--lumo-contrast-20pct)")
@@ -41,8 +42,23 @@ public class EventsViewDemo extends AbstractDemoView {
                 .set("background", "var(--lumo-base-color)");
         eventLog.setPadding(true);
         eventLog.setSpacing(false);
-        add(eventLog);
-        setHorizontalComponentAlignment(Alignment.STRETCH, eventLog);
+        eventLog.setWidth("300px");
+        eventLog.setMinWidth("300px");
+
+        // Wrap calendar + event log side by side
+        FullCalendar<?> cal = getCalendar();
+        int calIndex = indexOf(cal);
+        remove(cal);
+
+        HorizontalLayout calendarRow = new HorizontalLayout(cal, eventLog);
+        calendarRow.setSizeFull();
+        calendarRow.setFlexGrow(1, cal);
+        calendarRow.setFlexGrow(0, eventLog);
+        calendarRow.setAlignItems(FlexComponent.Alignment.STRETCH);
+
+        addComponentAtIndex(calIndex, calendarRow);
+        setFlexGrow(1, calendarRow);
+        setHorizontalComponentAlignment(Alignment.STRETCH, calendarRow);
     }
 
     // DEMO-START

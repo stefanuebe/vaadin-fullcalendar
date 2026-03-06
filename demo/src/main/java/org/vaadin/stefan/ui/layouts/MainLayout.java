@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.ui.layouts;
 
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import org.vaadin.stefan.ui.view.demos.basic.BusinessHoursDemo;
 import org.vaadin.stefan.ui.view.demos.basic.EventsViewDemo;
@@ -41,37 +42,37 @@ import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthCrossMonthS
 
 public class MainLayout extends AbstractLayout {
     @Override
-    protected void createMenuEntries(SideNav nav) {
-        addSeparator(nav, "Playground");
-        addMenu(nav, FullDemo.class);
+    protected void createMenuEntries(VerticalLayout container) {
+        SideNav playground = addSection(container, "Playground");
+        addMenu(playground, FullDemo.class);
 
-        addSeparator(nav, "Basic Features");
-        addMenu(nav, EventsViewDemo.class);
-        addMenu(nav, RecurringAndBgItemsDemo.class);
-        addMenu(nav, BusinessHoursDemo.class);
-        addMenu(nav, NativeEventListenersDemo.class);
-        addMenu(nav, I18nDemo.class);
+        SideNav basic = addSection(container, "Basic Features");
+        addMenu(basic, EventsViewDemo.class);
+        addMenu(basic, RecurringAndBgItemsDemo.class);
+        addMenu(basic, BusinessHoursDemo.class);
+        addMenu(basic, NativeEventListenersDemo.class);
+        addMenu(basic, I18nDemo.class);
 
-        addSeparator(nav, "Calendar Item Provider");
-        addMenu(nav, InMemoryCipDemo.class);
-        addMenu(nav, CallbackCipDemo.class);
-        addMenu(nav, BackendCipDemo.class);
+        SideNav cip = addSection(container, "Calendar Item Provider");
+        addMenu(cip, InMemoryCipDemo.class);
+        addMenu(cip, CallbackCipDemo.class);
+        addMenu(cip, BackendCipDemo.class);
 
-        addSeparator(nav, "Entry Provider");
-        addMenu(nav, InMemoryEntryProviderDemo.class);
-        addMenu(nav, CallbackEntryProviderDemo.class);
-        addMenu(nav, BackendEntryProviderDemo.class);
+        SideNav ep = addSection(container, "Entry Provider");
+        addMenu(ep, InMemoryEntryProviderDemo.class);
+        addMenu(ep, CallbackEntryProviderDemo.class);
+        addMenu(ep, BackendEntryProviderDemo.class);
 
-        addSeparator(nav, "Multi Month");
-        addMenu(nav, MultiMonthCrossMonthSelectionDemo.class);
+        SideNav multiMonth = addSection(container, "Multi Month");
+        addMenu(multiMonth, MultiMonthCrossMonthSelectionDemo.class);
 
-        addSeparator(nav, "Callbacks");
-        addMenu(nav, CustomPropertiesDemo.class);
-        addMenu(nav, ItemClassNamesDemo.class);
-        addMenu(nav, ItemContentDemo.class);
-        addMenu(nav, ItemDidMountDemo.class);
-        addMenu(nav, ItemWillUnmountDemo.class);
-        addMenu(nav, ResourceLabelCallbacksDemo.class);
-        addMenu(nav, ResourceLaneCallbacksDemo.class);
+        SideNav callbacks = addSection(container, "Callbacks");
+        addMenu(callbacks, CustomPropertiesDemo.class);
+        addMenu(callbacks, ItemClassNamesDemo.class);
+        addMenu(callbacks, ItemContentDemo.class);
+        addMenu(callbacks, ItemDidMountDemo.class);
+        addMenu(callbacks, ItemWillUnmountDemo.class);
+        addMenu(callbacks, ResourceLabelCallbacksDemo.class);
+        addMenu(callbacks, ResourceLaneCallbacksDemo.class);
     }
 }

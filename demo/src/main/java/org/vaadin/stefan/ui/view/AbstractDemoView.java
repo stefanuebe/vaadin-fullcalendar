@@ -81,6 +81,7 @@ public abstract class AbstractDemoView extends VerticalLayout {
             wireToolbar(toolbar);
         }
 
+        calendar.getStyle().set("min-height", "50vh");
         add(calendar);
         setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
@@ -225,6 +226,9 @@ public abstract class AbstractDemoView extends VerticalLayout {
                 .set("overflow-x", "auto");
 
         Details details = new Details("Show Source Code", pre);
+        details.getStyle()
+                .set("max-height", "50vh")
+                .set("overflow-y", "auto");
         details.setOpened(false);
 
         // Trigger Prism.highlightAll() when the panel is opened

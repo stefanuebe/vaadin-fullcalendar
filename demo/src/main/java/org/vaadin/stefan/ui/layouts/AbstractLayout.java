@@ -29,6 +29,8 @@ import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
+import java.util.ArrayList;
+import java.util.List;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Location;
@@ -50,7 +52,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     private static final long serialVersionUID = -7479612679602267287L;
     private Registration currentStyleSheetRegistration;
     private Select<Theme> themeSelect;
-    private SideNav sideNav;
+    private final List<SideNav> sideNavs = new ArrayList<>();
     private Select<ColorScheme.Value> colorSchemeSelector;
 
     @SuppressWarnings("unchecked")
@@ -105,14 +107,25 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         footer.add(new Html("<span>Using the FullCalendar " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 25.<br> " +
                 " More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
 
-        sideNav = new SideNav();
-        createMenuEntries(sideNav);
+        VerticalLayout navContainer = new VerticalLayout();
+        navContainer.setPadding(false);
+        navContainer.setSpacing(false);
+        createMenuEntries(navContainer);
 
-        addToDrawer(header, new Scroller(sideNav), footer);
+        addToDrawer(header, new Scroller(navContainer), footer);
 
     }
 
-    protected abstract void createMenuEntries(SideNav menuBuilder);
+    protected abstract void createMenuEntries(VerticalLayout container);
+
+    protected SideNav addSection(VerticalLayout container, String label) {
+        SideNav nav = new SideNav();
+        nav.setLabel(label);
+        nav.setCollapsible(true);
+        container.add(nav);
+        sideNavs.add(nav);
+        return nav;
+    }
 
     protected void addMenu(SideNav navigation, Class<? extends Component> clazz) {
         MenuItem item = clazz.getAnnotation(MenuItem.class);
@@ -121,20 +134,12 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         navigation.addItem(new SideNavItem(caption, clazz));
     }
 
-    protected void addSeparator(SideNav nav, String label) {
-        SideNavItem item = new SideNavItem(label);
-        item.getStyle().set("font-weight", "bold");
-        item.getStyle().set("pointer-events", "none");
-        item.getStyle().set("margin-top", "var(--lumo-space-m)");
-        nav.addItem(item);
-    }
-
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         UI.getCurrent().getPage().setTitle("::: FullCalendar Demo :::");
 
         QueryParameters queryParameters = event.getLocation().getQueryParameters();
-        sideNav.getItems().forEach(item -> item.setQueryParameters(queryParameters));
+        sideNavs.forEach(nav -> nav.getItems().forEach(item -> item.setQueryParameters(queryParameters)));
 
         Theme theme = queryParameters.getSingleParameter("theme")
                 .map(String::toUpperCase)
@@ -146,7 +151,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         ColorScheme.Value scheme = queryParameters.getSingleParameter("scheme")
                 .map(String::toUpperCase)
                 .map(ColorScheme.Value::valueOf)
-                .orElse(ColorScheme.Value.SYSTEM);
+                .orElse(ColorScheme.Value.LIGHT);
 
         colorSchemeSelector.setValue(scheme);
     }
@@ -162,7 +167,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
             if (event.isFromClient()) {
                 Location activeViewLocation = ui.getActiveViewLocation();
                 QueryParameters parameters = activeViewLocation.getQueryParameters();
-                if (scheme != ColorScheme.Value.SYSTEM) {
+                if (scheme != ColorScheme.Value.LIGHT) {
                     parameters = parameters.merging("scheme", scheme.name().toLowerCase());
                 } else {
                     parameters = parameters.excluding("scheme");
@@ -171,7 +176,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
                 ui.navigate(activeViewLocation.getPath(), parameters);
             }
         });
-        colorSchemeSelector.setValue(ColorScheme.Value.SYSTEM);
+        colorSchemeSelector.setValue(ColorScheme.Value.LIGHT);
 
         return colorSchemeSelector;
     }
