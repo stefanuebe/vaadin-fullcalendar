@@ -43,7 +43,7 @@ import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthCrossMonthS
 public class MainLayout extends AbstractLayout {
     @Override
     protected void createMenuEntries(VerticalLayout container) {
-        SideNav playground = addSection(container, "Playground");
+        SideNav playground = addSection(container, "Playground", true);
         addMenu(playground, FullDemo.class);
 
         SideNav basic = addSection(container, "Basic Features");

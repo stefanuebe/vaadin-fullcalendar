@@ -8,6 +8,10 @@ html {
     --aura-accent-color-dark: #77d;
 }
 
+vaadin-app-layout::part(drawer) {
+    overflow: hidden;
+}
+
 h2.title {
     font-size: 1.2rem;
     margin-bottom: 0.4rem;

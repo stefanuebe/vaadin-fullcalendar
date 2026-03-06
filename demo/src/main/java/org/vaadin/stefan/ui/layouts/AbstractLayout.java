@@ -126,9 +126,14 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     protected abstract void createMenuEntries(VerticalLayout container);
 
     protected SideNav addSection(VerticalLayout container, String label) {
+        return addSection(container, label, false);
+    }
+
+    protected SideNav addSection(VerticalLayout container, String label, boolean expanded) {
         SideNav nav = new SideNav();
         nav.setLabel(label);
         nav.setCollapsible(true);
+        nav.setExpanded(expanded);
         container.add(nav);
         sideNavs.add(nav);
         return nav;
