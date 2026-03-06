@@ -110,9 +110,15 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         VerticalLayout navContainer = new VerticalLayout();
         navContainer.setPadding(false);
         navContainer.setSpacing(false);
+        navContainer.setWidthFull();
+        navContainer.getStyle().set("overflow", "hidden");
         createMenuEntries(navContainer);
 
-        addToDrawer(header, new Scroller(navContainer), footer);
+        Scroller navScroller = new Scroller(navContainer);
+        navScroller.setWidthFull();
+        navScroller.getStyle().set("flex", "1 1 auto");
+
+        addToDrawer(header, navScroller, footer);
 
     }
 

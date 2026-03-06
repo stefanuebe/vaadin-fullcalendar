@@ -82,7 +82,6 @@ public abstract class AbstractDemoView extends VerticalLayout {
             wireToolbar(toolbar);
         }
 
-        calendar.getStyle().set("min-height", "50vh");
         add(calendar);
         setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
