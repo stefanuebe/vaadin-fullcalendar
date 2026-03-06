@@ -114,13 +114,13 @@ test.describe('Calendar Navigation', () => {
     await page.waitForTimeout(1000);
 
     // Calendar should still be visible (might reload)
-    await page.waitForSelector('.fc', { timeout: 30000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
 
     // Use browser forward
     await page.goForward();
     await page.waitForTimeout(1000);
 
     // Calendar should still be visible
-    await page.waitForSelector('.fc', { timeout: 30000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
   });
 });

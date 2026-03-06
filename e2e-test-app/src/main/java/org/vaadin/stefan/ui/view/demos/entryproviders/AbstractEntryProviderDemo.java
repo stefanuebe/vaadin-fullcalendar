@@ -30,7 +30,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
 
     @Override
     protected FullCalendar<Entry> createCalendar(ObjectNode defaultInitialOptions) {
-        entryService = EntryService.createRandomInstance();
+        entryService = EntryService.createSimpleInstance();
         entryProvider = createEntryProvider(entryService);
 
         return FullCalendarBuilder.create()

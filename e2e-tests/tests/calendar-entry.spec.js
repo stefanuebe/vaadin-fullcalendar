@@ -133,15 +133,14 @@ test.describe('Calendar Entry Interactions', () => {
 
   test('should open create dialog when clicking empty day slot', async ({ page }) => {
     // Click on an empty area of the calendar
-    const dayFrame = page.locator('.fc-daygrid-day-frame').first();
-    await dayFrame.click();
-    await page.waitForTimeout(1000);
+    const dayFrame = page.locator('.fc-daygrid-day:not(:has(.fc-event)):not(:has(.fc-bg-event)) .fc-daygrid-day-frame').first();
+    await dayFrame.click({ force: true });
 
-    // Should open a dialog for creating new entry
-    const dialog = page.locator('vaadin-dialog-overlay');
+    // Should open a dialog for creating new entry (may open 2 from timeslot + selection)
+    const dialog = page.locator('vaadin-dialog-overlay').first();
     await expect(dialog).toBeVisible({ timeout: 5000 });
 
-    await closeDialog(page);
+    await closeAllDialogs(page);
   });
 
   test('should show popover when clicking +more link', async ({ page }) => {

@@ -17,7 +17,6 @@
 package org.vaadin.stefan.ui.view.demos.full;
 
 import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.popover.Popover;
@@ -30,13 +29,9 @@ import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 
 @Route(value = "", layout = MainLayout.class)
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
@@ -97,23 +92,10 @@ public class FullDemo extends AbstractSchedulerView {
         calendar.setSlotMinTime(LocalTime.of(7, 0));
         calendar.setSlotMaxTime(LocalTime.of(17, 0));
 
-        calendar.setBusinessHours(
-                BusinessHours.businessWeek().start(9).end(17),
-                BusinessHours.of(DayOfWeek.SATURDAY).start(12).end(15),
-                BusinessHours.of(DayOfWeek.SUNDAY).start(12).end(13)
-        );
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             getToolbar().setTimezone(event.getTimezone());
         });
-
-        LocalDate now = LocalDate.now();
-        EntryManager.createDayEntry(calendar, "Test 1", now.withDayOfMonth(12), 2, "lightgreen")
-                .setCustomProperty("count", "3");
-        EntryManager.createDayEntry(calendar, "Test 2", now.withDayOfMonth(12), 2, "tomato")
-                .setCustomProperty("count", "2");
-        EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
-                .setCustomProperty("count", "1");
 
         scheduler.setItemResourceEditable(false);
 
@@ -194,93 +176,28 @@ public class FullDemo extends AbstractSchedulerView {
     private void createTestEntries(FullCalendar<Entry> calendar) {
         LocalDate now = LocalDate.now();
 
-        Resource meetingRoomRed = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Red", "#ff0000");
-        Resource meetingRoomGreen = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Green", "green");
-        Resource meetingRoomBlue = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Blue", "blue");
-        Resource meetingRoomOrange = ResourceManager.createResource((Scheduler) calendar, "Meetingroom Orange", "orange", null,
-                BusinessHours.businessWeek().start(9).end(17));
+        // Resources — keep a small set for Scheduler views
+        Resource roomRed = ResourceManager.createResource((Scheduler) calendar, "Room Red", "#ff0000");
+        Resource roomBlue = ResourceManager.createResource((Scheduler) calendar, "Room Blue", "blue");
+        Resource roomGreen = ResourceManager.createResource((Scheduler) calendar, "Room Green", "green");
 
-        Resource computer1A = ResourceManager.createResource((Scheduler) calendar, "Computer 1A", "lightbrown");
-        Resource computer1B = ResourceManager.createResource((Scheduler) calendar, "Computer 1B", "lightbrown");
-        Resource computer1C = ResourceManager.createResource((Scheduler) calendar, "Computer 1C", "lightbrown");
+        // Timed entries
+        EntryManager.createTimedEntry(calendar, "Meeting", now.withDayOfMonth(15).atTime(10, 0), 120, null, roomRed);
+        EntryManager.createTimedEntry(calendar, "Meeting 8", now.withDayOfMonth(20).atTime(10, 0), 120, null);
+        EntryManager.createTimedEntry(calendar, "Timed Today", now.atTime(10, 0), 120, "mediumseagreen");
 
-        ResourceManager.createResource((Scheduler) calendar, "Computer room 1", "brown", Arrays.asList(computer1A, computer1B, computer1C));
-
-        Resource computerRoom2 = ResourceManager.createResource((Scheduler) calendar, "Computer room 2", "brown");
-        // here we must NOT use createResource, since they are added to the calendar later
-        Resource computer2A = new Resource(null, "Computer 2A", "lightbrown");
-        Resource computer2B = new Resource(null, "Computer 2B", "lightbrown");
-        Resource computer2C = new Resource(null, "Computer 2C", "lightbrown");
-
-        // not realistic, just a demonstration of automatic recursive adding
-        computer2A.addChild(new Resource(null, "Mouse", "orange"));
-        computer2A.addChild(new Resource(null, "Screen", "orange"));
-        computer2A.addChild(new Resource(null, "Keyboard", "orange"));
-
-        List<Resource> computerRoom2Children = Arrays.asList(computer2A, computer2B, computer2C);
-        computerRoom2.addChildren(computerRoom2Children);
-        ((Scheduler) calendar).addResources(computerRoom2Children);
-
-        EntryManager.createTimedEntry(calendar, "Meeting 1", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomBlue, meetingRoomGreen, meetingRoomRed);
-
-        EntryManager.createTimedEntry(calendar, "Meeting 2", now.withDayOfMonth(3).atTime(10, 0), 120, null, meetingRoomOrange);
-        EntryManager.createTimedEntry(calendar, "Meeting 3", now.withDayOfMonth(7).atTime(11, 30), 120, null, meetingRoomRed);
-
-        HashMap<String, Object> extendedProps = new HashMap<>();
-        HashMap<String, Object> cursors = new HashMap<>();
-        cursors.put("enabled", "pointer");
-        cursors.put("disabled", "not-allowed");
-        extendedProps.put("cursors", cursors);
-
-        EntryManager.createTimedEntry(calendar, "Meeting 4", now.withDayOfMonth(12).atTime(9, 0), 120, null, extendedProps, meetingRoomGreen);
-        EntryManager.createTimedEntry(calendar, "Meeting 5", now.withDayOfMonth(13).atTime(10, 0), 120, null, meetingRoomGreen);
-        EntryManager.createTimedEntry(calendar, "Meeting 6", now.withDayOfMonth(17).atTime(11, 30), 120, null, meetingRoomBlue);
-        EntryManager.createTimedEntry(calendar, "Meeting 7", now.withDayOfMonth(22).atTime(9, 0), 120, null, meetingRoomRed);
-        EntryManager.createTimedEntry(calendar, "Meeting 8", now.withDayOfMonth(4).atTime(10, 0), 120, null);
-
-        EntryManager.createTimedBackgroundEntry(calendar, now.withDayOfMonth(3).atTime(10, 0), 120, null);
-        EntryManager.createTimedEntry(calendar, "Meeting 9", now.withDayOfMonth(7).atTime(11, 30), 120, "mediumseagreen");
-        EntryManager.createTimedEntry(calendar, "Meeting 10", now.withDayOfMonth(15).atTime(9, 0), 120, "mediumseagreen");
-        EntryManager.createTimedEntry(calendar, "Meeting 11", now.withDayOfMonth(18).atTime(10, 0), 120, "mediumseagreen");
-        EntryManager.createTimedEntry(calendar, "Meeting 12", now.withDayOfMonth(17).atTime(11, 30), 120, "mediumseagreen");
-        EntryManager.createTimedEntry(calendar, "Meeting 13", now.withDayOfMonth(24).atTime(9, 0), 120, "mediumseagreen");
-
-        EntryManager.createTimedEntry(calendar, "Grocery Store", now.withDayOfMonth(7).atTime(17, 30), 45, "violet");
-        EntryManager.createTimedEntry(calendar, "Dentist", now.withDayOfMonth(20).atTime(11, 30), 60, "violet");
-        EntryManager.createTimedEntry(calendar, "Cinema", now.withDayOfMonth(10).atTime(20, 30), 140, "dodgerblue");
+        // All-day entries
         EntryManager.createDayEntry(calendar, "Short trip", now.withDayOfMonth(17), 2, "dodgerblue");
-        EntryManager.createDayEntry(calendar, "John's Birthday", now.withDayOfMonth(23), 1, "gray");
-        EntryManager.createDayEntry(calendar, "This special holiday", now.withDayOfMonth(4), 1, "gray");
+        EntryManager.createDayEntry(calendar, "This special holiday", now.withDayOfMonth(25), 1, "gray");
+        EntryManager.createDayEntry(calendar, "All Day Today", now, 2, "lightgreen");
 
-        EntryManager.createTimedEntry(calendar, "Not editable", now.withDayOfMonth(5).atTime(10, 0), 60, "lightgray")
-                .setEditable(false);
+        // Multi entries on day 22 — 4 entries with limit=3 triggers "+more" link
+        EntryManager.createDayEntry(calendar, "Multi 1", now.withDayOfMonth(22), 2, "tomato");
+        EntryManager.createDayEntry(calendar, "Multi 2", now.withDayOfMonth(22), 2, "tomato");
+        EntryManager.createDayEntry(calendar, "Multi 3", now.withDayOfMonth(22), 2, "tomato");
+        EntryManager.createDayEntry(calendar, "Multi 4", now.withDayOfMonth(22), 2, "tomato");
 
-        ResourceEntry startOnly = EntryManager.createTimedEntry(calendar, "Only start editable",
-                now.withDayOfMonth(5).atTime(11, 0), 60, "lightgray");
-        startOnly.setEditable(false);
-        startOnly.setStartEditable(true);
-
-        ResourceEntry durationOnly = EntryManager.createTimedEntry(calendar, "Only duration editable",
-                now.withDayOfMonth(5).atTime(12, 0), 60, "lightgray");
-        durationOnly.setEditable(false);
-        durationOnly.setDurationEditable(true);
-
-        EntryManager.createDayEntry(calendar, "Multi 1", now.withDayOfMonth(12), 2, "tomato");
-        EntryManager.createDayEntry(calendar, "Multi 2", now.withDayOfMonth(12), 2, "tomato");
-        EntryManager.createDayEntry(calendar, "Multi 3", now.withDayOfMonth(12), 2, "tomato");
-        EntryManager.createDayEntry(calendar, "Multi 4", now.withDayOfMonth(12), 2, "tomato");
-        EntryManager.createDayEntry(calendar, "Multi 5", now.withDayOfMonth(12), 2, "tomato");
-        EntryManager.createDayEntry(calendar, "Multi 6", now.withDayOfMonth(12), 2, "tomato");
-        EntryManager.createDayEntry(calendar, "Multi 7", now.withDayOfMonth(12), 2, "tomato");
-        EntryManager.createDayEntry(calendar, "Multi 8", now.withDayOfMonth(12), 2, "tomato");
-        EntryManager.createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
-        EntryManager.createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
-
-
-        EntryManager.createDayBackgroundEntry(calendar, now.withDayOfMonth(4), 6, "#B9FFC3");
-        EntryManager.createDayBackgroundEntry(calendar, now.withDayOfMonth(19), 2, "#CEE3FF");
-        EntryManager.createTimedBackgroundEntry(calendar, now.withDayOfMonth(20).atTime(11, 0), 150, "#ff0000");
-
+        // Recurring sunday event (all year)
         EntryManager.createRecurringEvents(calendar);
     }
 

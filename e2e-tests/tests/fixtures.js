@@ -9,11 +9,12 @@ const test = base.extend({
    * Auto-navigate to the playground page before each test
    */
   page: async ({ page }, use) => {
-    // Navigate to the app and wait for it to load
+    // Navigate away first to force Vaadin to create a fresh UI/view instance
+    await page.goto('about:blank');
     await page.goto('/');
 
     // Wait for the calendar to be visible
-    await page.waitForSelector('.fc', { timeout: 30000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
 
     // Wait for Vaadin to fully initialize - wait for the calendar entries to load
     await page.waitForFunction(() => {
@@ -150,14 +151,13 @@ async function changeView(page, viewName) {
   // Click the View menu bar button (shows "View: Day Grid Month")
   const viewMenuButton = page.locator('vaadin-menu-bar-button:has-text("View:")').first();
   await viewMenuButton.click();
-  await page.waitForTimeout(500);
 
   // Click the view option using exact text match to avoid partial matches
   // (e.g., "Time Grid Week" vs "Resource Time Grid Week")
   const option = page.locator('vaadin-menu-bar-list-box').getByText(viewName, { exact: true });
   if (await option.isVisible({ timeout: 2000 })) {
     await option.click();
-    await waitForCalendarUpdate(page, 1500);
+    await waitForCalendarUpdate(page);
   } else {
     await page.keyboard.press('Escape');
   }

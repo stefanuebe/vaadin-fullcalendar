@@ -20,7 +20,7 @@ const { test, expect, waitForCalendarUpdate, changeView } = require('./fixtures'
  */
 async function assertNoServerError(page) {
   // Give any pending error notification a moment to appear
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(200);
 
   // Check for Vaadin system error overlay
   const systemError = page.locator('.v-system-error');
@@ -43,7 +43,7 @@ test.describe('Drag & Drop Regression', () => {
   test.describe('Day Grid Month', () => {
 
     test('drag all-day entry', async ({ page }) => {
-      // "Short trip" — 2-day all-day entry, day 17 (FullDemo.java:252)
+      // "Short trip" — 2-day all-day entry, day 17
       const entry = page.locator('.fc-daygrid-event:has-text("Short trip")').first();
       await expect(entry).toBeVisible({ timeout: 5000 });
 
@@ -63,7 +63,7 @@ test.describe('Drag & Drop Regression', () => {
     });
 
     test('drag timed entry', async ({ page }) => {
-      // "Meeting 8" — timed entry, day 4, no resource constraints (FullDemo.java:240)
+      // "Meeting 8" — timed entry, day 20, no resource constraints
       const entry = page.locator('.fc-daygrid-event:has-text("Meeting 8")').first();
       await expect(entry).toBeVisible({ timeout: 5000 });
 
@@ -90,9 +90,7 @@ test.describe('Drag & Drop Regression', () => {
 
     test('drag all-day entry in header', async ({ page }) => {
       // All-day entries appear in the .fc-daygrid-body header area of time-grid views.
-      // FullDemo creates "Short trip" (day 17, 2 days) — visible when week includes day 17.
-      // Also "This special holiday" (day 4), "John's Birthday" (day 23), Multi 1-10 (day 12).
-      // We look for any fc-event in the all-day header section of the time-grid.
+      // The recurring sunday event guarantees at least one all-day entry every week.
       const entry = page.locator('.fc-daygrid-body .fc-event').first();
       await expect(entry).toBeVisible({ timeout: 5000 });
 
@@ -136,7 +134,7 @@ test.describe('Resize Regression', () => {
   test.describe('Day Grid Month', () => {
 
     test('resize all-day entry (multi-day span)', async ({ page }) => {
-      // "Short trip" — 2-day all-day entry, day 17, has resize handle (FullDemo.java:252)
+      // "Short trip" — 2-day all-day entry, day 17, has resize handle
       const entry = page.locator('.fc-daygrid-event:has-text("Short trip")').first();
       await expect(entry).toBeVisible({ timeout: 5000 });
 
@@ -163,7 +161,7 @@ test.describe('Resize Regression', () => {
     });
 
     test('resize another all-day entry', async ({ page }) => {
-      // "Multi 1" — 2-day all-day entry, day 12, has resize handle (FullDemo.java:269)
+      // "Multi 1" — 2-day all-day entry, day 22, has resize handle
       const entry = page.locator('.fc-daygrid-event:has-text("Multi 1")').first();
       await expect(entry).toBeVisible({ timeout: 5000 });
 
@@ -224,8 +222,8 @@ test.describe('Resize Regression', () => {
       const entry = page.locator('.fc-timegrid-event').first();
       await expect(entry).toBeVisible({ timeout: 5000 });
 
-      // Hover to reveal the bottom resize handle
-      await entry.hover();
+      // Hover to reveal the bottom resize handle (force needed — harness div intercepts pointer events)
+      await entry.hover({ force: true });
       await page.waitForTimeout(300);
 
       const entryBox = await entry.boundingBox();

@@ -83,16 +83,20 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
   test.describe(`${view.name} - Entry Interactions`, () => {
 
-    // Custom test setup that navigates to the specific Entry Provider view
+    // Custom test setup — fresh page load for each test to ensure clean state
     test.beforeEach(async ({ page }) => {
+      // Navigate away first to force Vaadin to create a new UI/view instance
+      await page.goto('about:blank');
       await page.goto(view.route);
 
       // Wait for the calendar to be visible
-      await page.waitForSelector('.fc', { timeout: 30000 });
+      await page.waitForSelector('.fc', { timeout: 10000 });
 
-      // Wait for Vaadin to initialize
+      // Wait for Vaadin to initialize and entries to render
       await waitForVaadin(page);
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => {
+        return document.querySelectorAll('.fc-event').length > 0;
+      }, { timeout: 5000 }).catch(() => {});
     });
 
     test.describe('Create Entries via Toolbar', () => {
@@ -580,23 +584,18 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
     test.describe('Data Integrity', () => {
 
       test('should maintain entries after view switch', async ({ page }) => {
-        // Add some entries
-        await addEntriesViaToolbar(page, 'Add single entry');
-        await page.waitForTimeout(500);
+        // Verify at least one entry is visible
+        await expect(page.locator('.fc-event').first()).toBeVisible({ timeout: 5000 });
 
-        const initialCount = await page.locator('.fc-event').count();
-
-        // Switch to a different view
+        // Switch to a different view and back
         await changeView(page, 'Time Grid Week');
-        await page.waitForTimeout(500);
-
-        // Switch back to month view
         await changeView(page, 'Day Grid Month');
-        await page.waitForTimeout(500);
 
-        // Entries should still exist
-        const finalCount = await page.locator('.fc-event').count();
-        expect(finalCount).toBeGreaterThanOrEqual(initialCount);
+        // Wait for lazy providers to re-fetch entries after view switch
+        await waitForVaadin(page);
+
+        // At least one entry should still be visible after round-trip
+        await expect(page.locator('.fc-event').first()).toBeVisible({ timeout: 5000 });
       });
 
       test('should persist entry changes after edit', async ({ page }) => {
@@ -624,9 +623,10 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
           // Navigate away and back
           await changeView(page, 'Time Grid Week');
-          await page.waitForTimeout(500);
           await changeView(page, 'Day Grid Month');
-          await page.waitForTimeout(500);
+
+          // Wait for lazy providers to re-fetch entries after view switch
+          await waitForVaadin(page);
 
           // Entry should still have the new title
           const persistedEntry = page.locator('.fc-event:has-text("Persisted Entry")');

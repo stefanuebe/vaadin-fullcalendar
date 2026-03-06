@@ -8,7 +8,7 @@ test.describe('Calendar Responsive Design', () => {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ width: 768, height: 1024 });
       await page.reload();
-      await page.waitForSelector('.fc', { timeout: 30000 });
+      await page.waitForSelector('.fc', { timeout: 10000 });
     });
 
     test('should display calendar correctly on tablet', async ({ page }) => {
@@ -46,7 +46,7 @@ test.describe('Calendar Responsive Design', () => {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
       await page.reload();
-      await page.waitForSelector('.fc', { timeout: 30000 });
+      await page.waitForSelector('.fc', { timeout: 10000 });
     });
 
     test('should display calendar correctly on mobile', async ({ page }) => {
@@ -106,7 +106,7 @@ test.describe('Calendar Responsive Design', () => {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 568 });
       await page.reload();
-      await page.waitForSelector('.fc', { timeout: 30000 });
+      await page.waitForSelector('.fc', { timeout: 10000 });
     });
 
     test('should display calendar on very small screen', async ({ page }) => {
@@ -141,7 +141,7 @@ test.describe('Calendar Responsive Design', () => {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ width: 2560, height: 1440 });
       await page.reload();
-      await page.waitForSelector('.fc', { timeout: 30000 });
+      await page.waitForSelector('.fc', { timeout: 10000 });
     });
 
     test('should display calendar correctly on wide screen', async ({ page }) => {
