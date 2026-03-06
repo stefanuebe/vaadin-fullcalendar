@@ -1,74 +1,96 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.Route;
-import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.layouts.MainLayout;
+import org.vaadin.stefan.ui.view.AbstractDemoView;
+import org.vaadin.stefan.ui.view.CalendarViewToolbar;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This demo shows the usage of the InMemoryEntryProvider. It stores all its data on the server side
- * while the client only receives the necessary data. This allows a mixture of easy in memory editing
- * via the CRUD API without a heavy memory impact on the client.
+ * Demonstrates InMemoryEntryProvider — entries are stored server-side and the client only
+ * receives visible data. Supports CRUD operations via the provider's add/remove API.
  *
  * @author Stefan Uebe
  */
 @Route(value = "in-memory-entry-provider", layout = MainLayout.class)
 @org.vaadin.stefan.ui.menu.MenuItem(label = "In Memory Entry Provider")
-public class InMemoryEntryProviderDemo extends AbstractEntryProviderDemo {
+public class InMemoryEntryProviderDemo extends AbstractDemoView {
 
-
+    // DEMO-START
     @Override
-    protected EntryProvider<Entry> createEntryProvider(EntryService<Entry> entryService) {
-        List<Entry> entries = entryService.streamEntries().collect(Collectors.toList());
+    @SuppressWarnings("unchecked")
+    protected FullCalendar<?> createCalendar() {
+        EntryService<Entry> service = EntryService.createSimpleInstance();
+        List<Entry> entries = service.streamEntries().collect(Collectors.toList());
 
-        // The list is used to initialize the in memory provider, but different to the ListDataProvider it is
-        // not used as the backing collection.
-        return EntryProvider.inMemoryFrom(entries);
+        // InMemoryEntryProvider stores all entries server-side;
+        // the client only receives data for the visible date range.
+        InMemoryEntryProvider<Entry> provider = (InMemoryEntryProvider<Entry>) EntryProvider.inMemoryFrom(entries);
+
+        FullCalendar<Entry> calendar = FullCalendarBuilder.<Entry>create()
+                .withEntryProvider(provider)
+                .withCalendarItemLimit(3)
+                .build();
+
+        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
+        calendar.setSizeFull();
+        calendar.setEditable(true);
+
+        // Click: open edit dialog
+        calendar.addCalendarItemClickedListener(event -> {
+            Entry entry = event.getItem();
+            DemoDialog dialog = new DemoDialog(entry, false);
+            dialog.setSaveConsumer(changed -> {
+                provider.refreshItem(changed);
+            });
+            dialog.setDeleteConsumer(removed -> {
+                provider.removeEntries(Collections.singletonList(removed));
+                provider.refreshAll();
+            });
+            dialog.open();
+        });
+
+        // Drop: apply position change and refresh
+        calendar.addCalendarItemDroppedListener(event -> {
+            event.applyChangesOnItem();
+            provider.refreshItem(event.getItem());
+            Notification.show("Moved entry: " + event.getItem().getTitle());
+        });
+
+        // Resize: apply duration change and refresh
+        calendar.addCalendarItemResizedListener(event -> {
+            event.applyChangesOnItem();
+            provider.refreshItem(event.getItem());
+            Notification.show("Resized entry: " + event.getItem().getTitle());
+        });
+
+        return calendar;
     }
 
     @Override
-    protected Entry createNewEntry() {
-        return new Entry();
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    protected Component createToolbar() {
+        return CalendarViewToolbar.builder()
+                .calendar((FullCalendar<Entry>) (FullCalendar) getCalendar())
+                .dateChangeable(true)
+                .viewChangeable(true)
+                .editable(true)
+                .settingsAvailable(true)
+                .build();
     }
-
-    @Override
-    protected void onEntriesCreated(Collection<Entry> entries) {
-        // The lazy in memory provider provides API to modify its internal cache. To inform the client about
-        // the change a refresh call is necessary.
-        InMemoryEntryProvider<Entry> provider = getEntryProvider();
-        provider.addEntries(entries);
-        provider.refreshAll();
-    }
-
-    @Override
-    protected void onEntriesRemoved(Collection<Entry> entries) {
-        // The lazy in memory provider provides API to modify its internal cache. To inform the client about
-        // the change a refresh call is necessary.
-        InMemoryEntryProvider<Entry> provider = getEntryProvider();
-        provider.removeEntries(entries);
-        provider.refreshAll();
-    }
-
-    @Override
-    protected void onEntryChanged(Entry entry) {
-        // To inform the client about the change a refresh call is necessary.
-        getEntryProvider().refreshItem(entry);
-    }
-
-    @Override
-    protected InMemoryEntryProvider<Entry> getEntryProvider() {
-        return (InMemoryEntryProvider<Entry>) super.getEntryProvider();
-    }
+    // DEMO-END
 
     @Override
     protected String createDescription() {
-        return "This demo shows the usage of the InMemoryEntryProvider. It stores all its data on the server side " +
-                "while the client only receives the necessary data. This allows a mixture of easy in memory editing " +
-                "via the CRUD API without a heavy memory impact on the client.";
+        return "Demonstrates InMemoryEntryProvider — entries are stored server-side and the client only receives visible data. Supports CRUD operations via the provider's add/remove API.";
     }
 }
