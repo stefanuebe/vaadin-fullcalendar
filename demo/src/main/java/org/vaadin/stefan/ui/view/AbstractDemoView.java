@@ -6,6 +6,7 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -225,10 +226,10 @@ public abstract class AbstractDemoView extends VerticalLayout {
                 .set("margin", "0")
                 .set("overflow-x", "auto");
 
-        Details details = new Details("Show Source Code", pre);
-        details.getStyle()
-                .set("max-height", "50vh")
-                .set("overflow-y", "auto");
+        Scroller codeScroller = new Scroller(pre);
+        codeScroller.setMaxHeight("50vh");
+
+        Details details = new Details("Show Source Code", codeScroller);
         details.setOpened(false);
 
         // Trigger Prism.highlightAll() when the panel is opened
