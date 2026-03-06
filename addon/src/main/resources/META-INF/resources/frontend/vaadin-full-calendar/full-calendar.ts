@@ -84,7 +84,7 @@ export class FullCalendar extends HTMLElement {
 
             // TODO this is somehow double to the initial options variant, might be reduced to one variant?
             this._calendar.setOption = (key: any, value: any) => {
-                if (key === "eventDidMount" || key === "eventContent") {
+                if (key === "eventDidMount" || key === "eventContent" || key === "eventClassNames" || key === "eventWillUnmount") {
                     // in these cases add custom api to the event to allow for instance accessing custom properties
                     _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
                 } else {
@@ -474,6 +474,26 @@ export class FullCalendar extends HTMLElement {
                 this.addCustomAPI(event);
 
                 return initEventContent.call(this._calendar, info, createElement);
+            };
+        }
+
+        if (typeof options.eventClassNames === "function") {
+            let initEventClassNames = options.eventClassNames;
+            options.eventClassNames = (info: any) => {
+                let event = info.event;
+                this.addCustomAPI(event);
+
+                return initEventClassNames.call(this._calendar, info);
+            };
+        }
+
+        if (typeof options.eventWillUnmount === "function") {
+            let initEventWillUnmount = options.eventWillUnmount;
+            options.eventWillUnmount = (info: any) => {
+                let event = info.event;
+                this.addCustomAPI(event);
+
+                return initEventWillUnmount.call(this._calendar, info);
             };
         }
     }

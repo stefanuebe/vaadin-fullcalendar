@@ -65,11 +65,11 @@ public class ResourceLabelCallbacksDemo extends AbstractDemoView {
                 (InMemoryEntryProvider<Entry>) calendar.getCalendarItemProvider();
 
         Object[][] entries = {
-                {"Team Standup",    roomA, 0, 9,  9,  30, "#3788d8"},
-                {"Sprint Planning", roomB, 0, 10, 11, 30, "#e74c3c"},
-                {"Code Review",     roomA, 2, 14, 15, 0,  "#3788d8"},
-                {"Design Review",   roomC, 3, 11, 12, 0,  "#2ecc71"},
-                {"Board Meeting",   roomD, 4, 9,  10, 0,  "#9b59b6"},
+                {"Team Standup",    roomA, 0, 9,  0,  9,  30, "#3788d8"},
+                {"Sprint Planning", roomB, 0, 10, 0,  11, 30, "#e74c3c"},
+                {"Code Review",     roomA, 2, 14, 0,  15, 0,  "#3788d8"},
+                {"Design Review",   roomC, 3, 11, 0,  12, 0,  "#2ecc71"},
+                {"Board Meeting",   roomD, 4, 9,  0,  10, 0,  "#9b59b6"},
         };
 
         for (Object[] row : entries) {

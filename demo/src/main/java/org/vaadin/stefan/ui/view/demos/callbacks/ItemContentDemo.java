@@ -50,12 +50,12 @@ public class ItemContentDemo extends AbstractDemoView {
                 (InMemoryEntryProvider<Entry>) calendar.getCalendarItemProvider();
 
         Object[][] data = {
-                {"Team Standup",        "\uD83D\uDC65", "Daily sync — 15 minutes",         1, 9,  9,  15, "#3788d8"},
-                {"Sprint Planning",     "\uD83D\uDCCB", "Plan next sprint backlog items",   1, 10, 11, 30, "#e74c3c"},
-                {"Lunch Break",         "\uD83C\uDF54", null,                               2, 12, 13, 0,  "#2ecc71"},
-                {"Architecture Review", "\uD83D\uDEE0", "Design the new payment module",    3, 14, 15, 30, "#9b59b6"},
-                {"Retrospective",       "\uD83D\uDD0D", "What went well? What to improve?", 4, 16, 17, 0,  "#f39c12"},
-                {"Release Prep",        "\uD83D\uDE80", "Final checks before go-live",      5, 11, 12, 0,  "#e74c3c"},
+                {"Team Standup",        "\uD83D\uDC65", "Daily sync — 15 minutes",         1, 9,  0,  9,  15, "#3788d8"},
+                {"Sprint Planning",     "\uD83D\uDCCB", "Plan next sprint backlog items",   1, 10, 0,  11, 30, "#e74c3c"},
+                {"Lunch Break",         "\uD83C\uDF54", null,                               2, 12, 0,  13, 0,  "#2ecc71"},
+                {"Architecture Review", "\uD83D\uDEE0", "Design the new payment module",    3, 14, 0,  15, 30, "#9b59b6"},
+                {"Retrospective",       "\uD83D\uDD0D", "What went well? What to improve?", 4, 16, 0,  17, 0,  "#f39c12"},
+                {"Release Prep",        "\uD83D\uDE80", "Final checks before go-live",      5, 11, 0,  12, 0,  "#e74c3c"},
         };
 
         for (Object[] row : data) {

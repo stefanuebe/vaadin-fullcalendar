@@ -54,12 +54,12 @@ public class ItemClassNamesDemo extends AbstractDemoView {
                 (InMemoryEntryProvider<Entry>) calendar.getCalendarItemProvider();
 
         Object[][] data = {
-                {"Team Standup",        "meeting",  "#3788d8", 0, 9,  9,  30},
-                {"Release Deadline",    "deadline", "#e74c3c", 1, 17, 17, 0},
-                {"Doctor Appointment",  "personal", "#9b59b6", 2, 14, 15, 0},
-                {"Sprint Review",       "meeting",  "#3788d8", 3, 11, 12, 0},
-                {"Submit Report",       "deadline", "#e74c3c", 4, 10, 10, 30},
-                {"Gym Session",         "personal", "#9b59b6", 5, 7,  8,  0},
+                {"Team Standup",        "meeting",  "#3788d8", 0, 9,  0,  9,  30},
+                {"Release Deadline",    "deadline", "#e74c3c", 1, 17, 0,  17, 30},
+                {"Doctor Appointment",  "personal", "#9b59b6", 2, 14, 0,  15, 0},
+                {"Sprint Review",       "meeting",  "#3788d8", 3, 11, 0,  12, 0},
+                {"Submit Report",       "deadline", "#e74c3c", 4, 10, 0,  10, 30},
+                {"Gym Session",         "personal", "#9b59b6", 5, 7,  0,  8,  0},
         };
 
         for (Object[] row : data) {
