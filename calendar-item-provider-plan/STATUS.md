@@ -16,7 +16,7 @@
 | 8 | Event Unification | COMPLETE | Entry events extend CIP event counterparts |
 | 9 | API Naming & Cleanup | COMPLETE | Remove entryProviderRef, rename Entry→Item API, migrate demos |
 
-## Demo Rework: IN PROGRESS
+## Demo Rework: COMPLETE
 
 See [demo-rework.md](demo-rework.md) for full plan details.
 
@@ -31,14 +31,14 @@ See [demo-rework.md](demo-rework.md) for full plan details.
 | 10.7 | Recurring & BG Items | COMPLETE | Recurring events and background items |
 | 10.8 | Native Event Listeners | COMPLETE | Browser-level native event listeners |
 | 10.9 | i18n | COMPLETE | Timezone and locale customization |
-| 10.10 | CIP: In Memory | PENDING | InMemoryCalendarItemProvider with custom POJO |
-| 10.11 | CIP: Callback | PENDING | CallbackCalendarItemProvider with update handler |
-| 10.12 | CIP: Backend | PENDING | Simulated backend service pattern |
-| 10.13 | Entry Provider Streamline | PENDING | Clean up existing EP demos |
-| 10.14 | Multi Month Streamline | PENDING | Clean up Multi Month demo |
-| 10.15 | Callbacks: Custom Props | PENDING | Streamline Custom Properties demo |
-| 10.16 | Callbacks: Remaining | PENDING | ItemClassname, ItemContent, ItemDidMount, etc. |
-| 10.17 | Cleanup | PENDING | Remove old abstract views, dead code, final verification |
+| 10.10 | CIP: In Memory | COMPLETE | InMemoryCalendarItemProvider with custom POJO |
+| 10.11 | CIP: Callback | COMPLETE | CallbackCalendarItemProvider with update handler |
+| 10.12 | CIP: Backend | COMPLETE | Simulated backend service pattern |
+| 10.13 | Entry Provider Streamline | COMPLETE | EP demos migrated to AbstractDemoView |
+| 10.14 | Multi Month Streamline | COMPLETE | Multi Month demo self-contained on AbstractDemoView |
+| 10.15 | Callbacks: Custom Props | COMPLETE | Custom properties + itemDidMount callback |
+| 10.16 | Callbacks: Remaining | COMPLETE | ItemClassNames, ItemContent, ItemDidMount, ItemWillUnmount, ResourceLabel, ResourceLane |
+| 10.17 | Cleanup | COMPLETE | Removed dead code (23 files), all 154 E2E tests pass |
 
 ## Key Architectural Decisions
 
