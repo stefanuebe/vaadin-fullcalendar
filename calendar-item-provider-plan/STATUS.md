@@ -27,7 +27,7 @@ See [demo-rework.md](demo-rework.md) for full plan details.
 | 10.3 | Sidenav + Stubs | COMPLETE | Flat sidenav with separator labels, 15 empty view stubs |
 | 10.4 | Business Hours View | COMPLETE | Validation view to prove AbstractDemoView design |
 | 10.5 | Playground | COMPLETE | Rewritten on AbstractDemoView, non-deprecated API |
-| 10.6 | Events View | PENDING | All FC event listeners with visible feedback |
+| 10.6 | Events View | COMPLETE | All FC event listeners with visible feedback |
 | 10.7 | Recurring & BG Items | PENDING | Recurring events and background items |
 | 10.8 | Native Event Listeners | PENDING | Browser-level native event listeners |
 | 10.9 | i18n | PENDING | Timezone and locale customization |
