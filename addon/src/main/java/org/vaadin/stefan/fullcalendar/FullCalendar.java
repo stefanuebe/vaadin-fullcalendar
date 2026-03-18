@@ -2253,6 +2253,741 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     // -------------------------------------------------------------------------
+    // Typed setters (Phase 2 API — Display options and render hooks)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Whether to display an event's end time. When {@code false}, only the start time is shown.
+     *
+     * @param displayEventEnd display end time
+     * @see <a href="https://fullcalendar.io/docs/displayEventEnd">displayEventEnd</a>
+     */
+    public void setDisplayEventEnd(boolean displayEventEnd) {
+        setOption(Option.DISPLAY_EVENT_END, displayEventEnd);
+    }
+
+    /**
+     * Whether the time text is displayed in the event block. Alias for {@link #setDisplayEntryTime(boolean)}.
+     *
+     * @param display display event time
+     * @see <a href="https://fullcalendar.io/docs/displayEventTime">displayEventTime</a>
+     */
+    public void setDisplayEventTime(boolean display) {
+        setDisplayEntryTime(display);
+    }
+
+    /**
+     * Whether to render events progressively from top to bottom. Useful for reducing initial render cost.
+     *
+     * @param progressive enable progressive rendering
+     * @see <a href="https://fullcalendar.io/docs/progressiveEventRendering">progressiveEventRendering</a>
+     */
+    public void setProgressiveEventRendering(boolean progressive) {
+        setOption(Option.PROGRESSIVE_EVENT_RENDERING, progressive);
+    }
+
+    /**
+     * The number of milliseconds FC will wait before re-rendering the calendar after a resize or option change.
+     * Pass {@code -1} to disable the delay entirely.
+     *
+     * @param delayMs delay in milliseconds, or {@code -1} to disable
+     * @see <a href="https://fullcalendar.io/docs/rerenderDelay">rerenderDelay</a>
+     */
+    public void setRerenderDelay(int delayMs) {
+        setOption(Option.RERENDER_DELAY, delayMs);
+    }
+
+    /**
+     * Overrides the date used as "now" in the calendar. Affects today highlighting and the now-indicator.
+     * Useful for testing or fixed-date scenarios. Pass {@code null} to reset to the actual current date.
+     *
+     * @param now the fixed "now" date, or {@code null} to reset
+     * @see <a href="https://fullcalendar.io/docs/now">now</a>
+     */
+    public void setNow(LocalDate now) {
+        setOption(Option.NOW, now != null ? JsonUtils.formatClientSideDateString(now) : null);
+    }
+
+    /**
+     * Overrides the datetime used as "now" in the calendar. Affects today highlighting and the now-indicator.
+     * Useful for testing or fixed-time scenarios. Pass {@code null} to reset to the actual current time.
+     *
+     * @param now the fixed "now" datetime, or {@code null} to reset
+     * @see <a href="https://fullcalendar.io/docs/now">now</a>
+     */
+    public void setNow(LocalDateTime now) {
+        setOption(Option.NOW, now != null ? now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+    }
+
+    /**
+     * Whether the now-indicator snaps to slot boundaries ({@code true}) or renders at the exact current time
+     * ({@code false}). Default is {@code false} (exact time).
+     *
+     * @param snap snap to slot boundaries
+     * @see <a href="https://fullcalendar.io/docs/nowIndicatorSnap">nowIndicatorSnap</a>
+     */
+    public void setNowIndicatorSnap(boolean snap) {
+        setOption(Option.NOW_INDICATOR_SNAP, snap);
+    }
+
+    /**
+     * The number of milliseconds to wait before FC reacts to a browser window resize. Default is {@code 100}.
+     *
+     * @param delayMs delay in milliseconds
+     * @see <a href="https://fullcalendar.io/docs/windowResizeDelay">windowResizeDelay</a>
+     * @see #setHandleWindowResize(boolean)
+     */
+    public void setWindowResizeDelay(int delayMs) {
+        setOption(Option.WINDOW_RESIZE_DELAY, delayMs);
+    }
+
+    /**
+     * Sets the initial date displayed when the calendar first renders.
+     * <p>
+     * <strong>Only effective before the calendar is attached to the UI.</strong>
+     * Use {@link #gotoDate(LocalDate)} to navigate after the calendar is attached.
+     *
+     * @param date initial display date
+     * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
+     */
+    public void setInitialDate(LocalDate date) {
+        setOption(Option.INITIAL_DATE, date != null ? JsonUtils.formatClientSideDateString(date) : null);
+    }
+
+    /**
+     * Sets the initial view shown when the calendar first renders.
+     * <p>
+     * <strong>Only effective before the calendar is attached to the UI.</strong>
+     * Use {@link #changeView(CalendarView)} to switch views after the calendar is attached.
+     *
+     * @param view initial calendar view
+     * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
+     */
+    public void setInitialView(CalendarView view) {
+        setOption(Option.INITIAL_VIEW, view != null ? view.getClientSideValue() : null);
+    }
+
+    /**
+     * Sets the theme system for calendar styling. Default is {@link ThemeSystem#STANDARD}.
+     *
+     * @param themeSystem theme system to use
+     * @see <a href="https://fullcalendar.io/docs/themeSystem">themeSystem</a>
+     */
+    public void setThemeSystem(ThemeSystem themeSystem) {
+        setOption(Option.THEME_SYSTEM, themeSystem != null ? themeSystem.getClientSideValue() : null);
+    }
+
+    /**
+     * Sets the separator text used between start and end dates in the default date range format.
+     * Default is {@code " \u2013 "} (en dash with spaces).
+     *
+     * @param separator separator string
+     * @see <a href="https://fullcalendar.io/docs/defaultRangeSeparator">defaultRangeSeparator</a>
+     */
+    public void setDefaultRangeSeparator(String separator) {
+        setOption(Option.DEFAULT_RANGE_SEPARATOR, separator);
+    }
+
+    /**
+     * Sets the separator text used between start and end dates in the toolbar title area.
+     * Default is {@code " \u2013 "} (en dash with spaces).
+     *
+     * @param separator separator string
+     * @see <a href="https://fullcalendar.io/docs/titleRangeSeparator">titleRangeSeparator</a>
+     */
+    public void setTitleRangeSeparator(String separator) {
+        setOption(Option.TITLE_RANGE_SEPARATOR, separator);
+    }
+
+    /**
+     * Customizes the button labels shown in the toolbar. The map keys are FC button/view names such as
+     * {@code "today"}, {@code "month"}, {@code "week"}, {@code "day"}, {@code "list"}, {@code "prev"},
+     * {@code "next"}, {@code "prevYear"}, {@code "nextYear"}. Pass {@code null} to reset to default labels.
+     *
+     * @param buttonText map of button key to display label, or {@code null} to reset
+     * @see <a href="https://fullcalendar.io/docs/buttonText">buttonText</a>
+     */
+    public void setButtonText(Map<String, String> buttonText) {
+        setOption(Option.BUTTON_TEXT, buttonText);
+    }
+
+    /**
+     * Sets the date format string used for the day popover title (the popup shown when clicking "+N more").
+     * Accepts a FC date format object (JSON string) or a predefined format identifier.
+     *
+     * @param format date format string
+     * @see <a href="https://fullcalendar.io/docs/dayPopoverFormat">dayPopoverFormat</a>
+     */
+    public void setDayPopoverFormat(String format) {
+        setOption(Option.DAY_POPOVER_FORMAT, format);
+    }
+
+    /**
+     * Limits the maximum number of events shown per day row in month or dayGrid view. Events beyond
+     * the limit are hidden behind a "+N more" link. Pass {@code -1} to show all events.
+     *
+     * @param rows maximum number of event rows
+     * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
+     * @see #setDayMaxEventRowsFitToCell()
+     */
+    public void setDayMaxEventRows(int rows) {
+        setOption(Option.DAY_MAX_EVENT_ROWS, rows);
+    }
+
+    /**
+     * Enables automatic fitting of event rows to the available cell height. FC will show as many rows as
+     * the cell allows and hide the rest behind a "+N more" link.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
+     * @see #setDayMaxEventRows(int)
+     */
+    public void setDayMaxEventRowsFitToCell() {
+        setOption(Option.DAY_MAX_EVENT_ROWS, true);
+    }
+
+    /**
+     * Sets the delay in milliseconds between the user holding down a touch and a long-press action being
+     * triggered for all interactions. Default is {@code 1000} (1 second).
+     *
+     * @param delayMs delay in milliseconds
+     * @see <a href="https://fullcalendar.io/docs/longPressDelay">longPressDelay</a>
+     */
+    public void setLongPressDelay(int delayMs) {
+        setOption(Option.LONG_PRESS_DELAY, delayMs);
+    }
+
+    /**
+     * Sets the long-press delay in milliseconds specifically for event dragging. Overrides
+     * {@link #setLongPressDelay(int)} for event drag interactions on touch devices.
+     *
+     * @param delayMs delay in milliseconds
+     * @see <a href="https://fullcalendar.io/docs/eventLongPressDelay">eventLongPressDelay</a>
+     */
+    public void setEventLongPressDelay(int delayMs) {
+        setOption(Option.EVENT_LONG_PRESS_DELAY, delayMs);
+    }
+
+    /**
+     * Sets the long-press delay in milliseconds specifically for time-slot selection. Overrides
+     * {@link #setLongPressDelay(int)} for selection interactions on touch devices.
+     *
+     * @param delayMs delay in milliseconds
+     * @see <a href="https://fullcalendar.io/docs/selectLongPressDelay">selectLongPressDelay</a>
+     */
+    public void setSelectLongPressDelay(int delayMs) {
+        setOption(Option.SELECT_LONG_PRESS_DELAY, delayMs);
+    }
+
+    /**
+     * Sets the duration in milliseconds of the revert animation when an event drag is cancelled.
+     * Default is {@code 500}.
+     *
+     * @param durationMs duration in milliseconds
+     * @see <a href="https://fullcalendar.io/docs/dragRevertDuration">dragRevertDuration</a>
+     */
+    public void setDragRevertDuration(int durationMs) {
+        setOption(Option.DRAG_REVERT_DURATION, durationMs);
+    }
+
+    /**
+     * Whether to maintain an event's duration when the event is moved between timed and all-day sections.
+     * When {@code false}, the event snaps to the default all-day or timed duration. Default is {@code false}.
+     *
+     * @param maintain maintain duration across timed/all-day boundary
+     * @see <a href="https://fullcalendar.io/docs/allDayMaintainDuration">allDayMaintainDuration</a>
+     */
+    public void setAllDayMaintainDuration(boolean maintain) {
+        setOption(Option.ALL_DAY_MAINTAIN_DURATION, maintain);
+    }
+
+    /**
+     * Sets the minimum number of pixels the user must drag the cursor before FC starts a drag action.
+     * Helps avoid accidental drags. Default is {@code 5}.
+     *
+     * @param pixels minimum drag distance in pixels
+     * @see <a href="https://fullcalendar.io/docs/eventDragMinDistance">eventDragMinDistance</a>
+     */
+    public void setEventDragMinDistance(int pixels) {
+        setOption(Option.EVENT_DRAG_MIN_DISTANCE, pixels);
+    }
+
+    /**
+     * Whether FC will lazily fetch events only for the currently visible range, or eagerly pre-fetch
+     * a wider range to support faster navigation. Default is {@code true} (lazy fetching).
+     *
+     * @param lazy {@code true} to fetch only the visible range (default); {@code false} for wider pre-fetch
+     * @see <a href="https://fullcalendar.io/docs/lazyFetching">lazyFetching</a>
+     */
+    public void setLazyFetching(boolean lazy) {
+        setOption(Option.LAZY_FETCHING, lazy);
+    }
+
+    /**
+     * Whether events without an explicit end date or time should be forced to render with a
+     * default duration. When {@code false} (default), events without end are treated as instantaneous.
+     *
+     * @param force force default duration for events without end
+     * @see <a href="https://fullcalendar.io/docs/forceEventDuration">forceEventDuration</a>
+     */
+    public void setForceEventDuration(boolean force) {
+        setOption(Option.FORCE_EVENT_DURATION, force);
+    }
+
+    /**
+     * Sets the default {@code allDay} value applied to events that do not have an explicit time component.
+     * Default is {@code false} (treat as timed events).
+     *
+     * @param defaultAllDay default all-day flag for events without a time
+     * @see <a href="https://fullcalendar.io/docs/defaultAllDay">defaultAllDay</a>
+     */
+    public void setDefaultAllDay(boolean defaultAllDay) {
+        setOption(Option.DEFAULT_ALL_DAY, defaultAllDay);
+    }
+
+    /**
+     * Whether FC automatically reacts to browser window resize events to recalculate its dimensions.
+     * Default is {@code true}. Disable when the calendar is inside a custom resizable container and
+     * you want to call {@code calendar.updateSize()} manually.
+     *
+     * @param handle {@code true} to enable automatic resize handling (default)
+     * @see <a href="https://fullcalendar.io/docs/handleWindowResize">handleWindowResize</a>
+     * @see #setWindowResizeDelay(int)
+     */
+    public void setHandleWindowResize(boolean handle) {
+        setOption(Option.HANDLE_WINDOW_RESIZE, handle);
+    }
+
+    // ---- Render hook callbacks (2.2 – 2.11) ----
+    // All accept raw JS function strings evaluated via new Function() on the client side.
+    // Never pass user-controlled content to these methods.
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to day-cell {@code <td>} elements.
+     * The callback receives an info object with {@code date}, {@code dayNumberText}, {@code isToday},
+     * {@code isPast}, {@code isFuture}, {@code isOther}, and {@code view} properties, and must return
+     * an array of class name strings.
+     * <p>
+     * Example: {@code "function(info) { return info.isToday ? ['my-today'] : []; }"}
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/dayCellClassNames">dayCellClassNames</a>
+     */
+    public void setDayCellClassNamesCallback(String jsFunction) {
+        setOption("dayCellClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for customizing the content of day-cell {@code <td>} elements.
+     * The callback receives the same info object as {@link #setDayCellClassNamesCallback(String)}
+     * and should return a content object (e.g. {@code { html: '...' }}).
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/dayCellContent">dayCellContent</a>
+     */
+    public void setDayCellContentCallback(String jsFunction) {
+        setOption("dayCellContent", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after a day-cell element is added to the DOM.
+     * The callback receives {@code { el, date, dayNumberText, isToday, isPast, isFuture, isOther, view }}.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/dayCellDidMount">dayCellDidMount</a>
+     */
+    public void setDayCellDidMountCallback(String jsFunction) {
+        setOption("dayCellDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before a day-cell element is removed from the DOM.
+     * The callback receives the same info as {@link #setDayCellDidMountCallback(String)}.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/dayCellWillUnmount">dayCellWillUnmount</a>
+     */
+    public void setDayCellWillUnmountCallback(String jsFunction) {
+        setOption("dayCellWillUnmount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to day column header {@code <th>} cells.
+     * The callback receives {@code { date, text, isToday, isPast, isFuture, view }} and must return
+     * an array of class name strings.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/dayHeaderClassNames">dayHeaderClassNames</a>
+     */
+    public void setDayHeaderClassNamesCallback(String jsFunction) {
+        setOption("dayHeaderClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for customizing the content of day column header cells.
+     * The callback receives {@code { date, text, isToday, isPast, isFuture, view }} and should return
+     * a content object.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/dayHeaderContent">dayHeaderContent</a>
+     */
+    public void setDayHeaderContentCallback(String jsFunction) {
+        setOption("dayHeaderContent", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after a day column header element is added to the DOM.
+     * The callback receives {@code { el, date, text, isToday, isPast, isFuture, view }}.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/dayHeaderDidMount">dayHeaderDidMount</a>
+     */
+    public void setDayHeaderDidMountCallback(String jsFunction) {
+        setOption("dayHeaderDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before a day column header element is removed from the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/dayHeaderWillUnmount">dayHeaderWillUnmount</a>
+     */
+    public void setDayHeaderWillUnmountCallback(String jsFunction) {
+        setOption("dayHeaderWillUnmount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to slot label cells in timegrid/timeline views.
+     * The callback receives {@code { date, text, view }} and must return an array of class name strings.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/slotLabelClassNames">slotLabelClassNames</a>
+     */
+    public void setSlotLabelClassNamesCallback(String jsFunction) {
+        setOption("slotLabelClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for customizing the content of time slot label cells.
+     * The callback receives {@code { date, text, view }} and should return a content object.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/slotLabelContent">slotLabelContent</a>
+     */
+    public void setSlotLabelContentCallback(String jsFunction) {
+        setOption("slotLabelContent", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after a slot label element is added to the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/slotLabelDidMount">slotLabelDidMount</a>
+     */
+    public void setSlotLabelDidMountCallback(String jsFunction) {
+        setOption("slotLabelDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before a slot label element is removed from the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/slotLabelWillUnmount">slotLabelWillUnmount</a>
+     */
+    public void setSlotLabelWillUnmountCallback(String jsFunction) {
+        setOption("slotLabelWillUnmount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to slot lane cells in timegrid/timeline views.
+     * The callback receives {@code { date, time, view }} and must return an array of class name strings.
+     * The {@code time} property is a duration object relative to start of day.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/slotLaneClassNames">slotLaneClassNames</a>
+     */
+    public void setSlotLaneClassNamesCallback(String jsFunction) {
+        setOption("slotLaneClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for customizing the content of slot lane cells.
+     * The callback receives {@code { date, time, view }} and should return a content object.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/slotLaneContent">slotLaneContent</a>
+     */
+    public void setSlotLaneContentCallback(String jsFunction) {
+        setOption("slotLaneContent", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after a slot lane element is added to the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/slotLaneDidMount">slotLaneDidMount</a>
+     */
+    public void setSlotLaneDidMountCallback(String jsFunction) {
+        setOption("slotLaneDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before a slot lane element is removed from the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/slotLaneWillUnmount">slotLaneWillUnmount</a>
+     */
+    public void setSlotLaneWillUnmountCallback(String jsFunction) {
+        setOption("slotLaneWillUnmount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to the view root element.
+     * The callback receives {@code { view, el }} and must return an array of class name strings.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/viewClassNames">viewClassNames</a>
+     */
+    public void setViewClassNamesCallback(String jsFunction) {
+        setOption("viewClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after the view root element is added to the DOM.
+     * This is the client-side equivalent of the server-side {@code ViewSkeletonRenderedEvent}; both
+     * can be used simultaneously.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/viewDidMount">viewDidMount</a>
+     */
+    public void setViewDidMountCallback(String jsFunction) {
+        setOption("viewDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before the view root element is removed from the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/viewWillUnmount">viewWillUnmount</a>
+     */
+    public void setViewWillUnmountCallback(String jsFunction) {
+        setOption("viewWillUnmount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to the now-indicator element.
+     * The callback receives {@code { date, isAxis, view }} and must return an array of class name strings.
+     * {@code isAxis} is {@code true} for the time-label part and {@code false} for the line.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/nowIndicatorClassNames">nowIndicatorClassNames</a>
+     */
+    public void setNowIndicatorClassNamesCallback(String jsFunction) {
+        setOption("nowIndicatorClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for customizing the content of the now-indicator.
+     * The callback receives {@code { date, isAxis, view }} and should return a content object.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/nowIndicatorContent">nowIndicatorContent</a>
+     */
+    public void setNowIndicatorContentCallback(String jsFunction) {
+        setOption("nowIndicatorContent", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after the now-indicator element is added to the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/nowIndicatorDidMount">nowIndicatorDidMount</a>
+     */
+    public void setNowIndicatorDidMountCallback(String jsFunction) {
+        setOption("nowIndicatorDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before the now-indicator element is removed from the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/nowIndicatorWillUnmount">nowIndicatorWillUnmount</a>
+     */
+    public void setNowIndicatorWillUnmountCallback(String jsFunction) {
+        setOption("nowIndicatorWillUnmount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to week-number cells.
+     * The callback receives {@code { date, num, text, view }} and must return an array of class name strings.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/weekNumberClassNames">weekNumberClassNames</a>
+     */
+    public void setWeekNumberClassNamesCallback(String jsFunction) {
+        setOption("weekNumberClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for customizing the content of week-number cells.
+     * The callback receives {@code { date, num, text, view }} and should return a content object.
+     * Example: {@code "function(info) { return { html: '<span title=\"Week ' + info.num + '\">' + info.text + '</span>' }; }"}
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/weekNumberContent">weekNumberContent</a>
+     */
+    public void setWeekNumberContentCallback(String jsFunction) {
+        setOption("weekNumberContent", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after a week-number element is added to the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/weekNumberDidMount">weekNumberDidMount</a>
+     */
+    public void setWeekNumberDidMountCallback(String jsFunction) {
+        setOption("weekNumberDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before a week-number element is removed from the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/weekNumberWillUnmount">weekNumberWillUnmount</a>
+     */
+    public void setWeekNumberWillUnmountCallback(String jsFunction) {
+        setOption("weekNumberWillUnmount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to the "+N more" link element.
+     * The callback receives {@code { num, text, shortText, view }} and must return an array of class name strings.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/moreLinkClassNames">moreLinkClassNames</a>
+     */
+    public void setMoreLinkClassNamesCallback(String jsFunction) {
+        setOption("moreLinkClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for customizing the content of the "+N more" link.
+     * The callback receives {@code { num, text, shortText, view }} and should return a content object.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/moreLinkContent">moreLinkContent</a>
+     */
+    public void setMoreLinkContentCallback(String jsFunction) {
+        setOption("moreLinkContent", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after the "+N more" link element is added to the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/moreLinkDidMount">moreLinkDidMount</a>
+     */
+    public void setMoreLinkDidMountCallback(String jsFunction) {
+        setOption("moreLinkDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before the "+N more" link element is removed from the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/moreLinkWillUnmount">moreLinkWillUnmount</a>
+     */
+    public void setMoreLinkWillUnmountCallback(String jsFunction) {
+        setOption("moreLinkWillUnmount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to the "no events" message element in list view.
+     * The callback receives {@code { view }} and must return an array of class name strings.
+     * The message text is controlled separately by the {@code noEventsText} option.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/noEventsClassNames">noEventsClassNames</a>
+     */
+    public void setNoEventsClassNamesCallback(String jsFunction) {
+        setOption("noEventsClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for customizing the content of the "no events" message element in list view.
+     * The callback receives {@code { view }} and should return a content object.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/noEventsContent">noEventsContent</a>
+     */
+    public void setNoEventsContentCallback(String jsFunction) {
+        setOption("noEventsContent", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after the "no events" message element is added to the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/noEventsDidMount">noEventsDidMount</a>
+     */
+    public void setNoEventsDidMountCallback(String jsFunction) {
+        setOption("noEventsDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before the "no events" message element is removed from the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/noEventsWillUnmount">noEventsWillUnmount</a>
+     */
+    public void setNoEventsWillUnmountCallback(String jsFunction) {
+        setOption("noEventsWillUnmount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for adding CSS class names to the all-day section header cell in timegrid views.
+     * The callback receives {@code { text, view }} and must return an array of class name strings.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/allDayClassNames">allDayClassNames</a>
+     */
+    public void setAllDayClassNamesCallback(String jsFunction) {
+        setOption("allDayClassNames", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback for customizing the content of the all-day section header cell in timegrid views.
+     * The callback receives {@code { text, view }} and should return a content object.
+     * Example: {@code "function(info) { return { text: 'Todo el día' }; }"}
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/allDayContent">allDayContent</a>
+     */
+    public void setAllDayContentCallback(String jsFunction) {
+        setOption("allDayContent", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called after the all-day section header cell is added to the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/allDayDidMount">allDayDidMount</a>
+     */
+    public void setAllDayDidMountCallback(String jsFunction) {
+        setOption("allDayDidMount", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback called just before the all-day section header cell is removed from the DOM.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/allDayWillUnmount">allDayWillUnmount</a>
+     */
+    public void setAllDayWillUnmountCallback(String jsFunction) {
+        setOption("allDayWillUnmount", jsFunction);
+    }
+
+    // -------------------------------------------------------------------------
     // Getters (Phase 0 API)
     // -------------------------------------------------------------------------
 
@@ -2776,7 +3511,129 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/weekTextLong">weekTextLong</a>
          */
-        WEEK_TEXT_LONG;
+        WEEK_TEXT_LONG,
+
+        // ---- Phase 2 additions ----
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/allDayMaintainDuration">allDayMaintainDuration</a>
+         */
+        ALL_DAY_MAINTAIN_DURATION,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/buttonText">buttonText</a>
+         */
+        BUTTON_TEXT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/defaultAllDay">defaultAllDay</a>
+         */
+        DEFAULT_ALL_DAY,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/defaultRangeSeparator">defaultRangeSeparator</a>
+         */
+        DEFAULT_RANGE_SEPARATOR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
+         */
+        DAY_MAX_EVENT_ROWS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dayPopoverFormat">dayPopoverFormat</a>
+         */
+        DAY_POPOVER_FORMAT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/displayEventEnd">displayEventEnd</a>
+         */
+        DISPLAY_EVENT_END,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dragRevertDuration">dragRevertDuration</a>
+         */
+        DRAG_REVERT_DURATION,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventDragMinDistance">eventDragMinDistance</a>
+         */
+        EVENT_DRAG_MIN_DISTANCE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventLongPressDelay">eventLongPressDelay</a>
+         */
+        EVENT_LONG_PRESS_DELAY,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/forceEventDuration">forceEventDuration</a>
+         */
+        FORCE_EVENT_DURATION,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/handleWindowResize">handleWindowResize</a>
+         */
+        HANDLE_WINDOW_RESIZE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
+         */
+        INITIAL_DATE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
+         */
+        INITIAL_VIEW,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/lazyFetching">lazyFetching</a>
+         */
+        LAZY_FETCHING,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/longPressDelay">longPressDelay</a>
+         */
+        LONG_PRESS_DELAY,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/now">now</a>
+         */
+        NOW,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/nowIndicatorSnap">nowIndicatorSnap</a>
+         */
+        NOW_INDICATOR_SNAP,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/progressiveEventRendering">progressiveEventRendering</a>
+         */
+        PROGRESSIVE_EVENT_RENDERING,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/rerenderDelay">rerenderDelay</a>
+         */
+        RERENDER_DELAY,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/selectLongPressDelay">selectLongPressDelay</a>
+         */
+        SELECT_LONG_PRESS_DELAY,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/themeSystem">themeSystem</a>
+         */
+        THEME_SYSTEM,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/titleRangeSeparator">titleRangeSeparator</a>
+         */
+        TITLE_RANGE_SEPARATOR,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/windowResizeDelay">windowResizeDelay</a>
+         */
+        WINDOW_RESIZE_DELAY;
 
         private final String optionKey;
 
