@@ -29,6 +29,7 @@
 | `phase-5-scheduler.md` | Missing scheduler/resource features |
 | `phase-6-accessibility-touch.md` | Accessibility, print, touch options |
 | `phase-7-advanced.md` | Advanced/niche options |
+| `phase-8-docs-and-samples.md` | Update documentation and demo/sample application |
 
 ## Key Findings
 

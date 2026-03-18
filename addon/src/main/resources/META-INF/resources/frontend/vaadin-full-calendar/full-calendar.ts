@@ -22,6 +22,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import multiMonthPlugin from '@fullcalendar/multimonth';
+import rrulePlugin from '@fullcalendar/rrule';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all';
@@ -160,7 +161,8 @@ export class FullCalendar extends HTMLElement {
             timeGridPlugin,
             listPlugin,
             multiMonthPlugin,
-            momentTimezonePlugin
+            momentTimezonePlugin,
+            rrulePlugin
         ];
 
         // be aware of never setting or passing in any harmful content from the serverside

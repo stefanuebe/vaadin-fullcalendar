@@ -51,6 +51,7 @@ import java.util.stream.Stream;
 @NpmPackage(value = "@fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/multimonth", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/rrule", version = FullCalendar.FC_CLIENT_VERSION)
 // TODO still necessary?
 @NpmPackage(value = "moment", version = "2.30.1")
 @NpmPackage(value = "moment-timezone", version = "0.6.0")

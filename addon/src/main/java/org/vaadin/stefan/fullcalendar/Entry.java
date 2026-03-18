@@ -70,7 +70,18 @@ public class Entry {
     private String backgroundColor;
     private String borderColor;
     private String textColor;
-    private boolean overlap = true;
+    private Boolean overlap;
+
+    /** Whether the event is keyboard-focusable (tabbable) independently of drag/drop. Null inherits the calendar-level {@code eventInteractive} option. */
+    private Boolean interactive;
+
+    /**
+     * A URL that FC navigates to when the event is clicked. Null means no URL navigation.
+     * <p>
+     * Note: if a server-side {@code entryClickedListener} is also registered, FC navigates to the URL
+     * first (synchronously). The two may conflict; prefer one or the other.
+     */
+    private String url;
 
     @NonNull
     @JsonName("display")
@@ -95,6 +106,31 @@ public class Entry {
     @JsonName("daysOfWeek")
     @JsonConverter(DayOfWeekItemConverter.class)
     private Set<DayOfWeek> recurringDaysOfWeek;
+
+    /**
+     * The duration of each occurrence for recurring events (e.g. {@code "P3D"}, {@code "48:00:00"}).
+     * Only meaningful when recurrence fields ({@code recurringDaysOfWeek} etc.) are set.
+     * Without this, each occurrence spans one day (for all-day) or uses start/end times.
+     */
+    @JsonName("duration")
+    private String recurringDuration;
+
+    /**
+     * RRule-based recurrence definition. Requires the {@code @fullcalendar/rrule} plugin.
+     * <p>
+     * <b>Mutually exclusive</b> with FC's built-in recurrence ({@code recurringDaysOfWeek}, etc.).
+     * Do not set both on the same entry.
+     *
+     * @see RRule
+     */
+    @JsonConverter(RRuleConverter.class)
+    private RRule rrule;
+
+    /**
+     * Dates to exclude from an RRule-based recurrence. ISO 8601 date string, or multiple dates
+     * separated by commas. Only meaningful when {@link #rrule} is set.
+     */
+    private String exdate;
 
     private Set<String> classNames;
 
@@ -891,20 +927,20 @@ public class Entry {
     }
 
     /**
-     * Same as {@link #isOverlap()}.
+     * Same as {@link #getOverlap()}.
      *
-     * @return is overlap allowed
+     * @return is overlap allowed, or null if not set (inherit from calendar-level setting)
      */
-    public boolean isOverlapAllowed() {
-        return isOverlap();
+    public Boolean isOverlapAllowed() {
+        return getOverlap();
     }
 
     /**
-     * Same as {@link #setOverlap(boolean)}
+     * Same as {@link #setOverlap(Boolean)}
      *
-     * @param overlap overlapping is allowed
+     * @param overlap overlapping is allowed, or null to inherit from the calendar-level setting
      */
-    public void setOverlapAllowed(boolean overlap) {
+    public void setOverlapAllowed(Boolean overlap) {
         setOverlap(overlap);
     }
 
