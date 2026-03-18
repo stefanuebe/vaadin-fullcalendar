@@ -400,6 +400,7 @@ After implementing all features and writing tests, review each artifact before c
 - Run a `code-reviewer` agent on the implementation code (new classes, FullCalendar.java changes, frontend TypeScript). Fix all issues found.
 - Run a `code-reviewer` agent on the JUnit tests. Fix all issues found (missing null-clearing tests, weak assertions, missing edge cases, etc.).
 - Run a `code-reviewer` agent on the Playwright spec. Fix all issues (weak selectors, missing value assertions, flaky timing patterns, duplicate helpers vs. fixtures.js, etc.).
+- Run an `end-user-reviewer` agent on all new Javadoc, demo view descriptions, and any user-facing error messages. Fix any unclear or misleading documentation found.
 - Commit only after all review passes are clean.
 
 

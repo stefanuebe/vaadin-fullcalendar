@@ -37,7 +37,8 @@ import java.time.LocalDate;
  *   <li>Attach a {@code data-event} JSON attribute to the draggable HTML element, e.g.
  *       {@code data-event='{"title":"Meeting","duration":"01:00"}'}.</li>
  *   <li>Register the element with FullCalendar's {@code Draggable} API on the client side, or add the
- *       {@code fc-event} CSS class to auto-register.</li>
+ *       {@code fc-event} CSS class to auto-register.
+ *       See <a href="https://fullcalendar.io/docs/third-party-dragging">FullCalendar external dragging documentation</a>.</li>
  * </ol>
  * <br>
  * Client side name: drop

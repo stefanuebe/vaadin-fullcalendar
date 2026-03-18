@@ -28,6 +28,10 @@ import tools.jackson.databind.node.ObjectNode;
  * Use this event to show UI feedback while a resize is in progress. Use {@link EntryResizeStopEvent} to
  * clean up such feedback when resizing ends.
  * <br><br>
+ * Note: {@link #getEntry()} returns the server-side entry at its <em>original</em> duration.
+ * Do not call {@link #applyChangesOnEntry()} on this event — resize start does not represent
+ * a committed duration change. Use it for UI feedback only.
+ * <br><br>
  * Client side name: eventResizeStart
  */
 @DomEvent("eventResizeStart")

@@ -113,6 +113,8 @@ Walk through all newly added public API and verify:
 - Parameter/return Javadoc is present
 - Deprecated methods document their replacement
 
+After the initial Javadoc pass, run an `end-user-reviewer` agent on the completed Javadoc, all `docs/*.md` files updated in this phase, and any user-facing error messages. Fix any unclear, misleading, or confusing documentation found.
+
 Key areas to review:
 - All 43 new typed setters in `FullCalendar.java` (Phase 0)
 - `RRule.java` — factory methods, fluent setters, `toJson()`

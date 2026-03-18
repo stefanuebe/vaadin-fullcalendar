@@ -1051,7 +1051,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Sets whether the calendar accepts external HTML elements being dragged onto it.
-     * When {@code true}, the {@code drop}, {@code eventReceive}, and {@code eventLeave} events become active.
+     * When {@code true}, the {@code drop} and {@code eventReceive} events become active.
      *
      * @param droppable enable external drag-drop
      * @see <a href="https://fullcalendar.io/docs/droppable">droppable</a>
@@ -1749,11 +1749,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Registers a listener for when a calendar entry is dragged from this calendar to another calendar instance.
+     * Registers a listener for when an entry is dragged away from this calendar to another instance.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
+     * @see EntryLeaveEvent
      */
     public Registration addEntryLeaveListener(ComponentEventListener<EntryLeaveEvent> listener) {
         Objects.requireNonNull(listener);
@@ -1871,9 +1872,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Sets a JS function called while event sources are loading (async fetch). Use this to show/hide a loading
-     * spinner. This is a client-side-only callback; no server round-trip occurs.
+     * Sets a JavaScript callback that fires when event sources begin and complete loading.
+     * <br><br>
+     * <b>Note: </b> No content parsing, escaping, quoting or other security mechanism is applied on this string.
+     * Validate it before passing to the client.
      *
-     * @param jsFunction JS function string: {@code "function(isLoading) { ... }"}
+     * @param jsFunction JS function string
      * @see <a href="https://fullcalendar.io/docs/loading">loading</a>
      */
     public void setLoadingCallback(String jsFunction) {
@@ -1883,6 +1887,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Sets a JS function that transforms each raw event record from any event source before FullCalendar
      * parses it. This is a client-side-only callback.
+     * <br><br>
+     * <b>Note: </b> No content parsing, escaping, quoting or other security mechanism is applied on this string.
+     * Validate it before passing to the client.
      *
      * @param jsFunction JS function string: {@code "function(event) { event.title = event.name; return event; }"}
      * @see <a href="https://fullcalendar.io/docs/eventDataTransform">eventDataTransform</a>
@@ -1894,6 +1901,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Sets a JS function that transforms the raw HTTP response from a JSON feed source before FullCalendar
      * parses it. This is a client-side-only callback.
+     * <br><br>
+     * <b>Note: </b> No content parsing, escaping, quoting or other security mechanism is applied on this string.
+     * Validate it before passing to the client.
      *
      * @param jsFunction JS function string: {@code "function(content, xhr) { return content.data; }"}
      * @see <a href="https://fullcalendar.io/docs/eventSourceSuccess">eventSourceSuccess</a>
@@ -2041,6 +2051,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         return Optional.ofNullable((T) customCalendarViews.get(clientSideValue));
     }
 
+    /**
+     * Sets the default display mode for all events on this calendar.
+     * Corresponds to the FC {@code eventDisplay} option.
+     * <br><br>
+     * Default is {@link DisplayMode#AUTO}.
+     *
+     * @param displayMode the display mode; must not be null
+     * @throws NullPointerException if null is passed
+     * @see <a href="https://fullcalendar.io/docs/eventDisplay">eventDisplay</a>
+     */
     public void setEntryDisplay(DisplayMode displayMode) {
         this.setOption(Option.ENTRY_DISPLAY, displayMode != null ? displayMode : DisplayMode.AUTO);
     }
@@ -2426,13 +2446,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Limits user selections to events within the given group id.
+     * Limits user selections to a constraint. Restricts when selections can be made.
      *
-     * @param groupId event group id constraint
+     * @param constraint constraint string — either an event group id or {@code "businessHours"}
+     *                   that restricts when selections can be made
      * @see <a href="https://fullcalendar.io/docs/selectConstraint">selectConstraint</a>
      */
-    public void setSelectConstraint(String groupId) {
-        setOption(Option.SELECT_CONSTRAINT, groupId);
+    public void setSelectConstraint(String constraint) {
+        setOption(Option.SELECT_CONSTRAINT, constraint);
     }
 
     /**
@@ -2930,6 +2951,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @param lazy {@code true} to fetch only the visible range (default); {@code false} for wider pre-fetch
      * @see <a href="https://fullcalendar.io/docs/lazyFetching">lazyFetching</a>
+     * @see #setPrefetchEnabled(boolean)
      */
     public void setLazyFetching(boolean lazy) {
         setOption(Option.LAZY_FETCHING, lazy);
@@ -2959,10 +2981,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Whether FC automatically reacts to browser window resize events to recalculate its dimensions.
-     * Default is {@code true}. Disable when the calendar is inside a custom resizable container and
-     * you want to call {@code calendar.updateSize()} manually.
+     * Note: this addon disables FC's built-in window resize handling by default (using a ResizeObserver instead).
+     * Call this method with {@code true} to restore FC's native handling.
      *
-     * @param handle {@code true} to enable automatic resize handling (default)
+     * @param handle {@code true} to enable automatic resize handling
      * @see <a href="https://fullcalendar.io/docs/handleWindowResize">handleWindowResize</a>
      * @see #setWindowResizeDelay(int)
      */

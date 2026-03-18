@@ -59,7 +59,7 @@ public class ExternalEntryResizedEvent extends ComponentEvent<FullCalendar> {
     private final Delta delta;
 
     /**
-     * The end time before the resize.
+     * The end time before the resize, or {@code null} if the entry had no end time.
      */
     private final LocalDateTime oldEnd;
 

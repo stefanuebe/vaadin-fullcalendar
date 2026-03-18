@@ -29,6 +29,10 @@ import tools.jackson.databind.node.ObjectNode;
  * Use this event to show UI feedback while a drag is in progress (e.g. disabling a "Delete" button).
  * Use {@link EntryDragStopEvent} to re-enable such feedback when dragging ends.
  * <br><br>
+ * Note: {@link #getEntry()} returns the server-side entry at its <em>original</em> position.
+ * Do not call {@link #applyChangesOnEntry()} on this event — drag start does not represent
+ * a committed position change. Use it for UI feedback only.
+ * <br><br>
  * Client side name: eventDragStart
  */
 @DomEvent("eventDragStart")

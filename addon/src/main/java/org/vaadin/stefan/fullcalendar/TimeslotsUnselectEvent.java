@@ -28,7 +28,7 @@ import lombok.ToString;
  *   <li>The user clicking elsewhere on the calendar (when {@code unselectAuto} is {@code true}, which is the default)</li>
  *   <li>The user pressing Escape</li>
  *   <li>A new selection being made (which replaces the old one)</li>
- *   <li>Code calling {@code calendar.unselect()} programmatically</li>
+ *   <li>Code calling {@link FullCalendar#clearSelection()} programmatically</li>
  * </ul>
  * <br>
  * Client side name: unselect

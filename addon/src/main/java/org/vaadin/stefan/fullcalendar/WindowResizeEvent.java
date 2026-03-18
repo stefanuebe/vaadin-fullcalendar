@@ -28,7 +28,7 @@ import java.util.Optional;
  * Fires after the browser window has been resized and FullCalendar has recalculated its layout.
  * <br><br>
  * Note: this event can fire frequently during a resize interaction. The {@code windowResizeDelay}
- * option (Phase 2) debounces FullCalendar's internal handling; this server event fires after that debounce.
+ * option debounces FullCalendar's internal handling; this server event fires after that debounce.
  * <br><br>
  * Use this event to update server-side layout decisions when the calendar changes responsive breakpoints
  * (e.g. switching from timeGridWeek to timeGridDay on small screens).
@@ -46,8 +46,8 @@ public class WindowResizeEvent extends ComponentEvent<FullCalendar> {
     private final String viewName;
 
     /**
-     * The current calendar view after resize, or {@code null} if the view name is not recognised
-     * (e.g. a custom view that has not been registered on the server side).
+     * The current calendar view after resize. {@code null} for unrecognised custom views.
+     * @see #getCalendarViewOptional()
      */
     private final CalendarView calendarView;
 

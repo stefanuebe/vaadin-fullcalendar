@@ -78,8 +78,8 @@ public class Entry {
     /**
      * A URL that FC navigates to when the event is clicked. Null means no URL navigation.
      * <p>
-     * Note: if a server-side {@code entryClickedListener} is also registered, FC navigates to the URL
-     * first (synchronously). The two may conflict; prefer one or the other.
+     * If a server-side click listener is also registered, FC will navigate to the url immediately on click
+     * and the listener will still fire — but the page may already be unloading. Use one mechanism or the other, not both.
      */
     private String url;
 
@@ -111,6 +111,7 @@ public class Entry {
      * The duration of each occurrence for recurring events (e.g. {@code "P3D"}, {@code "48:00:00"}).
      * Only meaningful when recurrence fields ({@code recurringDaysOfWeek} etc.) are set.
      * Without this, each occurrence spans one day (for all-day) or uses start/end times.
+     * @see <a href="https://fullcalendar.io/docs/recurring-events">recurring events</a>
      */
     @JsonName("duration")
     private String recurringDuration;
@@ -127,8 +128,9 @@ public class Entry {
     private RRule rrule;
 
     /**
-     * Dates to exclude from an RRule-based recurrence. ISO 8601 date string, or multiple dates
-     * separated by commas. Only meaningful when {@link #rrule} is set.
+     * Dates to exclude from an RRule-based recurrence. Dates should be formatted as ISO 8601 date strings
+     * (e.g. {@code "20240101,20240108"}). Use the same timezone context as the calendar.
+     * Only meaningful when {@link #rrule} is set.
      */
     private String exdate;
 

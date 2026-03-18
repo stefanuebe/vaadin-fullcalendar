@@ -40,6 +40,7 @@ public enum ThemeSystem implements ClientSideValue {
      * Bootstrap 4 integration. Requires Bootstrap 4 CSS and the {@code @fullcalendar/bootstrap} plugin.
      *
      * @deprecated Bootstrap 4 support is deprecated in FC v6; prefer {@link #BOOTSTRAP5}.
+     *             Using BOOTSTRAP with FC v6 may result in unstyled or incorrectly styled components.
      */
     @Deprecated
     BOOTSTRAP("bootstrap");

@@ -35,6 +35,8 @@ import java.time.LocalDateTime;
  * JS data. This entry is NOT part of any {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
  * Do not add it to a provider; instead, use it to read the entry id and new position, then call the appropriate
  * external API (e.g. Google Calendar API) to persist the change.
+ * The entry's {@link Entry#getId()} matches the FullCalendar event id as set in the external source —
+ * use this id to locate and update the corresponding record in the external system.
  * <br><br>
  * {@link #getOldStart()} and {@link #getOldEnd()} return the position before the drag (computed from the
  * delta applied in reverse).
@@ -65,12 +67,12 @@ public class ExternalEntryDroppedEvent extends ComponentEvent<FullCalendar> {
     private final Delta delta;
 
     /**
-     * The start time before the drag.
+     * The start time before the drag, or {@code null} if the dropped entry had no start time.
      */
     private final LocalDateTime oldStart;
 
     /**
-     * The end time before the drag.
+     * The end time before the drag, or {@code null} if the dropped entry had no end time.
      */
     private final LocalDateTime oldEnd;
 

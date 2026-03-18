@@ -192,8 +192,10 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
 
     /**
      * Sets the constraint for drag/drop of entries from this source.
-     * @param constraint constraint string (e.g. {@code "businessHours"} or an event group id)
+     * @param constraint constraint string — either {@code "businessHours"} or an event group id that
+     *                   restricts when entries can be dropped
      * @return this
+     * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
      */
     public S withConstraint(String constraint) {
         this.constraint = constraint;
@@ -212,8 +214,10 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
 
     /**
      * Sets the display mode for entries from this source.
-     * @param display display mode string
+     * @param display display mode string — valid values: {@code "block"}, {@code "list-item"},
+     *                {@code "background"}, {@code "inverse-background"}, {@code "none"}
      * @return this
+     * @see <a href="https://fullcalendar.io/docs/eventDisplay">eventDisplay</a>
      */
     public S withDisplay(String display) {
         this.display = display;

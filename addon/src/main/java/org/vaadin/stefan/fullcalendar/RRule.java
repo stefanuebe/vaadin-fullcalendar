@@ -77,7 +77,10 @@ public class RRule {
         }
     }
 
-    /** Recurrence frequency (required for structured form). */
+    /**
+     * Recurrence frequency (required for structured form).
+     * If null, FullCalendar may not render the recurrence correctly.
+     */
     private Frequency freq;
 
     /**
@@ -89,11 +92,13 @@ public class RRule {
     /**
      * The end date of the recurrence (exclusive with {@link #count}).
      * ISO 8601 date or datetime string.
+     * Setting both {@code until} and {@code count} produces undefined behavior on the client side.
      */
     private String until;
 
     /**
      * The number of occurrences (exclusive with {@link #until}).
+     * Setting both {@code until} and {@code count} produces undefined behavior on the client side.
      */
     private Integer count;
 
@@ -202,6 +207,7 @@ public class RRule {
      * without any parsing. Useful for importing recurrence rules from external sources.
      * <p>
      * Example: {@code RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20231231T235959Z")}
+     * If the source string includes the {@code RRULE:} prefix, strip it before passing to this method.
      *
      * @param rawRRule raw RRULE string (without the "RRULE:" prefix)
      * @return new RRule instance
