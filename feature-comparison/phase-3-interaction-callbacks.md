@@ -351,6 +351,30 @@ public void setEventOverlapCallback(String jsFunction) {
 
 ---
 
+## Testing
+
+### JUnit tests
+Add a test class `Phase3InteractionCallbacksTest.java` in `addon/src/test/java/org/vaadin/stefan/fullcalendar/`.
+
+Cover:
+- Listener registration: verify `addEntryDragStartListener()`, `addTimeslotsUnselectListener()`, etc. return valid `Registration` objects and listeners are stored
+- JS callback string setters: verify `setSelectAllowCallback()`, `setEventAllowCallback()`, `setEventOverlapCallback()` call `setOption()` with the correct FC key
+- JS callback with option verification: ensure the callback string is passed through unchanged (no escaping)
+- Event payload construction: create mock events and verify they are fired with correct entry/date data
+
+### Playwright tests (client-side effects)
+Add demo view at `demo/src/main/java/org/vaadin/stefan/ui/view/testviews/Phase3InteractionCallbacksTestView.java` to verify:
+- Drag start/stop events fire (check via JS console or a badge showing event count)
+- Resize start/stop events fire similarly
+- Unselect event fires when selection is cleared (click outside selection)
+- Nav link clicks navigate correctly and fire server events
+- `selectAllow` callback prevents invalid date range selections
+- `eventAllow` callback prevents drops to disallowed locations
+
+Add Playwright spec at `e2e-tests/tests/phase3-interaction-callbacks.spec.js` to verify event firing and drag/drop constraint behavior.
+
+---
+
 ## Files to Modify
 
 - `addon/src/main/java/org/vaadin/stefan/fullcalendar/FullCalendar.java`

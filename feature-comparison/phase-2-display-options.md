@@ -421,6 +421,28 @@ public void setInitialView(CalendarView view) {
 
 ---
 
+## Testing
+
+### JUnit tests
+Add a test class `Phase2DisplayOptionsTest.java` in `addon/src/test/java/org/vaadin/stefan/fullcalendar/`.
+
+Cover:
+- Each typed setter: verify the correct FC option key is used and the value is stored
+- Date-to-ISO conversions (e.g., `setNow(LocalDate)` → ISO string in JSON)
+- Enum conversions (e.g., `ThemeSystem.AURA` → client-side string value)
+- Null/default handling (e.g., `setInitialDate` only meaningful before attachment)
+- Callback string storage (e.g., `setDayCellClassNamesCallback` stores the JS function)
+
+### Playwright tests (client-side effects)
+Add demo view at `demo/src/main/java/org/vaadin/stefan/ui/view/testviews/Phase2DisplayOptionsTestView.java` with data-testid markers on:
+- Day cells to verify `dayCellClassNames` and `dayCellContent` hooks apply custom CSS and HTML
+- Day headers to verify `dayHeaderContent` hook renders custom content
+- Now indicator to verify `nowIndicatorClassNames` hook applies styles
+
+Add Playwright spec at `e2e-tests/tests/phase2-display-options.spec.js` to verify CSS classes are applied, custom HTML renders, and the now indicator is positioned correctly.
+
+---
+
 ## Files to Modify
 
 - `addon/src/main/java/org/vaadin/stefan/fullcalendar/FullCalendar.java`

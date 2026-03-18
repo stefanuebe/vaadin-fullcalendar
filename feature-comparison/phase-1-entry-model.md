@@ -237,6 +237,31 @@ The per-entry `constraint` and the calendar-level `eventConstraint` / `selectCon
 
 ---
 
+## Testing
+
+### JUnit tests
+Add a test class `Phase1EntryModelTest.java` in `addon/src/test/java/org/vaadin/stefan/fullcalendar/`.
+
+Cover:
+- `url` field: verify serialization to `"url"` key in JSON, null handling, storage/retrieval
+- `interactive` field: verify `Boolean` (boxed) type, null vs true/false serialization, JSON key is `"interactive"`
+- `recurringDuration` field: verify serialization to `"duration"` key (via `@JsonName`), string format, null handling
+- `RRule` class: verify `toJson()` output matches FC plugin format, builder methods work, `exdate`/`exrule` fields serialize correctly
+- `overlap` type change (if implemented): verify `Boolean` null serialization vs previous `boolean` default behavior
+
+### Playwright tests (client-side effects)
+Add demo view at `demo/src/main/java/org/vaadin/stefan/ui/view/testviews/Phase1EntryModelTestView.java` using `@Route(value = "phase1-entry-model", layout = TestLayout.class)`.
+
+The view creates entries with `url`, `interactive`, recurring entries with `duration`, and entries with `rrule`. Add data-testid markers to verify:
+- Entries with `url` are navigable (click test shows the URL was triggered)
+- Entries with `interactive: true` receive keyboard focus and respond to Enter key
+- Recurring entries with `duration` render with the correct multi-day span
+- RRule-based recurring entries render occurrences correctly
+
+Add Playwright spec at `e2e-tests/tests/phase1-entry-model.spec.js` to verify DOM output and interaction.
+
+---
+
 ## Files to Modify
 
 - `addon/src/main/java/org/vaadin/stefan/fullcalendar/Entry.java`

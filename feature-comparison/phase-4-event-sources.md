@@ -373,6 +373,30 @@ calendar.refetchEvents()  // calls getElement().callJsFunction("refetchEvents")
 
 ---
 
+## Testing
+
+### JUnit tests
+Add a test class `Phase4EventSourcesTest.java` in `addon/src/test/java/org/vaadin/stefan/fullcalendar/`.
+
+Cover:
+- `JsonFeedEventSource` / `GoogleCalendarEventSource` / `ICalendarEventSource`: verify `toJson()` output has correct structure (id, url, color, editable, etc.)
+- Event source option setters: verify `setJsonFeedEventSource()`, `setGoogleCalendarApiKey()` call `setOption()` with correct FC keys
+- Callback string storage: verify `setLoadingCallback()`, `setEventSourceFailureCallback()` store JS functions correctly
+- `refetchEvents()` calls the correct JS function
+
+### Playwright tests (client-side effects)
+Add demo view at `demo/src/main/java/org/vaadin/stefan/ui/view/testviews/Phase4EventSourcesTestView.java` with:
+- A JSON feed event source pointing to a test endpoint that returns sample events
+- Optional: a Google Calendar source (requires test API key or mock)
+- Data-testid markers on events to verify they rendered from external source
+
+Add Playwright spec at `e2e-tests/tests/phase4-event-sources.spec.js` to:
+- Verify external events appear in the calendar
+- Verify `ExternalEntryDroppedEvent` fires when dragging an external event (check via a server-side counter or flag)
+- Test `eventSourceFailure` callback behavior if the source URL returns an error
+
+---
+
 ## Files to Modify
 
 - `addon/src/main/java/org/vaadin/stefan/fullcalendar/FullCalendar.java`

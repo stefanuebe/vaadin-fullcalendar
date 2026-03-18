@@ -410,6 +410,33 @@ Default: FC uses approximately `30%` of the calendar width. For narrow resource 
 
 ---
 
+## Testing
+
+### JUnit tests
+Add a test class `Phase5SchedulerTest.java` in `addon-scheduler/src/test/java/org/vaadin/stefan/fullcalendar/`.
+
+Cover:
+- `ResourceAreaColumn`: verify `toJson()` output has correct field mappings (field → "field", headerContent → "headerContent", etc.), null handling, render hook string storage
+- Scheduler option setters: verify `setResourceAreaColumns()`, `setResourceGroupField()`, `setSlotMinWidth()`, `setResourceAreaWidth()` call `setOption()` with correct keys
+- JS callback storage: verify `setResourceGroupClassNamesCallback()` and similar callbacks store JS functions correctly
+- Resource mutability (5.10): verify `resource.setTitle()` and `resource.setColor()` update the resource and trigger client sync
+- Typo fix (5.12): verify both `setResourceLabelWillUnmountCallback()` and deprecated `setResourceLablelWillUnmountCallback()` work
+
+### Playwright tests (client-side effects)
+Add demo view at `demo/src/main/java/org/vaadin/stefan/ui/view/testviews/Phase5SchedulerTestView.java` with:
+- A timeline view with multiple resources
+- `resourceAreaColumns` configured to show resource properties
+- Resource grouping enabled with `setResourceGroupField()`
+- Data-testid markers on resource group headers and resource labels to verify custom CSS/HTML from render hooks
+
+Add Playwright spec at `e2e-tests/tests/phase5-scheduler.spec.js` to verify:
+- Resource area columns render with correct headers
+- Resource grouping creates group header rows
+- Resource group render hooks apply custom CSS classes
+- Slot and lane render hooks customize their appearance
+
+---
+
 ## Files to Modify
 
 - `addon-scheduler/src/main/java/org/vaadin/stefan/fullcalendar/Scheduler.java`

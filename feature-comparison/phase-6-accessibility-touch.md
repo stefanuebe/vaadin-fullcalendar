@@ -148,6 +148,30 @@ This configuration ensures: (a) day numbers are navigable links with descriptive
 
 ---
 
+## Testing
+
+### JUnit tests
+Add a test class `Phase6AccessibilityTouchTest.java` in `addon/src/test/java/org/vaadin/stefan/fullcalendar/`.
+
+Cover:
+- Typed setters for hint options: verify `setEventInteractive()`, `setViewHint()`, `setMoreLinkHint()` etc. call `setOption()` with correct FC keys
+- `buttonHints` map serialization: verify the `Map<String, String>` is serialized to a JSON object with correct key-value pairs
+- Touch delay setters: verify millisecond values are passed through correctly to FC options
+- `Entry.interactive` (Boolean): verify null vs true/false serialization, JSON key is `"interactive"`
+
+### Playwright tests (client-side effects)
+Add demo view at `demo/src/main/java/org/vaadin/stefan/ui/view/testviews/Phase6AccessibilityTouchTestView.java` with:
+- Events in the calendar to verify keyboard focus and Enter key activation work when `eventInteractive: true`
+- Accessibility hints to check aria-labels render correctly (inspect DOM, use accessibility tree)
+- Touch device simulation to verify long-press delays allow/prevent drag operations
+
+Add Playwright spec at `e2e-tests/tests/phase6-accessibility-touch.spec.js` to:
+- Verify events receive keyboard focus when `eventInteractive: true`
+- Verify pressing Enter on a focused event fires the click listener
+- Verify aria-labels are set on buttons and nav links when hints are configured
+
+---
+
 ## Files to Modify
 
 - `addon/src/main/java/org/vaadin/stefan/fullcalendar/FullCalendar.java`

@@ -510,6 +510,36 @@ Cross-reference here for completeness: when `handleWindowResize = false`, use `c
 
 ---
 
+## Testing
+
+### JUnit tests
+Add a test class `Phase7AdvancedTest.java` in `addon/src/test/java/org/vaadin/stefan/fullcalendar/`.
+
+Cover:
+- Getter methods: verify `getCurrentIntervalStart()`, `getCurrentIntervalEnd()` return correct dates
+- Navigation methods: verify `incrementDate()`, `previousYear()`, `nextYear()` call the correct JS functions
+- JS callback string storage: verify `setValidRangeCallback()`, `setSelectOverlapCallback()` store JS functions correctly
+- Option setters: verify `setContentSecurityPolicyNonce()`, `setFixedMirrorParent()`, `setDragScrollEls()` call `setOption()` with correct keys
+- `CustomButton`: verify `toJson()` output includes name, text, hint, icon, click function
+- `setViewSpecificOption()`: verify nested "views" JSON object is constructed correctly
+- `ThemeSystem` enum: verify each enum value maps to correct FC string
+
+### Playwright tests (client-side effects)
+Add demo view at `demo/src/main/java/org/vaadin/stefan/ui/view/testviews/Phase7AdvancedTestView.java` to verify:
+- Custom buttons render and can be clicked, firing server-side listener
+- Theme system setting (if `BOOTSTRAP5` is supported) applies correct styling
+- View-specific options apply (e.g., `dayMaxEventRows` set for month view only)
+- `validRange` callback prevents navigation outside allowed date range
+- `selectOverlap` callback prevents overlapping date selections
+
+Add Playwright spec at `e2e-tests/tests/phase7-advanced.spec.js` to:
+- Verify custom button text and icons render
+- Verify custom button click fires server event
+- Verify view-specific options affect only their target view
+- Verify JS callbacks enforce constraints correctly
+
+---
+
 ## Files to Modify
 
 - `addon/src/main/java/org/vaadin/stefan/fullcalendar/FullCalendar.java`
