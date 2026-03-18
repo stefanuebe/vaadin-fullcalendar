@@ -107,6 +107,76 @@ export class FullCalendarScheduler extends FullCalendar {
         // @ts-ignore
         this.setOption('resourceLaneWillUnmount', new Function("return " + s)());
     }
+
+    setResourceGroupClassNamesCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceGroupClassNames', new Function("return " + s)());
+    }
+
+    setResourceGroupContentCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceGroupContent', new Function("return " + s)());
+    }
+
+    setResourceGroupDidMountCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceGroupDidMount', new Function("return " + s)());
+    }
+
+    setResourceGroupWillUnmountCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceGroupWillUnmount', new Function("return " + s)());
+    }
+
+    setResourceAreaHeaderClassNamesCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceAreaHeaderClassNames', new Function("return " + s)());
+    }
+
+    setResourceAreaHeaderDidMountCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceAreaHeaderDidMount', new Function("return " + s)());
+    }
+
+    setResourceAreaHeaderWillUnmountCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceAreaHeaderWillUnmount', new Function("return " + s)());
+    }
+
+    setResourceAddCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceAdd', new Function("return " + s)());
+    }
+
+    setResourceChangeCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceChange', new Function("return " + s)());
+    }
+
+    setResourceRemoveCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceRemove', new Function("return " + s)());
+    }
+
+    setResourcesSetCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourcesSet', new Function("return " + s)());
+    }
+
+    updateResource(jsonStr: string) {
+        const data = JSON.parse(jsonStr);
+        const resource = this.calendar.getResourceById(data.id);
+        if (resource) {
+            if (data.title !== undefined) resource.setProp('title', data.title);
+            if (data.eventColor !== undefined) resource.setProp('eventColor', data.eventColor);
+            if (data.eventBackgroundColor !== undefined) resource.setProp('eventBackgroundColor', data.eventBackgroundColor);
+            if (data.eventBorderColor !== undefined) resource.setProp('eventBorderColor', data.eventBorderColor);
+            if (data.eventTextColor !== undefined) resource.setProp('eventTextColor', data.eventTextColor);
+            if (data.eventConstraint !== undefined) resource.setExtendedProp('eventConstraint', data.eventConstraint);
+            if (data.eventOverlap !== undefined) resource.setExtendedProp('eventOverlap', data.eventOverlap);
+            if (data.eventClassNames !== undefined) resource.setProp('eventClassNames', data.eventClassNames);
+        }
+    }
 }
 
 customElements.define("vaadin-full-calendar-scheduler", FullCalendarScheduler);

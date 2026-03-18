@@ -20,6 +20,8 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 
 import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,7 +31,12 @@ import java.util.stream.Collectors;
 public interface Scheduler {
 
     /**
-     * While developing, in order to hide the license warning, use this following key.
+     * The non-commercial Creative Commons license key for development and evaluation.
+     * While developing, use this key to hide the license warning. This is the same value
+     * as {@link #NON_COMMERCIAL_CREATIVE_COMMONS_LICENSE_KEY} and represents FullCalendar's
+     * recommended approach for non-commercial development and testing. It is <b>not</b> a special
+     * "development-only" key that suppresses warnings without a valid license — it IS a valid
+     * non-commercial license key.
      * <br><br>
      * For more details visit
      * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
@@ -59,7 +66,17 @@ public interface Scheduler {
      * @param schedulerLicenseKey license key
      */
     void setSchedulerLicenseKey(String schedulerLicenseKey);
-    
+
+    /**
+     * Sets the content for the resource area header cell — the top-left cell in timeline views
+     * that appears above the resource list. Accepts a plain text string or HTML string.
+     * For dynamic content (JavaScript function), use the raw {@code setOption("resourceAreaHeaderContent", fn)} method.
+     *
+     * @param resourceAreaHeaderContent plain text or HTML content for the resource area header
+     * @see #setResourceAreaHeaderClassNamesCallback(String)
+     * @see #setResourceAreaHeaderDidMountCallback(String)
+     * @see <a href="https://fullcalendar.io/docs/resourceAreaHeaderContent">FullCalendar resourceAreaHeaderContent</a>
+     */
     void setResourceAreaHeaderContent(String resourceAreaHeaderContent);
 
     /**
@@ -353,6 +370,230 @@ public interface Scheduler {
      * @param groupEntriesBy group entries by option
      */
     void setGroupEntriesBy(GroupEntriesBy groupEntriesBy);
+
+    /**
+     * Configures the resource area as a multi-column data grid. Each column maps to a resource property.
+     * When set, FC renders a header row with column titles above the resource list.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * scheduler.setResourceAreaColumns(List.of(
+     *     new ResourceAreaColumn("title", "Resource").withWidth("200px"),
+     *     new ResourceAreaColumn("department", "Department").withWidth("150px").withGroup(true)
+     * ));
+     * }</pre>
+     *
+     * @param columns list of column definitions; must not be null
+     * @see ResourceAreaColumn
+     * @see <a href="https://fullcalendar.io/docs/resourceAreaColumns">FullCalendar resourceAreaColumns</a>
+     */
+    void setResourceAreaColumns(List<ResourceAreaColumn> columns);
+
+    /**
+     * Convenience overload for {@link #setResourceAreaColumns(List)}.
+     *
+     * @param columns column definitions
+     */
+    default void setResourceAreaColumns(ResourceAreaColumn... columns) {
+        setResourceAreaColumns(Arrays.asList(columns));
+    }
+
+    /**
+     * Groups resources visually in the resource area by the given field name.
+     * Resources with the same value for that field will be grouped under a shared group header row.
+     * <p>
+     * <b>Note:</b> {@code setResourceGroupField} is required to enable resource grouping. Setting
+     * {@link ResourceAreaColumn#withGroup(boolean) group=true} on a column only designates which column
+     * shows the group label in a multi-column area — it does not enable grouping on its own.
+     * <p>
+     * For best results, sort your resources by the group field before adding them.
+     * To also configure the grouping column in a multi-column resource area, set
+     * {@link ResourceAreaColumn#withGroup(boolean) group=true} on the corresponding column.
+     *
+     * @param fieldName the resource property name to group by (e.g., a key added via
+     *                  {@link Resource#addExtendedProps(String, Object)})
+     * @see #setResourceOrder(String)
+     * @see #setResourceAreaColumns(List)
+     * @see <a href="https://fullcalendar.io/docs/resourceGroupField">FullCalendar resourceGroupField</a>
+     */
+    void setResourceGroupField(String fieldName);
+
+    /**
+     * Sets a JavaScript function that returns CSS class names for resource group header rows.
+     * The function receives a {@code groupInfo} object:
+     * <pre>{@code
+     * {
+     *   groupValue: any,       // the value of the group field (e.g., "Sales")
+     *   resources: Resource[], // resources in this group
+     *   view: View
+     * }
+     * }</pre>
+     * Must return a string array.
+     * <p>
+     * Example: {@code "function(info) { return ['group-' + info.groupValue]; }"}
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceGroupField(String)
+     * @see <a href="https://fullcalendar.io/docs/resourceGroupClassNames">FullCalendar resourceGroupClassNames</a>
+     */
+    void setResourceGroupClassNamesCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function that customizes the content of resource group header rows.
+     * The function receives a {@code groupInfo} object and may return a string, DOM element, or
+     * content object ({@code { html: '...', text: '...' }}).
+     * <p>
+     * Example: {@code "function(info) { return { html: '<b>' + info.groupValue + '</b>' }; }"}
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceGroupField(String)
+     * @see <a href="https://fullcalendar.io/docs/resourceGroupContent">FullCalendar resourceGroupContent</a>
+     */
+    void setResourceGroupContentCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function called after a resource group header row is added to the DOM.
+     * The function receives a {@code groupInfo} object.
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceGroupField(String)
+     * @see <a href="https://fullcalendar.io/docs/resourceGroupDidMount">FullCalendar resourceGroupDidMount</a>
+     */
+    void setResourceGroupDidMountCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function called before a resource group header row is removed from the DOM.
+     * The function receives a {@code groupInfo} object.
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceGroupField(String)
+     * @see <a href="https://fullcalendar.io/docs/resourceGroupWillUnmount">FullCalendar resourceGroupWillUnmount</a>
+     */
+    void setResourceGroupWillUnmountCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function that returns CSS class names for the resource area header cell
+     * (the top-left cell in timeline views).
+     * The function receives a {@code headerInfo} object with a {@code view} property.
+     * <p>
+     * Example: {@code "function(info) { return ['custom-header']; }"}
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceAreaHeaderContent(String)
+     * @see <a href="https://fullcalendar.io/docs/resourceAreaHeaderClassNames">FullCalendar resourceAreaHeaderClassNames</a>
+     */
+    void setResourceAreaHeaderClassNamesCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function called after the resource area header cell is added to the DOM.
+     * The function receives a {@code headerInfo} object with a {@code view} property.
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceAreaHeaderContent(String)
+     * @see <a href="https://fullcalendar.io/docs/resourceAreaHeaderDidMount">FullCalendar resourceAreaHeaderDidMount</a>
+     */
+    void setResourceAreaHeaderDidMountCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function called before the resource area header cell is removed from the DOM.
+     * The function receives a {@code headerInfo} object with a {@code view} property.
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceAreaHeaderContent(String)
+     * @see <a href="https://fullcalendar.io/docs/resourceAreaHeaderWillUnmount">FullCalendar resourceAreaHeaderWillUnmount</a>
+     */
+    void setResourceAreaHeaderWillUnmountCallback(String jsFunction);
+
+    /**
+     * In vertical resource views ({@code resourceTimeGridDay}, {@code resourceDayGridDay}, etc.),
+     * determines whether date column headers appear above resource column headers.
+     * <p>
+     * {@code true}: dates above resources (dates as outer grouping)<br>
+     * {@code false} (default): resources above dates (resources as outer grouping)
+     *
+     * @param datesAboveResources {@code true} to show dates above resources
+     * @see <a href="https://fullcalendar.io/docs/datesAboveResources">FullCalendar datesAboveResources</a>
+     */
+    void setDatesAboveResources(boolean datesAboveResources);
+
+    /**
+     * Sets the minimum pixel width for events in timeline views. Ensures that very short events
+     * (spanning less than one pixel in the current zoom level) remain visible and clickable.
+     * The default is 3 pixels.
+     *
+     * @param pixels minimum width in pixels
+     * @see <a href="https://fullcalendar.io/docs/eventMinWidth">FullCalendar eventMinWidth</a>
+     */
+    void setEventMinWidth(int pixels);
+
+    /**
+     * Sets a JavaScript function called after a resource is added to FullCalendar's internal store.
+     * Fired after {@link #addResource(Resource)}.
+     * <p>
+     * Since resources are server-managed, the server already knows about the addition; this callback
+     * is useful for client-side reactions (e.g., updating a DOM counter).
+     * <p>
+     * The function receives a {@code resourceInfo} object with a {@code resource} property.
+     * Note that the {@code resource} in the callback argument is a FullCalendar client-side resource
+     * object, not a Java {@link Resource} instance.
+     *
+     * @param jsFunction JavaScript function string
+     * @see <a href="https://fullcalendar.io/docs/resourceAdd">FullCalendar resourceAdd</a>
+     */
+    void setResourceAddCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function called after a resource's properties are modified in
+     * FullCalendar's internal store.
+     * <p>
+     * The function receives a {@code resourceInfo} object with {@code resource} and {@code revert} properties.
+     * Note that the {@code resource} in the callback argument is a FullCalendar client-side resource object,
+     * not a Java {@link Resource} instance.
+     * <p>
+     * On the server side, this fires after {@link #updateResource(Resource)} is called, or after
+     * {@link Resource#setTitle(String)} / {@link Resource#setColor(String)} (which auto-push the change).
+     *
+     * @param jsFunction JavaScript function string
+     * @see <a href="https://fullcalendar.io/docs/resourceChange">FullCalendar resourceChange</a>
+     */
+    void setResourceChangeCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function called after a resource is removed from FullCalendar's internal store.
+     * Fired after {@link #removeResource(Resource)}.
+     * <p>
+     * The function receives a {@code resourceInfo} object with a {@code resource} property.
+     * Note that the {@code resource} in the callback argument is a FullCalendar client-side resource object,
+     * not a Java {@link Resource} instance.
+     *
+     * @param jsFunction JavaScript function string
+     * @see <a href="https://fullcalendar.io/docs/resourceRemove">FullCalendar resourceRemove</a>
+     */
+    void setResourceRemoveCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function called after all resources have been (re-)initialized or modified
+     * in FullCalendar's internal store.
+     * <p>
+     * The function receives a {@code resourceInfo} object with a {@code resources} array.
+     * Note that the {@code resources} in the callback argument are FullCalendar client-side resource objects,
+     * not Java {@link Resource} instances.
+     *
+     * @param jsFunction JavaScript function string
+     * @see <a href="https://fullcalendar.io/docs/resourcesSet">FullCalendar resourcesSet</a>
+     */
+    void setResourcesSetCallback(String jsFunction);
+
+    /**
+     * Propagates a server-side resource change to the client. Call this after modifying
+     * resource properties to keep the display in sync.
+     * <p>
+     * Note: This is called automatically when using {@link Resource#setTitle(String)} or
+     * {@link Resource#setColor(String)} on a resource that has been added to this scheduler.
+     *
+     * @param resource the resource to update on the client side; must not be null
+     */
+    void updateResource(Resource resource);
 
     /**
      * Registers a listener to be informed when an entry dropped event occurred, along with scheduler

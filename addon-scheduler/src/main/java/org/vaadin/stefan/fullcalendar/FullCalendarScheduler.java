@@ -28,6 +28,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -166,6 +167,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             String id = resource.getId();
             if (!resources.containsKey(id)) {
                 resources.put(id, resource);
+                resource.attachScheduler(this);
                 array.add(resource.toJson()); // this automatically sends sub resources to the client side
         }
 
@@ -184,6 +186,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     private void registerResourcesInternally(Collection<Resource> resources) {
         for (Resource resource : resources) {
             this.resources.put(resource.getId(), resource);
+            resource.attachScheduler(this);
             registerResourcesInternally(resource.getChildren());
         }
     }
@@ -200,6 +203,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             String id = resource.getId();
             if (this.resources.containsKey(id)) {
                 this.resources.remove(id);
+                resource.detachScheduler();
                 array.add(resource.toJson());
             }
         });
@@ -239,6 +243,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void removeAllResources() {
         removeFromEntries(resources.values());
+        resources.values().forEach(Resource::detachScheduler);
     	resources.clear();
         getElement().callJsFunction("removeAllResources");
     }
@@ -273,7 +278,91 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public void setRefetchResourcesOnNavigate(boolean refetch) {
         setOption(SchedulerOption.REFETCH_RESOURCES_ON_NAVIGATE, refetch);
     }
-    
+
+    @Override
+    public void setResourceAreaColumns(List<ResourceAreaColumn> columns) {
+        Objects.requireNonNull(columns);
+        ArrayNode array = JsonFactory.createArray();
+        columns.forEach(col -> array.add(col.toJson()));
+        setOption(SchedulerOption.RESOURCE_AREA_COLUMNS, array, columns);
+    }
+
+    @Override
+    public void setResourceGroupField(String fieldName) {
+        setOption(SchedulerOption.RESOURCE_GROUP_FIELD, fieldName);
+    }
+
+    @Override
+    public void setResourceGroupClassNamesCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceGroupClassNamesCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceGroupContentCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceGroupContentCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceGroupDidMountCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceGroupDidMountCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceGroupWillUnmountCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceGroupWillUnmountCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceAreaHeaderClassNamesCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceAreaHeaderClassNamesCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceAreaHeaderDidMountCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceAreaHeaderDidMountCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceAreaHeaderWillUnmountCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceAreaHeaderWillUnmountCallback", jsFunction);
+    }
+
+    @Override
+    public void setDatesAboveResources(boolean datesAboveResources) {
+        setOption(SchedulerOption.DATES_ABOVE_RESOURCES, datesAboveResources);
+    }
+
+    @Override
+    public void setEventMinWidth(int pixels) {
+        setOption(SchedulerOption.EVENT_MIN_WIDTH, pixels);
+    }
+
+    @Override
+    public void setResourceAddCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceAddCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceChangeCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceChangeCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceRemoveCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceRemoveCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourcesSetCallback(String jsFunction) {
+        getElement().callJsFunction("setResourcesSetCallback", jsFunction);
+    }
+
+    @Override
+    public void updateResource(Resource resource) {
+        Objects.requireNonNull(resource);
+        getElement().callJsFunction("updateResource", resource.toJson().toString());
+    }
+
     @Override
     public void setResourceLaneClassNamesCallback(String s) {
         getElement().callJsFunction("setResourceLaneClassNamesCallback", s);
@@ -431,14 +520,18 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * <a href="https://fullcalendar.io/docs">https://fullcalendar.io/docs</a>
      */
     public enum SchedulerOption {
+        DATES_ABOVE_RESOURCES("datesAboveResources"),
         ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
+        EVENT_MIN_WIDTH("eventMinWidth"),
         FILTER_RESOURCES_WITH_ENTRIES("filterResourcesWithEvents"),
         GROUP_BY_DATE_AND_RESOURCE("groupByDateAndResource"),
         GROUP_BY_RESOURCE("groupByResource"),
         LICENSE_KEY("schedulerLicenseKey"),
         REFETCH_RESOURCES_ON_NAVIGATE("refetchResourcesOnNavigate"),
+        RESOURCE_AREA_COLUMNS("resourceAreaColumns"),
         RESOURCE_AREA_HEADER_CONTENT("resourceAreaHeaderContent"),
         RESOURCE_AREA_WIDTH("resourceAreaWidth"),
+        RESOURCE_GROUP_FIELD("resourceGroupField"),
         RESOURCES_INITIALLY_EXPANDED("resourcesInitiallyExpanded"),
         RESOURCE_ORDER("resourceOrder"),
         SLOT_MIN_WIDTH("slotMinWidth"),
