@@ -2912,6 +2912,111 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.SELECT_LONG_PRESS_DELAY, delayMs);
     }
 
+    // ---- Phase 6: Accessibility, Touch, and Print Options ----
+
+    /**
+     * Controls whether calendar events are keyboard-focusable and activatable via Enter/Space, even when
+     * they have no {@code url}. Defaults to {@code false}.
+     *
+     * <p>Enable this option in any application that registers
+     * {@link #addEntryClickedListener(com.vaadin.flow.component.ComponentEventListener)} and needs to
+     * support keyboard-only users (WCAG 2.1 AA, Success Criterion 2.1.1). Once enabled, existing
+     * {@code EntryClickedEvent} handlers fire automatically for keyboard activations — no extra
+     * event handling is needed.
+     *
+     * <p>Per-entry override: {@link Entry#setInteractive(Boolean)}.
+     *
+     * @param interactive {@code true} to make all events keyboard-reachable
+     * @see <a href="https://fullcalendar.io/docs/eventInteractive">eventInteractive</a>
+     */
+    public void setEventInteractive(boolean interactive) {
+        setOption(Option.EVENT_INTERACTIVE, interactive);
+    }
+
+    /**
+     * Sets accessible labels ({@code aria-label} / {@code title}) for the toolbar navigation buttons.
+     * The map key is the button name (e.g., {@code "today"}, {@code "prev"}, {@code "next"}) and the
+     * value is the hint text for that button.
+     *
+     * @param hints map of button name → accessible hint text, or {@code null} to reset
+     * @see <a href="https://fullcalendar.io/docs/buttonHints">buttonHints</a>
+     */
+    public void setButtonHints(Map<String, String> hints) {
+        setOption(Option.BUTTON_HINTS, hints);
+    }
+
+    /**
+     * Sets the accessible label for the view selector buttons. The placeholder {@code $0} is replaced
+     * at render time with the view name (e.g., "Month", "Week").
+     *
+     * <p>Example: {@code "Switch to $0 view"}
+     *
+     * @param hint hint string, optionally containing {@code $0} as a view-name placeholder
+     * @see <a href="https://fullcalendar.io/docs/viewHint">viewHint</a>
+     */
+    public void setViewHint(String hint) {
+        setOption(Option.VIEW_HINT, hint);
+    }
+
+    /**
+     * Sets the accessible label for day/week number navigation links. The placeholder {@code $0} is
+     * replaced at render time with the full date text of the link (e.g., "Monday, March 15, 2024"),
+     * which is essential for meaningful screen-reader announcements.
+     *
+     * <p>Requires {@link #setNavLinks(boolean) setNavLinks(true)}.
+     * Recommended value: {@code "Go to $0"}.
+     *
+     * @param hint hint string, optionally containing {@code $0} as a date placeholder
+     * @see <a href="https://fullcalendar.io/docs/navLinkHint">navLinkHint</a>
+     */
+    public void setNavLinkHint(String hint) {
+        setOption(Option.NAV_LINK_HINT, hint);
+    }
+
+    /**
+     * Sets the accessible label for the "+N more" overflow link shown when events exceed the visible row
+     * limit. The placeholder {@code $0} is replaced at render time with the hidden-event count.
+     *
+     * <p>Recommended value: {@code "$0 more events. Click to expand"}.
+     *
+     * @param hint hint string, optionally containing {@code $0} as the hidden-event-count placeholder
+     * @see <a href="https://fullcalendar.io/docs/moreLinkHint">moreLinkHint</a>
+     */
+    public void setMoreLinkHint(String hint) {
+        setOption(Option.MORE_LINK_HINT, hint);
+    }
+
+    /**
+     * Sets the accessible label for close/dismiss buttons (e.g., the popover close button).
+     *
+     * @param hint hint text
+     * @see <a href="https://fullcalendar.io/docs/closeHint">closeHint</a>
+     */
+    public void setCloseHint(String hint) {
+        setOption(Option.CLOSE_HINT, hint);
+    }
+
+    /**
+     * Sets the accessible label used to describe a time value (e.g., in event time displays).
+     *
+     * @param hint hint text
+     * @see <a href="https://fullcalendar.io/docs/timeHint">timeHint</a>
+     */
+    public void setTimeHint(String hint) {
+        setOption(Option.TIME_HINT, hint);
+    }
+
+    /**
+     * Sets the accessible label used to announce an event to screen readers (e.g., as a prefix
+     * before the event title).
+     *
+     * @param hint hint text
+     * @see <a href="https://fullcalendar.io/docs/eventHint">eventHint</a>
+     */
+    public void setEventHint(String hint) {
+        setOption(Option.EVENT_HINT, hint);
+    }
+
     /**
      * Sets the duration in milliseconds of the revert animation when an event drag is cancelled.
      * Default is {@code 500}.
@@ -4117,7 +4222,49 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/googleCalendarApiKey">googleCalendarApiKey</a>
          */
-        GOOGLE_CALENDAR_API_KEY;
+        GOOGLE_CALENDAR_API_KEY,
+
+        // ---- Phase 6 additions ----
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventInteractive">eventInteractive</a>
+         */
+        EVENT_INTERACTIVE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/buttonHints">buttonHints</a>
+         */
+        BUTTON_HINTS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/viewHint">viewHint</a>
+         */
+        VIEW_HINT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/navLinkHint">navLinkHint</a>
+         */
+        NAV_LINK_HINT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/moreLinkHint">moreLinkHint</a>
+         */
+        MORE_LINK_HINT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/closeHint">closeHint</a>
+         */
+        CLOSE_HINT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/timeHint">timeHint</a>
+         */
+        TIME_HINT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventHint">eventHint</a>
+         */
+        EVENT_HINT;
 
         private final String optionKey;
 
