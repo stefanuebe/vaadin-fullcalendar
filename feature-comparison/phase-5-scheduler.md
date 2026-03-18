@@ -435,6 +435,15 @@ Add Playwright spec at `e2e-tests/tests/phase5-scheduler.spec.js` to verify:
 - Resource group render hooks apply custom CSS classes
 - Slot and lane render hooks customize their appearance
 
+### Code and test review
+After implementing all features and writing tests, review each artifact before committing:
+- Run a `code-reviewer` agent on the implementation code (new classes, FullCalendar.java changes, frontend TypeScript). Fix all issues found.
+- Run a `code-reviewer` agent on the JUnit tests. Fix all issues found (missing null-clearing tests, weak assertions, missing edge cases, etc.).
+- Run a `code-reviewer` agent on the Playwright spec. Fix all issues (weak selectors, missing value assertions, flaky timing patterns, duplicate helpers vs. fixtures.js, etc.).
+- Commit only after all review passes are clean.
+
+
+
 ---
 
 ## Files to Modify
