@@ -179,8 +179,10 @@ public class Phase2DisplayOptionsTest {
 
     @Test
     void setDisplayEventTime_delegatesToDisplayEntryTime() {
+        // DISPLAY_ENTRY_TIME uses ENTRY→EVENT key replacement → FC option key is "displayEventTime"
+        assertEquals("displayEventTime", Option.DISPLAY_ENTRY_TIME.getOptionKey());
+
         calendar.setDisplayEventTime(true);
-        // DISPLAY_ENTRY_TIME key = "displayEventTime" (ENTRY → EVENT replacement)
         assertOptionalEquals(true, calendar.getOption(Option.DISPLAY_ENTRY_TIME));
 
         calendar.setDisplayEventTime(false);
@@ -379,7 +381,8 @@ public class Phase2DisplayOptionsTest {
     }
 
     @Test
-    void setDayMaxEventRows_overridesFitToCell() {
+    void setDayMaxEventRows_afterFitToCell_overridesWithInt() {
+        // setDayMaxEventRowsFitToCell() stores true; a subsequent int call must overwrite it
         calendar.setDayMaxEventRowsFitToCell();
         calendar.setDayMaxEventRows(5);
         assertOptionalEquals(5, calendar.getOption(Option.DAY_MAX_EVENT_ROWS));
@@ -533,74 +536,86 @@ public class Phase2DisplayOptionsTest {
 
     @Test
     void setSlotLaneClassNamesCallback_storesOptionByKey() {
-        calendar.setSlotLaneClassNamesCallback("function(info) { return []; }");
-        assertTrue(calendar.getOption("slotLaneClassNames").isPresent());
+        String fn = "function(info) { return []; }";
+        calendar.setSlotLaneClassNamesCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("slotLaneClassNames"));
     }
 
     @Test
     void setSlotLaneContentCallback_storesOptionByKey() {
-        calendar.setSlotLaneContentCallback("function(info) { return {}; }");
-        assertTrue(calendar.getOption("slotLaneContent").isPresent());
+        String fn = "function(info) { return {}; }";
+        calendar.setSlotLaneContentCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("slotLaneContent"));
     }
 
     @Test
     void setSlotLaneDidMountCallback_storesOptionByKey() {
-        calendar.setSlotLaneDidMountCallback("function(info) {}");
-        assertTrue(calendar.getOption("slotLaneDidMount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setSlotLaneDidMountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("slotLaneDidMount"));
     }
 
     @Test
     void setSlotLaneWillUnmountCallback_storesOptionByKey() {
-        calendar.setSlotLaneWillUnmountCallback("function(info) {}");
-        assertTrue(calendar.getOption("slotLaneWillUnmount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setSlotLaneWillUnmountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("slotLaneWillUnmount"));
     }
 
     @Test
     void setViewClassNamesCallback_storesOptionByKey() {
-        calendar.setViewClassNamesCallback("function(info) { return []; }");
-        assertTrue(calendar.getOption("viewClassNames").isPresent());
+        String fn = "function(info) { return []; }";
+        calendar.setViewClassNamesCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("viewClassNames"));
     }
 
     @Test
     void setViewDidMountCallback_storesOptionByKey() {
-        calendar.setViewDidMountCallback("function(info) {}");
-        assertTrue(calendar.getOption("viewDidMount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setViewDidMountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("viewDidMount"));
     }
 
     @Test
     void setViewWillUnmountCallback_storesOptionByKey() {
-        calendar.setViewWillUnmountCallback("function(info) {}");
-        assertTrue(calendar.getOption("viewWillUnmount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setViewWillUnmountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("viewWillUnmount"));
     }
 
     @Test
     void setNowIndicatorClassNamesCallback_storesOptionByKey() {
-        calendar.setNowIndicatorClassNamesCallback("function(info) { return []; }");
-        assertTrue(calendar.getOption("nowIndicatorClassNames").isPresent());
+        String fn = "function(info) { return []; }";
+        calendar.setNowIndicatorClassNamesCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("nowIndicatorClassNames"));
     }
 
     @Test
     void setNowIndicatorContentCallback_storesOptionByKey() {
-        calendar.setNowIndicatorContentCallback("function(info) { return {}; }");
-        assertTrue(calendar.getOption("nowIndicatorContent").isPresent());
+        String fn = "function(info) { return {}; }";
+        calendar.setNowIndicatorContentCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("nowIndicatorContent"));
     }
 
     @Test
     void setNowIndicatorDidMountCallback_storesOptionByKey() {
-        calendar.setNowIndicatorDidMountCallback("function(info) {}");
-        assertTrue(calendar.getOption("nowIndicatorDidMount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setNowIndicatorDidMountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("nowIndicatorDidMount"));
     }
 
     @Test
     void setNowIndicatorWillUnmountCallback_storesOptionByKey() {
-        calendar.setNowIndicatorWillUnmountCallback("function(info) {}");
-        assertTrue(calendar.getOption("nowIndicatorWillUnmount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setNowIndicatorWillUnmountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("nowIndicatorWillUnmount"));
     }
 
     @Test
     void setWeekNumberClassNamesCallback_storesOptionByKey() {
-        calendar.setWeekNumberClassNamesCallback("function(info) { return []; }");
-        assertTrue(calendar.getOption("weekNumberClassNames").isPresent());
+        String fn = "function(info) { return []; }";
+        calendar.setWeekNumberClassNamesCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("weekNumberClassNames"));
     }
 
     @Test
@@ -612,68 +627,79 @@ public class Phase2DisplayOptionsTest {
 
     @Test
     void setWeekNumberDidMountCallback_storesOptionByKey() {
-        calendar.setWeekNumberDidMountCallback("function(info) {}");
-        assertTrue(calendar.getOption("weekNumberDidMount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setWeekNumberDidMountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("weekNumberDidMount"));
     }
 
     @Test
     void setWeekNumberWillUnmountCallback_storesOptionByKey() {
-        calendar.setWeekNumberWillUnmountCallback("function(info) {}");
-        assertTrue(calendar.getOption("weekNumberWillUnmount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setWeekNumberWillUnmountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("weekNumberWillUnmount"));
     }
 
     @Test
     void setMoreLinkClassNamesCallback_storesOptionByKey() {
-        calendar.setMoreLinkClassNamesCallback("function(info) { return []; }");
-        assertTrue(calendar.getOption("moreLinkClassNames").isPresent());
+        String fn = "function(info) { return []; }";
+        calendar.setMoreLinkClassNamesCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("moreLinkClassNames"));
     }
 
     @Test
     void setMoreLinkContentCallback_storesOptionByKey() {
-        calendar.setMoreLinkContentCallback("function(info) { return {}; }");
-        assertTrue(calendar.getOption("moreLinkContent").isPresent());
+        String fn = "function(info) { return {}; }";
+        calendar.setMoreLinkContentCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("moreLinkContent"));
     }
 
     @Test
     void setMoreLinkDidMountCallback_storesOptionByKey() {
-        calendar.setMoreLinkDidMountCallback("function(info) {}");
-        assertTrue(calendar.getOption("moreLinkDidMount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setMoreLinkDidMountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("moreLinkDidMount"));
     }
 
     @Test
     void setMoreLinkWillUnmountCallback_storesOptionByKey() {
-        calendar.setMoreLinkWillUnmountCallback("function(info) {}");
-        assertTrue(calendar.getOption("moreLinkWillUnmount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setMoreLinkWillUnmountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("moreLinkWillUnmount"));
     }
 
     @Test
     void setNoEventsClassNamesCallback_storesOptionByKey() {
-        calendar.setNoEventsClassNamesCallback("function(info) { return []; }");
-        assertTrue(calendar.getOption("noEventsClassNames").isPresent());
+        String fn = "function(info) { return []; }";
+        calendar.setNoEventsClassNamesCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("noEventsClassNames"));
     }
 
     @Test
     void setNoEventsContentCallback_storesOptionByKey() {
-        calendar.setNoEventsContentCallback("function(info) { return {}; }");
-        assertTrue(calendar.getOption("noEventsContent").isPresent());
+        String fn = "function(info) { return {}; }";
+        calendar.setNoEventsContentCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("noEventsContent"));
     }
 
     @Test
     void setNoEventsDidMountCallback_storesOptionByKey() {
-        calendar.setNoEventsDidMountCallback("function(info) {}");
-        assertTrue(calendar.getOption("noEventsDidMount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setNoEventsDidMountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("noEventsDidMount"));
     }
 
     @Test
     void setNoEventsWillUnmountCallback_storesOptionByKey() {
-        calendar.setNoEventsWillUnmountCallback("function(info) {}");
-        assertTrue(calendar.getOption("noEventsWillUnmount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setNoEventsWillUnmountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("noEventsWillUnmount"));
     }
 
     @Test
     void setAllDayClassNamesCallback_storesOptionByKey() {
-        calendar.setAllDayClassNamesCallback("function(info) { return []; }");
-        assertTrue(calendar.getOption("allDayClassNames").isPresent());
+        String fn = "function(info) { return []; }";
+        calendar.setAllDayClassNamesCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("allDayClassNames"));
     }
 
     @Test
@@ -685,13 +711,15 @@ public class Phase2DisplayOptionsTest {
 
     @Test
     void setAllDayDidMountCallback_storesOptionByKey() {
-        calendar.setAllDayDidMountCallback("function(info) {}");
-        assertTrue(calendar.getOption("allDayDidMount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setAllDayDidMountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("allDayDidMount"));
     }
 
     @Test
     void setAllDayWillUnmountCallback_storesOptionByKey() {
-        calendar.setAllDayWillUnmountCallback("function(info) {}");
-        assertTrue(calendar.getOption("allDayWillUnmount").isPresent());
+        String fn = "function(info) {}";
+        calendar.setAllDayWillUnmountCallback(fn);
+        assertOptionalEquals(fn, calendar.getOption("allDayWillUnmount"));
     }
 }

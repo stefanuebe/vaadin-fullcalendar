@@ -50,6 +50,7 @@ public class Phase1EntryModelTest {
         Entry entry = new Entry();
         entry.setUrl("https://example.com");
         entry.setUrl(null);
+        assertNull(entry.getUrl(), "url getter should return null after clearing");
         assertFalse(entry.toJson().has("url"), "url should not be in JSON after clearing");
     }
 
@@ -121,6 +122,7 @@ public class Phase1EntryModelTest {
         Entry entry = new Entry();
         entry.setRecurringDuration("P1D");
         entry.setRecurringDuration(null);
+        assertNull(entry.getRecurringDuration(), "recurringDuration getter should return null after clearing");
         assertFalse(entry.toJson().has("duration"), "duration should not be in JSON after clearing");
     }
 
@@ -148,6 +150,15 @@ public class Phase1EntryModelTest {
         ObjectNode json = entry.toJson();
         assertTrue(json.hasNonNull("exdate"));
         assertEquals("2024-01-15", json.get("exdate").asString());
+    }
+
+    @Test
+    void exdate_null_removedFromJson() {
+        Entry entry = new Entry();
+        entry.setExdate("2024-01-15");
+        entry.setExdate(null);
+        assertNull(entry.getExdate(), "exdate getter should return null after clearing");
+        assertFalse(entry.toJson().has("exdate"), "exdate should not be in JSON after clearing");
     }
 
     // -------------------------------------------------------------------------
@@ -196,6 +207,18 @@ public class Phase1EntryModelTest {
         assertEquals(Boolean.FALSE, entry.isOverlapAllowed());
         entry.setOverlapAllowed(null);
         assertNull(entry.isOverlapAllowed());
+    }
+
+    @Test
+    void setOverlap_andSetOverlapAllowed_affectSameField() {
+        // setOverlap() and setOverlapAllowed() are aliases for the same underlying field
+        Entry entry = new Entry();
+        entry.setOverlap(true);
+        assertEquals(Boolean.TRUE, entry.isOverlapAllowed(), "setOverlap(true) should be visible via isOverlapAllowed()");
+        assertEquals(Boolean.TRUE, entry.getOverlap(), "setOverlapAllowed should be visible via getOverlap()");
+
+        entry.setOverlapAllowed(false);
+        assertEquals(Boolean.FALSE, entry.getOverlap(), "setOverlapAllowed(false) should be visible via getOverlap()");
     }
 
     // -------------------------------------------------------------------------
@@ -397,6 +420,7 @@ public class Phase1EntryModelTest {
         Entry entry = new Entry();
         entry.setRrule(RRule.weekly());
         entry.setRrule(null);
+        assertNull(entry.getRrule(), "getRrule() should return null after clearing");
         assertFalse(entry.toJson().has("rrule"), "rrule should not be in JSON after clearing");
     }
 }
