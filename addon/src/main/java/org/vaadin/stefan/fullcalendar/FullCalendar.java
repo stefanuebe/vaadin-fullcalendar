@@ -1971,15 +1971,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Sets the text direction of the calendar.
+     * Sets the text direction of the calendar. Pass {@code null} to clear the option and revert to
+     * the browser/locale default.
      *
-     * @param direction text direction
-     * @throws NullPointerException when null is passed
+     * @param direction text direction, or {@code null} to clear
      * @see <a href="https://fullcalendar.io/docs/direction">direction</a>
      */
     public void setDirection(Direction direction) {
-        Objects.requireNonNull(direction);
-        setOption(Option.DIRECTION, direction.getClientSideValue(), direction);
+        setOption(Option.DIRECTION, direction != null ? direction.getClientSideValue() : null, direction);
     }
 
     /**

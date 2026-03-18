@@ -351,7 +351,7 @@ public class FullCalendarBuilder {
         }
 
         if (initialView != null) {
-            calendar.changeView(initialView);
+            calendar.setInitialView(initialView);
         }
         if (locale != null) {
             calendar.setLocale(locale);
