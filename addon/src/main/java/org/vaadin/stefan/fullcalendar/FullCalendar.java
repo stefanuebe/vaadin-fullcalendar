@@ -965,6 +965,101 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption("eventContent", s);
     }
 
+    // -------------------------------------------------------------------------
+    // Phase 3 — Drag/resize/select/drop JS-only callback setters
+    // -------------------------------------------------------------------------
+
+    /**
+     * Sets a JavaScript function as the {@code selectAllow} callback. The function runs synchronously
+     * on every mouse move during a drag-to-select operation and must return {@code true} to allow
+     * or {@code false} to deny the selection.
+     * <br><br>
+     * This must be a client-side only callback because synchronous drag feedback requires zero latency.
+     * <br><br>
+     * <b>Note: </b> No security mechanism is applied to the string. Validate it before passing to the client.
+     * <br><br>
+     * Example:
+     * <pre>
+     * calendar.setSelectAllowCallback(
+     *     "function(selectInfo) { return selectInfo.start >= new Date('2023-01-01'); }");
+     * </pre>
+     *
+     * @param s JavaScript function string
+     * @see <a href="https://fullcalendar.io/docs/selectAllow">selectAllow</a>
+     */
+    public void setSelectAllowCallback(String s) {
+        getElement().callJsFunction("setSelectAllowCallback", s);
+    }
+
+    /**
+     * Sets a JavaScript function as the {@code eventAllow} callback. The function runs synchronously
+     * during a drag operation and must return {@code true} to allow or {@code false} to deny a drop
+     * at the given location.
+     * <br><br>
+     * This must be a client-side only callback because synchronous drag feedback requires zero latency.
+     * <br><br>
+     * <b>Note: </b> No security mechanism is applied to the string. Validate it before passing to the client.
+     * <br><br>
+     * Example:
+     * <pre>
+     * calendar.setEventAllowCallback(
+     *     "function(dropInfo, draggedEvent) { return dropInfo.resource.id !== 'locked-room'; }");
+     * </pre>
+     *
+     * @param s JavaScript function string
+     * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
+     */
+    public void setEventAllowCallback(String s) {
+        getElement().callJsFunction("setEventAllowCallback", s);
+    }
+
+    /**
+     * Sets a JavaScript function as the global {@code eventOverlap} callback. The function provides
+     * per-combination control over whether a dragged event may overlap with a stationary event.
+     * <br><br>
+     * This must be a client-side only callback because it runs synchronously during drag feedback.
+     * The per-entry {@link Entry#setOverlap(Boolean)} takes precedence over this global function.
+     * <br><br>
+     * <b>Note: </b> No security mechanism is applied to the string. Validate it before passing to the client.
+     * <br><br>
+     * Example:
+     * <pre>
+     * calendar.setEventOverlapCallback(
+     *     "function(stillEvent, movingEvent) { return stillEvent.display === 'background'; }");
+     * </pre>
+     *
+     * @param s JavaScript function string
+     * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
+     */
+    public void setEventOverlapCallback(String s) {
+        getElement().callJsFunction("setEventOverlapCallback", s);
+    }
+
+    /**
+     * Sets whether the calendar accepts external HTML elements being dragged onto it.
+     * When {@code true}, the {@code drop}, {@code eventReceive}, and {@code eventLeave} events become active.
+     *
+     * @param droppable enable external drag-drop
+     * @see <a href="https://fullcalendar.io/docs/droppable">droppable</a>
+     */
+    public void setDroppable(boolean droppable) {
+        setOption(Option.DROPPABLE, droppable);
+    }
+
+    /**
+     * Sets a CSS selector or JavaScript function to filter which external elements may be dropped onto
+     * the calendar. Only elements matching the selector (or for which the function returns {@code true})
+     * will be accepted.
+     * <br><br>
+     * <b>Note: </b> No security mechanism is applied to the string. Validate it before passing to the client.
+     *
+     * @param cssOrFunction CSS selector string or JS function string
+     * @see <a href="https://fullcalendar.io/docs/dropAccept">dropAccept</a>
+     */
+    public void setDropAccept(String cssOrFunction) {
+        setOption(Option.DROP_ACCEPT, cssOrFunction);
+    }
+
     /**
      * Sets the business hours for this calendar instance. You may pass multiple instances for different configurations.
      * Please be aware, that instances with crossing days or times are handled by the client side and may lead
@@ -1528,6 +1623,127 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public Registration addBrowserTimezoneObtainedListener(ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(BrowserTimezoneObtainedEvent.class, listener);
+    }
+
+    // -------------------------------------------------------------------------
+    // Phase 3 — Interaction callback listeners
+    // -------------------------------------------------------------------------
+
+    /**
+     * Registers a listener for when the user begins dragging an entry. Fires regardless of whether the
+     * drag results in a position change. Use {@link #addEntryDragStopListener} to clean up UI feedback.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addEntryDragStartListener(ComponentEventListener<EntryDragStartEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryDragStartEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when the user stops dragging an entry, regardless of whether the position
+     * changed. Use this to clean up UI feedback shown in response to {@link #addEntryDragStartListener}.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addEntryDragStopListener(ComponentEventListener<EntryDragStopEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryDragStopEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when the user begins resizing an entry. Fires regardless of whether the
+     * resize results in a duration change. Use {@link #addEntryResizeStopListener} to clean up UI feedback.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addEntryResizeStartListener(ComponentEventListener<EntryResizeStartEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryResizeStartEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when the user stops resizing an entry, regardless of whether the duration
+     * changed. Use this to clean up UI feedback shown in response to {@link #addEntryResizeStartListener}.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addEntryResizeStopListener(ComponentEventListener<EntryResizeStopEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryResizeStopEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when the current timeslot selection is cleared. Fires on user click outside
+     * the selection, Escape key, a new selection, or a programmatic call to {@code calendar.unselect()}.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addTimeslotsUnselectListener(ComponentEventListener<TimeslotsUnselectEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(TimeslotsUnselectEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when the browser window is resized and the calendar recalculates its layout.
+     * Note: this fires after the {@code windowResizeDelay} debounce.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addWindowResizeListener(ComponentEventListener<WindowResizeEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(WindowResizeEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when any external HTML element is dropped onto the calendar.
+     * Requires {@link #setDroppable(boolean) setDroppable(true)}.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addDropListener(ComponentEventListener<DropEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(DropEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an external element with a {@code data-event} attribute has been dropped
+     * and FullCalendar has created a new entry from it. The entry is not added to the provider automatically.
+     * Requires {@link #setDroppable(boolean) setDroppable(true)}.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addEntryReceiveListener(ComponentEventListener<EntryReceiveEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryReceiveEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when a calendar entry is dragged from this calendar to another calendar instance.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addEntryLeaveListener(ComponentEventListener<EntryLeaveEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryLeaveEvent.class, listener);
     }
 
     /**
@@ -3632,7 +3848,34 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/windowResizeDelay">windowResizeDelay</a>
          */
-        WINDOW_RESIZE_DELAY;
+        WINDOW_RESIZE_DELAY,
+
+        // ---- Phase 3 additions ----
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/selectAllow">selectAllow</a>
+         */
+        SELECT_ALLOW,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
+         */
+        EVENT_ALLOW,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
+         */
+        EVENT_OVERLAP,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/droppable">droppable</a>
+         */
+        DROPPABLE,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dropAccept">dropAccept</a>
+         */
+        DROP_ACCEPT;
 
         private final String optionKey;
 

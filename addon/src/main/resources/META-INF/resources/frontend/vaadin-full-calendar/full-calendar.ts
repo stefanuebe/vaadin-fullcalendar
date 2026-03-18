@@ -300,6 +300,45 @@ export class FullCalendar extends HTMLElement {
                     start: this.formatDate(view.activeStart, true),
                     end: this.formatDate(view.activeEnd, true)
                 }
+            },
+
+            // Phase 3 — Drag/resize lifecycle events
+            eventDragStart: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+            eventDragStop: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+            eventResizeStart: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+            eventResizeStop: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+
+            // Phase 3 — Unselect
+            unselect: (_eventInfo: any) => {
+                return {};
+            },
+
+            // Phase 3 — Window resize
+            windowResize: (eventInfo: any) => {
+                return {name: eventInfo.view.type};
+            },
+
+            // Phase 3 — External drag-drop
+            drop: (eventInfo: any) => {
+                return {
+                    date: this.formatDate(eventInfo.date, eventInfo.allDay),
+                    allDay: eventInfo.allDay,
+                    draggedElData: eventInfo.draggedEl ? eventInfo.draggedEl.getAttribute('data-event') : null
+                };
+            },
+            eventReceive: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+            eventLeave: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
             }
 
         };
@@ -654,6 +693,19 @@ export class FullCalendar extends HTMLElement {
 
     setEventWillUnmountCallback(s: string) {
         this.setOption('eventWillUnmount', new Function("return " + s)());
+    }
+
+    // Phase 3 — JS-only callback setters
+    setSelectAllowCallback(s: string) {
+        this.setOption('selectAllow', new Function("return " + s)());
+    }
+
+    setEventAllowCallback(s: string) {
+        this.setOption('eventAllow', new Function("return " + s)());
+    }
+
+    setEventOverlapCallback(s: string) {
+        this.setOption('eventOverlap', new Function("return " + s)());
     }
 
     get calendar(): Calendar{
