@@ -26,6 +26,8 @@ import rrulePlugin from '@fullcalendar/rrule';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all';
+import googleCalendarPlugin from '@fullcalendar/google-calendar';
+import iCalendarPlugin from '@fullcalendar/icalendar';
 
 // Simple type, that allows JS object property access via ["xyz"]
 export type IterableObject = {
@@ -37,6 +39,9 @@ export class FullCalendar extends HTMLElement {
 
     private _calendar!: Calendar;
     private _resizeObserver: ResizeObserver | null = null;
+
+    /** IDs of entries fetched from the server-side EntryProvider. Used to distinguish external-source entries. */
+    private serverEntryIds: Set<string> = new Set();
 
     protected noDatesRenderEvent = false;
     protected noDatesRenderEventOnOptionSetting = true;
@@ -162,7 +167,9 @@ export class FullCalendar extends HTMLElement {
             listPlugin,
             multiMonthPlugin,
             momentTimezonePlugin,
-            rrulePlugin
+            rrulePlugin,
+            googleCalendarPlugin,
+            iCalendarPlugin
         ];
 
         // be aware of never setting or passing in any harmful content from the serverside
@@ -246,13 +253,15 @@ export class FullCalendar extends HTMLElement {
             eventResize: (eventInfo: any) => {
                 return {
                     data: this.convertToEventData(eventInfo.event),
-                    delta: eventInfo.endDelta
+                    delta: eventInfo.endDelta,
+                    sourceId: eventInfo.event?.source?.id ?? null,
                 }
             },
             eventDrop: (eventInfo: any) => {
                 return {
                     data: this.convertToEventData(eventInfo.event, eventInfo.oldResource, eventInfo.newResource),
                     delta: eventInfo.delta,
+                    sourceId: eventInfo.event?.source?.id ?? null,
                 }
             },
             datesSet: (eventInfo: any) => {
@@ -414,19 +423,33 @@ export class FullCalendar extends HTMLElement {
     protected addEventHandlersToOptions(options: any, events: any) {
         for (let eventName in events) {
             if (events.hasOwnProperty(eventName)) {
-                options[eventName] = (eventInfo: any) => {
-                    const eventDetails = events[eventName](eventInfo);
-                    if (eventDetails) {
-                        this.dispatchEvent(new CustomEvent(eventName, {
-                            detail: eventDetails
-                        }));
-
-                        if (eventName === "moreLinkClick") {
-                            return this.moreLinkClickAction; // necessary to prevent showing a popup
+                if (eventName === "eventDrop" || eventName === "eventResize") {
+                    options[eventName] = (eventInfo: any) => {
+                        const eventDetails = events[eventName](eventInfo);
+                        if (eventDetails) {
+                            const entryId: string = eventInfo.event?.id;
+                            const isExternal = entryId != null && !this.serverEntryIds.has(entryId);
+                            const domEventName = isExternal
+                                ? (eventName === "eventDrop" ? "externalEntryDrop" : "externalEntryResize")
+                                : eventName;
+                            this.dispatchEvent(new CustomEvent(domEventName, {detail: eventDetails}));
                         }
-                    }
+                    };
+                } else {
+                    options[eventName] = (eventInfo: any) => {
+                        const eventDetails = events[eventName](eventInfo);
+                        if (eventDetails) {
+                            this.dispatchEvent(new CustomEvent(eventName, {
+                                detail: eventDetails
+                            }));
 
-                    return undefined;
+                            if (eventName === "moreLinkClick") {
+                                return this.moreLinkClickAction;
+                            }
+                        }
+
+                        return undefined;
+                    }
                 }
             }
         }
@@ -483,6 +506,7 @@ export class FullCalendar extends HTMLElement {
                 end: this.formatDate(info.end)
             }).then((array: any | any[]) => {
                 if (Array.isArray(array)) {
+                    this.serverEntryIds = new Set(array.map((e: any) => e.id));
                     successCallback(array);
                 } else {
                     failureCallback("could not fetch");
@@ -706,6 +730,59 @@ export class FullCalendar extends HTMLElement {
 
     setEventOverlapCallback(s: string) {
         this.setOption('eventOverlap', new Function("return " + s)());
+    }
+
+    // Phase 4 — Event source management
+
+    addEventSource(sourceJson: any) {
+        const srcId = sourceJson.id;
+        const config = {...sourceJson};
+        config.failure = (error: any) => {
+            this.dispatchEvent(new CustomEvent("eventSourceFailure", {
+                detail: {
+                    sourceId: srcId,
+                    message: (error && error.message) ? error.message : String(error)
+                }
+            }));
+        };
+        this.calendar?.addEventSource(config);
+    }
+
+    removeEventSource(id: string) {
+        const sources = this.calendar?.getEventSources();
+        if (sources) {
+            const source = sources.find((s: any) => s.id === id);
+            if (source) source.remove();
+        }
+    }
+
+    setEventSources(sourcesJson: any[]) {
+        // Remove all existing client-managed sources (but not the server-side events function)
+        const sources = this.calendar?.getEventSources();
+        if (sources) {
+            sources.forEach((s: any) => { if (s.id !== undefined) s.remove(); });
+        }
+        sourcesJson.forEach((s: any) => this.addEventSource(s));
+    }
+
+    restoreEventSources(sourcesJson: any[]) {
+        sourcesJson.forEach((s: any) => this.addEventSource(s));
+    }
+
+    refetchEvents() {
+        this.calendar?.refetchEvents();
+    }
+
+    setLoadingCallback(s: string) {
+        this.setOption('loading', new Function("return " + s)());
+    }
+
+    setEventDataTransformCallback(s: string) {
+        this.setOption('eventDataTransform', new Function("return " + s)());
+    }
+
+    setEventSourceSuccessCallback(s: string) {
+        this.setOption('eventSourceSuccess', new Function("return " + s)());
     }
 
     get calendar(): Calendar{

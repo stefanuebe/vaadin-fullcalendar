@@ -57,6 +57,9 @@ import java.util.stream.Stream;
 @NpmPackage(value = "moment-timezone", version = "0.6.0")
 @NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/google-calendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/icalendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "ical.js", version = "2.0.1")
 
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-styles.css")
@@ -122,6 +125,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     private Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
     private String eventDidMountCallback;
+
+    /**
+     * Server-side registry of client-managed event sources, keyed by source id.
+     */
+    private final Map<String, ClientSideEventSource<?>> eventSourceRegistry = new LinkedHashMap<>();
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
@@ -267,6 +275,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                             optionsJson,
                             JsonUtils.toJsonNode(currentViewName),
                             JsonUtils.toJsonNode(currentIntervalStart));
+
+                    if (!eventSourceRegistry.isEmpty()) {
+                        ArrayNode sourcesArray = JsonFactory.createArray();
+                        eventSourceRegistry.values().stream().map(ClientSideEventSource::toJson).forEach(sourcesArray::add);
+                        getElement().callJsFunction("restoreEventSources", sourcesArray);
+                    }
 
                 });
             });
@@ -1744,6 +1758,190 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public Registration addEntryLeaveListener(ComponentEventListener<EntryLeaveEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EntryLeaveEvent.class, listener);
+    }
+
+    // -------------------------------------------------------------------------
+    // Phase 4 — Event source management
+    // -------------------------------------------------------------------------
+
+    /**
+     * Adds a client-managed event source to this calendar. The browser will fetch events from this source directly,
+     * bypassing the server-side {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
+     * <br><br>
+     * A server-side registry entry is kept so the source can be restored on reattachment.
+     *
+     * @param source event source to add; must not be null
+     * @throws NullPointerException if source is null
+     */
+    public void addEventSource(ClientSideEventSource<?> source) {
+        Objects.requireNonNull(source, "source must not be null");
+        eventSourceRegistry.put(source.getId(), source);
+        getElement().callJsFunction("addEventSource", source.toJson());
+    }
+
+    /**
+     * Removes the client-managed event source with the given id from this calendar.
+     * Does nothing if no source with that id has been added.
+     *
+     * @param id id of the source to remove; must not be null
+     * @throws NullPointerException if id is null
+     */
+    public void removeEventSource(String id) {
+        Objects.requireNonNull(id, "id must not be null");
+        eventSourceRegistry.remove(id);
+        getElement().callJsFunction("removeEventSource", id);
+    }
+
+    /**
+     * Replaces all current client-managed event sources with the given collection.
+     * Previously added sources are removed. If the collection is empty, all client-managed
+     * sources are cleared.
+     *
+     * @param sources new set of event sources; must not be null
+     * @throws NullPointerException if sources is null
+     */
+    public void setEventSources(java.util.Collection<? extends ClientSideEventSource<?>> sources) {
+        Objects.requireNonNull(sources, "sources must not be null");
+        eventSourceRegistry.clear();
+        sources.forEach(s -> eventSourceRegistry.put(s.getId(), s));
+        ArrayNode array = JsonFactory.createArray();
+        sources.stream().map(ClientSideEventSource::toJson).forEach(array::add);
+        getElement().callJsFunction("setEventSources", array);
+    }
+
+    /**
+     * Returns an unmodifiable view of all registered client-managed event sources.
+     *
+     * @return collection of registered event sources
+     */
+    public java.util.Collection<ClientSideEventSource<?>> getEventSources() {
+        return java.util.Collections.unmodifiableCollection(eventSourceRegistry.values());
+    }
+
+    /**
+     * Forces all event sources (including the server-side entry provider) to re-fetch their data immediately.
+     */
+    public void refetchEvents() {
+        getElement().callJsFunction("refetchEvents");
+    }
+
+    /**
+     * Sets the name of the query parameter sent to JSON feed sources for the start of the range.
+     * Default is {@code "start"}.
+     *
+     * @param startParam parameter name
+     * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
+     */
+    public void setStartParam(String startParam) {
+        setOption(Option.START_PARAM, startParam);
+    }
+
+    /**
+     * Sets the name of the query parameter sent to JSON feed sources for the end of the range.
+     * Default is {@code "end"}.
+     *
+     * @param endParam parameter name
+     * @see <a href="https://fullcalendar.io/docs/endParam">endParam</a>
+     */
+    public void setEndParam(String endParam) {
+        setOption(Option.END_PARAM, endParam);
+    }
+
+    /**
+     * Sets the name of the query parameter sent to JSON feed sources for the time zone.
+     * Default is {@code "timeZone"}.
+     *
+     * @param timeZoneParam parameter name
+     * @see <a href="https://fullcalendar.io/docs/timeZoneParam">timeZoneParam</a>
+     */
+    public void setTimeZoneParam(String timeZoneParam) {
+        setOption(Option.TIME_ZONE_PARAM, timeZoneParam);
+    }
+
+    /**
+     * Sets the Google Calendar API key used by all {@link GoogleCalendarEventSource} instances that do not
+     * specify their own key.
+     *
+     * @param apiKey Google Calendar API key
+     * @see <a href="https://fullcalendar.io/docs/googleCalendarApiKey">googleCalendarApiKey</a>
+     */
+    public void setGoogleCalendarApiKey(String apiKey) {
+        setOption(Option.GOOGLE_CALENDAR_API_KEY, apiKey);
+    }
+
+    /**
+     * Sets a JS function called while event sources are loading (async fetch). Use this to show/hide a loading
+     * spinner. This is a client-side-only callback; no server round-trip occurs.
+     *
+     * @param jsFunction JS function string: {@code "function(isLoading) { ... }"}
+     * @see <a href="https://fullcalendar.io/docs/loading">loading</a>
+     */
+    public void setLoadingCallback(String jsFunction) {
+        getElement().callJsFunction("setLoadingCallback", jsFunction);
+    }
+
+    /**
+     * Sets a JS function that transforms each raw event record from any event source before FullCalendar
+     * parses it. This is a client-side-only callback.
+     *
+     * @param jsFunction JS function string: {@code "function(event) { event.title = event.name; return event; }"}
+     * @see <a href="https://fullcalendar.io/docs/eventDataTransform">eventDataTransform</a>
+     */
+    public void setEventDataTransformCallback(String jsFunction) {
+        getElement().callJsFunction("setEventDataTransformCallback", jsFunction);
+    }
+
+    /**
+     * Sets a JS function that transforms the raw HTTP response from a JSON feed source before FullCalendar
+     * parses it. This is a client-side-only callback.
+     *
+     * @param jsFunction JS function string: {@code "function(content, xhr) { return content.data; }"}
+     * @see <a href="https://fullcalendar.io/docs/eventSourceSuccess">eventSourceSuccess</a>
+     */
+    public void setEventSourceSuccessCallback(String jsFunction) {
+        getElement().callJsFunction("setEventSourceSuccessCallback", jsFunction);
+    }
+
+    /**
+     * Registers a listener for when a client-managed event source fails to load.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addEventSourceFailureListener(ComponentEventListener<EventSourceFailureEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EventSourceFailureEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from a client-managed event source is dragged to a new time slot.
+     * Fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not in the server-side cache.
+     * <br><br>
+     * Requires that drag/drop is enabled on the source via {@link ClientSideEventSource#withEditable(boolean) withEditable(true)}.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addExternalEntryDroppedListener(ComponentEventListener<ExternalEntryDroppedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(ExternalEntryDroppedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from a client-managed event source is resized.
+     * Fires instead of {@link EntryResizedEvent} when the resized entry's id is not in the server-side cache.
+     * <br><br>
+     * Requires that resize is enabled on the source via {@link ClientSideEventSource#withEditable(boolean) withEditable(true)}.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addExternalEntryResizedListener(ComponentEventListener<ExternalEntryResizedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(ExternalEntryResizedEvent.class, listener);
     }
 
     /**
@@ -3875,7 +4073,29 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/dropAccept">dropAccept</a>
          */
-        DROP_ACCEPT;
+        DROP_ACCEPT,
+
+        // ---- Phase 4 additions ----
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
+         */
+        START_PARAM,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/endParam">endParam</a>
+         */
+        END_PARAM,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/timeZoneParam">timeZoneParam</a>
+         */
+        TIME_ZONE_PARAM,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/googleCalendarApiKey">googleCalendarApiKey</a>
+         */
+        GOOGLE_CALENDAR_API_KEY;
 
         private final String optionKey;
 
