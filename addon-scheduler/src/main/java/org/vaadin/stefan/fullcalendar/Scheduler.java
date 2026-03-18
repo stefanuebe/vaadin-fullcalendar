@@ -20,6 +20,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 
 import java.util.*;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -261,13 +262,46 @@ public interface Scheduler {
     /**
      * The given string will be interpreted as JS function on the client side
      * and attached to the calendar as callback. It must be a valid JavaScript function.
-     * 
-     * A resource "label" is anywhere the name of a resource is displayed. 
+     *
+     * A resource "label" is anywhere the name of a resource is displayed.
      * They exist in the header of vertical resource view and the side section of resource timeline view.
      *
      * @param s JS function to be attached
      */
-    void setResourceLablelWillUnmountCallback(String s);
+    void setResourceLabelWillUnmountCallback(String s);
+
+    /**
+     * The given string will be interpreted as JS function on the client side
+     * and attached to the calendar as callback. It must be a valid JavaScript function.
+     *
+     * A resource "label" is anywhere the name of a resource is displayed.
+     * They exist in the header of vertical resource view and the side section of resource timeline view.
+     *
+     * @param s JS function to be attached
+     * @deprecated Use {@link #setResourceLabelWillUnmountCallback(String)} instead.
+     */
+    @Deprecated(forRemoval = true)
+    default void setResourceLablelWillUnmountCallback(String s) {
+        setResourceLabelWillUnmountCallback(s);
+    }
+
+    /**
+     * Whether to re-fetch resources when the user navigates to a new date range.
+     *
+     * @param refetch whether to refetch resources on navigate
+     * @see <a href="https://fullcalendar.io/docs/refetchResourcesOnNavigate">refetchResourcesOnNavigate</a>
+     */
+    void setRefetchResourcesOnNavigate(boolean refetch);
+
+    /**
+     * Returns an optional option value for the given scheduler option.
+     *
+     * @param option scheduler option
+     * @param <T> type of value
+     * @return optional value or empty
+     * @see FullCalendarScheduler#getOption(FullCalendarScheduler.SchedulerOption)
+     */
+    <T> Optional<T> getOption(FullCalendarScheduler.SchedulerOption option);
     
     /**
      * The given string will be interpreted as JS function on the client side

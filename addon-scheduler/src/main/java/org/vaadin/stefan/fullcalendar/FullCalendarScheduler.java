@@ -259,8 +259,19 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
     
     @Override
+    public void setResourceLabelWillUnmountCallback(String s) {
+        getElement().callJsFunction("setResourceLabelWillUnmountCallback", s);
+    }
+
+    @Override
+    @Deprecated(forRemoval = true)
     public void setResourceLablelWillUnmountCallback(String s) {
-        getElement().callJsFunction("setResourceLablelWillUnmountCallback", s);
+        setResourceLabelWillUnmountCallback(s);
+    }
+
+    @Override
+    public void setRefetchResourcesOnNavigate(boolean refetch) {
+        setOption(SchedulerOption.REFETCH_RESOURCES_ON_NAVIGATE, refetch);
     }
     
     @Override

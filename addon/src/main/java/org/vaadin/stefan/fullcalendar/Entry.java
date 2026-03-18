@@ -937,6 +937,14 @@ public class Entry {
     }
 
     /**
+     * Sets the entry's constraint to business hours, meaning the entry can only be placed during business hours.
+     * Equivalent to {@code setConstraint("businessHours")}.
+     */
+    public void setConstraintToBusinessHours() {
+        this.constraint = "businessHours";
+    }
+
+    /**
      * Sets the color for this entry. This is interpreted as background and border color on the client side.
      * Null or empty string resets the color to the FC's default.
      *
