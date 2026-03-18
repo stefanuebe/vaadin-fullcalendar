@@ -732,6 +732,62 @@ export class FullCalendar extends HTMLElement {
         this.setOption('eventOverlap', new Function("return " + s)());
     }
 
+    // Phase 7 — navigation, size, and JS-only callback setters
+
+    incrementDate(duration: string) {
+        this.calendar.incrementDate(duration);
+    }
+
+    prevYear() {
+        this.calendar.prevYear();
+    }
+
+    nextYear() {
+        this.calendar.nextYear();
+    }
+
+    updateSize() {
+        this.calendar?.updateSize();
+    }
+
+    setValidRangeCallback(s: string) {
+        this.setOption('validRange', new Function("return " + s)());
+    }
+
+    setSelectOverlapCallback(s: string) {
+        this.setOption('selectOverlap', new Function("return " + s)());
+    }
+
+    setFixedMirrorParent(s: string | null) {
+        if (s == null) {
+            this.setOption('fixedMirrorParent', null);
+        } else {
+            this.setOption('fixedMirrorParent', new Function("return " + s)());
+        }
+    }
+
+    /**
+     * Sets the customButtons option. Injects a click handler into each button config that
+     * calls the server-side customButtonClicked(name) method via $server.
+     *
+     * @param buttonsJson map of button name → button config, or null to clear
+     */
+    setCustomButtons(buttonsJson: any) {
+        if (buttonsJson == null) {
+            this.setOption('customButtons', null);
+            return;
+        }
+        const buttons: any = {};
+        for (const name of Object.keys(buttonsJson)) {
+            const btn = {...buttonsJson[name]};
+            btn.click = () => {
+                (this as any).$server.customButtonClicked(name);
+            };
+            buttons[name] = btn;
+        }
+        this.setOption('customButtons', buttons);
+    }
+
     // Phase 4 — Event source management
 
     addEventSource(sourceJson: any) {

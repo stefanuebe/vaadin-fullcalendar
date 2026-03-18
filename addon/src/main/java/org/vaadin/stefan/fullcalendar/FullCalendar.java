@@ -118,6 +118,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     private String currentViewName;
     private LocalDate currentIntervalStart;
+    private LocalDate currentIntervalEnd;
     private CalendarView currentView;
 
     private volatile boolean refreshAllEntriesRequested;
@@ -130,6 +131,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Server-side registry of client-managed event sources, keyed by source id.
      */
     private final Map<String, ClientSideEventSource<?>> eventSourceRegistry = new LinkedHashMap<>();
+
+    // ---- Phase 7: custom buttons ----
+    private final Map<String, CustomButton> customButtons = new LinkedHashMap<>();
+    private final Map<String, List<ComponentEventListener<CustomButtonClickedEvent>>> customButtonListeners = new HashMap<>();
+
+    // ---- Phase 7: view-specific options ----
+    private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
@@ -236,6 +244,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         addDatesRenderedListener(event -> {
             currentIntervalStart = event.getIntervalStart();
+            currentIntervalEnd = event.getIntervalEnd();
         });
 
         addViewSkeletonRenderedListener(event -> {
@@ -524,7 +533,87 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(date);
         getElement().callJsFunction("gotoDate", date.toString());
     }
-    
+
+    /**
+     * Moves the calendar forward by a custom duration (e.g., {@code "P1W"} for one week,
+     * {@code "P3D"} for three days). Negative durations (e.g., {@code "-P1D"}) move backward.
+     * <p>
+     * Useful for custom views where the standard {@link #next()} / {@link #previous()} increments
+     * do not match the desired step size.
+     *
+     * @param duration ISO 8601 duration string, e.g., {@code "P1W"} or {@code "-P1D"}
+     * @throws NullPointerException when null is passed
+     * @see <a href="https://fullcalendar.io/docs/Calendar-incrementDate">FC incrementDate</a>
+     */
+    public void incrementDate(String duration) {
+        Objects.requireNonNull(duration);
+        getElement().callJsFunction("incrementDate", duration);
+    }
+
+    /**
+     * Moves the calendar to the same interval in the previous year. For example, if the
+     * calendar is showing the month of March 2025, this will navigate to March 2024.
+     *
+     * @see <a href="https://fullcalendar.io/docs/Calendar-prevYear">FC prevYear</a>
+     */
+    public void previousYear() {
+        getElement().callJsFunction("prevYear");
+    }
+
+    /**
+     * Moves the calendar to the same interval in the next year. For example, if the
+     * calendar is showing the month of March 2025, this will navigate to March 2026.
+     *
+     * @see <a href="https://fullcalendar.io/docs/Calendar-nextYear">FC nextYear</a>
+     */
+    public void nextYear() {
+        getElement().callJsFunction("nextYear");
+    }
+
+    /**
+     * Forces the calendar to recalculate its dimensions and re-render based on the current
+     * container size. Call this after programmatically showing or resizing a container that
+     * holds the calendar (e.g., opening a Vaadin {@code Dialog}, revealing a hidden tab, or
+     * resizing a {@code SplitLayout} pane).
+     * <p>
+     * This is a one-time manual trigger. For automatic resizing on window resize, see
+     * {@link #setHandleWindowResize(boolean)}.
+     *
+     * @see <a href="https://fullcalendar.io/docs/Calendar-updateSize">FC updateSize</a>
+     */
+    public void updateSize() {
+        getElement().callJsFunction("updateSize");
+    }
+
+    /**
+     * Returns the start of the currently displayed date interval (e.g., the first day of the
+     * displayed month in month view). Updated after each render via {@code DatesRenderedEvent}.
+     * <p>
+     * Note: The value lags by one server round-trip — it reflects the state after the last
+     * {@code datesSet} event was processed. Calling this immediately after a navigation method
+     * (e.g., {@link #next()}) before the client fires the next {@code datesSet} event will
+     * return the previous value.
+     *
+     * @return the current interval start, or empty if the calendar has not rendered yet
+     * @see #getCurrentIntervalEnd()
+     */
+    public Optional<LocalDate> getCurrentIntervalStart() {
+        return Optional.ofNullable(currentIntervalStart);
+    }
+
+    /**
+     * Returns the end of the currently displayed date interval (exclusive). Updated after each
+     * render via {@code DatesRenderedEvent}.
+     * <p>
+     * Note: The value lags by one server round-trip (see {@link #getCurrentIntervalStart()}).
+     *
+     * @return the current interval end (exclusive), or empty if the calendar has not rendered yet
+     * @see #getCurrentIntervalStart()
+     */
+    public Optional<LocalDate> getCurrentIntervalEnd() {
+        return Optional.ofNullable(currentIntervalEnd);
+    }
+
     /**
      * Programatically scroll the current view to the given time in the format `hh:mm:ss.sss`, `hh:mm:sss` or `hh:mm`. For example, '05:00' signifies 5 hours.
      * 
@@ -3017,6 +3106,383 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.EVENT_HINT, hint);
     }
 
+    // ---- Phase 7: Advanced and Niche Options ----
+
+    /**
+     * Sets the icons for the navigation buttons in the toolbar. The map key is the button name
+     * (e.g., {@code "prev"}, {@code "next"}, {@code "prevYear"}, {@code "nextYear"}) and the
+     * value is the CSS class name of the icon (e.g., from Font Awesome). Pass {@code null} to
+     * reset to FullCalendar's built-in icon set.
+     *
+     * @param icons map of button name → icon CSS class, or {@code null} to reset
+     * @see <a href="https://fullcalendar.io/docs/buttonIcons">FC buttonIcons documentation</a>
+     */
+    public void setButtonIcons(Map<String, String> icons) {
+        setOption(Option.BUTTON_ICONS, icons);
+    }
+
+    /**
+     * Sets a JavaScript function string as the {@code validRange} option. The function receives
+     * the current "now" date and must return an object with {@code start} and/or {@code end}
+     * properties, restricting which dates are navigable.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * calendar.setValidRangeCallback(
+     *     "function(nowDate) { return { " +
+     *     "  start: new Date(nowDate.getFullYear(), nowDate.getMonth(), 1), " +
+     *     "  end:   new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 1) " +
+     *     "}; }"
+     * );
+     * }</pre>
+     * <p>
+     * This overrides any static range set by {@link #setValidRange(java.time.LocalDate, java.time.LocalDate)}.
+     *
+     * @param jsFunction JavaScript function string; pass {@code null} to clear
+     * @see <a href="https://fullcalendar.io/docs/validRange">FC validRange documentation</a>
+     */
+    public void setValidRangeCallback(String jsFunction) {
+        if (jsFunction == null) {
+            // Clear by passing null via the standard option path so it is persisted correctly
+            setOption(Option.VALID_RANGE, (Object) null);
+        } else {
+            getElement().callJsFunction("setValidRangeCallback", jsFunction);
+        }
+    }
+
+    /**
+     * Sets a JavaScript function string as the {@code selectOverlap} option. The function
+     * receives the existing "still" event and must return {@code true} if the selection may
+     * overlap it. This provides per-event control over selection constraints.
+     * <p>
+     * Example — allow selection only over background events:
+     * <pre>{@code
+     * calendar.setSelectOverlapCallback(
+     *     "function(stillEvent) { return stillEvent.display === 'background'; }"
+     * );
+     * }</pre>
+     * <p>
+     * This overrides any boolean value set by {@link #setSelectOverlap(boolean)}.
+     *
+     * @param jsFunction JavaScript function string; pass {@code null} to clear
+     * @see <a href="https://fullcalendar.io/docs/selectOverlap">FC selectOverlap documentation</a>
+     */
+    public void setSelectOverlapCallback(String jsFunction) {
+        if (jsFunction == null) {
+            setOption(Option.SELECT_OVERLAP, (Object) null);
+        } else {
+            getElement().callJsFunction("setSelectOverlapCallback", jsFunction);
+        }
+    }
+
+    /**
+     * Constrains event dragging and resizing to a specific event group id. Only time ranges
+     * covered by events with that group id can be used as drop targets.
+     *
+     * @param groupId event group id to constrain to, or {@code null} to clear
+     * @see #setEventConstraint(BusinessHours)
+     * @see #setEventConstraintToBusinessHours()
+     * @see <a href="https://fullcalendar.io/docs/eventConstraint">FC eventConstraint documentation</a>
+     */
+    public void setEventConstraint(String groupId) {
+        setOption(Option.EVENT_CONSTRAINT, groupId);
+    }
+
+    /**
+     * Constrains event dragging and resizing to the specified business hours. Events can only
+     * be moved to or resized within business hours slots.
+     *
+     * @param hours business hours definition; must not be null
+     * @see #setEventConstraint(String)
+     * @see #setEventConstraintToBusinessHours()
+     * @see <a href="https://fullcalendar.io/docs/eventConstraint">FC eventConstraint documentation</a>
+     */
+    public void setEventConstraint(BusinessHours hours) {
+        Objects.requireNonNull(hours);
+        setOption(Option.EVENT_CONSTRAINT, hours.toJson());
+    }
+
+    /**
+     * Constrains event dragging and resizing to the calendar's configured business hours.
+     * Equivalent to {@code setEventConstraint("businessHours")}.
+     *
+     * @see #setEventConstraint(String)
+     * @see #setEventConstraint(BusinessHours)
+     * @see <a href="https://fullcalendar.io/docs/eventConstraint">FC eventConstraint documentation</a>
+     */
+    public void setEventConstraintToBusinessHours() {
+        setOption(Option.EVENT_CONSTRAINT, "businessHours");
+    }
+
+    /**
+     * Sets how much time is advanced when the user clicks prev/next in the toolbar.
+     * Only needed for custom views — built-in views handle their own increment automatically.
+     * <p>
+     * Example: {@code "P1W"} (one week), {@code "P2W"} (bi-weekly), {@code "P3D"} (3 days).
+     *
+     * @param duration ISO 8601 duration string; pass {@code null} to reset to FC default
+     * @see #setDateAlignment(String)
+     * @see <a href="https://fullcalendar.io/docs/dateIncrement">FC dateIncrement documentation</a>
+     */
+    public void setDateIncrement(String duration) {
+        setOption(Option.DATE_INCREMENT, duration);
+    }
+
+    /**
+     * Sets the date boundary that the calendar snaps to when navigating prev/next.
+     * Only needed for custom views.
+     * <p>
+     * Example values: {@code "week"} (align to week start), {@code "month"}, {@code "day"}.
+     *
+     * @param alignment alignment boundary string; pass {@code null} to reset to FC default
+     * @see #setDateIncrement(String)
+     * @see <a href="https://fullcalendar.io/docs/dateAlignment">FC dateAlignment documentation</a>
+     */
+    public void setDateAlignment(String alignment) {
+        setOption(Option.DATE_ALIGNMENT, alignment);
+    }
+
+    /**
+     * Sets the CSP nonce that FullCalendar will add to all dynamically generated {@code <style>}
+     * elements. Required when the application enforces a Content Security Policy with
+     * {@code style-src 'nonce-<value>'} and {@code 'unsafe-inline'} is not permitted.
+     * <p>
+     * The nonce must match the nonce used in the CSP header for this request. If the application
+     * uses Vaadin's own nonce mechanism, use the same value here.
+     * <p>
+     * This option must be set <em>before</em> the calendar is attached (before FC initialises
+     * and generates its first {@code <style>} tags). Setting it after attachment has no effect.
+     *
+     * @param nonce CSP nonce value; pass {@code null} to clear
+     * @see <a href="https://fullcalendar.io/docs/contentSecurityPolicy">FC contentSecurityPolicy documentation</a>
+     */
+    public void setContentSecurityPolicyNonce(String nonce) {
+        setOption(Option.CONTENT_SECURITY_POLICY, nonce != null ? Map.of("nonce", nonce) : null);
+    }
+
+    /**
+     * Sets a view-specific option override. The option applies only when the calendar is
+     * showing the specified view type. Multiple calls for the same view type accumulate;
+     * each key is set independently.
+     * <p>
+     * Example — limit event rows only in month view:
+     * <pre>{@code
+     * calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_EVENTS, 3);
+     * }</pre>
+     *
+     * @param viewType  FullCalendar view type name (e.g., {@code "dayGrid"}, {@code "timeGrid"},
+     *                  {@code "dayGridMonth"}, {@code "listWeek"})
+     * @param optionKey option key string
+     * @param value     option value; pass {@code null} to remove this key from the view override
+     * @throws NullPointerException if viewType or optionKey is null
+     * @see #setViewSpecificOption(String, Option, Object)
+     * @see #setViewSpecificOption(CalendarView, Option, Object)
+     * @see #setViewSpecificOptions(String, Map)
+     * @see <a href="https://fullcalendar.io/docs/view-specific-options">FC view-specific options</a>
+     */
+    public void setViewSpecificOption(String viewType, String optionKey, Object value) {
+        Objects.requireNonNull(viewType, "viewType must not be null");
+        Objects.requireNonNull(optionKey, "optionKey must not be null");
+        ObjectNode viewNode = viewSpecificOptionsMap.computeIfAbsent(viewType, k -> JsonFactory.createObject());
+        if (value == null) {
+            viewNode.remove(optionKey);
+            if (viewNode.isEmpty()) {
+                viewSpecificOptionsMap.remove(viewType);
+            }
+        } else {
+            viewNode.set(optionKey, JsonUtils.toJsonNode(value));
+        }
+        syncViewSpecificOptions();
+    }
+
+    /**
+     * Sets a view-specific option using the typed {@link Option} enum.
+     *
+     * @param viewType FullCalendar view type name
+     * @param option   option enum constant
+     * @param value    option value; pass {@code null} to remove
+     * @see #setViewSpecificOption(String, String, Object)
+     */
+    public void setViewSpecificOption(String viewType, Option option, Object value) {
+        Objects.requireNonNull(option, "option must not be null");
+        setViewSpecificOption(viewType, option.getOptionKey(), value);
+    }
+
+    /**
+     * Sets a view-specific option using the typed {@link CalendarView} enum to identify the view.
+     *
+     * @param view   calendar view
+     * @param option option enum constant
+     * @param value  option value; pass {@code null} to remove
+     * @see #setViewSpecificOption(String, Option, Object)
+     */
+    public void setViewSpecificOption(CalendarView view, Option option, Object value) {
+        Objects.requireNonNull(view, "view must not be null");
+        setViewSpecificOption(view.getClientSideValue(), option, value);
+    }
+
+    /**
+     * Sets multiple view-specific options at once for the given view type. Merges with any
+     * existing overrides for that view type; entries in the provided map override existing keys.
+     *
+     * @param viewType FullCalendar view type name
+     * @param options  map of option key → value; null values remove the corresponding key
+     * @throws NullPointerException if viewType or options is null
+     * @see #setViewSpecificOption(String, String, Object)
+     */
+    public void setViewSpecificOptions(String viewType, Map<String, Object> options) {
+        Objects.requireNonNull(viewType, "viewType must not be null");
+        Objects.requireNonNull(options, "options must not be null");
+        options.forEach((key, value) -> setViewSpecificOption(viewType, key, value));
+    }
+
+    private void syncViewSpecificOptions() {
+        if (viewSpecificOptionsMap.isEmpty()) {
+            setOption("views", null);
+        } else {
+            ObjectNode viewsNode = JsonFactory.createObject();
+            viewSpecificOptionsMap.forEach(viewsNode::set);
+            setOption("views", viewsNode);
+        }
+    }
+
+    /**
+     * Sets the DOM element parent for the drag mirror (ghost element shown during event drag).
+     * The value is a JavaScript expression that evaluates to a DOM element.
+     * <p>
+     * This is necessary when the calendar is inside a CSS-transformed container (e.g., a container
+     * with {@code transform: scale()} or {@code transform: translate()}), which would cause the
+     * mirror to appear at the wrong position. Setting this to a non-transformed parent (e.g.,
+     * {@code "document.body"}) fixes the position.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * calendar.setFixedMirrorParent("document.body");
+     * calendar.setFixedMirrorParent("document.querySelector('.my-layout')");
+     * }</pre>
+     *
+     * @param jsExpression JS expression that evaluates to a DOM element, or {@code null} to reset
+     * @see <a href="https://fullcalendar.io/docs/fixedMirrorParent">FC fixedMirrorParent documentation</a>
+     */
+    public void setFixedMirrorParent(String jsExpression) {
+        if (jsExpression == null) {
+            getElement().callJsFunction("setFixedMirrorParent", (Object) null);
+        } else {
+            getElement().callJsFunction("setFixedMirrorParent", jsExpression);
+        }
+    }
+
+    /**
+     * Sets the CSS selectors of elements that should auto-scroll when the drag mirror
+     * approaches their edge. Accepts one or more CSS selector strings; multiple selectors
+     * are joined with a comma.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * calendar.setDragScrollEls(".my-scroll-container", "body");
+     * }</pre>
+     *
+     * @param cssSelectors CSS selector strings; pass {@code null} or empty to reset
+     * @see <a href="https://fullcalendar.io/docs/dragScrollEls">FC dragScrollEls documentation</a>
+     */
+    public void setDragScrollEls(String... cssSelectors) {
+        if (cssSelectors == null || cssSelectors.length == 0) {
+            setOption(Option.DRAG_SCROLL_ELS, (Object) null);
+        } else {
+            setOption(Option.DRAG_SCROLL_ELS, String.join(",", cssSelectors));
+        }
+    }
+
+    // ---- Phase 7: Custom Buttons ----
+
+    /**
+     * Adds a custom button to the calendar's toolbar configuration. The button can be referenced
+     * by its {@link CustomButton#getName() name} in header/footer toolbar strings.
+     * <p>
+     * Call this method before configuring the toolbar that includes the button.
+     *
+     * @param button the custom button to add; must not be null
+     * @see #addCustomButton(CustomButton, com.vaadin.flow.component.ComponentEventListener)
+     * @see #removeCustomButton(String)
+     * @see <a href="https://fullcalendar.io/docs/customButtons">FC customButtons documentation</a>
+     */
+    public void addCustomButton(CustomButton button) {
+        Objects.requireNonNull(button, "button must not be null");
+        customButtons.put(button.getName(), button);
+        syncCustomButtons();
+    }
+
+    /**
+     * Adds a custom button and registers a server-side click listener for it in a single call.
+     *
+     * @param button   the custom button to add; must not be null
+     * @param listener click listener invoked when the button is clicked; must not be null
+     * @return registration that removes the listener when called
+     * @see #addCustomButton(CustomButton)
+     * @see #addCustomButtonClickedListener(String, com.vaadin.flow.component.ComponentEventListener)
+     */
+    public Registration addCustomButton(CustomButton button, ComponentEventListener<CustomButtonClickedEvent> listener) {
+        addCustomButton(button);
+        return addCustomButtonClickedListener(button.getName(), listener);
+    }
+
+    /**
+     * Registers a server-side click listener for the custom button with the given name.
+     * Multiple listeners for the same button name are supported.
+     *
+     * @param buttonName name of the button to listen for; must not be null
+     * @param listener   click listener; must not be null
+     * @return registration that removes this specific listener when called
+     * @see #addCustomButton(CustomButton, com.vaadin.flow.component.ComponentEventListener)
+     */
+    public Registration addCustomButtonClickedListener(String buttonName,
+            ComponentEventListener<CustomButtonClickedEvent> listener) {
+        Objects.requireNonNull(buttonName, "buttonName must not be null");
+        Objects.requireNonNull(listener, "listener must not be null");
+        customButtonListeners.computeIfAbsent(buttonName, k -> new ArrayList<>()).add(listener);
+        return () -> {
+            List<ComponentEventListener<CustomButtonClickedEvent>> list = customButtonListeners.get(buttonName);
+            if (list != null) {
+                list.remove(listener);
+                if (list.isEmpty()) {
+                    customButtonListeners.remove(buttonName);
+                }
+            }
+        };
+    }
+
+    /**
+     * Removes a custom button and all its click listeners from the calendar.
+     *
+     * @param buttonName name of the button to remove; must not be null
+     * @see #addCustomButton(CustomButton)
+     */
+    public void removeCustomButton(String buttonName) {
+        Objects.requireNonNull(buttonName, "buttonName must not be null");
+        customButtons.remove(buttonName);
+        customButtonListeners.remove(buttonName);
+        syncCustomButtons();
+    }
+
+    private void syncCustomButtons() {
+        if (customButtons.isEmpty()) {
+            getElement().callJsFunction("setCustomButtons", (Object) null);
+        } else {
+            ObjectNode buttonsNode = JsonFactory.createObject();
+            customButtons.forEach((name, btn) -> buttonsNode.set(name, btn.toJson()));
+            getElement().callJsFunction("setCustomButtons", buttonsNode);
+        }
+    }
+
+    @ClientCallable
+    protected void customButtonClicked(String buttonName) {
+        List<ComponentEventListener<CustomButtonClickedEvent>> listeners = customButtonListeners.get(buttonName);
+        if (listeners != null && !listeners.isEmpty()) {
+            CustomButtonClickedEvent event = new CustomButtonClickedEvent(this, true, buttonName);
+            new ArrayList<>(listeners).forEach(l -> l.onComponentEvent(event));
+        }
+    }
+
     /**
      * Sets the duration in milliseconds of the revert animation when an event drag is cancelled.
      * Default is {@code 500}.
@@ -4230,6 +4696,38 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * @see <a href="https://fullcalendar.io/docs/eventInteractive">eventInteractive</a>
          */
         EVENT_INTERACTIVE,
+
+        // ---- Phase 7 additions ----
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/buttonIcons">buttonIcons</a>
+         */
+        BUTTON_ICONS,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
+         */
+        EVENT_CONSTRAINT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dateIncrement">dateIncrement</a>
+         */
+        DATE_INCREMENT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dateAlignment">dateAlignment</a>
+         */
+        DATE_ALIGNMENT,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/contentSecurityPolicy">contentSecurityPolicy</a>
+         */
+        CONTENT_SECURITY_POLICY,
+
+        /**
+         * @see <a href="https://fullcalendar.io/docs/dragScrollEls">dragScrollEls</a>
+         */
+        DRAG_SCROLL_ELS,
 
         /**
          * @see <a href="https://fullcalendar.io/docs/buttonHints">buttonHints</a>
