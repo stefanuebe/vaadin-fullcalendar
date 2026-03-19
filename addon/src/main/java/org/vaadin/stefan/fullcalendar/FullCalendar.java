@@ -3355,6 +3355,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         SELECTABLE,
 
         /**
+         * Restricts where the user can make time-range selections. Accepts a group id string or the literal
+         * {@code "businessHours"}. To pass a {@link BusinessHours} object, serialize it to JSON via
+         * {@code setOption(SELECT_CONSTRAINT, businessHours.toJson())}.
+         *
          * @see <a href="https://fullcalendar.io/docs/selectConstraint">selectConstraint</a>
          */
         SELECT_CONSTRAINT,
@@ -3372,7 +3376,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/selectOverlap">selectOverlap</a>
          */
-        SELECT_OVERLAP, // function not yet supported
+        SELECT_OVERLAP,
 
         /**
          * @see <a href="https://fullcalendar.io/docs/showNonCurrentDates">showNonCurrentDates</a>
