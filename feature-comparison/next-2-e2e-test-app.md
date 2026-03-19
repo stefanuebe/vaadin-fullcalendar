@@ -6,7 +6,7 @@ the demo app's nav and are conceptually separate. Move them to a dedicated
 `e2e-test-app/` Spring Boot module so `demo/` stays clean.
 
 ## Status
-⬜ NOT STARTED
+✅ DONE — commit 7b621d0
 
 ## Current situation
 - Test views: `demo/src/main/java/.../ui/view/testviews/` (7+ Java classes)

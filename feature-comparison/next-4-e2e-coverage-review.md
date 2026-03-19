@@ -5,7 +5,7 @@ Systematically audit every new feature implemented across all phases against
 the existing E2E tests. Add missing tests. Err on the side of more tests.
 
 ## Status
-⬜ NOT STARTED
+✅ DONE — commit cb1c0d7
 
 ## How to do this
 Read each test view + spec file pair. For each feature in the implementation,

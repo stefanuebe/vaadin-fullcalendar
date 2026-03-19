@@ -6,7 +6,7 @@ Extend it to cover `exdate`, monthly patterns, and `ofRaw` — the cases where
 we are uncertain whether our implementation matches what FC actually expects.
 
 ## Status
-⬜ NOT STARTED
+✅ DONE — commit b09e2de
 
 ## Background / risk
 - `exdate` is sent as a comma-separated string (`"2025-03-10,2025-03-17"`).

@@ -5,7 +5,7 @@ All "Phase N" terminology was an internal planning device — it must not appear
 production code, comments, test names, view names, routes, or documentation.
 
 ## Status
-⬜ NOT STARTED
+✅ DONE — commit 10f6af3
 
 ## Scope
 

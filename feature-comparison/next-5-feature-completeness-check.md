@@ -7,7 +7,7 @@ Cross-reference our Java API and TypeScript against the downloaded FC docs
 FC options we implemented incorrectly or not at all.
 
 ## Status
-⬜ NOT STARTED
+✅ DONE — commit cf7de8f
 
 ## Known issues to investigate first
 
