@@ -66,11 +66,6 @@ public class DisplayOptionsTest {
     }
 
     @Test
-    void option_windowResizeDelay_key() {
-        assertEquals("windowResizeDelay", Option.WINDOW_RESIZE_DELAY.getOptionKey());
-    }
-
-    @Test
     void option_initialDate_key() {
         assertEquals("initialDate", Option.INITIAL_DATE.getOptionKey());
     }
@@ -153,11 +148,6 @@ public class DisplayOptionsTest {
     @Test
     void option_defaultAllDay_key() {
         assertEquals("defaultAllDay", Option.DEFAULT_ALL_DAY.getOptionKey());
-    }
-
-    @Test
-    void option_handleWindowResize_key() {
-        assertEquals("handleWindowResize", Option.HANDLE_WINDOW_RESIZE.getOptionKey());
     }
 
     // -------------------------------------------------------------------------
@@ -249,16 +239,6 @@ public class DisplayOptionsTest {
 
         calendar.setNowIndicatorSnap(false);
         assertOptionalEquals(false, calendar.getOption(Option.NOW_INDICATOR_SNAP));
-    }
-
-    // -------------------------------------------------------------------------
-    // setWindowResizeDelay
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setWindowResizeDelay_storesOption() {
-        calendar.setWindowResizeDelay(250);
-        assertOptionalEquals(250, calendar.getOption(Option.WINDOW_RESIZE_DELAY));
     }
 
     // -------------------------------------------------------------------------
@@ -452,12 +432,6 @@ public class DisplayOptionsTest {
     void setDefaultAllDay_storesOption() {
         calendar.setDefaultAllDay(true);
         assertOptionalEquals(true, calendar.getOption(Option.DEFAULT_ALL_DAY));
-    }
-
-    @Test
-    void setHandleWindowResize_storesOption() {
-        calendar.setHandleWindowResize(false);
-        assertOptionalEquals(false, calendar.getOption(Option.HANDLE_WINDOW_RESIZE));
     }
 
     // -------------------------------------------------------------------------

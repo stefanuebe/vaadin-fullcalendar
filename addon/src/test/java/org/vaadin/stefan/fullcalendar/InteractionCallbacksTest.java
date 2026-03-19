@@ -174,18 +174,6 @@ public class InteractionCallbacksTest {
     }
 
     @Test
-    void addWindowResizeListener_returnsRegistration() {
-        Registration reg = calendar.addWindowResizeListener(event -> {});
-        assertNotNull(reg);
-    }
-
-    @Test
-    void addWindowResizeListener_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () ->
-                calendar.addWindowResizeListener(null));
-    }
-
-    @Test
     void addDropListener_returnsRegistration() {
         Registration reg = calendar.addDropListener(event -> {});
         assertNotNull(reg);
@@ -219,25 +207,6 @@ public class InteractionCallbacksTest {
     void addEntryLeaveListener_null_throwsNPE() {
         assertThrows(NullPointerException.class, () ->
                 calendar.addEntryLeaveListener(null));
-    }
-
-    // -------------------------------------------------------------------------
-    // WindowResizeEvent — construction
-    // -------------------------------------------------------------------------
-
-    @Test
-    void windowResizeEvent_knownView_populatesCalendarView() {
-        WindowResizeEvent event = new WindowResizeEvent(calendar, true, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        assertEquals(CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue(), event.getViewName());
-        assertTrue(event.getCalendarViewOptional().isPresent());
-        assertEquals(CalendarViewImpl.DAY_GRID_MONTH, event.getCalendarViewOptional().get());
-    }
-
-    @Test
-    void windowResizeEvent_unknownView_calendarViewIsEmpty() {
-        WindowResizeEvent event = new WindowResizeEvent(calendar, true, "customView");
-        assertEquals("customView", event.getViewName());
-        assertFalse(event.getCalendarViewOptional().isPresent());
     }
 
     // -------------------------------------------------------------------------

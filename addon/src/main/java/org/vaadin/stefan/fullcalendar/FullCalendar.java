@@ -252,9 +252,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             currentView = event.getCalendarView().orElse(null);
         });
 
-        // currently disabled, since a ResizeObserver is registered on the client side
-        setOption("handleWindowResize", false);
-
         setHeightFull(); // default from previous versions
 
         /* to allow class based styling for custom subclasses (e.g. for applying the lumo theme)*/
@@ -532,57 +529,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public void gotoDate(LocalDate date) {
         Objects.requireNonNull(date);
         getElement().callJsFunction("gotoDate", date.toString());
-    }
-
-    /**
-     * Moves the calendar forward by a custom duration (e.g., {@code "P1W"} for one week,
-     * {@code "P3D"} for three days). Negative durations (e.g., {@code "-P1D"}) move backward.
-     * <p>
-     * Useful for custom views where the standard {@link #next()} / {@link #previous()} increments
-     * do not match the desired step size.
-     *
-     * @param duration ISO 8601 duration string, e.g., {@code "P1W"} or {@code "-P1D"}
-     * @throws NullPointerException when null is passed
-     * @see <a href="https://fullcalendar.io/docs/Calendar-incrementDate">FC incrementDate</a>
-     */
-    public void incrementDate(String duration) {
-        Objects.requireNonNull(duration);
-        getElement().callJsFunction("incrementDate", duration);
-    }
-
-    /**
-     * Moves the calendar to the same interval in the previous year. For example, if the
-     * calendar is showing the month of March 2025, this will navigate to March 2024.
-     *
-     * @see <a href="https://fullcalendar.io/docs/Calendar-prevYear">FC prevYear</a>
-     */
-    public void previousYear() {
-        getElement().callJsFunction("prevYear");
-    }
-
-    /**
-     * Moves the calendar to the same interval in the next year. For example, if the
-     * calendar is showing the month of March 2025, this will navigate to March 2026.
-     *
-     * @see <a href="https://fullcalendar.io/docs/Calendar-nextYear">FC nextYear</a>
-     */
-    public void nextYear() {
-        getElement().callJsFunction("nextYear");
-    }
-
-    /**
-     * Forces the calendar to recalculate its dimensions and re-render based on the current
-     * container size. Call this after programmatically showing or resizing a container that
-     * holds the calendar (e.g., opening a Vaadin {@code Dialog}, revealing a hidden tab, or
-     * resizing a {@code SplitLayout} pane).
-     * <p>
-     * This is a one-time manual trigger. For automatic resizing on window resize, see
-     * {@link #setHandleWindowResize(boolean)}.
-     *
-     * @see <a href="https://fullcalendar.io/docs/Calendar-updateSize">FC updateSize</a>
-     */
-    public void updateSize() {
-        getElement().callJsFunction("updateSize");
     }
 
     /**
@@ -1812,19 +1758,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Registers a listener for when the browser window is resized and the calendar recalculates its layout.
-     * Note: this fires after the {@code windowResizeDelay} debounce.
-     *
-     * @param listener listener
-     * @return registration to remove the listener
-     * @throws NullPointerException when null is passed
-     */
-    public Registration addWindowResizeListener(ComponentEventListener<WindowResizeEvent> listener) {
-        Objects.requireNonNull(listener);
-        return addListener(WindowResizeEvent.class, listener);
-    }
-
-    /**
      * Registers a listener for when any external HTML element is dropped onto the calendar.
      * Requires {@link #setDroppable(boolean) setDroppable(true)}.
      *
@@ -2899,17 +2832,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * The number of milliseconds to wait before FC reacts to a browser window resize. Default is {@code 100}.
-     *
-     * @param delayMs delay in milliseconds
-     * @see <a href="https://fullcalendar.io/docs/windowResizeDelay">windowResizeDelay</a>
-     * @see #setHandleWindowResize(boolean)
-     */
-    public void setWindowResizeDelay(int delayMs) {
-        setOption(Option.WINDOW_RESIZE_DELAY, delayMs);
-    }
-
-    /**
      * Sets the initial date displayed when the calendar first renders.
      * <p>
      * <strong>Only effective before the calendar is attached to the UI.</strong>
@@ -3623,19 +3545,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public void setDefaultAllDay(boolean defaultAllDay) {
         setOption(Option.DEFAULT_ALL_DAY, defaultAllDay);
-    }
-
-    /**
-     * Whether FC automatically reacts to browser window resize events to recalculate its dimensions.
-     * Note: this addon disables FC's built-in window resize handling by default (using a ResizeObserver instead).
-     * Call this method with {@code true} to restore FC's native handling.
-     *
-     * @param handle {@code true} to enable automatic resize handling
-     * @see <a href="https://fullcalendar.io/docs/handleWindowResize">handleWindowResize</a>
-     * @see #setWindowResizeDelay(int)
-     */
-    public void setHandleWindowResize(boolean handle) {
-        setOption(Option.HANDLE_WINDOW_RESIZE, handle);
     }
 
     // ---- Render hook callbacks (2.2 – 2.11) ----
@@ -4651,10 +4560,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          */
         FORCE_EVENT_DURATION,
 
-        /**
-         * @see <a href="https://fullcalendar.io/docs/handleWindowResize">handleWindowResize</a>
-         */
-        HANDLE_WINDOW_RESIZE,
 
         /**
          * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
@@ -4711,10 +4616,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          */
         TITLE_RANGE_SEPARATOR,
 
-        /**
-         * @see <a href="https://fullcalendar.io/docs/windowResizeDelay">windowResizeDelay</a>
-         */
-        WINDOW_RESIZE_DELAY,
 
 
 

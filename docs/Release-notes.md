@@ -29,8 +29,6 @@ for the one behaviour change involving `Entry.overlap`.
 - Render hook callbacks: `setResourceLabelClassNamesCallback`, `setResourceLabelContentCallback`, `setResourceLabelDidMountCallback`, `setResourceLabelWillUnmountCallback`
 - Render hook callbacks: `setResourceLaneClassNamesCallback`, `setResourceLaneDidMountCallback`, `setResourceLaneWillUnmountCallback`
 - `setProgressiveEventRendering(boolean)` — render events in batches as they arrive
-- `setHandleWindowResize(boolean)` — enable/disable FC's built-in window resize observer
-- `setWindowResizeDelay(int)` — debounce delay for the resize observer
 - `setThemeSystem(ThemeSystem)` — typed enum (`STANDARD`, `BOOTSTRAP5`)
 
 ### Interaction callbacks

@@ -62,8 +62,8 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar();
 
         // this shall assure that all init options are handled
-        // locale + dayMaxEvents + handleWindowResize(false) set in postConstruct
-        assertExistingOptionCount(calendar, 3);
+        // locale + dayMaxEvents set in postConstruct
+        assertExistingOptionCount(calendar, 2);
         assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
     }
 
@@ -75,7 +75,8 @@ public class FullCalendarTest {
         calendar.setMaxEntriesPerDay(entryLimit);
 
         // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 3);
+        // locale + dayMaxEvents set in postConstruct
+        assertExistingOptionCount(calendar, 2);
         assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
 
         assertEquals(entryLimit, calendar.getOption(Option.MAX_ENTRIES_PER_DAY).orElse(-1));
@@ -89,8 +90,8 @@ public class FullCalendarTest {
         Element element = calendar.getElement();
 
         // this shall assure that all init options are handled
-        // locale + dayMaxEvents + handleWindowResize(false) set in postConstruct
-        assertExistingOptionCount(calendar, 3);
+        // locale + dayMaxEvents set in postConstruct
+        assertExistingOptionCount(calendar, 2);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
         assertTrue(returnedOptions instanceof ObjectNode, "Returned initial options not instanceof JsonObject");

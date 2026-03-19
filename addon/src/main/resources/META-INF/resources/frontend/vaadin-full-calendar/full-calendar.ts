@@ -330,11 +330,6 @@ export class FullCalendar extends HTMLElement {
                 return {};
             },
 
-            // Window resize
-            windowResize: (eventInfo: any) => {
-                return {name: eventInfo.view.type};
-            },
-
             // External drag-drop
             drop: (eventInfo: any) => {
                 return {
