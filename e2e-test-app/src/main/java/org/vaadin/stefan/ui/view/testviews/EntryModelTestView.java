@@ -24,6 +24,9 @@ import java.util.Set;
  *   <li>Interactive entry: keyboard-focusable (tabindex="0")</li>
  *   <li>Recurring duration: multi-day span via recurringDuration</li>
  *   <li>RRule entry: multiple weekly occurrences rendered in March 2025</li>
+ *   <li>Exdate: excluded Monday is absent; remaining Mondays render (4 of 5)</li>
+ *   <li>Monthly last-Friday: renders on March 28, not on March 21</li>
+ *   <li>ofRaw: raw RRULE string produces correct occurrences (4 Wednesdays)</li>
  *   <li>Entry click listener updates counter badge</li>
  * </ul>
  * <p>
@@ -109,6 +112,40 @@ public class EntryModelTestView extends VerticalLayout {
                         .byWeekday(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)
         );
         provider.addEntry(rruleEntry);
+
+        // 5. Exdate entry — weekly Monday in March 2025, but March 10 is excluded
+        //    Mondays: 3, 10, 17, 24, 31 → after exdate: 3, 17, 24, 31 (4 occurrences)
+        Entry exdateEntry = new Entry();
+        exdateEntry.setTitle("Exdate Test");
+        exdateEntry.setAllDay(true);
+        exdateEntry.setRrule(
+                RRule.weekly()
+                        .dtstart(LocalDate.of(2025, 3, 3))
+                        .until(LocalDate.of(2025, 3, 31))
+                        .byWeekday(DayOfWeek.MONDAY)
+        );
+        exdateEntry.setExdate("2025-03-10");
+        provider.addEntry(exdateEntry);
+
+        // 6. Monthly last-Friday entry — last Friday of each month Jan–Mar 2025
+        //    Last Friday of March 2025 = March 28
+        Entry lastFridayEntry = new Entry();
+        lastFridayEntry.setTitle("Last Friday");
+        lastFridayEntry.setAllDay(true);
+        lastFridayEntry.setRrule(
+                RRule.monthly()
+                        .dtstart(LocalDate.of(2025, 1, 1))
+                        .until(LocalDate.of(2025, 3, 31))
+                        .byWeekday("-1fr")
+        );
+        provider.addEntry(lastFridayEntry);
+
+        // 7. Raw RRULE — Wednesdays in March 2025: 5, 12, 19, 26 (4 occurrences)
+        Entry rawEntry = new Entry();
+        rawEntry.setTitle("Raw RRule");
+        rawEntry.setAllDay(true);
+        rawEntry.setRrule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=WE;DTSTART=20250305;UNTIL=20250331"));
+        provider.addEntry(rawEntry);
 
         calendar.setEntryProvider(provider);
 

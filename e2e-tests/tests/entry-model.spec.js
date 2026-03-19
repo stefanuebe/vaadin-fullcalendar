@@ -90,6 +90,54 @@ test.describe('Entry Model', () => {
     });
 
     // -------------------------------------------------------------------------
+    // Exdate
+    // -------------------------------------------------------------------------
+
+    test('exdate: skipped Monday is absent from its day cell', async ({ page }) => {
+        // March 10 is excluded via exdate — the cell should have no "Exdate Test" event
+        const march10Cell = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
+        await expect(march10Cell.locator('.fc-event:has-text("Exdate Test")')).toHaveCount(0);
+    });
+
+    test('exdate: non-excluded Monday still renders', async ({ page }) => {
+        // March 17 is not excluded and should show the event
+        const march17Cell = page.locator('.fc-daygrid-day[data-date="2025-03-17"]');
+        await expect(march17Cell.locator('.fc-event:has-text("Exdate Test")')).toHaveCount(1);
+    });
+
+    test('exdate: total occurrences is 4 (5 Mondays minus 1 excluded)', async ({ page }) => {
+        // Mondays in March 2025: 3, 10, 17, 24, 31 — exdate removes March 10 → 4 left
+        const occurrences = page.locator('.fc-event:has-text("Exdate Test")');
+        await expect(occurrences).toHaveCount(4);
+    });
+
+    // -------------------------------------------------------------------------
+    // Monthly last-Friday
+    // -------------------------------------------------------------------------
+
+    test('monthly last-friday renders on correct day (March 28)', async ({ page }) => {
+        // Last Friday of March 2025 = March 28
+        const march28Cell = page.locator('.fc-daygrid-day[data-date="2025-03-28"]');
+        await expect(march28Cell.locator('.fc-event:has-text("Last Friday")')).toHaveCount(1);
+    });
+
+    test('monthly last-friday does not render on non-last Friday (March 21)', async ({ page }) => {
+        // March 21 is a Friday but not the last one
+        const march21Cell = page.locator('.fc-daygrid-day[data-date="2025-03-21"]');
+        await expect(march21Cell.locator('.fc-event:has-text("Last Friday")')).toHaveCount(0);
+    });
+
+    // -------------------------------------------------------------------------
+    // ofRaw RRule
+    // -------------------------------------------------------------------------
+
+    test('ofRaw renders correct number of occurrences', async ({ page }) => {
+        // BYDAY=WE in March 2025: Wednesdays 5, 12, 19, 26 = 4 occurrences
+        const occurrences = page.locator('.fc-event:has-text("Raw RRule")');
+        await expect(occurrences).toHaveCount(4);
+    });
+
+    // -------------------------------------------------------------------------
     // Entry click counter
     // -------------------------------------------------------------------------
 
