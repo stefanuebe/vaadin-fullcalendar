@@ -1082,15 +1082,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Sets the snap duration for this calendar instance.<p>
-     * The default is '00:30'
+     * Sets the snap duration for this calendar instance (the time interval entries snap to when dragging).
+     * The default is {@code "00:30:00"}.
      *
-     * @param duration duration to set in format hh:mm
+     * @param duration duration (e.g. {@code "00:15:00"} for 15-minute snapping)
      * @throws NullPointerException when null is passed
+     * @see <a href="https://fullcalendar.io/docs/snapDuration">snapDuration</a>
      */
     public void setSnapDuration(String duration) {
         Objects.requireNonNull(duration);
         setOption(Option.SNAP_DURATION, duration);
+    }
+
+    /**
+     * Sets the snap duration for this calendar instance using a {@link java.time.Duration}.
+     *
+     * @param duration duration; must not be null
+     * @throws NullPointerException when null is passed
+     * @see #setSnapDuration(String)
+     */
+    public void setSnapDuration(java.time.Duration duration) {
+        Objects.requireNonNull(duration);
+        setSnapDuration(String.format("%02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
     }
 
     /**
@@ -2168,6 +2181,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * Sets the duration of each time slot in the time-grid using a {@link java.time.Duration}.
+     *
+     * @param duration slot duration; must not be null
+     * @throws NullPointerException when null is passed
+     * @see #setSlotDuration(String)
+     */
+    public void setSlotDuration(java.time.Duration duration) {
+        Objects.requireNonNull(duration);
+        setSlotDuration(String.format("%02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+    }
+
+    /**
      * Sets the frequency at which the time-axis is labeled (e.g. {@code "01:00:00"}).
      *
      * @param interval slot label interval string
@@ -2177,6 +2202,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public void setSlotLabelInterval(String interval) {
         Objects.requireNonNull(interval);
         setOption(Option.SLOT_LABEL_INTERVAL, interval);
+    }
+
+    /**
+     * Sets the frequency at which the time-axis is labeled using a {@link java.time.Duration}.
+     *
+     * @param interval slot label interval; must not be null
+     * @throws NullPointerException when null is passed
+     * @see #setSlotLabelInterval(String)
+     */
+    public void setSlotLabelInterval(java.time.Duration interval) {
+        Objects.requireNonNull(interval);
+        setSlotLabelInterval(String.format("%02d:%02d:%02d", interval.toHours(), interval.toMinutesPart(), interval.toSecondsPart()));
     }
 
 
@@ -2279,7 +2316,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Sets the default duration for timed events (e.g. {@code "01:00:00"}).
      *
-     * @param duration duration string
+     * @param duration duration string in {@code HH:mm:ss} format
      * @see <a href="https://fullcalendar.io/docs/defaultTimedEventDuration">defaultTimedEventDuration</a>
      */
     public void setDefaultTimedEntryDuration(String duration) {
@@ -2287,13 +2324,37 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * Sets the default duration for timed events using a {@link java.time.Duration}.
+     *
+     * @param duration duration; must not be null
+     * @throws NullPointerException when null is passed
+     * @see #setDefaultTimedEntryDuration(String)
+     */
+    public void setDefaultTimedEntryDuration(java.time.Duration duration) {
+        Objects.requireNonNull(duration);
+        setDefaultTimedEntryDuration(String.format("%02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart()));
+    }
+
+    /**
      * Sets the default duration for all-day events (e.g. {@code "P1D"}).
      *
-     * @param duration duration string
+     * @param duration duration string in ISO 8601 period format (e.g. {@code "P1D"} for one day)
      * @see <a href="https://fullcalendar.io/docs/defaultAllDayEventDuration">defaultAllDayEventDuration</a>
      */
     public void setDefaultAllDayEntryDuration(String duration) {
         setOption("defaultAllDayEventDuration", duration);
+    }
+
+    /**
+     * Sets the default duration for all-day events using a {@link java.time.Period}.
+     *
+     * @param period period (e.g. {@code Period.ofDays(1)}); must not be null
+     * @throws NullPointerException when null is passed
+     * @see #setDefaultAllDayEntryDuration(String)
+     */
+    public void setDefaultAllDayEntryDuration(java.time.Period period) {
+        Objects.requireNonNull(period);
+        setDefaultAllDayEntryDuration(period.toString());
     }
 
     // -------------------------------------------------------------------------
