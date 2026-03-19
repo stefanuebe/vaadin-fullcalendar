@@ -90,9 +90,30 @@ export class FullCalendar extends HTMLElement {
 
             // TODO this is somehow double to the initial options variant, might be reduced to one variant?
             this._calendar.setOption = (key: any, value: any) => {
-                if (key === "eventDidMount" || key === "eventContent") {
+                // Entry render hooks: inject getCustomProperty via info.event
+                const entryInfoHooks = ['eventClassNames', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
+                if (entryInfoHooks.includes(key)) {
                     // in these cases add custom api to the event to allow for instance accessing custom properties
                     _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
+                // eventOverlap(stillEvent, movingEvent) — two direct event args
+                } else if (key === 'eventOverlap') {
+                    _setOption.call(this._calendar, key, (stillEvent: any, movingEvent: any) => {
+                        this.addCustomAPI(stillEvent);
+                        this.addCustomAPI(movingEvent);
+                        return value(stillEvent, movingEvent);
+                    });
+                // eventAllow(dropInfo, draggedEvent) — event is second arg
+                } else if (key === 'eventAllow') {
+                    _setOption.call(this._calendar, key, (dropInfo: any, draggedEvent: any) => {
+                        this.addCustomAPI(draggedEvent);
+                        return value(dropInfo, draggedEvent);
+                    });
+                // selectOverlap(event) — event is first arg
+                } else if (key === 'selectOverlap') {
+                    _setOption.call(this._calendar, key, (event: any) => {
+                        this.addCustomAPI(event);
+                        return value(event);
+                    });
                 } else {
                     _setOption.call(this._calendar, key, value);
                 }
@@ -517,23 +538,44 @@ export class FullCalendar extends HTMLElement {
     private applyCustomPropertiesApi(options: any) {
         // if the calendar is options to modify the event appearance, we extend the custom api here
         // see _initCalendar for details
-        if (typeof options.eventDidMount === "function") {
-            let initEventDidMount = options.eventDidMount;
-            options.eventDidMount = (info: any) => {
-                let event = info.event;
-                this.addCustomAPI(event);
 
-                return initEventDidMount.call(this._calendar, info);
+        // Entry render hooks: inject getCustomProperty via info.event
+        const entryInfoHooks = ['eventClassNames', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
+        for (const hookKey of entryInfoHooks) {
+            if (typeof options[hookKey] === "function") {
+                const initHook = options[hookKey];
+                options[hookKey] = (info: any, ...rest: any[]) => {
+                    this.addCustomAPI(info.event);
+                    return initHook.call(this._calendar, info, ...rest);
+                };
+            }
+        }
+
+        // eventOverlap(stillEvent, movingEvent) — two direct event args
+        if (typeof options.eventOverlap === "function") {
+            const initOverlap = options.eventOverlap;
+            options.eventOverlap = (stillEvent: any, movingEvent: any) => {
+                this.addCustomAPI(stillEvent);
+                this.addCustomAPI(movingEvent);
+                return initOverlap.call(this._calendar, stillEvent, movingEvent);
             };
         }
 
-        if (typeof options.eventContent === "function") {
-            let initEventContent = options.eventContent;
-            options.eventContent = (info: any, createElement: any) => {
-                let event = info.event;
-                this.addCustomAPI(event);
+        // eventAllow(dropInfo, draggedEvent) — event is second arg
+        if (typeof options.eventAllow === "function") {
+            const initAllow = options.eventAllow;
+            options.eventAllow = (dropInfo: any, draggedEvent: any) => {
+                this.addCustomAPI(draggedEvent);
+                return initAllow.call(this._calendar, dropInfo, draggedEvent);
+            };
+        }
 
-                return initEventContent.call(this._calendar, info, createElement);
+        // selectOverlap(event) — event is first arg
+        if (typeof options.selectOverlap === "function") {
+            const initSelectOverlap = options.selectOverlap;
+            options.selectOverlap = (event: any) => {
+                this.addCustomAPI(event);
+                return initSelectOverlap.call(this._calendar, event);
             };
         }
     }
@@ -589,10 +631,6 @@ export class FullCalendar extends HTMLElement {
 
     setOption(key: string, value: any) {
         let calendar = this.calendar;
-        if (key === "eventContent") {
-            console.warn("DEPRECATED: Setting the event content callback after the calendar has" +
-                " been initialized is no longer supported. Please use the initial options to set the 'eventContent'.");
-        }
 
         // @ts-ignore
         let oldValue = calendar.getOption(key);
@@ -812,6 +850,16 @@ export class FullCalendar extends HTMLElement {
 
     setEventSourceSuccessCallback(s: string) {
         this.setOption('eventSourceSuccess', new Function("return " + s)());
+    }
+
+    /**
+     * Evaluates a JS function string and sets it as an FC option.
+     * Routes through this.setOption() so entry callbacks (eventContent, eventDidMount,
+     * eventClassNames, eventWillUnmount, eventOverlap, eventAllow, selectOverlap)
+     * automatically receive getCustomProperty injection on their event arguments.
+     */
+    setCallbackOption(optionKey: string, jsFunction: string) {
+        this.setOption(optionKey, new Function("return " + jsFunction)());
     }
 
     get calendar(): Calendar{

@@ -657,6 +657,82 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         callOptionUpdate(option, value, valueForServerSide, "setOption");
     }
 
+    /**
+     * Sets a FullCalendar <em>client-side callback</em> option. FullCalendar supports a
+     * number of options that accept a JavaScript function rather than a plain value —
+     * for example render hooks ({@code dayCellClassNames}, {@code eventContent}),
+     * interaction guards ({@code selectAllow}, {@code eventOverlap}), and data-transform
+     * callbacks ({@code eventDataTransform}). This method allows defining such callbacks
+     * by passing a JavaScript function string that is evaluated in the browser via
+     * {@code new Function()} and then applied to the calendar.
+     * <p>
+     * <b>This is a client-side callback</b>, not a server-side event listener. The
+     * function runs entirely in the browser; no server round-trip occurs. For
+     * server-side event handling see {@link #addEntryClickedListener} and related
+     * listener methods.
+     * <p>
+     * Pass {@code null} (or a blank string) to clear a previously set callback and
+     * revert the option to its default value.
+     * <p>
+     * <b>Note:</b> The function string is passed to the browser as-is. No escaping,
+     * sanitisation, or syntax validation is performed server-side. A syntax error in
+     * the function string will throw a {@code SyntaxError} in the browser console.
+     * <p>
+     * <b>Custom properties:</b> For entry-related callback options
+     * ({@link CallbackOption#ENTRY_CONTENT}, {@link CallbackOption#ENTRY_DID_MOUNT},
+     * {@link CallbackOption#ENTRY_CLASS_NAMES}, {@link CallbackOption#ENTRY_WILL_UNMOUNT},
+     * {@link CallbackOption#ENTRY_OVERLAP}, {@link CallbackOption#ENTRY_ALLOW}),
+     * the client-side component automatically injects a {@code getCustomProperty(key)}
+     * method onto the event object(s) available in the callback. This allows reading
+     * server-side custom properties set via {@link Entry#putCustomProperty(String, Object)}.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * // Render hook — add a CSS class to past day cells
+     * calendar.setCallbackOption(CallbackOption.DAY_CELL_CLASS_NAMES,
+     *     "function(arg) { return arg.isPast ? ['past-day'] : []; }");
+     *
+     * // Interaction guard — prevent overlap of non-background events
+     * calendar.setCallbackOption(CallbackOption.ENTRY_OVERLAP,
+     *     "function(stillEvent, movingEvent) { return stillEvent.display === 'background'; }");
+     *
+     * // Access server-side custom properties inside eventContent
+     * calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT,
+     *     "function(info) {" +
+     *     "  var priority = info.event.getCustomProperty('priority', 'normal');" +
+     *     "  return { html: '<b>' + info.event.title + '</b> [' + priority + ']' };" +
+     *     "}");
+     *
+     * // Clear — revert to default (no custom callback)
+     * calendar.setCallbackOption(CallbackOption.DROP_ACCEPT, null);
+     * }</pre>
+     *
+     * @param callbackOption the FC option to set as a client-side JS function
+     * @param jsFunction     JavaScript function string, or {@code null} to clear
+     * @see CallbackOption
+     */
+    public void setCallbackOption(CallbackOption callbackOption, String jsFunction) {
+        setCallbackOption(callbackOption.getClientSideValue(), jsFunction);
+    }
+
+    /**
+     * String-key variant of {@link #setCallbackOption(CallbackOption, String)}
+     * for FC options not covered by the {@link CallbackOption} enum — for example,
+     * scheduler-specific options such as {@code "resourceLabelClassNames"}.
+     * <p>
+     * See {@link #setCallbackOption(CallbackOption, String)} for full documentation.
+     *
+     * @param optionKey  FC option key (e.g. {@code "dayCellClassNames"})
+     * @param jsFunction JavaScript function string, or {@code null} to clear
+     */
+    public void setCallbackOption(String optionKey, String jsFunction) {
+        if (jsFunction == null || jsFunction.isBlank()) {
+            setOption(optionKey, null);
+        } else {
+            getElement().callJsFunction("setCallbackOption", optionKey, jsFunction);
+        }
+    }
+
     private void callOptionUpdate(String option, Object value, Object valueForServerSide, String method, Serializable... additionalParameters) {
         Objects.requireNonNull(option);
 
