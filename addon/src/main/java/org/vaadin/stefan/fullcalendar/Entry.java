@@ -128,10 +128,15 @@ public class Entry {
     private RRule rrule;
 
     /**
-     * Dates to exclude from an RRule-based recurrence. Provide a comma-separated list of ISO 8601 date strings
+     * Dates to exclude from an RRule-based recurrence. Accepts a single ISO 8601 date string
+     * (e.g. {@code "2024-01-01"}) or a comma-separated list of ISO 8601 date strings
      * (e.g. {@code "2024-01-01,2024-01-08"}). Use the same timezone context as the calendar.
      * Only meaningful when {@link #rrule} is set.
+     * <p>
+     * When serialized to JSON, a single date is sent as a string; multiple comma-separated dates
+     * are sent as a JSON array, which is what FullCalendar's RRule plugin expects.
      */
+    @JsonConverter(ExdateConverter.class)
     private String exdate;
 
     private Set<String> classNames;

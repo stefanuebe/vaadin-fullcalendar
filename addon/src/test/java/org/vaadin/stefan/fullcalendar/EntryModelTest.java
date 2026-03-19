@@ -153,6 +153,32 @@ public class EntryModelTest {
     }
 
     @Test
+    void exdate_multipleDates_serializedAsJsonArray() {
+        // When multiple dates are comma-separated, FC expects a JSON array, not a plain string.
+        Entry entry = new Entry();
+        entry.setExdate("2024-01-15,2024-02-20");
+        ObjectNode json = entry.toJson();
+        assertTrue(json.hasNonNull("exdate"), "exdate should be in JSON");
+        JsonNode exdateNode = json.get("exdate");
+        assertInstanceOf(ArrayNode.class, exdateNode, "Multiple exdates should serialize as a JSON array");
+        ArrayNode arr = (ArrayNode) exdateNode;
+        assertEquals(2, arr.size());
+        assertEquals("2024-01-15", arr.get(0).asString());
+        assertEquals("2024-02-20", arr.get(1).asString());
+    }
+
+    @Test
+    void exdate_singleDate_serializedAsString() {
+        // A single exdate is sent as a plain string (FC accepts "a single string or array")
+        Entry entry = new Entry();
+        entry.setExdate("2024-01-15");
+        ObjectNode json = entry.toJson();
+        JsonNode exdateNode = json.get("exdate");
+        assertFalse(exdateNode instanceof ArrayNode, "Single exdate should serialize as a string, not an array");
+        assertEquals("2024-01-15", exdateNode.asString());
+    }
+
+    @Test
     void exdate_null_removedFromJson() {
         Entry entry = new Entry();
         entry.setExdate("2024-01-15");

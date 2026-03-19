@@ -40,7 +40,8 @@ public class RRuleSample extends AbstractSample {
                 .byWeekday(DayOfWeek.TUESDAY)
                 .interval(2)
                 .dtstart(LocalDate.now().with(DayOfWeek.TUESDAY)));
-        // Exclude one specific occurrence by date (comma-separated ISO dates for multiple exclusions)
+        // Exclude one specific occurrence by date. Use comma-separated ISO dates for multiple exclusions
+        // (e.g. "2025-03-10,2025-03-17") — they are sent to FullCalendar as a JSON array.
         planning.setExdate(LocalDate.now().plusWeeks(4).with(DayOfWeek.TUESDAY).toString());
 
         calendar.getEntryProvider().asInMemory().addEntries(standup, review, planning);
