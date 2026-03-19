@@ -34,12 +34,12 @@ public class AccessibilityTouchTest {
 
     @Test
     void option_buttonHints_key() {
-        assertEquals("buttonHints", Option.BUTTON_HINTS.getOptionKey());
+        assertEquals("buttonHints", Option.NATIVE_TOOLBAR_BUTTON_HINTS.getOptionKey());
     }
 
     @Test
     void option_viewHint_key() {
-        assertEquals("viewHint", Option.VIEW_HINT.getOptionKey());
+        assertEquals("viewHint", Option.NATIVE_TOOLBAR_VIEW_HINT.getOptionKey());
     }
 
     @Test
@@ -73,13 +73,13 @@ public class AccessibilityTouchTest {
 
     @Test
     void setEventInteractive_true_storesOption() {
-        calendar.setEventInteractive(true);
+        calendar.setOption(Option.EVENT_INTERACTIVE, true);
         assertOptionalEquals(true, calendar.getOption(Option.EVENT_INTERACTIVE));
     }
 
     @Test
     void setEventInteractive_false_storesOption() {
-        calendar.setEventInteractive(false);
+        calendar.setOption(Option.EVENT_INTERACTIVE, false);
         assertOptionalEquals(false, calendar.getOption(Option.EVENT_INTERACTIVE));
     }
 
@@ -90,16 +90,16 @@ public class AccessibilityTouchTest {
     @Test
     void setButtonHints_storesMap() {
         Map<String, String> hints = Map.of("today", "Go to today", "prev", "Previous period", "next", "Next period");
-        calendar.setOption(Option.BUTTON_HINTS, hints);
-        assertOptionalEquals(hints, calendar.getOption(Option.BUTTON_HINTS));
+        calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS, hints);
+        assertOptionalEquals(hints, calendar.getOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS));
     }
 
     @Test
     void setButtonHints_null_clearsOption() {
-        calendar.setOption(Option.BUTTON_HINTS, Map.of("today", "Go to today"));
-        calendar.setOption(Option.BUTTON_HINTS, null);
+        calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS, Map.of("today", "Go to today"));
+        calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS, null);
         // null clears the option from the map
-        assertTrue(calendar.getOption(Option.BUTTON_HINTS).isEmpty());
+        assertTrue(calendar.getOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS).isEmpty());
     }
 
     // -------------------------------------------------------------------------
@@ -108,15 +108,15 @@ public class AccessibilityTouchTest {
 
     @Test
     void setViewHint_storesOption() {
-        calendar.setViewHint("Switch to $0 view");
-        assertOptionalEquals("Switch to $0 view", calendar.getOption(Option.VIEW_HINT));
+        calendar.setOption(Option.NATIVE_TOOLBAR_VIEW_HINT, "Switch to $0 view");
+        assertOptionalEquals("Switch to $0 view", calendar.getOption(Option.NATIVE_TOOLBAR_VIEW_HINT));
     }
 
     @Test
     void setViewHint_null_clearsOption() {
-        calendar.setViewHint("Switch to $0 view");
-        calendar.setViewHint(null);
-        assertTrue(calendar.getOption(Option.VIEW_HINT).isEmpty());
+        calendar.setOption(Option.NATIVE_TOOLBAR_VIEW_HINT, "Switch to $0 view");
+        calendar.setOption(Option.NATIVE_TOOLBAR_VIEW_HINT, null);
+        assertTrue(calendar.getOption(Option.NATIVE_TOOLBAR_VIEW_HINT).isEmpty());
     }
 
     // -------------------------------------------------------------------------
@@ -125,7 +125,7 @@ public class AccessibilityTouchTest {
 
     @Test
     void setNavLinkHint_storesOption() {
-        calendar.setNavLinkHint("Go to $0");
+        calendar.setOption(Option.NAV_LINK_HINT, "Go to $0");
         assertOptionalEquals("Go to $0", calendar.getOption(Option.NAV_LINK_HINT));
     }
 
@@ -135,7 +135,7 @@ public class AccessibilityTouchTest {
 
     @Test
     void setMoreLinkHint_storesOption() {
-        calendar.setMoreLinkHint("$0 more events. Click to expand");
+        calendar.setOption(Option.MORE_LINK_HINT, "$0 more events. Click to expand");
         assertOptionalEquals("$0 more events. Click to expand", calendar.getOption(Option.MORE_LINK_HINT));
     }
 
@@ -145,7 +145,7 @@ public class AccessibilityTouchTest {
 
     @Test
     void setCloseHint_storesOption() {
-        calendar.setCloseHint("Close");
+        calendar.setOption(Option.CLOSE_HINT, "Close");
         assertOptionalEquals("Close", calendar.getOption(Option.CLOSE_HINT));
     }
 
@@ -155,7 +155,7 @@ public class AccessibilityTouchTest {
 
     @Test
     void setTimeHint_storesOption() {
-        calendar.setTimeHint("Time");
+        calendar.setOption(Option.TIME_HINT, "Time");
         assertOptionalEquals("Time", calendar.getOption(Option.TIME_HINT));
     }
 
@@ -165,7 +165,7 @@ public class AccessibilityTouchTest {
 
     @Test
     void setEventHint_storesOption() {
-        calendar.setEventHint("Event");
+        calendar.setOption(Option.EVENT_HINT, "Event");
         assertOptionalEquals("Event", calendar.getOption(Option.EVENT_HINT));
     }
 
@@ -222,19 +222,19 @@ public class AccessibilityTouchTest {
 
     @Test
     void setLongPressDelay_storesOption() {
-        calendar.setLongPressDelay(500);
+        calendar.setOption(Option.LONG_PRESS_DELAY, 500);
         assertOptionalEquals(500, calendar.getOption(Option.LONG_PRESS_DELAY));
     }
 
     @Test
     void setEventLongPressDelay_storesOption() {
-        calendar.setEventLongPressDelay(300);
+        calendar.setOption(Option.EVENT_LONG_PRESS_DELAY, 300);
         assertOptionalEquals(300, calendar.getOption(Option.EVENT_LONG_PRESS_DELAY));
     }
 
     @Test
     void setSelectLongPressDelay_storesOption() {
-        calendar.setSelectLongPressDelay(400);
+        calendar.setOption(Option.SELECT_LONG_PRESS_DELAY, 400);
         assertOptionalEquals(400, calendar.getOption(Option.SELECT_LONG_PRESS_DELAY));
     }
 }

@@ -44,12 +44,12 @@ public class AdvancedOptionsTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        calendar.setInitialDate(LocalDate.of(2025, 3, 1));
-        calendar.setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
+        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // dateAlignment --------------------------------------------------------
         // Aligning to "month" is the default for dayGridMonth; this just exercises the setter.
-        calendar.setDateAlignment("month");
+        calendar.setOption(FullCalendar.Option.DATE_ALIGNMENT, "month");
 
         // View-specific option ------------------------------------------------
         // Limit displayed event rows to 2 only in the dayGrid view family (not in other views).
@@ -58,7 +58,7 @@ public class AdvancedOptionsTestView extends VerticalLayout {
 
         // eventConstraint -------------------------------------------------------
         // Constrain drag-and-drop to business hours (does not affect rendering, exercises setter).
-        calendar.setEventConstraintToBusinessHours();
+        calendar.setOption(FullCalendar.Option.EVENT_CONSTRAINT, "businessHours");
 
         // --- Entry provider --------------------------------------------------------------
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();

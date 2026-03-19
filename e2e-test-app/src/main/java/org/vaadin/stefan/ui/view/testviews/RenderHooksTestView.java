@@ -39,8 +39,8 @@ public class RenderHooksTestView extends VerticalLayout {
         calendar.setWeekNumbersVisible(true);
 
         // Fix the displayed date for reproducible tests
-        calendar.setInitialDate(LocalDate.of(2025, 3, 1));
-        calendar.setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
+        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // Add a timed entry so the time-grid hooks can also be tested via the timegrid view
         Entry timedEntry = new Entry();

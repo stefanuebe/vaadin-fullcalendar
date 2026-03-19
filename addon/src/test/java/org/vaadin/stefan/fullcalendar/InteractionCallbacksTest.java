@@ -58,13 +58,13 @@ public class InteractionCallbacksTest {
 
     @Test
     void setDroppable_true_storesOption() {
-        calendar.setDroppable(true);
+        calendar.setOption(Option.DROPPABLE, true);
         assertOptionalEquals(true, calendar.getOption(Option.DROPPABLE));
     }
 
     @Test
     void setDroppable_false_storesOption() {
-        calendar.setDroppable(false);
+        calendar.setOption(Option.DROPPABLE, false);
         assertOptionalEquals(false, calendar.getOption(Option.DROPPABLE));
     }
 
@@ -74,14 +74,14 @@ public class InteractionCallbacksTest {
 
     @Test
     void setDropAccept_cssSelector_storesOption() {
-        calendar.setDropAccept(".external-event");
+        calendar.setOption(Option.DROP_ACCEPT, ".external-event");
         assertOptionalEquals(".external-event", calendar.getOption(Option.DROP_ACCEPT));
     }
 
     @Test
     void setDropAccept_jsFunction_storesOption() {
         String fn = "function(dragEl) { return dragEl.classList.contains('droppable'); }";
-        calendar.setDropAccept(fn);
+        calendar.setOption(Option.DROP_ACCEPT, fn);
         assertOptionalEquals(fn, calendar.getOption(Option.DROP_ACCEPT));
     }
 

@@ -80,7 +80,7 @@ When `entry.setUrl(url)` is set, FullCalendar renders the entry as an `<a>` tag 
 Fine-grained control is available per entry via `Entry.setInteractive(Boolean)`.
 
 Additional accessibility helpers:
-- `setOption(Option.BUTTON_HINTS, Map<String, String>)` — set `aria-label` on toolbar buttons
+- `setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS, Map<String, String>)` — set `aria-label` on toolbar buttons
 - `setNavLinkHint(String)` / `setMoreLinkHint(String)` / `setViewHint(String)` — screen-reader labels for navigation links, "+N more" overflow links, and view-switcher buttons (use `$0` as a runtime placeholder for the count or date value, e.g. `"$0 more events"`)
 - `setCloseHint(String)` / `setTimeHint(String)` / `setEventHint(String)` — labels for popover close buttons, time displays, and events
 

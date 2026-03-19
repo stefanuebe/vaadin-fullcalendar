@@ -4,8 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -56,43 +54,23 @@ public class DisplayOptionsTest {
     }
 
     @Test
-    void option_now_key() {
-        assertEquals("now", Option.NOW.getOptionKey());
-    }
-
-    @Test
     void option_nowIndicatorSnap_key() {
         assertEquals("nowIndicatorSnap", Option.NOW_INDICATOR_SNAP.getOptionKey());
     }
 
     @Test
-    void option_initialDate_key() {
-        assertEquals("initialDate", Option.INITIAL_DATE.getOptionKey());
-    }
-
-    @Test
-    void option_initialView_key() {
-        assertEquals("initialView", Option.INITIAL_VIEW.getOptionKey());
-    }
-
-    @Test
-    void option_themeSystem_key() {
-        assertEquals("themeSystem", Option.THEME_SYSTEM.getOptionKey());
-    }
-
-    @Test
     void option_defaultRangeSeparator_key() {
-        assertEquals("defaultRangeSeparator", Option.DEFAULT_RANGE_SEPARATOR.getOptionKey());
+        assertEquals("defaultRangeSeparator", Option.NATIVE_TOOLBAR_DEFAULT_RANGE_SEPARATOR.getOptionKey());
     }
 
     @Test
     void option_buttonText_key() {
-        assertEquals("buttonText", Option.BUTTON_TEXT.getOptionKey());
+        assertEquals("buttonText", Option.NATIVE_TOOLBAR_BUTTON_TEXT.getOptionKey());
     }
 
     @Test
     void option_titleRangeSeparator_key() {
-        assertEquals("titleRangeSeparator", Option.TITLE_RANGE_SEPARATOR.getOptionKey());
+        assertEquals("titleRangeSeparator", Option.NATIVE_TOOLBAR_TITLE_RANGE_SEPARATOR.getOptionKey());
     }
 
     @Test
@@ -156,10 +134,10 @@ public class DisplayOptionsTest {
 
     @Test
     void setDisplayEventEnd_storesOption() {
-        calendar.setDisplayEventEnd(true);
+        calendar.setOption(Option.DISPLAY_EVENT_END, true);
         assertOptionalEquals(true, calendar.getOption(Option.DISPLAY_EVENT_END));
 
-        calendar.setDisplayEventEnd(false);
+        calendar.setOption(Option.DISPLAY_EVENT_END, false);
         assertOptionalEquals(false, calendar.getOption(Option.DISPLAY_EVENT_END));
     }
 
@@ -185,7 +163,7 @@ public class DisplayOptionsTest {
 
     @Test
     void setProgressiveEventRendering_storesOption() {
-        calendar.setProgressiveEventRendering(true);
+        calendar.setOption(Option.PROGRESSIVE_EVENT_RENDERING, true);
         assertOptionalEquals(true, calendar.getOption(Option.PROGRESSIVE_EVENT_RENDERING));
     }
 
@@ -195,37 +173,14 @@ public class DisplayOptionsTest {
 
     @Test
     void setRerenderDelay_storesOption() {
-        calendar.setRerenderDelay(200);
+        calendar.setOption(Option.RERENDER_DELAY, 200);
         assertOptionalEquals(200, calendar.getOption(Option.RERENDER_DELAY));
     }
 
     @Test
     void setRerenderDelay_negativeOneToDisable() {
-        calendar.setRerenderDelay(-1);
+        calendar.setOption(Option.RERENDER_DELAY, -1);
         assertOptionalEquals(-1, calendar.getOption(Option.RERENDER_DELAY));
-    }
-
-    // -------------------------------------------------------------------------
-    // setNow
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setNow_LocalDate_serializedAsIsoDate() {
-        calendar.setNow(LocalDate.of(2025, 3, 15));
-        assertOptionalEquals("2025-03-15", calendar.getOption(Option.NOW));
-    }
-
-    @Test
-    void setNow_LocalDateTime_serializedAsIsoDateTime() {
-        calendar.setNow(LocalDateTime.of(2025, 3, 15, 10, 30, 0));
-        assertOptionalEquals("2025-03-15T10:30:00", calendar.getOption(Option.NOW));
-    }
-
-    @Test
-    void setNow_null_clearsOption() {
-        calendar.setNow(LocalDate.of(2025, 1, 1));
-        calendar.setNow((LocalDate) null);
-        assertFalse(calendar.getOption(Option.NOW).isPresent(), "now option should be cleared");
     }
 
     // -------------------------------------------------------------------------
@@ -234,70 +189,11 @@ public class DisplayOptionsTest {
 
     @Test
     void setNowIndicatorSnap_storesOption() {
-        calendar.setNowIndicatorSnap(true);
+        calendar.setOption(Option.NOW_INDICATOR_SNAP, true);
         assertOptionalEquals(true, calendar.getOption(Option.NOW_INDICATOR_SNAP));
 
-        calendar.setNowIndicatorSnap(false);
+        calendar.setOption(Option.NOW_INDICATOR_SNAP, false);
         assertOptionalEquals(false, calendar.getOption(Option.NOW_INDICATOR_SNAP));
-    }
-
-    // -------------------------------------------------------------------------
-    // setInitialDate
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setInitialDate_serializedAsIsoDate() {
-        calendar.setInitialDate(LocalDate.of(2025, 6, 1));
-        assertOptionalEquals("2025-06-01", calendar.getOption(Option.INITIAL_DATE));
-    }
-
-    @Test
-    void setInitialDate_null_clearsOption() {
-        calendar.setInitialDate(LocalDate.of(2025, 1, 1));
-        calendar.setInitialDate(null);
-        assertFalse(calendar.getOption(Option.INITIAL_DATE).isPresent());
-    }
-
-    // -------------------------------------------------------------------------
-    // setInitialView
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setInitialView_storesClientSideValue() {
-        calendar.setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
-        Optional<String> opt = calendar.getOption(Option.INITIAL_VIEW);
-        assertTrue(opt.isPresent());
-        assertEquals(CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue(), opt.get());
-    }
-
-    @Test
-    void setInitialView_null_clearsOption() {
-        calendar.setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
-        calendar.setInitialView(null);
-        assertFalse(calendar.getOption(Option.INITIAL_VIEW).isPresent());
-    }
-
-    // -------------------------------------------------------------------------
-    // setThemeSystem
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setThemeSystem_storesClientSideValue() {
-        calendar.setThemeSystem(ThemeSystem.BOOTSTRAP5);
-        assertOptionalEquals("bootstrap5", calendar.getOption(Option.THEME_SYSTEM));
-    }
-
-    @Test
-    void setThemeSystem_standard() {
-        calendar.setThemeSystem(ThemeSystem.STANDARD);
-        assertOptionalEquals("standard", calendar.getOption(Option.THEME_SYSTEM));
-    }
-
-    @Test
-    void setThemeSystem_null_clearsOption() {
-        calendar.setThemeSystem(ThemeSystem.BOOTSTRAP5);
-        calendar.setThemeSystem(null);
-        assertFalse(calendar.getOption(Option.THEME_SYSTEM).isPresent());
     }
 
     // -------------------------------------------------------------------------
@@ -306,14 +202,14 @@ public class DisplayOptionsTest {
 
     @Test
     void setDefaultRangeSeparator_storesOption() {
-        calendar.setDefaultRangeSeparator(" – ");
-        assertOptionalEquals(" – ", calendar.getOption(Option.DEFAULT_RANGE_SEPARATOR));
+        calendar.setOption(Option.NATIVE_TOOLBAR_DEFAULT_RANGE_SEPARATOR, " – ");
+        assertOptionalEquals(" – ", calendar.getOption(Option.NATIVE_TOOLBAR_DEFAULT_RANGE_SEPARATOR));
     }
 
     @Test
     void setTitleRangeSeparator_storesOption() {
-        calendar.setOption(Option.TITLE_RANGE_SEPARATOR, " / ");
-        assertOptionalEquals(" / ", calendar.getOption(Option.TITLE_RANGE_SEPARATOR));
+        calendar.setOption(Option.NATIVE_TOOLBAR_TITLE_RANGE_SEPARATOR, " / ");
+        assertOptionalEquals(" / ", calendar.getOption(Option.NATIVE_TOOLBAR_TITLE_RANGE_SEPARATOR));
     }
 
     // -------------------------------------------------------------------------
@@ -323,8 +219,8 @@ public class DisplayOptionsTest {
     @Test
     void setButtonText_storesMap() {
         Map<String, String> labels = Map.of("today", "Jetzt", "month", "Monat");
-        calendar.setOption(Option.BUTTON_TEXT, labels);
-        Optional<Object> opt = calendar.getOption(Option.BUTTON_TEXT);
+        calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_TEXT, labels);
+        Optional<Object> opt = calendar.getOption(Option.NATIVE_TOOLBAR_BUTTON_TEXT);
         assertTrue(opt.isPresent());
         assertTrue(opt.get() instanceof Map, "buttonText option should be stored as a Map");
         @SuppressWarnings("unchecked")
@@ -339,7 +235,7 @@ public class DisplayOptionsTest {
 
     @Test
     void setDayPopoverFormat_storesOption() {
-        calendar.setDayPopoverFormat("{ weekday: 'long', month: 'long', day: 'numeric' }");
+        calendar.setOption(Option.DAY_POPOVER_FORMAT, "{ weekday: 'long', month: 'long', day: 'numeric' }");
         Optional<String> opt = calendar.getOption(Option.DAY_POPOVER_FORMAT);
         assertTrue(opt.isPresent());
     }
@@ -350,21 +246,21 @@ public class DisplayOptionsTest {
 
     @Test
     void setDayMaxEventRows_storesInt() {
-        calendar.setDayMaxEventRows(3);
+        calendar.setOption(Option.DAY_MAX_EVENT_ROWS, 3);
         assertOptionalEquals(3, calendar.getOption(Option.DAY_MAX_EVENT_ROWS));
     }
 
     @Test
     void setDayMaxEventRowsFitToCell_storesTrue() {
-        calendar.setDayMaxEventRowsFitToCell();
+        calendar.setOption(Option.DAY_MAX_EVENT_ROWS, true);
         assertOptionalEquals(true, calendar.getOption(Option.DAY_MAX_EVENT_ROWS));
     }
 
     @Test
     void setDayMaxEventRows_afterFitToCell_overridesWithInt() {
         // setDayMaxEventRowsFitToCell() stores true; a subsequent int call must overwrite it
-        calendar.setDayMaxEventRowsFitToCell();
-        calendar.setDayMaxEventRows(5);
+        calendar.setOption(Option.DAY_MAX_EVENT_ROWS, true);
+        calendar.setOption(Option.DAY_MAX_EVENT_ROWS, 5);
         assertOptionalEquals(5, calendar.getOption(Option.DAY_MAX_EVENT_ROWS));
     }
 
@@ -374,19 +270,19 @@ public class DisplayOptionsTest {
 
     @Test
     void setLongPressDelay_storesOption() {
-        calendar.setLongPressDelay(800);
+        calendar.setOption(Option.LONG_PRESS_DELAY, 800);
         assertOptionalEquals(800, calendar.getOption(Option.LONG_PRESS_DELAY));
     }
 
     @Test
     void setEventLongPressDelay_storesOption() {
-        calendar.setEventLongPressDelay(600);
+        calendar.setOption(Option.EVENT_LONG_PRESS_DELAY, 600);
         assertOptionalEquals(600, calendar.getOption(Option.EVENT_LONG_PRESS_DELAY));
     }
 
     @Test
     void setSelectLongPressDelay_storesOption() {
-        calendar.setSelectLongPressDelay(700);
+        calendar.setOption(Option.SELECT_LONG_PRESS_DELAY, 700);
         assertOptionalEquals(700, calendar.getOption(Option.SELECT_LONG_PRESS_DELAY));
     }
 
@@ -396,19 +292,19 @@ public class DisplayOptionsTest {
 
     @Test
     void setDragRevertDuration_storesOption() {
-        calendar.setDragRevertDuration(300);
+        calendar.setOption(Option.DRAG_REVERT_DURATION, 300);
         assertOptionalEquals(300, calendar.getOption(Option.DRAG_REVERT_DURATION));
     }
 
     @Test
     void setAllDayMaintainDuration_storesOption() {
-        calendar.setAllDayMaintainDuration(true);
+        calendar.setOption(Option.ALL_DAY_MAINTAIN_DURATION, true);
         assertOptionalEquals(true, calendar.getOption(Option.ALL_DAY_MAINTAIN_DURATION));
     }
 
     @Test
     void setEventDragMinDistance_storesOption() {
-        calendar.setEventDragMinDistance(10);
+        calendar.setOption(Option.EVENT_DRAG_MIN_DISTANCE, 10);
         assertOptionalEquals(10, calendar.getOption(Option.EVENT_DRAG_MIN_DISTANCE));
     }
 
@@ -418,19 +314,19 @@ public class DisplayOptionsTest {
 
     @Test
     void setLazyFetching_storesOption() {
-        calendar.setLazyFetching(false);
+        calendar.setOption(Option.LAZY_FETCHING, false);
         assertOptionalEquals(false, calendar.getOption(Option.LAZY_FETCHING));
     }
 
     @Test
     void setForceEventDuration_storesOption() {
-        calendar.setForceEventDuration(true);
+        calendar.setOption(Option.FORCE_EVENT_DURATION, true);
         assertOptionalEquals(true, calendar.getOption(Option.FORCE_EVENT_DURATION));
     }
 
     @Test
     void setDefaultAllDay_storesOption() {
-        calendar.setDefaultAllDay(true);
+        calendar.setOption(Option.DEFAULT_ALL_DAY, true);
         assertOptionalEquals(true, calendar.getOption(Option.DEFAULT_ALL_DAY));
     }
 

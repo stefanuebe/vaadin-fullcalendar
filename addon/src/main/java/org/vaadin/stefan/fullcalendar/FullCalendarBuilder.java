@@ -351,7 +351,7 @@ public class FullCalendarBuilder {
         }
 
         if (initialView != null) {
-            calendar.setInitialView(initialView);
+            calendar.setOption("initialView", initialView.getClientSideValue());
         }
         if (locale != null) {
             calendar.setLocale(locale);
@@ -363,7 +363,7 @@ public class FullCalendarBuilder {
             calendar.setBusinessHours(businessHours);
         }
         if (direction != null) {
-            calendar.setDirection(direction);
+            calendar.setOption(FullCalendar.Option.DIRECTION, direction.getClientSideValue());
         }
 
         return (T) calendar;

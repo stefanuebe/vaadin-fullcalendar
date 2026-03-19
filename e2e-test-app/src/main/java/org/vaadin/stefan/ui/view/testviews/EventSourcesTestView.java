@@ -56,8 +56,8 @@ public class EventSourcesTestView extends VerticalLayout {
         calendar.getElement().setAttribute("data-testid", "calendar");
 
         // Fix the date for reproducible tests
-        calendar.setInitialDate(LocalDate.of(2025, 3, 1));
-        calendar.setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
+        calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
 
         // Add a JSON feed source pointing to a non-existent URL to trigger the failure event
         JsonFeedEventSource failingSource = new JsonFeedEventSource("/test/api/event-sources/events")

@@ -760,17 +760,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     @Deprecated(forRemoval = false)
     public void setTimeslotsSelectable(boolean selectable) {
-        setSelectable(selectable);
-    }
-
-    /**
-     * Set if timeslots might be selected by the user. Please see also documentation of {@link #addTimeslotsSelectedListener(ComponentEventListener)}.
-     *
-     * @param selectable activate selectable
-     */
-    public void setSelectable(boolean selectable) {
         setOption(Option.SELECTABLE, selectable);
     }
+
 
     /**
      * Should the calendar show week numbers (when available for the current view)?
@@ -831,17 +823,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     @Deprecated(forRemoval = false)
     public void setNowIndicatorShown(boolean shown) {
-        setNowIndicator(shown);
-    }
-
-    /**
-     * If true is passed then the calendar will show a indicator for the current time, depending on the view.
-     *
-     * @param shown show indicator for now
-     */
-    public void setNowIndicator(boolean shown) {
         setOption(Option.NOW_INDICATOR, shown);
     }
+
 
     /**
      * When true is passed the day / week numbers (or texts) will become clickable by the user and fire an event
@@ -852,18 +836,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     @Deprecated(forRemoval = false)
     public void setNumberClickable(boolean clickable) {
-        setNavLinks(clickable);
+        setOption(Option.NAV_LINKS, clickable);
     }
 
-    /**
-     * When true is passed the day / week numbers (or texts) will become clickable by the user and fire an event
-     * for the clicked day / week.
-     *
-     * @param navLinks navLinks
-     */
-    public void setNavLinks(boolean navLinks) {
-        setOption(Option.NAV_LINKS, navLinks);
-    }
 
     /**
      * The given string will be interpreted as JS function on the client side
@@ -1080,44 +1055,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         getElement().callJsFunction("setEventOverlapCallback", s);
     }
 
-    /**
-     * Sets whether events may overlap each other when being dragged or resized.
-     * {@code true} (the default) allows overlap; {@code false} prevents it.
-     * <p>
-     * For finer per-combination control use {@link #setEventOverlapCallback(String)}.
-     * The per-entry {@link Entry#setOverlapAllowed(Boolean)} takes precedence.
-     *
-     * @param overlap whether events may overlap
-     * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
-     */
-    public void setEventOverlap(boolean overlap) {
-        setOption(Option.EVENT_OVERLAP, overlap);
-    }
 
-    /**
-     * Sets whether the calendar accepts external HTML elements being dragged onto it.
-     * When {@code true}, the {@code drop} and {@code eventReceive} events become active.
-     *
-     * @param droppable enable external drag-drop
-     * @see <a href="https://fullcalendar.io/docs/droppable">droppable</a>
-     */
-    public void setDroppable(boolean droppable) {
-        setOption(Option.DROPPABLE, droppable);
-    }
 
-    /**
-     * Sets a CSS selector or JavaScript function to filter which external elements may be dropped onto
-     * the calendar. Only elements matching the selector (or for which the function returns {@code true})
-     * will be accepted.
-     * <br><br>
-     * <b>Note: </b> No security mechanism is applied to the string. Validate it before passing to the client.
-     *
-     * @param cssOrFunction CSS selector string or JS function string
-     * @see <a href="https://fullcalendar.io/docs/dropAccept">dropAccept</a>
-     */
-    public void setDropAccept(String cssOrFunction) {
-        setOption(Option.DROP_ACCEPT, cssOrFunction);
-    }
 
     /**
      * Sets the business hours for this calendar instance. You may pass multiple instances for different configurations.
@@ -1395,7 +1334,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     @Deprecated(forRemoval = false)
     public void setColumnHeader(boolean columnHeader) {
-        setDayHeaders(columnHeader);
+        setOption(Option.DAY_HEADERS, columnHeader);
     }
 
     /**
@@ -1883,49 +1822,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         getElement().executeJs("var s = this.calendar.getEventSourceById($0); if (s) s.refetch();", sourceId);
     }
 
-    /**
-     * Sets the name of the query parameter sent to JSON feed sources for the start of the range.
-     * Default is {@code "start"}.
-     *
-     * @param startParam parameter name
-     * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
-     */
-    public void setStartParam(String startParam) {
-        setOption(Option.START_PARAM, startParam);
-    }
 
-    /**
-     * Sets the name of the query parameter sent to JSON feed sources for the end of the range.
-     * Default is {@code "end"}.
-     *
-     * @param endParam parameter name
-     * @see <a href="https://fullcalendar.io/docs/endParam">endParam</a>
-     */
-    public void setEndParam(String endParam) {
-        setOption(Option.END_PARAM, endParam);
-    }
 
-    /**
-     * Sets the name of the query parameter sent to JSON feed sources for the time zone.
-     * Default is {@code "timeZone"}.
-     *
-     * @param timeZoneParam parameter name
-     * @see <a href="https://fullcalendar.io/docs/timeZoneParam">timeZoneParam</a>
-     */
-    public void setTimeZoneParam(String timeZoneParam) {
-        setOption(Option.TIME_ZONE_PARAM, timeZoneParam);
-    }
 
-    /**
-     * Sets the Google Calendar API key used by all {@link GoogleCalendarEventSource} instances that do not
-     * specify their own key.
-     *
-     * @param apiKey Google Calendar API key
-     * @see <a href="https://fullcalendar.io/docs/googleCalendarApiKey">googleCalendarApiKey</a>
-     */
-    public void setGoogleCalendarApiKey(String apiKey) {
-        setOption(Option.GOOGLE_CALENDAR_API_KEY, apiKey);
-    }
 
     /**
      * Sets a JS function called while event sources are loading (async fetch). Use this to show/hide a loading
@@ -2031,18 +1930,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     @Deprecated(forRemoval = false)
     public void setDragScrollActive(boolean dragScrollActive) {
-        setDragScroll(dragScrollActive);
+        setOption(Option.DRAG_SCROLL, dragScrollActive);
     }
 
-    /**
-     * Activates or deactivates the automatic calendar scrolling, when dragging an entry to the borders.
-     *
-     * @see <a href="https://fullcalendar.io/docs/dragScroll">https://fullcalendar.io/docs/dragScroll</a>
-     * @param dragScroll activate drag scroll
-     */
-    public void setDragScroll(boolean dragScroll) {
-        setOption(Option.DRAG_SCROLL, dragScroll);
-    }
 
     /**
      * Enables prefetching of entries of adjacent time ranges (enabled by default).
@@ -2248,20 +2138,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         return hasThemeName(variant.getVariantName());
     }
 
-    // -------------------------------------------------------------------------
-    // Typed setters
-    // -------------------------------------------------------------------------
-
-    /**
-     * Whether the time text is displayed in the event block.
-     *
-     * @param display display event time
-     * @see <a href="https://fullcalendar.io/docs/displayEventTime">displayEventTime</a>
-     */
-    public void setDisplayEntryTime(boolean display) {
-        setOption(Option.DISPLAY_ENTRY_TIME, display);
-    }
-
     /**
      * Hides the given days of week from the calendar. Sunday in Java is {@link DayOfWeek#SUNDAY} (value 7),
      * but FullCalendar uses 0 for Sunday; this method converts accordingly.
@@ -2279,125 +2155,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.HIDDEN_DAYS, values);
     }
 
-    /**
-     * Sets the aspect ratio (width-to-height) of the calendar.
-     *
-     * @param ratio aspect ratio
-     * @see <a href="https://fullcalendar.io/docs/aspectRatio">aspectRatio</a>
-     */
-    public void setAspectRatio(double ratio) {
-        setOption(Option.ASPECT_RATIO, ratio);
-    }
 
-    /**
-     * Sets a fixed content height in pixels.
-     *
-     * @param heightInPixels height in pixels
-     * @see <a href="https://fullcalendar.io/docs/contentHeight">contentHeight</a>
-     */
-    public void setContentHeight(int heightInPixels) {
-        setOption(Option.CONTENT_HEIGHT, heightInPixels);
-    }
 
-    /**
-     * Sets the content height as a CSS string value (e.g. {@code "auto"} or {@code "100%"}).
-     *
-     * @param height height string
-     * @see <a href="https://fullcalendar.io/docs/contentHeight">contentHeight</a>
-     */
-    public void setContentHeight(String height) {
-        setOption(Option.CONTENT_HEIGHT, height);
-    }
 
-    /**
-     * Whether time-grid rows will expand to fill the available height.
-     *
-     * @param expand expand rows
-     * @see <a href="https://fullcalendar.io/docs/expandRows">expandRows</a>
-     */
-    public void setExpandRows(boolean expand) {
-        setOption(Option.EXPAND_ROWS, expand);
-    }
 
-    /**
-     * Whether the date headers should stick to the top of the scroll container while scrolling.
-     *
-     * @param sticky sticky header dates
-     * @see <a href="https://fullcalendar.io/docs/stickyHeaderDates">stickyHeaderDates</a>
-     */
-    public void setStickyHeaderDates(boolean sticky) {
-        setOption(Option.STICKY_HEADER_DATES, sticky);
-    }
 
-    /**
-     * Whether a scrollbar at the bottom of the calendar should stick to the bottom of the screen.
-     *
-     * @param sticky sticky footer scrollbar
-     * @see <a href="https://fullcalendar.io/docs/stickyFooterScrollbar">stickyFooterScrollbar</a>
-     */
-    public void setStickyFooterScrollbar(boolean sticky) {
-        setOption(Option.STICKY_FOOTER_SCROLLBAR, sticky);
-    }
 
-    /**
-     * Whether to display the all-day slot in the time-grid views.
-     *
-     * @param allDaySlot show all-day slot
-     * @see <a href="https://fullcalendar.io/docs/allDaySlot">allDaySlot</a>
-     */
-    public void setAllDaySlot(boolean allDaySlot) {
-        setOption(Option.ALL_DAY_SLOT, allDaySlot);
-    }
 
-    /**
-     * Whether events in the time-grid can overlap each other within the same slot.
-     *
-     * @param overlap slot event overlap
-     * @see <a href="https://fullcalendar.io/docs/slotEventOverlap">slotEventOverlap</a>
-     */
-    public void setSlotEntryOverlap(boolean overlap) {
-        setOption(Option.SLOT_ENTRY_OVERLAP, overlap);
-    }
 
-    /**
-     * Sets the minimum height of an event in pixels when it is very short in duration.
-     *
-     * @param pixels minimum event height
-     * @see <a href="https://fullcalendar.io/docs/eventMinHeight">eventMinHeight</a>
-     */
-    public void setEntryMinHeight(int pixels) {
-        setOption(Option.ENTRY_MIN_HEIGHT, pixels);
-    }
 
-    /**
-     * Sets the pixel height threshold for when events are considered "short".
-     *
-     * @param pixels short event height threshold
-     * @see <a href="https://fullcalendar.io/docs/eventShortHeight">eventShortHeight</a>
-     */
-    public void setEntryShortHeight(int pixels) {
-        setOption(Option.ENTRY_SHORT_HEIGHT, pixels);
-    }
 
-    /**
-     * Sets the maximum number of events that will stack on top of each other in time-grid views.
-     *
-     * @param maxStack maximum event stack
-     * @see <a href="https://fullcalendar.io/docs/eventMaxStack">eventMaxStack</a>
-     */
-    public void setEntryMaxStack(int maxStack) {
-        setOption(Option.ENTRY_MAX_STACK, maxStack);
-    }
 
-    /**
-     * Whether dates in the current month, but outside of the current month range should be shown.
-     *
-     * @param show show non-current dates
-     * @see <a href="https://fullcalendar.io/docs/showNonCurrentDates">showNonCurrentDates</a>
-     */
-    public void setShowNonCurrentDates(boolean show) {
-        setOption(Option.SHOW_NON_CURRENT_DATES, show);
-    }
 
     /**
      * Sets the duration of each time slot in the time-grid (e.g. {@code "00:30:00"}).
@@ -2423,15 +2191,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.SLOT_LABEL_INTERVAL, interval);
     }
 
-    /**
-     * Whether to display the day headers in the time-grid and day-grid views.
-     *
-     * @param show show day headers
-     * @see <a href="https://fullcalendar.io/docs/dayHeaders">dayHeaders</a>
-     */
-    public void setDayHeaders(boolean show) {
-        setOption(Option.DAY_HEADERS, show);
-    }
 
     /**
      * Sets the initial scroll position of the time-grid (e.g. {@code "06:00:00"}).
@@ -2457,97 +2216,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.SCROLL_TIME, time.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
     }
 
-    /**
-     * Whether the scroll position is reset to {@code scrollTime} when navigating to a new date.
-     *
-     * @param reset reset scroll time on navigation
-     * @see <a href="https://fullcalendar.io/docs/scrollTimeReset">scrollTimeReset</a>
-     */
-    public void setScrollTimeReset(boolean reset) {
-        setOption(Option.SCROLL_TIME_RESET, reset);
-    }
 
-    /**
-     * Sets the text direction of the calendar. Pass {@code null} to clear the option and revert to
-     * the browser/locale default.
-     *
-     * @param direction text direction, or {@code null} to clear
-     * @see <a href="https://fullcalendar.io/docs/direction">direction</a>
-     */
-    public void setDirection(Direction direction) {
-        setOption(Option.DIRECTION, direction != null ? direction.getClientSideValue() : null, direction);
-    }
 
-    /**
-     * Whether a "mirror" event will be shown while the user is dragging a selection.
-     *
-     * @param mirror show select mirror
-     * @see <a href="https://fullcalendar.io/docs/selectMirror">selectMirror</a>
-     */
-    public void setSelectMirror(boolean mirror) {
-        setOption(Option.SELECT_MIRROR, mirror);
-    }
 
-    /**
-     * Sets the minimum distance in pixels the user must drag before a selection is made.
-     *
-     * @param pixels minimum drag distance
-     * @see <a href="https://fullcalendar.io/docs/selectMinDistance">selectMinDistance</a>
-     */
-    public void setSelectMinDistance(int pixels) {
-        setOption(Option.SELECT_MIN_DISTANCE, pixels);
-    }
 
-    /**
-     * Whether selections are allowed to overlap events.
-     *
-     * @param overlap allow selection overlap
-     * @see <a href="https://fullcalendar.io/docs/selectOverlap">selectOverlap</a>
-     */
-    public void setSelectOverlap(boolean overlap) {
-        setOption(Option.SELECT_OVERLAP, overlap);
-    }
 
-    /**
-     * Limits user selections to a constraint. Restricts when selections can be made.
-     *
-     * @param constraint constraint string — either an event group id or {@code "businessHours"}
-     *                   that restricts when selections can be made
-     * @see <a href="https://fullcalendar.io/docs/selectConstraint">selectConstraint</a>
-     */
-    public void setSelectConstraint(String constraint) {
-        setOption(Option.SELECT_CONSTRAINT, constraint);
-    }
 
-    /**
-     * Limits user selections to business hours only.
-     * Equivalent to {@code setSelectConstraint("businessHours")}.
-     *
-     * @see <a href="https://fullcalendar.io/docs/selectConstraint">selectConstraint</a>
-     */
-    public void setSelectConstraintToBusinessHours() {
-        setOption(Option.SELECT_CONSTRAINT, "businessHours");
-    }
 
-    /**
-     * Whether clicking elsewhere on the page will cause the current selection to be cleared.
-     *
-     * @param auto unselect on outside click
-     * @see <a href="https://fullcalendar.io/docs/unselectAuto">unselectAuto</a>
-     */
-    public void setUnselectAuto(boolean auto) {
-        setOption(Option.UNSELECT_AUTO, auto);
-    }
 
-    /**
-     * A CSS selector for elements that, when clicked, will not cause the current selection to be cleared.
-     *
-     * @param cssSelector CSS selector
-     * @see <a href="https://fullcalendar.io/docs/unselectCancel">unselectCancel</a>
-     */
-    public void setUnselectCancel(String cssSelector) {
-        setOption(Option.UNSELECT_CANCEL, cssSelector);
-    }
 
     /**
      * Sets the ordering of events within a day. Multiple fields can be passed; they are joined as a
@@ -2562,15 +2238,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.ENTRY_ORDER, String.join(",", fields));
     }
 
-    /**
-     * Whether {@code eventOrder} should be strictly enforced.
-     *
-     * @param strict strict event order
-     * @see <a href="https://fullcalendar.io/docs/eventOrderStrict">eventOrderStrict</a>
-     */
-    public void setEntryOrderStrict(boolean strict) {
-        setOption(Option.ENTRY_ORDER_STRICT, strict);
-    }
 
     /**
      * Sets the time threshold at which an event spanning into the next day is considered to belong to the next day
@@ -2597,55 +2264,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.NEXT_DAY_THRESHOLD, threshold.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
     }
 
-    /**
-     * Sets the minimum width (in pixels) of each day column in the day-grid views.
-     *
-     * @param pixels minimum day width
-     * @see <a href="https://fullcalendar.io/docs/dayMinWidth">dayMinWidth</a>
-     */
-    public void setDayMinWidth(int pixels) {
-        setOption(Option.DAY_MIN_WIDTH, pixels);
-    }
 
-    /**
-     * Sets the time format for event blocks (e.g. {@code "HH:mm"}).
-     *
-     * @param format time format string
-     * @see <a href="https://fullcalendar.io/docs/eventTimeFormat">eventTimeFormat</a>
-     */
-    public void setEntryTimeFormat(String format) {
-        setOption(Option.ENTRY_TIME_FORMAT, format);
-    }
 
-    /**
-     * Sets the format for day headers.
-     *
-     * @param format day header format string
-     * @see <a href="https://fullcalendar.io/docs/dayHeaderFormat">dayHeaderFormat</a>
-     */
-    public void setDayHeaderFormat(String format) {
-        setOption(Option.DAY_HEADER_FORMAT, format);
-    }
 
-    /**
-     * Sets the format for the day heading in list view.
-     *
-     * @param format list day format string
-     * @see <a href="https://fullcalendar.io/docs/listDayFormat">listDayFormat</a>
-     */
-    public void setListDayFormat(String format) {
-        setOption(Option.LIST_DAY_FORMAT, format);
-    }
 
-    /**
-     * Sets the format for the side text next to the day heading in list view.
-     *
-     * @param format list day side format string
-     * @see <a href="https://fullcalendar.io/docs/listDaySideFormat">listDaySideFormat</a>
-     */
-    public void setListDaySideFormat(String format) {
-        setOption(Option.LIST_DAY_SIDE_FORMAT, format);
-    }
 
     /**
      * Sets the week number calculation algorithm.
@@ -2659,75 +2281,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.WEEK_NUMBER_CALCULATION, calc.getClientSideValue(), calc);
     }
 
-    /**
-     * Sets the format for week numbers.
-     *
-     * @param format week number format string
-     * @see <a href="https://fullcalendar.io/docs/weekNumberFormat">weekNumberFormat</a>
-     */
-    public void setWeekNumberFormat(String format) {
-        setOption(Option.WEEK_NUMBER_FORMAT, format);
-    }
 
-    /**
-     * Sets the text that is displayed before week numbers.
-     *
-     * @param text week text
-     * @see <a href="https://fullcalendar.io/docs/weekText">weekText</a>
-     */
-    public void setWeekText(String text) {
-        setOption(Option.WEEK_TEXT, text);
-    }
 
-    /**
-     * Sets the long version of text that is displayed before week numbers.
-     *
-     * @param text long week text
-     * @see <a href="https://fullcalendar.io/docs/weekTextLong">weekTextLong</a>
-     */
-    public void setWeekTextLong(String text) {
-        setOption(Option.WEEK_TEXT_LONG, text);
-    }
 
-    /**
-     * Sets the maximum number of columns in the multi-month view.
-     *
-     * @param columns maximum number of columns
-     * @see <a href="https://fullcalendar.io/docs/multiMonthMaxColumns">multiMonthMaxColumns</a>
-     */
-    public void setMultiMonthMaxColumns(int columns) {
-        setOption(Option.MULTI_MONTH_MAX_COLUMNS, columns);
-    }
 
-    /**
-     * Sets the minimum width (in pixels) for each month in the multi-month view.
-     *
-     * @param pixels minimum month width
-     * @see <a href="https://fullcalendar.io/docs/multiMonthMinWidth">multiMonthMinWidth</a>
-     */
-    public void setMultiMonthMinWidth(int pixels) {
-        setOption(Option.MULTI_MONTH_MIN_WIDTH, pixels);
-    }
 
-    /**
-     * Sets the title format for each month in the multi-month view.
-     *
-     * @param format multi-month title format string
-     * @see <a href="https://fullcalendar.io/docs/multiMonthTitleFormat">multiMonthTitleFormat</a>
-     */
-    public void setMultiMonthTitleFormat(String format) {
-        setOption(Option.MULTI_MONTH_TITLE_FORMAT, format);
-    }
 
-    /**
-     * Sets the format for the "month start" date label in the multi-month view.
-     *
-     * @param format month start format string
-     * @see <a href="https://fullcalendar.io/docs/monthStartFormat">monthStartFormat</a>
-     */
-    public void setMonthStartFormat(String format) {
-        setOption(Option.MONTH_START_FORMAT, format);
-    }
 
     /**
      * Sets the default duration for timed events (e.g. {@code "01:00:00"}).
@@ -2753,15 +2312,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     // Typed setters — Display options and render hooks
     // -------------------------------------------------------------------------
 
-    /**
-     * Whether to display an event's end time. When {@code false}, only the start time is shown.
-     *
-     * @param displayEventEnd display end time
-     * @see <a href="https://fullcalendar.io/docs/displayEventEnd">displayEventEnd</a>
-     */
-    public void setDisplayEventEnd(boolean displayEventEnd) {
-        setOption(Option.DISPLAY_EVENT_END, displayEventEnd);
-    }
 
     /**
      * Whether the time text is displayed in the event block. Alias for {@link #setDisplayEntryTime(boolean)}.
@@ -2770,229 +2320,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see <a href="https://fullcalendar.io/docs/displayEventTime">displayEventTime</a>
      */
     public void setDisplayEventTime(boolean display) {
-        setDisplayEntryTime(display);
-    }
-
-    /**
-     * Whether to render events progressively from top to bottom. Useful for reducing initial render cost.
-     *
-     * @param progressive enable progressive rendering
-     * @see <a href="https://fullcalendar.io/docs/progressiveEventRendering">progressiveEventRendering</a>
-     */
-    public void setProgressiveEventRendering(boolean progressive) {
-        setOption(Option.PROGRESSIVE_EVENT_RENDERING, progressive);
-    }
-
-    /**
-     * The number of milliseconds FC will wait before re-rendering the calendar after a resize or option change.
-     * Pass {@code -1} to disable the delay entirely.
-     *
-     * @param delayMs delay in milliseconds, or {@code -1} to disable
-     * @see <a href="https://fullcalendar.io/docs/rerenderDelay">rerenderDelay</a>
-     */
-    public void setRerenderDelay(int delayMs) {
-        setOption(Option.RERENDER_DELAY, delayMs);
-    }
-
-    /**
-     * Overrides the date used as "now" in the calendar. Affects today highlighting and the now-indicator.
-     * Useful for testing or fixed-date scenarios. Pass {@code null} to reset to the actual current date.
-     *
-     * @param now the fixed "now" date, or {@code null} to reset
-     * @see <a href="https://fullcalendar.io/docs/now">now</a>
-     */
-    public void setNow(LocalDate now) {
-        setOption(Option.NOW, now != null ? JsonUtils.formatClientSideDateString(now) : null);
-    }
-
-    /**
-     * Overrides the datetime used as "now" in the calendar. Affects today highlighting and the now-indicator.
-     * Useful for testing or fixed-time scenarios. Pass {@code null} to reset to the actual current time.
-     *
-     * @param now the fixed "now" datetime, or {@code null} to reset
-     * @see <a href="https://fullcalendar.io/docs/now">now</a>
-     */
-    public void setNow(LocalDateTime now) {
-        setOption(Option.NOW, now != null ? now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
-    }
-
-    /**
-     * Whether the now-indicator snaps to slot boundaries ({@code true}) or renders at the exact current time
-     * ({@code false}). Default is {@code false} (exact time).
-     *
-     * @param snap snap to slot boundaries
-     * @see <a href="https://fullcalendar.io/docs/nowIndicatorSnap">nowIndicatorSnap</a>
-     */
-    public void setNowIndicatorSnap(boolean snap) {
-        setOption(Option.NOW_INDICATOR_SNAP, snap);
-    }
-
-    /**
-     * Sets the initial date displayed when the calendar first renders.
-     * <p>
-     * <strong>Only effective before the calendar is attached to the UI.</strong>
-     * Use {@link #gotoDate(LocalDate)} to navigate after the calendar is attached.
-     *
-     * @param date initial display date
-     * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
-     */
-    public void setInitialDate(LocalDate date) {
-        setOption(Option.INITIAL_DATE, date != null ? JsonUtils.formatClientSideDateString(date) : null);
-    }
-
-    /**
-     * Sets the initial view shown when the calendar first renders.
-     * <p>
-     * <strong>Only effective before the calendar is attached to the UI.</strong>
-     * Use {@link #changeView(CalendarView)} to switch views after the calendar is attached.
-     *
-     * @param view initial calendar view
-     * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
-     */
-    public void setInitialView(CalendarView view) {
-        setOption(Option.INITIAL_VIEW, view != null ? view.getClientSideValue() : null);
-    }
-
-    /**
-     * Sets the theme system for calendar styling. Default is {@link ThemeSystem#STANDARD}.
-     *
-     * @param themeSystem theme system to use
-     * @see <a href="https://fullcalendar.io/docs/themeSystem">themeSystem</a>
-     */
-    public void setThemeSystem(ThemeSystem themeSystem) {
-        setOption(Option.THEME_SYSTEM, themeSystem != null ? themeSystem.getClientSideValue() : null);
-    }
-
-    /**
-     * Sets the separator text used between start and end dates in the default date range format.
-     * Default is {@code " \u2013 "} (en dash with spaces).
-     *
-     * @param separator separator string
-     * @see <a href="https://fullcalendar.io/docs/defaultRangeSeparator">defaultRangeSeparator</a>
-     */
-    public void setDefaultRangeSeparator(String separator) {
-        setOption(Option.DEFAULT_RANGE_SEPARATOR, separator);
+        setOption(Option.DISPLAY_ENTRY_TIME, display);
     }
 
 
 
-    /**
-     * Sets the date format string used for the day popover title (the popup shown when clicking "+N more").
-     * Accepts a FC date format object (JSON string) or a predefined format identifier.
-     *
-     * @param format date format string
-     * @see <a href="https://fullcalendar.io/docs/dayPopoverFormat">dayPopoverFormat</a>
-     */
-    public void setDayPopoverFormat(String format) {
-        setOption(Option.DAY_POPOVER_FORMAT, format);
-    }
 
-    /**
-     * Limits the maximum number of events shown per day row in month or dayGrid view. Events beyond
-     * the limit are hidden behind a "+N more" link. Pass {@code -1} to show all events.
-     *
-     * @param rows maximum number of event rows
-     * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
-     * @see #setDayMaxEventRowsFitToCell()
-     */
-    public void setDayMaxEventRows(int rows) {
-        setOption(Option.DAY_MAX_EVENT_ROWS, rows);
-    }
 
-    /**
-     * Enables automatic fitting of event rows to the available cell height. FC will show as many rows as
-     * the cell allows and hide the rest behind a "+N more" link.
-     *
-     * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
-     * @see #setDayMaxEventRows(int)
-     */
-    public void setDayMaxEventRowsFitToCell() {
-        setOption(Option.DAY_MAX_EVENT_ROWS, true);
-    }
 
-    /**
-     * Sets the delay in milliseconds between the user holding down a touch and a long-press action being
-     * triggered for all interactions. Default is {@code 1000} (1 second).
-     *
-     * @param delayMs delay in milliseconds
-     * @see <a href="https://fullcalendar.io/docs/longPressDelay">longPressDelay</a>
-     */
-    public void setLongPressDelay(int delayMs) {
-        setOption(Option.LONG_PRESS_DELAY, delayMs);
-    }
 
-    /**
-     * Sets the long-press delay in milliseconds specifically for event dragging. Overrides
-     * {@link #setLongPressDelay(int)} for event drag interactions on touch devices.
-     *
-     * @param delayMs delay in milliseconds
-     * @see <a href="https://fullcalendar.io/docs/eventLongPressDelay">eventLongPressDelay</a>
-     */
-    public void setEventLongPressDelay(int delayMs) {
-        setOption(Option.EVENT_LONG_PRESS_DELAY, delayMs);
-    }
 
-    /**
-     * Sets the long-press delay in milliseconds specifically for time-slot selection. Overrides
-     * {@link #setLongPressDelay(int)} for selection interactions on touch devices.
-     *
-     * @param delayMs delay in milliseconds
-     * @see <a href="https://fullcalendar.io/docs/selectLongPressDelay">selectLongPressDelay</a>
-     */
-    public void setSelectLongPressDelay(int delayMs) {
-        setOption(Option.SELECT_LONG_PRESS_DELAY, delayMs);
-    }
+
+
+
+
+
+
+
 
     // ---- Accessibility, Touch, and Print Options ----
 
-    /**
-     * Controls whether calendar events are keyboard-focusable and activatable via Enter/Space, even when
-     * they have no {@code url}. Defaults to {@code false}.
-     *
-     * <p>Enable this option in any application that registers
-     * {@link #addEntryClickedListener(com.vaadin.flow.component.ComponentEventListener)} and needs to
-     * support keyboard-only users (WCAG 2.1 AA, Success Criterion 2.1.1). Once enabled, existing
-     * {@code EntryClickedEvent} handlers fire automatically for keyboard activations — no extra
-     * event handling is needed.
-     *
-     * <p>Per-entry override: {@link Entry#setInteractive(Boolean)}.
-     *
-     * @param interactive {@code true} to make all events keyboard-reachable
-     * @see <a href="https://fullcalendar.io/docs/eventInteractive">eventInteractive</a>
-     */
-    public void setEventInteractive(boolean interactive) {
-        setOption(Option.EVENT_INTERACTIVE, interactive);
-    }
 
 
-
-    /**
-     * Sets the accessible label for the view selector buttons. The placeholder {@code $0} is replaced
-     * at render time with the view name (e.g., "Month", "Week").
-     *
-     * <p>Example: {@code "Switch to $0 view"}
-     *
-     * @param hint hint string, optionally containing {@code $0} as a view-name placeholder
-     * @see <a href="https://fullcalendar.io/docs/viewHint">viewHint</a>
-     */
-    public void setViewHint(String hint) {
-        setOption(Option.VIEW_HINT, hint);
-    }
-
-    /**
-     * Sets the accessible label for day/week number navigation links. The placeholder {@code $0} is
-     * replaced at render time with the full date text of the link (e.g., "Monday, March 15, 2024"),
-     * which is essential for meaningful screen-reader announcements.
-     *
-     * <p>Requires {@link #setNavLinks(boolean) setNavLinks(true)}.
-     * Recommended value: {@code "Go to $0"}.
-     *
-     * @param hint hint string, optionally containing {@code $0} as a date placeholder
-     * @see <a href="https://fullcalendar.io/docs/navLinkHint">navLinkHint</a>
-     */
-    public void setNavLinkHint(String hint) {
-        setOption(Option.NAV_LINK_HINT, hint);
-    }
 
     /**
      * Sets a JavaScript callback that fires when a day navigation link is clicked (instead of
@@ -3024,49 +2373,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption("navLinkWeekClick", jsFunction);
     }
 
-    /**
-     * Sets the accessible label for the "+N more" overflow link shown when events exceed the visible row
-     * limit. The placeholder {@code $0} is replaced at render time with the hidden-event count.
-     *
-     * <p>Recommended value: {@code "$0 more events. Click to expand"}.
-     *
-     * @param hint hint string, optionally containing {@code $0} as the hidden-event-count placeholder
-     * @see <a href="https://fullcalendar.io/docs/moreLinkHint">moreLinkHint</a>
-     */
-    public void setMoreLinkHint(String hint) {
-        setOption(Option.MORE_LINK_HINT, hint);
-    }
 
-    /**
-     * Sets the accessible label for close/dismiss buttons (e.g., the popover close button).
-     *
-     * @param hint hint text
-     * @see <a href="https://fullcalendar.io/docs/closeHint">closeHint</a>
-     */
-    public void setCloseHint(String hint) {
-        setOption(Option.CLOSE_HINT, hint);
-    }
 
-    /**
-     * Sets the accessible label used to describe a time value (e.g., in event time displays).
-     *
-     * @param hint hint text
-     * @see <a href="https://fullcalendar.io/docs/timeHint">timeHint</a>
-     */
-    public void setTimeHint(String hint) {
-        setOption(Option.TIME_HINT, hint);
-    }
 
-    /**
-     * Sets the accessible label used to announce an event to screen readers (e.g., as a prefix
-     * before the event title).
-     *
-     * @param hint hint text
-     * @see <a href="https://fullcalendar.io/docs/eventHint">eventHint</a>
-     */
-    public void setEventHint(String hint) {
-        setOption(Option.EVENT_HINT, hint);
-    }
 
     // ---- Advanced and Niche Options ----
 
@@ -3127,19 +2436,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Constrains event dragging and resizing to a specific event group id. Only time ranges
-     * covered by events with that group id can be used as drop targets.
-     *
-     * @param groupId event group id to constrain to, or {@code null} to clear
-     * @see #setEventConstraint(BusinessHours)
-     * @see #setEventConstraintToBusinessHours()
-     * @see <a href="https://fullcalendar.io/docs/eventConstraint">FC eventConstraint documentation</a>
-     */
-    public void setEventConstraint(String groupId) {
-        setOption(Option.EVENT_CONSTRAINT, groupId);
-    }
-
-    /**
      * Constrains event dragging and resizing to the specified business hours. Events can only
      * be moved to or resized within business hours slots.
      *
@@ -3153,45 +2449,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.EVENT_CONSTRAINT, hours.toJson());
     }
 
-    /**
-     * Constrains event dragging and resizing to the calendar's configured business hours.
-     * Equivalent to {@code setEventConstraint("businessHours")}.
-     *
-     * @see #setEventConstraint(String)
-     * @see #setEventConstraint(BusinessHours)
-     * @see <a href="https://fullcalendar.io/docs/eventConstraint">FC eventConstraint documentation</a>
-     */
-    public void setEventConstraintToBusinessHours() {
-        setOption(Option.EVENT_CONSTRAINT, "businessHours");
-    }
 
-    /**
-     * Sets how much time is advanced when the user clicks prev/next in the toolbar.
-     * Only needed for custom views — built-in views handle their own increment automatically.
-     * <p>
-     * Example: {@code "P1W"} (one week), {@code "P2W"} (bi-weekly), {@code "P3D"} (3 days).
-     *
-     * @param duration ISO 8601 duration string; pass {@code null} to reset to FC default
-     * @see #setDateAlignment(String)
-     * @see <a href="https://fullcalendar.io/docs/dateIncrement">FC dateIncrement documentation</a>
-     */
-    public void setDateIncrement(String duration) {
-        setOption(Option.DATE_INCREMENT, duration);
-    }
 
-    /**
-     * Sets the date boundary that the calendar snaps to when navigating prev/next.
-     * Only needed for custom views.
-     * <p>
-     * Example values: {@code "week"} (align to week start), {@code "month"}, {@code "day"}.
-     *
-     * @param alignment alignment boundary string; pass {@code null} to reset to FC default
-     * @see #setDateIncrement(String)
-     * @see <a href="https://fullcalendar.io/docs/dateAlignment">FC dateAlignment documentation</a>
-     */
-    public void setDateAlignment(String alignment) {
-        setOption(Option.DATE_ALIGNMENT, alignment);
-    }
 
     /**
      * Sets the CSP nonce that FullCalendar will add to all dynamically generated {@code <style>}
@@ -3344,72 +2603,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
     }
 
-    /**
-     * Sets the duration in milliseconds of the revert animation when an event drag is cancelled.
-     * Default is {@code 500}.
-     *
-     * @param durationMs duration in milliseconds
-     * @see <a href="https://fullcalendar.io/docs/dragRevertDuration">dragRevertDuration</a>
-     */
-    public void setDragRevertDuration(int durationMs) {
-        setOption(Option.DRAG_REVERT_DURATION, durationMs);
-    }
 
-    /**
-     * Whether to maintain an event's duration when the event is moved between timed and all-day sections.
-     * When {@code false}, the event snaps to the default all-day or timed duration. Default is {@code false}.
-     *
-     * @param maintain maintain duration across timed/all-day boundary
-     * @see <a href="https://fullcalendar.io/docs/allDayMaintainDuration">allDayMaintainDuration</a>
-     */
-    public void setAllDayMaintainDuration(boolean maintain) {
-        setOption(Option.ALL_DAY_MAINTAIN_DURATION, maintain);
-    }
 
-    /**
-     * Sets the minimum number of pixels the user must drag the cursor before FC starts a drag action.
-     * Helps avoid accidental drags. Default is {@code 5}.
-     *
-     * @param pixels minimum drag distance in pixels
-     * @see <a href="https://fullcalendar.io/docs/eventDragMinDistance">eventDragMinDistance</a>
-     */
-    public void setEventDragMinDistance(int pixels) {
-        setOption(Option.EVENT_DRAG_MIN_DISTANCE, pixels);
-    }
 
-    /**
-     * Whether FC will lazily fetch events only for the currently visible range, or eagerly pre-fetch
-     * a wider range to support faster navigation. Default is {@code true} (lazy fetching).
-     *
-     * @param lazy {@code true} to fetch only the visible range (default); {@code false} for wider pre-fetch
-     * @see <a href="https://fullcalendar.io/docs/lazyFetching">lazyFetching</a>
-     * @see #setPrefetchEnabled(boolean)
-     */
-    public void setLazyFetching(boolean lazy) {
-        setOption(Option.LAZY_FETCHING, lazy);
-    }
 
-    /**
-     * Whether events without an explicit end date or time should be forced to render with a
-     * default duration. When {@code false} (default), events without end are treated as instantaneous.
-     *
-     * @param force force default duration for events without end
-     * @see <a href="https://fullcalendar.io/docs/forceEventDuration">forceEventDuration</a>
-     */
-    public void setForceEventDuration(boolean force) {
-        setOption(Option.FORCE_EVENT_DURATION, force);
-    }
-
-    /**
-     * Sets the default {@code allDay} value applied to events that do not have an explicit time component.
-     * Default is {@code false} (treat as timed events).
-     *
-     * @param defaultAllDay default all-day flag for events without a time
-     * @see <a href="https://fullcalendar.io/docs/defaultAllDay">defaultAllDay</a>
-     */
-    public void setDefaultAllDay(boolean defaultAllDay) {
-        setOption(Option.DEFAULT_ALL_DAY, defaultAllDay);
-    }
 
     // ---- Render hook callbacks (2.2 – 2.11) ----
     // All accept raw JS function strings evaluated via new Function() on the client side.
@@ -3845,158 +3042,21 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     // Getters
     // -------------------------------------------------------------------------
 
-    /**
-     * Returns the current slotMinTime. Default is {@code "00:00:00"}.
-     *
-     * @return slot min time string
-     */
-    public String getSlotMinTime() {
-        return (String) getOption(Option.SLOT_MIN_TIME).orElse("00:00:00");
-    }
 
-    /**
-     * Returns the current slotMaxTime. Default is {@code "24:00:00"}.
-     *
-     * @return slot max time string
-     */
-    public String getSlotMaxTime() {
-        return (String) getOption(Option.SLOT_MAX_TIME).orElse("24:00:00");
-    }
 
-    /**
-     * Returns the current snapDuration if set, otherwise empty.
-     *
-     * @return optional snap duration string
-     */
-    public Optional<String> getSnapDuration() {
-        return getOption(Option.SNAP_DURATION);
-    }
 
-    /**
-     * Returns the first day of the week. Defaults to {@link DayOfWeek#MONDAY} when not set.
-     *
-     * @return first day of week
-     */
-    public DayOfWeek getFirstDay() {
-        return (DayOfWeek) getOption(Option.FIRST_DAY).orElse(DayOfWeek.MONDAY);
-    }
 
-    /**
-     * Returns whether the all-day slot is shown. Default is {@code true}.
-     *
-     * @return all day slot
-     */
-    public boolean isAllDaySlot() {
-        return (Boolean) getOption(Option.ALL_DAY_SLOT).orElse(true);
-    }
 
-    /**
-     * Returns whether time-grid rows expand to fill available height. Default is {@code false}.
-     *
-     * @return expand rows
-     */
-    public boolean isExpandRows() {
-        return (Boolean) getOption(Option.EXPAND_ROWS).orElse(false);
-    }
 
-    /**
-     * Returns whether sticky header dates are enabled. Default is {@code false}.
-     *
-     * @return sticky header dates
-     */
-    public boolean isStickyHeaderDates() {
-        return (Boolean) getOption(Option.STICKY_HEADER_DATES).orElse(false);
-    }
 
-    /**
-     * Returns whether the now indicator is shown. Default is {@code false}.
-     *
-     * @return now indicator
-     */
-    public boolean isNowIndicator() {
-        return (Boolean) getOption(Option.NOW_INDICATOR).orElse(false);
-    }
 
-    /**
-     * Returns whether timeslots are selectable. Default is {@code false}.
-     *
-     * @return selectable
-     */
-    public boolean isSelectable() {
-        return (Boolean) getOption(Option.SELECTABLE).orElse(false);
-    }
 
-    /**
-     * Returns whether nav links (day/week number clicking) are enabled. Default is {@code false}.
-     *
-     * @return nav links
-     */
-    public boolean isNavLinks() {
-        return (Boolean) getOption(Option.NAV_LINKS).orElse(false);
-    }
 
-    /**
-     * Returns whether day headers are shown. Default is {@code true}.
-     *
-     * @return day headers
-     */
-    public boolean isDayHeaders() {
-        return (Boolean) getOption(Option.DAY_HEADERS).orElse(true);
-    }
 
-    /**
-     * Returns whether slot event overlap is enabled. Default is {@code true}.
-     *
-     * @return slot entry overlap
-     */
-    public boolean isSlotEntryOverlap() {
-        return (Boolean) getOption(Option.SLOT_ENTRY_OVERLAP).orElse(true);
-    }
 
-    /**
-     * Returns the minimum day width in pixels. Default is {@code 0}.
-     *
-     * @return day min width
-     */
-    public int getDayMinWidth() {
-        return (Integer) getOption(Option.DAY_MIN_WIDTH).orElse(0);
-    }
 
-    /**
-     * Returns the maximum number of columns in the multi-month view. Default is {@code 3}.
-     *
-     * @return multi month max columns
-     */
-    public int getMultiMonthMaxColumns() {
-        return (Integer) getOption(Option.MULTI_MONTH_MAX_COLUMNS).orElse(3);
-    }
 
-    /**
-     * Returns the maximum event stack count if set, otherwise empty.
-     *
-     * @return optional entry max stack
-     */
-    public Optional<Integer> getEntryMaxStack() {
-        return getOption(Option.ENTRY_MAX_STACK);
-    }
 
-    /**
-     * Returns the content height as an integer if set, otherwise empty.
-     *
-     * @return optional content height
-     */
-    public Optional<Integer> getContentHeight() {
-        return getOption(Option.CONTENT_HEIGHT);
-    }
-
-    /**
-     * Returns the aspect ratio if set, otherwise empty.
-     *
-     * @return optional aspect ratio
-     */
-    public Optional<Double> getAspectRatio() {
-        return getOption(Option.ASPECT_RATIO);
-    }
 
     /**
      * Enumeration of possible options, that can be applied to the calendar. Contains only options, that affect
@@ -4375,9 +3435,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         ALL_DAY_MAINTAIN_DURATION,
 
         /**
+         * Customizes the labels on the native FC toolbar buttons. The value is a map of
+         * button/view name to display label (e.g., {@code Map.of("today", "Heute", "month", "Monat")}).
+         *
          * @see <a href="https://fullcalendar.io/docs/buttonText">buttonText</a>
          */
-        BUTTON_TEXT,
+        NATIVE_TOOLBAR_BUTTON_TEXT("buttonText"),
 
         /**
          * @see <a href="https://fullcalendar.io/docs/defaultAllDay">defaultAllDay</a>
@@ -4385,9 +3448,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         DEFAULT_ALL_DAY,
 
         /**
+         * Separator text between two adjacent dates in the toolbar title (e.g., "Jan 1 – Jan 7").
+         * Default: {@code " \u2013 "} (en dash with spaces).
+         *
          * @see <a href="https://fullcalendar.io/docs/defaultRangeSeparator">defaultRangeSeparator</a>
          */
-        DEFAULT_RANGE_SEPARATOR,
+        NATIVE_TOOLBAR_DEFAULT_RANGE_SEPARATOR("defaultRangeSeparator"),
 
         /**
          * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
@@ -4426,16 +3492,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
         /**
-         * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
-         */
-        INITIAL_DATE,
-
-        /**
-         * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
-         */
-        INITIAL_VIEW,
-
-        /**
          * @see <a href="https://fullcalendar.io/docs/lazyFetching">lazyFetching</a>
          */
         LAZY_FETCHING,
@@ -4444,11 +3500,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * @see <a href="https://fullcalendar.io/docs/longPressDelay">longPressDelay</a>
          */
         LONG_PRESS_DELAY,
-
-        /**
-         * @see <a href="https://fullcalendar.io/docs/now">now</a>
-         */
-        NOW,
 
         /**
          * @see <a href="https://fullcalendar.io/docs/nowIndicatorSnap">nowIndicatorSnap</a>
@@ -4471,14 +3522,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         SELECT_LONG_PRESS_DELAY,
 
         /**
-         * @see <a href="https://fullcalendar.io/docs/themeSystem">themeSystem</a>
-         */
-        THEME_SYSTEM,
-
-        /**
+         * Separator between start and end dates in the toolbar title area.
+         * Default: {@code " \u2013 "} (en dash with spaces).
+         *
          * @see <a href="https://fullcalendar.io/docs/titleRangeSeparator">titleRangeSeparator</a>
          */
-        TITLE_RANGE_SEPARATOR,
+        NATIVE_TOOLBAR_TITLE_RANGE_SEPARATOR("titleRangeSeparator"),
 
 
 
@@ -4511,24 +3560,36 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
         /**
+         * Default query parameter name for the range start sent to JSON feed event sources.
+         * Default: {@code "start"}. Per-source override: {@link JsonFeedEventSource#withStartParam(String)}.
+         *
          * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
          */
-        START_PARAM,
+        EXTERNAL_EVENT_SOURCE_START_PARAM("startParam"),
 
         /**
+         * Default query parameter name for the range end sent to JSON feed event sources.
+         * Default: {@code "end"}. Per-source override: {@link JsonFeedEventSource#withEndParam(String)}.
+         *
          * @see <a href="https://fullcalendar.io/docs/endParam">endParam</a>
          */
-        END_PARAM,
+        EXTERNAL_EVENT_SOURCE_END_PARAM("endParam"),
 
         /**
+         * Default query parameter name for the timezone sent to JSON feed event sources.
+         * Default: {@code "timeZone"}. Per-source override: {@link JsonFeedEventSource#withTimeZoneParam(String)}.
+         *
          * @see <a href="https://fullcalendar.io/docs/timeZoneParam">timeZoneParam</a>
          */
-        TIME_ZONE_PARAM,
+        EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM("timeZoneParam"),
 
         /**
+         * Global Google Calendar API key used by all {@link GoogleCalendarEventSource} instances
+         * that do not specify their own key. Per-source override: {@link GoogleCalendarEventSource#withApiKey(String)}.
+         *
          * @see <a href="https://fullcalendar.io/docs/googleCalendarApiKey">googleCalendarApiKey</a>
          */
-        GOOGLE_CALENDAR_API_KEY,
+        EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY("googleCalendarApiKey"),
 
 
 
@@ -4565,14 +3626,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         DRAG_SCROLL_ELS,
 
         /**
+         * Accessible labels ({@code aria-label}) for the native FC toolbar buttons.
+         * Value is a map of button name to hint text (e.g., {@code Map.of("today", "Go to today")}).
+         *
          * @see <a href="https://fullcalendar.io/docs/buttonHints">buttonHints</a>
          */
-        BUTTON_HINTS,
+        NATIVE_TOOLBAR_BUTTON_HINTS("buttonHints"),
 
         /**
+         * Accessible label for the view-switcher buttons in the native FC toolbar.
+         * Use {@code $0} as a placeholder for the view name (e.g., {@code "Switch to $0 view"}).
+         *
          * @see <a href="https://fullcalendar.io/docs/viewHint">viewHint</a>
          */
-        VIEW_HINT,
+        NATIVE_TOOLBAR_VIEW_HINT("viewHint"),
 
         /**
          * @see <a href="https://fullcalendar.io/docs/navLinkHint">navLinkHint</a>

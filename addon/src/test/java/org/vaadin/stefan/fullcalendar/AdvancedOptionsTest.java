@@ -63,7 +63,7 @@ public class AdvancedOptionsTest {
 
     @Test
     void setEventConstraint_string_storesOption() {
-        calendar.setEventConstraint("myGroup");
+        calendar.setOption(Option.EVENT_CONSTRAINT, "myGroup");
         assertOptionalEquals("myGroup", calendar.getOption(Option.EVENT_CONSTRAINT));
     }
 
@@ -79,14 +79,14 @@ public class AdvancedOptionsTest {
 
     @Test
     void setEventConstraintToBusinessHours_storesString() {
-        calendar.setEventConstraintToBusinessHours();
+        calendar.setOption(Option.EVENT_CONSTRAINT, "businessHours");
         assertOptionalEquals("businessHours", calendar.getOption(Option.EVENT_CONSTRAINT));
     }
 
     @Test
     void setEventConstraint_null_clearsOption() {
-        calendar.setEventConstraint("myGroup");
-        calendar.setEventConstraint((String) null);
+        calendar.setOption(Option.EVENT_CONSTRAINT, "myGroup");
+        calendar.setOption(Option.EVENT_CONSTRAINT, null);
         assertTrue(calendar.getOption(Option.EVENT_CONSTRAINT).isEmpty());
     }
 
@@ -101,27 +101,27 @@ public class AdvancedOptionsTest {
 
     @Test
     void setDateIncrement_storesOption() {
-        calendar.setDateIncrement("P1W");
+        calendar.setOption(Option.DATE_INCREMENT, "P1W");
         assertOptionalEquals("P1W", calendar.getOption(Option.DATE_INCREMENT));
     }
 
     @Test
     void setDateIncrement_null_clearsOption() {
-        calendar.setDateIncrement("P1W");
-        calendar.setDateIncrement(null);
+        calendar.setOption(Option.DATE_INCREMENT, "P1W");
+        calendar.setOption(Option.DATE_INCREMENT, null);
         assertTrue(calendar.getOption(Option.DATE_INCREMENT).isEmpty());
     }
 
     @Test
     void setDateAlignment_storesOption() {
-        calendar.setDateAlignment("week");
+        calendar.setOption(Option.DATE_ALIGNMENT, "week");
         assertOptionalEquals("week", calendar.getOption(Option.DATE_ALIGNMENT));
     }
 
     @Test
     void setDateAlignment_null_clearsOption() {
-        calendar.setDateAlignment("week");
-        calendar.setDateAlignment(null);
+        calendar.setOption(Option.DATE_ALIGNMENT, "week");
+        calendar.setOption(Option.DATE_ALIGNMENT, null);
         assertTrue(calendar.getOption(Option.DATE_ALIGNMENT).isEmpty());
     }
 

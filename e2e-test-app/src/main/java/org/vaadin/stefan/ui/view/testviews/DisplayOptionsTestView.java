@@ -42,12 +42,12 @@ public class DisplayOptionsTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix date so the test is reproducible
-        calendar.setInitialDate(LocalDate.of(2025, 3, 1));
-        calendar.setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
+        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // Display options under test
-        calendar.setDayMaxEventRows(2);
-        calendar.setDisplayEventEnd(true);
+        calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2);
+        calendar.setOption(FullCalendar.Option.DISPLAY_EVENT_END, true);
 
         // Create 5 entries on 2025-03-10 to trigger the "+N more" overflow link
         LocalDate crowdedDay = LocalDate.of(2025, 3, 10);

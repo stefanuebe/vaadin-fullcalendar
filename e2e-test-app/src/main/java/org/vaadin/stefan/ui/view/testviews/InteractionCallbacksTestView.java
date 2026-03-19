@@ -74,11 +74,11 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix the date for reproducible tests
-        calendar.setInitialDate(LocalDate.of(2025, 3, 1));
-        calendar.setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
+        calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
         calendar.setEditable(true);
-        calendar.setSelectable(true);
-        calendar.setDroppable(true);
+        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
+        calendar.setOption(FullCalendar.Option.DROPPABLE, true);
 
         // Add some timed entries so drag/resize can be tested
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();

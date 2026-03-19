@@ -54,17 +54,17 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        calendar.setInitialDate(LocalDate.of(2025, 3, 1));
-        calendar.setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
+        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
+        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // Accessibility options
-        calendar.setEventInteractive(true);
-        calendar.setNavLinks(true);
+        calendar.setOption(FullCalendar.Option.EVENT_INTERACTIVE, true);
+        calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
         // Limit event rows to 2 so the 5 events on 2025-03-05 reliably produce a "+N more" link
-        calendar.setDayMaxEventRows(2);
-        calendar.setNavLinkHint("Go to $0");
-        calendar.setMoreLinkHint("$0 more events. Click to expand");
-        calendar.setOption(FullCalendar.Option.BUTTON_HINTS, Map.of(
+        calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2);
+        calendar.setOption(FullCalendar.Option.NAV_LINK_HINT, "Go to $0");
+        calendar.setOption(FullCalendar.Option.MORE_LINK_HINT, "$0 more events. Click to expand");
+        calendar.setOption(FullCalendar.Option.NATIVE_TOOLBAR_BUTTON_HINTS, Map.of(
                 "today", "Jump to today",
                 "prev",  "Go to previous period",
                 "next",  "Go to next period"
