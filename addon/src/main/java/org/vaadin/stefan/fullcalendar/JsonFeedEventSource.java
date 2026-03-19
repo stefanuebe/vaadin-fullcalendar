@@ -85,8 +85,14 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
     }
 
     /**
-     * Sets extra query parameters sent on every request.
-     * @param extraParams map of parameter names to values
+     * Sets extra static query parameters appended to every request. The map keys are the parameter names
+     * and the values are sent as-is alongside the automatically populated {@code start}, {@code end},
+     * and {@code timeZone} parameters.
+     * <br><br>
+     * Example: {@code .withExtraParams(Map.of("roomId", "101", "building", "A"))} results in
+     * {@code ?start=...&end=...&roomId=101&building=A}.
+     *
+     * @param extraParams map of parameter names to values; must not be null
      * @return this
      */
     public JsonFeedEventSource withExtraParams(Map<String, Object> extraParams) {
@@ -95,8 +101,14 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
     }
 
     /**
-     * Overrides the start parameter name for this source.
-     * @param startParam parameter name
+     * Overrides the <em>name</em> of the query parameter that carries the start of the visible date range.
+     * FullCalendar populates the value automatically as an ISO 8601 datetime string
+     * (e.g. {@code ?start=2025-03-01T00:00:00}). The default parameter name is {@code "start"}.
+     * <br><br>
+     * Use this when your backend expects a different name, e.g. {@code .withStartParam("from")} results in
+     * {@code ?from=2025-03-01T00:00:00&end=...}.
+     *
+     * @param startParam query parameter name for the start date; must not be null
      * @return this
      */
     public JsonFeedEventSource withStartParam(String startParam) {
@@ -105,8 +117,11 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
     }
 
     /**
-     * Overrides the end parameter name for this source.
-     * @param endParam parameter name
+     * Overrides the <em>name</em> of the query parameter that carries the end of the visible date range.
+     * FullCalendar populates the value automatically as an ISO 8601 datetime string
+     * (e.g. {@code ?end=2025-04-01T00:00:00}). The default parameter name is {@code "end"}.
+     *
+     * @param endParam query parameter name for the end date; must not be null
      * @return this
      */
     public JsonFeedEventSource withEndParam(String endParam) {
@@ -115,8 +130,12 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
     }
 
     /**
-     * Overrides the timeZone parameter name for this source.
-     * @param timeZoneParam parameter name
+     * Overrides the <em>name</em> of the query parameter that carries the calendar's current timezone.
+     * FullCalendar populates the value automatically as a timezone string (e.g. {@code ?timeZone=UTC} or
+     * {@code ?timeZone=Europe/Berlin}). The default parameter name is {@code "timeZone"}.
+     * This parameter is only sent when the calendar's timezone is not set to {@code "local"}.
+     *
+     * @param timeZoneParam query parameter name for the timezone; must not be null
      * @return this
      */
     public JsonFeedEventSource withTimeZoneParam(String timeZoneParam) {
