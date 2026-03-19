@@ -27,6 +27,7 @@
         <module>addon</module>
         <module>addon-scheduler</module>
         <module>demo</module>
+        <module>e2e-test-app</module>
     </modules>
 
 </project>
