@@ -51,34 +51,34 @@ public class RenderHooksTestView extends VerticalLayout {
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(timedEntry));
 
         // --- dayCellClassNames: every cell gets 'hook-day-cell' ---
-        calendar.setCallbackOption(CallbackOption.DAY_CELL_CLASS_NAMES,
+        calendar.setCallbackOption(FullCalendar.CallbackOption.DAY_CELL_CLASS_NAMES,
                 "function(info) { return ['hook-day-cell']; }");
 
         // --- dayCellContent: wrap day number in a span with data-testid ---
-        calendar.setCallbackOption(CallbackOption.DAY_CELL_CONTENT,
+        calendar.setCallbackOption(FullCalendar.CallbackOption.DAY_CELL_CONTENT,
                 "function(info) { " +
                 "  return { html: '<span data-testid=\"hook-day-content\" class=\"hook-day-num\">' " +
                 "    + info.dayNumberText + '</span>'; }; }");
 
         // --- dayHeaderClassNames: every column header gets 'hook-header' ---
-        calendar.setCallbackOption(CallbackOption.DAY_HEADER_CLASS_NAMES,
+        calendar.setCallbackOption(FullCalendar.CallbackOption.DAY_HEADER_CLASS_NAMES,
                 "function(info) { return ['hook-header']; }");
 
         // --- dayHeaderContent: wrap header text in a span ---
-        calendar.setCallbackOption(CallbackOption.DAY_HEADER_CONTENT,
+        calendar.setCallbackOption(FullCalendar.CallbackOption.DAY_HEADER_CONTENT,
                 "function(info) { " +
                 "  return { html: '<span class=\"hook-header-text\">' + info.text + '</span>'; }; }");
 
         // --- weekNumberClassNames: every week number cell gets 'hook-weeknum' ---
-        calendar.setCallbackOption(CallbackOption.WEEK_NUMBER_CLASS_NAMES,
+        calendar.setCallbackOption(FullCalendar.CallbackOption.WEEK_NUMBER_CLASS_NAMES,
                 "function(info) { return ['hook-weeknum']; }");
 
         // --- weekNumberContent: prefix with 'W' ---
-        calendar.setCallbackOption(CallbackOption.WEEK_NUMBER_CONTENT,
+        calendar.setCallbackOption(FullCalendar.CallbackOption.WEEK_NUMBER_CONTENT,
                 "function(info) { return { html: '<span class=\"hook-weeknum-text\">W' + info.num + '</span>'; }; }");
 
         // --- allDayClassNames: all-day row header gets 'hook-allday' (timegrid only) ---
-        calendar.setCallbackOption(CallbackOption.ALL_DAY_CLASS_NAMES,
+        calendar.setCallbackOption(FullCalendar.CallbackOption.ALL_DAY_CLASS_NAMES,
                 "function(info) { return ['hook-allday']; }");
 
         add(calendar);

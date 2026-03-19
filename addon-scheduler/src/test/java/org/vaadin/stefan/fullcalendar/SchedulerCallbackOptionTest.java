@@ -10,7 +10,7 @@ class SchedulerCallbackOptionTest {
 
     @Test
     void allEntriesHaveNonNullClientSideValue() {
-        for (SchedulerCallbackOption opt : SchedulerCallbackOption.values()) {
+        for (FullCalendarScheduler.SchedulerCallbackOption opt : FullCalendarScheduler.SchedulerCallbackOption.values()) {
             assertNotNull(opt.getClientSideValue(), opt.name() + " has null clientSideValue");
             assertFalse(opt.getClientSideValue().isBlank(), opt.name() + " has blank clientSideValue");
         }
@@ -18,11 +18,11 @@ class SchedulerCallbackOptionTest {
 
     @Test
     void allClientSideValuesAreUnique() {
-        long unique = Arrays.stream(SchedulerCallbackOption.values())
-            .map(SchedulerCallbackOption::getClientSideValue)
+        long unique = Arrays.stream(FullCalendarScheduler.SchedulerCallbackOption.values())
+            .map(FullCalendarScheduler.SchedulerCallbackOption::getClientSideValue)
             .distinct()
             .count();
-        assertEquals(SchedulerCallbackOption.values().length, unique);
+        assertEquals(FullCalendarScheduler.SchedulerCallbackOption.values().length, unique);
     }
 
     @Test
@@ -30,7 +30,7 @@ class SchedulerCallbackOptionTest {
         FullCalendarScheduler calendar = FullCalendarBuilder.create()
             .withScheduler("GPL-My-Project-Is-Open-Source")
             .build();
-        for (SchedulerCallbackOption option : SchedulerCallbackOption.values()) {
+        for (FullCalendarScheduler.SchedulerCallbackOption option : FullCalendarScheduler.SchedulerCallbackOption.values()) {
             assertDoesNotThrow(() ->
                 calendar.setCallbackOption(option.getClientSideValue(), "function() {}"),
                 "setCallbackOption threw for " + option.name());
