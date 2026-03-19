@@ -37,6 +37,116 @@ Das ist repetitiv und skaliert nicht. Jede neue FC-Option mit Function-Support e
 
 Ein **generisches** `setOptionFunction(Option, String)` das den JS-String client-seitig in eine echte Funktion wrapped — genau wie die bestehenden Callback-Methoden, aber für beliebige Options.
 
+### CallbackOption Enum
+
+Eigene Enum-Klasse für alle FC-Optionen, die JS-Funktionen akzeptieren. Implementiert `ClientSideValue` für den FC-Key.
+
+```java
+/**
+ * FC options that accept a JavaScript function value. Use with
+ * {@link FullCalendar#setOptionFunction(CallbackOption, String)}.
+ * <p>
+ * For plain (non-function) option values, use {@link FullCalendar.Option} with
+ * {@link FullCalendar#setOption(FullCalendar.Option, Object)} instead.
+ */
+public enum CallbackOption implements ClientSideValue {
+
+    // ---- Render hooks: Entry ----
+    ENTRY_CLASS_NAMES("eventClassNames"),
+    ENTRY_CONTENT("eventContent"),
+    ENTRY_DID_MOUNT("eventDidMount"),
+    ENTRY_WILL_UNMOUNT("eventWillUnmount"),
+
+    // ---- Render hooks: Day Cell ----
+    DAY_CELL_CLASS_NAMES("dayCellClassNames"),
+    DAY_CELL_CONTENT("dayCellContent"),
+    DAY_CELL_DID_MOUNT("dayCellDidMount"),
+    DAY_CELL_WILL_UNMOUNT("dayCellWillUnmount"),
+
+    // ---- Render hooks: Day Header ----
+    DAY_HEADER_CLASS_NAMES("dayHeaderClassNames"),
+    DAY_HEADER_CONTENT("dayHeaderContent"),
+    DAY_HEADER_DID_MOUNT("dayHeaderDidMount"),
+    DAY_HEADER_WILL_UNMOUNT("dayHeaderWillUnmount"),
+
+    // ---- Render hooks: Slot Label ----
+    SLOT_LABEL_CLASS_NAMES("slotLabelClassNames"),
+    SLOT_LABEL_CONTENT("slotLabelContent"),
+    SLOT_LABEL_DID_MOUNT("slotLabelDidMount"),
+    SLOT_LABEL_WILL_UNMOUNT("slotLabelWillUnmount"),
+
+    // ---- Render hooks: Slot Lane ----
+    SLOT_LANE_CLASS_NAMES("slotLaneClassNames"),
+    SLOT_LANE_CONTENT("slotLaneContent"),
+    SLOT_LANE_DID_MOUNT("slotLaneDidMount"),
+    SLOT_LANE_WILL_UNMOUNT("slotLaneWillUnmount"),
+
+    // ---- Render hooks: View ----
+    VIEW_CLASS_NAMES("viewClassNames"),
+    VIEW_DID_MOUNT("viewDidMount"),
+    VIEW_WILL_UNMOUNT("viewWillUnmount"),
+
+    // ---- Render hooks: Now Indicator ----
+    NOW_INDICATOR_CLASS_NAMES("nowIndicatorClassNames"),
+    NOW_INDICATOR_CONTENT("nowIndicatorContent"),
+    NOW_INDICATOR_DID_MOUNT("nowIndicatorDidMount"),
+    NOW_INDICATOR_WILL_UNMOUNT("nowIndicatorWillUnmount"),
+
+    // ---- Render hooks: Week Number ----
+    WEEK_NUMBER_CLASS_NAMES("weekNumberClassNames"),
+    WEEK_NUMBER_CONTENT("weekNumberContent"),
+    WEEK_NUMBER_DID_MOUNT("weekNumberDidMount"),
+    WEEK_NUMBER_WILL_UNMOUNT("weekNumberWillUnmount"),
+
+    // ---- Render hooks: More Link ----
+    MORE_LINK_CLASS_NAMES("moreLinkClassNames"),
+    MORE_LINK_CONTENT("moreLinkContent"),
+    MORE_LINK_DID_MOUNT("moreLinkDidMount"),
+    MORE_LINK_WILL_UNMOUNT("moreLinkWillUnmount"),
+
+    // ---- Render hooks: No Events ----
+    NO_EVENTS_CLASS_NAMES("noEventsClassNames"),
+    NO_EVENTS_CONTENT("noEventsContent"),
+    NO_EVENTS_DID_MOUNT("noEventsDidMount"),
+    NO_EVENTS_WILL_UNMOUNT("noEventsWillUnmount"),
+
+    // ---- Render hooks: All Day ----
+    ALL_DAY_CLASS_NAMES("allDayClassNames"),
+    ALL_DAY_CONTENT("allDayContent"),
+    ALL_DAY_DID_MOUNT("allDayDidMount"),
+    ALL_DAY_WILL_UNMOUNT("allDayWillUnmount"),
+
+    // ---- Interaction callbacks ----
+    SELECT_ALLOW("selectAllow"),
+    EVENT_ALLOW("eventAllow"),
+    EVENT_OVERLAP("eventOverlap"),
+    SELECT_OVERLAP("selectOverlap"),
+    DROP_ACCEPT("dropAccept"),
+    VALID_RANGE("validRange"),
+    ENTRY_ORDER("eventOrder"),
+
+    // ---- Data transform / loading callbacks ----
+    LOADING("loading"),
+    EVENT_DATA_TRANSFORM("eventDataTransform"),
+    EVENT_SOURCE_SUCCESS("eventSourceSuccess"),
+
+    // ---- Navigation callbacks ----
+    NAV_LINK_DAY_CLICK("navLinkDayClick"),
+    NAV_LINK_WEEK_CLICK("navLinkWeekClick");
+
+    private final String clientSideValue;
+
+    CallbackOption(String clientSideValue) {
+        this.clientSideValue = clientSideValue;
+    }
+
+    @Override
+    public String getClientSideValue() {
+        return clientSideValue;
+    }
+}
+```
+
 ### Java-API
 
 ```java
@@ -54,31 +164,32 @@ Ein **generisches** `setOptionFunction(Option, String)` das den JS-String client
  * <p>
  * Example:
  * <pre>{@code
+ * // Render hook — custom day cell CSS classes
+ * calendar.setOptionFunction(CallbackOption.DAY_CELL_CLASS_NAMES,
+ *     "function(arg) { return arg.isPast ? ['past-day'] : []; }");
+ *
  * // Dynamic drop acceptance based on element data
- * calendar.setOptionFunction(Option.DROP_ACCEPT,
+ * calendar.setOptionFunction(CallbackOption.DROP_ACCEPT,
  *     "function(draggable) { return draggable.dataset.type === 'task'; }");
  *
- * // Custom event ordering
- * calendar.setOptionFunction(Option.ENTRY_ORDER,
- *     "function(a, b) { return a.extendedProps.priority - b.extendedProps.priority; }");
- *
  * // Per-event overlap control
- * calendar.setOptionFunction(Option.EVENT_OVERLAP,
+ * calendar.setOptionFunction(CallbackOption.EVENT_OVERLAP,
  *     "function(stillEvent, movingEvent) { return stillEvent.display === 'background'; }");
  *
  * // Clear — revert to plain option value
- * calendar.setOptionFunction(Option.DROP_ACCEPT, null);
+ * calendar.setOptionFunction(CallbackOption.DROP_ACCEPT, null);
  * }</pre>
  *
- * @param option the FC option to set as a function
+ * @param callbackOption the FC option to set as a function
  * @param jsFunction JavaScript function string, or {@code null} to clear
  */
-public void setOptionFunction(Option option, String jsFunction) {
-    setOptionFunction(option.getOptionKey(), jsFunction);
+public void setOptionFunction(CallbackOption callbackOption, String jsFunction) {
+    setOptionFunction(callbackOption.getClientSideValue(), jsFunction);
 }
 
 /**
- * String-key variant of {@link #setOptionFunction(Option, String)}.
+ * String-key variant of {@link #setOptionFunction(CallbackOption, String)}
+ * for FC options not covered by the {@link CallbackOption} enum.
  */
 public void setOptionFunction(String optionKey, String jsFunction) {
     if (jsFunction == null) {
@@ -109,17 +220,23 @@ Nach Einführung von `setOptionFunction` können die dedizierten Callback-Method
 
 | Java-Methode | Ersetzt durch |
 |---|---|
-| `setSelectAllowCallback(String)` | `setOptionFunction(Option.SELECT_ALLOW, ...)` |
-| `setEventAllowCallback(String)` | `setOptionFunction(Option.EVENT_ALLOW, ...)` |
-| `setEventOverlapCallback(String)` | `setOptionFunction(Option.EVENT_OVERLAP, ...)` |
-| `setSelectOverlapCallback(String)` | `setOptionFunction(Option.SELECT_OVERLAP, ...)` |
-| `setValidRangeCallback(String)` | `setOptionFunction(Option.VALID_RANGE, ...)` |
-| `setDropAcceptCallback(String)` | `setOptionFunction(Option.DROP_ACCEPT, ...)` |
-| `setEntryOrderCallback(String)` | `setOptionFunction(Option.ENTRY_ORDER, ...)` |
-| `setLoadingCallback(String)` | `setOptionFunction("loading", ...)` |
-| `setEventDataTransformCallback(String)` | `setOptionFunction("eventDataTransform", ...)` |
-| `setEventSourceSuccessCallback(String)` | `setOptionFunction("eventSourceSuccess", ...)` |
+| `setSelectAllowCallback(String)` | `setOptionFunction(CallbackOption.SELECT_ALLOW, ...)` |
+| `setEntryAllowCallback(String)` | `setOptionFunction(CallbackOption.EVENT_ALLOW, ...)` |
+| `setEntryOverlapCallback(String)` | `setOptionFunction(CallbackOption.EVENT_OVERLAP, ...)` |
+| `setSelectOverlapCallback(String)` | `setOptionFunction(CallbackOption.SELECT_OVERLAP, ...)` |
+| `setValidRangeCallback(String)` | `setOptionFunction(CallbackOption.VALID_RANGE, ...)` |
+| `setDropAcceptCallback(String)` | `setOptionFunction(CallbackOption.DROP_ACCEPT, ...)` |
+| `setEntryOrderCallback(String)` | `setOptionFunction(CallbackOption.ENTRY_ORDER, ...)` |
+| `setLoadingCallback(String)` | `setOptionFunction(CallbackOption.LOADING, ...)` |
+| `setEntryDataTransformCallback(String)` | `setOptionFunction(CallbackOption.EVENT_DATA_TRANSFORM, ...)` |
+| `setEventSourceSuccessCallback(String)` | `setOptionFunction(CallbackOption.EVENT_SOURCE_SUCCESS, ...)` |
 | `setFixedMirrorParent(String)` | Sonderfall — prüfen ob gleiches Pattern |
+| Alle 40+ Render-Hook-Callbacks | `setOptionFunction(CallbackOption.XXX, ...)` |
+| `setNavLinkDayClickCallback(String)` | `setOptionFunction(CallbackOption.NAV_LINK_DAY_CLICK, ...)` |
+| `setNavLinkWeekClickCallback(String)` | `setOptionFunction(CallbackOption.NAV_LINK_WEEK_CLICK, ...)` |
+
+**Hinweis:** Methodennamen folgen Fix 02 (Event→Entry): `setEventAllowCallback` → `setEntryAllowCallback`,
+`setEventOverlapCallback` → `setEntryOverlapCallback`, `setEventDataTransformCallback` → `setEntryDataTransformCallback`.
 
 Korrespondierende TS-Methoden (`setSelectAllowCallback`, `setEventOverlapCallback`, etc.) werden ebenfalls entfernt — alles läuft über das generische `setOptionFunction`.
 
