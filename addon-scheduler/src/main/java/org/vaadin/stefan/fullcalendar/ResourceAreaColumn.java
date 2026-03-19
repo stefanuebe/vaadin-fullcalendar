@@ -49,6 +49,10 @@ public class ResourceAreaColumn {
     private String headerClassNames;
     private String headerDidMount;
     private String headerWillUnmount;
+    private String cellContent;
+    private String cellClassNames;
+    private String cellDidMount;
+    private String cellWillUnmount;
 
     /**
      * Creates a new column definition for the given resource field name.
@@ -148,6 +152,65 @@ public class ResourceAreaColumn {
     }
 
     /**
+     * Sets a JavaScript function string or static string for the cell content of this column.
+     * When a function is provided, it receives a {@code cellInfo} object and must return a string,
+     * DOM node, or virtual DOM node (VNode) to render as the cell content.
+     * <p>
+     * Use this to customize how each resource's value is displayed in this column, beyond
+     * simply showing the raw field value.
+     * <p>
+     * Example: {@code "function(info) { return info.fieldValue + ' hrs'; }"}
+     *
+     * @param cellContentOrJsFunction static string or JavaScript function string
+     * @return this instance for fluent chaining
+     */
+    public ResourceAreaColumn withCellContent(String cellContentOrJsFunction) {
+        this.cellContent = cellContentOrJsFunction;
+        return this;
+    }
+
+    /**
+     * Sets a JavaScript function string for dynamic CSS class names on each cell of this column.
+     * The function receives a {@code cellInfo} object and must return a string array.
+     * <p>
+     * Example: {@code "function(info) { return info.resource.extendedProps.urgent ? ['urgent-cell'] : []; }"}
+     *
+     * @param jsFunction JavaScript function string; must return a string array
+     * @return this instance for fluent chaining
+     */
+    public ResourceAreaColumn withCellClassNames(String jsFunction) {
+        this.cellClassNames = jsFunction;
+        return this;
+    }
+
+    /**
+     * Sets a JavaScript function string called after each cell of this column is added to the DOM.
+     * The function receives a {@code cellInfo} object. The return value is ignored by FullCalendar.
+     * <p>
+     * Example: {@code "function(info) { /* attach tooltip *\/ }"}
+     *
+     * @param jsFunction JavaScript function string
+     * @return this instance for fluent chaining
+     */
+    public ResourceAreaColumn withCellDidMount(String jsFunction) {
+        this.cellDidMount = jsFunction;
+        return this;
+    }
+
+    /**
+     * Sets a JavaScript function string called before each cell of this column is removed from the DOM.
+     * Use this to clean up any resources created in {@link #withCellDidMount(String)}.
+     * The return value is ignored by FullCalendar.
+     *
+     * @param jsFunction JavaScript function string
+     * @return this instance for fluent chaining
+     */
+    public ResourceAreaColumn withCellWillUnmount(String jsFunction) {
+        this.cellWillUnmount = jsFunction;
+        return this;
+    }
+
+    /**
      * Returns the resource property field name for this column.
      *
      * @return field name
@@ -211,6 +274,42 @@ public class ResourceAreaColumn {
     }
 
     /**
+     * Returns the cell content string or JavaScript function string, or {@code null} if not set.
+     *
+     * @return cell content or JS function string or null
+     */
+    public String getCellContent() {
+        return cellContent;
+    }
+
+    /**
+     * Returns the cell class names JavaScript function string, or {@code null} if not set.
+     *
+     * @return JS function string or null
+     */
+    public String getCellClassNames() {
+        return cellClassNames;
+    }
+
+    /**
+     * Returns the cell did-mount JavaScript function string, or {@code null} if not set.
+     *
+     * @return JS function string or null
+     */
+    public String getCellDidMount() {
+        return cellDidMount;
+    }
+
+    /**
+     * Returns the cell will-unmount JavaScript function string, or {@code null} if not set.
+     *
+     * @return JS function string or null
+     */
+    public String getCellWillUnmount() {
+        return cellWillUnmount;
+    }
+
+    /**
      * Serializes this column definition to a JSON object for the FullCalendar
      * {@code resourceAreaColumns} option.
      *
@@ -225,6 +324,10 @@ public class ResourceAreaColumn {
         if (headerClassNames != null) json.put("headerClassNames", headerClassNames);
         if (headerDidMount != null) json.put("headerDidMount", headerDidMount);
         if (headerWillUnmount != null) json.put("headerWillUnmount", headerWillUnmount);
+        if (cellContent != null) json.put("cellContent", cellContent);
+        if (cellClassNames != null) json.put("cellClassNames", cellClassNames);
+        if (cellDidMount != null) json.put("cellDidMount", cellDidMount);
+        if (cellWillUnmount != null) json.put("cellWillUnmount", cellWillUnmount);
         return json;
     }
 }
