@@ -48,6 +48,32 @@ standard usage patterns, because intermediate builder states are never stored. H
 references to intermediate states and called `.build()` on each, all references now point to the same
 final state.
 
+### Deprecated: Individual callback methods (use `setCallbackOption` instead)
+
+The following callback methods are deprecated as of 7.1 and will be removed in a future release:
+- `setEntryClassNamesCallback`
+- `setEntryDidMountCallback`
+- `setEntryWillUnmountCallback`
+- `setEntryContentCallback`
+- `setEntryOverlapCallback`
+- `setSelectAllowCallback`
+- `setEntryAllowCallback`
+
+**Migration:** Replace these individual method calls with the generic `setCallbackOption(CallbackOption, String)` API:
+
+```java
+// Old (7.0 and earlier)
+calendar.setEntryDidMountCallback("function(info) { ... }");
+calendar.setEntryOverlapCallback("function(stillEvent, movingEvent) { ... }");
+
+// New (7.1+)
+calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, "function(info) { ... }");
+calendar.setCallbackOption(CallbackOption.ENTRY_OVERLAP, "function(stillEvent, movingEvent) { ... }");
+```
+
+The `CallbackOption` enum provides access to all callback options. For Scheduler users, `SchedulerCallbackOption` provides
+resource-specific callbacks.
+
 ### Deprecated: `setResourceLablelWillUnmountCallback`
 
 The Scheduler method `setResourceLablelWillUnmountCallback` (note the extra `l` in `Lablel`) is deprecated
@@ -395,17 +421,17 @@ time part in this case or use the `LocalDate` getter.
 
 #### Accessing custom properties in eventDidMount or eventContent
 Not a required but a recommended change. If you have customized the appearance of your entries using one of the
-callbacks `setEntryDidMount()` or `setEntryContent()` (or the respective client side variants) and you access
-custom properties of an entry (for instance `description`), you should change the access to the newly introduced
-`getCustomProperty()` method. This method takes the custom property key and allows to define a fallback default value
-as second parameter.
+callbacks `setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, ...)` or `setCallbackOption(CallbackOption.ENTRY_CONTENT, ...)`
+and you access custom properties of an entry (for instance `description`), you should change the access to the newly
+introduced `getCustomProperty()` method. This method takes the custom property key and allows to define a fallback
+default value as second parameter.
 
 ```java
 // set the custom property beforehand
 Entry someEntry = ...;
 someEntry.setCustomProperty(EntryCustomProperties.DESCRIPTION, "some description");
 
-calendar.setEntryContentCallback("" +
+calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT, "" +
     "function(info) {" +
 
     // old

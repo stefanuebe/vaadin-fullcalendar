@@ -605,7 +605,7 @@ and attached as `eventContent` callback. See https://fullcalendar.io/docs/conten
 details.
 
 ```java
-calendar.setEntryDidMountCallback("""
+calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, """
         function(info) {
             info.el.id = "entry-" + info.event.id;
         }
@@ -716,7 +716,7 @@ public void MyCalendarView extends VerticalLayout {
 You can combine the event handlers with a custom entryDidMount callback, if you want additional customizations
 of the entries. The FC will take care of combining the event handlers and you EDM callback
 ```java
-calendar.setEntryDidMountCallback("""
+calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, """
        function(info) {
            console.warn("my custom callback");
        }""");
@@ -750,7 +750,7 @@ public void MyCalendarView extends VerticalLayout {
 
         // by default, the entry element has no id attribute. Therefore we have to add it ourselves, using the 
         // entry id, that is by default an auto generated UUID
-        calendar.setEntryDidMountCallback("""
+        calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, """
                 function(info) {
                     info.el.id = "entry-" + info.event.id;
                 }""");
@@ -1024,7 +1024,7 @@ keyboardEntry.setAllDay(true);
 keyboardEntry.setInteractive(true); // per-entry override
 
 // Or make ALL entries keyboard-accessible globally:
-calendar.setEventInteractive(true);
+calendar.setOption(FullCalendar.Option.ENTRY_INTERACTIVE, true);
 // Then per-entry override is still possible (e.g., to opt out):
 keyboardEntry.setInteractive(false);
 
@@ -1363,7 +1363,7 @@ flexible.setTitle("Flexible");
 flexible.setOverlap(true);  // overrides the global false
 
 // For more complex logic, use a JS callback
-calendar.setEntryOverlapCallback("""
+calendar.setCallbackOption(CallbackOption.ENTRY_OVERLAP, """
     function(stillEvent, movingEvent) {
         // Allow overlap only with background events
         return stillEvent.display === 'background';
@@ -1376,10 +1376,13 @@ FullCalendar provides render hooks for almost every visual element: day cells, d
 slot lanes, week numbers, now indicator, more-link, no-events, all-day, and view. All follow the same
 pattern: `classNames` / `content` / `didMount` / `willUnmount`.
 
+Use the `setCallbackOption(CallbackOption, String)` method with the appropriate enum value to set these callbacks.
+This is the recommended approach for all render hook callbacks.
+
 ### Highlight weekends in the day grid
 
 ```java
-calendar.setDayCellClassNamesCallback("""
+calendar.setCallbackOption(CallbackOption.DAY_CELL_CLASS_NAMES, """
     function(arg) {
         var dow = arg.date.getUTCDay();
         return (dow === 0 || dow === 6) ? ['weekend-cell'] : [];
@@ -1396,7 +1399,7 @@ Then in your CSS:
 ### Custom slot labels in the time grid
 
 ```java
-calendar.setSlotLabelContentCallback("""
+calendar.setCallbackOption(CallbackOption.SLOT_LABEL_CONTENT, """
     function(arg) {
         var h = arg.date.getUTCHours();
         if (h < 9 || h >= 17) return { html: '<span style="color:#999">' + arg.text + '</span>' };
@@ -1407,7 +1410,7 @@ calendar.setSlotLabelContentCallback("""
 ### Custom day header with extra info
 
 ```java
-calendar.setDayHeaderContentCallback("""
+calendar.setCallbackOption(CallbackOption.DAY_HEADER_CONTENT, """
     function(arg) {
         var d = arg.date;
         var dayName = d.toLocaleDateString('en', { weekday: 'short' });
@@ -1422,19 +1425,19 @@ The same pattern applies to all other hooks. A few examples:
 
 ```java
 // Week numbers — e.g. prefix with "CW "
-calendar.setWeekNumberContentCallback("""
+calendar.setCallbackOption(CallbackOption.WEEK_NUMBER_CONTENT, """
     function(arg) { return { html: 'CW ' + arg.num }; }""");
 
 // Now indicator — custom styling
-calendar.setNowIndicatorClassNamesCallback("""
+calendar.setCallbackOption(CallbackOption.NOW_INDICATOR_CLASS_NAMES, """
     function() { return ['my-now-line']; }""");
 
 // More-link — custom text
-calendar.setMoreLinkContentCallback("""
+calendar.setCallbackOption(CallbackOption.MORE_LINK_CONTENT, """
     function(arg) { return { html: arg.num + ' more...' }; }""");
 
 // No-events message in list view
-calendar.setNoEventsContentCallback("""
+calendar.setCallbackOption(CallbackOption.NO_EVENTS_CONTENT, """
     function() { return { html: '<em>Nothing scheduled</em>' }; }""");
 ```
 

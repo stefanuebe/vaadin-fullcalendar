@@ -22,17 +22,13 @@ for the one behaviour change involving `Entry.overlap`.
 - `Entry.setOverlap(Boolean)` changed from `boolean` to `Boolean` — `null` means "inherit global overlap setting" (see migration notes)
 
 ### Display options
-- Render hook callbacks: `setDayCellClassNamesCallback`, `setDayCellContentCallback`, `setDayCellDidMountCallback`, `setDayCellWillUnmountCallback`
-- Render hook callbacks: `setDayHeaderClassNamesCallback`, `setDayHeaderContentCallback`, `setDayHeaderDidMountCallback`, `setDayHeaderWillUnmountCallback`
-- Render hook callbacks: `setSlotLabelClassNamesCallback`, `setSlotLabelContentCallback`, `setSlotLabelDidMountCallback`, `setSlotLabelWillUnmountCallback`
-- Render hook callbacks: `setNowIndicatorClassNamesCallback`, `setNowIndicatorContentCallback`, `setNowIndicatorDidMountCallback`, `setNowIndicatorWillUnmountCallback`
-- Render hook callbacks: `setResourceLabelClassNamesCallback`, `setResourceLabelContentCallback`, `setResourceLabelDidMountCallback`, `setResourceLabelWillUnmountCallback`
-- Render hook callbacks: `setResourceLaneClassNamesCallback`, `setResourceLaneDidMountCallback`, `setResourceLaneWillUnmountCallback`
+- `setCallbackOption(CallbackOption, String)` — generic callback setter for all render hook callbacks (day cell, day header, slot label, now indicator, resource label/lane, etc.)
+- `CallbackOption` enum — access to all FullCalendar render hook options (DAY_CELL_CLASS_NAMES, DAY_HEADER_CONTENT, SLOT_LABEL_DID_MOUNT, etc.)
 - `setProgressiveEventRendering(boolean)` — render events in batches as they arrive
 
 ### Interaction callbacks
 - Drag/resize lifecycle events: `EntryDragStartEvent`, `EntryDragStopEvent`, `EntryResizeStartEvent`, `EntryResizeStopEvent`
-- `setSelectAllowCallback` / `setEntryAllowCallback` / `setEntryOverlapCallback` JS callback setters (in addition to the boolean variants)
+- `setCallbackOption(CallbackOption.SELECT_ALLOW, String)` / `setCallbackOption(CallbackOption.ENTRY_ALLOW, String)` / `setCallbackOption(CallbackOption.ENTRY_OVERLAP, String)` — JS callback setters
 - `setUnselectCancel(String)` — CSS selector for elements that should not cancel an active selection
 - `ExternalEntryDroppedEvent` — fired when an entry from a client-side event source is dropped into the calendar
 - `ExternalEntryResizedEvent` — fired when an entry from a client-side event source is resized
@@ -58,7 +54,7 @@ for the one behaviour change involving `Entry.overlap`.
 - `setCloseHint(String)` / `setTimeHint(String)` / `Option.ENTRY_HINT` — accessible labels for popover close buttons, time displays, and entries
 
 ### Advanced and niche options
-- `setValidRangeCallback(String)` / `setSelectOverlapCallback(String)` — dynamic JS function overrides for `validRange` and `selectOverlap`
+- `setCallbackOption(CallbackOption.VALID_RANGE, String)` / `setCallbackOption(CallbackOption.SELECT_OVERLAP, String)` — dynamic JS function overrides for `validRange` and `selectOverlap`
 - `setEntryConstraint(String/BusinessHours)` — constrain drag/resize to specific time slots
 - `setDateIncrement(String)` / `setDateAlignment(String)` — navigation increment and alignment for custom views
 - `setContentSecurityPolicyNonce(String)` — CSP nonce for dynamically generated `<style>` tags
