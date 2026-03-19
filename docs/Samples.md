@@ -1170,7 +1170,7 @@ calendar.addEventSourceFailureListener(event -> {
 });
 
 // Refresh only a specific source (e.g. after the user changed a filter)
-calendar.refetchEventSource("company-events");
+calendar.refetchClientSideEventSource("company-events");
 
 // Or refresh all sources at once
 calendar.refetchEvents();

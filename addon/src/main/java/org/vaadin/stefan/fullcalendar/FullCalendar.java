@@ -1811,21 +1811,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Forces all event sources (including the server-side entry provider) to re-fetch their data immediately.
+     * Forces all event sources to re-fetch their data immediately. This includes both the server-side
+     * {@link EntryProvider} and any client-side event sources added via {@link #addClientSideEventSource}.
+     * <br><br>
+     * To refresh only a single client-side source, use {@link #refetchClientSideEventSource(String)}.
      */
     public void refetchEvents() {
         getElement().callJsFunction("refetchEvents");
     }
 
     /**
-     * Forces a single event source to re-fetch its data. Only the source with the given id is refreshed;
-     * all other sources remain untouched. Use {@link #refetchEvents()} to refresh all sources at once.
+     * Forces a single <em>client-side</em> event source to re-fetch its data. Only the source with the given id is
+     * refreshed; all other sources remain untouched.
+     * <br><br>
+     * <strong>Important:</strong> This method only works for client-side event sources added via
+     * {@link #addClientSideEventSource} (e.g. {@link JsonFeedEventSource}, {@link GoogleCalendarEventSource},
+     * {@link ICalendarEventSource}). It cannot be used to refresh the server-side {@link EntryProvider} — use
+     * {@link #refetchEvents()} or the entry provider's own {@code refresh} methods for that.
      *
-     * @param sourceId the id of the event source to refetch
+     * @param sourceId the id of the client-side event source to refetch; must not be null
      * @throws NullPointerException when null is passed
+     * @see #refetchEvents()
      * @see <a href="https://fullcalendar.io/docs/EventSource-refetch">EventSource::refetch</a>
      */
-    public void refetchEventSource(String sourceId) {
+    public void refetchClientSideEventSource(String sourceId) {
         Objects.requireNonNull(sourceId);
         getElement().executeJs("var s = this.calendar.getEventSourceById($0); if (s) s.refetch();", sourceId);
     }
