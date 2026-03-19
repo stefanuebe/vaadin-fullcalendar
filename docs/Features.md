@@ -34,8 +34,8 @@ The `Entry` class supports the following properties:
 | Constraint | `setConstraint(String)` | Group id or `"businessHours"` restricting when this entry may be placed |
 | Recurring (simple) | `setRecurringDaysOfWeek` / `setRecurringStartTime` / `setRecurringEndTime` | Built-in day-of-week recurrence |
 | Recurring duration | `setRecurringDuration(String)` | ISO 8601 duration for multi-day recurring all-day events (e.g. `"P2D"`) |
-| RRule | `setRrule(RRule)` | RFC 5545 recurrence rule for complex patterns |
-| Exclusion dates | `setExdate(List<LocalDate>)` | Dates excluded from an RRule recurrence (e.g. `List.of(LocalDate.of(2025, 3, 10))`) |
+| RRule | `setRRule(RRule)` | RFC 5545 recurrence rule for complex patterns |
+| Exclusion dates | `RRule.excludeDates(LocalDate...)` | Dates excluded from an RRule recurrence — set on the `RRule` builder, transferred automatically to the entry |
 | Custom properties | `setCustomProperty(String, Object)` | Arbitrary data accessible in JS callbacks |
 
 ### RRule — rich recurrence patterns
@@ -46,7 +46,7 @@ The `Entry` class supports the following properties:
 // Weekly on Monday, Wednesday, Friday
 Entry standup = new Entry();
 standup.setTitle("Weekly Standup");
-standup.setRrule(RRule.weekly()
+standup.setRRule(RRule.weekly()
     .byWeekday(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
     .dtstart(LocalDate.of(2025, 1, 1))
     .until(LocalDate.of(2025, 12, 31)));
@@ -57,11 +57,11 @@ standup.setRrule(RRule.weekly()
 // the start/end of the period.
 Entry endOfMonth = new Entry();
 endOfMonth.setTitle("Monthly Review");
-endOfMonth.setRrule(RRule.monthly().byWeekday("-1fr"));
+endOfMonth.setRRule(RRule.monthly().byWeekday("-1fr"));
 
 // Raw RFC 5545 string (for patterns not supported by the fluent builder)
 Entry custom = new Entry();
-custom.setRrule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;INTERVAL=2"));
+custom.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;INTERVAL=2"));
 ```
 
 **When to use RRule vs. built-in recurrence:**

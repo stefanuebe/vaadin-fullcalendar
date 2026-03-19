@@ -18,7 +18,7 @@ for the one behaviour change involving `Entry.overlap`.
 - `Entry.setUrl(String)` — entries with a URL are rendered as `<a>` tags; FC navigates to the URL on click
 - `Entry.setInteractive(Boolean)` — per-entry keyboard-focusability override (null = inherit global `eventInteractive` setting)
 - `Entry.setRecurringDuration(String)` — ISO 8601 duration for multi-day all-day recurring events (e.g. `"P2D"`)
-- `Entry.setRrule(RRule)` / `Entry.setExdate(List<LocalDate>)` — RFC 5545 recurrence rules via the `RRule` fluent builder; exclusion dates as a `List<LocalDate>`
+- `Entry.setRRule(RRule)` — RFC 5545 recurrence rules via the `RRule` fluent builder; use `RRule.excludeDates(LocalDate...)` to exclude specific dates from the recurrence
 - `Entry.setOverlap(Boolean)` changed from `boolean` to `Boolean` — `null` means "inherit global overlap setting" (see migration notes)
 
 ### Display options

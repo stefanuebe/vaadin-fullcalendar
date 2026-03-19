@@ -974,7 +974,7 @@ The `@fullcalendar/rrule` plugin is bundled automatically; no extra dependency i
 // dtstart uses LocalDate, so occurrences are all-day.
 Entry standup = new Entry();
 standup.setTitle("Weekly Standup");
-standup.setRrule(RRule.weekly()
+standup.setRRule(RRule.weekly()
     .byWeekday(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
     .dtstart(LocalDate.of(2025, 1, 1))
     .until(LocalDate.of(2025, 12, 31)));
@@ -985,22 +985,20 @@ standup.setRrule(RRule.weekly()
 // Positive numbers count from the start of the period; negative from the end.
 Entry review = new Entry();
 review.setTitle("Monthly Review");
-review.setRrule(RRule.monthly().byWeekday("-1fr"));
+review.setRRule(RRule.monthly().byWeekday("-1fr"));
 
 // Every two weeks on Tuesday (bi-weekly)
 Entry planning = new Entry();
 planning.setTitle("Bi-weekly Planning");
-planning.setRrule(RRule.weekly().byWeekday(DayOfWeek.TUESDAY).interval(2)
-    .dtstart(LocalDate.of(2025, 1, 7)));
-
-// Exclude specific dates from the recurrence.
-planning.setExdate(List.of(LocalDate.of(2025, 7, 22), LocalDate.of(2025, 12, 30)));
+planning.setRRule(RRule.weekly().byWeekday(DayOfWeek.TUESDAY).interval(2)
+    .dtstart(LocalDate.of(2025, 1, 7))
+    .excludeDates(LocalDate.of(2025, 7, 22), LocalDate.of(2025, 12, 30)));
 
 // Raw RFC 5545 string for unsupported patterns.
 // Note: raw strings use uppercase RFC 5545 syntax (e.g. BYDAY=1MO), not
 // the fluent API's lowercase notation (e.g. byWeekday("1mo")).
 Entry custom = new Entry();
-custom.setRrule(RRule.ofRaw("FREQ=MONTHLY;BYDAY=1MO,3MO;COUNT=12"));
+custom.setRRule(RRule.ofRaw("FREQ=MONTHLY;BYDAY=1MO,3MO;COUNT=12"));
 
 calendar.getEntryProvider().asInMemory().addEntries(standup, review, planning, custom);
 ```
