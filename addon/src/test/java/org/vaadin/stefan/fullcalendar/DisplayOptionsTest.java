@@ -90,7 +90,7 @@ public class DisplayOptionsTest {
 
     @Test
     void option_eventLongPressDelay_key() {
-        assertEquals("eventLongPressDelay", Option.EVENT_LONG_PRESS_DELAY.getOptionKey());
+        assertEquals("eventLongPressDelay", Option.ENTRY_LONG_PRESS_DELAY.getOptionKey());
     }
 
     @Test
@@ -110,7 +110,7 @@ public class DisplayOptionsTest {
 
     @Test
     void option_eventDragMinDistance_key() {
-        assertEquals("eventDragMinDistance", Option.EVENT_DRAG_MIN_DISTANCE.getOptionKey());
+        assertEquals("eventDragMinDistance", Option.ENTRY_DRAG_MIN_DISTANCE.getOptionKey());
     }
 
     @Test
@@ -142,18 +142,18 @@ public class DisplayOptionsTest {
     }
 
     // -------------------------------------------------------------------------
-    // setDisplayEventTime — delegates to setDisplayEntryTime (DISPLAY_ENTRY_TIME)
+    // setDisplayEntryTime (DISPLAY_ENTRY_TIME)
     // -------------------------------------------------------------------------
 
     @Test
-    void setDisplayEventTime_delegatesToDisplayEntryTime() {
+    void setDisplayEntryTime_setsDisplayEntryTimeOption() {
         // DISPLAY_ENTRY_TIME uses ENTRY→EVENT key replacement → FC option key is "displayEventTime"
         assertEquals("displayEventTime", Option.DISPLAY_ENTRY_TIME.getOptionKey());
 
-        calendar.setDisplayEventTime(true);
+        calendar.setDisplayEntryTime(true);
         assertOptionalEquals(true, calendar.getOption(Option.DISPLAY_ENTRY_TIME));
 
-        calendar.setDisplayEventTime(false);
+        calendar.setDisplayEntryTime(false);
         assertOptionalEquals(false, calendar.getOption(Option.DISPLAY_ENTRY_TIME));
     }
 
@@ -276,8 +276,8 @@ public class DisplayOptionsTest {
 
     @Test
     void setEventLongPressDelay_storesOption() {
-        calendar.setOption(Option.EVENT_LONG_PRESS_DELAY, 600);
-        assertOptionalEquals(600, calendar.getOption(Option.EVENT_LONG_PRESS_DELAY));
+        calendar.setOption(Option.ENTRY_LONG_PRESS_DELAY, 600);
+        assertOptionalEquals(600, calendar.getOption(Option.ENTRY_LONG_PRESS_DELAY));
     }
 
     @Test
@@ -304,8 +304,8 @@ public class DisplayOptionsTest {
 
     @Test
     void setEventDragMinDistance_storesOption() {
-        calendar.setOption(Option.EVENT_DRAG_MIN_DISTANCE, 10);
-        assertOptionalEquals(10, calendar.getOption(Option.EVENT_DRAG_MIN_DISTANCE));
+        calendar.setOption(Option.ENTRY_DRAG_MIN_DISTANCE, 10);
+        assertOptionalEquals(10, calendar.getOption(Option.ENTRY_DRAG_MIN_DISTANCE));
     }
 
     // -------------------------------------------------------------------------

@@ -565,7 +565,7 @@ public interface Scheduler {
      * @param pixels minimum width in pixels
      * @see <a href="https://fullcalendar.io/docs/eventMinWidth">FullCalendar eventMinWidth</a>
      */
-    void setEventMinWidth(int pixels);
+    void setEntryMinWidth(int pixels);
 
     /**
      * Sets a JavaScript function called after a resource is added to FullCalendar's internal store.

@@ -29,7 +29,7 @@ public class AccessibilityTouchTest {
 
     @Test
     void option_eventInteractive_key() {
-        assertEquals("eventInteractive", Option.EVENT_INTERACTIVE.getOptionKey());
+        assertEquals("eventInteractive", Option.ENTRY_INTERACTIVE.getOptionKey());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class AccessibilityTouchTest {
 
     @Test
     void option_eventHint_key() {
-        assertEquals("eventHint", Option.EVENT_HINT.getOptionKey());
+        assertEquals("eventHint", Option.ENTRY_HINT.getOptionKey());
     }
 
     // -------------------------------------------------------------------------
@@ -73,14 +73,14 @@ public class AccessibilityTouchTest {
 
     @Test
     void setEventInteractive_true_storesOption() {
-        calendar.setOption(Option.EVENT_INTERACTIVE, true);
-        assertOptionalEquals(true, calendar.getOption(Option.EVENT_INTERACTIVE));
+        calendar.setOption(Option.ENTRY_INTERACTIVE, true);
+        assertOptionalEquals(true, calendar.getOption(Option.ENTRY_INTERACTIVE));
     }
 
     @Test
     void setEventInteractive_false_storesOption() {
-        calendar.setOption(Option.EVENT_INTERACTIVE, false);
-        assertOptionalEquals(false, calendar.getOption(Option.EVENT_INTERACTIVE));
+        calendar.setOption(Option.ENTRY_INTERACTIVE, false);
+        assertOptionalEquals(false, calendar.getOption(Option.ENTRY_INTERACTIVE));
     }
 
     // -------------------------------------------------------------------------
@@ -165,8 +165,8 @@ public class AccessibilityTouchTest {
 
     @Test
     void setEventHint_storesOption() {
-        calendar.setOption(Option.EVENT_HINT, "Event");
-        assertOptionalEquals("Event", calendar.getOption(Option.EVENT_HINT));
+        calendar.setOption(Option.ENTRY_HINT, "Event");
+        assertOptionalEquals("Event", calendar.getOption(Option.ENTRY_HINT));
     }
 
     // -------------------------------------------------------------------------
@@ -212,7 +212,7 @@ public class AccessibilityTouchTest {
 
     @Test
     void option_eventLongPressDelay_key() {
-        assertEquals("eventLongPressDelay", Option.EVENT_LONG_PRESS_DELAY.getOptionKey());
+        assertEquals("eventLongPressDelay", Option.ENTRY_LONG_PRESS_DELAY.getOptionKey());
     }
 
     @Test
@@ -228,8 +228,8 @@ public class AccessibilityTouchTest {
 
     @Test
     void setEventLongPressDelay_storesOption() {
-        calendar.setOption(Option.EVENT_LONG_PRESS_DELAY, 300);
-        assertOptionalEquals(300, calendar.getOption(Option.EVENT_LONG_PRESS_DELAY));
+        calendar.setOption(Option.ENTRY_LONG_PRESS_DELAY, 300);
+        assertOptionalEquals(300, calendar.getOption(Option.ENTRY_LONG_PRESS_DELAY));
     }
 
     @Test

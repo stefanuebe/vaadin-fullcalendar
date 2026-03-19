@@ -75,14 +75,14 @@ When `entry.setUrl(url)` is set, FullCalendar renders the entry as an `<a>` tag 
 
 ### Accessibility
 
-`setEventInteractive(boolean)` makes all events keyboard-focusable (adds `tabindex="0"`), enabling keyboard-only users to Tab to events and activate them with Enter or Space. This is required for WCAG 2.1 AA, Success Criterion 2.1.1.
+`setOption(Option.ENTRY_INTERACTIVE, true)` makes all entries keyboard-focusable (adds `tabindex="0"`), enabling keyboard-only users to Tab to entries and activate them with Enter or Space. This is required for WCAG 2.1 AA, Success Criterion 2.1.1.
 
 Fine-grained control is available per entry via `Entry.setInteractive(Boolean)`.
 
 Additional accessibility helpers:
 - `setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS, Map<String, String>)` — set `aria-label` on toolbar buttons
 - `setNavLinkHint(String)` / `setMoreLinkHint(String)` / `setViewHint(String)` — screen-reader labels for navigation links, "+N more" overflow links, and view-switcher buttons (use `$0` as a runtime placeholder for the count or date value, e.g. `"$0 more events"`)
-- `setCloseHint(String)` / `setTimeHint(String)` / `setEventHint(String)` — labels for popover close buttons, time displays, and events
+- `setCloseHint(String)` / `setTimeHint(String)` / `Option.ENTRY_HINT` — labels for popover close buttons, time displays, and entries
 
 ### Event handling
 

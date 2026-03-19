@@ -58,7 +58,7 @@ public class AdvancedOptionsTestView extends VerticalLayout {
 
         // eventConstraint -------------------------------------------------------
         // Constrain drag-and-drop to business hours (does not affect rendering, exercises setter).
-        calendar.setOption(FullCalendar.Option.EVENT_CONSTRAINT, "businessHours");
+        calendar.setOption(FullCalendar.Option.ENTRY_CONSTRAINT, "businessHours");
 
         // --- Entry provider --------------------------------------------------------------
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();

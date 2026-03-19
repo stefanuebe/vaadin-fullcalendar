@@ -719,11 +719,11 @@ export class FullCalendar extends HTMLElement {
         this.setOption('selectAllow', new Function("return " + s)());
     }
 
-    setEventAllowCallback(s: string) {
+    setEntryAllowCallback(s: string) {
         this.setOption('eventAllow', new Function("return " + s)());
     }
 
-    setEventOverlapCallback(s: string) {
+    setEntryOverlapCallback(s: string) {
         this.setOption('eventOverlap', new Function("return " + s)());
     }
 
@@ -806,7 +806,7 @@ export class FullCalendar extends HTMLElement {
         this.setOption('loading', new Function("return " + s)());
     }
 
-    setEventDataTransformCallback(s: string) {
+    setEntryDataTransformCallback(s: string) {
         this.setOption('eventDataTransform', new Function("return " + s)());
     }
 

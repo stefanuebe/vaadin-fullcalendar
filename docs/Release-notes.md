@@ -33,7 +33,7 @@ for the one behaviour change involving `Entry.overlap`.
 
 ### Interaction callbacks
 - Drag/resize lifecycle events: `EntryDragStartEvent`, `EntryDragStopEvent`, `EntryResizeStartEvent`, `EntryResizeStopEvent`
-- `setSelectAllow` / `setEventAllow` / `setEventOverlap` JS callback setters (in addition to the boolean variants)
+- `setSelectAllowCallback` / `setEntryAllowCallback` / `setEntryOverlapCallback` JS callback setters (in addition to the boolean variants)
 - `setUnselectCancel(String)` — CSS selector for elements that should not cancel an active selection
 - `ExternalEntryDroppedEvent` — fired when an entry from a client-side event source is dropped into the calendar
 - `ExternalEntryResizedEvent` — fired when an entry from a client-side event source is resized
@@ -53,14 +53,14 @@ for the one behaviour change involving `Entry.overlap`.
 - `setRefetchResourcesOnNavigate(boolean)` — re-fetch resources on each navigation
 
 ### Accessibility
-- `setEventInteractive(boolean)` — make all events keyboard-focusable (WCAG 2.1 AA)
+- `Option.ENTRY_INTERACTIVE` — make all entries keyboard-focusable (WCAG 2.1 AA) via `setOption`
 - `Option.NATIVE_TOOLBAR_BUTTON_HINTS` — accessible labels for toolbar buttons (use via `setOption`)
 - `setViewHint(String)` / `setNavLinkHint(String)` / `setMoreLinkHint(String)` — accessible labels for view switchers, nav links, and "+N more" links
-- `setCloseHint(String)` / `setTimeHint(String)` / `setEventHint(String)` — accessible labels for popover close buttons, time displays, and events
+- `setCloseHint(String)` / `setTimeHint(String)` / `Option.ENTRY_HINT` — accessible labels for popover close buttons, time displays, and entries
 
 ### Advanced and niche options
 - `setValidRangeCallback(String)` / `setSelectOverlapCallback(String)` — dynamic JS function overrides for `validRange` and `selectOverlap`
-- `setEventConstraint(String/BusinessHours)` / `setEventConstraintToBusinessHours()` — constrain drag/resize to specific time slots
+- `setEntryConstraint(String/BusinessHours)` — constrain drag/resize to specific time slots
 - `setDateIncrement(String)` / `setDateAlignment(String)` — navigation increment and alignment for custom views
 - `setContentSecurityPolicyNonce(String)` — CSP nonce for dynamically generated `<style>` tags
 - `setViewSpecificOption(viewType, option, value)` — per-view option overrides

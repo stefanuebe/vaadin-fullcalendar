@@ -1022,15 +1022,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <br><br>
      * Example:
      * <pre>
-     * calendar.setEventAllowCallback(
-     *     "function(dropInfo, draggedEvent) { return dropInfo.resource.id !== 'locked-room'; }");
+     * calendar.setEntryAllowCallback(
+     *     "function(dropInfo, draggedEntry) { return dropInfo.resource.id !== 'locked-room'; }");
      * </pre>
      *
      * @param s JavaScript function string
      * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
      */
-    public void setEventAllowCallback(String s) {
-        getElement().callJsFunction("setEventAllowCallback", s);
+    public void setEntryAllowCallback(String s) {
+        getElement().callJsFunction("setEntryAllowCallback", s);
     }
 
     /**
@@ -1044,15 +1044,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <br><br>
      * Example:
      * <pre>
-     * calendar.setEventOverlapCallback(
+     * calendar.setEntryOverlapCallback(
      *     "function(stillEvent, movingEvent) { return stillEvent.display === 'background'; }");
      * </pre>
      *
      * @param s JavaScript function string
      * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
      */
-    public void setEventOverlapCallback(String s) {
-        getElement().callJsFunction("setEventOverlapCallback", s);
+    public void setEntryOverlapCallback(String s) {
+        getElement().callJsFunction("setEntryOverlapCallback", s);
     }
 
 
@@ -1850,8 +1850,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param jsFunction JS function string: {@code "function(event) { event.title = event.name; return event; }"}
      * @see <a href="https://fullcalendar.io/docs/eventDataTransform">eventDataTransform</a>
      */
-    public void setEventDataTransformCallback(String jsFunction) {
-        getElement().callJsFunction("setEventDataTransformCallback", jsFunction);
+    public void setEntryDataTransformCallback(String jsFunction) {
+        getElement().callJsFunction("setEntryDataTransformCallback", jsFunction);
     }
 
     /**
@@ -2294,7 +2294,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param duration duration string
      * @see <a href="https://fullcalendar.io/docs/defaultTimedEventDuration">defaultTimedEventDuration</a>
      */
-    public void setDefaultTimedEventDuration(String duration) {
+    public void setDefaultTimedEntryDuration(String duration) {
         setOption("defaultTimedEventDuration", duration);
     }
 
@@ -2304,7 +2304,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param duration duration string
      * @see <a href="https://fullcalendar.io/docs/defaultAllDayEventDuration">defaultAllDayEventDuration</a>
      */
-    public void setDefaultAllDayEventDuration(String duration) {
+    public void setDefaultAllDayEntryDuration(String duration) {
         setOption("defaultAllDayEventDuration", duration);
     }
 
@@ -2314,12 +2314,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
     /**
-     * Whether the time text is displayed in the event block. Alias for {@link #setDisplayEntryTime(boolean)}.
+     * Whether the time text is displayed in the entry block.
      *
-     * @param display display event time
+     * @param display display entry time
      * @see <a href="https://fullcalendar.io/docs/displayEventTime">displayEventTime</a>
      */
-    public void setDisplayEventTime(boolean display) {
+    public void setDisplayEntryTime(boolean display) {
         setOption(Option.DISPLAY_ENTRY_TIME, display);
     }
 
@@ -2436,17 +2436,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Constrains event dragging and resizing to the specified business hours. Events can only
+     * Constrains entry dragging and resizing to the specified business hours. Entries can only
      * be moved to or resized within business hours slots.
      *
      * @param hours business hours definition; must not be null
-     * @see #setEventConstraint(String)
-     * @see #setEventConstraintToBusinessHours()
      * @see <a href="https://fullcalendar.io/docs/eventConstraint">FC eventConstraint documentation</a>
      */
-    public void setEventConstraint(BusinessHours hours) {
+    public void setEntryConstraint(BusinessHours hours) {
         Objects.requireNonNull(hours);
-        setOption(Option.EVENT_CONSTRAINT, hours.toJson());
+        setOption(Option.ENTRY_CONSTRAINT, hours.toJson());
     }
 
 
@@ -3478,12 +3476,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/eventDragMinDistance">eventDragMinDistance</a>
          */
-        EVENT_DRAG_MIN_DISTANCE,
+        ENTRY_DRAG_MIN_DISTANCE,
 
         /**
          * @see <a href="https://fullcalendar.io/docs/eventLongPressDelay">eventLongPressDelay</a>
          */
-        EVENT_LONG_PRESS_DELAY,
+        ENTRY_LONG_PRESS_DELAY,
 
         /**
          * @see <a href="https://fullcalendar.io/docs/forceEventDuration">forceEventDuration</a>
@@ -3540,12 +3538,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
          */
-        EVENT_ALLOW,
+        ENTRY_ALLOW,
 
         /**
          * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
          */
-        EVENT_OVERLAP,
+        ENTRY_OVERLAP,
 
         /**
          * @see <a href="https://fullcalendar.io/docs/droppable">droppable</a>
@@ -3596,14 +3594,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/eventInteractive">eventInteractive</a>
          */
-        EVENT_INTERACTIVE,
+        ENTRY_INTERACTIVE,
 
 
 
         /**
          * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
          */
-        EVENT_CONSTRAINT,
+        ENTRY_CONSTRAINT,
 
         /**
          * @see <a href="https://fullcalendar.io/docs/dateIncrement">dateIncrement</a>
@@ -3664,7 +3662,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/eventHint">eventHint</a>
          */
-        EVENT_HINT;
+        ENTRY_HINT;
 
         private final String optionKey;
 

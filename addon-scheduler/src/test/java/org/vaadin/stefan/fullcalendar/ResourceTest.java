@@ -323,20 +323,20 @@ public class ResourceTest {
     @Test
     void eventAllow_defaultNull() {
         Resource resource = new Resource();
-        Assertions.assertNull(resource.getEventAllow());
+        Assertions.assertNull(resource.getEntryAllow());
     }
 
     @Test
     void eventAllow_getterSetter() {
         Resource resource = new Resource();
-        resource.setEventAllow("function() { return true; }");
-        Assertions.assertEquals("function() { return true; }", resource.getEventAllow());
+        resource.setEntryAllow("function() { return true; }");
+        Assertions.assertEquals("function() { return true; }", resource.getEntryAllow());
     }
 
     @Test
     void eventAllow_inJson_whenSet() {
         Resource resource = new Resource("r1", "Room 1", null);
-        resource.setEventAllow("function() { return false; }");
+        resource.setEntryAllow("function() { return false; }");
         ObjectNode json = resource.toJson();
         Assertions.assertTrue(json.has("eventAllow"), "eventAllow should be in JSON when set");
         Assertions.assertEquals("function() { return false; }", json.get("eventAllow").asString());

@@ -28,9 +28,9 @@ import java.util.*;
  * Represents a resource. ResourceEntries contain these resources (a resource itself does not know anything about
  * the assigned entries). A resource can have sub resources / child resources.
  * <p>
- * Resources can carry per-resource event style overrides ({@link #setEventBackgroundColor(String)},
- * {@link #setEventBorderColor(String)}, {@link #setEventTextColor(String)}, and
- * {@link #setEventClassNames(java.util.Set)}) that apply to all events associated with the resource.
+ * Resources can carry per-resource entry style overrides ({@link #setEntryBackgroundColor(String)},
+ * {@link #setEntryBorderColor(String)}, {@link #setEntryTextColor(String)}, and
+ * {@link #setEntryClassNames(java.util.Set)}) that apply to all entries associated with the resource.
  */
 @Getter
 @EqualsAndHashCode(of = "id")
@@ -304,7 +304,7 @@ public class Resource {
      * the change is propagated to the client immediately.
      * <p>
      * To control background and border colors independently, use
-     * {@link #setEventBackgroundColor(String)} and {@link #setEventBorderColor(String)}.
+     * {@link #setEntryBackgroundColor(String)} and {@link #setEntryBorderColor(String)}.
      *
      * @param color CSS color string (e.g., {@code "#3788d8"}, {@code "blue"})
      */
@@ -314,138 +314,138 @@ public class Resource {
     }
 
     /**
-     * Sets the background color for events associated with this resource.
+     * Sets the background color for entries associated with this resource.
      * Overrides the {@link #setColor(String) eventColor} shorthand for background color.
      * <p>
      * Unlike {@link #setTitle(String)} and {@link #setColor(String)}, this change is NOT
      * automatically propagated to the client. Call {@link Scheduler#updateResource(Resource)}
-     * on the scheduler after modifying event style properties.
+     * on the scheduler after modifying entry style properties.
      *
      * @param color CSS color string
      */
-    public void setEventBackgroundColor(String color) {
+    public void setEntryBackgroundColor(String color) {
         this.eventBackgroundColor = color;
     }
 
     /**
-     * Returns the event background color override for this resource, or {@code null} if not set.
+     * Returns the entry background color override for this resource, or {@code null} if not set.
      *
      * @return CSS color string or null
      */
-    public String getEventBackgroundColor() {
+    public String getEntryBackgroundColor() {
         return eventBackgroundColor;
     }
 
     /**
-     * Sets the border color for events associated with this resource.
+     * Sets the border color for entries associated with this resource.
      * Overrides the {@link #setColor(String) eventColor} shorthand for border color.
      * <p>
      * Unlike {@link #setTitle(String)} and {@link #setColor(String)}, this change is NOT
      * automatically propagated to the client. Call {@link Scheduler#updateResource(Resource)}
-     * on the scheduler after modifying event style properties.
+     * on the scheduler after modifying entry style properties.
      *
      * @param color CSS color string
      */
-    public void setEventBorderColor(String color) {
+    public void setEntryBorderColor(String color) {
         this.eventBorderColor = color;
     }
 
     /**
-     * Returns the event border color override for this resource, or {@code null} if not set.
+     * Returns the entry border color override for this resource, or {@code null} if not set.
      *
      * @return CSS color string or null
      */
-    public String getEventBorderColor() {
+    public String getEntryBorderColor() {
         return eventBorderColor;
     }
 
     /**
-     * Sets the text color for events associated with this resource.
+     * Sets the text color for entries associated with this resource.
      * <p>
      * Unlike {@link #setTitle(String)} and {@link #setColor(String)}, this change is NOT
      * automatically propagated to the client. Call {@link Scheduler#updateResource(Resource)}
-     * on the scheduler after modifying event style properties.
+     * on the scheduler after modifying entry style properties.
      *
      * @param color CSS color string
      */
-    public void setEventTextColor(String color) {
+    public void setEntryTextColor(String color) {
         this.eventTextColor = color;
     }
 
     /**
-     * Returns the event text color override for this resource, or {@code null} if not set.
+     * Returns the entry text color override for this resource, or {@code null} if not set.
      *
      * @return CSS color string or null
      */
-    public String getEventTextColor() {
+    public String getEntryTextColor() {
         return eventTextColor;
     }
 
     /**
-     * Sets a constraint for events associated with this resource. Accepts a business hours
-     * object ID, a named event groupId, or a special constraint object string.
+     * Sets a constraint for entries associated with this resource. Accepts a business hours
+     * object ID, a named entry groupId, or a special constraint object string.
      *
      * @param constraint constraint string
      * @see <a href="https://fullcalendar.io/docs/eventConstraint">FullCalendar eventConstraint</a>
      */
-    public void setEventConstraint(String constraint) {
+    public void setEntryConstraint(String constraint) {
         this.eventConstraint = constraint;
     }
 
     /**
-     * Returns the event constraint for this resource, or {@code null} if not set.
+     * Returns the entry constraint for this resource, or {@code null} if not set.
      *
      * @return constraint string or null
      */
-    public String getEventConstraint() {
+    public String getEntryConstraint() {
         return eventConstraint;
     }
 
     /**
-     * Sets whether events associated with this resource can overlap other events.
+     * Sets whether entries associated with this resource can overlap other entries.
      * Use {@code null} to inherit the calendar-level default.
      *
      * @param overlap {@code true} to allow overlap, {@code false} to prevent, {@code null} to inherit
      * @see <a href="https://fullcalendar.io/docs/eventOverlap">FullCalendar eventOverlap</a>
      */
-    public void setEventOverlap(Boolean overlap) {
+    public void setEntryOverlap(Boolean overlap) {
         this.eventOverlap = overlap;
     }
 
     /**
-     * Returns the event overlap setting for this resource, or {@code null} if not set (inherits calendar default).
+     * Returns the entry overlap setting for this resource, or {@code null} if not set (inherits calendar default).
      *
      * @return Boolean overlap setting or null
      */
-    public Boolean getEventOverlap() {
+    public Boolean getEntryOverlap() {
         return eventOverlap;
     }
 
     /**
-     * Sets CSS class names to be applied to events associated with this resource.
+     * Sets CSS class names to be applied to entries associated with this resource.
      * <p>
      * Unlike {@link #setTitle(String)} and {@link #setColor(String)}, this change is NOT
      * automatically propagated to the client. Call {@link Scheduler#updateResource(Resource)}
-     * on the scheduler after modifying event style properties.
+     * on the scheduler after modifying entry style properties.
      *
      * @param classNames set of CSS class names; {@code null} clears the setting
      */
-    public void setEventClassNames(Set<String> classNames) {
+    public void setEntryClassNames(Set<String> classNames) {
         this.eventClassNames = classNames != null ? new LinkedHashSet<>(classNames) : null;
     }
 
     /**
-     * Returns an unmodifiable view of the event class names for this resource,
+     * Returns an unmodifiable view of the entry class names for this resource,
      * or {@code null} if not set.
      *
      * @return unmodifiable set of class names or null
      */
-    public Set<String> getEventClassNames() {
+    public Set<String> getEntryClassNames() {
         return eventClassNames != null ? Collections.unmodifiableSet(eventClassNames) : null;
     }
 
     /**
-     * Sets a per-resource {@code eventAllow} JS callback that controls where events associated with
+     * Sets a per-resource {@code eventAllow} JS callback that controls where entries associated with
      * this resource can be dropped. Receives {@code (dropInfo, draggedEvent)} and returns a boolean.
      * <br><br>
      * <b>Note:</b> No escaping is applied — validate before passing to the client.
@@ -453,7 +453,7 @@ public class Resource {
      * @param jsFunction JS function string, or {@code null} to clear
      * @see <a href="https://fullcalendar.io/docs/eventAllow">FullCalendar eventAllow</a>
      */
-    public void setEventAllow(String jsFunction) {
+    public void setEntryAllow(String jsFunction) {
         this.eventAllow = jsFunction;
     }
 
@@ -462,7 +462,7 @@ public class Resource {
      *
      * @return JS function string or null
      */
-    public String getEventAllow() {
+    public String getEntryAllow() {
         return eventAllow;
     }
 

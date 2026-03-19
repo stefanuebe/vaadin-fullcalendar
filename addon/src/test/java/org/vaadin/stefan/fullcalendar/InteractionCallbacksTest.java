@@ -34,12 +34,12 @@ public class InteractionCallbacksTest {
 
     @Test
     void option_eventAllow_key() {
-        assertEquals("eventAllow", Option.EVENT_ALLOW.getOptionKey());
+        assertEquals("eventAllow", Option.ENTRY_ALLOW.getOptionKey());
     }
 
     @Test
     void option_eventOverlap_key() {
-        assertEquals("eventOverlap", Option.EVENT_OVERLAP.getOptionKey());
+        assertEquals("eventOverlap", Option.ENTRY_OVERLAP.getOptionKey());
     }
 
     @Test
@@ -98,14 +98,14 @@ public class InteractionCallbacksTest {
     }
 
     @Test
-    void setEventAllowCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setEventAllowCallback(
+    void setEntryAllowCallback_doesNotThrow() {
+        assertDoesNotThrow(() -> calendar.setEntryAllowCallback(
                 "function(dropInfo, draggedEvent) { return true; }"));
     }
 
     @Test
-    void setEventOverlapCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setEventOverlapCallback(
+    void setEntryOverlapCallback_doesNotThrow() {
+        assertDoesNotThrow(() -> calendar.setEntryOverlapCallback(
                 "function(stillEvent, movingEvent) { return stillEvent.display === 'background'; }"));
     }
 

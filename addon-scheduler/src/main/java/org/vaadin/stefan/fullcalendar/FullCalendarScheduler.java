@@ -353,8 +353,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
-    public void setEventMinWidth(int pixels) {
-        setOption(SchedulerOption.EVENT_MIN_WIDTH, pixels);
+    public void setEntryMinWidth(int pixels) {
+        setOption(SchedulerOption.ENTRY_MIN_WIDTH, pixels);
     }
 
     @Override
@@ -542,7 +542,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public enum SchedulerOption {
         DATES_ABOVE_RESOURCES("datesAboveResources"),
         ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
-        EVENT_MIN_WIDTH("eventMinWidth"),
+        ENTRY_MIN_WIDTH("eventMinWidth"),
         FILTER_RESOURCES_WITH_ENTRIES("filterResourcesWithEvents"),
         GROUP_BY_DATE_AND_RESOURCE("groupByDateAndResource"),
         GROUP_BY_RESOURCE("groupByResource"),

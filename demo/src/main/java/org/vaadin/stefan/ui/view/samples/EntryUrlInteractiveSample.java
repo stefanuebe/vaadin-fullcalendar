@@ -16,7 +16,7 @@ public class EntryUrlInteractiveSample extends AbstractSample {
     @Override
     protected void buildSample(FullCalendar calendar) {
         // Make all entries keyboard-accessible globally
-        calendar.setOption(FullCalendar.Option.EVENT_INTERACTIVE, true);
+        calendar.setOption(FullCalendar.Option.ENTRY_INTERACTIVE, true);
 
         // URL entry — FullCalendar wraps this in an <a> tag
         Entry link = new Entry();

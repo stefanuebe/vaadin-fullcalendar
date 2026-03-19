@@ -89,8 +89,8 @@ public class EventSourcesTest {
     }
 
     @Test
-    void setEventDataTransformCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setEventDataTransformCallback("function(event) { return event; }"));
+    void setEntryDataTransformCallback_doesNotThrow() {
+        assertDoesNotThrow(() -> calendar.setEntryDataTransformCallback("function(event) { return event; }"));
     }
 
     @Test

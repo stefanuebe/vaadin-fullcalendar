@@ -131,7 +131,7 @@ public class InteractionCallbacksTestView extends VerticalLayout {
                 "function(selectInfo) { return selectInfo.start >= new Date('2025-03-03'); }");
 
         // eventAllow: prevent drops onto Monday 2025-03-03 (used for the Playwright deny test)
-        calendar.setEventAllowCallback(
+        calendar.setEntryAllowCallback(
                 "function(dropInfo, draggedEvent) { " +
                 "  var d = dropInfo.start; " +
                 "  return !(d.getFullYear() === 2025 && d.getMonth() === 2 && d.getDate() === 3); " +

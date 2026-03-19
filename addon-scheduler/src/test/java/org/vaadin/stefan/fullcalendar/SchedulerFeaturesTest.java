@@ -142,8 +142,8 @@ public class SchedulerFeaturesTest {
     }
 
     @Test
-    void testSetEventMinWidth() {
-        calendar.setEventMinWidth(10);
+    void testSetEntryMinWidth() {
+        calendar.setEntryMinWidth(10);
 
         Optional<Object> option = calendar.getOption("eventMinWidth");
         Assertions.assertTrue(option.isPresent());
@@ -306,9 +306,9 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceEventBackgroundColor() {
         Resource resource = new Resource();
-        resource.setEventBackgroundColor("#aabbcc");
+        resource.setEntryBackgroundColor("#aabbcc");
 
-        Assertions.assertEquals("#aabbcc", resource.getEventBackgroundColor());
+        Assertions.assertEquals("#aabbcc", resource.getEntryBackgroundColor());
 
         ObjectNode json = resource.toJson();
         Assertions.assertTrue(json.has("eventBackgroundColor"), "json has eventBackgroundColor");
@@ -327,9 +327,9 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceEventBorderColor() {
         Resource resource = new Resource();
-        resource.setEventBorderColor("#001122");
+        resource.setEntryBorderColor("#001122");
 
-        Assertions.assertEquals("#001122", resource.getEventBorderColor());
+        Assertions.assertEquals("#001122", resource.getEntryBorderColor());
 
         ObjectNode json = resource.toJson();
         Assertions.assertTrue(json.has("eventBorderColor"), "json has eventBorderColor");
@@ -339,9 +339,9 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceEventTextColor() {
         Resource resource = new Resource();
-        resource.setEventTextColor("white");
+        resource.setEntryTextColor("white");
 
-        Assertions.assertEquals("white", resource.getEventTextColor());
+        Assertions.assertEquals("white", resource.getEntryTextColor());
 
         ObjectNode json = resource.toJson();
         Assertions.assertTrue(json.has("eventTextColor"), "json has eventTextColor");
@@ -351,9 +351,9 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceEventConstraint() {
         Resource resource = new Resource();
-        resource.setEventConstraint("businessHours");
+        resource.setEntryConstraint("businessHours");
 
-        Assertions.assertEquals("businessHours", resource.getEventConstraint());
+        Assertions.assertEquals("businessHours", resource.getEntryConstraint());
 
         ObjectNode json = resource.toJson();
         Assertions.assertTrue(json.has("eventConstraint"), "json has eventConstraint");
@@ -363,9 +363,9 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceEventOverlapTrue() {
         Resource resource = new Resource();
-        resource.setEventOverlap(true);
+        resource.setEntryOverlap(true);
 
-        Assertions.assertEquals(Boolean.TRUE, resource.getEventOverlap());
+        Assertions.assertEquals(Boolean.TRUE, resource.getEntryOverlap());
 
         ObjectNode json = resource.toJson();
         Assertions.assertTrue(json.has("eventOverlap"), "json has eventOverlap");
@@ -375,9 +375,9 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceEventOverlapFalse() {
         Resource resource = new Resource();
-        resource.setEventOverlap(false);
+        resource.setEntryOverlap(false);
 
-        Assertions.assertEquals(Boolean.FALSE, resource.getEventOverlap());
+        Assertions.assertEquals(Boolean.FALSE, resource.getEntryOverlap());
 
         ObjectNode json = resource.toJson();
         Assertions.assertTrue(json.has("eventOverlap"), "json has eventOverlap (false is serialized)");
@@ -389,7 +389,7 @@ public class SchedulerFeaturesTest {
         Resource resource = new Resource();
         // eventOverlap is null by default
 
-        Assertions.assertNull(resource.getEventOverlap());
+        Assertions.assertNull(resource.getEntryOverlap());
 
         ObjectNode json = resource.toJson();
         Assertions.assertFalse(json.has("eventOverlap"), "null eventOverlap not serialized");
@@ -401,9 +401,9 @@ public class SchedulerFeaturesTest {
         Set<String> classNames = new LinkedHashSet<>();
         classNames.add("class-a");
         classNames.add("class-b");
-        resource.setEventClassNames(classNames);
+        resource.setEntryClassNames(classNames);
 
-        Set<String> returned = resource.getEventClassNames();
+        Set<String> returned = resource.getEntryClassNames();
         Assertions.assertNotNull(returned);
         Assertions.assertTrue(returned.contains("class-a"), "contains class-a");
         Assertions.assertTrue(returned.contains("class-b"), "contains class-b");
@@ -418,9 +418,9 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceEventClassNamesNull_NotSerialized() {
         Resource resource = new Resource();
-        resource.setEventClassNames(null);
+        resource.setEntryClassNames(null);
 
-        Assertions.assertNull(resource.getEventClassNames());
+        Assertions.assertNull(resource.getEntryClassNames());
 
         ObjectNode json = resource.toJson();
         Assertions.assertFalse(json.has("eventClassNames"), "null eventClassNames not serialized");
@@ -431,9 +431,9 @@ public class SchedulerFeaturesTest {
         Resource resource = new Resource();
         Set<String> classNames = new LinkedHashSet<>();
         classNames.add("readonly-class");
-        resource.setEventClassNames(classNames);
+        resource.setEntryClassNames(classNames);
 
-        Set<String> returned = resource.getEventClassNames();
+        Set<String> returned = resource.getEntryClassNames();
         Assertions.assertThrows(UnsupportedOperationException.class, () -> returned.add("should-fail"),
                 "returned set should be unmodifiable");
     }

@@ -34,7 +34,7 @@ public class AdvancedOptionsTest {
 
     @Test
     void option_eventConstraint_key() {
-        assertEquals("eventConstraint", Option.EVENT_CONSTRAINT.getOptionKey());
+        assertEquals("eventConstraint", Option.ENTRY_CONSTRAINT.getOptionKey());
     }
 
     @Test
@@ -58,41 +58,41 @@ public class AdvancedOptionsTest {
     }
 
     // -------------------------------------------------------------------------
-    // 7.6 eventConstraint
+    // 7.6 entryConstraint
     // -------------------------------------------------------------------------
 
     @Test
-    void setEventConstraint_string_storesOption() {
-        calendar.setOption(Option.EVENT_CONSTRAINT, "myGroup");
-        assertOptionalEquals("myGroup", calendar.getOption(Option.EVENT_CONSTRAINT));
+    void setEntryConstraint_string_storesOption() {
+        calendar.setOption(Option.ENTRY_CONSTRAINT, "myGroup");
+        assertOptionalEquals("myGroup", calendar.getOption(Option.ENTRY_CONSTRAINT));
     }
 
     @Test
-    void setEventConstraint_businessHours_storesJsonNode() {
+    void setEntryConstraint_businessHours_storesJsonNode() {
         BusinessHours hours = BusinessHours.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY);
-        calendar.setEventConstraint(hours);
-        Optional<Object> opt = calendar.getOption(Option.EVENT_CONSTRAINT);
+        calendar.setEntryConstraint(hours);
+        Optional<Object> opt = calendar.getOption(Option.ENTRY_CONSTRAINT);
         assertTrue(opt.isPresent());
         // stored as ObjectNode
         assertInstanceOf(ObjectNode.class, opt.get());
     }
 
     @Test
-    void setEventConstraintToBusinessHours_storesString() {
-        calendar.setOption(Option.EVENT_CONSTRAINT, "businessHours");
-        assertOptionalEquals("businessHours", calendar.getOption(Option.EVENT_CONSTRAINT));
+    void setEntryConstraintToBusinessHours_storesString() {
+        calendar.setOption(Option.ENTRY_CONSTRAINT, "businessHours");
+        assertOptionalEquals("businessHours", calendar.getOption(Option.ENTRY_CONSTRAINT));
     }
 
     @Test
-    void setEventConstraint_null_clearsOption() {
-        calendar.setOption(Option.EVENT_CONSTRAINT, "myGroup");
-        calendar.setOption(Option.EVENT_CONSTRAINT, null);
-        assertTrue(calendar.getOption(Option.EVENT_CONSTRAINT).isEmpty());
+    void setEntryConstraint_null_clearsOption() {
+        calendar.setOption(Option.ENTRY_CONSTRAINT, "myGroup");
+        calendar.setOption(Option.ENTRY_CONSTRAINT, null);
+        assertTrue(calendar.getOption(Option.ENTRY_CONSTRAINT).isEmpty());
     }
 
     @Test
-    void setEventConstraint_businessHours_null_throws() {
-        assertThrows(NullPointerException.class, () -> calendar.setEventConstraint((BusinessHours) null));
+    void setEntryConstraint_businessHours_null_throws() {
+        assertThrows(NullPointerException.class, () -> calendar.setEntryConstraint((BusinessHours) null));
     }
 
     // -------------------------------------------------------------------------

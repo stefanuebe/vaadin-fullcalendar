@@ -1354,8 +1354,8 @@ Control whether events may overlap when dragged or resized. Per-entry `setOverla
 the global setting.
 
 ```java
-// Prevent all events from overlapping each other
-calendar.setEventOverlap(false);
+// Prevent all entries from overlapping each other
+calendar.setOption(FullCalendar.Option.ENTRY_OVERLAP, false);
 
 // Individual entries can still opt in
 Entry flexible = new Entry();
@@ -1363,7 +1363,7 @@ flexible.setTitle("Flexible");
 flexible.setOverlap(true);  // overrides the global false
 
 // For more complex logic, use a JS callback
-calendar.setEventOverlapCallback("""
+calendar.setEntryOverlapCallback("""
     function(stillEvent, movingEvent) {
         // Allow overlap only with background events
         return stillEvent.display === 'background';
@@ -1446,20 +1446,20 @@ Resources can define default display properties for all entries assigned to them
 ```java
 // Room A: all its entries are green by default
 Resource roomA = new Resource("room-a", "Room A");
-roomA.setEventBackgroundColor("#4caf50");
-roomA.setEventBorderColor("#388e3c");
+roomA.setEntryBackgroundColor("#4caf50");
+roomA.setEntryBorderColor("#388e3c");
 
 // Room B: entries cannot overlap each other on this resource
 Resource roomB = new Resource("room-b", "Room B");
-roomB.setEventOverlap(false);
-roomB.setEventBackgroundColor("#2196f3");
+roomB.setEntryOverlap(false);
+roomB.setEntryBackgroundColor("#2196f3");
 
 // Room C: restrict entries to business hours on this resource
 Resource roomC = new Resource("room-c", "Room C");
-roomC.setEventConstraint("businessHours");
+roomC.setEntryConstraint("businessHours");
 
 // Add CSS classes to all entries on this resource
-roomA.setEventClassNames(Set.of("room-a-entry", "highlight"));
+roomA.setEntryClassNames(Set.of("room-a-entry", "highlight"));
 
 Scheduler scheduler = (Scheduler) calendar;
 scheduler.addResources(roomA, roomB, roomC);

@@ -58,7 +58,7 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // Accessibility options
-        calendar.setOption(FullCalendar.Option.EVENT_INTERACTIVE, true);
+        calendar.setOption(FullCalendar.Option.ENTRY_INTERACTIVE, true);
         calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
         // Limit event rows to 2 so the 5 events on 2025-03-05 reliably produce a "+N more" link
         calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2);
