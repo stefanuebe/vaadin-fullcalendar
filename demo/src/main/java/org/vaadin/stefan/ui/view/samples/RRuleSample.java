@@ -6,7 +6,6 @@ import org.vaadin.stefan.fullcalendar.RRule;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Demonstrates RFC 5545 recurrence rules via the {@link RRule} fluent builder.
@@ -21,7 +20,7 @@ public class RRuleSample extends AbstractSample {
         // Weekly on Monday, Wednesday, and Friday (all-day: dtstart uses LocalDate, so no time component)
         Entry standup = new Entry();
         standup.setTitle("Weekly Standup");
-        standup.setRrule(RRule.weekly()
+        standup.setRRule(RRule.weekly()
                 .byWeekday(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
                 .dtstart(LocalDate.now().withDayOfMonth(1))
                 .until(LocalDate.now().plusMonths(3)));
@@ -31,18 +30,17 @@ public class RRuleSample extends AbstractSample {
         // "1mo" = first Monday, "-2tu" = second-to-last Tuesday.
         Entry review = new Entry();
         review.setTitle("Monthly Review");
-        review.setRrule(RRule.monthly().byWeekday("-1fr")
+        review.setRRule(RRule.monthly().byWeekday("-1fr")
                 .dtstart(LocalDate.now().withDayOfMonth(1)));
 
         // Bi-weekly on Tuesday — exclude one occurrence
         Entry planning = new Entry();
         planning.setTitle("Bi-weekly Planning");
-        planning.setRrule(RRule.weekly()
+        planning.setRRule(RRule.weekly()
                 .byWeekday(DayOfWeek.TUESDAY)
                 .interval(2)
-                .dtstart(LocalDate.now().with(DayOfWeek.TUESDAY)));
-        // Exclude one or more specific occurrences by date.
-        planning.setExdate(List.of(LocalDate.now().plusWeeks(4).with(DayOfWeek.TUESDAY)));
+                .dtstart(LocalDate.now().with(DayOfWeek.TUESDAY))
+                .excludeDates(LocalDate.now().plusWeeks(4).with(DayOfWeek.TUESDAY)));
 
         calendar.getEntryProvider().asInMemory().addEntries(standup, review, planning);
     }

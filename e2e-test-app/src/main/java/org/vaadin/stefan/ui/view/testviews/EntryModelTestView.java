@@ -106,7 +106,7 @@ public class EntryModelTestView extends VerticalLayout {
         Entry rruleEntry = new Entry();
         rruleEntry.setTitle("RRule Weekly");
         rruleEntry.setAllDay(true);
-        rruleEntry.setRrule(
+        rruleEntry.setRRule(
                 RRule.weekly()
                         .dtstart(LocalDate.of(2025, 3, 3))
                         .until(LocalDate.of(2025, 3, 31))
@@ -119,13 +119,13 @@ public class EntryModelTestView extends VerticalLayout {
         Entry exdateEntry = new Entry();
         exdateEntry.setTitle("Exdate Test");
         exdateEntry.setAllDay(true);
-        exdateEntry.setRrule(
+        exdateEntry.setRRule(
                 RRule.weekly()
                         .dtstart(LocalDate.of(2025, 3, 3))
                         .until(LocalDate.of(2025, 3, 31))
                         .byWeekday(DayOfWeek.MONDAY)
+                        .excludeDates(LocalDate.of(2025, 3, 10))
         );
-        exdateEntry.setExdate(List.of(LocalDate.of(2025, 3, 10)));
         provider.addEntry(exdateEntry);
 
         // 6. Monthly last-Friday entry — last Friday of each month Jan–Mar 2025
@@ -133,7 +133,7 @@ public class EntryModelTestView extends VerticalLayout {
         Entry lastFridayEntry = new Entry();
         lastFridayEntry.setTitle("Last Friday");
         lastFridayEntry.setAllDay(true);
-        lastFridayEntry.setRrule(
+        lastFridayEntry.setRRule(
                 RRule.monthly()
                         .dtstart(LocalDate.of(2025, 1, 1))
                         .until(LocalDate.of(2025, 3, 31))
@@ -145,7 +145,7 @@ public class EntryModelTestView extends VerticalLayout {
         Entry rawEntry = new Entry();
         rawEntry.setTitle("Raw RRule");
         rawEntry.setAllDay(true);
-        rawEntry.setRrule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=WE;DTSTART=20250305;UNTIL=20250331"));
+        rawEntry.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=WE;DTSTART=20250305;UNTIL=20250331"));
         provider.addEntry(rawEntry);
 
         calendar.setEntryProvider(provider);

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -121,20 +122,65 @@ public class Entry {
      * <p>
      * <b>Mutually exclusive</b> with FC's built-in recurrence ({@code recurringDaysOfWeek}, etc.).
      * Do not set both on the same entry.
+     * <p>
+     * Use {@link #setRRule(RRule)} and {@link #getRRule()} instead of the Lombok-generated accessors.
      *
      * @see RRule
      */
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
     @JsonConverter(RRuleConverter.class)
     private RRule rrule;
 
     /**
-     * Dates to exclude from an RRule-based recurrence. Use the same timezone context as the calendar.
-     * Only meaningful when {@link #rrule} is set.
-     * <p>
-     * Serialized to FullCalendar as a JSON array of ISO 8601 date strings.
+     * Dates to exclude from an RRule-based recurrence. Populated automatically from
+     * {@link RRule#getExcludedDates()} when {@link #setRRule(RRule)} is called.
+     * Not part of the public API — use {@link RRule#excludeDates(LocalDate...)} instead.
      */
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
     @JsonConverter(ExdateConverter.class)
     private List<LocalDate> exdate;
+
+    /**
+     * Returns the RRule-based recurrence definition, or {@code null} if not set.
+     *
+     * @return the RRule, or {@code null}
+     */
+    public RRule getRRule() {
+        return rrule;
+    }
+
+    /**
+     * Internal getter used by the serialization system ({@code BeanProperties}).
+     * Use {@link #getRRule()} in application code.
+     */
+    public RRule getRrule() {
+        return rrule;
+    }
+
+    /**
+     * Internal getter used by the serialization system ({@code BeanProperties}).
+     * Not part of the public API — use {@link RRule#excludeDates(LocalDate...)} to set excluded dates.
+     */
+    public List<LocalDate> getExdate() {
+        return exdate;
+    }
+
+    /**
+     * Sets the RRule-based recurrence definition. If the RRule has excluded dates
+     * (set via {@link RRule#excludeDates(LocalDate...)}), they are automatically transferred
+     * to the entry's {@code exdate} property and serialized separately as required by
+     * FullCalendar's RRule plugin.
+     * <p>
+     * Pass {@code null} to remove the recurrence rule and any associated excluded dates.
+     *
+     * @param rrule the RRule to set, or {@code null} to clear
+     */
+    public void setRRule(RRule rrule) {
+        this.rrule = rrule;
+        this.exdate = rrule != null ? rrule.getExcludedDates() : null;
+    }
 
     private Set<String> classNames;
 

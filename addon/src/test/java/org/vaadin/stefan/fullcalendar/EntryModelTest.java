@@ -127,31 +127,26 @@ public class EntryModelTest {
     }
 
     // -------------------------------------------------------------------------
-    // exdate
+    // exdate — set via RRule.excludeDates(), transferred by Entry.setRRule()
     // -------------------------------------------------------------------------
 
     @Test
-    void exdate_default_notInJson() {
+    void excludeDates_notInJson_whenNotSet() {
         Entry entry = new Entry();
-        assertFalse(entry.toJson().has("exdate"), "exdate should not be in JSON when not set");
+        entry.setRRule(RRule.weekly().dtstart(LocalDate.of(2024, 1, 1)));
+        assertFalse(entry.toJson().has("exdate"), "exdate should not be in JSON when no excludeDates set");
     }
 
     @Test
-    void exdate_setAndGet() {
-        Entry entry = new Entry();
+    void excludeDates_transferredToEntryOnSetRRule() {
         List<LocalDate> dates = List.of(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 20));
-        entry.setExdate(dates);
-        assertEquals(dates, entry.getExdate());
-    }
-
-    @Test
-    void exdate_serializedAsJsonArray() {
         Entry entry = new Entry();
-        entry.setExdate(List.of(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 20)));
+        entry.setRRule(RRule.weekly().excludeDates(dates));
+        // verify exdate is serialized into the event JSON
         ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("exdate"), "exdate should be in JSON");
+        assertTrue(json.hasNonNull("exdate"), "exdate should be in JSON after setRRule with excludeDates");
         JsonNode exdateNode = json.get("exdate");
-        assertInstanceOf(ArrayNode.class, exdateNode, "exdate should always serialize as a JSON array");
+        assertInstanceOf(ArrayNode.class, exdateNode);
         ArrayNode arr = (ArrayNode) exdateNode;
         assertEquals(2, arr.size());
         assertEquals("2024-01-15", arr.get(0).asString());
@@ -159,30 +154,30 @@ public class EntryModelTest {
     }
 
     @Test
-    void exdate_singleDate_serializedAsArrayWithOneElement() {
+    void excludeDates_singleDate_serializedAsArrayWithOneElement() {
         Entry entry = new Entry();
-        entry.setExdate(List.of(LocalDate.of(2024, 1, 15)));
-        ObjectNode json = entry.toJson();
-        JsonNode exdateNode = json.get("exdate");
+        entry.setRRule(RRule.weekly().excludeDates(LocalDate.of(2024, 1, 15)));
+        JsonNode exdateNode = entry.toJson().get("exdate");
         assertInstanceOf(ArrayNode.class, exdateNode);
         assertEquals(1, ((ArrayNode) exdateNode).size());
         assertEquals("2024-01-15", ((ArrayNode) exdateNode).get(0).asString());
     }
 
     @Test
-    void exdate_emptyList_notInJson() {
-        Entry entry = new Entry();
-        entry.setExdate(List.of());
-        assertFalse(entry.toJson().has("exdate"), "empty exdate list should not appear in JSON");
+    void excludeDates_notInRRuleJson() {
+        // excludedDates must NOT appear inside the rrule JSON object — only at event level
+        RRule rrule = RRule.weekly().excludeDates(LocalDate.of(2024, 1, 15));
+        assertFalse(rrule.toJson().has("excludedDates"), "excludedDates must not be serialized inside rrule JSON");
+        assertFalse(rrule.toJson().has("exdate"), "exdate must not be serialized inside rrule JSON");
     }
 
     @Test
-    void exdate_null_removedFromJson() {
+    void excludeDates_clearedWhenSetRRuleNull() {
         Entry entry = new Entry();
-        entry.setExdate(List.of(LocalDate.of(2024, 1, 15)));
-        entry.setExdate(null);
-        assertNull(entry.getExdate(), "exdate getter should return null after clearing");
-        assertFalse(entry.toJson().has("exdate"), "exdate should not be in JSON after clearing");
+        entry.setRRule(RRule.weekly().excludeDates(LocalDate.of(2024, 1, 15)));
+        entry.setRRule(null);
+        assertNull(entry.getRRule());
+        assertFalse(entry.toJson().has("exdate"), "exdate should not be in JSON after setRRule(null)");
     }
 
     // -------------------------------------------------------------------------
@@ -422,7 +417,7 @@ public class EntryModelTest {
     @Test
     void entry_rrule_serializedToJson() {
         Entry entry = new Entry();
-        entry.setRrule(RRule.weekly().byWeekday(DayOfWeek.MONDAY));
+        entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.MONDAY));
 
         ObjectNode json = entry.toJson();
         assertTrue(json.hasNonNull("rrule"), "rrule key must be present in entry JSON");
@@ -432,7 +427,7 @@ public class EntryModelTest {
     @Test
     void entry_rrule_raw_serializedAsString() {
         Entry entry = new Entry();
-        entry.setRrule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO"));
+        entry.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO"));
 
         ObjectNode json = entry.toJson();
         assertTrue(json.hasNonNull("rrule"));
@@ -442,9 +437,9 @@ public class EntryModelTest {
     @Test
     void entry_rrule_null_notInJson() {
         Entry entry = new Entry();
-        entry.setRrule(RRule.weekly());
-        entry.setRrule(null);
-        assertNull(entry.getRrule(), "getRrule() should return null after clearing");
+        entry.setRRule(RRule.weekly());
+        entry.setRRule(null);
+        assertNull(entry.getRRule(), "getRRule() should return null after clearing");
         assertFalse(entry.toJson().has("rrule"), "rrule should not be in JSON after clearing");
     }
 }

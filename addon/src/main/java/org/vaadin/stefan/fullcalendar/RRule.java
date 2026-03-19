@@ -151,6 +151,13 @@ public class RRule {
      */
     private String rawRRule;
 
+    /**
+     * Dates to exclude from this recurrence. Transferred to the entry's {@code exdate} property
+     * when the RRule is set on an {@link Entry} via {@link Entry#setRRule(RRule)}.
+     * Not serialized as part of the {@code rrule} JSON object itself.
+     */
+    private List<LocalDate> excludedDates;
+
     private RRule() {
     }
 
@@ -420,6 +427,32 @@ public class RRule {
      */
     public RRule weekStart(DayOfWeek wkst) {
         this.wkst = toRRuleDay(wkst);
+        return this;
+    }
+
+    /**
+     * Sets the dates to exclude from this recurrence. When this RRule is set on an {@link Entry}
+     * via {@link Entry#setRRule(RRule)}, these dates are transferred to the entry's {@code exdate}
+     * property and serialized as a JSON array for FullCalendar's RRule plugin.
+     *
+     * @param dates dates to exclude
+     * @return this instance
+     */
+    public RRule excludeDates(LocalDate... dates) {
+        this.excludedDates = Arrays.asList(dates);
+        return this;
+    }
+
+    /**
+     * Sets the dates to exclude from this recurrence. When this RRule is set on an {@link Entry}
+     * via {@link Entry#setRRule(RRule)}, these dates are transferred to the entry's {@code exdate}
+     * property and serialized as a JSON array for FullCalendar's RRule plugin.
+     *
+     * @param dates dates to exclude
+     * @return this instance
+     */
+    public RRule excludeDates(List<LocalDate> dates) {
+        this.excludedDates = dates;
         return this;
     }
 
