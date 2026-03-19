@@ -2670,17 +2670,26 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public enum Option {
 
         /**
+         * Show or hide the all-day row at the top of timegrid views.
+         * Accepts a boolean value. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/allDaySlot">allDaySlot</a>
          */
         ALL_DAY_SLOT,
 
 
         /**
+         * Width-to-height ratio of the calendar container.
+         * Accepts a number (e.g., {@code 1.35}). Default: {@code 1.35}.
+         *
          * @see <a href="https://fullcalendar.io/docs/aspectRatio">aspectRatio</a>
          */
         ASPECT_RATIO,
 
         /**
+         * Highlight business hours on the calendar. Accepts a boolean ({@code true} uses default
+         * 9am–5pm Mon–Fri) or a {@link BusinessHours} object serialized to JSON.
+         *
          * @see <a href="https://fullcalendar.io/docs/businessHours">businessHours</a>
          */
         BUSINESS_HOURS,
@@ -2698,156 +2707,249 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         COLUMN_HEADER("dayHeaders"),
 
         /**
+         * Height of the calendar's event area. Accepts a number (pixels), a CSS string (e.g.,
+         * {@code "500px"}, {@code "100%"}), or {@code "auto"} to size to content. Default: {@code "auto"}.
+         *
          * @see <a href="https://fullcalendar.io/docs/contentHeight">contentHeight</a>
          */
         CONTENT_HEIGHT,
 
         /**
+         * Format of the day column headers. Accepts a format object with {@code month}, {@code day},
+         * {@code weekday}, and {@code meridiem} properties.
+         *
          * @see <a href="https://fullcalendar.io/docs/dayHeaderFormat">dayHeaderFormat</a>
          */
         DAY_HEADER_FORMAT,
 
         /**
+         * Minimum pixel width of each day column. Used to enable horizontal scrolling on narrow views.
+         * Accepts a number (pixels). Default: none (columns grow to fit available space).
+         *
          * @see <a href="https://fullcalendar.io/docs/dayMinWidth">dayMinWidth</a>
          */
         DAY_MIN_WIDTH,
 
         /**
+         * Show or hide the time label on entry elements. Accepts a boolean.
+         * Default: {@code true} for timed entries in agenda views, {@code false} for all-day events.
+         *
          * @see <a href="https://fullcalendar.io/docs/displayEventTime">displayEventTime</a>
          */
         DISPLAY_ENTRY_TIME,
 
         /**
+         * Text direction of the calendar. Accepts {@code "ltr"} (left-to-right) or {@code "rtl"}
+         * (right-to-left). Default: {@code "ltr"}.
+         *
          * @see <a href="https://fullcalendar.io/docs/direction">direction</a>
          */
         DIRECTION,
 
         /**
+         * Auto-scroll the view when dragging entries near the viewport edges.
+         * Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/dragScroll">dragScroll</a>
          */
         DRAG_SCROLL,
 
         /**
+         * Master switch for entry dragging and resizing. Accepts a boolean. Default: {@code false}.
+         * Individual entries can override via {@link Entry#setEditable(boolean)}.
+         *
          * @see <a href="https://fullcalendar.io/docs/editable">editable</a>
          */
         EDITABLE,
 
         /**
+         * Default background color for all entries. Accepts a CSS color string.
+         * Can be overridden per-entry via {@link Entry#setBackgroundColor(String)}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventBackgroundColor">eventBackgroundColor</a>
          */
         ENTRY_BACKGROUND_COLOR,
 
         /**
+         * Default border color for all entries. Accepts a CSS color string.
+         * Can be overridden per-entry via {@link Entry#setBorderColor(String)}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventBorderColor">eventBorderColor</a>
          */
         ENTRY_BORDER_COLOR,
 
         /**
+         * Default combined background and border color for all entries. Accepts a CSS color string.
+         * Equivalent to setting both {@link #ENTRY_BACKGROUND_COLOR} and {@link #ENTRY_BORDER_COLOR}.
+         * Can be overridden per-entry via {@link Entry#setColor(String)}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventColor">eventColor</a>
          */
         ENTRY_COLOR,
 
         /**
+         * Allow resizing (duration editing) of entries. Accepts a boolean.
+         * Default: inherits from {@link #EDITABLE}. Can be overridden per-entry.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventDurationEditable">eventDurationEditable</a>
          */
         ENTRY_DURATION_EDITABLE,
 
         /**
+         * Maximum number of entries stacked side-by-side in a day cell before showing a "+N more" link.
+         * Accepts an integer. Default: none (all entries shown).
+         *
          * @see <a href="https://fullcalendar.io/docs/eventMaxStack">eventMaxStack</a>
          */
         ENTRY_MAX_STACK,
 
         /**
+         * Minimum pixel height of entries in timegrid views. Accepts a number (pixels).
+         * Default: {@code 15}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventMinHeight">eventMinHeight</a>
          */
         ENTRY_MIN_HEIGHT,
 
         /**
+         * Sort order for entries within a time slot. Accepts a string (e.g., {@code "title"}),
+         * an array of sort keys, or {@code -1} for reverse order. For custom sorting via JS function,
+         * use {@link FullCalendar#setCallbackOption(CallbackOption, String)} with
+         * {@link CallbackOption#ENTRY_ORDER} instead.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventOrder">eventOrder</a>
          */
         ENTRY_ORDER,
 
         /**
+         * Prevent entries from being reordered when they have the same start time.
+         * Accepts a boolean. Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventOrderStrict">eventOrderStrict</a>
          */
         ENTRY_ORDER_STRICT,
 
         /**
+         * Default display mode for entries. Accepts {@code "auto"}, {@code "block"}, {@code "list-item"},
+         * {@code "background"}, {@code "inverse-background"}, or {@code "none"}. Default: {@code "auto"}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventDisplay">eventDisplay</a>
          */
         ENTRY_DISPLAY,
 
         /**
+         * Allow resizing entries from their start edge. Accepts a boolean. Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventResizableFromStart">eventResizableFromStart</a>
          */
         ENTRY_RESIZABLE_FROM_START,
 
         /**
+         * Pixel height threshold below which the time label is hidden on entries. Accepts a number (pixels).
+         * Default: {@code 30}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventShortHeight">eventShortHeight</a>
          */
         ENTRY_SHORT_HEIGHT,
 
         /**
+         * Allow dragging entries to change their start time. Accepts a boolean.
+         * Default: inherits from {@link #EDITABLE}. Can be overridden per-entry.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventStartEditable">eventStartEditable</a>
          */
         ENTRY_START_EDITABLE,
 
         /**
+         * Default text color for all entries. Accepts a CSS color string.
+         * Can be overridden per-entry via {@link Entry#setTextColor(String)}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventTextColor">eventTextColor</a>
          */
         ENTRY_TEXT_COLOR,
 
         /**
+         * Format of the time shown on entry elements. Accepts a format object with
+         * {@code hour}, {@code minute}, {@code meridiem}, and other properties.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventTimeFormat">eventTimeFormat</a>
          */
         ENTRY_TIME_FORMAT,
 
         /**
+         * Stretch row heights to fill the view vertically. Accepts a boolean. Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/expandRows">expandRows</a>
          */
         EXPAND_ROWS,
 
         /**
+         * First day of the week (0 = Sunday, 6 = Saturday). Accepts an integer.
+         * Default: locale-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/firstDay">firstDay</a>
          */
         FIRST_DAY,
 
         /**
+         * Always display 6 weeks in month view. Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/fixedWeekCount">fixedWeekCount</a>
          */
         FIXED_WEEK_COUNT,
 
         /**
+         * Configuration for the footer toolbar buttons. Accepts an object with {@code left}, {@code center},
+         * and {@code right} properties specifying button names and separators.
+         *
          * @see <a href="https://fullcalendar.io/docs/footerToolbar">footerToolbar</a>
          */
         FOOTER_TOOLBAR,
 
         /**
+         * Configuration for the header toolbar buttons. Accepts an object with {@code left}, {@code center},
+         * and {@code right} properties specifying button names and separators.
+         *
          * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
          */
         HEADER_TOOLBAR,
 
         /**
+         * Total height of the calendar. Accepts a number (pixels), a CSS string (e.g., {@code "500px"},
+         * {@code "100%"}), or {@code "auto"} to size to content. Default: none (fills parent container).
+         *
          * @see <a href="https://fullcalendar.io/docs/height">height</a>
          */
         HEIGHT,
 
         /**
+         * Days of the week to hide (0 = Sunday, 6 = Saturday). Accepts an array of integers.
+         * Default: none (all days shown).
+         *
          * @see <a href="https://fullcalendar.io/docs/hiddenDays">hiddenDays</a>
          */
         HIDDEN_DAYS,
 
         /**
+         * Format of the date column (left side) in list view. Accepts a format object with
+         * {@code year}, {@code month}, {@code day}, and other properties.
+         *
          * @see <a href="https://fullcalendar.io/docs/listDayFormat">listDayFormat</a>
          */
         LIST_DAY_FORMAT,
 
         /**
+         * Format of the right-side date column in list view (typically time info for each entry).
+         * Accepts a format object.
+         *
          * @see <a href="https://fullcalendar.io/docs/listDaySideFormat">listDaySideFormat</a>
          */
         LIST_DAY_SIDE_FORMAT,
 
         /**
+         * Locale/language code for displaying calendar text. Accepts a language code string
+         * (e.g., {@code "en"}, {@code "de"}, {@code "fr"}). Default: browser language.
+         *
          * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
          */
         LOCALE,
@@ -2858,51 +2960,79 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         MAX_ENTRIES_PER_DAY("dayMaxEvents"),
 
         /**
+         * Format of the month label in multi-month grid views. Accepts a format object with
+         * {@code month}, {@code year}, and other properties.
+         *
          * @see <a href="https://fullcalendar.io/docs/monthStartFormat">monthStartFormat</a>
          */
         MONTH_START_FORMAT,
 
         /**
+         * Maximum number of columns in multi-month view. Accepts an integer. Default: {@code 3}.
+         *
          * @see <a href="https://fullcalendar.io/docs/multiMonthMaxColumns">multiMonthMaxColumns</a>
          */
         MULTI_MONTH_MAX_COLUMNS,
 
         /**
+         * Minimum pixel width of each month cell in multi-month view before wrapping to next row.
+         * Accepts a number (pixels). Default: auto-calculated.
+         *
          * @see <a href="https://fullcalendar.io/docs/multiMonthMinWidth">multiMonthMinWidth</a>
          */
         MULTI_MONTH_MIN_WIDTH,
 
         /**
+         * Format of each month's title in multi-month view. Accepts a format object with
+         * {@code month}, {@code year}, and other properties.
+         *
          * @see <a href="https://fullcalendar.io/docs/multiMonthTitleFormat">multiMonthTitleFormat</a>
          */
         MULTI_MONTH_TITLE_FORMAT,
 
         /**
+         * Make day/week numbers clickable to navigate to that period. Accepts a boolean. Default: {@code false}.
+         * Can be overridden by {@link CallbackOption#NAV_LINK_DAY_CLICK} and {@link CallbackOption#NAV_LINK_WEEK_CLICK}.
+         *
          * @see <a href="https://fullcalendar.io/docs/navLinks">navLinks</a>
          */
         NAV_LINKS,
 
         /**
+         * Time threshold at which a multi-day entry transitions to display on the next day.
+         * Accepts a duration string (e.g., {@code "00:00:00"}, {@code "09:00:00"}). Default: {@code "00:00:00"}.
+         *
          * @see <a href="https://fullcalendar.io/docs/nextDayThreshold">nextDayThreshold</a>
          */
         NEXT_DAY_THRESHOLD,
 
         /**
+         * Show a visual indicator for the current time. Accepts a boolean. Default: {@code false}.
+         * Only works with timegrid views.
+         *
          * @see <a href="https://fullcalendar.io/docs/nowIndicator">nowIndicator</a>
          */
         NOW_INDICATOR,
 
         /**
+         * Initial scroll position in timegrid views (time of day from top of viewport).
+         * Accepts a duration string (e.g., {@code "06:00:00"}). Default: {@code "06:00:00"}.
+         *
          * @see <a href="https://fullcalendar.io/docs/scrollTime">scrollTime</a>
          */
         SCROLL_TIME,
 
         /**
+         * Reset the scroll position when navigating to a different view. Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/scrollTimeReset">scrollTimeReset</a>
          */
         SCROLL_TIME_RESET,
 
         /**
+         * Allow users to select time ranges by clicking and dragging. Accepts a boolean. Default: {@code false}.
+         * Fires {@code TimeslotsSelectedEvent} server-side.
+         *
          * @see <a href="https://fullcalendar.io/docs/selectable">selectable</a>
          */
         SELECTABLE,
@@ -2917,66 +3047,103 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         SELECT_CONSTRAINT,
 
         /**
+         * Minimum drag distance in pixels before a selection is initiated. Accepts a number.
+         * Default: {@code 0}.
+         *
          * @see <a href="https://fullcalendar.io/docs/selectMinDistance">selectMinDistance</a>
          */
         SELECT_MIN_DISTANCE,
 
         /**
+         * Show a placeholder entry while selecting a time range. Accepts a boolean. Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/selectMirror">selectMirror</a>
          */
         SELECT_MIRROR,
 
         /**
+         * Controls whether a time selection can overlap an existing entry. Accepts a boolean
+         * ({@code true} allows overlap, {@code false} prevents it). To use a JS function for
+         * per-entry control, use {@link FullCalendar#setCallbackOption(CallbackOption, String)}
+         * with {@link CallbackOption#SELECT_OVERLAP} instead.
+         *
          * @see <a href="https://fullcalendar.io/docs/selectOverlap">selectOverlap</a>
          */
         SELECT_OVERLAP,
 
         /**
+         * Show dates from adjacent months in month view. Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/showNonCurrentDates">showNonCurrentDates</a>
          */
         SHOW_NON_CURRENT_DATES,
 
         /**
+         * Duration of each time slot in timegrid and timeline views. Accepts a duration string
+         * (e.g., {@code "00:30:00"} for 30 minutes). Default: {@code "00:30:00"}.
+         *
          * @see <a href="https://fullcalendar.io/docs/slotDuration">slotDuration</a>
          */
         SLOT_DURATION,
 
         /**
+         * Allow entries in the same timegrid slot to overlap visually. Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/slotEventOverlap">slotEventOverlap</a>
          */
         SLOT_ENTRY_OVERLAP,
 
         /**
+         * Format of the time slot labels. Accepts a format object with {@code hour}, {@code minute},
+         * {@code meridiem}, and other properties.
+         *
          * @see <a href="https://fullcalendar.io/docs/slotLabelFormat">slotLabelFormat</a>
          */
         SLOT_LABEL_FORMAT,
 
         /**
+         * Interval between visible time slot labels. Accepts a duration string
+         * (e.g., {@code "00:30:00"}). Default: same as {@link #SLOT_DURATION}.
+         *
          * @see <a href="https://fullcalendar.io/docs/slotLabelInterval">slotLabelInterval</a>
          */
         SLOT_LABEL_INTERVAL,
 
         /**
+         * End of the visible time range in timegrid views. Accepts a duration string
+         * (e.g., {@code "24:00:00"}). Default: {@code "24:00:00"}.
+         *
          * @see <a href="https://fullcalendar.io/docs/slotMaxTime">slotMaxTime</a>
          */
         SLOT_MAX_TIME,
 
         /**
+         * Start of the visible time range in timegrid views. Accepts a duration string
+         * (e.g., {@code "00:00:00"}, {@code "06:00:00"}}). Default: {@code "00:00:00"}.
+         *
          * @see <a href="https://fullcalendar.io/docs/slotMinTime">slotMinTime</a>
          */
         SLOT_MIN_TIME,
 
         /**
+         * Snap interval when dragging entries. Accepts a duration string (e.g., {@code "00:15:00"}).
+         * Default: same as {@link #SLOT_DURATION}.
+         *
          * @see <a href="https://fullcalendar.io/docs/snapDuration">snapDuration</a>
          */
         SNAP_DURATION,
 
         /**
+         * Keep the footer scrollbar visible when scrolling. Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/stickyFooterScrollbar">stickyFooterScrollbar</a>
          */
         STICKY_FOOTER_SCROLLBAR,
 
         /**
+         * Keep header dates visible when scrolling vertically in timegrid views. Accepts a boolean.
+         * Default: auto-detected based on view height.
+         *
          * @see <a href="https://fullcalendar.io/docs/stickyHeaderDates">stickyHeaderDates</a>
          */
         STICKY_HEADER_DATES,
@@ -2987,46 +3154,70 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         TIMEZONE("timeZone"),
 
         /**
+         * Deselect time range selections when clicking outside the selection.
+         * Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/unselectAuto">unselectAuto</a>
          */
         UNSELECT_AUTO,
 
         /**
+         * CSS selector for elements that, when clicked, won't deselect the current selection.
+         * Accepts a CSS selector string (e.g., {@code ".dialog, .menu"}).
+         *
          * @see <a href="https://fullcalendar.io/docs/unselectCancel">unselectCancel</a>
          */
         UNSELECT_CANCEL,
 
         /**
+         * Restrict the navigable date range. Accepts an object with {@code start} and {@code end} date strings.
+         * To use a JS function for dynamic ranges, use {@link FullCalendar#setCallbackOption(CallbackOption, String)}
+         * with {@link CallbackOption#VALID_RANGE} instead.
+         *
          * @see <a href="https://fullcalendar.io/docs/validRange">validRange</a>
          */
-        VALID_RANGE, // function not yet supported, but should not be necessary
+        VALID_RANGE,
 
         /**
+         * Show or hide weekends. Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/weekends">weekends</a>
          */
         WEEKENDS,
 
         /**
+         * Show week number cells/columns. Accepts a boolean. Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/weekNumbers">weekNumbers</a>
          */
         WEEK_NUMBERS,
 
         /**
+         * Algorithm for calculating week numbers. Accepts {@code "locale"}} (default) or {@code "ISO"}} (ISO 8601).
+         *
          * @see <a href="https://fullcalendar.io/docs/weekNumberCalculation">weekNumberCalculation</a>
          */
         WEEK_NUMBER_CALCULATION,
 
         /**
+         * Format of the week number cell. Accepts a format object with {@code week} property.
+         *
          * @see <a href="https://fullcalendar.io/docs/weekNumberFormat">weekNumberFormat</a>
          */
         WEEK_NUMBER_FORMAT,
 
         /**
+         * Text prepended to week numbers (e.g., "W" in "W1", "W2"). Accepts a string.
+         * Default: locale-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/weekText">weekText</a>
          */
         WEEK_TEXT,
 
         /**
+         * Long form of the week text for wider views (e.g., "Week" in "Week 1"). Accepts a string.
+         * Default: locale-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/weekTextLong">weekTextLong</a>
          */
         WEEK_TEXT_LONG,
@@ -3034,6 +3225,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
         /**
+         * Keep duration when dragging a timed entry to/from the all-day slot. Accepts a boolean.
+         * Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/allDayMaintainDuration">allDayMaintainDuration</a>
          */
         ALL_DAY_MAINTAIN_DURATION,
@@ -3047,6 +3241,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         NATIVE_TOOLBAR_BUTTON_TEXT("buttonText"),
 
         /**
+         * Default all-day status for entries without an explicit time. Accepts a boolean.
+         * Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/defaultAllDay">defaultAllDay</a>
          */
         DEFAULT_ALL_DAY,
@@ -3060,67 +3257,103 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         NATIVE_TOOLBAR_DEFAULT_RANGE_SEPARATOR("defaultRangeSeparator"),
 
         /**
+         * Maximum number of entry rows in month view cells. Accepts an integer or {@code true}
+         * (auto-calculate based on cell height). Default: auto-calculated.
+         *
          * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
          */
         DAY_MAX_EVENT_ROWS,
 
         /**
+         * Format of the "+N more" popover title in month view. Accepts a format object with
+         * {@code month}, {@code day}, {@code year}, and other properties.
+         *
          * @see <a href="https://fullcalendar.io/docs/dayPopoverFormat">dayPopoverFormat</a>
          */
         DAY_POPOVER_FORMAT,
 
         /**
+         * Show end time on entry elements. Accepts a boolean. Default: {@code true}} for
+         * timed entries in agenda views, {@code false}} for all-day entries.
+         *
          * @see <a href="https://fullcalendar.io/docs/displayEventEnd">displayEventEnd</a>
          */
         DISPLAY_EVENT_END,
 
         /**
+         * Duration of the animation when a dropped entry reverts to its original position (rejected drop).
+         * Accepts a number in milliseconds. Default: {@code 500}.
+         *
          * @see <a href="https://fullcalendar.io/docs/dragRevertDuration">dragRevertDuration</a>
          */
         DRAG_REVERT_DURATION,
 
         /**
+         * Minimum drag distance in pixels before dragging an entry begins. Accepts a number.
+         * Default: {@code 5}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventDragMinDistance">eventDragMinDistance</a>
          */
         ENTRY_DRAG_MIN_DISTANCE,
 
         /**
+         * Long press delay (in milliseconds) for initiating drag on touch devices.
+         * Accepts a number. Default: inherits from {@link #LONG_PRESS_DELAY}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventLongPressDelay">eventLongPressDelay</a>
          */
         ENTRY_LONG_PRESS_DELAY,
 
         /**
+         * Force display of end time on entries even when duration is not set. Accepts a boolean.
+         * Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/forceEventDuration">forceEventDuration</a>
          */
         FORCE_EVENT_DURATION,
 
 
         /**
+         * Only fetch entries for the currently visible date range. Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/lazyFetching">lazyFetching</a>
          */
         LAZY_FETCHING,
 
         /**
+         * Long press delay in milliseconds for touch interactions (drag/select). Accepts a number.
+         * Default: {@code 1000}.
+         *
          * @see <a href="https://fullcalendar.io/docs/longPressDelay">longPressDelay</a>
          */
         LONG_PRESS_DELAY,
 
         /**
+         * Snap dragged entries to the now indicator position. Accepts a boolean. Default: {@code true}.
+         *
          * @see <a href="https://fullcalendar.io/docs/nowIndicatorSnap">nowIndicatorSnap</a>
          */
         NOW_INDICATOR_SNAP,
 
         /**
+         * Render entries in batches for performance. Accepts a boolean. Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/progressiveEventRendering">progressiveEventRendering</a>
          */
         PROGRESSIVE_EVENT_RENDERING,
 
         /**
+         * Delay (in milliseconds) before re-rendering entries. Accepts a number or {@code null}} (immediate).
+         * Default: {@code null}}.
+         *
          * @see <a href="https://fullcalendar.io/docs/rerenderDelay">rerenderDelay</a>
          */
         RERENDER_DELAY,
 
         /**
+         * Long press delay (in milliseconds) before a selection begins on touch devices.
+         * Accepts a number. Default: inherits from {@link #LONG_PRESS_DELAY}.
+         *
          * @see <a href="https://fullcalendar.io/docs/selectLongPressDelay">selectLongPressDelay</a>
          */
         SELECT_LONG_PRESS_DELAY,
@@ -3137,26 +3370,46 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
         /**
+         * JS function to control whether a time range selection is allowed. Called on every mouse
+         * move during selection drag. Returns a boolean; must be synchronous (no server round-trip).
+         * Use {@link FullCalendar#setCallbackOption(CallbackOption, String)} with
+         * {@link CallbackOption#SELECT_ALLOW}} instead.
+         *
          * @see <a href="https://fullcalendar.io/docs/selectAllow">selectAllow</a>
          */
         SELECT_ALLOW,
 
         /**
+         * JS function to allow/deny entry drops during drag. Called during entry drag to allow
+         * or deny a drop. Use {@link FullCalendar#setCallbackOption(CallbackOption, String)}
+         * with {@link CallbackOption#ENTRY_ALLOW}} instead.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
          */
         ENTRY_ALLOW,
 
         /**
+         * Controls entry overlap during dragging. Accepts a boolean ({@code false}} prevents overlap)
+         * or a JS function for per-combination control. For JS function, use
+         * {@link FullCalendar#setCallbackOption(CallbackOption, String)} with
+         * {@link CallbackOption#ENTRY_OVERLAP}} instead.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
          */
         ENTRY_OVERLAP,
 
         /**
+         * Allow dropping external DOM elements onto the calendar. Accepts a boolean. Default: {@code false}.
+         *
          * @see <a href="https://fullcalendar.io/docs/droppable">droppable</a>
          */
         DROPPABLE,
 
         /**
+         * Filter which external DOM elements can be dropped onto the calendar. Accepts a CSS selector string
+         * or a JS function. For JS function, use {@link FullCalendar#setCallbackOption(CallbackOption, String)}
+         * with {@link CallbackOption#DROP_ACCEPT}} instead.
+         *
          * @see <a href="https://fullcalendar.io/docs/dropAccept">dropAccept</a>
          */
         DROP_ACCEPT,
@@ -3198,6 +3451,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
         /**
+         * Make entries focusable for keyboard accessibility. Accepts a boolean. Default: {@code true}}.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventInteractive">eventInteractive</a>
          */
         ENTRY_INTERACTIVE,
@@ -3205,26 +3460,41 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
         /**
+         * Restrict where entries can be dragged/resized. Accepts a group id string or the literal
+         * {@code "businessHours"}}. To pass a {@link BusinessHours} object, serialize it to JSON.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
          */
         ENTRY_CONSTRAINT,
 
         /**
+         * How much the calendar advances/retreats when navigating with prev/next buttons.
+         * Accepts a duration string (e.g., {@code "P1M"}} for one month). Default: view-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/dateIncrement">dateIncrement</a>
          */
         DATE_INCREMENT,
 
         /**
+         * Alignment of the date range when navigating. Accepts {@code "week"}}, {@code "day"}}, or other
+         * alignment options. Default: view-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/dateAlignment">dateAlignment</a>
          */
         DATE_ALIGNMENT,
 
         /**
+         * CSP (Content Security Policy) nonce for dynamically generated style elements.
+         * Accepts a string nonce value. Default: none.
+         *
          * @see <a href="https://fullcalendar.io/docs/contentSecurityPolicy">contentSecurityPolicy</a>
          */
         CONTENT_SECURITY_POLICY,
 
         /**
+         * CSS selector for custom elements to scroll when dragging entries near their edges.
+         * Accepts a CSS selector string. Default: calendar viewport.
+         *
          * @see <a href="https://fullcalendar.io/docs/dragScrollEls">dragScrollEls</a>
          */
         DRAG_SCROLL_ELS,
@@ -3246,26 +3516,41 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         NATIVE_TOOLBAR_VIEW_HINT("viewHint"),
 
         /**
+         * Accessible hint (aria-label) for clickable day/week numbers. Accepts a string.
+         * Default: locale-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/navLinkHint">navLinkHint</a>
          */
         NAV_LINK_HINT,
 
         /**
+         * Accessible hint (aria-label) for the "+N more" link. Accepts a string.
+         * Default: locale-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/moreLinkHint">moreLinkHint</a>
          */
         MORE_LINK_HINT,
 
         /**
+         * Accessible hint (aria-label) for close buttons (e.g., in popovers). Accepts a string.
+         * Default: locale-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/closeHint">closeHint</a>
          */
         CLOSE_HINT,
 
         /**
+         * Accessible hint (aria-label) for time display. Accepts a string.
+         * Default: locale-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/timeHint">timeHint</a>
          */
         TIME_HINT,
 
         /**
+         * Accessible hint (aria-label) for entry elements. Accepts a string.
+         * Default: locale-dependent.
+         *
          * @see <a href="https://fullcalendar.io/docs/eventHint">eventHint</a>
          */
         ENTRY_HINT;

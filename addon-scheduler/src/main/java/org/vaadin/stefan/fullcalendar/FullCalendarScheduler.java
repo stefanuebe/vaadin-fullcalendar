@@ -540,20 +540,93 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * <a href="https://fullcalendar.io/docs">https://fullcalendar.io/docs</a>
      */
     public enum SchedulerOption {
+        /**
+         * In vertical resource view, display dates above resources instead of resources above dates.
+         * Accepts a boolean. Default: {@code false}.
+         */
         DATES_ABOVE_RESOURCES("datesAboveResources"),
+
+        /**
+         * Allow dragging entries between resources. Accepts a boolean.
+         * Default: inherits from {@link FullCalendar.Option#EDITABLE}.
+         */
         ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
+
+        /**
+         * Minimum pixel width of entries in timeline view. Accepts a number.
+         * Default: none (entries sized to fit available space).
+         */
         ENTRY_MIN_WIDTH("eventMinWidth"),
+
+        /**
+         * Only show resources that have entries assigned. Accepts a boolean. Default: {@code false}.
+         */
         FILTER_RESOURCES_WITH_ENTRIES("filterResourcesWithEvents"),
+
+        /**
+         * Group the calendar view by date first, then by resource. Accepts a boolean.
+         * Default: {@code false}}.
+         */
         GROUP_BY_DATE_AND_RESOURCE("groupByDateAndResource"),
+
+        /**
+         * Group the calendar view by resource. Accepts a boolean. Default: {@code false}}.
+         */
         GROUP_BY_RESOURCE("groupByResource"),
+
+        /**
+         * FullCalendar Scheduler license key. Required for scheduler views to work.
+         * Accepts a string. No default (license required).
+         */
         LICENSE_KEY("schedulerLicenseKey"),
+
+        /**
+         * Re-fetch resources from the data provider when navigating to a different period.
+         * Accepts a boolean. Default: {@code false}}.
+         */
         REFETCH_RESOURCES_ON_NAVIGATE("refetchResourcesOnNavigate"),
+
+        /**
+         * Column definitions for the resource area (left side in timeline views).
+         * Accepts an array of column configuration objects. Default: none (single column with resource name).
+         */
         RESOURCE_AREA_COLUMNS("resourceAreaColumns"),
+
+        /**
+         * Custom content for the resource area header cell. Accepts a string (HTML), object, or
+         * JS function. For JS function, use {@link FullCalendarScheduler#setCallbackOption(String, String)}
+         * with {@link SchedulerCallbackOption#RESOURCE_AREA_HEADER_CLASS_NAMES}} instead.
+         */
         RESOURCE_AREA_HEADER_CONTENT("resourceAreaHeaderContent"),
+
+        /**
+         * Width of the resource area (left column in timeline/vertical-resource views).
+         * Accepts a CSS width string (e.g., {@code "200px"}}, {@code "20%"}}).
+         * Default: auto-calculated (~30% of view width).
+         */
         RESOURCE_AREA_WIDTH("resourceAreaWidth"),
+
+        /**
+         * Field name in resource data to group resources by. Accepts a string.
+         * Default: none (no grouping).
+         */
         RESOURCE_GROUP_FIELD("resourceGroupField"),
+
+        /**
+         * Whether resource groups start in an expanded state. Accepts a boolean. Default: {@code true}}.
+         */
         RESOURCES_INITIALLY_EXPANDED("resourcesInitiallyExpanded"),
+
+        /**
+         * Sort order for resources by default. Accepts a string (field name), array of sort keys,
+         * or {@code -1}} for reverse order. Default: alphabetical by name.
+         */
         RESOURCE_ORDER("resourceOrder"),
+
+        /**
+         * Minimum pixel width of each time slot column in timeline view. Accepts a number.
+         * Default: auto-calculated.
+         */
         SLOT_MIN_WIDTH("slotMinWidth"),
         ;
 
