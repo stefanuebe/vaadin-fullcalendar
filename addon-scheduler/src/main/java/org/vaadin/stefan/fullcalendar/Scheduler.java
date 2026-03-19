@@ -472,6 +472,47 @@ public interface Scheduler {
     void setResourceGroupWillUnmountCallback(String jsFunction);
 
     /**
+     * Sets a JavaScript function that returns CSS class names for a resource group lane
+     * (the horizontal area running along the time slots in a timeline view).
+     * The function receives a {@code groupInfo} object with a {@code groupValue} property.
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceGroupField(String)
+     * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">FullCalendar resourceGroupLaneClassNames</a>
+     */
+    void setResourceGroupLaneClassNamesCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function that returns custom content for a resource group lane.
+     * The function receives a {@code groupInfo} object with a {@code groupValue} property.
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceGroupField(String)
+     * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">FullCalendar resourceGroupLaneContent</a>
+     */
+    void setResourceGroupLaneContentCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function called after a resource group lane is added to the DOM.
+     * The function receives a {@code groupInfo} object.
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceGroupField(String)
+     * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">FullCalendar resourceGroupLaneDidMount</a>
+     */
+    void setResourceGroupLaneDidMountCallback(String jsFunction);
+
+    /**
+     * Sets a JavaScript function called before a resource group lane is removed from the DOM.
+     * The function receives a {@code groupInfo} object.
+     *
+     * @param jsFunction JavaScript function string
+     * @see #setResourceGroupField(String)
+     * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">FullCalendar resourceGroupLaneWillUnmount</a>
+     */
+    void setResourceGroupLaneWillUnmountCallback(String jsFunction);
+
+    /**
      * Sets a JavaScript function that returns CSS class names for the resource area header cell
      * (the top-left cell in timeline views).
      * The function receives a {@code headerInfo} object with a {@code view} property.

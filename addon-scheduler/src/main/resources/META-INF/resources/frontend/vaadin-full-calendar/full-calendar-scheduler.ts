@@ -128,6 +128,26 @@ export class FullCalendarScheduler extends FullCalendar {
         this.setOption('resourceGroupWillUnmount', new Function("return " + s)());
     }
 
+    setResourceGroupLaneClassNamesCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceGroupLaneClassNames', new Function("return " + s)());
+    }
+
+    setResourceGroupLaneContentCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceGroupLaneContent', new Function("return " + s)());
+    }
+
+    setResourceGroupLaneDidMountCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceGroupLaneDidMount', new Function("return " + s)());
+    }
+
+    setResourceGroupLaneWillUnmountCallback(s: string) {
+        // @ts-ignore
+        this.setOption('resourceGroupLaneWillUnmount', new Function("return " + s)());
+    }
+
     setResourceAreaHeaderClassNamesCallback(s: string) {
         // @ts-ignore
         this.setOption('resourceAreaHeaderClassNames', new Function("return " + s)());

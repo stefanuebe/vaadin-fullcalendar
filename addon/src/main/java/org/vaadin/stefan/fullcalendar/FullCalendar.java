@@ -1139,6 +1139,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * Sets whether events may overlap each other when being dragged or resized.
+     * {@code true} (the default) allows overlap; {@code false} prevents it.
+     * <p>
+     * For finer per-combination control use {@link #setEventOverlapCallback(String)}.
+     * The per-entry {@link Entry#setOverlapAllowed(Boolean)} takes precedence.
+     *
+     * @param overlap whether events may overlap
+     * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
+     */
+    public void setEventOverlap(boolean overlap) {
+        setOption(Option.EVENT_OVERLAP, overlap);
+    }
+
+    /**
      * Sets whether the calendar accepts external HTML elements being dragged onto it.
      * When {@code true}, the {@code drop} and {@code eventReceive} events become active.
      *
@@ -1909,10 +1923,35 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * Returns the client-managed event source with the given ID, or empty if no such source is registered.
+     *
+     * @param id event source id; must not be null
+     * @return the event source, or empty
+     * @throws NullPointerException if id is null
+     */
+    public Optional<ClientSideEventSource<?>> getEventSourceById(String id) {
+        Objects.requireNonNull(id, "id must not be null");
+        return Optional.ofNullable(eventSourceRegistry.get(id));
+    }
+
+    /**
      * Forces all event sources (including the server-side entry provider) to re-fetch their data immediately.
      */
     public void refetchEvents() {
         getElement().callJsFunction("refetchEvents");
+    }
+
+    /**
+     * Forces a single event source to re-fetch its data. Only the source with the given id is refreshed;
+     * all other sources remain untouched. Use {@link #refetchEvents()} to refresh all sources at once.
+     *
+     * @param sourceId the id of the event source to refetch
+     * @throws NullPointerException when null is passed
+     * @see <a href="https://fullcalendar.io/docs/EventSource-refetch">EventSource::refetch</a>
+     */
+    public void refetchEventSource(String sourceId) {
+        Objects.requireNonNull(sourceId);
+        getElement().executeJs("var s = this.calendar.getEventSourceById($0); if (s) s.refetch();", sourceId);
     }
 
     /**
@@ -2270,6 +2309,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                         .collect(Collectors.toList()));
     }
 
+    /**
+     * Checks whether the given theme variant is currently applied to this calendar.
+     *
+     * @param variant the variant to check
+     * @return {@code true} if the variant is active
+     */
     public boolean hasThemeVariant(FullCalendarVariant variant) {
         return hasThemeName(variant.getVariantName());
     }
@@ -3060,6 +3105,36 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public void setNavLinkHint(String hint) {
         setOption(Option.NAV_LINK_HINT, hint);
+    }
+
+    /**
+     * Sets a JavaScript callback that fires when a day navigation link is clicked (instead of
+     * the default view change). Requires {@link #setNavLinks(boolean) setNavLinks(true)}.
+     * <br><br>
+     * The callback receives a single argument: the {@code Date} object of the clicked day.
+     * <br><br>
+     * <b>Note:</b> No escaping is applied — validate before passing to the client.
+     *
+     * @param jsFunction JS function string, e.g. {@code "function(date) { alert(date); }"}
+     * @see <a href="https://fullcalendar.io/docs/navLinkDayClick">navLinkDayClick</a>
+     */
+    public void setNavLinkDayClickCallback(String jsFunction) {
+        setOption("navLinkDayClick", jsFunction);
+    }
+
+    /**
+     * Sets a JavaScript callback that fires when a week navigation link is clicked (instead of
+     * the default view change). Requires {@link #setNavLinks(boolean) setNavLinks(true)}.
+     * <br><br>
+     * The callback receives a single argument: the {@code Date} object of the start of the clicked week.
+     * <br><br>
+     * <b>Note:</b> No escaping is applied — validate before passing to the client.
+     *
+     * @param jsFunction JS function string
+     * @see <a href="https://fullcalendar.io/docs/navLinkWeekClick">navLinkWeekClick</a>
+     */
+    public void setNavLinkWeekClickCallback(String jsFunction) {
+        setOption("navLinkWeekClick", jsFunction);
     }
 
     /**
@@ -4762,7 +4837,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/eventHint">eventHint</a>
          */
-        EVENT_HINT;
+        EVENT_HINT,
+
+        /**
+         * Determines the text that will be displayed in the header toolbar's title area.
+         * Accepts a date-formatting object (e.g. {@code Map.of("year", "numeric", "month", "short")})
+         * or a format string.
+         *
+         * @see <a href="https://fullcalendar.io/docs/titleFormat">titleFormat</a>
+         */
+        TITLE_FORMAT;
 
         private final String optionKey;
 

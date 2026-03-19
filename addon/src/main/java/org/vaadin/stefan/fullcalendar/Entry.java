@@ -67,8 +67,17 @@ public class Entry {
     private boolean editable = true;
     private Boolean startEditable;
     private Boolean durationEditable;
+    /**
+     * Whether this entry can be dragged between resources (scheduler only).
+     * {@code null} inherits the calendar-level {@code eventResourceEditable} option.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
+     */
+    private Boolean resourceEditable;
     private String color;
-    private String constraint;
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
+    private Object constraint;
     private String backgroundColor;
     private String borderColor;
     private String textColor;
@@ -146,6 +155,17 @@ public class Entry {
     private List<LocalDate> exdate;
 
     /**
+     * RRules defining exclusion patterns for an RRule-based recurrence. Populated automatically from
+     * {@link RRule#getExcludedRules()} when {@link #setRRule(RRule)} is called.
+     * Not part of the public API — use {@link RRule#excludeRules(RRule...)} instead.
+     */
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
+    @JsonReadField
+    @JsonConverter(ExruleConverter.class)
+    private List<RRule> exrule;
+
+    /**
      * Returns the RRule-based recurrence definition, or {@code null} if not set.
      *
      * @return the RRule, or {@code null}
@@ -167,6 +187,7 @@ public class Entry {
     public void setRRule(RRule rrule) {
         this.rrule = rrule;
         this.exdate = rrule != null ? rrule.getExcludedDates() : null;
+        this.exrule = rrule != null ? rrule.getExcludedRules() : null;
     }
 
     private Set<String> classNames;
@@ -1000,13 +1021,36 @@ public class Entry {
     }
 
     /**
-     * Sets the entry Constraint.
-     * Null or empty string resets the color to the FC's default.
+     * Returns the current constraint value. This may be a {@code String} (groupId or {@code "businessHours"})
+     * or a {@link BusinessHours} JSON representation ({@code ObjectNode}).
      *
-     * @param constraint constraint
+     * @return constraint value, or {@code null} if unset
+     */
+    public Object getConstraint() {
+        return constraint;
+    }
+
+    /**
+     * Sets the entry constraint to a groupId or the literal {@code "businessHours"}.
+     * Null or empty string resets the constraint to FC's default.
+     *
+     * @param constraint constraint string
      */
     public void setConstraint(String constraint) {
         this.constraint = StringUtils.trimToNull(constraint);
+    }
+
+    /**
+     * Sets the entry constraint to a custom {@link BusinessHours} time window.
+     * The entry can then only be dragged/resized within the given hours.
+     *
+     * @param hours business hours defining the allowed time window
+     * @throws NullPointerException when null is passed
+     * @see #setConstraint(String)
+     * @see #setConstraintToBusinessHours()
+     */
+    public void setConstraint(BusinessHours hours) {
+        this.constraint = Objects.requireNonNull(hours).toJson();
     }
 
     /**

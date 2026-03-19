@@ -313,6 +313,26 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
+    public void setResourceGroupLaneClassNamesCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceGroupLaneClassNamesCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceGroupLaneContentCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceGroupLaneContentCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceGroupLaneDidMountCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceGroupLaneDidMountCallback", jsFunction);
+    }
+
+    @Override
+    public void setResourceGroupLaneWillUnmountCallback(String jsFunction) {
+        getElement().callJsFunction("setResourceGroupLaneWillUnmountCallback", jsFunction);
+    }
+
+    @Override
     public void setResourceAreaHeaderClassNamesCallback(String jsFunction) {
         getElement().callJsFunction("setResourceAreaHeaderClassNamesCallback", jsFunction);
     }
