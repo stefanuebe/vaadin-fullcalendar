@@ -128,8 +128,8 @@ public class Entry {
     private RRule rrule;
 
     /**
-     * Dates to exclude from an RRule-based recurrence. Dates should be formatted as ISO 8601 date strings
-     * (e.g. {@code "20240101,20240108"}). Use the same timezone context as the calendar.
+     * Dates to exclude from an RRule-based recurrence. Provide a comma-separated list of ISO 8601 date strings
+     * (e.g. {@code "2024-01-01,2024-01-08"}). Use the same timezone context as the calendar.
      * Only meaningful when {@link #rrule} is set.
      */
     private String exdate;

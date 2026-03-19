@@ -3267,7 +3267,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <p>
      * Example — limit event rows only in month view:
      * <pre>{@code
-     * calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_EVENTS, 3);
+     * calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_EVENT_ROWS, 3);
      * }</pre>
      *
      * @param viewType  FullCalendar view type name (e.g., {@code "dayGrid"}, {@code "timeGrid"},

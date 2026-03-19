@@ -37,6 +37,8 @@ mvn verify
 addon/              # Core FullCalendar Flow component (org.vaadin.stefan:fullcalendar2)
 addon-scheduler/    # Scheduler extension for resource-based views (org.vaadin.stefan:fullcalendar2-scheduler)
 demo/               # Spring Boot demo application
+e2e-test-app/       # Vaadin Spring Boot app serving as E2E test target (Playwright)
+e2e-tests/          # Playwright test suite (tests/ directory contains .spec.js files)
 ```
 
 ## Architecture

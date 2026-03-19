@@ -10,10 +10,48 @@ If we missed something or anything is unclear, please ping us on GitHub. We hope
 as smoothly as possible.
 
 ## Index
+* [7.0 > 7.1](#migration-notes-70--71)
 * [6.1 > 7.0](#migrating-from-61--70)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
+
+## Migration notes 7.0 > 7.1
+
+Version 7.1 is an additive release — no APIs have been removed and no existing method signatures have changed.
+However, there is **one behaviour change** and **one deprecated method** to be aware of.
+
+### `Entry.overlap` changed from `boolean` to `Boolean`
+
+The `overlap` field on `Entry` has changed from a primitive `boolean` (default `true`) to a boxed `Boolean`
+(default `null`).
+
+**Effect:**
+- The Lombok-generated getter name changed from `isOverlap()` (for primitive `boolean`) to `getOverlap()`
+  (for boxed `Boolean`, which may return `null`).
+- Code that relied on `overlap = true` being serialised to the client on every entry will no longer see the
+  field in the JSON when it has not been explicitly set. FullCalendar's own default for this property is
+  `true`, so the observable behaviour is identical — unless you have a global `eventOverlap` set to `false`
+  on the calendar, in which case an entry without an explicit `overlap` value will now correctly inherit
+  that global setting instead of always sending `true`.
+
+**Migration:** Replace all `entry.isOverlap()` calls with `Boolean.TRUE.equals(entry.getOverlap())`.
+Note: `Boolean.TRUE.equals(null)` returns `false` in Java, so if you need "not set" to mean `true`
+(matching FC's own default behaviour), use `!Boolean.FALSE.equals(entry.getOverlap())` instead —
+that returns `true` when the value is `null` or `true`, and `false` only when explicitly set to `false`.
+
+### `FullCalendarBuilder` is now a mutable fluent builder
+
+In 7.0, `FullCalendarBuilder.withXxx(...)` returned a **new** builder instance on every call. As of 7.1,
+the same instance is mutated and returned (`return this`). The change is backwards-compatible in all
+standard usage patterns, because intermediate builder states are never stored. However, if you kept
+references to intermediate states and called `.build()` on each, all references now point to the same
+final state.
+
+### Deprecated: `setResourceLablelWillUnmountCallback`
+
+The Scheduler method `setResourceLablelWillUnmountCallback` (note the extra `l` in `Lablel`) is deprecated
+with `forRemoval = true`. Replace all usages with `setResourceLabelWillUnmountCallback`.
 
 ## Migrating from 6.1 > 7.0
 To migrate to version 7 of the addon, you need to bump your Vaadin version to 25 and anything else, that Vaadin 25 
@@ -152,12 +190,12 @@ subpackage, if you want or need to use those annotations.
 
 ### Deprecated methods have been removed
 #### Calendar Entry CRUD
-Replace Calendar Entry CRUD calls with `getEntryProvider().asInMemoryProvider()`, e.g. 
+Replace Calendar Entry CRUD calls with `getEntryProvider().asInMemory()`, e.g. 
 ```java
 // before
 calendar.addEntry(entry);
 
-calendar.getEntryProvider().asInMemoryProvider().addEntry(entry)
+calendar.getEntryProvider().asInMemory().addEntry(entry)
 ```
 
 We know, this might be cumbersome for use cases, where you only use the in memory provider, but with having a cleaner

@@ -1,10 +1,84 @@
 ## Index
+* [7.1.x](#71x)
 * [7.0.x](#70x)
 * [6.2.x](#62x)
 * [6.1.x](#61x)
 * [6.0.x](#60x)
 * [4.1.x](#41x)
 * [4.0.x](#40x)
+
+## 7.1.x
+
+Significant expansion of the Java API surface to cover FullCalendar v6 options that were previously
+only accessible via raw `setOption` calls. All new features are purely additive; no breaking changes
+are introduced in this release. See the [migration guide](Migration-guides#migration-notes-70--71)
+for the one behaviour change involving `Entry.overlap`.
+
+### Entry model enhancements
+- `Entry.setUrl(String)` — entries with a URL are rendered as `<a>` tags; FC navigates to the URL on click
+- `Entry.setInteractive(Boolean)` — per-entry keyboard-focusability override (null = inherit global `eventInteractive` setting)
+- `Entry.setRecurringDuration(String)` — ISO 8601 duration for multi-day all-day recurring events (e.g. `"P2D"`)
+- `Entry.setRrule(RRule)` / `Entry.setExdate(String)` — RFC 5545 recurrence rules via the `RRule` fluent builder; exclusion dates as comma-separated ISO date string
+- `Entry.setOverlap(Boolean)` changed from `boolean` to `Boolean` — `null` means "inherit global overlap setting" (see migration notes)
+
+### Display options
+- Render hook callbacks: `setDayCellClassNamesCallback`, `setDayCellContentCallback`, `setDayCellDidMountCallback`, `setDayCellWillUnmountCallback`
+- Render hook callbacks: `setDayHeaderClassNamesCallback`, `setDayHeaderContentCallback`, `setDayHeaderDidMountCallback`, `setDayHeaderWillUnmountCallback`
+- Render hook callbacks: `setSlotLabelClassNamesCallback`, `setSlotLabelContentCallback`, `setSlotLabelDidMountCallback`, `setSlotLabelWillUnmountCallback`
+- Render hook callbacks: `setNowIndicatorClassNamesCallback`, `setNowIndicatorContentCallback`, `setNowIndicatorDidMountCallback`, `setNowIndicatorWillUnmountCallback`
+- Render hook callbacks: `setResourceLabelClassNamesCallback`, `setResourceLabelContentCallback`, `setResourceLabelDidMountCallback`, `setResourceLabelWillUnmountCallback`
+- Render hook callbacks: `setResourceLaneClassNamesCallback`, `setResourceLaneDidMountCallback`, `setResourceLaneWillUnmountCallback`
+- `setProgressiveEventRendering(boolean)` — render events in batches as they arrive
+- `setHandleWindowResize(boolean)` — enable/disable FC's built-in window resize observer
+- `setWindowResizeDelay(int)` — debounce delay for the resize observer
+- `setThemeSystem(ThemeSystem)` — typed enum (`STANDARD`, `BOOTSTRAP5`)
+
+### Interaction callbacks
+- Drag/resize lifecycle events: `EntryDragStartEvent`, `EntryDragStopEvent`, `EntryResizeStartEvent`, `EntryResizeStopEvent`
+- `setSelectAllow` / `setEventAllow` / `setEventOverlap` JS callback setters (in addition to the boolean variants)
+- `setUnselectCancel(String)` — CSS selector for elements that should not cancel an active selection
+- `ExternalEntryDroppedEvent` — fired when an entry from a client-side event source is dropped into the calendar
+- `ExternalEntryResizedEvent` — fired when an entry from a client-side event source is resized
+- `setDropAccept(String)` — CSS selector filter for accepted draggable elements
+
+### Event sources
+- `JsonFeedEventSource` — typed Java wrapper for FC's JSON feed event source
+- `GoogleCalendarEventSource` — typed Java wrapper for the Google Calendar event source
+- `ICalendarEventSource` — typed Java wrapper for iCalendar (.ics) feeds
+- `setStartParam` / `setEndParam` / `setTimeZoneParam` — control parameter names sent to JSON feeds
+- `EventSourceFailureEvent` — server-side event fired when an event source fails to load
+
+### Scheduler resource features
+- `setResourceAreaColumns(ResourceAreaColumn...)` — typed column configuration for the resource area
+- `setResourceGroupField(String)` — group resources by a shared field value
+- `setResourceGroupClassNamesCallback(String)` — CSS class callback for resource group header rows
+- `setRefetchResourcesOnNavigate(boolean)` — re-fetch resources on each navigation
+
+### Accessibility
+- `setEventInteractive(boolean)` — make all events keyboard-focusable (WCAG 2.1 AA)
+- `setButtonHints(Map<String, String>)` — accessible labels for toolbar buttons (`aria-label`)
+- `setViewHint(String)` / `setNavLinkHint(String)` / `setMoreLinkHint(String)` — accessible labels for view switchers, nav links, and "+N more" links
+- `setCloseHint(String)` / `setTimeHint(String)` / `setEventHint(String)` — accessible labels for popover close buttons, time displays, and events
+
+### Advanced and niche options
+- `CustomButton` + `CustomButtonClickedEvent` — add arbitrary buttons to the toolbar with server-side click listeners
+- `setButtonIcons(Map<String, String>)` — override toolbar button icons
+- `setValidRangeCallback(String)` / `setSelectOverlapCallback(String)` — dynamic JS function overrides for `validRange` and `selectOverlap`
+- `setEventConstraint(String/BusinessHours)` / `setEventConstraintToBusinessHours()` — constrain drag/resize to specific time slots
+- `setDateIncrement(String)` / `setDateAlignment(String)` — navigation increment and alignment for custom views
+- `setContentSecurityPolicyNonce(String)` — CSP nonce for dynamically generated `<style>` tags
+- `setViewSpecificOption(viewType, option, value)` — per-view option overrides
+- `setFixedMirrorParent(String)` — JS expression for the drag-mirror parent element
+- `setDragScrollEls(String...)` — CSS selectors for auto-scroll containers during drag
+- `incrementDate(String)` / `previousYear()` / `nextYear()` / `updateSize()` — new navigation and layout methods
+- `getCurrentIntervalStart()` / `getCurrentIntervalEnd()` — returns `Optional<LocalDate>` for the current view interval; empty before the first `DatesRenderedEvent` is received
+
+### API surface improvements
+- 43 new typed setters in `FullCalendar` (previously required raw `setOption` calls)
+- `FullCalendarBuilder` refactored to mutable fluent builder (all `withXxx` methods now return `this`)
+- New enums: `Direction`, `WeekNumberCalculation`
+- `Entry.setConstraintToBusinessHours()` helper
+- `Scheduler.setRefetchResourcesOnNavigate(boolean)` / typo fix `setResourceLabelWillUnmountCallback`
 
 ## 7.0.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-7.0)

@@ -963,3 +963,181 @@ Entry tmpEntry = entry.copy(); // create a temporary copy
 // return a new copy at the end without changing the initial entry
 return tmpEntry.copy();
 ```
+
+## RRule — RFC 5545 recurrence rules
+
+Use `RRule` for recurrence patterns that the built-in `recurringDaysOfWeek` / `recurringStartTime` approach cannot express.
+The `@fullcalendar/rrule` plugin is bundled automatically; no extra dependency is needed.
+
+```java
+// Weekly on Monday, Wednesday, Friday — all of 2025.
+// dtstart uses LocalDate, so occurrences are all-day.
+Entry standup = new Entry();
+standup.setTitle("Weekly Standup");
+standup.setRrule(RRule.weekly()
+    .byWeekday(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+    .dtstart(LocalDate.of(2025, 1, 1))
+    .until(LocalDate.of(2025, 12, 31)));
+
+// Last Friday of each month
+// byWeekday("-1fr") uses RFC 5545 notation: sign + ordinal + 2-letter day code.
+// "-1fr" = last Friday; "1mo" = first Monday; "-2tu" = second-to-last Tuesday.
+// Positive numbers count from the start of the period; negative from the end.
+Entry review = new Entry();
+review.setTitle("Monthly Review");
+review.setRrule(RRule.monthly().byWeekday("-1fr"));
+
+// Every two weeks on Tuesday (bi-weekly)
+Entry planning = new Entry();
+planning.setTitle("Bi-weekly Planning");
+planning.setRrule(RRule.weekly().byWeekday(DayOfWeek.TUESDAY).interval(2)
+    .dtstart(LocalDate.of(2025, 1, 7)));
+
+// Exclude specific dates from the recurrence (comma-separated ISO date strings)
+planning.setExdate("2025-07-22,2025-12-30");
+
+// Raw RFC 5545 string for unsupported patterns.
+// Note: raw strings use uppercase RFC 5545 syntax (e.g. BYDAY=1MO), not
+// the fluent API's lowercase notation (e.g. byWeekday("1mo")).
+Entry custom = new Entry();
+custom.setRrule(RRule.ofRaw("FREQ=MONTHLY;BYDAY=1MO,3MO;COUNT=12"));
+
+calendar.getEntryProvider().asInMemory().addEntries(standup, review, planning, custom);
+```
+
+## Entry URL and keyboard accessibility
+
+Entries with a URL are rendered as `<a>` tags and navigate the browser on click.
+Entries marked `interactive` are keyboard-focusable (Tab navigation + Enter/Space activation).
+
+```java
+// URL entry — FC navigates to the URL when clicked
+Entry link = new Entry();
+link.setTitle("Visit Documentation");
+link.setStart(LocalDate.now());
+link.setAllDay(true);
+link.setUrl("https://vaadin.com/docs");
+
+// Keyboard-accessible entry (no URL, no drag — just focusable)
+Entry keyboardEntry = new Entry();
+keyboardEntry.setTitle("Press Enter to open wizard");
+keyboardEntry.setStart(LocalDate.now().plusDays(1));
+keyboardEntry.setAllDay(true);
+keyboardEntry.setInteractive(true); // per-entry override
+
+// Or make ALL entries keyboard-accessible globally:
+calendar.setEventInteractive(true);
+// Then per-entry override is still possible (e.g., to opt out):
+keyboardEntry.setInteractive(false);
+
+calendar.addEntryClickedListener(e -> {
+    // Fired for both mouse clicks and keyboard activations (Enter/Space)
+    System.out.println("Clicked: " + e.getEntry().getTitle());
+});
+```
+
+## Entry overlap control
+
+Control whether entries may visually overlap. The `overlap` field is nullable: `null` means
+"inherit the global `eventOverlap` setting".
+
+```java
+// This entry cannot be overlapped by other entries
+Entry blocked = new Entry();
+blocked.setTitle("Blocked Time");
+blocked.setStart(LocalDateTime.of(2025, 3, 5, 9, 0));
+blocked.setEnd(LocalDateTime.of(2025, 3, 5, 11, 0));
+blocked.setOverlap(false);
+
+// Explicitly allow overlap (overrides a global eventOverlap=false if set)
+Entry flexible = new Entry();
+flexible.setTitle("Flexible Slot");
+flexible.setOverlap(true);
+
+// null means "use whatever the calendar-level eventOverlap says" (the default)
+Entry normal = new Entry();
+normal.setOverlap(null);  // same as not calling setOverlap at all
+```
+
+## Custom toolbar buttons
+
+Add arbitrary buttons to the header or footer toolbar with server-side click handlers.
+
+```java
+CustomButton btn = new CustomButton("openWizard");
+btn.setText("Schedule");            // button label
+btn.setHint("Open scheduling wizard"); // aria-label for screen readers
+
+calendar.addCustomButton(btn, event -> {
+    // fired on server side when the button is clicked
+    openSchedulingWizard();
+});
+
+// Reference the button by name in the toolbar configuration
+calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, Map.of(
+    "left",   "prev,next today",
+    "center", "title",
+    "right",  "dayGridMonth openWizard"   // "openWizard" matches btn.getName()
+));
+```
+
+## View-specific options
+
+Apply an option only when a specific view type is active. Options set here override the global value
+for that view; other views are unaffected.
+
+```java
+// Limit stacked events to 3 only in month view (not in week or day views)
+calendar.setViewSpecificOption("dayGridMonth", FullCalendar.Option.DAY_MAX_EVENT_ROWS, 3);
+
+// Custom slot duration for all time-grid variants
+calendar.setViewSpecificOption("timeGrid", FullCalendar.Option.SLOT_DURATION, "00:30:00");
+
+// Multiple options at once for the same view.
+// Keys here are raw FullCalendar option names (camelCase strings), not Java Option enum values.
+calendar.setViewSpecificOptions("listWeek", Map.of(
+    "noEventsText", "No events scheduled this week"
+));
+
+// Use CalendarView enum instead of a raw string
+calendar.setViewSpecificOption(CalendarViewImpl.DAY_GRID_MONTH,
+    FullCalendar.Option.NOW_INDICATOR, true);
+```
+
+## Force calendar to recalculate its size
+
+Call `updateSize()` after programmatically making the calendar container visible.
+The most common case is placing a calendar inside a Vaadin `Dialog`.
+
+```java
+Dialog dialog = new Dialog();
+FullCalendar calendar = FullCalendarBuilder.create().build();
+dialog.add(calendar);
+
+dialog.addOpenedChangeListener(event -> {
+    if (event.isOpened()) {
+        // Calendar was hidden when it first rendered (size = 0).
+        // Force recalculation now that the dialog is visible.
+        calendar.updateSize();
+    }
+});
+```
+
+## Accessibility hints for toolbar buttons
+
+Set `aria-label` values on the prev/next/today toolbar buttons for screen-reader users.
+
+```java
+calendar.setButtonHints(Map.of(
+    "today", "Jump to today",
+    "prev",  "Go to previous period",
+    "next",  "Go to next period"
+));
+
+// Accessible label for the "+N more" overflow link (e.g., "+ 3 more")
+// $0 is replaced with the hidden-event count at runtime
+calendar.setMoreLinkHint("$0 more events — click to expand");
+
+// Accessible label for day-number navigation links
+calendar.setNavLinkHint("Go to $0");  // $0 = full date text
+```
