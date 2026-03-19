@@ -1139,3 +1139,367 @@ calendar.setMoreLinkHint("$0 more events — click to expand");
 // Accessible label for day-number navigation links
 calendar.setNavLinkHint("Go to $0");  // $0 = full date text
 ```
+
+## Client-side event sources
+
+Client-side event sources let the **browser** fetch events directly from an external URL — bypassing the Vaadin server.
+This is useful when events come from third-party services (Google Calendar, iCal feeds, REST APIs).
+
+Client-side sources coexist with the server-side `EntryProvider`. Entries from both appear on the same calendar.
+
+### JSON feed
+
+```java
+// The browser will GET this URL whenever the visible date range changes.
+JsonFeedEventSource jsonFeed = new JsonFeedEventSource("https://example.com/api/events");
+jsonFeed.withId("company-events");
+jsonFeed.withColor("#3788d8");
+jsonFeed.withExtraParams(Map.of("department", "engineering"));  // appended as query params
+
+calendar.addEventSource(jsonFeed);
+```
+
+### Google Calendar
+
+```java
+// Set the API key once on the calendar (applies to all Google sources)
+calendar.setGoogleCalendarApiKey("YOUR_GOOGLE_API_KEY");
+
+GoogleCalendarEventSource holidays = new GoogleCalendarEventSource("en.german#holiday@group.v.calendar.google.com");
+holidays.withId("holidays");
+holidays.withColor("#4caf50");
+
+calendar.addEventSource(holidays);
+```
+
+### iCalendar (ICS)
+
+```java
+ICalendarEventSource ical = new ICalendarEventSource("https://example.com/calendar.ics");
+ical.withId("team-calendar");
+ical.withColor("#ff9800");
+
+calendar.addEventSource(ical);
+```
+
+### Error handling and per-source refresh
+
+```java
+// React to fetch failures on the server side
+calendar.addEventSourceFailureListener(event -> {
+    Notification.show("Failed to load source '" + event.getSourceId() + "': " + event.getMessage(),
+            3000, Notification.Position.BOTTOM_START);
+});
+
+// Refresh only a specific source (e.g. after the user changed a filter)
+calendar.refetchEventSource("company-events");
+
+// Or refresh all sources at once
+calendar.refetchEvents();
+```
+
+### Per-source options
+
+```java
+// Event sources support the same display options as entries
+JsonFeedEventSource feed = new JsonFeedEventSource("https://example.com/api/events");
+feed.withId("external");
+feed.withEditable(false);          // entries from this source are read-only
+feed.withColor("#888");
+feed.withDisplay("background");    // render as background events
+feed.withDefaultAllDay(true);
+
+// Transform incoming event data before FC processes it
+feed.withEventDataTransform("""
+    function(eventData) {
+        eventData.title = '[EXT] ' + eventData.title;
+        return eventData;
+    }""");
+
+calendar.addEventSource(feed);
+```
+
+## External drag and drop
+
+Allow HTML elements from outside the calendar to be dropped onto it.
+Requires the FullCalendar `interaction` plugin (bundled automatically).
+
+```java
+// 1. Enable external drops on the calendar
+calendar.setDroppable(true);
+
+// 2. In your Vaadin view, create an HTML element with the required attributes.
+//    The "data-event" attribute carries JSON that FC uses to create the entry.
+//    The CSS class "fc-event" is required for FC to recognise the element as draggable.
+Div draggableItem = new Div("New Meeting");
+draggableItem.getElement().setAttribute("data-event",
+        "{\"title\": \"New Meeting\", \"duration\": \"01:00\"}");
+draggableItem.addClassName("fc-event");
+
+// 3. Listen for the drop — this fires for any external element dropped onto the calendar
+calendar.addDropListener(event -> {
+    System.out.println("Dropped at: " + event.getDate());
+    System.out.println("All day: " + event.isAllDay());
+    System.out.println("data-event JSON: " + event.getDraggedElData());
+});
+
+// 4. Listen for the entry creation — fires when FC successfully creates a calendar entry from the drop
+calendar.addEntryReceiveListener(event -> {
+    Entry received = event.getEntry();
+    // IMPORTANT: the entry is transient — add it to your provider to persist it
+    calendar.getEntryProvider().asInMemory().addEntry(received);
+    calendar.getEntryProvider().asInMemory().refreshAll();
+});
+
+// 5. (Multi-calendar) Listen on the SOURCE calendar when an entry leaves to another calendar
+calendar.addEntryLeaveListener(event -> {
+    Entry leaving = event.getEntry();
+    calendar.getEntryProvider().asInMemory().removeEntry(leaving);
+    calendar.getEntryProvider().asInMemory().refreshAll();
+});
+```
+
+## Drag and resize lifecycle events
+
+These events fire at the **start** and **end** of a drag or resize gesture — before the final
+`EntryDroppedEvent` / `EntryResizedEvent`. Use them for visual feedback (e.g. disabling a delete button
+during drag).
+
+**Important:** Do NOT call `applyChangesOnEntry()` on these events — they report the *original* position,
+not the final one. Use `EntryDroppedEvent` / `EntryResizedEvent` for applying changes.
+
+```java
+Button deleteButton = new Button("Delete");
+
+// Disable the delete button while the user is dragging an entry
+calendar.addEntryDragStartListener(event -> {
+    deleteButton.setEnabled(false);
+});
+calendar.addEntryDragStopListener(event -> {
+    deleteButton.setEnabled(true);
+});
+
+// Same pattern for resize
+calendar.addEntryResizeStartListener(event -> {
+    deleteButton.setEnabled(false);
+});
+calendar.addEntryResizeStopListener(event -> {
+    deleteButton.setEnabled(true);
+});
+
+// Apply changes only in the final event
+calendar.addEntryDroppedListener(event -> {
+    event.applyChangesOnEntry();
+    calendar.getEntryProvider().asInMemory().refreshItem(event.getEntry());
+});
+```
+
+## Resource area columns (Scheduler)
+
+Define multiple columns in the resource area of timeline views. Each column can display a different
+resource property.
+
+```java
+Scheduler scheduler = (Scheduler) calendar;
+
+// Define columns — the field name must match a key in Resource.extendedProps or a standard property
+ResourceAreaColumn nameCol = new ResourceAreaColumn("title", "Name");
+nameCol.withWidth("150px");
+
+ResourceAreaColumn roleCol = new ResourceAreaColumn("role", "Role");
+roleCol.withWidth("100px");
+
+ResourceAreaColumn deptCol = new ResourceAreaColumn("department", "Dept");
+deptCol.withWidth("80px");
+deptCol.withGroup(true);  // group resources by this column's values
+
+scheduler.setResourceAreaColumns(List.of(nameCol, roleCol, deptCol));
+
+// IMPORTANT: grouping requires both withGroup(true) on the column AND setResourceGroupField
+scheduler.setResourceGroupField("department");
+
+// Create resources with matching extendedProps
+Resource dev1 = new Resource("1", "Alice");
+dev1.addExtendedProps("role", "Developer");
+dev1.addExtendedProps("department", "Engineering");
+
+Resource dev2 = new Resource("2", "Bob");
+dev2.addExtendedProps("role", "Designer");
+dev2.addExtendedProps("department", "Design");
+
+scheduler.addResources(dev1, dev2);
+```
+
+### Column render hooks
+
+```java
+// Customize how cells in a column are rendered
+ResourceAreaColumn statusCol = new ResourceAreaColumn("status", "Status");
+statusCol.withCellContent("""
+    function(arg) {
+        var val = arg.resource.extendedProps.status || 'unknown';
+        return { html: '<span class="status-' + val + '">' + val + '</span>' };
+    }""");
+statusCol.withCellClassNames("""
+    function(arg) {
+        return arg.resource.extendedProps.status === 'active' ? ['active-cell'] : [];
+    }""");
+```
+
+## Entry constraints with BusinessHours
+
+Restrict where a specific entry can be dragged or resized — independently of the calendar's
+global business hours display.
+
+```java
+// This entry can only be placed during custom hours (Mon–Fri, 9–17)
+Entry meeting = new Entry();
+meeting.setTitle("Client Meeting");
+meeting.setStart(LocalDateTime.of(2025, 3, 10, 10, 0));
+meeting.setEnd(LocalDateTime.of(2025, 3, 10, 11, 0));
+meeting.setConstraint(BusinessHours.businessWeek().start(9).end(17));
+
+// This entry defers to the calendar's defined business hours
+Entry standup = new Entry();
+standup.setTitle("Standup");
+standup.setConstraintToBusinessHours();
+
+// This entry can only overlap with entries in the same group
+Entry teamEvent = new Entry();
+teamEvent.setGroupId("team-a");
+teamEvent.setConstraint("team-a");  // only droppable where other "team-a" entries are
+```
+
+## Global event overlap control
+
+Control whether events may overlap when dragged or resized. Per-entry `setOverlap()` overrides
+the global setting.
+
+```java
+// Prevent all events from overlapping each other
+calendar.setEventOverlap(false);
+
+// Individual entries can still opt in
+Entry flexible = new Entry();
+flexible.setTitle("Flexible");
+flexible.setOverlap(true);  // overrides the global false
+
+// For more complex logic, use a JS callback
+calendar.setEventOverlapCallback("""
+    function(stillEvent, movingEvent) {
+        // Allow overlap only with background events
+        return stillEvent.display === 'background';
+    }""");
+```
+
+## Render hook callbacks
+
+FullCalendar provides render hooks for almost every visual element: day cells, day headers, slot labels,
+slot lanes, week numbers, now indicator, more-link, no-events, all-day, and view. All follow the same
+pattern: `classNames` / `content` / `didMount` / `willUnmount`.
+
+### Highlight weekends in the day grid
+
+```java
+calendar.setDayCellClassNamesCallback("""
+    function(arg) {
+        var dow = arg.date.getUTCDay();
+        return (dow === 0 || dow === 6) ? ['weekend-cell'] : [];
+    }""");
+```
+
+Then in your CSS:
+```css
+.weekend-cell {
+    background-color: rgba(255, 200, 200, 0.15);
+}
+```
+
+### Custom slot labels in the time grid
+
+```java
+calendar.setSlotLabelContentCallback("""
+    function(arg) {
+        var h = arg.date.getUTCHours();
+        if (h < 9 || h >= 17) return { html: '<span style="color:#999">' + arg.text + '</span>' };
+        return arg.text;
+    }""");
+```
+
+### Custom day header with extra info
+
+```java
+calendar.setDayHeaderContentCallback("""
+    function(arg) {
+        var d = arg.date;
+        var dayName = d.toLocaleDateString('en', { weekday: 'short' });
+        var dayNum = d.getDate();
+        return { html: '<div>' + dayName + '<br><b>' + dayNum + '</b></div>' };
+    }""");
+```
+
+### Other render hooks
+
+The same pattern applies to all other hooks. A few examples:
+
+```java
+// Week numbers — e.g. prefix with "CW "
+calendar.setWeekNumberContentCallback("""
+    function(arg) { return { html: 'CW ' + arg.num }; }""");
+
+// Now indicator — custom styling
+calendar.setNowIndicatorClassNamesCallback("""
+    function() { return ['my-now-line']; }""");
+
+// More-link — custom text
+calendar.setMoreLinkContentCallback("""
+    function(arg) { return { html: arg.num + ' more...' }; }""");
+
+// No-events message in list view
+calendar.setNoEventsContentCallback("""
+    function() { return { html: '<em>Nothing scheduled</em>' }; }""");
+```
+
+## Resource-level display overrides (Scheduler)
+
+Resources can define default display properties for all entries assigned to them. The cascade is:
+**Calendar defaults → Resource overrides → Entry overrides** (most specific wins).
+
+```java
+// Room A: all its entries are green by default
+Resource roomA = new Resource("room-a", "Room A");
+roomA.setEventBackgroundColor("#4caf50");
+roomA.setEventBorderColor("#388e3c");
+
+// Room B: entries cannot overlap each other on this resource
+Resource roomB = new Resource("room-b", "Room B");
+roomB.setEventOverlap(false);
+roomB.setEventBackgroundColor("#2196f3");
+
+// Room C: restrict entries to business hours on this resource
+Resource roomC = new Resource("room-c", "Room C");
+roomC.setEventConstraint("businessHours");
+
+// Add CSS classes to all entries on this resource
+roomA.setEventClassNames(Set.of("room-a-entry", "highlight"));
+
+Scheduler scheduler = (Scheduler) calendar;
+scheduler.addResources(roomA, roomB, roomC);
+```
+
+## Restricting navigation with valid range
+
+Limit which dates the user can navigate to. Dates outside the range are greyed out and the
+prev/next buttons are automatically disabled when the edge is reached.
+
+```java
+// Only allow navigation within the current year
+calendar.setValidRange(
+    LocalDate.of(2025, 1, 1),
+    LocalDate.of(2025, 12, 31)
+);
+
+// Or set only one boundary
+calendar.setValidRangeStart(LocalDate.now());  // no past navigation
+calendar.setValidRangeEnd(null);               // no future limit
+```
