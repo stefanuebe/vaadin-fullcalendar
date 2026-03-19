@@ -59,8 +59,6 @@ for the one behaviour change involving `Entry.overlap`.
 - `setCloseHint(String)` / `setTimeHint(String)` / `setEventHint(String)` — accessible labels for popover close buttons, time displays, and events
 
 ### Advanced and niche options
-- `CustomButton` + `CustomButtonClickedEvent` — add arbitrary buttons to the toolbar with server-side click listeners
-- `setButtonIcons(Map<String, String>)` — override toolbar button icons
 - `setValidRangeCallback(String)` / `setSelectOverlapCallback(String)` — dynamic JS function overrides for `validRange` and `selectOverlap`
 - `setEventConstraint(String/BusinessHours)` / `setEventConstraintToBusinessHours()` — constrain drag/resize to specific time slots
 - `setDateIncrement(String)` / `setDateAlignment(String)` — navigation increment and alignment for custom views

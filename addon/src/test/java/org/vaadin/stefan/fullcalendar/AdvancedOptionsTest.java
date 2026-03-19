@@ -1,7 +1,5 @@
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
@@ -9,19 +7,17 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
  * Tests for advanced and niche options.
- * Covers buttonIcons, eventConstraint, dateIncrement/dateAlignment, CSP nonce,
+ * Covers eventConstraint, dateIncrement/dateAlignment, CSP nonce,
  * view-specific options, fixedMirrorParent, dragScrollEls, validRange/selectOverlap callbacks,
- * navigation methods, getCurrentIntervalStart/End, and custom buttons.
+ * navigation methods, and getCurrentIntervalStart/End.
  */
 public class AdvancedOptionsTest {
 
@@ -35,11 +31,6 @@ public class AdvancedOptionsTest {
     // -------------------------------------------------------------------------
     // Option enum keys
     // -------------------------------------------------------------------------
-
-    @Test
-    void option_buttonIcons_key() {
-        assertEquals("buttonIcons", Option.BUTTON_ICONS.getOptionKey());
-    }
 
     @Test
     void option_eventConstraint_key() {
@@ -64,31 +55,6 @@ public class AdvancedOptionsTest {
     @Test
     void option_dragScrollEls_key() {
         assertEquals("dragScrollEls", Option.DRAG_SCROLL_ELS.getOptionKey());
-    }
-
-    // -------------------------------------------------------------------------
-    // 7.2 buttonIcons
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setButtonIcons_storesOption() {
-        Map<String, String> icons = Map.of("prev", "chevron-left", "next", "chevron-right");
-        calendar.setButtonIcons(icons);
-        assertOptionalEquals(icons, calendar.getOption(Option.BUTTON_ICONS));
-    }
-
-    @Test
-    void setButtonIcons_null_clearsOption() {
-        calendar.setButtonIcons(Map.of("prev", "chevron-left"));
-        calendar.setButtonIcons(null);
-        assertTrue(calendar.getOption(Option.BUTTON_ICONS).isEmpty());
-    }
-
-    @Test
-    void setButtonIcons_emptyMap_storesEmptyOption() {
-        calendar.setButtonIcons(Map.of());
-        // An empty map should be stored (not treated as null)
-        assertOptionalEquals(Map.of(), calendar.getOption(Option.BUTTON_ICONS));
     }
 
     // -------------------------------------------------------------------------
@@ -316,168 +282,6 @@ public class AdvancedOptionsTest {
     }
 
     // -------------------------------------------------------------------------
-    // 7.1 CustomButton model
-    // -------------------------------------------------------------------------
-
-    @Test
-    void customButton_toJson_includesAllSetFields() {
-        CustomButton btn = new CustomButton("myBtn");
-        btn.setText("Click Me");
-        btn.setHint("A helpful hint");
-        btn.setIcon("fa-star");
-
-        ObjectNode json = btn.toJson();
-        assertEquals("Click Me", json.get("text").asText());
-        assertEquals("A helpful hint", json.get("hint").asText());
-        assertEquals("fa-star", json.get("icon").asText());
-        assertFalse(json.has("bootstrapFontAwesome"));
-        assertFalse(json.has("themeIcon"));
-    }
-
-    @Test
-    void customButton_toJson_emptyWhenNoFieldsSet() {
-        CustomButton btn = new CustomButton("myBtn");
-        ObjectNode json = btn.toJson();
-        assertTrue(json.isEmpty());
-    }
-
-    @Test
-    void customButton_getName_returnsName() {
-        assertEquals("myBtn", new CustomButton("myBtn").getName());
-    }
-
-    @Test
-    void customButton_nullName_throws() {
-        assertThrows(NullPointerException.class, () -> new CustomButton(null));
-    }
-
-    @Test
-    void customButton_equals_byName() {
-        CustomButton a = new CustomButton("btn");
-        a.setText("Alpha");
-        CustomButton b = new CustomButton("btn");
-        b.setText("Beta");
-        assertEquals(a, b);
-    }
-
-    // -------------------------------------------------------------------------
-    // 7.1 addCustomButton / removeCustomButton
-    // -------------------------------------------------------------------------
-
-    @Test
-    void addCustomButton_null_throws() {
-        assertThrows(NullPointerException.class, () -> calendar.addCustomButton(null));
-    }
-
-    @Test
-    void addCustomButtonClickedListener_nullButtonName_throws() {
-        assertThrows(NullPointerException.class,
-                () -> calendar.addCustomButtonClickedListener(null, e -> {}));
-    }
-
-    @Test
-    void addCustomButtonClickedListener_nullListener_throws() {
-        assertThrows(NullPointerException.class,
-                () -> calendar.addCustomButtonClickedListener("btn", null));
-    }
-
-    @Test
-    void addCustomButton_withListener_registrationRemovesListener() {
-        CustomButton btn = new CustomButton("btn");
-        AtomicInteger counter = new AtomicInteger();
-        Registration reg = calendar.addCustomButton(btn, e -> counter.incrementAndGet());
-
-        // Simulate click (directly call the @ClientCallable method via reflection)
-        simulateCustomButtonClick("btn");
-        assertEquals(1, counter.get());
-
-        // Remove listener
-        reg.remove();
-        simulateCustomButtonClick("btn");
-        assertEquals(1, counter.get()); // no further increment
-    }
-
-    @Test
-    void removeCustomButton_removesListeners() {
-        CustomButton btn = new CustomButton("btn");
-        AtomicInteger counter = new AtomicInteger();
-        calendar.addCustomButton(btn, e -> counter.incrementAndGet());
-
-        calendar.removeCustomButton("btn");
-        simulateCustomButtonClick("btn");
-        assertEquals(0, counter.get());
-    }
-
-    @Test
-    void removeCustomButton_null_throws() {
-        assertThrows(NullPointerException.class, () -> calendar.removeCustomButton(null));
-    }
-
-    @Test
-    void customButtonClicked_firesAllListeners() {
-        CustomButton btn = new CustomButton("btn");
-        AtomicInteger counter = new AtomicInteger();
-        calendar.addCustomButton(btn);
-        calendar.addCustomButtonClickedListener("btn", e -> counter.incrementAndGet());
-        calendar.addCustomButtonClickedListener("btn", e -> counter.incrementAndGet());
-
-        simulateCustomButtonClick("btn");
-        assertEquals(2, counter.get());
-    }
-
-    @Test
-    void customButtonClickedListener_selectiveRemoval_removesOnlyThatListener() {
-        CustomButton btn = new CustomButton("btn");
-        calendar.addCustomButton(btn);
-        AtomicInteger first = new AtomicInteger();
-        AtomicInteger second = new AtomicInteger();
-        Registration reg1 = calendar.addCustomButtonClickedListener("btn", e -> first.incrementAndGet());
-        calendar.addCustomButtonClickedListener("btn", e -> second.incrementAndGet());
-
-        simulateCustomButtonClick("btn");
-        assertEquals(1, first.get());
-        assertEquals(1, second.get());
-
-        // Remove only the first listener
-        reg1.remove();
-        simulateCustomButtonClick("btn");
-        assertEquals(1, first.get()); // unchanged
-        assertEquals(2, second.get()); // incremented again
-    }
-
-    @Test
-    void customButtonClicked_unknownName_doesNotFireOtherListeners() {
-        CustomButton btn = new CustomButton("btn");
-        calendar.addCustomButton(btn);
-        List<String> fired = new java.util.ArrayList<>();
-        calendar.addCustomButtonClickedListener("btn", e -> fired.add(e.getButtonName()));
-
-        simulateCustomButtonClick("nonExistent");
-        assertTrue(fired.isEmpty());
-    }
-
-    @Test
-    void customButtonClicked_unknownName_noError() {
-        // Should not throw even when no button with that name is registered
-        assertDoesNotThrow(() -> simulateCustomButtonClick("nonExistent"));
-    }
-
-    @Test
-    void customButtonClickedEvent_hasCorrectButtonName() {
-        CustomButton btn = new CustomButton("myBtn");
-        calendar.addCustomButton(btn);
-        List<String> received = new java.util.ArrayList<>();
-        calendar.addCustomButtonClickedListener("myBtn", e -> received.add(e.getButtonName()));
-
-        simulateCustomButtonClick("myBtn");
-        assertEquals(List.of("myBtn"), received);
-    }
-
-    // -------------------------------------------------------------------------
-    // Helper
-    // -------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------
     // navLinkDayClick / navLinkWeekClick callbacks
     // -------------------------------------------------------------------------
 
@@ -501,22 +305,5 @@ public class AdvancedOptionsTest {
     void setNavLinkWeekClickCallback_storesOption() {
         calendar.setNavLinkWeekClickCallback("function(weekStart) {}");
         assertOptionalEquals("function(weekStart) {}", calendar.getOption("navLinkWeekClick"));
-    }
-
-    /**
-     * Directly invokes the {@code customButtonClicked} @ClientCallable method on the calendar,
-     * simulating a client-side click without a real browser.
-     */
-    private void simulateCustomButtonClick(String buttonName) {
-        try {
-            var method = FullCalendar.class.getDeclaredMethod("customButtonClicked", String.class);
-            method.setAccessible(true);
-            method.invoke(calendar, buttonName);
-        } catch (NoSuchMethodException e) {
-            org.junit.jupiter.api.Assertions.fail(
-                    "customButtonClicked(String) method not found — API may have changed", e);
-        } catch (Exception e) {
-            throw new RuntimeException("Could not invoke customButtonClicked", e);
-        }
     }
 }

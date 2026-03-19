@@ -1057,28 +1057,6 @@ Entry normal = new Entry();
 normal.setOverlap(null);  // same as not calling setOverlap at all
 ```
 
-## Custom toolbar buttons
-
-Add arbitrary buttons to the header or footer toolbar with server-side click handlers.
-
-```java
-CustomButton btn = new CustomButton("openWizard");
-btn.setText("Schedule");            // button label
-btn.setHint("Open scheduling wizard"); // aria-label for screen readers
-
-calendar.addCustomButton(btn, event -> {
-    // fired on server side when the button is clicked
-    openSchedulingWizard();
-});
-
-// Reference the button by name in the toolbar configuration
-calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, Map.of(
-    "left",   "prev,next today",
-    "center", "title",
-    "right",  "dayGridMonth openWizard"   // "openWizard" matches btn.getName()
-));
-```
-
 ## View-specific options
 
 Apply an option only when a specific view type is active. Options set here override the global value

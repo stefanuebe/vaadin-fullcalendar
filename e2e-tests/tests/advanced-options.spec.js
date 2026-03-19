@@ -31,81 +31,12 @@ test.describe('Advanced Options', () => {
     });
 
     // -------------------------------------------------------------------------
-    // Custom button renders in the toolbar
-    // -------------------------------------------------------------------------
-
-    test('custom button is present in the toolbar', async ({ page }) => {
-        // The toolbar button with text "Schedule" should be visible
-        const schedBtn = page.locator('.fc-scheduleWizard-button');
-        await expect(schedBtn).toBeVisible();
-    });
-
-    test('custom button has correct text', async ({ page }) => {
-        await expect(page.locator('.fc-scheduleWizard-button')).toHaveText('Schedule');
-    });
-
-    test('custom button has aria-label from hint', async ({ page }) => {
-        // setHint("Open scheduling wizard") → aria-label on the button
-        const ariaLabel = await page.locator('.fc-scheduleWizard-button').getAttribute('aria-label');
-        expect(ariaLabel).toBe('Open scheduling wizard');
-    });
-
-    // -------------------------------------------------------------------------
-    // Custom button click fires server-side listener
-    // -------------------------------------------------------------------------
-
-    test('click count starts at 0', async ({ page }) => {
-        await expect(page.locator('#custom-btn-click-count')).toHaveText('0');
-    });
-
-    test('clicking custom button increments click counter to 1', async ({ page }) => {
-        await page.locator('.fc-scheduleWizard-button').click();
-        await waitForVaadin(page);
-        await expect(page.locator('#custom-btn-click-count')).toHaveText('1', { timeout: 5000 });
-    });
-
-    test('clicking custom button sets correct button name', async ({ page }) => {
-        await page.locator('.fc-scheduleWizard-button').click();
-        await waitForVaadin(page);
-        await expect(page.locator('#custom-btn-name')).toHaveText('scheduleWizard', { timeout: 5000 });
-    });
-
-    test('clicking custom button multiple times accumulates count', async ({ page }) => {
-        await page.locator('.fc-scheduleWizard-button').click();
-        await waitForVaadin(page);
-        await page.locator('.fc-scheduleWizard-button').click();
-        await waitForVaadin(page);
-        await page.locator('.fc-scheduleWizard-button').click();
-        await waitForVaadin(page);
-        await expect(page.locator('#custom-btn-click-count')).toHaveText('3', { timeout: 5000 });
-    });
-
-    // -------------------------------------------------------------------------
     // View-specific option: dayMaxEventRows=2 for dayGrid → +N more link
     // -------------------------------------------------------------------------
 
     test('more link is present due to view-specific dayMaxEventRows=2', async ({ page }) => {
         // 5 events on 2025-03-05 with dayMaxEventRows=2 → at least "+3 more"
         await expect(page.locator('.fc-daygrid-more-link')).toBeVisible({ timeout: 5000 });
-    });
-
-    // -------------------------------------------------------------------------
-    // buttonIcons: custom icon CSS classes applied to prev/next buttons
-    // -------------------------------------------------------------------------
-
-    test('buttonIcons: prev button has custom icon class', async ({ page }) => {
-        // setButtonIcons({ "prev": "chevron-left-custom" }) causes FC to render
-        // the prev button's icon span as: class="fc-icon fc-icon-chevron-left-custom"
-        const iconClass = await page.locator('button.fc-prev-button .fc-icon').getAttribute('class');
-        expect(iconClass).not.toBeNull();
-        expect(iconClass).toContain('fc-icon-chevron-left-custom');
-    });
-
-    test('buttonIcons: next button has custom icon class', async ({ page }) => {
-        // setButtonIcons({ "next": "chevron-right-custom" })
-        const iconClass = await page.locator('button.fc-next-button .fc-icon').getAttribute('class');
-        expect(iconClass).not.toBeNull();
-        expect(iconClass).toContain('fc-icon-chevron-right-custom');
     });
 
     // -------------------------------------------------------------------------

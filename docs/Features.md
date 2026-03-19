@@ -107,8 +107,6 @@ Server-side events fired by the calendar:
 | `EventSourceFailureEvent` | A client-side event source (JSON feed, Google Calendar, iCal) failed to load |
 | `ExternalEntryDroppedEvent` | An entry from a client-side event source is dropped into the calendar |
 | `ExternalEntryResizedEvent` | An entry from a client-side event source is resized |
-| `CustomButtonClickedEvent` | A custom toolbar button is clicked |
-
 ### Event sources (client-side)
 
 In addition to the server-managed `EntryProvider`, the calendar supports client-side event sources that load data directly in the browser:
@@ -131,22 +129,6 @@ calendar.addEventSource(ical);
 
 Client-side event source entries are read-only by default (`editable = false`). To enable drag/drop and resize for a source, call `.withEditable(true)` on the source instance before adding it to the calendar. When a drag-drop occurs, an `ExternalEntryDroppedEvent` is fired; when a resize occurs, an `ExternalEntryResizedEvent` is fired (both instead of their server-managed counterparts `EntryDroppedEvent` / `EntryResizedEvent`).
 
-### Custom toolbar buttons
-
-```java
-CustomButton btn = new CustomButton("myWizard");
-btn.setText("Wizard");
-btn.setHint("Open scheduling wizard");  // used as aria-label
-
-calendar.addCustomButton(btn, event -> openWizard());
-
-// Reference the button name in the toolbar config
-calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, Map.of(
-    "left",   "prev,next today",
-    "center", "title",
-    "right",  "dayGridMonth myWizard"
-));
-```
 
 ### View-specific options
 

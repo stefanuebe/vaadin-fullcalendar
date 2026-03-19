@@ -132,10 +132,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     private final Map<String, ClientSideEventSource<?>> eventSourceRegistry = new LinkedHashMap<>();
 
-    // ---- Custom Buttons ----
-    private final Map<String, CustomButton> customButtons = new LinkedHashMap<>();
-    private final Map<String, List<ComponentEventListener<CustomButtonClickedEvent>>> customButtonListeners = new HashMap<>();
-
     // ---- View-Specific Options ----
     private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
 
@@ -3105,18 +3101,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     // ---- Advanced and Niche Options ----
 
-    /**
-     * Sets the icons for the navigation buttons in the toolbar. The map key is the button name
-     * (e.g., {@code "prev"}, {@code "next"}, {@code "prevYear"}, {@code "nextYear"}) and the
-     * value is the CSS class name of the icon (e.g., from Font Awesome). Pass {@code null} to
-     * reset to FullCalendar's built-in icon set.
-     *
-     * @param icons map of button name → icon CSS class, or {@code null} to reset
-     * @see <a href="https://fullcalendar.io/docs/buttonIcons">FC buttonIcons documentation</a>
-     */
-    public void setButtonIcons(Map<String, String> icons) {
-        setOption(Option.BUTTON_ICONS, icons);
-    }
+
 
     /**
      * Sets a JavaScript function string as the {@code validRange} option. The function receives
@@ -3387,96 +3372,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             setOption(Option.DRAG_SCROLL_ELS, (Object) null);
         } else {
             setOption(Option.DRAG_SCROLL_ELS, String.join(",", cssSelectors));
-        }
-    }
-
-    // ---- Custom Buttons ----
-
-    /**
-     * Adds a custom button to the calendar's toolbar configuration. The button can be referenced
-     * by its {@link CustomButton#getName() name} in header/footer toolbar strings.
-     * <p>
-     * Call this method before configuring the toolbar that includes the button.
-     *
-     * @param button the custom button to add; must not be null
-     * @see #addCustomButton(CustomButton, com.vaadin.flow.component.ComponentEventListener)
-     * @see #removeCustomButton(String)
-     * @see <a href="https://fullcalendar.io/docs/customButtons">FC customButtons documentation</a>
-     */
-    public void addCustomButton(CustomButton button) {
-        Objects.requireNonNull(button, "button must not be null");
-        customButtons.put(button.getName(), button);
-        syncCustomButtons();
-    }
-
-    /**
-     * Adds a custom button and registers a server-side click listener for it in a single call.
-     *
-     * @param button   the custom button to add; must not be null
-     * @param listener click listener invoked when the button is clicked; must not be null
-     * @return registration that removes the listener when called
-     * @see #addCustomButton(CustomButton)
-     * @see #addCustomButtonClickedListener(String, com.vaadin.flow.component.ComponentEventListener)
-     */
-    public Registration addCustomButton(CustomButton button, ComponentEventListener<CustomButtonClickedEvent> listener) {
-        addCustomButton(button);
-        return addCustomButtonClickedListener(button.getName(), listener);
-    }
-
-    /**
-     * Registers a server-side click listener for the custom button with the given name.
-     * Multiple listeners for the same button name are supported.
-     *
-     * @param buttonName name of the button to listen for; must not be null
-     * @param listener   click listener; must not be null
-     * @return registration that removes this specific listener when called
-     * @see #addCustomButton(CustomButton, com.vaadin.flow.component.ComponentEventListener)
-     */
-    public Registration addCustomButtonClickedListener(String buttonName,
-            ComponentEventListener<CustomButtonClickedEvent> listener) {
-        Objects.requireNonNull(buttonName, "buttonName must not be null");
-        Objects.requireNonNull(listener, "listener must not be null");
-        customButtonListeners.computeIfAbsent(buttonName, k -> new ArrayList<>()).add(listener);
-        return () -> {
-            List<ComponentEventListener<CustomButtonClickedEvent>> list = customButtonListeners.get(buttonName);
-            if (list != null) {
-                list.remove(listener);
-                if (list.isEmpty()) {
-                    customButtonListeners.remove(buttonName);
-                }
-            }
-        };
-    }
-
-    /**
-     * Removes a custom button and all its click listeners from the calendar.
-     *
-     * @param buttonName name of the button to remove; must not be null
-     * @see #addCustomButton(CustomButton)
-     */
-    public void removeCustomButton(String buttonName) {
-        Objects.requireNonNull(buttonName, "buttonName must not be null");
-        customButtons.remove(buttonName);
-        customButtonListeners.remove(buttonName);
-        syncCustomButtons();
-    }
-
-    private void syncCustomButtons() {
-        if (customButtons.isEmpty()) {
-            getElement().callJsFunction("setCustomButtons", (Object) null);
-        } else {
-            ObjectNode buttonsNode = JsonFactory.createObject();
-            customButtons.forEach((name, btn) -> buttonsNode.set(name, btn.toJson()));
-            getElement().callJsFunction("setCustomButtons", buttonsNode);
-        }
-    }
-
-    @ClientCallable
-    protected void customButtonClicked(String buttonName) {
-        List<ComponentEventListener<CustomButtonClickedEvent>> listeners = customButtonListeners.get(buttonName);
-        if (listeners != null && !listeners.isEmpty()) {
-            CustomButtonClickedEvent event = new CustomButtonClickedEvent(this, true, buttonName);
-            new ArrayList<>(listeners).forEach(l -> l.onComponentEvent(event));
         }
     }
 
@@ -4676,11 +4571,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
         /**
-         * @see <a href="https://fullcalendar.io/docs/buttonIcons">buttonIcons</a>
-         */
-        BUTTON_ICONS,
-
-        /**
          * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
          */
         EVENT_CONSTRAINT,
@@ -4738,16 +4628,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/eventHint">eventHint</a>
          */
-        EVENT_HINT,
-
-        /**
-         * Determines the text that will be displayed in the header toolbar's title area.
-         * Accepts a date-formatting object (e.g. {@code Map.of("year", "numeric", "month", "short")})
-         * or a format string.
-         *
-         * @see <a href="https://fullcalendar.io/docs/titleFormat">titleFormat</a>
-         */
-        TITLE_FORMAT;
+        EVENT_HINT;
 
         private final String optionKey;
 
