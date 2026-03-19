@@ -138,3 +138,10 @@ test.describe('Interaction Callbacks', () => {
     });
 
 });
+
+// Note: The following interaction features are not covered by E2E tests because they
+// are either client-side-only callbacks or require complex simulation:
+//   - setEventAllow: client-side-only callback (no server-side event)
+//   - setUnselectCancel: CSS selector based configuration, no observable DOM change
+//   - setDropAccept: CSS selector filtering for external drops, requires external element
+//   - ExternalEntryDroppedEvent: requires dragging an element from outside the calendar

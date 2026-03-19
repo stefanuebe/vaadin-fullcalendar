@@ -80,13 +80,37 @@ test.describe('Accessibility and Touch', () => {
     });
 
     // -------------------------------------------------------------------------
-    // moreLinkHint: +N more overflow link is present for overflowing events
+    // navLinkHint: day number anchors carry an aria-label from the hint template
+    // -------------------------------------------------------------------------
+
+    test('nav link day numbers carry aria-label from navLinkHint', async ({ page }) => {
+        // setNavLinkHint("Go to $0") causes FC to set aria-label="Go to <date>" on each
+        // .fc-daygrid-day-number anchor so assistive technologies can announce the destination.
+        const firstDayNum = page.locator('.fc-daygrid-day-number').first();
+        await expect(firstDayNum).toBeVisible();
+        const ariaLabel = await firstDayNum.getAttribute('aria-label');
+        expect(ariaLabel).not.toBeNull();
+        expect(ariaLabel).toMatch(/go to/i);
+    });
+
+    // -------------------------------------------------------------------------
+    // moreLinkHint: +N more overflow link is present and has aria-label
     // -------------------------------------------------------------------------
 
     test('more link is present when day has overflow events', async ({ page }) => {
         // March 5 has 5 all-day events and setDayMaxEventRows(2) is set in the
         // demo view, so exactly 3 events are hidden and a "+3 more" link must appear.
         await expect(page.locator('.fc-daygrid-more-link')).toBeVisible({ timeout: 5000 });
+    });
+
+    test('more link carries aria-label from moreLinkHint', async ({ page }) => {
+        // setMoreLinkHint("$0 more events. Click to expand") causes FC to set
+        // aria-label="3 more events. Click to expand" on the "+3 more" link.
+        const moreLink = page.locator('.fc-daygrid-more-link').first();
+        await expect(moreLink).toBeVisible({ timeout: 5000 });
+        const ariaLabel = await moreLink.getAttribute('aria-label');
+        expect(ariaLabel).not.toBeNull();
+        expect(ariaLabel).toMatch(/more events/i);
     });
 
     // -------------------------------------------------------------------------

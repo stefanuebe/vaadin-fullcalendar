@@ -102,6 +102,19 @@ test.describe('Scheduler Resource Features', () => {
     });
 
     // -------------------------------------------------------------------------
+    // Resource group CSS class names callback
+    // -------------------------------------------------------------------------
+
+    test('resourceGroupClassNamesCallback: group header rows have custom-group class', async ({ page }) => {
+        // setResourceGroupClassNamesCallback("function(arg) { return ['custom-group']; }") causes
+        // FC to add the custom-group CSS class to each resource group header cell.
+        const groupCells = page.locator('.fc-datagrid-cell.custom-group');
+        const count = await groupCells.count();
+        // There are 2 departments (Engineering, Design) → 2 group header rows
+        expect(count).toBeGreaterThanOrEqual(2);
+    });
+
+    // -------------------------------------------------------------------------
     // Stable DOM element check
     // -------------------------------------------------------------------------
 

@@ -90,6 +90,25 @@ test.describe('Advanced Options', () => {
     });
 
     // -------------------------------------------------------------------------
+    // buttonIcons: custom icon CSS classes applied to prev/next buttons
+    // -------------------------------------------------------------------------
+
+    test('buttonIcons: prev button has custom icon class', async ({ page }) => {
+        // setButtonIcons({ "prev": "chevron-left-custom" }) causes FC to render
+        // the prev button's icon span as: class="fc-icon fc-icon-chevron-left-custom"
+        const iconClass = await page.locator('button.fc-prev-button .fc-icon').getAttribute('class');
+        expect(iconClass).not.toBeNull();
+        expect(iconClass).toContain('fc-icon-chevron-left-custom');
+    });
+
+    test('buttonIcons: next button has custom icon class', async ({ page }) => {
+        // setButtonIcons({ "next": "chevron-right-custom" })
+        const iconClass = await page.locator('button.fc-next-button .fc-icon').getAttribute('class');
+        expect(iconClass).not.toBeNull();
+        expect(iconClass).toContain('fc-icon-chevron-right-custom');
+    });
+
+    // -------------------------------------------------------------------------
     // Standard toolbar buttons still present
     // -------------------------------------------------------------------------
 

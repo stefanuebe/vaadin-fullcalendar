@@ -62,3 +62,10 @@ test.describe('Event Source Improvements', () => {
     });
 
 });
+
+// Note: The following event source features are not covered by E2E tests because they
+// require external infrastructure or cannot be reliably simulated in headless Playwright:
+//   - GoogleCalendarEventSource: requires a Google Calendar API key
+//   - ICalendarEventSource: would require serving a real .ics file from the test app
+//   - setStartParam / setEndParam / setTimeZoneParam: require capturing HTTP request query params
+//   - ExternalEntryDroppedEvent: requires dragging an external DOM element into the calendar
