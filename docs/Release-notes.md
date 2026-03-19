@@ -54,7 +54,7 @@ for the one behaviour change involving `Entry.overlap`.
 
 ### Accessibility
 - `setEventInteractive(boolean)` — make all events keyboard-focusable (WCAG 2.1 AA)
-- `setButtonHints(Map<String, String>)` — accessible labels for toolbar buttons (`aria-label`)
+- `Option.BUTTON_HINTS` — accessible labels for toolbar buttons (use via `setOption`)
 - `setViewHint(String)` / `setNavLinkHint(String)` / `setMoreLinkHint(String)` — accessible labels for view switchers, nav links, and "+N more" links
 - `setCloseHint(String)` / `setTimeHint(String)` / `setEventHint(String)` — accessible labels for popover close buttons, time displays, and events
 

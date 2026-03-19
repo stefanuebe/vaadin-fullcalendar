@@ -90,14 +90,14 @@ public class AccessibilityTouchTest {
     @Test
     void setButtonHints_storesMap() {
         Map<String, String> hints = Map.of("today", "Go to today", "prev", "Previous period", "next", "Next period");
-        calendar.setButtonHints(hints);
+        calendar.setOption(Option.BUTTON_HINTS, hints);
         assertOptionalEquals(hints, calendar.getOption(Option.BUTTON_HINTS));
     }
 
     @Test
     void setButtonHints_null_clearsOption() {
-        calendar.setButtonHints(Map.of("today", "Go to today"));
-        calendar.setButtonHints(null);
+        calendar.setOption(Option.BUTTON_HINTS, Map.of("today", "Go to today"));
+        calendar.setOption(Option.BUTTON_HINTS, null);
         // null clears the option from the map
         assertTrue(calendar.getOption(Option.BUTTON_HINTS).isEmpty());
     }

@@ -2874,28 +2874,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.DEFAULT_RANGE_SEPARATOR, separator);
     }
 
-    /**
-     * Sets the separator text used between start and end dates in the toolbar title area.
-     * Default is {@code " \u2013 "} (en dash with spaces).
-     *
-     * @param separator separator string
-     * @see <a href="https://fullcalendar.io/docs/titleRangeSeparator">titleRangeSeparator</a>
-     */
-    public void setTitleRangeSeparator(String separator) {
-        setOption(Option.TITLE_RANGE_SEPARATOR, separator);
-    }
 
-    /**
-     * Customizes the button labels shown in the toolbar. The map keys are FC button/view names such as
-     * {@code "today"}, {@code "month"}, {@code "week"}, {@code "day"}, {@code "list"}, {@code "prev"},
-     * {@code "next"}, {@code "prevYear"}, {@code "nextYear"}. Pass {@code null} to reset to default labels.
-     *
-     * @param buttonText map of button key to display label, or {@code null} to reset
-     * @see <a href="https://fullcalendar.io/docs/buttonText">buttonText</a>
-     */
-    public void setButtonText(Map<String, String> buttonText) {
-        setOption(Option.BUTTON_TEXT, buttonText);
-    }
 
     /**
      * Sets the date format string used for the day popover title (the popup shown when clicking "+N more").
@@ -2985,17 +2964,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.EVENT_INTERACTIVE, interactive);
     }
 
-    /**
-     * Sets accessible labels ({@code aria-label} / {@code title}) for the toolbar navigation buttons.
-     * The map key is the button name (e.g., {@code "today"}, {@code "prev"}, {@code "next"}) and the
-     * value is the hint text for that button.
-     *
-     * @param hints map of button name → accessible hint text, or {@code null} to reset
-     * @see <a href="https://fullcalendar.io/docs/buttonHints">buttonHints</a>
-     */
-    public void setButtonHints(Map<String, String> hints) {
-        setOption(Option.BUTTON_HINTS, hints);
-    }
+
 
     /**
      * Sets the accessible label for the view selector buttons. The placeholder {@code $0} is replaced

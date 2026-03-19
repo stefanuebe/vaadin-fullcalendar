@@ -1104,7 +1104,7 @@ dialog.addOpenedChangeListener(event -> {
 Set `aria-label` values on the prev/next/today toolbar buttons for screen-reader users.
 
 ```java
-calendar.setButtonHints(Map.of(
+calendar.setOption(FullCalendar.Option.BUTTON_HINTS, Map.of(
     "today", "Jump to today",
     "prev",  "Go to previous period",
     "next",  "Go to next period"

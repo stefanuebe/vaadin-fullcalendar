@@ -312,18 +312,18 @@ public class DisplayOptionsTest {
 
     @Test
     void setTitleRangeSeparator_storesOption() {
-        calendar.setTitleRangeSeparator(" / ");
+        calendar.setOption(Option.TITLE_RANGE_SEPARATOR, " / ");
         assertOptionalEquals(" / ", calendar.getOption(Option.TITLE_RANGE_SEPARATOR));
     }
 
     // -------------------------------------------------------------------------
-    // setButtonText
+    // buttonText
     // -------------------------------------------------------------------------
 
     @Test
     void setButtonText_storesMap() {
         Map<String, String> labels = Map.of("today", "Jetzt", "month", "Monat");
-        calendar.setButtonText(labels);
+        calendar.setOption(Option.BUTTON_TEXT, labels);
         Optional<Object> opt = calendar.getOption(Option.BUTTON_TEXT);
         assertTrue(opt.isPresent());
         assertTrue(opt.get() instanceof Map, "buttonText option should be stored as a Map");

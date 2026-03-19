@@ -64,7 +64,7 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         calendar.setDayMaxEventRows(2);
         calendar.setNavLinkHint("Go to $0");
         calendar.setMoreLinkHint("$0 more events. Click to expand");
-        calendar.setButtonHints(Map.of(
+        calendar.setOption(FullCalendar.Option.BUTTON_HINTS, Map.of(
                 "today", "Jump to today",
                 "prev",  "Go to previous period",
                 "next",  "Go to next period"
