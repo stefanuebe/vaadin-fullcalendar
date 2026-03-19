@@ -77,11 +77,11 @@ calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, "function(
 > there. Using `setCallbackOption(FullCalendar.CallbackOption.ENTRY_DID_MOUNT, ...)` directly bypasses that merging.
 
 The `FullCalendar.CallbackOption` enum covers all core FC callback options. For Scheduler users,
-`FullCalendarScheduler.SchedulerCallbackOption` provides resource-specific hook keys (use with the string-key overload):
+`FullCalendarScheduler.SchedulerCallbackOption` provides resource-specific hook keys:
 
 ```java
 scheduler.setCallbackOption(
-    FullCalendarScheduler.SchedulerCallbackOption.RESOURCE_LABEL_CLASS_NAMES.getClientSideValue(),
+    FullCalendarScheduler.SchedulerCallbackOption.RESOURCE_LABEL_CLASS_NAMES,
     "function(arg) { return arg.resource.extendedProps.isSpecial ? ['special'] : []; }"
 );
 ```

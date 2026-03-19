@@ -32,7 +32,7 @@ class SchedulerCallbackOptionTest {
             .build();
         for (FullCalendarScheduler.SchedulerCallbackOption option : FullCalendarScheduler.SchedulerCallbackOption.values()) {
             assertDoesNotThrow(() ->
-                calendar.setCallbackOption(option.getClientSideValue(), "function() {}"),
+                calendar.setCallbackOption(option, "function() {}"),
                 "setCallbackOption threw for " + option.name());
         }
     }

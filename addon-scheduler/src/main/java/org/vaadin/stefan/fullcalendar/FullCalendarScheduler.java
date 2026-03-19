@@ -645,12 +645,31 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     /**
-     * Scheduler-specific FC options that accept a JavaScript function value.
-     * Use with {@link FullCalendarScheduler#setCallbackOption(String, String)},
-     * passing the client-side key via {@link #getClientSideValue()}:
+     * Typed overload of {@link #setCallbackOption(String, String)} for scheduler-specific
+     * callback options.
+     *
      * <pre>{@code
      * scheduler.setCallbackOption(
-     *     SchedulerCallbackOption.RESOURCE_LABEL_CLASS_NAMES.getClientSideValue(),
+     *     SchedulerCallbackOption.RESOURCE_LABEL_CLASS_NAMES,
+     *     "function(arg) { return arg.resource.extendedProps.isSpecial ? ['special'] : []; }"
+     * );
+     * }</pre>
+     *
+     * @param callbackOption the scheduler callback option to set
+     * @param jsFunction     the JavaScript function string, or {@code null} to remove
+     * @see #setCallbackOption(CallbackOption, String) for core (non-scheduler) callback options
+     * @see SchedulerCallbackOption
+     */
+    public void setCallbackOption(SchedulerCallbackOption callbackOption, String jsFunction) {
+        setCallbackOption(callbackOption.getClientSideValue(), jsFunction);
+    }
+
+    /**
+     * Scheduler-specific FC options that accept a JavaScript function value.
+     * Use with {@link FullCalendarScheduler#setCallbackOption(SchedulerCallbackOption, String)}:
+     * <pre>{@code
+     * scheduler.setCallbackOption(
+     *     SchedulerCallbackOption.RESOURCE_LABEL_CLASS_NAMES,
      *     "function(arg) { return arg.resource.extendedProps.isSpecial ? ['special'] : []; }"
      * );
      * }</pre>
