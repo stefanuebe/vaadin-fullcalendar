@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 /**
- * Test view for Phase 6 accessibility and touch improvements.
+ * Test view for accessibility and touch improvements.
  * <p>
  * Verifies:
  * <ul>
@@ -27,17 +27,17 @@ import java.util.Map;
  *   <li>Clicking an interactive event increments the click counter</li>
  * </ul>
  * <p>
- * Route: /test/phase6-accessibility
+ * Route: /test/accessibility
  */
-@Route(value = "phase6-accessibility", layout = TestLayout.class)
-@MenuItem(label = "Phase 6: Accessibility")
-public class Phase6AccessibilityTouchTestView extends VerticalLayout {
+@Route(value = "accessibility", layout = TestLayout.class)
+@MenuItem(label = "Accessibility")
+public class AccessibilityTouchTestView extends VerticalLayout {
 
-    public Phase6AccessibilityTouchTestView() {
+    public AccessibilityTouchTestView() {
         setSizeFull();
         setPadding(true);
 
-        add(new H2("Phase 6 — Accessibility and Touch"));
+        add(new H2("Accessibility and Touch"));
         add(new Paragraph(
                 "Tests eventInteractive (tabindex), buttonHints (aria-label on toolbar buttons), " +
                 "navLinkHint (aria-label on day numbers), and moreLinkHint (aria-label on +N more links)."));
@@ -57,7 +57,7 @@ public class Phase6AccessibilityTouchTestView extends VerticalLayout {
         calendar.setInitialDate(LocalDate.of(2025, 3, 1));
         calendar.setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
-        // Phase 6 accessibility options
+        // Accessibility options
         calendar.setEventInteractive(true);
         calendar.setNavLinks(true);
         // Limit event rows to 2 so the 5 events on 2025-03-05 reliably produce a "+N more" link

@@ -18,12 +18,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
- * Tests for Phase 7: Advanced and niche options.
+ * Tests for advanced and niche options.
  * Covers buttonIcons, eventConstraint, dateIncrement/dateAlignment, CSP nonce,
  * view-specific options, fixedMirrorParent, dragScrollEls, validRange/selectOverlap callbacks,
  * navigation methods, getCurrentIntervalStart/End, and custom buttons.
  */
-public class Phase7AdvancedTest {
+public class AdvancedOptionsTest {
 
     private FullCalendar calendar;
 
@@ -33,7 +33,7 @@ public class Phase7AdvancedTest {
     }
 
     // -------------------------------------------------------------------------
-    // Option enum keys — Phase 7 additions
+    // Option enum keys
     // -------------------------------------------------------------------------
 
     @Test

@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
- * Tests for Phase 4: Event source improvements.
+ * Tests for event source improvements.
  * Covers ClientSideEventSource subclasses, toJson() output, Option enum keys, FullCalendar API,
  * and the new server-side event classes.
  */
-public class Phase4EventSourcesTest {
+public class EventSourcesTest {
 
     private FullCalendar calendar;
 
@@ -28,7 +28,7 @@ public class Phase4EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // Option enum keys — Phase 4 additions
+    // Option enum keys
     // -------------------------------------------------------------------------
 
     @Test

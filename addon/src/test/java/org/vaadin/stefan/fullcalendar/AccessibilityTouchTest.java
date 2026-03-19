@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
- * Tests for Phase 6: Accessibility, touch, and print options.
+ * Tests for accessibility, touch, and print options.
  * Covers eventInteractive, accessibility hint setters, and Entry.interactive field.
  */
-public class Phase6AccessibilityTouchTest {
+public class AccessibilityTouchTest {
 
     private FullCalendar calendar;
 
@@ -24,7 +24,7 @@ public class Phase6AccessibilityTouchTest {
     }
 
     // -------------------------------------------------------------------------
-    // Option enum keys — Phase 6 additions
+    // Option enum keys
     // -------------------------------------------------------------------------
 
     @Test
@@ -202,7 +202,7 @@ public class Phase6AccessibilityTouchTest {
     }
 
     // -------------------------------------------------------------------------
-    // Touch delay option keys (from Phase 2 — verify keys are correct)
+    // Touch delay option keys
     // -------------------------------------------------------------------------
 
     @Test

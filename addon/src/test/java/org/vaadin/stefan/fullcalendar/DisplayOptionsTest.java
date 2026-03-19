@@ -13,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
- * Tests for Phase 2: Missing display options and render hook callbacks.
- * Covers all new typed setters in FullCalendar and the ThemeSystem enum.
+ * Tests for display options and render hook callbacks.
+ * Covers all typed setters in FullCalendar and the ThemeSystem enum.
  */
-public class Phase2DisplayOptionsTest {
+public class DisplayOptionsTest {
 
     private FullCalendar calendar;
 
@@ -37,7 +37,7 @@ public class Phase2DisplayOptionsTest {
     }
 
     // -------------------------------------------------------------------------
-    // Option enum keys — Phase 2 additions
+    // Option enum keys
     // -------------------------------------------------------------------------
 
     @Test

@@ -3,23 +3,23 @@ const { test } = require('@playwright/test');
 const { expect, waitForVaadin } = require('./fixtures');
 
 /**
- * Navigate to the Phase 6 test view and wait for the calendar to render.
+ * Navigate to the accessibility test view and wait for the calendar to render.
  */
-async function gotoPhase6View(page) {
-    await page.goto('/test/phase6-accessibility');
+async function gotoAccessibilityView(page) {
+    await page.goto('/test/accessibility');
     await page.waitForSelector('.fc', { timeout: 30000 });
     await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 15000 });
     await waitForVaadin(page);
 }
 
 // =============================================================================
-// Phase 6 — Accessibility and Touch
+
 // =============================================================================
 
-test.describe('Phase 6 — Accessibility and Touch', () => {
+test.describe('Accessibility and Touch', () => {
 
     test.beforeEach(async ({ page }) => {
-        await gotoPhase6View(page);
+        await gotoAccessibilityView(page);
     });
 
     // -------------------------------------------------------------------------

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test view for Phase 2 display options.
+ * Test view for display options.
  * <p>
  * Tests:
  * <ul>
@@ -23,17 +23,17 @@ import java.util.List;
  *   <li>{@code nowIndicatorSnap(true)} — now indicator present in timegrid views</li>
  * </ul>
  * <p>
- * Route: /test/phase2-display-options
+ * Route: /test/display-options
  */
-@Route(value = "phase2-display-options", layout = TestLayout.class)
-@MenuItem(label = "Phase 2: Display Options")
-public class Phase2DisplayOptionsTestView extends VerticalLayout {
+@Route(value = "display-options", layout = TestLayout.class)
+@MenuItem(label = "Display Options")
+public class DisplayOptionsTestView extends VerticalLayout {
 
-    public Phase2DisplayOptionsTestView() {
+    public DisplayOptionsTestView() {
         setSizeFull();
         setPadding(true);
 
-        add(new H2("Phase 2 — Display Options"));
+        add(new H2("Display Options"));
         add(new Paragraph(
                 "dayMaxEventRows=2, displayEventEnd=true. " +
                 "On 2025-03-10 there are 5 events, so a '+3 more' link should appear."));

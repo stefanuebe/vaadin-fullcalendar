@@ -132,11 +132,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     private final Map<String, ClientSideEventSource<?>> eventSourceRegistry = new LinkedHashMap<>();
 
-    // ---- Phase 7: custom buttons ----
+    // ---- Custom Buttons ----
     private final Map<String, CustomButton> customButtons = new LinkedHashMap<>();
     private final Map<String, List<ComponentEventListener<CustomButtonClickedEvent>>> customButtonListeners = new HashMap<>();
 
-    // ---- Phase 7: view-specific options ----
+    // ---- View-Specific Options ----
     private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
 
     /**
@@ -1069,7 +1069,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     // -------------------------------------------------------------------------
-    // Phase 3 — Drag/resize/select/drop JS-only callback setters
+    // Drag/resize/select/drop JS-only callback setters
     // -------------------------------------------------------------------------
 
     /**
@@ -1729,7 +1729,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     // -------------------------------------------------------------------------
-    // Phase 3 — Interaction callback listeners
+    // Interaction callback listeners
     // -------------------------------------------------------------------------
 
     /**
@@ -1851,7 +1851,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     // -------------------------------------------------------------------------
-    // Phase 4 — Event source management
+    // Event source management
     // -------------------------------------------------------------------------
 
     /**
@@ -2275,7 +2275,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     // -------------------------------------------------------------------------
-    // Typed setters (Phase 0 API)
+    // Typed setters
     // -------------------------------------------------------------------------
 
     /**
@@ -2776,7 +2776,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     // -------------------------------------------------------------------------
-    // Typed setters (Phase 2 API — Display options and render hooks)
+    // Typed setters — Display options and render hooks
     // -------------------------------------------------------------------------
 
     /**
@@ -3001,7 +3001,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.SELECT_LONG_PRESS_DELAY, delayMs);
     }
 
-    // ---- Phase 6: Accessibility, Touch, and Print Options ----
+    // ---- Accessibility, Touch, and Print Options ----
 
     /**
      * Controls whether calendar events are keyboard-focusable and activatable via Enter/Space, even when
@@ -3106,7 +3106,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.EVENT_HINT, hint);
     }
 
-    // ---- Phase 7: Advanced and Niche Options ----
+    // ---- Advanced and Niche Options ----
 
     /**
      * Sets the icons for the navigation buttons in the toolbar. The map key is the button name
@@ -3393,7 +3393,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
     }
 
-    // ---- Phase 7: Custom Buttons ----
+    // ---- Custom Buttons ----
 
     /**
      * Adds a custom button to the calendar's toolbar configuration. The button can be referenced
@@ -3994,7 +3994,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     // -------------------------------------------------------------------------
-    // Getters (Phase 0 API)
+    // Getters
     // -------------------------------------------------------------------------
 
     /**
@@ -4519,7 +4519,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          */
         WEEK_TEXT_LONG,
 
-        // ---- Phase 2 additions ----
+
 
         /**
          * @see <a href="https://fullcalendar.io/docs/allDayMaintainDuration">allDayMaintainDuration</a>
@@ -4641,7 +4641,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          */
         WINDOW_RESIZE_DELAY,
 
-        // ---- Phase 3 additions ----
+
 
         /**
          * @see <a href="https://fullcalendar.io/docs/selectAllow">selectAllow</a>
@@ -4668,7 +4668,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          */
         DROP_ACCEPT,
 
-        // ---- Phase 4 additions ----
+
 
         /**
          * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
@@ -4690,14 +4690,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          */
         GOOGLE_CALENDAR_API_KEY,
 
-        // ---- Phase 6 additions ----
+
 
         /**
          * @see <a href="https://fullcalendar.io/docs/eventInteractive">eventInteractive</a>
          */
         EVENT_INTERACTIVE,
 
-        // ---- Phase 7 additions ----
+
 
         /**
          * @see <a href="https://fullcalendar.io/docs/buttonIcons">buttonIcons</a>

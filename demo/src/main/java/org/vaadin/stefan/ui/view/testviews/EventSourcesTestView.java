@@ -13,7 +13,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import java.time.LocalDate;
 
 /**
- * Test view for Phase 4 event source improvements.
+ * Test view for event source improvements.
  * <p>
  * Verifies:
  * <ul>
@@ -22,17 +22,17 @@ import java.time.LocalDate;
  *   <li>External entry drop counter badge is present for Playwright</li>
  * </ul>
  * <p>
- * Route: /test/phase4-event-sources
+ * Route: /test/event-sources
  */
-@Route(value = "phase4-event-sources", layout = TestLayout.class)
-@MenuItem(label = "Phase 4: Event Sources")
-public class Phase4EventSourcesTestView extends VerticalLayout {
+@Route(value = "event-sources", layout = TestLayout.class)
+@MenuItem(label = "Event Sources")
+public class EventSourcesTestView extends VerticalLayout {
 
-    public Phase4EventSourcesTestView() {
+    public EventSourcesTestView() {
         setSizeFull();
         setPadding(true);
 
-        add(new H2("Phase 4 — Event Sources"));
+        add(new H2("Event Sources"));
         add(new Paragraph(
                 "A JSON feed source pointing to a non-existent URL is added. " +
                 "When the feed fails to load the failure message is shown below."));
@@ -60,8 +60,8 @@ public class Phase4EventSourcesTestView extends VerticalLayout {
         calendar.setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
 
         // Add a JSON feed source pointing to a non-existent URL to trigger the failure event
-        JsonFeedEventSource failingSource = new JsonFeedEventSource("/test/api/phase4/events")
-                .withId("phase4-feed");
+        JsonFeedEventSource failingSource = new JsonFeedEventSource("/test/api/event-sources/events")
+                .withId("failing-feed");
         calendar.addEventSource(failingSource);
 
         // Listen for event source failures

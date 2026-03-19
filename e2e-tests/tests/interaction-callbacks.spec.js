@@ -3,10 +3,10 @@ const { test } = require('@playwright/test');
 const { expect, waitForVaadin } = require('./fixtures');
 
 /**
- * Navigate to the Phase 3 test view and wait for the calendar to render.
+ * Navigate to the interaction callbacks test view and wait for the calendar to render.
  */
-async function gotoPhase3View(page) {
-    await page.goto('/test/phase3-interaction-callbacks');
+async function gotoInteractionCallbacksView(page) {
+    await page.goto('/test/interaction-callbacks');
     await page.waitForSelector('.fc', { timeout: 30000 });
     // timeGridWeek renders time-slot rows
     await page.waitForSelector('.fc-timegrid-slot', { timeout: 15000 });
@@ -14,13 +14,13 @@ async function gotoPhase3View(page) {
 }
 
 // =============================================================================
-// Phase 3 — Interaction Callbacks
+
 // =============================================================================
 
-test.describe('Phase 3 — Interaction Callbacks', () => {
+test.describe('Interaction Callbacks', () => {
 
     test.beforeEach(async ({ page }) => {
-        await gotoPhase3View(page);
+        await gotoInteractionCallbacksView(page);
     });
 
     // -------------------------------------------------------------------------

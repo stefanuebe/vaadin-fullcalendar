@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 /**
- * Test view for Phase 1 entry model features.
+ * Test view for entry model features.
  * <p>
  * Verifies:
  * <ul>
@@ -27,17 +27,17 @@ import java.util.Set;
  *   <li>Entry click listener updates counter badge</li>
  * </ul>
  * <p>
- * Route: /test/phase1-entry-model
+ * Route: /test/entry-model
  */
-@Route(value = "phase1-entry-model", layout = TestLayout.class)
-@MenuItem(label = "Phase 1: Entry Model")
-public class Phase1EntryModelTestView extends VerticalLayout {
+@Route(value = "entry-model", layout = TestLayout.class)
+@MenuItem(label = "Entry Model")
+public class EntryModelTestView extends VerticalLayout {
 
-    public Phase1EntryModelTestView() {
+    public EntryModelTestView() {
         setSizeFull();
         setPadding(true);
 
-        add(new H2("Phase 1 — Entry Model"));
+        add(new H2("Entry Model"));
         add(new Paragraph(
                 "Tests URL navigation, interactive (keyboard-focusable) entries, " +
                 "recurring duration and RRule-based recurrence."));

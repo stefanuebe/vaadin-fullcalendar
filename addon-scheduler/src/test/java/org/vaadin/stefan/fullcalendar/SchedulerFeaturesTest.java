@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Tests for Phase 5 scheduler/resource features:
+ * Tests for scheduler/resource features:
  * 5.1 resourceAreaColumns typed API
  * 5.2 resourceGroupField typed setter
  * 5.3 Resource group render hooks
@@ -24,7 +24,7 @@ import java.util.Set;
  * 5.11 Per-resource event property overrides
  * 5.12 Typo fix setResourceLablelWillUnmountCallback (already done, verified here)
  */
-public class Phase5SchedulerTest {
+public class SchedulerFeaturesTest {
 
     private FullCalendarScheduler calendar;
 

@@ -14,10 +14,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for Phase 1: Missing Entry/Event model properties.
+ * Tests for entry/event model properties.
  * Covers url, interactive, recurringDuration, rrule, exdate, and the overlap null-semantics change.
  */
-public class Phase1EntryModelTest {
+public class EntryModelTest {
 
     // -------------------------------------------------------------------------
     // url

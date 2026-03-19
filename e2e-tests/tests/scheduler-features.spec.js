@@ -3,10 +3,10 @@ const { test } = require('@playwright/test');
 const { expect, waitForVaadin } = require('./fixtures');
 
 /**
- * Navigate to the Phase 5 scheduler test view and wait for the timeline to render.
+ * Navigate to the scheduler features test view and wait for the timeline to render.
  */
-async function gotoPhase5View(page) {
-    await page.goto('/test/phase5-scheduler');
+async function gotoSchedulerFeaturesView(page) {
+    await page.goto('/test/scheduler-features');
     await page.waitForSelector('.fc', { timeout: 30000 });
     // Resource timeline views render .fc-timeline, not .fc-timegrid-slot
     await page.waitForSelector('.fc-timeline', { timeout: 30000 });
@@ -14,13 +14,13 @@ async function gotoPhase5View(page) {
 }
 
 // =============================================================================
-// Phase 5 — Scheduler Resource Features
+
 // =============================================================================
 
-test.describe('Phase 5 — Scheduler Resource Features', () => {
+test.describe('Scheduler Resource Features', () => {
 
     test.beforeEach(async ({ page }) => {
-        await gotoPhase5View(page);
+        await gotoSchedulerFeaturesView(page);
     });
 
     // -------------------------------------------------------------------------

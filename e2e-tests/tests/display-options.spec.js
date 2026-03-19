@@ -12,57 +12,57 @@ async function gotoTestView(page, path) {
 }
 
 // =============================================================================
-// Phase 2 — Render Hook Callbacks
+
 // =============================================================================
 
-test.describe('Phase 2 — Render Hooks', () => {
+test.describe('Render Hook Callbacks', () => {
 
   test.beforeEach(async ({ page }) => {
-    await gotoTestView(page, '/test/phase2-render-hooks');
+    await gotoTestView(page, '/test/render-hooks');
     await waitForVaadin(page);
   });
 
-  test('dayCellClassNames: all day cells have phase2-cell class', async ({ page }) => {
-    const cells = page.locator('.fc-daygrid-day.phase2-cell');
+  test('dayCellClassNames: all day cells have hook-day-cell class', async ({ page }) => {
+    const cells = page.locator('.fc-daygrid-day.hook-day-cell');
     const count = await cells.count();
     expect(count).toBeGreaterThan(0);
   });
 
-  test('dayCellContent: custom span with phase2-day-content data-testid is rendered', async ({ page }) => {
-    const customContent = page.locator('[data-testid="phase2-day-content"]');
+  test('dayCellContent: custom span with hook-day-content data-testid is rendered', async ({ page }) => {
+    const customContent = page.locator('[data-testid="hook-day-content"]');
     const count = await customContent.count();
     expect(count).toBeGreaterThan(0);
   });
 
-  test('dayCellContent: custom span with phase2-day-num class is rendered', async ({ page }) => {
-    const customSpans = page.locator('.phase2-day-num');
+  test('dayCellContent: custom span with hook-day-num class is rendered', async ({ page }) => {
+    const customSpans = page.locator('.hook-day-num');
     const count = await customSpans.count();
     expect(count).toBeGreaterThan(0);
   });
 
-  test('dayHeaderClassNames: all column headers have phase2-header class', async ({ page }) => {
-    const headers = page.locator('.fc-col-header-cell.phase2-header');
+  test('dayHeaderClassNames: all column headers have hook-header class', async ({ page }) => {
+    const headers = page.locator('.fc-col-header-cell.hook-header');
     const count = await headers.count();
     // dayGridMonth always has 7 column headers (Mon–Sun or Sun–Sat)
     expect(count).toBe(7);
   });
 
-  test('dayHeaderContent: custom spans with phase2-header-text class are rendered', async ({ page }) => {
-    const headerSpans = page.locator('.phase2-header-text');
+  test('dayHeaderContent: custom spans with hook-header-text class are rendered', async ({ page }) => {
+    const headerSpans = page.locator('.hook-header-text');
     const count = await headerSpans.count();
     expect(count).toBe(7);
   });
 
-  test('weekNumberClassNames: week number cells have phase2-weeknum class', async ({ page }) => {
+  test('weekNumberClassNames: week number cells have hook-weeknum class', async ({ page }) => {
     // Week numbers are visible (setWeekNumbersVisible(true) in the view)
-    const weeknums = page.locator('.fc-daygrid-week-number.phase2-weeknum');
+    const weeknums = page.locator('.fc-daygrid-week-number.hook-weeknum');
     const count = await weeknums.count();
     // March 2025 spans 5–6 week rows depending on locale's first-day-of-week
     expect(count).toBeGreaterThanOrEqual(5);
   });
 
-  test('weekNumberContent: custom spans with phase2-weeknum-text class are rendered', async ({ page }) => {
-    const weeknumSpans = page.locator('.phase2-weeknum-text');
+  test('weekNumberContent: custom spans with hook-weeknum-text class are rendered', async ({ page }) => {
+    const weeknumSpans = page.locator('.hook-weeknum-text');
     const count = await weeknumSpans.count();
     expect(count).toBeGreaterThanOrEqual(5);
   });
@@ -70,24 +70,24 @@ test.describe('Phase 2 — Render Hooks', () => {
   test('weekNumberContent: week numbers are prefixed with W', async ({ page }) => {
     // The callback returns 'W' + info.num → cells show e.g. "W9", "W10"
     // Use toHaveText to avoid a textContent() race condition after toBeVisible()
-    const firstWeeknum = page.locator('.phase2-weeknum-text').first();
+    const firstWeeknum = page.locator('.hook-weeknum-text').first();
     await expect(firstWeeknum).toHaveText(/^W\d+$/);
   });
 
-  // Note: allDayClassNames (adds 'phase2-allday') only applies in timegrid views
+  // Note: allDayClassNames (adds 'hook-allday') only applies in timegrid views
   // where the all-day row header exists. The current test view uses dayGridMonth,
-  // which has no all-day row header. The option is verified by Phase2DisplayOptionsTest.java.
+  // which has no all-day row header. The option is verified by DisplayOptionsTest.java.
 
 });
 
 // =============================================================================
-// Phase 2 — Display Options
+
 // =============================================================================
 
-test.describe('Phase 2 — Display Options', () => {
+test.describe('Display Options', () => {
 
   test.beforeEach(async ({ page }) => {
-    await gotoTestView(page, '/test/phase2-display-options');
+    await gotoTestView(page, '/test/display-options');
     await waitForVaadin(page);
     // Wait for events to be rendered before running assertions
     await page.waitForSelector('.fc-event', { timeout: 15000 });

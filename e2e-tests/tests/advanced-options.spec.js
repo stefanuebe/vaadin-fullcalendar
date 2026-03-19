@@ -3,23 +3,23 @@ const { test } = require('@playwright/test');
 const { expect, waitForVaadin } = require('./fixtures');
 
 /**
- * Navigate to the Phase 7 test view and wait for the calendar to render.
+ * Navigate to the advanced options test view and wait for the calendar to render.
  */
-async function gotoPhase7View(page) {
-    await page.goto('/test/phase7-advanced');
+async function gotoAdvancedOptionsView(page) {
+    await page.goto('/test/advanced-options');
     await page.waitForSelector('.fc', { timeout: 30000 });
     await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 15000 });
     await waitForVaadin(page);
 }
 
 // =============================================================================
-// Phase 7 — Advanced and Niche Options
+
 // =============================================================================
 
-test.describe('Phase 7 — Advanced and Niche Options', () => {
+test.describe('Advanced Options', () => {
 
     test.beforeEach(async ({ page }) => {
-        await gotoPhase7View(page);
+        await gotoAdvancedOptionsView(page);
     });
 
     // -------------------------------------------------------------------------

@@ -12,27 +12,27 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import java.time.LocalDate;
 
 /**
- * Test view for Phase 2 render hook callbacks.
+ * Test view for render hook callbacks.
  * <p>
  * Applies dayCellClassNames, dayCellContent, dayHeaderClassNames, dayHeaderContent,
  * weekNumberClassNames, and weekNumberContent callbacks so Playwright can verify
  * they take effect on the client side.
  * <p>
- * Route: /test/phase2-render-hooks
+ * Route: /test/render-hooks
  */
-@Route(value = "phase2-render-hooks", layout = TestLayout.class)
-@MenuItem(label = "Phase 2: Render Hooks")
-public class Phase2RenderHooksTestView extends VerticalLayout {
+@Route(value = "render-hooks", layout = TestLayout.class)
+@MenuItem(label = "Render Hooks")
+public class RenderHooksTestView extends VerticalLayout {
 
-    public Phase2RenderHooksTestView() {
+    public RenderHooksTestView() {
         setSizeFull();
         setPadding(true);
 
-        add(new H2("Phase 2 — Render Hook Callbacks"));
+        add(new H2("Render Hook Callbacks"));
         add(new Paragraph(
-                "Each day cell gets class 'phase2-cell', each header gets class 'phase2-header', " +
-                "and week numbers get class 'phase2-weeknum'. " +
-                "The all-day row gets class 'phase2-allday'."));
+                "Each day cell gets class 'hook-day-cell', each header gets class 'hook-header', " +
+                "and week numbers get class 'hook-weeknum'. " +
+                "The all-day row gets class 'hook-allday'."));
 
         FullCalendar calendar = FullCalendarBuilder.create().build();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
@@ -50,36 +50,36 @@ public class Phase2RenderHooksTestView extends VerticalLayout {
 
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(timedEntry));
 
-        // --- dayCellClassNames: every cell gets 'phase2-cell' ---
+        // --- dayCellClassNames: every cell gets 'hook-day-cell' ---
         calendar.setDayCellClassNamesCallback(
-                "function(info) { return ['phase2-cell']; }");
+                "function(info) { return ['hook-day-cell']; }");
 
         // --- dayCellContent: wrap day number in a span with data-testid ---
         calendar.setDayCellContentCallback(
                 "function(info) { " +
-                "  return { html: '<span data-testid=\"phase2-day-content\" class=\"phase2-day-num\">' " +
+                "  return { html: '<span data-testid=\"hook-day-content\" class=\"hook-day-num\">' " +
                 "    + info.dayNumberText + '</span>'; }; }");
 
-        // --- dayHeaderClassNames: every column header gets 'phase2-header' ---
+        // --- dayHeaderClassNames: every column header gets 'hook-header' ---
         calendar.setDayHeaderClassNamesCallback(
-                "function(info) { return ['phase2-header']; }");
+                "function(info) { return ['hook-header']; }");
 
         // --- dayHeaderContent: wrap header text in a span ---
         calendar.setDayHeaderContentCallback(
                 "function(info) { " +
-                "  return { html: '<span class=\"phase2-header-text\">' + info.text + '</span>'; }; }");
+                "  return { html: '<span class=\"hook-header-text\">' + info.text + '</span>'; }; }");
 
-        // --- weekNumberClassNames: every week number cell gets 'phase2-weeknum' ---
+        // --- weekNumberClassNames: every week number cell gets 'hook-weeknum' ---
         calendar.setWeekNumberClassNamesCallback(
-                "function(info) { return ['phase2-weeknum']; }");
+                "function(info) { return ['hook-weeknum']; }");
 
         // --- weekNumberContent: prefix with 'W' ---
         calendar.setWeekNumberContentCallback(
-                "function(info) { return { html: '<span class=\"phase2-weeknum-text\">W' + info.num + '</span>'; }; }");
+                "function(info) { return { html: '<span class=\"hook-weeknum-text\">W' + info.num + '</span>'; }; }");
 
-        // --- allDayClassNames: all-day row header gets 'phase2-allday' (timegrid only) ---
+        // --- allDayClassNames: all-day row header gets 'hook-allday' (timegrid only) ---
         calendar.setAllDayClassNamesCallback(
-                "function(info) { return ['phase2-allday']; }");
+                "function(info) { return ['hook-allday']; }");
 
         add(calendar);
         setFlexGrow(1, calendar);

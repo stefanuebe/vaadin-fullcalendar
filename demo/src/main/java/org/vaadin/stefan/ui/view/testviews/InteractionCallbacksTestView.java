@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Test view for Phase 3 interaction callbacks.
+ * Test view for interaction callbacks.
  * <p>
  * Verifies:
  * <ul>
@@ -27,17 +27,17 @@ import java.time.LocalDateTime;
  *   <li>External drop: droppable=true + drop/eventReceive events</li>
  * </ul>
  * <p>
- * Route: /test/phase3-interaction-callbacks
+ * Route: /test/interaction-callbacks
  */
-@Route(value = "phase3-interaction-callbacks", layout = TestLayout.class)
-@MenuItem(label = "Phase 3: Interaction Callbacks")
-public class Phase3InteractionCallbacksTestView extends VerticalLayout {
+@Route(value = "interaction-callbacks", layout = TestLayout.class)
+@MenuItem(label = "Interaction Callbacks")
+public class InteractionCallbacksTestView extends VerticalLayout {
 
-    public Phase3InteractionCallbacksTestView() {
+    public InteractionCallbacksTestView() {
         setSizeFull();
         setPadding(true);
 
-        add(new H2("Phase 3 — Interaction Callbacks"));
+        add(new H2("Interaction Callbacks"));
         add(new Paragraph(
                 "Drag an event to increment drag-start/stop counters. " +
                 "Resize an event to increment resize-start/stop counters. " +

@@ -3,10 +3,10 @@ const { test } = require('@playwright/test');
 const { expect, waitForVaadin } = require('./fixtures');
 
 /**
- * Navigate to the Phase 1 test view and wait for the calendar to render.
+ * Navigate to the entry model test view and wait for the calendar to render.
  */
-async function gotoPhase1View(page) {
-    await page.goto('/test/phase1-entry-model');
+async function gotoEntryModelView(page) {
+    await page.goto('/test/entry-model');
     await page.waitForSelector('.fc', { timeout: 30000 });
     // dayGridMonth renders day-grid cells
     await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 15000 });
@@ -16,13 +16,13 @@ async function gotoPhase1View(page) {
 }
 
 // =============================================================================
-// Phase 1 — Entry Model
+
 // =============================================================================
 
-test.describe('Phase 1 — Entry Model', () => {
+test.describe('Entry Model', () => {
 
     test.beforeEach(async ({ page }) => {
-        await gotoPhase1View(page);
+        await gotoEntryModelView(page);
     });
 
     // -------------------------------------------------------------------------

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Test view for Phase 5 scheduler resource features.
+ * Test view for scheduler resource features.
  * <p>
  * Verifies:
  * <ul>
@@ -26,17 +26,17 @@ import java.util.List;
  *   <li>ResourceEntry events are visible in the timeline</li>
  * </ul>
  * <p>
- * Route: /test/phase5-scheduler
+ * Route: /test/scheduler-features
  */
-@Route(value = "phase5-scheduler", layout = TestLayout.class)
-@MenuItem(label = "Phase 5: Scheduler")
-public class Phase5SchedulerTestView extends VerticalLayout {
+@Route(value = "scheduler-features", layout = TestLayout.class)
+@MenuItem(label = "Scheduler Features")
+public class SchedulerFeaturesTestView extends VerticalLayout {
 
-    public Phase5SchedulerTestView() {
+    public SchedulerFeaturesTestView() {
         setSizeFull();
         setPadding(true);
 
-        add(new H2("Phase 5 — Scheduler Resource Features"));
+        add(new H2("Scheduler Resource Features"));
         add(new Paragraph(
                 "A FullCalendarScheduler is shown in resourceTimelineWeek view with three resources " +
                 "grouped by department, two resource area columns, and resource group class name callback."));
@@ -57,7 +57,7 @@ public class Phase5SchedulerTestView extends VerticalLayout {
         calendar.setInitialDate(LocalDate.of(2025, 3, 3));
         calendar.setInitialView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
-        // --- Phase 5 features ---
+        // --- Scheduler features ---
 
         // 1. Two resource area columns: built-in "title" field + extendedProp "department"
         calendar.setResourceAreaColumns(

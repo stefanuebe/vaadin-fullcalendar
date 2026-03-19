@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 /**
- * Test view for Phase 7 advanced / niche options.
+ * Test view for advanced and niche options.
  * <p>
  * Verifies:
  * <ul>
@@ -30,17 +30,17 @@ import java.util.Map;
  *   <li>buttonIcons override renders a custom aria-label on the prev button</li>
  * </ul>
  * <p>
- * Route: /test/phase7-advanced
+ * Route: /test/advanced-options
  */
-@Route(value = "phase7-advanced", layout = TestLayout.class)
-@MenuItem(label = "Phase 7: Advanced")
-public class Phase7AdvancedTestView extends VerticalLayout {
+@Route(value = "advanced-options", layout = TestLayout.class)
+@MenuItem(label = "Advanced Options")
+public class AdvancedOptionsTestView extends VerticalLayout {
 
-    public Phase7AdvancedTestView() {
+    public AdvancedOptionsTestView() {
         setSizeFull();
         setPadding(true);
 
-        add(new H2("Phase 7 — Advanced and Niche Options"));
+        add(new H2("Advanced Options"));
         add(new Paragraph(
                 "Tests customButtons (server-side click), view-specific options (dayMaxEventRows per view), " +
                 "buttonIcons, dateIncrement, and getCurrentIntervalStart/End."));
@@ -67,7 +67,7 @@ public class Phase7AdvancedTestView extends VerticalLayout {
         calendar.setInitialDate(LocalDate.of(2025, 3, 1));
         calendar.setInitialView(CalendarViewImpl.DAY_GRID_MONTH);
 
-        // Phase 7.1: Custom button --------------------------------------------------------
+        // Custom button --------------------------------------------------------
         CustomButton schedBtn = new CustomButton("scheduleWizard");
         schedBtn.setText("Schedule");
         schedBtn.setHint("Open scheduling wizard");
@@ -86,7 +86,7 @@ public class Phase7AdvancedTestView extends VerticalLayout {
                 "right",  "dayGridMonth scheduleWizard"
         ));
 
-        // Phase 7.2: buttonIcons ----------------------------------------------------------
+        // buttonIcons ----------------------------------------------------------
         // Overrides the prev button icon class (FC still renders the button, but with a
         // different icon class — Playwright can verify the button still exists)
         calendar.setButtonIcons(Map.of(
@@ -94,16 +94,16 @@ public class Phase7AdvancedTestView extends VerticalLayout {
                 "next", "chevron-right-custom"
         ));
 
-        // Phase 7.7: dateAlignment --------------------------------------------------------
+        // dateAlignment --------------------------------------------------------
         // Aligning to "month" is the default for dayGridMonth; this just exercises the setter.
         calendar.setDateAlignment("month");
 
-        // Phase 7.13: View-specific option ------------------------------------------------
+        // View-specific option ------------------------------------------------
         // Limit displayed event rows to 2 only in the dayGrid view family (not in other views).
         // With 5 events on 2025-03-05 this guarantees a "+N more" link in month view.
         calendar.setViewSpecificOption("dayGrid", FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2);
 
-        // Phase 7.6: eventConstraint -------------------------------------------------------
+        // eventConstraint -------------------------------------------------------
         // Constrain drag-and-drop to business hours (does not affect rendering, exercises setter).
         calendar.setEventConstraintToBusinessHours();
 

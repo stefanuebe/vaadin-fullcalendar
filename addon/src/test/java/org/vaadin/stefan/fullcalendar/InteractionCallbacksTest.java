@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
- * Tests for Phase 3: Missing interaction callbacks and server-side events.
+ * Tests for interaction callbacks and server-side events.
  * Covers Option enum keys, listener registration, and JS callback/option setters.
  */
-public class Phase3InteractionCallbacksTest {
+public class InteractionCallbacksTest {
 
     private FullCalendar calendar;
 
@@ -24,7 +24,7 @@ public class Phase3InteractionCallbacksTest {
     }
 
     // -------------------------------------------------------------------------
-    // Option enum keys — Phase 3 additions
+    // Option enum keys
     // -------------------------------------------------------------------------
 
     @Test

@@ -311,7 +311,7 @@ export class FullCalendar extends HTMLElement {
                 }
             },
 
-            // Phase 3 — Drag/resize lifecycle events
+            // Drag/resize lifecycle events
             eventDragStart: (eventInfo: any) => {
                 return {data: this.convertToEventData(eventInfo.event)};
             },
@@ -325,17 +325,17 @@ export class FullCalendar extends HTMLElement {
                 return {data: this.convertToEventData(eventInfo.event)};
             },
 
-            // Phase 3 — Unselect
+            // Unselect
             unselect: (_eventInfo: any) => {
                 return {};
             },
 
-            // Phase 3 — Window resize
+            // Window resize
             windowResize: (eventInfo: any) => {
                 return {name: eventInfo.view.type};
             },
 
-            // Phase 3 — External drag-drop
+            // External drag-drop
             drop: (eventInfo: any) => {
                 return {
                     date: this.formatDate(eventInfo.date, eventInfo.allDay),
@@ -719,7 +719,7 @@ export class FullCalendar extends HTMLElement {
         this.setOption('eventWillUnmount', new Function("return " + s)());
     }
 
-    // Phase 3 — JS-only callback setters
+    // JS-only callback setters
     setSelectAllowCallback(s: string) {
         this.setOption('selectAllow', new Function("return " + s)());
     }
@@ -732,7 +732,7 @@ export class FullCalendar extends HTMLElement {
         this.setOption('eventOverlap', new Function("return " + s)());
     }
 
-    // Phase 7 — navigation, size, and JS-only callback setters
+    // Navigation, size, and JS-only callback setters
 
     incrementDate(duration: string) {
         this.calendar.incrementDate(duration);
@@ -788,7 +788,7 @@ export class FullCalendar extends HTMLElement {
         this.setOption('customButtons', buttons);
     }
 
-    // Phase 4 — Event source management
+    // Event source management
 
     addEventSource(sourceJson: any) {
         const srcId = sourceJson.id;
