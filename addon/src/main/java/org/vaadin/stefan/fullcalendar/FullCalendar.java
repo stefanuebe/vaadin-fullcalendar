@@ -1844,48 +1844,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
     /**
-     * Sets a JS function called while event sources are loading (async fetch). Use this to show/hide a loading
-     * Sets a JavaScript callback that fires when event sources begin and complete loading.
-     * <br><br>
-     * <b>Note: </b> No content parsing, escaping, quoting or other security mechanism is applied on this string.
-     * Validate it before passing to the client.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/loading">loading</a>
-     */
-    public void setLoadingCallback(String jsFunction) {
-        getElement().callJsFunction("setLoadingCallback", jsFunction);
-    }
-
-    /**
-     * Sets a JS function that transforms each raw event record from any event source before FullCalendar
-     * parses it. This is a client-side-only callback.
-     * <br><br>
-     * <b>Note: </b> No content parsing, escaping, quoting or other security mechanism is applied on this string.
-     * Validate it before passing to the client.
-     *
-     * @param jsFunction JS function string: {@code "function(event) { event.title = event.name; return event; }"}
-     * @see <a href="https://fullcalendar.io/docs/eventDataTransform">eventDataTransform</a>
-     */
-    public void setEntryDataTransformCallback(String jsFunction) {
-        getElement().callJsFunction("setEntryDataTransformCallback", jsFunction);
-    }
-
-    /**
-     * Sets a JS function that transforms the raw HTTP response from a JSON feed source before FullCalendar
-     * parses it. This is a client-side-only callback.
-     * <br><br>
-     * <b>Note: </b> No content parsing, escaping, quoting or other security mechanism is applied on this string.
-     * Validate it before passing to the client.
-     *
-     * @param jsFunction JS function string: {@code "function(content, xhr) { return content.data; }"}
-     * @see <a href="https://fullcalendar.io/docs/eventSourceSuccess">eventSourceSuccess</a>
-     */
-    public void setEventSourceSuccessCallback(String jsFunction) {
-        getElement().callJsFunction("setEventSourceSuccessCallback", jsFunction);
-    }
-
-    /**
      * Registers a listener for when a client-managed event source fails to load.
      *
      * @param listener listener

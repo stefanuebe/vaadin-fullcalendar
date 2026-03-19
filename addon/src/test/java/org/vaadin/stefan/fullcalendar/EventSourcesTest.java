@@ -80,25 +80,6 @@ public class EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // JS callback setters — assertDoesNotThrow
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setLoadingCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setLoadingCallback("function(isLoading) {}"));
-    }
-
-    @Test
-    void setEntryDataTransformCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setEntryDataTransformCallback("function(event) { return event; }"));
-    }
-
-    @Test
-    void setEventSourceSuccessCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setEventSourceSuccessCallback("function(content) { return content; }"));
-    }
-
-    // -------------------------------------------------------------------------
     // JsonFeedEventSource — toJson()
     // -------------------------------------------------------------------------
 

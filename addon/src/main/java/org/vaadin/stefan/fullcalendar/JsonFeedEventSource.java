@@ -28,9 +28,10 @@ import java.util.Objects;
  * The browser fetches events directly from the given URL — the server only configures the source, it does not
  * own or observe the individual entries.
  * <br><br>
- * The request includes {@code start} and {@code end} query parameters (names overridable via
- * {@link FullCalendar#setStartParam(String)} / {@link FullCalendar#setEndParam(String)}) plus optional
- * extra parameters from {@link #withExtraParams(Map)}.
+ * The request includes {@code start} and {@code end} query parameters (names overridable per-source via
+ * {@link #withStartParam(String)} / {@link #withEndParam(String)}, or globally via
+ * {@code setOption(Option.EXTERNAL_EVENT_SOURCE_START_PARAM, ...)} / {@code setOption(Option.EXTERNAL_EVENT_SOURCE_END_PARAM, ...)})
+ * plus optional extra parameters from {@link #withExtraParams(Map)}.
  * <br><br>
  * Example:
  * <pre>

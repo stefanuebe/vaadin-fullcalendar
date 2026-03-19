@@ -119,8 +119,8 @@ calendar.addClientSideEventSource(jsonFeed);
 
 // Google Calendar
 GoogleCalendarEventSource google = new GoogleCalendarEventSource("calendarId@gmail.com");
+google.withApiKey("YOUR_API_KEY");  // or set globally: calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY, key)
 calendar.addClientSideEventSource(google);
-calendar.setGoogleCalendarApiKey("YOUR_API_KEY");
 
 // iCalendar (.ics) feed
 ICalendarEventSource ical = new ICalendarEventSource("https://example.com/calendar.ics");

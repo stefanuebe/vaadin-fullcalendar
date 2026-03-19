@@ -1140,8 +1140,8 @@ calendar.addClientSideEventSource(jsonFeed);
 ### Google Calendar
 
 ```java
-// Set the API key once on the calendar (applies to all Google sources)
-calendar.setGoogleCalendarApiKey("YOUR_GOOGLE_API_KEY");
+// Set the API key globally (applies to all Google sources on this calendar)
+calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY, "YOUR_GOOGLE_API_KEY");
 
 GoogleCalendarEventSource holidays = new GoogleCalendarEventSource("en.german#holiday@group.v.calendar.google.com");
 holidays.withId("holidays");
