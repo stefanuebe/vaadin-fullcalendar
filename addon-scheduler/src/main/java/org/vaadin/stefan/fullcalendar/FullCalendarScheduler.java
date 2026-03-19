@@ -593,9 +593,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         RESOURCE_AREA_COLUMNS("resourceAreaColumns"),
 
         /**
-         * Custom content for the resource area header cell. Accepts a string (HTML), object, or
-         * JS function. For JS function, use {@link FullCalendarScheduler#setCallbackOption(String, String)}
-         * with {@link SchedulerCallbackOption#RESOURCE_AREA_HEADER_CLASS_NAMES}} instead.
+         * Custom content for the resource area header cell (top-left corner in timeline views).
+         * Accepts a string (plain text), HTML string, or a content object.
+         * To use a JS function callback, use {@link FullCalendarScheduler#setCallbackOption(String, String)}
+         * with the key {@code "resourceAreaHeaderContent"}.
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourceAreaHeaderContent">resourceAreaHeaderContent</a>
          */
         RESOURCE_AREA_HEADER_CONTENT("resourceAreaHeaderContent"),
 

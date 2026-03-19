@@ -674,6 +674,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Pass {@code null} (or a blank string) to clear a previously set callback and
      * revert the option to its default value.
      * <p>
+     * Callbacks may be set <em>before or after</em> the component is attached to the UI.
+     * When set before attachment, the call is queued and applied on the next render.
+     * When set after attachment, the option is updated on the live calendar immediately.
+     * <p>
      * <b>Note:</b> The function string is passed to the browser as-is. No escaping,
      * sanitisation, or syntax validation is performed server-side. A syntax error in
      * the function string will throw a {@code SyntaxError} in the browser console.
@@ -966,8 +970,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @deprecated Use {@link #setCallbackOption(CallbackOption, String)} with
      *             {@link CallbackOption#ENTRY_DID_MOUNT} instead.
-     *             Note: if you also use {@link #addEntryNativeEventListener(String, String)},
-     *             continue using this method as native event listeners are merged here.
+     *             <b>Important:</b> if you also use {@link #addEntryNativeEventListener(String, String)},
+     *             you must continue using this method — native event listeners registered via
+     *             {@code addEntryNativeEventListener} are merged into the callback set here.
+     *             Calling {@code setCallbackOption(ENTRY_DID_MOUNT, ...)} instead will bypass
+     *             that merging and the native listeners will not fire.
      */
     @Deprecated(forRemoval = true)
     public void setEntryDidMountCallback(String s) {
@@ -984,15 +991,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Also be aware, that some events may fire very often (e.g. "mousemove") and thus can lead to performance
      * issues.
      * <br><br>
-     * Event listeners will be added utilizing the entryDidMount callback ({@link #setEntryDidMountCallback(String)}).
-     * You still can setup a custom callback yourself. The event listener registration will automatically be
-     * attached to the end of your custom function.
+     * Native event listeners are merged into the {@code eventDidMount} callback and attached to each
+     * entry element automatically on render. You may also provide a custom {@code eventDidMount}
+     * function via {@link #setEntryDidMountCallback(String)} — the native event registrations will
+     * be appended to the end of it automatically (the function must end with a closing brace {@code }}).
      * <br><br>
-     * Inside the callback you may access the parameter of the entryDidMount callback by using the default name
-     * "info" or the parameter name you used, if you created a custom callback. With that you can access the
-     * entry itself (using "info.event") or the created html element (using "info.el"). For additional details
-     * on which details are available in the callback, see the <a href="https://fullcalendar.io/docs/event-render-hooks">official FC docs</a>.
-     * @see #setEntryDidMountCallback(String)
+     * Inside the native event callback you may access the entry DOM element via the event's
+     * {@code currentTarget} or {@code target} property.  For the full set of available parameters
+     * in the surrounding {@code eventDidMount} hook, see the
+     * <a href="https://fullcalendar.io/docs/event-render-hooks">official FC docs</a>.
      * @param eventName javascript event name
      * @param eventCallback javascript event callback to be hooked to the event
      */

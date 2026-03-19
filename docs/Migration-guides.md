@@ -50,29 +50,41 @@ final state.
 
 ### Deprecated: Individual callback methods (use `setCallbackOption` instead)
 
-The following callback methods are deprecated as of 7.1 and will be removed in a future release:
-- `setEntryClassNamesCallback`
-- `setEntryDidMountCallback`
-- `setEntryWillUnmountCallback`
-- `setEntryContentCallback`
-- `setEntryOverlapCallback`
-- `setSelectAllowCallback`
-- `setEntryAllowCallback`
+The following callback methods existed in 7.0 and are now deprecated with `forRemoval = true`.
+Replace them with the generic `setCallbackOption(CallbackOption, String)` API:
 
-**Migration:** Replace these individual method calls with the generic `setCallbackOption(CallbackOption, String)` API:
+| Deprecated method | Replacement |
+|---|---|
+| `setEntryClassNamesCallback(String)` | `setCallbackOption(CallbackOption.ENTRY_CLASS_NAMES, ...)` |
+| `setEntryDidMountCallback(String)` | `setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, ...)` — see note below |
+| `setEntryWillUnmountCallback(String)` | `setCallbackOption(CallbackOption.ENTRY_WILL_UNMOUNT, ...)` |
+| `setEntryContentCallback(String)` | `setCallbackOption(CallbackOption.ENTRY_CONTENT, ...)` |
+
+**Migration example:**
 
 ```java
-// Old (7.0 and earlier)
-calendar.setEntryDidMountCallback("function(info) { ... }");
-calendar.setEntryOverlapCallback("function(stillEvent, movingEvent) { ... }");
+// Old (7.0)
+calendar.setEntryClassNamesCallback("function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }");
+calendar.setEntryContentCallback("function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
 
 // New (7.1+)
-calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, "function(info) { ... }");
-calendar.setCallbackOption(CallbackOption.ENTRY_OVERLAP, "function(stillEvent, movingEvent) { ... }");
+calendar.setCallbackOption(CallbackOption.ENTRY_CLASS_NAMES, "function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }");
+calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT, "function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
 ```
 
-The `CallbackOption` enum provides access to all callback options. For Scheduler users, `SchedulerCallbackOption` provides
-resource-specific callbacks.
+> **Note for `setEntryDidMountCallback` users:** If you also use `addEntryNativeEventListener`, continue
+> using `setEntryDidMountCallback` for now. Native event listeners are merged into the callback registered
+> there. Using `setCallbackOption(ENTRY_DID_MOUNT, ...)` directly bypasses that merging.
+
+The `CallbackOption` enum covers all core FC callback options. For Scheduler users, `SchedulerCallbackOption`
+provides resource-specific hook keys (use with the string-key overload):
+
+```java
+scheduler.setCallbackOption(
+    SchedulerCallbackOption.RESOURCE_LABEL_CLASS_NAMES.getClientSideValue(),
+    "function(arg) { return arg.resource.extendedProps.isSpecial ? ['special'] : []; }"
+);
+```
 
 ### Deprecated: `setResourceLablelWillUnmountCallback`
 

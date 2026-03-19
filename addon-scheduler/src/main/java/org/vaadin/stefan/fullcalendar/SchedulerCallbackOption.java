@@ -18,8 +18,14 @@ package org.vaadin.stefan.fullcalendar;
 
 /**
  * Scheduler-specific FC options that accept a JavaScript function value.
- * Use with {@link FullCalendar#setCallbackOption(String, String)} or the
- * string-key overload on any {@link FullCalendarScheduler} instance.
+ * Use with {@link FullCalendarScheduler#setCallbackOption(String, String)},
+ * passing the client-side key via {@link #getClientSideValue()}:
+ * <pre>{@code
+ * scheduler.setCallbackOption(
+ *     SchedulerCallbackOption.RESOURCE_LABEL_CLASS_NAMES.getClientSideValue(),
+ *     "function(arg) { return arg.resource.extendedProps.isSpecial ? ['special'] : []; }"
+ * );
+ * }</pre>
  *
  * @see CallbackOption for core (non-scheduler) callback options
  */

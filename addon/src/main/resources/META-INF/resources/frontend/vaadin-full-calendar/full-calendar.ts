@@ -544,9 +544,9 @@ export class FullCalendar extends HTMLElement {
         for (const hookKey of entryInfoHooks) {
             if (typeof options[hookKey] === "function") {
                 const initHook = options[hookKey];
-                options[hookKey] = (info: any, ...rest: any[]) => {
+                options[hookKey] = (info: any) => {
                     this.addCustomAPI(info.event);
-                    return initHook.call(this._calendar, info, ...rest);
+                    return initHook.call(this._calendar, info);
                 };
             }
         }

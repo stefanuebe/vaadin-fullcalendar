@@ -598,11 +598,14 @@ public class FullCalendarWithTooltip extends FullCalendarScheduler {
 
 As shown in the subclass sample, you may also use the FullCalendarBuilder to create your custom class.
 
-## Customize the entry content
+## Customize entry rendering (render hooks)
 
-FC allows you to modify the content of an entry. The given string will be interpreted as js function on client side
-and attached as `eventContent` callback. See https://fullcalendar.io/docs/content-injection ("...a function") for
-details.
+FC allows you to hook into the rendering of entries using the `setCallbackOption` method with
+[`CallbackOption`](https://fullcalendar.io/docs/event-render-hooks) constants. The function string
+is evaluated in the browser — no server round-trip occurs.
+
+**`ENTRY_DID_MOUNT`** — called after an entry element is added to the DOM. Use it for setup, e.g.
+setting element attributes:
 
 ```java
 calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, """
@@ -610,39 +613,38 @@ calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, """
             info.el.id = "entry-" + info.event.id;
         }
         """);
-
 ```
 
-Inside the javascript callback you may access the entry's default properties or custom ones, that
-you can set beforehand, using the custom property api (e. g.`setCustomProperty(String, Object)`).
-In the callback you can access the custom property in a similar way, using `getCustomProperty(key)`
-or `getCustomProperty(key, defaultValue)`.
+**`ENTRY_CONTENT`** — customize the HTML content rendered inside the entry element. See
+[content injection](https://fullcalendar.io/docs/content-injection) for the return value format:
 
-Please be aware, that the entry content callback has to be set before the client side is attached. Setting it afterwards
-has no effect.
+```java
+calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT,
+        "function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
+```
 
-Also make sure, that your callback function does not contain any harmful code or allow cross side scripting.
+Inside entry callbacks you may access the entry's default properties or custom ones set via
+`entry.putCustomProperty(String, Object)`. The `getCustomProperty(key)` and
+`getCustomProperty(key, defaultValue)` methods are injected automatically onto the event object:
 
 ```java
 // set the custom property beforehand
-entry.setCustomProperty(Entry.EntryCustomProperties.DESCRIPTION, "some description");
+entry.putCustomProperty(Entry.EntryCustomProperties.DESCRIPTION, "some description");
 
-// use the custom property
-calendar = FullCalendarBuilder.create()
-        .withEntryContent(
-                "function(info) {" +
-                        "   let entry = info.event;" +
-                        "   console.log(entry.title);" + // standard property
-                        "   console.log(entry.getCustomProperty('" + Entry.EntryCustomProperties.DESCRIPTION+ "'));" + // custom property
-                        "   /* ... do something with the event content ...*/" +
-                        "   return info.el; " +
-                        "}"
-        )
-        // ... other settings
-        .build();
-
-// or use the custom property in the entryDidMountCallback
+// access it inside the callback
+calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT,
+        "function(info) {" +
+        "   let desc = info.event.getCustomProperty('" + Entry.EntryCustomProperties.DESCRIPTION + "', '');" +
+        "   return { html: '<b>' + info.event.title + '</b><br>' + desc };" +
+        "}");
 ```
+
+Callbacks can be set before or after the calendar is attached.
+
+> **Note for `FullCalendarBuilder` users:** `withEntryContent(String)` on the builder is deprecated.
+> Use `setCallbackOption(CallbackOption.ENTRY_CONTENT, ...)` after building instead.
+
+Also make sure that your callback function does not contain any harmful code or allow cross-site scripting.
 
 ## Use native javascript events for entries
 Sometimes the available events are not enough. For that purpose, we added native event listeners for calendar entries. 
