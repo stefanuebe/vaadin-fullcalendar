@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
@@ -49,17 +48,7 @@ import java.time.LocalDateTime;
 @DomEvent("externalEntryDrop")
 @Getter
 @ToString
-public class ExternalEntryDroppedEvent extends ComponentEvent<FullCalendar> {
-
-    /**
-     * Transient entry data carrier. NOT owned by any EntryProvider.
-     */
-    private final Entry entry;
-
-    /**
-     * The id of the {@link ClientSideEventSource} the entry came from.
-     */
-    private final String sourceId;
+public class ExternalEntryDroppedEvent extends ExternalEntryEvent {
 
     /**
      * The delta by which the entry was moved.
@@ -89,15 +78,11 @@ public class ExternalEntryDroppedEvent extends ComponentEvent<FullCalendar> {
                                      @EventData("event.detail.data") ObjectNode entryData,
                                      @EventData("event.detail.delta") ObjectNode jsonDelta,
                                      @EventData("event.detail.sourceId") String sourceId) {
-        super(source, fromClient);
-        Entry e = new Entry();
-        e.updateFromJson(entryData, false);
-        this.entry = e;
-        this.sourceId = sourceId;
+        super(source, fromClient, entryData, sourceId);
         this.delta = Delta.fromJson(jsonDelta);
 
-        LocalDateTime newStart = entry.getStart();
-        LocalDateTime newEnd = entry.getEnd();
+        LocalDateTime newStart = getEntry().getStart();
+        LocalDateTime newEnd = getEntry().getEnd();
         this.oldStart = newStart != null
                 ? newStart.minusYears(delta.getYears()).minusMonths(delta.getMonths()).minusDays(delta.getDays())
                          .minusHours(delta.getHours()).minusMinutes(delta.getMinutes()).minusSeconds(delta.getSeconds())
