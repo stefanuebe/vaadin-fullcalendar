@@ -51,14 +51,14 @@ final state.
 ### Deprecated: Individual callback methods (use `setCallbackOption` instead)
 
 The following callback methods existed in 7.0 and are now deprecated with `forRemoval = true`.
-Replace them with the generic `setCallbackOption(CallbackOption, String)` API:
+Replace them with the generic `setCallbackOption(FullCalendar.CallbackOption, String)` API:
 
 | Deprecated method | Replacement |
 |---|---|
-| `setEntryClassNamesCallback(String)` | `setCallbackOption(CallbackOption.ENTRY_CLASS_NAMES, ...)` |
-| `setEntryDidMountCallback(String)` | `setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, ...)` — see note below |
-| `setEntryWillUnmountCallback(String)` | `setCallbackOption(CallbackOption.ENTRY_WILL_UNMOUNT, ...)` |
-| `setEntryContentCallback(String)` | `setCallbackOption(CallbackOption.ENTRY_CONTENT, ...)` |
+| `setEntryClassNamesCallback(String)` | `setCallbackOption(FullCalendar.CallbackOption.ENTRY_CLASS_NAMES, ...)` |
+| `setEntryDidMountCallback(String)` | `setCallbackOption(FullCalendar.CallbackOption.ENTRY_DID_MOUNT, ...)` — see note below |
+| `setEntryWillUnmountCallback(String)` | `setCallbackOption(FullCalendar.CallbackOption.ENTRY_WILL_UNMOUNT, ...)` |
+| `setEntryContentCallback(String)` | `setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, ...)` |
 
 **Migration example:**
 
@@ -68,20 +68,20 @@ calendar.setEntryClassNamesCallback("function(info) { return info.event.extended
 calendar.setEntryContentCallback("function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
 
 // New (7.1+)
-calendar.setCallbackOption(CallbackOption.ENTRY_CLASS_NAMES, "function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }");
-calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT, "function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
+calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_CLASS_NAMES, "function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }");
+calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, "function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
 ```
 
 > **Note for `setEntryDidMountCallback` users:** If you also use `addEntryNativeEventListener`, continue
 > using `setEntryDidMountCallback` for now. Native event listeners are merged into the callback registered
-> there. Using `setCallbackOption(ENTRY_DID_MOUNT, ...)` directly bypasses that merging.
+> there. Using `setCallbackOption(FullCalendar.CallbackOption.ENTRY_DID_MOUNT, ...)` directly bypasses that merging.
 
-The `CallbackOption` enum covers all core FC callback options. For Scheduler users, `SchedulerCallbackOption`
-provides resource-specific hook keys (use with the string-key overload):
+The `FullCalendar.CallbackOption` enum covers all core FC callback options. For Scheduler users,
+`FullCalendarScheduler.SchedulerCallbackOption` provides resource-specific hook keys (use with the string-key overload):
 
 ```java
 scheduler.setCallbackOption(
-    SchedulerCallbackOption.RESOURCE_LABEL_CLASS_NAMES.getClientSideValue(),
+    FullCalendarScheduler.SchedulerCallbackOption.RESOURCE_LABEL_CLASS_NAMES.getClientSideValue(),
     "function(arg) { return arg.resource.extendedProps.isSpecial ? ['special'] : []; }"
 );
 ```
@@ -433,7 +433,7 @@ time part in this case or use the `LocalDate` getter.
 
 #### Accessing custom properties in eventDidMount or eventContent
 Not a required but a recommended change. If you have customized the appearance of your entries using one of the
-callbacks `setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, ...)` or `setCallbackOption(CallbackOption.ENTRY_CONTENT, ...)`
+callbacks `setCallbackOption(FullCalendar.CallbackOption.ENTRY_DID_MOUNT, ...)` or `setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, ...)`
 and you access custom properties of an entry (for instance `description`), you should change the access to the newly
 introduced `getCustomProperty()` method. This method takes the custom property key and allows to define a fallback
 default value as second parameter.
@@ -443,7 +443,7 @@ default value as second parameter.
 Entry someEntry = ...;
 someEntry.setCustomProperty(EntryCustomProperties.DESCRIPTION, "some description");
 
-calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT, "" +
+calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, "" +
     "function(info) {" +
 
     // old

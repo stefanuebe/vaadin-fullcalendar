@@ -601,14 +601,14 @@ As shown in the subclass sample, you may also use the FullCalendarBuilder to cre
 ## Customize entry rendering (render hooks)
 
 FC allows you to hook into the rendering of entries using the `setCallbackOption` method with
-[`CallbackOption`](https://fullcalendar.io/docs/event-render-hooks) constants. The function string
+[`FullCalendar.CallbackOption`](https://fullcalendar.io/docs/event-render-hooks) constants. The function string
 is evaluated in the browser — no server round-trip occurs.
 
 **`ENTRY_DID_MOUNT`** — called after an entry element is added to the DOM. Use it for setup, e.g.
 setting element attributes:
 
 ```java
-calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_DID_MOUNT, """
         function(info) {
             info.el.id = "entry-" + info.event.id;
         }
@@ -619,7 +619,7 @@ calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, """
 [content injection](https://fullcalendar.io/docs/content-injection) for the return value format:
 
 ```java
-calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT,
+calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT,
         "function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
 ```
 
@@ -632,7 +632,7 @@ Inside entry callbacks you may access the entry's default properties or custom o
 entry.putCustomProperty(Entry.EntryCustomProperties.DESCRIPTION, "some description");
 
 // access it inside the callback
-calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT,
+calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT,
         "function(info) {" +
         "   let desc = info.event.getCustomProperty('" + Entry.EntryCustomProperties.DESCRIPTION + "', '');" +
         "   return { html: '<b>' + info.event.title + '</b><br>' + desc };" +
@@ -642,7 +642,7 @@ calendar.setCallbackOption(CallbackOption.ENTRY_CONTENT,
 Callbacks can be set before or after the calendar is attached.
 
 > **Note for `FullCalendarBuilder` users:** `withEntryContent(String)` on the builder is deprecated.
-> Use `setCallbackOption(CallbackOption.ENTRY_CONTENT, ...)` after building instead.
+> Use `setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, ...)` after building instead.
 
 Also make sure that your callback function does not contain any harmful code or allow cross-site scripting.
 
@@ -718,7 +718,7 @@ public void MyCalendarView extends VerticalLayout {
 You can combine the event handlers with a custom entryDidMount callback, if you want additional customizations
 of the entries. The FC will take care of combining the event handlers and you EDM callback
 ```java
-calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_DID_MOUNT, """
        function(info) {
            console.warn("my custom callback");
        }""");
@@ -752,7 +752,7 @@ public void MyCalendarView extends VerticalLayout {
 
         // by default, the entry element has no id attribute. Therefore we have to add it ourselves, using the 
         // entry id, that is by default an auto generated UUID
-        calendar.setCallbackOption(CallbackOption.ENTRY_DID_MOUNT, """
+        calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_DID_MOUNT, """
                 function(info) {
                     info.el.id = "entry-" + info.event.id;
                 }""");
@@ -1365,7 +1365,7 @@ flexible.setTitle("Flexible");
 flexible.setOverlap(true);  // overrides the global false
 
 // For more complex logic, use a JS callback
-calendar.setCallbackOption(CallbackOption.ENTRY_OVERLAP, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_OVERLAP, """
     function(stillEvent, movingEvent) {
         // Allow overlap only with background events
         return stillEvent.display === 'background';
@@ -1378,13 +1378,13 @@ FullCalendar provides render hooks for almost every visual element: day cells, d
 slot lanes, week numbers, now indicator, more-link, no-events, all-day, and view. All follow the same
 pattern: `classNames` / `content` / `didMount` / `willUnmount`.
 
-Use the `setCallbackOption(CallbackOption, String)` method with the appropriate enum value to set these callbacks.
+Use the `setCallbackOption(FullCalendar.CallbackOption, String)` method with the appropriate enum value to set these callbacks.
 This is the recommended approach for all render hook callbacks.
 
 ### Highlight weekends in the day grid
 
 ```java
-calendar.setCallbackOption(CallbackOption.DAY_CELL_CLASS_NAMES, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.DAY_CELL_CLASS_NAMES, """
     function(arg) {
         var dow = arg.date.getUTCDay();
         return (dow === 0 || dow === 6) ? ['weekend-cell'] : [];
@@ -1401,7 +1401,7 @@ Then in your CSS:
 ### Custom slot labels in the time grid
 
 ```java
-calendar.setCallbackOption(CallbackOption.SLOT_LABEL_CONTENT, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.SLOT_LABEL_CONTENT, """
     function(arg) {
         var h = arg.date.getUTCHours();
         if (h < 9 || h >= 17) return { html: '<span style="color:#999">' + arg.text + '</span>' };
@@ -1412,7 +1412,7 @@ calendar.setCallbackOption(CallbackOption.SLOT_LABEL_CONTENT, """
 ### Custom day header with extra info
 
 ```java
-calendar.setCallbackOption(CallbackOption.DAY_HEADER_CONTENT, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.DAY_HEADER_CONTENT, """
     function(arg) {
         var d = arg.date;
         var dayName = d.toLocaleDateString('en', { weekday: 'short' });
@@ -1427,19 +1427,19 @@ The same pattern applies to all other hooks. A few examples:
 
 ```java
 // Week numbers — e.g. prefix with "CW "
-calendar.setCallbackOption(CallbackOption.WEEK_NUMBER_CONTENT, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.WEEK_NUMBER_CONTENT, """
     function(arg) { return { html: 'CW ' + arg.num }; }""");
 
 // Now indicator — custom styling
-calendar.setCallbackOption(CallbackOption.NOW_INDICATOR_CLASS_NAMES, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.NOW_INDICATOR_CLASS_NAMES, """
     function() { return ['my-now-line']; }""");
 
 // More-link — custom text
-calendar.setCallbackOption(CallbackOption.MORE_LINK_CONTENT, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.MORE_LINK_CONTENT, """
     function(arg) { return { html: arg.num + ' more...' }; }""");
 
 // No-events message in list view
-calendar.setCallbackOption(CallbackOption.NO_EVENTS_CONTENT, """
+calendar.setCallbackOption(FullCalendar.CallbackOption.NO_EVENTS_CONTENT, """
     function() { return { html: '<em>Nothing scheduled</em>' }; }""");
 ```
 
