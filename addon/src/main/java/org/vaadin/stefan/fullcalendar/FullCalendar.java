@@ -1977,26 +1977,41 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Sets a valid range, that is open into the future.
-     * @param start start of range
+     * Restricts the calendar so the user cannot navigate before {@code start}. Dates before this date are grayed
+     * out and the previous-navigation buttons stop at this boundary. The end of the valid range remains open.
+     * <br><br>
+     * Use {@link #setValidRange(LocalDate, LocalDate)} to set both boundaries at once, or
+     * {@link #clearValidRange()} to remove the restriction.
+     *
+     * @param start earliest date the user can navigate to; must not be null
      */
     public void setValidRangeStart(LocalDate start) {
         setValidRange(start, null);
     }
 
     /**
-     * Sets a valid range, that is open into the past.
-     * @param end end of range
+     * Restricts the calendar so the user cannot navigate past {@code end}. Dates after this date are grayed
+     * out and the next-navigation buttons stop at this boundary. The start of the valid range remains open.
+     * <br><br>
+     * Use {@link #setValidRange(LocalDate, LocalDate)} to set both boundaries at once, or
+     * {@link #clearValidRange()} to remove the restriction.
+     *
+     * @param end latest date the user can navigate to; must not be null
      */
     public void setValidRangeEnd(LocalDate end) {
         setValidRange(null, end);
     }
 
     /**
-     * Creates a valid range between the given dates. If one of the dates is null, the range will be open to
-     * that direction. If both are null, the valid range will be cleared.
-     * @param start start
-     * @param end end
+     * Restricts navigation to the given date range. Dates outside the range are grayed out and navigation
+     * buttons stop at the boundaries. Pass {@code null} for either boundary to leave it open-ended.
+     * Pass {@code null} for both to remove all restrictions (same as {@link #clearValidRange()}).
+     * <br><br>
+     * A static valid range set here is overridden if {@link #setValidRangeCallback(String)} is also configured.
+     *
+     * @param start earliest navigable date, or {@code null} for open start
+     * @param end   latest navigable date, or {@code null} for open end
+     * @throws IllegalArgumentException if both are non-null and {@code start} is not before {@code end}
      */
     public void setValidRange(LocalDate start, LocalDate end) {
         if (start != null && end != null && !(start.isBefore(end))) {
@@ -2014,15 +2029,24 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Clears the valid range.
+     * Removes any navigation restriction previously set by {@link #setValidRange}, {@link #setValidRangeStart},
+     * or {@link #setValidRangeEnd}. The user can navigate freely again.
      */
     public void clearValidRange() {
         setValidRange(null, null);
     }
 
     /**
-     * Clears the current selection. This is only necessary, if after a selection no further click is required
-     * by the user (e.g. through a dialog button). Any click by the user will clear the selection automatically.
+     * Clears the highlighted time-range selection created when the user drags across time slots while
+     * {@code selectable} is active (see {@link Option#SELECTABLE}). The highlight remains visible until
+     * either the user clicks somewhere on the calendar, or this method is called programmatically.
+     * <br><br>
+     * Call this after handling a {@link TimeslotsSelectedEvent} — for example, after opening a dialog
+     * or creating a new entry — so the highlight does not linger. If the user will interact with a dialog
+     * that contains a clickable button, that click will clear the selection naturally and this method is
+     * not required.
+     * <br><br>
+     * Maps to FC's {@code calendar.unselect()}.
      */
     public void clearSelection() {
         getElement().executeJs("this.calendar.unselect()");
