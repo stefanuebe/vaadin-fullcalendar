@@ -2,12 +2,14 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class ResourceTest {
@@ -147,6 +149,89 @@ public class ResourceTest {
         Assertions.assertEquals(1, parent2.getChildren().size(), "Check if child was added correctly");
 
         Assertions.assertEquals(child, parent2.getChildren().iterator().next(), "Check if correct child was added");
+    }
+
+    // -------------------------------------------------------------------------
+    // getEvents()
+    // -------------------------------------------------------------------------
+
+    @Test
+    void getEvents_withoutScheduler_returnsEmptySet() {
+        Resource resource = new Resource();
+        Assertions.assertTrue(resource.getEvents().isEmpty());
+    }
+
+    @Test
+    void getEvents_returnsEntriesAssignedToResource() {
+        FullCalendarScheduler scheduler = new FullCalendarScheduler();
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        scheduler.setEntryProvider(provider);
+
+        Resource resource = new Resource();
+        scheduler.addResource(resource);
+
+        ResourceEntry assigned = new ResourceEntry();
+        assigned.addResources(resource);
+        provider.addEntry(assigned);
+
+        ResourceEntry other = new ResourceEntry(); // no resource assigned
+        provider.addEntry(other);
+
+        Set<ResourceEntry> events = resource.getEvents();
+        Assertions.assertEquals(1, events.size());
+        Assertions.assertTrue(events.contains(assigned));
+        Assertions.assertFalse(events.contains(other));
+    }
+
+    @Test
+    void getEvents_multipleResources_returnsOnlyOwn() {
+        FullCalendarScheduler scheduler = new FullCalendarScheduler();
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        scheduler.setEntryProvider(provider);
+
+        Resource r1 = new Resource();
+        Resource r2 = new Resource();
+        scheduler.addResources(List.of(r1, r2));
+
+        ResourceEntry e1 = new ResourceEntry();
+        e1.addResources(r1);
+        provider.addEntry(e1);
+
+        ResourceEntry e2 = new ResourceEntry();
+        e2.addResources(r2);
+        provider.addEntry(e2);
+
+        Assertions.assertEquals(Set.of(e1), r1.getEvents());
+        Assertions.assertEquals(Set.of(e2), r2.getEvents());
+    }
+
+    // -------------------------------------------------------------------------
+    // addExtendedProps / removeExtendedProps
+    // -------------------------------------------------------------------------
+
+    @Test
+    void addExtendedProps_storesValue() {
+        Resource resource = new Resource();
+        resource.addExtendedProps("dept", "Engineering");
+        Assertions.assertEquals("Engineering", resource.getExtendedProps().get("dept"));
+    }
+
+    @Test
+    void removeExtendedProps_byKey_removesValue() {
+        Resource resource = new Resource();
+        resource.addExtendedProps("dept", "Engineering");
+        resource.removeExtendedProps("dept");
+        Assertions.assertFalse(resource.getExtendedProps().containsKey("dept"));
+    }
+
+    @Test
+    void removeExtendedProps_byKeyAndValue_removesOnlyOnMatch() {
+        Resource resource = new Resource();
+        resource.addExtendedProps("dept", "Engineering");
+        resource.removeExtendedProps("dept", "HR");           // wrong value — not removed
+        Assertions.assertTrue(resource.getExtendedProps().containsKey("dept"));
+        resource.removeExtendedProps("dept", "Engineering");  // correct value — removed
+        Assertions.assertFalse(resource.getExtendedProps().containsKey("dept"));
     }
 
     @Test
