@@ -87,6 +87,8 @@ public class Resource {
     private Boolean eventOverlap;
     @Getter(AccessLevel.NONE)
     private Set<String> eventClassNames;
+    @Getter(AccessLevel.NONE)
+    private String eventAllow;
 
     // Scheduler back-reference for push updates (transient, excluded from equals/hashCode)
     @Getter(AccessLevel.NONE)
@@ -443,6 +445,28 @@ public class Resource {
     }
 
     /**
+     * Sets a per-resource {@code eventAllow} JS callback that controls where events associated with
+     * this resource can be dropped. Receives {@code (dropInfo, draggedEvent)} and returns a boolean.
+     * <br><br>
+     * <b>Note:</b> No escaping is applied — validate before passing to the client.
+     *
+     * @param jsFunction JS function string, or {@code null} to clear
+     * @see <a href="https://fullcalendar.io/docs/eventAllow">FullCalendar eventAllow</a>
+     */
+    public void setEventAllow(String jsFunction) {
+        this.eventAllow = jsFunction;
+    }
+
+    /**
+     * Returns the per-resource {@code eventAllow} JS callback, or {@code null} if not set.
+     *
+     * @return JS function string or null
+     */
+    public String getEventAllow() {
+        return eventAllow;
+    }
+
+    /**
      * Returns all entries currently associated with this resource. Only works when this resource
      * has been added to a {@link FullCalendarScheduler} that uses an
      * {@link org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider}; returns an empty
@@ -542,6 +566,7 @@ public class Resource {
             eventClassNames.forEach(classNamesArray::add);
             jsonObject.set("eventClassNames", classNamesArray);
         }
+        if (eventAllow != null) jsonObject.put("eventAllow", eventAllow);
 
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {

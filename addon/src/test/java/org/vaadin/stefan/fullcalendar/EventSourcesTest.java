@@ -360,6 +360,108 @@ public class EventSourcesTest {
     // ExternalEntryResizedEvent — construction
     // -------------------------------------------------------------------------
 
+    // -------------------------------------------------------------------------
+    // getEventSourceById
+    // -------------------------------------------------------------------------
+
+    @Test
+    void getEventSourceById_found() {
+        JsonFeedEventSource source = new JsonFeedEventSource("/api").withId("src-1");
+        calendar.addEventSource(source);
+        assertTrue(calendar.getEventSourceById("src-1").isPresent());
+        assertSame(source, calendar.getEventSourceById("src-1").get());
+    }
+
+    @Test
+    void getEventSourceById_notFound() {
+        assertTrue(calendar.getEventSourceById("nonexistent").isEmpty());
+    }
+
+    @Test
+    void getEventSourceById_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.getEventSourceById(null));
+    }
+
+    // -------------------------------------------------------------------------
+    // ClientSideEventSource — new properties
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventSource_resourceEditable_defaultAbsent() {
+        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.has("resourceEditable"));
+    }
+
+    @Test
+    void eventSource_resourceEditable_whenSet() {
+        ObjectNode json = new JsonFeedEventSource("/api").withResourceEditable(true).toJson();
+        assertTrue(json.get("resourceEditable").asBoolean());
+    }
+
+    @Test
+    void eventSource_defaultAllDay_defaultAbsent() {
+        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.has("defaultAllDay"));
+    }
+
+    @Test
+    void eventSource_defaultAllDay_whenSet() {
+        ObjectNode json = new JsonFeedEventSource("/api").withDefaultAllDay(true).toJson();
+        assertTrue(json.get("defaultAllDay").asBoolean());
+    }
+
+    @Test
+    void eventSource_allow_defaultAbsent() {
+        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.has("eventAllow"));
+    }
+
+    @Test
+    void eventSource_allow_whenSet() {
+        ObjectNode json = new JsonFeedEventSource("/api").withAllow("function() { return true; }").toJson();
+        assertEquals("function() { return true; }", json.get("eventAllow").asString());
+    }
+
+    @Test
+    void eventSource_success_defaultAbsent() {
+        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.has("success"));
+    }
+
+    @Test
+    void eventSource_success_whenSet() {
+        ObjectNode json = new JsonFeedEventSource("/api").withSuccess("function(content) {}").toJson();
+        assertEquals("function(content) {}", json.get("success").asString());
+    }
+
+    @Test
+    void eventSource_failure_defaultAbsent() {
+        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.has("failure"));
+    }
+
+    @Test
+    void eventSource_failure_whenSet() {
+        ObjectNode json = new JsonFeedEventSource("/api").withFailure("function(err) {}").toJson();
+        assertEquals("function(err) {}", json.get("failure").asString());
+    }
+
+    @Test
+    void eventSource_eventDataTransform_defaultAbsent() {
+        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.has("eventDataTransform"));
+    }
+
+    @Test
+    void eventSource_eventDataTransform_whenSet() {
+        ObjectNode json = new JsonFeedEventSource("/api").withEventDataTransform("function(e) { return e; }").toJson();
+        assertEquals("function(e) { return e; }", json.get("eventDataTransform").asString());
+    }
+
+    // -------------------------------------------------------------------------
+    // ExternalEntryResizedEvent — construction
+    // -------------------------------------------------------------------------
+
     @Test
     void externalEntryResizedEvent_populatesEntry() {
         FullCalendar cal = new FullCalendar();

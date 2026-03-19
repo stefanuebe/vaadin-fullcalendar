@@ -315,4 +315,37 @@ public class ResourceTest {
 
         Assertions.assertFalse(child11Json.has("children"), "child 1_1 json has no children");
     }
+
+    // -------------------------------------------------------------------------
+    // eventAllow
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventAllow_defaultNull() {
+        Resource resource = new Resource();
+        Assertions.assertNull(resource.getEventAllow());
+    }
+
+    @Test
+    void eventAllow_getterSetter() {
+        Resource resource = new Resource();
+        resource.setEventAllow("function() { return true; }");
+        Assertions.assertEquals("function() { return true; }", resource.getEventAllow());
+    }
+
+    @Test
+    void eventAllow_inJson_whenSet() {
+        Resource resource = new Resource("r1", "Room 1", null);
+        resource.setEventAllow("function() { return false; }");
+        ObjectNode json = resource.toJson();
+        Assertions.assertTrue(json.has("eventAllow"), "eventAllow should be in JSON when set");
+        Assertions.assertEquals("function() { return false; }", json.get("eventAllow").asString());
+    }
+
+    @Test
+    void eventAllow_notInJson_whenNull() {
+        Resource resource = new Resource("r1", "Room 1", null);
+        ObjectNode json = resource.toJson();
+        Assertions.assertFalse(json.has("eventAllow"), "eventAllow should not be in JSON when null");
+    }
 }

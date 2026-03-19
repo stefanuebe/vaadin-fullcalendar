@@ -158,6 +158,13 @@ public class RRule {
      */
     private List<LocalDate> excludedDates;
 
+    /**
+     * RRules defining exclusion patterns. Transferred to the entry's {@code exrule} property
+     * when the RRule is set on an {@link Entry} via {@link Entry#setRRule(RRule)}.
+     * Not serialized as part of the {@code rrule} JSON object itself.
+     */
+    private List<RRule> excludedRules;
+
     private RRule() {
     }
 
@@ -453,6 +460,31 @@ public class RRule {
      */
     public RRule excludeDates(List<LocalDate> dates) {
         this.excludedDates = dates;
+        return this;
+    }
+
+    /**
+     * Sets RRules that define exclusion patterns for this recurrence. When this RRule is set on
+     * an {@link Entry} via {@link Entry#setRRule(RRule)}, these rules are transferred to the
+     * entry's {@code exrule} property and serialized for FullCalendar's RRule plugin.
+     *
+     * @param rules RRules defining exclusion patterns
+     * @return this instance
+     */
+    public RRule excludeRules(RRule... rules) {
+        this.excludedRules = Arrays.asList(rules);
+        return this;
+    }
+
+    /**
+     * Sets RRules that define exclusion patterns for this recurrence.
+     *
+     * @param rules RRules defining exclusion patterns
+     * @return this instance
+     * @see #excludeRules(RRule...)
+     */
+    public RRule excludeRules(List<RRule> rules) {
+        this.excludedRules = rules;
         return this;
     }
 

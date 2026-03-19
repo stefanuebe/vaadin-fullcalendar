@@ -442,4 +442,61 @@ public class EntryModelTest {
         assertNull(entry.getRRule(), "getRRule() should return null after clearing");
         assertFalse(entry.toJson().has("rrule"), "rrule should not be in JSON after clearing");
     }
+
+    // -------------------------------------------------------------------------
+    // exrule
+    // -------------------------------------------------------------------------
+
+    @Test
+    void entry_exrule_notInJson_whenNotSet() {
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly());
+        assertFalse(entry.toJson().has("exrule"), "exrule should not be in JSON when not set");
+    }
+
+    @Test
+    void entry_exrule_singleRule_serializedAsObject() {
+        RRule exclusion = RRule.daily().count(3);
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly().excludeRules(exclusion));
+
+        ObjectNode json = entry.toJson();
+        assertTrue(json.hasNonNull("exrule"), "exrule must be present");
+        assertTrue(json.get("exrule").isObject(), "single exrule must be serialized as ObjectNode");
+        assertEquals("daily", json.get("exrule").get("freq").asString());
+    }
+
+    @Test
+    void entry_exrule_multipleRules_serializedAsArray() {
+        RRule exclusion1 = RRule.daily().count(3);
+        RRule exclusion2 = RRule.monthly().byMonthday(15);
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly().excludeRules(exclusion1, exclusion2));
+
+        ObjectNode json = entry.toJson();
+        assertTrue(json.hasNonNull("exrule"), "exrule must be present");
+        assertTrue(json.get("exrule").isArray(), "multiple exrules must be serialized as ArrayNode");
+        ArrayNode array = (ArrayNode) json.get("exrule");
+        assertEquals(2, array.size());
+    }
+
+    @Test
+    void entry_exrule_transferredFromRRule() {
+        RRule exclusion = RRule.daily();
+        RRule rule = RRule.weekly().excludeRules(exclusion);
+        Entry entry = new Entry();
+        entry.setRRule(rule);
+
+        // Verify it's transferred by checking JSON output
+        assertTrue(entry.toJson().hasNonNull("exrule"));
+    }
+
+    @Test
+    void entry_exrule_clearedWhenRRuleNull() {
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly().excludeRules(RRule.daily()));
+        entry.setRRule(null);
+
+        assertFalse(entry.toJson().has("exrule"), "exrule should not be in JSON after clearing RRule");
+    }
 }

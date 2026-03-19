@@ -89,6 +89,40 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
      */
     private String display;
 
+    /** Whether entries from this source can be moved between resources (Scheduler only). */
+    private Boolean resourceEditable;
+
+    /** Whether entries from this source default to all-day. */
+    private Boolean defaultAllDay;
+
+    /**
+     * Per-source {@code eventAllow} JS callback. Receives {@code (dropInfo, draggedEvent)} and returns a boolean.
+     * <br><br>
+     * <b>Note:</b> No escaping is applied — validate before passing to the client.
+     */
+    private String allow;
+
+    /**
+     * Per-source {@code success} JS callback. Called when the source successfully fetches events.
+     * <br><br>
+     * <b>Note:</b> No escaping is applied — validate before passing to the client.
+     */
+    private String success;
+
+    /**
+     * Per-source {@code failure} JS callback. Called when the source fails to fetch events.
+     * <br><br>
+     * <b>Note:</b> No escaping is applied — validate before passing to the client.
+     */
+    private String failure;
+
+    /**
+     * Per-source {@code eventDataTransform} JS callback. Transforms each raw event record before FC parses it.
+     * <br><br>
+     * <b>Note:</b> No escaping is applied — validate before passing to the client.
+     */
+    private String eventDataTransform;
+
     @SuppressWarnings("unchecked")
     protected S self() {
         return (S) this;
@@ -225,6 +259,66 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
+     * Sets whether entries from this source can be moved between resources (Scheduler only).
+     * @param resourceEditable resourceEditable flag
+     * @return this
+     */
+    public S withResourceEditable(boolean resourceEditable) {
+        this.resourceEditable = resourceEditable;
+        return self();
+    }
+
+    /**
+     * Sets whether entries from this source default to all-day.
+     * @param defaultAllDay defaultAllDay flag
+     * @return this
+     */
+    public S withDefaultAllDay(boolean defaultAllDay) {
+        this.defaultAllDay = defaultAllDay;
+        return self();
+    }
+
+    /**
+     * Sets a per-source {@code eventAllow} JS callback that controls where entries can be dropped.
+     * @param jsFunction JS function string
+     * @return this
+     */
+    public S withAllow(String jsFunction) {
+        this.allow = jsFunction;
+        return self();
+    }
+
+    /**
+     * Sets a per-source {@code success} JS callback called when the source successfully fetches events.
+     * @param jsFunction JS function string
+     * @return this
+     */
+    public S withSuccess(String jsFunction) {
+        this.success = jsFunction;
+        return self();
+    }
+
+    /**
+     * Sets a per-source {@code failure} JS callback called when the source fails to fetch events.
+     * @param jsFunction JS function string
+     * @return this
+     */
+    public S withFailure(String jsFunction) {
+        this.failure = jsFunction;
+        return self();
+    }
+
+    /**
+     * Sets a per-source {@code eventDataTransform} JS callback that transforms each raw event record.
+     * @param jsFunction JS function string
+     * @return this
+     */
+    public S withEventDataTransform(String jsFunction) {
+        this.eventDataTransform = jsFunction;
+        return self();
+    }
+
+    /**
      * Serializes common properties shared by all client-side event sources into the given JSON object.
      * Subclasses should call this and then add their own properties.
      *
@@ -242,6 +336,12 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
         if (constraint != null) json.put("constraint", constraint);
         if (overlap != null) json.put("overlap", overlap);
         if (display != null) json.put("display", display);
+        if (resourceEditable != null) json.put("resourceEditable", resourceEditable);
+        if (defaultAllDay != null) json.put("defaultAllDay", defaultAllDay);
+        if (allow != null) json.put("eventAllow", allow);
+        if (success != null) json.put("success", success);
+        if (failure != null) json.put("failure", failure);
+        if (eventDataTransform != null) json.put("eventDataTransform", eventDataTransform);
         if (classNames != null && !classNames.isEmpty()) {
             ArrayNode namesNode = JsonFactory.createArray();
             classNames.forEach(namesNode::add);
