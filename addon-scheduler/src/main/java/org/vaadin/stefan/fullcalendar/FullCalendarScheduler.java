@@ -521,8 +521,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends CalendarView> Optional<T> lookupViewByClientSideValue(String clientSideValue) {
-        Optional<T> optional = super.lookupViewByClientSideValue(clientSideValue);
+    public <T extends CalendarView> Optional<T> lookupViewName(String clientSideValue) {
+        Optional<T> optional = super.lookupViewName(clientSideValue);
         if (optional.isEmpty()) {
             optional = (Optional<T>) SchedulerView.ofClientSideValue(clientSideValue);
         }

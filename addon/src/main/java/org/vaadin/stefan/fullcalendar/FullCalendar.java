@@ -492,7 +492,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public void changeView(CalendarView view) {
         Objects.requireNonNull(view);
 
-        lookupViewByClientSideValue(view.getClientSideValue()).orElseThrow(() -> new IllegalArgumentException("Unknown view: " + view.getClientSideValue() + ". If you want to use a custom view, please register it first by using addCustomView()."));
+        lookupViewName(view.getClientSideValue()).orElseThrow(() -> new IllegalArgumentException("Unknown view: " + view.getClientSideValue() + ". If you want to use a custom view, please register it first by using addCustomView()."));
 
         currentView = view;
         currentViewName = view.getClientSideValue();
@@ -1946,26 +1946,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Tries to find the calendar view based on the given clientSideValue. Empty, when the view name is not known on
-     * the Java side (can be the case with unregistered custom views).
-     * @param clientSideValue view's client side value to lookup
-     * @return calendar view
-     * @deprecated use {@link #lookupViewByClientSideValue(String)} instead
-     */
-    @Deprecated(forRemoval = true)
-    public <T extends CalendarView> Optional<T> lookupViewName(String clientSideValue) {
-        return lookupViewByClientSideValue(clientSideValue);
-    }
-
     /**
-     * Tries to find the calendar view based on the given name. Empty, when the view name is not known on the Java
-     * side (can be the case with unregistered custom views).
+     * Tries to find the calendar view based on the given client-side value. Empty, when the view name is not known
+     * on the Java side (can be the case with unregistered custom views).
      *
-     * @param clientSideValue view name to lookup
+     * @param clientSideValue view's client-side value to lookup
      * @return calendar view
      */
     @SuppressWarnings("unchecked")
-    public <T extends CalendarView> Optional<T> lookupViewByClientSideValue(String clientSideValue) {
+    public <T extends CalendarView> Optional<T> lookupViewName(String clientSideValue) {
         Optional<T> optional = (Optional<T>) CalendarViewImpl.ofClientSideValue(clientSideValue);
         if (optional.isPresent()) {
             return optional;
