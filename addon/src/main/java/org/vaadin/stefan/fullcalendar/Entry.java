@@ -30,6 +30,7 @@ import org.vaadin.stefan.fullcalendar.converters.*;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.json.JsonReadField;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.NullNode;
@@ -129,6 +130,7 @@ public class Entry {
      */
     @Getter(AccessLevel.NONE)
     @lombok.Setter(AccessLevel.NONE)
+    @JsonReadField
     @JsonConverter(RRuleConverter.class)
     private RRule rrule;
 
@@ -139,6 +141,7 @@ public class Entry {
      */
     @Getter(AccessLevel.NONE)
     @lombok.Setter(AccessLevel.NONE)
+    @JsonReadField
     @JsonConverter(ExdateConverter.class)
     private List<LocalDate> exdate;
 
@@ -149,22 +152,6 @@ public class Entry {
      */
     public RRule getRRule() {
         return rrule;
-    }
-
-    /**
-     * Internal getter used by the serialization system ({@code BeanProperties}).
-     * Use {@link #getRRule()} in application code.
-     */
-    public RRule getRrule() {
-        return rrule;
-    }
-
-    /**
-     * Internal getter used by the serialization system ({@code BeanProperties}).
-     * Not part of the public API — use {@link RRule#excludeDates(LocalDate...)} to set excluded dates.
-     */
-    public List<LocalDate> getExdate() {
-        return exdate;
     }
 
     /**
