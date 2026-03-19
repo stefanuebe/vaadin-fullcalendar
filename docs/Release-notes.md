@@ -29,7 +29,6 @@ for the one behaviour change involving `Entry.overlap`.
 - Render hook callbacks: `setResourceLabelClassNamesCallback`, `setResourceLabelContentCallback`, `setResourceLabelDidMountCallback`, `setResourceLabelWillUnmountCallback`
 - Render hook callbacks: `setResourceLaneClassNamesCallback`, `setResourceLaneDidMountCallback`, `setResourceLaneWillUnmountCallback`
 - `setProgressiveEventRendering(boolean)` — render events in batches as they arrive
-- `setThemeSystem(ThemeSystem)` — typed enum (`STANDARD`, `BOOTSTRAP5`)
 
 ### Interaction callbacks
 - Drag/resize lifecycle events: `EntryDragStartEvent`, `EntryDragStopEvent`, `EntryResizeStartEvent`, `EntryResizeStopEvent`

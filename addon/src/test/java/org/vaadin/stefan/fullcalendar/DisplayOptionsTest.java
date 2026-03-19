@@ -12,7 +12,6 @@ import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
  * Tests for display options and render hook callbacks.
- * Covers all typed setters in FullCalendar and the ThemeSystem enum.
  */
 public class DisplayOptionsTest {
 
@@ -21,17 +20,6 @@ public class DisplayOptionsTest {
     @BeforeEach
     void setUp() {
         calendar = new FullCalendar();
-    }
-
-    // -------------------------------------------------------------------------
-    // ThemeSystem enum
-    // -------------------------------------------------------------------------
-
-    @Test
-    void themeSystem_clientSideValues() {
-        assertEquals("standard", ThemeSystem.STANDARD.getClientSideValue());
-        assertEquals("bootstrap5", ThemeSystem.BOOTSTRAP5.getClientSideValue());
-        assertEquals("bootstrap", ThemeSystem.BOOTSTRAP.getClientSideValue());
     }
 
     // -------------------------------------------------------------------------
