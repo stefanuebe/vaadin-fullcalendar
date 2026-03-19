@@ -938,9 +938,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * </pre>
      *
      * @param s function to be attached
+     * @deprecated Use {@link #setCallbackOption(CallbackOption, String)} with
+     *             {@link CallbackOption#ENTRY_CLASS_NAMES} instead.
      */
+    @Deprecated(forRemoval = true)
     public void setEntryClassNamesCallback(String s) {
-        getElement().callJsFunction("setEventClassNamesCallback", s);
+        setCallbackOption(CallbackOption.ENTRY_CLASS_NAMES, s);
     }
 
     /**
@@ -961,7 +964,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param s function to be attached
      * @see #addEntryNativeEventListener(String, String)
      *
+     * @deprecated Use {@link #setCallbackOption(CallbackOption, String)} with
+     *             {@link CallbackOption#ENTRY_DID_MOUNT} instead.
+     *             Note: if you also use {@link #addEntryNativeEventListener(String, String)},
+     *             continue using this method as native event listeners are merged here.
      */
+    @Deprecated(forRemoval = true)
     public void setEntryDidMountCallback(String s) {
         eventDidMountCallback = s;
     }
@@ -1024,7 +1032,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
 
         if (s != null) {
-            getElement().callJsFunction("setEventDidMountCallback", s);
+            getElement().callJsFunction("setCallbackOption", "eventDidMount", s);
         }
     }
 
@@ -1039,9 +1047,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <br><br>
      *
      * @param s function to be attached
+     * @deprecated Use {@link #setCallbackOption(CallbackOption, String)} with
+     *             {@link CallbackOption#ENTRY_WILL_UNMOUNT} instead.
      */
+    @Deprecated(forRemoval = true)
     public void setEntryWillUnmountCallback(String s) {
-        getElement().callJsFunction("setEventWillUnmountCallback", s);
+        setCallbackOption(CallbackOption.ENTRY_WILL_UNMOUNT, s);
     }
 
     /**
@@ -1056,80 +1067,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see <a href="https://fullcalendar.io/docs/content-injection">https://fullcalendar.io/docs/content-injection</a>
      *
      * @param s function to be attached
+     * @deprecated Use {@link #setCallbackOption(CallbackOption, String)} with
+     *             {@link CallbackOption#ENTRY_CONTENT} instead.
      */
+    @Deprecated(forRemoval = true)
     public void setEntryContentCallback(String s) {
-        setOption("eventContent", s);
+        setCallbackOption(CallbackOption.ENTRY_CONTENT, s);
     }
 
-    // -------------------------------------------------------------------------
-    // Drag/resize/select/drop JS-only callback setters
-    // -------------------------------------------------------------------------
-
-    /**
-     * Sets a JavaScript function as the {@code selectAllow} callback. The function runs synchronously
-     * on every mouse move during a drag-to-select operation and must return {@code true} to allow
-     * or {@code false} to deny the selection.
-     * <br><br>
-     * This must be a client-side only callback because synchronous drag feedback requires zero latency.
-     * <br><br>
-     * <b>Note: </b> No security mechanism is applied to the string. Validate it before passing to the client.
-     * <br><br>
-     * Example:
-     * <pre>
-     * calendar.setSelectAllowCallback(
-     *     "function(selectInfo) { return selectInfo.start >= new Date('2023-01-01'); }");
-     * </pre>
-     *
-     * @param s JavaScript function string
-     * @see <a href="https://fullcalendar.io/docs/selectAllow">selectAllow</a>
-     */
-    public void setSelectAllowCallback(String s) {
-        getElement().callJsFunction("setSelectAllowCallback", s);
-    }
-
-    /**
-     * Sets a JavaScript function as the {@code eventAllow} callback. The function runs synchronously
-     * during a drag operation and must return {@code true} to allow or {@code false} to deny a drop
-     * at the given location.
-     * <br><br>
-     * This must be a client-side only callback because synchronous drag feedback requires zero latency.
-     * <br><br>
-     * <b>Note: </b> No security mechanism is applied to the string. Validate it before passing to the client.
-     * <br><br>
-     * Example:
-     * <pre>
-     * calendar.setEntryAllowCallback(
-     *     "function(dropInfo, draggedEntry) { return dropInfo.resource.id !== 'locked-room'; }");
-     * </pre>
-     *
-     * @param s JavaScript function string
-     * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
-     */
-    public void setEntryAllowCallback(String s) {
-        getElement().callJsFunction("setEntryAllowCallback", s);
-    }
-
-    /**
-     * Sets a JavaScript function as the global {@code eventOverlap} callback. The function provides
-     * per-combination control over whether a dragged event may overlap with a stationary event.
-     * <br><br>
-     * This must be a client-side only callback because it runs synchronously during drag feedback.
-     * The per-entry {@link Entry#setOverlap(Boolean)} takes precedence over this global function.
-     * <br><br>
-     * <b>Note: </b> No security mechanism is applied to the string. Validate it before passing to the client.
-     * <br><br>
-     * Example:
-     * <pre>
-     * calendar.setEntryOverlapCallback(
-     *     "function(stillEvent, movingEvent) { return stillEvent.display === 'background'; }");
-     * </pre>
-     *
-     * @param s JavaScript function string
-     * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
-     */
-    public void setEntryOverlapCallback(String s) {
-        getElement().callJsFunction("setEntryOverlapCallback", s);
-    }
 
 
 
@@ -2468,35 +2413,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
 
-    /**
-     * Sets a JavaScript callback that fires when a day navigation link is clicked (instead of
-     * the default view change). Requires {@link #setNavLinks(boolean) setNavLinks(true)}.
-     * <br><br>
-     * The callback receives a single argument: the {@code Date} object of the clicked day.
-     * <br><br>
-     * <b>Note:</b> No escaping is applied — validate before passing to the client.
-     *
-     * @param jsFunction JS function string, e.g. {@code "function(date) { alert(date); }"}
-     * @see <a href="https://fullcalendar.io/docs/navLinkDayClick">navLinkDayClick</a>
-     */
-    public void setNavLinkDayClickCallback(String jsFunction) {
-        setOption("navLinkDayClick", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback that fires when a week navigation link is clicked (instead of
-     * the default view change). Requires {@link #setNavLinks(boolean) setNavLinks(true)}.
-     * <br><br>
-     * The callback receives a single argument: the {@code Date} object of the start of the clicked week.
-     * <br><br>
-     * <b>Note:</b> No escaping is applied — validate before passing to the client.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/navLinkWeekClick">navLinkWeekClick</a>
-     */
-    public void setNavLinkWeekClickCallback(String jsFunction) {
-        setOption("navLinkWeekClick", jsFunction);
-    }
 
 
 
@@ -2527,12 +2443,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see <a href="https://fullcalendar.io/docs/validRange">FC validRange documentation</a>
      */
     public void setValidRangeCallback(String jsFunction) {
-        if (jsFunction == null) {
-            // Clear by passing null via the standard option path so it is persisted correctly
-            setOption(Option.VALID_RANGE, (Object) null);
-        } else {
-            getElement().callJsFunction("setValidRangeCallback", jsFunction);
-        }
+        setCallbackOption(CallbackOption.VALID_RANGE, jsFunction);
     }
 
     /**
@@ -2553,11 +2464,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see <a href="https://fullcalendar.io/docs/selectOverlap">FC selectOverlap documentation</a>
      */
     public void setSelectOverlapCallback(String jsFunction) {
-        if (jsFunction == null) {
-            setOption(Option.SELECT_OVERLAP, (Object) null);
-        } else {
-            getElement().callJsFunction("setSelectOverlapCallback", jsFunction);
-        }
+        setCallbackOption(CallbackOption.SELECT_OVERLAP, jsFunction);
     }
 
     /**
@@ -2730,436 +2637,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
 
-
-    // ---- Render hook callbacks (2.2 – 2.11) ----
-    // All accept raw JS function strings evaluated via new Function() on the client side.
-    // Never pass user-controlled content to these methods.
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to day-cell {@code <td>} elements.
-     * The callback receives an info object with {@code date}, {@code dayNumberText}, {@code isToday},
-     * {@code isPast}, {@code isFuture}, {@code isOther}, and {@code view} properties, and must return
-     * an array of class name strings.
-     * <p>
-     * Example: {@code "function(info) { return info.isToday ? ['my-today'] : []; }"}
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/dayCellClassNames">dayCellClassNames</a>
-     */
-    public void setDayCellClassNamesCallback(String jsFunction) {
-        setOption("dayCellClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for customizing the content of day-cell {@code <td>} elements.
-     * The callback receives the same info object as {@link #setDayCellClassNamesCallback(String)}
-     * and should return a content object (e.g. {@code { html: '...' }}).
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/dayCellContent">dayCellContent</a>
-     */
-    public void setDayCellContentCallback(String jsFunction) {
-        setOption("dayCellContent", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after a day-cell element is added to the DOM.
-     * The callback receives {@code { el, date, dayNumberText, isToday, isPast, isFuture, isOther, view }}.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/dayCellDidMount">dayCellDidMount</a>
-     */
-    public void setDayCellDidMountCallback(String jsFunction) {
-        setOption("dayCellDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before a day-cell element is removed from the DOM.
-     * The callback receives the same info as {@link #setDayCellDidMountCallback(String)}.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/dayCellWillUnmount">dayCellWillUnmount</a>
-     */
-    public void setDayCellWillUnmountCallback(String jsFunction) {
-        setOption("dayCellWillUnmount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to day column header {@code <th>} cells.
-     * The callback receives {@code { date, text, isToday, isPast, isFuture, view }} and must return
-     * an array of class name strings.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/dayHeaderClassNames">dayHeaderClassNames</a>
-     */
-    public void setDayHeaderClassNamesCallback(String jsFunction) {
-        setOption("dayHeaderClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for customizing the content of day column header cells.
-     * The callback receives {@code { date, text, isToday, isPast, isFuture, view }} and should return
-     * a content object.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/dayHeaderContent">dayHeaderContent</a>
-     */
-    public void setDayHeaderContentCallback(String jsFunction) {
-        setOption("dayHeaderContent", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after a day column header element is added to the DOM.
-     * The callback receives {@code { el, date, text, isToday, isPast, isFuture, view }}.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/dayHeaderDidMount">dayHeaderDidMount</a>
-     */
-    public void setDayHeaderDidMountCallback(String jsFunction) {
-        setOption("dayHeaderDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before a day column header element is removed from the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/dayHeaderWillUnmount">dayHeaderWillUnmount</a>
-     */
-    public void setDayHeaderWillUnmountCallback(String jsFunction) {
-        setOption("dayHeaderWillUnmount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to slot label cells in timegrid/timeline views.
-     * The callback receives {@code { date, text, view }} and must return an array of class name strings.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/slotLabelClassNames">slotLabelClassNames</a>
-     */
-    public void setSlotLabelClassNamesCallback(String jsFunction) {
-        setOption("slotLabelClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for customizing the content of time slot label cells.
-     * The callback receives {@code { date, text, view }} and should return a content object.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/slotLabelContent">slotLabelContent</a>
-     */
-    public void setSlotLabelContentCallback(String jsFunction) {
-        setOption("slotLabelContent", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after a slot label element is added to the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/slotLabelDidMount">slotLabelDidMount</a>
-     */
-    public void setSlotLabelDidMountCallback(String jsFunction) {
-        setOption("slotLabelDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before a slot label element is removed from the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/slotLabelWillUnmount">slotLabelWillUnmount</a>
-     */
-    public void setSlotLabelWillUnmountCallback(String jsFunction) {
-        setOption("slotLabelWillUnmount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to slot lane cells in timegrid/timeline views.
-     * The callback receives {@code { date, time, view }} and must return an array of class name strings.
-     * The {@code time} property is a duration object relative to start of day.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/slotLaneClassNames">slotLaneClassNames</a>
-     */
-    public void setSlotLaneClassNamesCallback(String jsFunction) {
-        setOption("slotLaneClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for customizing the content of slot lane cells.
-     * The callback receives {@code { date, time, view }} and should return a content object.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/slotLaneContent">slotLaneContent</a>
-     */
-    public void setSlotLaneContentCallback(String jsFunction) {
-        setOption("slotLaneContent", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after a slot lane element is added to the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/slotLaneDidMount">slotLaneDidMount</a>
-     */
-    public void setSlotLaneDidMountCallback(String jsFunction) {
-        setOption("slotLaneDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before a slot lane element is removed from the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/slotLaneWillUnmount">slotLaneWillUnmount</a>
-     */
-    public void setSlotLaneWillUnmountCallback(String jsFunction) {
-        setOption("slotLaneWillUnmount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to the view root element.
-     * The callback receives {@code { view, el }} and must return an array of class name strings.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/viewClassNames">viewClassNames</a>
-     */
-    public void setViewClassNamesCallback(String jsFunction) {
-        setOption("viewClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after the view root element is added to the DOM.
-     * This is the client-side equivalent of the server-side {@code ViewSkeletonRenderedEvent}; both
-     * can be used simultaneously.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/viewDidMount">viewDidMount</a>
-     */
-    public void setViewDidMountCallback(String jsFunction) {
-        setOption("viewDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before the view root element is removed from the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/viewWillUnmount">viewWillUnmount</a>
-     */
-    public void setViewWillUnmountCallback(String jsFunction) {
-        setOption("viewWillUnmount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to the now-indicator element.
-     * The callback receives {@code { date, isAxis, view }} and must return an array of class name strings.
-     * {@code isAxis} is {@code true} for the time-label part and {@code false} for the line.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/nowIndicatorClassNames">nowIndicatorClassNames</a>
-     */
-    public void setNowIndicatorClassNamesCallback(String jsFunction) {
-        setOption("nowIndicatorClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for customizing the content of the now-indicator.
-     * The callback receives {@code { date, isAxis, view }} and should return a content object.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/nowIndicatorContent">nowIndicatorContent</a>
-     */
-    public void setNowIndicatorContentCallback(String jsFunction) {
-        setOption("nowIndicatorContent", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after the now-indicator element is added to the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/nowIndicatorDidMount">nowIndicatorDidMount</a>
-     */
-    public void setNowIndicatorDidMountCallback(String jsFunction) {
-        setOption("nowIndicatorDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before the now-indicator element is removed from the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/nowIndicatorWillUnmount">nowIndicatorWillUnmount</a>
-     */
-    public void setNowIndicatorWillUnmountCallback(String jsFunction) {
-        setOption("nowIndicatorWillUnmount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to week-number cells.
-     * The callback receives {@code { date, num, text, view }} and must return an array of class name strings.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/weekNumberClassNames">weekNumberClassNames</a>
-     */
-    public void setWeekNumberClassNamesCallback(String jsFunction) {
-        setOption("weekNumberClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for customizing the content of week-number cells.
-     * The callback receives {@code { date, num, text, view }} and should return a content object.
-     * Example: {@code "function(info) { return { html: '<span title=\"Week ' + info.num + '\">' + info.text + '</span>' }; }"}
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/weekNumberContent">weekNumberContent</a>
-     */
-    public void setWeekNumberContentCallback(String jsFunction) {
-        setOption("weekNumberContent", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after a week-number element is added to the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/weekNumberDidMount">weekNumberDidMount</a>
-     */
-    public void setWeekNumberDidMountCallback(String jsFunction) {
-        setOption("weekNumberDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before a week-number element is removed from the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/weekNumberWillUnmount">weekNumberWillUnmount</a>
-     */
-    public void setWeekNumberWillUnmountCallback(String jsFunction) {
-        setOption("weekNumberWillUnmount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to the "+N more" link element.
-     * The callback receives {@code { num, text, shortText, view }} and must return an array of class name strings.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/moreLinkClassNames">moreLinkClassNames</a>
-     */
-    public void setMoreLinkClassNamesCallback(String jsFunction) {
-        setOption("moreLinkClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for customizing the content of the "+N more" link.
-     * The callback receives {@code { num, text, shortText, view }} and should return a content object.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/moreLinkContent">moreLinkContent</a>
-     */
-    public void setMoreLinkContentCallback(String jsFunction) {
-        setOption("moreLinkContent", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after the "+N more" link element is added to the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/moreLinkDidMount">moreLinkDidMount</a>
-     */
-    public void setMoreLinkDidMountCallback(String jsFunction) {
-        setOption("moreLinkDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before the "+N more" link element is removed from the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/moreLinkWillUnmount">moreLinkWillUnmount</a>
-     */
-    public void setMoreLinkWillUnmountCallback(String jsFunction) {
-        setOption("moreLinkWillUnmount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to the "no events" message element in list view.
-     * The callback receives {@code { view }} and must return an array of class name strings.
-     * The message text is controlled separately by the {@code noEventsText} option.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/noEventsClassNames">noEventsClassNames</a>
-     */
-    public void setNoEventsClassNamesCallback(String jsFunction) {
-        setOption("noEventsClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for customizing the content of the "no events" message element in list view.
-     * The callback receives {@code { view }} and should return a content object.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/noEventsContent">noEventsContent</a>
-     */
-    public void setNoEventsContentCallback(String jsFunction) {
-        setOption("noEventsContent", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after the "no events" message element is added to the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/noEventsDidMount">noEventsDidMount</a>
-     */
-    public void setNoEventsDidMountCallback(String jsFunction) {
-        setOption("noEventsDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before the "no events" message element is removed from the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/noEventsWillUnmount">noEventsWillUnmount</a>
-     */
-    public void setNoEventsWillUnmountCallback(String jsFunction) {
-        setOption("noEventsWillUnmount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for adding CSS class names to the all-day section header cell in timegrid views.
-     * The callback receives {@code { text, view }} and must return an array of class name strings.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/allDayClassNames">allDayClassNames</a>
-     */
-    public void setAllDayClassNamesCallback(String jsFunction) {
-        setOption("allDayClassNames", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback for customizing the content of the all-day section header cell in timegrid views.
-     * The callback receives {@code { text, view }} and should return a content object.
-     * Example: {@code "function(info) { return { text: 'Todo el día' }; }"}
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/allDayContent">allDayContent</a>
-     */
-    public void setAllDayContentCallback(String jsFunction) {
-        setOption("allDayContent", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called after the all-day section header cell is added to the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/allDayDidMount">allDayDidMount</a>
-     */
-    public void setAllDayDidMountCallback(String jsFunction) {
-        setOption("allDayDidMount", jsFunction);
-    }
-
-    /**
-     * Sets a JavaScript callback called just before the all-day section header cell is removed from the DOM.
-     *
-     * @param jsFunction JS function string
-     * @see <a href="https://fullcalendar.io/docs/allDayWillUnmount">allDayWillUnmount</a>
-     */
-    public void setAllDayWillUnmountCallback(String jsFunction) {
-        setOption("allDayWillUnmount", jsFunction);
-    }
 
     // -------------------------------------------------------------------------
     // Getters

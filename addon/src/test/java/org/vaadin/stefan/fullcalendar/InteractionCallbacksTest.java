@@ -86,30 +86,6 @@ public class InteractionCallbacksTest {
     }
 
     // -------------------------------------------------------------------------
-    // JS callback setters (callJsFunction-based, not stored in options map)
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setSelectAllowCallback_doesNotThrow() {
-        // These methods delegate to callJsFunction(), which queues silently before attachment.
-        // Verify the method is callable without error.
-        assertDoesNotThrow(() -> calendar.setSelectAllowCallback(
-                "function(selectInfo) { return true; }"));
-    }
-
-    @Test
-    void setEntryAllowCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setEntryAllowCallback(
-                "function(dropInfo, draggedEvent) { return true; }"));
-    }
-
-    @Test
-    void setEntryOverlapCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setEntryOverlapCallback(
-                "function(stillEvent, movingEvent) { return stillEvent.display === 'background'; }"));
-    }
-
-    // -------------------------------------------------------------------------
     // Listener registration — returns non-null Registration, rejects null
     // -------------------------------------------------------------------------
 

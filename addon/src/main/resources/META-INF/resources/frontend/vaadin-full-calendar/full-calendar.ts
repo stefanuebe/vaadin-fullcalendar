@@ -740,31 +740,6 @@ export class FullCalendar extends HTMLElement {
         }
     }
 
-    setEventClassNamesCallback(s: string) {
-        this.setOption('eventClassNames', new Function("return " + s)())
-    }
-
-    setEventDidMountCallback(s: string) {
-        this.setOption('eventDidMount', new Function("return " + s)());
-    }
-
-    setEventWillUnmountCallback(s: string) {
-        this.setOption('eventWillUnmount', new Function("return " + s)());
-    }
-
-    // JS-only callback setters
-    setSelectAllowCallback(s: string) {
-        this.setOption('selectAllow', new Function("return " + s)());
-    }
-
-    setEntryAllowCallback(s: string) {
-        this.setOption('eventAllow', new Function("return " + s)());
-    }
-
-    setEntryOverlapCallback(s: string) {
-        this.setOption('eventOverlap', new Function("return " + s)());
-    }
-
     // Navigation, size, and JS-only callback setters
 
     incrementDate(duration: string) {
@@ -781,14 +756,6 @@ export class FullCalendar extends HTMLElement {
 
     updateSize() {
         this.calendar?.updateSize();
-    }
-
-    setValidRangeCallback(s: string) {
-        this.setOption('validRange', new Function("return " + s)());
-    }
-
-    setSelectOverlapCallback(s: string) {
-        this.setOption('selectOverlap', new Function("return " + s)());
     }
 
     setFixedMirrorParent(s: string | null) {
@@ -838,18 +805,6 @@ export class FullCalendar extends HTMLElement {
 
     refetchEvents() {
         this.calendar?.refetchEvents();
-    }
-
-    setLoadingCallback(s: string) {
-        this.setOption('loading', new Function("return " + s)());
-    }
-
-    setEntryDataTransformCallback(s: string) {
-        this.setOption('eventDataTransform', new Function("return " + s)());
-    }
-
-    setEventSourceSuccessCallback(s: string) {
-        this.setOption('eventSourceSuccess', new Function("return " + s)());
     }
 
     /**

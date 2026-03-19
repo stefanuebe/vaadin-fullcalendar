@@ -127,11 +127,11 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         });
 
         // selectAllow: deny selections before 2025-03-03
-        calendar.setSelectAllowCallback(
+        calendar.setCallbackOption(CallbackOption.SELECT_ALLOW,
                 "function(selectInfo) { return selectInfo.start >= new Date('2025-03-03'); }");
 
         // eventAllow: prevent drops onto Monday 2025-03-03 (used for the Playwright deny test)
-        calendar.setEntryAllowCallback(
+        calendar.setCallbackOption(CallbackOption.ENTRY_ALLOW,
                 "function(dropInfo, draggedEvent) { " +
                 "  var d = dropInfo.start; " +
                 "  return !(d.getFullYear() === 2025 && d.getMonth() === 2 && d.getDate() === 3); " +

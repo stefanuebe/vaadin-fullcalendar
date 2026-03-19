@@ -281,29 +281,4 @@ public class AdvancedOptionsTest {
         assertTrue(calendar.getCurrentIntervalEnd().isEmpty());
     }
 
-    // -------------------------------------------------------------------------
-    // navLinkDayClick / navLinkWeekClick callbacks
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setNavLinkDayClickCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setNavLinkDayClickCallback("function(date) { alert(date); }"));
-    }
-
-    @Test
-    void setNavLinkDayClickCallback_storesOption() {
-        calendar.setNavLinkDayClickCallback("function(date) {}");
-        assertOptionalEquals("function(date) {}", calendar.getOption("navLinkDayClick"));
-    }
-
-    @Test
-    void setNavLinkWeekClickCallback_doesNotThrow() {
-        assertDoesNotThrow(() -> calendar.setNavLinkWeekClickCallback("function(weekStart) {}"));
-    }
-
-    @Test
-    void setNavLinkWeekClickCallback_storesOption() {
-        calendar.setNavLinkWeekClickCallback("function(weekStart) {}");
-        assertOptionalEquals("function(weekStart) {}", calendar.getOption("navLinkWeekClick"));
-    }
 }
