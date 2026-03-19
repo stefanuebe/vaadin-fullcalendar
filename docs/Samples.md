@@ -601,8 +601,11 @@ As shown in the subclass sample, you may also use the FullCalendarBuilder to cre
 ## Customize entry rendering (render hooks)
 
 FC allows you to hook into the rendering of entries using the `setCallbackOption` method with
-[`FullCalendar.CallbackOption`](https://fullcalendar.io/docs/event-render-hooks) constants. The function string
-is evaluated in the browser — no server round-trip occurs.
+`FullCalendar.CallbackOption` constants (see [FullCalendar render hook docs](https://fullcalendar.io/docs/event-render-hooks)
+for callback arguments). The function string is evaluated in the browser — no server round-trip occurs.
+
+> **Note for `FullCalendarBuilder` users:** `withEntryContent(String)` on the builder is deprecated.
+> Use `setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, ...)` after building instead.
 
 **`ENTRY_DID_MOUNT`** — called after an entry element is added to the DOM. Use it for setup, e.g.
 setting element attributes:
@@ -640,9 +643,6 @@ calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT,
 ```
 
 Callbacks can be set before or after the calendar is attached.
-
-> **Note for `FullCalendarBuilder` users:** `withEntryContent(String)` on the builder is deprecated.
-> Use `setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, ...)` after building instead.
 
 Also make sure that your callback function does not contain any harmful code or allow cross-site scripting.
 

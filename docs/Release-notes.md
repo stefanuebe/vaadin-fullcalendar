@@ -28,7 +28,7 @@ for the one behaviour change involving `Entry.overlap`.
 
 ### Interaction callbacks
 - Drag/resize lifecycle events: `EntryDragStartEvent`, `EntryDragStopEvent`, `EntryResizeStartEvent`, `EntryResizeStopEvent`
-- `setCallbackOption(FullCalendar.CallbackOption.SELECT_ALLOW, String)` / `setCallbackOption(FullCalendar.CallbackOption.ENTRY_ALLOW, String)` / `setCallbackOption(FullCalendar.CallbackOption.ENTRY_OVERLAP, String)` — JS callback setters
+- `setCallbackOption` supports interaction callback options including `SELECT_ALLOW`, `ENTRY_ALLOW`, and `ENTRY_OVERLAP`
 - `setUnselectCancel(String)` — CSS selector for elements that should not cancel an active selection
 - `ExternalEntryDroppedEvent` — fired when an entry from a client-side event source is dropped into the calendar
 - `ExternalEntryResizedEvent` — fired when an entry from a client-side event source is resized
@@ -54,7 +54,7 @@ for the one behaviour change involving `Entry.overlap`.
 - `setCloseHint(String)` / `setTimeHint(String)` / `Option.ENTRY_HINT` — accessible labels for popover close buttons, time displays, and entries
 
 ### Advanced and niche options
-- `setCallbackOption(FullCalendar.CallbackOption.VALID_RANGE, String)` / `setCallbackOption(FullCalendar.CallbackOption.SELECT_OVERLAP, String)` — dynamic JS function overrides for `validRange` and `selectOverlap`
+- `setCallbackOption` supports `VALID_RANGE` and `SELECT_OVERLAP` for dynamic JS function overrides of `validRange` and `selectOverlap`
 - `setEntryConstraint(String/BusinessHours)` — constrain drag/resize to specific time slots
 - `setDateIncrement(String)` / `setDateAlignment(String)` — navigation increment and alignment for custom views
 - `setContentSecurityPolicyNonce(String)` — CSP nonce for dynamically generated `<style>` tags

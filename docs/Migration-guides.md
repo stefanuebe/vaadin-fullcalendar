@@ -75,6 +75,7 @@ calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, "function(
 > **Note for `setEntryDidMountCallback` users:** If you also use `addEntryNativeEventListener`, continue
 > using `setEntryDidMountCallback` for now. Native event listeners are merged into the callback registered
 > there. Using `setCallbackOption(FullCalendar.CallbackOption.ENTRY_DID_MOUNT, ...)` directly bypasses that merging.
+> This limitation will be resolved in a future release.
 
 The `FullCalendar.CallbackOption` enum covers all core FC callback options. For Scheduler users,
 `FullCalendarScheduler.SchedulerCallbackOption` provides resource-specific hook keys:
@@ -433,7 +434,7 @@ time part in this case or use the `LocalDate` getter.
 
 #### Accessing custom properties in eventDidMount or eventContent
 Not a required but a recommended change. If you have customized the appearance of your entries using one of the
-callbacks `setCallbackOption(FullCalendar.CallbackOption.ENTRY_DID_MOUNT, ...)` or `setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, ...)`
+callbacks `setEntryDidMountCallback(...)` or `setEntryContentCallback(...)`
 and you access custom properties of an entry (for instance `description`), you should change the access to the newly
 introduced `getCustomProperty()` method. This method takes the custom property key and allows to define a fallback
 default value as second parameter.
@@ -443,7 +444,7 @@ default value as second parameter.
 Entry someEntry = ...;
 someEntry.setCustomProperty(EntryCustomProperties.DESCRIPTION, "some description");
 
-calendar.setCallbackOption(FullCalendar.CallbackOption.ENTRY_CONTENT, "" +
+calendar.setEntryContentCallback("" +
     "function(info) {" +
 
     // old
