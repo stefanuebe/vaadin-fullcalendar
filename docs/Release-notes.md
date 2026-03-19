@@ -18,7 +18,7 @@ for the one behaviour change involving `Entry.overlap`.
 - `Entry.setUrl(String)` — entries with a URL are rendered as `<a>` tags; FC navigates to the URL on click
 - `Entry.setInteractive(Boolean)` — per-entry keyboard-focusability override (null = inherit global `eventInteractive` setting)
 - `Entry.setRecurringDuration(String)` — ISO 8601 duration for multi-day all-day recurring events (e.g. `"P2D"`)
-- `Entry.setRrule(RRule)` / `Entry.setExdate(String)` — RFC 5545 recurrence rules via the `RRule` fluent builder; exclusion dates as a single ISO date string or comma-separated list (e.g. `"2025-03-10,2025-03-17"`); multiple dates are serialized as a JSON array as required by FullCalendar's RRule plugin
+- `Entry.setRrule(RRule)` / `Entry.setExdate(List<LocalDate>)` — RFC 5545 recurrence rules via the `RRule` fluent builder; exclusion dates as a `List<LocalDate>`
 - `Entry.setOverlap(Boolean)` changed from `boolean` to `Boolean` — `null` means "inherit global overlap setting" (see migration notes)
 
 ### Display options

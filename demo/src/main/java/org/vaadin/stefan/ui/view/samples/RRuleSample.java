@@ -6,6 +6,7 @@ import org.vaadin.stefan.fullcalendar.RRule;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Demonstrates RFC 5545 recurrence rules via the {@link RRule} fluent builder.
@@ -40,9 +41,8 @@ public class RRuleSample extends AbstractSample {
                 .byWeekday(DayOfWeek.TUESDAY)
                 .interval(2)
                 .dtstart(LocalDate.now().with(DayOfWeek.TUESDAY)));
-        // Exclude one specific occurrence by date. Use comma-separated ISO dates for multiple exclusions
-        // (e.g. "2025-03-10,2025-03-17") — they are sent to FullCalendar as a JSON array.
-        planning.setExdate(LocalDate.now().plusWeeks(4).with(DayOfWeek.TUESDAY).toString());
+        // Exclude one or more specific occurrences by date.
+        planning.setExdate(List.of(LocalDate.now().plusWeeks(4).with(DayOfWeek.TUESDAY)));
 
         calendar.getEntryProvider().asInMemory().addEntries(standup, review, planning);
     }

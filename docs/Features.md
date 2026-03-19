@@ -35,7 +35,7 @@ The `Entry` class supports the following properties:
 | Recurring (simple) | `setRecurringDaysOfWeek` / `setRecurringStartTime` / `setRecurringEndTime` | Built-in day-of-week recurrence |
 | Recurring duration | `setRecurringDuration(String)` | ISO 8601 duration for multi-day recurring all-day events (e.g. `"P2D"`) |
 | RRule | `setRrule(RRule)` | RFC 5545 recurrence rule for complex patterns |
-| Exclusion dates | `setExdate(String)` | Single ISO date or comma-separated list excluded from an RRule recurrence (e.g. `"2025-03-10"` or `"2025-03-10,2025-03-17"`) |
+| Exclusion dates | `setExdate(List<LocalDate>)` | Dates excluded from an RRule recurrence (e.g. `List.of(LocalDate.of(2025, 3, 10))`) |
 | Custom properties | `setCustomProperty(String, Object)` | Arbitrary data accessible in JS callbacks |
 
 ### RRule — rich recurrence patterns

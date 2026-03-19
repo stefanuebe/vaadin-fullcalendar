@@ -139,28 +139,19 @@ public class EntryModelTest {
     @Test
     void exdate_setAndGet() {
         Entry entry = new Entry();
-        entry.setExdate("2024-01-15,2024-02-20");
-        assertEquals("2024-01-15,2024-02-20", entry.getExdate());
+        List<LocalDate> dates = List.of(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 20));
+        entry.setExdate(dates);
+        assertEquals(dates, entry.getExdate());
     }
 
     @Test
-    void exdate_serializedToJson() {
+    void exdate_serializedAsJsonArray() {
         Entry entry = new Entry();
-        entry.setExdate("2024-01-15");
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("exdate"));
-        assertEquals("2024-01-15", json.get("exdate").asString());
-    }
-
-    @Test
-    void exdate_multipleDates_serializedAsJsonArray() {
-        // When multiple dates are comma-separated, FC expects a JSON array, not a plain string.
-        Entry entry = new Entry();
-        entry.setExdate("2024-01-15,2024-02-20");
+        entry.setExdate(List.of(LocalDate.of(2024, 1, 15), LocalDate.of(2024, 2, 20)));
         ObjectNode json = entry.toJson();
         assertTrue(json.hasNonNull("exdate"), "exdate should be in JSON");
         JsonNode exdateNode = json.get("exdate");
-        assertInstanceOf(ArrayNode.class, exdateNode, "Multiple exdates should serialize as a JSON array");
+        assertInstanceOf(ArrayNode.class, exdateNode, "exdate should always serialize as a JSON array");
         ArrayNode arr = (ArrayNode) exdateNode;
         assertEquals(2, arr.size());
         assertEquals("2024-01-15", arr.get(0).asString());
@@ -168,20 +159,27 @@ public class EntryModelTest {
     }
 
     @Test
-    void exdate_singleDate_serializedAsString() {
-        // A single exdate is sent as a plain string (FC accepts "a single string or array")
+    void exdate_singleDate_serializedAsArrayWithOneElement() {
         Entry entry = new Entry();
-        entry.setExdate("2024-01-15");
+        entry.setExdate(List.of(LocalDate.of(2024, 1, 15)));
         ObjectNode json = entry.toJson();
         JsonNode exdateNode = json.get("exdate");
-        assertFalse(exdateNode instanceof ArrayNode, "Single exdate should serialize as a string, not an array");
-        assertEquals("2024-01-15", exdateNode.asString());
+        assertInstanceOf(ArrayNode.class, exdateNode);
+        assertEquals(1, ((ArrayNode) exdateNode).size());
+        assertEquals("2024-01-15", ((ArrayNode) exdateNode).get(0).asString());
+    }
+
+    @Test
+    void exdate_emptyList_notInJson() {
+        Entry entry = new Entry();
+        entry.setExdate(List.of());
+        assertFalse(entry.toJson().has("exdate"), "empty exdate list should not appear in JSON");
     }
 
     @Test
     void exdate_null_removedFromJson() {
         Entry entry = new Entry();
-        entry.setExdate("2024-01-15");
+        entry.setExdate(List.of(LocalDate.of(2024, 1, 15)));
         entry.setExdate(null);
         assertNull(entry.getExdate(), "exdate getter should return null after clearing");
         assertFalse(entry.toJson().has("exdate"), "exdate should not be in JSON after clearing");

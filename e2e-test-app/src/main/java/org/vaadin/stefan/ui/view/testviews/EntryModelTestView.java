@@ -13,6 +13,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -124,7 +125,7 @@ public class EntryModelTestView extends VerticalLayout {
                         .until(LocalDate.of(2025, 3, 31))
                         .byWeekday(DayOfWeek.MONDAY)
         );
-        exdateEntry.setExdate("2025-03-10");
+        exdateEntry.setExdate(List.of(LocalDate.of(2025, 3, 10)));
         provider.addEntry(exdateEntry);
 
         // 6. Monthly last-Friday entry — last Friday of each month Jan–Mar 2025

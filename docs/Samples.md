@@ -994,9 +994,7 @@ planning.setRrule(RRule.weekly().byWeekday(DayOfWeek.TUESDAY).interval(2)
     .dtstart(LocalDate.of(2025, 1, 7)));
 
 // Exclude specific dates from the recurrence.
-// Single date: setExdate("2025-07-22")
-// Multiple dates (comma-separated): setExdate("2025-07-22,2025-12-30")
-planning.setExdate("2025-07-22,2025-12-30");
+planning.setExdate(List.of(LocalDate.of(2025, 7, 22), LocalDate.of(2025, 12, 30)));
 
 // Raw RFC 5545 string for unsupported patterns.
 // Note: raw strings use uppercase RFC 5545 syntax (e.g. BYDAY=1MO), not
