@@ -34,7 +34,7 @@ import java.util.Objects;
  * Example:
  * <pre>
  * calendar.setGoogleCalendarApiKey("AIzaSy...");
- * calendar.addEventSource(new GoogleCalendarEventSource("holidays@group.calendar.google.com")
+ * calendar.addClientSideEventSource(new GoogleCalendarEventSource("holidays@group.calendar.google.com")
  *     .withId("holidays")
  *     .withColor("green"));
  * </pre>

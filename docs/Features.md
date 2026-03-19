@@ -115,16 +115,16 @@ In addition to the server-managed `EntryProvider`, the calendar supports client-
 // JSON feed — FC fetches from your REST endpoint with start/end query parameters
 JsonFeedEventSource jsonFeed = new JsonFeedEventSource("https://example.com/events");
 // .withEditable(true)  // optional: enable drag/drop for entries from this source
-calendar.addEventSource(jsonFeed);
+calendar.addClientSideEventSource(jsonFeed);
 
 // Google Calendar
 GoogleCalendarEventSource google = new GoogleCalendarEventSource("calendarId@gmail.com");
-calendar.addEventSource(google);
+calendar.addClientSideEventSource(google);
 calendar.setGoogleCalendarApiKey("YOUR_API_KEY");
 
 // iCalendar (.ics) feed
 ICalendarEventSource ical = new ICalendarEventSource("https://example.com/calendar.ics");
-calendar.addEventSource(ical);
+calendar.addClientSideEventSource(ical);
 ```
 
 Client-side event source entries are read-only by default (`editable = false`). To enable drag/drop and resize for a source, call `.withEditable(true)` on the source instance before adding it to the calendar. When a drag-drop occurs, an `ExternalEntryDroppedEvent` is fired; when a resize occurs, an `ExternalEntryResizedEvent` is fired (both instead of their server-managed counterparts `EntryDroppedEvent` / `EntryResizedEvent`).

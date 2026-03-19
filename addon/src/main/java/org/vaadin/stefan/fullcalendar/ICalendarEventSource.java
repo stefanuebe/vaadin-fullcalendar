@@ -31,7 +31,7 @@ import java.util.Objects;
  * <br><br>
  * Example:
  * <pre>
- * calendar.addEventSource(new ICalendarEventSource("https://example.com/holidays.ics")
+ * calendar.addClientSideEventSource(new ICalendarEventSource("https://example.com/holidays.ics")
  *     .withId("holiday-ics")
  *     .withColor("purple"));
  * </pre>

@@ -34,7 +34,7 @@ import java.util.Objects;
  * <br><br>
  * Example:
  * <pre>
- * calendar.addEventSource(new JsonFeedEventSource("/api/events")
+ * calendar.addClientSideEventSource(new JsonFeedEventSource("/api/events")
  *     .withId("room-101")
  *     .withColor("steelblue")
  *     .withExtraParams(Map.of("roomId", "101")));

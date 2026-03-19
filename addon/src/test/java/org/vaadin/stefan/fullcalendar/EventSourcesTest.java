@@ -241,48 +241,48 @@ public class EventSourcesTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void addEventSource_registersSource() {
+    void addClientSideEventSource_registersSource() {
         JsonFeedEventSource source = new JsonFeedEventSource("/api").withId("src-1");
-        calendar.addEventSource(source);
-        assertTrue(calendar.getEventSources().contains(source));
+        calendar.addClientSideEventSource(source);
+        assertTrue(calendar.getClientSideEventSources().contains(source));
     }
 
     @Test
-    void addEventSource_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.addEventSource(null));
+    void addClientSideEventSource_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.addClientSideEventSource(null));
     }
 
     @Test
-    void removeEventSource_removesFromRegistry() {
+    void removeClientSideEventSource_removesFromRegistry() {
         JsonFeedEventSource source = new JsonFeedEventSource("/api").withId("src-1");
-        calendar.addEventSource(source);
-        calendar.removeEventSource("src-1");
-        assertFalse(calendar.getEventSources().contains(source));
+        calendar.addClientSideEventSource(source);
+        calendar.removeClientSideEventSource("src-1");
+        assertFalse(calendar.getClientSideEventSources().contains(source));
     }
 
     @Test
-    void removeEventSource_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.removeEventSource(null));
+    void removeClientSideEventSource_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.removeClientSideEventSource(null));
     }
 
     @Test
-    void setEventSources_replacesAll() {
-        calendar.addEventSource(new JsonFeedEventSource("/old").withId("old"));
+    void setClientSideEventSources_replacesAll() {
+        calendar.addClientSideEventSource(new JsonFeedEventSource("/old").withId("old"));
         JsonFeedEventSource newSource = new JsonFeedEventSource("/new").withId("new");
-        calendar.setEventSources(List.of(newSource));
-        Collection<ClientSideEventSource<?>> sources = calendar.getEventSources();
+        calendar.setClientSideEventSources(List.of(newSource));
+        Collection<ClientSideEventSource<?>> sources = calendar.getClientSideEventSources();
         assertEquals(1, sources.size());
         assertTrue(sources.contains(newSource));
     }
 
     @Test
-    void setEventSources_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.setEventSources(null));
+    void setClientSideEventSources_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.setClientSideEventSources(null));
     }
 
     @Test
-    void getEventSources_emptyInitially() {
-        assertTrue(calendar.getEventSources().isEmpty());
+    void getClientSideEventSources_emptyInitially() {
+        assertTrue(calendar.getClientSideEventSources().isEmpty());
     }
 
     @Test
@@ -365,21 +365,21 @@ public class EventSourcesTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void getEventSourceById_found() {
+    void getClientSideEventSourceById_found() {
         JsonFeedEventSource source = new JsonFeedEventSource("/api").withId("src-1");
-        calendar.addEventSource(source);
-        assertTrue(calendar.getEventSourceById("src-1").isPresent());
-        assertSame(source, calendar.getEventSourceById("src-1").get());
+        calendar.addClientSideEventSource(source);
+        assertTrue(calendar.getClientSideEventSourceById("src-1").isPresent());
+        assertSame(source, calendar.getClientSideEventSourceById("src-1").get());
     }
 
     @Test
-    void getEventSourceById_notFound() {
-        assertTrue(calendar.getEventSourceById("nonexistent").isEmpty());
+    void getClientSideEventSourceById_notFound() {
+        assertTrue(calendar.getClientSideEventSourceById("nonexistent").isEmpty());
     }
 
     @Test
-    void getEventSourceById_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.getEventSourceById(null));
+    void getClientSideEventSourceById_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.getClientSideEventSourceById(null));
     }
 
     // -------------------------------------------------------------------------

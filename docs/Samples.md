@@ -1134,7 +1134,7 @@ jsonFeed.withId("company-events");
 jsonFeed.withColor("#3788d8");
 jsonFeed.withExtraParams(Map.of("department", "engineering"));  // appended as query params
 
-calendar.addEventSource(jsonFeed);
+calendar.addClientSideEventSource(jsonFeed);
 ```
 
 ### Google Calendar
@@ -1147,7 +1147,7 @@ GoogleCalendarEventSource holidays = new GoogleCalendarEventSource("en.german#ho
 holidays.withId("holidays");
 holidays.withColor("#4caf50");
 
-calendar.addEventSource(holidays);
+calendar.addClientSideEventSource(holidays);
 ```
 
 ### iCalendar (ICS)
@@ -1157,7 +1157,7 @@ ICalendarEventSource ical = new ICalendarEventSource("https://example.com/calend
 ical.withId("team-calendar");
 ical.withColor("#ff9800");
 
-calendar.addEventSource(ical);
+calendar.addClientSideEventSource(ical);
 ```
 
 ### Error handling and per-source refresh
@@ -1194,7 +1194,7 @@ feed.withEventDataTransform("""
         return eventData;
     }""");
 
-calendar.addEventSource(feed);
+calendar.addClientSideEventSource(feed);
 ```
 
 ## External drag and drop

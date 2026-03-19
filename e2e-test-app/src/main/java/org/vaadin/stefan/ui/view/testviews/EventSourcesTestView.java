@@ -62,7 +62,7 @@ public class EventSourcesTestView extends VerticalLayout {
         // Add a JSON feed source pointing to a non-existent URL to trigger the failure event
         JsonFeedEventSource failingSource = new JsonFeedEventSource("/test/api/event-sources/events")
                 .withId("failing-feed");
-        calendar.addEventSource(failingSource);
+        calendar.addClientSideEventSource(failingSource);
 
         // Listen for event source failures
         calendar.addEventSourceFailureListener(e -> {

@@ -130,7 +130,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Server-side registry of client-managed event sources, keyed by source id.
      */
-    private final Map<String, ClientSideEventSource<?>> eventSourceRegistry = new LinkedHashMap<>();
+    private final Map<String, ClientSideEventSource<?>> clientSideEventSourceRegistry = new LinkedHashMap<>();
 
     // ---- View-Specific Options ----
     private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
@@ -278,9 +278,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                             JsonUtils.toJsonNode(currentViewName),
                             JsonUtils.toJsonNode(currentIntervalStart));
 
-                    if (!eventSourceRegistry.isEmpty()) {
+                    if (!clientSideEventSourceRegistry.isEmpty()) {
                         ArrayNode sourcesArray = JsonFactory.createArray();
-                        eventSourceRegistry.values().stream().map(ClientSideEventSource::toJson).forEach(sourcesArray::add);
+                        clientSideEventSourceRegistry.values().stream().map(ClientSideEventSource::toJson).forEach(sourcesArray::add);
                         getElement().callJsFunction("restoreEventSources", sourcesArray);
                     }
 
@@ -1737,69 +1737,77 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     // -------------------------------------------------------------------------
 
     /**
-     * Adds a client-managed event source to this calendar. The browser will fetch events from this source directly,
+     * Adds a client-side event source to this calendar. The browser will fetch events from this source directly,
      * bypassing the server-side {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
      * <br><br>
      * A server-side registry entry is kept so the source can be restored on reattachment.
+     * <br><br>
+     * Returns a {@link Registration} that removes this source when invoked.
      *
      * @param source event source to add; must not be null
+     * @return a registration that removes the source
      * @throws NullPointerException if source is null
      */
-    public void addEventSource(ClientSideEventSource<?> source) {
+    public Registration addClientSideEventSource(ClientSideEventSource<?> source) {
         Objects.requireNonNull(source, "source must not be null");
-        eventSourceRegistry.put(source.getId(), source);
+        clientSideEventSourceRegistry.put(source.getId(), source);
         getElement().callJsFunction("addEventSource", source.toJson());
+        return () -> removeClientSideEventSource(source.getId());
     }
 
     /**
-     * Removes the client-managed event source with the given id from this calendar.
+     * Removes the client-side event source with the given id from this calendar.
      * Does nothing if no source with that id has been added.
      *
      * @param id id of the source to remove; must not be null
      * @throws NullPointerException if id is null
      */
-    public void removeEventSource(String id) {
+    public void removeClientSideEventSource(String id) {
         Objects.requireNonNull(id, "id must not be null");
-        eventSourceRegistry.remove(id);
+        clientSideEventSourceRegistry.remove(id);
         getElement().callJsFunction("removeEventSource", id);
     }
 
     /**
-     * Replaces all current client-managed event sources with the given collection.
-     * Previously added sources are removed. If the collection is empty, all client-managed
+     * Replaces all current client-side event sources with the given collection.
+     * Previously added sources are removed. If the collection is empty, all client-side
      * sources are cleared.
+     * <br><br>
+     * Returns a {@link Registration} that clears all client-side event sources when invoked.
      *
      * @param sources new set of event sources; must not be null
+     * @return a registration that clears all client-side sources
      * @throws NullPointerException if sources is null
      */
-    public void setEventSources(java.util.Collection<? extends ClientSideEventSource<?>> sources) {
+    public Registration setClientSideEventSources(java.util.Collection<? extends ClientSideEventSource<?>> sources) {
         Objects.requireNonNull(sources, "sources must not be null");
-        eventSourceRegistry.clear();
-        sources.forEach(s -> eventSourceRegistry.put(s.getId(), s));
+        clientSideEventSourceRegistry.clear();
+        sources.forEach(s -> clientSideEventSourceRegistry.put(s.getId(), s));
         ArrayNode array = JsonFactory.createArray();
         sources.stream().map(ClientSideEventSource::toJson).forEach(array::add);
         getElement().callJsFunction("setEventSources", array);
+        return () -> setClientSideEventSources(java.util.Collections.emptyList());
     }
 
     /**
-     * Returns an unmodifiable view of all registered client-managed event sources.
+     * Returns an unmodifiable view of all registered client-side event sources.
      *
      * @return collection of registered event sources
      */
-    public java.util.Collection<ClientSideEventSource<?>> getEventSources() {
-        return java.util.Collections.unmodifiableCollection(eventSourceRegistry.values());
+    public java.util.Collection<ClientSideEventSource<?>> getClientSideEventSources() {
+        return java.util.Collections.unmodifiableCollection(clientSideEventSourceRegistry.values());
     }
 
     /**
-     * Returns the client-managed event source with the given ID, or empty if no such source is registered.
+     * Returns the client-side event source with the given ID, or empty if no such source is registered.
      *
      * @param id event source id; must not be null
      * @return the event source, or empty
      * @throws NullPointerException if id is null
      */
-    public Optional<ClientSideEventSource<?>> getEventSourceById(String id) {
+    public Optional<ClientSideEventSource<?>> getClientSideEventSourceById(String id) {
         Objects.requireNonNull(id, "id must not be null");
-        return Optional.ofNullable(eventSourceRegistry.get(id));
+        return Optional.ofNullable(clientSideEventSourceRegistry.get(id));
     }
 
     /**
