@@ -251,32 +251,38 @@ public class Resource {
     }
 
     /**
-     * Add custom element to the extendedProp HashMap. This allow to set custom property to the resource.
+     * Adds or updates a custom extended property on this resource. If this resource has been
+     * added to a scheduler, the change is propagated to the client immediately.
      *
-     *@param key String the name of the property to add
-     *@param value Object the object to add
+     * @param key   property name
+     * @param value property value
      */
     public void addExtendedProps(String key, Object value) {
-    	extendedProps.put(key, value);
+        extendedProps.put(key, value);
+        pushUpdateToClient();
     }
 
     /**
-     * Remove the custom property based on the name.
+     * Removes a custom extended property from this resource by key. If this resource has been
+     * added to a scheduler, the change is propagated to the client immediately.
      *
-     *@param key String the name of the property to remove
+     * @param key property name to remove
      */
     public void removeExtendedProps(String key) {
-    	extendedProps.remove(key);
+        extendedProps.remove(key);
+        pushUpdateToClient();
     }
 
     /**
-     * remove specific custom property where the name and value match.
+     * Removes a custom extended property from this resource only if it matches both key and value.
+     * If this resource has been added to a scheduler, the change is propagated to the client immediately.
      *
-     *@param key String the name of the property to remove
-     *@param value Object the object to remove
+     * @param key   property name to remove
+     * @param value value that must match
      */
     public void removeExtendedProps(String key, Object value) {
-    	extendedProps.remove(key, value);
+        extendedProps.remove(key, value);
+        pushUpdateToClient();
     }
 
     /**
@@ -434,6 +440,27 @@ public class Resource {
      */
     public Set<String> getEventClassNames() {
         return eventClassNames != null ? Collections.unmodifiableSet(eventClassNames) : null;
+    }
+
+    /**
+     * Returns all entries currently associated with this resource. Only works when this resource
+     * has been added to a {@link FullCalendarScheduler} that uses an
+     * {@link org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider}; returns an empty
+     * set for callback-based providers (entries are fetched lazily and cannot be enumerated).
+     *
+     * @return unmodifiable set of entries assigned to this resource; empty if not attached or provider is not in-memory
+     */
+    public Set<ResourceEntry> getEvents() {
+        if (scheduler == null || !scheduler.getEntryProvider().isInMemory()) {
+            return Collections.emptySet();
+        }
+        Set<ResourceEntry> result = new LinkedHashSet<>();
+        scheduler.getEntryProvider().asInMemory().getEntries().stream()
+                .filter(e -> e instanceof ResourceEntry)
+                .map(e -> (ResourceEntry) e)
+                .filter(e -> e.getResourcesOrEmpty().contains(this))
+                .forEach(result::add);
+        return Collections.unmodifiableSet(result);
     }
 
     /**
