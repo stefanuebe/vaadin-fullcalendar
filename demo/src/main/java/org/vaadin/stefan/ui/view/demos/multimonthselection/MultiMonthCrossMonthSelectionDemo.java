@@ -8,6 +8,8 @@ import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 
+import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+
 /**
  * @author Stefan Uebe
  */
@@ -23,7 +25,7 @@ public class MultiMonthCrossMonthSelectionDemo extends CallbackEntryProviderDemo
 
     @Override
     protected void postConstruct(FullCalendar calendar) {
-        calendar.setTimeslotsSelectable(false); // important
+        calendar.setOption(SELECTABLE, false); // important
 
         calendar.addAttachListener(event -> // refire things, when reattached
             calendar.getElement()

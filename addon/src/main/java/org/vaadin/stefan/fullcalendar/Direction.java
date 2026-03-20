@@ -14,24 +14,27 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.vaadin.stefan.ui.layouts;
+package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.sidenav.SideNav;
-import com.vaadin.flow.router.RouteConfiguration;
-import com.vaadin.flow.router.RoutePrefix;
+/**
+ * Text direction for the calendar. Corresponds to the FullCalendar {@code direction} option.
+ *
+ * @see <a href="https://fullcalendar.io/docs/direction">direction</a>
+ */
+public enum Direction implements ClientSideValue {
+    /** Left-to-right (default). */
+    LTR("ltr"),
+    /** Right-to-left. */
+    RTL("rtl");
 
-@RoutePrefix("test")
-public class TestLayout extends AbstractLayout {
+    private final String clientSideValue;
+
+    Direction(String clientSideValue) {
+        this.clientSideValue = clientSideValue;
+    }
 
     @Override
-    protected void createMenuEntries(SideNav menuBuilder) {
-        RouteConfiguration.forApplicationScope()
-                .getAvailableRoutes()
-                .stream()
-                .filter(routeData -> routeData.getParentLayout().isAssignableFrom(TestLayout.class))
-                .forEach(routeData -> {
-                    addMenu(menuBuilder, routeData.getNavigationTarget());
-                });
+    public String getClientSideValue() {
+        return clientSideValue;
     }
 }
-

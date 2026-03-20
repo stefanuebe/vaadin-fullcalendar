@@ -16,6 +16,7 @@ import java.lang.annotation.*;
  *
  * @see JsonItemPropertyConverter
  */
+@Repeatable(JsonConverters.class)
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

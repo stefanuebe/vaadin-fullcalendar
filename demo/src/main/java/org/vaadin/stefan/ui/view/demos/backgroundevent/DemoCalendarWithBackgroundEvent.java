@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
+import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+
 @Route(value = "demobackgroundevent", layout = MainLayout.class)
 @MenuItem(label = "Background Events")
 public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
@@ -38,9 +40,9 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
 
     private void createCalendarInstance() {
         calendar = FullCalendarBuilder.create().withScheduler().build();
-        ((FullCalendarScheduler) calendar).setSchedulerLicenseKey(Scheduler.GPL_V3_LICENSE_KEY);
-        ((FullCalendarScheduler) calendar).setSlotMinWidth("150");
-        calendar.setLocale(Locale.ENGLISH);
+        ((FullCalendarScheduler) calendar).setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
+        ((FullCalendarScheduler) calendar).setOption(FullCalendarScheduler.SchedulerOption.SLOT_MIN_WIDTH, 150);
+        calendar.setOption(LOCALE, Locale.ENGLISH);
 
         calendar.changeView(SchedulerView.TIMELINE_MONTH);
     }

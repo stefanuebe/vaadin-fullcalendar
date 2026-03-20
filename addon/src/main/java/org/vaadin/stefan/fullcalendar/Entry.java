@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -29,6 +30,7 @@ import org.vaadin.stefan.fullcalendar.converters.*;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.json.JsonReadField;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.NullNode;
@@ -65,12 +67,32 @@ public class Entry {
     private boolean editable = true;
     private Boolean startEditable;
     private Boolean durationEditable;
+    /**
+     * Whether this entry can be dragged between resources (scheduler only).
+     * {@code null} inherits the calendar-level {@code eventResourceEditable} option.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
+     */
+    private Boolean resourceEditable;
     private String color;
-    private String constraint;
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
+    private Object constraint;
     private String backgroundColor;
     private String borderColor;
     private String textColor;
-    private boolean overlap = true;
+    private Boolean overlap;
+
+    /** Whether the event is keyboard-focusable (tabbable) independently of drag/drop. Null inherits the calendar-level {@code eventInteractive} option. */
+    private Boolean interactive;
+
+    /**
+     * A URL that FC navigates to when the event is clicked. Null means no URL navigation.
+     * <p>
+     * If a server-side click listener is also registered, FC will navigate to the url immediately on click
+     * and the listener will still fire — but the page may already be unloading. Use one mechanism or the other, not both.
+     */
+    private String url;
 
     @NonNull
     @JsonName("display")
@@ -95,6 +117,78 @@ public class Entry {
     @JsonName("daysOfWeek")
     @JsonConverter(DayOfWeekItemConverter.class)
     private Set<DayOfWeek> recurringDaysOfWeek;
+
+    /**
+     * The duration of each occurrence for recurring events (e.g. {@code "P3D"}, {@code "48:00:00"}).
+     * Only meaningful when recurrence fields ({@code recurringDaysOfWeek} etc.) are set.
+     * Without this, each occurrence spans one day (for all-day) or uses start/end times.
+     * @see <a href="https://fullcalendar.io/docs/recurring-events">recurring events</a>
+     */
+    @JsonName("duration")
+    private String recurringDuration;
+
+    /**
+     * RRule-based recurrence definition. Requires the {@code @fullcalendar/rrule} plugin.
+     * <p>
+     * <b>Mutually exclusive</b> with FC's built-in recurrence ({@code recurringDaysOfWeek}, etc.).
+     * Do not set both on the same entry.
+     * <p>
+     * Use {@link #setRRule(RRule)} and {@link #getRRule()} instead of the Lombok-generated accessors.
+     *
+     * @see RRule
+     */
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
+    @JsonReadField
+    @JsonConverter(RRuleConverter.class)
+    private RRule rrule;
+
+    /**
+     * Dates to exclude from an RRule-based recurrence. Populated automatically from
+     * {@link RRule#getExcludedDates()} when {@link #setRRule(RRule)} is called.
+     * Not part of the public API — use {@link RRule#excludeDates(LocalDate...)} instead.
+     */
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
+    @JsonReadField
+    @JsonConverter(ExdateConverter.class)
+    private List<LocalDate> exdate;
+
+    /**
+     * RRules defining exclusion patterns for an RRule-based recurrence. Populated automatically from
+     * {@link RRule#getExcludedRules()} when {@link #setRRule(RRule)} is called.
+     * Not part of the public API — use {@link RRule#excludeRules(RRule...)} instead.
+     */
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
+    @JsonReadField
+    @JsonConverter(ExruleConverter.class)
+    private List<RRule> exrule;
+
+    /**
+     * Returns the RRule-based recurrence definition, or {@code null} if not set.
+     *
+     * @return the RRule, or {@code null}
+     */
+    public RRule getRRule() {
+        return rrule;
+    }
+
+    /**
+     * Sets the RRule-based recurrence definition. If the RRule has excluded dates
+     * (set via {@link RRule#excludeDates(LocalDate...)}), they are automatically transferred
+     * to the entry's {@code exdate} property and serialized separately as required by
+     * FullCalendar's RRule plugin.
+     * <p>
+     * Pass {@code null} to remove the recurrence rule and any associated excluded dates.
+     *
+     * @param rrule the RRule to set, or {@code null} to clear
+     */
+    public void setRRule(RRule rrule) {
+        this.rrule = rrule;
+        this.exdate = rrule != null ? rrule.getExcludedDates() : null;
+        this.exrule = rrule != null ? rrule.getExcludedRules() : null;
+    }
 
     private Set<String> classNames;
 
@@ -743,7 +837,7 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #addClassNames(String...)}
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void assignClassName(String className) {
         assignClassNames(Objects.requireNonNull(className));
     }
@@ -755,7 +849,7 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #addClassNames(String...)}
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void assignClassNames(String... classNames) {
         assignClassNames(Arrays.asList(classNames));
     }
@@ -767,7 +861,7 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #addClassNames(Collection)}
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void assignClassNames(Collection<String> classNames) {
         Objects.requireNonNull(classNames);
         getOrCreateClassNames().addAll(classNames);
@@ -801,7 +895,7 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #removeClassNames(String...)}
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void unassignClassName(String className) {
         unassignClassNames(Objects.requireNonNull(className));
     }
@@ -813,7 +907,7 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #removeClassNames(String...)}
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void unassignClassNames(String... classNames) {
         unassignClassNames(Arrays.asList(classNames));
     }
@@ -825,7 +919,7 @@ public class Entry {
      * @throws NullPointerException when null is passed
      * @deprecated use {@link #removeClassNames(Collection)}
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void unassignClassNames(Collection<String> classNamesToRemove) {
         removeClassNames(classNamesToRemove);
     }
@@ -835,7 +929,7 @@ public class Entry {
      *
      * @deprecated use {@link #removeClassNames()}
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void unassignAllClassNames() {
         removeClassNames();
     }
@@ -891,20 +985,20 @@ public class Entry {
     }
 
     /**
-     * Same as {@link #isOverlap()}.
+     * Same as {@link #getOverlap()}.
      *
-     * @return is overlap allowed
+     * @return is overlap allowed, or null if not set (inherit from calendar-level setting)
      */
-    public boolean isOverlapAllowed() {
-        return isOverlap();
+    public Boolean isOverlapAllowed() {
+        return getOverlap();
     }
 
     /**
-     * Same as {@link #setOverlap(boolean)}
+     * Same as {@link #setOverlap(Boolean)}
      *
-     * @param overlap overlapping is allowed
+     * @param overlap overlapping is allowed, or null to inherit from the calendar-level setting
      */
-    public void setOverlapAllowed(boolean overlap) {
+    public void setOverlapAllowed(Boolean overlap) {
         setOverlap(overlap);
     }
 
@@ -927,13 +1021,44 @@ public class Entry {
     }
 
     /**
-     * Sets the entry Constraint.
-     * Null or empty string resets the color to the FC's default.
+     * Returns the current constraint value. This may be a {@code String} (groupId or {@code "businessHours"})
+     * or a {@link BusinessHours} JSON representation ({@code ObjectNode}).
      *
-     * @param constraint constraint
+     * @return constraint value, or {@code null} if unset
+     */
+    public Object getConstraint() {
+        return constraint;
+    }
+
+    /**
+     * Sets the entry constraint to a groupId or the literal {@code "businessHours"}.
+     * Null or empty string resets the constraint to FC's default.
+     *
+     * @param constraint constraint string
      */
     public void setConstraint(String constraint) {
         this.constraint = StringUtils.trimToNull(constraint);
+    }
+
+    /**
+     * Sets the entry constraint to a custom {@link BusinessHours} time window.
+     * The entry can then only be dragged/resized within the given hours.
+     *
+     * @param hours business hours defining the allowed time window
+     * @throws NullPointerException when null is passed
+     * @see #setConstraint(String)
+     * @see #setConstraintToBusinessHours()
+     */
+    public void setConstraint(BusinessHours hours) {
+        this.constraint = Objects.requireNonNull(hours).toJson();
+    }
+
+    /**
+     * Sets the entry's constraint to business hours, meaning the entry can only be placed during business hours.
+     * Equivalent to {@code setConstraint("businessHours")}.
+     */
+    public void setConstraintToBusinessHours() {
+        this.constraint = "businessHours";
     }
 
     /**

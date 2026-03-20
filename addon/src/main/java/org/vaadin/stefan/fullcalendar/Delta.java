@@ -84,7 +84,7 @@ public class Delta {
      * @param current
      * @param lessThanThis
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     static void assertLessThan(String name, int current, int lessThanThis) {
         if (current >= lessThanThis) {
             throw new IllegalArgumentException("Value'" + name + "' must be less than or equal to '" + lessThanThis + "' (as absolute) but was '" + current + "'!");

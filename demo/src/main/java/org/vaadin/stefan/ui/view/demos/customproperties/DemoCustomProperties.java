@@ -8,11 +8,14 @@ import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
+import org.vaadin.stefan.fullcalendar.JsCallback;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+
+import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
 
 @Route(value = "demoextendedprops", layout = MainLayout.class)
 @MenuItem(label = "Custom Properties")
@@ -39,9 +42,10 @@ public class DemoCustomProperties extends VerticalLayout {
     	
     	calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH);
 
-        calendar.setEntryDidMountCallback("function (info) {" +
+        calendar.setOption(ENTRY_DID_MOUNT,
+                JsCallback.of("function (info) {" +
                 "info.el.style.backgroundColor = info.event.getCustomProperty('selected', false) ? 'lightblue' : 'lightgreen';" +
-                "}");
+                "}"));
 
         calendar.addEntryClickedListener(e -> {
             Entry oldSelected = this.selected;
@@ -63,7 +67,7 @@ public class DemoCustomProperties extends VerticalLayout {
             }
         });
 
-        calendar.setHeightByParent();
+        calendar.setOption(HEIGHT, "100%");
     }
     
     private void addDemoEntrys() {

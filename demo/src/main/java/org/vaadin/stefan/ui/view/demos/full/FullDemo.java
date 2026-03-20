@@ -39,6 +39,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+
 @Route(value = "", layout = MainLayout.class)
 @org.vaadin.stefan.ui.menu.MenuItem(label = "Playground")
 public class FullDemo extends AbstractSchedulerView {
@@ -73,14 +75,14 @@ public class FullDemo extends AbstractSchedulerView {
                 .build();
 
         FullCalendarScheduler scheduler = (FullCalendarScheduler) calendar;
-        scheduler.setResourceAreaWidth("15%");
-        scheduler.setSlotMinWidth("100");
-        scheduler.setResourcesInitiallyExpanded(false);
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "15%");
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.SLOT_MIN_WIDTH, 100);
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCES_INITIALLY_EXPANDED, false);
 
-        calendar.setNowIndicatorShown(true);
-        calendar.setTimeslotsSelectable(true);
+        calendar.setOption(NOW_INDICATOR, true);
+        calendar.setOption(SELECTABLE, true);
 
-        calendar.setNumberClickable(true);
+        calendar.setOption(NAV_LINKS, true);
         calendar.addDayNumberClickedListener(event -> {
             calendar.changeView(CalendarViewImpl.TIME_GRID_DAY);
             calendar.gotoDate(event.getDate());
@@ -95,14 +97,14 @@ public class FullDemo extends AbstractSchedulerView {
 //        calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 //        calendar.gotoDate(LocalDate.of(2023, Month.JUNE, 1));
 
-        calendar.setSlotMinTime(LocalTime.of(7, 0));
-        calendar.setSlotMaxTime(LocalTime.of(17, 0));
+        calendar.setOption(SLOT_MIN_TIME, LocalTime.of(7, 0));
+        calendar.setOption(SLOT_MAX_TIME, LocalTime.of(17, 0));
 
-        calendar.setBusinessHours(
+        calendar.setOption(BUSINESS_HOURS, new BusinessHours[]{
                 BusinessHours.businessWeek().start(9).end(17),
                 BusinessHours.of(DayOfWeek.SATURDAY).start(12).end(15),
                 BusinessHours.of(DayOfWeek.SUNDAY).start(12).end(13)
-        );
+        });
 
         calendar.addBrowserTimezoneObtainedListener(event -> {
             getToolbar().setTimezone(event.getTimezone());
@@ -116,7 +118,7 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
                 .setCustomProperty("count", "1");
 
-        scheduler.setEntryResourceEditable(false);
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE, false);
 
 //        calendar.setEntryClassNamesCallback("function(arg) {\n" +
 //                "    return [ 'hello','world' ]\n" +

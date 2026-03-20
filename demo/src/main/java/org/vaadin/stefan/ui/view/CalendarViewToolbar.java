@@ -33,6 +33,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+
 /**
  * @author Stefan Uebe
  */
@@ -284,8 +286,9 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         localeSelector.setValue(CalendarLocale.getDefaultLocale());
         localeSelector.addValueChangeListener(event -> {
             Locale value = event.getValue();
-            calendar.setLocale(value != null ? value : CalendarLocale.getDefaultLocale());
-            Notification.show("Locale changed to " + calendar.getLocale().toLanguageTag());
+            calendar.setOption(LOCALE, value != null ? value : CalendarLocale.getDefaultLocale());
+            Locale newLocale = calendar.<Locale>getOption(LOCALE).orElse(CalendarLocale.getDefaultLocale());
+            Notification.show("Locale changed to " + newLocale.toLanguageTag());
         });
 
         timezoneSelector = new Select<>();
@@ -317,7 +320,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         multiMonthColumns.setValue(3);
         multiMonthColumns.addThemeVariants(TextFieldVariant.LUMO_SMALL, TextFieldVariant.LUMO_ALIGN_CENTER);
         multiMonthColumns.addValueChangeListener(event ->
-                calendar.setOption(FullCalendar.Option.MULTI_MONTH_MAX_COLUMNS, event.getValue()));
+                calendar.setOption(MULTI_MONTH_MAX_COLUMNS, event.getValue()));
         multiMonthColumns.setWidthFull();
 
         DatePicker validRangeStart = new DatePicker("Valid Range Start");
@@ -429,7 +432,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
 
     void updateIntervalLabel(HasText intervalLabel, CalendarView view, LocalDate intervalStart) {
         String text = "--";
-        Locale locale = calendar.getLocale();
+        Locale locale = calendar.<Locale>getOption(LOCALE).orElse(CalendarLocale.getDefaultLocale());
 
         if (view instanceof HasIntervalLabel intervalLabelView) {
             text = intervalLabelView.formatIntervalLabel(intervalStart, locale);

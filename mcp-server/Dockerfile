@@ -2,7 +2,7 @@
 # Build from project root: docker build -f mcp-server/Dockerfile -t fullcalendar-mcp .
 
 # Stage 1: Build and extract
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /build
 
@@ -25,7 +25,7 @@ ENV PROJECT_ROOT=/project
 RUN npm run build
 
 # Stage 2: Production image
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /app
 

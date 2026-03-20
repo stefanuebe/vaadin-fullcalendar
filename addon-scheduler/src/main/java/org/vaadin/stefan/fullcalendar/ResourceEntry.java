@@ -149,7 +149,7 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void assignResources(Resource... resources) {
         addResources(resources);
     }
@@ -160,7 +160,7 @@ public class ResourceEntry extends Entry {
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void assignResource(Resource resource) {
         addResources(Objects.requireNonNull(resource));
     }
@@ -211,7 +211,7 @@ public class ResourceEntry extends Entry {
     /**
      * Unassigns all resources from this entry.
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public void unassignAllResources() {
         removeAllResources();
     }

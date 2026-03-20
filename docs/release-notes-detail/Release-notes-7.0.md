@@ -24,4 +24,4 @@ The class `BusinessHours` has been reworked. The constructors have been removed 
 there are now static methods to define new instance. The api also has been changed to allow a fluent definition
 style of business hours.
 
-Deprecated APIs have been marked as `forRemoval` and will be removed with one of the next minor releases.
+Deprecated APIs are subject to change or removal in future versions.

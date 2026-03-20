@@ -1,10 +1,26 @@
 ## Index
+* [7.1.x](#71x)
 * [7.0.x](#70x)
 * [6.2.x](#62x)
 * [6.1.x](#61x)
 * [6.0.x](#60x)
 * [4.1.x](#41x)
 * [4.0.x](#40x)
+
+## 7.1.x
+[Details](release-notes-detail/Release-notes-7.1)
+- significantly expanded Java API surface for FullCalendar v6 options (previously required raw `setOption` calls)
+- added entry model enhancements: URL, interactive flag, RRule recurrence, recurring duration
+- added option converter system
+- added `JsCallback` wrapper and unified callback API: all callback options set via `setOption(Option, JsCallback.of(...))`
+- added drag/resize lifecycle events and external entry drop/resize events
+- added typed event source wrappers: `JsonFeedEventSource`, `GoogleCalendarEventSource`, `ICalendarEventSource`
+- added scheduler resource area columns, resource grouping, and refetch-on-navigate
+- added accessibility hints and options (WCAG 2.1 AA support)
+- added `Entry.overlap` `null` state to inherit global overlap setting
+- deprecated a lot of setters (e.g. `setSlotMinTime`, `setSnapDuration`, `setBusinessHours`, etc.) in favour of `setOption` with converters
+- deprecated callback setters (e.g. `setEntryDidMountCallback`, `setEntryContentCallback`, etc.) in favour of `setOption` with `JsCallback`
+- fixed `EntryQuery` incorrectly excluding entries without an explicit end date
 
 ## 7.0.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-7.0)
@@ -13,7 +29,7 @@
 - increased required Java version to 21
 - replaced elemental Json with Jackson 3, renamed some related methods
 - reworked BusinessHours
-- added `forRemoval` to deprecated API
+- added deprecations to existing API
 - renamed theme variant `LUMO` to `VAADIN` and integrated Aura into theming
 
 ## 6.2.x
