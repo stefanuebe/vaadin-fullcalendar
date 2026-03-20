@@ -498,19 +498,21 @@ calendar.getEntryProvider().asInMemory().addEntry(entry);
 // Create a parent resource. When adding the sub resources first before adding the parent to the calendar,
 // the sub resources are registered automatically on client side and server side.
 
+Scheduler scheduler = (Scheduler) calendar;
+
 Resource parent = new Resource();
 parent.addChildren(new Resource(), new Resource(), new Resource());
 
-calendar.addResource(parent); // will add the resource and also it's children to server and client
+scheduler.addResource(parent); // will add the resource and also its children to server and client
 
 // add new resources to already registered parents
-Resource child = new Resource()
+Resource child = new Resource();
 parent.addChild(child);
-calendar.addResource(child); // this will update the client side
+scheduler.addResource(child); // this will update the client side
 
 // or remove them from already registered ones
-calendar.removeResource(child); 
-parent.removeChild(child); 
+scheduler.removeResource(child);
+parent.removeChild(child);
 ```
 
 ### Making a resource entry draggable between resources
