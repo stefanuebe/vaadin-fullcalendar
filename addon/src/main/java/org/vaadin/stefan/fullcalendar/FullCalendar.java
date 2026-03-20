@@ -1000,6 +1000,22 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         if (!isAttached()) {
             return;
         }
+        String merged = buildEntryDidMountMerged();
+        if (merged != null) {
+            getElement().callJsFunction("setOption", "eventDidMount", JsCallback.of(merged).toMarkerJson());
+        } else {
+            // Explicitly clear the client-side callback when both user callback and native listeners are gone
+            getElement().callJsFunction("setOption", "eventDidMount", (JsonNode) null);
+        }
+    }
+
+    /**
+     * Builds the merged eventDidMount function string from the user callback and native event listeners.
+     * Returns {@code null} when both are empty (meaning "clear the callback").
+     * <p>
+     * Package-private for testing.
+     */
+    String buildEntryDidMountMerged() {
         String userCallback = userEntryDidMountCallback != null ? userEntryDidMountCallback.getJsFunction() : null;
 
         StringBuilder events = null;
@@ -1026,12 +1042,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             merged = "function(info) {\n" + events + "}";
         }
 
-        if (merged != null) {
-            getElement().callJsFunction("setOption", "eventDidMount", JsCallback.of(merged).toMarkerJson());
-        } else {
-            // Explicitly clear the client-side callback when both user callback and native listeners are gone
-            getElement().callJsFunction("setOption", "eventDidMount", (JsonNode) null);
-        }
+        return merged;
     }
 
     /**

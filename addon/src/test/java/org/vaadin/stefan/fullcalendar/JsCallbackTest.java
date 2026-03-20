@@ -207,6 +207,71 @@ class JsCallbackTest {
         assertEquals(2, map.size());
     }
 
+    // --- buildEntryDidMountMerged — merge logic tests ---
+
+    @Test
+    void buildMerged_userCallbackOnly_returnsCallbackAsIs() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+                JsCallback.of("function(info) { info.el.title = 'x'; }"));
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertEquals("function(info) { info.el.title = 'x'; }", merged);
+    }
+
+    @Test
+    void buildMerged_nativeListenerOnly_generatesWrapper() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.addEntryNativeEventListener("click", "e => alert(1)");
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertNotNull(merged);
+        assertTrue(merged.startsWith("function(info) {"));
+        assertTrue(merged.contains("addEventListener('click', e => alert(1))"));
+        assertTrue(merged.endsWith("}"));
+    }
+
+    @Test
+    void buildMerged_userCallbackAndNativeListeners_mergesCorrectly() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+                JsCallback.of("function(info) { info.el.title = 'x'; }"));
+        calendar.addEntryNativeEventListener("click", "e => {}");
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertNotNull(merged);
+        // User callback content preserved
+        assertTrue(merged.contains("info.el.title = 'x'"));
+        // Native listener spliced in before closing brace
+        assertTrue(merged.contains("addEventListener('click', e => {})"));
+        // Starts with function and ends with closing brace
+        assertTrue(merged.startsWith("function(info)"));
+        assertTrue(merged.endsWith("}"));
+    }
+
+    @Test
+    void buildMerged_nothingSet_returnsNull() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        assertNull(calendar.buildEntryDidMountMerged());
+    }
+
+    @Test
+    void buildMerged_userCallbackCleared_nativeListenerRemains() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+                JsCallback.of("function(info) { }"));
+        calendar.addEntryNativeEventListener("mouseover", "e => {}");
+
+        // Clear user callback
+        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT, null);
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertNotNull(merged, "native listener should still produce a merged function");
+        assertTrue(merged.contains("addEventListener('mouseover'"));
+        // User callback content should NOT be in the merged string
+        assertFalse(merged.contains("info.el"));
+    }
+
     // --- Helpers ---
 
     private static JsCallback getUserEntryDidMountCallback(FullCalendar calendar) {
