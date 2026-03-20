@@ -105,6 +105,7 @@ Server-side events fired by the calendar:
 | `EventSourceFailureEvent` | A client-side event source (JSON feed, Google Calendar, iCal) failed to load |
 | `ExternalEntryDroppedEvent` | An entry from a client-side event source is dropped into the calendar |
 | `ExternalEntryResizedEvent` | An entry from a client-side event source is resized |
+
 ### Event sources (client-side)
 
 In addition to the server-managed `EntryProvider`, the calendar supports client-side event sources that load data directly in the browser:

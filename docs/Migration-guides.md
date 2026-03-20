@@ -377,7 +377,8 @@ Replace Calendar Entry CRUD calls with `getEntryProvider().asInMemory()`, e.g.
 // before
 calendar.addEntry(entry);
 
-calendar.getEntryProvider().asInMemory().addEntry(entry)
+// after
+calendar.getEntryProvider().asInMemory().addEntry(entry);
 ```
 
 We know, this might be cumbersome for use cases, where you only use the in memory provider, but with having a cleaner

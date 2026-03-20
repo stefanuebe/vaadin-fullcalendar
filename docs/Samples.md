@@ -439,9 +439,11 @@ calendar.setOption(SchedulerOption.LICENSE_KEY, "YourFullCalendarSchedulerKey");
 
 ### Adding a resource to a calendar and link it with entries
 ```java
+Scheduler scheduler = (Scheduler) calendar;
+
 // null as first argument means: let FullCalendar auto-generate an ID
 Resource resource = new Resource(null, "Room A", color);
-calendar.addResource(resource);
+scheduler.addResource(resource);
 
 // When we want to link an entry with a resource, we need to use ResourceEntry
 // (a subclass of Entry)
@@ -452,7 +454,7 @@ entry.setEnd(start.plusDays(days).atStartOfDay());
 entry.setAllDay(true);
 entry.setColor(color);
 entry.setDescription("Some description...");
-entry.assignResource(resource);
+entry.addResources(resource);
 calendar.getEntryProvider().asInMemory().addEntry(entry);
 ```
 
@@ -698,7 +700,7 @@ public class MyCalendarView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         // adds a contextmenu / right client event listener, that calls our openContextMenu.
         // "this" is the fc object, "this.el" is the Flow element and "this.el.parentElement" is our current view.
-        // This hierarchy access may changed, when you nest the FC into other containers.
+        // This hierarchy access may change, when you nest the FC into other containers.
 
         calendar.addEntryNativeEventListener("contextmenu",
                 "e => this.el.parentElement.$server.openContextMenu(info.event, e.clientX, e.clientY)");
@@ -716,7 +718,7 @@ public class MyCalendarView extends VerticalLayout {
 ```
 
 You can combine the event handlers with a custom entryDidMount callback, if you want additional customizations
-of the entries. The FC will take care of combining the event handlers and you EDM callback
+of the entries. The FC will take care of combining the event handlers and your EDM callback
 ```java
 calendar.setOption(Option.ENTRY_DID_MOUNT, JsCallback.of("""
        function(info) {
@@ -742,7 +744,7 @@ public class MyCalendarView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         // adds a contextmenu / right client event listener, that calls our openContextMenu.
         // "this" is the fc object, "this.el" is the Flow element and "this.el.parentElement" is our current view.
-        // This hierarchy access may changed, when you nest the FC into other containers.
+        // This hierarchy access may change, when you nest the FC into other containers.
 
         calendar.addEntryNativeEventListener("contextmenu",
                 "e => {" +
@@ -761,7 +763,7 @@ public class MyCalendarView extends VerticalLayout {
 
     @ClientCallable
     public void openContextMenu (String id){
-        initPopup(); // init the popp
+        initPopup(); // init the popup
 
         popup.removeAll(); // remove old content
 
@@ -1190,11 +1192,11 @@ feed.withDisplay("background");    // render as background events
 feed.withDefaultAllDay(true);
 
 // Transform incoming event data before FC processes it
-feed.withEventDataTransform("""
+feed.withEventDataTransform(JsCallback.of("""
     function(eventData) {
         eventData.title = '[EXT] ' + eventData.title;
         return eventData;
-    }""");
+    }"""));
 
 calendar.addClientSideEventSource(feed);
 ```
