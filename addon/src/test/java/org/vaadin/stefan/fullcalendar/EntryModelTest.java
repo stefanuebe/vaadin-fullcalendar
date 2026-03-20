@@ -481,4 +481,75 @@ public class EntryModelTest {
 
         assertFalse(entry.toJson().has("exrule"), "exrule should not be in JSON after clearing RRule");
     }
+
+    // -------------------------------------------------------------------------
+    // isRecurring() with RRule
+    // -------------------------------------------------------------------------
+
+    @Test
+    void entry_isRecurring_true_whenRRuleSet() {
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly());
+        assertTrue(entry.isRecurring(), "isRecurring should be true when RRule is set");
+    }
+
+    @Test
+    void entry_isRecurring_false_afterRRuleCleared() {
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly());
+        entry.setRRule(null);
+        assertFalse(entry.isRecurring(), "isRecurring should be false after RRule cleared");
+    }
+
+    @Test
+    void entry_isRecurring_true_withBuiltinRecurrence() {
+        Entry entry = new Entry();
+        entry.setRecurringDaysOfWeek(java.util.Set.of(java.time.DayOfWeek.MONDAY));
+        assertTrue(entry.isRecurring(), "isRecurring should be true for built-in recurrence");
+    }
+
+    // -------------------------------------------------------------------------
+    // Entry.constraint — per-entry serialization
+    // -------------------------------------------------------------------------
+
+    @Test
+    void constraint_default_notInJson() {
+        Entry entry = new Entry();
+        assertFalse(entry.toJson().has("constraint"), "constraint should not be in JSON when not set");
+    }
+
+    @Test
+    void constraint_string_serializedToJson() {
+        Entry entry = new Entry();
+        entry.setConstraint("myGroupId");
+        ObjectNode json = entry.toJson();
+        assertTrue(json.has("constraint"), "constraint should be in JSON");
+        assertEquals("myGroupId", json.get("constraint").asString());
+    }
+
+    @Test
+    void constraint_businessHours_serializedToJson() {
+        Entry entry = new Entry();
+        entry.setConstraint(BusinessHours.businessWeek().start(9).end(17));
+        ObjectNode json = entry.toJson();
+        assertTrue(json.has("constraint"), "constraint should be in JSON");
+        assertTrue(json.get("constraint").isObject(), "BusinessHours constraint should be an object");
+    }
+
+    @Test
+    void constraint_setToBusinessHours_serializedAsString() {
+        Entry entry = new Entry();
+        entry.setConstraintToBusinessHours();
+        ObjectNode json = entry.toJson();
+        assertTrue(json.has("constraint"), "constraint should be in JSON");
+        assertEquals("businessHours", json.get("constraint").asString());
+    }
+
+    @Test
+    void constraint_null_notInJson() {
+        Entry entry = new Entry();
+        entry.setConstraint("myGroup");
+        entry.setConstraint((String) null);
+        assertFalse(entry.toJson().has("constraint"), "constraint should not be in JSON after clearing");
+    }
 }

@@ -117,6 +117,72 @@ public class SchedulerFeaturesTest {
     }
 
     // -------------------------------------------------------------------------
+    // ResourceAreaColumn cell-level render hooks
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testResourceAreaColumn_cellContent_string() {
+        ResourceAreaColumn col = new ResourceAreaColumn("field").withCellContent("static text");
+        ObjectNode json = col.toJson();
+        Assertions.assertEquals("static text", json.get("cellContent").asString());
+    }
+
+    @Test
+    void testResourceAreaColumn_cellContent_jsCallback() {
+        ResourceAreaColumn col = new ResourceAreaColumn("field")
+                .withCellContent(JsCallback.of("function(info) { return info.fieldValue; }"));
+        ObjectNode json = col.toJson();
+        Assertions.assertTrue(json.get("cellContent").isObject());
+        Assertions.assertEquals("function(info) { return info.fieldValue; }",
+                json.get("cellContent").get("__jsCallback").asString());
+    }
+
+    @Test
+    void testResourceAreaColumn_cellClassNames_string() {
+        ResourceAreaColumn col = new ResourceAreaColumn("field").withCellClassNames("my-class");
+        ObjectNode json = col.toJson();
+        Assertions.assertEquals("my-class", json.get("cellClassNames").asString());
+    }
+
+    @Test
+    void testResourceAreaColumn_cellClassNames_jsCallback() {
+        ResourceAreaColumn col = new ResourceAreaColumn("field")
+                .withCellClassNames(JsCallback.of("function(info) { return ['a']; }"));
+        ObjectNode json = col.toJson();
+        Assertions.assertTrue(json.get("cellClassNames").isObject());
+        Assertions.assertEquals("function(info) { return ['a']; }",
+                json.get("cellClassNames").get("__jsCallback").asString());
+    }
+
+    @Test
+    void testResourceAreaColumn_cellDidMount() {
+        ResourceAreaColumn col = new ResourceAreaColumn("field")
+                .withCellDidMount("function(info) { }");
+        ObjectNode json = col.toJson();
+        Assertions.assertTrue(json.get("cellDidMount").isObject());
+        Assertions.assertNotNull(json.get("cellDidMount").get("__jsCallback"));
+    }
+
+    @Test
+    void testResourceAreaColumn_cellWillUnmount() {
+        ResourceAreaColumn col = new ResourceAreaColumn("field")
+                .withCellWillUnmount("function(info) { }");
+        ObjectNode json = col.toJson();
+        Assertions.assertTrue(json.get("cellWillUnmount").isObject());
+        Assertions.assertNotNull(json.get("cellWillUnmount").get("__jsCallback"));
+    }
+
+    @Test
+    void testResourceAreaColumn_cellHooks_defaultAbsent() {
+        ResourceAreaColumn col = new ResourceAreaColumn("field");
+        ObjectNode json = col.toJson();
+        Assertions.assertFalse(json.has("cellContent"));
+        Assertions.assertFalse(json.has("cellClassNames"));
+        Assertions.assertFalse(json.has("cellDidMount"));
+        Assertions.assertFalse(json.has("cellWillUnmount"));
+    }
+
+    // -------------------------------------------------------------------------
     // Scheduler option setter tests
     // -------------------------------------------------------------------------
 
@@ -262,6 +328,82 @@ public class SchedulerFeaturesTest {
         Assertions.assertDoesNotThrow(() ->
                 calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCES_SET, JsCallback.of("function(info) { }"))
         );
+    }
+
+    // -------------------------------------------------------------------------
+    // Scheduler callback smoke tests — RESOURCE_LABEL, RESOURCE_LANE, RESOURCE_GROUP_LANE
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testSetResourceLabelClassNamesCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_LABEL_CLASS_NAMES, JsCallback.of("function(arg) { return []; }")));
+    }
+
+    @Test
+    void testSetResourceLabelContentCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_LABEL_CONTENT, JsCallback.of("function(arg) { return arg.resource.title; }")));
+    }
+
+    @Test
+    void testSetResourceLabelDidMountCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_LABEL_DID_MOUNT, JsCallback.of("function(arg) { }")));
+    }
+
+    @Test
+    void testSetResourceLabelWillUnmountCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of("function(arg) { }")));
+    }
+
+    @Test
+    void testSetResourceLaneClassNamesCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_LANE_CLASS_NAMES, JsCallback.of("function(arg) { return []; }")));
+    }
+
+    @Test
+    void testSetResourceLaneContentCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_LANE_CONTENT, JsCallback.of("function(arg) { }")));
+    }
+
+    @Test
+    void testSetResourceLaneDidMountCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of("function(arg) { }")));
+    }
+
+    @Test
+    void testSetResourceLaneWillUnmountCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of("function(arg) { }")));
+    }
+
+    @Test
+    void testSetResourceGroupLaneClassNamesCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_LANE_CLASS_NAMES, JsCallback.of("function(arg) { return []; }")));
+    }
+
+    @Test
+    void testSetResourceGroupLaneContentCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_LANE_CONTENT, JsCallback.of("function(arg) { }")));
+    }
+
+    @Test
+    void testSetResourceGroupLaneDidMountCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_LANE_DID_MOUNT, JsCallback.of("function(arg) { }")));
+    }
+
+    @Test
+    void testSetResourceGroupLaneWillUnmountCallback() {
+        Assertions.assertDoesNotThrow(() ->
+                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_LANE_WILL_UNMOUNT, JsCallback.of("function(arg) { }")));
     }
 
     // -------------------------------------------------------------------------

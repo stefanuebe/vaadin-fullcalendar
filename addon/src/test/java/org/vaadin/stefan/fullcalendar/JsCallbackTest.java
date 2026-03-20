@@ -122,11 +122,109 @@ class JsCallbackTest {
         assertNotEquals(a, c);
     }
 
+    // --- setOption with JsCallback round-trip via getOption ---
+
+    @Test
+    void setOption_withJsCallback_getOptionReturnsJsCallback() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        JsCallback cb = JsCallback.of("function(arg) { return []; }");
+        calendar.setOption(FullCalendar.Option.DAY_CELL_CLASS_NAMES, cb);
+
+        // getOption should return the original JsCallback, not the marker JSON
+        var result = calendar.getOption(FullCalendar.Option.DAY_CELL_CLASS_NAMES);
+        assertTrue(result.isPresent());
+        assertInstanceOf(JsCallback.class, result.get());
+        assertEquals(cb, result.get());
+    }
+
+    @Test
+    void setOption_withJsCallback_stringKey_getOptionReturnsJsCallback() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        JsCallback cb = JsCallback.of("function() { return true; }");
+        calendar.setOption("selectAllow", cb);
+
+        var result = calendar.getOption("selectAllow");
+        assertTrue(result.isPresent());
+        assertInstanceOf(JsCallback.class, result.get());
+        assertEquals(cb, result.get());
+    }
+
+    // --- Deprecated wrapper delegation tests ---
+
+    @Test
+    void setEntryClassNamesCallback_delegatesToSetOption() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setEntryClassNamesCallback("function(arg) { return ['cls']; }");
+
+        var result = calendar.getOption(FullCalendar.Option.ENTRY_CLASS_NAMES);
+        assertTrue(result.isPresent());
+        assertInstanceOf(JsCallback.class, result.get());
+        assertEquals("function(arg) { return ['cls']; }", ((JsCallback) result.get()).getJsFunction());
+    }
+
+    @Test
+    void setEntryContentCallback_delegatesToSetOption() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setEntryContentCallback("function(arg) { return arg.el; }");
+
+        var result = calendar.getOption(FullCalendar.Option.ENTRY_CONTENT);
+        assertTrue(result.isPresent());
+        assertInstanceOf(JsCallback.class, result.get());
+    }
+
+    @Test
+    void setEntryWillUnmountCallback_delegatesToSetOption() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setEntryWillUnmountCallback("function(arg) { }");
+
+        var result = calendar.getOption(FullCalendar.Option.ENTRY_WILL_UNMOUNT);
+        assertTrue(result.isPresent());
+        assertInstanceOf(JsCallback.class, result.get());
+    }
+
+    // --- Native event listener field tests ---
+
+    @Test
+    void addEntryNativeEventListener_storesInMap() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.addEntryNativeEventListener("click", "e => alert('hi')");
+
+        // Verify via reflection that the map has the entry
+        var map = getNativeEventsMap(calendar);
+        assertNotNull(map);
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey("click"));
+        assertEquals("e => alert('hi')", map.get("click"));
+    }
+
+    @Test
+    void addEntryNativeEventListener_multipleListeners() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.addEntryNativeEventListener("click", "e => {}");
+        calendar.addEntryNativeEventListener("mouseover", "e => {}");
+
+        var map = getNativeEventsMap(calendar);
+        assertEquals(2, map.size());
+    }
+
+    // --- Helpers ---
+
     private static JsCallback getUserEntryDidMountCallback(FullCalendar calendar) {
         try {
             Field field = FullCalendar.class.getDeclaredField("userEntryDidMountCallback");
             field.setAccessible(true);
             return (JsCallback) field.get(calendar);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static java.util.Map<String, String> getNativeEventsMap(FullCalendar calendar) {
+        try {
+            Field field = FullCalendar.class.getDeclaredField("customNativeEventsMap");
+            field.setAccessible(true);
+            return (java.util.Map<String, String>) field.get(calendar);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
