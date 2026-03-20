@@ -506,49 +506,76 @@ public class RRule {
      * @return JsonNode representing this RRule
      */
     public JsonNode toJson() {
+        return JsonUtils.toJsonNode(toRRuleString());
+    }
+
+    /**
+     * Converts this RRule to an iCalendar RRULE string that FC's rrule plugin can parse directly.
+     * If this was created via {@link #ofRaw(String)}, the raw string is returned as-is.
+     *
+     * @return RRULE string (e.g. {@code "FREQ=WEEKLY;BYDAY=MO,FR;DTSTART=20250303;UNTIL=20250331"})
+     */
+    public String toRRuleString() {
         if (rawRRule != null) {
-            return JsonUtils.toJsonNode(rawRRule);
+            return rawRRule;
         }
 
-        ObjectNode node = JsonFactory.createObject();
+        StringBuilder sb = new StringBuilder();
 
         if (freq != null) {
-            node.put("freq", freq.getClientSideValue());
+            sb.append("FREQ=").append(freq.name());
         }
         if (dtstart != null) {
-            node.put("dtstart", dtstart);
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("DTSTART=").append(dtstart.replace("-", "").replace(":", ""));
         }
         if (until != null) {
-            node.put("until", until);
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("UNTIL=").append(until.replace("-", "").replace(":", ""));
         }
         if (count != null) {
-            node.put("count", count);
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("COUNT=").append(count);
         }
         if (interval != null) {
-            node.put("interval", interval);
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("INTERVAL=").append(interval);
         }
         if (byweekday != null && !byweekday.isEmpty()) {
-            node.set("byweekday", JsonUtils.toJsonNode(byweekday));
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("BYDAY=").append(String.join(",", byweekday.stream()
+                    .map(String::toUpperCase).toList()));
         }
         if (byyearday != null && !byyearday.isEmpty()) {
-            node.set("byyearday", JsonUtils.toJsonNode(byyearday));
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("BYYEARDAY=").append(byyearday.stream()
+                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
         }
         if (bymonth != null && !bymonth.isEmpty()) {
-            node.set("bymonth", JsonUtils.toJsonNode(bymonth));
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("BYMONTH=").append(bymonth.stream()
+                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
         }
         if (bymonthday != null && !bymonthday.isEmpty()) {
-            node.set("bymonthday", JsonUtils.toJsonNode(bymonthday));
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("BYMONTHDAY=").append(bymonthday.stream()
+                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
         }
         if (byhour != null && !byhour.isEmpty()) {
-            node.set("byhour", JsonUtils.toJsonNode(byhour));
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("BYHOUR=").append(byhour.stream()
+                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
         }
         if (byminute != null && !byminute.isEmpty()) {
-            node.set("byminute", JsonUtils.toJsonNode(byminute));
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("BYMINUTE=").append(byminute.stream()
+                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
         }
         if (wkst != null) {
-            node.put("wkst", wkst);
+            if (!sb.isEmpty()) sb.append(";");
+            sb.append("WKST=").append(wkst.toUpperCase());
         }
 
-        return node;
+        return sb.toString();
     }
 }

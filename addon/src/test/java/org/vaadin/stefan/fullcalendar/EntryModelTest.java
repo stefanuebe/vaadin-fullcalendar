@@ -165,10 +165,11 @@ public class EntryModelTest {
 
     @Test
     void excludeDates_notInRRuleJson() {
-        // excludedDates must NOT appear inside the rrule JSON object — only at event level
+        // excludedDates must NOT appear inside the rrule string — only at event level
         RRule rrule = RRule.weekly().excludeDates(LocalDate.of(2024, 1, 15));
-        assertFalse(rrule.toJson().has("excludedDates"), "excludedDates must not be serialized inside rrule JSON");
-        assertFalse(rrule.toJson().has("exdate"), "exdate must not be serialized inside rrule JSON");
+        String rruleStr = rrule.toRRuleString();
+        assertFalse(rruleStr.contains("excludedDates"), "excludedDates must not be serialized inside RRULE string");
+        assertFalse(rruleStr.contains("exdate"), "exdate must not be serialized inside RRULE string");
     }
 
     @Test
@@ -253,20 +254,20 @@ public class EntryModelTest {
     @Test
     void rrule_weekly_toJson_hasFreq() {
         RRule rrule = RRule.weekly();
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        assertEquals("weekly", json.get("freq").asString());
+        String rruleStr = rrule.toRRuleString();
+        assertTrue(rruleStr.contains("FREQ=WEEKLY"), "RRULE string must contain FREQ=WEEKLY");
+
+        JsonNode json = rrule.toJson();
+        assertTrue(json.isString(), "toJson() must return a StringNode");
+        assertEquals(rruleStr, json.asString());
     }
 
     @Test
     void rrule_byWeekday_DayOfWeek_convertedToAbbreviation() {
         RRule rrule = RRule.weekly().byWeekday(DayOfWeek.MONDAY, DayOfWeek.FRIDAY);
-        ObjectNode json = (ObjectNode) rrule.toJson();
-
-        ArrayNode byweekday = (ArrayNode) json.get("byweekday");
-        assertNotNull(byweekday);
-        assertEquals(2, byweekday.size());
-        assertEquals("mo", byweekday.get(0).asString());
-        assertEquals("fr", byweekday.get(1).asString());
+        String rruleStr = rrule.toRRuleString();
+        assertTrue(rruleStr.contains("BYDAY=MO,FR"), "RRULE string must contain BYDAY=MO,FR");
+        assertTrue(rruleStr.contains("FREQ=WEEKLY"), "RRULE string must contain FREQ=WEEKLY");
     }
 
     @Test
@@ -274,108 +275,83 @@ public class EntryModelTest {
         RRule rrule = RRule.weekly().byWeekday(
                 DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
                 DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        ArrayNode bwd = (ArrayNode) json.get("byweekday");
-        List<String> days = List.of("mo", "tu", "we", "th", "fr", "sa", "su");
-        for (int i = 0; i < days.size(); i++) {
-            assertEquals(days.get(i), bwd.get(i).asString(), "Day at index " + i);
-        }
+        String rruleStr = rrule.toRRuleString();
+        assertTrue(rruleStr.contains("BYDAY=MO,TU,WE,TH,FR,SA,SU"),
+                "RRULE string must contain all days in order: " + rruleStr);
     }
 
     @Test
     void rrule_byMonth_Month_convertedToIntegers() {
         RRule rrule = RRule.monthly().byMonth(Month.JANUARY, Month.MARCH, Month.DECEMBER);
-        ObjectNode json = (ObjectNode) rrule.toJson();
-
-        ArrayNode bymonth = (ArrayNode) json.get("bymonth");
-        assertNotNull(bymonth);
-        assertEquals(3, bymonth.size());
-        assertEquals(1, bymonth.get(0).asInt());
-        assertEquals(3, bymonth.get(1).asInt());
-        assertEquals(12, bymonth.get(2).asInt());
+        String rruleStr = rrule.toRRuleString();
+        assertTrue(rruleStr.contains("BYMONTH=1,3,12"), "RRULE string must contain BYMONTH=1,3,12: " + rruleStr);
     }
 
     @Test
     void rrule_weekStart_DayOfWeek_convertedToAbbreviation() {
-        RRule rrule = RRule.weekly().weekStart(DayOfWeek.MONDAY);
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        assertEquals("mo", json.get("wkst").asString());
+        String rruleStr1 = RRule.weekly().weekStart(DayOfWeek.MONDAY).toRRuleString();
+        assertTrue(rruleStr1.contains("WKST=MO"), "RRULE string must contain WKST=MO: " + rruleStr1);
 
-        RRule rrule2 = RRule.weekly().weekStart(DayOfWeek.SUNDAY);
-        ObjectNode json2 = (ObjectNode) rrule2.toJson();
-        assertEquals("su", json2.get("wkst").asString());
+        String rruleStr2 = RRule.weekly().weekStart(DayOfWeek.SUNDAY).toRRuleString();
+        assertTrue(rruleStr2.contains("WKST=SU"), "RRULE string must contain WKST=SU: " + rruleStr2);
     }
 
     @Test
     void rrule_count_inJson() {
-        RRule rrule = RRule.weekly().count(10);
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        assertEquals(10, json.get("count").asInt());
+        String rruleStr = RRule.weekly().count(10).toRRuleString();
+        assertTrue(rruleStr.contains("COUNT=10"), "RRULE string must contain COUNT=10: " + rruleStr);
     }
 
     @Test
     void rrule_interval_inJson() {
-        RRule rrule = RRule.daily().interval(2);
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        assertEquals(2, json.get("interval").asInt());
+        String rruleStr = RRule.daily().interval(2).toRRuleString();
+        assertTrue(rruleStr.contains("INTERVAL=2"), "RRULE string must contain INTERVAL=2: " + rruleStr);
     }
 
     @Test
     void rrule_until_LocalDate_inJson() {
-        RRule rrule = RRule.weekly().until(LocalDate.of(2025, 12, 31));
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        assertEquals("2025-12-31", json.get("until").asString());
+        String rruleStr = RRule.weekly().until(LocalDate.of(2025, 12, 31)).toRRuleString();
+        assertTrue(rruleStr.contains("UNTIL=20251231"), "RRULE string must contain UNTIL=20251231: " + rruleStr);
+        assertFalse(rruleStr.contains("2025-12-31"), "Date must not contain dashes in RRULE string");
     }
 
     @Test
     void rrule_until_LocalDateTime_inJson() {
-        RRule rrule = RRule.weekly().until(LocalDateTime.of(2025, 12, 31, 23, 59, 59));
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        assertEquals("2025-12-31T23:59:59", json.get("until").asString());
+        String rruleStr = RRule.weekly().until(LocalDateTime.of(2025, 12, 31, 23, 59, 59)).toRRuleString();
+        assertTrue(rruleStr.contains("UNTIL=20251231T235959"),
+                "RRULE string must contain UNTIL=20251231T235959 (no dashes or colons): " + rruleStr);
     }
 
     @Test
     void rrule_dtstart_LocalDate_inJson() {
-        RRule rrule = RRule.weekly().dtstart(LocalDate.of(2025, 1, 1));
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        assertEquals("2025-01-01", json.get("dtstart").asString());
+        String rruleStr = RRule.weekly().dtstart(LocalDate.of(2025, 1, 1)).toRRuleString();
+        assertTrue(rruleStr.contains("DTSTART=20250101"), "RRULE string must contain DTSTART=20250101: " + rruleStr);
+        assertFalse(rruleStr.contains("2025-01-01"), "Date must not contain dashes in RRULE string");
     }
 
     @Test
     void rrule_byMonthday_inJson() {
-        RRule rrule = RRule.monthly().byMonthday(1, 15);
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        ArrayNode bmd = (ArrayNode) json.get("bymonthday");
-        assertNotNull(bmd);
-        assertEquals(2, bmd.size());
-        assertEquals(1, bmd.get(0).asInt());
-        assertEquals(15, bmd.get(1).asInt());
+        String rruleStr = RRule.monthly().byMonthday(1, 15).toRRuleString();
+        assertTrue(rruleStr.contains("BYMONTHDAY=1,15"), "RRULE string must contain BYMONTHDAY=1,15: " + rruleStr);
     }
 
     @Test
     void rrule_byYearday_inJson() {
-        RRule rrule = RRule.yearly().byYearday(1, 100, 365);
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        ArrayNode byd = (ArrayNode) json.get("byyearday");
-        assertNotNull(byd);
-        assertEquals(3, byd.size());
+        String rruleStr = RRule.yearly().byYearday(1, 100, 365).toRRuleString();
+        assertTrue(rruleStr.contains("BYYEARDAY=1,100,365"), "RRULE string must contain BYYEARDAY=1,100,365: " + rruleStr);
     }
 
     @Test
     void rrule_byHour_byMinute_inJson() {
-        RRule rrule = RRule.daily().byHour(9, 17).byMinute(0, 30);
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        assertEquals(2, ((ArrayNode) json.get("byhour")).size());
-        assertEquals(2, ((ArrayNode) json.get("byminute")).size());
+        String rruleStr = RRule.daily().byHour(9, 17).byMinute(0, 30).toRRuleString();
+        assertTrue(rruleStr.contains("BYHOUR=9,17"), "RRULE string must contain BYHOUR=9,17: " + rruleStr);
+        assertTrue(rruleStr.contains("BYMINUTE=0,30"), "RRULE string must contain BYMINUTE=0,30: " + rruleStr);
     }
 
     @Test
     void rrule_byWeekday_strings_passedThrough() {
-        RRule rrule = RRule.monthly().byWeekday("-1fr", "2mo");
-        ObjectNode json = (ObjectNode) rrule.toJson();
-        ArrayNode bwd = (ArrayNode) json.get("byweekday");
-        assertEquals("-1fr", bwd.get(0).asString());
-        assertEquals("2mo", bwd.get(1).asString());
+        String rruleStr = RRule.monthly().byWeekday("-1fr", "2mo").toRRuleString();
+        assertTrue(rruleStr.contains("BYDAY=-1FR,2MO"), "RRULE string must contain BYDAY=-1FR,2MO: " + rruleStr);
     }
 
     // -------------------------------------------------------------------------
@@ -404,10 +380,10 @@ public class EntryModelTest {
 
     @Test
     void rrule_factoryMethods_produceCorrectFrequency() {
-        assertEquals("weekly", ((ObjectNode) RRule.weekly().toJson()).get("freq").asString());
-        assertEquals("daily", ((ObjectNode) RRule.daily().toJson()).get("freq").asString());
-        assertEquals("monthly", ((ObjectNode) RRule.monthly().toJson()).get("freq").asString());
-        assertEquals("yearly", ((ObjectNode) RRule.yearly().toJson()).get("freq").asString());
+        assertTrue(RRule.weekly().toRRuleString().contains("FREQ=WEEKLY"));
+        assertTrue(RRule.daily().toRRuleString().contains("FREQ=DAILY"));
+        assertTrue(RRule.monthly().toRRuleString().contains("FREQ=MONTHLY"));
+        assertTrue(RRule.yearly().toRRuleString().contains("FREQ=YEARLY"));
     }
 
     // -------------------------------------------------------------------------
@@ -421,7 +397,9 @@ public class EntryModelTest {
 
         ObjectNode json = entry.toJson();
         assertTrue(json.hasNonNull("rrule"), "rrule key must be present in entry JSON");
-        assertTrue(json.get("rrule").isObject(), "rrule value must be a JSON object for structured form");
+        assertTrue(json.get("rrule").isString(), "rrule value must be a StringNode for structured form");
+        assertTrue(json.get("rrule").asString().contains("FREQ=WEEKLY"), "rrule string must contain FREQ=WEEKLY");
+        assertTrue(json.get("rrule").asString().contains("BYDAY=MO"), "rrule string must contain BYDAY=MO");
     }
 
     @Test
@@ -432,6 +410,7 @@ public class EntryModelTest {
         ObjectNode json = entry.toJson();
         assertTrue(json.hasNonNull("rrule"));
         assertTrue(json.get("rrule").isString(), "raw RRule must be a JSON string in entry JSON");
+        assertEquals("FREQ=WEEKLY;BYDAY=MO", json.get("rrule").asString());
     }
 
     @Test
@@ -462,8 +441,9 @@ public class EntryModelTest {
 
         ObjectNode json = entry.toJson();
         assertTrue(json.hasNonNull("exrule"), "exrule must be present");
-        assertTrue(json.get("exrule").isObject(), "single exrule must be serialized as ObjectNode");
-        assertEquals("daily", json.get("exrule").get("freq").asString());
+        assertTrue(json.get("exrule").isString(), "single exrule must be serialized as StringNode");
+        assertTrue(json.get("exrule").asString().contains("FREQ=DAILY"), "exrule string must contain FREQ=DAILY");
+        assertTrue(json.get("exrule").asString().contains("COUNT=3"), "exrule string must contain COUNT=3");
     }
 
     @Test
@@ -478,6 +458,8 @@ public class EntryModelTest {
         assertTrue(json.get("exrule").isArray(), "multiple exrules must be serialized as ArrayNode");
         ArrayNode array = (ArrayNode) json.get("exrule");
         assertEquals(2, array.size());
+        assertTrue(array.get(0).isString(), "each exrule element must be a StringNode");
+        assertTrue(array.get(1).isString(), "each exrule element must be a StringNode");
     }
 
     @Test

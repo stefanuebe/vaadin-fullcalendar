@@ -108,6 +108,9 @@
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
                 <version>${vaadin.version}</version>
+                <configuration>
+                    <frontendHotdeploy>true</frontendHotdeploy>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>

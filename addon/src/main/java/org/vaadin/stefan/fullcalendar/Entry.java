@@ -1126,10 +1126,13 @@ public class Entry {
 
     /**
      * Indicates, if this entry is recurring. This is indicated by having any "recurring" property set (e.g.
-     * {@link #getRecurringDaysOfWeek()}).
+     * {@link #getRecurringDaysOfWeek()}) or an {@link RRule}.
      * @return is a recurring event
      */
     public boolean isRecurring() {
+        if (rrule != null) {
+            return true;
+        }
         Set<DayOfWeek> daysOfWeek = getRecurringDaysOfWeek();
         return (daysOfWeek != null && !daysOfWeek.isEmpty())
                 || getRecurringEndDate() != null

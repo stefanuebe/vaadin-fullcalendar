@@ -41,8 +41,8 @@ test.describe('Entry Model', () => {
         const urlEvent = page.locator('.fc-event:has-text("Visit Homepage")').first();
         await expect(urlEvent).toBeVisible();
 
-        // FullCalendar wraps URL events in an <a> tag — verify the href is set
-        const href = await page.locator('.fc-event:has-text("Visit Homepage") a').first().getAttribute('href');
+        // In FC v6, URL entries render as <a> tags directly (the .fc-event IS the <a>)
+        const href = await urlEvent.getAttribute('href');
         expect(href).not.toBeNull();
         expect(href).toContain('example.com');
     });
