@@ -1301,11 +1301,11 @@ scheduler.setResourceAreaColumns(List.of(nameCol, roleCol, deptCol));
 scheduler.setOption(SchedulerOption.RESOURCE_GROUP_FIELD, "department");
 
 // Create resources with matching extendedProps
-Resource dev1 = new Resource("1", "Alice");
+Resource dev1 = new Resource("1", "Alice", null);
 dev1.addExtendedProps("role", "Developer");
 dev1.addExtendedProps("department", "Engineering");
 
-Resource dev2 = new Resource("2", "Bob");
+Resource dev2 = new Resource("2", "Bob", null);
 dev2.addExtendedProps("role", "Designer");
 dev2.addExtendedProps("department", "Design");
 
@@ -1455,17 +1455,17 @@ Resources can define default display properties for all entries assigned to them
 
 ```java
 // Room A: all its entries are green by default
-Resource roomA = new Resource("room-a", "Room A");
+Resource roomA = new Resource("room-a", "Room A", null);
 roomA.setEntryBackgroundColor("#4caf50");
 roomA.setEntryBorderColor("#388e3c");
 
 // Room B: entries cannot overlap each other on this resource
-Resource roomB = new Resource("room-b", "Room B");
+Resource roomB = new Resource("room-b", "Room B", null);
 roomB.setEntryOverlap(false);
 roomB.setEntryBackgroundColor("#2196f3");
 
 // Room C: restrict entries to business hours on this resource
-Resource roomC = new Resource("room-c", "Room C");
+Resource roomC = new Resource("room-c", "Room C", null);
 roomC.setEntryConstraint("businessHours");
 
 // Add CSS classes to all entries on this resource
