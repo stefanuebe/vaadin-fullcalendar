@@ -29,7 +29,7 @@ The `Entry` class supports the following properties:
 | URL | `setUrl(String)` | FC renders the entry as an `<a>` tag and navigates on click |
 | Interactive | `setInteractive(Boolean)` | Per-entry keyboard-focusability; `null` = inherit global `eventInteractive` |
 | Editable | `setEditable(boolean)` | Enable/disable drag and resize for this entry |
-| Display mode | `setDisplayMode(DisplayMode)` | `NORMAL`, `BACKGROUND`, `INVERSE_BACKGROUND`, `NONE`, `AUTO`, `LIST_ITEM`, `BLOCK` |
+| Display mode | `setDisplayMode(DisplayMode)` | `AUTO`, `BLOCK`, `LIST_ITEM`, `BACKGROUND`, `INVERSE_BACKGROUND`, `NONE` |
 | Overlap | `setOverlap(Boolean)` | Whether this entry may overlap others; `null` = inherit global setting |
 | Constraint | `setConstraint(String)` | Group id or `"businessHours"` restricting when this entry may be placed |
 | Recurring (simple) | `setRecurringDaysOfWeek` / `setRecurringStartTime` / `setRecurringEndTime` | Built-in day-of-week recurrence |

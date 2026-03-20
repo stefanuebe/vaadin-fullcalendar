@@ -1084,8 +1084,9 @@ calendar.setViewSpecificOption(CalendarViewImpl.DAY_GRID_MONTH,
 
 ## Force calendar to recalculate its size
 
-Call `updateSize()` after programmatically making the calendar container visible.
-The most common case is placing a calendar inside a Vaadin `Dialog`.
+If a calendar is rendered inside a hidden container (e.g., a `Dialog`), it may have zero dimensions
+on first render. A `ResizeObserver` on the client side handles most cases automatically, but in some
+edge cases you may need to trigger a resize manually:
 
 ```java
 Dialog dialog = new Dialog();
@@ -1094,9 +1095,8 @@ dialog.add(calendar);
 
 dialog.addOpenedChangeListener(event -> {
     if (event.isOpened()) {
-        // Calendar was hidden when it first rendered (size = 0).
-        // Force recalculation now that the dialog is visible.
-        calendar.updateSize();
+        // Force recalculation now that the dialog is visible
+        calendar.getElement().callJsFunction("updateSize");
     }
 });
 ```
