@@ -8,12 +8,16 @@ import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
-import org.vaadin.stefan.fullcalendar.FullCalendarVariant;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.model.Header;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
+import org.vaadin.stefan.fullcalendar.model.HeaderFooterPartPosition;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Test view for advanced and niche options.
@@ -41,9 +45,17 @@ public class AdvancedOptionsTestView extends VerticalLayout {
 
         // --- Calendar ---
         FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
+        // Enable native FC toolbar (default is false in the web component)
+        var left = new HeaderFooterPart(HeaderFooterPartPosition.START);
+        left.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
+        left.addItem(HeaderFooterItem.BUTTON_NEXT);
+        left.addItem(HeaderFooterItem.BUTTON_TODAY);
+        var center = new HeaderFooterPart(HeaderFooterPartPosition.CENTER);
+        center.addItem(HeaderFooterItem.TITLE);
+        var right = new HeaderFooterPart(HeaderFooterPartPosition.END);
+        calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, new Header(List.of(left, center, right)));
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
         calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
