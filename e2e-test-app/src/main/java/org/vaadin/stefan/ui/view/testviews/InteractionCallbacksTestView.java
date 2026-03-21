@@ -96,6 +96,7 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         provider.addEntry(resizable);
 
         calendar.setEntryProvider(provider);
+        provider.refreshAll();
 
         // --- Event listeners ---
         calendar.addEntryDragStartListener(e -> {
