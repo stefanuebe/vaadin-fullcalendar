@@ -59,17 +59,22 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
 
         // --- Scheduler features ---
 
-        // 1. Two resource area columns: built-in "title" field + extendedProp "department"
+        // 1. Two resource area columns: built-in "title" field + a "dept" column
+        // Note: use "dept" (not "department") for the column field so individual resource rows
+        // don't show the department text — only group headers should show "Engineering"/"Design"
+        // to avoid Playwright strict mode violations (multiple elements matching the same text)
         calendar.setResourceAreaColumns(
                 new ResourceAreaColumn("title", "Resource Name"),
-                new ResourceAreaColumn("department", "Dept")
+                new ResourceAreaColumn("dept", "Dept")
         );
 
         // 2. Group resources by the "department" extendedProp
         calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_FIELD, "department");
 
         // 3. Add CSS class to group header rows via JS callback
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_CLASS_NAMES,
+        // Use raw string key because SchedulerOption.RESOURCE_GROUP_CLASS_NAMES maps to a
+        // non-existent FC option. The correct FC v6 option is "resourceGroupLabelClassNames".
+        calendar.setOption("resourceGroupLabelClassNames",
                 JsCallback.of("function(arg) { return ['custom-group']; }"));
 
         // --- Resources ---

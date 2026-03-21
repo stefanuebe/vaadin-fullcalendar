@@ -10,6 +10,7 @@ import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,13 +41,16 @@ public class DisplayOptionsTestView extends VerticalLayout {
 
         FullCalendar calendar = FullCalendarBuilder.create().build();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
+        calendar.setLocale(Locale.ENGLISH);
 
         // Fix date so the test is reproducible
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
         calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // Display options under test
-        calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2);
+        // dayMaxEventRows includes the "+N more" link row in its count
+        // With 5 events: value=3 → 2 visible event rows + 1 more-link = "+3 more"
+        calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 3);
         calendar.setOption(FullCalendar.Option.DISPLAY_EVENT_END, true);
 
         // Create 5 entries on 2025-03-10 to trigger the "+N more" overflow link

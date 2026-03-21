@@ -74,7 +74,7 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix the date for reproducible tests
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
+        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
         calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
         calendar.setOption(FullCalendar.Option.EDITABLE, true);
         calendar.setOption(FullCalendar.Option.SELECTABLE, true);
@@ -138,6 +138,7 @@ public class InteractionCallbacksTestView extends VerticalLayout {
                 "}"));
 
         add(calendar);
+        setFlexGrow(1, calendar);
     }
 
     private static Span label(String text) {

@@ -58,7 +58,7 @@ public class RenderHooksTestView extends VerticalLayout {
         calendar.setOption(FullCalendar.Option.DAY_CELL_CONTENT,
                 JsCallback.of("function(info) { " +
                 "  return { html: '<span data-testid=\"hook-day-content\" class=\"hook-day-num\">' " +
-                "    + info.dayNumberText + '</span>'; }; }"));
+                "    + info.dayNumberText + '</span>' }; }"));
 
         // --- dayHeaderClassNames: every column header gets 'hook-header' ---
         calendar.setOption(FullCalendar.Option.DAY_HEADER_CLASS_NAMES,
@@ -67,7 +67,7 @@ public class RenderHooksTestView extends VerticalLayout {
         // --- dayHeaderContent: wrap header text in a span ---
         calendar.setOption(FullCalendar.Option.DAY_HEADER_CONTENT,
                 JsCallback.of("function(info) { " +
-                "  return { html: '<span class=\"hook-header-text\">' + info.text + '</span>'; }; }"));
+                "  return { html: '<span class=\"hook-header-text\">' + info.text + '</span>' }; }"));
 
         // --- weekNumberClassNames: every week number cell gets 'hook-weeknum' ---
         calendar.setOption(FullCalendar.Option.WEEK_NUMBER_CLASS_NAMES,
@@ -75,7 +75,7 @@ public class RenderHooksTestView extends VerticalLayout {
 
         // --- weekNumberContent: prefix with 'W' ---
         calendar.setOption(FullCalendar.Option.WEEK_NUMBER_CONTENT,
-                JsCallback.of("function(info) { return { html: '<span class=\"hook-weeknum-text\">W' + info.num + '</span>'; }; }"));
+                JsCallback.of("function(info) { return { html: '<span class=\"hook-weeknum-text\">W' + info.num + '</span>' }; }"));
 
         // --- allDayClassNames: all-day row header gets 'hook-allday' (timegrid only) ---
         calendar.setOption(FullCalendar.Option.ALL_DAY_CLASS_NAMES,

@@ -11,6 +11,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
+import java.util.Locale;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
@@ -67,6 +68,7 @@ public class EntryModelTestView extends VerticalLayout {
         FullCalendar calendar = FullCalendarBuilder.create().build();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
+        calendar.setLocale(Locale.ENGLISH);
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
         calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
@@ -93,13 +95,13 @@ public class EntryModelTestView extends VerticalLayout {
         provider.addEntry(interactiveEntry);
 
         // 3. Recurring with duration — spans 2 days every Monday and Wednesday in March 2025
+        // Use RRule with duration property for multi-day recurring spans
         Entry recurringDuration = new Entry();
         recurringDuration.setTitle("Multi-Day Recurring");
         recurringDuration.setAllDay(true);
-        recurringDuration.setRecurringDaysOfWeek(Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY));
-        recurringDuration.setRecurringStartDate(LocalDate.of(2025, 3, 1));
-        recurringDuration.setRecurringEndDate(LocalDate.of(2025, 3, 31));
         recurringDuration.setRecurringDuration("P2D");
+        recurringDuration.setRRule(RRule.ofRaw(
+                "FREQ=WEEKLY;BYDAY=MO,WE;DTSTART=20250303;UNTIL=20250331"));
         provider.addEntry(recurringDuration);
 
         // 4. RRule entry — weekly on Monday and Friday throughout March 2025
