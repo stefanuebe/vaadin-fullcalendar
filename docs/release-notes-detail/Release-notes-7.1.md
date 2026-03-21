@@ -1,7 +1,7 @@
 This page gives you an overview of the major changes that came with the release of
 [FullCalendar for Flow, version 7.1](https://vaadin.com/directory/component/full-calendar-flow).
 
-Version 7.1 is driven by two goals:
+Version 7.1 is driven by the following goals:
 
 1. **Close the feature gap** — bring the Java API up to parity with FullCalendar v6 so that options which
    previously required raw `setOption` calls now have proper typed support.
