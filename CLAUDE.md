@@ -21,11 +21,20 @@ mvn clean install -Pproduction -DskipTests
 # Run the demo application (requires production profile for full build)
 cd demo && mvn spring-boot:run -Pproduction
 
-# Run unit tests
+# Run unit tests (all modules)
 mvn test
+
+# Run a single test class
+mvn test -pl addon -Dtest=EntryTest
+
+# Run a single test method
+mvn test -pl addon -Dtest=EntryTest#testSomeMethod
 
 # Run integration tests
 mvn verify
+
+# Run E2E tests (starts Vaadin app + Playwright)
+cd e2e-test-app && mvn clean verify -Pit
 
 # Alternative: Use Maven wrapper from demo/ if mvn not available
 ./demo/mvnw clean install
@@ -37,15 +46,34 @@ mvn verify
 addon/              # Core FullCalendar Flow component (org.vaadin.stefan:fullcalendar2)
 addon-scheduler/    # Scheduler extension for resource-based views (org.vaadin.stefan:fullcalendar2-scheduler)
 demo/               # Spring Boot demo application
-e2e-test-app/       # Vaadin Spring Boot app serving as E2E test target (Playwright). Run E2E tests with: cd e2e-test-app && mvn clean verify -Pit
-e2e-tests/          # Playwright test suite (tests/ directory contains .spec.js files)
+e2e-test-app/       # Vaadin Spring Boot app serving as E2E test target (Playwright)
+e2e-tests/          # Playwright test suite (tests/*.spec.js) — NOT a Maven module, uses npm
+mcp-server/         # Node.js MCP server for addon documentation (TypeScript/Express)
+fc-docs/            # Local copy of FullCalendar JS v6 docs — check here FIRST for native FC behavior
 ```
+
+## Specs (Working Basis)
+
+The `specs/` directory is the **primary working basis** for implementation tasks. Always read the relevant spec files before starting work:
+
+1. `specs/project-context.md` — Read first: vision, problem, users, scope, risks
+2. `specs/architecture.md` — Tech stack and application structure
+3. `specs/datamodel/datamodel.md` — Entity definitions and relationships
+4. `specs/use-cases/` — Individual feature specs (copy `use-case-template.md` per feature)
+5. `specs/verification.md` — Visual verification checklists (Playwright MCP)
+6. `specs/design-system.md` — Design system rules
+
+Workflow: Define context → Outline architecture → Specify features → Implement → Verify → Write tests. Specs are the single source of truth — keep them up to date as the project evolves.
+
+## Naming Convention
+
+FullCalendar JS calls them "events"; this Java addon calls them **"entries"** (`Entry.java`, not `Event.java`). This avoids collision with Vaadin's event system. All enum constants, method names, and class names use `ENTRY_` / `Entry` prefix, never `EVENT_`.
 
 ## Architecture
 
 ### Core Component (`addon/`)
 
-The main component is `FullCalendar` extending Vaadin's `Component`. Key classes:
+The main component is `FullCalendar` (custom element tag: `<vaadin-full-calendar>`) extending Vaadin's `Component`. Key classes:
 
 - `FullCalendar.java` - Main calendar component with bidirectional JS communication
 - `FullCalendarBuilder.java` - Fluent builder for calendar configuration
@@ -72,6 +100,10 @@ Server-side events for calendar interactions:
 - `TimeslotClickedEvent`, `TimeslotsSelectedEvent`
 - `DatesRenderedEvent`, `MoreLinkClickedEvent`
 - `DayNumberClickedEvent`, `WeekNumberClickedEvent`
+
+### Frontend
+
+TypeScript source lives at `addon/src/main/resources/META-INF/resources/frontend/vaadin-full-calendar/full-calendar.ts`. This is the client-side web component that communicates with the Java `FullCalendar` class. The FullCalendar JS client version is defined by `FullCalendar.FC_CLIENT_VERSION` (currently 6.1.20).
 
 ### JSON Handling
 
