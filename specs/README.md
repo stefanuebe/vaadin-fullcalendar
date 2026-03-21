@@ -22,9 +22,10 @@ Status lifecycle: **Draft** → **Approved** → **Implemented**
 2. **Outline architecture** — Fill in `architecture.md` with module structure and communication patterns.
 3. **Review design system** — Reference `design-system.md` for theming, styling, and layout rules.
 4. **Specify features** — Copy `use-cases/use-case-template.md` once per feature.
-5. **Implement** — Build each use case, referencing its spec for acceptance criteria.
-6. **Verify** — Run unit tests + E2E tests. Follow `verification.md` checklists for visual verification.
-7. **Mark complete** — Update use case status to **Implemented** once all tests pass.
+5. **Review specs and plans** — As part of the planning phase, have all new or changed specs and implementation plans reviewed by specialized agents (requirements-reviewer, architecture-guard, end-user-reviewer, code-reviewer, ui-designer, fullstack-developer). Fix all issues above nitpick level. No spec or plan moves to "Approved" without passing review.
+6. **Implement** — Build each use case, referencing its approved spec for acceptance criteria.
+7. **Verify** — Run unit tests + E2E tests. Follow `verification.md` checklists for visual verification.
+8. **Mark complete** — Update use case status to **Implemented** once all tests pass.
 
 ## Naming Convention
 
