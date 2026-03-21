@@ -64,6 +64,7 @@ provider.refreshAll();
 | BR-05 | `refreshItem()` sends a single entry update to the client |
 | BR-06 | Entry cache is bounded to 10,000 entries (LRU eviction) |
 | BR-07 | `asInMemory()` is a cast helper — it throws `ClassCastException` if the provider is not `InMemoryEntryProvider`. Only use when the default provider is active or after explicitly setting an in-memory provider. |
+| BR-08 | **Thread safety:** Calling `refreshAll()` or `refreshItem()` from a background thread (e.g., async service, scheduled task) requires `ui.access(() -> provider.refreshAll())` with server push enabled (`@Push` on the view/UI). Without `UI.access()`, the update will not reach the client. |
 
 ---
 

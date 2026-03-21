@@ -10,7 +10,7 @@
 
 The migration from FullCalendar JS v6 to v7 touches four layers:
 
-1. **NPM packages and TypeScript imports** — Package names change, moment-timezone eliminated, temporal-polyfill added
+1. **NPM packages and TypeScript imports** — Package names stay as `@fullcalendar/*` (confirmed via npm RC), only version bump needed. `fullcalendar` / `fullcalendar-scheduler` are metapackages. TS imports unchanged.
 2. **Option name mapping** — ~30 FC option wire names change across `Option` and `SchedulerOption` enums
 3. **License key** — GPLv3 → AGPLv3 for the scheduler
 4. **CSS/Theme** — fc-* classes and --fc-* variables appear unchanged in v7 source (confirmed via GitHub), but the changelog claims "CSS variables refactored/renamed" — **must be verified against stable release before implementing**
@@ -30,16 +30,31 @@ All phases ship together as **8.0.0**.
 
 ---
 
+## npm Package Research Results (confirmed 2026-03-21 against v7.0.0-rc.0)
+
+**Key finding:** All `@fullcalendar/*` packages **still exist as separate npm packages** in v7 RC. The `fullcalendar` and `fullcalendar-scheduler` packages are **metapackages** that bundle them as dependencies. This means:
+- **No `@NpmPackage` name changes needed** — only version bumps
+- **No TypeScript import path changes needed** — `'@fullcalendar/core'`, `'@fullcalendar/daygrid'`, etc. still work
+- `@fullcalendar/core/locales-all` export path confirmed unchanged
+- `@fullcalendar/moment-timezone` still exists at v7 RC (changelog says removed — contradicts npm)
+- No `temporal-polyfill` peer dependency in v7 RC (changelog mentions it — may be added in stable)
+- `@fullcalendar/scrollgrid` still exists at v7 RC (changelog says merged into core — contradicts npm)
+
+**This dramatically simplifies Phase 1** — it becomes a pure version bump.
+
+---
+
 ## Prerequisites (before starting Phase 1)
 
 ### Package Verification
+- [x] ~~Package names~~ — `@fullcalendar/*` confirmed unchanged in v7 RC
+- [x] ~~Scheduler packages~~ — `@fullcalendar/resource-*` confirmed at v7 RC
+- [x] ~~locales-all path~~ — `@fullcalendar/core/locales-all` confirmed
 - [ ] FC v7 stable release published to npm
-- [ ] `npm info fullcalendar@7` — confirm package names are `fullcalendar/*` (not still `@fullcalendar/*`)
-- [ ] `npm info fullcalendar-scheduler@7` — confirm scheduler package names
-- [ ] Confirm `temporal-polyfill` exact peer version required
-- [ ] Confirm whether `moment` is still required by `@fullcalendar/format-moment`
-- [ ] Confirm `locales-all` import path in v7
-- [ ] Confirm `@fullcalendar/scrollgrid` is merged into core (v7 changelog says so)
+- [ ] Re-verify all above against stable release (RC findings may change)
+- [ ] Confirm `temporal-polyfill` status in stable (not a peer dep in RC)
+- [ ] Confirm `@fullcalendar/moment-timezone` is still supported in stable (exists in RC, changelog says removed)
+- [ ] Confirm `@fullcalendar/scrollgrid` status in stable (exists in RC, changelog says merged)
 
 ### Option Wire Name Verification
 - [ ] Confirm `buttons` option structure (replacement for `buttonText`)
@@ -59,73 +74,31 @@ All phases ship together as **8.0.0**.
 
 ---
 
-## Phase 1 — Core JS Upgrade: Packages, Imports, formatDate
+## Phase 1 — Core JS Upgrade: Version Bump + Optional Moment Removal
 
-**Risk:** High
+**Risk:** Medium (downgraded from High — no package renames needed)
 
-### 1a. @NpmPackage Annotations — `FullCalendar.java`
+### 1a. @NpmPackage Version Bump — `FullCalendar.java`
 
-Update `FC_CLIENT_VERSION` from `"6.1.20"` to v7 stable version.
+Update `FC_CLIENT_VERSION` from `"6.1.20"` to v7 stable version. **No package name changes** — all `@fullcalendar/*` packages confirmed to exist in v7.
 
-| Current (v6) | Target (v7) |
+Optional: attempt to remove moment and replace `formatDate()` with native JS (see 1c). If this fails, keep moment packages at their current versions.
+
+| Package | Action |
 |---|---|
-| `@fullcalendar/core` | `fullcalendar` |
-| `@fullcalendar/interaction` | `fullcalendar/interaction` |
-| `@fullcalendar/daygrid` | `fullcalendar/daygrid` |
-| `@fullcalendar/timegrid` | `fullcalendar/timegrid` |
-| `@fullcalendar/list` | `fullcalendar/list` |
-| `@fullcalendar/multimonth` | `fullcalendar/multimonth` |
-| `@fullcalendar/rrule` | `fullcalendar/rrule` |
-| `@fullcalendar/google-calendar` | `fullcalendar/google-calendar` (verify) |
-| `@fullcalendar/icalendar` | `fullcalendar/icalendar` (verify) |
-| `@fullcalendar/moment` | **REMOVE** (see 1d — native formatDate replaces moment) |
-| `@fullcalendar/moment-timezone` | **REMOVE** (timezone built-in via temporal-polyfill) |
-| `moment` (2.30.1) | **REMOVE** (if native formatDate works) |
-| `moment-timezone` (0.6.0) | **REMOVE** |
-| `ical.js` (2.0.1) | Keep (verify peer dep version) |
-| *(new)* | `temporal-polyfill` (version from FC v7 peer dep) |
+| All 11 `@fullcalendar/*` packages | **Version bump only** |
+| `moment` (2.30.1) | Keep (or remove if 1c succeeds) |
+| `moment-timezone` (0.6.0) | Keep (or remove if 1c succeeds) |
+| `ical.js` (2.0.1) | Keep |
+| `temporal-polyfill` | Add **only if** v7 stable requires it as peer dep (not required in RC) |
 
-**Decision: Moment removal.** The plan is to replace `formatDate()` with native JS (Phase 1d). If that works, ALL moment-related packages are removed. If it doesn't, fall back to `@fullcalendar/format-moment` + `moment`.
+### 1b. @NpmPackage Version Bump — `FullCalendarScheduler.java`
 
-### 1b. @NpmPackage Annotations — `FullCalendarScheduler.java`
+Update `FC_SCHEDULER_CLIENT_VERSION` from `"6.1.9"` to v7 stable version. No package name changes.
 
-Update `FC_SCHEDULER_CLIENT_VERSION` from `"6.1.9"` to v7 stable version.
+### 1c. Optional: `formatDate()` Native Replacement — `full-calendar.ts`
 
-| Current (v6) | Target (v7) |
-|---|---|
-| `@fullcalendar/resource` | `fullcalendar-scheduler/resource` (verify) |
-| `@fullcalendar/resource-timeline` | `fullcalendar-scheduler/resource-timeline` (verify) |
-| `@fullcalendar/resource-timegrid` | `fullcalendar-scheduler/resource-timegrid` (verify) |
-| `@fullcalendar/resource-daygrid` | `fullcalendar-scheduler/resource-daygrid` (verify) |
-| `@fullcalendar/scrollgrid` | **REMOVE** (merged into core in v7) |
-
-### 1c. TypeScript Imports — `full-calendar.ts`
-
-```typescript
-// v6 → v7 import changes:
-'@fullcalendar/core'              → 'fullcalendar'
-'@fullcalendar/core/locales-all'  → 'fullcalendar/locales-all' (verify)
-'@fullcalendar/interaction'       → 'fullcalendar/interaction'
-'@fullcalendar/daygrid'           → 'fullcalendar/daygrid'
-'@fullcalendar/timegrid'          → 'fullcalendar/timegrid'
-'@fullcalendar/list'              → 'fullcalendar/list'
-'@fullcalendar/multimonth'        → 'fullcalendar/multimonth'
-'@fullcalendar/rrule'             → 'fullcalendar/rrule'
-'@fullcalendar/google-calendar'   → 'fullcalendar/google-calendar' (verify)
-'@fullcalendar/icalendar'         → 'fullcalendar/icalendar' (verify)
-import {toMoment}                 → REMOVE (replaced by native formatDate)
-import momentTimezonePlugin       → REMOVE
-```
-
-Also verify named type imports still work: `Calendar`, `CalendarOptions`, `DateInput`, `DateRangeInput`, `DurationInput` from `'fullcalendar'`.
-
-Remove `momentTimezonePlugin` from the plugins array in `createInitOptions()`.
-
-**Note:** Removing `momentTimezonePlugin` while keeping `timeZone: 'UTC'` is safe because FC v7's built-in `temporal-polyfill` handles UTC and named timezones natively.
-
-### 1d. `formatDate()` Method — `full-calendar.ts`
-
-Replace moment-based formatting with native JS:
+If we want to drop the moment dependency, replace the moment-based `formatDate()`:
 
 ```typescript
 // Current (moment-based):
@@ -148,21 +121,13 @@ protected formatDate(date: string | Date, asDay = false): string {
 }
 ```
 
-**Important:** `moment.utc().format()` produces `2024-03-15T14:30:00+00:00` (no millis). `Date.toISOString()` produces `2024-03-15T14:30:00.000Z` (with millis). The replacement strips millis with `.replace()` to maintain format compatibility. Java's `Instant.parse()` and `ISO_INSTANT` accept both formats, but stripping millis is safer.
+**Format difference:** `moment.utc().format()` → `2024-03-15T14:30:00+00:00` (no millis). `Date.toISOString()` → `2024-03-15T14:30:00.000Z` (with millis). The `.replace()` strips millis. Java's `Instant.parse()` accepts both.
 
-**Assumption:** The calendar is always initialized with `timeZone: 'UTC'`, so `startOf('day')` in moment UTC is equivalent to `toISOString().substring(0, 10)`.
+If the native replacement works and all E2E tests pass, remove: `@fullcalendar/moment`, `@fullcalendar/moment-timezone`, `moment`, `moment-timezone` from @NpmPackage and the corresponding TS imports + plugin registrations.
 
-### 1e. TypeScript Imports — `full-calendar-scheduler.ts`
+**Assumption:** Calendar is always initialized with `timeZone: 'UTC'`.
 
-```typescript
-// v6 → v7 (verify exact paths):
-'@fullcalendar/resource-timeline' → 'fullcalendar-scheduler/resource-timeline' (verify)
-'@fullcalendar/resource-timegrid' → 'fullcalendar-scheduler/resource-timegrid' (verify)
-'@fullcalendar/resource-daygrid'  → 'fullcalendar-scheduler/resource-daygrid' (verify)
-'@fullcalendar/scrollgrid'        → REMOVE (merged into core)
-```
-
-### 1f. Hardcoded Option Names in TypeScript — Audit
+### 1d. Hardcoded Option Names in TypeScript — Audit
 
 These FC option names are hardcoded in `full-calendar.ts` (not routed through the Java Option enum). Verify each is unchanged in v7:
 
@@ -175,26 +140,36 @@ These FC option names are hardcoded in `full-calendar.ts` (not routed through th
 | `timeZone` | line 692 | verify unchanged |
 | `batchRendering` | line 646 | verify still exists |
 
-### 1g. headerToolbar Default
+### 1e. headerToolbar Default
 
 FC v7 disables `headerToolbar` by default. The addon already sets `headerToolbar: false` explicitly in `createInitOptions()`. **No change needed.**
+
+### 1f. Vaadin Build Cleanup (IMPORTANT)
+
+After changing @NpmPackage versions, Vaadin invalidates its frontend bundle. **Before verification:**
+```bash
+# In demo/ and e2e-test-app/:
+rm -rf node_modules package-lock.json target/
+# Also delete pre-compiled bundle if it exists:
+rm -rf src/main/bundles/
+```
 
 ### Files Modified
 
 | File | Changes |
 |------|---------|
-| `addon/.../FullCalendar.java` | @NpmPackage (remove 4 moment-related, add temporal-polyfill, rename 9), FC_CLIENT_VERSION |
-| `addon/.../full-calendar.ts` | Imports (12 renames, 2 removals), plugins array, formatDate() |
-| `addon-scheduler/.../FullCalendarScheduler.java` | @NpmPackage (rename 4, remove scrollgrid), FC_SCHEDULER_CLIENT_VERSION |
-| `addon-scheduler/.../full-calendar-scheduler.ts` | Imports (3 renames, 1 removal) |
+| `addon/.../FullCalendar.java` | FC_CLIENT_VERSION bump (+ optional: remove 4 moment @NpmPackage) |
+| `addon/.../full-calendar.ts` | Optional: formatDate() replacement, remove moment imports/plugins |
+| `addon-scheduler/.../FullCalendarScheduler.java` | FC_SCHEDULER_CLIENT_VERSION bump |
 
 ### Verification
 
-1. `mvn clean install` — compiles without errors
-2. `cd demo && mvn spring-boot:run -Pproduction` — all views render (DayGrid, TimeGrid, List, MultiMonth)
-3. `cd e2e-test-app && mvn clean verify -Pit` — full E2E suite passes
-4. Focus on: `calendar-views.spec.js`, `event-sources.spec.js`, `scheduler-features.spec.js`, `entry-model.spec.js` (RRule), `interaction-callbacks.spec.js`
-5. Manual timezone test: configure calendar with `Timezone.of(ZoneId.of("Europe/Helsinki"))`, add entry at known UTC time, verify displayed time shows UTC+2 offset
+1. Clean stale frontend: `rm -rf node_modules package-lock.json target/` in demo/ and e2e-test-app/
+2. `mvn clean install` — compiles without errors
+3. `cd demo && mvn spring-boot:run -Pproduction` — all views render (DayGrid, TimeGrid, List, MultiMonth)
+4. `cd e2e-test-app && mvn clean verify -Pit` — full E2E suite passes
+5. Focus on: `calendar-views.spec.js`, `event-sources.spec.js`, `scheduler-features.spec.js`, `entry-model.spec.js` (RRule), `interaction-callbacks.spec.js`
+6. Manual timezone test: configure calendar with `new Timezone(ZoneId.of("Europe/Helsinki"))`, add entry at known UTC time, verify displayed time shows UTC+2 offset
 
 ### New E2E Test: Timezone Rendering
 
@@ -367,6 +342,8 @@ FC v7 no longer bundles CSS with JS. Determine:
 - Does the Classic theme require an explicit import/plugin registration?
 - If so, add the appropriate `@NpmPackage` and TS import
 - How does this interact with our `@CssImport` for the Vaadin theme?
+- **Vaadin note:** If FC v7 requires a CSS import, add it in `full-calendar.ts` (processed by Vite), NOT as a `@CssImport` annotation. The `@CssImport` on the Java class is for the addon's own CSS files.
+- **Vaadin note:** If the CSS import must happen before the addon's CSS, ensure the TS `import` comes before the `@CssImport` in load order.
 
 **Step 3: Audit selectors**
 Selectors in `full-calendar-styles.css` that may break with flexbox DOM:
