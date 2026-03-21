@@ -11,6 +11,8 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
 import java.util.Locale;
+import org.vaadin.stefan.fullcalendar.JsonFactory;
+import tools.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +41,9 @@ public class DisplayOptionsTestView extends VerticalLayout {
                 "dayMaxEventRows=2, displayEventEnd=true. " +
                 "On 2025-03-10 there are 5 events, so a '+3 more' link should appear."));
 
-        FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
+        FullCalendar calendar = FullCalendarBuilder.create().withEntryLimit(3).build();
+        // Note: don't add FullCalendarVariant.VAADIN here — its CSS overrides
+        // prevent dayMaxEventRows from working (overflow: visible on day cells)
         calendar.setLocale(Locale.ENGLISH);
 
         // Fix date so the test is reproducible
@@ -48,10 +51,17 @@ public class DisplayOptionsTestView extends VerticalLayout {
         calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // Display options under test
-        // dayMaxEventRows includes the "+N more" link row in its count
-        // With 5 events: value=3 → 2 visible event rows + 1 more-link = "+3 more"
+        // dayMaxEventRows limits visible event rows per day cell.
+        // With value=2, FC shows 2 events + "+3 more" link (for the remaining 3 of 5)
         calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 3);
         calendar.setOption(FullCalendar.Option.DISPLAY_EVENT_END, true);
+
+        // Use 24h time format for consistent time display (test expects "10:00 - 11:30")
+        ObjectNode eventTimeFormat = JsonFactory.createObject();
+        eventTimeFormat.put("hour", "2-digit");
+        eventTimeFormat.put("minute", "2-digit");
+        eventTimeFormat.put("hour12", false);
+        calendar.setOption("eventTimeFormat", eventTimeFormat);
 
         // Create 5 entries on 2025-03-10 to trigger the "+N more" overflow link
         LocalDate crowdedDay = LocalDate.of(2025, 3, 10);
