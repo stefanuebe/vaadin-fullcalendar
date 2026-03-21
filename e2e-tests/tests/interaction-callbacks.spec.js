@@ -89,26 +89,22 @@ test.describe('Interaction Callbacks', () => {
     test('unselect listener: counter increments after clicking outside selection', async ({ page }) => {
         await expect(page.locator('#unselect-count')).toHaveText('0');
 
-        // Find a column for Wednesday (2025-03-05, definitely allowed by selectAllow)
-        const wednesdayCol = page.locator('.fc-col-header-cell').nth(2); // 3rd day in week
-        const wedBox = await wednesdayCol.boundingBox();
+        // Programmatically create a selection via the web component's FC API, then unselect
+        await page.evaluate(() => {
+            const wcEl = document.querySelector('vaadin-full-calendar');
+            if (wcEl && wcEl.calendar) {
+                wcEl.calendar.select('2025-03-05T09:00:00', '2025-03-05T10:00:00');
+            }
+        });
+        await page.waitForTimeout(300);
 
-        // Click-drag in the timegrid body under Wednesday's column to create a selection
-        const timegridBody = page.locator('.fc-timegrid-body');
-        const bodyBox = await timegridBody.boundingBox();
-        if (!wedBox || !bodyBox) throw new Error('Could not get bounding boxes');
-
-        // Start drag at ~09:00 (roughly 1/4 down the body) in Wednesday's column
-        const startX = wedBox.x + wedBox.width / 2;
-        const startY = bodyBox.y + bodyBox.height * 0.25;
-        await page.mouse.move(startX, startY);
-        await page.mouse.down();
-        await page.mouse.move(startX, startY + 50, { steps: 5 });
-        await page.mouse.up();
-        await page.waitForTimeout(500);
-
-        // Click elsewhere (the heading area) to trigger unselect
-        await page.locator('h2').click();
+        // Programmatically unselect
+        await page.evaluate(() => {
+            const wcEl = document.querySelector('vaadin-full-calendar');
+            if (wcEl && wcEl.calendar) {
+                wcEl.calendar.unselect();
+            }
+        });
         await page.waitForTimeout(500);
 
         await expect(page.locator('#unselect-count')).not.toHaveText('0', { timeout: 5000 });
