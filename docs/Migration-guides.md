@@ -27,68 +27,6 @@ one-off setters are now deprecated in favour of their `setOption` equivalents.
 No APIs have been removed — all deprecated methods still compile and work. They will be removed in a future
 major version. There is also **one behaviour change** to be aware of.
 
-### `Entry.overlap` changed from `boolean` to `Boolean`
-
-The `overlap` field on `Entry` has changed from a primitive `boolean` (default `true`) to a boxed `Boolean`
-(default `null`).
-
-**Effect:**
-- The Lombok-generated getter name changed from `isOverlap()` (for primitive `boolean`) to `getOverlap()`
-  (for boxed `Boolean`, which may return `null`).
-- Code that relied on `overlap = true` being serialised to the client on every entry will no longer see the
-  field in the JSON when it has not been explicitly set. FullCalendar's own default for this property is
-  `true`, so the observable behaviour is identical — unless you have a global `eventOverlap` set to `false`
-  on the calendar, in which case an entry without an explicit `overlap` value will now correctly inherit
-  that global setting instead of always sending `true`.
-
-**Migration:** Choose the form that matches your intent for `null`:
-
-Replace all `entry.isOverlap()` calls with `Boolean.TRUE.equals(entry.getOverlap())`.
-
-| Pattern | null → | true → | false → | Use when |
-|---|---|---|---|---|
-| `Boolean.TRUE.equals(v)` | `false` | `true` | `false` | Only explicit `true` counts |
-| `!Boolean.FALSE.equals(v)` | `true` | `true` | `false` | Default-allow (null = true) |
-
-Note: `Boolean.TRUE.equals(null)` returns `false` in Java, so if you need "not set" to mean `true`
-(matching FC's own default behaviour), use `!Boolean.FALSE.equals(entry.getOverlap())` instead —
-that returns `true` when the value is `null` or `true`, and `false` only when explicitly set to `false`.
-
-### `FullCalendarBuilder` is now a mutable fluent builder
-
-In 7.0, `FullCalendarBuilder.withXxx(...)` returned a **new** builder instance on every call. As of 7.1,
-the same instance is mutated and returned (`return this`). The change is backwards-compatible in all
-standard usage patterns, because intermediate builder states are never stored. However, if you kept
-references to intermediate states and called `.build()` on each, all references now point to the same
-final state.
-
-### Deprecated: Individual callback methods (use `setOption` + `JsCallback` instead)
-
-The following callback methods existed in 7.0 and are now deprecated.
-Replace them with `setOption(Option, JsCallback.of(...))`:
-
-| Deprecated method | Replacement |
-|---|---|
-| `setEntryClassNamesCallback(String)` | `setOption(Option.ENTRY_CLASS_NAMES, JsCallback.of(...))` |
-| `setEntryDidMountCallback(String)` | `setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(...))` |
-| `setEntryWillUnmountCallback(String)` | `setOption(Option.ENTRY_WILL_UNMOUNT, JsCallback.of(...))` |
-| `setEntryContentCallback(String)` | `setOption(Option.ENTRY_CONTENT, JsCallback.of(...))` |
-
-**Migration example:**
-
-```java
-// Old (7.0)
-calendar.setEntryClassNamesCallback("function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }");
-calendar.setEntryContentCallback("function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
-
-// New (7.1+)
-calendar.setOption(Option.ENTRY_CLASS_NAMES, JsCallback.of("function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }"));
-calendar.setOption(Option.ENTRY_CONTENT, JsCallback.of("function(info) { return { html: '<b>' + info.event.title + '</b>' }; }"));
-```
-
-Callback options (render hooks, interaction guards, etc.) are set using the new `JsCallback` wrapper
-— see the "New: `JsCallback`" section below for details and examples.
-
 ### Deprecated: Individual option setters (use `setOption` instead)
 
 The following setter/getter methods from 7.0 are now deprecated. Replace them with `setOption`/`getOption`
@@ -144,42 +82,6 @@ calendar.setOption(Option.BUSINESS_HOURS, BusinessHours.businessWeek().start(Loc
 calendar.setOption(Option.SLOT_MIN_TIME, LocalTime.of(8, 0));
 ```
 
-### Deprecated: Scheduler callback setters (use `setOption` instead)
-
-The following `Scheduler` / `FullCalendarScheduler` callback setter methods from 7.0 are now deprecated.
-Replace them with `setOption` with `JsCallback.of(...)`:
-
-| Deprecated method | Replacement |
-|---|---|
-| `setResourceLabelClassNamesCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_CLASS_NAMES, JsCallback.of(...))` |
-| `setResourceLabelContentCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_CONTENT, JsCallback.of(...))` |
-| `setResourceLabelDidMountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_DID_MOUNT, JsCallback.of(...))` |
-| `setResourceLablelWillUnmountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of(...))` |
-| `setResourceLaneClassNamesCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_CLASS_NAMES, JsCallback.of(...))` |
-| `setResourceLaneContentCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_CONTENT, JsCallback.of(...))` |
-| `setResourceLaneDidMountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(...))` |
-| `setResourceLaneWillUnmountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of(...))` |
-
-All other scheduler callback and option constants (resource group hooks, resource area header hooks,
-resource lifecycle callbacks, scheduler option setters) are available directly via `setOption(SchedulerOption.X, ...)`
-— no deprecated wrapper method exists for these.
-
-**Migration example:**
-
-```java
-// Old (7.0)
-scheduler.setResourceLabelClassNamesCallback("function(arg) { return arg.resource.special ? ['special'] : []; }");
-
-// New (7.1+)
-scheduler.setOption(SchedulerOption.RESOURCE_LABEL_CLASS_NAMES,
-    JsCallback.of("function(arg) { return arg.resource.special ? ['special'] : []; }"));
-```
-
-### Deprecated: `setResourceLablelWillUnmountCallback` (typo fix)
-
-This method was introduced in 7.0 with a typo in the name (`Lablel` instead of `Label`).
-Use `setOption(SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of(...))` instead.
-
 ### New: `JsCallback` — unified callback API
 
 7.1 introduces `JsCallback`, a lightweight wrapper that marks a string as a JavaScript function.
@@ -234,6 +136,105 @@ feed.withEventDataTransform(JsCallback.of("""
         return eventData;
     }"""));
 ```
+
+### Deprecated: Individual callback methods (use `setOption` + `JsCallback` instead)
+
+The following callback methods existed in 7.0 and are now deprecated.
+Replace them with `setOption(Option, JsCallback.of(...))`:
+
+| Deprecated method | Replacement |
+|---|---|
+| `setEntryClassNamesCallback(String)` | `setOption(Option.ENTRY_CLASS_NAMES, JsCallback.of(...))` |
+| `setEntryDidMountCallback(String)` | `setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(...))` |
+| `setEntryWillUnmountCallback(String)` | `setOption(Option.ENTRY_WILL_UNMOUNT, JsCallback.of(...))` |
+| `setEntryContentCallback(String)` | `setOption(Option.ENTRY_CONTENT, JsCallback.of(...))` |
+
+**Migration example:**
+
+```java
+// Old (7.0)
+calendar.setEntryClassNamesCallback("function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }");
+calendar.setEntryContentCallback("function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
+
+// New (7.1+)
+calendar.setOption(Option.ENTRY_CLASS_NAMES, JsCallback.of("function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }"));
+calendar.setOption(Option.ENTRY_CONTENT, JsCallback.of("function(info) { return { html: '<b>' + info.event.title + '</b>' }; }"));
+```
+
+Callback options (render hooks, interaction guards, etc.) are set using the new `JsCallback` wrapper
+— see the "New: `JsCallback`" section below for details and examples.
+
+### Deprecated: Scheduler callback setters (use `setOption` instead)
+
+The following `Scheduler` / `FullCalendarScheduler` callback setter methods from 7.0 are now deprecated.
+Replace them with `setOption` with `JsCallback.of(...)`:
+
+| Deprecated method | Replacement |
+|---|---|
+| `setResourceLabelClassNamesCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_CLASS_NAMES, JsCallback.of(...))` |
+| `setResourceLabelContentCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_CONTENT, JsCallback.of(...))` |
+| `setResourceLabelDidMountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_DID_MOUNT, JsCallback.of(...))` |
+| `setResourceLablelWillUnmountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of(...))` |
+| `setResourceLaneClassNamesCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_CLASS_NAMES, JsCallback.of(...))` |
+| `setResourceLaneContentCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_CONTENT, JsCallback.of(...))` |
+| `setResourceLaneDidMountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(...))` |
+| `setResourceLaneWillUnmountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of(...))` |
+
+All other scheduler callback and option constants (resource group hooks, resource area header hooks,
+resource lifecycle callbacks, scheduler option setters) are available directly via `setOption(SchedulerOption.X, ...)`
+— no deprecated wrapper method exists for these.
+
+**Migration example:**
+
+```java
+// Old (7.0)
+scheduler.setResourceLabelClassNamesCallback("function(arg) { return arg.resource.special ? ['special'] : []; }");
+
+// New (7.1+)
+scheduler.setOption(SchedulerOption.RESOURCE_LABEL_CLASS_NAMES,
+    JsCallback.of("function(arg) { return arg.resource.special ? ['special'] : []; }"));
+```
+
+### `FullCalendarBuilder` is now a mutable fluent builder
+
+In 7.0, `FullCalendarBuilder.withXxx(...)` returned a **new** builder instance on every call. As of 7.1,
+the same instance is mutated and returned (`return this`). The change is backwards-compatible in all
+standard usage patterns, because intermediate builder states are never stored. However, if you kept
+references to intermediate states and called `.build()` on each, all references now point to the same
+final state.
+
+### Deprecated: `setResourceLablelWillUnmountCallback` (typo fix)
+
+This method was introduced in 7.0 with a typo in the name (`Lablel` instead of `Label`).
+Use `setOption(SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of(...))` instead.
+
+
+### `Entry.overlap` changed from `boolean` to `Boolean`
+
+The `overlap` field on `Entry` has changed from a primitive `boolean` (default `true`) to a boxed `Boolean`
+(default `null`).
+
+**Effect:**
+- The Lombok-generated getter name changed from `isOverlap()` (for primitive `boolean`) to `getOverlap()`
+  (for boxed `Boolean`, which may return `null`).
+- Code that relied on `overlap = true` being serialised to the client on every entry will no longer see the
+  field in the JSON when it has not been explicitly set. FullCalendar's own default for this property is
+  `true`, so the observable behaviour is identical — unless you have a global `eventOverlap` set to `false`
+  on the calendar, in which case an entry without an explicit `overlap` value will now correctly inherit
+  that global setting instead of always sending `true`.
+
+**Migration:** Choose the form that matches your intent for `null`:
+
+Replace all `entry.isOverlap()` calls with `Boolean.TRUE.equals(entry.getOverlap())`.
+
+| Pattern | null → | true → | false → | Use when |
+|---|---|---|---|---|
+| `Boolean.TRUE.equals(v)` | `false` | `true` | `false` | Only explicit `true` counts |
+| `!Boolean.FALSE.equals(v)` | `true` | `true` | `false` | Default-allow (null = true) |
+
+Note: `Boolean.TRUE.equals(null)` returns `false` in Java, so if you need "not set" to mean `true`
+(matching FC's own default behaviour), use `!Boolean.FALSE.equals(entry.getOverlap())` instead —
+that returns `true` when the value is `null` or `true`, and `false` only when explicitly set to `false`.
 
 ## Migrating from 6.1 > 7.0
 To migrate to version 7 of the addon, you need to bump your Vaadin version to 25 and anything else, that Vaadin 25 
