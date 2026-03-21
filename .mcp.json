@@ -4,10 +4,6 @@
       "type": "http",
       "url": "https://mcp.vaadin.com/docs"
     },
-    "fullcalendar": {
-      "type": "http",
-      "url": "https://v-herd.eu/vaadin-fullcalendar-mcp/mcp"
-    },
     "playwright": {
       "command": "npx",
       "args": [
