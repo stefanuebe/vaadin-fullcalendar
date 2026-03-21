@@ -39,6 +39,12 @@ public class ResourceEntry extends Entry {
     @SuppressWarnings("rawtypes")
     private static final Set PROPERTIES = BeanProperties.read(ResourceEntry.class);
 
+    /**
+     * Whether this entry can be dragged between resources (scheduler only).
+     * {@code null} inherits the calendar-level {@code eventResourceEditable} option.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
+     */
     private boolean resourceEditable = true;
 
     @JsonUpdateAllowed

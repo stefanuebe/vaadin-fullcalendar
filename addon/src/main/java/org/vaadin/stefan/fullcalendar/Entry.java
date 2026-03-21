@@ -67,13 +67,6 @@ public class Entry {
     private boolean editable = true;
     private Boolean startEditable;
     private Boolean durationEditable;
-    /**
-     * Whether this entry can be dragged between resources (scheduler only).
-     * {@code null} inherits the calendar-level {@code eventResourceEditable} option.
-     *
-     * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
-     */
-    private Boolean resourceEditable;
     private String color;
     @Getter(AccessLevel.NONE)
     @lombok.Setter(AccessLevel.NONE)
