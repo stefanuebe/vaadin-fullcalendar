@@ -10,7 +10,12 @@ RUN jq --version
 ENV HOME=/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
-COPY demo/. $HOME
+
+# Copy the entire project so addon modules are built locally
+COPY pom.xml $HOME/
+COPY addon/ $HOME/addon/
+COPY addon-scheduler/ $HOME/addon-scheduler/
+COPY demo/ $HOME/demo/
 
 # If you have a Vaadin Pro key, pass it as a secret with id "proKey":
 #
@@ -26,8 +31,9 @@ RUN --mount=type=cache,target=/root/.m2 \
     --mount=type=secret,id=offlineKey \
     sh -c 'PRO_KEY=$(jq -r ".proKey // empty" /run/secrets/proKey 2>/dev/null || echo "") && \
     OFFLINE_KEY=$(cat /run/secrets/offlineKey 2>/dev/null || echo "") && \
-    ./mvnw clean package -Pproduction -Dfullcalendar.version=7.1.2-SNAPSHOT -DskipTests -Dvaadin.proKey=${PRO_KEY} -Dvaadin.offlineKey=${OFFLINE_KEY}'
+    demo/mvnw -f pom.xml clean install -pl addon,addon-scheduler -DskipTests && \
+    demo/mvnw -f demo/pom.xml clean package -Pproduction -DskipTests -Dvaadin.proKey=${PRO_KEY} -Dvaadin.offlineKey=${OFFLINE_KEY}'
 
 FROM eclipse-temurin:21-jre-alpine
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/demo/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "/app.jar", "--spring.profiles.active=prod"]

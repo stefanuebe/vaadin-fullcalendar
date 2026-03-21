@@ -1,0 +1,13 @@
+**/target/
+**/node_modules/
+**/.gradle/
+e2e-test-app/
+e2e-tests/
+customer-demo/
+fc-docs/
+feature-comparison/
+mcp-server/
+docs/
+.git/
+.devcontainer/
+*.md
