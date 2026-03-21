@@ -40,28 +40,6 @@
     </licenses>
 
 
-    <repositories>
-        <repository>
-            <id>Vaadin Directory</id>
-            <url>https://maven.vaadin.com/vaadin-addons</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-<!--    <pluginRepositories>-->
-<!--        &lt;!&ndash; Main Maven repository &ndash;&gt;-->
-<!--        <pluginRepository>-->
-<!--            <id>central</id>-->
-<!--            <url>https://repo.maven.apache.org/maven2</url>-->
-<!--            <snapshots>-->
-<!--                <enabled>false</enabled>-->
-<!--            </snapshots>-->
-<!--        </pluginRepository>-->
-<!--    </pluginRepositories>-->
-
-
     <dependencyManagement>
         <dependencies>
             <dependency>
