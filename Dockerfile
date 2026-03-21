@@ -11,7 +11,8 @@ ENV HOME=/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
 
-# Copy addon modules and demo (no root pom needed - addons have standalone poms)
+# Copy addon modules, demo and lombok config (needed for uppercase field name constants)
+COPY lombok.config $HOME/
 COPY addon/ $HOME/addon/
 COPY addon-scheduler/ $HOME/addon-scheduler/
 COPY demo/ $HOME/demo/
