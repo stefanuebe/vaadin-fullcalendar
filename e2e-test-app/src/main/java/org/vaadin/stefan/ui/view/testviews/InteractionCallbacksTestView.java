@@ -13,6 +13,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 /**
  * Test view for interaction callbacks.
@@ -74,11 +75,14 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix the date for reproducible tests
+        calendar.setLocale(Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
         calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
         calendar.setOption(FullCalendar.Option.EDITABLE, true);
         calendar.setOption(FullCalendar.Option.SELECTABLE, true);
         calendar.setOption(FullCalendar.Option.DROPPABLE, true);
+        calendar.setOption("unselectAuto", true);
+        calendar.setOption("selectMirror", true);
 
         // Add some timed entries so drag/resize can be tested
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -91,8 +95,8 @@ public class InteractionCallbacksTestView extends VerticalLayout {
 
         Entry resizable = new Entry();
         resizable.setTitle("Resize Me");
-        resizable.setStart(LocalDateTime.of(2025, 3, 4, 14, 0));
-        resizable.setEnd(LocalDateTime.of(2025, 3, 4, 15, 0));
+        resizable.setStart(LocalDateTime.of(2025, 3, 4, 10, 0));
+        resizable.setEnd(LocalDateTime.of(2025, 3, 4, 11, 0));
         provider.addEntry(resizable);
 
         calendar.setEntryProvider(provider);
@@ -127,9 +131,9 @@ public class InteractionCallbacksTestView extends VerticalLayout {
             receiveEntryTitle.setText(e.getEntry().getTitle() != null ? e.getEntry().getTitle() : "(no title)");
         });
 
-        // selectAllow: deny selections before 2025-03-03
+        // selectAllow: deny selections before 2025-03-01
         calendar.setOption(FullCalendar.Option.SELECT_ALLOW,
-                JsCallback.of("function(selectInfo) { return selectInfo.start >= new Date('2025-03-03'); }"));
+                JsCallback.of("function(selectInfo) { return selectInfo.start >= new Date(2025, 2, 1); }"));
 
         // eventAllow: prevent drops onto Monday 2025-03-03 (used for the Playwright deny test)
         calendar.setOption(FullCalendar.Option.ENTRY_ALLOW,

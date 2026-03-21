@@ -98,8 +98,8 @@ test.describe('Display Options', () => {
     await expect(page.locator('.fc-dayGridMonth-view')).toBeVisible();
   });
 
-  test('dayMaxEventRows: "+3 more" overflow link appears on 2025-03-10', async ({ page }) => {
-    // 5 events on 2025-03-10 with dayMaxEventRows=2 → "+3 more" link must appear
+  test('maxEntriesPerDay: "+3 more" overflow link appears on 2025-03-10', async ({ page }) => {
+    // 5 events on 2025-03-10 with maxEntriesPerDay=2 → "+3 more" link must appear
     const crowdedDay = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
     await expect(crowdedDay).toBeVisible();
     const moreLink = crowdedDay.locator('.fc-daygrid-more-link');
@@ -108,11 +108,12 @@ test.describe('Display Options', () => {
     await expect(moreLink).toHaveText(/\+3\s+more/i);
   });
 
-  test('dayMaxEventRows: exactly 2 event rows visible in the crowded day cell', async ({ page }) => {
-    // With dayMaxEventRows=2, FullCalendar only renders 2 event elements in the cell;
-    // the remaining 3 are collected behind the "+N more" link and not in the DOM.
+  test('maxEntriesPerDay: exactly 2 event rows visible in the crowded day cell', async ({ page }) => {
+    // With maxEntriesPerDay=2 (FC dayMaxEvents), only 2 events are visible per day cell;
+    // the remaining 3 are behind the "+N more" link. FC may keep hidden events in the DOM,
+    // so we count only visible elements.
     const crowdedDay = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
-    const visibleEvents = crowdedDay.locator('.fc-daygrid-event');
+    const visibleEvents = crowdedDay.locator('.fc-daygrid-event:visible');
     const count = await visibleEvents.count();
     expect(count).toBe(2);
   });

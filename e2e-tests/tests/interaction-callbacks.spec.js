@@ -62,7 +62,8 @@ test.describe('Interaction Callbacks', () => {
         await expect(page.locator('#resize-start-count')).toHaveText('0');
         await expect(page.locator('#resize-stop-count')).toHaveText('0');
 
-        // The resize handle is at the bottom of the event element
+        // Hover over the event to make the resize handle visible (FC shows it on hover)
+        await resizeEvent.hover();
         const handle = resizeEvent.locator('.fc-event-resizer-end');
         await expect(handle).toBeVisible({ timeout: 5000 });
         const handleBox = await handle.boundingBox();
@@ -88,21 +89,27 @@ test.describe('Interaction Callbacks', () => {
     test('unselect listener: counter increments after clicking outside selection', async ({ page }) => {
         await expect(page.locator('#unselect-count')).toHaveText('0');
 
-        // Click-drag to create a timeslot selection
-        const slot = page.locator('.fc-timegrid-slot').nth(5);
-        await expect(slot).toBeVisible({ timeout: 5000 });
-        const slotBox = await slot.boundingBox();
-        if (!slotBox) throw new Error('Could not get slot bounding box');
+        // Find a column for Wednesday (2025-03-05, definitely allowed by selectAllow)
+        const wednesdayCol = page.locator('.fc-col-header-cell').nth(2); // 3rd day in week
+        const wedBox = await wednesdayCol.boundingBox();
 
-        // Create a selection
-        await page.mouse.move(slotBox.x + 10, slotBox.y + 2);
+        // Click-drag in the timegrid body under Wednesday's column to create a selection
+        const timegridBody = page.locator('.fc-timegrid-body');
+        const bodyBox = await timegridBody.boundingBox();
+        if (!wedBox || !bodyBox) throw new Error('Could not get bounding boxes');
+
+        // Start drag at ~09:00 (roughly 1/4 down the body) in Wednesday's column
+        const startX = wedBox.x + wedBox.width / 2;
+        const startY = bodyBox.y + bodyBox.height * 0.25;
+        await page.mouse.move(startX, startY);
         await page.mouse.down();
-        await page.mouse.move(slotBox.x + 10, slotBox.y + slotBox.height * 3, { steps: 5 });
+        await page.mouse.move(startX, startY + 50, { steps: 5 });
         await page.mouse.up();
+        await page.waitForTimeout(500);
 
-        // Click elsewhere on the page (outside the selection) to trigger unselect
-        const header = page.locator('.fc-col-header-cell').first();
-        await header.click();
+        // Click elsewhere (the heading area) to trigger unselect
+        await page.locator('h2').click();
+        await page.waitForTimeout(500);
 
         await expect(page.locator('#unselect-count')).not.toHaveText('0', { timeout: 5000 });
     });

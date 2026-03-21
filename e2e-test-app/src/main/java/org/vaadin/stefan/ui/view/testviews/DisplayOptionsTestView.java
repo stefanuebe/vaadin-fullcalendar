@@ -41,7 +41,7 @@ public class DisplayOptionsTestView extends VerticalLayout {
                 "dayMaxEventRows=2, displayEventEnd=true. " +
                 "On 2025-03-10 there are 5 events, so a '+3 more' link should appear."));
 
-        FullCalendar calendar = FullCalendarBuilder.create().withEntryLimit(3).build();
+        FullCalendar calendar = FullCalendarBuilder.create().build();
         // Note: don't add FullCalendarVariant.VAADIN here — its CSS overrides
         // prevent dayMaxEventRows from working (overflow: visible on day cells)
         calendar.setLocale(Locale.ENGLISH);
@@ -51,9 +51,10 @@ public class DisplayOptionsTestView extends VerticalLayout {
         calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // Display options under test
-        // dayMaxEventRows limits visible event rows per day cell.
-        // With value=2, FC shows 2 events + "+3 more" link (for the remaining 3 of 5)
-        calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 3);
+        // MAX_ENTRIES_PER_DAY (= FC dayMaxEvents) removes excess events from the DOM.
+        // With value=2: 2 events in DOM + "+3 more" link (5 total - 2 visible = 3 hidden).
+        // Note: DAY_MAX_EVENT_ROWS is tested separately in AdvancedOptionsTestView.
+        calendar.setMaxEntriesPerDay(2);
         calendar.setOption(FullCalendar.Option.DISPLAY_EVENT_END, true);
 
         // Use 24h time format for consistent time display (test expects "10:00 - 11:30")
