@@ -11,8 +11,7 @@ ENV HOME=/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
 
-# Copy the entire project so addon modules are built locally
-COPY pom.xml $HOME/
+# Copy addon modules and demo (no root pom needed - addons have standalone poms)
 COPY addon/ $HOME/addon/
 COPY addon-scheduler/ $HOME/addon-scheduler/
 COPY demo/ $HOME/demo/
@@ -31,7 +30,8 @@ RUN --mount=type=cache,target=/root/.m2 \
     --mount=type=secret,id=offlineKey \
     sh -c 'PRO_KEY=$(jq -r ".proKey // empty" /run/secrets/proKey 2>/dev/null || echo "") && \
     OFFLINE_KEY=$(cat /run/secrets/offlineKey 2>/dev/null || echo "") && \
-    demo/mvnw -f pom.xml clean install -pl addon,addon-scheduler -DskipTests && \
+    demo/mvnw -f addon/pom.xml clean install -DskipTests && \
+    demo/mvnw -f addon-scheduler/pom.xml clean install -DskipTests && \
     demo/mvnw -f demo/pom.xml clean package -Pproduction -DskipTests -Dvaadin.proKey=${PRO_KEY} -Dvaadin.offlineKey=${OFFLINE_KEY}'
 
 FROM eclipse-temurin:21-jre-alpine
