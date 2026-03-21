@@ -18,11 +18,16 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
     - name: Build and run unit tests
       run: mvn -B clean install --file pom.xml
 
     - name: Install Playwright system dependencies
-      run: cd e2e-tests && npm ci && npx playwright install-deps chromium
+      run: cd e2e-tests && npx playwright install-deps chromium
 
     - name: Run E2E integration tests
       run: mvn -B clean verify -Pit --file e2e-test-app/pom.xml

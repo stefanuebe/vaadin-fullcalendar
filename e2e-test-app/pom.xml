@@ -127,8 +127,6 @@
             <!-- Integration tests with Playwright - activated using -Pit -->
             <id>it</id>
             <properties>
-                <node.version>v22.22.1</node.version>
-                <npm.version>10.9.2</npm.version>
                 <e2e.tests.dir>${project.basedir}/../e2e-tests</e2e.tests.dir>
             </properties>
             <build>
@@ -148,55 +146,56 @@
                         </executions>
                     </plugin>
 
-                    <!-- Install Node.js and npm dependencies for e2e tests -->
+                    <!-- Install npm dependencies and run Playwright e2e tests -->
+                    <!-- Uses system Node.js (devcontainer: FROM node:20, CI: actions/setup-node) -->
                     <plugin>
-                        <groupId>com.github.eirslett</groupId>
-                        <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.15.1</version>
-                        <configuration>
-                            <workingDirectory>${e2e.tests.dir}</workingDirectory>
-                            <installDirectory>${project.build.directory}/node</installDirectory>
-                        </configuration>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.5.0</version>
                         <executions>
-                            <execution>
-                                <id>install-node-and-npm</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>install-node-and-npm</goal>
-                                </goals>
-                                <configuration>
-                                    <nodeVersion>${node.version}</nodeVersion>
-                                    <npmVersion>${npm.version}</npmVersion>
-                                </configuration>
-                            </execution>
                             <execution>
                                 <id>npm-install</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
-                                    <goal>npm</goal>
+                                    <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <arguments>install</arguments>
+                                    <executable>npm</executable>
+                                    <workingDirectory>${e2e.tests.dir}</workingDirectory>
+                                    <arguments>
+                                        <argument>install</argument>
+                                    </arguments>
                                 </configuration>
                             </execution>
                             <execution>
                                 <id>install-playwright-browsers</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
-                                    <goal>npx</goal>
+                                    <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <arguments>playwright install chromium</arguments>
+                                    <executable>npx</executable>
+                                    <workingDirectory>${e2e.tests.dir}</workingDirectory>
+                                    <arguments>
+                                        <argument>playwright</argument>
+                                        <argument>install</argument>
+                                        <argument>chromium</argument>
+                                    </arguments>
                                 </configuration>
                             </execution>
                             <execution>
                                 <id>run-playwright-tests</id>
                                 <phase>integration-test</phase>
                                 <goals>
-                                    <goal>npx</goal>
+                                    <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <arguments>playwright test</arguments>
+                                    <executable>npx</executable>
+                                    <workingDirectory>${e2e.tests.dir}</workingDirectory>
+                                    <arguments>
+                                        <argument>playwright</argument>
+                                        <argument>test</argument>
+                                    </arguments>
                                     <environmentVariables>
                                         <BASE_URL>http://localhost:8080</BASE_URL>
                                         <CI>true</CI>
