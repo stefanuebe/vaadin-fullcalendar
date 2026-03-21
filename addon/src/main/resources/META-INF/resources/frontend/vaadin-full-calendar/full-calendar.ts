@@ -242,7 +242,7 @@ export class FullCalendar extends HTMLElement {
 
         // Evaluate any JsCallback markers in initial options before passing to FC
         for (const key of Object.keys(options)) {
-            options[key] = evaluateCallbacks(options[key]);
+            (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key]);
         }
 
         this.applyCustomPropertiesApi(options);

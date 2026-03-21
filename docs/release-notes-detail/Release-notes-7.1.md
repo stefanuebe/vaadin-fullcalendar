@@ -9,6 +9,7 @@ Version 7.1 is driven by two goals:
    is surfaced through the generic `setOption` API, backed by typed enums, automatic value converters, and
    `JsCallback` for function values. Dedicated one-off setters that duplicate what `setOption` can already
    express are deprecated.
+3. New event types to allow more fine-grain control over what happens on the client side
 
 No APIs have been removed in this release. Deprecated methods continue to work and will be removed in a future
 major version. See the [migration guide](Migration-guides#migration-notes-70--71) for the one behaviour change
