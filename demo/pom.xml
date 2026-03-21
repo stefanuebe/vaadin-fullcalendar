@@ -16,7 +16,7 @@
 
         <vaadin.version>25.0.7</vaadin.version>
         <spring-boot.version>4.0.3</spring-boot.version>
-        <fullcalendar.version>7.1.2-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.version>7.1.2</fullcalendar.version>
 
 
         <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>
