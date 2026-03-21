@@ -68,7 +68,13 @@ public class EntryQuery {
                     return recurringEnd == null || recurringEnd.isAfter(start);
                 }
 
-                return e.getEnd() != null && e.getEnd().isAfter(start);
+                LocalDateTime entryEnd = e.getEnd();
+                if (entryEnd == null) {
+                    // No explicit end (e.g. all-day single-day entry): defer to the
+                    // upper-bound check below; do not exclude here.
+                    return e.getStart() != null;
+                }
+                return entryEnd.isAfter(start);
             });
         }
 

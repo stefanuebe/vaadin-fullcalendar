@@ -78,7 +78,7 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
 
         this.viewName = eventData.get("name").asString();
 
-        this.calendarView = source.lookupViewByClientSideValue(viewName).orElse(null);
+        this.calendarView = source.lookupViewName(viewName).orElse(null);
 
         this.intervalStart = parseClientSideDate(eventData.get("intervalStart").asString());
         this.intervalEnd = parseClientSideDate(eventData.get("intervalEnd").asString());
@@ -91,7 +91,7 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
      * @deprecated use {@link #getViewName()} instead
      * @return Client side name of the view
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public String getName() {
         return viewName;
     }

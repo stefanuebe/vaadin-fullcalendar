@@ -29,4 +29,4 @@ Please be aware, that due to the design of the used library, these event handler
 calendar is initialized on the client side.
 
 You can combine the event handlers with a custom entryDidMount callback, if you want additional customizations
-of the entries. The FC will take care of combining the event handlers and you EDM callback
+of the entries. The FC will take care of combining the event handlers and your EDM callback

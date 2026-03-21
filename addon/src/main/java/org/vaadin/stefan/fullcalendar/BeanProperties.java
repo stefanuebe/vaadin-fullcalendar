@@ -10,6 +10,7 @@ import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.json.JsonReadField;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 
 import java.lang.reflect.Field;
@@ -77,17 +78,36 @@ public class BeanProperties<T> {
                 .map(field -> {
                     String fieldName = field.getName();
 
-                    Method getterMethod = MethodUtils.getAccessibleMethod(type, "get" + StringUtils.capitalize(fieldName));
-                    if (getterMethod == null) {
-                        getterMethod = MethodUtils.getAccessibleMethod(type, "is" + StringUtils.capitalize(fieldName));
-                    }
-
-                    if (getterMethod == null) {
-                        getterMethod = MethodUtils.getAccessibleMethod(type, fieldName);
-                    }
-
-                    if (getterMethod == null) {
-                        return null; // ignore any fields, that have no getter
+                    ValueProvider<T, Object> getter;
+                    if (field.getAnnotation(JsonReadField.class) != null) {
+                        // Direct field access — no getter required
+                        field.setAccessible(true);
+                        getter = item -> {
+                            try {
+                                return field.get(item);
+                            } catch (IllegalAccessException e) {
+                                throw new RuntimeException("Failed to read field " + fieldName, e);
+                            }
+                        };
+                    } else {
+                        Method getterMethod = MethodUtils.getAccessibleMethod(type, "get" + StringUtils.capitalize(fieldName));
+                        if (getterMethod == null) {
+                            getterMethod = MethodUtils.getAccessibleMethod(type, "is" + StringUtils.capitalize(fieldName));
+                        }
+                        if (getterMethod == null) {
+                            getterMethod = MethodUtils.getAccessibleMethod(type, fieldName);
+                        }
+                        if (getterMethod == null) {
+                            return null; // ignore any fields, that have no getter
+                        }
+                        Method finalGetterMethod = getterMethod;
+                        getter = item -> {
+                            try {
+                                return finalGetterMethod.invoke(item);
+                            } catch (IllegalAccessException | InvocationTargetException e) {
+                                throw new RuntimeException("Failed to invoke getter for field " + fieldName, e);
+                            }
+                        };
                     }
 
                     Class<?> fieldType = field.getType();
@@ -97,15 +117,7 @@ public class BeanProperties<T> {
                         setterMethod = MethodUtils.getAccessibleMethod(type, fieldName, fieldType);
                     }
 
-                    Method finalGetterMethod = getterMethod;
                     Method finalSetterMethod = setterMethod;
-                    ValueProvider<T, Object> getter = item -> {
-                        try {
-                            return finalGetterMethod.invoke(item);
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            throw new RuntimeException("Failed to invoke getter for field " + fieldName, e);
-                        }
-                    };
 
                     // setter is optional
                     Setter<T, Object> setter;

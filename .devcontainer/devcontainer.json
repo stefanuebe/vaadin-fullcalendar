@@ -10,6 +10,7 @@
     }
   },
   "runArgs": [
+    "--privileged",
     "--shm-size=8g",
     "--init"
   ],
@@ -43,7 +44,9 @@
   "remoteUser": "node",
   "mounts": [
     "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
-    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"
+    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume",
+    "source=${localEnv:HOME}/.vaadin,target=/home/node/.vaadin,type=bind,readonly",
+    "source=${localEnv:HOME}/.claude_transfer,target=/home/node/transfer,type=bind,readonly"
   ],
   "containerEnv": {
     "NODE_OPTIONS": "--max-old-space-size=4096",

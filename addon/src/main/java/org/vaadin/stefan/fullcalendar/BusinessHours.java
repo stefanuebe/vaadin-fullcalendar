@@ -206,7 +206,7 @@ public class BusinessHours {
      * Converts the given object into a json object.
      * @return json object
      */
-    protected ObjectNode toJson() {
+    public ObjectNode toJson() {
         ObjectNode jsonObject = JsonFactory.createObject();
 
         jsonObject.set("daysOfWeek", JsonUtils.toJsonNode(dayOfWeeks.stream().map(BusinessHours::convertToClientSideDow)));

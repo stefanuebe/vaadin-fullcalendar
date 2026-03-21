@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+
 public class SettingsDialog extends Dialog {
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, Timezone.getSystem(), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
     private static final long serialVersionUID = 1L;
@@ -27,19 +29,21 @@ public class SettingsDialog extends Dialog {
         Timezone initialTimezone = calendar.getTimezone();
 
         Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
-            calendar.setFixedWeekCount(!calendar.getFixedWeekCount());
-            Notification.show("Updated fixedWeekCount value from " + Boolean.toString(!calendar.getFixedWeekCount()) + " to " + Boolean.toString(calendar.getFixedWeekCount()));
+            boolean current = calendar.<Boolean>getOption(FIXED_WEEK_COUNT).orElse(true);
+            calendar.setOption(FIXED_WEEK_COUNT, !current);
+            Notification.show("Updated fixedWeekCount to " + !current);
         });
 
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> comboBoxLocales = new ComboBox<>("Locale");
         comboBoxLocales.setItems(items);
-        comboBoxLocales.setValue(calendar.getLocale());
+        comboBoxLocales.setValue(calendar.<Locale>getOption(LOCALE).orElse(CalendarLocale.getDefaultLocale()));
         comboBoxLocales.addValueChangeListener(event -> {
             Locale value = event.getValue();
-            calendar.setLocale(value != null ? value : CalendarLocale.getDefaultLocale());
-            Notification.show("Locale changed to " + calendar.getLocale().toLanguageTag());
+            calendar.setOption(LOCALE, value != null ? value : CalendarLocale.getDefaultLocale());
+            Locale newLocale = calendar.<Locale>getOption(LOCALE).orElse(CalendarLocale.getDefaultLocale());
+            Notification.show("Locale changed to " + newLocale.toLanguageTag());
         });
         comboBoxLocales.setRequired(true);
 

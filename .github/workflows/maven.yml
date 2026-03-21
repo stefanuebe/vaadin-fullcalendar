@@ -10,12 +10,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 8
-      uses: actions/setup-java@v2
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
       with:
-        java-version: '8'
-        distribution: 'adopt'
+        java-version: '21'
+        distribution: 'temurin'
         cache: maven
-    - name: Parent
-      run: mvn -B package --file pom.xml
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Build and run unit tests
+      run: mvn -B clean install --file pom.xml
+
+    - name: Install Playwright system dependencies
+      run: cd e2e-tests && npx playwright install-deps chromium
+
+    - name: Run E2E integration tests
+      run: mvn -B clean verify -Pit --file e2e-test-app/pom.xml
+
+    - name: Upload Playwright report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: e2e-tests/playwright-report/
+        retention-days: 7

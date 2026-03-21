@@ -16,7 +16,7 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {FullCalendar} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
+import {FullCalendar, evaluateCallbacks} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 import resourceDayGridPlugin from '@fullcalendar/resource-daygrid';
@@ -40,7 +40,7 @@ export class FullCalendarScheduler extends FullCalendar {
         let calendar = this.calendar;
         calendar.batchRendering(function () {
             for (let i = 0; i < array.length; i++) {
-                calendar.addResource(array[i], scrollToLast);
+                calendar.addResource(evaluateCallbacks(array[i]), scrollToLast);
             }
         });
     }
@@ -64,44 +64,20 @@ export class FullCalendarScheduler extends FullCalendar {
         });
     }
 
-    setResourceLabelClassNamesCallback(s: string) {
-        // @ts-ignore
-        this.setOption('resourceLabelClassNames', new Function("return " + s)());
-    }
-
-    setResourceLabelContentCallback(s: string) {
-        // @ts-ignore
-        this.setOption('resourceLabelContent', new Function("return " + s)());
-    }
-
-    setResourceLabelDidMountCallback(s: string) {
-        // @ts-ignore
-        this.setOption('resourceLabelDidMount', new Function("return " + s)());
-    }
-
-    setResourceLablelWillUnmountCallback(s: string) {
-        // @ts-ignore
-        this.setOption('resourceLabelWillUnmount', new Function("return " + s)());
-    }
-
-    setResourceLaneClassNamesCallback(s: string) {
-        // @ts-ignore
-        this.setOption('resourceLaneClassNames', new Function("return " + s)());
-    }
-
-    setResourceLaneContentCallback(s: string) {
-        // @ts-ignore
-        this.setOption('resourceLaneContent', new Function("return " + s)());
-    }
-
-    setResourceLaneDidMountCallback(s: string) {
-        // @ts-ignore
-        this.setOption('resourceLaneDidMount', new Function("return " + s)());
-    }
-
-    setResourceLaneWillUnmountCallback(s: string) {
-        // @ts-ignore
-        this.setOption('resourceLaneWillUnmount', new Function("return " + s)());
+    updateResource(jsonStr: string) {
+        const data = JSON.parse(jsonStr);
+        const resource = this.calendar.getResourceById(data.id);
+        if (resource) {
+            if (data.title !== undefined) resource.setProp('title', data.title);
+            if (data.eventColor !== undefined) resource.setProp('eventColor', data.eventColor);
+            if (data.eventBackgroundColor !== undefined) resource.setProp('eventBackgroundColor', data.eventBackgroundColor);
+            if (data.eventBorderColor !== undefined) resource.setProp('eventBorderColor', data.eventBorderColor);
+            if (data.eventTextColor !== undefined) resource.setProp('eventTextColor', data.eventTextColor);
+            if (data.eventConstraint !== undefined) resource.setProp('eventConstraint', data.eventConstraint);
+            if (data.eventOverlap !== undefined) resource.setProp('eventOverlap', evaluateCallbacks(data.eventOverlap));
+            if (data.eventAllow !== undefined) resource.setProp('eventAllow', evaluateCallbacks(data.eventAllow));
+            if (data.eventClassNames !== undefined) resource.setProp('eventClassNames', evaluateCallbacks(data.eventClassNames));
+        }
     }
 }
 

@@ -22,11 +22,13 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
+import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.json.JsonConverter;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -77,7 +79,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param entryLimit max entries to shown per day
      * @deprecated use the {@link FullCalendarBuilder#withEntryLimit(int)} instead
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public FullCalendarScheduler(int entryLimit) {
         super(entryLimit);
     }
@@ -112,41 +114,49 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         super(initialOptions);
     }
 
+    @Deprecated
     @Override
     public void setSchedulerLicenseKey(String schedulerLicenseKey) {
         setOption(SchedulerOption.LICENSE_KEY, schedulerLicenseKey);
     }
 
+    @Deprecated
     @Override
     public void setResourceAreaHeaderContent(String resourceAreaHeaderContent) {
         setOption(SchedulerOption.RESOURCE_AREA_HEADER_CONTENT, resourceAreaHeaderContent);
     }
     
+    @Deprecated
     @Override
     public void setResourceAreaWidth(String resourceAreaWidth) {
         setOption(SchedulerOption.RESOURCE_AREA_WIDTH, resourceAreaWidth);
     }
     
+    @Deprecated
     @Override
     public void setSlotMinWidth(String slotMinWidth) {
         setOption(SchedulerOption.SLOT_MIN_WIDTH, slotMinWidth);
     }
     
+    @Deprecated
     @Override
     public void setResourcesInitiallyExpanded(boolean resourcesInitiallyExpanded) {
         setOption(SchedulerOption.RESOURCES_INITIALLY_EXPANDED, resourcesInitiallyExpanded);
     }
     
+    @Deprecated
     @Override
     public void setFilterResourcesWithEvents(boolean filterResourcesWithEvents) {
         setOption(SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES, filterResourcesWithEvents);
     }
 
+    @Deprecated
     @Override
     public void setResourceOrder(String resourceOrder) {
         setOption(SchedulerOption.RESOURCE_ORDER, resourceOrder);
     }
     
+    @Deprecated
     @Override
     public void setEntryResourceEditable(boolean eventResourceEditable) {
     	setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, eventResourceEditable);
@@ -166,6 +176,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             String id = resource.getId();
             if (!resources.containsKey(id)) {
                 resources.put(id, resource);
+                resource.attachScheduler(this);
                 array.add(resource.toJson()); // this automatically sends sub resources to the client side
         }
 
@@ -184,6 +195,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     private void registerResourcesInternally(Collection<Resource> resources) {
         for (Resource resource : resources) {
             this.resources.put(resource.getId(), resource);
+            resource.attachScheduler(this);
             registerResourcesInternally(resource.getChildren());
         }
     }
@@ -200,6 +212,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             String id = resource.getId();
             if (this.resources.containsKey(id)) {
                 this.resources.remove(id);
+                resource.detachScheduler();
                 array.add(resource.toJson());
             }
         });
@@ -239,49 +252,74 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void removeAllResources() {
         removeFromEntries(resources.values());
+        resources.values().forEach(Resource::detachScheduler);
     	resources.clear();
         getElement().callJsFunction("removeAllResources");
     }
 
     @Override
+    @Deprecated
     public void setResourceLabelClassNamesCallback(String s) {
-        getElement().callJsFunction("setResourceLabelClassNamesCallback", s);
+        setOption(SchedulerOption.RESOURCE_LABEL_CLASS_NAMES, JsCallback.of(s));
     }
-    
+
     @Override
+    @Deprecated
     public void setResourceLabelContentCallback(String s) {
-        getElement().callJsFunction("setResourceLabelContentCallback", s);
+        setOption(SchedulerOption.RESOURCE_LABEL_CONTENT, JsCallback.of(s));
     }
-    
+
     @Override
+    @Deprecated
     public void setResourceLabelDidMountCallback(String s) {
-        getElement().callJsFunction("setResourceLabelDidMountCallback", s);
+        setOption(SchedulerOption.RESOURCE_LABEL_DID_MOUNT, JsCallback.of(s));
     }
-    
+
     @Override
+    @Deprecated
     public void setResourceLablelWillUnmountCallback(String s) {
-        getElement().callJsFunction("setResourceLablelWillUnmountCallback", s);
+        setOption(SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of(s));
     }
-    
+
     @Override
+    @Deprecated
     public void setResourceLaneClassNamesCallback(String s) {
-        getElement().callJsFunction("setResourceLaneClassNamesCallback", s);
+        setOption(SchedulerOption.RESOURCE_LANE_CLASS_NAMES, JsCallback.of(s));
     }
-    
+
     @Override
+    @Deprecated
     public void setResourceLaneContentCallback(String s) {
-        getElement().callJsFunction("setResourceLaneContentCallback", s);
+        setOption(SchedulerOption.RESOURCE_LANE_CONTENT, JsCallback.of(s));
     }
-    
+
     @Override
+    @Deprecated
     public void setResourceLaneDidMountCallback(String s) {
-        getElement().callJsFunction("setResourceLaneDidMountCallback", s);
+        setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(s));
     }
-    
+
     @Override
+    @Deprecated
     public void setResourceLaneWillUnmountCallback(String s) {
-        getElement().callJsFunction("setResourceLaneWillUnmountCallback", s);
+        setOption(SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of(s));
     }
+
+    @Override
+    public void setResourceAreaColumns(List<ResourceAreaColumn> columns) {
+        Objects.requireNonNull(columns);
+        ArrayNode array = JsonFactory.createArray();
+        columns.forEach(col -> array.add(col.toJson()));
+        setOption(SchedulerOption.RESOURCE_AREA_COLUMNS, array, columns);
+    }
+
+
+    @Override
+    public void updateResource(Resource resource) {
+        Objects.requireNonNull(resource);
+        getElement().callJsFunction("updateResource", resource.toJson().toString());
+    }
+
 
     @Override
     public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
@@ -344,8 +382,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(SchedulerOption option, Serializable value) {
-        setOption(option, value, null);
+    public void setOption(SchedulerOption option, Object value) {
+        setOption(option.getOptionKey(), value, null, option.getConverters());
     }
 
     /**
@@ -362,8 +400,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(SchedulerOption option, Serializable value, Object valueForServerSide) {
-        setOption(option.getOptionKey(), value, valueForServerSide);
+    public void setOption(SchedulerOption option, Object value, Object valueForServerSide) {
+        setOption(option.getOptionKey(), value, valueForServerSide, option.getConverters());
     }
 
     /**
@@ -401,8 +439,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends CalendarView> Optional<T> lookupViewByClientSideValue(String clientSideValue) {
-        Optional<T> optional = super.lookupViewByClientSideValue(clientSideValue);
+    public <T extends CalendarView> Optional<T> lookupViewName(String clientSideValue) {
+        Optional<T> optional = super.lookupViewName(clientSideValue);
         if (optional.isEmpty()) {
             optional = (Optional<T>) SchedulerView.ofClientSideValue(clientSideValue);
         }
@@ -420,20 +458,444 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * <a href="https://fullcalendar.io/docs">https://fullcalendar.io/docs</a>
      */
     public enum SchedulerOption {
+        /**
+         * In vertical resource view, display dates above resources instead of resources above dates.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code boolean}</dd>
+         *   <dt>Default</dt> <dd>{@code false}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/datesAboveResources">datesAboveResources</a>
+         */
+        DATES_ABOVE_RESOURCES("datesAboveResources"),
+
+        /**
+         * Allow dragging entries between resources.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code boolean}</dd>
+         *   <dt>Default</dt> <dd>inherits from {@link FullCalendar.Option#EDITABLE}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
+         */
         ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
+
+        /**
+         * Minimum pixel width of entries in timeline view.
+         * <dl>
+         *   <dt>Type</dt> <dd>{@code number} (pixels)</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/eventMinWidth">eventMinWidth</a>
+         */
+        ENTRY_MIN_WIDTH("eventMinWidth"),
+
+        /**
+         * Only show resources that have entries assigned.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code boolean}</dd>
+         *   <dt>Default</dt> <dd>{@code false}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/filterResourcesWithEvents">filterResourcesWithEvents</a>
+         */
         FILTER_RESOURCES_WITH_ENTRIES("filterResourcesWithEvents"),
+
+        /**
+         * Group the calendar view by date first, then by resource.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code boolean}</dd>
+         *   <dt>Default</dt> <dd>{@code false}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/groupByDateAndResource">groupByDateAndResource</a>
+         */
         GROUP_BY_DATE_AND_RESOURCE("groupByDateAndResource"),
+
+        /**
+         * Group the calendar view by resource.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code boolean}</dd>
+         *   <dt>Default</dt> <dd>{@code false}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/groupByResource">groupByResource</a>
+         */
         GROUP_BY_RESOURCE("groupByResource"),
+
+        /**
+         * FullCalendar Scheduler license key required for scheduler views to work.
+         * <dl>
+         *   <dt>Type</dt> <dd>{@code string}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/schedulerLicenseKey">schedulerLicenseKey</a>
+         */
         LICENSE_KEY("schedulerLicenseKey"),
+
+        /**
+         * Re-fetch resources from the data provider when navigating to a different period.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code boolean}</dd>
+         *   <dt>Default</dt> <dd>{@code false}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/refetchResourcesOnNavigate">refetchResourcesOnNavigate</a>
+         */
         REFETCH_RESOURCES_ON_NAVIGATE("refetchResourcesOnNavigate"),
+
+        /**
+         * Column definitions for the resource area (left side in timeline views).
+         * <dl>
+         *   <dt>Type</dt>    <dd>array of column configuration objects</dd>
+         *   <dt>Default</dt> <dd>single column with resource name</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourceAreaColumns">resourceAreaColumns</a>
+         */
+        RESOURCE_AREA_COLUMNS("resourceAreaColumns"),
+
+        /**
+         * Custom content for the resource area header cell (top-left corner in timeline views).
+         * <dl>
+         *   <dt>Type</dt> <dd>{@code string} | HTML string | content object</dd>
+         * </dl>
+         * To use a JS function callback, use {@link FullCalendarScheduler#setOption(String, Object)}
+         * with a {@link JsCallback} value.
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceAreaHeaderContent</a>
+         */
         RESOURCE_AREA_HEADER_CONTENT("resourceAreaHeaderContent"),
+
+        /**
+         * Width of the resource area (left column in timeline/vertical-resource views).
+         * <dl>
+         *   <dt>Type</dt>    <dd>CSS width string (e.g., {@code "200px"}, {@code "20%"})</dd>
+         *   <dt>Default</dt> <dd>auto-calculated by FullCalendar</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourceAreaWidth">resourceAreaWidth</a>
+         */
         RESOURCE_AREA_WIDTH("resourceAreaWidth"),
+
+        /**
+         * Field name in resource data used to group resources.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code string} (field name)</dd>
+         *   <dt>Default</dt> <dd>none (no grouping)</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourceGroupField">resourceGroupField</a>
+         */
+        RESOURCE_GROUP_FIELD("resourceGroupField"),
+
+        /**
+         * Whether resource groups start in an expanded state.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code boolean}</dd>
+         *   <dt>Default</dt> <dd>{@code true}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourcesInitiallyExpanded">resourcesInitiallyExpanded</a>
+         */
         RESOURCES_INITIALLY_EXPANDED("resourcesInitiallyExpanded"),
+
+        /**
+         * Default sort order for resources.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code string} | array of sort keys | {@code -1} for reverse order</dd>
+         *   <dt>Default</dt> <dd>alphabetical by name</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourceOrder">resourceOrder</a>
+         */
         RESOURCE_ORDER("resourceOrder"),
+
+        /**
+         * Minimum pixel width of each time slot column in timeline view.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code number} (pixels)</dd>
+         *   <dt>Default</dt> <dd>auto-calculated</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/slotMinWidth">slotMinWidth</a>
+         */
         SLOT_MIN_WIDTH("slotMinWidth"),
+
+
+        // ---- Callback options (merged from SchedulerCallbackOption) ----
+
+        // ---- Render hooks: Resource Label ----
+        /**
+         * Add CSS classes to resource name label cells. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
+         *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLabelClassNames</a>
+         */
+        RESOURCE_LABEL_CLASS_NAMES("resourceLabelClassNames"),
+
+        /**
+         * Customize the content inside a resource name label cell. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
+         *   <dt>Returns</dt>   <dd>content object or HTML string</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLabelContent</a>
+         */
+        RESOURCE_LABEL_CONTENT("resourceLabelContent"),
+
+        /**
+         * Called after a resource label element is added to the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLabelDidMount</a>
+         */
+        RESOURCE_LABEL_DID_MOUNT("resourceLabelDidMount"),
+
+        /**
+         * Called before a resource label element is removed from the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLabelWillUnmount</a>
+         */
+        RESOURCE_LABEL_WILL_UNMOUNT("resourceLabelWillUnmount"),
+
+        // ---- Render hooks: Resource Lane ----
+        /**
+         * Add CSS classes to a resource lane. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
+         *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLaneClassNames</a>
+         */
+        RESOURCE_LANE_CLASS_NAMES("resourceLaneClassNames"),
+
+        /**
+         * Customize the content inside a resource lane. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
+         *   <dt>Returns</dt>   <dd>content object or HTML string</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLaneContent</a>
+         */
+        RESOURCE_LANE_CONTENT("resourceLaneContent"),
+
+        /**
+         * Called after a resource lane element is added to the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLaneDidMount</a>
+         */
+        RESOURCE_LANE_DID_MOUNT("resourceLaneDidMount"),
+
+        /**
+         * Called before a resource lane element is removed from the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLaneWillUnmount</a>
+         */
+        RESOURCE_LANE_WILL_UNMOUNT("resourceLaneWillUnmount"),
+
+        // ---- Render hooks: Resource Group ----
+        /**
+         * Add CSS classes to a resource group header row. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupClassNames</a>
+         */
+        RESOURCE_GROUP_CLASS_NAMES("resourceGroupClassNames"),
+
+        /**
+         * Customize the content inside a resource group header row. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Returns</dt>   <dd>content object or HTML string</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupContent</a>
+         */
+        RESOURCE_GROUP_CONTENT("resourceGroupContent"),
+
+        /**
+         * Called after a resource group header element is added to the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupDidMount</a>
+         */
+        RESOURCE_GROUP_DID_MOUNT("resourceGroupDidMount"),
+
+        /**
+         * Called before a resource group header element is removed from the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupWillUnmount</a>
+         */
+        RESOURCE_GROUP_WILL_UNMOUNT("resourceGroupWillUnmount"),
+
+        // ---- Render hooks: Resource Group Lane ----
+        /**
+         * Add CSS classes to a resource group lane row. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneClassNames</a>
+         */
+        RESOURCE_GROUP_LANE_CLASS_NAMES("resourceGroupLaneClassNames"),
+
+        /**
+         * Customize the content inside a resource group lane row. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Returns</dt>   <dd>content object or HTML string</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneContent</a>
+         */
+        RESOURCE_GROUP_LANE_CONTENT("resourceGroupLaneContent"),
+
+        /**
+         * Called after a resource group lane element is added to the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneDidMount</a>
+         */
+        RESOURCE_GROUP_LANE_DID_MOUNT("resourceGroupLaneDidMount"),
+
+        /**
+         * Called before a resource group lane element is removed from the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneWillUnmount</a>
+         */
+        RESOURCE_GROUP_LANE_WILL_UNMOUNT("resourceGroupLaneWillUnmount"),
+
+        // ---- Render hooks: Resource Area Header ----
+        /**
+         * Add CSS classes to the resource area header cell. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {el, view}}</dd>
+         *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceAreaHeaderClassNames</a>
+         */
+        RESOURCE_AREA_HEADER_CLASS_NAMES("resourceAreaHeaderClassNames"),
+
+        /**
+         * Called after the resource area header element is added to the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceAreaHeaderDidMount</a>
+         */
+        RESOURCE_AREA_HEADER_DID_MOUNT("resourceAreaHeaderDidMount"),
+
+        /**
+         * Called before the resource area header element is removed from the DOM. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {el, view}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceAreaHeaderWillUnmount</a>
+         */
+        RESOURCE_AREA_HEADER_WILL_UNMOUNT("resourceAreaHeaderWillUnmount"),
+
+        // ---- Resource lifecycle callbacks ----
+        /**
+         * Called when a resource is added to the calendar. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourceAdd">resourceAdd</a>
+         */
+        RESOURCE_ADD("resourceAdd"),
+
+        /**
+         * Called when a resource is modified. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {oldResource, resource, revert}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourceChange">resourceChange</a>
+         */
+        RESOURCE_CHANGE("resourceChange"),
+
+        /**
+         * Called when a resource is removed from the calendar. Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resource}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourceRemove">resourceRemove</a>
+         */
+        RESOURCE_REMOVE("resourceRemove"),
+
+        /**
+         * Called after all resources are set (bulk). Accepts a {@link JsCallback}.
+         * <dl>
+         *   <dt>Arguments</dt> <dd>{@code {resources}}</dd>
+         * </dl>
+         *
+         * @see <a href="https://fullcalendar.io/docs/resourcesSet">resourcesSet</a>
+         */
+        RESOURCES_SET("resourcesSet"),
+
         ;
 
+
         private final String optionKey;
+
+        private static final Map<SchedulerOption, List<JsonItemPropertyConverter<?, ?>>> CONVERTER_CACHE;
+
+        static {
+            Map<SchedulerOption, List<JsonItemPropertyConverter<?, ?>>> map = new EnumMap<>(SchedulerOption.class);
+            for (SchedulerOption opt : values()) {
+                try {
+                    JsonConverter[] annotations = SchedulerOption.class.getField(opt.name())
+                            .getAnnotationsByType(JsonConverter.class);
+                    if (annotations.length > 0) {
+                        List<JsonItemPropertyConverter<?, ?>> list = new ArrayList<>();
+                        for (JsonConverter ann : annotations) {
+                            list.add(ann.value().getConstructor().newInstance());
+                        }
+                        map.put(opt, Collections.unmodifiableList(list));
+                    }
+                } catch (ReflectiveOperationException e) {
+                    throw new ExceptionInInitializerError(e);
+                }
+            }
+            CONVERTER_CACHE = Collections.unmodifiableMap(map);
+        }
 
         SchedulerOption(String optionKey) {
             this.optionKey = optionKey;
@@ -442,5 +904,30 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         String getOptionKey() {
             return optionKey;
         }
+
+        /**
+         * Returns the converters registered for this option via {@link JsonConverter} annotations, in order.
+         */
+        public List<JsonItemPropertyConverter<?, ?>> getConverters() {
+            return CONVERTER_CACHE.getOrDefault(this, List.of());
+        }
+
+        /**
+         * If this option has one or more {@link JsonConverter} annotations and the given value is
+         * supported by one of them, returns the converted {@link JsonNode}. Otherwise returns empty.
+         */
+        @SuppressWarnings("unchecked")
+        public Optional<JsonNode> convertValue(Object value) {
+            for (JsonItemPropertyConverter<?, ?> c : getConverters()) {
+                if (c.supports(value)) {
+                    return Optional.of(((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null));
+                }
+            }
+            return Optional.empty();
+        }
     }
+
+    // SchedulerCallbackOption enum removed — all constants merged into SchedulerOption.
+    // Use setOption(SchedulerOption.X, JsCallback.of("function...")) instead.
+
 }

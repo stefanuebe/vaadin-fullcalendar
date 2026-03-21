@@ -2,12 +2,14 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class ResourceTest {
@@ -149,6 +151,89 @@ public class ResourceTest {
         Assertions.assertEquals(child, parent2.getChildren().iterator().next(), "Check if correct child was added");
     }
 
+    // -------------------------------------------------------------------------
+    // getEvents()
+    // -------------------------------------------------------------------------
+
+    @Test
+    void getEvents_withoutScheduler_returnsEmptySet() {
+        Resource resource = new Resource();
+        Assertions.assertTrue(resource.getEvents().isEmpty());
+    }
+
+    @Test
+    void getEvents_returnsEntriesAssignedToResource() {
+        FullCalendarScheduler scheduler = new FullCalendarScheduler();
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        scheduler.setEntryProvider(provider);
+
+        Resource resource = new Resource();
+        scheduler.addResource(resource);
+
+        ResourceEntry assigned = new ResourceEntry();
+        assigned.addResources(resource);
+        provider.addEntry(assigned);
+
+        ResourceEntry other = new ResourceEntry(); // no resource assigned
+        provider.addEntry(other);
+
+        Set<ResourceEntry> events = resource.getEvents();
+        Assertions.assertEquals(1, events.size());
+        Assertions.assertTrue(events.contains(assigned));
+        Assertions.assertFalse(events.contains(other));
+    }
+
+    @Test
+    void getEvents_multipleResources_returnsOnlyOwn() {
+        FullCalendarScheduler scheduler = new FullCalendarScheduler();
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+        scheduler.setEntryProvider(provider);
+
+        Resource r1 = new Resource();
+        Resource r2 = new Resource();
+        scheduler.addResources(List.of(r1, r2));
+
+        ResourceEntry e1 = new ResourceEntry();
+        e1.addResources(r1);
+        provider.addEntry(e1);
+
+        ResourceEntry e2 = new ResourceEntry();
+        e2.addResources(r2);
+        provider.addEntry(e2);
+
+        Assertions.assertEquals(Set.of(e1), r1.getEvents());
+        Assertions.assertEquals(Set.of(e2), r2.getEvents());
+    }
+
+    // -------------------------------------------------------------------------
+    // addExtendedProps / removeExtendedProps
+    // -------------------------------------------------------------------------
+
+    @Test
+    void addExtendedProps_storesValue() {
+        Resource resource = new Resource();
+        resource.addExtendedProps("dept", "Engineering");
+        Assertions.assertEquals("Engineering", resource.getExtendedProps().get("dept"));
+    }
+
+    @Test
+    void removeExtendedProps_byKey_removesValue() {
+        Resource resource = new Resource();
+        resource.addExtendedProps("dept", "Engineering");
+        resource.removeExtendedProps("dept");
+        Assertions.assertFalse(resource.getExtendedProps().containsKey("dept"));
+    }
+
+    @Test
+    void removeExtendedProps_byKeyAndValue_removesOnlyOnMatch() {
+        Resource resource = new Resource();
+        resource.addExtendedProps("dept", "Engineering");
+        resource.removeExtendedProps("dept", "HR");           // wrong value — not removed
+        Assertions.assertTrue(resource.getExtendedProps().containsKey("dept"));
+        resource.removeExtendedProps("dept", "Engineering");  // correct value — removed
+        Assertions.assertFalse(resource.getExtendedProps().containsKey("dept"));
+    }
+
     @Test
     void testToJson() {
         Resource parent = new Resource(PARENT + DEFAULT_ID, PARENT + DEFAULT_TITLE, PARENT + DEFAULT_COLOR);
@@ -229,5 +314,40 @@ public class ResourceTest {
         Assertions.assertEquals(CHILD1 + DEFAULT_ID, child11Json.get("parentId").asString(), "child 1_1  parent id value");
 
         Assertions.assertFalse(child11Json.has("children"), "child 1_1 json has no children");
+    }
+
+    // -------------------------------------------------------------------------
+    // eventAllow
+    // -------------------------------------------------------------------------
+
+    @Test
+    void eventAllow_defaultNull() {
+        Resource resource = new Resource();
+        Assertions.assertNull(resource.getEntryAllow());
+    }
+
+    @Test
+    void eventAllow_getterSetter() {
+        Resource resource = new Resource();
+        resource.setEntryAllow("function() { return true; }");
+        Assertions.assertNotNull(resource.getEntryAllow());
+        Assertions.assertEquals("function() { return true; }", resource.getEntryAllow().getJsFunction());
+    }
+
+    @Test
+    void eventAllow_inJson_whenSet() {
+        Resource resource = new Resource("r1", "Room 1", null);
+        resource.setEntryAllow("function() { return false; }");
+        ObjectNode json = resource.toJson();
+        Assertions.assertTrue(json.has("eventAllow"), "eventAllow should be in JSON when set");
+        Assertions.assertTrue(json.get("eventAllow").isObject(), "eventAllow should be a JsCallback marker object");
+        Assertions.assertEquals("function() { return false; }", json.get("eventAllow").get("__jsCallback").asString());
+    }
+
+    @Test
+    void eventAllow_notInJson_whenNull() {
+        Resource resource = new Resource("r1", "Room 1", null);
+        ObjectNode json = resource.toJson();
+        Assertions.assertFalse(json.has("eventAllow"), "eventAllow should not be in JSON when null");
     }
 }

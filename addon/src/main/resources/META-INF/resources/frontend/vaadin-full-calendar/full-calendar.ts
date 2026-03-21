@@ -22,9 +22,12 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import multiMonthPlugin from '@fullcalendar/multimonth';
+import rrulePlugin from '@fullcalendar/rrule';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import allLocales from '@fullcalendar/core/locales-all';
+import googleCalendarPlugin from '@fullcalendar/google-calendar';
+import iCalendarPlugin from '@fullcalendar/icalendar';
 
 // Simple type, that allows JS object property access via ["xyz"]
 export type IterableObject = {
@@ -32,10 +35,45 @@ export type IterableObject = {
     hasOwnProperty: (key: string) => boolean;
 };
 
+/**
+ * Recursively walks a value and evaluates any JsCallback markers.
+ * A JsCallback marker is an object with a {@code __jsCallback} string property.
+ * <p>
+ * Custom property injection (getCustomProperty on event objects) is NOT handled here —
+ * it is applied by the monkey-patched calendar.setOption() and applyCustomPropertiesApi()
+ * in initCalendar, based on a hard-coded set of well-known entry callback keys.
+ * <p>
+ * IMPORTANT: This function must only be called on option/config objects, never on
+ * entry/event data arrays, to prevent accidental code execution from user data.
+ */
+export function evaluateCallbacks(value: any): any {
+    if (value == null || typeof value !== 'object') return value;
+
+    // JsCallback marker object — evaluate the function string
+    if (typeof value.__jsCallback === 'string') {
+        return new Function("return " + value.__jsCallback)();
+    }
+
+    // Array — recurse into elements
+    if (Array.isArray(value)) {
+        return value.map((item) => evaluateCallbacks(item));
+    }
+
+    // Plain object — recurse into properties
+    const result: any = {};
+    for (const key of Object.keys(value)) {
+        result[key] = evaluateCallbacks(value[key]);
+    }
+    return result;
+}
+
 export class FullCalendar extends HTMLElement {
 
     private _calendar!: Calendar;
     private _resizeObserver: ResizeObserver | null = null;
+
+    /** IDs of entries fetched from the server-side EntryProvider. Used to distinguish external-source entries. */
+    private serverEntryIds: Set<string> = new Set();
 
     protected noDatesRenderEvent = false;
     protected noDatesRenderEventOnOptionSetting = true;
@@ -84,15 +122,51 @@ export class FullCalendar extends HTMLElement {
 
             // TODO this is somehow double to the initial options variant, might be reduced to one variant?
             this._calendar.setOption = (key: any, value: any) => {
-                if (key === "eventDidMount" || key === "eventContent") {
+                // Null/undefined values pass through directly to clear the option — no wrapping
+                if (value == null) {
+                    _setOption.call(this._calendar, key, value);
+                    return;
+                }
+
+                // Entry render hooks: inject getCustomProperty via info.event
+                const entryInfoHooks = ['eventClassNames', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
+                if (entryInfoHooks.includes(key)) {
                     // in these cases add custom api to the event to allow for instance accessing custom properties
                     _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
+                // eventOverlap(stillEvent, movingEvent) — two direct event args
+                } else if (key === 'eventOverlap') {
+                    _setOption.call(this._calendar, key, (stillEvent: any, movingEvent: any) => {
+                        this.addCustomAPI(stillEvent);
+                        this.addCustomAPI(movingEvent);
+                        return value(stillEvent, movingEvent);
+                    });
+                // eventAllow(dropInfo, draggedEvent) — event is second arg
+                } else if (key === 'eventAllow') {
+                    _setOption.call(this._calendar, key, (dropInfo: any, draggedEvent: any) => {
+                        this.addCustomAPI(draggedEvent);
+                        return value(dropInfo, draggedEvent);
+                    });
+                // selectOverlap(event) — event is first arg
+                } else if (key === 'selectOverlap') {
+                    _setOption.call(this._calendar, key, (event: any) => {
+                        this.addCustomAPI(event);
+                        return value(event);
+                    });
                 } else {
                     _setOption.call(this._calendar, key, value);
                 }
             }
 
             this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
+
+            // Deferred updateSize to fix broken initial layout when the container dimensions
+            // are not yet finalized at render time (e.g. inside tabs, dialogs, lazy-loaded views).
+            // Two nested rAFs ensure the call happens after both layout and paint are complete.
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    this._calendar?.updateSize();
+                });
+            });
 
             // Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/97
             // calling updateSize or render inside the resize observer leads to an error in combination
@@ -160,14 +234,15 @@ export class FullCalendar extends HTMLElement {
             timeGridPlugin,
             listPlugin,
             multiMonthPlugin,
-            momentTimezonePlugin
+            momentTimezonePlugin,
+            rrulePlugin,
+            googleCalendarPlugin,
+            iCalendarPlugin
         ];
 
-        // be aware of never setting or passing in any harmful content from the serverside
-        // @ts-ignore
-        if (typeof options.eventContent === "string") {
-            // @ts-ignore
-            options.eventContent = new Function("return " + options.eventContent)();
+        // Evaluate any JsCallback markers in initial options before passing to FC
+        for (const key of Object.keys(options)) {
+            options[key] = evaluateCallbacks(options[key]);
         }
 
         this.applyCustomPropertiesApi(options);
@@ -244,13 +319,15 @@ export class FullCalendar extends HTMLElement {
             eventResize: (eventInfo: any) => {
                 return {
                     data: this.convertToEventData(eventInfo.event),
-                    delta: eventInfo.endDelta
+                    delta: eventInfo.endDelta,
+                    sourceId: eventInfo.event?.source?.id ?? null,
                 }
             },
             eventDrop: (eventInfo: any) => {
                 return {
                     data: this.convertToEventData(eventInfo.event, eventInfo.oldResource, eventInfo.newResource),
                     delta: eventInfo.delta,
+                    sourceId: eventInfo.event?.source?.id ?? null,
                 }
             },
             datesSet: (eventInfo: any) => {
@@ -298,6 +375,40 @@ export class FullCalendar extends HTMLElement {
                     start: this.formatDate(view.activeStart, true),
                     end: this.formatDate(view.activeEnd, true)
                 }
+            },
+
+            // Drag/resize lifecycle events
+            eventDragStart: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+            eventDragStop: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+            eventResizeStart: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+            eventResizeStop: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+
+            // Unselect
+            unselect: (_eventInfo: any) => {
+                return {};
+            },
+
+            // External drag-drop
+            drop: (eventInfo: any) => {
+                return {
+                    date: this.formatDate(eventInfo.date, eventInfo.allDay),
+                    allDay: eventInfo.allDay,
+                    draggedElData: eventInfo.draggedEl ? eventInfo.draggedEl.getAttribute('data-event') : null
+                };
+            },
+            eventReceive: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
+            },
+            eventLeave: (eventInfo: any) => {
+                return {data: this.convertToEventData(eventInfo.event)};
             }
 
         };
@@ -373,19 +484,33 @@ export class FullCalendar extends HTMLElement {
     protected addEventHandlersToOptions(options: any, events: any) {
         for (let eventName in events) {
             if (events.hasOwnProperty(eventName)) {
-                options[eventName] = (eventInfo: any) => {
-                    const eventDetails = events[eventName](eventInfo);
-                    if (eventDetails) {
-                        this.dispatchEvent(new CustomEvent(eventName, {
-                            detail: eventDetails
-                        }));
-
-                        if (eventName === "moreLinkClick") {
-                            return this.moreLinkClickAction; // necessary to prevent showing a popup
+                if (eventName === "eventDrop" || eventName === "eventResize") {
+                    options[eventName] = (eventInfo: any) => {
+                        const eventDetails = events[eventName](eventInfo);
+                        if (eventDetails) {
+                            const entryId: string = eventInfo.event?.id;
+                            const isExternal = entryId != null && !this.serverEntryIds.has(entryId);
+                            const domEventName = isExternal
+                                ? (eventName === "eventDrop" ? "externalEntryDrop" : "externalEntryResize")
+                                : eventName;
+                            this.dispatchEvent(new CustomEvent(domEventName, {detail: eventDetails}));
                         }
-                    }
+                    };
+                } else {
+                    options[eventName] = (eventInfo: any) => {
+                        const eventDetails = events[eventName](eventInfo);
+                        if (eventDetails) {
+                            this.dispatchEvent(new CustomEvent(eventName, {
+                                detail: eventDetails
+                            }));
 
-                    return undefined;
+                            if (eventName === "moreLinkClick") {
+                                return this.moreLinkClickAction;
+                            }
+                        }
+
+                        return undefined;
+                    }
                 }
             }
         }
@@ -442,6 +567,7 @@ export class FullCalendar extends HTMLElement {
                 end: this.formatDate(info.end)
             }).then((array: any | any[]) => {
                 if (Array.isArray(array)) {
+                    this.serverEntryIds = new Set(array.map((e: any) => e.id));
                     successCallback(array);
                 } else {
                     failureCallback("could not fetch");
@@ -457,23 +583,44 @@ export class FullCalendar extends HTMLElement {
     private applyCustomPropertiesApi(options: any) {
         // if the calendar is options to modify the event appearance, we extend the custom api here
         // see _initCalendar for details
-        if (typeof options.eventDidMount === "function") {
-            let initEventDidMount = options.eventDidMount;
-            options.eventDidMount = (info: any) => {
-                let event = info.event;
-                this.addCustomAPI(event);
 
-                return initEventDidMount.call(this._calendar, info);
+        // Entry render hooks: inject getCustomProperty via info.event
+        const entryInfoHooks = ['eventClassNames', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
+        for (const hookKey of entryInfoHooks) {
+            if (typeof options[hookKey] === "function") {
+                const initHook = options[hookKey];
+                options[hookKey] = (info: any) => {
+                    this.addCustomAPI(info.event);
+                    return initHook.call(this._calendar, info);
+                };
+            }
+        }
+
+        // eventOverlap(stillEvent, movingEvent) — two direct event args
+        if (typeof options.eventOverlap === "function") {
+            const initOverlap = options.eventOverlap;
+            options.eventOverlap = (stillEvent: any, movingEvent: any) => {
+                this.addCustomAPI(stillEvent);
+                this.addCustomAPI(movingEvent);
+                return initOverlap.call(this._calendar, stillEvent, movingEvent);
             };
         }
 
-        if (typeof options.eventContent === "function") {
-            let initEventContent = options.eventContent;
-            options.eventContent = (info: any, createElement: any) => {
-                let event = info.event;
-                this.addCustomAPI(event);
+        // eventAllow(dropInfo, draggedEvent) — event is second arg
+        if (typeof options.eventAllow === "function") {
+            const initAllow = options.eventAllow;
+            options.eventAllow = (dropInfo: any, draggedEvent: any) => {
+                this.addCustomAPI(draggedEvent);
+                return initAllow.call(this._calendar, dropInfo, draggedEvent);
+            };
+        }
 
-                return initEventContent.call(this._calendar, info, createElement);
+        // selectOverlap(event) — event is first arg
+        if (typeof options.selectOverlap === "function") {
+            const initSelectOverlap = options.selectOverlap;
+            options.selectOverlap = (event: any) => {
+                this.addCustomAPI(event);
+                return initSelectOverlap.call(this._calendar, event);
             };
         }
     }
@@ -519,7 +666,7 @@ export class FullCalendar extends HTMLElement {
         this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
 
         for (let key in options) {
-            let value: any = options[key];
+            let value: any = evaluateCallbacks(options[key]);
             this.handleTimeZoneChange(calendar, /*key, */value);
             // @ts-ignore
             calendar.setOption(key, value);
@@ -529,10 +676,8 @@ export class FullCalendar extends HTMLElement {
 
     setOption(key: string, value: any) {
         let calendar = this.calendar;
-        if (key === "eventContent") {
-            console.warn("DEPRECATED: Setting the event content callback after the calendar has" +
-                " been initialized is no longer supported. Please use the initial options to set the 'eventContent'.");
-        }
+
+        value = evaluateCallbacks(value);
 
         // @ts-ignore
         let oldValue = calendar.getOption(key);
@@ -642,16 +787,63 @@ export class FullCalendar extends HTMLElement {
         }
     }
 
-    setEventClassNamesCallback(s: string) {
-        this.setOption('eventClassNames', new Function("return " + s)())
+    // Navigation, size, and JS-only callback setters
+
+    incrementDate(duration: string) {
+        this.calendar.incrementDate(duration);
     }
 
-    setEventDidMountCallback(s: string) {
-        this.setOption('eventDidMount', new Function("return " + s)());
+    prevYear() {
+        this.calendar.prevYear();
     }
 
-    setEventWillUnmountCallback(s: string) {
-        this.setOption('eventWillUnmount', new Function("return " + s)());
+    nextYear() {
+        this.calendar.nextYear();
+    }
+
+    updateSize() {
+        this.calendar?.updateSize();
+    }
+
+    // Event source management
+
+    addEventSource(sourceJson: any) {
+        const srcId = sourceJson.id;
+        const config = evaluateCallbacks({...sourceJson});
+        config.failure = (error: any) => {
+            this.dispatchEvent(new CustomEvent("eventSourceFailure", {
+                detail: {
+                    sourceId: srcId,
+                    message: (error && error.message) ? error.message : String(error)
+                }
+            }));
+        };
+        this.calendar?.addEventSource(config);
+    }
+
+    removeEventSource(id: string) {
+        const sources = this.calendar?.getEventSources();
+        if (sources) {
+            const source = sources.find((s: any) => s.id === id);
+            if (source) source.remove();
+        }
+    }
+
+    setEventSources(sourcesJson: any[]) {
+        // Remove all existing client-managed sources (but not the server-side events function)
+        const sources = this.calendar?.getEventSources();
+        if (sources) {
+            sources.forEach((s: any) => { if (s.id !== undefined) s.remove(); });
+        }
+        sourcesJson.forEach((s: any) => this.addEventSource(s));
+    }
+
+    restoreEventSources(sourcesJson: any[]) {
+        sourcesJson.forEach((s: any) => this.addEventSource(s));
+    }
+
+    refetchEvents() {
+        this.calendar?.refetchEvents();
     }
 
     get calendar(): Calendar{

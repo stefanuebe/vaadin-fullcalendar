@@ -62,6 +62,7 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar();
 
         // this shall assure that all init options are handled
+        // locale + dayMaxEvents set in postConstruct
         assertExistingOptionCount(calendar, 2);
         assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
     }
@@ -74,6 +75,7 @@ public class FullCalendarTest {
         calendar.setMaxEntriesPerDay(entryLimit);
 
         // this shall assure that all init options are handled
+        // locale + dayMaxEvents set in postConstruct
         assertExistingOptionCount(calendar, 2);
         assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
 
@@ -88,7 +90,7 @@ public class FullCalendarTest {
         Element element = calendar.getElement();
 
         // this shall assure that all init options are handled
-        // only the default language should be set
+        // locale + dayMaxEvents set in postConstruct
         assertExistingOptionCount(calendar, 2);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
@@ -146,7 +148,11 @@ public class FullCalendarTest {
         calendar.setLocale(locale);
         assertSame(locale, calendar.getLocale());
         assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
-        assertOptionalEquals(locale.toLanguageTag().toLowerCase(), calendar.getOption(Option.LOCALE, true));
+        // Client-side value is the locale tag string, possibly wrapped in a JsonNode
+        Optional<Object> clientSideLocale = calendar.getOption(Option.LOCALE, true);
+        assertTrue(clientSideLocale.isPresent());
+        String clientValue = clientSideLocale.get().toString().replace("\"", "");
+        assertEquals(locale.toLanguageTag().toLowerCase(), clientValue);
 
         assertCorrectBooleanOption(calendar, Option.SELECTABLE, calendar::setTimeslotsSelectable);
         assertCorrectBooleanOption(calendar, Option.WEEK_NUMBERS, calendar::setWeekNumbersVisible);
