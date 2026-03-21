@@ -49,7 +49,7 @@ demo/               # Spring Boot demo application
 e2e-test-app/       # Vaadin Spring Boot app serving as E2E test target (Playwright)
 e2e-tests/          # Playwright test suite (tests/*.spec.js) — NOT a Maven module, uses npm
 mcp-server/         # Node.js MCP server for addon documentation (TypeScript/Express)
-fc-docs/            # Local copy of FullCalendar JS v6 docs — check here FIRST for native FC behavior
+fc-docs/            # Local copy of FullCalendar JS docs — v6 (current) + v7 changelog/migration guide
 ```
 
 ## Specs (Working Basis)
