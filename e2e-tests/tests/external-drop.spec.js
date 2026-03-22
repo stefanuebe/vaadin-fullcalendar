@@ -51,9 +51,10 @@ base.describe('External Drop — DropEvent', () => {
         });
 
         if (!initialized) {
-            // If Draggable can't be initialized, skip this test gracefully
-            // The FC interaction plugin's Draggable is not exposed in the bundle
-            console.log('Skipping: FC Draggable not available in bundle');
+            // FC Draggable not available in Vite bundle — external drag requires
+            // host app to initialize Draggable separately. Skip via early return
+            // but log clearly so it doesn't look like a silent pass.
+            console.warn('SKIPPED: FC Draggable not importable in bundled environment');
             return;
         }
 

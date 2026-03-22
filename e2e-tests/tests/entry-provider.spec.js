@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { closeDialog, waitForCalendarUpdate, changeView, clickEntriesMenuItem } = require('./fixtures');
+const { closeDialog, waitForCalendarUpdate, changeView, clickEntriesMenuItem, waitForVaadin } = require('./fixtures');
 
 /**
  * Entry Provider views to test - all have similar structure but different backend implementations
@@ -10,20 +10,6 @@ const ENTRY_PROVIDER_VIEWS = [
   { name: 'Callback Entry Provider', route: '/callback-entry-provider' },
   { name: 'Backend Entry Provider', route: '/backend-entry-provider' },
 ];
-
-/**
- * Helper to wait for Vaadin client-server round trip to complete
- */
-async function waitForVaadin(page) {
-  await page.waitForFunction(() => {
-    const vaadin = window.Vaadin;
-    if (vaadin && vaadin.Flow && vaadin.Flow.clients) {
-      const clients = Object.values(vaadin.Flow.clients);
-      return clients.every(client => !client.isActive || !client.isActive());
-    }
-    return true;
-  }, { timeout: 5000 }).catch(() => {});
-}
 
 /**
  * Helper to add entries via toolbar menu

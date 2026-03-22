@@ -44,7 +44,6 @@ base.describe('Listener Data — DatesRenderedEvent', () => {
                 fcEl.calendar.next();
             }
         });
-        await page.waitForTimeout(1000); // allow re-render
         await waitForVaadin(page);
 
         // Count should have increased

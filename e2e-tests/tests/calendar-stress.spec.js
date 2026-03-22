@@ -3,6 +3,13 @@ const { test, expect, closeDialog, waitForCalendarUpdate, changeView, clickToday
 
 test.describe('Calendar Stress Tests', () => {
 
+  // Capture JS errors during stress tests — the real purpose of these tests
+  test.beforeEach(async ({ page }) => {
+    page.on('pageerror', error => {
+      throw new Error(`Uncaught JS error during stress test: ${error.message}`);
+    });
+  });
+
   test.describe('Rapid Interactions', () => {
 
     test('should handle rapid navigation without errors', async ({ page }) => {

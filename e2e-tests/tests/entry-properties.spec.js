@@ -109,19 +109,14 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(count).toBeGreaterThanOrEqual(2);
         });
 
-        base('hidden entry (displayMode NONE) has display property set to none', async ({ page }) => {
-            // DisplayMode.NONE maps to FC's display: "none" which sets display:none on the entry
-            // However, our enum NONE has clientSideValue=null (treated as "auto" by FC).
-            // FC only hides when the string "none" is sent. Verify the entry's rendered display property.
+        base('displayMode NONE with clientSideValue=null renders as auto (entry still visible)', async ({ page }) => {
+            // DisplayMode.NONE has clientSideValue=null, which FC treats as "auto" (not "none").
+            // This is a known behavior: to truly hide an entry, FC needs display="none" as a string.
+            // Our NONE enum sends null → FC falls back to auto rendering.
+            // This test documents and verifies that behavior.
             const hiddenEntry = page.locator('.fc-event:has-text("Hidden Entry")').first();
-            const count = await hiddenEntry.count();
-            if (count > 0) {
-                // If FC rendered it, check its computed display style
-                const display = await hiddenEntry.evaluate(el => window.getComputedStyle(el).display);
-                // Entry may be visible (if NONE maps to null/auto) or hidden (display:none)
-                // We document the actual behavior: NONE with null clientSideValue = entry IS rendered
-                expect(display).toBeTruthy(); // documents actual behavior
-            }
+            // Entry IS rendered because null → auto
+            await expect(hiddenEntry).toBeVisible();
         });
     });
 
@@ -163,28 +158,20 @@ base.describe('Entry Properties — Visual Effects', () => {
     base.describe('Editable flags', () => {
 
         base('non-resizable entry has no resize handle in timeGrid view', async ({ page }) => {
-            // Switch to timeGrid week to see resize handles
-            await page.goto('/test/entry-properties');
-            await page.waitForSelector('.fc', { timeout: 10000 });
-            await waitForVaadin(page);
-
-            // Switch view programmatically via JS
+            // Switch to timeGrid week and navigate to the week containing March 14
             await page.evaluate(() => {
                 const fcEl = document.querySelector('vaadin-full-calendar');
                 if (fcEl && fcEl.calendar) {
-                    fcEl.calendar.changeView('timeGridWeek');
+                    fcEl.calendar.changeView('timeGridWeek', '2025-03-14');
                 }
             });
-            await page.waitForTimeout(1000);
             await waitForVaadin(page);
 
-            // "No Resize" entry should not have a resizer
+            // "No Resize" entry must be visible in timeGrid
             const noResizeEntry = page.locator('.fc-event:has-text("No Resize")').first();
-            // Wait a moment for it to appear in timeGrid
-            if (await noResizeEntry.isVisible({ timeout: 5000 }).catch(() => false)) {
-                const resizer = noResizeEntry.locator('.fc-event-resizer');
-                await expect(resizer).toHaveCount(0);
-            }
+            await expect(noResizeEntry).toBeVisible({ timeout: 5000 });
+            const resizer = noResizeEntry.locator('.fc-event-resizer');
+            await expect(resizer).toHaveCount(0);
         });
     });
 

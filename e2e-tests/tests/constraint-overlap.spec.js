@@ -108,7 +108,8 @@ base.describe('ValidRange', () => {
         const allDayHeader = page.locator('.fc-col-header-cell[data-date]').first();
         const dateStr = await allDayHeader.getAttribute('data-date');
         expect(dateStr).toBeTruthy();
-        // The date should be >= 2025-03-01
-        expect(dateStr >= '2025-03-01').toBe(true);
+        // The date should be >= 2025-03-01 (ISO-8601 dates compare correctly lexicographically)
+        const date = new Date(dateStr);
+        expect(date.getTime()).toBeGreaterThanOrEqual(new Date('2025-03-01').getTime());
     });
 });
