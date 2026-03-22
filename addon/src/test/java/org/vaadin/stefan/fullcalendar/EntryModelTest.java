@@ -552,4 +552,28 @@ public class EntryModelTest {
         entry.setConstraint((String) null);
         assertFalse(entry.toJson().has("constraint"), "constraint should not be in JSON after clearing");
     }
+
+    // --- Display mode JSON key tests (mutation testing revealed gap) ---
+
+    @Test
+    void displayMode_jsonKey_isDisplay() {
+        // Verifies @JsonName("display") annotation produces correct key
+        Entry entry = new Entry();
+        entry.setDisplayMode(DisplayMode.BACKGROUND);
+        ObjectNode json = entry.toJson();
+        assertTrue(json.has("display"), "JSON key must be 'display' (from @JsonName)");
+        assertEquals("background", json.get("display").asString(),
+                "display value must be hardcoded 'background'");
+    }
+
+    @Test
+    void displayMode_default_auto_notInJson() {
+        // Default displayMode is AUTO — should not appear in JSON (FC default)
+        Entry entry = new Entry();
+        ObjectNode json = entry.toJson();
+        // AUTO is the default, it should either be absent or equal "auto"
+        if (json.has("display")) {
+            assertEquals("auto", json.get("display").asString());
+        }
+    }
 }

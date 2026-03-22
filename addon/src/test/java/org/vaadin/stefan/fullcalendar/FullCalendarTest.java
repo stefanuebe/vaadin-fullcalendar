@@ -361,7 +361,18 @@ public class FullCalendarTest {
         assertTrue(calendar.getOption(Option.LOCALE).isPresent());
 
         calendar.setOption(Option.LOCALE, null);
-        assertFalse(calendar.getOption(Option.LOCALE).isPresent());
+        assertFalse(calendar.getOption(Option.LOCALE).isPresent(),
+                "Option must be absent after setting null");
+
+        // Also verify with a non-default option that isn't set in initialOptions
+        calendar.setOption(Option.WEEKENDS, true);
+        assertTrue(calendar.getOption(Option.WEEKENDS).isPresent());
+        calendar.setOption(Option.WEEKENDS, null);
+        assertFalse(calendar.getOption(Option.WEEKENDS).isPresent(),
+                "WEEKENDS must be absent after setting null");
+        // Force client-side read path as well
+        assertFalse(calendar.getOption(Option.WEEKENDS, true).isPresent(),
+                "WEEKENDS must also be absent from client-side option map");
     }
 
     @Test

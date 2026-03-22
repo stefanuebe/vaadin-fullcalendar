@@ -502,6 +502,8 @@ public class EntryTest {
         assertTrue(jsonObject.get(getEntryFieldJsonName(Fields.ALL_DAY)).asBoolean());
         assertTrue(jsonObject.get(getEntryFieldJsonName(Fields.EDITABLE)).asBoolean());
         assertEquals(DEFAULT_COLOR, jsonObject.get(getEntryFieldJsonName(Fields.COLOR)).asString());
+        // Compare against hardcoded string to catch enum value mutations (not just enum reference)
+        assertEquals("background", jsonObject.get(getEntryFieldJsonName(Fields.DISPLAY_MODE)).asString());
         assertEquals(DEFAULT_DISPLAY_MODE_ALTERN.getClientSideValue(), jsonObject.get(getEntryFieldJsonName(Fields.DISPLAY_MODE)).asString());
     }
 
