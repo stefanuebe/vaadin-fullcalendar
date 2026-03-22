@@ -67,7 +67,7 @@ base.describe('Listener Data — MoreLinkClickedEvent', () => {
         await moreLink.click();
         await waitForVaadin(page);
 
-        await expect(page.locator('#more-link-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#more-link-count')).toHaveText('1', { timeout: 5000 });
     });
 
     base('more-link-date contains 2025-03-10', async ({ page }) => {
@@ -95,7 +95,7 @@ base.describe('Listener Data — TimeslotClickedEvent', () => {
         await emptyCell.click();
         await waitForVaadin(page);
 
-        await expect(page.locator('#timeslot-click-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#timeslot-click-count')).toHaveText('1', { timeout: 5000 });
     });
 
     base('timeslot-click-date contains the clicked date', async ({ page }) => {
@@ -161,7 +161,7 @@ base.describe('Listener Data — EntryMouseEnterEvent', () => {
         await entry.hover();
         await waitForVaadin(page);
 
-        await expect(page.locator('#mouse-enter-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#mouse-enter-count')).toHaveText('1', { timeout: 5000 });
     });
 
     base('mouse-enter-title contains the hovered entry title', async ({ page }) => {
@@ -192,7 +192,7 @@ base.describe('Listener Data — EntryMouseLeaveEvent', () => {
         await emptyCell.hover();
         await waitForVaadin(page);
 
-        await expect(page.locator('#mouse-leave-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#mouse-leave-count')).toHaveText('1', { timeout: 5000 });
     });
 });
 
@@ -214,7 +214,7 @@ base.describe('Listener Data — TimeslotsSelectedEvent', () => {
         });
         await waitForVaadin(page);
 
-        await expect(page.locator('#timeslots-selected-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#timeslots-selected-count')).toHaveText('1', { timeout: 5000 });
         await expect(page.locator('#timeslots-selected-start')).toHaveText('2025-03-10', { timeout: 5000 });
         await expect(page.locator('#timeslots-selected-end')).toHaveText('2025-03-13', { timeout: 5000 });
         await expect(page.locator('#timeslots-selected-allday')).toHaveText('true', { timeout: 5000 });
@@ -237,7 +237,7 @@ base.describe('Listener Data — DayNumberClickedEvent', () => {
         await dayLink.click();
         await waitForVaadin(page);
 
-        await expect(page.locator('#day-number-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#day-number-count')).toHaveText('1', { timeout: 5000 });
         await expect(page.locator('#day-number-date')).toHaveText('2025-03-15', { timeout: 5000 });
     });
 });
@@ -257,7 +257,7 @@ base.describe('Listener Data — WeekNumberClickedEvent', () => {
         await weekLink.click();
         await waitForVaadin(page);
 
-        await expect(page.locator('#week-number-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#week-number-count')).toHaveText('1', { timeout: 5000 });
         // Week number date should be a valid date string
         const dateText = await page.locator('#week-number-date').textContent();
         expect(dateText).toMatch(/2025-/);

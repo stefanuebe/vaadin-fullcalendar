@@ -36,17 +36,15 @@ base.describe('Roundtrip — Server modifies entry on click', () => {
         const entry = page.locator('.fc-event:has-text("Click to Recolor")').first();
         await expect(entry).toBeVisible();
 
-        // Verify initial color is blue-ish
+        // Verify initial color is blue — blue channel dominant
         const initialBg = await entry.evaluate(el => {
             const style = window.getComputedStyle(el);
             return style.backgroundColor !== 'rgba(0, 0, 0, 0)' ? style.backgroundColor :
                    window.getComputedStyle(el.querySelector('.fc-event-main') || el).backgroundColor;
         });
-        // Initial should contain blue channel
         const blueMatch = initialBg.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
-        if (blueMatch) {
-            expect(parseInt(blueMatch[3])).toBeGreaterThan(100); // blue > 100
-        }
+        expect(blueMatch).not.toBeNull();
+        expect(parseInt(blueMatch[3])).toBeGreaterThan(100); // blue channel present
 
         // Click the entry
         await entry.click();
@@ -61,9 +59,12 @@ base.describe('Roundtrip — Server modifies entry on click', () => {
             return style.backgroundColor !== 'rgba(0, 0, 0, 0)' ? style.backgroundColor :
                    window.getComputedStyle(el.querySelector('.fc-event-main') || el).backgroundColor;
         });
-        const redMatch = newBg.match(/rgb\w?\((\d+)/);
+        const redMatch = newBg.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
         expect(redMatch).not.toBeNull();
-        expect(parseInt(redMatch[1])).toBeGreaterThan(200); // red channel > 200
+        // Red must be dominant after recolor
+        expect(parseInt(redMatch[1])).toBeGreaterThan(200);
+        expect(parseInt(redMatch[2])).toBeLessThan(100);
+        expect(parseInt(redMatch[3])).toBeLessThan(100);
     });
 });
 

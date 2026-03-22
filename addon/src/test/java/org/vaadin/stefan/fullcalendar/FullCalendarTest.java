@@ -13,7 +13,6 @@ import java.lang.reflect.Constructor;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
@@ -419,32 +418,8 @@ public class FullCalendarTest {
         assertOptionalEquals("someOtherValue", calendar.getOption(option));
     }
 
-    @Test
-    void testEntryClickedEvent() throws Exception {
-        FullCalendar calendar = createTestCalendar();
-
-        LocalDateTime refDate = LocalDate.of(2000, 1, 1).atStartOfDay();
-        LocalDateTime refDateAsDateTime = refDate;
-        LocalDateTime refDateTime = refDate.withHour(7);
-
-        // check all day and time entries
-        Entry allDayEntry = createEntry("allDay", "title", refDateAsDateTime, refDateAsDateTime.plus(1, ChronoUnit.DAYS), true, true, "color", null);
-        Entry timedEntry = createEntry("timed", "title", refDateTime, refDateTime.plus(1, ChronoUnit.HOURS), false, true, "color", null);
-
-        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-        entryProvider.addEntry(allDayEntry);
-        entryProvider.addEntry(timedEntry);
-
-        // TODO fix: here a fetch is missing
-
-//        JsonObject jsonData = Json.createObject();
-//        jsonData.put("id", allDayEntry.getId());
-//        assertSame(allDayEntry, new EntryClickedEvent(calendar, true, jsonData).getEntry());
-//
-//        jsonData = Json.createObject();
-//        jsonData.put("id", timedEntry.getId());
-//        assertSame(timedEntry, new EntryClickedEvent(calendar, true, jsonData).getEntry());
-    }
+    // Removed: testEntryClickedEvent — body was entirely commented out.
+    // EntryClickedEvent is covered by E2E tests (listener-data.spec.js, roundtrip.spec.js).
 
     @Test
     void testDateTimeEventSubClasses() throws Exception {
@@ -478,11 +453,9 @@ public class FullCalendarTest {
         assertFalse(event.isAllDay());
     }
 
-    @Test
-    void testTimeChangedEventSubClass() throws Exception {
-        subTestEntryTimeChangedEventSubClass(EntryDroppedEvent.class);
-        subTestEntryTimeChangedEventSubClass(EntryResizedEvent.class);
-    }
+    // Removed: testTimeChangedEventSubClass — called subTestEntryTimeChangedEventSubClass
+    // which was entirely commented out. EntryDroppedEvent and EntryResizedEvent are covered
+    // by E2E tests (interaction-callbacks.spec.js, roundtrip.spec.js).
 
     private <T extends DateEvent> void subTestDateEventSubClass(Class<T> eventClass) throws Exception {
         FullCalendar calendar = createTestCalendar();
@@ -513,110 +486,7 @@ public class FullCalendarTest {
 
     }
 
-    // TODO fix
-    private <T extends EntryTimeChangedEvent> void subTestEntryTimeChangedEventSubClass(Class<T> eventClass) throws Exception {
-
-        //        FullCalendar calendar = createTestCalendar();
-//
-//        LocalDateTime refDate = LocalDate.of(2000, 1, 1).atStartOfDay();
-//        LocalDateTime refDateTime = LocalDate.of(2000, 1, 1).atStartOfDay().withHour(7);
-//
-//        // check all day and time entries
-//        Entry allDayEntry = createEntry("allDay", "title", refDate, refDate.plus(1, ChronoUnit.DAYS), true, true, "color", null);
-//        Entry timedEntry = createEntry("timed", "title", refDateTime, refDateTime.plus(1, ChronoUnit.HOURS), false, true, "color", null);
-//
-//        InMemoryEntryProvider<Entry> entryProvider = calendar.getEntryProvider().asInMemory();
-//        entryProvider.addEntry(allDayEntry);
-//        entryProvider.addEntry(timedEntry);
-//
-//        // the original entry will be modified by the event. we test if the modified original event matches the json source
-//        Delta delta = new Delta(1, 1, 1, 1, 1, 1);
-//        JsonObject jsonDelta = Json.createObject();
-//        jsonDelta.put("years", 1);
-//        jsonDelta.put("months", 1);
-//        jsonDelta.put("days", 1);
-//        jsonDelta.put("hours", 1);
-//        jsonDelta.put("minutes", 1);
-//        jsonDelta.put("seconds", 1);
-//
-//        Entry modifiedAllDayEntry = createEntry(allDayEntry.getId(), allDayEntry.getTitle() + 1, delta.applyOn(allDayEntry.getStart()), delta.applyOn(allDayEntry.getEnd()), allDayEntry.isAllDay(), !allDayEntry.isEditable(), allDayEntry.getColor() + 1, allDayEntry.getDescription());
-//        Entry modifiedTimedEntry = createEntry(timedEntry.getId(), timedEntry.getTitle() + 1, delta.applyOn(timedEntry.getStart()), delta.applyOn(timedEntry.getEnd()), timedEntry.isAllDay(), !timedEntry.isEditable(), timedEntry.getColor() + 1, timedEntry.getDescription());
-//        JsonObject jsonModifiedAllDayEntry = modifiedAllDayEntry.toJson();
-//        JsonObject jsonModifiedTimedEntry = modifiedTimedEntry.toJson();
-//
-//        Constructor<T> constructor = ComponentEventBusUtil.getEventConstructor(eventClass);
-//
-//        // TODO I assume a fetch is missing here somewhere?
-//
-//        /*
-//            Day event
-//         */
-//        T event = constructor.newInstance(calendar, true, jsonModifiedAllDayEntry, jsonDelta);
-//        assertEquals(delta, event.getDelta());
-//
-//        // not changed automatically
-//        EntryTest.assertFullEqualsByJsonAttributes(allDayEntry, event.getEntry());
-//
-//        // apply changes and test modifications
-//        event.applyChangesOnEntry();
-//        EntryTest.assertFullEqualsByJsonAttributes(modifiedAllDayEntry, event.getEntry());
-//
-//        /*
-//            Time slot event
-//         */
-//        event = constructor.newInstance(calendar, true, jsonModifiedTimedEntry, jsonDelta);
-//
-//        assertEquals(delta, event.getDelta());
-//
-//        // not changed automatically
-//        EntryTest.assertFullEqualsByJsonAttributes(timedEntry, event.getEntry());
-//
-//        // apply changes and test modifications
-//        event.applyChangesOnEntry();
-//        EntryTest.assertFullEqualsByJsonAttributes(modifiedTimedEntry, event.getEntry());
-    }
-
-//    @Test
-//    void test_fetchFromServer() {
-//        Entry entry1 = new Entry("1");
-//        Entry entry2 = new Entry("2");
-//        Entry entry3 = new Entry("3");
-//
-//        Set<Entry> entries = Stream.of(entry1, entry2, entry3).collect(Collectors.toSet());
-//
-//        entry1.setStart(LocalDate.of(2000, 1, 1).atTime(10, 0));
-//        entry1.setEnd(LocalDate.of(2000, 1, 1).atTime(11, 0));
-//        entry2.setStart(LocalDate.of(2000, 2, 1).atTime(10, 0));
-//        entry2.setEnd(LocalDate.of(2000, 2, 1).atTime(11, 0));
-//        entry3.setStart(LocalDate.of(2000, 3, 1).atTime(10, 0));
-//        entry3.setEnd(LocalDate.of(2000, 3, 1).atTime(11, 0));
-//
-//        FullCalendar calendar = createTestCalendar();
-//
-//        EntryProvider<Entry> provider = EntryProvider.fromCallbacks(
-//                query -> query.applyFilter(entries.stream())
-//                , s -> entries.stream().filter(e -> s.equals(e.getId())).findFirst().orElse(null));
-//        calendar.setEntryProvider(provider);
-//
-//        JsonArray array = calendar.fetchEntriesFromServer(Json.createObject());
-//        Set<Entry> converted = TestUtils.toSet(array, jsonValue -> Entry.fromJson((JsonObject) jsonValue));
-//
-//        assertEqualAsSet(entries, converted);
-//        assertTrue(calendar.getCachedEntryFromFetch("1").isPresent());
-//        assertTrue(calendar.getCachedEntryFromFetch("2").isPresent());
-//        assertTrue(calendar.getCachedEntryFromFetch("3").isPresent());
-//
-//        JsonObject clientSideRequest = Json.createObject();
-//        clientSideRequest.put("start", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2000, 1, 1, 0, 0)));
-//        clientSideRequest.put("end", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2000, 1, 2, 0, 0)));
-//
-//        array = calendar.fetchEntriesFromServer(clientSideRequest);
-//        converted = TestUtils.toSet(array, jsonValue -> Entry.fromJson((JsonObject) jsonValue));
-//
-//        assertEqualAsSet(Stream.of(entry1).collect(Collectors.toSet()), converted);
-//        assertTrue(calendar.getCachedEntryFromFetch("1").isPresent());
-//        assertFalse(calendar.getCachedEntryFromFetch("2").isPresent());
-//        assertFalse(calendar.getCachedEntryFromFetch("3").isPresent());
-//    }
+    // Removed: subTestEntryTimeChangedEventSubClass + test_fetchFromServer — entirely commented out.
+    // Covered by E2E tests.
 
 }

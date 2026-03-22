@@ -38,11 +38,14 @@ base.describe('Entry Properties — Visual Effects', () => {
                 }
                 return style.backgroundColor;
             });
-            // red = rgb(255, 0, 0) — check that the red channel is dominant
+            // red = rgb(255, 0, 0) — red channel must be dominant (high red, low green+blue)
             expect(bgColor).toMatch(/rgb/);
-            const match = bgColor.match(/rgb\w?\((\d+)/);
+            const match = bgColor.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
             expect(match).not.toBeNull();
-            expect(parseInt(match[1])).toBeGreaterThan(200); // red channel > 200
+            const [r, g, b] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+            expect(r).toBeGreaterThan(200);
+            expect(g).toBeLessThan(100);
+            expect(b).toBeLessThan(100);
         });
 
         base('custom BG entry has green background', async ({ page }) => {
@@ -56,11 +59,14 @@ base.describe('Entry Properties — Visual Effects', () => {
                 const inner = el.querySelector('.fc-event-main');
                 return inner ? window.getComputedStyle(inner).backgroundColor : style.backgroundColor;
             });
-            // #00ff00 = rgb(0, 255, 0) — green channel should be dominant
+            // #00ff00 = rgb(0, 255, 0) — green channel must be dominant
             expect(bgColor).toMatch(/rgb/);
-            const match = bgColor.match(/rgb\w?\((\d+),\s*(\d+)/);
+            const match = bgColor.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
             expect(match).not.toBeNull();
-            expect(parseInt(match[2])).toBeGreaterThan(200); // green channel > 200
+            const [r, g, b] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+            expect(g).toBeGreaterThan(200);
+            expect(r).toBeLessThan(100);
+            expect(b).toBeLessThan(100);
         });
 
         base('custom BG entry has white text color', async ({ page }) => {
@@ -84,11 +90,14 @@ base.describe('Entry Properties — Visual Effects', () => {
             const borderColor = await entry.evaluate(el => {
                 return window.getComputedStyle(el).borderColor || window.getComputedStyle(el).borderLeftColor;
             });
-            // blue = rgb(0, 0, 255) — blue channel should be dominant
+            // blue = rgb(0, 0, 255) — blue channel must be dominant
             expect(borderColor).toMatch(/rgb/);
             const match = borderColor.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
             expect(match).not.toBeNull();
-            expect(parseInt(match[3])).toBeGreaterThan(200); // blue channel > 200
+            const [r, g, b] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+            expect(b).toBeGreaterThan(200);
+            expect(r).toBeLessThan(100);
+            expect(g).toBeLessThan(100);
         });
     });
 
@@ -101,12 +110,20 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(count).toBeGreaterThanOrEqual(1);
         });
 
-        base('inverse background display mode also renders as fc-bg-event', async ({ page }) => {
-            // Both BACKGROUND and INVERSE_BACKGROUND use fc-bg-event class
-            // We should have at least 2 bg-events (one regular, one inverse)
+        base('inverse background entry renders as fc-bg-event in timeGrid', async ({ page }) => {
+            // INVERSE_BACKGROUND only renders visually in timeGrid views, not in dayGrid.
+            // Switch to timeGridWeek to verify.
+            await page.evaluate(() => {
+                const fcEl = document.querySelector('vaadin-full-calendar');
+                if (fcEl && fcEl.calendar) {
+                    fcEl.calendar.changeView('timeGridWeek', '2025-03-07');
+                }
+            });
+            await waitForVaadin(page);
+            // In timeGrid, inverse background should render fc-bg-event elements
             const bgEvents = page.locator('.fc-bg-event');
             const count = await bgEvents.count();
-            expect(count).toBeGreaterThanOrEqual(2);
+            expect(count).toBeGreaterThanOrEqual(1);
         });
 
         base('displayMode NONE with clientSideValue=null renders as auto (entry still visible)', async ({ page }) => {
@@ -146,12 +163,9 @@ base.describe('Entry Properties — Visual Effects', () => {
             await expect(timedEntry).toBeVisible();
             // Timed entries should have .fc-event-time element showing the time
             const timeEl = timedEntry.locator('.fc-event-time');
-            // In dayGrid month, timed events show as dot-events with time
-            const hasTime = await timeEl.count();
-            if (hasTime > 0) {
-                const timeText = await timeEl.textContent();
-                expect(timeText).toMatch(/\d/); // Contains at least a digit (time)
-            }
+            await expect(timeEl).toBeVisible();
+            const timeText = await timeEl.textContent();
+            expect(timeText).toMatch(/9/); // Should contain "9" (from 9:00am start)
         });
     });
 

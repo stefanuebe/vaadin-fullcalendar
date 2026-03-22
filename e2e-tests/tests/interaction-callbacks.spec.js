@@ -47,8 +47,8 @@ test.describe('Interaction Callbacks', () => {
         await page.mouse.up();
 
         // After drag, both counters should have incremented
-        await expect(page.locator('#drag-start-count')).not.toHaveText('0', { timeout: 5000 });
-        await expect(page.locator('#drag-stop-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#drag-start-count')).toHaveText('1', { timeout: 5000 });
+        await expect(page.locator('#drag-stop-count')).toHaveText('1', { timeout: 5000 });
         // Entry title should be captured
         await expect(page.locator('#drag-start-title')).toHaveText('Drag Me', { timeout: 5000 });
         await expect(page.locator('#drag-stop-title')).toHaveText('Drag Me', { timeout: 5000 });
@@ -81,8 +81,8 @@ test.describe('Interaction Callbacks', () => {
         );
         await page.mouse.up();
 
-        await expect(page.locator('#resize-start-count')).not.toHaveText('0', { timeout: 5000 });
-        await expect(page.locator('#resize-stop-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#resize-start-count')).toHaveText('1', { timeout: 5000 });
+        await expect(page.locator('#resize-stop-count')).toHaveText('1', { timeout: 5000 });
         // Entry title should be captured
         await expect(page.locator('#resize-start-title')).toHaveText('Resize Me', { timeout: 5000 });
         await expect(page.locator('#resize-stop-title')).toHaveText('Resize Me', { timeout: 5000 });
@@ -113,7 +113,7 @@ test.describe('Interaction Callbacks', () => {
         });
         await page.waitForTimeout(500);
 
-        await expect(page.locator('#unselect-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#unselect-count')).toHaveText('1', { timeout: 5000 });
     });
 
     // -------------------------------------------------------------------------
@@ -166,7 +166,7 @@ test.describe('Interaction Callbacks', () => {
         await page.mouse.up();
         await waitForVaadin(page);
 
-        await expect(page.locator('#entry-dropped-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#entry-dropped-count')).toHaveText('1', { timeout: 5000 });
     });
 
     test('entry dropped data: title and new start populated', async ({ page }) => {
@@ -207,7 +207,7 @@ test.describe('Interaction Callbacks', () => {
         await page.mouse.up();
         await waitForVaadin(page);
 
-        await expect(page.locator('#entry-resized-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#entry-resized-count')).toHaveText('1', { timeout: 5000 });
     });
 
     test('entry resized data: title contains Resize Me', async ({ page }) => {
