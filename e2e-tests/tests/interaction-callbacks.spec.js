@@ -140,6 +140,86 @@ test.describe('Interaction Callbacks', () => {
         await expect(page.locator('.fc-event:has-text("Resize Me")')).toBeVisible({ timeout: 10000 });
     });
 
+    // -------------------------------------------------------------------------
+    // EntryDroppedEvent — counter + data + roundtrip
+    // -------------------------------------------------------------------------
+
+    test('entry dropped listener: counter increments after drag to allowed day', async ({ page }) => {
+        await expect(page.locator('#entry-dropped-count')).toHaveText('0');
+
+        // "Drag Me" is on Monday 2025-03-03 but eventAllow blocks drops ONTO Monday 03-03
+        // We need to drag to a different day (e.g. Tuesday column) to get a successful drop
+        const dragEvent = page.locator('.fc-event:has-text("Drag Me")').first();
+        const box = await dragEvent.boundingBox();
+        if (!box) throw new Error('Could not get bounding box');
+
+        // Drag right to the next day column (approximately one column width ~100px)
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(box.x + box.width / 2 + 120, box.y + box.height / 2, { steps: 10 });
+        await page.mouse.up();
+        await waitForVaadin(page);
+
+        await expect(page.locator('#entry-dropped-count')).not.toHaveText('0', { timeout: 5000 });
+    });
+
+    test('entry dropped data: title and new start populated', async ({ page }) => {
+        const dragEvent = page.locator('.fc-event:has-text("Drag Me")').first();
+        const box = await dragEvent.boundingBox();
+        if (!box) throw new Error('Could not get bounding box');
+
+        // Drag right to next day column
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(box.x + box.width / 2 + 120, box.y + box.height / 2, { steps: 10 });
+        await page.mouse.up();
+        await waitForVaadin(page);
+
+        await expect(page.locator('#dropped-entry-title')).toHaveText('Drag Me', { timeout: 5000 });
+        await expect(page.locator('#dropped-new-start')).not.toHaveText('', { timeout: 5000 });
+    });
+
+    // -------------------------------------------------------------------------
+    // EntryResizedEvent — counter + data
+    // -------------------------------------------------------------------------
+
+    test('entry resized listener: counter increments after resize', async ({ page }) => {
+        await expect(page.locator('#entry-resized-count')).toHaveText('0');
+
+        const resizeEvent = page.locator('.fc-event:has-text("Resize Me")').first();
+        await resizeEvent.hover();
+        const handle = resizeEvent.locator('.fc-event-resizer-end');
+        await expect(handle).toBeVisible({ timeout: 5000 });
+        const handleBox = await handle.boundingBox();
+        if (!handleBox) throw new Error('Could not get bounding box for resize handle');
+
+        await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2 + 30, { steps: 5 });
+        await page.mouse.up();
+        await waitForVaadin(page);
+
+        await expect(page.locator('#entry-resized-count')).not.toHaveText('0', { timeout: 5000 });
+    });
+
+    test('entry resized data: title contains Resize Me', async ({ page }) => {
+        const resizeEvent = page.locator('.fc-event:has-text("Resize Me")').first();
+        await resizeEvent.hover();
+        const handle = resizeEvent.locator('.fc-event-resizer-end');
+        await expect(handle).toBeVisible({ timeout: 5000 });
+        const handleBox = await handle.boundingBox();
+        if (!handleBox) throw new Error('Could not get bounding box');
+
+        await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2 + 30, { steps: 5 });
+        await page.mouse.up();
+        await waitForVaadin(page);
+
+        await expect(page.locator('#resized-entry-title')).toHaveText('Resize Me', { timeout: 5000 });
+        await expect(page.locator('#resized-new-end')).not.toHaveText('', { timeout: 5000 });
+    });
+
 });
 
 // Note: The following interaction features are not covered by E2E tests because they

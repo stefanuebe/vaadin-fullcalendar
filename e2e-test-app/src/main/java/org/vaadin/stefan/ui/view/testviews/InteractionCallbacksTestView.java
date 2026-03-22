@@ -60,6 +60,22 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         Span receiveEntryTitle = new Span("");
         receiveEntryTitle.setId("receive-entry-title");
 
+        // EntryDroppedEvent counters + data
+        Span entryDroppedCount = new Span("0");
+        entryDroppedCount.setId("entry-dropped-count");
+        Span droppedEntryTitle = new Span("");
+        droppedEntryTitle.setId("dropped-entry-title");
+        Span droppedNewStart = new Span("");
+        droppedNewStart.setId("dropped-new-start");
+
+        // EntryResizedEvent counters + data
+        Span entryResizedCount = new Span("0");
+        entryResizedCount.setId("entry-resized-count");
+        Span resizedEntryTitle = new Span("");
+        resizedEntryTitle.setId("resized-entry-title");
+        Span resizedNewEnd = new Span("");
+        resizedNewEnd.setId("resized-new-end");
+
         Div counters = new Div(
                 label("dragStart: "), dragStartBadge,
                 label(" | dragStop: "), dragStopBadge,
@@ -67,8 +83,15 @@ public class InteractionCallbacksTestView extends VerticalLayout {
                 label(" | resizeStop: "), resizeStopBadge,
                 label(" | unselect: "), unselectBadge,
                 label(" | drop: "), dropBadge,
-                label(" | receiveTitle: "), receiveEntryTitle
+                label(" | receiveTitle: "), receiveEntryTitle,
+                label(" | entryDropped: "), entryDroppedCount,
+                label(" | droppedTitle: "), droppedEntryTitle,
+                label(" | droppedStart: "), droppedNewStart,
+                label(" | entryResized: "), entryResizedCount,
+                label(" | resizedTitle: "), resizedEntryTitle,
+                label(" | resizedEnd: "), resizedNewEnd
         );
+        counters.getStyle().set("font-size", "12px");
         add(counters);
 
         FullCalendar calendar = FullCalendarBuilder.create().build();
@@ -129,6 +152,28 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         });
         calendar.addEntryReceiveListener(e -> {
             receiveEntryTitle.setText(e.getEntry().getTitle() != null ? e.getEntry().getTitle() : "(no title)");
+        });
+
+        // EntryDroppedEvent — apply changes, update badges
+        calendar.addEntryDroppedListener(e -> {
+            e.applyChangesOnEntry();
+            provider.refreshItem(e.getEntry());
+            int count = Integer.parseInt(entryDroppedCount.getText()) + 1;
+            entryDroppedCount.setText(String.valueOf(count));
+            droppedEntryTitle.setText(e.getEntry().getTitle());
+            var start = e.getEntry().getStart();
+            droppedNewStart.setText(start != null ? start.toString() : "null");
+        });
+
+        // EntryResizedEvent — apply changes, update badges
+        calendar.addEntryResizedListener(e -> {
+            e.applyChangesOnEntry();
+            provider.refreshItem(e.getEntry());
+            int count = Integer.parseInt(entryResizedCount.getText()) + 1;
+            entryResizedCount.setText(String.valueOf(count));
+            resizedEntryTitle.setText(e.getEntry().getTitle());
+            var end = e.getEntry().getEnd();
+            resizedNewEnd.setText(end != null ? end.toString() : "null");
         });
 
         // selectAllow: deny selections before 2025-03-01
