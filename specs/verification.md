@@ -87,7 +87,46 @@ These five patterns form the foundation. The feature-specific tests below are co
 
 ---
 
-## 3. Visual Verification Process (Playwright MCP)
+## 3. Mutation Testing
+
+Mutation testing validates that tests actually catch bugs. A mutation introduces a deliberate defect; if no test fails, the test suite has a false positive.
+
+### Scripts
+
+- `mutation-test-a.sh` — E2E mutations (requires app running in dev mode)
+- `mutation-test-b.sh` — Unit test mutations (standalone)
+
+### How to Run
+
+```bash
+# Category B (Unit Tests) — ~75 seconds, no server needed
+bash mutation-test-b.sh
+
+# Category A (E2E) — ~5 minutes, requires app on port 8080
+cd e2e-test-app && mvn spring-boot:run &  # start app first
+bash mutation-test-a.sh
+```
+
+### What Gets Mutated
+
+**E2E (Category A):** Java test view files are mutated (entry colors, titles, options, listener registrations). The affected Playwright spec is run. If the spec still passes, the test is a false positive.
+
+**Unit (Category B):** Production source code (Entry.java, RRule.java, BusinessHours.java, FullCalendar.java) is mutated (field defaults, JSON keys, enum values, method logic). The affected JUnit test is run.
+
+### Kill Rate Target
+
+- **E2E:** ≥ 95% (currently 100%)
+- **Unit:** ≥ 80% (currently 63% — known gaps in display mode and option removal tests)
+
+### When to Run
+
+- After adding new tests, to verify they catch real bugs
+- After refactoring test assertions (e.g. tightening tolerances)
+- Before releases, as a quality gate
+
+---
+
+## 4. Visual Verification Process (Playwright MCP)
 
 Use the Playwright MCP server to visually verify changes during development.
 
@@ -112,7 +151,7 @@ Unless the use case specifies otherwise, use **1920x1080**.
 
 ---
 
-## 4. Per-Use-Case Verification Checklist
+## 5. Per-Use-Case Verification Checklist
 
 > Copy this section for each use case.
 
