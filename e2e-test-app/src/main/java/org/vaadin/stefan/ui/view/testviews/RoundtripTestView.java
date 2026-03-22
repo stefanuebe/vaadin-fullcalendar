@@ -10,6 +10,7 @@ import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Locale;
 
 /**
@@ -65,11 +66,19 @@ public class RoundtripTestView extends VerticalLayout {
         dropEntry.setAllDay(true);
         provider.addEntry(dropEntry);
 
+        // Entry that will be removed on click
+        Entry removeMe = new Entry();
+        removeMe.setTitle("Click to Remove");
+        removeMe.setStart(LocalDate.of(2025, 3, 14).atStartOfDay());
+        removeMe.setAllDay(true);
+        provider.addEntry(removeMe);
+
         calendar.setEntryProvider(provider);
+        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
 
         // --- Listeners ---
 
-        // Click → rename or recolor on the server, then push update to client
+        // Click → rename, recolor, or remove on the server, then push update to client
         calendar.addEntryClickedListener(e -> {
             Entry entry = e.getEntry();
             if ("Click to Rename".equals(entry.getTitle())) {
@@ -78,7 +87,20 @@ public class RoundtripTestView extends VerticalLayout {
             } else if ("Click to Recolor".equals(entry.getTitle())) {
                 entry.setColor("red");
                 provider.refreshItem(entry);
+            } else if ("Click to Remove".equals(entry.getTitle())) {
+                provider.removeEntry(entry);
+                provider.refreshAll();
             }
+        });
+
+        // Timeslot click → server creates a new entry at that date
+        calendar.addTimeslotClickedListener(e -> {
+            Entry newEntry = new Entry();
+            newEntry.setTitle("Server Created");
+            newEntry.setStart(e.getDateTime());
+            newEntry.setAllDay(e.isAllDay());
+            provider.addEntry(newEntry);
+            provider.refreshAll();
         });
 
         // Drop → apply new dates + push to client

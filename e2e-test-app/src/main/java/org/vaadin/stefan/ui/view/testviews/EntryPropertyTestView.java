@@ -146,7 +146,26 @@ public class EntryPropertyTestView extends VerticalLayout {
         noResize.setDurationEditable(false);
         provider.addEntry(noResize);
 
+        // 12. Entry with extendedProps — verified via entryDidMount console.log
+        Entry propsEntry = new Entry();
+        propsEntry.setTitle("Has Props");
+        propsEntry.setStart(LocalDate.of(2025, 3, 17).atStartOfDay());
+        propsEntry.setAllDay(true);
+        propsEntry.setCustomProperty("department", "Engineering");
+        propsEntry.setCustomProperty("priority", "high");
+        provider.addEntry(propsEntry);
+
         calendar.setEntryProvider(provider);
+
+        // entryDidMount callback that logs extendedProps to a data attribute for E2E verification
+        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+                JsCallback.of("function(info) { " +
+                "  var ep = info.event.extendedProps || {}; " +
+                "  if (ep.customProperties && ep.customProperties.department) { " +
+                "    info.el.setAttribute('data-department', ep.customProperties.department); " +
+                "  } " +
+                "}"));
+
         add(calendar);
         setFlexGrow(1, calendar);
     }

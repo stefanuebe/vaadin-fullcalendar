@@ -101,6 +101,14 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(count).toBeGreaterThanOrEqual(1);
         });
 
+        base('inverse background display mode also renders as fc-bg-event', async ({ page }) => {
+            // Both BACKGROUND and INVERSE_BACKGROUND use fc-bg-event class
+            // We should have at least 2 bg-events (one regular, one inverse)
+            const bgEvents = page.locator('.fc-bg-event');
+            const count = await bgEvents.count();
+            expect(count).toBeGreaterThanOrEqual(2);
+        });
+
         base('hidden entry (displayMode NONE) has display property set to none', async ({ page }) => {
             // DisplayMode.NONE maps to FC's display: "none" which sets display:none on the entry
             // However, our enum NONE has clientSideValue=null (treated as "auto" by FC).
@@ -177,6 +185,18 @@ base.describe('Entry Properties — Visual Effects', () => {
                 const resizer = noResizeEntry.locator('.fc-event-resizer');
                 await expect(resizer).toHaveCount(0);
             }
+        });
+    });
+
+    base.describe('ExtendedProps (customProperties)', () => {
+
+        base('extendedProps accessible via entryDidMount callback sets data-attribute', async ({ page }) => {
+            // The entryDidMount callback reads customProperties.department and sets data-department attribute
+            const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
+            await expect(propsEntry).toBeVisible();
+            // Wait for entryDidMount to run
+            const dept = await propsEntry.getAttribute('data-department');
+            expect(dept).toBe('Engineering');
         });
     });
 });

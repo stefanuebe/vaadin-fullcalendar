@@ -76,6 +76,22 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         Span resizedNewEnd = new Span("");
         resizedNewEnd.setId("resized-new-end");
 
+        // Delta data for drop/resize
+        Span droppedDelta = new Span("");
+        droppedDelta.setId("dropped-delta");
+        Span resizedDelta = new Span("");
+        resizedDelta.setId("resized-delta");
+
+        // DragStart/Stop entry titles
+        Span dragStartTitle = new Span("");
+        dragStartTitle.setId("drag-start-title");
+        Span dragStopTitle = new Span("");
+        dragStopTitle.setId("drag-stop-title");
+        Span resizeStartTitle = new Span("");
+        resizeStartTitle.setId("resize-start-title");
+        Span resizeStopTitle = new Span("");
+        resizeStopTitle.setId("resize-stop-title");
+
         Div counters = new Div(
                 label("dragStart: "), dragStartBadge,
                 label(" | dragStop: "), dragStopBadge,
@@ -89,7 +105,13 @@ public class InteractionCallbacksTestView extends VerticalLayout {
                 label(" | droppedStart: "), droppedNewStart,
                 label(" | entryResized: "), entryResizedCount,
                 label(" | resizedTitle: "), resizedEntryTitle,
-                label(" | resizedEnd: "), resizedNewEnd
+                label(" | resizedEnd: "), resizedNewEnd,
+                label(" | dropDelta: "), droppedDelta,
+                label(" | resizeDelta: "), resizedDelta,
+                label(" | dragStartTitle: "), dragStartTitle,
+                label(" | dragStopTitle: "), dragStopTitle,
+                label(" | resizeStartTitle: "), resizeStartTitle,
+                label(" | resizeStopTitle: "), resizeStopTitle
         );
         counters.getStyle().set("font-size", "12px");
         add(counters);
@@ -129,18 +151,22 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         calendar.addEntryDragStartListener(e -> {
             int count = Integer.parseInt(dragStartBadge.getText()) + 1;
             dragStartBadge.setText(String.valueOf(count));
+            dragStartTitle.setText(e.getEntry().getTitle());
         });
         calendar.addEntryDragStopListener(e -> {
             int count = Integer.parseInt(dragStopBadge.getText()) + 1;
             dragStopBadge.setText(String.valueOf(count));
+            dragStopTitle.setText(e.getEntry().getTitle());
         });
         calendar.addEntryResizeStartListener(e -> {
             int count = Integer.parseInt(resizeStartBadge.getText()) + 1;
             resizeStartBadge.setText(String.valueOf(count));
+            resizeStartTitle.setText(e.getEntry().getTitle());
         });
         calendar.addEntryResizeStopListener(e -> {
             int count = Integer.parseInt(resizeStopBadge.getText()) + 1;
             resizeStopBadge.setText(String.valueOf(count));
+            resizeStopTitle.setText(e.getEntry().getTitle());
         });
         calendar.addTimeslotsUnselectListener(e -> {
             int count = Integer.parseInt(unselectBadge.getText()) + 1;
@@ -163,6 +189,7 @@ public class InteractionCallbacksTestView extends VerticalLayout {
             droppedEntryTitle.setText(e.getEntry().getTitle());
             var start = e.getEntry().getStart();
             droppedNewStart.setText(start != null ? start.toString() : "null");
+            droppedDelta.setText(e.getDelta().toString());
         });
 
         // EntryResizedEvent — apply changes, update badges
@@ -174,6 +201,7 @@ public class InteractionCallbacksTestView extends VerticalLayout {
             resizedEntryTitle.setText(e.getEntry().getTitle());
             var end = e.getEntry().getEnd();
             resizedNewEnd.setText(end != null ? end.toString() : "null");
+            resizedDelta.setText(e.getDelta().toString());
         });
 
         // selectAllow: deny selections before 2025-03-01

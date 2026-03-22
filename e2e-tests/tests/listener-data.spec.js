@@ -196,3 +196,86 @@ base.describe('Listener Data — EntryMouseLeaveEvent', () => {
         await expect(page.locator('#mouse-leave-count')).not.toHaveText('0', { timeout: 5000 });
     });
 });
+
+base.describe('Listener Data — TimeslotsSelectedEvent', () => {
+
+    base.beforeEach(async ({ page }) => {
+        await gotoListenerDataView(page);
+    });
+
+    base('selecting date range increments counter and provides start/end', async ({ page }) => {
+        await expect(page.locator('#timeslots-selected-count')).toHaveText('0');
+
+        // Programmatically select a range via FC JS API
+        await page.evaluate(() => {
+            const fcEl = document.querySelector('vaadin-full-calendar');
+            if (fcEl && fcEl.calendar) {
+                fcEl.calendar.select('2025-03-10', '2025-03-13');
+            }
+        });
+        await waitForVaadin(page);
+
+        await expect(page.locator('#timeslots-selected-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#timeslots-selected-start')).toHaveText('2025-03-10', { timeout: 5000 });
+        await expect(page.locator('#timeslots-selected-end')).toHaveText('2025-03-13', { timeout: 5000 });
+        await expect(page.locator('#timeslots-selected-allday')).toHaveText('true', { timeout: 5000 });
+    });
+});
+
+base.describe('Listener Data — DayNumberClickedEvent', () => {
+
+    base.beforeEach(async ({ page }) => {
+        await gotoListenerDataView(page);
+    });
+
+    base('clicking a day number fires event with correct date', async ({ page }) => {
+        await expect(page.locator('#day-number-count')).toHaveText('0');
+
+        // navLinks is enabled, so day numbers are clickable links
+        // Click day number for March 15
+        const dayLink = page.locator('.fc-daygrid-day[data-date="2025-03-15"] .fc-daygrid-day-number').first();
+        await expect(dayLink).toBeVisible();
+        await dayLink.click();
+        await waitForVaadin(page);
+
+        await expect(page.locator('#day-number-count')).not.toHaveText('0', { timeout: 5000 });
+        await expect(page.locator('#day-number-date')).toHaveText('2025-03-15', { timeout: 5000 });
+    });
+});
+
+base.describe('Listener Data — WeekNumberClickedEvent', () => {
+
+    base.beforeEach(async ({ page }) => {
+        await gotoListenerDataView(page);
+    });
+
+    base('clicking a week number fires event with date', async ({ page }) => {
+        await expect(page.locator('#week-number-count')).toHaveText('0');
+
+        // weekNumbers is enabled, click first week number
+        const weekLink = page.locator('.fc-daygrid-week-number').first();
+        await expect(weekLink).toBeVisible();
+        await weekLink.click();
+        await waitForVaadin(page);
+
+        await expect(page.locator('#week-number-count')).not.toHaveText('0', { timeout: 5000 });
+        // Week number date should be a valid date string
+        const dateText = await page.locator('#week-number-date').textContent();
+        expect(dateText).toMatch(/2025-/);
+    });
+});
+
+base.describe('Listener Data — BrowserTimezoneObtainedEvent', () => {
+
+    base.beforeEach(async ({ page }) => {
+        await gotoListenerDataView(page);
+    });
+
+    base('browser timezone is obtained on load', async ({ page }) => {
+        // BrowserTimezoneObtainedEvent fires automatically on attach
+        await expect(page.locator('#browser-tz-count')).not.toHaveText('0', { timeout: 5000 });
+        // Timezone value should be a non-empty string like "Europe/Berlin" or "UTC"
+        const tzValue = await page.locator('#browser-tz-value').textContent();
+        expect(tzValue.length).toBeGreaterThan(0);
+    });
+});

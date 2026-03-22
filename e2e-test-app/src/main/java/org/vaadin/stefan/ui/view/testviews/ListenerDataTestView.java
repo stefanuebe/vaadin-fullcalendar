@@ -68,6 +68,24 @@ public class ListenerDataTestView extends VerticalLayout {
         // EntryMouseLeaveEvent
         Span mouseLeaveCount = badge("mouse-leave-count", "0");
 
+        // TimeslotsSelectedEvent
+        Span timeslotsSelectedCount = badge("timeslots-selected-count", "0");
+        Span timeslotsSelectedStart = badge("timeslots-selected-start", "");
+        Span timeslotsSelectedEnd = badge("timeslots-selected-end", "");
+        Span timeslotsSelectedAllDay = badge("timeslots-selected-allday", "");
+
+        // DayNumberClickedEvent
+        Span dayNumberCount = badge("day-number-count", "0");
+        Span dayNumberDate = badge("day-number-date", "");
+
+        // WeekNumberClickedEvent
+        Span weekNumberCount = badge("week-number-count", "0");
+        Span weekNumberDate = badge("week-number-date", "");
+
+        // BrowserTimezoneObtainedEvent
+        Span browserTzCount = badge("browser-tz-count", "0");
+        Span browserTzValue = badge("browser-tz-value", "");
+
         Div counters = new Div(
                 label("datesRendered: "), datesRenderedCount,
                 label(" | intervalStart: "), datesIntervalStart,
@@ -82,7 +100,17 @@ public class ListenerDataTestView extends VerticalLayout {
                 label(" | clickStart: "), entryClickStart,
                 label(" | mouseEnter: "), mouseEnterCount,
                 label(" | enterTitle: "), mouseEnterTitle,
-                label(" | mouseLeave: "), mouseLeaveCount
+                label(" | mouseLeave: "), mouseLeaveCount,
+                label(" | tsSelected: "), timeslotsSelectedCount,
+                label(" | selStart: "), timeslotsSelectedStart,
+                label(" | selEnd: "), timeslotsSelectedEnd,
+                label(" | selAllDay: "), timeslotsSelectedAllDay,
+                label(" | dayNum: "), dayNumberCount,
+                label(" | dayNumDate: "), dayNumberDate,
+                label(" | weekNum: "), weekNumberCount,
+                label(" | weekNumDate: "), weekNumberDate,
+                label(" | browserTz: "), browserTzCount,
+                label(" | tzValue: "), browserTzValue
         );
         counters.getStyle().set("font-size", "12px").set("word-wrap", "break-word");
         add(counters);
@@ -95,6 +123,8 @@ public class ListenerDataTestView extends VerticalLayout {
         calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
         calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2); // triggers +more link
         calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
+        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
+        calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
 
         // --- Entries ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -169,6 +199,36 @@ public class ListenerDataTestView extends VerticalLayout {
         calendar.addEntryMouseLeaveListener(e -> {
             int count = Integer.parseInt(mouseLeaveCount.getText()) + 1;
             mouseLeaveCount.setText(String.valueOf(count));
+        });
+
+        // TimeslotsSelectedEvent
+        calendar.addTimeslotsSelectedListener(e -> {
+            int count = Integer.parseInt(timeslotsSelectedCount.getText()) + 1;
+            timeslotsSelectedCount.setText(String.valueOf(count));
+            timeslotsSelectedStart.setText(e.getStart().toLocalDate().toString());
+            timeslotsSelectedEnd.setText(e.getEnd().toLocalDate().toString());
+            timeslotsSelectedAllDay.setText(String.valueOf(e.isAllDay()));
+        });
+
+        // DayNumberClickedEvent
+        calendar.addDayNumberClickedListener(e -> {
+            int count = Integer.parseInt(dayNumberCount.getText()) + 1;
+            dayNumberCount.setText(String.valueOf(count));
+            dayNumberDate.setText(e.getDate().toString());
+        });
+
+        // WeekNumberClickedEvent
+        calendar.addWeekNumberClickedListener(e -> {
+            int count = Integer.parseInt(weekNumberCount.getText()) + 1;
+            weekNumberCount.setText(String.valueOf(count));
+            weekNumberDate.setText(e.getDate().toString());
+        });
+
+        // BrowserTimezoneObtainedEvent
+        calendar.addBrowserTimezoneObtainedListener(e -> {
+            int count = Integer.parseInt(browserTzCount.getText()) + 1;
+            browserTzCount.setText(String.valueOf(count));
+            browserTzValue.setText(e.getTimezone().getClientSideValue());
         });
 
         add(calendar);

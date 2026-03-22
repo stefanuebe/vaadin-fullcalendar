@@ -49,6 +49,9 @@ test.describe('Interaction Callbacks', () => {
         // After drag, both counters should have incremented
         await expect(page.locator('#drag-start-count')).not.toHaveText('0', { timeout: 5000 });
         await expect(page.locator('#drag-stop-count')).not.toHaveText('0', { timeout: 5000 });
+        // Entry title should be captured
+        await expect(page.locator('#drag-start-title')).toHaveText('Drag Me', { timeout: 5000 });
+        await expect(page.locator('#drag-stop-title')).toHaveText('Drag Me', { timeout: 5000 });
     });
 
     // -------------------------------------------------------------------------
@@ -80,6 +83,9 @@ test.describe('Interaction Callbacks', () => {
 
         await expect(page.locator('#resize-start-count')).not.toHaveText('0', { timeout: 5000 });
         await expect(page.locator('#resize-stop-count')).not.toHaveText('0', { timeout: 5000 });
+        // Entry title should be captured
+        await expect(page.locator('#resize-start-title')).toHaveText('Resize Me', { timeout: 5000 });
+        await expect(page.locator('#resize-stop-title')).toHaveText('Resize Me', { timeout: 5000 });
     });
 
     // -------------------------------------------------------------------------
@@ -177,6 +183,8 @@ test.describe('Interaction Callbacks', () => {
 
         await expect(page.locator('#dropped-entry-title')).toHaveText('Drag Me', { timeout: 5000 });
         await expect(page.locator('#dropped-new-start')).not.toHaveText('', { timeout: 5000 });
+        // Delta should be non-empty (contains day/time shift info)
+        await expect(page.locator('#dropped-delta')).not.toHaveText('', { timeout: 5000 });
     });
 
     // -------------------------------------------------------------------------
@@ -218,6 +226,8 @@ test.describe('Interaction Callbacks', () => {
 
         await expect(page.locator('#resized-entry-title')).toHaveText('Resize Me', { timeout: 5000 });
         await expect(page.locator('#resized-new-end')).not.toHaveText('', { timeout: 5000 });
+        // Delta should be non-empty
+        await expect(page.locator('#resized-delta')).not.toHaveText('', { timeout: 5000 });
     });
 
 });

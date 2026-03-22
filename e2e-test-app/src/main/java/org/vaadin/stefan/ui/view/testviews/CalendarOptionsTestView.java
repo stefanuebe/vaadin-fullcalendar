@@ -94,5 +94,25 @@ public class CalendarOptionsTestView extends VerticalLayout {
 
         cal2.setHeight("400px");
         add(cal2);
+
+        // ========================
+        // Calendar 3: dayGridMonth with hiddenDays and nowIndicator
+        // ========================
+        add(new H3("DayGrid — Hidden Days, Now Indicator, Scroll Time"));
+
+        FullCalendar cal3 = FullCalendarBuilder.create().build();
+        cal3.addThemeVariants(FullCalendarVariant.VAADIN);
+        cal3.getElement().setAttribute("id", "cal-extra");
+        cal3.setLocale(Locale.ENGLISH);
+        // Use today's date (no hiddenDays!) so nowIndicator is always visible
+        cal3.setOption("initialDate", java.time.LocalDate.now().toString());
+        cal3.setOption("initialView", CalendarViewImpl.TIME_GRID_DAY.getClientSideValue());
+        cal3.setOption(FullCalendar.Option.NOW_INDICATOR, true);
+        cal3.setOption(FullCalendar.Option.SCROLL_TIME, "14:00:00");
+
+        InMemoryEntryProvider<Entry> provider3 = new InMemoryEntryProvider<>();
+        cal3.setEntryProvider(provider3);
+        cal3.setHeight("400px");
+        add(cal3);
     }
 }

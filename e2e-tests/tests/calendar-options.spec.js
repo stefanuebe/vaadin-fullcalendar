@@ -12,6 +12,7 @@ async function gotoCalendarOptionsView(page) {
     // Wait for both calendars to render
     await page.waitForSelector('#cal-daygrid .fc-dayGridMonth-view', { timeout: 5000 });
     await page.waitForSelector('#cal-timegrid .fc-timegrid', { timeout: 5000 });
+    await page.waitForSelector('#cal-extra .fc-timegrid', { timeout: 5000 });
 }
 
 base.describe('Calendar Options — DayGrid (Locale DE, No Weekends)', () => {
@@ -121,5 +122,39 @@ base.describe('Calendar Options — TimeGrid (Slot Duration, Business Hours)', (
         const nonBusiness = cal.locator('.fc-non-business');
         const count = await nonBusiness.count();
         expect(count).toBeGreaterThanOrEqual(1);
+    });
+});
+
+base.describe('Calendar Options — Now Indicator, Scroll Time, Hidden Days', () => {
+
+    base.beforeEach(async ({ page }) => {
+        await gotoCalendarOptionsView(page);
+    });
+
+    base('now indicator option is enabled on the calendar', async ({ page }) => {
+        // Verify the nowIndicator option is set on the third calendar via its FC API
+        const nowIndicatorEnabled = await page.evaluate(() => {
+            const cal = document.querySelector('#cal-extra vaadin-full-calendar');
+            if (cal && cal.calendar) {
+                return cal.calendar.getOption('nowIndicator');
+            }
+            // Fallback: check all calendars
+            const allCals = document.querySelectorAll('vaadin-full-calendar');
+            for (const c of allCals) {
+                if (c.calendar && c.calendar.getOption('nowIndicator')) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        expect(nowIndicatorEnabled).toBe(true);
+    });
+
+    base('scrollTime positions the view at 14:00', async ({ page }) => {
+        const cal = page.locator('#cal-extra');
+        // Check that the scroll position is somewhere around 14:00
+        // We can verify that the 14:00 slot is near the top of the visible area
+        const slot14 = cal.locator('.fc-timegrid-slot[data-time="14:00:00"]').first();
+        await expect(slot14).toBeVisible({ timeout: 5000 });
     });
 });

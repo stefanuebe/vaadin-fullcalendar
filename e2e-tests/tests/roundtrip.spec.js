@@ -103,3 +103,41 @@ base.describe('Roundtrip — Drop moves entry to new date', () => {
         await expect(march12Cell.locator('.fc-event:has-text("Drop Target")')).toBeVisible({ timeout: 5000 });
     });
 });
+
+base.describe('Roundtrip — Server removes entry on click', () => {
+
+    base.beforeEach(async ({ page }) => {
+        await gotoRoundtripView(page);
+    });
+
+    base('clicking "Click to Remove" removes entry from calendar', async ({ page }) => {
+        const entry = page.locator('.fc-event:has-text("Click to Remove")').first();
+        await expect(entry).toBeVisible();
+
+        await entry.click();
+        await waitForVaadin(page);
+
+        // Entry should be gone
+        await expect(page.locator('.fc-event:has-text("Click to Remove")')).toHaveCount(0, { timeout: 5000 });
+    });
+});
+
+base.describe('Roundtrip — Server creates entry on timeslot click', () => {
+
+    base.beforeEach(async ({ page }) => {
+        await gotoRoundtripView(page);
+    });
+
+    base('clicking empty day creates "Server Created" entry', async ({ page }) => {
+        // March 20 should be empty
+        await expect(page.locator('.fc-event:has-text("Server Created")')).toHaveCount(0);
+
+        // Click the empty day cell
+        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-20"] .fc-daygrid-day-frame');
+        await emptyCell.click();
+        await waitForVaadin(page);
+
+        // New entry should appear
+        await expect(page.locator('.fc-event:has-text("Server Created")')).toBeVisible({ timeout: 5000 });
+    });
+});
