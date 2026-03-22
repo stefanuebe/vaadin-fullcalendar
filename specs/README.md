@@ -30,3 +30,8 @@ Status lifecycle: **Draft** → **Approved** → **Implemented**
 ## Naming Convention
 
 FullCalendar JS calls them "events"; this addon calls them **"entries"**. All specs use `Entry` / `entry` terminology, never "event" (except when referring to Vaadin component events or FullCalendar JS documentation).
+
+## Agents
+
+Agents shall be used for appropriate work, for instance the full stack developer for implementing code or the Vaadin expert, if there are any
+open questions or uncertainies about Vaadin's functions and features.

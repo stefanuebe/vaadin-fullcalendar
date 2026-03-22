@@ -60,6 +60,18 @@ cd e2e-test-app && mvn clean verify -Pit
 
 **Important**: Do NOT pipe Maven output through `grep`/`tail`/`head` — this causes buffering issues and the process appears hung.
 
+### Core Purpose of E2E Tests
+
+E2E tests verify that the **server-side Java API produces the correct visual and behavioral effect in the browser**. Every E2E test should ultimately answer one or more of these questions:
+
+1. When I set a **property on an entry**, does it have the expected effect in the client (e.g. the title, color, display mode)?
+2. When I set an **option on the calendar**, does it have the expected effect in the client (e.g. the locale, editable state, hidden days)?
+3. When I register a **server-side event listener**, is it properly notified from the client interaction?
+4. When I use a server-side event listener, does the **event contain the correct data**?
+5. When I use a server-side event listener and **update an entry/resource in the handler**, are the changes correctly shown in the client afterwards?
+
+These five patterns form the foundation. The feature-specific tests below are concrete applications of them.
+
 ### What E2E Tests Cover
 
 - Calendar views (dayGrid, timeGrid, list, multiMonth)
