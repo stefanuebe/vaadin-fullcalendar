@@ -7,8 +7,8 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoAccessibilityView(page) {
     await page.goto('/test/accessibility');
-    await page.waitForSelector('.fc', { timeout: 30000 });
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 15000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
+    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
     await waitForVaadin(page);
 }
 

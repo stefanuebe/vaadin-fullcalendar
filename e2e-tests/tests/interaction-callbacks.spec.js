@@ -7,9 +7,9 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoInteractionCallbacksView(page) {
     await page.goto('/test/interaction-callbacks');
-    await page.waitForSelector('.fc', { timeout: 30000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
     // timeGridWeek renders time-slot rows
-    await page.waitForSelector('.fc-timegrid-slot', { timeout: 15000 });
+    await page.waitForSelector('.fc-timegrid-slot', { timeout: 5000 });
     await waitForVaadin(page);
 }
 

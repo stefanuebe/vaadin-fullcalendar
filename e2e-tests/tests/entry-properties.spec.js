@@ -7,9 +7,9 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoEntryPropertiesView(page) {
     await page.goto('/test/entry-properties');
-    await page.waitForSelector('.fc', { timeout: 30000 });
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 15000 });
-    await page.waitForSelector('.fc-event', { timeout: 15000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
+    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
+    await page.waitForSelector('.fc-event', { timeout: 5000 });
     await waitForVaadin(page);
 }
 
@@ -157,7 +157,7 @@ base.describe('Entry Properties — Visual Effects', () => {
         base('non-resizable entry has no resize handle in timeGrid view', async ({ page }) => {
             // Switch to timeGrid week to see resize handles
             await page.goto('/test/entry-properties');
-            await page.waitForSelector('.fc', { timeout: 30000 });
+            await page.waitForSelector('.fc', { timeout: 10000 });
             await waitForVaadin(page);
 
             // Switch view programmatically via JS

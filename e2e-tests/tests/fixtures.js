@@ -13,7 +13,7 @@ const test = base.extend({
     await page.goto('/');
 
     // Wait for the calendar to be visible
-    await page.waitForSelector('.fc', { timeout: 30000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
 
     // Wait for Vaadin to fully initialize - wait for the calendar entries to load
     await page.waitForFunction(() => {

@@ -7,8 +7,8 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoAdvancedOptionsView(page) {
     await page.goto('/test/advanced-options');
-    await page.waitForSelector('.fc', { timeout: 30000 });
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 15000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
+    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
     await waitForVaadin(page);
 }
 

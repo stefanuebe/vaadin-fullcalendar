@@ -7,8 +7,8 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoTestView(page, path) {
   await page.goto(path);
-  await page.waitForSelector('.fc', { timeout: 30000 });
-  await page.waitForSelector('.fc-daygrid-day', { timeout: 15000 });
+  await page.waitForSelector('.fc', { timeout: 10000 });
+  await page.waitForSelector('.fc-daygrid-day', { timeout: 5000 });
 }
 
 // =============================================================================
@@ -90,7 +90,7 @@ test.describe('Display Options', () => {
     await gotoTestView(page, '/test/display-options');
     await waitForVaadin(page);
     // Wait for events to be rendered before running assertions
-    await page.waitForSelector('.fc-event', { timeout: 15000 });
+    await page.waitForSelector('.fc-event', { timeout: 5000 });
   });
 
   test('calendar is visible in dayGridMonth view', async ({ page }) => {

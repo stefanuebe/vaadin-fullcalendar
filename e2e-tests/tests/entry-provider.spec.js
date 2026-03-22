@@ -88,7 +88,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
       await page.goto(view.route);
 
       // Wait for the calendar to be visible
-      await page.waitForSelector('.fc', { timeout: 30000 });
+      await page.waitForSelector('.fc', { timeout: 10000 });
 
       // Wait for Vaadin to initialize
       await waitForVaadin(page);

@@ -7,9 +7,9 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoSchedulerFeaturesView(page) {
     await page.goto('/test/scheduler-features');
-    await page.waitForSelector('.fc', { timeout: 30000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
     // Resource timeline views render .fc-timeline, not .fc-timegrid-slot
-    await page.waitForSelector('.fc-timeline', { timeout: 30000 });
+    await page.waitForSelector('.fc-timeline', { timeout: 10000 });
     await waitForVaadin(page);
 }
 

@@ -101,26 +101,7 @@ test.describe('Calendar Navigation', () => {
     await clickToday(page);
   });
 
-  test.skip('should maintain calendar state after browser back/forward', async ({ page }) => {
-    // SKIPPED: This test is not applicable for SPAs where calendar navigation
-    // doesn't push browser history entries. The goBack() navigates away from the app.
-
-    // Navigate to a different month
-    await navigateMonth(page, 'next');
-    await navigateMonth(page, 'next');
-
-    // Use browser back
-    await page.goBack();
-    await page.waitForTimeout(1000);
-
-    // Calendar should still be visible (might reload)
-    await page.waitForSelector('.fc', { timeout: 30000 });
-
-    // Use browser forward
-    await page.goForward();
-    await page.waitForTimeout(1000);
-
-    // Calendar should still be visible
-    await page.waitForSelector('.fc', { timeout: 30000 });
-  });
+  // Removed: browser back/forward test was not applicable for SPAs.
+  // Detach/reattach and visibility toggle state preservation is covered
+  // in detach-reattach.spec.js instead.
 });

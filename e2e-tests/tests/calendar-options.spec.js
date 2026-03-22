@@ -7,11 +7,11 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoCalendarOptionsView(page) {
     await page.goto('/test/calendar-options');
-    await page.waitForSelector('.fc', { timeout: 30000 });
+    await page.waitForSelector('.fc', { timeout: 10000 });
     await waitForVaadin(page);
     // Wait for both calendars to render
-    await page.waitForSelector('#cal-daygrid .fc-dayGridMonth-view', { timeout: 15000 });
-    await page.waitForSelector('#cal-timegrid .fc-timegrid', { timeout: 15000 });
+    await page.waitForSelector('#cal-daygrid .fc-dayGridMonth-view', { timeout: 5000 });
+    await page.waitForSelector('#cal-timegrid .fc-timegrid', { timeout: 5000 });
 }
 
 base.describe('Calendar Options — DayGrid (Locale DE, No Weekends)', () => {
