@@ -36,6 +36,14 @@ mvn verify
 # Run E2E tests (starts Vaadin app + Playwright)
 cd e2e-test-app && mvn clean verify -Pit
 
+# Run mutation testing (PIT — unit tests)
+mvn test -pl addon -Ppit
+# Report: addon/target/pit-reports/index.html
+
+# Run manual mutation test scripts (see specs/verification.md §3)
+bash mutation-test-b.sh        # Unit mutations (~75s, standalone)
+bash mutation-test-a.sh        # E2E mutations (~5min, requires app on :8080)
+
 # Alternative: Use Maven wrapper from demo/ if mvn not available
 ./demo/mvnw clean install
 ```

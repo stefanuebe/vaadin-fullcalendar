@@ -91,38 +91,51 @@ These five patterns form the foundation. The feature-specific tests below are co
 
 Mutation testing validates that tests actually catch bugs. A mutation introduces a deliberate defect; if no test fails, the test suite has a false positive.
 
-### Scripts
+### Tools & Scripts
 
+**PIT (automated, unit tests):**
+```bash
+# Full mutation analysis via PIT Maven plugin (~25 seconds)
+mvn test -pl addon -Ppit
+
+# Report: addon/target/pit-reports/index.html
+# Current: 551 mutations, 79% test strength (for covered code)
+```
+
+**Manual scripts (E2E + unit spot-checks):**
 - `mutation-test-a.sh` — E2E mutations (requires app running in dev mode)
-- `mutation-test-b.sh` — Unit test mutations (standalone)
-
-### How to Run
+- `mutation-test-b.sh` — Unit test mutations (standalone, ~75 seconds)
 
 ```bash
-# Category B (Unit Tests) — ~75 seconds, no server needed
+# Category B (Unit Tests) — standalone
 bash mutation-test-b.sh
 
-# Category A (E2E) — ~5 minutes, requires app on port 8080
+# Category A (E2E) — requires app on port 8080
 cd e2e-test-app && mvn spring-boot:run &  # start app first
 bash mutation-test-a.sh
 ```
 
 ### What Gets Mutated
 
-**E2E (Category A):** Java test view files are mutated (entry colors, titles, options, listener registrations). The affected Playwright spec is run. If the spec still passes, the test is a false positive.
+**PIT (automated):** Production addon source code. PIT generates ~551 mutations (conditional boundary changes, return value mutations, void method call removals, etc.) across Entry, RRule, BusinessHours, DisplayMode, Delta, FullCalendar, and InMemoryEntryProvider. Runs all unit tests against each mutation.
 
-**Unit (Category B):** Production source code (Entry.java, RRule.java, BusinessHours.java, FullCalendar.java) is mutated (field defaults, JSON keys, enum values, method logic). The affected JUnit test is run.
+**E2E scripts (Category A):** Java test view files are mutated (entry colors, titles, options, listener registrations). The affected Playwright spec is run. If the spec still passes, the test is a false positive.
 
-### Kill Rate Target
+**Unit scripts (Category B):** Targeted production source mutations (field defaults, JSON keys, enum values). Supplements PIT for specific regression scenarios.
 
-- **E2E:** ≥ 95% (currently 100%)
-- **Unit:** ≥ 80% (currently 63% — known gaps in display mode and option removal tests)
+### Kill Rate Targets
+
+| Tool | Target | Current |
+|---|---|---|
+| PIT (unit, test strength) | ≥ 80% | 79% |
+| Manual E2E (Category A) | ≥ 95% | 100% |
+| Manual Unit (Category B) | ≥ 80% | 83% |
 
 ### When to Run
 
-- After adding new tests, to verify they catch real bugs
-- After refactoring test assertions (e.g. tightening tolerances)
-- Before releases, as a quality gate
+- **PIT:** After adding or changing unit tests. Before releases as quality gate.
+- **Manual scripts:** After adding E2E tests. After refactoring test assertions.
+- **Both:** When investigating whether a test actually provides regression protection.
 
 ---
 
