@@ -36,6 +36,8 @@ public class ComponentColumnsDemo extends VerticalLayout {
         setSizeFull();
         setPadding(true);
 
+        addClassName("resource-component-columns-view");
+
         add(new Span("Each resource has a task with Start/End date pickers. " +
                 "Edit a date picker to move the entry, or drag/resize the entry to update the pickers."));
 

@@ -15,7 +15,7 @@
 - added `JsCallback` wrapper and unified callback API: all callback options set via `setOption(Option, JsCallback.of(...))`
 - added drag/resize lifecycle events and external entry drop/resize events
 - added typed event source wrappers: `JsonFeedEventSource`, `GoogleCalendarEventSource`, `ICalendarEventSource`
-- added scheduler resource area columns, resource grouping, and refetch-on-navigate
+- added scheduler resource area columns including support for interactive Vaadin components via `ComponentResourceAreaColumn`, resource grouping, and refetch-on-navigate
 - added accessibility hints and options (WCAG 2.1 AA support)
 - added `Entry.overlap` `null` state to inherit global overlap setting
 - deprecated a lot of setters (e.g. `setSlotMinTime`, `setSnapDuration`, `setBusinessHours`, etc.) in favour of `setOption` with converters

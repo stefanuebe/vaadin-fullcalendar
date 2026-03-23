@@ -16,3 +16,7 @@ h2.title {
 span.description {
     font-size: 0.8rem;
 }
+
+.resource-component-columns-view .fc-event{
+    margin-top: var(--vaadin-padding-m);
+}

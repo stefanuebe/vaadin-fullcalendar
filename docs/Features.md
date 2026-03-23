@@ -163,13 +163,46 @@ A valid license key is required for production use (see [Scheduler license](Sche
 - Adding and removing resources (including hierarchical resource trees)
 - Linking one or multiple resources to entries (`ResourceEntry`)
 - Resource grouping by field value (`setOption(SchedulerOption.RESOURCE_GROUP_FIELD, ...)`) with customisable group headers
-- Multiple resource area columns (`setResourceAreaColumns`)
+- Multiple resource area columns with support for static text and interactive Vaadin components (`setResourceAreaColumns`)
 - Timeline views and vertical resource views (`SchedulerView`)
 - Filtering and ordering resources on the server side
 
 Event handling:
 - Timeslot clicked / selected
 - Entry dropped (including the resource assignment after drop)
+
+### Component Resource Area Columns
+
+In addition to static text columns, the resource area sidebar can display interactive Vaadin components (DatePicker, TextField, ComboBox, etc.) — one component instance per resource. This pattern mirrors Vaadin Grid's `ComponentColumn` and is useful for:
+
+- Inline editing of resource metadata (deadlines, priority, owner, notes)
+- One-way binding to entry properties (display entry start/end dates, duration)
+- Two-way binding (component change updates entry; entry change updates component)
+
+Components are created by a callback that receives the `Resource` and returns a component instance. They are fully interactive — users can type, select, open dropdowns, etc. — and survive FullCalendar view changes and re-renders. Type-safe runtime access is provided at any time via `getComponent(resource)`.
+
+```java
+// Define a component column with a callback
+ComponentResourceAreaColumn<DatePicker> deadlineCol = new ComponentResourceAreaColumn<>(
+    "deadline", "Deadline",
+    resource -> {
+        DatePicker picker = new DatePicker();
+        picker.setWidth("130px");
+        return picker;
+    }
+);
+
+// Mix with regular text columns
+scheduler.setResourceAreaColumns(
+    new ResourceAreaColumn("title", "Name").withWidth("200px"),
+    deadlineCol.withWidth("160px")
+);
+
+// Update a component at any time (type-safe, no casting)
+deadlineCol.getComponent(resource).ifPresent(picker ->
+    picker.setValue(LocalDate.now())
+);
+```
 
 ## Developer Tools
 

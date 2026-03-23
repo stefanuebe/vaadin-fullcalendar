@@ -521,6 +521,85 @@ parent.removeChild(child);
 calendar.setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, true);
 ```
 
+### Using component resource area columns
+
+Resource area columns can display interactive Vaadin components (such as DatePicker, TextField, ComboBox, etc.) — one component per resource. This is useful for inline editing or displaying resource-related metadata. Components are created by a callback and support type-safe runtime access.
+
+#### Basic component column
+
+```java
+FullCalendarScheduler scheduler = (FullCalendarScheduler) FullCalendarBuilder.create()
+    .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
+    .build();
+
+// Create a DatePicker column that receives a Resource and returns a component
+ComponentResourceAreaColumn<DatePicker> deadlineCol = new ComponentResourceAreaColumn<>(
+    "deadline",  // unique field key
+    "Deadline",  // column header
+    resource -> {
+        DatePicker picker = new DatePicker();
+        picker.setWidth("130px");
+        picker.addValueChangeListener(e -> {
+            if (e.isFromClient()) {
+                // Handle user interaction — e.g., update entry or resource data
+                System.out.println("Deadline for " + resource.getTitle() + " → " + e.getValue());
+            }
+        });
+        return picker;
+    }
+);
+
+// Combine with regular text columns
+scheduler.setResourceAreaColumns(
+    new ResourceAreaColumn("title", "Name").withWidth("200px"),
+    deadlineCol.withWidth("160px")
+);
+```
+
+#### Accessing and updating components
+
+```java
+// Type-safe access to a component at any time
+deadlineCol.getComponent(resource).ifPresent(picker ->
+    picker.setValue(LocalDate.now())
+);
+
+// Iterate all resource-component mappings (unmodifiable, keyed by resource ID)
+deadlineCol.getComponents().forEach((resourceId, picker) -> {
+    // Read or update — picker is already typed as DatePicker
+});
+
+// Force re-creation of all components (state is lost)
+deadlineCol.refreshAll();
+
+// Re-create a single resource's component
+deadlineCol.refresh(resource);
+```
+
+#### Syncing with entry drag/resize
+
+Components and entries can be kept in sync — for example, a DatePicker showing entry start/end dates that updates when the entry is dragged or resized:
+
+```java
+ComponentResourceAreaColumn<DatePicker> startCol = new ComponentResourceAreaColumn<>(
+    "start", "Start",
+    resource -> new DatePicker()
+);
+
+scheduler.addEntryResizedListener(event -> {
+    event.applyChangesOnEntry();
+
+    // Update component(s) with new entry time
+    if (event.getEntry() instanceof ResourceEntry re) {
+        for (Resource resource : re.getResources()) {
+            startCol.getComponent(resource).ifPresent(picker ->
+                picker.setValue(event.getEntry().getStart().toLocalDate())
+            );
+        }
+    }
+});
+```
+
 ## Using tippy.js for description tooltips
 By default the calendar does not provide tooltips for entries. However, you can easily integrate any type of
 tooltip mechanism or library, for instance by simply applying an html title or using a matured tooltip library
