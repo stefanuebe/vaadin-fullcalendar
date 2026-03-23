@@ -204,3 +204,4 @@ See the [migration guide](Migration-guides#migration-notes-70--71) for the compl
 - `EntryQuery.applyFilter()`: entries without an explicit end date (e.g. all-day single-day entries created with
   only `setStart(LocalDate)`) were incorrectly excluded from `InMemoryEntryProvider` fetch results. They now
   appear correctly when the start date falls within the visible date range.
+- When a scheduler has been detached and re-attached, the resources were not sent to the client. This led to an empty scheduler view. 

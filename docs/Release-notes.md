@@ -21,6 +21,7 @@
 - deprecated a lot of setters (e.g. `setSlotMinTime`, `setSnapDuration`, `setBusinessHours`, etc.) in favour of `setOption` with converters
 - deprecated callback setters (e.g. `setEntryDidMountCallback`, `setEntryContentCallback`, etc.) in favour of `setOption` with `JsCallback`
 - fixed `EntryQuery` incorrectly excluding entries without an explicit end date
+- fixed "lost" resources after scheduler re-attachment
 
 ## 7.0.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-7.0)
