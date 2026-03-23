@@ -101,6 +101,17 @@ Use `setOption(SchedulerOption.REFETCH_RESOURCES_ON_NAVIGATE, true)` to re-fetch
 Resource lifecycle events (`resourceAdd`, `resourceChange`, `resourceRemove`, `resourcesSet`) are
 available as callback options for custom logic on resource data changes.
 
+In addition to static text columns, the resource area sidebar can display interactive Vaadin components (DatePicker, TextField, ComboBox, etc.) 
+— one component instance per resource. This pattern mirrors Vaadin Grid's `ComponentColumn` and is useful for:
+
+- Inline editing of resource metadata (deadlines, priority, owner, notes)
+- One-way binding to entry properties (display entry start/end dates, duration)
+- Two-way binding (component change updates entry; entry change updates component)
+
+Components are created by a callback that receives the `Resource` and returns a component instance. They are fully interactive 
+— users can type, select, open dropdowns, etc. — and survive FullCalendar view changes and re-renders. Type-safe runtime access is provided at any time via `getComponent(resource)`.
+
+
 ## Accessibility
 
 A set of new options improves keyboard accessibility and screen reader support:
