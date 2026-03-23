@@ -20,3 +20,8 @@ span.description {
 .resource-component-columns-view .fc-event{
     margin-top: var(--vaadin-padding-m);
 }
+
+.resource-component-columns-view .fc-datagrid-cell-frame:not(:has(vaadin-date-picker)){
+    display: flex;
+    align-items: center;
+}
