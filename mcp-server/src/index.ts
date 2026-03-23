@@ -2,9 +2,12 @@ import express, { Request, Response } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { HybridSearch } from './search/index.js';
 import { ToolHandlers } from './tools/index.js';
 import type { ExtractedData } from './types.js';
+import { z } from 'zod';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,163 +15,15 @@ const __dirname = path.dirname(__filename);
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const DATA_PATH = process.env.DATA_PATH || path.join(__dirname, '../data/extracted.json');
 
-// MCP Protocol Types
-interface MCPRequest {
-  jsonrpc: '2.0';
-  id: string | number;
-  method: string;
-  params?: Record<string, unknown>;
-}
-
-interface MCPResponse {
-  jsonrpc: '2.0';
-  id: string | number;
-  result?: unknown;
-  error?: {
-    code: number;
-    message: string;
-    data?: unknown;
-  };
-}
-
-interface MCPTool {
-  name: string;
-  description: string;
-  inputSchema: {
-    type: 'object';
-    properties: Record<string, unknown>;
-    required?: string[];
-  };
-}
-
-// Tool definitions for MCP
-const TOOLS: MCPTool[] = [
-  {
-    name: 'search_docs',
-    description: 'Search across FullCalendar Vaadin documentation, API reference, and code examples. Supports semantic search (with OpenAI) and keyword search.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', description: 'Search query' },
-        limit: { type: 'number', description: 'Maximum results (default: 10)' },
-        mode: { type: 'string', enum: ['auto', 'semantic', 'keyword'], description: 'Search mode (default: auto)' },
-      },
-      required: ['query'],
-    },
-  },
-  {
-    name: 'get_api_reference',
-    description: 'Get detailed API reference for a specific Java class including methods, fields, and constructors.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        className: { type: 'string', description: 'Class name (e.g., "FullCalendar", "Entry", "Resource")' },
-      },
-      required: ['className'],
-    },
-  },
-  {
-    name: 'list_classes',
-    description: 'List all available Java classes in the FullCalendar addon.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        filter: { type: 'string', description: 'Filter by name or description' },
-        source: { type: 'string', enum: ['addon', 'addon-scheduler'], description: 'Filter by module' },
-      },
-    },
-  },
-  {
-    name: 'get_code_example',
-    description: 'Get code examples for specific use cases.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        id: { type: 'string', description: 'Specific example ID' },
-        search: { type: 'string', description: 'Search term to find examples' },
-        category: { type: 'string', description: 'Category filter (e.g., "data-provider", "events", "scheduler")' },
-      },
-    },
-  },
-  {
-    name: 'get_entry_schema',
-    description: 'Get the Entry model schema with all properties, types, and descriptions.',
-    inputSchema: {
-      type: 'object',
-      properties: {},
-    },
-  },
-  {
-    name: 'get_resource_schema',
-    description: 'Get the Resource model schema (Scheduler extension) with all properties.',
-    inputSchema: {
-      type: 'object',
-      properties: {},
-    },
-  },
-  {
-    name: 'list_calendar_views',
-    description: 'List all available calendar views (DayGrid, TimeGrid, List, Timeline, etc.).',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        includeScheduler: { type: 'boolean', description: 'Include Scheduler-specific views (default: true)' },
-      },
-    },
-  },
-  {
-    name: 'list_event_types',
-    description: 'List all server-side event types that can be listened to.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        source: { type: 'string', enum: ['core', 'scheduler'], description: 'Filter by module' },
-      },
-    },
-  },
-  {
-    name: 'get_migration_guide',
-    description: 'Get migration guide for upgrading between versions.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        fromVersion: { type: 'string', description: 'Source version (e.g., "6")' },
-        toVersion: { type: 'string', description: 'Target version (e.g., "7")' },
-      },
-    },
-  },
-  {
-    name: 'get_documentation',
-    description: 'Get full documentation page by path.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        path: { type: 'string', description: 'Documentation path (e.g., "Samples.md", "FAQ.md")' },
-      },
-      required: ['path'],
-    },
-  },
-  {
-    name: 'get_maven_dependency',
-    description: 'Get Maven dependency coordinates, repository configuration, and version compatibility for setting up a new project with FullCalendar for Vaadin Flow.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        includeScheduler: { type: 'boolean', description: 'Include Scheduler extension dependency (default: true)' },
-      },
-    },
-  },
-];
-
 // Server state
 let data: ExtractedData;
 let search: HybridSearch;
 let tools: ToolHandlers;
 let isInitialized = false;
 
-async function initialize(): Promise<void> {
-  console.log('Initializing MCP server...');
-  console.log(`Loading data from: ${DATA_PATH}`);
+async function loadData(): Promise<void> {
+  console.log('Loading data...');
+  console.log(`Data path: ${DATA_PATH}`);
 
   if (!fs.existsSync(DATA_PATH)) {
     throw new Error(`Data file not found: ${DATA_PATH}. Run 'npm run extract' first.`);
@@ -188,147 +43,159 @@ async function initialize(): Promise<void> {
   tools = new ToolHandlers(data, search);
 
   isInitialized = true;
-  console.log('MCP server initialized successfully');
+  console.log('Data loaded successfully');
 }
 
-function createMCPResponse(id: string | number, result: unknown): MCPResponse {
-  return {
-    jsonrpc: '2.0',
-    id,
-    result,
-  };
-}
-
-function createMCPError(id: string | number, code: number, message: string, errorData?: unknown): MCPResponse {
-  return {
-    jsonrpc: '2.0',
-    id,
-    error: {
-      code,
-      message,
-      data: errorData,
+function createMcpServer(): McpServer {
+  const mcp = new McpServer(
+    {
+      name: 'fullcalendar-vaadin-mcp',
+      version: data.version,
     },
-  };
-}
+    {
+      capabilities: {
+        tools: {},
+        resources: {},
+      },
+    },
+  );
 
-async function handleMCPRequest(request: MCPRequest): Promise<MCPResponse> {
-  const { id, method, params } = request;
+  // --- Tools ---
 
-  try {
-    switch (method) {
-      case 'initialize':
-        return createMCPResponse(id, {
-          protocolVersion: '2024-11-05',
-          capabilities: {
-            tools: {},
-          },
-          serverInfo: {
-            name: 'fullcalendar-vaadin-mcp',
-            version: data.version,
-          },
-        });
+  mcp.registerTool('search_docs', {
+    description: 'Search across FullCalendar Vaadin documentation, API reference, and code examples. Supports semantic search (with OpenAI) and keyword search.',
+    inputSchema: {
+      query: z.string().describe('Search query'),
+      limit: z.number().optional().describe('Maximum results (default: 10)'),
+      mode: z.enum(['auto', 'semantic', 'keyword']).optional().describe('Search mode (default: auto)'),
+    },
+  }, async (args) => {
+    const result = await tools.searchDocs({ query: args.query, limit: args.limit, mode: args.mode });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
 
-      case 'tools/list':
-        return createMCPResponse(id, { tools: TOOLS });
+  mcp.registerTool('get_api_reference', {
+    description: 'Get detailed API reference for a specific Java class including methods, fields, and constructors.',
+    inputSchema: {
+      className: z.string().describe('Class name (e.g., "FullCalendar", "Entry", "Resource")'),
+    },
+  }, async (args) => {
+    const result = tools.getApiReference({ className: args.className });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
 
-      case 'tools/call': {
-        const toolName = params?.name as string;
-        const toolArgs = (params?.arguments || {}) as Record<string, unknown>;
+  mcp.registerTool('list_classes', {
+    description: 'List all available Java classes in the FullCalendar addon.',
+    inputSchema: {
+      filter: z.string().optional().describe('Filter by name or description'),
+      source: z.enum(['addon', 'addon-scheduler']).optional().describe('Filter by module'),
+    },
+  }, async (args) => {
+    const result = tools.listClasses({ filter: args.filter, source: args.source });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
 
-        const result = await executeToolCall(toolName, toolArgs);
-        return createMCPResponse(id, {
-          content: [
-            {
-              type: 'text',
-              text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
-            },
-          ],
-        });
-      }
+  mcp.registerTool('get_code_example', {
+    description: 'Get code examples for specific use cases.',
+    inputSchema: {
+      id: z.string().optional().describe('Specific example ID'),
+      search: z.string().optional().describe('Search term to find examples'),
+      category: z.string().optional().describe('Category filter (e.g., "data-provider", "events", "scheduler")'),
+    },
+  }, async (args) => {
+    const result = tools.getCodeExample({ id: args.id, search: args.search, category: args.category });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
 
-      case 'resources/list':
-        return createMCPResponse(id, {
-          resources: data.documentation.map(doc => ({
-            uri: `fullcalendar://docs/${doc.id}`,
-            name: doc.title,
-            mimeType: 'text/markdown',
-          })),
-        });
+  mcp.registerTool('get_entry_schema', {
+    description: 'Get the Entry model schema with all properties, types, and descriptions.',
+  }, async () => {
+    const result = tools.getEntrySchema();
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
 
-      case 'resources/read': {
-        const uri = params?.uri as string;
-        const docId = uri.replace('fullcalendar://docs/', '');
-        const doc = data.documentation.find(d => d.id === docId);
+  mcp.registerTool('get_resource_schema', {
+    description: 'Get the Resource model schema (Scheduler extension) with all properties.',
+  }, async () => {
+    const result = tools.getResourceSchema();
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
 
-        if (!doc) {
-          return createMCPError(id, -32602, `Resource not found: ${uri}`);
-        }
+  mcp.registerTool('list_calendar_views', {
+    description: 'List all available calendar views (DayGrid, TimeGrid, List, Timeline, etc.).',
+    inputSchema: {
+      includeScheduler: z.boolean().optional().describe('Include Scheduler-specific views (default: true)'),
+    },
+  }, async (args) => {
+    const result = tools.listCalendarViews({ includeScheduler: args.includeScheduler });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
 
-        return createMCPResponse(id, {
-          contents: [
-            {
-              uri,
-              mimeType: 'text/markdown',
-              text: doc.content,
-            },
-          ],
-        });
-      }
+  mcp.registerTool('list_event_types', {
+    description: 'List all server-side event types that can be listened to.',
+    inputSchema: {
+      source: z.enum(['core', 'scheduler']).optional().describe('Filter by module'),
+    },
+  }, async (args) => {
+    const result = tools.listEventTypes({ source: args.source });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
 
-      default:
-        return createMCPError(id, -32601, `Method not found: ${method}`);
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return createMCPError(id, -32603, message);
+  mcp.registerTool('get_migration_guide', {
+    description: 'Get migration guide for upgrading between versions.',
+    inputSchema: {
+      fromVersion: z.string().optional().describe('Source version (e.g., "6")'),
+      toVersion: z.string().optional().describe('Target version (e.g., "7")'),
+    },
+  }, async (args) => {
+    const result = tools.getMigrationGuide({ fromVersion: args.fromVersion, toVersion: args.toVersion });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
+
+  mcp.registerTool('get_documentation', {
+    description: 'Get full documentation page by path.',
+    inputSchema: {
+      path: z.string().describe('Documentation path (e.g., "Samples.md", "FAQ.md")'),
+    },
+  }, async (args) => {
+    const result = tools.getDocumentation({ path: args.path });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
+
+  mcp.registerTool('get_maven_dependency', {
+    description: 'Get Maven dependency coordinates, repository configuration, and version compatibility for setting up a new project with FullCalendar for Vaadin Flow.',
+    inputSchema: {
+      includeScheduler: z.boolean().optional().describe('Include Scheduler extension dependency (default: true)'),
+    },
+  }, async (args) => {
+    const result = tools.getMavenDependency({ includeScheduler: args.includeScheduler });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  });
+
+  // --- Resources ---
+
+  for (const doc of data.documentation) {
+    mcp.registerResource(
+      doc.title,
+      `fullcalendar://docs/${doc.id}`,
+      { mimeType: 'text/markdown' },
+      async () => ({
+        contents: [{ uri: `fullcalendar://docs/${doc.id}`, mimeType: 'text/markdown', text: doc.content }],
+      }),
+    );
   }
-}
 
-async function executeToolCall(toolName: string, args: Record<string, unknown>): Promise<unknown> {
-  switch (toolName) {
-    case 'search_docs':
-      return tools.searchDocs(args as { query: string; limit?: number; mode?: 'auto' | 'semantic' | 'keyword' });
-
-    case 'get_api_reference':
-      return tools.getApiReference(args as { className: string });
-
-    case 'list_classes':
-      return tools.listClasses(args as { filter?: string; source?: 'addon' | 'addon-scheduler' });
-
-    case 'get_code_example':
-      return tools.getCodeExample(args as { id?: string; search?: string; category?: string });
-
-    case 'get_entry_schema':
-      return tools.getEntrySchema();
-
-    case 'get_resource_schema':
-      return tools.getResourceSchema();
-
-    case 'list_calendar_views':
-      return tools.listCalendarViews(args as { includeScheduler?: boolean });
-
-    case 'list_event_types':
-      return tools.listEventTypes(args as { source?: 'core' | 'scheduler' });
-
-    case 'get_migration_guide':
-      return tools.getMigrationGuide(args as { fromVersion?: string; toVersion?: string });
-
-    case 'get_documentation':
-      return tools.getDocumentation(args as { path: string });
-
-    case 'get_maven_dependency':
-      return tools.getMavenDependency(args as { includeScheduler?: boolean });
-
-    default:
-      throw new Error(`Unknown tool: ${toolName}`);
-  }
+  return mcp;
 }
 
 // Express server setup
 const app = express();
 app.use(express.json());
 
-// Health check
+// Map to store transports by session ID for stateful sessions
+const transports = new Map<string, StreamableHTTPServerTransport>();
+
+// Health check (non-MCP, always available)
 app.get('/health', (_req: Request, res: Response) => {
   res.json({
     status: isInitialized ? 'healthy' : 'initializing',
@@ -343,68 +210,59 @@ app.get('/info', (_req: Request, res: Response) => {
     res.status(503).json({ error: 'Server not initialized' });
     return;
   }
-
   res.json(tools.getServerInfo());
 });
 
-// MCP endpoint - handles JSON-RPC requests
-app.post('/mcp', async (req: Request, res: Response) => {
+// MCP Streamable HTTP endpoint — handles POST, GET, and DELETE on the same path
+app.all('/mcp', async (req: Request, res: Response) => {
   if (!isInitialized) {
-    res.status(503).json(createMCPError(0, -32603, 'Server not initialized'));
+    res.status(503).json({ error: 'Server not initialized' });
     return;
   }
 
-  const request = req.body as MCPRequest;
+  // Check for existing session
+  const sessionId = req.headers['mcp-session-id'] as string | undefined;
 
-  if (!request.jsonrpc || request.jsonrpc !== '2.0') {
-    res.status(400).json(createMCPError(request.id || 0, -32600, 'Invalid JSON-RPC version'));
+  if (sessionId && transports.has(sessionId)) {
+    // Reuse existing transport for this session
+    const transport = transports.get(sessionId)!;
+    await transport.handleRequest(req, res, req.body);
     return;
   }
 
-  const response = await handleMCPRequest(request);
-  res.json(response);
-});
+  if (req.method === 'POST' && !sessionId) {
+    // New session — create transport and connect a fresh McpServer
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: () => crypto.randomUUID(),
+    });
 
-// Also support POST to root for compatibility
-app.post('/', async (req: Request, res: Response) => {
-  if (!isInitialized) {
-    res.status(503).json(createMCPError(0, -32603, 'Server not initialized'));
+    transport.onclose = () => {
+      if (transport.sessionId) {
+        transports.delete(transport.sessionId);
+      }
+    };
+
+    const mcp = createMcpServer();
+    await mcp.connect(transport);
+
+    // handleRequest processes the initialize message and assigns the session ID
+    await transport.handleRequest(req, res, req.body);
+
+    // Store AFTER handleRequest — that's when sessionId gets assigned
+    if (transport.sessionId) {
+      transports.set(transport.sessionId, transport);
+    }
     return;
   }
 
-  const request = req.body as MCPRequest;
-
-  if (!request.jsonrpc || request.jsonrpc !== '2.0') {
-    res.status(400).json(createMCPError(request.id || 0, -32600, 'Invalid JSON-RPC version'));
-    return;
-  }
-
-  const response = await handleMCPRequest(request);
-  res.json(response);
-});
-
-// SSE endpoint for MCP streaming (if needed in future)
-app.get('/sse', (_req: Request, res: Response) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-
-  res.write(`data: ${JSON.stringify({ type: 'ready', version: data?.version })}\n\n`);
-
-  // Keep connection alive
-  const keepAlive = setInterval(() => {
-    res.write(': keepalive\n\n');
-  }, 30000);
-
-  _req.on('close', () => {
-    clearInterval(keepAlive);
-  });
+  // Invalid request: non-POST without session, or unknown session
+  res.status(400).json({ error: 'Bad request: missing or invalid session' });
 });
 
 // Start server
 async function start(): Promise<void> {
   try {
-    await initialize();
+    await loadData();
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`\nFullCalendar Vaadin MCP Server running on port ${PORT}`);
