@@ -6,8 +6,15 @@ e2e-tests/
 customer-demo/
 fc-docs/
 feature-comparison/
-mcp-server/
-docs/
 .git/
 .devcontainer/
 *.md
+
+# MCP server Docker build needs these
+!mcp-server/package*.json
+!mcp-server/tsconfig.json
+!mcp-server/src/
+!docs/
+!addon/
+!addon-scheduler/
+!demo/
