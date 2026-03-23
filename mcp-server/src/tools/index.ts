@@ -255,14 +255,14 @@ export class ToolHandlers {
     const coreExample = `<dependency>
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2</artifactId>
-    <version>7.1.2</version>
+    <version>7.1.3</version>
 </dependency>`;
 
     const schedulerExample = `<!-- Optional: Scheduler extension (requires commercial FullCalendar license) -->
 <dependency>
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2-scheduler</artifactId>
-    <version>7.1.2</version>
+    <version>7.1.3</version>
 </dependency>`;
 
     const repositoryExample = `<repositories>
@@ -287,7 +287,7 @@ export class ToolHandlers {
           },
         }),
       },
-      latestVersion: '7.1.2',
+      latestVersion: '7.1.3',
       repository: {
         id: 'vaadin-addons',
         url: 'https://maven.vaadin.com/vaadin-addons',
