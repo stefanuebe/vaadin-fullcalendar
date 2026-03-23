@@ -408,7 +408,11 @@ public class ComponentResourceAreaColumn<T extends Component> extends ResourceAr
                 "    '[data-rc-resource-id=\"' + resourceId + '\"][data-rc-column-key=\"" + columnKey + "\"]'" +
                 "  );" +
                 "  if (component) {" +
-                "    info.el.appendChild(component);" +
+                // Inject into FC's cell cushion (the content area inside the cell frame)
+                // so the component sits alongside/replacing the cell text, not below the frame
+                "    var cushion = info.el.querySelector('.fc-datagrid-cell-cushion');" +
+                "    var target = cushion || info.el;" +
+                "    target.appendChild(component);" +
                 "    component.style.display = '';" +
                 "  }" +
                 "}"
@@ -420,9 +424,9 @@ public class ComponentResourceAreaColumn<T extends Component> extends ResourceAr
                 "  if (!calendarEl) return;" +
                 "  var container = calendarEl.querySelector('[data-fc-component-container]');" +
                 "  if (!container) return;" +
-                "  var resourceId = CSS.escape(info.resource.id);" +
+                // Search within the entire cell (component may be in cushion or directly in td)
                 "  var component = info.el.querySelector(" +
-                "    '[data-rc-resource-id=\"' + resourceId + '\"][data-rc-column-key=\"" + columnKey + "\"]'" +
+                "    '[data-rc-resource-id][data-rc-column-key=\"" + columnKey + "\"]'" +
                 "  );" +
                 "  if (component) {" +
                 "    component.style.display = 'none';" +
