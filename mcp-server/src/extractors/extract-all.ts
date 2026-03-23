@@ -26,7 +26,18 @@ async function extractVersion(): Promise<string> {
     const content = fs.readFileSync(pomPath, 'utf-8');
     const versionMatch = content.match(/<version>([^<]+)<\/version>/);
     if (versionMatch) {
-      return versionMatch[1];
+      const version = versionMatch[1];
+      // SNAPSHOT means next dev version — derive last released version by decrementing patch
+      if (version.endsWith('-SNAPSHOT')) {
+        const base = version.replace(/-SNAPSHOT$/, '');
+        const parts = base.split('.');
+        const patch = parseInt(parts[parts.length - 1], 10);
+        if (patch > 0) {
+          parts[parts.length - 1] = String(patch - 1);
+        }
+        return parts.join('.');
+      }
+      return version;
     }
   }
 
