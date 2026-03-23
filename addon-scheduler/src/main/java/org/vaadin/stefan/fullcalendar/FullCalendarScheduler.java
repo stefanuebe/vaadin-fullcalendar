@@ -18,10 +18,12 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.shared.Registration;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
@@ -57,6 +59,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public static final String FC_SCHEDULER_CLIENT_VERSION = "6.1.9";
     private final Map<String, Resource> resources = new HashMap<>();
+    private final List<ComponentResourceAreaColumn<?>> activeComponentColumns = new ArrayList<>();
+    private Element hiddenContainer;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
@@ -117,22 +121,48 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
+        super.onAttach(attachEvent); // Step 1: restoreStateFromServer (registers beforeClientResponse)
 
-        if (!attachEvent.isInitialAttach() && !resources.isEmpty()) {
-            getElement().getNode().runWhenAttached(ui -> {
-                ui.beforeClientResponse(this, executionContext -> {
-                    ArrayNode array = JsonFactory.createArray();
-                    resources.values().forEach(resource -> {
-                        // only add top-level resources; children are included via toJson() recursively
-                        if (resource.getParent().isEmpty()) {
-                            array.add(resource.toJson());
+        if (!attachEvent.isInitialAttach()) {
+            // Step 2: re-append components to calendar element (registered BEFORE Step 3 for FIFO order).
+            // Components are appended directly to the calendar element (not the hidden container)
+            // because FC's Calendar(el) wipes all light DOM children during init. Vaadin re-sends
+            // them via UIDL, and the TS-side ensureComponentContainer() + cellDidMount handle the rest.
+            if (!activeComponentColumns.isEmpty()) {
+                getElement().getNode().runWhenAttached(ui -> {
+                    ui.beforeClientResponse(this, executionContext -> {
+                        for (var col : activeComponentColumns) {
+                            col.getComponents().values().forEach(comp ->
+                                    getElement().appendChild(((com.vaadin.flow.component.Component) comp).getElement()));
                         }
                     });
-                    getElement().callJsFunction("addResources", array, false);
                 });
-            });
+            }
+
+            // Step 3: re-add resources to FC (existing logic)
+            if (!resources.isEmpty()) {
+                getElement().getNode().runWhenAttached(ui -> {
+                    ui.beforeClientResponse(this, executionContext -> {
+                        ArrayNode array = JsonFactory.createArray();
+                        resources.values().forEach(resource -> {
+                            // only add top-level resources; children are included via toJson() recursively
+                            if (resource.getParent().isEmpty()) {
+                                array.add(resource.toJson());
+                            }
+                        });
+                        getElement().callJsFunction("addResources", array, false);
+                    });
+                });
+            }
         }
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        if (!activeComponentColumns.isEmpty()) {
+            getElement().callJsFunction("returnAllComponentsToContainer");
+        }
+        super.onDetach(detachEvent);
     }
 
     @Deprecated
@@ -199,7 +229,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                 resources.put(id, resource);
                 resource.attachScheduler(this);
                 array.add(resource.toJson()); // this automatically sends sub resources to the client side
-        }
+
+                // create components for active component columns
+                for (var col : activeComponentColumns) {
+                    col.createComponent(resource);
+                }
+            }
 
             // now also register child resources
             registerResourcesInternally(resource.getChildren());
@@ -217,6 +252,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         for (Resource resource : resources) {
             this.resources.put(resource.getId(), resource);
             resource.attachScheduler(this);
+
+            for (var col : activeComponentColumns) {
+                col.createComponent(resource);
+            }
+
             registerResourcesInternally(resource.getChildren());
         }
     }
@@ -232,6 +272,14 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         iterableResources.forEach(resource -> {
             String id = resource.getId();
             if (this.resources.containsKey(id)) {
+                // recursively remove children from resources map and destroy their components
+                unregisterResourcesInternally(resource.getChildren());
+
+                // destroy component for this resource
+                for (var col : activeComponentColumns) {
+                    col.destroyComponent(resource);
+                }
+
                 this.resources.remove(id);
                 resource.detachScheduler();
                 array.add(resource.toJson());
@@ -239,7 +287,20 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         });
 
         getElement().callJsFunction("removeResources", array);
+    }
 
+    /**
+     * Recursively removes child resources from the internal map and destroys their components.
+     */
+    private void unregisterResourcesInternally(Set<Resource> children) {
+        for (Resource child : children) {
+            unregisterResourcesInternally(child.getChildren());
+            for (var col : activeComponentColumns) {
+                col.destroyComponent(child);
+            }
+            this.resources.remove(child.getId());
+            child.detachScheduler();
+        }
     }
 
     /**
@@ -273,6 +334,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void removeAllResources() {
         removeFromEntries(resources.values());
+
+        for (var col : activeComponentColumns) {
+            col.destroyAllComponents();
+        }
+
         resources.values().forEach(Resource::detachScheduler);
     	resources.clear();
         getElement().callJsFunction("removeAllResources");
@@ -329,9 +395,68 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void setResourceAreaColumns(List<ResourceAreaColumn> columns) {
         Objects.requireNonNull(columns);
-        ArrayNode array = JsonFactory.createArray();
-        columns.forEach(col -> array.add(col.toJson()));
-        setOption(SchedulerOption.RESOURCE_AREA_COLUMNS, array, columns);
+
+        // validate no duplicate field keys
+        Set<String> fieldKeys = new HashSet<>();
+        for (ResourceAreaColumn col : columns) {
+            if (!fieldKeys.add(col.getField())) {
+                throw new IllegalArgumentException("Duplicate column field key: '" + col.getField() + "'");
+            }
+        }
+
+        // unbind + destroy old component columns
+        for (var col : activeComponentColumns) {
+            col.destroyAllComponents();
+            col.unbind();
+        }
+        activeComponentColumns.clear();
+
+        // bind new component columns
+        for (ResourceAreaColumn col : columns) {
+            if (col instanceof ComponentResourceAreaColumn<?> compCol) {
+                compCol.bind(this);
+                activeComponentColumns.add(compCol);
+            }
+        }
+
+        // ensure hidden container exists if needed
+        if (!activeComponentColumns.isEmpty()) {
+            ensureHiddenContainer();
+
+            // create components for all existing resources
+            for (Resource resource : resources.values()) {
+                for (var col : activeComponentColumns) {
+                    col.createComponent(resource);
+                }
+            }
+        }
+
+        // send to client
+        if (columns.isEmpty()) {
+            setOption(SchedulerOption.RESOURCE_AREA_COLUMNS, null, null);
+        } else {
+            ArrayNode array = JsonFactory.createArray();
+            columns.forEach(col -> array.add(col.toJson()));
+            setOption(SchedulerOption.RESOURCE_AREA_COLUMNS, array, columns);
+        }
+    }
+
+    private void ensureHiddenContainer() {
+        if (hiddenContainer == null) {
+            hiddenContainer = new Element("div");
+            hiddenContainer.setAttribute("data-fc-component-container", "");
+            hiddenContainer.getStyle().set("display", "none");
+            getElement().appendChild(hiddenContainer);
+        }
+    }
+
+    /**
+     * Returns the hidden container element for component teleportation.
+     * Package-private — used by {@link ComponentResourceAreaColumn}.
+     */
+    Element getHiddenContainer() {
+        ensureHiddenContainer();
+        return hiddenContainer;
     }
 
 
