@@ -48,6 +48,13 @@ bash mutation-test-a.sh        # E2E mutations (~5min, requires app on :8080)
 ./demo/mvnw clean install
 ```
 
+## Verification / Testing Rules
+
+- **Bug report triage: always check for existing tests first.** When a bug is reported, immediately check whether an existing test (unit, integration, or E2E) covers the affected use case. If a test exists but didn't catch the bug, fix the test. If no test exists, create one.
+- **Every bug fix must include a verification test.** No bug fix is complete without a test that reproduces the bug and verifies the fix.
+- **Every new feature must include verification** as defined in the relevant spec (see `specs/` directory).
+- **Never commit test code without running it first.** Tests must pass before they are considered done.
+
 ## Module Structure
 
 ```

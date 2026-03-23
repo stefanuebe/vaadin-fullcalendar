@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -112,6 +113,26 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public FullCalendarScheduler(ObjectNode initialOptions) {
         super(initialOptions);
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+
+        if (!attachEvent.isInitialAttach() && !resources.isEmpty()) {
+            getElement().getNode().runWhenAttached(ui -> {
+                ui.beforeClientResponse(this, executionContext -> {
+                    ArrayNode array = JsonFactory.createArray();
+                    resources.values().forEach(resource -> {
+                        // only add top-level resources; children are included via toJson() recursively
+                        if (resource.getParent().isEmpty()) {
+                            array.add(resource.toJson());
+                        }
+                    });
+                    getElement().callJsFunction("addResources", array, false);
+                });
+            });
+        }
     }
 
     @Deprecated
