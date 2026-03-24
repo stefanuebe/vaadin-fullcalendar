@@ -35,6 +35,35 @@ export type IterableObject = {
     hasOwnProperty: (key: string) => boolean;
 };
 
+/**
+ * Recursively evaluates JsCallback markers ({@code {__jsCallback: "..."}}) in a value,
+ * converting them to real JavaScript functions. Safe to call on any value.
+ */
+export function evaluateCallbacks(value: any): any {
+    if (value === null || value === undefined) {
+        return value;
+    }
+    if (typeof value === 'object' && value.__jsCallback) {
+        try {
+            return new Function("return " + value.__jsCallback)();
+        } catch (e) {
+            console.error("Failed to evaluate JsCallback:", e);
+            return value;
+        }
+    }
+    if (Array.isArray(value)) {
+        return value.map(evaluateCallbacks);
+    }
+    if (typeof value === 'object') {
+        const result: any = {};
+        for (const key of Object.keys(value)) {
+            result[key] = evaluateCallbacks(value[key]);
+        }
+        return result;
+    }
+    return value;
+}
+
 export class FullCalendar extends HTMLElement {
 
     private _calendar!: Calendar;

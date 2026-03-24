@@ -796,7 +796,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         StringBuilder nativeEvents = new StringBuilder();
         for (Map.Entry<String, String> entry : customNativeEventsMap.entrySet()) {
             nativeEvents.append("info.el.addEventListener('")
-                    .append(entry.getKey())
+                    .append(entry.getKey().replace("'", "\\'").replace("\\", "\\\\"))
                     .append("', ")
                     .append(entry.getValue())
                     .append(");\n");

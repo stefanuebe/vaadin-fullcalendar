@@ -21,6 +21,8 @@ import com.vaadin.flow.shared.Registration;
 
 import org.vaadin.stefan.fullcalendar.NotNull;
 import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -320,6 +322,41 @@ public interface Scheduler {
      * @param groupEntriesBy group entries by option
      */
     void setGroupEntriesBy(GroupEntriesBy groupEntriesBy);
+
+    /**
+     * Configures the resource area as a multi-column data grid. Each column maps to a resource property.
+     * When set, FC renders a header row with column titles above the resource list.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * scheduler.setResourceAreaColumns(List.of(
+     *     new ResourceAreaColumn("title", "Resource").withWidth("200px"),
+     *     new ResourceAreaColumn("department", "Department").withWidth("150px").withGroup(true)
+     * ));
+     * }</pre>
+     *
+     * @param columns list of column definitions; must not be null
+     * @see ResourceAreaColumn
+     * @see <a href="https://fullcalendar.io/docs/resourceAreaColumns">FullCalendar resourceAreaColumns</a>
+     */
+    void setResourceAreaColumns(List<ResourceAreaColumn> columns);
+
+    /**
+     * Convenience overload for {@link #setResourceAreaColumns(List)}.
+     *
+     * @param columns column definitions
+     */
+    default void setResourceAreaColumns(ResourceAreaColumn... columns) {
+        setResourceAreaColumns(Arrays.asList(columns));
+    }
+
+    /**
+     * Propagates a server-side resource change to the client. Call this after modifying
+     * resource properties to keep the display in sync.
+     *
+     * @param resource the resource to update on the client side; must not be null
+     */
+    void updateResource(Resource resource);
 
     /**
      * Registers a listener to be informed when an entry dropped event occurred, along with scheduler

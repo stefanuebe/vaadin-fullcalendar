@@ -16,7 +16,7 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {FullCalendar} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
+import {FullCalendar, evaluateCallbacks} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
 import resourceDayGridPlugin from '@fullcalendar/resource-daygrid';
@@ -24,7 +24,25 @@ import scrollgridPlugin from '@fullcalendar/scrollgrid';
 
 export class FullCalendarScheduler extends FullCalendar {
 
-    // stores any options, that are set before the calendar is attached using "setOption"
+    private _componentContainer: HTMLElement | null = null;
+
+    connectedCallback() {
+        super.connectedCallback();
+        // Ensure the component container exists after FC has rendered.
+        // FC's Calendar(this) wipes all light DOM children during init,
+        // so any server-appended container is lost. We re-create it here.
+        this.ensureComponentContainer();
+    }
+
+    private ensureComponentContainer(): HTMLElement {
+        if (!this._componentContainer || !this.contains(this._componentContainer)) {
+            this._componentContainer = document.createElement('div');
+            this._componentContainer.setAttribute('data-fc-component-container', '');
+            this._componentContainer.style.display = 'none';
+            this.appendChild(this._componentContainer);
+        }
+        return this._componentContainer;
+    }
 
     protected createInitOptions(initialOptions: any) {
         const options = super.createInitOptions(initialOptions);
@@ -40,7 +58,7 @@ export class FullCalendarScheduler extends FullCalendar {
         let calendar = this.calendar;
         calendar.batchRendering(function () {
             for (let i = 0; i < array.length; i++) {
-                calendar.addResource(array[i], scrollToLast);
+                calendar.addResource(evaluateCallbacks(array[i]), scrollToLast);
             }
         });
     }
@@ -62,6 +80,51 @@ export class FullCalendarScheduler extends FullCalendar {
         calendar.batchRendering(function () {
             calendar.getResources().forEach(r => r.remove());
         });
+    }
+
+    updateResource(jsonStr: string) {
+        const data = JSON.parse(jsonStr);
+        const resource = this.calendar.getResourceById(data.id);
+        if (resource) {
+            if (data.title !== undefined) resource.setProp('title', data.title);
+            if (data.eventColor !== undefined) resource.setProp('eventColor', data.eventColor);
+            if (data.eventBackgroundColor !== undefined) resource.setProp('eventBackgroundColor', data.eventBackgroundColor);
+            if (data.eventBorderColor !== undefined) resource.setProp('eventBorderColor', data.eventBorderColor);
+            if (data.eventTextColor !== undefined) resource.setProp('eventTextColor', data.eventTextColor);
+            if (data.eventConstraint !== undefined) resource.setProp('eventConstraint', data.eventConstraint);
+            if (data.eventOverlap !== undefined) resource.setProp('eventOverlap', evaluateCallbacks(data.eventOverlap));
+            if (data.eventAllow !== undefined) resource.setProp('eventAllow', evaluateCallbacks(data.eventAllow));
+            if (data.eventClassNames !== undefined) resource.setProp('eventClassNames', evaluateCallbacks(data.eventClassNames));
+        }
+    }
+
+    // ---- Component Resource Column support ----
+
+    returnComponentToContainer(resourceId: string, columnKey: string) {
+        const container = this.querySelector('[data-fc-component-container]');
+        if (!container) return;
+        const escapedId = CSS.escape(resourceId);
+        const component = this.querySelector(
+            `[data-rc-resource-id="${escapedId}"][data-rc-column-key="${columnKey}"]`
+        );
+        if (component) {
+            (component as HTMLElement).style.display = 'none';
+            container.appendChild(component);
+        }
+    }
+
+    returnAllComponentsToContainer() {
+        const container = this.querySelector('[data-fc-component-container]');
+        if (!container) return;
+        const components = this.querySelectorAll('[data-rc-resource-id]');
+        components.forEach((comp) => {
+            (comp as HTMLElement).style.display = 'none';
+            container.appendChild(comp);
+        });
+    }
+
+    rerenderResources() {
+        this.calendar.render();
     }
 
     setResourceLabelClassNamesCallback(s: string) {

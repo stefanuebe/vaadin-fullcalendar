@@ -16,11 +16,14 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.shared.Registration;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -55,6 +58,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public static final String FC_SCHEDULER_CLIENT_VERSION = "6.1.20";
     private final Map<String, Resource> resources = new HashMap<>();
+    private final List<ComponentResourceAreaColumn<?>> activeComponentColumns = new ArrayList<>();
+    private Element hiddenContainer;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
@@ -114,62 +119,98 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+
+        if (!attachEvent.isInitialAttach()) {
+            // Re-append component column elements to calendar element after re-attach
+            if (!activeComponentColumns.isEmpty()) {
+                getElement().getNode().runWhenAttached(ui ->
+                        ui.beforeClientResponse(this, ctx -> {
+                            for (ComponentResourceAreaColumn<?> col : activeComponentColumns) {
+                                col.getComponents().values().forEach(comp ->
+                                        getElement().appendChild(((com.vaadin.flow.component.Component) comp).getElement()));
+                            }
+                        }));
+            }
+
+            // Re-add resources to FC client
+            if (!resources.isEmpty()) {
+                getElement().getNode().runWhenAttached(ui ->
+                        ui.beforeClientResponse(this, ctx -> {
+                            JsonArray array = Json.createArray();
+                            int[] idx = {0};
+                            resources.values().forEach(resource -> {
+                                // only add top-level resources; children are included via toJson() recursively
+                                if (!resource.getParent().isPresent()) {
+                                    array.set(idx[0]++, resource.toJson());
+                                }
+                            });
+                            getElement().callJsFunction("addResources", array, false);
+                        }));
+            }
+        }
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        if (!activeComponentColumns.isEmpty()) {
+            getElement().callJsFunction("returnAllComponentsToContainer");
+        }
+        super.onDetach(detachEvent);
+    }
+
+    @Deprecated
+    @Override
     public void setSchedulerLicenseKey(String schedulerLicenseKey) {
         setOption(SchedulerOption.LICENSE_KEY, schedulerLicenseKey);
     }
 
+    @Deprecated
     @Override
     public void setResourceAreaHeaderContent(String resourceAreaHeaderContent) {
         setOption(SchedulerOption.RESOURCE_AREA_HEADER_CONTENT, resourceAreaHeaderContent);
     }
-    
+
+    @Deprecated
     @Override
     public void setResourceAreaWidth(String resourceAreaWidth) {
         setOption(SchedulerOption.RESOURCE_AREA_WIDTH, resourceAreaWidth);
     }
-    
+
+    @Deprecated
     @Override
     public void setSlotMinWidth(String slotMinWidth) {
         setOption(SchedulerOption.SLOT_MIN_WIDTH, slotMinWidth);
     }
-    
+
+    @Deprecated
     @Override
     public void setResourcesInitiallyExpanded(boolean resourcesInitiallyExpanded) {
         setOption(SchedulerOption.RESOURCES_INITIALLY_EXPANDED, resourcesInitiallyExpanded);
     }
-    
+
+    @Deprecated
     @Override
     public void setFilterResourcesWithEvents(boolean filterResourcesWithEvents) {
         setOption(SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES, filterResourcesWithEvents);
     }
 
+    @Deprecated
     @Override
     public void setResourceOrder(String resourceOrder) {
         setOption(SchedulerOption.RESOURCE_ORDER, resourceOrder);
     }
-    
+
+    @Deprecated
     @Override
     public void setEntryResourceEditable(boolean eventResourceEditable) {
-    	setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, eventResourceEditable);
+        setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, eventResourceEditable);
     }
 
     @Override
     public void addResources(@NotNull Iterable<Resource> iterableResource) {
-        Objects.requireNonNull(iterableResource);
-
-        JsonArray array = Json.createArray();
-        iterableResource.forEach(resource -> {
-            String id = resource.getId();
-            if (!resources.containsKey(id)) {
-                resources.put(id, resource);
-                array.set(array.length(), resource.toJson()); // this automatically sends sub resources to the client side
-            }
-
-            // now also register child resources
-            registerResourcesInternally(resource.getChildren());
-        });
-
-        getElement().callJsFunction("addResources", array, true);
+        addResources(iterableResource, true);
     }
 
     @Override
@@ -182,7 +223,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             if (!resources.containsKey(id)) {
                 resources.put(id, resource);
                 array.set(array.length(), resource.toJson()); // this automatically sends sub resources to the client side
-        }
+
+                // create components for active component columns
+                for (ComponentResourceAreaColumn<?> col : activeComponentColumns) {
+                    col.createComponent(resource);
+                }
+            }
 
             // now also register child resources
             registerResourcesInternally(resource.getChildren());
@@ -199,6 +245,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     private void registerResourcesInternally(Collection<Resource> resources) {
         for (Resource resource : resources) {
             this.resources.put(resource.getId(), resource);
+
+            for (ComponentResourceAreaColumn<?> col : activeComponentColumns) {
+                col.createComponent(resource);
+            }
+
             registerResourcesInternally(resource.getChildren());
         }
     }
@@ -214,13 +265,33 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         iterableResources.forEach(resource -> {
             String id = resource.getId();
             if (this.resources.containsKey(id)) {
+                // recursively remove children from resources map and destroy their components
+                unregisterResourcesInternally(resource.getChildren());
+
+                // destroy component for this resource
+                for (ComponentResourceAreaColumn<?> col : activeComponentColumns) {
+                    col.destroyComponent(resource);
+                }
+
                 this.resources.remove(id);
                 array.set(array.length(), resource.toJson());
             }
-                });
+        });
 
         getElement().callJsFunction("removeResources", array);
+    }
 
+    /**
+     * Recursively removes child resources from the internal map and destroys their components.
+     */
+    private void unregisterResourcesInternally(Set<Resource> children) {
+        for (Resource child : children) {
+            unregisterResourcesInternally(child.getChildren());
+            for (ComponentResourceAreaColumn<?> col : activeComponentColumns) {
+                col.destroyComponent(child);
+            }
+            this.resources.remove(child.getId());
+        }
     }
 
     /**
@@ -254,48 +325,136 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void removeAllResources() {
         removeFromEntries(resources.values());
-    	resources.clear();
+
+        for (ComponentResourceAreaColumn<?> col : activeComponentColumns) {
+            col.destroyAllComponents();
+        }
+
+        resources.clear();
         getElement().callJsFunction("removeAllResources");
     }
 
+    @Deprecated
     @Override
     public void setResourceLabelClassNamesCallback(String s) {
-        getElement().callJsFunction("setResourceLabelClassNamesCallback", s);
+        setOption(SchedulerOption.RESOURCE_LABEL_CLASS_NAMES, JsCallback.of(s));
     }
-    
+
+    @Deprecated
     @Override
     public void setResourceLabelContentCallback(String s) {
-        getElement().callJsFunction("setResourceLabelContentCallback", s);
+        setOption(SchedulerOption.RESOURCE_LABEL_CONTENT, JsCallback.of(s));
     }
-    
+
+    @Deprecated
     @Override
     public void setResourceLabelDidMountCallback(String s) {
-        getElement().callJsFunction("setResourceLabelDidMountCallback", s);
+        setOption(SchedulerOption.RESOURCE_LABEL_DID_MOUNT, JsCallback.of(s));
     }
-    
+
+    @Deprecated
     @Override
     public void setResourceLablelWillUnmountCallback(String s) {
-        getElement().callJsFunction("setResourceLablelWillUnmountCallback", s);
+        setOption(SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of(s));
     }
-    
+
+    @Deprecated
     @Override
     public void setResourceLaneClassNamesCallback(String s) {
-        getElement().callJsFunction("setResourceLaneClassNamesCallback", s);
+        setOption(SchedulerOption.RESOURCE_LANE_CLASS_NAMES, JsCallback.of(s));
     }
-    
+
+    @Deprecated
     @Override
     public void setResourceLaneContentCallback(String s) {
-        getElement().callJsFunction("setResourceLaneContentCallback", s);
+        setOption(SchedulerOption.RESOURCE_LANE_CONTENT, JsCallback.of(s));
     }
-    
+
+    @Deprecated
     @Override
     public void setResourceLaneDidMountCallback(String s) {
-        getElement().callJsFunction("setResourceLaneDidMountCallback", s);
+        setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(s));
     }
-    
+
+    @Deprecated
     @Override
     public void setResourceLaneWillUnmountCallback(String s) {
-        getElement().callJsFunction("setResourceLaneWillUnmountCallback", s);
+        setOption(SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of(s));
+    }
+
+    @Override
+    public void setResourceAreaColumns(List<ResourceAreaColumn> columns) {
+        Objects.requireNonNull(columns);
+
+        // validate no duplicate field keys
+        Set<String> fieldKeys = new HashSet<>();
+        for (ResourceAreaColumn col : columns) {
+            if (!fieldKeys.add(col.getField())) {
+                throw new IllegalArgumentException("Duplicate column field key: '" + col.getField() + "'");
+            }
+        }
+
+        // unbind + destroy old component columns
+        for (ComponentResourceAreaColumn<?> col : activeComponentColumns) {
+            col.destroyAllComponents();
+            col.unbind();
+        }
+        activeComponentColumns.clear();
+
+        // bind new component columns
+        for (ResourceAreaColumn col : columns) {
+            if (col instanceof ComponentResourceAreaColumn) {
+                ComponentResourceAreaColumn<?> compCol = (ComponentResourceAreaColumn<?>) col;
+                compCol.bind(this);
+                activeComponentColumns.add(compCol);
+            }
+        }
+
+        // ensure hidden container exists if needed, and create components for existing resources
+        if (!activeComponentColumns.isEmpty()) {
+            ensureHiddenContainer();
+
+            for (Resource resource : resources.values()) {
+                for (ComponentResourceAreaColumn<?> col : activeComponentColumns) {
+                    col.createComponent(resource);
+                }
+            }
+        }
+
+        // send to client
+        if (columns.isEmpty()) {
+            setOption(SchedulerOption.RESOURCE_AREA_COLUMNS.getOptionKey(), (Serializable) null, null);
+        } else {
+            JsonArray array = Json.createArray();
+            for (int i = 0; i < columns.size(); i++) {
+                array.set(i, columns.get(i).toJson());
+            }
+            setOption(SchedulerOption.RESOURCE_AREA_COLUMNS.getOptionKey(), array, columns);
+        }
+    }
+
+    private void ensureHiddenContainer() {
+        if (hiddenContainer == null) {
+            hiddenContainer = new Element("div");
+            hiddenContainer.setAttribute("data-fc-component-container", "");
+            hiddenContainer.getStyle().set("display", "none");
+            getElement().appendChild(hiddenContainer);
+        }
+    }
+
+    /**
+     * Returns the hidden container element for component teleportation.
+     * Package-private — used by {@link ComponentResourceAreaColumn}.
+     */
+    Element getHiddenContainer() {
+        ensureHiddenContainer();
+        return hiddenContainer;
+    }
+
+    @Override
+    public void updateResource(Resource resource) {
+        Objects.requireNonNull(resource);
+        getElement().callJsFunction("updateResource", resource.toJson().toJson());
     }
 
     @Override
@@ -317,28 +476,33 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Registration addTimeslotsSelectedListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
         return addTimeslotsSelectedSchedulerListener((ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Registration addTimeslotsSelectedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotsSelectedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Registration addTimeslotClickedListener(@NotNull ComponentEventListener<? extends TimeslotClickedEvent> listener) {
         return addTimeslotClickedSchedulerListener((ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Registration addTimeslotClickedSchedulerListener(@NotNull ComponentEventListener<? extends TimeslotClickedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(TimeslotClickedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Registration addEntryDroppedSchedulerListener(@NotNull ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
@@ -355,7 +519,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull SchedulerOption option, Serializable value) {
+    public void setOption(@NotNull SchedulerOption option, Object value) {
         setOption(option, value, null);
     }
 
@@ -373,8 +537,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull SchedulerOption option, Serializable value, Object valueForServerSide) {
-        setOption(option.getOptionKey(), value, valueForServerSide);
+    public void setOption(@NotNull SchedulerOption option, Object value, Object valueForServerSide) {
+        setOption(option.getOptionKey(), value instanceof Serializable ? (Serializable) value : value != null ? value.toString() : null, valueForServerSide);
     }
 
     /**
@@ -431,17 +595,54 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * https://fullcalendar.io/docs
      */
     public enum SchedulerOption {
+        DATES_ABOVE_RESOURCES("datesAboveResources"),
+        ENTRY_MIN_WIDTH("eventMinWidth"),
         ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
         FILTER_RESOURCES_WITH_ENTRIES("filterResourcesWithEvents"),
         GROUP_BY_DATE_AND_RESOURCE("groupByDateAndResource"),
         GROUP_BY_RESOURCE("groupByResource"),
         LICENSE_KEY("schedulerLicenseKey"),
         REFETCH_RESOURCES_ON_NAVIGATE("refetchResourcesOnNavigate"),
+        RESOURCE_AREA_COLUMNS("resourceAreaColumns"),
+        RESOURCE_AREA_HEADER_CLASS_NAMES("resourceAreaHeaderClassNames"),
         RESOURCE_AREA_HEADER_CONTENT("resourceAreaHeaderContent"),
+        RESOURCE_AREA_HEADER_DID_MOUNT("resourceAreaHeaderDidMount"),
+        RESOURCE_AREA_HEADER_WILL_UNMOUNT("resourceAreaHeaderWillUnmount"),
         RESOURCE_AREA_WIDTH("resourceAreaWidth"),
+        RESOURCE_GROUP_FIELD("resourceGroupField"),
         RESOURCES_INITIALLY_EXPANDED("resourcesInitiallyExpanded"),
         RESOURCE_ORDER("resourceOrder"),
         SLOT_MIN_WIDTH("slotMinWidth"),
+
+        // ---- Render hooks: Resource Label ----
+        RESOURCE_LABEL_CLASS_NAMES("resourceLabelClassNames"),
+        RESOURCE_LABEL_CONTENT("resourceLabelContent"),
+        RESOURCE_LABEL_DID_MOUNT("resourceLabelDidMount"),
+        RESOURCE_LABEL_WILL_UNMOUNT("resourceLabelWillUnmount"),
+
+        // ---- Render hooks: Resource Lane ----
+        RESOURCE_LANE_CLASS_NAMES("resourceLaneClassNames"),
+        RESOURCE_LANE_CONTENT("resourceLaneContent"),
+        RESOURCE_LANE_DID_MOUNT("resourceLaneDidMount"),
+        RESOURCE_LANE_WILL_UNMOUNT("resourceLaneWillUnmount"),
+
+        // ---- Render hooks: Resource Group ----
+        RESOURCE_GROUP_CLASS_NAMES("resourceGroupClassNames"),
+        RESOURCE_GROUP_CONTENT("resourceGroupContent"),
+        RESOURCE_GROUP_DID_MOUNT("resourceGroupDidMount"),
+        RESOURCE_GROUP_WILL_UNMOUNT("resourceGroupWillUnmount"),
+
+        // ---- Render hooks: Resource Group Lane ----
+        RESOURCE_GROUP_LANE_CLASS_NAMES("resourceGroupLaneClassNames"),
+        RESOURCE_GROUP_LANE_CONTENT("resourceGroupLaneContent"),
+        RESOURCE_GROUP_LANE_DID_MOUNT("resourceGroupLaneDidMount"),
+        RESOURCE_GROUP_LANE_WILL_UNMOUNT("resourceGroupLaneWillUnmount"),
+
+        // ---- Resource lifecycle callbacks ----
+        RESOURCE_ADD("resourceAdd"),
+        RESOURCE_CHANGE("resourceChange"),
+        RESOURCE_REMOVE("resourceRemove"),
+        RESOURCES_SET("resourcesSet"),
         ;
 
         private final String optionKey;
