@@ -15,5 +15,6 @@ import com.vaadin.flow.router.RoutePrefix;
 public class TestLayout extends VerticalLayout implements RouterLayout {
     public TestLayout() {
         addClassName("test-layout");
+        setSizeFull();
     }
 }
