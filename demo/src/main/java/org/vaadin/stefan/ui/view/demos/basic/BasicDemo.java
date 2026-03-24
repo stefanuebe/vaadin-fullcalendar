@@ -7,7 +7,7 @@ import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.Collections;
 
@@ -16,7 +16,7 @@ import java.util.Collections;
 public class BasicDemo extends AbstractCalendarView {
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         EntryService<Entry> simpleInstance = EntryService.createSimpleInstance();
 
         return FullCalendarBuilder.create()

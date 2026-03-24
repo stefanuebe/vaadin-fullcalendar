@@ -26,7 +26,7 @@ import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 @Route(value = "tooltip", layout = MainLayout.class)
 @PageTitle("FC with Tooltips")
@@ -37,7 +37,7 @@ public class DemoWithTooltip extends AbstractCalendarView {
 
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         EntryService entryService = EntryService.createSimpleInstance();
 
         FullCalendar calendar = FullCalendarBuilder.create()

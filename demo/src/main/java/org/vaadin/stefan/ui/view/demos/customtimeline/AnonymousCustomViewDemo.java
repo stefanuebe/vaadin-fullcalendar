@@ -3,7 +3,7 @@ package org.vaadin.stefan.ui.view.demos.customtimeline;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ public class AnonymousCustomViewDemo extends AbstractSchedulerView {
     private SomeCalendarView calendarView;
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         calendarView = new SomeCalendarView(28);
         FullCalendar calendar = FullCalendarBuilder.create()
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
@@ -56,20 +56,20 @@ public class AnonymousCustomViewDemo extends AbstractSchedulerView {
             return "fixedDaysResourceTimelineAnonymous";
         }
 
-        public ObjectNode getInitialOptions() {
-            ObjectNode initialOptions = JsonFactory.createObject();
+        public JsonObject getInitialOptions() {
+            JsonObject initialOptions = JsonFactory.createObject();
 
-            ObjectNode durationHolder = JsonFactory.createObject();
-            durationHolder.set("days", JsonFactory.create(numberOfDays));
+            JsonObject durationHolder = JsonFactory.createObject();
+            durationHolder.put("days", JsonFactory.create(numberOfDays));
 
-            ObjectNode customViewHolder = JsonFactory.createObject();
-            customViewHolder.set("type", JsonFactory.create("resourceTimeline"));
-            customViewHolder.set("duration", durationHolder);
+            JsonObject customViewHolder = JsonFactory.createObject();
+            customViewHolder.put("type", JsonFactory.create("resourceTimeline"));
+            customViewHolder.put("duration", durationHolder);
 
-            ObjectNode viewsHolder = JsonFactory.createObject();
-            viewsHolder.set(getClientSideValue(), customViewHolder);
+            JsonObject viewsHolder = JsonFactory.createObject();
+            viewsHolder.put(getClientSideValue(), customViewHolder);
 
-            initialOptions.set("views", viewsHolder);
+            initialOptions.put("views", viewsHolder);
 
             return initialOptions;
         }

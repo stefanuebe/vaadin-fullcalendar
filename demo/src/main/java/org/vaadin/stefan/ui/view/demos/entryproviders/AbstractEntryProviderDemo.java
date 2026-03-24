@@ -8,7 +8,7 @@ import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.ui.view.CalendarViewToolbar;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.Collections;
 
@@ -29,7 +29,7 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
     private EntryProvider<Entry> entryProvider;
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         entryService = EntryService.createRandomInstance();
         entryProvider = createEntryProvider(entryService);
 

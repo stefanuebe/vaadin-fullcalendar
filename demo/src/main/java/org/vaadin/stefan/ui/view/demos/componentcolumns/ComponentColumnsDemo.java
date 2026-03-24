@@ -9,7 +9,6 @@ import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
-import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -12,7 +12,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import java.time.LocalDate;
 import java.util.Locale;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class DisplayOptionsTestView extends VerticalLayout {
         calendar.setOption(FullCalendar.Option.DISPLAY_EVENT_END, true);
 
         // Use 24h time format for consistent time display (test expects "10:00 - 11:30")
-        ObjectNode eventTimeFormat = JsonFactory.createObject();
+        JsonObject eventTimeFormat = JsonFactory.createObject();
         eventTimeFormat.put("hour", "2-digit");
         eventTimeFormat.put("minute", "2-digit");
         eventTimeFormat.put("hour12", false);

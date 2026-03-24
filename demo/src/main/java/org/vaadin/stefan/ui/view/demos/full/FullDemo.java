@@ -28,7 +28,7 @@ import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.util.EntryManager;
 import org.vaadin.stefan.util.ResourceManager;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -48,7 +48,7 @@ public class FullDemo extends AbstractSchedulerView {
     private Popover popup;
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode initialOptions) {
+    protected FullCalendar createCalendar(JsonObject initialOptions) {
 //        initialOptions.put("eventContent",
 //                "function(arg, createElement) {" +
 //                " console.warn('hello');" +

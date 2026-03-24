@@ -3,7 +3,7 @@ package org.vaadin.stefan.ui.view.samples;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 /**
  * @author Stefan Uebe
@@ -11,7 +11,7 @@ import tools.jackson.databind.node.ObjectNode;
 public class InitialOptionsSample extends AbstractSample {
     @Override
     protected void buildSample(FullCalendar calendar) {
-        ObjectNode initialOptions = JsonFactory.createObject();
+        JsonObject initialOptions = JsonFactory.createObject();
         initialOptions.put("height", "100%");
         initialOptions.put("timeZone", "UTC");
         initialOptions.put("header", false);

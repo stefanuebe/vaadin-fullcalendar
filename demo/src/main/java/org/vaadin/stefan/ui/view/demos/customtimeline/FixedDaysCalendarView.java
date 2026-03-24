@@ -5,7 +5,7 @@ import org.vaadin.stefan.fullcalendar.CalendarView;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.ui.view.demos.HasIntervalLabel;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.text.DateFormat;
 import java.time.LocalDate;
@@ -30,13 +30,13 @@ public class FixedDaysCalendarView implements CustomCalendarView, HasIntervalLab
     }
 
     @Override
-    public ObjectNode getViewSettings() {
-        ObjectNode days = JsonFactory.createObject();
+    public JsonObject getViewSettings() {
+        JsonObject days = JsonFactory.createObject();
         days.put("days", numberOfDays);
 
-        ObjectNode baseSettings = JsonFactory.createObject();
+        JsonObject baseSettings = JsonFactory.createObject();
         baseSettings.put("type", "resourceTimeline");
-        baseSettings.set("duration", days);
+        baseSettings.put("duration", days);
         return baseSettings;
     }
 
