@@ -55,8 +55,8 @@ import java.util.stream.Stream;
 @NpmPackage(value = "@fullcalendar/multimonth", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/rrule", version = FullCalendar.FC_CLIENT_VERSION)
 // TODO still necessary?
-@NpmPackage(value = "moment", version = "2.29.4")
-@NpmPackage(value = "moment-timezone", version = "0.5.40")
+@NpmPackage(value = "moment", version = "2.30.1")
+@NpmPackage(value = "moment-timezone", version = "0.6.0")
 @NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
 
@@ -69,7 +69,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * The library base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_CLIENT_VERSION = "6.1.9";
+    public static final String FC_CLIENT_VERSION = "6.1.20";
 
     /**
      * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
@@ -85,9 +85,31 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private static final String INITIAL_OPTIONS = "initialOptions";
 
     /**
-     * Caches the last fetched entries for entry based events.
+     * Maximum number of entries to cache. This prevents unbounded memory growth in long-running applications.
      */
-    private final Map<String, Entry> lastFetchedEntries = new HashMap<>();
+    private static final int MAX_CACHED_ENTRIES = 10000;
+
+    /**
+     * Caches the last fetched entries for entry based events.
+     * Uses a bounded LinkedHashMap to prevent unbounded memory growth.
+     */
+    private final Map<String, Entry> lastFetchedEntries = createBoundedEntryCache();
+
+    private static Map<String, Entry> createBoundedEntryCache() {
+        return new BoundedEntryCache();
+    }
+
+    private static final class BoundedEntryCache extends LinkedHashMap<String, Entry> {
+        BoundedEntryCache() {
+            super(16, 0.75f, false);
+        }
+
+        @Override
+        protected boolean removeEldestEntry(java.util.Map.Entry eldest) {
+            return size() > MAX_CACHED_ENTRIES;
+        }
+    }
+
     private final Map<String, Serializable> options = new HashMap<>();
 
     /**
@@ -111,12 +133,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     private String currentViewName;
     private LocalDate currentIntervalStart;
+    private LocalDate currentIntervalEnd;
     private CalendarView currentView;
 
-    private boolean refreshAllEntriesRequested;
+    private volatile boolean refreshAllEntriesRequested;
+    private final Object refreshLock = new Object();
 
     private Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
-    private String eventDidMountCallback;
+    private volatile JsCallback userEntryDidMountCallback;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefault()}).
@@ -223,6 +247,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         addDatesRenderedListener(event -> {
             currentIntervalStart = event.getIntervalStart();
+            currentIntervalEnd = event.getIntervalEnd();
         });
 
         addViewSkeletonRenderedListener(event -> {
@@ -266,7 +291,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             });
         }
 
-        updateEntryDidMountCallbackOnAttach();
+        applyEntryDidMountMerge();
     }
 
     /**
@@ -372,14 +397,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * they are called, whereas only the first call of this method is relevant.
      */
     protected void requestRefreshAllEntries() {
-        if (!refreshAllEntriesRequested) {
-            refreshAllEntriesRequested = true;
-            getElement().getNode().runWhenAttached(ui -> {
-                ui.beforeClientResponse(this, pExecutionContext -> {
-                    getElement().callJsFunction("refreshAllEvents");
-                    refreshAllEntriesRequested = false;
+        synchronized (refreshLock) {
+            if (!refreshAllEntriesRequested) {
+                refreshAllEntriesRequested = true;
+                getElement().getNode().runWhenAttached(ui -> {
+                    ui.beforeClientResponse(this, pExecutionContext -> {
+                        getElement().callJsFunction("refreshAllEvents");
+                        synchronized (refreshLock) {
+                            refreshAllEntriesRequested = false;
+                        }
+                    });
                 });
-            });
+            }
         }
     }
 
@@ -473,6 +502,33 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * Returns the start of the currently displayed date interval (e.g., the first day of the
+     * displayed month in month view). Updated after each render via {@code DatesRenderedEvent}.
+     * <p>
+     * Note: The value lags by one server round-trip — it reflects the state after the last
+     * {@code datesSet} event was processed.
+     *
+     * @return the current interval start, or empty if the calendar has not rendered yet
+     * @see #getCurrentIntervalEnd()
+     */
+    public Optional<LocalDate> getCurrentIntervalStart() {
+        return Optional.ofNullable(currentIntervalStart);
+    }
+
+    /**
+     * Returns the end of the currently displayed date interval (exclusive). Updated after each
+     * render via {@code DatesRenderedEvent}.
+     * <p>
+     * Note: The value lags by one server round-trip (see {@link #getCurrentIntervalStart()}).
+     *
+     * @return the current interval end (exclusive), or empty if the calendar has not rendered yet
+     * @see #getCurrentIntervalStart()
+     */
+    public Optional<LocalDate> getCurrentIntervalEnd() {
+        return Optional.ofNullable(currentIntervalEnd);
+    }
+
+    /**
      * Switch to the interval containing the given date (e. g. to month "October" if the "15th October ..." is passed).
      *
      * @param date date to goto
@@ -508,6 +564,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Sets a option for this instance. Passing a null value removes the option.
      * <br><br>
+     * Accepts any value including {@link JsCallback} instances for JavaScript callback options.
+     * <br><br>
      * Please be aware that this method does not check the passed value. Explicit setter
      * methods should be prefered (e.g. {@link #setLocale(Locale)}).
      *
@@ -515,7 +573,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param value  value
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull Option option, Serializable value) {
+    public void setOption(@NotNull Option option, Object value) {
         setOption(option, value, null);
     }
 
@@ -541,8 +599,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
      */
-    public void setOption(@NotNull Option option, Serializable value, Object valueForServerSide) {
-        setOption(option.getOptionKey(), value, valueForServerSide);
+    public void setOption(@NotNull Option option, Object value, Object valueForServerSide) {
+        callOptionUpdate(option.getOptionKey(), value, valueForServerSide, "setOption");
     }
 
     /**
@@ -623,8 +681,39 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         callOptionUpdate(option, value, valueForServerSide, "setOption");
     }
 
-    private void callOptionUpdate(@NotNull String option, Serializable value, Object valueForServerSide, String method, Serializable... additionalParameters) {
+    private void callOptionUpdate(@NotNull String option, Object value, Object valueForServerSide, String method, Serializable... additionalParameters) {
         Objects.requireNonNull(option);
+
+        // 1. ENTRY_DID_MOUNT intercept: detect this key and route to merge logic
+        if (Option.ENTRY_DID_MOUNT.getOptionKey().equals(option)) {
+            if (value instanceof JsCallback) {
+                userEntryDidMountCallback = (JsCallback) value;
+            } else {
+                userEntryDidMountCallback = null;
+            }
+            applyEntryDidMountMerge();
+            return;
+        }
+
+        // 2. Convert JsCallback to marker JSON before the attached/not-attached split.
+        //    Preserve original JsCallback for getOption() round-trip via serverSideOptions.
+        if (value instanceof JsCallback) {
+            JsCallback cb = (JsCallback) value;
+            if (valueForServerSide == null) {
+                valueForServerSide = cb;
+            }
+            value = cb.toMarkerJson();
+        }
+
+        // 3. Auto-convert ClientSideValue implementations to their client-side string,
+        //    keeping the original typed object for server-side getOption() retrieval.
+        if (value instanceof ClientSideValue) {
+            ClientSideValue csv = (ClientSideValue) value;
+            if (valueForServerSide == null) {
+                valueForServerSide = value;
+            }
+            value = csv.getClientSideValue();
+        }
 
         boolean attached = isAttached();
 
@@ -633,10 +722,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             options.remove(option);
             serverSideOptions.remove(option);
         } else {
+            Serializable serializableValue = value instanceof Serializable ? (Serializable) value : value.toString();
             if (attached) {
-                options.put(option, value);
+                options.put(option, serializableValue);
             } else {
-                initialOptions.put(option, value);
+                initialOptions.put(option, serializableValue);
             }
 
             if (valueForServerSide == null || valueForServerSide.equals(value)) {
@@ -647,7 +737,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
 
         if (attached) {
-            Serializable[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Serializable[]::new);
+            Object[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Object[]::new);
             getElement().callJsFunction(method, parameters);
         } else {
             JsonObject initialOptions = (JsonObject) getElement().getPropertyRaw("initialOptions");
@@ -661,6 +751,48 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             } else {
                 initialOptions.put(option, JsonUtils.toJsonValue(value));
             }
+        }
+    }
+
+    private void applyEntryDidMountMerge() {
+        String merged = buildEntryDidMountMerged();
+        if (merged != null) {
+            getElement().callJsFunction("setOption", "eventDidMount", JsCallback.of(merged).toMarkerJson());
+        } else {
+            getElement().callJsFunction("setOption", "eventDidMount", (Serializable) null);
+        }
+    }
+
+    /**
+     * Builds the merged eventDidMount function string from the user callback and native event listeners.
+     * Package-private for testing.
+     */
+    String buildEntryDidMountMerged() {
+        String userCallback = userEntryDidMountCallback != null ? userEntryDidMountCallback.getJsFunction() : null;
+
+        if (customNativeEventsMap.isEmpty()) {
+            return userCallback;
+        }
+
+        StringBuilder nativeEvents = new StringBuilder();
+        for (Map.Entry<String, String> entry : customNativeEventsMap.entrySet()) {
+            nativeEvents.append("info.el.addEventListener('")
+                    .append(entry.getKey())
+                    .append("', ")
+                    .append(entry.getValue())
+                    .append(");\n");
+        }
+
+        if (userCallback != null) {
+            // Inject native event listeners before the closing brace of the user callback
+            int closingBrace = userCallback.lastIndexOf("}");
+            if (closingBrace >= 0) {
+                return userCallback.substring(0, closingBrace) + nativeEvents + userCallback.substring(closingBrace);
+            }
+            // Fallback: append after user callback
+            return userCallback + "\nfunction(info) {\n" + nativeEvents + "}";
+        } else {
+            return "function(info) {\n" + nativeEvents + "}";
         }
     }
 
@@ -819,9 +951,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * </pre>
      *
      * @param s function to be attached
+     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_CLASS_NAMES} and {@link JsCallback} instead.
      */
+    @Deprecated(since = "6.4.0")
     public void setEntryClassNamesCallback(String s) {
-        getElement().callJsFunction("setEventClassNamesCallback", s);
+        setOption(Option.ENTRY_CLASS_NAMES, JsCallback.of(s));
     }
 
     /**
@@ -833,18 +967,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
      * other security mechanism applied on this string, so check it yourself before passing it to the client.
      * <br><br>
-     * Also this method must be called before the calendar is added to the client side. Changes afterwards are
-     * ignored, until the component is re-attached.
-     * <br><br>
      * If you also setup native event listeners, then these will automatically be attached to the end of your custom
-     * callback function (must end with an closing bracked "}").
+     * callback function (must end with a closing bracket "}").
      *
      * @param s function to be attached
      * @see #addEntryNativeEventListener(String, String)
-     *
+     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT} and {@link JsCallback} instead.
      */
+    @Deprecated(since = "6.4.0")
     public void setEntryDidMountCallback(String s) {
-        eventDidMountCallback = s;
+        setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(s));
     }
 
     /**
@@ -857,56 +989,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Also be aware, that some events may fire very often (e.g. "mousemove") and thus can lead to performance
      * issues.
      * <br><br>
-     * Event listeners will be added utilizing the entryDidMount callback ({@link #setEntryDidMountCallback(String)}).
-     * You still can setup a custom callback yourself. The event listener registration will automatically be
-     * attached to the end of your custom function.
+     * Native event listeners are merged into the {@code eventDidMount} callback and attached to each
+     * entry element automatically on render. You may also provide a custom {@code eventDidMount}
+     * function via {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT} and {@link JsCallback}
+     * — native event listener registration will automatically be merged into that callback.
      * <br><br>
-     * Inside the callback you may access the parameter of the entryDidMount callback by using the default name
-     * "info" or the parameter name you used, if you created a custom callback. With that you can access the
-     * entry itself (using "info.event") or the created html element (using "info.el"). For additional details
-     * on which details are available in the callback, see the <a href="https://fullcalendar.io/docs/event-render-hooks">official FC docs</a>.
+     * Inside the callback you may access the entry itself (using {@code info.event}) or the html element
+     * (using {@code info.el}).
      * @see #setEntryDidMountCallback(String)
      * @param eventName javascript event name
      * @param eventCallback javascript event callback to be hooked to the event
      */
     public void addEntryNativeEventListener(String eventName, String eventCallback) {
         customNativeEventsMap.put(eventName, eventCallback);
-    }
-
-    private void updateEntryDidMountCallbackOnAttach() {
-        StringBuilder events = null;
-        if (!customNativeEventsMap.isEmpty()) {
-            events = new StringBuilder();
-
-            for (Map.Entry<String, String> entry : customNativeEventsMap.entrySet()) {
-                events.append("arguments[0].el.addEventListener('")
-                        .append(entry.getKey())
-                        .append("', ")
-                        .append(entry.getValue())
-                        .append(")\n");
-            }
-        }
-
-        String s = null;
-        if (StringUtils.isNotBlank(eventDidMountCallback)) {
-
-            if (events != null) {
-                int index = eventDidMountCallback.lastIndexOf("}");
-                s = eventDidMountCallback.substring(0, index);
-                s += events;
-                s += eventDidMountCallback.substring(index);
-            } else {
-                s = eventDidMountCallback;
-            }
-
-        } else if (events != null) {
-            // there is no custom event did mount, so we just setup the native event callbacks
-            s = "function(info) {\n" + events + "}";
-        }
-
-        if (s != null) {
-            getElement().callJsFunction("setEventDidMountCallback", s);
-        }
+        applyEntryDidMountMerge();
     }
 
     /**
@@ -920,9 +1016,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <br><br>
      *
      * @param s function to be attached
+     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_WILL_UNMOUNT} and {@link JsCallback} instead.
      */
+    @Deprecated(since = "6.4.0")
     public void setEntryWillUnmountCallback(String s) {
-        getElement().callJsFunction("setEventWillUnmountCallback", s);
+        setOption(Option.ENTRY_WILL_UNMOUNT, JsCallback.of(s));
     }
 
     /**
@@ -937,9 +1035,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see <a href="https://fullcalendar.io/docs/content-injection">https://fullcalendar.io/docs/content-injection</a>
      *
      * @param s function to be attached
+     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_CONTENT} and {@link JsCallback} instead.
      */
+    @Deprecated(since = "6.4.0")
     public void setEntryContentCallback(String s) {
-        setOption("eventContent", s);
+        setOption(Option.ENTRY_CONTENT, JsCallback.of(s));
     }
 
     /**
@@ -1503,6 +1603,126 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public Registration addBrowserTimezoneObtainedListener(@NotNull ComponentEventListener<BrowserTimezoneObtainedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(BrowserTimezoneObtainedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when the user begins dragging an entry.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addEntryDragStartListener(ComponentEventListener<EntryDragStartEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryDragStartEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Registers a listener for when the user stops dragging an entry.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addEntryDragStopListener(ComponentEventListener<EntryDragStopEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryDragStopEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Registers a listener for when the user begins resizing an entry.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addEntryResizeStartListener(ComponentEventListener<EntryResizeStartEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryResizeStartEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Registers a listener for when the user stops resizing an entry.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addEntryResizeStopListener(ComponentEventListener<EntryResizeStopEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryResizeStopEvent.class, (ComponentEventListener) listener);
+    }
+
+    /**
+     * Registers a listener for when an external element carrying event data has been dropped onto the calendar.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addEntryReceiveListener(ComponentEventListener<EntryReceiveEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntryReceiveEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when a timeslot selection is cleared.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addTimeslotsUnselectListener(ComponentEventListener<TimeslotsUnselectEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(TimeslotsUnselectEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from a client-managed event source is dropped.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addExternalEntryDroppedListener(ComponentEventListener<ExternalEntryDroppedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(ExternalEntryDroppedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an entry from a client-managed event source is resized.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addExternalEntryResizedListener(ComponentEventListener<ExternalEntryResizedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(ExternalEntryResizedEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when an external DOM element is dropped onto the calendar.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addDropListener(ComponentEventListener<DropEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(DropEvent.class, listener);
+    }
+
+    /**
+     * Registers a listener for when a client-managed event source fails to load.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     */
+    public Registration addEventSourceFailureListener(ComponentEventListener<EventSourceFailureEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EventSourceFailureEvent.class, listener);
+    }
+
+    /**
+     * Enables or disables dropping external DOM elements onto the calendar.
+     *
+     * @param droppable true to enable
+     * @see Option#DROPPABLE
+     */
+    public void setDroppable(boolean droppable) {
+        setOption(Option.DROPPABLE, droppable);
     }
 
     /**
@@ -2081,7 +2301,421 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * @see <a href="https://fullcalendar.io/docs/weekTextLong">weekTextLong</a>
          */
-        WEEK_TEXT_LONG;
+        WEEK_TEXT_LONG,
+
+        // ---- Interaction callbacks ----
+
+        /**
+         * Controls whether a time-range selection is allowed. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/selectAllow">selectAllow</a>
+         */
+        SELECT_ALLOW,
+
+        /**
+         * Controls whether an entry drag-and-drop is allowed. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
+         */
+        ENTRY_ALLOW,
+
+        /**
+         * Controls whether entries may overlap during dragging.
+         * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
+         */
+        ENTRY_OVERLAP,
+
+        /**
+         * Allow dropping external DOM elements onto the calendar.
+         * @see <a href="https://fullcalendar.io/docs/droppable">droppable</a>
+         */
+        DROPPABLE,
+
+        /**
+         * Filter which external DOM elements can be dropped onto the calendar.
+         * @see <a href="https://fullcalendar.io/docs/dropAccept">dropAccept</a>
+         */
+        DROP_ACCEPT,
+
+        /**
+         * Make day/week numbers clickable (navLinks). Alias for {@link #NAV_LINKS}.
+         */
+        NAV_LINK_HINT,
+
+        /**
+         * Accessible hint for the "+N more" link.
+         * @see <a href="https://fullcalendar.io/docs/hints">moreLinkHint</a>
+         */
+        MORE_LINK_HINT,
+
+        /**
+         * Action for the "+N more" link click. Accepts a {@link JsCallback}.
+         * @see FullCalendar#setMoreLinkClickAction(MoreLinkClickAction)
+         * @see <a href="https://fullcalendar.io/docs/moreLinkClick">moreLinkClick</a>
+         */
+        MORE_LINK_CLICK,
+
+        /**
+         * Accessible hint for close buttons.
+         * @see <a href="https://fullcalendar.io/docs/hints">closeHint</a>
+         */
+        CLOSE_HINT,
+
+        /**
+         * Accessible hint for time display.
+         * @see <a href="https://fullcalendar.io/docs/hints">timeHint</a>
+         */
+        TIME_HINT,
+
+        /**
+         * Accessible hint for entry elements.
+         * @see <a href="https://fullcalendar.io/docs/hints">eventHint</a>
+         */
+        ENTRY_HINT,
+
+        // ---- Render hooks: Entry ----
+
+        /**
+         * Add CSS classes to entry wrapper elements. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventClassNames</a>
+         */
+        ENTRY_CLASS_NAMES("eventClassNames"),
+
+        /**
+         * Customize the inner content of entry elements. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventContent</a>
+         */
+        ENTRY_CONTENT("eventContent"),
+
+        /**
+         * Called after an entry element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventDidMount</a>
+         */
+        ENTRY_DID_MOUNT("eventDidMount"),
+
+        /**
+         * Called before an entry element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventWillUnmount</a>
+         */
+        ENTRY_WILL_UNMOUNT("eventWillUnmount"),
+
+        // ---- Render hooks: Day Cell ----
+
+        /**
+         * Add CSS classes to day cell elements. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellClassNames</a>
+         */
+        DAY_CELL_CLASS_NAMES("dayCellClassNames"),
+
+        /**
+         * Customize the content inside day cells. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellContent</a>
+         */
+        DAY_CELL_CONTENT("dayCellContent"),
+
+        /**
+         * Called after a day cell element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellDidMount</a>
+         */
+        DAY_CELL_DID_MOUNT("dayCellDidMount"),
+
+        /**
+         * Called before a day cell element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellWillUnmount</a>
+         */
+        DAY_CELL_WILL_UNMOUNT("dayCellWillUnmount"),
+
+        // ---- Render hooks: Day Header ----
+
+        /**
+         * Add CSS classes to day header elements. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderClassNames</a>
+         */
+        DAY_HEADER_CLASS_NAMES("dayHeaderClassNames"),
+
+        /**
+         * Customize the content inside day header cells. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderContent</a>
+         */
+        DAY_HEADER_CONTENT("dayHeaderContent"),
+
+        /**
+         * Called after a day header element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderDidMount</a>
+         */
+        DAY_HEADER_DID_MOUNT("dayHeaderDidMount"),
+
+        /**
+         * Called before a day header element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderWillUnmount</a>
+         */
+        DAY_HEADER_WILL_UNMOUNT("dayHeaderWillUnmount"),
+
+        // ---- Render hooks: Slot Label ----
+
+        /**
+         * Add CSS classes to time slot label cells. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLabelClassNames</a>
+         */
+        SLOT_LABEL_CLASS_NAMES("slotLabelClassNames"),
+
+        /**
+         * Customize the content inside time slot label cells. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLabelContent</a>
+         */
+        SLOT_LABEL_CONTENT("slotLabelContent"),
+
+        /**
+         * Called after a slot label element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLabelDidMount</a>
+         */
+        SLOT_LABEL_DID_MOUNT("slotLabelDidMount"),
+
+        /**
+         * Called before a slot label element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLabelWillUnmount</a>
+         */
+        SLOT_LABEL_WILL_UNMOUNT("slotLabelWillUnmount"),
+
+        // ---- Render hooks: Slot Lane ----
+
+        /**
+         * Add CSS classes to time slot lane cells. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLaneClassNames</a>
+         */
+        SLOT_LANE_CLASS_NAMES("slotLaneClassNames"),
+
+        /**
+         * Customize the content inside time slot lane cells. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLaneContent</a>
+         */
+        SLOT_LANE_CONTENT("slotLaneContent"),
+
+        /**
+         * Called after a slot lane element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLaneDidMount</a>
+         */
+        SLOT_LANE_DID_MOUNT("slotLaneDidMount"),
+
+        /**
+         * Called before a slot lane element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLaneWillUnmount</a>
+         */
+        SLOT_LANE_WILL_UNMOUNT("slotLaneWillUnmount"),
+
+        // ---- Render hooks: View ----
+
+        /**
+         * Add CSS classes to the view root element. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewClassNames</a>
+         */
+        VIEW_CLASS_NAMES("viewClassNames"),
+
+        /**
+         * Called after the view root element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewDidMount</a>
+         */
+        VIEW_DID_MOUNT("viewDidMount"),
+
+        /**
+         * Called before the view root element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewWillUnmount</a>
+         */
+        VIEW_WILL_UNMOUNT("viewWillUnmount"),
+
+        // ---- Render hooks: Now Indicator ----
+
+        /**
+         * Add CSS classes to now indicator elements. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/now-indicator-render-hooks">nowIndicatorClassNames</a>
+         */
+        NOW_INDICATOR_CLASS_NAMES("nowIndicatorClassNames"),
+
+        /**
+         * Customize the content inside now indicator elements. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/now-indicator-render-hooks">nowIndicatorContent</a>
+         */
+        NOW_INDICATOR_CONTENT("nowIndicatorContent"),
+
+        /**
+         * Called after a now indicator element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/now-indicator-render-hooks">nowIndicatorDidMount</a>
+         */
+        NOW_INDICATOR_DID_MOUNT("nowIndicatorDidMount"),
+
+        /**
+         * Called before a now indicator element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/now-indicator-render-hooks">nowIndicatorWillUnmount</a>
+         */
+        NOW_INDICATOR_WILL_UNMOUNT("nowIndicatorWillUnmount"),
+
+        // ---- Render hooks: Week Number ----
+
+        /**
+         * Add CSS classes to week number cells. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/week-number-render-hooks">weekNumberClassNames</a>
+         */
+        WEEK_NUMBER_CLASS_NAMES("weekNumberClassNames"),
+
+        /**
+         * Customize the content inside week number cells. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/week-number-render-hooks">weekNumberContent</a>
+         */
+        WEEK_NUMBER_CONTENT("weekNumberContent"),
+
+        /**
+         * Called after a week number element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/week-number-render-hooks">weekNumberDidMount</a>
+         */
+        WEEK_NUMBER_DID_MOUNT("weekNumberDidMount"),
+
+        /**
+         * Called before a week number element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/week-number-render-hooks">weekNumberWillUnmount</a>
+         */
+        WEEK_NUMBER_WILL_UNMOUNT("weekNumberWillUnmount"),
+
+        // ---- Render hooks: More Link ----
+
+        /**
+         * Add CSS classes to the "+N more" link element. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkClassNames</a>
+         */
+        MORE_LINK_CLASS_NAMES("moreLinkClassNames"),
+
+        /**
+         * Customize the content of the "+N more" link. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkContent</a>
+         */
+        MORE_LINK_CONTENT("moreLinkContent"),
+
+        /**
+         * Called after a more link element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkDidMount</a>
+         */
+        MORE_LINK_DID_MOUNT("moreLinkDidMount"),
+
+        /**
+         * Called before a more link element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkWillUnmount</a>
+         */
+        MORE_LINK_WILL_UNMOUNT("moreLinkWillUnmount"),
+
+        // ---- Render hooks: No Entries ----
+
+        /**
+         * Add CSS classes to the "No events" message in list view. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsClassNames</a>
+         */
+        NO_ENTRIES_CLASS_NAMES("noEventsClassNames"),
+
+        /**
+         * Customize the "No events" message in list view. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsContent</a>
+         */
+        NO_ENTRIES_CONTENT("noEventsContent"),
+
+        /**
+         * Called after a no-entries element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsDidMount</a>
+         */
+        NO_ENTRIES_DID_MOUNT("noEventsDidMount"),
+
+        /**
+         * Called before a no-entries element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsWillUnmount</a>
+         */
+        NO_ENTRIES_WILL_UNMOUNT("noEventsWillUnmount"),
+
+        // ---- Render hooks: All Day ----
+
+        /**
+         * Add CSS classes to the all-day section header cell. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/all-day-render-hooks">allDayClassNames</a>
+         */
+        ALL_DAY_CLASS_NAMES("allDayClassNames"),
+
+        /**
+         * Customize the content inside the all-day header cell. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/all-day-render-hooks">allDayContent</a>
+         */
+        ALL_DAY_CONTENT("allDayContent"),
+
+        /**
+         * Called after the all-day header element is added to the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/all-day-render-hooks">allDayDidMount</a>
+         */
+        ALL_DAY_DID_MOUNT("allDayDidMount"),
+
+        /**
+         * Called before the all-day header element is removed from the DOM. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/all-day-render-hooks">allDayWillUnmount</a>
+         */
+        ALL_DAY_WILL_UNMOUNT("allDayWillUnmount"),
+
+        // ---- Data transform / loading callbacks ----
+
+        /**
+         * Called when async entry fetching starts or stops. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/loading">loading</a>
+         */
+        LOADING("loading"),
+
+        /**
+         * Transform raw entry data before FullCalendar parses it. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/eventDataTransform">eventDataTransform</a>
+         */
+        ENTRY_DATA_TRANSFORM("eventDataTransform"),
+
+        /**
+         * Called after an entry source fetches successfully. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/eventSourceSuccess">eventSourceSuccess</a>
+         */
+        ENTRY_SOURCE_SUCCESS("eventSourceSuccess"),
+
+        // ---- Navigation callbacks ----
+
+        /**
+         * Custom handler for clickable day nav links. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/navLinkDayClick">navLinkDayClick</a>
+         */
+        NAV_LINK_DAY_CLICK("navLinkDayClick"),
+
+        /**
+         * Custom handler for clickable week nav links. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/navLinkWeekClick">navLinkWeekClick</a>
+         */
+        NAV_LINK_WEEK_CLICK("navLinkWeekClick"),
+
+        // ---- External event sources ----
+
+        /**
+         * Default query parameter name for the range start sent to JSON feed event sources.
+         * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
+         */
+        EXTERNAL_EVENT_SOURCE_START_PARAM("startParam"),
+
+        /**
+         * Default query parameter name for the range end sent to JSON feed event sources.
+         * @see <a href="https://fullcalendar.io/docs/endParam">endParam</a>
+         */
+        EXTERNAL_EVENT_SOURCE_END_PARAM("endParam"),
+
+        /**
+         * Default query parameter name for the timezone sent to JSON feed event sources.
+         * @see <a href="https://fullcalendar.io/docs/timeZoneParam">timeZoneParam</a>
+         */
+        EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM("timeZoneParam"),
+
+        /**
+         * Global Google Calendar API key used by all Google Calendar event sources.
+         * @see <a href="https://fullcalendar.io/docs/google-calendar">googleCalendarApiKey</a>
+         */
+        EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY("googleCalendarApiKey"),
+
+        /**
+         * Controls how a "fixed mirror" parent element is specified during drag. Accepts a {@link JsCallback}.
+         * @see <a href="https://fullcalendar.io/docs/fixedMirrorParent">fixedMirrorParent</a>
+         */
+        FIXED_MIRROR_PARENT;
 
         private final String optionKey;
 

@@ -523,6 +523,15 @@ export class FullCalendar extends HTMLElement {
                 " been initialized is no longer supported. Please use the initial options to set the 'eventContent'.");
         }
 
+        // JsCallback marker detection: evaluate the JS function string and use the result
+        if (value && typeof value === 'object' && value.__jsCallback) {
+            try {
+                value = new Function("return " + value.__jsCallback)();
+            } catch(e) {
+                console.error("Failed to evaluate JsCallback for option '" + key + "':", e);
+            }
+        }
+
         // @ts-ignore
         let oldValue = calendar.getOption(key);
         if (oldValue != value) {
