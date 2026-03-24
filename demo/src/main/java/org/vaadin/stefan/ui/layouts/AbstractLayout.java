@@ -44,7 +44,7 @@ import java.util.Locale;
 @CssImport("./app-layout-styles.css")
 @SuppressWarnings("rawtypes")
 public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
-    public static final String ADDON_VERSION = "6.3.0";
+    public static final String ADDON_VERSION = "6.4.0";
     private static final long serialVersionUID = -7479612679602267287L;
 
     @SuppressWarnings("unchecked")
@@ -105,7 +105,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         });
         themeToggle.setWidthFull();
 
-        Div footerText = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 24.2.3" +
+        Div footerText = new Div(new Html("<span>Using the FullCalendar library " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 24.10.0" +
                 "More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
 
         footer.addClassName("footer");

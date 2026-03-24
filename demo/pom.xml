@@ -12,16 +12,16 @@
     <packaging>war</packaging>
 
     <properties>
-        <vaadin.version>24.8.0</vaadin.version>
+        <vaadin.version>24.10.0</vaadin.version>
 
-        <fullcalendar.version>6.3.0</fullcalendar.version>
-        <fullcalendar.scheduler.version>6.3.0</fullcalendar.scheduler.version>
+        <fullcalendar.version>6.4.0-SNAPSHOT</fullcalendar.version>
+        <fullcalendar.scheduler.version>6.4.0-SNAPSHOT</fullcalendar.scheduler.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <failOnMissingWebXml>false</failOnMissingWebXml>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
 
         <spring-boot.version>3.5.0</spring-boot.version>
     </properties>
@@ -91,13 +91,6 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
-            <exclusions>
-                <!-- Excluding so that webjars are not included. -->
-                <exclusion>
-                    <groupId>com.vaadin</groupId>
-                    <artifactId>vaadin-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -146,7 +139,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>3.14.1</version>
                 <configuration>
                     <annotationProcessorPaths>
                         <!-- Lombok should be used as an annotation processor. -->
@@ -171,7 +164,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <pnpmEnable>true</pnpmEnable>
                 </configuration>
             </plugin>
 
@@ -206,8 +198,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <pnpmEnable>true</pnpmEnable>
-                        </configuration>
+                                </configuration>
                     </plugin>
                 </plugins>
             </build>

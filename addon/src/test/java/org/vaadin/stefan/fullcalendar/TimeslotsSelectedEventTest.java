@@ -1,7 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -9,43 +8,45 @@ import java.time.ZoneOffset;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
 public class TimeslotsSelectedEventTest {
 
-	@Mock
-	private FullCalendar calendar;
-	
+	/**
+	 * Minimal stub for FullCalendar that avoids Mockito mocking issues with
+	 * Vaadin's Component class on Java 17+.
+	 */
+	private static class StubCalendar extends FullCalendar {
+		private final Timezone tz;
+		StubCalendar(Timezone tz) { this.tz = tz; }
+		@Override public Timezone getTimezone() { return tz; }
+	}
+
 	private LocalDateTime startUTC;
 	private LocalDateTime endUTC;
 	private LocalDateTime startWithOffset;
 	private LocalDateTime endWithOffset;
-	
+
 	// client dates as UTC
 	private String clientStartDateStr = "2000-01-01T16:00:00Z";
 	private String clientEndDateStr = "2000-01-01T17:00:00Z";
-	
+
 	private TimeslotsSelectedEvent event;
-	
+
 	private Timezone berlinTimezone = new Timezone(ZoneId.of("Europe/Berlin"));
-	
+
 	@BeforeEach
 	void setup()
 	{
-		// client side of full-calendar runs in Europe/Berlin
-		when(calendar.getTimezone()).thenReturn(berlinTimezone);
-		
+		FullCalendar calendar = new StubCalendar(berlinTimezone);
+
 		// UTC
 		startUTC = LocalDateTime.of(2000, 1, 1, 16, 0);
 		endUTC = LocalDateTime.of(2000, 1, 1, 17, 0);
-		
+
 		// Europe/Berlin
 		startWithOffset = berlinTimezone.applyTimezoneOffset(startUTC);
 		endWithOffset = berlinTimezone.applyTimezoneOffset(endUTC);
-		
+
 		// event object under test
 		event = new TimeslotsSelectedEvent(calendar, true, clientStartDateStr, clientEndDateStr, true);
 	}
