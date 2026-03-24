@@ -2,7 +2,7 @@
 
 Version 6.4 modernizes the addon for Vaadin 24.10 while backporting v7 features. This guide covers the upgrade path and breaking changes.
 
-> For earlier versions (6.2 or 6.1), see the [v6.0 migration guide](migration.md) first.
+> For earlier versions (6.2 or 6.1), see the [v6.0 migration guide](migration) first.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ Before upgrading to 6.4, ensure your project meets these requirements:
 |-------------|-----------------|
 | **Java** | 17 |
 | **Vaadin** | 24.10.x |
-| **Spring Boot** | 3.5+ |
+| **Spring Boot** | 3.5+ (demo tested with this version) |
 | **Maven** | 3.8+ |
 
 **Note**: Vaadin 14 is no longer supported. If you're on Vaadin 14, you must upgrade to Vaadin 24.10 first.
@@ -23,15 +23,15 @@ In your `pom.xml`, update the FullCalendar addon version:
 
 ```xml
 <dependency>
-    <groupId>org.vaadin.addon</groupId>
-    <artifactId>vaadin-fullcalendar-flow</artifactId>
+    <groupId>org.vaadin.stefan</groupId>
+    <artifactId>fullcalendar2</artifactId>
     <version>6.4.0</version>
 </dependency>
 
 <!-- For Scheduler support -->
 <dependency>
-    <groupId>org.vaadin.addon</groupId>
-    <artifactId>vaadin-fullcalendar-flow-scheduler</artifactId>
+    <groupId>org.vaadin.stefan</groupId>
+    <artifactId>fullcalendar2-scheduler</artifactId>
     <version>6.4.0</version>
 </dependency>
 ```
@@ -82,12 +82,12 @@ Boolean overlap = entry.getOverlap();  // Returns nullable Boolean
 ```
 
 **What changed**:
-- `isOverlap()` → `getOverlap()` (method renamed)
+- `isOverlap()` is deprecated in 6.4; `getOverlap()` is the non-deprecated replacement
 - `boolean` → `Boolean` (type changed to nullable)
-- `null` is now a distinct state (not equivalent to `false`)
+- `null` is now a distinct state: when null, the entry inherits the calendar-level `eventOverlap` setting; when `false`, overlap is always denied for this entry
 
 **Migration**:
-- Replace all `isOverlap()` calls with `getOverlap()`
+- Replace `isOverlap()` calls with `getOverlap()`. `isOverlap()` still compiles but is deprecated and coalesces `null` to `true`; `getOverlap()` gives you the raw nullable value
 - If you need a primitive, use: `Boolean overlap = entry.getOverlap(); boolean value = overlap != null && overlap;`
 - Update any comparisons: `if (overlap != null && overlap)` instead of `if (overlap)`
 
@@ -101,23 +101,20 @@ While deprecated methods still work, consider replacing them with the unified `s
 
 | Deprecated Method | Replacement |
 |-------------------|-------------|
-| `setFirstDay(DayOfWeek)` | `setOption(Option.FIRST_DAY, "mo")` |
+| `setFirstDay(DayOfWeek)` | `setOption(Option.FIRST_DAY, DayOfWeek.MONDAY)` |
 | `setWeekends(boolean)` | `setOption(Option.WEEKENDS, true)` |
-| `setEventLimit(int)` | `setOption(Option.EVENT_LIMIT, 5)` |
-| `setEntryLimit(int)` | `setOption(Option.EVENT_LIMIT, 5)` |
-| `setDateAlignment(String)` | `setOption(Option.DATE_ALIGNMENT, value)` |
-| `setShowNonCurrentDates(boolean)` | `setOption(Option.SHOW_NON_CURRENT_DATES, true)` |
+| `setEntryDidMountCallback(String)` | `setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(...))` |
 
 **Example**:
 
 ```java
 // Before (6.3)
 calendar.setFirstDay(DayOfWeek.MONDAY);
-calendar.setEntryLimit(3);
+calendar.setWeekends(false);
 
 // After (6.4) — preferred approach
-calendar.setOption(Option.FIRST_DAY, "mo");
-calendar.setOption(Option.EVENT_LIMIT, 3);
+calendar.setOption(Option.FIRST_DAY, DayOfWeek.MONDAY);
+calendar.setOption(Option.WEEKENDS, false);
 ```
 
 Deprecated methods are still functional and have `@Deprecated` annotations visible in your IDE. Replace them at your convenience — they remain supported in 6.4.
@@ -136,7 +133,7 @@ entry.setEnd(LocalDateTime.of(2025, 3, 24, 11, 0));
 entry.setRecurringDaysOfWeek(DayOfWeek.MONDAY, DayOfWeek.FRIDAY);
 entry.setRecurringStartDate(LocalDate.of(2025, 3, 1));
 entry.setRecurringEndDate(LocalDate.of(2025, 12, 31));
-calendar.addEntry(entry);
+calendar.getEntryProvider().asInMemory().addEntry(entry);
 ```
 
 **After (6.4 — RRule approach)**:
@@ -149,8 +146,8 @@ RRule rule = RRule.weekly()
     .byWeekday(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)
     .until(LocalDate.of(2025, 12, 31));
 
-entry.setRrule(rule);
-calendar.addEntry(entry);
+entry.setRRule(rule);
+calendar.getEntryProvider().asInMemory().addEntry(entry);
 ```
 
 Both approaches work, but RRule is more powerful (supports exclusions, complex patterns, RFC 5545 import).
@@ -163,7 +160,7 @@ The new fields (`url`, `interactive`) are optional but recommended:
 Entry event = new Entry("Conference Talk");
 event.setUrl("https://conference.example.com/talks/opening-keynote");
 event.setInteractive(true);  // Allows dragging and resizing
-calendar.addEntry(event);
+calendar.getEntryProvider().asInMemory().addEntry(event);
 ```
 
 ## Step 6: Handle New NPM Dependencies
@@ -180,9 +177,7 @@ The following npm packages are automatically loaded:
 ## Step 7: Recompile and Test
 
 ```bash
-mvn clean compile
-mvn clean test
-mvn clean package
+mvn clean verify
 ```
 
 If you're using Spring Boot, restart the development server:
@@ -203,7 +198,7 @@ Test the following:
 
 ### Compilation Error: "cannot find symbol: method isOverlap()"
 
-**Cause**: You're calling `isOverlap()` on an Entry (renamed to `getOverlap()`).
+**Cause**: This error occurs if the method was removed in a future version or if the addon dependency is not correctly resolved. In 6.4, `isOverlap()` is deprecated but still available.
 
 **Fix**:
 ```java
@@ -236,7 +231,7 @@ boolean value = entry.getOverlap() != null && entry.getOverlap();
 **Check**:
 ```bash
 mvn compile
-echo $JAVA_VERSION  # Should be 17+
+java -version  # Should be 17+
 grep "vaadin.version" pom.xml
 ```
 
@@ -262,10 +257,10 @@ mvn clean install
 
 ## Next Steps
 
-- Review the [Release Notes](Release-notes-6.4.md) for new features
+- Review the [Release Notes](Release-notes-6.4) for new features
 - Check the [demo module](https://github.com/stefanuebe/vaadin-fullcalendar) for usage examples
 - File issues on [GitHub](https://github.com/stefanuebe/vaadin-fullcalendar/issues) if problems arise
 
 ---
 
-*Revision: March 2025*
+*Revision: March 2026*

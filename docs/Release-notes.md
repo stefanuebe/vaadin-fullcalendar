@@ -9,7 +9,7 @@
 * [4.0.x](#40x)
 
 ## 7.1.x
-[Details](release-notes-detail/Release-notes-7.1)
+[Details](Release-notes-7.1)
 - significantly expanded Java API surface for FullCalendar v6 options (previously required raw `setOption` calls)
 - added entry model enhancements: URL, interactive flag, RRule recurrence, recurring duration
 - added option converter system
@@ -35,7 +35,7 @@
 - renamed theme variant `LUMO` to `VAADIN` and integrated Aura into theming
 
 ## 6.4.x
-[Details](release-notes-detail/Release-notes-6.4)
+[Details](Release-notes-6.4)
 - platform upgrade: Vaadin 14 → 24.10, Java 8 → 17
 - backported v7 features to Vaadin 24: RRule, JsCallback, event sources, scheduler extensions
 - entry model: url, interactive, nullable overlap, recurringDuration
