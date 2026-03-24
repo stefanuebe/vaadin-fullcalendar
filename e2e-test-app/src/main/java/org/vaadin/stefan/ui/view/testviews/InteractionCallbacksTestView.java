@@ -1,0 +1,225 @@
+package org.vaadin.stefan.ui.view.testviews;
+
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Route;
+import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.ui.layouts.TestLayout;
+import org.vaadin.stefan.ui.menu.MenuItem;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Locale;
+
+/**
+ * Test view for interaction callbacks.
+ * <p>
+ * Verifies:
+ * <ul>
+ *   <li>Drag start/stop events update a counter badge visible to Playwright</li>
+ *   <li>Resize start/stop events update a counter badge</li>
+ *   <li>Unselect event fires when selection is cleared</li>
+ *   <li>selectAllow callback prevents selections before a cutoff date</li>
+ *   <li>eventAllow callback prevents drops onto the "locked" day</li>
+ *   <li>External drop: droppable=true + drop/eventReceive events</li>
+ * </ul>
+ * <p>
+ * Route: /test/interaction-callbacks
+ */
+@Route(value = "interaction-callbacks", layout = TestLayout.class)
+@MenuItem(label = "Interaction Callbacks")
+public class InteractionCallbacksTestView extends VerticalLayout {
+
+    public InteractionCallbacksTestView() {
+        setSizeFull();
+        setPadding(true);
+
+        add(new H2("Interaction Callbacks"));
+        add(new Paragraph(
+                "Drag an event to increment drag-start/stop counters. " +
+                "Resize an event to increment resize-start/stop counters. " +
+                "Select a date range, then click elsewhere to fire unselect."));
+
+        // Counters displayed as badges for Playwright
+        Span dragStartBadge = new Span("0");
+        dragStartBadge.setId("drag-start-count");
+        Span dragStopBadge = new Span("0");
+        dragStopBadge.setId("drag-stop-count");
+        Span resizeStartBadge = new Span("0");
+        resizeStartBadge.setId("resize-start-count");
+        Span resizeStopBadge = new Span("0");
+        resizeStopBadge.setId("resize-stop-count");
+        Span unselectBadge = new Span("0");
+        unselectBadge.setId("unselect-count");
+        Span dropBadge = new Span("0");
+        dropBadge.setId("drop-count");
+        Span receiveEntryTitle = new Span("");
+        receiveEntryTitle.setId("receive-entry-title");
+
+        // EntryDroppedEvent counters + data
+        Span entryDroppedCount = new Span("0");
+        entryDroppedCount.setId("entry-dropped-count");
+        Span droppedEntryTitle = new Span("");
+        droppedEntryTitle.setId("dropped-entry-title");
+        Span droppedNewStart = new Span("");
+        droppedNewStart.setId("dropped-new-start");
+
+        // EntryResizedEvent counters + data
+        Span entryResizedCount = new Span("0");
+        entryResizedCount.setId("entry-resized-count");
+        Span resizedEntryTitle = new Span("");
+        resizedEntryTitle.setId("resized-entry-title");
+        Span resizedNewEnd = new Span("");
+        resizedNewEnd.setId("resized-new-end");
+
+        // Delta data for drop/resize
+        Span droppedDelta = new Span("");
+        droppedDelta.setId("dropped-delta");
+        Span resizedDelta = new Span("");
+        resizedDelta.setId("resized-delta");
+
+        // DragStart/Stop entry titles
+        Span dragStartTitle = new Span("");
+        dragStartTitle.setId("drag-start-title");
+        Span dragStopTitle = new Span("");
+        dragStopTitle.setId("drag-stop-title");
+        Span resizeStartTitle = new Span("");
+        resizeStartTitle.setId("resize-start-title");
+        Span resizeStopTitle = new Span("");
+        resizeStopTitle.setId("resize-stop-title");
+
+        Div counters = new Div(
+                label("dragStart: "), dragStartBadge,
+                label(" | dragStop: "), dragStopBadge,
+                label(" | resizeStart: "), resizeStartBadge,
+                label(" | resizeStop: "), resizeStopBadge,
+                label(" | unselect: "), unselectBadge,
+                label(" | drop: "), dropBadge,
+                label(" | receiveTitle: "), receiveEntryTitle,
+                label(" | entryDropped: "), entryDroppedCount,
+                label(" | droppedTitle: "), droppedEntryTitle,
+                label(" | droppedStart: "), droppedNewStart,
+                label(" | entryResized: "), entryResizedCount,
+                label(" | resizedTitle: "), resizedEntryTitle,
+                label(" | resizedEnd: "), resizedNewEnd,
+                label(" | dropDelta: "), droppedDelta,
+                label(" | resizeDelta: "), resizedDelta,
+                label(" | dragStartTitle: "), dragStartTitle,
+                label(" | dragStopTitle: "), dragStopTitle,
+                label(" | resizeStartTitle: "), resizeStartTitle,
+                label(" | resizeStopTitle: "), resizeStopTitle
+        );
+        counters.getStyle().set("font-size", "12px");
+        add(counters);
+
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.addThemeVariants(FullCalendarVariant.LUMO);
+
+        // Fix the date for reproducible tests
+        calendar.setLocale(Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
+        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
+        calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
+        calendar.setOption(FullCalendar.Option.EDITABLE, true);
+        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
+        calendar.setOption(FullCalendar.Option.DROPPABLE, true);
+        calendar.setOption("unselectAuto", true);
+        calendar.setOption("selectMirror", true);
+
+        // Add some timed entries so drag/resize can be tested
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+
+        Entry draggable = new Entry();
+        draggable.setTitle("Drag Me");
+        draggable.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+        draggable.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
+        provider.addEntry(draggable);
+
+        Entry resizable = new Entry();
+        resizable.setTitle("Resize Me");
+        resizable.setStart(LocalDateTime.of(2025, 3, 4, 10, 0));
+        resizable.setEnd(LocalDateTime.of(2025, 3, 4, 11, 0));
+        provider.addEntry(resizable);
+
+        calendar.setEntryProvider(provider);
+        provider.refreshAll();
+
+        // --- Event listeners ---
+        calendar.addEntryDragStartListener(e -> {
+            int count = Integer.parseInt(dragStartBadge.getText()) + 1;
+            dragStartBadge.setText(String.valueOf(count));
+            dragStartTitle.setText(e.getEntry().getTitle());
+        });
+        calendar.addEntryDragStopListener(e -> {
+            int count = Integer.parseInt(dragStopBadge.getText()) + 1;
+            dragStopBadge.setText(String.valueOf(count));
+            dragStopTitle.setText(e.getEntry().getTitle());
+        });
+        calendar.addEntryResizeStartListener(e -> {
+            int count = Integer.parseInt(resizeStartBadge.getText()) + 1;
+            resizeStartBadge.setText(String.valueOf(count));
+            resizeStartTitle.setText(e.getEntry().getTitle());
+        });
+        calendar.addEntryResizeStopListener(e -> {
+            int count = Integer.parseInt(resizeStopBadge.getText()) + 1;
+            resizeStopBadge.setText(String.valueOf(count));
+            resizeStopTitle.setText(e.getEntry().getTitle());
+        });
+        calendar.addTimeslotsUnselectListener(e -> {
+            int count = Integer.parseInt(unselectBadge.getText()) + 1;
+            unselectBadge.setText(String.valueOf(count));
+        });
+        calendar.addDropListener(e -> {
+            int count = Integer.parseInt(dropBadge.getText()) + 1;
+            dropBadge.setText(String.valueOf(count));
+        });
+        calendar.addEntryReceiveListener(e -> {
+            receiveEntryTitle.setText(e.getEntry().getTitle() != null ? e.getEntry().getTitle() : "(no title)");
+        });
+
+        // EntryDroppedEvent — apply changes, update badges
+        calendar.addEntryDroppedListener(e -> {
+            e.applyChangesOnEntry();
+            provider.refreshItem(e.getEntry());
+            int count = Integer.parseInt(entryDroppedCount.getText()) + 1;
+            entryDroppedCount.setText(String.valueOf(count));
+            droppedEntryTitle.setText(e.getEntry().getTitle());
+            var start = e.getEntry().getStart();
+            droppedNewStart.setText(start != null ? start.toString() : "null");
+            droppedDelta.setText(e.getDelta().toString());
+        });
+
+        // EntryResizedEvent — apply changes, update badges
+        calendar.addEntryResizedListener(e -> {
+            e.applyChangesOnEntry();
+            provider.refreshItem(e.getEntry());
+            int count = Integer.parseInt(entryResizedCount.getText()) + 1;
+            entryResizedCount.setText(String.valueOf(count));
+            resizedEntryTitle.setText(e.getEntry().getTitle());
+            var end = e.getEntry().getEnd();
+            resizedNewEnd.setText(end != null ? end.toString() : "null");
+            resizedDelta.setText(e.getDelta().toString());
+        });
+
+        // selectAllow: deny selections before 2025-03-01
+        calendar.setOption(FullCalendar.Option.SELECT_ALLOW,
+                JsCallback.of("function(selectInfo) { return selectInfo.start >= new Date(2025, 2, 1); }"));
+
+        // eventAllow: prevent drops onto Monday 2025-03-03 (used for the Playwright deny test)
+        calendar.setOption(FullCalendar.Option.ENTRY_ALLOW,
+                JsCallback.of("function(dropInfo, draggedEvent) { " +
+                "  var d = dropInfo.start; " +
+                "  return !(d.getFullYear() === 2025 && d.getMonth() === 2 && d.getDate() === 3); " +
+                "}"));
+
+        add(calendar);
+        setFlexGrow(1, calendar);
+    }
+
+    private static Span label(String text) {
+        return new Span(text);
+    }
+}
