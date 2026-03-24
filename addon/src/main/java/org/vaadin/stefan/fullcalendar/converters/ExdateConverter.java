@@ -1,9 +1,9 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonArray;
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -20,13 +20,13 @@ public class ExdateConverter<T extends Entry> implements JsonItemPropertyConvert
     }
 
     @Override
-    public JsonNode toClientModel(Collection<LocalDate> serverValue, T currentInstance) {
+    public JsonValue toClientModel(Collection<LocalDate> serverValue, T currentInstance) {
         if (serverValue == null || serverValue.isEmpty()) {
             return null;
         }
-        ArrayNode array = JsonFactory.createArray();
+        JsonArray array = JsonFactory.createArray();
         for (LocalDate date : serverValue) {
-            array.add(date.toString());
+            array.set(array.length(), JsonFactory.create(date.toString()));
         }
         return array;
     }

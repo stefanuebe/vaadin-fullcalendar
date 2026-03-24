@@ -23,7 +23,7 @@ import org.vaadin.stefan.fullcalendar.converter.ResourceConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -230,7 +230,7 @@ public class ResourceEntry extends Entry {
     }
 
     @Override
-    public ObjectNode toJson() {
+    public JsonObject toJson() {
         return super.toJson();
     }
 

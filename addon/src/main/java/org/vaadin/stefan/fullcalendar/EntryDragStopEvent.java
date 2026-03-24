@@ -19,7 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.ToString;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 /**
  * Fires when the user stops dragging an entry, regardless of whether the position changed.
@@ -45,7 +45,7 @@ public class EntryDragStopEvent extends EntryDataEvent {
      * @param fromClient is from client
      * @param entryData  entry data
      */
-    public EntryDragStopEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
+    public EntryDragStopEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject entryData) {
         super(source, fromClient, entryData);
     }
 }

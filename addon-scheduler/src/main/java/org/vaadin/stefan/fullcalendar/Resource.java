@@ -19,8 +19,8 @@ package org.vaadin.stefan.fullcalendar;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 
 import java.util.*;
 
@@ -535,33 +535,33 @@ public class Resource {
      *
      * @return json object
      */
-    protected ObjectNode toJson() {
-        ObjectNode jsonObject = JsonFactory.createObject();
+    protected JsonObject toJson() {
+        JsonObject jsonObject = JsonFactory.createObject();
 
         jsonObject.put("id", getId());
-        jsonObject.set("title", JsonUtils.toJsonNode(getTitle()));
-        jsonObject.set("eventColor", JsonUtils.toJsonNode(getColor()));
+        jsonObject.put("title", JsonUtils.toJsonValue(getTitle()));
+        jsonObject.put("eventColor", JsonUtils.toJsonValue(getColor()));
 
         BusinessHours[] businessHours = getBusinessHoursArray();
         if(businessHours != null && businessHours.length > 0) {
-            ArrayNode businessHoursJsonArray = JsonFactory.createArray();
+            JsonArray businessHoursJsonArray = JsonFactory.createArray();
             for (BusinessHours hour : businessHours) {
-                businessHoursJsonArray.add(hour.toJson());
+                businessHoursJsonArray.set(businessHoursJsonArray.length(), hour.toJson());
             }
-            jsonObject.set("businessHours", businessHoursJsonArray);
+            jsonObject.put("businessHours", businessHoursJsonArray);
         }
 
         getParent().ifPresent(parent -> jsonObject.put("parentId", parent.getId()));
 
         Set<Resource> children = getChildren();
         if (!children.isEmpty()) {
-            ArrayNode jsonArray = JsonFactory.createArray();
+            JsonArray jsonArray = JsonFactory.createArray();
 
             for (Resource child : children) {
-                jsonArray.add(child.toJson());
+                jsonArray.set(jsonArray.length(), child.toJson());
             }
 
-            jsonObject.set("children", jsonArray);
+            jsonObject.put("children", jsonArray);
         }
 
         if (eventBackgroundColor != null) jsonObject.put("eventBackgroundColor", eventBackgroundColor);
@@ -570,16 +570,19 @@ public class Resource {
         if (eventConstraint != null) jsonObject.put("eventConstraint", eventConstraint);
         if (eventOverlap != null) jsonObject.put("eventOverlap", eventOverlap);
         if (eventClassNames != null && !eventClassNames.isEmpty()) {
-            ArrayNode classNamesArray = JsonFactory.createArray();
-            eventClassNames.forEach(classNamesArray::add);
-            jsonObject.set("eventClassNames", classNamesArray);
+            JsonArray classNamesArray = JsonFactory.createArray();
+            int i = 0;
+            for (String className : eventClassNames) {
+                classNamesArray.set(i++, className);
+            }
+            jsonObject.put("eventClassNames", classNamesArray);
         }
-        if (eventAllow != null) jsonObject.set("eventAllow", eventAllow.toMarkerJson());
+        if (eventAllow != null) jsonObject.put("eventAllow", eventAllow.toMarkerJson());
 
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {
             for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
-            	jsonObject.set(prop.getKey(), JsonUtils.toJsonNode(prop.getValue()));
+            	jsonObject.put(prop.getKey(), JsonUtils.toJsonValue(prop.getValue()));
             }
         }
 

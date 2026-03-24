@@ -28,9 +28,9 @@ import com.vaadin.flow.shared.Registration;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -115,7 +115,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param initialOptions initial options
      * @throws NullPointerException when null is passed
      */
-    public FullCalendarScheduler(ObjectNode initialOptions) {
+    public FullCalendarScheduler(JsonObject initialOptions) {
         super(initialOptions);
     }
 
@@ -143,11 +143,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             if (!resources.isEmpty()) {
                 getElement().getNode().runWhenAttached(ui -> {
                     ui.beforeClientResponse(this, executionContext -> {
-                        ArrayNode array = JsonFactory.createArray();
+                        JsonArray array = JsonFactory.createArray();
                         resources.values().forEach(resource -> {
                             // only add top-level resources; children are included via toJson() recursively
                             if (resource.getParent().isEmpty()) {
-                                array.add(resource.toJson());
+                                array.set(array.length(), resource.toJson());
                             }
                         });
                         getElement().callJsFunction("addResources", array, false);
@@ -222,13 +222,13 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public void addResources(Iterable<Resource> iterableResource, boolean scrollToLast) {
         Objects.requireNonNull(iterableResource);
 
-        ArrayNode array = JsonFactory.createArray();
+        JsonArray array = JsonFactory.createArray();
         iterableResource.forEach(resource -> {
             String id = resource.getId();
             if (!resources.containsKey(id)) {
                 resources.put(id, resource);
                 resource.attachScheduler(this);
-                array.add(resource.toJson()); // this automatically sends sub resources to the client side
+                array.set(array.length(), resource.toJson()); // this automatically sends sub resources to the client side
 
                 // create components for active component columns
                 for (var col : activeComponentColumns) {
@@ -268,7 +268,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         removeFromEntries(iterableResources);
 
         // create registry of removed items to send to client
-        ArrayNode array = JsonFactory.createArray();
+        JsonArray array = JsonFactory.createArray();
         iterableResources.forEach(resource -> {
             String id = resource.getId();
             if (this.resources.containsKey(id)) {
@@ -282,7 +282,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
                 this.resources.remove(id);
                 resource.detachScheduler();
-                array.add(resource.toJson());
+                array.set(array.length(), resource.toJson());
             }
         });
 
@@ -413,7 +413,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         // bind new component columns
         for (ResourceAreaColumn col : columns) {
-            if (col instanceof ComponentResourceAreaColumn<?> compCol) {
+            if (col instanceof ComponentResourceAreaColumn<?>) {
+                ComponentResourceAreaColumn<?> compCol = (ComponentResourceAreaColumn<?>) col;
                 compCol.bind(this);
                 activeComponentColumns.add(compCol);
             }
@@ -435,8 +436,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         if (columns.isEmpty()) {
             setOption(SchedulerOption.RESOURCE_AREA_COLUMNS, null, null);
         } else {
-            ArrayNode array = JsonFactory.createArray();
-            columns.forEach(col -> array.add(col.toJson()));
+            JsonArray array = JsonFactory.createArray();
+            columns.forEach(col -> array.set(array.length(), col.toJson()));
             setOption(SchedulerOption.RESOURCE_AREA_COLUMNS, array, columns);
         }
     }
@@ -1060,10 +1061,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         /**
          * If this option has one or more {@link JsonConverter} annotations and the given value is
-         * supported by one of them, returns the converted {@link JsonNode}. Otherwise returns empty.
+         * supported by one of them, returns the converted {@link JsonValue}. Otherwise returns empty.
          */
         @SuppressWarnings("unchecked")
-        public Optional<JsonNode> convertValue(Object value) {
+        public Optional<JsonValue> convertValue(Object value) {
             for (JsonItemPropertyConverter<?, ?> c : getConverters()) {
                 if (c.supports(value)) {
                     return Optional.of(((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null));

@@ -1,8 +1,8 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonValue;
+import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.NullNode;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -26,17 +26,19 @@ public class DurationConverter implements JsonItemPropertyConverter<Object, Obje
     }
 
     @Override
-    public JsonNode toClientModel(Object serverValue, Object currentInstance) {
+    public JsonValue toClientModel(Object serverValue, Object currentInstance) {
         if (serverValue == null) {
-            return NullNode.instance;
+            return JsonFactory.createNull();
         }
-        if (serverValue instanceof Duration duration) {
-            return JsonUtils.toJsonNode(
+        if (serverValue instanceof Duration) {
+            Duration duration = (Duration) serverValue;
+            return JsonUtils.toJsonValue(
                     String.format("%02d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart())
             );
         }
-        if (serverValue instanceof LocalTime time) {
-            return JsonUtils.toJsonNode(time.format(LOCAL_TIME_FORMAT));
+        if (serverValue instanceof LocalTime) {
+            LocalTime time = (LocalTime) serverValue;
+            return JsonUtils.toJsonValue(time.format(LOCAL_TIME_FORMAT));
         }
         throw new IllegalArgumentException("Unsupported type: " + serverValue.getClass());
     }

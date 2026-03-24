@@ -21,7 +21,7 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 import lombok.ToString;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 /**
  * Fires when an external element carrying event data ({@code data-event} attribute) has been dropped
@@ -56,7 +56,7 @@ public class EntryReceiveEvent extends ComponentEvent<FullCalendar> {
      * @param fromClient {@code true} if the event originated from the client
      * @param entryData  JSON data for the received entry
      */
-    public EntryReceiveEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
+    public EntryReceiveEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject entryData) {
         super(source, fromClient);
         Entry e = new Entry();
         e.updateFromJson(entryData, false);

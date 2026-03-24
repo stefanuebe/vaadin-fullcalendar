@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
-import tools.jackson.databind.node.ArrayNode;
+import elemental.json.JsonArray;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -573,7 +573,7 @@ public class InMemoryEntryProviderTest {
     @Getter
     private static class TestProvider extends InMemoryEntryProvider<Entry> {
 
-        private final Map<String, ArrayNode> createdJsonArrays = new HashMap<>();
+        private final Map<String, JsonArray> createdJsonArrays = new HashMap<>();
         private final Map<String, Set<String>> tmpItemSnapshots = new HashMap<>();
         private boolean record;
 

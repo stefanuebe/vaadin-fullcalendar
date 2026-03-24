@@ -20,7 +20,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.ToString;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 /**
  * Occurs when the user mouses over an entry
@@ -38,7 +38,7 @@ public class EntryMouseEnterEvent extends EntryDataEvent {
      * @param fromClient from client
      * @param entryData  entry data
      */
-    public EntryMouseEnterEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
+    public EntryMouseEnterEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject entryData) {
         super(source, fromClient, entryData);
     }
 

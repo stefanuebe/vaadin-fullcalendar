@@ -5,7 +5,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.*;
 
@@ -250,22 +250,22 @@ public class ComponentResourceAreaColumnTest {
         var col = new ComponentResourceAreaColumn<Span>("deadline", "Deadline",
                 resource -> new Span());
 
-        ObjectNode json = col.toJson();
+        JsonObject json = col.toJson();
 
         // field and headerContent from parent
         Assertions.assertEquals("deadline", json.get("field").asString());
         Assertions.assertEquals("Deadline", json.get("headerContent").asString());
 
         // auto-generated cellContent
-        Assertions.assertTrue(json.has("cellContent"), "should have cellContent");
-        ObjectNode cellContent = (ObjectNode) json.get("cellContent");
-        Assertions.assertTrue(cellContent.has("__jsCallback"), "cellContent should be a JsCallback marker");
+        Assertions.assertTrue(json.hasKey("cellContent"), "should have cellContent");
+        JsonObject cellContent = (JsonObject) json.get("cellContent");
+        Assertions.assertTrue(cellContent.hasKey("__jsCallback"), "cellContent should be a JsCallback marker");
         Assertions.assertTrue(cellContent.get("__jsCallback").asString().contains("domNodes"));
 
         // auto-generated cellDidMount
-        Assertions.assertTrue(json.has("cellDidMount"), "should have cellDidMount");
-        ObjectNode cellDidMount = (ObjectNode) json.get("cellDidMount");
-        Assertions.assertTrue(cellDidMount.has("__jsCallback"), "cellDidMount should be a JsCallback marker");
+        Assertions.assertTrue(json.hasKey("cellDidMount"), "should have cellDidMount");
+        JsonObject cellDidMount = (JsonObject) json.get("cellDidMount");
+        Assertions.assertTrue(cellDidMount.hasKey("__jsCallback"), "cellDidMount should be a JsCallback marker");
         String didMountJs = cellDidMount.get("__jsCallback").asString();
         Assertions.assertTrue(didMountJs.contains("vaadin-full-calendar-scheduler"),
                 "should use correct element tag");
@@ -277,9 +277,9 @@ public class ComponentResourceAreaColumnTest {
                 "should contain the column key");
 
         // auto-generated cellWillUnmount
-        Assertions.assertTrue(json.has("cellWillUnmount"), "should have cellWillUnmount");
-        ObjectNode cellWillUnmount = (ObjectNode) json.get("cellWillUnmount");
-        Assertions.assertTrue(cellWillUnmount.has("__jsCallback"), "cellWillUnmount should be a JsCallback marker");
+        Assertions.assertTrue(json.hasKey("cellWillUnmount"), "should have cellWillUnmount");
+        JsonObject cellWillUnmount = (JsonObject) json.get("cellWillUnmount");
+        Assertions.assertTrue(cellWillUnmount.hasKey("__jsCallback"), "cellWillUnmount should be a JsCallback marker");
         String willUnmountJs = cellWillUnmount.get("__jsCallback").asString();
         Assertions.assertTrue(willUnmountJs.contains("vaadin-full-calendar-scheduler"),
                 "should use correct element tag");
@@ -292,7 +292,7 @@ public class ComponentResourceAreaColumnTest {
                 .withGroup(true)
                 .withHeaderClassNames("my-class");
 
-        ObjectNode json = col.toJson();
+        JsonObject json = col.toJson();
 
         Assertions.assertEquals("200px", json.get("width").asString());
         Assertions.assertTrue(json.get("group").asBoolean());
@@ -414,12 +414,12 @@ public class ComponentResourceAreaColumnTest {
                 resource -> new Span());
 
         // Both should be serializable without error
-        ObjectNode regularJson = regular.toJson();
-        ObjectNode componentJson = component.toJson();
+        JsonObject regularJson = regular.toJson();
+        JsonObject componentJson = component.toJson();
 
-        Assertions.assertFalse(regularJson.has("cellContent"), "regular column has no cellContent by default");
-        Assertions.assertTrue(componentJson.has("cellContent"), "component column has auto-generated cellContent");
-        Assertions.assertTrue(componentJson.has("cellDidMount"), "component column has auto-generated cellDidMount");
+        Assertions.assertFalse(regularJson.hasKey("cellContent"), "regular column has no cellContent by default");
+        Assertions.assertTrue(componentJson.hasKey("cellContent"), "component column has auto-generated cellContent");
+        Assertions.assertTrue(componentJson.hasKey("cellDidMount"), "component column has auto-generated cellDidMount");
     }
 
     @Test

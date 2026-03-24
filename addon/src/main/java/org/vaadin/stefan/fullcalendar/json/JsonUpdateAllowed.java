@@ -6,9 +6,9 @@ import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import java.lang.annotation.*;
 
 /**
- * Marks a property to be allowed to be updated, when calling {@link Entry#updateFromJson(tools.jackson.databind.node.ObjectNode)}.
+ * Marks a property to be allowed to be updated, when calling {@link Entry#updateFromJson(elemental.json.JsonObject)}.
  * Otherwise properties will be ignored. Please note, that any converters set for the marked property need to implement
- * their {@link JsonItemPropertyConverter#toServerModel(tools.jackson.databind.JsonNode, Object)}
+ * their {@link JsonItemPropertyConverter#toServerModel(elemental.json.JsonValue, Object)}
  * method.
  */
 @Documented

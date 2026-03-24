@@ -3,8 +3,9 @@ package org.vaadin.stefan.fullcalendar;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonType;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,16 +41,16 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceAreaColumnMinimal() {
         ResourceAreaColumn col = new ResourceAreaColumn("title");
-        ObjectNode json = col.toJson();
+        JsonObject json = col.toJson();
 
-        Assertions.assertTrue(json.has("field"), "json has field");
+        Assertions.assertTrue(json.hasKey("field"), "json has field");
         Assertions.assertEquals("title", json.get("field").asString(), "field value");
-        Assertions.assertFalse(json.has("headerContent"), "no headerContent");
-        Assertions.assertFalse(json.has("width"), "no width");
-        Assertions.assertFalse(json.has("group"), "no group (false is omitted)");
-        Assertions.assertFalse(json.has("headerClassNames"), "no headerClassNames");
-        Assertions.assertFalse(json.has("headerDidMount"), "no headerDidMount");
-        Assertions.assertFalse(json.has("headerWillUnmount"), "no headerWillUnmount");
+        Assertions.assertFalse(json.hasKey("headerContent"), "no headerContent");
+        Assertions.assertFalse(json.hasKey("width"), "no width");
+        Assertions.assertFalse(json.hasKey("group"), "no group (false is omitted)");
+        Assertions.assertFalse(json.hasKey("headerClassNames"), "no headerClassNames");
+        Assertions.assertFalse(json.hasKey("headerDidMount"), "no headerDidMount");
+        Assertions.assertFalse(json.hasKey("headerWillUnmount"), "no headerWillUnmount");
     }
 
     @Test
@@ -61,7 +62,7 @@ public class SchedulerFeaturesTest {
                 .withHeaderDidMount("function(info) { console.log('mount'); }")
                 .withHeaderWillUnmount("function(info) { console.log('unmount'); }");
 
-        ObjectNode json = col.toJson();
+        JsonObject json = col.toJson();
 
         Assertions.assertEquals("department", json.get("field").asString(), "field");
         Assertions.assertEquals("Department", json.get("headerContent").asString(), "headerContent");
@@ -70,25 +71,25 @@ public class SchedulerFeaturesTest {
         // headerClassNames is still a plain string (static class name)
         Assertions.assertEquals("function(info) { return ['dept-header']; }", json.get("headerClassNames").asString(), "headerClassNames");
         // headerDidMount and headerWillUnmount are now JsCallback markers
-        Assertions.assertEquals("function(info) { console.log('mount'); }", json.get("headerDidMount").get("__jsCallback").asString(), "headerDidMount");
-        Assertions.assertEquals("function(info) { console.log('unmount'); }", json.get("headerWillUnmount").get("__jsCallback").asString(), "headerWillUnmount");
+        Assertions.assertEquals("function(info) { console.log('mount'); }", ((JsonObject) json.get("headerDidMount")).get("__jsCallback").asString(), "headerDidMount");
+        Assertions.assertEquals("function(info) { console.log('unmount'); }", ((JsonObject) json.get("headerWillUnmount")).get("__jsCallback").asString(), "headerWillUnmount");
     }
 
     @Test
     void testResourceAreaColumnGroupTrue() {
         ResourceAreaColumn col = new ResourceAreaColumn("category").withGroup(true);
-        ObjectNode json = col.toJson();
+        JsonObject json = col.toJson();
 
-        Assertions.assertTrue(json.has("group"), "group key present when true");
+        Assertions.assertTrue(json.hasKey("group"), "group key present when true");
         Assertions.assertTrue(json.get("group").asBoolean(), "group value is true");
     }
 
     @Test
     void testResourceAreaColumnGroupFalse_NotSerialized() {
         ResourceAreaColumn col = new ResourceAreaColumn("category").withGroup(false);
-        ObjectNode json = col.toJson();
+        JsonObject json = col.toJson();
 
-        Assertions.assertFalse(json.has("group"), "group key absent when false (clean JSON)");
+        Assertions.assertFalse(json.hasKey("group"), "group key absent when false (clean JSON)");
     }
 
     @Test
@@ -110,10 +111,10 @@ public class SchedulerFeaturesTest {
         Assertions.assertNotNull(col.getHeaderWillUnmount());
         Assertions.assertEquals(willUnmount, col.getHeaderWillUnmount().getJsFunction());
 
-        ObjectNode json = col.toJson();
+        JsonObject json = col.toJson();
         Assertions.assertEquals(classNames, json.get("headerClassNames").asString());
-        Assertions.assertEquals(didMount, json.get("headerDidMount").get("__jsCallback").asString());
-        Assertions.assertEquals(willUnmount, json.get("headerWillUnmount").get("__jsCallback").asString());
+        Assertions.assertEquals(didMount, ((JsonObject) json.get("headerDidMount")).get("__jsCallback").asString());
+        Assertions.assertEquals(willUnmount, ((JsonObject) json.get("headerWillUnmount")).get("__jsCallback").asString());
     }
 
     // -------------------------------------------------------------------------
@@ -123,7 +124,7 @@ public class SchedulerFeaturesTest {
     @Test
     void testResourceAreaColumn_cellContent_string() {
         ResourceAreaColumn col = new ResourceAreaColumn("field").withCellContent("static text");
-        ObjectNode json = col.toJson();
+        JsonObject json = col.toJson();
         Assertions.assertEquals("static text", json.get("cellContent").asString());
     }
 
@@ -131,16 +132,16 @@ public class SchedulerFeaturesTest {
     void testResourceAreaColumn_cellContent_jsCallback() {
         ResourceAreaColumn col = new ResourceAreaColumn("field")
                 .withCellContent(JsCallback.of("function(info) { return info.fieldValue; }"));
-        ObjectNode json = col.toJson();
-        Assertions.assertTrue(json.get("cellContent").isObject());
+        JsonObject json = col.toJson();
+        Assertions.assertEquals(JsonType.OBJECT, json.get("cellContent").getType());
         Assertions.assertEquals("function(info) { return info.fieldValue; }",
-                json.get("cellContent").get("__jsCallback").asString());
+                ((JsonObject) json.get("cellContent")).get("__jsCallback").asString());
     }
 
     @Test
     void testResourceAreaColumn_cellClassNames_string() {
         ResourceAreaColumn col = new ResourceAreaColumn("field").withCellClassNames("my-class");
-        ObjectNode json = col.toJson();
+        JsonObject json = col.toJson();
         Assertions.assertEquals("my-class", json.get("cellClassNames").asString());
     }
 
@@ -148,38 +149,38 @@ public class SchedulerFeaturesTest {
     void testResourceAreaColumn_cellClassNames_jsCallback() {
         ResourceAreaColumn col = new ResourceAreaColumn("field")
                 .withCellClassNames(JsCallback.of("function(info) { return ['a']; }"));
-        ObjectNode json = col.toJson();
-        Assertions.assertTrue(json.get("cellClassNames").isObject());
+        JsonObject json = col.toJson();
+        Assertions.assertEquals(JsonType.OBJECT, json.get("cellClassNames").getType());
         Assertions.assertEquals("function(info) { return ['a']; }",
-                json.get("cellClassNames").get("__jsCallback").asString());
+                ((JsonObject) json.get("cellClassNames")).get("__jsCallback").asString());
     }
 
     @Test
     void testResourceAreaColumn_cellDidMount() {
         ResourceAreaColumn col = new ResourceAreaColumn("field")
                 .withCellDidMount("function(info) { }");
-        ObjectNode json = col.toJson();
-        Assertions.assertTrue(json.get("cellDidMount").isObject());
-        Assertions.assertNotNull(json.get("cellDidMount").get("__jsCallback"));
+        JsonObject json = col.toJson();
+        Assertions.assertEquals(JsonType.OBJECT, json.get("cellDidMount").getType());
+        Assertions.assertNotNull(((JsonObject) json.get("cellDidMount")).get("__jsCallback"));
     }
 
     @Test
     void testResourceAreaColumn_cellWillUnmount() {
         ResourceAreaColumn col = new ResourceAreaColumn("field")
                 .withCellWillUnmount("function(info) { }");
-        ObjectNode json = col.toJson();
-        Assertions.assertTrue(json.get("cellWillUnmount").isObject());
-        Assertions.assertNotNull(json.get("cellWillUnmount").get("__jsCallback"));
+        JsonObject json = col.toJson();
+        Assertions.assertEquals(JsonType.OBJECT, json.get("cellWillUnmount").getType());
+        Assertions.assertNotNull(((JsonObject) json.get("cellWillUnmount")).get("__jsCallback"));
     }
 
     @Test
     void testResourceAreaColumn_cellHooks_defaultAbsent() {
         ResourceAreaColumn col = new ResourceAreaColumn("field");
-        ObjectNode json = col.toJson();
-        Assertions.assertFalse(json.has("cellContent"));
-        Assertions.assertFalse(json.has("cellClassNames"));
-        Assertions.assertFalse(json.has("cellDidMount"));
-        Assertions.assertFalse(json.has("cellWillUnmount"));
+        JsonObject json = col.toJson();
+        Assertions.assertFalse(json.hasKey("cellContent"));
+        Assertions.assertFalse(json.hasKey("cellClassNames"));
+        Assertions.assertFalse(json.hasKey("cellDidMount"));
+        Assertions.assertFalse(json.hasKey("cellWillUnmount"));
     }
 
     // -------------------------------------------------------------------------
@@ -417,7 +418,7 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertEquals("Updated", resource.getTitle(), "getTitle() returns updated value");
 
-        ObjectNode json = resource.toJson();
+        JsonObject json = resource.toJson();
         Assertions.assertEquals("Updated", json.get("title").asString(), "toJson title is updated");
     }
 
@@ -428,7 +429,7 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertEquals("#ff0000", resource.getColor(), "getColor() returns updated value");
 
-        ObjectNode json = resource.toJson();
+        JsonObject json = resource.toJson();
         Assertions.assertEquals("#ff0000", json.get("eventColor").asString(), "toJson eventColor is updated");
     }
 
@@ -458,8 +459,8 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertEquals("#aabbcc", resource.getEntryBackgroundColor());
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventBackgroundColor"), "json has eventBackgroundColor");
+        JsonObject json = resource.toJson();
+        Assertions.assertTrue(json.hasKey("eventBackgroundColor"), "json has eventBackgroundColor");
         Assertions.assertEquals("#aabbcc", json.get("eventBackgroundColor").asString());
     }
 
@@ -468,8 +469,8 @@ public class SchedulerFeaturesTest {
         Resource resource = new Resource();
         // eventBackgroundColor is null by default
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertFalse(json.has("eventBackgroundColor"), "null eventBackgroundColor not serialized");
+        JsonObject json = resource.toJson();
+        Assertions.assertFalse(json.hasKey("eventBackgroundColor"), "null eventBackgroundColor not serialized");
     }
 
     @Test
@@ -479,8 +480,8 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertEquals("#001122", resource.getEntryBorderColor());
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventBorderColor"), "json has eventBorderColor");
+        JsonObject json = resource.toJson();
+        Assertions.assertTrue(json.hasKey("eventBorderColor"), "json has eventBorderColor");
         Assertions.assertEquals("#001122", json.get("eventBorderColor").asString());
     }
 
@@ -491,8 +492,8 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertEquals("white", resource.getEntryTextColor());
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventTextColor"), "json has eventTextColor");
+        JsonObject json = resource.toJson();
+        Assertions.assertTrue(json.hasKey("eventTextColor"), "json has eventTextColor");
         Assertions.assertEquals("white", json.get("eventTextColor").asString());
     }
 
@@ -503,8 +504,8 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertEquals("businessHours", resource.getEntryConstraint());
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventConstraint"), "json has eventConstraint");
+        JsonObject json = resource.toJson();
+        Assertions.assertTrue(json.hasKey("eventConstraint"), "json has eventConstraint");
         Assertions.assertEquals("businessHours", json.get("eventConstraint").asString());
     }
 
@@ -515,8 +516,8 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertEquals(Boolean.TRUE, resource.getEntryOverlap());
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventOverlap"), "json has eventOverlap");
+        JsonObject json = resource.toJson();
+        Assertions.assertTrue(json.hasKey("eventOverlap"), "json has eventOverlap");
         Assertions.assertTrue(json.get("eventOverlap").asBoolean(), "eventOverlap is true");
     }
 
@@ -527,8 +528,8 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertEquals(Boolean.FALSE, resource.getEntryOverlap());
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventOverlap"), "json has eventOverlap (false is serialized)");
+        JsonObject json = resource.toJson();
+        Assertions.assertTrue(json.hasKey("eventOverlap"), "json has eventOverlap (false is serialized)");
         Assertions.assertFalse(json.get("eventOverlap").asBoolean(), "eventOverlap is false");
     }
 
@@ -539,8 +540,8 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertNull(resource.getEntryOverlap());
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertFalse(json.has("eventOverlap"), "null eventOverlap not serialized");
+        JsonObject json = resource.toJson();
+        Assertions.assertFalse(json.hasKey("eventOverlap"), "null eventOverlap not serialized");
     }
 
     @Test
@@ -557,10 +558,10 @@ public class SchedulerFeaturesTest {
         Assertions.assertTrue(returned.contains("class-b"), "contains class-b");
         Assertions.assertEquals(2, returned.size());
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventClassNames"), "json has eventClassNames");
-        ArrayNode classNamesJson = (ArrayNode) json.get("eventClassNames");
-        Assertions.assertEquals(2, classNamesJson.size(), "json eventClassNames has 2 elements");
+        JsonObject json = resource.toJson();
+        Assertions.assertTrue(json.hasKey("eventClassNames"), "json has eventClassNames");
+        JsonArray classNamesJson = (JsonArray) json.get("eventClassNames");
+        Assertions.assertEquals(2, classNamesJson.length(), "json eventClassNames has 2 elements");
     }
 
     @Test
@@ -570,8 +571,8 @@ public class SchedulerFeaturesTest {
 
         Assertions.assertNull(resource.getEntryClassNames());
 
-        ObjectNode json = resource.toJson();
-        Assertions.assertFalse(json.has("eventClassNames"), "null eventClassNames not serialized");
+        JsonObject json = resource.toJson();
+        Assertions.assertFalse(json.hasKey("eventClassNames"), "null eventClassNames not serialized");
     }
 
     @Test

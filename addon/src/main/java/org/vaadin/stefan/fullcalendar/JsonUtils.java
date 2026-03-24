@@ -17,10 +17,10 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.function.SerializableFunction;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.JsonNodeType;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonType;
+import elemental.json.JsonValue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,8 +43,8 @@ public final class JsonUtils {
      * @param value value
      * @return object
      */
-    public static JsonNode toJsonNode(Object value) {
-        return toJsonNode(value, null);
+    public static JsonValue toJsonValue(Object value) {
+        return toJsonValue(value, null);
     }
 
     /**
@@ -56,58 +56,59 @@ public final class JsonUtils {
      * @return object
      */
     @SuppressWarnings("unchecked")
-    public static JsonNode toJsonNode(Object value, SerializableFunction<Object, JsonNode> customConverter) {
-        if (value instanceof JsonNode node) {
-            return node;
+    public static JsonValue toJsonValue(Object value, SerializableFunction<Object, JsonValue> customConverter) {
+        if (value instanceof JsonValue) {
+            return (JsonValue) value;
         }
 
-        if (value instanceof ClientSideValue clientSideValue) {
-            value = clientSideValue.getClientSideValue();
+        if (value instanceof ClientSideValue) {
+            value = ((ClientSideValue) value).getClientSideValue();
         }
 
         if (value == null) {
             return JsonFactory.createNull();
         }
-        if (value instanceof Boolean b) {
-            return JsonFactory.create(b);
+        if (value instanceof Boolean) {
+            return JsonFactory.create((Boolean) value);
         }
-        if (value instanceof Integer i) {
-            return JsonFactory.create(i);
+        if (value instanceof Integer) {
+            return JsonFactory.create((Integer) value);
         }
-        if (value instanceof Long l) {
-            return JsonFactory.create(l);
+        if (value instanceof Long) {
+            return JsonFactory.create((Long) value);
         }
-        if (value instanceof Number n) {
-            return JsonFactory.create(n.doubleValue());
+        if (value instanceof Number) {
+            return JsonFactory.create(((Number) value).doubleValue());
         }
 
-        if (value instanceof Iterator<?> iterator) {
-            var array = JsonFactory.createArray();
+        if (value instanceof Iterator<?>) {
+            JsonArray array = JsonFactory.createArray();
+            Iterator<?> iterator = (Iterator<?>) value;
             while (iterator.hasNext()) {
-                array.add(toJsonNode(iterator.next(), customConverter));
+                array.set(array.length(), toJsonValue(iterator.next(), customConverter));
             }
             return array;
         }
 
         if (value instanceof Map<?, ?>) {
-            var map = (Map<String, Object>) value;
-            var jsonObject = JsonFactory.createObject();
-            for (var prop : map.entrySet()) {
-                jsonObject.set(prop.getKey(), toJsonNode(prop.getValue(), customConverter));
+            Map<String, Object> map = (Map<String, Object>) value;
+            JsonObject jsonObject = JsonFactory.createObject();
+            for (Map.Entry<String, Object> prop : map.entrySet()) {
+                jsonObject.put(prop.getKey(), toJsonValue(prop.getValue(), customConverter));
             }
             return jsonObject;
         }
 
-        if (value instanceof Object[] objects) {
-            return toJsonNode(Arrays.asList(objects).iterator(), customConverter);
+        if (value instanceof Object[]) {
+            return toJsonValue(Arrays.asList((Object[]) value).iterator(), customConverter);
         }
 
-        if (value instanceof Iterable<?> iterable) {
-            return toJsonNode(iterable.iterator(), customConverter);
+        if (value instanceof Iterable<?>) {
+            return toJsonValue(((Iterable<?>) value).iterator(), customConverter);
         }
 
-        if (value instanceof Stream<?> stream) {
-            return toJsonNode(stream.iterator(), customConverter);
+        if (value instanceof Stream<?>) {
+            return toJsonValue(((Stream<?>) value).iterator(), customConverter);
         }
 
         return customConverter != null ? customConverter.apply(value) : JsonFactory.create(String.valueOf(value));
@@ -129,34 +130,43 @@ public final class JsonUtils {
     }
 
     public static String formatClientSideTimeString(Object value) {
-        return switch (value) {
-            case null -> null;
-            case LocalTime ignored -> value + "Z";
-            case LocalDateTime localDateTime -> formatClientSideTimeString(localDateTime.toLocalTime());
-            default -> throw new IllegalArgumentException("Unsupported class: " + value.getClass());
-        };
-
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalTime) {
+            return value + "Z";
+        }
+        if (value instanceof LocalDateTime) {
+            return formatClientSideTimeString(((LocalDateTime) value).toLocalTime());
+        }
+        throw new IllegalArgumentException("Unsupported class: " + value.getClass());
     }
 
 
     public static String formatClientSideDateString(Object value) {
-        return switch (value) {
-            case null -> null;
-            case LocalDate ignored -> value.toString();
-            case LocalDateTime localDateTime -> formatClientSideDateString(localDateTime.toLocalDate());
-            default -> throw new IllegalArgumentException("Unsupported class: " + value.getClass());
-        };
-
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalDate) {
+            return value.toString();
+        }
+        if (value instanceof LocalDateTime) {
+            return formatClientSideDateString(((LocalDateTime) value).toLocalDate());
+        }
+        throw new IllegalArgumentException("Unsupported class: " + value.getClass());
     }
 
     public static String formatClientSideDateTimeString(Object value) {
-        return switch (value) {
-            case null -> null;
-            case LocalDate localDate -> formatClientSideDateTimeString(localDate.atStartOfDay());
-            case LocalDateTime ignored -> value + "Z";
-            default -> throw new IllegalArgumentException("Unsupported class: " + value.getClass());
-        };
-
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalDate) {
+            return formatClientSideDateTimeString(((LocalDate) value).atStartOfDay());
+        }
+        if (value instanceof LocalDateTime) {
+            return value + "Z";
+        }
+        throw new IllegalArgumentException("Unsupported class: " + value.getClass());
     }
 
     /**
@@ -210,32 +220,32 @@ public final class JsonUtils {
     }
 
     /**
-     * Shortcut method for {@link #ofJsonNode(JsonNode, SerializableFunction, Collection, Class)}. Reads a json value object and
+     * Shortcut method for {@link #ofJsonValue(JsonValue, SerializableFunction, Collection, Class)}. Reads a json value object and
      * tries to parse it to a Java object.
      * <p></p>
      * Most basic types are automatically converted. Since Json objects represent a more complex structure, the
      * given callback can be used to convert them to their Java representation. This method converts them automatically
-     * into a Map, using {@link #convertObjectToMap(tools.jackson.databind.node.ObjectNode, Class)}.
+     * into a Map, using {@link #convertObjectToMap(JsonObject, Class)}.
      * <p></p>
      * Json arrays are automatically converted into a Java {@link ArrayList}.
      *
      * @param jsonValue value to parse
      * @param <T>       return type
      * @return parsed / converted value
-     * @see #ofJsonNode(JsonNode, Class)
-     * @see #ofJsonNode(JsonNode, SerializableFunction, Collection, Class)
+     * @see #ofJsonValue(JsonValue, Class)
+     * @see #ofJsonValue(JsonValue, SerializableFunction, Collection, Class)
      */
-    public static <T> T ofJsonNode(JsonNode jsonValue) {
-        return ofJsonNode(jsonValue, o -> convertObjectToMap(checkForObjectOrThrow(o), ArrayList.class), null, ArrayList.class);
+    public static <T> T ofJsonValue(JsonValue jsonValue) {
+        return ofJsonValue(jsonValue, o -> convertObjectToMap(checkForObjectOrThrow(o), ArrayList.class), null, ArrayList.class);
     }
 
     /**
-     * Shortcut method for {@link #ofJsonNode(JsonNode, SerializableFunction, Collection, Class)}. Reads a json value object and
+     * Shortcut method for {@link #ofJsonValue(JsonValue, SerializableFunction, Collection, Class)}. Reads a json value object and
      * tries to parse it to a Java object.
      * <p></p>
      * Most basic types are automatically converted. Since Json objects represent a more complex structure, the
      * given callback can be used to convert them to their Java representation. This method converts them automatically
-     * into a Map, using {@link #convertObjectToMap(tools.jackson.databind.node.ObjectNode, Class)}.
+     * into a Map, using {@link #convertObjectToMap(JsonObject, Class)}.
      * <p></p>
      * Json arrays are converted to the given
      * collection type, where for each element of the json array, this method is called recursively. Please check,
@@ -245,12 +255,12 @@ public final class JsonUtils {
      * @param convertArrayToType target collection type json arrays shall be converted to.
      * @param <T>                return type
      * @return converted Java object
-     * @see #ofJsonNode(JsonNode, SerializableFunction, Collection, Class)
-     * @see #convertObjectToMap(tools.jackson.databind.node.ObjectNode, Class)
+     * @see #ofJsonValue(JsonValue, SerializableFunction, Collection, Class)
+     * @see #convertObjectToMap(JsonObject, Class)
      */
     @SuppressWarnings("rawtypes")
-    public static <T> T ofJsonNode(JsonNode jsonValue, Class<? extends Collection> convertArrayToType) {
-        return ofJsonNode(jsonValue, o -> convertObjectToMap(checkForObjectOrThrow(o), convertArrayToType), null, convertArrayToType);
+    public static <T> T ofJsonValue(JsonValue jsonValue, Class<? extends Collection> convertArrayToType) {
+        return ofJsonValue(jsonValue, o -> convertObjectToMap(checkForObjectOrThrow(o), convertArrayToType), null, convertArrayToType);
     }
 
     /**
@@ -258,7 +268,7 @@ public final class JsonUtils {
      * <p></p>
      * Most basic types are automatically converted. Since Json objects represent a more complex structure, the
      * given callback can be used to convert them to their Java representation. Please also check
-     * {@link #convertObjectToMap(tools.jackson.databind.node.ObjectNode, Class)} for a simple "to Map" converter.
+     * {@link #convertObjectToMap(JsonObject, Class)} for a simple "to Map" converter.
      * <p></p>
      * Json arrays are converted to the given
      * collection type, where for each element of the json array, this method is called recursively. Please check,
@@ -270,28 +280,29 @@ public final class JsonUtils {
      * @param convertArrayToType target collection type json arrays shall be converted to.
      * @param <T>                return type
      * @return converted Java object
-     * @see #convertObjectToMap(tools.jackson.databind.node.ObjectNode, Class)
+     * @see #convertObjectToMap(JsonObject, Class)
      */
     @SuppressWarnings("unchecked")
-    public static <T> T ofJsonNode(JsonNode jsonValue,
-                                   SerializableFunction<JsonNode, Object> toObjectCallback,
-                                   Collection<JsonNodeType> toObjectJsonTypes,
-                                   @SuppressWarnings("rawtypes") Class<? extends Collection> convertArrayToType) {
+    public static <T> T ofJsonValue(JsonValue jsonValue,
+                                    SerializableFunction<JsonValue, Object> toObjectCallback,
+                                    Collection<JsonType> toObjectJsonTypes,
+                                    @SuppressWarnings("rawtypes") Class<? extends Collection> convertArrayToType) {
         if (jsonValue == null) {
             return null;
         }
 
-        var type = jsonValue.getNodeType();
+        JsonType type = jsonValue.getType();
 
-        if (jsonValue.isObject()) {
+        if (type == JsonType.OBJECT) {
             return (T) toObjectCallback.apply(jsonValue);
         }
 
-        if (jsonValue.isArray() && jsonValue instanceof ArrayNode array) {
+        if (type == JsonType.ARRAY) {
             try {
-                Collection<?> collection = convertArrayToType.getConstructor().newInstance();
-                for (JsonNode item : array) {
-                    collection.add(JsonUtils.ofJsonNode(item, toObjectCallback, toObjectJsonTypes, convertArrayToType));
+                JsonArray array = (JsonArray) jsonValue;
+                Collection<Object> collection = (Collection<Object>) convertArrayToType.getConstructor().newInstance();
+                for (int i = 0; i < array.length(); i++) {
+                    collection.add(JsonUtils.ofJsonValue(array.get(i), toObjectCallback, toObjectJsonTypes, convertArrayToType));
                 }
                 return (T) collection;
             } catch (Exception e) {
@@ -303,17 +314,22 @@ public final class JsonUtils {
             return (T) toObjectCallback.apply(jsonValue);
         }
 
-        return switch (type) {
-            case STRING -> (T) jsonValue.asString();
-            case NUMBER -> (T) (Double) jsonValue.asDouble();
-            case BOOLEAN -> (T) (Boolean) jsonValue.asBoolean();
-            case NULL -> null;
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        };
+        switch (type) {
+            case STRING:
+                return (T) jsonValue.asString();
+            case NUMBER:
+                return (T) (Double) jsonValue.asNumber();
+            case BOOLEAN:
+                return (T) (Boolean) jsonValue.asBoolean();
+            case NULL:
+                return null;
+            default:
+                throw new IllegalStateException("Unexpected value: " + type);
+        }
     }
 
     /**
-     * Simple method, that converts a json object to a map. Calls {@link #ofJsonNode(JsonNode, Class)} for each
+     * Simple method, that converts a json object to a map. Calls {@link #ofJsonValue(JsonValue, Class)} for each
      * read value.
      *
      * @param object             object to read
@@ -321,20 +337,20 @@ public final class JsonUtils {
      * @return map
      */
     @SuppressWarnings({"rawtypes"})
-    public static Map<String, Object> convertObjectToMap(ObjectNode object, Class<? extends Collection> convertArrayToType) {
+    public static Map<String, Object> convertObjectToMap(JsonObject object, Class<? extends Collection> convertArrayToType) {
         Map<String, Object> map = new HashMap<>();
-        for (String property : object.propertyNames()) {
-            map.put(property, ofJsonNode(object.get(property), convertArrayToType));
+        for (String property : object.keys()) {
+            map.put(property, ofJsonValue(object.get(property), convertArrayToType));
         }
         return map;
     }
 
-    private static ObjectNode checkForObjectOrThrow(JsonNode value) {
-        if (!(value instanceof ObjectNode objectNode)) {
-            throw new IllegalArgumentException("Only ObjectNode) is supported. Given type is " + (value != null ? value.getNodeType() : " null"));
+    private static JsonObject checkForObjectOrThrow(JsonValue value) {
+        if (value == null || value.getType() != JsonType.OBJECT) {
+            throw new IllegalArgumentException("Only JsonObject is supported. Given type is " + (value != null ? value.getType() : " null"));
         }
 
-        return objectNode;
+        return (JsonObject) value;
     }
 
 }

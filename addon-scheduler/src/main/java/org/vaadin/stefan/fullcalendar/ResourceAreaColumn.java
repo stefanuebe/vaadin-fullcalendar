@@ -17,7 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.NonNull;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 /**
  * Represents a column definition for the resource area sidebar in timeline and vertical resource views.
@@ -318,25 +318,25 @@ public class ResourceAreaColumn {
      *
      * @return JSON object node
      */
-    public ObjectNode toJson() {
-        ObjectNode json = JsonFactory.createObject();
+    public JsonObject toJson() {
+        JsonObject json = JsonFactory.createObject();
         json.put("field", field);
         if (headerContent != null) serializeMixed(json, "headerContent", headerContent);
         if (width != null) json.put("width", width);
         if (group) json.put("group", true);
         if (headerClassNames != null) serializeMixed(json, "headerClassNames", headerClassNames);
-        if (headerDidMount != null) json.set("headerDidMount", headerDidMount.toMarkerJson());
-        if (headerWillUnmount != null) json.set("headerWillUnmount", headerWillUnmount.toMarkerJson());
+        if (headerDidMount != null) json.put("headerDidMount", headerDidMount.toMarkerJson());
+        if (headerWillUnmount != null) json.put("headerWillUnmount", headerWillUnmount.toMarkerJson());
         if (cellContent != null) serializeMixed(json, "cellContent", cellContent);
         if (cellClassNames != null) serializeMixed(json, "cellClassNames", cellClassNames);
-        if (cellDidMount != null) json.set("cellDidMount", cellDidMount.toMarkerJson());
-        if (cellWillUnmount != null) json.set("cellWillUnmount", cellWillUnmount.toMarkerJson());
+        if (cellDidMount != null) json.put("cellDidMount", cellDidMount.toMarkerJson());
+        if (cellWillUnmount != null) json.put("cellWillUnmount", cellWillUnmount.toMarkerJson());
         return json;
     }
 
-    private static void serializeMixed(ObjectNode json, String key, Object value) {
-        if (value instanceof JsCallback cb) {
-            json.set(key, cb.toMarkerJson());
+    private static void serializeMixed(JsonObject json, String key, Object value) {
+        if (value instanceof JsCallback) {
+            json.put(key, ((JsCallback) value).toMarkerJson());
         } else {
             json.put(key, (String) value);
         }

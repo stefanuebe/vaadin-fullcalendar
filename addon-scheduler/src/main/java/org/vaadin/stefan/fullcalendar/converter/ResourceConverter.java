@@ -2,8 +2,8 @@ package org.vaadin.stefan.fullcalendar.converter;
 
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.NullNode;
+import elemental.json.JsonType;
+import elemental.json.JsonValue;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,25 +18,25 @@ public class ResourceConverter implements JsonItemPropertyConverter<Set<Resource
     }
 
     @Override
-    public JsonNode toClientModel(Set<Resource> serverValue, ResourceEntry currentInstance) {
+    public JsonValue toClientModel(Set<Resource> serverValue, ResourceEntry currentInstance) {
         List<String> ids = serverValue.stream()
                 .map(Resource::getId)
                 .collect(Collectors.toList());
 
-        return JsonUtils.toJsonNode(ids);
+        return JsonUtils.toJsonValue(ids);
     }
 
     @Override
-    public Set<Resource> toServerModel(JsonNode clientValue, ResourceEntry currentInstance) {
+    public Set<Resource> toServerModel(JsonValue clientValue, ResourceEntry currentInstance) {
 
-        if (clientValue instanceof NullNode) {
+        if (clientValue.getType() == JsonType.NULL) {
             return new LinkedHashSet<>();
         }
 
         FullCalendarScheduler calendar = (FullCalendarScheduler) currentInstance.getCalendar()
                 .orElseThrow(() -> new IllegalStateException("Converting to server model requires an assigned scheduler instance"));
 
-        Object value = JsonUtils.ofJsonNode(clientValue);
+        Object value = JsonUtils.ofJsonValue(clientValue);
         if (value instanceof List) {
             return ((List<?>) value).stream()
                     .filter(Objects::nonNull)

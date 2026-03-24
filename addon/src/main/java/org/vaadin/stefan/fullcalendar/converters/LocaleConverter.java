@@ -1,7 +1,7 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import tools.jackson.databind.JsonNode;
 
 import java.util.Locale;
 
@@ -16,7 +16,7 @@ public class LocaleConverter implements JsonItemPropertyConverter<Locale, Object
     }
 
     @Override
-    public JsonNode toClientModel(Locale serverValue, Object currentInstance) {
-        return JsonUtils.toJsonNode(serverValue.toLanguageTag().toLowerCase());
+    public JsonValue toClientModel(Locale serverValue, Object currentInstance) {
+        return JsonUtils.toJsonValue(serverValue.toLanguageTag().toLowerCase());
     }
 }

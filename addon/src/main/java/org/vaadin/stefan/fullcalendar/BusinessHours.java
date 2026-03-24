@@ -18,7 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -206,13 +206,13 @@ public class BusinessHours {
      * Converts the given object into a json object.
      * @return json object
      */
-    public ObjectNode toJson() {
-        ObjectNode jsonObject = JsonFactory.createObject();
+    public JsonObject toJson() {
+        JsonObject jsonObject = JsonFactory.createObject();
 
-        jsonObject.set("daysOfWeek", JsonUtils.toJsonNode(dayOfWeeks.stream().map(BusinessHours::convertToClientSideDow)));
+        jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(dayOfWeeks.stream().map(BusinessHours::convertToClientSideDow)));
 
-        jsonObject.set("startTime", JsonUtils.toJsonNode(start));
-        jsonObject.set("endTime", JsonUtils.toJsonNode(end == LocalTime.MAX ? "24:00" : end));
+        jsonObject.put("startTime", JsonUtils.toJsonValue(start));
+        jsonObject.put("endTime", JsonUtils.toJsonValue(end == LocalTime.MAX ? "24:00" : end));
 
         return jsonObject;
     }

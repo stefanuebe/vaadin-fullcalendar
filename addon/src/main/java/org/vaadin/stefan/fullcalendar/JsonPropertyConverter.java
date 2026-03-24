@@ -1,7 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 
-import tools.jackson.databind.JsonNode;
+import elemental.json.JsonValue;
 
 /**
  * Converts a server side value to a json value and (optionally) vice versa.
@@ -9,9 +9,9 @@ import tools.jackson.databind.JsonNode;
  * @param <SERVER_TYPE>
  */
 public interface JsonPropertyConverter<SERVER_TYPE> {
-    JsonNode toJson(SERVER_TYPE serverValue);
+    JsonValue toJson(SERVER_TYPE serverValue);
 
-    default SERVER_TYPE ofJson(JsonNode clientValue) {
+    default SERVER_TYPE ofJson(JsonValue clientValue) {
         throw new UnsupportedOperationException("Conversion from client to server not implemented or supported");
     }
 }

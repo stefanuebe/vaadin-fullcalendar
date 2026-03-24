@@ -38,9 +38,10 @@ import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.model.Footer;
 import org.vaadin.stefan.fullcalendar.model.Header;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonType;
+import elemental.json.JsonValue;
 
 import java.io.Serializable;
 import java.time.*;
@@ -143,7 +144,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private final Map<String, ClientSideEventSource<?>> clientSideEventSourceRegistry = new LinkedHashMap<>();
 
     // ---- View-Specific Options ----
-    private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
+    private final Map<String, JsonObject> viewSpecificOptionsMap = new LinkedHashMap<>();
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
@@ -212,14 +213,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @throws NullPointerException when null is passed
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
-    public FullCalendar(ObjectNode initialOptions) {
-        if (initialOptions.hasNonNull("views")) {
-            ObjectNode views = (ObjectNode) initialOptions.get("views");
+    public FullCalendar(JsonObject initialOptions) {
+        if (initialOptions.hasKey("views") && initialOptions.get("views").getType() != JsonType.NULL) {
+            JsonObject views = initialOptions.getObject("views");
 
             // register custom views mentioned in the initial options
-            for (String viewName : views.propertyNames()) {
+            for (String viewName : views.keys()) {
                 // only register anonmyous views, if there is no real registered variant
-                ObjectNode viewSettings = (ObjectNode) views.get(viewName);
+                JsonObject viewSettings = views.getObject(viewName);
                 AnonymousCustomCalendarView anonymousView = new AnonymousCustomCalendarView(viewName, viewSettings);
                 this.customCalendarViews.put(anonymousView.getClientSideValue(), anonymousView);
             }
@@ -227,7 +228,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         this.getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
 
-        if (!initialOptions.hasNonNull(Option.LOCALE.getOptionKey())) {
+        if (!(initialOptions.hasKey(Option.LOCALE.getOptionKey()) && initialOptions.get(Option.LOCALE.getOptionKey()).getType() != JsonType.NULL)) {
             // fallback to prevent strange locale effects on the client side
             setLocale(CalendarLocale.getDefaultLocale());
         }
@@ -278,19 +279,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
                     // options. dont use the initialOptions map here, the component takes care of initialOptions itself
                     // since that is also cached as a property
-                    ObjectNode optionsJson = JsonFactory.createObject();
+                    JsonObject optionsJson = JsonFactory.createObject();
                     if (!options.isEmpty()) {
-                        options.forEach((key, value) -> optionsJson.set(key, JsonUtils.toJsonNode(value)));
+                        options.forEach((key, value) -> optionsJson.put(key, JsonUtils.toJsonValue(value)));
                     }
 
                     getElement().callJsFunction("restoreStateFromServer",
                             optionsJson,
-                            JsonUtils.toJsonNode(currentViewName),
-                            JsonUtils.toJsonNode(currentIntervalStart));
+                            JsonUtils.toJsonValue(currentViewName),
+                            JsonUtils.toJsonValue(currentIntervalStart));
 
                     if (!clientSideEventSourceRegistry.isEmpty()) {
-                        ArrayNode sourcesArray = JsonFactory.createArray();
-                        clientSideEventSourceRegistry.values().stream().map(ClientSideEventSource::toJson).forEach(sourcesArray::add);
+                        JsonArray sourcesArray = JsonFactory.createArray();
+                        clientSideEventSourceRegistry.values().stream().map(ClientSideEventSource::toJson)
+                                .forEach(item -> sourcesArray.set(sourcesArray.length(), item));
                         getElement().callJsFunction("restoreEventSources", sourcesArray);
                     }
 
@@ -447,16 +449,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     @ClientCallable
-    protected ArrayNode fetchEntriesFromServer(ObjectNode query) {
+    protected JsonArray fetchEntriesFromServer(JsonObject query) {
         Objects.requireNonNull(query);
         Objects.requireNonNull(entryProvider);
 
         lastFetchedEntries.clear();
 
-        LocalDateTime start = query.hasNonNull("start") ? JsonUtils.parseClientSideDateTime(query.get("start").asString()) : null;
-        LocalDateTime end = query.hasNonNull("end") ? JsonUtils.parseClientSideDateTime(query.get("end").asString()) : null;
+        LocalDateTime start = (query.hasKey("start") && query.get("start").getType() != JsonType.NULL) ? JsonUtils.parseClientSideDateTime(query.get("start").asString()) : null;
+        LocalDateTime end = (query.hasKey("end") && query.get("end").getType() != JsonType.NULL) ? JsonUtils.parseClientSideDateTime(query.get("end").asString()) : null;
 
-        ArrayNode array = JsonFactory.createArray();
+        JsonArray array = JsonFactory.createArray();
         entryProvider.fetch(new EntryQuery(start, end, EntryQuery.AllDay.BOTH))
                 .peek(entry -> {
                     entry.setCalendar(this);
@@ -464,7 +466,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                     lastFetchedEntries.put(entry.getId(), entry);
                 })
                 .map(Entry::toJson)
-                .forEach(array::add);
+                .forEach(item -> array.set(array.length(), item));
 
         return array;
     }
@@ -678,7 +680,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             for (JsonItemPropertyConverter<?, ?> c : converters) {
                 if (c.supports(value)) {
                     @SuppressWarnings("unchecked")
-                    JsonNode converted = ((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null);
+                    JsonValue converted = ((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null);
                     callOptionUpdate(option, converted,
                             valueForServerSide != null ? valueForServerSide : value,
                             "setOption");
@@ -694,8 +696,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         // 1. ENTRY_DID_MOUNT intercept: detect this key and route to merge logic
         if (Option.ENTRY_DID_MOUNT.getOptionKey().equals(option)) {
-            if (value instanceof JsCallback cb) {
-                userEntryDidMountCallback = cb;
+            if (value instanceof JsCallback) {
+                userEntryDidMountCallback = (JsCallback) value;
             } else {
                 userEntryDidMountCallback = null;
             }
@@ -705,7 +707,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         // 2. Convert JsCallback to marker JSON before the attached/not-attached split.
         //    Preserve original JsCallback for getOption() round-trip via serverSideOptions.
-        if (value instanceof JsCallback cb) {
+        if (value instanceof JsCallback) {
+            JsCallback cb = (JsCallback) value;
             if (valueForServerSide == null) {
                 valueForServerSide = cb;
             }
@@ -714,7 +717,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         // Auto-convert ClientSideValue implementations to their client-side string,
         // keeping the original typed object for server-side getOption() retrieval.
-        if (value instanceof ClientSideValue csv) {
+        if (value instanceof ClientSideValue) {
+            ClientSideValue csv = (ClientSideValue) value;
             if (valueForServerSide == null) {
                 valueForServerSide = value;
             }
@@ -745,7 +749,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             Object[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Object[]::new);
             getElement().callJsFunction(method, parameters);
         } else {
-            ObjectNode initialOptions = (ObjectNode) getElement().getPropertyRaw("initialOptions");
+            JsonObject initialOptions = (JsonObject) getElement().getPropertyRaw("initialOptions");
             if (initialOptions == null) {
                 initialOptions = JsonFactory.createObject();
                 getElement().setPropertyJson("initialOptions", initialOptions);
@@ -754,7 +758,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             if (value == null) {
                 initialOptions.remove(option);
             } else {
-                initialOptions.set(option, JsonUtils.toJsonNode(value));
+                initialOptions.put(option, JsonUtils.toJsonValue(value));
             }
         }
     }
@@ -1005,7 +1009,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             getElement().callJsFunction("setOption", "eventDidMount", JsCallback.of(merged).toMarkerJson());
         } else {
             // Explicitly clear the client-side callback when both user callback and native listeners are gone
-            getElement().callJsFunction("setOption", "eventDidMount", (JsonNode) null);
+            getElement().callJsFunction("setOption", "eventDidMount", (JsonValue) null);
         }
     }
 
@@ -1098,7 +1102,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public void setBusinessHours(BusinessHours... hours) {
         Objects.requireNonNull(hours);
 
-        setOption(Option.BUSINESS_HOURS, JsonUtils.toJsonNode(Arrays.stream(hours).map(BusinessHours::toJson)), hours);
+        setOption(Option.BUSINESS_HOURS, JsonUtils.toJsonValue(Arrays.stream(hours).map(BusinessHours::toJson)), hours);
     }
 
     /**
@@ -1857,8 +1861,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(sources, "sources must not be null");
         clientSideEventSourceRegistry.clear();
         sources.forEach(s -> clientSideEventSourceRegistry.put(s.getId(), s));
-        ArrayNode array = JsonFactory.createArray();
-        sources.stream().map(ClientSideEventSource::toJson).forEach(array::add);
+        JsonArray array = JsonFactory.createArray();
+        sources.stream().map(ClientSideEventSource::toJson)
+                .forEach(item -> array.set(array.length(), item));
         getElement().callJsFunction("setEventSources", array);
         return () -> setClientSideEventSources(java.util.Collections.emptyList());
     }
@@ -2099,7 +2104,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             throw new IllegalArgumentException("Start must be before end");
         }
 
-        ObjectNode jsonObject = JsonFactory.createObject();
+        JsonObject jsonObject = JsonFactory.createObject();
         if (start != null) {
             jsonObject.put("start", JsonUtils.formatClientSideDateString(start));
         }
@@ -2166,10 +2171,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             throw new UnsupportedOperationException("Custom views can only be set once");
         }
 
-        ObjectNode json = JsonFactory.createObject();
+        JsonObject json = JsonFactory.createObject();
         for (CustomCalendarView customCalendarView : customCalendarViews) {
             this.customCalendarViews.put(customCalendarView.getClientSideValue(), customCalendarView);
-            json.set(customCalendarView.getClientSideValue(), customCalendarView.getViewSettings());
+            json.put(customCalendarView.getClientSideValue(), customCalendarView.getViewSettings());
         }
 
         this.getElement().setPropertyJson("customViews", json);
@@ -2339,10 +2344,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                                       @SuppressWarnings("rawtypes") JsonItemPropertyConverter... converters) {
         Objects.requireNonNull(viewType, "viewType must not be null");
         Objects.requireNonNull(optionKey, "optionKey must not be null");
-        ObjectNode viewNode = viewSpecificOptionsMap.computeIfAbsent(viewType, k -> JsonFactory.createObject());
+        JsonObject viewNode = viewSpecificOptionsMap.computeIfAbsent(viewType, k -> JsonFactory.createObject());
         if (value == null) {
             viewNode.remove(optionKey);
-            if (viewNode.isEmpty()) {
+            if (viewNode.keys().length == 0) {
                 viewSpecificOptionsMap.remove(viewType);
             }
         } else {
@@ -2350,12 +2355,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             for (JsonItemPropertyConverter<?, ?> c : converters) {
                 if (c.supports(value)) {
                     @SuppressWarnings("unchecked")
-                    JsonNode converted = ((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null);
+                    JsonValue converted = ((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null);
                     clientValue = converted;
                     break;
                 }
             }
-            viewNode.set(optionKey, JsonUtils.toJsonNode(clientValue));
+            viewNode.put(optionKey, JsonUtils.toJsonValue(clientValue));
         }
         syncViewSpecificOptions();
     }
@@ -2410,8 +2415,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         if (viewSpecificOptionsMap.isEmpty()) {
             setOption("views", null);
         } else {
-            ObjectNode viewsNode = JsonFactory.createObject();
-            viewSpecificOptionsMap.forEach(viewsNode::set);
+            JsonObject viewsNode = JsonFactory.createObject();
+            viewSpecificOptionsMap.forEach(viewsNode::put);
             setOption("views", viewsNode);
         }
     }
@@ -4337,10 +4342,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         /**
          * If this option has one or more {@link JsonConverter} annotations and the given value is
-         * supported by one of them, returns the converted {@link JsonNode}. Otherwise returns empty.
+         * supported by one of them, returns the converted {@link JsonValue}. Otherwise returns empty.
          */
         @SuppressWarnings("unchecked")
-        public Optional<JsonNode> convertValue(Object value) {
+        public Optional<JsonValue> convertValue(Object value) {
             for (JsonItemPropertyConverter<?, ?> c : getConverters()) {
                 if (c.supports(value)) {
                     return Optional.of(((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null));

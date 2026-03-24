@@ -20,7 +20,7 @@ import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 import lombok.ToString;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.time.LocalDateTime;
 
@@ -62,8 +62,8 @@ public class ExternalEntryResizedEvent extends ExternalEntryEvent {
      * @param sourceId    id of the ClientSideEventSource
      */
     public ExternalEntryResizedEvent(FullCalendar source, boolean fromClient,
-                                     @EventData("event.detail.data") ObjectNode entryData,
-                                     @EventData("event.detail.delta") ObjectNode jsonDelta,
+                                     @EventData("event.detail.data") JsonObject entryData,
+                                     @EventData("event.detail.delta") JsonObject jsonDelta,
                                      @EventData("event.detail.sourceId") String sourceId) {
         super(source, fromClient, entryData, sourceId);
         this.delta = Delta.fromJson(jsonDelta);

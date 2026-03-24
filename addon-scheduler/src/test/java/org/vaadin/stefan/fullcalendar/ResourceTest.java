@@ -3,8 +3,9 @@ package org.vaadin.stefan.fullcalendar;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonType;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -238,12 +239,12 @@ public class ResourceTest {
     void testToJson() {
         Resource parent = new Resource(PARENT + DEFAULT_ID, PARENT + DEFAULT_TITLE, PARENT + DEFAULT_COLOR);
 
-        ObjectNode parentJson = parent.toJson();
-        Assertions.assertTrue(parentJson.has("id"), "json has id");
-        Assertions.assertTrue(parentJson.has("title"), "json has title");
-        Assertions.assertTrue(parentJson.has("eventColor"), "json has eventColor");
-        Assertions.assertFalse(parentJson.has("parentId"), "json has not parent");
-        Assertions.assertFalse(parentJson.has("children"), "json has no children");
+        JsonObject parentJson = parent.toJson();
+        Assertions.assertTrue(parentJson.hasKey("id"), "json has id");
+        Assertions.assertTrue(parentJson.hasKey("title"), "json has title");
+        Assertions.assertTrue(parentJson.hasKey("eventColor"), "json has eventColor");
+        Assertions.assertFalse(parentJson.hasKey("parentId"), "json has not parent");
+        Assertions.assertFalse(parentJson.hasKey("children"), "json has no children");
 
         Assertions.assertEquals(PARENT + DEFAULT_ID, parentJson.get("id").asString(), "json id value");
         Assertions.assertEquals(PARENT + DEFAULT_TITLE, parentJson.get("title").asString(), "json title value");
@@ -260,22 +261,22 @@ public class ResourceTest {
         child1.addChildren(child11);
 
         parentJson = parent.toJson();
-        Assertions.assertTrue(parentJson.has("children"), "json has children");
+        Assertions.assertTrue(parentJson.hasKey("children"), "json has children");
 
-        Assertions.assertTrue(parentJson.get("children") instanceof ArrayNode, "json children is array");
+        Assertions.assertEquals(JsonType.ARRAY, parentJson.get("children").getType(), "json children is array");
 
-        ArrayNode parentChildrenJson = (ArrayNode) parentJson.get("children");
-        Assertions.assertEquals(2, parentChildrenJson.size(), "parent children size");
+        JsonArray parentChildrenJson = (JsonArray) parentJson.get("children");
+        Assertions.assertEquals(2, parentChildrenJson.length(), "parent children size");
 
-        for (int i = 0; i < parentChildrenJson.size(); i++) {
-            Assertions.assertTrue(parentChildrenJson.get(i) instanceof ObjectNode, "child is ObjectNode");
+        for (int i = 0; i < parentChildrenJson.length(); i++) {
+            Assertions.assertEquals(JsonType.OBJECT, parentChildrenJson.get(i).getType(), "child is JsonObject");
 
-            ObjectNode childJson = (ObjectNode) parentChildrenJson.get(i);
+            JsonObject childJson = (JsonObject) parentChildrenJson.get(i);
 
-            Assertions.assertTrue(childJson.has("id"), "child " + (i + 1) + "json has id");
-            Assertions.assertTrue(childJson.has("title"), "child " + (i + 1) + "json has title");
-            Assertions.assertTrue(childJson.has("eventColor"), "child " + (i + 1) + "json has eventColor");
-            Assertions.assertTrue(childJson.has("parentId"), "child " + (i + 1) + "json has parent");
+            Assertions.assertTrue(childJson.hasKey("id"), "child " + (i + 1) + "json has id");
+            Assertions.assertTrue(childJson.hasKey("title"), "child " + (i + 1) + "json has title");
+            Assertions.assertTrue(childJson.hasKey("eventColor"), "child " + (i + 1) + "json has eventColor");
+            Assertions.assertTrue(childJson.hasKey("parentId"), "child " + (i + 1) + "json has parent");
 
             Assertions.assertEquals(CHILD + (i + 1) + DEFAULT_ID, childJson.get("id").asString(), "child " + (i + 1) + " id value");
             Assertions.assertEquals(CHILD + (i + 1) + DEFAULT_TITLE, childJson.get("title").asString(), "child " + (i + 1) + " title value");
@@ -285,27 +286,27 @@ public class ResourceTest {
 
             // child 1 will be checked separately
             if (i != 0) { // I know, not a beautiful solution, but I don't care at this moment :D
-                Assertions.assertFalse(childJson.has("children"), "child " + (i + 1) + "json has no children");
+                Assertions.assertFalse(childJson.hasKey("children"), "child " + (i + 1) + "json has no children");
             }
         }
 
         // Check child 1's children
 
-        ObjectNode child1Json = (ObjectNode) parentChildrenJson.get(0);
-        Assertions.assertTrue(child1Json.has("children"), "json child 1 has children");
-        Assertions.assertTrue(child1Json.get("children") instanceof ArrayNode, "json child 1 children is array");
+        JsonObject child1Json = (JsonObject) parentChildrenJson.get(0);
+        Assertions.assertTrue(child1Json.hasKey("children"), "json child 1 has children");
+        Assertions.assertEquals(JsonType.ARRAY, child1Json.get("children").getType(), "json child 1 children is array");
 
-        ArrayNode child1ChildrenJson = (ArrayNode) child1Json.get("children");
-        Assertions.assertEquals(1, child1ChildrenJson.size(), "json child 1 children size");
+        JsonArray child1ChildrenJson = (JsonArray) child1Json.get("children");
+        Assertions.assertEquals(1, child1ChildrenJson.length(), "json child 1 children size");
 
-        Assertions.assertTrue(child1ChildrenJson.get(0) instanceof ObjectNode, "json child 1_1 is ObjectNode");
+        Assertions.assertEquals(JsonType.OBJECT, child1ChildrenJson.get(0).getType(), "json child 1_1 is JsonObject");
 
-        ObjectNode child11Json = (ObjectNode) child1ChildrenJson.get(0);
+        JsonObject child11Json = (JsonObject) child1ChildrenJson.get(0);
 
-        Assertions.assertTrue(child11Json.has("id"), "child 1_1 json has id");
-        Assertions.assertTrue(child11Json.has("title"), "child 1_1 json has title");
-        Assertions.assertTrue(child11Json.has("eventColor"), "child 1_1 json has eventColor");
-        Assertions.assertTrue(child11Json.has("parentId"), "child 1_1 json has parent");
+        Assertions.assertTrue(child11Json.hasKey("id"), "child 1_1 json has id");
+        Assertions.assertTrue(child11Json.hasKey("title"), "child 1_1 json has title");
+        Assertions.assertTrue(child11Json.hasKey("eventColor"), "child 1_1 json has eventColor");
+        Assertions.assertTrue(child11Json.hasKey("parentId"), "child 1_1 json has parent");
 
         Assertions.assertEquals(CHILD1_1 + DEFAULT_ID, child11Json.get("id").asString(), "child 1_1  id value");
         Assertions.assertEquals(CHILD1_1 + DEFAULT_TITLE, child11Json.get("title").asString(), "child 1_1  title value");
@@ -313,7 +314,7 @@ public class ResourceTest {
 
         Assertions.assertEquals(CHILD1 + DEFAULT_ID, child11Json.get("parentId").asString(), "child 1_1  parent id value");
 
-        Assertions.assertFalse(child11Json.has("children"), "child 1_1 json has no children");
+        Assertions.assertFalse(child11Json.hasKey("children"), "child 1_1 json has no children");
     }
 
     // -------------------------------------------------------------------------
@@ -338,16 +339,16 @@ public class ResourceTest {
     void eventAllow_inJson_whenSet() {
         Resource resource = new Resource("r1", "Room 1", null);
         resource.setEntryAllow("function() { return false; }");
-        ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventAllow"), "eventAllow should be in JSON when set");
-        Assertions.assertTrue(json.get("eventAllow").isObject(), "eventAllow should be a JsCallback marker object");
-        Assertions.assertEquals("function() { return false; }", json.get("eventAllow").get("__jsCallback").asString());
+        JsonObject json = resource.toJson();
+        Assertions.assertTrue(json.hasKey("eventAllow"), "eventAllow should be in JSON when set");
+        Assertions.assertEquals(JsonType.OBJECT, json.get("eventAllow").getType(), "eventAllow should be a JsCallback marker object");
+        Assertions.assertEquals("function() { return false; }", ((JsonObject) json.get("eventAllow")).get("__jsCallback").asString());
     }
 
     @Test
     void eventAllow_notInJson_whenNull() {
         Resource resource = new Resource("r1", "Room 1", null);
-        ObjectNode json = resource.toJson();
-        Assertions.assertFalse(json.has("eventAllow"), "eventAllow should not be in JSON when null");
+        JsonObject json = resource.toJson();
+        Assertions.assertFalse(json.hasKey("eventAllow"), "eventAllow should not be in JSON when null");
     }
 }

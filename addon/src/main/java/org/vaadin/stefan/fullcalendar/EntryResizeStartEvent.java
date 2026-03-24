@@ -19,7 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.ToString;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 /**
  * Fires when the user begins resizing an entry. Complements {@link EntryResizedEvent}, which only fires when
@@ -45,7 +45,7 @@ public class EntryResizeStartEvent extends EntryDataEvent {
      * @param fromClient is from client
      * @param entryData  entry data
      */
-    public EntryResizeStartEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
+    public EntryResizeStartEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject entryData) {
         super(source, fromClient, entryData);
     }
 }

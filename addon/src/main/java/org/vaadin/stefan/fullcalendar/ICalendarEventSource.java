@@ -17,7 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.Objects;
 
@@ -55,8 +55,8 @@ public class ICalendarEventSource extends ClientSideEventSource<ICalendarEventSo
     }
 
     @Override
-    public ObjectNode toJson() {
-        ObjectNode json = JsonFactory.createObject();
+    public JsonObject toJson() {
+        JsonObject json = JsonFactory.createObject();
         addCommonToJson(json);
         json.put("url", url);
         json.put("format", "ics");

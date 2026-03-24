@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
@@ -32,9 +31,9 @@ import org.vaadin.stefan.fullcalendar.json.JsonIgnore;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.json.JsonReadField;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.NullNode;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
+import elemental.json.JsonType;
+import elemental.json.JsonValue;
 
 import java.lang.reflect.Field;
 import java.time.*;
@@ -238,29 +237,29 @@ public class Entry {
      * @return json
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public ObjectNode toJson() {
+    public JsonObject toJson() {
         // The toJson is implemented in a dynamic fashion to not need to extend it every time a
         // new property comes out.
 
-        ObjectNode json = JsonFactory.createObject();
+        JsonObject json = JsonFactory.createObject();
 
         streamProperties().forEach(def -> {
             // Use cached annotation data from BeanProperties for performance
             if (!def.isJsonIgnored()) {
                 Object value = def.getGetter().apply(this);
 
-                JsonNode jsonValue;
+                JsonValue jsonValue;
 
                 JsonItemPropertyConverter converter = def.getConverter();
 
                 if (converter != null && converter.supports(value)) {
                     jsonValue = converter.toClientModel(value, this);
                 } else {
-                    jsonValue = JsonUtils.toJsonNode(value);
+                    jsonValue = JsonUtils.toJsonValue(value);
                 }
 
-                if (jsonValue != null && !(jsonValue instanceof NullNode)) {
-                    json.set(def.getJsonName(), jsonValue);
+                if (jsonValue != null && jsonValue.getType() != JsonType.NULL) {
+                    json.put(def.getJsonName(), jsonValue);
                 }
             }
         });
@@ -273,7 +272,7 @@ public class Entry {
      * Throws an exception, when the given json object has not the same id as this instance.
      * @param jsonObject json object
      */
-    public void updateFromJson(ObjectNode jsonObject) {
+    public void updateFromJson(JsonObject jsonObject) {
         updateFromJson(jsonObject, true);
     }
 
@@ -286,9 +285,9 @@ public class Entry {
      * @param requiresMatchingId require the ids to match
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void updateFromJson(ObjectNode jsonObject, boolean requiresMatchingId) {
+    public void updateFromJson(JsonObject jsonObject, boolean requiresMatchingId) {
         if (requiresMatchingId) {
-            if (!jsonObject.hasNonNull(Fields.ID)) {
+            if (!(jsonObject.hasKey(Fields.ID) && jsonObject.get(Fields.ID).getType() != JsonType.NULL)) {
                 throw new IllegalArgumentException("JsonObject has no id. Id matching is required.");
             }
 
@@ -308,16 +307,16 @@ public class Entry {
 
                 String jsonName = def.getJsonName();
 
-                if (jsonObject.hasNonNull(jsonName)) {
+                if (jsonObject.hasKey(jsonName) && jsonObject.get(jsonName).getType() != JsonType.NULL) {
                     JsonItemPropertyConverter converter = def.getConverter();
 
                     Object newValue;
-                    JsonNode jsonValue = jsonObject.get(jsonName);
+                    JsonValue jsonValue = jsonObject.get(jsonName);
 
                     if (converter != null) {
                         newValue = converter.toServerModel(jsonValue, this);
                     } else {
-                        newValue = JsonUtils.ofJsonNode(jsonValue);
+                        newValue = JsonUtils.ofJsonValue(jsonValue);
                     }
 
                     setter.accept(this, newValue);
@@ -332,8 +331,8 @@ public class Entry {
      * @param jsonObject json object to check
      * @return is a valid source
      */
-    protected boolean isValidJsonSource(ObjectNode jsonObject) {
-        return jsonObject.hasNonNull(Fields.ID) && Objects.equals(jsonObject.get(Fields.ID).asString(), getId());
+    protected boolean isValidJsonSource(JsonObject jsonObject) {
+        return jsonObject.hasKey(Fields.ID) && jsonObject.get(Fields.ID).getType() != JsonType.NULL && Objects.equals(jsonObject.get(Fields.ID).asString(), getId());
     }
 
     /**
@@ -474,8 +473,8 @@ public class Entry {
      *
      * @return json object representing this instance
      */
-    public ObjectNode toJsonWithIdOnly() {
-        ObjectNode jsonObject = JsonFactory.createObject();
+    public JsonObject toJsonWithIdOnly() {
+        JsonObject jsonObject = JsonFactory.createObject();
         jsonObject.put(Fields.ID, getId());
         return jsonObject;
     }
@@ -1015,7 +1014,7 @@ public class Entry {
 
     /**
      * Returns the current constraint value. This may be a {@code String} (groupId or {@code "businessHours"})
-     * or a {@link BusinessHours} JSON representation ({@code ObjectNode}).
+     * or a {@link BusinessHours} JSON representation ({@code JsonObject}).
      *
      * @return constraint value, or {@code null} if unset
      */

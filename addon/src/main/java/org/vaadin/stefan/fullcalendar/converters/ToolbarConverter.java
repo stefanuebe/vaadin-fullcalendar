@@ -1,7 +1,7 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.model.AbstractHeaderFooter;
-import tools.jackson.databind.JsonNode;
 
 /**
  * Converts a {@link AbstractHeaderFooter} (Header or Footer) to its JSON representation
@@ -15,7 +15,7 @@ public class ToolbarConverter implements JsonItemPropertyConverter<AbstractHeade
     }
 
     @Override
-    public JsonNode toClientModel(AbstractHeaderFooter serverValue, Object currentInstance) {
+    public JsonValue toClientModel(AbstractHeaderFooter serverValue, Object currentInstance) {
         return serverValue.toJson();
     }
 }

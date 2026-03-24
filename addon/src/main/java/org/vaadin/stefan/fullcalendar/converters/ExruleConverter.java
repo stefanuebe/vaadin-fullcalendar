@@ -1,10 +1,10 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonArray;
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.RRule;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
 
 import java.util.Collection;
 
@@ -21,16 +21,16 @@ public class ExruleConverter<T extends Entry> implements JsonItemPropertyConvert
     }
 
     @Override
-    public JsonNode toClientModel(Collection<RRule> serverValue, T currentInstance) {
+    public JsonValue toClientModel(Collection<RRule> serverValue, T currentInstance) {
         if (serverValue == null || serverValue.isEmpty()) {
             return null;
         }
         if (serverValue.size() == 1) {
             return serverValue.iterator().next().toJson();
         }
-        ArrayNode array = JsonFactory.createArray();
+        JsonArray array = JsonFactory.createArray();
         for (RRule rule : serverValue) {
-            array.add(rule.toJson());
+            array.set(array.length(), rule.toJson());
         }
         return array;
     }

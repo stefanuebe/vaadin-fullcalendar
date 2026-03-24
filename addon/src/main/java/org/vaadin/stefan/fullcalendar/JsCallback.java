@@ -16,7 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -99,10 +99,10 @@ public class JsCallback implements Serializable {
      * Produces the JSON marker object that the client recognises as a JsCallback.
      * The marker has the form {@code {"__jsCallback": "function..."}}.
      *
-     * @return ObjectNode marker
+     * @return JsonObject marker
      */
-    public ObjectNode toMarkerJson() {
-        ObjectNode marker = JsonFactory.createObject();
+    public JsonObject toMarkerJson() {
+        JsonObject marker = JsonFactory.createObject();
         marker.put("__jsCallback", jsFunction);
         return marker;
     }

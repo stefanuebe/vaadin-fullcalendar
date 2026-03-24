@@ -18,9 +18,10 @@ package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
 import lombok.ToString;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonType;
+import elemental.json.JsonValue;
 
 import java.util.*;
 import java.util.function.Function;
@@ -37,7 +38,7 @@ public abstract class MultipleEntriesDataEvent extends MultipleEntriesEvent {
     /**
      * A map containing each entry's json object, which represents the sent data from the client.
      */
-    private final Map<Entry, ObjectNode> jsonObjects;
+    private final Map<Entry, JsonObject> jsonObjects;
 
     /**
      * New instance. Awaits the changed data object.
@@ -45,17 +46,19 @@ public abstract class MultipleEntriesDataEvent extends MultipleEntriesEvent {
      * @param fromClient is from client
      * @param jsonObjects json object with changed data
      */
-    public MultipleEntriesDataEvent(FullCalendar source, boolean fromClient, ArrayNode jsonObjects) {
+    public MultipleEntriesDataEvent(FullCalendar source, boolean fromClient, JsonArray jsonObjects) {
         super(source, fromClient, toCollection(Objects.requireNonNull(jsonObjects)));
         this.jsonObjects = toMap(jsonObjects);
     }
 
-    private Map<Entry, ObjectNode> toMap(ArrayNode jsonObjects) {
+    private Map<Entry, JsonObject> toMap(JsonArray jsonObjects) {
         Map<String, Entry> entries = getEntries().stream().collect(Collectors.toMap(Entry::getId, Function.identity()));
 
-        Map<Entry, ObjectNode> map = new HashMap<>(jsonObjects.size());
-        for (JsonNode node : jsonObjects) {
-            if(node instanceof ObjectNode jsonObject) {
+        Map<Entry, JsonObject> map = new HashMap<>(jsonObjects.length());
+        for (int i = 0; i < jsonObjects.length(); i++) {
+            JsonValue node = jsonObjects.get(i);
+            if (node.getType() == JsonType.OBJECT) {
+                JsonObject jsonObject = (JsonObject) node;
                 Entry entry = entries.get(jsonObject.get("id").asString());
                 map.put(entry, jsonObject);
             }
@@ -64,19 +67,20 @@ public abstract class MultipleEntriesDataEvent extends MultipleEntriesEvent {
         return map;
     }
 
-    private static Collection<String> toCollection(ArrayNode jsonObjects) {
-        Set<String> ids = new HashSet<>(jsonObjects.size());
-        for (JsonNode node : jsonObjects) {
-            if (!(node instanceof ObjectNode objectNode)) {
+    private static Collection<String> toCollection(JsonArray jsonObjects) {
+        Set<String> ids = new HashSet<>(jsonObjects.length());
+        for (int i = 0; i < jsonObjects.length(); i++) {
+            JsonValue node = jsonObjects.get(i);
+            if (!(node.getType() == JsonType.OBJECT)) {
                 throw new IllegalArgumentException("Only json objects are allowed as direct children");
             }
-            String id = (objectNode).get("id").asString();
+            JsonObject objectNode = (JsonObject) node;
+            String id = objectNode.get("id").asString();
             if (id == null) {
                 throw new IllegalArgumentException("Only valid entry objects are allowed (must have an id)");
             }
 
             ids.add(id);
-
         }
         return ids;
     }

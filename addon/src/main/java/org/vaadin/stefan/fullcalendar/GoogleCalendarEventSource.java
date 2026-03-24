@@ -17,7 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.Objects;
 
@@ -75,8 +75,8 @@ public class GoogleCalendarEventSource extends ClientSideEventSource<GoogleCalen
     }
 
     @Override
-    public ObjectNode toJson() {
-        ObjectNode json = JsonFactory.createObject();
+    public JsonObject toJson() {
+        JsonObject json = JsonFactory.createObject();
         addCommonToJson(json);
         json.put("googleCalendarId", googleCalendarId);
         if (googleCalendarApiKey != null) json.put("googleCalendarApiKey", googleCalendarApiKey);

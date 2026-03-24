@@ -1,7 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -111,7 +111,7 @@ public class ResourceEntryCopyTest {
         entry.setEnd(LocalDateTime.of(2026, 3, 1, 12, 0));
         entry.setAllDay(false);
 
-        ObjectNode json = JsonFactory.createObject();
+        JsonObject json = JsonFactory.createObject();
         json.put("id", "e1");
         json.put("start", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2026, 3, 2, 9, 0)));
         json.put("end", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2026, 3, 2, 11, 0)));
@@ -131,7 +131,7 @@ public class ResourceEntryCopyTest {
         ResourceEntry entry = new ResourceEntry("e2");
         entry.setResourceEditable(false);
 
-        ObjectNode json = JsonFactory.createObject();
+        JsonObject json = JsonFactory.createObject();
         json.put("id", "e2");
         json.put("allDay", false);
 
@@ -155,7 +155,7 @@ public class ResourceEntryCopyTest {
         // simulate createCopyBasedOnChanges
         ResourceEntry copy = entry.copy();
 
-        ObjectNode json = JsonFactory.createObject();
+        JsonObject json = JsonFactory.createObject();
         json.put("id", "e3");
         json.put("start", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2026, 3, 11, 14, 0)));
         json.put("end", JsonUtils.formatClientSideDateTimeString(LocalDateTime.of(2026, 3, 11, 16, 0)));

@@ -18,8 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
 import lombok.NonNull;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonValue;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -497,16 +496,16 @@ public class RRule {
     }
 
     /**
-     * Serializes this RRule to a JsonNode for sending to the FC client.
+     * Serializes this RRule to a JsonValue for sending to the FC client.
      * <ul>
-     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a StringNode.</li>
-     *   <li>Otherwise, returns an ObjectNode with the structured properties.</li>
+     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a string JsonValue.</li>
+     *   <li>Otherwise, returns a string JsonValue with the structured properties as an RRULE string.</li>
      * </ul>
      *
-     * @return JsonNode representing this RRule
+     * @return JsonValue representing this RRule
      */
-    public JsonNode toJson() {
-        return JsonUtils.toJsonNode(toRRuleString());
+    public JsonValue toJson() {
+        return JsonUtils.toJsonValue(toRRuleString());
     }
 
     /**

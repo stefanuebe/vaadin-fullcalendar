@@ -18,7 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEvent;
 import lombok.Getter;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 /**
  * Base class for events fired when an entry from a <em>client-managed</em> event source
@@ -50,7 +50,7 @@ public abstract class ExternalEntryEvent extends ComponentEvent<FullCalendar> {
      * @param sourceId   id of the ClientSideEventSource
      */
     protected ExternalEntryEvent(FullCalendar source, boolean fromClient,
-                                 ObjectNode entryData, String sourceId) {
+                                 JsonObject entryData, String sourceId) {
         super(source, fromClient);
         Entry e = new Entry();
         e.updateFromJson(entryData, false);

@@ -19,7 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.ToString;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 /**
  * Fires when a calendar entry is dragged from this calendar to another calendar instance.
@@ -43,7 +43,7 @@ public class EntryLeaveEvent extends EntryDataEvent {
      * @param fromClient is from client
      * @param entryData  entry data
      */
-    public EntryLeaveEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") ObjectNode entryData) {
+    public EntryLeaveEvent(FullCalendar source, boolean fromClient, @EventData("event.detail.data") JsonObject entryData) {
         super(source, fromClient, entryData);
     }
 }

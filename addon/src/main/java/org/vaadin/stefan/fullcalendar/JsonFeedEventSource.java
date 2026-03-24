@@ -17,7 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.Map;
 import java.util.Objects;
@@ -144,8 +144,8 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
     }
 
     @Override
-    public ObjectNode toJson() {
-        ObjectNode json = JsonFactory.createObject();
+    public JsonObject toJson() {
+        JsonObject json = JsonFactory.createObject();
         addCommonToJson(json);
         json.put("url", url);
         json.put("method", method);
@@ -153,9 +153,9 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
         if (endParam != null) json.put("endParam", endParam);
         if (timeZoneParam != null) json.put("timeZoneParam", timeZoneParam);
         if (extraParams != null && !extraParams.isEmpty()) {
-            ObjectNode paramsNode = JsonFactory.createObject();
-            extraParams.forEach((k, v) -> paramsNode.set(k, JsonUtils.toJsonNode(v)));
-            json.set("extraParams", paramsNode);
+            JsonObject paramsNode = JsonFactory.createObject();
+            extraParams.forEach((k, v) -> paramsNode.put(k, JsonUtils.toJsonValue(v)));
+            json.put("extraParams", paramsNode);
         }
         return json;
     }

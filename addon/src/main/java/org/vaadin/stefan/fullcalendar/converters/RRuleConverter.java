@@ -1,9 +1,9 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.RRule;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.NullNode;
 
 /**
  * Converts an {@link RRule} instance to its JSON representation for the FC client.
@@ -17,9 +17,9 @@ public class RRuleConverter implements JsonItemPropertyConverter<RRule, Entry> {
     }
 
     @Override
-    public JsonNode toClientModel(RRule serverValue, Entry currentInstance) {
+    public JsonValue toClientModel(RRule serverValue, Entry currentInstance) {
         if (serverValue == null) {
-            return NullNode.getInstance();
+            return JsonFactory.createNull();
         }
         return serverValue.toJson();
     }

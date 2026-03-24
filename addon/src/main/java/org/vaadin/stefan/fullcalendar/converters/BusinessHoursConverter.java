@@ -1,9 +1,9 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonArray;
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.BusinessHours;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
 
 /**
  * Converts {@link BusinessHours} or {@link BusinessHours}{@code []} to their JSON representation
@@ -17,17 +17,19 @@ public class BusinessHoursConverter implements JsonItemPropertyConverter<Object,
     }
 
     @Override
-    public JsonNode toClientModel(Object serverValue, Object currentInstance) {
-        if (serverValue instanceof BusinessHours bh) {
+    public JsonValue toClientModel(Object serverValue, Object currentInstance) {
+        if (serverValue instanceof BusinessHours) {
+            BusinessHours bh = (BusinessHours) serverValue;
             return bh.toJson();
         }
-        if (serverValue instanceof BusinessHours[] arr) {
+        if (serverValue instanceof BusinessHours[]) {
+            BusinessHours[] arr = (BusinessHours[]) serverValue;
             if (arr.length == 1) {
                 return arr[0].toJson();
             }
-            ArrayNode array = JsonFactory.createArray();
+            JsonArray array = JsonFactory.createArray();
             for (BusinessHours bh : arr) {
-                array.add(bh.toJson());
+                array.set(array.length(), bh.toJson());
             }
             return array;
         }

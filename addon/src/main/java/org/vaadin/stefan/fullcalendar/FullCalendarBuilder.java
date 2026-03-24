@@ -20,7 +20,7 @@ import com.vaadin.flow.component.UI;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.*;
 
@@ -34,7 +34,7 @@ public class FullCalendarBuilder {
     private boolean scheduler;
     private int entryLimit;
     private String schedulerLicenseKey;
-    private ObjectNode initialOptions;
+    private JsonObject initialOptions;
     private EntryProvider<Entry> entryProvider;
     private Class<? extends FullCalendar> customType;
     private Collection<Entry> initialEntries;
@@ -191,7 +191,7 @@ public class FullCalendarBuilder {
      * @throws NullPointerException when null is passed
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
-    public FullCalendarBuilder withInitialOptions(ObjectNode initialOptions) {
+    public FullCalendarBuilder withInitialOptions(JsonObject initialOptions) {
         this.initialOptions = initialOptions;
         return this;
     }
@@ -388,7 +388,7 @@ public class FullCalendarBuilder {
         if (initialOptions != null) {
             FullCalendar calendar;
             try {
-                calendar = customType != null ? customType.getDeclaredConstructor(ObjectNode.class).newInstance(initialOptions) : new FullCalendar(initialOptions);
+                calendar = customType != null ? customType.getDeclaredConstructor(JsonObject.class).newInstance(initialOptions) : new FullCalendar(initialOptions);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -417,7 +417,7 @@ public class FullCalendarBuilder {
             FullCalendar scheduler;
 
             if (initialOptions != null) {
-                scheduler = (FullCalendar) loadClass.getDeclaredConstructor(ObjectNode.class).newInstance(this.initialOptions);
+                scheduler = (FullCalendar) loadClass.getDeclaredConstructor(JsonObject.class).newInstance(this.initialOptions);
             } else {
                 scheduler = (FullCalendar) loadClass.getDeclaredConstructor().newInstance();
             }

@@ -1,9 +1,8 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import tools.jackson.databind.JsonNode;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -16,20 +15,24 @@ public class StringArrayConverter implements JsonItemPropertyConverter<Object, O
     @Override
     public boolean supports(Object type) {
         if (type instanceof String[]) return true;
-        if (type instanceof Collection<?> c) return c.stream().allMatch(e -> e instanceof String);
+        if (type instanceof Collection) {
+            Collection<?> c = (Collection<?>) type;
+            return c.stream().allMatch(e -> e instanceof String);
+        }
         return false;
     }
 
     @Override
-    public JsonNode toClientModel(Object serverValue, Object currentInstance) {
+    public JsonValue toClientModel(Object serverValue, Object currentInstance) {
         String joined;
-        if (serverValue instanceof String[] arr) {
+        if (serverValue instanceof String[]) {
+            String[] arr = (String[]) serverValue;
             joined = String.join(",", arr);
         } else {
             @SuppressWarnings("unchecked")
             Collection<String> col = (Collection<String>) serverValue;
             joined = String.join(",", col);
         }
-        return JsonUtils.toJsonNode(joined);
+        return JsonUtils.toJsonValue(joined);
     }
 }

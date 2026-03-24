@@ -4,7 +4,9 @@ import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonType;
 
 import java.util.Collection;
 import java.util.List;
@@ -86,13 +88,13 @@ public class EventSourcesTest {
     @Test
     void jsonFeedEventSource_toJson_hasUrl() {
         JsonFeedEventSource source = new JsonFeedEventSource("/api/events");
-        ObjectNode json = source.toJson();
+        JsonObject json = source.toJson();
         assertEquals("/api/events", json.get("url").asString());
     }
 
     @Test
     void jsonFeedEventSource_toJson_hasDefaultMethod() {
-        ObjectNode json = new JsonFeedEventSource("/api/events").toJson();
+        JsonObject json = new JsonFeedEventSource("/api/events").toJson();
         assertEquals("GET", json.get("method").asString());
     }
 
@@ -104,35 +106,35 @@ public class EventSourcesTest {
 
     @Test
     void jsonFeedEventSource_toJson_hasColor() {
-        ObjectNode json = new JsonFeedEventSource("/api/events").withColor("steelblue").toJson();
+        JsonObject json = new JsonFeedEventSource("/api/events").withColor("steelblue").toJson();
         assertEquals("steelblue", json.get("color").asString());
     }
 
     @Test
     void jsonFeedEventSource_toJson_editableDefaultAbsent() {
         // editable is not set by default — null means not serialized
-        ObjectNode json = new JsonFeedEventSource("/api/events").toJson();
-        assertFalse(json.has("editable"), "editable should not appear when not set");
+        JsonObject json = new JsonFeedEventSource("/api/events").toJson();
+        assertFalse(json.hasKey("editable"), "editable should not appear when not set");
     }
 
     @Test
     void jsonFeedEventSource_toJson_editableWhenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api/events").withEditable(true).toJson();
+        JsonObject json = new JsonFeedEventSource("/api/events").withEditable(true).toJson();
         assertTrue(json.get("editable").asBoolean());
     }
 
     @Test
     void jsonFeedEventSource_toJson_extraParams() {
-        ObjectNode json = new JsonFeedEventSource("/api/events")
+        JsonObject json = new JsonFeedEventSource("/api/events")
                 .withExtraParams(Map.of("roomId", "101"))
                 .toJson();
-        assertTrue(json.has("extraParams"));
-        assertEquals("101", json.get("extraParams").get("roomId").asString());
+        assertTrue(json.hasKey("extraParams"));
+        assertEquals("101", ((JsonObject) json.get("extraParams")).get("roomId").asString());
     }
 
     @Test
     void jsonFeedEventSource_toJson_method_post() {
-        ObjectNode json = new JsonFeedEventSource("/api/events").withMethod("POST").toJson();
+        JsonObject json = new JsonFeedEventSource("/api/events").withMethod("POST").toJson();
         assertEquals("POST", json.get("method").asString());
     }
 
@@ -143,12 +145,13 @@ public class EventSourcesTest {
 
     @Test
     void jsonFeedEventSource_toJson_classNames() {
-        ObjectNode json = new JsonFeedEventSource("/api/events")
+        JsonObject json = new JsonFeedEventSource("/api/events")
                 .withClassNames(List.of("foo", "bar"))
                 .toJson();
-        assertTrue(json.has("classNames"));
-        assertEquals("foo", json.get("classNames").get(0).asString());
-        assertEquals("bar", json.get("classNames").get(1).asString());
+        assertTrue(json.hasKey("classNames"));
+        JsonArray classNames = (JsonArray) json.get("classNames");
+        assertEquals("foo", classNames.get(0).asString());
+        assertEquals("bar", classNames.get(1).asString());
     }
 
     // -------------------------------------------------------------------------
@@ -157,13 +160,13 @@ public class EventSourcesTest {
 
     @Test
     void googleCalendarEventSource_toJson_hasGoogleCalendarId() {
-        ObjectNode json = new GoogleCalendarEventSource("abc@group.calendar.google.com").toJson();
+        JsonObject json = new GoogleCalendarEventSource("abc@group.calendar.google.com").toJson();
         assertEquals("abc@group.calendar.google.com", json.get("googleCalendarId").asString());
     }
 
     @Test
     void googleCalendarEventSource_toJson_hasId() {
-        ObjectNode json = new GoogleCalendarEventSource("abc@group.calendar.google.com")
+        JsonObject json = new GoogleCalendarEventSource("abc@group.calendar.google.com")
                 .withId("holidays")
                 .toJson();
         assertEquals("holidays", json.get("id").asString());
@@ -171,13 +174,13 @@ public class EventSourcesTest {
 
     @Test
     void googleCalendarEventSource_toJson_apiKeyAbsentByDefault() {
-        ObjectNode json = new GoogleCalendarEventSource("abc@group.calendar.google.com").toJson();
-        assertFalse(json.has("googleCalendarApiKey"));
+        JsonObject json = new GoogleCalendarEventSource("abc@group.calendar.google.com").toJson();
+        assertFalse(json.hasKey("googleCalendarApiKey"));
     }
 
     @Test
     void googleCalendarEventSource_toJson_apiKeyWhenSet() {
-        ObjectNode json = new GoogleCalendarEventSource("abc@group.calendar.google.com")
+        JsonObject json = new GoogleCalendarEventSource("abc@group.calendar.google.com")
                 .withApiKey("AIzaSy-override")
                 .toJson();
         assertEquals("AIzaSy-override", json.get("googleCalendarApiKey").asString());
@@ -194,19 +197,19 @@ public class EventSourcesTest {
 
     @Test
     void iCalendarEventSource_toJson_hasUrl() {
-        ObjectNode json = new ICalendarEventSource("https://example.com/cal.ics").toJson();
+        JsonObject json = new ICalendarEventSource("https://example.com/cal.ics").toJson();
         assertEquals("https://example.com/cal.ics", json.get("url").asString());
     }
 
     @Test
     void iCalendarEventSource_toJson_hasFormatIcs() {
-        ObjectNode json = new ICalendarEventSource("https://example.com/cal.ics").toJson();
+        JsonObject json = new ICalendarEventSource("https://example.com/cal.ics").toJson();
         assertEquals("ics", json.get("format").asString());
     }
 
     @Test
     void iCalendarEventSource_toJson_hasId() {
-        ObjectNode json = new ICalendarEventSource("https://example.com/cal.ics")
+        JsonObject json = new ICalendarEventSource("https://example.com/cal.ics")
                 .withId("holiday-ics")
                 .toJson();
         assertEquals("holiday-ics", json.get("id").asString());
@@ -315,13 +318,13 @@ public class EventSourcesTest {
     @Test
     void externalEntryDroppedEvent_populatesEntry() {
         FullCalendar cal = new FullCalendar();
-        ObjectNode entryData = JsonFactory.createObject();
+        JsonObject entryData = JsonFactory.createObject();
         entryData.put("id", "ext-1");
         entryData.put("start", "2025-03-10T10:00:00Z");
         entryData.put("end", "2025-03-10T11:00:00Z");
         entryData.put("allDay", false);
 
-        ObjectNode delta = JsonFactory.createObject();
+        JsonObject delta = JsonFactory.createObject();
         delta.put("years", 0);
         delta.put("months", 0);
         delta.put("days", 1);
@@ -369,78 +372,78 @@ public class EventSourcesTest {
 
     @Test
     void eventSource_resourceEditable_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
-        assertFalse(json.has("resourceEditable"));
+        JsonObject json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.hasKey("resourceEditable"));
     }
 
     @Test
     void eventSource_resourceEditable_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withResourceEditable(true).toJson();
+        JsonObject json = new JsonFeedEventSource("/api").withResourceEditable(true).toJson();
         assertTrue(json.get("resourceEditable").asBoolean());
     }
 
     @Test
     void eventSource_defaultAllDay_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
-        assertFalse(json.has("defaultAllDay"));
+        JsonObject json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.hasKey("defaultAllDay"));
     }
 
     @Test
     void eventSource_defaultAllDay_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withDefaultAllDay(true).toJson();
+        JsonObject json = new JsonFeedEventSource("/api").withDefaultAllDay(true).toJson();
         assertTrue(json.get("defaultAllDay").asBoolean());
     }
 
     @Test
     void eventSource_allow_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
-        assertFalse(json.has("eventAllow"));
+        JsonObject json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.hasKey("eventAllow"));
     }
 
     @Test
     void eventSource_allow_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withAllow("function() { return true; }").toJson();
-        assertTrue(json.get("eventAllow").isObject());
-        assertEquals("function() { return true; }", json.get("eventAllow").get("__jsCallback").asString());
+        JsonObject json = new JsonFeedEventSource("/api").withAllow("function() { return true; }").toJson();
+        assertTrue(json.get("eventAllow").getType() == elemental.json.JsonType.OBJECT);
+        assertEquals("function() { return true; }", ((JsonObject) json.get("eventAllow")).get("__jsCallback").asString());
     }
 
     @Test
     void eventSource_success_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
-        assertFalse(json.has("success"));
+        JsonObject json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.hasKey("success"));
     }
 
     @Test
     void eventSource_success_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withSuccess("function(content) {}").toJson();
-        assertTrue(json.get("success").isObject());
-        assertEquals("function(content) {}", json.get("success").get("__jsCallback").asString());
+        JsonObject json = new JsonFeedEventSource("/api").withSuccess("function(content) {}").toJson();
+        assertTrue(json.get("success").getType() == elemental.json.JsonType.OBJECT);
+        assertEquals("function(content) {}", ((JsonObject) json.get("success")).get("__jsCallback").asString());
     }
 
     @Test
     void eventSource_failure_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
-        assertFalse(json.has("failure"));
+        JsonObject json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.hasKey("failure"));
     }
 
     @Test
     void eventSource_failure_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withFailure("function(err) {}").toJson();
-        assertTrue(json.get("failure").isObject());
-        assertEquals("function(err) {}", json.get("failure").get("__jsCallback").asString());
+        JsonObject json = new JsonFeedEventSource("/api").withFailure("function(err) {}").toJson();
+        assertTrue(json.get("failure").getType() == elemental.json.JsonType.OBJECT);
+        assertEquals("function(err) {}", ((JsonObject) json.get("failure")).get("__jsCallback").asString());
     }
 
     @Test
     void eventSource_eventDataTransform_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
-        assertFalse(json.has("eventDataTransform"));
+        JsonObject json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.hasKey("eventDataTransform"));
     }
 
     @Test
     void eventSource_eventDataTransform_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withEventDataTransform("function(e) { return e; }").toJson();
-        assertTrue(json.get("eventDataTransform").isObject());
-        assertEquals("function(e) { return e; }", json.get("eventDataTransform").get("__jsCallback").asString());
+        JsonObject json = new JsonFeedEventSource("/api").withEventDataTransform("function(e) { return e; }").toJson();
+        assertTrue(json.get("eventDataTransform").getType() == elemental.json.JsonType.OBJECT);
+        assertEquals("function(e) { return e; }", ((JsonObject) json.get("eventDataTransform")).get("__jsCallback").asString());
     }
 
     // -------------------------------------------------------------------------
@@ -450,13 +453,13 @@ public class EventSourcesTest {
     @Test
     void externalEntryResizedEvent_populatesEntry() {
         FullCalendar cal = new FullCalendar();
-        ObjectNode entryData = JsonFactory.createObject();
+        JsonObject entryData = JsonFactory.createObject();
         entryData.put("id", "ext-2");
         entryData.put("start", "2025-03-10T10:00:00Z");
         entryData.put("end", "2025-03-10T12:00:00Z");
         entryData.put("allDay", false);
 
-        ObjectNode delta = JsonFactory.createObject();
+        JsonObject delta = JsonFactory.createObject();
         delta.put("years", 0);
         delta.put("months", 0);
         delta.put("days", 0);

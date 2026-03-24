@@ -1,7 +1,7 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import tools.jackson.databind.JsonNode;
 
 import java.time.DayOfWeek;
 
@@ -17,8 +17,8 @@ public class DayOfWeekConverter implements JsonItemPropertyConverter<DayOfWeek, 
     }
 
     @Override
-    public JsonNode toClientModel(DayOfWeek serverValue, Object currentInstance) {
+    public JsonValue toClientModel(DayOfWeek serverValue, Object currentInstance) {
         int fcValue = serverValue == DayOfWeek.SUNDAY ? 0 : serverValue.getValue();
-        return JsonUtils.toJsonNode(fcValue);
+        return JsonUtils.toJsonValue(fcValue);
     }
 }

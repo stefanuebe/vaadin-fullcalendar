@@ -1,11 +1,12 @@
 package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.function.ValueProvider;
+import elemental.json.JsonObject;
+import elemental.json.JsonType;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
-import tools.jackson.databind.node.ObjectNode;
 
 import java.lang.reflect.Field;
 import java.time.*;
@@ -94,7 +95,7 @@ public class EntryTest {
     @Test
     void testToJsonEmpty() {
         Entry entry = new Entry();
-        ObjectNode jsonObject = entry.toJson();
+        JsonObject jsonObject = entry.toJson();
 
 
         Set<String> defaultKeys = new HashSet<>(Arrays.asList(
@@ -112,11 +113,11 @@ public class EntryTest {
 
         Assertions.assertEquals(entry.getId(), jsonObject.get(Fields.ID).asString());
 
-        for (String key : jsonObject.propertyNames()) {
+        for (String key : jsonObject.keys()) {
             if (defaultKeys.contains(key)) {
-                Assertions.assertTrue(jsonObject.hasNonNull(key), key);
+                Assertions.assertTrue(jsonObject.hasKey(key) && jsonObject.get(key).getType() != JsonType.NULL, key);
             } else {
-                Assertions.assertFalse(jsonObject.hasNonNull(key), key);
+                Assertions.assertFalse(jsonObject.hasKey(key) && jsonObject.get(key).getType() != JsonType.NULL, key);
             }
         }
     }
@@ -171,7 +172,7 @@ public class EntryTest {
         assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
-        ObjectNode json = entry.toJson();
+        JsonObject json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
 
 
@@ -251,7 +252,7 @@ public class EntryTest {
         assertEquals(nowPlusOffset, entry.getStartWithTimezone().toLocalDateTime());
         assertEquals(nowPlusOffset, entry.getStartWithOffset());
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
-        ObjectNode json = entry.toJson();
+        JsonObject json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
 
 
@@ -342,7 +343,7 @@ public class EntryTest {
         assertEquals(nowPlusOffset, entry.getEndWithOffset());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(Timezone.UTC));
 
-        ObjectNode json = entry.toJson();
+        JsonObject json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
 
         entry.setEnd(nowInstant);
@@ -423,7 +424,7 @@ public class EntryTest {
         assertEquals(nowPlusOffset, entry.getEndWithOffset());
         assertEquals(nowPlusOffset, entry.getEndWithOffset(timezone));
 
-        ObjectNode json = entry.toJson();
+        JsonObject json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.END).asString());
 
         entry.setEnd(nowInstant);
@@ -493,7 +494,7 @@ public class EntryTest {
 
         // TODO extend values
 
-        ObjectNode jsonObject = entry.toJson();
+        JsonObject jsonObject = entry.toJson();
 
         assertEquals(DEFAULT_ID, jsonObject.get(Fields.ID).asString());
         assertEquals(DEFAULT_TITLE, jsonObject.get(getEntryFieldJsonName(Fields.TITLE)).asString());
@@ -511,7 +512,7 @@ public class EntryTest {
     void testIfUpdateFromJsonFailsOnNonMatchingId() {
         Entry entry = new Entry();
 
-        ObjectNode jsonObject = JsonFactory.createObject();
+        JsonObject jsonObject = JsonFactory.createObject();
         jsonObject.put(Fields.ID, "someNonUUID");
 
         assertDoesNotThrow(() -> entry.updateFromJson(jsonObject, false));
@@ -520,7 +521,7 @@ public class EntryTest {
 
     @Test
     void testUpdateEntryFromJsonWith() {
-        ObjectNode jsonObject = JsonFactory.createObject();
+        JsonObject jsonObject = JsonFactory.createObject();
         jsonObject.put(Fields.ID, "1");
 
         jsonObject.put(Fields.TITLE, DEFAULT_TITLE);

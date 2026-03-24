@@ -17,8 +17,8 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 
 import java.util.List;
 import java.util.UUID;
@@ -356,7 +356,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
      *
      * @param json target JSON object
      */
-    protected void addCommonToJson(ObjectNode json) {
+    protected void addCommonToJson(JsonObject json) {
         json.put("id", id);
         if (color != null) json.put("color", color);
         if (backgroundColor != null) json.put("backgroundColor", backgroundColor);
@@ -370,14 +370,16 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
         if (display != null) json.put("display", display);
         if (resourceEditable != null) json.put("resourceEditable", resourceEditable);
         if (defaultAllDay != null) json.put("defaultAllDay", defaultAllDay);
-        if (allow != null) json.set("eventAllow", allow.toMarkerJson());
-        if (success != null) json.set("success", success.toMarkerJson());
-        if (failure != null) json.set("failure", failure.toMarkerJson());
-        if (eventDataTransform != null) json.set("eventDataTransform", eventDataTransform.toMarkerJson());
+        if (allow != null) json.put("eventAllow", allow.toMarkerJson());
+        if (success != null) json.put("success", success.toMarkerJson());
+        if (failure != null) json.put("failure", failure.toMarkerJson());
+        if (eventDataTransform != null) json.put("eventDataTransform", eventDataTransform.toMarkerJson());
         if (classNames != null && !classNames.isEmpty()) {
-            ArrayNode namesNode = JsonFactory.createArray();
-            classNames.forEach(namesNode::add);
-            json.set("classNames", namesNode);
+            JsonArray namesNode = JsonFactory.createArray();
+            for (int i = 0; i < classNames.size(); i++) {
+                namesNode.set(namesNode.length(), classNames.get(i));
+            }
+            json.put("classNames", namesNode);
         }
     }
 
@@ -386,5 +388,5 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
      *
      * @return JSON object
      */
-    public abstract ObjectNode toJson();
+    public abstract JsonObject toJson();
 }

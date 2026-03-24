@@ -1,10 +1,9 @@
 package org.vaadin.stefan.fullcalendar;
 
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -62,15 +61,15 @@ public class BusinessHoursTest {
         LocalTime end = start.plusHours(1);
         BusinessHours hours = BusinessHours.allDays().start(start).end(end);
 
-        ObjectNode object = hours.toJson();
+        JsonObject object = hours.toJson();
 
         Assertions.assertEquals(start.toString(), object.get("startTime").asString());
         Assertions.assertEquals(end.toString(), object.get("endTime").asString());
 
-        ArrayNode array = (ArrayNode) object.get("daysOfWeek");
-        Set<Integer> days = new LinkedHashSet<>(array.size());
-        for (JsonNode arrayItem : array) {
-            days.add(arrayItem.asInt());
+        JsonArray array = (JsonArray) object.get("daysOfWeek");
+        Set<Integer> days = new LinkedHashSet<>(array.length());
+        for (int i = 0; i < array.length(); i++) {
+            days.add((int) array.get(i).asNumber());
         }
 
         Assertions.assertEquals(BusinessHours.ALL_DAYS.stream().map(BusinessHours::convertToClientSideDow).collect(Collectors.toSet()), days);
@@ -81,12 +80,12 @@ public class BusinessHoursTest {
     void testEmptyToJson() {
         BusinessHours hours = BusinessHours.allDays();
 
-        ObjectNode object = hours.toJson();
+        JsonObject object = hours.toJson();
 
         Assertions.assertEquals("00:00", object.get("startTime").asString());
         Assertions.assertEquals("24:00", object.get("endTime").asString());
 
-        Assertions.assertEquals(BusinessHours.ALL_DAYS.size(), object.get("daysOfWeek").size());
+        Assertions.assertEquals(BusinessHours.ALL_DAYS.size(), ((JsonArray) object.get("daysOfWeek")).length());
     }
 
 }

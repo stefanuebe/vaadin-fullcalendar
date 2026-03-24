@@ -1,7 +1,7 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import tools.jackson.databind.JsonNode;
 
 import java.time.DayOfWeek;
 import java.util.Arrays;
@@ -17,22 +17,26 @@ public class DayOfWeekArrayConverter implements JsonItemPropertyConverter<Object
     @Override
     public boolean supports(Object type) {
         if (type instanceof DayOfWeek[]) return true;
-        if (type instanceof Collection<?> c) return c.stream().allMatch(e -> e instanceof DayOfWeek);
+        if (type instanceof Collection) {
+            Collection<?> c = (Collection<?>) type;
+            return c.stream().allMatch(e -> e instanceof DayOfWeek);
+        }
         return false;
     }
 
     @Override
-    public JsonNode toClientModel(Object serverValue, Object currentInstance) {
+    public JsonValue toClientModel(Object serverValue, Object currentInstance) {
         Stream<DayOfWeek> stream;
-        if (serverValue instanceof DayOfWeek[] arr) {
+        if (serverValue instanceof DayOfWeek[]) {
+            DayOfWeek[] arr = (DayOfWeek[]) serverValue;
             stream = Arrays.stream(arr);
         } else {
             @SuppressWarnings("unchecked")
             Collection<DayOfWeek> col = (Collection<DayOfWeek>) serverValue;
             stream = col.stream();
         }
-        return JsonUtils.toJsonNode(stream
+        return JsonUtils.toJsonValue(stream
                 .map(dow -> dow == DayOfWeek.SUNDAY ? 0 : dow.getValue())
-                .toList());
+                .collect(java.util.stream.Collectors.toList()));
     }
 }

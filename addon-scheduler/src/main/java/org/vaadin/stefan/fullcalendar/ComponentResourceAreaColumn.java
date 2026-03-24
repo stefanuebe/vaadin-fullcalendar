@@ -19,7 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.function.SerializableFunction;
 import lombok.NonNull;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.util.*;
 
@@ -386,18 +386,18 @@ public class ComponentResourceAreaColumn<T extends Component> extends ResourceAr
     // ---- JSON serialization ----
 
     @Override
-    public ObjectNode toJson() {
-        ObjectNode json = super.toJson();
+    public JsonObject toJson() {
+        JsonObject json = super.toJson();
 
         // Add auto-generated cellContent, cellDidMount, cellWillUnmount
         // (parent fields are null since withXxx throws, so super.toJson() didn't write them)
         String columnKey = getField();
 
-        json.set("cellContent", JsCallback.of(
+        json.put("cellContent", JsCallback.of(
                 "function() { return { domNodes: [] } }"
         ).toMarkerJson());
 
-        json.set("cellDidMount", JsCallback.of(
+        json.put("cellDidMount", JsCallback.of(
                 "function(info) {" +
                 "  var calendarEl = info.el.closest('vaadin-full-calendar-scheduler');" +
                 "  if (!calendarEl) return;" +
@@ -418,7 +418,7 @@ public class ComponentResourceAreaColumn<T extends Component> extends ResourceAr
                 "}"
         ).toMarkerJson());
 
-        json.set("cellWillUnmount", JsCallback.of(
+        json.put("cellWillUnmount", JsCallback.of(
                 "function(info) {" +
                 "  var calendarEl = info.el.closest('vaadin-full-calendar-scheduler');" +
                 "  if (!calendarEl) return;" +

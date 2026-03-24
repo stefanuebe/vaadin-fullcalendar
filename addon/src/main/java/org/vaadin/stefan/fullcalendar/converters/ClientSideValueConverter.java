@@ -1,8 +1,8 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.ClientSideValue;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import tools.jackson.databind.JsonNode;
 
 /**
  * Converts any {@link ClientSideValue} to its client-side string representation.
@@ -15,7 +15,7 @@ public class ClientSideValueConverter implements JsonItemPropertyConverter<Clien
     }
 
     @Override
-    public JsonNode toClientModel(ClientSideValue serverValue, Object currentInstance) {
-        return JsonUtils.toJsonNode(serverValue.getClientSideValue());
+    public JsonValue toClientModel(ClientSideValue serverValue, Object currentInstance) {
+        return JsonUtils.toJsonValue(serverValue.getClientSideValue());
     }
 }

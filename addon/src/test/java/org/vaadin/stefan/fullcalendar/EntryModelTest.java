@@ -1,9 +1,10 @@
 package org.vaadin.stefan.fullcalendar;
 
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonType;
+import elemental.json.JsonValue;
 import org.junit.jupiter.api.Test;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -26,7 +27,7 @@ public class EntryModelTest {
     @Test
     void url_default_notInJson() {
         Entry entry = new Entry();
-        assertFalse(entry.toJson().has("url"), "url should not be in JSON when not set");
+        assertFalse(entry.toJson().hasKey("url"), "url should not be in JSON when not set");
     }
 
     @Test
@@ -40,8 +41,8 @@ public class EntryModelTest {
     void url_serializedToJson() {
         Entry entry = new Entry();
         entry.setUrl("https://example.com/event");
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("url"), "url should be in JSON");
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("url") && json.get("url").getType() != JsonType.NULL, "url should be in JSON");
         assertEquals("https://example.com/event", json.get("url").asString());
     }
 
@@ -51,7 +52,7 @@ public class EntryModelTest {
         entry.setUrl("https://example.com");
         entry.setUrl(null);
         assertNull(entry.getUrl(), "url getter should return null after clearing");
-        assertFalse(entry.toJson().has("url"), "url should not be in JSON after clearing");
+        assertFalse(entry.toJson().hasKey("url"), "url should not be in JSON after clearing");
     }
 
     // -------------------------------------------------------------------------
@@ -61,15 +62,15 @@ public class EntryModelTest {
     @Test
     void interactive_default_notInJson() {
         Entry entry = new Entry();
-        assertFalse(entry.toJson().has("interactive"), "interactive should not be in JSON when not set");
+        assertFalse(entry.toJson().hasKey("interactive"), "interactive should not be in JSON when not set");
     }
 
     @Test
     void interactive_true_serializedToJson() {
         Entry entry = new Entry();
         entry.setInteractive(true);
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("interactive"));
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("interactive") && json.get("interactive").getType() != JsonType.NULL);
         assertTrue(json.get("interactive").asBoolean());
     }
 
@@ -77,8 +78,8 @@ public class EntryModelTest {
     void interactive_false_serializedToJson() {
         Entry entry = new Entry();
         entry.setInteractive(false);
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("interactive"));
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("interactive") && json.get("interactive").getType() != JsonType.NULL);
         assertFalse(json.get("interactive").asBoolean());
     }
 
@@ -87,7 +88,7 @@ public class EntryModelTest {
         Entry entry = new Entry();
         entry.setInteractive(true);
         entry.setInteractive(null);
-        assertFalse(entry.toJson().has("interactive"), "interactive should not be in JSON after clearing");
+        assertFalse(entry.toJson().hasKey("interactive"), "interactive should not be in JSON after clearing");
     }
 
     // -------------------------------------------------------------------------
@@ -97,7 +98,7 @@ public class EntryModelTest {
     @Test
     void recurringDuration_default_notInJson() {
         Entry entry = new Entry();
-        assertFalse(entry.toJson().has("duration"), "duration should not be in JSON when not set");
+        assertFalse(entry.toJson().hasKey("duration"), "duration should not be in JSON when not set");
     }
 
     @Test
@@ -111,9 +112,9 @@ public class EntryModelTest {
     void recurringDuration_serializedAsDuration() {
         Entry entry = new Entry();
         entry.setRecurringDuration("PT2H");
-        ObjectNode json = entry.toJson();
-        assertFalse(json.has("recurringDuration"), "Java field name must NOT appear in JSON");
-        assertTrue(json.hasNonNull("duration"), "FC key 'duration' must appear in JSON");
+        JsonObject json = entry.toJson();
+        assertFalse(json.hasKey("recurringDuration"), "Java field name must NOT appear in JSON");
+        assertTrue(json.hasKey("duration") && json.get("duration").getType() != JsonType.NULL, "FC key 'duration' must appear in JSON");
         assertEquals("PT2H", json.get("duration").asString());
     }
 
@@ -123,7 +124,7 @@ public class EntryModelTest {
         entry.setRecurringDuration("P1D");
         entry.setRecurringDuration(null);
         assertNull(entry.getRecurringDuration(), "recurringDuration getter should return null after clearing");
-        assertFalse(entry.toJson().has("duration"), "duration should not be in JSON after clearing");
+        assertFalse(entry.toJson().hasKey("duration"), "duration should not be in JSON after clearing");
     }
 
     // -------------------------------------------------------------------------
@@ -134,7 +135,7 @@ public class EntryModelTest {
     void excludeDates_notInJson_whenNotSet() {
         Entry entry = new Entry();
         entry.setRRule(RRule.weekly().dtstart(LocalDate.of(2024, 1, 1)));
-        assertFalse(entry.toJson().has("exdate"), "exdate should not be in JSON when no excludeDates set");
+        assertFalse(entry.toJson().hasKey("exdate"), "exdate should not be in JSON when no excludeDates set");
     }
 
     @Test
@@ -143,12 +144,12 @@ public class EntryModelTest {
         Entry entry = new Entry();
         entry.setRRule(RRule.weekly().excludeDates(dates));
         // verify exdate is serialized into the event JSON
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("exdate"), "exdate should be in JSON after setRRule with excludeDates");
-        JsonNode exdateNode = json.get("exdate");
-        assertInstanceOf(ArrayNode.class, exdateNode);
-        ArrayNode arr = (ArrayNode) exdateNode;
-        assertEquals(2, arr.size());
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("exdate") && json.get("exdate").getType() != JsonType.NULL, "exdate should be in JSON after setRRule with excludeDates");
+        JsonValue exdateNode = json.get("exdate");
+        assertEquals(JsonType.ARRAY, exdateNode.getType());
+        JsonArray arr = (JsonArray) exdateNode;
+        assertEquals(2, arr.length());
         assertEquals("2024-01-15", arr.get(0).asString());
         assertEquals("2024-02-20", arr.get(1).asString());
     }
@@ -157,10 +158,10 @@ public class EntryModelTest {
     void excludeDates_singleDate_serializedAsArrayWithOneElement() {
         Entry entry = new Entry();
         entry.setRRule(RRule.weekly().excludeDates(LocalDate.of(2024, 1, 15)));
-        JsonNode exdateNode = entry.toJson().get("exdate");
-        assertInstanceOf(ArrayNode.class, exdateNode);
-        assertEquals(1, ((ArrayNode) exdateNode).size());
-        assertEquals("2024-01-15", ((ArrayNode) exdateNode).get(0).asString());
+        JsonValue exdateNode = entry.toJson().get("exdate");
+        assertEquals(JsonType.ARRAY, exdateNode.getType());
+        assertEquals(1, ((JsonArray) exdateNode).length());
+        assertEquals("2024-01-15", ((JsonArray) exdateNode).get(0).asString());
     }
 
     @Test
@@ -178,7 +179,7 @@ public class EntryModelTest {
         entry.setRRule(RRule.weekly().excludeDates(LocalDate.of(2024, 1, 15)));
         entry.setRRule(null);
         assertNull(entry.getRRule());
-        assertFalse(entry.toJson().has("exdate"), "exdate should not be in JSON after setRRule(null)");
+        assertFalse(entry.toJson().hasKey("exdate"), "exdate should not be in JSON after setRRule(null)");
     }
 
     // -------------------------------------------------------------------------
@@ -189,7 +190,7 @@ public class EntryModelTest {
     void overlap_default_null_notInJson() {
         Entry entry = new Entry();
         assertNull(entry.getOverlap(), "overlap default should be null (inherit)");
-        assertFalse(entry.toJson().has("overlap"),
+        assertFalse(entry.toJson().hasKey("overlap"),
                 "overlap should NOT be in JSON when null (means inherit from calendar-level setting)");
     }
 
@@ -197,8 +198,8 @@ public class EntryModelTest {
     void overlap_true_inJson() {
         Entry entry = new Entry();
         entry.setOverlap(true);
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("overlap"));
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("overlap") && json.get("overlap").getType() != JsonType.NULL);
         assertTrue(json.get("overlap").asBoolean());
     }
 
@@ -206,8 +207,8 @@ public class EntryModelTest {
     void overlap_false_inJson() {
         Entry entry = new Entry();
         entry.setOverlap(false);
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("overlap"));
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("overlap") && json.get("overlap").getType() != JsonType.NULL);
         assertFalse(json.get("overlap").asBoolean());
     }
 
@@ -217,7 +218,7 @@ public class EntryModelTest {
         entry.setOverlap(true);
         entry.setOverlap(null);
         assertNull(entry.getOverlap());
-        assertFalse(entry.toJson().has("overlap"), "overlap should not be in JSON after clearing to null");
+        assertFalse(entry.toJson().hasKey("overlap"), "overlap should not be in JSON after clearing to null");
     }
 
     @Test
@@ -248,7 +249,7 @@ public class EntryModelTest {
     @Test
     void rrule_default_notInJson() {
         Entry entry = new Entry();
-        assertFalse(entry.toJson().has("rrule"), "rrule should not be in JSON when not set");
+        assertFalse(entry.toJson().hasKey("rrule"), "rrule should not be in JSON when not set");
     }
 
     @Test
@@ -257,8 +258,8 @@ public class EntryModelTest {
         String rruleStr = rrule.toRRuleString();
         assertTrue(rruleStr.contains("FREQ=WEEKLY"), "RRULE string must contain FREQ=WEEKLY");
 
-        JsonNode json = rrule.toJson();
-        assertTrue(json.isString(), "toJson() must return a StringNode");
+        JsonValue json = rrule.toJson();
+        assertEquals(JsonType.STRING, json.getType(), "toJson() must return a string value");
         assertEquals(rruleStr, json.asString());
     }
 
@@ -361,8 +362,8 @@ public class EntryModelTest {
     @Test
     void rrule_raw_toJson_returnsString() {
         RRule rrule = RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;COUNT=10");
-        JsonNode json = rrule.toJson();
-        assertTrue(json.isString(), "Raw RRule should serialize as a StringNode");
+        JsonValue json = rrule.toJson();
+        assertEquals(JsonType.STRING, json.getType(), "Raw RRule should serialize as a string");
         assertEquals("FREQ=WEEKLY;BYDAY=MO,WE;COUNT=10", json.asString());
     }
 
@@ -370,8 +371,8 @@ public class EntryModelTest {
     void rrule_raw_notAffectedByStructuredFields() {
         // raw form ignores freq / byweekday etc. — raw string takes precedence
         RRule rrule = RRule.ofRaw("FREQ=DAILY");
-        JsonNode json = rrule.toJson();
-        assertTrue(json.isString());
+        JsonValue json = rrule.toJson();
+        assertEquals(JsonType.STRING, json.getType());
     }
 
     // -------------------------------------------------------------------------
@@ -395,9 +396,9 @@ public class EntryModelTest {
         Entry entry = new Entry();
         entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.MONDAY));
 
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("rrule"), "rrule key must be present in entry JSON");
-        assertTrue(json.get("rrule").isString(), "rrule value must be a StringNode for structured form");
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("rrule") && json.get("rrule").getType() != JsonType.NULL, "rrule key must be present in entry JSON");
+        assertEquals(JsonType.STRING, json.get("rrule").getType(), "rrule value must be a string for structured form");
         assertTrue(json.get("rrule").asString().contains("FREQ=WEEKLY"), "rrule string must contain FREQ=WEEKLY");
         assertTrue(json.get("rrule").asString().contains("BYDAY=MO"), "rrule string must contain BYDAY=MO");
     }
@@ -407,9 +408,9 @@ public class EntryModelTest {
         Entry entry = new Entry();
         entry.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO"));
 
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("rrule"));
-        assertTrue(json.get("rrule").isString(), "raw RRule must be a JSON string in entry JSON");
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("rrule") && json.get("rrule").getType() != JsonType.NULL);
+        assertEquals(JsonType.STRING, json.get("rrule").getType(), "raw RRule must be a JSON string in entry JSON");
         assertEquals("FREQ=WEEKLY;BYDAY=MO", json.get("rrule").asString());
     }
 
@@ -419,7 +420,7 @@ public class EntryModelTest {
         entry.setRRule(RRule.weekly());
         entry.setRRule(null);
         assertNull(entry.getRRule(), "getRRule() should return null after clearing");
-        assertFalse(entry.toJson().has("rrule"), "rrule should not be in JSON after clearing");
+        assertFalse(entry.toJson().hasKey("rrule"), "rrule should not be in JSON after clearing");
     }
 
     // -------------------------------------------------------------------------
@@ -430,7 +431,7 @@ public class EntryModelTest {
     void entry_exrule_notInJson_whenNotSet() {
         Entry entry = new Entry();
         entry.setRRule(RRule.weekly());
-        assertFalse(entry.toJson().has("exrule"), "exrule should not be in JSON when not set");
+        assertFalse(entry.toJson().hasKey("exrule"), "exrule should not be in JSON when not set");
     }
 
     @Test
@@ -439,9 +440,9 @@ public class EntryModelTest {
         Entry entry = new Entry();
         entry.setRRule(RRule.weekly().excludeRules(exclusion));
 
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("exrule"), "exrule must be present");
-        assertTrue(json.get("exrule").isString(), "single exrule must be serialized as StringNode");
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("exrule") && json.get("exrule").getType() != JsonType.NULL, "exrule must be present");
+        assertEquals(JsonType.STRING, json.get("exrule").getType(), "single exrule must be serialized as string");
         assertTrue(json.get("exrule").asString().contains("FREQ=DAILY"), "exrule string must contain FREQ=DAILY");
         assertTrue(json.get("exrule").asString().contains("COUNT=3"), "exrule string must contain COUNT=3");
     }
@@ -453,13 +454,13 @@ public class EntryModelTest {
         Entry entry = new Entry();
         entry.setRRule(RRule.weekly().excludeRules(exclusion1, exclusion2));
 
-        ObjectNode json = entry.toJson();
-        assertTrue(json.hasNonNull("exrule"), "exrule must be present");
-        assertTrue(json.get("exrule").isArray(), "multiple exrules must be serialized as ArrayNode");
-        ArrayNode array = (ArrayNode) json.get("exrule");
-        assertEquals(2, array.size());
-        assertTrue(array.get(0).isString(), "each exrule element must be a StringNode");
-        assertTrue(array.get(1).isString(), "each exrule element must be a StringNode");
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("exrule") && json.get("exrule").getType() != JsonType.NULL, "exrule must be present");
+        assertEquals(JsonType.ARRAY, json.get("exrule").getType(), "multiple exrules must be serialized as array");
+        JsonArray array = (JsonArray) json.get("exrule");
+        assertEquals(2, array.length());
+        assertEquals(JsonType.STRING, array.get(0).getType(), "each exrule element must be a string");
+        assertEquals(JsonType.STRING, array.get(1).getType(), "each exrule element must be a string");
     }
 
     @Test
@@ -470,7 +471,7 @@ public class EntryModelTest {
         entry.setRRule(rule);
 
         // Verify it's transferred by checking JSON output
-        assertTrue(entry.toJson().hasNonNull("exrule"));
+        assertTrue(json_hasNonNull(entry.toJson(), "exrule"));
     }
 
     @Test
@@ -479,7 +480,7 @@ public class EntryModelTest {
         entry.setRRule(RRule.weekly().excludeRules(RRule.daily()));
         entry.setRRule(null);
 
-        assertFalse(entry.toJson().has("exrule"), "exrule should not be in JSON after clearing RRule");
+        assertFalse(entry.toJson().hasKey("exrule"), "exrule should not be in JSON after clearing RRule");
     }
 
     // -------------------------------------------------------------------------
@@ -515,15 +516,15 @@ public class EntryModelTest {
     @Test
     void constraint_default_notInJson() {
         Entry entry = new Entry();
-        assertFalse(entry.toJson().has("constraint"), "constraint should not be in JSON when not set");
+        assertFalse(entry.toJson().hasKey("constraint"), "constraint should not be in JSON when not set");
     }
 
     @Test
     void constraint_string_serializedToJson() {
         Entry entry = new Entry();
         entry.setConstraint("myGroupId");
-        ObjectNode json = entry.toJson();
-        assertTrue(json.has("constraint"), "constraint should be in JSON");
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("constraint"), "constraint should be in JSON");
         assertEquals("myGroupId", json.get("constraint").asString());
     }
 
@@ -531,17 +532,17 @@ public class EntryModelTest {
     void constraint_businessHours_serializedToJson() {
         Entry entry = new Entry();
         entry.setConstraint(BusinessHours.businessWeek().start(9).end(17));
-        ObjectNode json = entry.toJson();
-        assertTrue(json.has("constraint"), "constraint should be in JSON");
-        assertTrue(json.get("constraint").isObject(), "BusinessHours constraint should be an object");
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("constraint"), "constraint should be in JSON");
+        assertEquals(JsonType.OBJECT, json.get("constraint").getType(), "BusinessHours constraint should be an object");
     }
 
     @Test
     void constraint_setToBusinessHours_serializedAsString() {
         Entry entry = new Entry();
         entry.setConstraintToBusinessHours();
-        ObjectNode json = entry.toJson();
-        assertTrue(json.has("constraint"), "constraint should be in JSON");
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("constraint"), "constraint should be in JSON");
         assertEquals("businessHours", json.get("constraint").asString());
     }
 
@@ -550,7 +551,7 @@ public class EntryModelTest {
         Entry entry = new Entry();
         entry.setConstraint("myGroup");
         entry.setConstraint((String) null);
-        assertFalse(entry.toJson().has("constraint"), "constraint should not be in JSON after clearing");
+        assertFalse(entry.toJson().hasKey("constraint"), "constraint should not be in JSON after clearing");
     }
 
     // --- Display mode JSON key tests (mutation testing revealed gap) ---
@@ -560,8 +561,8 @@ public class EntryModelTest {
         // Verifies @JsonName("display") annotation produces correct key
         Entry entry = new Entry();
         entry.setDisplayMode(DisplayMode.BACKGROUND);
-        ObjectNode json = entry.toJson();
-        assertTrue(json.has("display"), "JSON key must be 'display' (from @JsonName)");
+        JsonObject json = entry.toJson();
+        assertTrue(json.hasKey("display"), "JSON key must be 'display' (from @JsonName)");
         assertEquals("background", json.get("display").asString(),
                 "display value must be hardcoded 'background'");
     }
@@ -570,10 +571,18 @@ public class EntryModelTest {
     void displayMode_default_auto_notInJson() {
         // Default displayMode is AUTO — should not appear in JSON (FC default)
         Entry entry = new Entry();
-        ObjectNode json = entry.toJson();
+        JsonObject json = entry.toJson();
         // AUTO is the default, it should either be absent or equal "auto"
-        if (json.has("display")) {
+        if (json.hasKey("display")) {
             assertEquals("auto", json.get("display").asString());
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Helper
+    // -------------------------------------------------------------------------
+
+    private static boolean json_hasNonNull(JsonObject obj, String key) {
+        return obj.hasKey(key) && obj.get(key).getType() != JsonType.NULL;
     }
 }

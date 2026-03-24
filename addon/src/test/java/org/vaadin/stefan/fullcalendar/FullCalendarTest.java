@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -52,7 +52,7 @@ public class FullCalendarTest {
 //        return setupTestCalendar(new FullCalendar(entries));
 //    }
 
-    private FullCalendar createTestCalendar(ObjectNode options) {
+    private FullCalendar createTestCalendar(JsonObject options) {
         return setupTestCalendar(new FullCalendar(options));
     }
 
@@ -83,7 +83,7 @@ public class FullCalendarTest {
 
     @Test
     void testArgsConstructor_initialOptions() throws ExecutionException, InterruptedException, TimeoutException {
-        ObjectNode options = JsonFactory.createObject();
+        JsonObject options = JsonFactory.createObject();
 
         FullCalendar calendar = new FullCalendar(options);
         Element element = calendar.getElement();
@@ -93,7 +93,7 @@ public class FullCalendarTest {
         assertExistingOptionCount(calendar, 2);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
-        assertTrue(returnedOptions instanceof ObjectNode, "Returned initial options not instanceof JsonObject");
+        assertTrue(returnedOptions instanceof JsonObject, "Returned initial options not instanceof JsonObject");
 
         // TODO integrate Testbench test
 
@@ -150,7 +150,10 @@ public class FullCalendarTest {
         // Client-side value is the locale tag string, possibly wrapped in a JsonNode
         Optional<Object> clientSideLocale = calendar.getOption(Option.LOCALE, true);
         assertTrue(clientSideLocale.isPresent());
-        String clientValue = clientSideLocale.get().toString().replace("\"", "");
+        Object rawClientValue = clientSideLocale.get();
+        String clientValue = (rawClientValue instanceof elemental.json.JsonValue)
+                ? ((elemental.json.JsonValue) rawClientValue).asString()
+                : rawClientValue.toString().replace("\"", "");
         assertEquals(locale.toLanguageTag().toLowerCase(), clientValue);
 
         assertCorrectBooleanOption(calendar, Option.SELECTABLE, calendar::setTimeslotsSelectable);

@@ -1,90 +1,84 @@
 package org.vaadin.stefan.fullcalendar;
 
-import tools.jackson.databind.node.*;
+import elemental.json.Json;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
+import elemental.json.JsonValue;
 
 /**
  * Factory to create new objects. Wraps the current json framework.
  */
 public class JsonFactory {
-    // TODO should this be an inner class, that is only used by the json utils to have a single point of creating json nodes?
     private JsonFactory() {
 
-    }
-
-    /**
-     * Returns the factory instance, that is used to create json nodes.
-     * @return factory
-     */
-    public static JsonNodeFactory factory() {
-        return JsonNodeFactory.instance;
     }
 
     /**
      * Creates an empty array node.
      * @return array node
      */
-    public static ArrayNode createArray() {
-        return factory().arrayNode();
+    public static JsonArray createArray() {
+        return Json.createArray();
     }
 
     /**
      * Creates an empty object node.
      * @return object node
      */
-    public static ObjectNode createObject() {
-        return factory().objectNode();
+    public static JsonObject createObject() {
+        return Json.createObject();
     }
 
     /**
-     * Creates a number node with the given double.
+     * Creates a number value with the given double.
      * @param value double value
-     * @return number node
+     * @return json number
      */
-    public static NumericNode create(double value) {
-        return factory().numberNode(value);
+    public static JsonValue create(double value) {
+        return Json.create(value);
     }
 
     /**
-     * Creates a number node with the given integer.
+     * Creates a number value with the given integer.
      * @param value int value
-     * @return number node
+     * @return json number
      */
-    public static NumericNode create(int value) {
-        return factory().numberNode(value);
+    public static JsonValue create(int value) {
+        return Json.create((double) value);
     }
 
     /**
-     * Creates a number node with the given long.
+     * Creates a number value with the given long.
      * @param value long value
-     * @return number node
+     * @return json number
      */
-    public static NumericNode create(long value) {
-        return factory().numberNode(value);
+    public static JsonValue create(long value) {
+        return Json.create((double) value);
     }
 
     /**
-     * Creates a string node with the given text.
+     * Creates a string value with the given text.
      * @param value text
-     * @return string node
+     * @return json string
      */
-    public static StringNode create(String value) {
-        return factory().stringNode(value);
+    public static JsonValue create(String value) {
+        return Json.create(value);
     }
 
     /**
-     * Creates a boolean node with the value.
+     * Creates a boolean value.
      * @param value value
-     * @return boolean node
+     * @return json boolean
      */
-    public static BooleanNode create(boolean value) {
-        return factory().booleanNode(value);
+    public static JsonValue create(boolean value) {
+        return Json.create(value);
     }
 
     /**
-     * Creates a node, that represents a null value.
-     * @return null node
+     * Creates a value that represents null.
+     * @return json null
      */
-    public static NullNode createNull() {
-        return factory().nullNode();
+    public static JsonValue createNull() {
+        return Json.createNull();
     }
 }

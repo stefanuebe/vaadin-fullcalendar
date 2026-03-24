@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.stefan</groupId>
     <artifactId>fullcalendar2</artifactId>
-    <version>7.1.5-SNAPSHOT</version>
+    <version>6.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>FullCalendar for Flow</name>
@@ -37,9 +37,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
 
-        <vaadin.version>25.0.0</vaadin.version>
+        <vaadin.version>24.10.0</vaadin.version>
         <apache.commons-text.version>1.14.0</apache.commons-text.version>
         <lombok.version>1.18.42</lombok.version>
         <junit.version>5.10.0</junit.version> <mockito.version>5.0.0</mockito.version>

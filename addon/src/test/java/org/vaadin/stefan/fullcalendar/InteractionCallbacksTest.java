@@ -5,7 +5,7 @@ import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
@@ -191,7 +191,7 @@ public class InteractionCallbacksTest {
 
     @Test
     void entryReceiveEvent_createsEntryFromJson() {
-        ObjectNode json = JsonFactory.createObject();
+        JsonObject json = JsonFactory.createObject();
         json.put("id", "ext-1");
         json.put("start", "2025-03-10T09:00:00Z");
         json.put("end", "2025-03-10T10:00:00Z");

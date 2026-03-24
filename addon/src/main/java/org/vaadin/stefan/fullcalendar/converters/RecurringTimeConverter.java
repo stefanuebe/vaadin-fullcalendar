@@ -1,11 +1,10 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonType;
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.RecurringTime;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.NullNode;
-import tools.jackson.databind.node.StringNode;
 
 /**
  * @author Stefan Uebe
@@ -18,22 +17,22 @@ public class RecurringTimeConverter<T extends Entry> implements JsonItemProperty
     }
 
     @Override
-    public JsonNode toClientModel(RecurringTime serverValue, T currentInstance) {
+    public JsonValue toClientModel(RecurringTime serverValue, T currentInstance) {
         // recurring time must not be sent, when all day
         return serverValue == null || currentInstance.isAllDay() ? null : JsonFactory.create(serverValue.toFormattedString());
     }
 
     @Override
-    public RecurringTime toServerModel(JsonNode clientValue, T currentInstance) {
-        if (clientValue instanceof NullNode) {
+    public RecurringTime toServerModel(JsonValue clientValue, T currentInstance) {
+        if (clientValue.getType() == JsonType.NULL) {
             return null;
         }
 
-        if (clientValue instanceof StringNode) {
+        if (clientValue.getType() == JsonType.STRING) {
             String string = clientValue.asString();
             return RecurringTime.of(string);
         }
 
-        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
+        throw new IllegalArgumentException(clientValue + " must either be of type NULL or STRING, but was " + (clientValue != null ? clientValue.getType() : null) + ": " + clientValue);
     }
 }

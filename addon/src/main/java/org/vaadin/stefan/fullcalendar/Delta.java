@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.time.*;
 import java.util.concurrent.TimeUnit;
@@ -96,14 +96,14 @@ public class Delta {
      * @param jsonObject json object
      * @return delta
      */
-    public static Delta fromJson(ObjectNode jsonObject) {
-        int years = jsonObject.get("years").asInt();
-        int months = jsonObject.get("months").asInt();
-        int days = jsonObject.get("days").asInt();
+    public static Delta fromJson(JsonObject jsonObject) {
+        int years = (int) jsonObject.get("years").asNumber();
+        int months = (int) jsonObject.get("months").asNumber();
+        int days = (int) jsonObject.get("days").asNumber();
 
         // new 4.x way
-        if (jsonObject.hasNonNull("milliseconds")) {
-            long remainingMS = (long) jsonObject.get("milliseconds").asLong();
+        if (jsonObject.hasKey("milliseconds")) {
+            long remainingMS = (long) jsonObject.get("milliseconds").asNumber();
             int hours = (int) TimeUnit.MILLISECONDS.toHours(remainingMS);
             remainingMS -= TimeUnit.HOURS.toMillis(hours);
             int minutes = (int) TimeUnit.MILLISECONDS.toMinutes(remainingMS);
@@ -114,9 +114,9 @@ public class Delta {
         }
 
         // old 3.9 way
-        int hours = jsonObject.get("hours").asInt();
-        int minutes = jsonObject.get("minutes").asInt();
-        int seconds = jsonObject.get("seconds").asInt();
+        int hours = (int) jsonObject.get("hours").asNumber();
+        int minutes = (int) jsonObject.get("minutes").asNumber();
+        int seconds = (int) jsonObject.get("seconds").asNumber();
         return new Delta(years, months, days, hours, minutes, seconds);
     }
 

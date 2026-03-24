@@ -1,9 +1,9 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
+import elemental.json.JsonValue;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import tools.jackson.databind.JsonNode;
 
 import java.time.DayOfWeek;
 import java.util.HashSet;
@@ -20,20 +20,20 @@ public class DayOfWeekItemConverter<T extends Entry> implements JsonItemProperty
     }
 
     @Override
-    public JsonNode toClientModel(Set<DayOfWeek> serverValue, T currentInstance) {
+    public JsonValue toClientModel(Set<DayOfWeek> serverValue, T currentInstance) {
         if (serverValue == null) {
             return JsonFactory.createNull();
         }
 
-        return JsonUtils.toJsonNode(serverValue
+        return JsonUtils.toJsonValue(serverValue
                 .stream()
                 .map(dayOfWeek -> dayOfWeek == DayOfWeek.SUNDAY ? 0 : dayOfWeek.getValue())
                 .collect(Collectors.toList()));
     }
 
     @Override
-    public Set<DayOfWeek> toServerModel(JsonNode clientValue, T currentInstance) {
-        Set<Number> daysOfWeek = JsonUtils.ofJsonNode(clientValue, HashSet.class);
+    public Set<DayOfWeek> toServerModel(JsonValue clientValue, T currentInstance) {
+        Set<Number> daysOfWeek = JsonUtils.ofJsonValue(clientValue, HashSet.class);
         return daysOfWeek != null ? daysOfWeek.stream().map(n -> {
             int dayOfWeek = n.intValue();
             if (dayOfWeek == 0) {
