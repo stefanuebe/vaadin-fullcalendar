@@ -152,47 +152,24 @@ public class Entry {
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public JsonObject toJson() {
-        // The toJson is implemented in a dynamic fashion to not need to extend it every time a
-        // new property comes out.
-
         JsonObject json = Json.createObject();
 
         streamProperties().forEach(def -> {
-            String name = def.getName();
-            Field field = def.getField();
-            try {
+            if (!def.isJsonIgnored()) {
+                Object value = def.getGetter().apply(this);
 
-                // TODO all the reflection stuff could be moved to an initial static block to spare it to be done
-                //  on each conversion
-                if (field.getAnnotation(JsonIgnore.class) == null) {
-                    Object value = def.getGetter().apply(this);
+                JsonValue jsonValue;
+                JsonItemPropertyConverter converter = def.getConverter();
 
-                    JsonValue jsonValue;
-
-                    JsonConverter converterAnnotation = field.getAnnotation(JsonConverter.class);
-                    JsonItemPropertyConverter converter = null;
-                    if (converterAnnotation != null) {
-                        converter = converterAnnotation.value().getConstructor().newInstance();
-                    }
-
-                    if (converter != null && converter.supports(value)) {
-                        jsonValue = converter.toClientModel(value, this);
-                    } else {
-                        jsonValue = JsonUtils.toJsonValue(value);
-                    }
-
-                    if (jsonValue != null && !(jsonValue instanceof JsonNull)) {
-                        String jsonName = name;
-                        JsonName nameAnnotation = field.getAnnotation(JsonName.class);
-                        if (nameAnnotation != null) {
-                            jsonName = nameAnnotation.value();
-                        }
-
-                        json.put(jsonName, jsonValue);
-                    }
+                if (converter != null && converter.supports(value)) {
+                    jsonValue = converter.toClientModel(value, this);
+                } else {
+                    jsonValue = JsonUtils.toJsonValue(value);
                 }
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
+
+                if (jsonValue != null && !(jsonValue instanceof JsonNull)) {
+                    json.put(def.getJsonName(), jsonValue);
+                }
             }
         });
 
@@ -229,42 +206,26 @@ public class Entry {
         }
 
         streamProperties().forEach(def -> {
-            String name = def.getName();
-            Field field = def.getField();
-            try {
-                if (field.getAnnotation(JsonIgnore.class) == null
-                        && field.getAnnotation(JsonUpdateAllowed.class) != null) {
+            if (!def.isJsonIgnored() && def.isJsonUpdateAllowed()) {
+                String jsonName = def.getJsonName();
 
-                    Setter<Entry, Object> setter = def.getSetter()
-                            .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + name));
+                Setter<Entry, Object> setter = def.getSetter()
+                        .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + def.getName()));
 
-                    String jsonName = name;
-                    JsonName nameAnnotation = field.getAnnotation(JsonName.class);
-                    if (nameAnnotation != null) {
-                        jsonName = nameAnnotation.value();
+                if (jsonObject.hasKey(jsonName)) {
+                    JsonItemPropertyConverter converter = def.getConverter();
+
+                    Object newValue;
+                    JsonValue jsonValue = jsonObject.get(jsonName);
+
+                    if (converter != null) {
+                        newValue = converter.toServerModel(jsonValue, this);
+                    } else {
+                        newValue = JsonUtils.ofJsonValue(jsonValue);
                     }
 
-                    if (jsonObject.hasKey(jsonName)) {
-                        JsonConverter converterAnnotation = field.getAnnotation(JsonConverter.class);
-                        JsonItemPropertyConverter converter = null;
-                        if (converterAnnotation != null) {
-                            converter = converterAnnotation.value().getConstructor().newInstance();
-                        }
-
-                        Object newValue;
-                        JsonValue jsonValue = jsonObject.get(jsonName);
-
-                        if (converter != null) {
-                            newValue = converter.toServerModel(jsonValue, this);
-                        } else {
-                            newValue = JsonUtils.ofJsonValue(jsonValue);
-                        }
-
-                        setter.accept(this, newValue);
-                    }
+                    setter.accept(this, newValue);
                 }
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
             }
         });
     }

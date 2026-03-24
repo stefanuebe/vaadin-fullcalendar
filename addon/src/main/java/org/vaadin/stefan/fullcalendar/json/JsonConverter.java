@@ -19,6 +19,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
+@Repeatable(JsonConverters.class)
 public @interface JsonConverter {
 
     @SuppressWarnings("rawtypes")

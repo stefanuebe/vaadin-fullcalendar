@@ -147,7 +147,7 @@ public class BusinessHours {
      * Converts the given object into a json object.
      * @return json object
      */
-    protected JsonObject toJson() {
+    public JsonObject toJson() {
         JsonObject jsonObject = Json.createObject();
 
         jsonObject.put("daysOfWeek", JsonUtils.toJsonValue(dayOfWeeks.stream().map(dayOfWeek -> convertToClientSideDow(dayOfWeek))));

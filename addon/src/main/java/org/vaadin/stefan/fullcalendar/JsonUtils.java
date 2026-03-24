@@ -348,6 +348,17 @@ public final class JsonUtils {
         return map;
     }
 
+    /**
+     * Checks if the given JSON object has a key that is present and not null.
+     *
+     * @param jsonObject the JSON object to check
+     * @param key        the key to check for
+     * @return true if the key exists and its value is not of type NULL
+     */
+    public static boolean hasNonNull(JsonObject jsonObject, String key) {
+        return jsonObject.hasKey(key) && jsonObject.get(key).getType() != JsonType.NULL;
+    }
+
     private static JsonObject checkForObjectOrThrow(JsonValue value) {
         if (!(value instanceof JsonObject)) {
             throw new IllegalArgumentException("Only JsonObject is supported. Given type is " + (value != null ? value.getType() : " null"));
