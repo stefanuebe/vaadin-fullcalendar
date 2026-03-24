@@ -1,6 +1,6 @@
 package org.vaadin.stefan.ui.layouts;
 
-import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RoutePrefix;
@@ -12,9 +12,9 @@ import com.vaadin.flow.router.RoutePrefix;
  * views directly by URL.
  */
 @RoutePrefix("test")
+@StyleSheet("styles/styles.css")
 public class TestLayout extends VerticalLayout implements RouterLayout {
     public TestLayout() {
         addClassName("test-layout");
-        setSizeFull();
     }
 }
