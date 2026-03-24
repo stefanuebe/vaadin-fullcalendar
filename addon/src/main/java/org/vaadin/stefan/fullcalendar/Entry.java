@@ -23,6 +23,7 @@ import elemental.json.Json;
 import elemental.json.JsonNull;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -70,7 +71,9 @@ public class Entry {
     private String backgroundColor;
     private String borderColor;
     private String textColor;
-    private boolean overlap = true;
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
+    private Boolean overlap;
 
     @NonNull
     @JsonName("display")
@@ -95,6 +98,22 @@ public class Entry {
     @JsonName("daysOfWeek")
     @JsonConverter(DayOfWeekItemConverter.class)
     private Set<DayOfWeek> recurringDaysOfWeek;
+
+    @JsonName("duration")
+    private String recurringDuration;
+
+    @JsonConverter(RRuleConverter.class)
+    @lombok.Setter(AccessLevel.NONE)
+    private RRule rrule;
+
+    @JsonConverter(ExdateConverter.class)
+    private List<LocalDate> exdate;
+
+    @JsonConverter(ExruleConverter.class)
+    private List<RRule> exrule;
+
+    private String url;
+    private Boolean interactive;
 
     private Set<String> classNames;
 
@@ -887,21 +906,65 @@ public class Entry {
     }
 
     /**
+     * Returns the nullable overlap value. When {@code null}, the global calendar setting is inherited.
+     *
+     * @return overlap value or null
+     */
+    public Boolean getOverlap() {
+        return overlap;
+    }
+
+    /**
+     * Returns whether overlap is allowed. When the overlap value is {@code null}, defaults to {@code true}.
+     *
+     * @return is overlap allowed
+     * @deprecated Use {@link #getOverlap()} for nullable access. This method coalesces null to true.
+     */
+    @Deprecated(since = "6.4.0")
+    public boolean isOverlap() {
+        return overlap != null ? overlap : true;
+    }
+
+    /**
+     * Sets the overlap value. {@code null} means inheriting from the global calendar setting.
+     *
+     * @param overlap overlap value or null
+     */
+    public void setOverlap(Boolean overlap) {
+        this.overlap = overlap;
+    }
+
+    /**
+     * Sets the overlap value.
+     *
+     * @param overlap overlapping is allowed
+     * @deprecated Use {@link #setOverlap(Boolean)} for nullable support.
+     */
+    @Deprecated(since = "6.4.0")
+    public void setOverlap(boolean overlap) {
+        setOverlap(Boolean.valueOf(overlap));
+    }
+
+    /**
      * Same as {@link #isOverlap()}.
      *
      * @return is overlap allowed
+     * @deprecated Use {@link #getOverlap()} instead.
      */
+    @Deprecated(since = "6.4.0")
     public boolean isOverlapAllowed() {
         return isOverlap();
     }
 
     /**
-     * Same as {@link #setOverlap(boolean)}
+     * Same as {@link #setOverlap(boolean)}.
      *
      * @param overlap overlapping is allowed
+     * @deprecated Use {@link #setOverlap(Boolean)} instead.
      */
+    @Deprecated(since = "6.4.0")
     public void setOverlapAllowed(boolean overlap) {
-        setOverlap(overlap);
+        setOverlap(Boolean.valueOf(overlap));
     }
 
     /**
@@ -1217,6 +1280,27 @@ public class Entry {
     public void clearRecurringEnd() {
         setRecurringEndDate(null);
         setRecurringEndTime((RecurringTime) null);
+    }
+
+    /**
+     * Sets the RRule for this entry. When non-null, also transfers any excluded dates and
+     * excluded rules from the RRule to the entry's {@code exdate} and {@code exrule} fields
+     * respectively, as required by FullCalendar's RRule plugin.
+     * <p>
+     * <b>Note:</b> RRule-based recurrence and FC's built-in recurrence ({@code daysOfWeek} etc.)
+     * are mutually exclusive on a per-entry basis.
+     *
+     * @param rrule the RRule to set, or null to clear
+     */
+    public void setRrule(RRule rrule) {
+        this.rrule = rrule;
+        if (rrule != null) {
+            this.exdate = rrule.getExcludedDates();
+            this.exrule = rrule.getExcludedRules();
+        } else {
+            this.exdate = null;
+            this.exrule = null;
+        }
     }
 
     /**

@@ -24,6 +24,7 @@ import listPlugin from '@fullcalendar/list';
 import multiMonthPlugin from '@fullcalendar/multimonth';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
+import rrulePlugin from '@fullcalendar/rrule';
 import allLocales from '@fullcalendar/core/locales-all';
 
 // Simple type, that allows JS object property access via ["xyz"]
@@ -151,7 +152,8 @@ export class FullCalendar extends HTMLElement {
             timeGridPlugin,
             listPlugin,
             multiMonthPlugin,
-            momentTimezonePlugin
+            momentTimezonePlugin,
+            rrulePlugin
         ];
 
         // be aware of never setting or passing in any harmful content from the serverside
