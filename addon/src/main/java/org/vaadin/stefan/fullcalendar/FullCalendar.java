@@ -59,6 +59,9 @@ import java.util.stream.Stream;
 @NpmPackage(value = "moment-timezone", version = "0.6.0")
 @NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/google-calendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/icalendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "ical.js", version = "2.0.1")
 
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-styles.css")
@@ -125,6 +128,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private final List<Registration> entryProviderDataListeners = new LinkedList<>();
 
     private final Map<String, CustomCalendarView> customCalendarViews = new LinkedHashMap<>();
+
+    /**
+     * Registry of client-side event sources added via {@link #addEventSource(ClientSideEventSource)}.
+     * Keyed by source id. Used for reattach restoration.
+     */
+    private final Map<String, ClientSideEventSource<?>> clientSideEventSourceRegistry = new LinkedHashMap<>();
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
@@ -286,6 +295,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                             optionsJson,
                             JsonUtils.toJsonValue(currentViewName),
                             JsonUtils.toJsonValue(currentIntervalStart));
+
+                    // restore client-side event sources after reattach
+                    if (!clientSideEventSourceRegistry.isEmpty()) {
+                        JsonArray sourcesArray = Json.createArray();
+                        int i = 0;
+                        for (ClientSideEventSource<?> source : clientSideEventSourceRegistry.values()) {
+                            sourcesArray.set(i++, source.toJson());
+                        }
+                        getElement().callJsFunction("restoreEventSources", sourcesArray);
+                    }
 
                 });
             });
@@ -1713,6 +1732,66 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public Registration addEventSourceFailureListener(ComponentEventListener<EventSourceFailureEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(EventSourceFailureEvent.class, listener);
+    }
+
+    /**
+     * Adds a client-side event source to this calendar. Client-side sources (JSON feed, Google Calendar, iCal)
+     * fetch events directly in the browser — they do NOT go through the server-side
+     * {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
+     * <br><br>
+     * If the calendar is already attached, the source is registered immediately via a JS call.
+     * If not yet attached, the source is queued and will be applied on first attach (as part of the
+     * initial options) and on every subsequent reattach.
+     * <br><br>
+     * Adding a source with an id that is already registered replaces the existing source.
+     *
+     * @param source the event source to add; must not be null
+     * @throws NullPointerException if source is null
+     */
+    public void addEventSource(ClientSideEventSource<?> source) {
+        Objects.requireNonNull(source, "source must not be null");
+        clientSideEventSourceRegistry.put(source.getId(), source);
+        if (getElement().getNode().isAttached()) {
+            getElement().callJsFunction("addEventSource", source.toJson());
+        }
+    }
+
+    /**
+     * Removes the client-side event source with the given id from this calendar.
+     * If the calendar is attached, the source is removed on the client immediately.
+     * If the source id is not registered, this method does nothing.
+     *
+     * @param id the id of the source to remove; must not be null
+     * @throws NullPointerException if id is null
+     */
+    public void removeEventSource(String id) {
+        Objects.requireNonNull(id, "id must not be null");
+        clientSideEventSourceRegistry.remove(id);
+        if (getElement().getNode().isAttached()) {
+            getElement().callJsFunction("removeEventSource", id);
+        }
+    }
+
+    /**
+     * Removes the given client-side event source from this calendar, using its {@link ClientSideEventSource#getId()}.
+     * If the calendar is attached, the source is removed on the client immediately.
+     * If the source is not registered, this method does nothing.
+     *
+     * @param source the source to remove; must not be null
+     * @throws NullPointerException if source is null
+     */
+    public void removeEventSource(ClientSideEventSource<?> source) {
+        Objects.requireNonNull(source, "source must not be null");
+        removeEventSource(source.getId());
+    }
+
+    /**
+     * Returns an unmodifiable view of all registered client-side event sources, keyed by their id.
+     *
+     * @return unmodifiable map of source id to source
+     */
+    public Map<String, ClientSideEventSource<?>> getEventSources() {
+        return Collections.unmodifiableMap(clientSideEventSourceRegistry);
     }
 
     /**

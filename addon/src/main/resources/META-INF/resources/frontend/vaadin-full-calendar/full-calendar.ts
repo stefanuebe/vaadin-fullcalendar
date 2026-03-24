@@ -25,6 +25,8 @@ import multiMonthPlugin from '@fullcalendar/multimonth';
 import {toMoment} from '@fullcalendar/moment'; // only for formatting
 import momentTimezonePlugin from '@fullcalendar/moment-timezone';
 import rrulePlugin from '@fullcalendar/rrule';
+import googleCalendarPlugin from '@fullcalendar/google-calendar';
+import iCalendarPlugin from '@fullcalendar/icalendar';
 import allLocales from '@fullcalendar/core/locales-all';
 
 // Simple type, that allows JS object property access via ["xyz"]
@@ -153,7 +155,9 @@ export class FullCalendar extends HTMLElement {
             listPlugin,
             multiMonthPlugin,
             momentTimezonePlugin,
-            rrulePlugin
+            rrulePlugin,
+            googleCalendarPlugin,
+            iCalendarPlugin
         ];
 
         // be aware of never setting or passing in any harmful content from the serverside
@@ -657,6 +661,23 @@ export class FullCalendar extends HTMLElement {
         }
 
         return this._calendar;
+    }
+
+    addEventSource(sourceJson: any) {
+        this.calendar?.addEventSource(sourceJson);
+    }
+
+    removeEventSource(sourceId: string) {
+        let source = this.calendar?.getEventSourceById(sourceId);
+        if (source) {
+            source.remove();
+        }
+    }
+
+    restoreEventSources(sourcesArray: any[]) {
+        for (let source of sourcesArray) {
+            this.calendar?.addEventSource(source);
+        }
     }
 
 }
