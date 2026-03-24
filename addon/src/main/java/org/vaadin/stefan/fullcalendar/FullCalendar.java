@@ -746,7 +746,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
 
         if (attached) {
-            Object[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Object[]::new);
+            Serializable[] parameters = Stream.concat(Stream.of((Serializable) option, (Serializable) value), Stream.of(additionalParameters)).toArray(Serializable[]::new);
             getElement().callJsFunction(method, parameters);
         } else {
             JsonObject initialOptions = (JsonObject) getElement().getPropertyRaw("initialOptions");

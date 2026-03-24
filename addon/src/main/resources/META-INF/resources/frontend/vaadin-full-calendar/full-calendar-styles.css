@@ -8,7 +8,7 @@ as a classname. */
 /* Fixes a color issue, where otherwise day numbers would appear as the disabled text color (Idk why)*/
 .vaadin-full-calendar.fc {
     a:not(:any-link) {
-        color: var(--vaadin-text-color);
+        color: var(--lumo-body-text-color);
     }
 
     /* Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/108*/

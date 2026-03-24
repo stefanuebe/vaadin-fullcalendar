@@ -180,7 +180,7 @@ public class ComponentColumnsDemo extends VerticalLayout {
     private DatePicker createCompactDatePicker() {
         DatePicker picker = new DatePicker();
         picker.setWidth("130px");
-        picker.getStyle().set("--vaadin-input-field-height", "32px");
+        picker.getStyle().set("--lumo-text-field-size", "32px");
         picker.getStyle().set("font-size", "var(--lumo-font-size-s)");
         return picker;
     }
