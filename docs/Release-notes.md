@@ -1,6 +1,7 @@
 ## Index
 * [7.1.x](#71x)
 * [7.0.x](#70x)
+* [6.4.x](#64x)
 * [6.2.x](#62x)
 * [6.1.x](#61x)
 * [6.0.x](#60x)
@@ -32,6 +33,20 @@
 - reworked BusinessHours
 - added deprecations to existing API
 - renamed theme variant `LUMO` to `VAADIN` and integrated Aura into theming
+
+## 6.4.x
+[Details](release-notes-detail/Release-notes-6.4)
+- platform upgrade: Vaadin 14 → 24.10, Java 8 → 17
+- backported v7 features to Vaadin 24: RRule, JsCallback, event sources, scheduler extensions
+- entry model: url, interactive, nullable overlap, recurringDuration
+- 60+ new Option enum constants (render hooks, interaction callbacks)
+- 11 new event classes (drag/resize start/stop, external drop, etc.)
+- client-side event sources (Google Calendar, iCalendar, JSON feed)
+- ComponentResourceAreaColumn for Vaadin components in scheduler resource area
+- performance: bounded entry cache, thread-safe refresh, BeanProperties converter caching
+- FullCalendar JS 6.1.9 → 6.1.20
+- deprecated ~30 convenience methods in favour of setOption()
+- see [Migration Guide 6.3 → 6.4](Migration-guide-6.3-to-6.4) for upgrade instructions
 
 ## 6.2.x
 [Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-6.2)

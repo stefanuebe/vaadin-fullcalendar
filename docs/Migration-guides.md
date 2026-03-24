@@ -11,6 +11,7 @@ as smoothly as possible.
 
 ## Index
 * [7.0 > 7.1](#migration-notes-70--71)
+* [6.3 > 6.4](#migrating-from-63--64)
 * [6.1 > 7.0](#migrating-from-61--70)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
@@ -236,8 +237,20 @@ Note: `Boolean.TRUE.equals(null)` returns `false` in Java, so if you need "not s
 (matching FC's own default behaviour), use `!Boolean.FALSE.equals(entry.getOverlap())` instead —
 that returns `true` when the value is `null` or `true`, and `false` only when explicitly set to `false`.
 
+## Migrating from 6.3 > 6.4
+
+Version 6.4 upgrades the platform from Vaadin 14 to Vaadin 24.10 and backports v7 features. For the full migration guide, see [Migration Guide 6.3 → 6.4](Migration-guide-6.3-to-6.4).
+
+**Key changes:**
+- **Java 17 minimum** (up from Java 8)
+- **Vaadin 24.10 minimum** (Vaadin 14 no longer supported)
+- **Spring Boot 3.5+** required
+- `overlap` field type changed from `boolean` to `Boolean` (nullable); `isOverlap()` deprecated, use `getOverlap()`
+- ~30 convenience methods deprecated in favour of `setOption(Option, value)`
+- New features: RRule, JsCallback, event sources, ComponentResourceAreaColumn, 11 new events
+
 ## Migrating from 6.1 > 7.0
-To migrate to version 7 of the addon, you need to bump your Vaadin version to 25 and anything else, that Vaadin 25 
+To migrate to version 7 of the addon, you need to bump your Vaadin version to 25 and anything else, that Vaadin 25
 requires (like Java or Spring Boot).
 
 If you have used any elemental.Json classes, then you need to convert those to their respective Jackson 3 counterparts,
