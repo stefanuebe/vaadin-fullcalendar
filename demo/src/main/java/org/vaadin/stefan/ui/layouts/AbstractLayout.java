@@ -33,8 +33,6 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.server.VaadinRequest;
-import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.theme.lumo.Lumo;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.ClientSideValue;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
@@ -46,10 +44,10 @@ import java.util.Locale;
 public abstract class AbstractLayout extends AppLayout implements AfterNavigationObserver {
     public static final String ADDON_VERSION = "7.1.3-SNAPSHOT";
     private static final long serialVersionUID = -7479612679602267287L;
-    private Registration currentStyleSheetRegistration;
     private Select<Theme> themeSelect;
     private SideNav sideNav;
     private Select<String> colorSchemeSelector;
+    private String currentThemeStyleSheet;
 
     @SuppressWarnings("unchecked")
     public AbstractLayout() {
@@ -140,7 +138,8 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     }
 
     private Select<String> initColorSchemeSelector() {
-        colorSchemeSelector = new Select<>("", "system", "light", "dark");
+        colorSchemeSelector = new Select<>();
+        colorSchemeSelector.setItems("system", "light", "dark");
         colorSchemeSelector.addValueChangeListener(event -> {
             UI ui = UI.getCurrent();
 
@@ -181,17 +180,18 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     }
 
     private Select<Theme> initThemeSelector() {
-        themeSelect = new Select<>("", Theme.values());
+        themeSelect = new Select<>();
+        themeSelect.setItems(Theme.values());
         themeSelect.addValueChangeListener(event -> {
-            if(currentStyleSheetRegistration != null) {
-                currentStyleSheetRegistration.remove();
-                currentStyleSheetRegistration = null;
-            }
-
             Theme theme = event.getValue();
 
             UI ui = UI.getCurrent();
-            currentStyleSheetRegistration = ui.getPage().addStyleSheet(theme.getClientSideValue());
+            // Remove previous theme stylesheet if any
+            if (currentThemeStyleSheet != null) {
+                ui.getPage().executeJs("document.querySelector('link[href=\"' + $0 + '\"]')?.remove()", currentThemeStyleSheet);
+            }
+            currentThemeStyleSheet = theme.getClientSideValue();
+            ui.getPage().addStyleSheet(currentThemeStyleSheet);
 
             if (event.isFromClient()) {
                 Location activeViewLocation = ui.getActiveViewLocation();
@@ -212,7 +212,7 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
     }
 
     private enum Theme implements ClientSideValue {
-        LUMO(Lumo.STYLESHEET);
+        LUMO("lumo");
 
         private final String value;
 

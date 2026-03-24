@@ -530,7 +530,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @throws NullPointerException when null is passed
      */
     public void setOption(SchedulerOption option, Object value) {
-        setOption(option.getOptionKey(), value, null, option.getConverters());
+        List<JsonItemPropertyConverter<?, ?>> converters = option.getConverters();
+        setOption(option.getOptionKey(), value, null, converters.toArray(new JsonItemPropertyConverter[0]));
     }
 
     /**
@@ -548,7 +549,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @throws NullPointerException when null is passed
      */
     public void setOption(SchedulerOption option, Object value, Object valueForServerSide) {
-        setOption(option.getOptionKey(), value, valueForServerSide, option.getConverters());
+        List<JsonItemPropertyConverter<?, ?>> converters = option.getConverters();
+        setOption(option.getOptionKey(), value, valueForServerSide, converters.toArray(new JsonItemPropertyConverter[0]));
     }
 
     /**
