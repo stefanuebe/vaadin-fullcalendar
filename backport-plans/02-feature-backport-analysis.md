@@ -97,7 +97,7 @@ Ersetzt `eventDidMountCallback: String` durch typsicheres `JsCallback`-Objekt. R
 
 | Feature | Beschreibung | Aufwand |
 |---|---|---|
-| `BeanProperties.java` | Reflections-Cache für Bean-Properties | Klein — reines Java |
+| ~~`BeanProperties.java`~~ | ~~Reflections-Cache~~ | **Existiert bereits in v6** — nur Converter-Caching ergänzen |
 | Bounded `LinkedHashMap` | lastFetchedEntries max 10.000 Entries | Klein — 1 Zeile |
 | `volatile` + `refreshLock` | Thread-Safety Verbesserungen | Klein |
 
@@ -106,7 +106,7 @@ Ersetzt `eventDidMountCallback: String` durch typsicheres `JsCallback`-Objekt. R
 | Feature | Beschreibung | Aufwand |
 |---|---|---|
 | `ComponentResourceAreaColumn` | Vaadin-Components in Resource-Area Spalten (UC-024) | Groß — JSON-Adapter + Frontend |
-| `ResourceAreaColumn` Refactoring | Basis-Klasse überarbeitet | Mittel |
+| `ResourceAreaColumn` | **Neue** Konfigurationsklasse (existiert nicht in v6) | Mittel |
 
 #### 7. Frontend TypeScript
 
