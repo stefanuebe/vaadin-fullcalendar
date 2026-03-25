@@ -5,12 +5,16 @@ FullCalendar library.
 ## Requirements / versions / support
 There are several versions of the addon
 * Version 7, based on Vaadin 25 / Java 21
-* Version 6.4, based on Vaadin 24.9
-* Version 6, based on Vaadin 14 / Java 11, which should also support any version up to Vaadin 24 (not supported anymore)
+* Version 6.4, based on Vaadin 24.9 / Java 17
+* Version 6.3 and before, based on Vaadin 14 / Java 11, which should also support any version up to Vaadin 24 (not supported anymore)
 
 Addon versions prior to 6.4 and 7.1 are not supported. If you need a fix for such a version
 feel free to fork the project. You may create an issue, but due to limited time it is very unlikely, that we will fix
 it.
+
+We also made the decision to explicitly introduce a breaking change with version 6.4.0. On one hand, we normally support
+only the latest major version of Vaadin, but also know on the other hand, that migrating from 24 to 25 might not be possible
+at the moment. Therefore we decided to backport all the changes from 7.1.x to 6.4.x as long as it is suitable.
 
 Please also have a look at the demo for some basic examples and source code of how to integrate the FC.
 For more examples please have a look into the example section.
