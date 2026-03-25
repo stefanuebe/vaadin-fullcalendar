@@ -50,7 +50,7 @@ base.describe('Component Resource Columns', () => {
 
         base('DatePicker accepts date', async ({ page }) => {
             const picker = page.locator('[data-testid="datepicker-res-a"]').locator('input');
-            await picker.fill('3/3/2025');
+            await picker.fill('2025-03-03');
             await picker.press('Enter');
             await waitForVaadin(page);
 
