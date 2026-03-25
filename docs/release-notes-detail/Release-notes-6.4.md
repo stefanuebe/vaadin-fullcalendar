@@ -13,7 +13,7 @@ The addon has been upgraded from Vaadin 14 (LTS) to Vaadin 24.10.x. This is a ma
 - **Polymer removal**: Vaadin 14's Polymer 3 has been replaced with plain HTML Element-based web components (already completed in v6.0)
 - **Vaadin Flow**: Updated to Vaadin Flow 24.10.x with all associated ecosystem updates
 
-> **Breaking Change**: Applications must upgrade to **Java 17 minimum** and **Spring Boot 3.5+**. Vaadin 14 LTS is no longer supported.
+> **Breaking Change**: This version requires **Vaadin 24.10**. Vaadin 14 LTS is no longer supported.
 
 ## Entry Model Enhancements
 
@@ -64,7 +64,7 @@ entry.setOverlap(null);      // now allowed
 Boolean val = entry.getOverlap();  // returns null if not set
 ```
 
-While binary-compatible via overloaded getters, be careful when reading the value — `null` is now a distinct state from `false`.
+Recompilation is required. Be careful when reading the value — `null` is now a distinct state from `false`.
 
 ## JsCallback System (Type-Safe Client-Side Callbacks)
 
@@ -135,7 +135,7 @@ These are automatically integrated with the `@fullcalendar/google-calendar`, `@f
 calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY, "AIzaSy...");
 
 // Add a Google Calendar event source
-calendar.addEventSource(new GoogleCalendarEventSource("holidays@group.calendar.google.com")
+calendar.addClientSideEventSource(new GoogleCalendarEventSource("holidays@group.calendar.google.com")
     .withId("holidays")
     .withColor("green"));
 ```
