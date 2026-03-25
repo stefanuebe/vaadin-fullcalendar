@@ -67,7 +67,7 @@ Boolean overlap = entry.getOverlap();  // Returns nullable Boolean
 - If you need a primitive, use: `Boolean overlap = entry.getOverlap(); boolean value = overlap != null && overlap;`
 - Update any comparisons: `if (overlap != null && overlap)` instead of `if (overlap)`
 
-The binary layout is compatible, but **recompilation is required**.
+**Recompilation against the 6.4 JAR is required.**
 
 ## Step 3: Update Deprecated Method Calls (Optional)
 
@@ -170,7 +170,7 @@ Test the following:
 
 ### Compilation Error: "cannot find symbol: method isOverlap()"
 
-**Cause**: This error occurs if the method was removed in a future version or if the addon dependency is not correctly resolved. In 6.4, `isOverlap()` is deprecated but still available.
+**Cause**: In 6.4, `isOverlap()` is deprecated but still available. This error typically means the addon dependency is not correctly resolved. If you have a subclass of `Entry` that overrides `isOverlap()` with a `boolean` return type, it now conflicts with the `Boolean` return type.
 
 **Fix**:
 ```java
