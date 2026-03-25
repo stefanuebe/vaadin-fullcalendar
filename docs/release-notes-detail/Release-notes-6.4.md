@@ -107,6 +107,44 @@ Eleven new event classes have been added to support additional user interactions
 
 These events integrate native browser DOM events with the FullCalendar backend, allowing precise control over drag, resize, and drop behaviors.
 
+## Draggable API
+
+The new `Draggable` class provides a type-safe Java API for making external Vaadin components draggable onto the calendar. This replaces the need for manual client-side initialization and `data-event` attribute management.
+
+```java
+// Create a component and entry data
+Div item = new Div("New Meeting");
+Entry entryData = new Entry();
+entryData.setTitle("New Meeting");
+entryData.setColor("#4CAF50");
+
+// Register the draggable on the calendar
+calendar.setOption(Option.DROPPABLE, true);
+calendar.addDraggable(new Draggable(item, entryData));
+
+// Listen for drops — provides typed access to the component and entry
+calendar.addDropListener(e -> {
+    e.getDraggable().ifPresent(d -> {
+        Component comp = d.getComponent();
+        Optional<Entry> entry = d.getEntryData();
+    });
+});
+```
+
+**Container mode** supports dragging children of a container element using a CSS selector and optional JS callback for dynamic entry data:
+
+```java
+calendar.addDraggable(new Draggable(taskList)
+        .withItemSelector(".task-item")
+        .withEventDataCallback(JsCallback.of(
+                "function(el) { return { title: el.innerText, duration: '01:00' }; }")));
+```
+
+Key improvements over the previous raw approach:
+- **Server-side component tracking**: `DropEvent.getDraggable()` and `EntryReceiveEvent.getDraggable()` provide typed access to the original component and entry data
+- **Automatic cleanup**: The `Registration` returned by `addDraggable()` handles all cleanup (DOM attributes, client-side Draggable instance)
+- **Reattach support**: Draggables are automatically re-initialized when the calendar is reattached to the DOM
+
 ## New Option Enum Constants
 
 A large number of new `Option` enum constants have been added for advanced customization. See the `Option` enum Javadoc for the complete list.

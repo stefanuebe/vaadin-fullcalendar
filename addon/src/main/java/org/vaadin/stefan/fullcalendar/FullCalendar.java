@@ -143,6 +143,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     private final Map<String, ClientSideEventSource<?>> clientSideEventSourceRegistry = new LinkedHashMap<>();
 
+    /**
+     * Server-side registry of draggable components, keyed by draggable UUID.
+     */
+    private final Map<String, Draggable> draggableRegistry = new LinkedHashMap<>();
+    private final Map<String, Registration> draggableCleanups = new LinkedHashMap<>();
+
     // ---- View-Specific Options ----
     private final Map<String, JsonObject> viewSpecificOptionsMap = new LinkedHashMap<>();
 
@@ -296,6 +302,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                         getElement().callJsFunction("restoreEventSources", sourcesArray);
                     }
 
+                });
+            });
+        }
+
+        // Initialize draggables on both initial attach and reattach
+        if (!draggableRegistry.isEmpty()) {
+            getElement().getNode().runWhenAttached(ui -> {
+                ui.beforeClientResponse(this, executionContext -> {
+                    for (Draggable d : draggableRegistry.values()) {
+                        callInitDraggable(d);
+                    }
                 });
             });
         }
@@ -1786,6 +1803,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Registers a listener for when any external HTML element is dropped onto the calendar.
      * Requires {@link Option#DROPPABLE} to be set to {@code true}.
+     * <p>
+     *     This listener is considered low-level. If your external html element uses the Draggable feature
+     *     of the FullCalendar and also provides valid entry data, we strongly recommend to use
+     *     the {@link #addEntryReceiveListener(ComponentEventListener)} instead.
+     * </p>
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1794,6 +1816,87 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public Registration addDropListener(ComponentEventListener<DropEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(DropEvent.class, listener);
+    }
+
+    /**
+     * Registers a {@link Draggable} on this calendar. The wrapped component becomes draggable
+     * onto any calendar that has {@link Option#DROPPABLE} set to {@code true}.
+     * <p>
+     * When the component is dropped onto <em>this</em> calendar, the resulting {@link DropEvent}
+     * provides typed access to the component and entry via {@link DropEvent#getDraggable()}.
+     * <p>
+     * <strong>Important:</strong> The draggable registry is per-calendar. If the component is dropped
+     * onto a <em>different</em> calendar, that calendar's {@link DropEvent} will not resolve the
+     * draggable.
+     *
+     * @param draggable the draggable to register
+     * @return registration to remove the draggable
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addDraggable(Draggable draggable) {
+        Objects.requireNonNull(draggable);
+        com.vaadin.flow.dom.Element el = draggable.getComponent().getElement();
+
+        // Double-registration guard: clean up previous if exists
+        String existingId = el.getAttribute("data-draggable-id");
+        if (existingId != null && draggableCleanups.containsKey(existingId)) {
+            draggableCleanups.get(existingId).remove();
+        }
+
+        String id = java.util.UUID.randomUUID().toString();
+        el.setAttribute("data-draggable-id", id);
+
+        if (draggable.getEntryData().isPresent()) {
+            el.setAttribute("data-event", draggable.getEntryData().get().toJson().toJson());
+        }
+
+        draggableRegistry.put(id, draggable);
+
+        if (isAttached()) {
+            getElement().getNode().runWhenAttached(ui -> {
+                ui.beforeClientResponse(this, ctx -> callInitDraggable(draggable));
+            });
+        }
+
+        Registration cleanup = () -> {
+            draggableRegistry.remove(id);
+            draggableCleanups.remove(id);
+            el.removeAttribute("data-draggable-id");
+            el.removeAttribute("data-event");
+            if (isAttached()) {
+                getElement().callJsFunction("destroyDraggable", el);
+            }
+        };
+        draggableCleanups.put(id, cleanup);
+
+        return cleanup;
+    }
+
+    /**
+     * Resolves a draggable by its client-side ID. Package-private — used by {@link DropEvent}.
+     */
+    Optional<Draggable> resolveDraggable(String draggableId) {
+        if (draggableId == null || draggableId.trim().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(draggableRegistry.get(draggableId));
+    }
+
+    /**
+     * Sends the initDraggable JS call with optional itemSelector and eventDataCallback.
+     */
+    private void callInitDraggable(Draggable draggable) {
+        com.vaadin.flow.dom.Element el = draggable.getComponent().getElement();
+        String itemSelector = draggable.getItemSelector();
+        JsCallback eventDataCallback = draggable.getEventDataCallback();
+
+        if (itemSelector != null || eventDataCallback != null) {
+            getElement().callJsFunction("initDraggable", el,
+                    itemSelector != null ? itemSelector : "",
+                    eventDataCallback != null ? eventDataCallback.toMarkerJson() : null);
+        } else {
+            getElement().callJsFunction("initDraggable", el);
+        }
     }
 
     /**

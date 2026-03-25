@@ -19,28 +19,27 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
+import elemental.json.Json;
+import elemental.json.JsonObject;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * Fires when any external HTML element is dropped onto the calendar (requires {@code droppable} to be {@code true}).
  * This fires for <em>all</em> external drops, including non-event elements.
  * <br><br>
+ * The created entry can be obtained via {@link #getCreatedEntry()}.
+ * <br><br>
+ * If the dropped element was registered via {@link FullCalendar#addDraggable(Draggable)},
+ * use {@link #getDraggable()} for typed access.
+ * <br><br>
  * For drops of external elements that carry event data ({@code data-event} attribute) and are successfully
  * added to the calendar as entries, {@link EntryReceiveEvent} fires in addition to this event.
  * <br><br>
- * To make external elements droppable onto the calendar:
- * <ol>
- *   <li>Call {@link FullCalendar#setDroppable(boolean) setDroppable(true)} on the calendar.</li>
- *   <li>Attach a {@code data-event} JSON attribute to the draggable HTML element, e.g.
- *       {@code data-event='{"title":"Meeting","duration":"01:00"}'}.</li>
- *   <li>Register the element with FullCalendar's {@code Draggable} API on the client side, or add the
- *       {@code fc-event} CSS class to auto-register.
- *       See <a href="https://fullcalendar.io/docs/third-party-dragging">FullCalendar external dragging documentation</a>.</li>
- * </ol>
- * <br>
  * Client side name: drop
  */
 @DomEvent("drop")
@@ -59,10 +58,11 @@ public class DropEvent extends ComponentEvent<FullCalendar> {
     private final boolean allDay;
 
     /**
-     * The raw JSON string from the dropped element's {@code data-event} attribute, or {@code null}
-     * if the element had no such attribute.
+     * The resolved {@link Draggable} instance, or {@code null} if the dropped element was not
+     * registered via {@link FullCalendar#addDraggable(Draggable)} on this calendar.
      */
-    private final String draggedElData;
+    private final Draggable draggable;
+    private final Entry createdEntry;
 
     /**
      * New instance.
@@ -72,14 +72,49 @@ public class DropEvent extends ComponentEvent<FullCalendar> {
      * @param date          the drop date as ISO string
      * @param allDay        whether the drop occurred in the all-day area
      * @param draggedElData the {@code data-event} attribute content of the dropped element, or {@code null}
+     * @param draggableId   the {@code data-draggable-id} attribute of the dropped element, or {@code null}
      */
     public DropEvent(FullCalendar source, boolean fromClient,
                      @EventData("event.detail.date") String date,
                      @EventData("event.detail.allDay") boolean allDay,
-                     @EventData("event.detail.draggedElData") String draggedElData) {
+                     @EventData("event.detail.draggedElData") String draggedElData,
+                     @EventData("event.detail.draggableId") String draggableId) {
         super(source, fromClient);
         this.date = JsonUtils.parseClientSideDate(date);
         this.allDay = allDay;
-        this.draggedElData = draggedElData;
+        this.draggable = source.resolveDraggable(draggableId).orElse(null);
+
+        createdEntry = new Entry();
+        if (draggedElData != null) {
+            JsonObject parsed = Json.parse(draggedElData);
+            createdEntry.updateAllFromJson(parsed, false);
+        } else {
+            createdEntry.setAllDay(allDay);
+            createdEntry.setStart(JsonUtils.parseClientSideDate(date));
+            LocalDateTime start = createdEntry.getStart();
+            createdEntry.setEnd(allDay ? start.plusDays(1) : start.plusHours(1));
+        }
+    }
+
+    /**
+     * Returns the {@link Draggable} instance if the dropped element was registered via
+     * {@link FullCalendar#addDraggable(Draggable)} on this calendar.
+     *
+     * @return optional draggable
+     */
+    public Optional<Draggable> getDraggable() {
+        return Optional.ofNullable(draggable);
+    }
+
+    /**
+     * Returns the entry, that has been created by the client side as a result of the drop operation. The content
+     * of this entry may differ from the draggable entry data, depending on restrictions or limitations of the calendar.
+     * <p>
+     *     Please note, that this entry will NOT be automatically added to your entry provider in any case.
+     * </p>
+     * @return created entry
+     */
+    public Entry getCreatedEntry() {
+        return createdEntry;
     }
 }

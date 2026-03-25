@@ -88,6 +88,7 @@ public class Entry {
 
     @NonNull
     @JsonName("display")
+    @JsonConverter(DisplayModeConverter.class)
     private DisplayMode displayMode = DisplayMode.AUTO;
 
     @JsonName("startRecur")
@@ -320,6 +321,49 @@ public class Entry {
                     }
 
                     setter.accept(this, newValue);
+                }
+            }
+        });
+    }
+
+    /**
+     * Updates this entry from the given JSON object, writing ALL non-ignored fields regardless of
+     * {@code @JsonUpdateAllowed}. Use this for external entry creation (e.g. from drag-drop data)
+     * where all fields should be populated.
+     *
+     * @param jsonObject        json object
+     * @param requiresMatchingId require the ids to match
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void updateAllFromJson(JsonObject jsonObject, boolean requiresMatchingId) {
+        if (requiresMatchingId) {
+            if (!(jsonObject.hasKey(Fields.ID) && jsonObject.get(Fields.ID).getType() != JsonType.NULL)) {
+                throw new IllegalArgumentException("JsonObject has no id. Id matching is required.");
+            }
+
+            String idString = jsonObject.get(Fields.ID).asString();
+            if (!id.equals(idString)) {
+                throw new IllegalArgumentException("Id matching is required. This id is " + id + " but the json object provided " + idString);
+            }
+        }
+
+        streamProperties().forEach(def -> {
+            if (!def.isJsonIgnored() && def.getSetter().isPresent()) {
+                String jsonName = def.getJsonName();
+
+                if (jsonObject.hasKey(jsonName) && jsonObject.get(jsonName).getType() != JsonType.NULL) {
+                    JsonItemPropertyConverter converter = def.getConverter();
+
+                    Object newValue;
+                    JsonValue jsonValue = jsonObject.get(jsonName);
+
+                    if (converter != null) {
+                        newValue = converter.toServerModel(jsonValue, this);
+                    } else {
+                        newValue = JsonUtils.ofJsonValue(jsonValue);
+                    }
+
+                    def.getSetter().get().accept(this, newValue);
                 }
             }
         });
