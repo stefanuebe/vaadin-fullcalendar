@@ -61,6 +61,22 @@ The individual callback setter methods from 7.0 (`setEntryClassNamesCallback`, `
 etc.) are deprecated. See the [migration guide](Migration-guides#deprecated-individual-callback-methods-use-setoption--jscallback-instead) for
 the complete replacement table.
 
+## Draggable API
+
+New server-side `Draggable` class for making external Vaadin components draggable onto the calendar,
+replacing the previous manual JS initialization approach.
+
+- `new Draggable(component)` — wrap any Vaadin component to make it draggable
+- `new Draggable(component, entry)` — include entry data that FC uses to create a calendar entry on drop
+- `withItemSelector(String)` — container mode: only children matching the CSS selector are draggable
+- `withEventDataCallback(JsCallback)` — dynamically create entry data from the dragged element via JS
+- `calendar.addDraggable(draggable)` — register on a calendar; returns `Registration` for cleanup
+- `EntryReceiveEvent.getDraggable()` — access the original Draggable from the entry receive listener
+- `DropEvent.getDraggable()` — access the Draggable from the drop listener
+
+The `Draggable` lifecycle is fully managed: re-initialization on reattach, cleanup of JS listeners
+on deregistration and disconnect.
+
 ## Interaction events
 
 New server-side events cover the full drag/resize lifecycle:

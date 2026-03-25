@@ -1284,37 +1284,73 @@ calendar.addClientSideEventSource(feed);
 
 ## External drag and drop
 
-Allow HTML elements from outside the calendar to be dropped onto it.
-Requires the FullCalendar `interaction` plugin (bundled automatically).
+Make external Vaadin components draggable onto the calendar using the `Draggable` API.
+
+### Simple draggable with entry data
 
 ```java
 // 1. Enable external drops on the calendar
 calendar.setOption(Option.DROPPABLE, true);
 
-// 2. In your Vaadin view, create an HTML element with the required attributes.
-//    The "data-event" attribute carries JSON that FC uses to create the entry.
-//    The CSS class "fc-event" is required for FC to recognise the element as draggable.
-Div draggableItem = new Div("New Meeting");
-draggableItem.getElement().setAttribute("data-event",
-        "{\"title\": \"New Meeting\", \"duration\": \"01:00\"}");
-draggableItem.addClassName("fc-event");
+// 2. Create a Vaadin component and an Entry with the data for the drop
+Div meetingItem = new Div("New Meeting");
+meetingItem.getStyle().set("cursor", "grab");
 
-// 3. Listen for the drop — this fires for any external element dropped onto the calendar
-calendar.addDropListener(event -> {
-    System.out.println("Dropped at: " + event.getDate());
-    System.out.println("All day: " + event.isAllDay());
-    System.out.println("data-event JSON: " + event.getDraggedElData());
-});
+Entry meetingData = new Entry();
+meetingData.setTitle("New Meeting");
+meetingData.setColor("#4CAF50");
 
-// 4. Listen for the entry creation — fires when FC successfully creates a calendar entry from the drop
+// 3. Register the draggable on the calendar
+calendar.addDraggable(new Draggable(meetingItem, meetingData));
+
+// 4. Listen for entry creation — fires when FC creates an entry from the drop
+//    The entry is transient — add it to your provider to persist it
 calendar.addEntryReceiveListener(event -> {
-    Entry received = event.getEntry();
-    // IMPORTANT: the entry is transient — add it to your provider to persist it
-    calendar.getEntryProvider().asInMemory().addEntry(received);
+    Entry created = event.getEntry();
+    calendar.getEntryProvider().asInMemory().addEntry(created);
     calendar.getEntryProvider().asInMemory().refreshAll();
-});
 
-// 5. (Multi-calendar) Listen on the SOURCE calendar when an entry leaves to another calendar
+    // Access the original Draggable if needed
+    event.getDraggable().ifPresent(d -> {
+        System.out.println("Dropped component: " + d.getComponent());
+    });
+});
+```
+
+The `DropEvent` (via `addDropListener`) fires for all external drops, including elements without
+entry data. Use it when you need to react to any drop regardless of whether an entry was created.
+
+### Container draggable with itemSelector
+
+Make children of a container draggable using a CSS selector. A `JsCallback` dynamically
+creates entry data from the dragged child element.
+
+```java
+// A container with multiple draggable children
+Div taskList = new Div();
+taskList.add(createTask("Write report"), createTask("Fix bug #42"), createTask("Review PR"));
+
+// Only children matching ".task-item" are draggable.
+// The JS callback reads the element's text to create the entry title.
+calendar.addDraggable(new Draggable(taskList)
+        .withItemSelector(".task-item")
+        .withEventDataCallback(JsCallback.of(
+                "function(el) { return { title: el.innerText, duration: '01:00' }; }")));
+
+// Helper
+private Div createTask(String name) {
+    Div item = new Div(name);
+    item.addClassName("task-item");
+    item.getStyle().set("cursor", "grab");
+    return item;
+}
+```
+
+### Multi-calendar: entry leave listener
+
+When entries can be dragged between calendars, listen on the source calendar for entries leaving:
+
+```java
 calendar.addEntryLeaveListener(event -> {
     Entry leaving = event.getEntry();
     calendar.getEntryProvider().asInMemory().removeEntry(leaving);
