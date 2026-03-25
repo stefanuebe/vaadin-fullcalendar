@@ -142,6 +142,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     private final Map<String, ClientSideEventSource<?>> clientSideEventSourceRegistry = new LinkedHashMap<>();
 
+    /**
+     * Server-side registry of draggable components, keyed by draggable UUID.
+     */
+    private final Map<String, Draggable> draggableRegistry = new LinkedHashMap<>();
+    private final Map<String, Registration> draggableCleanups = new LinkedHashMap<>();
+
     // ---- View-Specific Options ----
     private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
 
@@ -294,6 +300,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                         getElement().callJsFunction("restoreEventSources", sourcesArray);
                     }
 
+                });
+            });
+        }
+
+        // Initialize draggables on both initial attach and reattach
+        if (!draggableRegistry.isEmpty()) {
+            getElement().getNode().runWhenAttached(ui -> {
+                ui.beforeClientResponse(this, executionContext -> {
+                    for (Draggable d : draggableRegistry.values()) {
+                        getElement().callJsFunction("initDraggable", d.getComponent().getElement());
+                    }
                 });
             });
         }
@@ -1790,6 +1807,73 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public Registration addDropListener(ComponentEventListener<DropEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(DropEvent.class, listener);
+    }
+
+    /**
+     * Registers a {@link Draggable} on this calendar. The wrapped component becomes draggable
+     * onto any calendar that has {@link Option#DROPPABLE} set to {@code true}.
+     * <p>
+     * When the component is dropped onto <em>this</em> calendar, the resulting {@link DropEvent}
+     * provides typed access to the component and entry via {@link DropEvent#getDraggedComponent()}
+     * and {@link DropEvent#getDraggedEntry()}.
+     * <p>
+     * <strong>Important:</strong> The draggable registry is per-calendar. If the component is dropped
+     * onto a <em>different</em> calendar, that calendar's {@link DropEvent} will not resolve the
+     * draggable — {@code getDraggedComponent()} and {@code getDraggedEntry()} will return empty.
+     * The raw {@link DropEvent#getDraggedElData()} is still available in all cases.
+     *
+     * @param draggable the draggable to register
+     * @return registration to remove the draggable
+     * @throws NullPointerException when null is passed
+     */
+    public Registration addDraggable(Draggable draggable) {
+        Objects.requireNonNull(draggable);
+        com.vaadin.flow.dom.Element el = draggable.getComponent().getElement();
+
+        // Double-registration guard: clean up previous if exists
+        String existingId = el.getAttribute("data-draggable-id");
+        if (existingId != null && draggableCleanups.containsKey(existingId)) {
+            draggableCleanups.get(existingId).remove();
+        }
+
+        String id = java.util.UUID.randomUUID().toString();
+        el.setAttribute("data-draggable-id", id);
+
+        if (draggable.getEntryData().isPresent()) {
+            el.setAttribute("data-event", draggable.getEntryData().get().toJson().toString());
+        }
+
+        draggableRegistry.put(id, draggable);
+
+        if (isAttached()) {
+            getElement().getNode().runWhenAttached(ui -> {
+                ui.beforeClientResponse(this, ctx ->
+                    getElement().callJsFunction("initDraggable", el));
+            });
+        }
+
+        Registration cleanup = () -> {
+            draggableRegistry.remove(id);
+            draggableCleanups.remove(id);
+            el.removeAttribute("data-draggable-id");
+            el.removeAttribute("data-event");
+            if (isAttached()) {
+                getElement().callJsFunction("destroyDraggable", el);
+            }
+        };
+        draggableCleanups.put(id, cleanup);
+
+        return cleanup;
+    }
+
+    /**
+     * Resolves a draggable by its client-side ID. Package-private — used by {@link DropEvent}.
+     */
+    Draggable resolveDraggable(String draggableId) {
+        if (draggableId == null || draggableId.isBlank()) {
+            return null;
+        }
+        return draggableRegistry.get(draggableId);
     }
 
     /**

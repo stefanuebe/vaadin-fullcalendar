@@ -17,7 +17,7 @@
    Exception of this license is the separately licensed part of the styles.
 */
 import {Calendar, CalendarOptions, DateInput, DateRangeInput, DurationInput} from '@fullcalendar/core';
-import interaction from '@fullcalendar/interaction';
+import interaction, {Draggable} from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
@@ -71,6 +71,7 @@ export class FullCalendar extends HTMLElement {
 
     private _calendar!: Calendar;
     private _resizeObserver: ResizeObserver | null = null;
+    private _draggables: Map<HTMLElement, Draggable> = new Map();
 
     /** IDs of entries fetched from the server-side EntryProvider. Used to distinguish external-source entries. */
     private serverEntryIds: Set<string> = new Set();
@@ -203,6 +204,10 @@ export class FullCalendar extends HTMLElement {
             this._resizeObserver.disconnect();
             this._resizeObserver = null;
         }
+
+        // Clean up draggable instances to prevent listener leaks
+        this._draggables.forEach(d => d.destroy());
+        this._draggables.clear();
     }
 
     protected createInitOptions(initialOptions = {}): any {
@@ -401,7 +406,8 @@ export class FullCalendar extends HTMLElement {
                 return {
                     date: this.formatDate(eventInfo.date, eventInfo.allDay),
                     allDay: eventInfo.allDay,
-                    draggedElData: eventInfo.draggedEl ? eventInfo.draggedEl.getAttribute('data-event') : null
+                    draggedElData: eventInfo.draggedEl ? eventInfo.draggedEl.getAttribute('data-event') : null,
+                    draggableId: eventInfo.draggedEl ? eventInfo.draggedEl.getAttribute('data-draggable-id') : null
                 };
             },
             eventReceive: (eventInfo: any) => {
@@ -803,6 +809,29 @@ export class FullCalendar extends HTMLElement {
 
     updateSize() {
         this.calendar?.updateSize();
+    }
+
+    // --- Draggable management ---
+
+    initDraggable(el: HTMLElement) {
+        // Destroy existing if present (reattach or re-registration)
+        this.destroyDraggable(el);
+
+        const d = new Draggable(el, {
+            eventData: function(dragEl: HTMLElement) {
+                const data = dragEl.getAttribute('data-event');
+                return data ? JSON.parse(data) : {};
+            }
+        });
+        this._draggables.set(el, d);
+    }
+
+    destroyDraggable(el: HTMLElement) {
+        const existing = this._draggables.get(el);
+        if (existing) {
+            existing.destroy();
+            this._draggables.delete(el);
+        }
     }
 
     // Event source management
