@@ -158,6 +158,22 @@ scheduler.setResourceAreaColumns(List.of(column));
 
 A new `ResourceAreaColumn` configuration class provides declarative control over scheduler resource area styling and layout.
 
+## Draggable API
+
+New server-side `Draggable` class for making external Vaadin components draggable onto the calendar,
+replacing the previous manual JS initialization approach.
+
+- `new Draggable(component)` — wrap any Vaadin component to make it draggable
+- `new Draggable(component, entry)` — include entry data that FC uses to create a calendar entry on drop
+- `withItemSelector(String)` — container mode: only children matching the CSS selector are draggable
+- `withEventDataCallback(JsCallback)` — dynamically create entry data from the dragged element via JS
+- `calendar.addDraggable(draggable)` — register on a calendar; returns `Registration` for cleanup
+- `EntryReceiveEvent.getDraggable()` — access the original Draggable from the entry receive listener
+- `DropEvent.getDraggable()` — access the Draggable from the drop listener
+
+The `Draggable` lifecycle is fully managed: re-initialization on reattach, cleanup of JS listeners
+on deregistration and disconnect.
+
 ## Performance Improvements
 
 ### Bounded Entry Cache
