@@ -39,7 +39,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>17</maven.compiler.release>
 
-        <vaadin.version>24.10.0</vaadin.version>
+        <vaadin.version>24.9.8</vaadin.version>
         <apache.commons-text.version>1.14.0</apache.commons-text.version>
         <lombok.version>1.18.42</lombok.version>
         <junit.version>5.10.0</junit.version> <mockito.version>5.0.0</mockito.version>
@@ -52,12 +52,12 @@
         <plugin.version.maven-assembly>3.8.0</plugin.version.maven-assembly>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>Vaadin Directory</id>
-            <url>https://maven.vaadin.com/vaadin-addons</url>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>Vaadin Directory</id>-->
+<!--            <url>https://maven.vaadin.com/vaadin-addons</url>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
     <dependencyManagement>
         <dependencies>
