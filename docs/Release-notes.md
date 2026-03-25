@@ -9,7 +9,7 @@
 * [4.0.x](#40x)
 
 ## 7.1.x
-[Details](Release-notes-7.1)
+[Details](release-notes-detail/Release-notes-7.1.md)
 - significantly expanded Java API surface for FullCalendar v6 options (previously required raw `setOption` calls)
 - added entry model enhancements: URL, interactive flag, RRule recurrence, recurring duration
 - added option converter system
@@ -25,7 +25,7 @@
 - fixed "lost" resources after scheduler re-attachment
 
 ## 7.0.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-7.0)
+[Details](release-notes-detail/Release-notes-7.0.md)
 - updated to FullCalendar 6.1.20
 - increased required Vaadin version to 25
 - increased required Java version to 21
@@ -35,7 +35,7 @@
 - renamed theme variant `LUMO` to `VAADIN` and integrated Aura into theming
 
 ## 6.4.x
-[Details](Release-notes-6.4)
+[Details](release-notes-detail/Release-notes-6.4.md)
 - platform upgrade: Vaadin 14 → 24.10, Java 8 → 17
 - backported v7 features to Vaadin 24: RRule, JsCallback, event sources, scheduler extensions
 - entry model: url, interactive, nullable overlap, recurringDuration
@@ -46,17 +46,18 @@
 - performance: bounded entry cache, thread-safe refresh, BeanProperties converter caching
 - FullCalendar JS 6.1.9 → 6.1.20
 - deprecated ~30 convenience methods in favour of setOption()
-- see [Migration Guide 6.3 → 6.4](Migration-guide-6.3-to-6.4) for upgrade instructions
+- see [Migration Guide 6.3 → 6.4](Migration-guide-6.3-to-6.4.md) for upgrade instructions
 
 ## 6.2.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-6.2)
+[Details](release-notes-detail/Release-notes-6.2.md)
 - added custom native event handlers for entries
 
 ## 6.1.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-6.1)
+[Details](release-notes-detail/Release-notes-6.1.md)
 - added an optional Lumo theme for the addon
 
 ## 6.0.x
+[Details](release-notes-detail/Release-notes-6.0.md)
 - updated to FullCalendar 6.1.6
 - Migrated from Polymer 3 to simple HTML Element based web component (no Lit nor Polymer)
 - Migrated source code from JavaScript to TypeScript (ongoing process, not yet finished)
@@ -89,11 +90,11 @@ Other things that we may have overseen :)
 Due to lack of time, we have no release note details at this time. We tried to provide additional info as part of the migration page.
 
 ## 4.1.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-4.1)
+[Details](release-notes-detail/Release-notes-4.1.md)
 - added EntryProvider, a data provider like callback based class to allow lazy loading entries based on the actual displayed timespan
 
 ## 4.0.x
-[Details](https://github.com/stefanuebe/vaadin_fullcalendar/wiki/Release-notes-4.0)
+[Details](release-notes-detail/Release-notes-4.0.md)
 - introduced a new type JsonItem for creating item classes with dynamic property handling and automated conversion from and to json
 - integrated json item api into Entry types for dynamic type conversion. Due to that entries will not send all data to the client, when updating existing ones
 - changed date time handling on server side and communication to be always utc
