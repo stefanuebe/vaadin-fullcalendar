@@ -22,9 +22,9 @@ Status lifecycle: **Draft** → **Approved** → **Implemented**
 2. **Outline architecture** — Fill in `architecture.md` with module structure and communication patterns.
 3. **Review design system** — Reference `design-system.md` for theming, styling, and layout rules.
 4. **Specify features** — Copy `use-cases/use-case-template.md` once per feature.
-5. **Review specs and plans** — As part of the planning phase, have all new or changed specs and implementation plans reviewed by specialized agents (requirements-reviewer, architecture-guard, end-user-reviewer, code-reviewer, ui-designer, fullstack-developer). Fix all issues above nitpick level. No spec or plan moves to "Approved" without passing review.
+5. **Review specs and plans** — As part of the planning phase, have all new or changed specs and implementation plans reviewed by specialized agents (requirements-reviewer, architecture-guard, end-user-reviewer, code-reviewer, ui-designer, fullstack-developer). Fix all issues above nitpick level. **Revised artifacts must be re-reviewed** — a revision may introduce new issues or incompletely address original findings. No spec or plan moves to "Approved" without passing review.
 6. **Implement** — Build each use case, referencing its approved spec for acceptance criteria.
-7. **Review implementation** — Every artifact produced during implementation must be reviewed at least once before committing. This includes source code, tests, documentation, specs, and configuration changes. Use the appropriate agent for the artifact type (code-reviewer for code/tests, end-user-reviewer or docs-engineer for documentation). Fix all issues above nitpick level.
+7. **Review implementation** — Every artifact produced during implementation must be reviewed at least once before committing. This includes source code, tests, documentation, specs, and configuration changes. Use the appropriate agent for the artifact type (code-reviewer for code/tests, end-user-reviewer or docs-engineer for documentation). Fix all issues above nitpick level. **Revised artifacts must be re-reviewed** before committing.
 8. **Verify** — Run unit tests + E2E tests. Follow `verification.md` checklists for visual verification.
 9. **Mark complete** — Update use case status to **Implemented** once all tests pass.
 
