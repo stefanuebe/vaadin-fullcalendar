@@ -65,6 +65,9 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
                 resource -> {
                     DatePicker picker = new DatePicker();
                     picker.setWidth("130px");
+                    DatePicker.DatePickerI18n i18n = new DatePicker.DatePickerI18n();
+                    i18n.setDateFormat("yyyy-MM-dd");
+                    picker.setI18n(i18n);
                     picker.getElement().setAttribute("data-testid",
                             "datepicker-" + resource.getId());
                     return picker;
