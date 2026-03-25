@@ -8,8 +8,7 @@ Version 6.4.0 represents a significant platform modernization and feature expans
 
 The addon has been upgraded from Vaadin 14 (LTS) to Vaadin 24.10.x. This is a major platform shift that modernizes the underlying component framework.
 
-- **Java version**: Now requires Java 17+ (upgraded from Java 8)
-- **Spring Boot compatibility**: Spring Boot 3.5+ required
+- **Java version**: Requires Java 17+ (upgraded from Java 8)
 - **Polymer removal**: Vaadin 14's Polymer 3 has been replaced with plain HTML Element-based web components (already completed in v6.0)
 - **Vaadin Flow**: Updated to Vaadin Flow 24.10.x with all associated ecosystem updates
 

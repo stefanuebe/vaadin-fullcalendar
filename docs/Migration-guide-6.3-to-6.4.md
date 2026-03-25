@@ -224,7 +224,7 @@ mvn clean install
 
 ## Next Steps
 
-- Review the [Release Notes](Release-notes-6.4) for new features
+- Review the [Release Notes](release-notes-detail/Release-notes-6.4.md) for new features
 - Check the [demo module](https://github.com/stefanuebe/vaadin-fullcalendar) for usage examples
 - File issues on [GitHub](https://github.com/stefanuebe/vaadin-fullcalendar/issues) if problems arise
 

@@ -27,7 +27,7 @@ changes introduced in v6.4 with the technical platform changes required for v7.
 ### Feature changes (6.3 → 6.4, carried into 7.1)
 
 The following changes were introduced in v6.4 and are therefore also part of any direct 6.3→7.1 migration.
-For full detail and code examples, see the [standalone 6.3 → 6.4 guide](Migration-guide-6.3-to-6.4).
+For full detail and code examples, see the [standalone 6.3 → 6.4 guide](Migration-guide-6.3-to-6.4.md).
 
 **Breaking change — `Entry.overlap` type:**
 
@@ -59,7 +59,7 @@ Examples:
 | `setSlotMinTime(LocalTime)` | `setOption(Option.SLOT_MIN_TIME, LocalTime.of(9, 0))` |
 | `setSlotMaxTime(LocalTime)` | `setOption(Option.SLOT_MAX_TIME, LocalTime.of(17, 0))` |
 
-See the [6.3 → 6.4 guide](Migration-guide-6.3-to-6.4) for the complete list.
+See the [6.3 → 6.4 guide](Migration-guide-6.3-to-6.4.md) for the complete list.
 
 **New: `JsCallback` for function-valued options:**
 
@@ -78,7 +78,7 @@ Deprecated callback setters (`setEntryDidMountCallback`, `setEntryContentCallbac
 - RRule-based recurring entries (`entry.setRRule(...)`)
 - External event sources (Google Calendar, iCal, JSON feed via `ClientSideEventSource`)
 - `ComponentResourceAreaColumn` for the scheduler extension
-- 11 new server-side events (e.g. `EntryLeaveEvent`, `NavLinkDayClickedEvent`)
+- 11 new server-side events (e.g. `EntryDragStartEvent`, `ExternalEntryDroppedEvent`)
 - New `Entry` fields: `url`, `interactive`
 
 ### Technical changes (6.4 → 7.1)
@@ -213,7 +213,7 @@ action required.
 
 ## Migrating from 6.3 > 6.4
 
-Version 6.4 upgrades the platform from Vaadin 14 to Vaadin 24.10 and backports v7 features. For the full migration guide, see [Migration Guide 6.3 → 6.4](Migration-guide-6.3-to-6.4).
+Version 6.4 upgrades the platform from Vaadin 14 to Vaadin 24.10 and backports v7 features. For the full migration guide, see [Migration Guide 6.3 → 6.4](Migration-guide-6.3-to-6.4.md).
 
 **Key changes:**
 - **Vaadin 24.10 minimum** (Vaadin 14 no longer supported)
