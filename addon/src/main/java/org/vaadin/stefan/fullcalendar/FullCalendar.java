@@ -134,7 +134,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private volatile boolean refreshAllEntriesRequested;
     private final Object refreshLock = new Object();
 
-    private Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
+    private final Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
     private volatile JsCallback userEntryDidMountCallback;
 
     /**
@@ -298,7 +298,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             });
         }
 
-        applyEntryDidMountMerge();
+        applyEntryDidMountMerge(false);
     }
 
     /**
@@ -694,12 +694,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         // 1. ENTRY_DID_MOUNT intercept: detect this key and route to merge logic
         if (Option.ENTRY_DID_MOUNT.getOptionKey().equals(option)) {
+            boolean removed;
             if (value instanceof JsCallback cb) {
                 userEntryDidMountCallback = cb;
+                removed = false;
             } else {
+                removed = userEntryDidMountCallback != null; // was set before, now being cleared
                 userEntryDidMountCallback = null;
             }
-            applyEntryDidMountMerge();
+            applyEntryDidMountMerge(removed);
             return;
         }
 
@@ -990,21 +993,31 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <a href="https://fullcalendar.io/docs/event-render-hooks">official FC docs</a>.
      * @param eventName javascript event name
      * @param eventCallback javascript event callback to be hooked to the event
+     * @return registration to remove the native event listener
      */
-    public void addEntryNativeEventListener(String eventName, String eventCallback) {
+    public Registration addEntryNativeEventListener(String eventName, String eventCallback) {
         customNativeEventsMap.put(eventName, eventCallback);
-        applyEntryDidMountMerge();
+        applyEntryDidMountMerge(false);
+
+        return Registration.once(() -> {
+            customNativeEventsMap.remove(eventName);
+            applyEntryDidMountMerge(false);
+        });
     }
 
-    private void applyEntryDidMountMerge() {
+    /**
+     * Applies the merged eventDidMount callback to the client.
+     * @param clearIfNull if true and the merged result is null, actively sends null to clear the client-side callback.
+     *                    If false and merged is null, does nothing (preserves any callback set directly in TypeScript subclasses).
+     */
+    private void applyEntryDidMountMerge(boolean clearIfNull) {
         if (!isAttached()) {
             return;
         }
         String merged = buildEntryDidMountMerged();
         if (merged != null) {
             getElement().callJsFunction("setOption", "eventDidMount", JsCallback.of(merged).toMarkerJson());
-        } else {
-            // Explicitly clear the client-side callback when both user callback and native listeners are gone
+        } else if (clearIfNull) {
             getElement().callJsFunction("setOption", "eventDidMount", (JsonNode) null);
         }
     }
