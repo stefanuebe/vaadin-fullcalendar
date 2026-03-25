@@ -40,16 +40,30 @@ public class ExternalDragDemo extends AbstractCalendarView {
         dragItems.setSpacing(true);
         dragItems.getStyle().set("margin-bottom", "8px");
 
-        Div meetingItem = createDragItem("Meeting", "#4CAF50", createEntry("Team Meeting", "01:00"));
-        Div lunchItem = createDragItem("Lunch Break", "#FF9800", createEntry("Lunch", "00:30"));
-        Div taskItem = createDragItem("Task", "#2196F3", null);  // no entry data
+        // All Day Event — green, all-day
+        Entry allDayEntry = new Entry();
+        allDayEntry.setTitle("All Day Event");
+        allDayEntry.setAllDay(true);
+        allDayEntry.setColor("#4CAF50");
+        Div allDayItem = createDragItem("All Day Event", "#4CAF50");
 
-        dragItems.add(meetingItem, lunchItem, taskItem);
+        // Lunch Break — orange, timed at 12:00 for 30 min
+        Entry lunchEntry = new Entry();
+        lunchEntry.setTitle("Lunch Break");
+        lunchEntry.setColor("#FF9800");
+        lunchEntry.setCustomProperty("duration", "00:30");
+        lunchEntry.setStart(LocalDateTime.of(2025, 1, 1, 12, 0)); // time template
+        Div lunchItem = createDragItem("Lunch Break", "#FF9800");
+
+        // Task — blue, no entry data
+        Div taskItem = createDragItem("Task", "#2196F3");
+
+        dragItems.add(allDayItem, lunchItem, taskItem);
 
         // Register draggables on the calendar
-        calendar.addDraggable(new Draggable(meetingItem, createEntry("Team Meeting", "01:00")));
-        calendar.addDraggable(new Draggable(lunchItem, createEntry("Lunch", "00:30")));
-        calendar.addDraggable(new Draggable(taskItem));  // no entry data
+        calendar.addDraggable(new Draggable(allDayItem, allDayEntry));
+        calendar.addDraggable(new Draggable(lunchItem, lunchEntry));
+        calendar.addDraggable(new Draggable(taskItem));  // no entry data — title will be empty on drop
 
         // --- Drop listener ---
         calendar.addDropListener(e -> {
@@ -72,7 +86,7 @@ public class ExternalDragDemo extends AbstractCalendarView {
         return calendar;
     }
 
-    private Div createDragItem(String label, String color, Entry entry) {
+    private Div createDragItem(String label, String color) {
         Div item = new Div(new Span(label));
         item.getStyle()
                 .set("padding", "8px 16px")
@@ -84,17 +98,11 @@ public class ExternalDragDemo extends AbstractCalendarView {
         return item;
     }
 
-    private Entry createEntry(String title, String duration) {
-        Entry entry = new Entry();
-        entry.setTitle(title);
-        entry.setCustomProperty("duration", duration);
-        return entry;
-    }
-
     @Override
     protected String createDescription() {
         return "Drag the colored items from above onto the calendar. " +
-                "The 'Meeting' and 'Lunch Break' items carry Entry data; " +
-                "'Task' has no entry data. The drop notification shows the resolved component and entry.";
+                "'All Day Event' creates an all-day entry (green). " +
+                "'Lunch Break' creates a timed entry at 12:00 (orange). " +
+                "'Task' has no entry data — the drop still fires but without entry info.";
     }
 }
