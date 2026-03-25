@@ -10,270 +10,219 @@ If we missed something or anything is unclear, please ping us on GitHub. We hope
 as smoothly as possible.
 
 ## Index
-* [7.0 > 7.1](#migration-notes-70--71)
+* [6.3 > 7.1](#migrating-from-63--71)
+* [6.4 > 7.1](#migrating-from-64--71)
 * [6.3 > 6.4](#migrating-from-63--64)
-* [6.1 > 7.0](#migrating-from-61--70)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
 
-## Migration notes 7.0 > 7.1
+## Migrating from 6.3 > 7.1
 
-Version 7.1 has two driving themes: closing the feature gap with FullCalendar v6, and keeping the Java API
-as lean as possible. Instead of adding a dedicated setter for every FC option, 7.1 leans into the generic
-`setOption` API — typed enums, automatic value converters, and `JsCallback` for function values make it just as
-convenient without the proliferation of individual methods. As a consequence, a number of existing
-one-off setters are now deprecated in favour of their `setOption` equivalents.
+This guide is for users jumping directly from v6.3 (Vaadin 14) to v7.1 (Vaadin 25). It combines the feature
+changes introduced in v6.4 with the technical platform changes required for v7.
 
-No APIs have been removed — all deprecated methods still compile and work. They will be removed in a future
-major version. There is also **one behaviour change** to be aware of.
+**Prerequisite:** Vaadin 25
 
-### Deprecated: Individual option setters (use `setOption` instead)
+### Feature changes (6.3 → 6.4, carried into 7.1)
 
-The following setter/getter methods from 7.0 are now deprecated. Replace them with `setOption`/`getOption`
-using the `Option` enum. Type converters automatically handle `Duration`, `LocalTime`, `DayOfWeek`,
-`Locale`, `BusinessHours`, `Header`/`Footer`, and `String[]` conversions.
+The following changes were introduced in v6.4 and are therefore also part of any direct 6.3→7.1 migration.
+For full detail and code examples, see the [standalone 6.3 → 6.4 guide](Migration-guide-6.3-to-6.4.md).
+
+**Breaking change — `Entry.overlap` type:**
+
+The `overlap` field changed from a primitive `boolean` (default `true`) to a boxed `Boolean` (default `null`).
+The getter name also changed: `isOverlap()` is deprecated, use `getOverlap()`.
+
+```java
+// Old (6.3)
+boolean overlap = entry.isOverlap();
+
+// New (7.1)
+Boolean overlap = entry.getOverlap();
+// Or for safe primitive conversion:
+boolean value = Boolean.TRUE.equals(entry.getOverlap());
+```
+
+`null` now means "inherit the calendar-level setting" rather than always sending `true` to the client.
+
+**Deprecated option setters — use `setOption` instead:**
+
+About 30 individual setter/getter methods are deprecated in favour of the unified `setOption(Option, value)` API.
+Examples:
 
 | Deprecated method | Replacement |
 |---|---|
-| `setBusinessHours(BusinessHours...)` | `setOption(Option.BUSINESS_HOURS, ...)` |
-| `removeBusinessHours()` | `setOption(Option.BUSINESS_HOURS, null)` |
-| `setColumnHeader(boolean)` | `setOption(Option.DAY_HEADERS, ...)` |
-| `getColumnHeader()` | `getOption(Option.DAY_HEADERS)` |
-| `setDragScrollActive(boolean)` | `setOption(Option.DRAG_SCROLL, ...)` |
-| `setEditable(boolean)` | `setOption(Option.EDITABLE, ...)` |
-| `getEditable()` | `getOption(Option.EDITABLE)` |
-| `setEntryConstraint(BusinessHours)` | `setOption(Option.ENTRY_CONSTRAINT, ...)` |
-| `setEntryDisplay(DisplayMode)` | `setOption(Option.ENTRY_DISPLAY, ...)` |
-| `setEntryDurationEditable(boolean)` | `setOption(Option.ENTRY_DURATION_EDITABLE, ...)` |
-| `getEntryDurationEditable()` | `getOption(Option.ENTRY_DURATION_EDITABLE)` |
-| `setEntryResizableFromStart(boolean)` | `setOption(Option.ENTRY_RESIZABLE_FROM_START, ...)` |
-| `getEntryResizableFromStart()` | `getOption(Option.ENTRY_RESIZABLE_FROM_START)` |
-| `setEntryStartEditable(boolean)` | `setOption(Option.ENTRY_START_EDITABLE, ...)` |
-| `getEntryStartEditable()` | `getOption(Option.ENTRY_START_EDITABLE)` |
 | `setFirstDay(DayOfWeek)` | `setOption(Option.FIRST_DAY, DayOfWeek.MONDAY)` |
-| `setFixedWeekCount(boolean)` | `setOption(Option.FIXED_WEEK_COUNT, ...)` |
-| `getFixedWeekCount()` | `getOption(Option.FIXED_WEEK_COUNT)` |
-| `setFooterToolbar(Footer)` | `setOption(Option.FOOTER_TOOLBAR, ...)` |
-| `setHeaderToolbar(Header)` | `setOption(Option.HEADER_TOOLBAR, ...)` |
-| `setLocale(Locale)` | `setOption(Option.LOCALE, Locale.GERMAN)` |
-| `getLocale()` | `getOption(Option.LOCALE)` |
-| `setNowIndicatorShown(boolean)` | `setOption(Option.NOW_INDICATOR, ...)` |
-| `setNumberClickable(boolean)` | `setOption(Option.NAV_LINKS, ...)` |
-| `setSnapDuration(String)` | `setOption(Option.SNAP_DURATION, Duration.ofMinutes(15))` |
+| `setWeekends(boolean)` | `setOption(Option.WEEKENDS, ...)` |
+| `setBusinessHours(BusinessHours...)` | `setOption(Option.BUSINESS_HOURS, ...)` |
 | `setSlotMinTime(LocalTime)` | `setOption(Option.SLOT_MIN_TIME, LocalTime.of(9, 0))` |
 | `setSlotMaxTime(LocalTime)` | `setOption(Option.SLOT_MAX_TIME, LocalTime.of(17, 0))` |
-| `setTimeslotsSelectable(boolean)` | `setOption(Option.SELECTABLE, ...)` |
-| `setWeekends(boolean)` | `setOption(Option.WEEKENDS, ...)` |
-| `getWeekends()` | `getOption(Option.WEEKENDS)` |
-| `setWeekNumbersVisible(boolean)` | `setOption(Option.WEEK_NUMBERS, ...)` |
-| `setWeekNumberCalculation(...)` | `setOption(Option.WEEK_NUMBER_CALCULATION, ...)` |
 
-**Migration example:**
+See the [6.3 → 6.4 guide](Migration-guide-6.3-to-6.4.md) for the complete list.
 
-```java
-// Old (7.0)
-calendar.setFirstDay(DayOfWeek.MONDAY);
-calendar.setBusinessHours(BusinessHours.businessWeek().start(LocalTime.of(9, 0)).end(LocalTime.of(17, 0)));
-calendar.setSlotMinTime(LocalTime.of(8, 0));
+**New: `JsCallback` for function-valued options:**
 
-// New (7.1+)
-calendar.setOption(Option.FIRST_DAY, DayOfWeek.MONDAY);
-calendar.setOption(Option.BUSINESS_HOURS, BusinessHours.businessWeek().start(LocalTime.of(9, 0)).end(LocalTime.of(17, 0)));
-calendar.setOption(Option.SLOT_MIN_TIME, LocalTime.of(8, 0));
-```
-
-### New: `JsCallback` — unified callback API
-
-7.1 introduces `JsCallback`, a lightweight wrapper that marks a string as a JavaScript function.
-Use it with `setOption` to set any FullCalendar option that expects a function:
+Calendar options that accept JavaScript functions are now set via `JsCallback.of(...)`:
 
 ```java
-// Static value — no JsCallback needed
-calendar.setOption(Option.ENTRY_OVERLAP, false);
-
-// Function value — wrap in JsCallback
 calendar.setOption(Option.ENTRY_OVERLAP,
     JsCallback.of("function(stillEvent, movingEvent) { return stillEvent.display === 'background'; }"));
 ```
 
-All callback-related `Option` constants (render hooks, interaction guards, data transforms, etc.)
-are available in the `Option` enum for the core addon and in `SchedulerOption` for the scheduler extension.
+Deprecated callback setters (`setEntryDidMountCallback`, `setEntryContentCallback`, etc.) are replaced by
+`setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(...))` and equivalent calls.
 
-**Clearing a callback:**
+**New features available from 6.4:**
 
-```java
-calendar.setOption(Option.ENTRY_CONTENT, JsCallback.clearCallback());
+- RRule-based recurring entries (`entry.setRRule(...)`)
+- External event sources (Google Calendar, iCal, JSON feed via `ClientSideEventSource`)
+- `ComponentResourceAreaColumn` for the scheduler extension
+- 11 new server-side events (e.g. `EntryDragStartEvent`, `ExternalEntryDroppedEvent`)
+- New `Entry` fields: `url`, `interactive`
 
-// Or with a nullable variable — JsCallback.of(null) returns null, which clears the option:
-String userFn = ...; // may be null
-calendar.setOption(Option.ENTRY_CONTENT, JsCallback.of(userFn));
-```
+### Technical changes (6.4 → 7.1)
 
-**`Option.FIXED_MIRROR_PARENT`:**
+These changes are required when moving from Vaadin 24.10 to Vaadin 25.
 
-Accepts a `JsCallback` with a function that returns a DOM element:
+#### JSON framework: elemental.json → Jackson 3
 
-```java
-calendar.setOption(Option.FIXED_MIRROR_PARENT,
-    JsCallback.of("function() { return document.body; }"));
-```
+v7 replaces elemental.json with Jackson 3 (`com.fasterxml.jackson`). This only affects you if you use these
+types directly — for example, in custom converters implementing `JsonItemPropertyConverter`.
 
-**Callbacks in `ResourceAreaColumn` and `ClientSideEventSource`:**
-
-Function fields in these classes accept `JsCallback` to ensure correct client-side evaluation:
-
-```java
-// Function content — use JsCallback
-column.withCellContent(JsCallback.of("function(arg) { return { html: arg.resource.title }; }"));
-
-// Static text content — use the String overload
-column.withCellContent("N/A");
-
-// EventDataTransform in event sources
-feed.withEventDataTransform(JsCallback.of("""
-    function(eventData) {
-        eventData.title = '[EXT] ' + eventData.title;
-        return eventData;
-    }"""));
-```
-
-### Deprecated: Individual callback methods (use `setOption` + `JsCallback` instead)
-
-The following callback methods existed in 7.0 and are now deprecated.
-Replace them with `setOption(Option, JsCallback.of(...))`:
-
-| Deprecated method | Replacement |
+| Old (elemental.json) | New (Jackson 3) |
 |---|---|
-| `setEntryClassNamesCallback(String)` | `setOption(Option.ENTRY_CLASS_NAMES, JsCallback.of(...))` |
-| `setEntryDidMountCallback(String)` | `setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(...))` |
-| `setEntryWillUnmountCallback(String)` | `setOption(Option.ENTRY_WILL_UNMOUNT, JsCallback.of(...))` |
-| `setEntryContentCallback(String)` | `setOption(Option.ENTRY_CONTENT, JsCallback.of(...))` |
+| `JsonObject` | `ObjectNode` |
+| `JsonArray` | `ArrayNode` |
+| `JsonValue` | `JsonNode` |
+| `json.hasKey(key)` | `json.has(key)` / `json.hasNonNull(key)` |
+| `json.put(key, value)` | `json.set(key, value)` (for `JsonNode` children) |
+| `json.keys()` | `json.propertyNames()` |
+| `array.set(array.length(), value)` | `array.add(value)` — Elemental appends via `set(length(), ...)`. Jackson's `add()` appends directly. |
+| `JsonUtils.toJsonValue()` | `JsonUtils.toJsonNode()` |
+| `JsonUtils.ofJsonValue()` | `JsonUtils.ofJsonNode()` |
 
-**Migration example:**
+**Note:** `CustomCalendarView.getViewSettings()` returns `ObjectNode` (Jackson) instead of `JsonObject` (elemental).
+Update any custom view implementations accordingly.
+
+#### BusinessHours API
+
+The `BusinessHours` constructors were removed. Use the fluent static factory API instead:
 
 ```java
-// Old (7.0)
-calendar.setEntryClassNamesCallback("function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }");
-calendar.setEntryContentCallback("function(info) { return { html: '<b>' + info.event.title + '</b>' }; }");
+// Old (6.3) — constructor-based
+new BusinessHours(LocalTime.of(9, 0), LocalTime.of(17, 0), DayOfWeek.MONDAY, DayOfWeek.FRIDAY);
 
-// New (7.1+)
-calendar.setOption(Option.ENTRY_CLASS_NAMES, JsCallback.of("function(info) { return info.event.extendedProps.urgent ? ['urgent'] : []; }"));
-calendar.setOption(Option.ENTRY_CONTENT, JsCallback.of("function(info) { return { html: '<b>' + info.event.title + '</b>' }; }"));
+// New (7.1) — fluent API
+BusinessHours.builder()
+    .start(LocalTime.of(9, 0))
+    .end(LocalTime.of(17, 0))
+    .dayOfWeeks(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)
+    .build();
+// Or for a standard business week:
+BusinessHours.businessWeek().start(LocalTime.of(9, 0)).end(LocalTime.of(17, 0));
 ```
 
-Callback options (render hooks, interaction guards, etc.) are set using the new `JsCallback` wrapper
-— see the "New: `JsCallback`" section below for details and examples.
+#### Theme variant rename
 
-### Deprecated: Scheduler callback setters (use `setOption` instead)
+The `FullCalendarVariant.LUMO` constant has been renamed to `FullCalendarVariant.VAADIN`. Update any
+references in your code.
 
-The following `Scheduler` / `FullCalendarScheduler` callback setter methods from 7.0 are now deprecated.
-Replace them with `setOption` with `JsCallback.of(...)`:
+#### CSS design tokens
 
-| Deprecated method | Replacement |
+If you override the addon's CSS theme variables, update from Lumo tokens to Vaadin unified tokens:
+
+| Old (Lumo) | New (Vaadin unified) |
 |---|---|
-| `setResourceLabelClassNamesCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_CLASS_NAMES, JsCallback.of(...))` |
-| `setResourceLabelContentCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_CONTENT, JsCallback.of(...))` |
-| `setResourceLabelDidMountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_DID_MOUNT, JsCallback.of(...))` |
-| `setResourceLablelWillUnmountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of(...))` |
-| `setResourceLaneClassNamesCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_CLASS_NAMES, JsCallback.of(...))` |
-| `setResourceLaneContentCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_CONTENT, JsCallback.of(...))` |
-| `setResourceLaneDidMountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(...))` |
-| `setResourceLaneWillUnmountCallback(String)` | `setOption(SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of(...))` |
+| `--lumo-base-color` | `--vaadin-background-color` |
+| `--lumo-body-text-color` | `--vaadin-text-color` |
+| `--lumo-contrast-10pct` | `--vaadin-border-color-secondary` |
+| `--lumo-contrast-20pct` | `--vaadin-border-color` |
+| `--lumo-space-xs` | `--vaadin-padding-xs` |
+| `--lumo-border-radius-s` | `--vaadin-radius-s` |
 
-All other scheduler callback and option constants (resource group hooks, resource area header hooks,
-resource lifecycle callbacks, scheduler option setters) are available directly via `setOption(SchedulerOption.X, ...)`
-— no deprecated wrapper method exists for these.
+This only applies if you have custom CSS that references these addon theme variables directly.
 
-**Migration example:**
+#### Aura theme support
+
+v7.1 supports the Aura theme (Vaadin 25). The addon's CSS automatically includes Aura fallbacks — no
+action required.
+
+## Migrating from 6.4 > 7.1
+
+This guide is for users already on v6.4 (Vaadin 24.10) upgrading to v7.1 (Vaadin 25). There are no new
+addon features to adopt — this migration is purely technical.
+
+**Prerequisite:** Vaadin 25
+
+### JSON framework: elemental.json → Jackson 3
+
+v7 replaces elemental.json with Jackson 3 (`com.fasterxml.jackson`). This only affects you if you use these
+types directly — for example, in custom converters implementing `JsonItemPropertyConverter`.
+
+| Old (elemental.json) | New (Jackson 3) |
+|---|---|
+| `JsonObject` | `ObjectNode` |
+| `JsonArray` | `ArrayNode` |
+| `JsonValue` | `JsonNode` |
+| `json.hasKey(key)` | `json.has(key)` / `json.hasNonNull(key)` |
+| `json.put(key, value)` | `json.set(key, value)` (for `JsonNode` children) |
+| `json.keys()` | `json.propertyNames()` |
+| `array.set(array.length(), value)` | `array.add(value)` — Elemental appends via `set(length(), ...)`. Jackson's `add()` appends directly. |
+| `JsonUtils.toJsonValue()` | `JsonUtils.toJsonNode()` |
+| `JsonUtils.ofJsonValue()` | `JsonUtils.ofJsonNode()` |
+
+**Note:** `CustomCalendarView.getViewSettings()` returns `ObjectNode` (Jackson) instead of `JsonObject` (elemental).
+Update any custom view implementations accordingly.
+
+### CSS design tokens
+
+The addon's built-in CSS uses these Lumo tokens internally. If you have **custom CSS** that references Lumo tokens alongside the addon, be aware that Vaadin 25 introduces unified `--vaadin-*` tokens that work across both Lumo and Aura themes:
+
+| Old (Lumo) | New (Vaadin unified) |
+|---|---|
+| `--lumo-base-color` | `--vaadin-background-color` |
+| `--lumo-body-text-color` | `--vaadin-text-color` |
+| `--lumo-contrast-10pct` | `--vaadin-border-color-secondary` |
+| `--lumo-contrast-20pct` | `--vaadin-border-color` |
+| `--lumo-space-xs` | `--vaadin-padding-xs` |
+| `--lumo-border-radius-s` | `--vaadin-radius-s` |
+
+This only applies if you have custom CSS that references these addon theme variables directly.
+
+### BusinessHours API
+
+The `BusinessHours` constructors have been replaced with a fluent builder API:
 
 ```java
-// Old (7.0)
-scheduler.setResourceLabelClassNamesCallback("function(arg) { return arg.resource.special ? ['special'] : []; }");
+// Old (6.4)
+new BusinessHours(DayOfWeek.MONDAY, DayOfWeek.FRIDAY)
 
-// New (7.1+)
-scheduler.setOption(SchedulerOption.RESOURCE_LABEL_CLASS_NAMES,
-    JsCallback.of("function(arg) { return arg.resource.special ? ['special'] : []; }"));
+// New (7.1)
+BusinessHours.businessWeek().start(LocalTime.of(9, 0)).end(LocalTime.of(17, 0))
 ```
 
-### `FullCalendarBuilder` is now a mutable fluent builder
+### Theme Variant Rename
 
-In 7.0, `FullCalendarBuilder.withXxx(...)` returned a **new** builder instance on every call. As of 7.1,
-the same instance is mutated and returned (`return this`). The change is backwards-compatible in all
-standard usage patterns, because intermediate builder states are never stored. However, if you kept
-references to intermediate states and called `.build()` on each, all references now point to the same
-final state.
+`FullCalendarVariant.LUMO` has been renamed to `FullCalendarVariant.VAADIN`. Update any references.
 
-### Deprecated: `setResourceLablelWillUnmountCallback` (typo fix)
+### Aura theme support
 
-This method was introduced in 7.0 with a typo in the name (`Lablel` instead of `Label`).
-Use `setOption(SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of(...))` instead.
-
-
-### `Entry.overlap` changed from `boolean` to `Boolean`
-
-The `overlap` field on `Entry` has changed from a primitive `boolean` (default `true`) to a boxed `Boolean`
-(default `null`).
-
-**Effect:**
-- The Lombok-generated getter name changed from `isOverlap()` (for primitive `boolean`) to `getOverlap()`
-  (for boxed `Boolean`, which may return `null`).
-- Code that relied on `overlap = true` being serialised to the client on every entry will no longer see the
-  field in the JSON when it has not been explicitly set. FullCalendar's own default for this property is
-  `true`, so the observable behaviour is identical — unless you have a global `eventOverlap` set to `false`
-  on the calendar, in which case an entry without an explicit `overlap` value will now correctly inherit
-  that global setting instead of always sending `true`.
-
-**Migration:** Choose the form that matches your intent for `null`:
-
-Replace all `entry.isOverlap()` calls with `Boolean.TRUE.equals(entry.getOverlap())`.
-
-| Pattern | null → | true → | false → | Use when |
-|---|---|---|---|---|
-| `Boolean.TRUE.equals(v)` | `false` | `true` | `false` | Only explicit `true` counts |
-| `!Boolean.FALSE.equals(v)` | `true` | `true` | `false` | Default-allow (null = true) |
-
-Note: `Boolean.TRUE.equals(null)` returns `false` in Java, so if you need "not set" to mean `true`
-(matching FC's own default behaviour), use `!Boolean.FALSE.equals(entry.getOverlap())` instead —
-that returns `true` when the value is `null` or `true`, and `false` only when explicitly set to `false`.
+v7.1 supports the Aura theme (Vaadin 25). The addon's CSS automatically includes Aura fallbacks — no
+action required.
 
 ## Migrating from 6.3 > 6.4
 
-Version 6.4 upgrades the platform from Vaadin 14 to Vaadin 24.10 and backports v7 features. For the full migration guide, see [Migration Guide 6.3 → 6.4](Migration-guide-6.3-to-6.4).
+Version 6.4 upgrades the platform from Vaadin 14 to Vaadin 24.10 and backports v7 features. For the full migration guide, see [Migration Guide 6.3 → 6.4](Migration-guide-6.3-to-6.4.md).
 
 **Key changes:**
-- **Java 17 minimum** (up from Java 8)
 - **Vaadin 24.10 minimum** (Vaadin 14 no longer supported)
-- **Spring Boot 3.5+** required
 - `overlap` field type changed from `boolean` to `Boolean` (nullable); `isOverlap()` deprecated, use `getOverlap()`
 - ~30 convenience methods deprecated in favour of `setOption(Option, value)`
 - New features: RRule, JsCallback, event sources, ComponentResourceAreaColumn, 11 new events
 
-## Migrating from 6.1 > 7.0
-To migrate to version 7 of the addon, you need to bump your Vaadin version to 25 and anything else, that Vaadin 25
-requires (like Java or Spring Boot).
-
-If you have used any elemental.Json classes, then you need to convert those to their respective Jackson 3 counterparts,
-like for instance `JsonArray` to `ArrayNode` or `JsonObject` to `ObjectNode`.
-
-Also, you may need to update used methods, for instance `JsonUtils#ofJsonValue` is now `#ofJsonNode`.
-
-### Business hours reworked
-The class `BusinessHours` has been reworked. The constructors have been removed and instead
-there are now static methods to define new instance. The api also has been changed to allow a fluid definition
-style of business hours.
-
-Replace your constructors with a matching static construction variant and define start and end using
-the respective fluent api methods `start/end` (optional)
-
-### Minor changes
-Deprecated APIs are subject to change or removal in future versions.
-
-The FullCalendar theme variant `LUMO` has been renamed to `VAADIN`. If you referenced this somewhere, rename
-it accordingly.
-
 ## Migrating from 4.1 > 6.0
-Depending on your Vaadin version you may need to update also other things, related to Vaadin core and Spring Boot.
+Depending on your Vaadin version you may need to update also other things, related to Vaadin core.
 Steps to be taken there, will not be covered here.
 
 ### Removed polymer
