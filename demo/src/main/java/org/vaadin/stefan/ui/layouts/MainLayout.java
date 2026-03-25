@@ -24,6 +24,7 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
+import org.vaadin.stefan.ui.view.demos.externaldrag.ExternalDragDemo;
 import org.vaadin.stefan.ui.view.demos.componentcolumns.ComponentColumnsDemo;
 import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthCrossMonthSelectionDemo;
 import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
@@ -43,6 +44,7 @@ public class MainLayout extends AbstractLayout {
         addMenu(nav, CustomViewDemo.class);
         addMenu(nav, MultiMonthCrossMonthSelectionDemo.class);
         addMenu(nav, ComponentColumnsDemo.class);
+        addMenu(nav, ExternalDragDemo.class);
 //        addMenu(nav, InlineCalendarDemo.class);
     }
 }
