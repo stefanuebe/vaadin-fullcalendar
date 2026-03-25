@@ -309,7 +309,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(this, executionContext -> {
                     for (Draggable d : draggableRegistry.values()) {
-                        getElement().callJsFunction("initDraggable", d.getComponent().getElement());
+                        callInitDraggable(d);
                     }
                 });
             });
@@ -1799,6 +1799,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Registers a listener for when any external HTML element is dropped onto the calendar.
      * Requires {@link Option#DROPPABLE} to be set to {@code true}.
+     * <p>
+     *     This listener is considered low-level. If you external html element uses the Draggable feature
+     *     of the FullCalendar and also provides valid entry data, we strongly recommend to use
+     *     the {@link #addEntryReceiveListener(ComponentEventListener)} instead.
+     * </p>
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1820,7 +1825,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <strong>Important:</strong> The draggable registry is per-calendar. If the component is dropped
      * onto a <em>different</em> calendar, that calendar's {@link DropEvent} will not resolve the
      * draggable — {@code getDraggedComponent()} and {@code getDraggedEntry()} will return empty.
-     * The raw {@link DropEvent#getDraggedElData()} is still available in all cases.
+     * The raw {@link DropEvent#getEntryJson()} is still available in all cases.
      *
      * @param draggable the draggable to register
      * @return registration to remove the draggable
@@ -1847,8 +1852,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         if (isAttached()) {
             getElement().getNode().runWhenAttached(ui -> {
-                ui.beforeClientResponse(this, ctx ->
-                    getElement().callJsFunction("initDraggable", el));
+                ui.beforeClientResponse(this, ctx -> callInitDraggable(draggable));
             });
         }
 
@@ -1869,11 +1873,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Resolves a draggable by its client-side ID. Package-private — used by {@link DropEvent}.
      */
-    Draggable resolveDraggable(String draggableId) {
+    Optional<Draggable> resolveDraggable(String draggableId) {
         if (draggableId == null || draggableId.isBlank()) {
-            return null;
+            return Optional.empty();
         }
-        return draggableRegistry.get(draggableId);
+        return Optional.ofNullable(draggableRegistry.get(draggableId));
+    }
+
+    /**
+     * Sends the initDraggable JS call with optional itemSelector and eventDataCallback.
+     */
+    private void callInitDraggable(Draggable draggable) {
+        com.vaadin.flow.dom.Element el = draggable.getComponent().getElement();
+        String itemSelector = draggable.getItemSelector();
+        JsCallback eventDataCallback = draggable.getEventDataCallback();
+
+        if (itemSelector != null || eventDataCallback != null) {
+            getElement().callJsFunction("initDraggable", el,
+                    itemSelector != null ? itemSelector : "",
+                    eventDataCallback != null ? eventDataCallback.toMarkerJson() : null);
+        } else {
+            getElement().callJsFunction("initDraggable", el);
+        }
     }
 
     /**

@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;
@@ -36,7 +35,6 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.NullNode;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.lang.reflect.Field;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Stream;
@@ -89,6 +87,7 @@ public class Entry {
 
     @NonNull
     @JsonName("display")
+    @JsonConverter(DisplayModeConverter.class)
     private DisplayMode displayMode = DisplayMode.AUTO;
 
     @JsonName("startRecur")
@@ -285,8 +284,36 @@ public class Entry {
      * @param jsonObject json object
      * @param requiresMatchingId require the ids to match
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public void updateFromJson(ObjectNode jsonObject, boolean requiresMatchingId) {
+        checkForMatchingId(jsonObject, requiresMatchingId);
+
+        // Use cached annotation data from BeanProperties for performance
+        streamProperties()
+                .filter(def -> !def.isJsonIgnored())
+                .filter(BeanProperties::isJsonUpdateAllowed)
+                .forEach(def -> writeJsonValueToEntry(jsonObject, def));
+    }
+
+    /**
+     * Updates this instance with the given json object. ALL fields will be overwritten, regardless whether they are allowed to
+     * be updated or not. Ignored properties still will be not overwritten as they are intended to be invisible for the json parser.
+     * Based on the boolean parameter, the id will be either ignored (false) or has to be the same as this instance's one
+     * (true), otherwise an exception will be thrown
+     *
+     * @param jsonObject json object
+     * @param requiresMatchingId require the ids to match
+     */
+    public void updateAllFromJson(ObjectNode jsonObject, boolean requiresMatchingId) {
+        checkForMatchingId(jsonObject, requiresMatchingId);
+
+        // Use cached annotation data from BeanProperties for performance
+        streamProperties()
+                .filter(def -> !def.isJsonIgnored())
+                .filter(def -> def.getSetter().isPresent())
+                .forEach(def -> writeJsonValueToEntry(jsonObject, def));
+    }
+
+    private void checkForMatchingId(ObjectNode jsonObject, boolean requiresMatchingId) {
         if (requiresMatchingId) {
             if (!jsonObject.hasNonNull(Fields.ID)) {
                 throw new IllegalArgumentException("JsonObject has no id. Id matching is required.");
@@ -297,34 +324,32 @@ public class Entry {
                 throw new IllegalArgumentException("Id matching is required. This id is " + id + " but the json object provided " + idString);
             }
         }
-
-        streamProperties().forEach(def -> {
-            // Use cached annotation data from BeanProperties for performance
-            if (!def.isJsonIgnored() && def.isJsonUpdateAllowed()) {
-                String name = def.getName();
-
-                Setter<Entry, Object> setter = def.getSetter()
-                        .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + name));
-
-                String jsonName = def.getJsonName();
-
-                if (jsonObject.hasNonNull(jsonName)) {
-                    JsonItemPropertyConverter converter = def.getConverter();
-
-                    Object newValue;
-                    JsonNode jsonValue = jsonObject.get(jsonName);
-
-                    if (converter != null) {
-                        newValue = converter.toServerModel(jsonValue, this);
-                    } else {
-                        newValue = JsonUtils.ofJsonNode(jsonValue);
-                    }
-
-                    setter.accept(this, newValue);
-                }
-            }
-        });
     }
+
+    private void writeJsonValueToEntry(ObjectNode jsonObject, BeanProperties<Entry> def) {
+        String name = def.getName();
+
+        Setter<Entry, Object> setter = def.getSetter()
+                .orElseThrow(() -> new UnsupportedOperationException("No setter found for field " + name));
+
+        String jsonName = def.getJsonName();
+
+        if (jsonObject.hasNonNull(jsonName)) {
+            JsonItemPropertyConverter<Object, Object> converter = def.getConverter();
+
+            Object newValue;
+            JsonNode jsonValue = jsonObject.get(jsonName);
+
+            if (converter != null) {
+                newValue = converter.toServerModel(jsonValue, this);
+            } else {
+                newValue = JsonUtils.ofJsonNode(jsonValue);
+            }
+
+            setter.accept(this, newValue);
+        }
+    }
+
 
     /**
      * Checks whether the given json object is a valid source to update this instance.

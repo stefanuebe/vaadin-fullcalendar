@@ -16,22 +16,26 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
 import lombok.Getter;
 import lombok.ToString;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
  * Fires when any external HTML element is dropped onto the calendar (requires {@code droppable} to be {@code true}).
  * This fires for <em>all</em> external drops, including non-event elements.
  * <br><br>
+ * The created entry can be obtained via {@link #getCreatedEntry()}.
+ * <br><br>
  * If the dropped element was registered via {@link FullCalendar#addDraggable(Draggable)},
- * use {@link #getDraggedComponent()} and {@link #getDraggedEntry()} for typed access.
+ * use {@link #getDraggable()} for typed access.
  * <br><br>
  * For drops of external elements that carry event data ({@code data-event} attribute) and are successfully
  * added to the calendar as entries, {@link EntryReceiveEvent} fires in addition to this event.
@@ -54,16 +58,11 @@ public class DropEvent extends ComponentEvent<FullCalendar> {
     private final boolean allDay;
 
     /**
-     * The raw JSON string from the dropped element's {@code data-event} attribute, or {@code null}
-     * if the element had no such attribute.
-     */
-    private final String draggedElData;
-
-    /**
      * The resolved {@link Draggable} instance, or {@code null} if the dropped element was not
      * registered via {@link FullCalendar#addDraggable(Draggable)} on this calendar.
      */
     private final Draggable draggable;
+    private final Entry createdEntry;
 
     /**
      * New instance.
@@ -83,8 +82,17 @@ public class DropEvent extends ComponentEvent<FullCalendar> {
         super(source, fromClient);
         this.date = JsonUtils.parseClientSideDate(date);
         this.allDay = allDay;
-        this.draggedElData = draggedElData;
-        this.draggable = source.resolveDraggable(draggableId);
+        this.draggable = source.resolveDraggable(draggableId).orElse(null);
+
+        createdEntry = new Entry();
+        if (draggedElData != null) {
+            createdEntry.updateAllFromJson((ObjectNode) JsonMapper.shared().readTree(draggedElData), false);
+        } else {
+            createdEntry.setAllDay(allDay);
+            createdEntry.setStart(JsonUtils.parseClientSideDate(date));
+            LocalDateTime start = createdEntry.getStart();
+            createdEntry.setEnd(allDay ? start.plusDays(1) : start.plusHours(1));
+        }
     }
 
     /**
@@ -98,20 +106,14 @@ public class DropEvent extends ComponentEvent<FullCalendar> {
     }
 
     /**
-     * Returns the Vaadin component that was dragged, if it was registered as a {@link Draggable}.
-     *
-     * @return optional component
+     * Returns the entry, that has been created by the client side as a result of the drop operation. The content
+     * of this entry may differ from the draggable entry data, depending on restrictions or limitations of the calendar.
+     * <p>
+     *     Please note, that this entry will NOT be automatically added to your entry provider in any case.
+     * </p>
+     * @return created entry
      */
-    public Optional<Component> getDraggedComponent() {
-        return getDraggable().map(Draggable::getComponent);
-    }
-
-    /**
-     * Returns the entry data associated with the dragged component, if available.
-     *
-     * @return optional entry
-     */
-    public Optional<Entry> getDraggedEntry() {
-        return getDraggable().flatMap(Draggable::getEntryData);
+    public Entry getCreatedEntry() {
+        return createdEntry;
     }
 }

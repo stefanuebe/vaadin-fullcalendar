@@ -411,7 +411,28 @@ export class FullCalendar extends HTMLElement {
                 };
             },
             eventReceive: (eventInfo: any) => {
-                return {data: this.convertToEventData(eventInfo.event)};
+                const event = eventInfo.event;
+
+                // Send full event data for received entries (not just id/start/end/allDay)
+                let data: any = {
+                    ...this.convertToEventData(event),
+                    title: event.title || '',
+                    color: event.backgroundColor || event.borderColor || '',
+                    display: event.display || '',
+                };
+
+                // Include extendedProps if present
+                if (event.extendedProps && Object.keys(event.extendedProps).length > 0) {
+                    data.customProperty = event.extendedProps;
+                }
+
+                // Remove the client-side phantom entry — the server will manage persistence
+                event.remove();
+
+                return {
+                    data,
+                    draggableId: eventInfo.draggedEl ? eventInfo.draggedEl.getAttribute('data-draggable-id') : null
+                };
             },
             eventLeave: (eventInfo: any) => {
                 return {data: this.convertToEventData(eventInfo.event)};
@@ -813,16 +834,28 @@ export class FullCalendar extends HTMLElement {
 
     // --- Draggable management ---
 
-    initDraggable(el: HTMLElement) {
+    initDraggable(el: HTMLElement, itemSelector?: string, eventDataCallback?: any) {
         // Destroy existing if present (reattach or re-registration)
         this.destroyDraggable(el);
 
-        const d = new Draggable(el, {
-            eventData: function(dragEl: HTMLElement) {
+        const options: any = {};
+
+        if (itemSelector) {
+            options.itemSelector = itemSelector;
+        }
+
+        if (eventDataCallback) {
+            // eventDataCallback is a JsCallback marker — evaluate it
+            options.eventData = evaluateCallbacks(eventDataCallback);
+        } else {
+            // Default: read data-event attribute from the dragged element
+            options.eventData = function(dragEl: HTMLElement) {
                 const data = dragEl.getAttribute('data-event');
                 return data ? JSON.parse(data) : {};
-            }
-        });
+            };
+        }
+
+        const d = new Draggable(el, options);
         this._draggables.set(el, d);
     }
 

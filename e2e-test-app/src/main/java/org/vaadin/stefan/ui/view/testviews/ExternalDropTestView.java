@@ -92,9 +92,8 @@ public class ExternalDropTestView extends VerticalLayout {
             dropCount.setText(String.valueOf(count));
             dropDate.setText(e.getDate() != null ? e.getDate().toString() : "null");
             dropAllDay.setText(String.valueOf(e.isAllDay()));
-            dropData.setText(e.getDraggedElData() != null ? e.getDraggedElData() : "null");
-            dropComponent.setText(e.getDraggedComponent().map(c -> c.getId().orElse("no-id")).orElse("none"));
-            dropEntry.setText(e.getDraggedEntry().map(Entry::getTitle).orElse("none"));
+            dropComponent.setText(e.getDraggable().map(Draggable::getComponent).map(c -> c.getId().orElse("no-id")).orElse("none"));
+            dropEntry.setText(e.getDraggable().flatMap(Draggable::getEntryData).map(Entry::getTitle).orElse("none"));
         });
 
         add(calendar);

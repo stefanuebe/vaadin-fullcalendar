@@ -197,7 +197,7 @@ public class InteractionCallbacksTest {
         json.put("end", "2025-03-10T10:00:00Z");
         json.put("allDay", false);
 
-        EntryReceiveEvent event = new EntryReceiveEvent(calendar, true, json);
+        EntryReceiveEvent event = new EntryReceiveEvent(calendar, true, json, null);
         assertNotNull(event.getEntry());
         // Entry.id is final (set by Entry constructor), so it won't match the JSON id.
         // Verify the mutable fields are populated.

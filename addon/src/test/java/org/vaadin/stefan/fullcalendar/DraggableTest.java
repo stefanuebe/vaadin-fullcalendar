@@ -46,19 +46,19 @@ class DraggableTest {
     @Test
     void resolveDraggableWithNullReturnsNull() {
         FullCalendar calendar = new FullCalendar();
-        assertNull(calendar.resolveDraggable(null));
+        assertTrue(calendar.resolveDraggable(null).isEmpty());
     }
 
     @Test
     void resolveDraggableWithBlankReturnsNull() {
         FullCalendar calendar = new FullCalendar();
-        assertNull(calendar.resolveDraggable(""));
-        assertNull(calendar.resolveDraggable("   "));
+        assertTrue(calendar.resolveDraggable("").isEmpty());
+        assertTrue(calendar.resolveDraggable("   ").isEmpty());
     }
 
     @Test
     void resolveDraggableWithUnknownIdReturnsNull() {
         FullCalendar calendar = new FullCalendar();
-        assertNull(calendar.resolveDraggable("unknown-id"));
+        assertTrue(calendar.resolveDraggable("unknown-id").isEmpty());
     }
 }

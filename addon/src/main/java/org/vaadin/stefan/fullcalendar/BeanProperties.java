@@ -130,7 +130,7 @@ public class BeanProperties<T> {
 
                             try {
                                 finalSetterMethod.invoke(item, valueToWrite);
-                            } catch (IllegalAccessException | InvocationTargetException e) {
+                            } catch (Exception e) {
                                 throw new RuntimeException("Failed to invoke setter for field " + fieldName, e);
                             }
                         };

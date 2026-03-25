@@ -12,7 +12,6 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -35,6 +34,68 @@ public class ExternalDragDemo extends AbstractCalendarView {
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
         calendar.setEntryProvider(provider);
 
+        // --- Drop listener ---
+        calendar.addDropListener(e -> {
+            String componentInfo = e.getDraggable()
+                    .map(Draggable::getComponent)
+                    .map(c -> c.getElement().getText())
+                    .orElse("unknown");
+            String entryInfo = e.getDraggable()
+                    .flatMap(Draggable::getEntryData)
+                    .map(Entry::getTitle)
+                    .orElse("no entry data");
+
+            Notification.show(
+                    "Dropped '" + componentInfo + "' on " + e.getDate()
+                            + " (entry: " + entryInfo + ")",
+                    3000, Notification.Position.BOTTOM_START);
+        });
+
+        // --- Entry receive listener: persist the client-created entry ---
+        calendar.addEntryReceiveListener(e -> {
+            provider.addEntry(e.getEntry());
+            provider.refreshAll();
+        });
+
+
+
+
+        return calendar;
+    }
+
+    @Override
+    protected void postConstruct(FullCalendar calendar) {
+
+        // --- Container draggable with itemSelector + eventData callback ---
+        Div taskList = new Div();
+        taskList.getStyle()
+                .set("border", "1px solid #ccc")
+                .setBorderRadius("var(--vaadin-radius-m)")
+                .set("padding", "8px")
+                .set("margin-bottom", "8px");
+        taskList.add(new Span("Task list (drag individual items):"));
+
+        for (String task : new String[]{"Write report", "Fix bug #42", "Review PR", "Deploy v2.0"}) {
+            Div item = new Div(new Span(task));
+            item.addClassName("task-item");
+            item.getStyle()
+                    .set("padding", "4px 12px")
+                    .set("margin", "4px 0")
+                    .set("background", "var(--vaadin-background-container-strong)")
+                    .set("cursor", "grab")
+                    .setBorderRadius("var(--vaadin-radius-m)");
+            taskList.add(item);
+        }
+
+        // Register as container draggable: children with .task-item are draggable,
+        // eventData callback creates entry from the dragged element's text
+        calendar.addDraggable(new Draggable(taskList)
+                .withItemSelector(".task-item")
+                .withEventDataCallback(JsCallback.of(
+                        "function(el) { console.info(el); return { title: el.innerText, duration: '01:00' }; }")));
+        // Insert drag items and task list before the calendar
+
+
         // --- Draggable items ---
         HorizontalLayout dragItems = new HorizontalLayout();
         dragItems.setSpacing(true);
@@ -47,12 +108,12 @@ public class ExternalDragDemo extends AbstractCalendarView {
         allDayEntry.setColor("#4CAF50");
         Div allDayItem = createDragItem("All Day Event", "#4CAF50");
 
-        // Lunch Break — orange, timed at 12:00 for 30 min
+        // Lunch Break — orange, timed for 30 min (drop time determined by target slot)
         Entry lunchEntry = new Entry();
         lunchEntry.setTitle("Lunch Break");
         lunchEntry.setColor("#FF9800");
-        lunchEntry.setCustomProperty("duration", "00:30");
-        lunchEntry.setStart(LocalDateTime.of(2025, 1, 1, 12, 0)); // time template
+        lunchEntry.setAllDay(false);
+        lunchEntry.setRecurringDuration("00:30");
         Div lunchItem = createDragItem("Lunch Break", "#FF9800");
 
         // Task — blue, no entry data
@@ -65,25 +126,10 @@ public class ExternalDragDemo extends AbstractCalendarView {
         calendar.addDraggable(new Draggable(lunchItem, lunchEntry));
         calendar.addDraggable(new Draggable(taskItem));  // no entry data — title will be empty on drop
 
-        // --- Drop listener ---
-        calendar.addDropListener(e -> {
-            String componentInfo = e.getDraggedComponent()
-                    .map(c -> c.getElement().getText())
-                    .orElse("unknown");
-            String entryInfo = e.getDraggedEntry()
-                    .map(Entry::getTitle)
-                    .orElse("no entry data");
+        int i = indexOf(getToolbar());
 
-            Notification.show(
-                    "Dropped '" + componentInfo + "' on " + e.getDate()
-                            + " (entry: " + entryInfo + ")",
-                    3000, Notification.Position.BOTTOM_START);
-        });
-
-        // Insert drag items before the calendar
-        addComponentAsFirst(dragItems);
-
-        return calendar;
+        addComponentAtIndex(i, taskList);
+        addComponentAtIndex(i, dragItems);
     }
 
     private Div createDragItem(String label, String color) {
@@ -100,9 +146,11 @@ public class ExternalDragDemo extends AbstractCalendarView {
 
     @Override
     protected String createDescription() {
-        return "Drag the colored items from above onto the calendar. " +
+        return "Drag the colored items onto the calendar. " +
                 "'All Day Event' creates an all-day entry (green). " +
                 "'Lunch Break' creates a timed entry at 12:00 (orange). " +
-                "'Task' has no entry data — the drop still fires but without entry info.";
+                "'Task' has no entry data. " +
+                "The task list below demonstrates container dragging with itemSelector — " +
+                "each item generates entry data dynamically via a JS callback.";
     }
 }
