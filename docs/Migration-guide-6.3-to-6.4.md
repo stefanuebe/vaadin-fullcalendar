@@ -2,18 +2,15 @@
 
 Version 6.4 modernizes the addon for Vaadin 24.10 while backporting v7 features. This guide covers the upgrade path and breaking changes.
 
-> For earlier versions (6.2 or 6.1), see the [v6.0 migration guide](migration) first.
+> For earlier versions (6.2 or 6.1), see the [v6.0 migration guide](Migration-guides.md#migrating-from-41--60) first.
 
 ## Prerequisites
 
-Before upgrading to 6.4, ensure your project meets these requirements:
+Before upgrading to 6.4, ensure your project meets this requirement:
 
 | Requirement | Minimum Version |
 |-------------|-----------------|
-| **Java** | 17 |
 | **Vaadin** | 24.10.x |
-| **Spring Boot** | 3.5+ (demo tested with this version) |
-| **Maven** | 3.8+ |
 
 **Note**: Vaadin 14 is no longer supported. If you're on Vaadin 14, you must upgrade to Vaadin 24.10 first.
 
@@ -42,28 +39,7 @@ Run Maven to fetch the new version:
 mvn clean dependency:tree
 ```
 
-## Step 2: Verify Java and Vaadin Versions
-
-Check your `pom.xml` or `gradle.properties` for the following:
-
-```xml
-<!-- Ensure Java 17+ -->
-<maven.compiler.source>17</maven.compiler.source>
-<maven.compiler.target>17</maven.compiler.target>
-
-<!-- Ensure Vaadin 24.10+ -->
-<vaadin.version>24.10.0</vaadin.version>
-```
-
-If you're still on Java 11 or Vaadin 23, upgrade them now:
-
-```bash
-mvn clean compile
-```
-
-Fix any compilation errors related to Java 17 syntax or Vaadin API changes.
-
-## Step 3: Handle Breaking Changes
+## Step 2: Handle Breaking Changes
 
 ### Overlap Field Type Change
 
@@ -93,7 +69,7 @@ Boolean overlap = entry.getOverlap();  // Returns nullable Boolean
 
 The binary layout is compatible, but **recompilation is required**.
 
-## Step 4: Update Deprecated Method Calls (Optional)
+## Step 3: Update Deprecated Method Calls (Optional)
 
 While deprecated methods still work, consider replacing them with the unified `setOption()` API for consistency.
 
@@ -119,7 +95,7 @@ calendar.setOption(Option.WEEKENDS, false);
 
 Deprecated methods are still functional and have `@Deprecated` annotations visible in your IDE. Replace them at your convenience — they remain supported in 6.4.
 
-## Step 5: Optional — Adopt New v7 Features
+## Step 4: Optional — Adopt New v7 Features
 
 ### Use RRule for Recurring Entries
 
@@ -157,13 +133,13 @@ Both approaches work, but RRule is more powerful (supports exclusions, complex p
 The new fields (`url`, `interactive`) are optional but recommended:
 
 ```java
-Entry event = new Entry("Conference Talk");
-event.setUrl("https://conference.example.com/talks/opening-keynote");
-event.setInteractive(true);  // Allows dragging and resizing
-calendar.getEntryProvider().asInMemory().addEntry(event);
+Entry entry = new Entry("Conference Talk");
+entry.setUrl("https://conference.example.com/talks/opening-keynote");
+entry.setInteractive(true);  // Allows dragging and resizing
+calendar.getEntryProvider().asInMemory().addEntry(entry);
 ```
 
-## Step 6: Handle New NPM Dependencies
+## Step 5: Handle New NPM Dependencies
 
 The following npm packages are automatically loaded:
 
@@ -174,17 +150,13 @@ The following npm packages are automatically loaded:
 
 **You don't need to do anything** — they're bundled automatically in the addon JAR. If you have a custom npm build process, no changes are required.
 
-## Step 7: Recompile and Test
+## Step 6: Recompile and Test
 
 ```bash
 mvn clean verify
 ```
 
-If you're using Spring Boot, restart the development server:
-
-```bash
-mvn spring-boot:run
-```
+Restart your development server and verify.
 
 Test the following:
 
@@ -226,20 +198,15 @@ boolean value = entry.getOverlap() != null && entry.getOverlap();
 
 ### Calendar Not Rendering
 
-**Cause**: Vaadin 24.10 or Java 17 not properly configured.
+**Cause**: Vaadin 24.10 not properly configured or stale frontend cache.
 
 **Check**:
 ```bash
-mvn compile
-java -version  # Should be 17+
 grep "vaadin.version" pom.xml
 ```
 
-Ensure both are correct, then clear your browser cache and reload:
+Ensure the Vaadin version is 24.10 or later, then clear your browser cache and reload:
 ```bash
-# Clear Vaadin frontend cache
-rm -rf frontend
-rm -rf target
 mvn clean install
 ```
 
