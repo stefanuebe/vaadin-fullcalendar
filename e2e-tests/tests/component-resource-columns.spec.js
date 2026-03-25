@@ -49,12 +49,9 @@ base.describe('Component Resource Columns', () => {
         });
 
         base('DatePicker accepts date', async ({ page }) => {
-            // Set value programmatically — Vaadin 24 DatePicker input handling differs from V25
-            await page.evaluate(() => {
-                const picker = document.querySelector('[data-testid="datepicker-res-a"]');
-                picker.value = '2025-03-03';
-                picker.dispatchEvent(new Event('change', { bubbles: true }));
-            });
+            const picker = page.locator('[data-testid="datepicker-res-a"]').locator('input');
+            await picker.fill('3/3/2025');
+            await picker.press('Enter');
             await waitForVaadin(page);
 
             await page.click('#btn-read-state');
