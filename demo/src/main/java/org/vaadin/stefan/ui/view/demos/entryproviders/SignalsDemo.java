@@ -26,9 +26,9 @@ import java.util.List;
  *
  * @author Stefan Uebe
  */
-@Route(value = "signal-binding", layout = MainLayout.class)
-@MenuItem(label = "Signal Binding")
-public class SignalIntegrationDemo extends AbstractCalendarView {
+@Route(value = "signals", layout = MainLayout.class)
+@MenuItem(label = "Signals")
+public class SignalsDemo extends AbstractCalendarView {
 
     private ListSignal<Entry> entriesSignal;
 
