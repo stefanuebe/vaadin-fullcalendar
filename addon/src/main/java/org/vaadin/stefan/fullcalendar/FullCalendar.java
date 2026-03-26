@@ -148,6 +148,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private final Map<String, Draggable> draggableRegistry = new LinkedHashMap<>();
     private final Map<String, Registration> draggableCleanups = new LinkedHashMap<>();
 
+    /**
+     * Whether to automatically revert client-side entry changes when
+     * {@link EntryDataEvent#applyChangesOnEntry()} is not called. Default is {@code true}.
+     */
+    private boolean autoRevertUnappliedEntryChanges = true;
+
     // ---- View-Specific Options ----
     private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
 
@@ -1607,7 +1613,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public Registration addEntryResizedListener(ComponentEventListener<EntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EntryResizedEvent.class, listener);
+        return addAutoRevertAwareListener(EntryResizedEvent.class, listener);
     }
 
     /**
@@ -1619,7 +1625,74 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public Registration addEntryDroppedListener(ComponentEventListener<EntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EntryDroppedEvent.class, listener);
+        return addAutoRevertAwareListener(EntryDroppedEvent.class, listener);
+    }
+
+    /**
+     * Returns whether the calendar automatically reverts client-side entry changes
+     * when {@link EntryDataEvent#applyChangesOnEntry()} is not called in a drop/resize listener.
+     * Default is {@code true}.
+     *
+     * @return true if auto-revert is enabled
+     */
+    public boolean isAutoRevertUnappliedEntryChanges() {
+        return autoRevertUnappliedEntryChanges;
+    }
+
+    /**
+     * Sets whether the calendar should automatically revert client-side entry changes
+     * when {@link EntryDataEvent#applyChangesOnEntry()} is not called during event listener
+     * processing of drop or resize events.
+     * <p>
+     * When {@code true} (the default), if a developer's listener does not call
+     * {@code event.applyChangesOnEntry()}, the client-side entry is reverted to its
+     * original position/size, keeping server and client in sync.
+     * <p>
+     * When {@code false}, the old behavior is used: the client keeps the new position
+     * regardless of whether changes were applied on the server.
+     *
+     * @param autoRevert true to enable auto-revert
+     */
+    public void setAutoRevertUnappliedEntryChanges(boolean autoRevert) {
+        // Future: validate against signal binding
+        // if (!autoRevert && isSignalBindingActive()) {
+        //     throw new BindingActiveException("Auto-revert cannot be disabled while signal binding is active");
+        // }
+        this.autoRevertUnappliedEntryChanges = autoRevert;
+    }
+
+    /**
+     * Wraps a listener for {@link EntryDataEvent} subclasses with auto-revert support.
+     * When {@link #isAutoRevertUnappliedEntryChanges()} is true, schedules a
+     * {@code beforeClientResponse} callback after each event dispatch to check if
+     * {@link EntryDataEvent#applyChangesOnEntry()} was called. If not, the client-side
+     * entry is reverted to its original position.
+     *
+     * @param eventType the event class
+     * @param listener the user's listener
+     * @param <T> event type extending EntryDataEvent
+     * @return registration to remove the listener
+     */
+    protected <T extends EntryDataEvent> Registration addAutoRevertAwareListener(
+            Class<T> eventType, ComponentEventListener<T> listener) {
+
+        return addListener(eventType, event -> {
+            listener.onComponentEvent(event);
+
+            if (autoRevertUnappliedEntryChanges && !event.isRevertCheckScheduled()) {
+                event.markRevertCheckScheduled();
+                String entryId = event.getEntry().getId();
+                getElement().getNode().runWhenAttached(ui ->
+                    ui.beforeClientResponse(this, ctx -> {
+                        if (event.isChangesApplied()) {
+                            getElement().callJsFunction("clearPendingRevert", entryId);
+                        } else {
+                            getElement().callJsFunction("revertEntry", entryId);
+                        }
+                    })
+                );
+            }
+        });
     }
 
     /**

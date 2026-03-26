@@ -44,7 +44,97 @@ mvn test -pl addon-scheduler
 
 ---
 
-## 2. E2E Tests (Playwright)
+## 2. Browserless Tests (Vaadin 25.1+)
+
+Browserless tests (formerly "UI Unit Testing", now free in Vaadin 25.1) run the full Vaadin server-side stack in the test JVM — no browser, no servlet container. Tests run in 5–60 ms each with near-zero flakiness.
+
+### Where
+
+- `addon/src/test/java/` — alongside unit tests (or in a dedicated `browserless/` package)
+- `e2e-test-app/src/test/java/` — for tests requiring Spring context
+
+### Dependencies
+
+```xml
+<dependency>
+    <groupId>com.vaadin</groupId>
+    <artifactId>browserless-test-junit6</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
+### How to Run
+
+```bash
+# Runs alongside unit tests
+mvn test
+```
+
+### Base Classes
+
+- `BrowserlessTest` — for non-Spring tests
+- `SpringBrowserlessTest` + `@SpringBootTest` — for tests requiring Spring context
+
+### What to Test (vs Unit vs E2E)
+
+Browserless tests fill the gap between pure unit tests (no Vaadin context) and E2E tests (full browser):
+
+| Test type | Vaadin context | Browser | Speed | Use for |
+|---|---|---|---|---|
+| Unit (JUnit) | No | No | < 1 ms | Model classes, serialization, converters, pure logic |
+| Browserless | Yes (server-side) | No | 5–60 ms | Component lifecycle, event wiring, signal binding, exception enforcement, view navigation |
+| E2E (Playwright) | Yes (full stack) | Yes | Seconds | Visual rendering, JS execution, client-side behavior, drag-and-drop UX |
+
+**Core principle:** Browserless tests verify application behavior **from the user's perspective**, just without a real browser. `test(button).click()` simulates a real click (including usability checks — is the button visible? enabled? not behind a modal?). `test(textField).setValue("x")` simulates real user input (including constraint enforcement). The difference to E2E is only the medium: browserless checks the server-side effect of the user action, E2E additionally verifies the client-side rendering.
+
+**Browserless tests are ideal for:**
+- Testing user flows that don't depend on client-side JS rendering (navigation, form submission, button clicks)
+- Signal binding lifecycle (bind/unbind, `BindingActiveException` enforcement)
+- View navigation and routing
+- Any scenario where the user action and its observable outcome are both on the server side
+
+**Browserless tests CANNOT verify:**
+- Client-side JavaScript execution (`callJsFunction()` calls are queued but never executed)
+- DOM rendering, CSS layout, visual appearance
+- Web component (TypeScript/Lit) behavior
+- That a calendar visually displays entries after a signal change
+
+### Limitations for FullCalendar Addon
+
+**`fireDomEvent()` does not provide `@EventData`:** The browserless `fireDomEvent("eventDrop")` fires an empty DOM event. FullCalendar's `@DomEvent`-annotated events (e.g., `EntryDroppedEvent`) require structured data via `@EventData("event.detail.data")` — a JSON object with entry data that only the real FullCalendar JS client provides. Therefore, **`fireDomEvent()` cannot be used to test drop/resize event flows** in this addon.
+
+**`beforeClientResponse` and `roundTrip()`:** The browserless `roundTrip()` simulates a server round-trip and likely processes pending `beforeClientResponse` callbacks, but this has not been verified for this addon. Tests that depend on `beforeClientResponse` behavior should be validated via E2E tests until this is confirmed.
+
+**Components without `@Route`:** Browserless tests use `navigate(ViewClass.class)` to instantiate views. Testing standalone components (like `FullCalendar`) that are not `@Route`-annotated views requires embedding them in a test view or instantiating them manually within the `BrowserlessTest` UI context.
+
+### Custom Component Testers
+
+For the FullCalendar addon, custom testers can be created:
+
+```java
+@Tests(FullCalendar.class)
+public class FullCalendarTester extends ComponentTester<FullCalendar> {
+    // Custom test helpers for simulating calendar interactions
+}
+```
+
+Register via `@ComponentTesterPackages("org.vaadin.stefan.fullcalendar")` on the test class.
+
+### Decision Rule for This Addon
+
+Choose the test type by asking: **Can the user action and its observable outcome both be verified without a browser?**
+
+| Scenario | Test Type | Reason |
+|---|---|---|
+| Model logic, serialization, converters | **Unit (JUnit)** | No Vaadin context or user interaction involved |
+| User navigates to view, clicks button, sees notification | **Browserless** | User action + outcome both server-side |
+| Signal binding: user binds entries, modifies signal, expects update | **Browserless** | Signal lifecycle is server-side; no JS rendering needed to verify state |
+| User drags entry → calendar reverts/applies | **E2E (Playwright)** | Drag interaction requires real JS client + `@EventData` JSON |
+| User sees entry appear/disappear/change in calendar | **E2E (Playwright)** | Outcome requires browser rendering |
+
+---
+
+## 3. E2E Tests (Playwright)
 
 ### Architecture
 
@@ -87,7 +177,7 @@ These five patterns form the foundation. The feature-specific tests below are co
 
 ---
 
-## 3. Mutation Testing
+## 4. Mutation Testing
 
 Mutation testing validates that tests actually catch bugs. A mutation introduces a deliberate defect; if no test fails, the test suite has a false positive.
 
@@ -139,7 +229,7 @@ bash mutation-test-a.sh
 
 ---
 
-## 4. Visual Verification Process (Playwright MCP)
+## 5. Visual Verification Process (Playwright MCP)
 
 Use the Playwright MCP server to visually verify changes during development.
 
@@ -164,7 +254,7 @@ Unless the use case specifies otherwise, use **1920x1080**.
 
 ---
 
-## 5. Per-Use-Case Verification Checklist
+## 6. Per-Use-Case Verification Checklist
 
 > Copy this section for each use case.
 

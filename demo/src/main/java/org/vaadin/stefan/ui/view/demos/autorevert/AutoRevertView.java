@@ -1,0 +1,259 @@
+package org.vaadin.stefan.ui.view.demos.autorevert;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.signals.Signal;
+import com.vaadin.flow.signals.local.ValueSignal;
+import lombok.AccessLevel;
+import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
+import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.ui.layouts.MainLayout;
+import org.vaadin.stefan.ui.menu.MenuItem;
+import org.vaadin.stefan.ui.view.CalendarViewToolbar;
+import org.vaadin.stefan.ui.view.CalendarViewToolbar.CalendarViewToolbarBuilder;
+import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
+import tools.jackson.databind.node.ObjectNode;
+
+import java.util.Collection;
+
+/**
+ * A basic class for simple calendar views, e.g. for demo or testing purposes. Takes care of
+ * creating a toolbar, a description element and embedding the created calendar into the view.
+ * Also registers a dates rendered listener to update the toolbar.
+ */
+@Route(value = "auto-revert", layout = MainLayout.class)
+@Getter(AccessLevel.PROTECTED)
+@MenuItem(label = "Auto Revert")
+public class AutoRevertView extends VerticalLayout {
+    private final FullCalendar calendar;
+    private final ValueSignal<Boolean> autoApply;
+
+    public AutoRevertView() {
+        calendar = createCalendar(createDefaultInitialOptions());
+
+        ValueSignal<Boolean> autoRevert = new ValueSignal<>(calendar.isAutoRevertUnappliedEntryChanges());
+        autoApply = new ValueSignal<>(false);
+
+        Checkbox autoRevertCB = new Checkbox("Auto Revert");
+        Checkbox autoApplyCB = new Checkbox("Apply changes on server side");
+
+        autoRevertCB.bindValue(autoRevert, autoRevert::set);
+        autoApplyCB.bindValue(autoApply, autoApply::set);
+
+        Signal.effect(calendar, () -> calendar.setAutoRevertUnappliedEntryChanges(autoRevert.get()));
+
+        add(new HorizontalLayout(autoRevertCB, autoApplyCB));
+
+        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
+
+        calendar.addEntryDroppedListener(this::handleEvent);
+        calendar.addEntryResizedListener(this::handleEvent);
+
+        VerticalLayout titleAndDescription = new VerticalLayout();
+        titleAndDescription.setSpacing(false);
+        titleAndDescription.setPadding(false);
+
+        Component titleElement = createTitleElement();
+        if (titleElement != null) {
+            titleAndDescription.add(titleElement);
+        }
+
+        Component descriptionElement = createDescriptionElement();
+        if (descriptionElement != null) {
+            titleAndDescription.add(descriptionElement);
+            titleAndDescription.setHorizontalComponentAlignment(Alignment.STRETCH, descriptionElement);
+        }
+
+        if (titleElement != null || descriptionElement != null) {
+            add(titleAndDescription);
+            setHorizontalComponentAlignment(Alignment.STRETCH, titleAndDescription);
+        }
+
+        add(calendar);
+
+        setFlexGrow(1, calendar);
+        setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
+
+        setSizeFull();
+
+        postConstruct(calendar);
+    }
+
+    private void handleEvent(EntryDataEvent event) {
+        if (autoApply.peek()) {
+            event.applyChangesOnEntry();
+        }
+        ObjectNode jsonObject = event.getJsonObject();
+        Entry entry = event.getEntry();
+        Notification.show("Client: " + jsonObject.get("start") + " - " + jsonObject.get("end") + " | Server: " + entry.getStart().toLocalDate() + " - " + entry.getEnd().toLocalDate());
+    }
+
+    protected boolean isToolbarDateChangeable() {
+        return true;
+    }
+
+    protected boolean isToolbarViewChangeable() {
+        return true;
+    }
+
+    protected boolean isToolbarSettingsAvailable() {
+        return true;
+    }
+
+    protected void postConstruct(FullCalendar calendar) {
+        // NOOP
+    }
+
+    /**
+     * Creates the plain full calendar instance with all initial options. The given default initial options are created by
+     * {@link #createDefaultInitialOptions()} beforehand.
+     * <p></p>
+     * The calender is automatically embedded afterwards and connected with the toolbar (if one is created, which
+     * is the default). Also all event listeners will be initialized with a default callback method.
+     *
+     * @param defaultInitialOptions default initial options
+     * @return calendar instance
+     */
+    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+        EntryService<Entry> simpleInstance = EntryService.createSimpleInstance();
+
+        return FullCalendarBuilder.create()
+                .withInitialOptions(defaultInitialOptions)
+                .withInitialEntries(simpleInstance.getEntries())
+                .withEntryLimit(3)
+                .build();
+    }
+
+    /**
+     * Creates a default set of initial options.
+     *
+     * @return initial options
+     */
+    protected ObjectNode createDefaultInitialOptions() {
+        ObjectNode initialOptions = JsonFactory.createObject();
+        ObjectNode eventTimeFormat = JsonFactory.createObject();
+        eventTimeFormat.put("hour", "2-digit");
+        eventTimeFormat.put("minute", "2-digit");
+        eventTimeFormat.put("meridiem", false);
+        eventTimeFormat.put("hour12", false);
+        initialOptions.set("eventTimeFormat", eventTimeFormat);
+        return initialOptions;
+    }
+
+    protected Component createDescriptionElement() {
+        String description = createDescription();
+        if (description == null) {
+            return null;
+        }
+        Span descriptionElement = new Span(description);
+        descriptionElement.addClassName("description");
+
+        return descriptionElement;
+    }
+
+    protected String createDescription() {
+        return null;
+    }
+
+
+    protected Component createTitleElement() {
+        String title = createTitle();
+        if (title == null) {
+            return null;
+        }
+        H2 titleElement = new H2(title);
+        titleElement.addClassName("title");
+
+        return titleElement;
+    }
+
+    protected String createTitle() {
+        MenuItem item = getClass().getAnnotation(MenuItem.class);
+        return item != null ? item.label() : String.join(" ", StringUtils.splitByCharacterTypeCamelCase(getClass().getSimpleName()));
+    }
+
+    /**
+     * Inits the toolbar. Calendar and the "onSample" callbacks are already set. Change view and date
+     * parameters are also enabled by default. Either update the given variable or create a new one, if
+     * necessary. Return null for no toolbar at all.
+     *
+     * @param toolbarBuilder toolbar builder
+     * @return modified or new instance
+     */
+    protected CalendarViewToolbarBuilder initToolbarBuilder(CalendarViewToolbarBuilder toolbarBuilder) {
+        return toolbarBuilder;
+    }
+
+    /**
+     * Creates the toolbar. The parameter might be null depending on a custom implementation of
+     * {@link #initToolbarBuilder(CalendarViewToolbarBuilder)}. Return null if no toolbar shall
+     * be available.
+     *
+     * @param toolbarBuilder builder or null
+     * @return toolbar or null
+     */
+    protected CalendarViewToolbar createToolbar(CalendarViewToolbarBuilder toolbarBuilder) {
+        return toolbarBuilder != null ? toolbarBuilder.build() : null;
+    }
+
+    /**
+     * Called by the toolbar, when one of the "Create sample entries" button has been pressed to simulate the
+     * creation of new data. Might be called by any other source, too.
+     * <p></p>
+     * Intended to update the used backend. By default it will check, if the used entry provider is eager in memory
+     * and in that case automatically update the entry provider (to prevent unnecessary code duplication when
+     * the default entry provider is used).
+     *
+     * @param entries entries to add
+     */
+    protected void onEntriesCreated(Collection<Entry> entries) {
+        // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
+        // the data to the client - no refresh call is needed (or even recommended here)
+        if (getCalendar().isInMemoryEntryProvider()) {
+            InMemoryEntryProvider<Entry> entryProvider = (InMemoryEntryProvider<Entry>) getCalendar().getEntryProvider();
+            entryProvider.addEntries(entries);
+            entryProvider.refreshAll();
+        }
+    }
+
+    /**
+     * Called by the toolbar, when the "Remove entries" button has been pressed to simulate the removal of entries.
+     * Might be called by any other source, too.
+     * <p></p>
+     * Intended to update the used backend. By default it will check, if the used entry provider is eager in memory
+     * and in that case automatically update the entry provider (to prevent unnecessary code duplication when
+     * the default entry provider is used).
+     *
+     * @param entries entries to remove
+     */
+    protected void onEntriesRemoved(Collection<Entry> entries) {
+        // The eager in memory provider provider provides API to modify its internal cache and takes care of pushing
+        // the data to the client - no refresh call is needed (or even recommended here)
+        if (getCalendar().isInMemoryEntryProvider()) {
+            InMemoryEntryProvider<Entry> provider = getCalendar().getEntryProvider();
+            provider.removeEntries(entries);
+            provider.refreshAll();
+        }
+    }
+
+    /**
+     * Returns the entry provider set to the calendar. Will be available after {@link #createCalendar(ObjectNode)}
+     * has been called.
+     *
+     * @return entry provider or null
+     */
+    protected EntryProvider<Entry> getEntryProvider() {
+        return getCalendar().getEntryProvider();
+    }
+
+
+}

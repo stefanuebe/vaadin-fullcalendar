@@ -81,6 +81,9 @@ export class FullCalendar extends HTMLElement {
     protected moreLinkClickAction = "popover"
     protected prefetchEnabled = false;
 
+    /** Pending revert functions from eventDrop/eventResize, keyed by entry ID. */
+    private _pendingReverts: Map<string, () => void> = new Map();
+
     // contains any json based initial options (not the ones set via setOption). might be empty in most cases
     protected initialJsonOptions = {};
     protected initialOptions = {};
@@ -208,6 +211,9 @@ export class FullCalendar extends HTMLElement {
         // Clean up draggable instances to prevent listener leaks
         this._draggables.forEach(d => d.destroy());
         this._draggables.clear();
+
+        // Clean up pending revert functions
+        this._pendingReverts.clear();
     }
 
     protected createInitOptions(initialOptions = {}): any {
@@ -516,6 +522,10 @@ export class FullCalendar extends HTMLElement {
                         const eventDetails = events[eventName](eventInfo);
                         if (eventDetails) {
                             const entryId: string = eventInfo.event?.id;
+                            // Store the revert function so the server can trigger it if needed
+                            if (entryId != null && typeof eventInfo.revert === 'function') {
+                                this._pendingReverts.set(entryId, eventInfo.revert);
+                            }
                             const isExternal = entryId != null && !this.serverEntryIds.has(entryId);
                             const domEventName = isExternal
                                 ? (eventName === "eventDrop" ? "externalEntryDrop" : "externalEntryResize")
@@ -774,6 +784,25 @@ export class FullCalendar extends HTMLElement {
     refreshSingleEvent(id: string) {
         console.debug(`refetch all events due to unsupported refresh single event ${id}`);
         this.calendar.refetchEvents();
+    }
+
+    /**
+     * Reverts a pending drop/resize for the given entry ID.
+     * Called from the server when applyChangesOnEntry() was not called.
+     */
+    revertEntry(entryId: string) {
+        const revert = this._pendingReverts.get(entryId);
+        if (revert) {
+            revert();
+            this._pendingReverts.delete(entryId);
+        }
+    }
+
+    /**
+     * Clears a pending revert for the given entry ID (changes were applied).
+     */
+    clearPendingRevert(entryId: string) {
+        this._pendingReverts.delete(entryId);
     }
 
     /**
