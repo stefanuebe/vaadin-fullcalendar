@@ -41,8 +41,14 @@ class SignalEntryProvider<T extends Entry> extends AbstractEntryProvider<T> {
      * Flag to suppress per-entry effect fires during list-level effect processing.
      * When the list-level effect runs (add/remove), it already fires a refreshAll.
      * Per-entry effects registered during that run would redundantly fire refreshSingleEvent.
+     * <p>
+     * Assumption: Vaadin Signal.effect callbacks execute synchronously within a single UI session.
+     * Per-entry effects registered via Signal.effect() during the list-level effect execute their
+     * initial run immediately (synchronously), so they see this flag as {@code true} and skip
+     * the redundant refresh. This was verified in the spike (see specs/use-cases/use-case-025,
+     * Spike Result #3: "Effects fire synchronously within the same server roundtrip").
      */
-    private boolean suppressEntryEffects;
+    private volatile boolean suppressEntryEffects;
 
     SignalEntryProvider(ListSignal<T> listSignal) {
         this.listSignal = Objects.requireNonNull(listSignal);

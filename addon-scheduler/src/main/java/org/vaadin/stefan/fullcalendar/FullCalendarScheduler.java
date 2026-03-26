@@ -71,7 +71,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     private Registration resourceListEffectReg;
     private final Map<ValueSignal<Resource>, Registration> resourceEffectRegs = new IdentityHashMap<>();
     private final Set<ValueSignal<Resource>> trackedResourceSignals = Collections.newSetFromMap(new IdentityHashMap<>());
-    private boolean suppressResourceEffects;
+    /**
+     * Suppresses per-resource effects during list-level processing to avoid redundant updates.
+     * See SignalEntryProvider for the detailed rationale and synchronous execution assumption.
+     */
+    private volatile boolean suppressResourceEffects;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
