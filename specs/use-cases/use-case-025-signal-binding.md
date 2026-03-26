@@ -170,11 +170,14 @@ When `bindEntries(ListSignal<Entry>)` is called:
 1. Validates: no non-default EntryProvider active, `autoRevertUnappliedEntryChanges` is `true`
 2. A `SignalEntryProvider` is created internally (implements `EntryProvider`)
 3. The `SignalEntryProvider` is set as the active provider (reusing existing `setEntryProvider` internally)
-4. A `Signal.effect(calendar, ...)` observes the `ListSignal` for changes
-5. The effect runs immediately on creation (initial sync of all entries in the signal to the client)
-6. On subsequent changes: targeted client refreshes (add/remove/update)
-7. Individual `ValueSignal<Entry>` changes trigger single-entry refresh
-8. The `Registration` returned by `Signal.effect()` is stored for cleanup on unbind
+4. **Two levels of effects** are registered:
+   - A **list-level effect** (`Signal.effect(calendar, () -> entriesSignal.get())`) observes structural changes (add/remove). It runs immediately on creation for initial sync.
+   - **Per-entry effects**: For each `ValueSignal<Entry>` in the list, a separate effect is registered to observe property changes via `modify()`. These are managed dynamically — registered on add, cleaned up on remove.
+5. List-level changes (add/remove) trigger full or targeted client refreshes
+6. Per-entry changes (via `modify()`) trigger single-entry refresh
+7. All `Registration` objects (list effect + per-entry effects) are stored for cleanup on unbind
+
+**Why two levels of effects?** `ListSignal` only fires its dependents on structural changes (add/remove). Property changes on individual entries via `ValueSignal.modify()` only fire that entry's dependents — the list-level effect does NOT re-fire. This is documented Vaadin behavior, confirmed by spike (see Spike Results below).
 
 ### SignalEntryProvider (internal class)
 
@@ -235,7 +238,7 @@ The `bindResources` effect must handle:
 
 | ID | Rule |
 |----|------|
-| BR-01 | `bindEntries` and `setEntryProvider` are mutually exclusive. Calling one while the other is active throws Vaadin's `BindingActiveException`. |
+| BR-01 | `bindEntries` and `setEntryProvider` are mutually exclusive. Calling one while the other is active throws `com.vaadin.flow.signals.BindingActiveException`. |
 | BR-02 | `bindEntries(null)` removes the binding, cleans up the effect `Registration`, and restores a default empty `InMemoryEntryProvider`. |
 | BR-03 | `bindResources` (Phase 2) and manual resource management (`addResource`/`removeResource`) are mutually exclusive. Same `BindingActiveException` semantics. |
 | BR-04 | `bindResources(null)` (Phase 2) removes the binding and clears resources. |
@@ -249,6 +252,9 @@ The `bindResources` effect must handle:
 | BR-12 | `FullCalendarBuilder`: `withSignalBinding()` and `withEntryProvider()` are mutually exclusive. Calling both throws `BindingActiveException`. |
 | BR-13 | AutoRevert (#225) must suppress the revert when `applyChangesOnEntry()` was called during the event listener. AutoRevert only fires when no apply happened. This prevents double-update flicker. |
 | BR-14 | Entry identity is ID-based (`Entry.equals`/`hashCode` use the entry ID). This is compatible with signal change tracking. |
+| BR-15 | `modify()` on `ValueSignal<Entry>` fires unconditionally — no property-level change detection. Even a no-op `modify(e -> {})` triggers the effect. This is inherent Vaadin behavior, not something the addon controls. |
+| BR-16 | Two levels of effects are required: a list-level effect for structural changes (add/remove) and per-entry effects for property changes via `modify()`. Per-entry effects must be dynamically managed — registered when entries are added to the ListSignal, cleaned up when removed. |
+| BR-17 | `BindingActiveException` is `com.vaadin.flow.signals.BindingActiveException` (not `com.vaadin.flow.dom`). |
 
 ---
 
@@ -300,14 +306,28 @@ The `bindResources` effect must handle:
 
 ---
 
-## Spike (Pre-Implementation)
+## Spike Results (Completed)
 
-Before implementation, a spike must validate:
+Spike code: `spike/src/main/java/org/vaadin/stefan/ui/view/SignalSpikeView.java`
 
-1. **`ValueSignal<Entry>` with mutable bean**: Verify that `modify()` correctly triggers effects when mutating a mutable POJO (Entry). Test with `Signal.effect()` and confirm reactivity.
-2. **`ListSignal<Entry>` add/remove/modify**: Verify the full lifecycle works with Entry objects.
-3. **Effect timing**: Confirm that `Signal.effect(component, ...)` fires in the same server roundtrip as `signal.modify()`. This is critical for the "no visual jump" guarantee when `applyChangesOnEntry()` is called.
-4. **`BindingActiveException` availability**: Confirm the class exists in `com.vaadin.flow.dom` in Vaadin 25.1 and is appropriate for reuse.
+| # | Question | Result | Notes |
+|---|----------|--------|-------|
+| 1 | `ValueSignal<Entry>.modify()` triggers effects? | **Yes** ✓ | `modify()` is unconditional — fires even on no-op mutations. No property-level change detection. |
+| 2a | `ListSignal<Entry>` add/remove | **Yes** ✓ | List-level effect fires on `insertLast()` and `remove()` |
+| 2b | `ListSignal` — per-item `modify()` | **List effect does NOT fire** | Documented behavior: list-level effects only track structural changes. Per-entry `modify()` only fires that entry's dependents. **Requires per-entry effects.** |
+| 3 | Effect timing | **Synchronous** ✓ | Click → modify → effect → UI update all in one request-response cycle. Background threads need `@Push`. |
+| 4 | `BindingActiveException` | **Exists** ✓ | `com.vaadin.flow.signals.BindingActiveException` (not `com.vaadin.flow.dom` as previously assumed) |
+
+### Key Architectural Implication (Finding 2b)
+
+The `SignalEntryProvider` cannot use a single list-level effect to detect all changes. Two levels are needed:
+- **List-level effect**: observes `entriesSignal.get()` — fires on add/remove
+- **Per-entry effects**: for each `ValueSignal<Entry>`, a separate effect observes property changes via `modify()`
+
+Per-entry effects must be dynamically managed:
+- **On add**: register a new effect for the added `ValueSignal<Entry>`
+- **On remove**: the effect is cleaned up automatically (tied to component lifecycle via `Signal.effect(calendar, ...)`)
+- **On unbind**: all effects cleaned up via stored `Registration` objects
 
 ---
 

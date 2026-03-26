@@ -10,12 +10,27 @@ If we missed something or anything is unclear, please ping us on GitHub. We hope
 as smoothly as possible.
 
 ## Index
+* [7.1 > 7.2](#migrating-from-71--72)
 * [6.3 > 7.1](#migrating-from-63--71)
 * [6.4 > 7.1](#migrating-from-64--71)
 * [6.3 > 6.4](#migrating-from-63--64)
 * [4.1 > 6.0](#migrating-from-41--60)
 * [4.0 > 4.1](#migrating-from-40--41)
 * [3.x > 4.0](#migrating-from-3x--40)
+
+## Migrating from 7.1 > 7.2
+
+**Prerequisite:** Vaadin 25.1 (up from 25.0)
+
+### Behavioral change: auto-revert on drop/resize
+
+Starting with 7.2, entries automatically revert to their original position on the client when `applyChangesOnEntry()` is not called in a drop or resize listener. This was previously not the case — the client would keep the new position even without explicit apply, leading to an inconsistent state between client and server.
+
+**If your code already calls `applyChangesOnEntry()` in every drop/resize listener:** No change needed. Behavior is identical.
+
+**If your code intentionally does NOT call `applyChangesOnEntry()` and relies on the client keeping the new position:** Set `calendar.setAutoRevertUnappliedEntryChanges(false)` to restore the previous behavior.
+
+No APIs have been removed in this release.
 
 ## Migrating from 6.3 > 7.1
 

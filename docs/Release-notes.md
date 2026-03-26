@@ -1,4 +1,5 @@
 ## Index
+* [7.2.x](#72x)
 * [7.1.x](#71x)
 * [7.0.x](#70x)
 * [6.4.x](#64x)
@@ -7,6 +8,11 @@
 * [6.0.x](#60x)
 * [4.1.x](#41x)
 * [4.0.x](#40x)
+
+## 7.2.x
+[Details](release-notes-detail/Release-notes-7.2.md)
+- requires Vaadin 25.1 (up from 25.0)
+- added auto-revert for unapplied entry changes after drop/resize (#225)
 
 ## 7.1.x
 [Details](release-notes-detail/Release-notes-7.1.md)

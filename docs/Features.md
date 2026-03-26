@@ -16,6 +16,7 @@ not a full list of all features. If you find any library features missing, pleas
 - Optional Vaadin/Lumo theme
 - Custom native JS event handlers for entries
 - Client-side event sources (JSON feeds, Google Calendar, iCalendar)
+- Auto-revert of client-side entry changes when not explicitly applied (drop/resize validation)
 
 ### Entry model
 The `Entry` class supports the following properties:

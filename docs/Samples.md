@@ -1011,6 +1011,30 @@ calendar.addEntryDroppedListener(event -> {
 });
 ```
 
+### Auto-revert unapplied changes
+
+By default (`autoRevertUnappliedEntryChanges = true`), when `applyChangesOnEntry()` is **not** called in a
+drop or resize listener, the calendar automatically reverts the entry to its original position on the client.
+This keeps the client and server in sync without requiring explicit handling.
+
+```java
+// Validation example: reject drops before a certain date
+calendar.addEntryDroppedListener(event -> {
+    Entry copy = event.createCopyBasedOnChanges();
+    if (copy.getStartAsLocalDate().isAfter(minDate)) {
+        event.applyChangesOnEntry();
+        entryProvider.refreshItem(event.getEntry());
+    }
+    // If validation fails: entry automatically reverts on the client
+});
+```
+
+To disable auto-revert and keep the previous behavior (client keeps new position regardless):
+
+```java
+calendar.setAutoRevertUnappliedEntryChanges(false);
+```
+
 ### Create a temporary copy
 
 The `Entry` class provides a copy API, that allows you to create a copy of an entry or from a given entry. With this you
