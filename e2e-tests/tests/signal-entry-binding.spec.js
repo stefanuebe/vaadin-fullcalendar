@@ -170,4 +170,26 @@ test.describe('Signal Entry Binding (UC-025)', () => {
         // Entry should show the modified title (re-synced on re-attach)
         await expect(page.locator('.fc-event').first()).toContainText('Modified-', { timeout: 10000 });
     });
+
+    test('bulk add 100 entries: completes within 5 seconds', async ({ page }) => {
+        const start = Date.now();
+
+        await page.locator('#bulk-add-btn').click();
+        await waitForVaadin(page);
+
+        // Wait for the action badge to show completion
+        await expect(page.locator('#last-action')).toContainText('bulk-added-100', { timeout: 10000 });
+
+        const elapsed = Date.now() - start;
+
+        // Signal count should be 100
+        await expect(page.locator('#entry-count')).toHaveText('100', { timeout: 5000 });
+
+        // Entries should appear on the calendar (at least some — view may not show all)
+        const entryCount = await page.locator('.fc-event').count();
+        expect(entryCount).toBeGreaterThan(0);
+
+        // Performance: should complete within 5 seconds (generous — verifies no O(n²) explosion)
+        expect(elapsed).toBeLessThan(5000);
+    });
 });

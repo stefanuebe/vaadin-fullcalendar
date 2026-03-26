@@ -125,7 +125,23 @@ public class SignalBindingTestView extends VerticalLayout {
         });
         reattachBtn.setId("reattach-btn");
 
-        add(addBtn, removeFirstBtn, modifyFirstBtn, unbindBtn, rebindBtn, detachBtn, reattachBtn);
+        Button bulkAddBtn = new Button("Bulk Add 100", e -> {
+            long start = System.currentTimeMillis();
+            for (int i = 0; i < 100; i++) {
+                entryCounter++;
+                Entry entry = new Entry("signal-" + entryCounter);
+                entry.setTitle("Bulk " + entryCounter);
+                // Spread across days so they're visible in week/month views
+                entry.setStart(LocalDateTime.of(2025, 3, 3, 8, 0).plusHours(i));
+                entry.setEnd(entry.getStart().plusMinutes(30));
+                entriesSignal.insertLast(entry);
+            }
+            long elapsed = System.currentTimeMillis() - start;
+            updateCount("bulk-added-100 in " + elapsed + "ms");
+        });
+        bulkAddBtn.setId("bulk-add-btn");
+
+        add(addBtn, removeFirstBtn, modifyFirstBtn, unbindBtn, rebindBtn, detachBtn, reattachBtn, bulkAddBtn);
         add(calendar);
         setFlexGrow(1, calendar);
     }

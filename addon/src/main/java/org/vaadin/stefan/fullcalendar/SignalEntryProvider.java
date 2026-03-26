@@ -19,6 +19,10 @@ import java.util.stream.Stream;
  *   <li><b>Per-entry effects</b> for each ValueSignal&lt;Entry&gt; in the list, observing property changes via modify()</li>
  * </ul>
  * <p>
+ * Performance: The list-level effect handles all structural changes with a single
+ * {@code refreshAll}. Per-entry effects are suppressed during list-level processing
+ * to avoid redundant refreshes (O(n) single-entry refreshes on top of the bulk refresh).
+ * <p>
  * This class is package-private — it is only instantiated by {@link FullCalendar#bindEntries(ListSignal)}.
  *
  * @param <T> entry type
@@ -33,6 +37,13 @@ class SignalEntryProvider<T extends Entry> extends AbstractEntryProvider<T> {
 
     private final Set<ValueSignal<T>> trackedSignals = Collections.newSetFromMap(new IdentityHashMap<>());
 
+    /**
+     * Flag to suppress per-entry effect fires during list-level effect processing.
+     * When the list-level effect runs (add/remove), it already fires a refreshAll.
+     * Per-entry effects registered during that run would redundantly fire refreshSingleEvent.
+     */
+    private boolean suppressEntryEffects;
+
     SignalEntryProvider(ListSignal<T> listSignal) {
         this.listSignal = Objects.requireNonNull(listSignal);
     }
@@ -42,30 +53,38 @@ class SignalEntryProvider<T extends Entry> extends AbstractEntryProvider<T> {
      */
     void startObserving(FullCalendar calendar) {
         listEffectRegistration = Signal.effect(calendar, () -> {
-            List<ValueSignal<T>> currentSignals = listSignal.get();
-            Set<ValueSignal<T>> currentSet = Collections.newSetFromMap(new IdentityHashMap<>());
-            currentSet.addAll(currentSignals);
+            suppressEntryEffects = true;
+            try {
+                List<ValueSignal<T>> currentSignals = listSignal.get();
 
-            // Register effects for newly added signals
-            for (ValueSignal<T> vs : currentSignals) {
-                if (!trackedSignals.contains(vs)) {
-                    registerEntryEffect(calendar, vs);
-                }
-            }
+                // Build a lookup set for O(1) contains checks
+                Set<ValueSignal<T>> currentSet = Collections.newSetFromMap(new IdentityHashMap<>());
+                currentSet.addAll(currentSignals);
 
-            // Clean up effects for removed signals
-            Iterator<ValueSignal<T>> it = trackedSignals.iterator();
-            while (it.hasNext()) {
-                ValueSignal<T> vs = it.next();
-                if (!currentSet.contains(vs)) {
-                    Registration reg = entryEffectRegistrations.remove(vs);
-                    if (reg != null) {
-                        reg.remove();
+                // Register effects for newly added signals
+                for (ValueSignal<T> vs : currentSignals) {
+                    if (!trackedSignals.contains(vs)) {
+                        registerEntryEffect(calendar, vs);
                     }
-                    it.remove();
                 }
+
+                // Clean up effects for removed signals
+                Iterator<ValueSignal<T>> it = trackedSignals.iterator();
+                while (it.hasNext()) {
+                    ValueSignal<T> vs = it.next();
+                    if (!currentSet.contains(vs)) {
+                        Registration reg = entryEffectRegistrations.remove(vs);
+                        if (reg != null) {
+                            reg.remove();
+                        }
+                        it.remove();
+                    }
+                }
+            } finally {
+                suppressEntryEffects = false;
             }
 
+            // Single refreshAll covers all structural changes
             fireEvent(new EntriesChangeEvent<>(this));
         });
     }
@@ -75,7 +94,9 @@ class SignalEntryProvider<T extends Entry> extends AbstractEntryProvider<T> {
 
         Registration reg = Signal.effect(calendar, () -> {
             T entry = entrySignal.get();
-            if (entry != null) {
+            // Suppress during list-level effect processing — the list effect
+            // already fires refreshAll which covers the initial state
+            if (!suppressEntryEffects && entry != null) {
                 fireEvent(new EntryRefreshEvent<>(this, entry));
             }
         });
