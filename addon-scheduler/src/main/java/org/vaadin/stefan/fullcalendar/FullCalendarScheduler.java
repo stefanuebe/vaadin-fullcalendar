@@ -71,6 +71,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     private Registration resourceListEffectReg;
     private final Map<ValueSignal<Resource>, Registration> resourceEffectRegs = new IdentityHashMap<>();
     private final Set<ValueSignal<Resource>> trackedResourceSignals = Collections.newSetFromMap(new IdentityHashMap<>());
+    /** Tracks known children per resource for delta detection on hierarchy changes. */
+    private final Map<String, Set<String>> trackedChildrenByResourceId = new HashMap<>();
     /**
      * Suppresses per-resource effects during list-level processing to avoid redundant updates.
      * See SignalEntryProvider for the detailed rationale and synchronous execution assumption.
@@ -533,11 +535,19 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                 List<Resource> toAdd = new ArrayList<>();
                 for (ValueSignal<Resource> vs : currentSignals) {
                     if (!trackedResourceSignals.contains(vs)) {
-                        registerResourceEffect(vs);
                         Resource r = vs.peek();
                         if (r != null) {
+                            if (r.getParent().isPresent()) {
+                                throw new IllegalArgumentException(
+                                        "Cannot add a child resource directly to the resource signal. " +
+                                        "Add it as a child of a top-level resource via Resource.addChild() " +
+                                        "and use modify() on the parent's ValueSignal. " +
+                                        "Resource '" + r.getTitle() + "' has parent '" +
+                                        r.getParent().get().getTitle() + "'.");
+                            }
                             toAdd.add(r);
                         }
+                        registerResourceEffect(vs);
                     }
                 }
 
@@ -578,6 +588,38 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         Registration reg = Signal.effect(this, () -> {
             Resource resource = resourceSignal.get();
             if (!suppressResourceEffects && resource != null) {
+                // Detect child hierarchy changes
+                Set<String> currentChildIds = resource.getChildren().stream()
+                        .map(Resource::getId).collect(Collectors.toSet());
+                Set<String> previousChildIds = trackedChildrenByResourceId
+                        .getOrDefault(resource.getId(), Collections.emptySet());
+
+                // Find added children
+                List<Resource> addedChildren = resource.getChildren().stream()
+                        .filter(c -> !previousChildIds.contains(c.getId()))
+                        .collect(Collectors.toList());
+
+                // Find removed child IDs
+                Set<String> removedChildIds = new HashSet<>(previousChildIds);
+                removedChildIds.removeAll(currentChildIds);
+
+                if (!addedChildren.isEmpty()) {
+                    addResourcesInternal(addedChildren);
+                }
+                if (!removedChildIds.isEmpty()) {
+                    List<Resource> removedChildren = removedChildIds.stream()
+                            .map(id -> resources.get(id))
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+                    if (!removedChildren.isEmpty()) {
+                        removeResourcesInternal(removedChildren);
+                    }
+                }
+
+                // Update tracked children — recursively for all descendants
+                updateTrackedChildrenRecursively(resource);
+
+                // Always update the resource itself (title, color, etc.)
                 updateResource(resource);
             }
         });
@@ -593,6 +635,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         resourceEffectRegs.values().forEach(Registration::remove);
         resourceEffectRegs.clear();
         trackedResourceSignals.clear();
+        trackedChildrenByResourceId.clear();
     }
 
     /**
@@ -625,16 +668,20 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     private void removeResourcesInternal(List<Resource> resourcesToRemove) {
         removeFromEntries(resourcesToRemove);
+        // Collect all resources to remove (children first, then parents) for the client call
         ArrayNode array = JsonFactory.createArray();
         for (Resource resource : resourcesToRemove) {
             String id = resource.getId();
             if (this.resources.containsKey(id)) {
+                // Collect children recursively (depth-first) for client removal
+                collectChildrenForRemoval(resource.getChildren(), array);
                 unregisterResourcesInternally(resource.getChildren());
                 for (var col : activeComponentColumns) {
                     col.destroyComponent(resource);
                 }
                 this.resources.remove(id);
                 resource.detachScheduler();
+                trackedChildrenByResourceId.remove(id);
                 array.add(resource.toJson());
             }
         }
@@ -643,6 +690,29 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             getElement().getNode().runWhenAttached(ui ->
                 ui.beforeClientResponse(this, ctx ->
                     getElement().callJsFunction("removeResources", finalArray)));
+        }
+    }
+
+    /**
+     * Recursively collects child resources into the array for client-side removal.
+     */
+    private void collectChildrenForRemoval(Set<Resource> children, ArrayNode array) {
+        for (Resource child : children) {
+            collectChildrenForRemoval(child.getChildren(), array);
+            array.add(child.toJson());
+            trackedChildrenByResourceId.remove(child.getId());
+        }
+    }
+
+    /**
+     * Recursively updates trackedChildrenByResourceId for a resource and all its descendants.
+     */
+    private void updateTrackedChildrenRecursively(Resource resource) {
+        Set<String> childIds = resource.getChildren().stream()
+                .map(Resource::getId).collect(Collectors.toSet());
+        trackedChildrenByResourceId.put(resource.getId(), childIds);
+        for (Resource child : resource.getChildren()) {
+            updateTrackedChildrenRecursively(child);
         }
     }
 

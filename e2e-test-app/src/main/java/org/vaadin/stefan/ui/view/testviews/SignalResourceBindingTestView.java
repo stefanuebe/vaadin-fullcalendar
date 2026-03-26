@@ -33,6 +33,8 @@ public class SignalResourceBindingTestView extends VerticalLayout {
 
     private final Span resourceCount = new Span("0");
     private final Span lastAction = new Span("none");
+    private final Span childCount = new Span("0");
+    private int childCounter = 0;
 
     public SignalResourceBindingTestView() {
         setSizeFull();
@@ -42,9 +44,11 @@ public class SignalResourceBindingTestView extends VerticalLayout {
 
         resourceCount.setId("resource-count");
         lastAction.setId("last-action");
+        childCount.setId("child-count");
 
         Div status = new Div(
                 label("resources: "), resourceCount,
+                label(" | children: "), childCount,
                 label(" | action: "), lastAction
         );
         status.getStyle().set("font-size", "12px");
@@ -105,19 +109,37 @@ public class SignalResourceBindingTestView extends VerticalLayout {
         });
         addEntryBtn.setId("add-entry-btn");
 
+        Button addChildBtn = new Button("Add Child to First Resource", e -> {
+            List<ValueSignal<Resource>> items = resourcesSignal.peek();
+            if (!items.isEmpty()) {
+                childCounter++;
+                Resource child = new Resource(null, "Child " + childCounter, "#fb8c00");
+                items.get(0).modify(r -> r.addChild(child));
+                updateCount("child-added");
+            }
+        });
+        addChildBtn.setId("add-child-btn");
+
         Button unbindBtn = new Button("Unbind Resources", e -> {
             scheduler.bindResources(null);
             updateCount("unbound");
         });
         unbindBtn.setId("unbind-btn");
 
-        add(addResourceBtn, removeFirstResourceBtn, modifyFirstResourceBtn, addEntryBtn, unbindBtn);
+        add(addResourceBtn, removeFirstResourceBtn, modifyFirstResourceBtn, addEntryBtn, addChildBtn, unbindBtn);
         add(scheduler);
         setFlexGrow(1, scheduler);
     }
 
     private void updateCount(String action) {
         resourceCount.setText(String.valueOf(resourcesSignal.peek().size()));
+        // Count total children across all resources
+        long children = resourcesSignal.peek().stream()
+                .map(ValueSignal::peek)
+                .filter(java.util.Objects::nonNull)
+                .mapToLong(r -> r.getChildren().size())
+                .sum();
+        childCount.setText(String.valueOf(children));
         lastAction.setText(action);
     }
 

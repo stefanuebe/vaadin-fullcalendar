@@ -102,4 +102,56 @@ test.describe('Signal Resource Binding (Phase 2)', () => {
         const entries = page.locator('.fc-event:has-text("Meeting 1")');
         await expect(entries.first()).toBeVisible({ timeout: 5000 });
     });
+
+    // -------------------------------------------------------------------------
+    // Hierarchical resources
+    // -------------------------------------------------------------------------
+
+    test('add child resource via modify: child appears in timeline', async ({ page }) => {
+        // Add a parent resource first
+        await page.locator('#add-resource-btn').click();
+        await waitForVaadin(page);
+        await page.waitForTimeout(500);
+
+        await expect(page.locator('.fc-datagrid-cell-main:has-text("Room 1")').first()).toBeVisible({ timeout: 5000 });
+
+        // Add child via modify on parent
+        await page.locator('#add-child-btn').click();
+        await waitForVaadin(page);
+        await page.waitForTimeout(500);
+
+        await expect(page.locator('#last-action')).toHaveText('child-added', { timeout: 5000 });
+        await expect(page.locator('#child-count')).toHaveText('1', { timeout: 5000 });
+
+        // Child should appear in the timeline
+        await expect(page.locator('.fc-datagrid-cell-main:has-text("Child 1")').first()).toBeVisible({ timeout: 5000 });
+    });
+
+    test('remove parent resource: children are also removed', async ({ page }) => {
+        // Add parent
+        await page.locator('#add-resource-btn').click();
+        await waitForVaadin(page);
+        await page.waitForTimeout(300);
+
+        // Add child
+        await page.locator('#add-child-btn').click();
+        await waitForVaadin(page);
+        await page.waitForTimeout(300);
+
+        // Both should be visible
+        await expect(page.locator('.fc-datagrid-cell-main:has-text("Room 1")').first()).toBeVisible({ timeout: 5000 });
+        await expect(page.locator('.fc-datagrid-cell-main:has-text("Child 1")').first()).toBeVisible({ timeout: 5000 });
+
+        // Remove parent
+        await page.locator('#remove-first-resource-btn').click();
+        await waitForVaadin(page);
+        await page.waitForTimeout(500);
+
+        await expect(page.locator('#last-action')).toHaveText('resource-removed', { timeout: 5000 });
+        await expect(page.locator('#resource-count')).toHaveText('0', { timeout: 5000 });
+
+        // Both parent and child should be gone
+        await expect(page.locator('.fc-datagrid-cell-main:has-text("Room 1")')).toHaveCount(0, { timeout: 5000 });
+        await expect(page.locator('.fc-datagrid-cell-main:has-text("Child 1")')).toHaveCount(0, { timeout: 5000 });
+    });
 });
