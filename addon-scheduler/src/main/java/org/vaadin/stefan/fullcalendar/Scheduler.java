@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.signals.local.ListSignal;
 
 import java.util.*;
 import java.util.Arrays;
@@ -396,6 +397,26 @@ public interface Scheduler {
      * @param resource the resource to update on the client side; must not be null
      */
     void updateResource(Resource resource);
+
+    /**
+     * Binds a {@link ListSignal} of resources to this scheduler. The scheduler reactively updates
+     * when resources are added, removed, or modified via the signal.
+     * <p>
+     * Passing {@code null} unbinds the signal and clears all resources.
+     * <p>
+     * Signal binding and manual resource management ({@link #addResource(Resource)},
+     * {@link #removeResource(Resource)}, {@link #removeAllResources()}) are mutually exclusive.
+     *
+     * @param resourcesSignal the ListSignal to bind, or null to unbind
+     */
+    void bindResources(ListSignal<Resource> resourcesSignal);
+
+    /**
+     * Returns whether a resource signal binding is currently active.
+     *
+     * @return true if {@link #bindResources(ListSignal)} has been called with a non-null signal
+     */
+    boolean isResourceBindingActive();
 
     /**
      * Registers a listener to be informed when an entry dropped event occurred, along with scheduler

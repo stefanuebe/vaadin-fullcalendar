@@ -25,6 +25,10 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.signals.BindingActiveException;
+import com.vaadin.flow.signals.Signal;
+import com.vaadin.flow.signals.local.ListSignal;
+import com.vaadin.flow.signals.local.ValueSignal;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
@@ -61,6 +65,13 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     private final Map<String, Resource> resources = new HashMap<>();
     private final List<ComponentResourceAreaColumn<?>> activeComponentColumns = new ArrayList<>();
     private Element hiddenContainer;
+
+    // Signal resource binding state
+    private ListSignal<Resource> resourceSignal;
+    private Registration resourceListEffectReg;
+    private final Map<ValueSignal<Resource>, Registration> resourceEffectRegs = new IdentityHashMap<>();
+    private final Set<ValueSignal<Resource>> trackedResourceSignals = Collections.newSetFromMap(new IdentityHashMap<>());
+    private boolean suppressResourceEffects;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
@@ -220,6 +231,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     public void addResources(Iterable<Resource> iterableResource, boolean scrollToLast) {
+        if (resourceSignal != null) {
+            throw new BindingActiveException("addResources is not allowed while a resource signal binding is active. Call bindResources(null) first.");
+        }
         Objects.requireNonNull(iterableResource);
 
         ArrayNode array = JsonFactory.createArray();
@@ -263,6 +277,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     public void removeResources(Iterable<Resource> iterableResources) {
+        if (resourceSignal != null) {
+            throw new BindingActiveException("removeResources is not allowed while a resource signal binding is active. Call bindResources(null) first.");
+        }
         Objects.requireNonNull(iterableResources);
 
         removeFromEntries(iterableResources);
@@ -333,6 +350,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     @Override
     public void removeAllResources() {
+        if (resourceSignal != null) {
+            throw new BindingActiveException("removeAllResources is not allowed while a resource signal binding is active. Call bindResources(null) first.");
+        }
         removeFromEntries(resources.values());
 
         for (var col : activeComponentColumns) {
@@ -466,6 +486,176 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         getElement().callJsFunction("updateResource", resource.toJson().toString());
     }
 
+
+    // ---- Signal Resource Binding ----
+
+    @Override
+    public void bindResources(ListSignal<Resource> signal) {
+        if (signal == null) {
+            // Unbind
+            if (resourceSignal != null) {
+                stopResourceObserving();
+                removeAllResourcesInternal();
+                resourceSignal = null;
+            }
+            return;
+        }
+
+        // Clean up previous binding if re-binding
+        if (resourceSignal != null) {
+            stopResourceObserving();
+            removeAllResourcesInternal();
+        }
+
+        this.resourceSignal = signal;
+        startResourceObserving();
+    }
+
+    @Override
+    public boolean isResourceBindingActive() {
+        return resourceSignal != null;
+    }
+
+    private void startResourceObserving() {
+        resourceListEffectReg = Signal.effect(this, () -> {
+            suppressResourceEffects = true;
+            try {
+                List<ValueSignal<Resource>> currentSignals = resourceSignal.get();
+
+                Set<ValueSignal<Resource>> currentSet = Collections.newSetFromMap(new IdentityHashMap<>());
+                currentSet.addAll(currentSignals);
+
+                // Detect newly added resources
+                List<Resource> toAdd = new ArrayList<>();
+                for (ValueSignal<Resource> vs : currentSignals) {
+                    if (!trackedResourceSignals.contains(vs)) {
+                        registerResourceEffect(vs);
+                        Resource r = vs.peek();
+                        if (r != null) {
+                            toAdd.add(r);
+                        }
+                    }
+                }
+
+                // Detect removed resources
+                List<Resource> toRemove = new ArrayList<>();
+                Iterator<ValueSignal<Resource>> it = trackedResourceSignals.iterator();
+                while (it.hasNext()) {
+                    ValueSignal<Resource> vs = it.next();
+                    if (!currentSet.contains(vs)) {
+                        Registration reg = resourceEffectRegs.remove(vs);
+                        if (reg != null) {
+                            reg.remove();
+                        }
+                        Resource r = vs.peek();
+                        if (r != null) {
+                            toRemove.add(r);
+                        }
+                        it.remove();
+                    }
+                }
+
+                // Apply changes internally (bypass guards)
+                if (!toRemove.isEmpty()) {
+                    removeResourcesInternal(toRemove);
+                }
+                if (!toAdd.isEmpty()) {
+                    addResourcesInternal(toAdd);
+                }
+            } finally {
+                suppressResourceEffects = false;
+            }
+        });
+    }
+
+    private void registerResourceEffect(ValueSignal<Resource> resourceSignal) {
+        trackedResourceSignals.add(resourceSignal);
+
+        Registration reg = Signal.effect(this, () -> {
+            Resource resource = resourceSignal.get();
+            if (!suppressResourceEffects && resource != null) {
+                updateResource(resource);
+            }
+        });
+
+        resourceEffectRegs.put(resourceSignal, reg);
+    }
+
+    private void stopResourceObserving() {
+        if (resourceListEffectReg != null) {
+            resourceListEffectReg.remove();
+            resourceListEffectReg = null;
+        }
+        resourceEffectRegs.values().forEach(Registration::remove);
+        resourceEffectRegs.clear();
+        trackedResourceSignals.clear();
+    }
+
+    /**
+     * Adds resources internally, bypassing the signal binding guard.
+     */
+    private void addResourcesInternal(List<Resource> resourcesToAdd) {
+        ArrayNode array = JsonFactory.createArray();
+        for (Resource resource : resourcesToAdd) {
+            String id = resource.getId();
+            if (!resources.containsKey(id)) {
+                resources.put(id, resource);
+                resource.attachScheduler(this);
+                array.add(resource.toJson());
+                for (var col : activeComponentColumns) {
+                    col.createComponent(resource);
+                }
+            }
+            registerResourcesInternally(resource.getChildren());
+        }
+        if (array.size() > 0) {
+            ArrayNode finalArray = array;
+            getElement().getNode().runWhenAttached(ui ->
+                ui.beforeClientResponse(this, ctx ->
+                    getElement().callJsFunction("addResources", finalArray, false)));
+        }
+    }
+
+    /**
+     * Removes resources internally, bypassing the signal binding guard.
+     */
+    private void removeResourcesInternal(List<Resource> resourcesToRemove) {
+        removeFromEntries(resourcesToRemove);
+        ArrayNode array = JsonFactory.createArray();
+        for (Resource resource : resourcesToRemove) {
+            String id = resource.getId();
+            if (this.resources.containsKey(id)) {
+                unregisterResourcesInternally(resource.getChildren());
+                for (var col : activeComponentColumns) {
+                    col.destroyComponent(resource);
+                }
+                this.resources.remove(id);
+                resource.detachScheduler();
+                array.add(resource.toJson());
+            }
+        }
+        if (array.size() > 0) {
+            ArrayNode finalArray = array;
+            getElement().getNode().runWhenAttached(ui ->
+                ui.beforeClientResponse(this, ctx ->
+                    getElement().callJsFunction("removeResources", finalArray)));
+        }
+    }
+
+    /**
+     * Removes all resources internally, bypassing the signal binding guard.
+     */
+    private void removeAllResourcesInternal() {
+        removeFromEntries(resources.values());
+        for (var col : activeComponentColumns) {
+            col.destroyAllComponents();
+        }
+        resources.values().forEach(Resource::detachScheduler);
+        resources.clear();
+        getElement().getNode().runWhenAttached(ui ->
+            ui.beforeClientResponse(this, ctx ->
+                getElement().callJsFunction("removeAllResources")));
+    }
 
     @Override
     public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {

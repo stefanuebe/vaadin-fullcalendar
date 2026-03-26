@@ -778,12 +778,16 @@ export class FullCalendar extends HTMLElement {
     }
 
     refreshAllEvents() {
-        this.calendar.refetchEvents();
+        if (this.calendar) {
+            this.calendar.refetchEvents();
+        }
     }
 
     refreshSingleEvent(id: string) {
-        console.debug(`refetch all events due to unsupported refresh single event ${id}`);
-        this.calendar.refetchEvents();
+        if (this.calendar) {
+            console.debug(`refetch all events due to unsupported refresh single event ${id}`);
+            this.calendar.refetchEvents();
+        }
     }
 
     /**

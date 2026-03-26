@@ -297,4 +297,17 @@ public class FullCalendarSchedulerTest {
     private InMemoryEntryProvider<Entry> getEntryProvider(FullCalendar calendar) {
         return calendar.getEntryProvider();
     }
+
+    // ---- Signal Resource Binding Tests (Guards only — no UI context) ----
+
+    @Test
+    void resourceBindingDefaultIsInactive() {
+        Assertions.assertFalse(calendar.isResourceBindingActive());
+    }
+
+    @Test
+    void bindResourcesNullOnUnboundIsNoOp() {
+        Assertions.assertDoesNotThrow(() -> calendar.bindResources(null));
+        Assertions.assertFalse(calendar.isResourceBindingActive());
+    }
 }
