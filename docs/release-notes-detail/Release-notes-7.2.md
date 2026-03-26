@@ -86,3 +86,32 @@ FullCalendar calendar = FullCalendarBuilder.create()
 - `applyChangesOnEntry()` in drop/resize listeners automatically routes through `signal.modify()` when a signal binding is active, ensuring all effects observe the change.
 - Direct mutation of Entry objects (e.g., `entry.setTitle(...)`) does **not** trigger reactive updates. Always use `ValueSignal.modify()`.
 - `withSignalBinding()` and `withEntryProvider()` are mutually exclusive in the builder.
+
+### Resource Binding (Scheduler)
+
+Resources on `FullCalendarScheduler` can also be bound via Signals:
+
+```java
+ListSignal<Resource> resources = new ListSignal<>();
+ListSignal<Entry> entries = new ListSignal<>();
+
+scheduler.bindResources(resources);
+scheduler.bindEntries(entries);
+
+// Add resource — appears in timeline automatically
+ValueSignal<Resource> room = resources.insertLast(
+    new Resource(null, "Room A", "#3788d8"));
+
+// Add entry with resource reference
+ResourceEntry entry = new ResourceEntry();
+entry.setTitle("Meeting");
+entry.addResources(room.peek());
+entries.insertLast(entry);
+
+// Modify resource — display updates automatically
+room.modify(r -> r.setTitle("Room A (renovated)"));
+```
+
+- `bindResources()` and manual resource management (`addResource`, `removeResource`, `removeAllResources`) are mutually exclusive — throws `BindingActiveException`.
+- `bindResources(null)` unbinds and clears all resources.
+- `bindResources()` and `bindEntries()` are independent — you can use one or both.

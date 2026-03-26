@@ -298,11 +298,11 @@ The `bindResources` effect must handle:
 
 ## Open Questions
 
-| # | Question | Notes |
-|---|----------|-------|
-| OQ-01 | **Resource hierarchy in ListSignal**: Should child resources be separate entries in the `ListSignal`, or only top-level resources? If flat: how does the effect know about hierarchy changes within a `Resource`? If nested: `ListSignal` only tracks top-level, children are part of the `Resource` object. | Likely: flat list, hierarchy via Resource.parent/children. Phase 2. |
-| OQ-02 | **Granularity of entry change detection**: When `ValueSignal.modify()` is called, can we detect *which* properties changed to send a minimal JSON delta? Or always send the full entry JSON? | Start with full refresh per entry, optimize later |
-| OQ-03 | **ResourceEntry type constraint**: Should `bindEntries` on a `FullCalendarScheduler` require `ListSignal<ResourceEntry>` instead of `ListSignal<Entry>`? | Likely yes, mirroring existing type constraints. Phase 2. |
+| # | Question | Resolution |
+|---|----------|------------|
+| OQ-01 | **Resource hierarchy in ListSignal** | **Resolved:** Flat list, hierarchy via Resource.parent/children. Children are NOT separate entries in the ListSignal. `toJson()` handles children recursively. Implemented in Phase 2. |
+| OQ-02 | **Granularity of entry change detection** | **Deferred:** Full refresh per entry. `modify()` fires unconditionally (Vaadin behavior). Optimization to minimal JSON delta is future work. |
+| OQ-03 | **ResourceEntry type constraint** | **Resolved:** No type constraint enforced. `bindEntries` accepts `ListSignal<Entry>` on both `FullCalendar` and `FullCalendarScheduler`. Users can use `ListSignal<ResourceEntry>` if they need resource references, but it's not required by the API. |
 
 ---
 

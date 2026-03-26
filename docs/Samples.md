@@ -256,6 +256,32 @@ Always use `ValueSignal.modify()` to change entries.
 Signal binding and `setEntryProvider()` are mutually exclusive — calling one while the other is active
 throws `BindingActiveException`. Use `bindEntries(null)` to unbind.
 
+For scheduler resources, use `bindResources()`:
+
+```java
+ListSignal<Resource> resources = new ListSignal<>();
+ListSignal<Entry> entries = new ListSignal<>();
+
+scheduler.bindResources(resources);
+scheduler.bindEntries(entries);
+
+// Add resource — appears in timeline automatically
+ValueSignal<Resource> room = resources.insertLast(
+    new Resource(null, "Room A", "#3788d8"));
+
+// Add entry with resource reference
+ResourceEntry entry = new ResourceEntry();
+entry.setTitle("Meeting");
+entry.addResources(room.peek());
+entries.insertLast(entry);
+
+// Modify resource — display updates automatically
+room.modify(r -> r.setTitle("Room A (renovated)"));
+```
+
+`bindResources()` and manual resource management (`addResource`, `removeResource`, `removeAllResources`)
+are mutually exclusive. Use `bindResources(null)` to unbind.
+
 ## Setting the calendar's dimensions
 
 You may set the dimensions as with every other Vaadin component. The FC library also brings in some additional
