@@ -61,14 +61,24 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         resourcesSignal.insertLast(roomB);
         resourcesSignal.insertLast(roomC);
 
-        // Pre-populate entries with resource assignments
-        EntryService<ResourceEntry> entryService = EntryService.createRandomResourceInstance();
+        // Pre-populate entries: 2-3 per resource per month (last, current, next month)
         Resource[] rooms = {roomA, roomB, roomC};
-        int i = 0;
-        for (ResourceEntry entry : (Iterable<ResourceEntry>) entryService.streamEntries()::iterator) {
-            entry.addResources(rooms[i % rooms.length]);
-            entriesSignal.insertLast(entry);
-            i++;
+        String[] titles = {"Standup", "Review", "Planning"};
+        LocalDate now = LocalDate.now();
+        for (int monthOffset = -1; monthOffset <= 1; monthOffset++) {
+            LocalDate month = now.plusMonths(monthOffset).withDayOfMonth(1);
+            for (Resource room : rooms) {
+                for (int j = 0; j < titles.length; j++) {
+                    LocalDate day = month.plusDays(j * 7 + 2); // spread across the month
+                    ResourceEntry entry = new ResourceEntry();
+                    entry.setTitle(titles[j] + " " + room.getTitle());
+                    entry.setStart(day.atTime(9 + j, 0));
+                    entry.setEnd(entry.getStart().plusHours(1));
+                    entry.setColor(room.getColor());
+                    entry.addResources(room);
+                    entriesSignal.insertLast(entry);
+                }
+            }
         }
 
         FullCalendarScheduler scheduler = (FullCalendarScheduler) FullCalendarBuilder.create()
