@@ -28,12 +28,14 @@ import java.util.List;
  */
 @Route(value = "signal-binding", layout = MainLayout.class)
 @MenuItem(label = "Signal Binding")
-public class SignalBindingDemo extends AbstractCalendarView {
+public class SignalIntegrationDemo extends AbstractCalendarView {
 
-    private final ListSignal<Entry> entriesSignal = new ListSignal<>();
+    private ListSignal<Entry> entriesSignal;
 
     @Override
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+        entriesSignal = new ListSignal<>();
+
         // Pre-populate the signal with some sample entries
         EntryService<Entry> entryService = EntryService.createRandomInstance();
         entryService.streamEntries().forEach(entriesSignal::insertLast);

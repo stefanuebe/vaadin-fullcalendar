@@ -19,12 +19,11 @@ package org.vaadin.stefan.ui.layouts;
 import com.vaadin.flow.component.sidenav.SideNav;
 import org.vaadin.stefan.ui.view.demos.autorevert.AutoRevertView;
 import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
-import org.vaadin.stefan.ui.view.demos.customtimeline.AnonymousCustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.customtimeline.CustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.CallbackEntryProviderDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.InMemoryEntryProviderDemo;
-import org.vaadin.stefan.ui.view.demos.entryproviders.SignalBindingDemo;
+import org.vaadin.stefan.ui.view.demos.entryproviders.SignalIntegrationDemo;
 import org.vaadin.stefan.ui.view.demos.full.FullDemo;
 import org.vaadin.stefan.ui.view.demos.externaldrag.ExternalDragDemo;
 import org.vaadin.stefan.ui.view.demos.componentcolumns.ComponentColumnsDemo;
@@ -40,7 +39,7 @@ public class MainLayout extends AbstractLayout {
         addMenu(nav, InMemoryEntryProviderDemo.class);
         addMenu(nav, CallbackEntryProviderDemo.class);
         addMenu(nav, BackendEntryProviderDemo.class);
-        addMenu(nav, SignalBindingDemo.class);
+        addMenu(nav, SignalIntegrationDemo.class);
         addMenu(nav, DemoWithTooltip.class);
 //        addMenu(nav, DemoCustomProperties.class); // TODO overhaul the demo first
 //        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
