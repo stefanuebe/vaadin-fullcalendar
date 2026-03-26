@@ -523,4 +523,59 @@ public class FullCalendarTest {
         assertTrue(calendar.isAutoRevertUnappliedEntryChanges());
     }
 
+    // ---- Signal Binding Tests ----
+
+    // ---- Signal Binding Tests (Guards / Exceptions only — no UI context) ----
+    // Signal lifecycle tests (bind/unbind, effects) require Browserless or E2E tests
+    // because Signal.effect() needs a Vaadin UI session.
+
+    @Test
+    void signalBindingDefaultIsInactive() {
+        FullCalendar calendar = createTestCalendar();
+        assertFalse(calendar.isSignalBindingActive());
+    }
+
+    @Test
+    void bindEntriesThrowsWhenCustomProviderActive() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.setEntryProvider(org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider.fromCallbacks(
+                query -> java.util.stream.Stream.empty(), id -> null));
+        var signal = new com.vaadin.flow.signals.local.ListSignal<Entry>();
+        assertThrows(com.vaadin.flow.signals.BindingActiveException.class,
+                () -> calendar.bindEntries(signal));
+    }
+
+    @Test
+    void bindEntriesThrowsWhenAutoRevertDisabled() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.setAutoRevertUnappliedEntryChanges(false);
+        var signal = new com.vaadin.flow.signals.local.ListSignal<Entry>();
+        assertThrows(IllegalStateException.class, () -> calendar.bindEntries(signal));
+    }
+
+    @Test
+    void bindEntriesNullOnUnboundCalendarIsNoOp() {
+        FullCalendar calendar = createTestCalendar();
+        assertDoesNotThrow(() -> calendar.bindEntries(null));
+        assertFalse(calendar.isSignalBindingActive());
+    }
+
+    // ---- Builder Signal Binding Tests ----
+
+    @Test
+    void builderWithSignalBindingAndEntryProviderThrows() {
+        assertThrows(com.vaadin.flow.signals.BindingActiveException.class, () ->
+                FullCalendarBuilder.create()
+                        .withEntryProvider(new org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<>())
+                        .withSignalBinding(new com.vaadin.flow.signals.local.ListSignal<Entry>()));
+    }
+
+    @Test
+    void builderWithEntryProviderAndSignalBindingThrows() {
+        assertThrows(com.vaadin.flow.signals.BindingActiveException.class, () ->
+                FullCalendarBuilder.create()
+                        .withSignalBinding(new com.vaadin.flow.signals.local.ListSignal<Entry>())
+                        .withEntryProvider(new org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider<>()));
+    }
+
 }

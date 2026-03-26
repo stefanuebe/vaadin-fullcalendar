@@ -21,6 +21,9 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.signals.BindingActiveException;
+import com.vaadin.flow.signals.local.ListSignal;
+import com.vaadin.flow.signals.local.ValueSignal;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
@@ -153,6 +156,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * {@link EntryDataEvent#applyChangesOnEntry()} is not called. Default is {@code true}.
      */
     private boolean autoRevertUnappliedEntryChanges = true;
+
+    /**
+     * The active signal entry provider, or null if no signal binding is active.
+     */
+    private SignalEntryProvider<? extends Entry> signalEntryProvider;
 
     // ---- View-Specific Options ----
     private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
@@ -363,8 +371,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * By default a new full calendar is initialized with an {@link InMemoryEntryProvider}.
      *
      * @param entryProvider entry provider
+     * @throws BindingActiveException if a signal binding is active (use {@link #bindEntries(ListSignal)} with null to unbind first)
      */
     public void setEntryProvider(EntryProvider<? extends Entry> entryProvider) {
+        if (signalEntryProvider != null) {
+            throw new BindingActiveException("setEntryProvider is not allowed while a signal binding is active. Call bindEntries(null) first.");
+        }
         Objects.requireNonNull(entryProvider);
 
         if (this.entryProvider != entryProvider) {
@@ -409,6 +421,107 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     @SuppressWarnings("unchecked")
     public <R extends Entry, T extends EntryProvider<R>> T getEntryProvider() {
         return (T) entryProvider;
+    }
+
+    /**
+     * Binds a {@link ListSignal} of entries to this calendar. The calendar reactively updates
+     * when entries are added, removed, or modified via the signal.
+     * <p>
+     * Passing {@code null} unbinds the signal, cleans up all effects, and restores a default
+     * empty {@link InMemoryEntryProvider}.
+     * <p>
+     * Signal binding and {@link #setEntryProvider(EntryProvider)} are mutually exclusive.
+     *
+     * @param entriesSignal the ListSignal to bind, or null to unbind
+     * @param <T> entry type
+     * @throws BindingActiveException if a non-default EntryProvider was explicitly set
+     * @throws IllegalStateException if {@link #isAutoRevertUnappliedEntryChanges()} is false
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T extends Entry> void bindEntries(ListSignal<T> entriesSignal) {
+        if (entriesSignal == null) {
+            // Unbind
+            if (signalEntryProvider != null) {
+                signalEntryProvider.stopObserving();
+                signalEntryProvider = null;
+                setEntryProviderInternal(EntryProvider.emptyInMemory());
+            }
+            return;
+        }
+
+        // Validate: no non-default provider active (unless it's already a signal provider)
+        if (signalEntryProvider == null && !(entryProvider instanceof InMemoryEntryProvider)) {
+            throw new BindingActiveException(
+                    "bindEntries is not allowed while a non-default EntryProvider is active. " +
+                    "Call setEntryProvider with an InMemoryEntryProvider or remove the custom provider first.");
+        }
+
+        // Validate: autoRevert must be enabled
+        if (!autoRevertUnappliedEntryChanges) {
+            throw new IllegalStateException(
+                    "bindEntries requires autoRevertUnappliedEntryChanges to be true. " +
+                    "Call setAutoRevertUnappliedEntryChanges(true) first.");
+        }
+
+        // Clean up previous signal binding if re-binding
+        if (signalEntryProvider != null) {
+            signalEntryProvider.stopObserving();
+        }
+
+        SignalEntryProvider provider = new SignalEntryProvider(entriesSignal);
+        this.signalEntryProvider = provider;
+        setEntryProviderInternal(provider);
+        provider.startObserving(this);
+    }
+
+    /**
+     * Returns whether a signal binding is currently active.
+     *
+     * @return true if {@link #bindEntries(ListSignal)} has been called with a non-null signal
+     */
+    public boolean isSignalBindingActive() {
+        return signalEntryProvider != null;
+    }
+
+    /**
+     * Internal method to set the entry provider without the signal binding check.
+     * Used by {@link #bindEntries(ListSignal)} to set the SignalEntryProvider.
+     */
+    private void setEntryProviderInternal(EntryProvider<? extends Entry> provider) {
+        // Temporarily clear signalEntryProvider to allow setEntryProvider to proceed
+        SignalEntryProvider<? extends Entry> savedSignal = this.signalEntryProvider;
+        this.signalEntryProvider = null;
+        try {
+            setEntryProvider(provider);
+        } finally {
+            this.signalEntryProvider = savedSignal;
+        }
+    }
+
+    /**
+     * Applies entry changes through the signal if a signal binding is active.
+     * Called by the auto-revert mechanism when {@code applyChangesOnEntry()} is invoked.
+     * <p>
+     * Package-private — used by {@link EntryDataEvent}.
+     *
+     * @param entry the entry to apply changes to
+     * @param jsonObject the JSON data with changes
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void applyEntryChangesFromEvent(Entry entry, ObjectNode jsonObject) {
+        if (signalEntryProvider != null) {
+            // Route through signal.modify() so all effects observe the change
+            var signalOpt = signalEntryProvider.findSignalForEntry(entry.getId());
+            if (signalOpt.isPresent()) {
+                ((ValueSignal) signalOpt.get()).modify(e -> ((Entry) e).updateFromJson(jsonObject));
+            } else {
+                // Fallback: entry not found in signal (should not happen in normal flow)
+                entry.updateFromJson(jsonObject);
+            }
+        } else {
+            // Direct mutation (existing behavior)
+            entry.updateFromJson(jsonObject);
+        }
     }
 
     /**
@@ -1654,10 +1767,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param autoRevert true to enable auto-revert
      */
     public void setAutoRevertUnappliedEntryChanges(boolean autoRevert) {
-        // Future: validate against signal binding
-        // if (!autoRevert && isSignalBindingActive()) {
-        //     throw new BindingActiveException("Auto-revert cannot be disabled while signal binding is active");
-        // }
+        if (!autoRevert && isSignalBindingActive()) {
+            throw new BindingActiveException(
+                    "Auto-revert cannot be disabled while a signal binding is active. " +
+                    "Call bindEntries(null) first.");
+        }
         this.autoRevertUnappliedEntryChanges = autoRevert;
     }
 

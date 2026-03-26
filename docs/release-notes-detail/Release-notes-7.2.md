@@ -42,3 +42,47 @@ calendar.setAutoRevertUnappliedEntryChanges(false);
 - Auto-revert works for `EntryDroppedEvent`, `EntryResizedEvent`, and `EntryDroppedSchedulerEvent`.
 - The revert uses FullCalendar's native revert mechanism, which provides a smooth animation back to the original position.
 - The `isChangesApplied()` method on `EntryDataEvent` indicates whether `applyChangesOnEntry()` was called.
+
+## Signal Binding — Reactive Entry Management (Experimental)
+
+Entries can now be bound to the calendar via Vaadin 25.1 Signals. When entries are added, removed, or modified through the signal, the calendar updates automatically — no manual `refreshItem()` or `refreshAll()` calls needed.
+
+**Note:** This feature depends on Vaadin's experimental Signals API (25.1). The API may change in future Vaadin versions.
+
+### Usage
+
+```java
+ListSignal<Entry> entries = new ListSignal<>();
+
+// Bind — calendar reactively updates from the signal
+calendar.bindEntries(entries);
+
+// Add entry — appears on calendar automatically
+ValueSignal<Entry> meeting = entries.insertLast(myEntry);
+
+// Modify entry — calendar updates automatically
+meeting.modify(e -> e.setTitle("Updated Title"));
+
+// Remove entry — disappears from calendar automatically
+entries.remove(meeting);
+
+// Unbind — restores default InMemoryEntryProvider
+calendar.bindEntries(null);
+```
+
+### Builder Support
+
+```java
+ListSignal<Entry> entries = new ListSignal<>();
+FullCalendar calendar = FullCalendarBuilder.create()
+    .withSignalBinding(entries)
+    .build();
+```
+
+### Rules
+
+- `bindEntries()` and `setEntryProvider()` are mutually exclusive. Calling one while the other is active throws `BindingActiveException`.
+- `bindEntries()` requires `autoRevertUnappliedEntryChanges` to be `true` (the default).
+- `applyChangesOnEntry()` in drop/resize listeners automatically routes through `signal.modify()` when a signal binding is active, ensuring all effects observe the change.
+- Direct mutation of Entry objects (e.g., `entry.setTitle(...)`) does **not** trigger reactive updates. Always use `ValueSignal.modify()`.
+- `withSignalBinding()` and `withEntryProvider()` are mutually exclusive in the builder.

@@ -30,6 +30,10 @@ Starting with 7.2, entries automatically revert to their original position on th
 
 **If your code intentionally does NOT call `applyChangesOnEntry()` and relies on the client keeping the new position:** Set `calendar.setAutoRevertUnappliedEntryChanges(false)` to restore the previous behavior.
 
+### New: Signal binding for entries (experimental)
+
+Version 7.2 adds `bindEntries(ListSignal<Entry>)` as an alternative to `setEntryProvider()`. This is purely additive — no migration needed unless you want to adopt Signals. See [Samples](Samples#signal-binding-experimental-vaadin-251) for usage examples.
+
 No APIs have been removed in this release.
 
 ## Migrating from 6.3 > 7.1

@@ -38,7 +38,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>21</maven.compiler.release>
 
-        <vaadin.version>25.0.0</vaadin.version>
+        <vaadin.version>25.1.0</vaadin.version>
         <lombok.version>1.18.42</lombok.version>
         <junit.version>5.10.0</junit.version>
 

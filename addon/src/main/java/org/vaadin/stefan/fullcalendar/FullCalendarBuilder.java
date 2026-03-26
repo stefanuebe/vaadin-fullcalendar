@@ -36,6 +36,7 @@ public class FullCalendarBuilder {
     private String schedulerLicenseKey;
     private ObjectNode initialOptions;
     private EntryProvider<Entry> entryProvider;
+    private com.vaadin.flow.signals.local.ListSignal<? extends Entry> signalBinding;
     private Class<? extends FullCalendar> customType;
     private Collection<Entry> initialEntries;
     private String entryContent;
@@ -95,7 +96,29 @@ public class FullCalendarBuilder {
      */
     @SuppressWarnings("unchecked")
     public FullCalendarBuilder withEntryProvider(EntryProvider<? extends Entry> entryProvider) {
+        if (signalBinding != null) {
+            throw new com.vaadin.flow.signals.BindingActiveException(
+                    "withEntryProvider and withSignalBinding are mutually exclusive.");
+        }
         this.entryProvider = (EntryProvider<Entry>) Objects.requireNonNull(entryProvider);
+        return this;
+    }
+
+    /**
+     * Initializes the calendar with signal binding for the given {@link com.vaadin.flow.signals.local.ListSignal}.
+     * Mutually exclusive with {@link #withEntryProvider(EntryProvider)}.
+     *
+     * @param entriesSignal the ListSignal to bind
+     * @return this instance
+     * @throws com.vaadin.flow.signals.BindingActiveException if {@link #withEntryProvider(EntryProvider)} was already called
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Entry> FullCalendarBuilder withSignalBinding(com.vaadin.flow.signals.local.ListSignal<T> entriesSignal) {
+        if (entryProvider != null) {
+            throw new com.vaadin.flow.signals.BindingActiveException(
+                    "withSignalBinding and withEntryProvider are mutually exclusive.");
+        }
+        this.signalBinding = Objects.requireNonNull(entriesSignal);
         return this;
     }
 
@@ -346,7 +369,9 @@ public class FullCalendarBuilder {
             calendar.setEntryContentCallback(entryContent);
         }
 
-        if (entryProvider != null) {
+        if (signalBinding != null) {
+            calendar.bindEntries((com.vaadin.flow.signals.local.ListSignal) signalBinding);
+        } else if (entryProvider != null) {
             calendar.setEntryProvider(entryProvider);
         } else if (initialEntries != null) {
             ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(initialEntries);

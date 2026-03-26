@@ -225,6 +225,37 @@ We recommend keeping this feature enabled, unless you experience issues due to s
 calendar.setPrefetchEnabled(false); // disables the prefetch feature
 ```
 
+### Signal binding (experimental, Vaadin 25.1)
+
+Instead of using an entry provider, you can bind a `ListSignal<Entry>` to the calendar. Entries are then managed
+reactively — the calendar updates automatically when entries are added, removed, or modified through the signal.
+
+```java
+ListSignal<Entry> entries = new ListSignal<>();
+
+// Bind the signal to the calendar
+calendar.bindEntries(entries);
+
+// Add an entry — appears on the calendar automatically
+Entry meeting = new Entry();
+meeting.setTitle("Team Meeting");
+meeting.setStart(LocalDate.now().atTime(9, 0));
+meeting.setEnd(meeting.getStart().plusHours(1));
+ValueSignal<Entry> meetingSignal = entries.insertLast(meeting);
+
+// Modify the entry — calendar updates automatically
+meetingSignal.modify(e -> e.setTitle("Updated Meeting"));
+
+// Remove the entry — disappears from the calendar automatically
+entries.remove(meetingSignal);
+```
+
+**Important:** Direct mutation like `entry.setTitle("new")` does NOT trigger reactive updates.
+Always use `ValueSignal.modify()` to change entries.
+
+Signal binding and `setEntryProvider()` are mutually exclusive — calling one while the other is active
+throws `BindingActiveException`. Use `bindEntries(null)` to unbind.
+
 ## Setting the calendar's dimensions
 
 You may set the dimensions as with every other Vaadin component. The FC library also brings in some additional
