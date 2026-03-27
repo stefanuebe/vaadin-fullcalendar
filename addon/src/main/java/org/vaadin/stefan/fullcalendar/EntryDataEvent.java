@@ -68,7 +68,7 @@ public abstract class EntryDataEvent extends EntryEvent {
     public Entry applyChangesOnEntry() {
         Entry entry = getEntry();
         getSource().applyEntryChangesFromEvent(entry, getJsonObject());
-        this.changesApplied = true;
+        markChangesApplied();
         return entry;
     }
 
@@ -86,6 +86,15 @@ public abstract class EntryDataEvent extends EntryEvent {
      */
     void markRevertCheckScheduled() {
         this.revertCheckScheduled = true;
+    }
+
+    /**
+     * Marks this event as having its changes applied. Subclasses that override
+     * {@link #applyChangesOnEntry()} and bypass {@code super} must call this method
+     * to ensure the auto-revert mechanism knows that changes were applied.
+     */
+    protected void markChangesApplied() {
+        this.changesApplied = true;
     }
 
     /**

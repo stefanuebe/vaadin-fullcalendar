@@ -195,11 +195,13 @@ EntryProvider
 
 `EntryDataEvent.applyChangesOnEntry()` currently mutates the Entry directly. With signal binding, it must route through `signal.modify()` so all effects (including external ones) observe the change.
 
-The routing mechanism: `applyChangesOnEntry()` calls an internal method on `FullCalendar` (e.g., `applyEntryChanges(entry, json)`). The calendar checks whether a signal binding is active:
-- **Signal active:** finds the `ValueSignal<Entry>` for the entry and calls `signal.modify(e -> e.updateFromJson(json))`
-- **No signal:** direct mutation as today (`entry.updateFromJson(json)`)
+The routing mechanism: `applyChangesOnEntry()` calls `FullCalendar.applyEntryChangesFromEvent(entry, json)` (or the Consumer overload `applyEntryChangesFromEvent(entry, json, additionalMutations)`). The calendar checks whether a signal binding is active:
+- **Signal active:** finds the `ValueSignal<Entry>` for the entry and calls `signal.modify(e -> { e.updateFromJson(json); additionalMutations.accept(e); })` — all mutations in a single `modify()` call
+- **No signal:** direct mutation as today (`entry.updateFromJson(json)` + `additionalMutations.accept(entry)`)
 
 This keeps `EntryDataEvent` unaware of signals — the calendar handles the routing.
+
+**Important for scheduler events:** `EntryDroppedSchedulerEvent.applyChangesOnEntry()` must inject its resource delta logic (`updateResourcesFromEventResourceDelta`) as an `additionalMutations` Consumer into `applyEntryChangesFromEvent`, rather than calling it after `super.applyChangesOnEntry()` returns. This ensures resource changes are part of the same `signal.modify()` call and trigger effects exactly once.
 
 ### The Circularity Problem — Solved by AutoRevert
 
@@ -255,6 +257,7 @@ The `bindResources` effect must handle:
 | BR-15 | `modify()` on `ValueSignal<Entry>` fires unconditionally — no property-level change detection. Even a no-op `modify(e -> {})` triggers the effect. This is inherent Vaadin behavior, not something the addon controls. |
 | BR-16 | Two levels of effects are required: a list-level effect for structural changes (add/remove) and per-entry effects for property changes via `modify()`. Per-entry effects must be dynamically managed — registered when entries are added to the ListSignal, cleaned up when removed. |
 | BR-17 | `BindingActiveException` is `com.vaadin.flow.signals.BindingActiveException` (not `com.vaadin.flow.dom`). |
+| BR-18 | All mutations in `applyChangesOnEntry()` overrides (including subclass-specific logic like resource delta in `EntryDroppedSchedulerEvent`) must execute inside the `signal.modify()` callback when signal binding is active. Subclasses achieve this by passing a `Consumer<Entry>` to `FullCalendar.applyEntryChangesFromEvent()`, not by mutating the entry after `super.applyChangesOnEntry()` returns. |
 
 ---
 
@@ -278,6 +281,7 @@ The `bindResources` effect must handle:
 - [ ] Effect `Registration` is cleaned up on unbind
 - [ ] Builder: `withSignalBinding()` works
 - [ ] Builder: `withSignalBinding()` + `withEntryProvider()` throws `BindingActiveException`
+- [ ] Dropping an entry to a different resource with only entry signal binding active correctly updates the entry's resource assignment in the signal (scheduler event resource delta routed through `signal.modify()`)
 
 ### Resource Binding — Phase 2 (addon-scheduler)
 
@@ -349,6 +353,8 @@ Browserless tests are appropriate here because signal binding is purely server-s
 - [ ] `SignalApplyChangesTest` — applyChangesOnEntry routes through signal.modify(), verifies signal state after apply
 - [ ] `SignalBindingExceptionTest` — all `BindingActiveException` scenarios (both directions, builder, AutoRevert coupling)
 - [ ] `SchedulerSignalResourceBindingTest` (Phase 2) — bindResources lifecycle, exclusivity with addResource
+- [x] `SignalApplyChangesSchedulerTest` — applyEntryChangesFromEvent Consumer overload: consumer invocation, resource delta via consumer, null consumer safety
+- [x] `ResourceDeltaTest` — updateResourcesFromEventResourceDelta: assign, unassign, reassign, no-op, detached entry safety
 
 ### E2E Tests (browser required — visual/JS verification)
 

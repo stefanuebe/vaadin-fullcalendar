@@ -23,18 +23,10 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.signals.BindingActiveException;
 import com.vaadin.flow.signals.local.ListSignal;
-import com.vaadin.flow.signals.local.ValueSignal;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
-import org.vaadin.stefan.fullcalendar.converters.BusinessHoursConverter;
-import org.vaadin.stefan.fullcalendar.converters.DayOfWeekArrayConverter;
-import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
-import org.vaadin.stefan.fullcalendar.converters.DurationConverter;
-import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
-import org.vaadin.stefan.fullcalendar.converters.LocaleConverter;
-import org.vaadin.stefan.fullcalendar.converters.StringArrayConverter;
-import org.vaadin.stefan.fullcalendar.converters.ToolbarConverter;
+import org.vaadin.stefan.fullcalendar.converters.*;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
@@ -49,6 +41,7 @@ import java.io.Serializable;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -118,52 +111,40 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     private final Map<String, Object> initialOptions = new HashMap<>();
     private final Map<String, Object> serverSideOptions = new HashMap<>();
-
-    private EntryProvider<? extends Entry> entryProvider;
     private final List<Registration> entryProviderDataListeners = new LinkedList<>();
-
     private final Map<String, CustomCalendarView> customCalendarViews = new LinkedHashMap<>();
-
-    // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
-    private int timeslotsSelectedListenerCount;
-
-    private Timezone browserTimezone;
-
-    private String currentViewName;
-    private LocalDate currentIntervalStart;
-    private LocalDate currentIntervalEnd;
-    private CalendarView currentView;
-
-    private volatile boolean refreshAllEntriesRequested;
     private final Object refreshLock = new Object();
-
     private final Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
-    private volatile JsCallback userEntryDidMountCallback;
-
     /**
      * Server-side registry of client-managed event sources, keyed by source id.
      */
     private final Map<String, ClientSideEventSource<?>> clientSideEventSourceRegistry = new LinkedHashMap<>();
-
     /**
      * Server-side registry of draggable components, keyed by draggable UUID.
      */
     private final Map<String, Draggable> draggableRegistry = new LinkedHashMap<>();
     private final Map<String, Registration> draggableCleanups = new LinkedHashMap<>();
-
+    // ---- View-Specific Options ----
+    private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
+    private EntryProvider<? extends Entry> entryProvider;
+    // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
+    private int timeslotsSelectedListenerCount;
+    private Timezone browserTimezone;
+    private String currentViewName;
+    private LocalDate currentIntervalStart;
+    private LocalDate currentIntervalEnd;
+    private CalendarView currentView;
+    private volatile boolean refreshAllEntriesRequested;
+    private volatile JsCallback userEntryDidMountCallback;
     /**
      * Whether to automatically revert client-side entry changes when
      * {@link EntryDataEvent#applyChangesOnEntry()} is not called. Default is {@code true}.
      */
     private boolean autoRevertUnappliedEntryChanges = true;
-
     /**
      * The active signal entry provider, or null if no signal binding is active.
      */
     private SignalEntryProvider<? extends Entry> signalEntryProvider;
-
-    // ---- View-Specific Options ----
-    private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
@@ -257,6 +238,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * Creates a bounded LinkedHashMap for caching entries.
+     * This is a separate method to avoid type name conflicts with java.util.Map.Entry.
+     */
+    private static Map<String, Entry> createBoundedEntryCache() {
+        return new LinkedHashMap<String, org.vaadin.stefan.fullcalendar.Entry>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(java.util.Map.Entry<String, org.vaadin.stefan.fullcalendar.Entry> eldest) {
+                return size() > MAX_CACHED_ENTRIES;
+            }
+        };
+    }
+
+    /**
      * Called after the constructor has been initialized.
      */
     private void postConstruct() {
@@ -289,7 +283,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
 
-        if(!attachEvent.isInitialAttach()) {
+        if (!attachEvent.isInitialAttach()) {
             getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(this, executionContext -> {
                     // We do not need to set the initial options again as that is handled by Flow automatically.
@@ -365,6 +359,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * Returns the entry provider of this calendar. Never null.
+     *
+     * @param <T> entry provider class or subclass
+     * @return entry provider
+     */
+    @SuppressWarnings("unchecked")
+    public <R extends Entry, T extends EntryProvider<R>> T getEntryProvider() {
+        return (T) entryProvider;
+    }
+
+    /**
      * Sets the entry provider for this instance. The previous entry provider will be removed and the
      * client side will be updated.
      * <p></p>
@@ -414,16 +419,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Returns the entry provider of this calendar. Never null.
-     * @param <T> entry provider class or subclass
-     * @return entry provider
-     */
-    @SuppressWarnings("unchecked")
-    public <R extends Entry, T extends EntryProvider<R>> T getEntryProvider() {
-        return (T) entryProvider;
-    }
-
-    /**
      * Binds a {@link ListSignal} of entries to this calendar. The calendar reactively updates
      * when entries are added, removed, or modified via the signal.
      * <p>
@@ -433,9 +428,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Signal binding and {@link #setEntryProvider(EntryProvider)} are mutually exclusive.
      *
      * @param entriesSignal the ListSignal to bind, or null to unbind
-     * @param <T> entry type
+     * @param <T>           entry type
      * @throws BindingActiveException if a non-default EntryProvider was explicitly set
-     * @throws IllegalStateException if {@link #isAutoRevertUnappliedEntryChanges()} is false
+     * @throws IllegalStateException  if {@link #isAutoRevertUnappliedEntryChanges()} is false
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends Entry> void bindEntries(ListSignal<T> entriesSignal) {
@@ -453,14 +448,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         if (signalEntryProvider == null && !(entryProvider instanceof InMemoryEntryProvider)) {
             throw new BindingActiveException(
                     "bindEntries is not allowed while a non-default EntryProvider is active. " +
-                    "Call setEntryProvider with an InMemoryEntryProvider or remove the custom provider first.");
+                            "Call setEntryProvider with an InMemoryEntryProvider or remove the custom provider first.");
         }
 
         // Validate: autoRevert must be enabled
         if (!autoRevertUnappliedEntryChanges) {
             throw new IllegalStateException(
                     "bindEntries requires autoRevertUnappliedEntryChanges to be true. " +
-                    "Call setAutoRevertUnappliedEntryChanges(true) first.");
+                            "Call setAutoRevertUnappliedEntryChanges(true) first.");
         }
 
         // Clean up previous signal binding if re-binding
@@ -500,27 +495,53 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Applies entry changes through the signal if a signal binding is active.
-     * Called by the auto-revert mechanism when {@code applyChangesOnEntry()} is invoked.
+     * Called by {@link EntryDataEvent#applyChangesOnEntry()}.
      * <p>
      * Package-private — used by {@link EntryDataEvent}.
      *
-     * @param entry the entry to apply changes to
+     * @param entry      the entry to apply changes to
      * @param jsonObject the JSON data with changes
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     void applyEntryChangesFromEvent(Entry entry, ObjectNode jsonObject) {
+        applyEntryChangesFromEvent(entry, jsonObject, null);
+    }
+
+    /**
+     * Applies entry changes through the signal if a signal binding is active,
+     * including additional mutations (e.g., resource delta from scheduler events).
+     * All mutations run inside a single {@code signal.modify()} call when signal
+     * binding is active, ensuring that effects fire exactly once (spec BR-05/BR-18).
+     * <p>
+     * Package-private — used by scheduler event subclasses that need to inject
+     * additional mutations into the signal modify call.
+     *
+     * @param entry               the entry to apply changes to
+     * @param jsonObject          the JSON data with changes
+     * @param additionalMutations optional extra mutations to apply inside the same modify() call; may be null
+     * @param <T>                 entry type or subclass
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    <T extends Entry> void applyEntryChangesFromEvent(T entry, ObjectNode jsonObject, Consumer<T> additionalMutations) {
         if (signalEntryProvider != null) {
             // Route through signal.modify() so all effects observe the change
             var signalOpt = signalEntryProvider.findSignalForEntry(entry.getId());
             if (signalOpt.isPresent()) {
-                ((ValueSignal) signalOpt.get()).modify(e -> ((Entry) e).updateFromJson(jsonObject));
-            } else {
-                // Fallback: entry not found in signal (should not happen in normal flow)
-                entry.updateFromJson(jsonObject);
+                signalOpt.get().modify(e -> {
+                    if (e != null) {
+                        e.updateFromJson(jsonObject);
+                        if (additionalMutations != null) {
+                            additionalMutations.accept((T) e);
+                        }
+                    }
+                });
+                return;
             }
-        } else {
-            // Direct mutation (existing behavior)
-            entry.updateFromJson(jsonObject);
+            // Fallback: entry not found in signal (should not happen in normal flow)
+        }
+        // Direct mutation (no signal or signal entry not found)
+        entry.updateFromJson(jsonObject);
+        if (additionalMutations != null) {
+            additionalMutations.accept(entry);
         }
     }
 
@@ -648,14 +669,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * The name of the current view.
+     *
      * @return view name
      */
     public String getCurrentViewName() {
         return currentViewName;
     }
+
     /**
      * The current view of this isntance. Empty, if the current view could not be matched with one of the predefined
      * views (e.g. in case of a custom view).
+     *
      * @return calendar view
      */
     public Optional<CalendarView> getCurrentView() {
@@ -704,18 +728,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Programatically scroll the current view to the given time in the format `hh:mm:ss.sss`, `hh:mm:sss` or `hh:mm`. For example, '05:00' signifies 5 hours.
-     * 
+     *
      * @param duration duration
      * @throws NullPointerException when null is passed
      */
     public void scrollToTime(String duration) {
-        Objects.requireNonNull(duration);	// No format check, it is already done in the calendar code
+        Objects.requireNonNull(duration);    // No format check, it is already done in the calendar code
         getElement().callJsFunction("scrollToTime", duration);
     }
-    
+
     /**
      * Programatically scroll the current view to the given time in the format `hh:mm:ss.sss`, `hh:mm:sss` or `hh:mm`. For example, '05:00' signifies 5 hours.
-     * 
+     *
      * @param duration duration
      * @throws NullPointerException when null is passed
      */
@@ -907,7 +931,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param firstDay first day to be shown
      * @throws NullPointerException when null is passed
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#FIRST_DAY} instead.
-     *             Accepts a {@link DayOfWeek} directly via the option converter.
+     * Accepts a {@link DayOfWeek} directly via the option converter.
      */
     @Deprecated
     public void setFirstDay(DayOfWeek firstDay) {
@@ -932,6 +956,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Sets the calendar's height to be calculated from parents height. Please be aware, that a block parent with
      * relative height (e. g. 100%) might not work properly. In this case use flex layout or set a fixed height for
      * the parent or the calendar.
+     *
      * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
      */
     @Deprecated
@@ -942,6 +967,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Sets the calendar's height to be calculated automatically. In current implementation this means by the calendars
      * width-height-ratio.
+     *
      * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
      */
     @Deprecated
@@ -965,7 +991,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public void setTimeslotsSelectable(boolean selectable) {
         setOption(Option.SELECTABLE, selectable);
     }
-
 
     /**
      * Should the calendar show week numbers (when available for the current view)?
@@ -994,7 +1019,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @return locale
      * @deprecated Use {@link #getOption(Option)} with {@link Option#LOCALE} instead.
-     *             Accepts a {@link Locale} directly.
+     * Accepts a {@link Locale} directly.
      */
     @Deprecated
     public Locale getLocale() {
@@ -1014,7 +1039,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param locale locale
      * @throws NullPointerException when null is passed
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#LOCALE} instead.
-     *             Accepts a {@link Locale} directly.
+     * Accepts a {@link Locale} directly.
      */
     @Deprecated
     public void setLocale(Locale locale) {
@@ -1037,7 +1062,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.NOW_INDICATOR, shown);
     }
 
-
     /**
      * When true is passed the day / week numbers (or texts) will become clickable by the user and fire an event
      * for the clicked day / week.
@@ -1049,7 +1073,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public void setNumberClickable(boolean clickable) {
         setOption(Option.NAV_LINKS, clickable);
     }
-
 
     /**
      * The given string will be interpreted as JS function on the client side
@@ -1074,7 +1097,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @param s function to be attached
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_CLASS_NAMES}
-     *             and {@link JsCallback} instead.
+     * and {@link JsCallback} instead.
      */
     @Deprecated
     public void setEntryClassNamesCallback(String s) {
@@ -1095,11 +1118,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @param s function to be attached
      * @see #addEntryNativeEventListener(String, String)
-     *
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT}
-     *             and {@link JsCallback} instead.
-     *             Native event listeners registered via {@link #addEntryNativeEventListener(String, String)}
-     *             are automatically merged regardless of which method is used.
+     * and {@link JsCallback} instead.
+     * Native event listeners registered via {@link #addEntryNativeEventListener(String, String)}
+     * are automatically merged regardless of which method is used.
      */
     @Deprecated
     public void setEntryDidMountCallback(String s) {
@@ -1127,7 +1149,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * {@code currentTarget} or {@code target} property.  For the full set of available parameters
      * in the surrounding {@code eventDidMount} hook, see the
      * <a href="https://fullcalendar.io/docs/event-render-hooks">official FC docs</a>.
-     * @param eventName javascript event name
+     *
+     * @param eventName     javascript event name
      * @param eventCallback javascript event callback to be hooked to the event
      * @return registration to remove the native event listener
      */
@@ -1143,6 +1166,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Applies the merged eventDidMount callback to the client.
+     *
      * @param clearIfNull if true and the merged result is null, actively sends null to clear the client-side callback.
      *                    If false and merged is null, does nothing (preserves any callback set directly in TypeScript subclasses).
      */
@@ -1206,7 +1230,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @param s function to be attached
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_WILL_UNMOUNT}
-     *             and {@link JsCallback} instead.
+     * and {@link JsCallback} instead.
      */
     @Deprecated
     public void setEntryWillUnmountCallback(String s) {
@@ -1221,12 +1245,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
      * other security mechanism applied on this string, so check it yourself before passing it to the client.
      * <br><br>
-     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">https://fullcalendar.io/docs/event-render-hooks</a>
-     * @see <a href="https://fullcalendar.io/docs/content-injection">https://fullcalendar.io/docs/content-injection</a>
      *
      * @param s function to be attached
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">https://fullcalendar.io/docs/event-render-hooks</a>
+     * @see <a href="https://fullcalendar.io/docs/content-injection">https://fullcalendar.io/docs/content-injection</a>
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_CONTENT}
-     *             and {@link JsCallback} instead.
+     * and {@link JsCallback} instead.
      */
     @Deprecated
     public void setEntryContentCallback(String s) {
@@ -1241,7 +1265,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param hours hours to set
      * @throws NullPointerException when null is passed
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#BUSINESS_HOURS} instead.
-     *             Accepts {@link BusinessHours}, {@code BusinessHours[]}, or {@code boolean}. Pass {@code null} to remove.
+     * Accepts {@link BusinessHours}, {@code BusinessHours[]}, or {@code boolean}. Pass {@code null} to remove.
      */
     @Deprecated
     public void setBusinessHours(BusinessHours... hours) {
@@ -1254,7 +1278,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Removes the business hours for this calendar instance.
      *
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#BUSINESS_HOURS} instead.
-     *             Accepts {@link BusinessHours}, {@code BusinessHours[]}, or {@code boolean}. Pass {@code null} to remove.
+     * Accepts {@link BusinessHours}, {@code BusinessHours[]}, or {@code boolean}. Pass {@code null} to remove.
      */
     @Deprecated
     public void removeBusinessHours() {
@@ -1269,7 +1293,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @throws NullPointerException when null is passed
      * @see <a href="https://fullcalendar.io/docs/snapDuration">snapDuration</a>
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#SNAP_DURATION} instead.
-     *             Accepts a {@code String} (e.g. {@code "00:15:00"}) or a {@link java.time.Duration}.
+     * Accepts a {@code String} (e.g. {@code "00:15:00"}) or a {@link java.time.Duration}.
      */
     @Deprecated
     public void setSnapDuration(String duration) {
@@ -1284,7 +1308,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param slotMinTime slotMinTime to set
      * @throws NullPointerException when null is passed
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#SLOT_MIN_TIME} instead.
-     *             Accepts a {@link java.time.LocalTime}, a {@link java.time.Duration}, or a duration string.
+     * Accepts a {@link java.time.LocalTime}, a {@link java.time.Duration}, or a duration string.
      */
     @Deprecated
     public void setSlotMinTime(LocalTime slotMinTime) {
@@ -1323,7 +1347,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param slotMaxTime slotMaxTime to set
      * @throws NullPointerException when null is passed
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#SLOT_MAX_TIME} instead.
-     *             Accepts a {@link java.time.LocalTime}, a {@link java.time.Duration}, or a duration string.
+     * Accepts a {@link java.time.LocalTime}, a {@link java.time.Duration}, or a duration string.
      */
     @Deprecated
     public void setSlotMaxTime(LocalTime slotMaxTime) {
@@ -1458,11 +1482,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * This method will limit the maximal entries shown per day to the given number (not including
      * the "+ x more entries" link). Must be a number > 0.
      *
+     * @param maxEntriesPerDay maximal entries per day
      * @see #setMaxEntriesPerDayFitToCell()
      * @see #setMaxEntriesPerDayUnlimited()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
-     *
-     * @param maxEntriesPerDay maximal entries per day
      */
     public void setMaxEntriesPerDay(int maxEntriesPerDay) {
         setOption(Option.MAX_ENTRIES_PER_DAY, maxEntriesPerDay);
@@ -1512,13 +1535,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.WEEKENDS, weekends);
     }
 
-
     /**
      * display the header.
      *
      * @param header
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#HEADER_TOOLBAR} instead.
-     *             Accepts a {@link Header} directly.
+     * Accepts a {@link Header} directly.
      */
     @Deprecated
     public void setHeaderToolbar(Header header) {
@@ -1530,7 +1552,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @param footer
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#FOOTER_TOOLBAR} instead.
-     *             Accepts a {@link Footer} directly.
+     * Accepts a {@link Footer} directly.
      */
     @Deprecated
     public void setFooterToolbar(Footer footer) {
@@ -1655,7 +1677,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
 
         Object value = options.get(option);
-        if(value == null) {
+        if (value == null) {
             value = initialOptions.get(option);
         }
         return Optional.ofNullable((T) value);
@@ -1691,7 +1713,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(listener);
         return addListener(EntryClickedEvent.class, listener);
     }
-    
+
     /**
      * Registers a listener to be informed when the user mouses over an entry.
      *
@@ -1703,7 +1725,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(listener);
         return addListener(EntryMouseEnterEvent.class, listener);
     }
-    
+
     /**
      * Registers a listener to be informed when the user mouses out of an entry.
      *
@@ -1769,7 +1791,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         if (!autoRevert && isSignalBindingActive()) {
             throw new BindingActiveException(
                     "Auto-revert cannot be disabled while a signal binding is active. " +
-                    "Call bindEntries(null) first.");
+                            "Call bindEntries(null) first.");
         }
         this.autoRevertUnappliedEntryChanges = autoRevert;
     }
@@ -1782,8 +1804,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * entry is reverted to its original position.
      *
      * @param eventType the event class
-     * @param listener the user's listener
-     * @param <T> event type extending EntryDataEvent
+     * @param listener  the user's listener
+     * @param <T>       event type extending EntryDataEvent
      * @return registration to remove the listener
      */
     protected <T extends EntryDataEvent> Registration addAutoRevertAwareListener(
@@ -1796,13 +1818,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                 event.markRevertCheckScheduled();
                 String entryId = event.getEntry().getId();
                 getElement().getNode().runWhenAttached(ui ->
-                    ui.beforeClientResponse(this, ctx -> {
-                        if (event.isChangesApplied()) {
-                            getElement().callJsFunction("clearPendingRevert", entryId);
-                        } else {
-                            getElement().callJsFunction("revertEntry", entryId);
-                        }
-                    })
+                        ui.beforeClientResponse(this, ctx -> {
+                            if (event.isChangesApplied()) {
+                                getElement().callJsFunction("clearPendingRevert", entryId);
+                            } else {
+                                getElement().callJsFunction("revertEntry", entryId);
+                            }
+                        })
                 );
             }
         });
@@ -1819,7 +1841,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(listener);
         return addListener(DatesRenderedEvent.class, listener);
     }
-
 
     /**
      * Registers a listener to be informed when a view skeleton rendered event occurred. This happens, when
@@ -1844,7 +1865,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public Registration addViewChangedListener(ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
         return addViewSkeletonRenderedListener(listener);
     }
-
 
     /**
      * Registers a listener to be informed when the user selected a range of timeslots.
@@ -1901,6 +1921,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         return addListener(WeekNumberClickedEvent.class, listener);
     }
 
+    // -------------------------------------------------------------------------
+    // Interaction callback listeners
+    // -------------------------------------------------------------------------
+
     /**
      * Registers a listener to be informed, when the browser's timezone has been obtained by the server.
      *
@@ -1912,10 +1936,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(listener);
         return addListener(BrowserTimezoneObtainedEvent.class, listener);
     }
-
-    // -------------------------------------------------------------------------
-    // Interaction callback listeners
-    // -------------------------------------------------------------------------
 
     /**
      * Registers a listener for when the user begins dragging an entry. Fires regardless of whether the
@@ -1986,9 +2006,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Registers a listener for when any external HTML element is dropped onto the calendar.
      * Requires {@link Option#DROPPABLE} to be set to {@code true}.
      * <p>
-     *     This listener is considered low-level. If you external html element uses the Draggable feature
-     *     of the FullCalendar and also provides valid entry data, we strongly recommend to use
-     *     the {@link #addEntryReceiveListener(ComponentEventListener)} instead.
+     * This listener is considered low-level. If you external html element uses the Draggable feature
+     * of the FullCalendar and also provides valid entry data, we strongly recommend to use
+     * the {@link #addEntryReceiveListener(ComponentEventListener)} instead.
      * </p>
      *
      * @param listener listener
@@ -2097,6 +2117,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         return addListener(EntryReceiveEvent.class, listener);
     }
 
+    // -------------------------------------------------------------------------
+    // Event source management
+    // -------------------------------------------------------------------------
+
     /**
      * Registers a listener for when an entry is dragged away from this calendar to another instance.
      *
@@ -2109,10 +2133,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(listener);
         return addListener(EntryLeaveEvent.class, listener);
     }
-
-    // -------------------------------------------------------------------------
-    // Event source management
-    // -------------------------------------------------------------------------
 
     /**
      * Adds a client-side event source to this calendar. The browser will fetch events from this source directly,
@@ -2217,10 +2237,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         getElement().executeJs("var s = this.calendar.getEventSourceById($0); if (s) s.refetch();", sourceId);
     }
 
-
-
-
-
     /**
      * Registers a listener for when a client-managed event source fails to load.
      *
@@ -2280,32 +2296,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Activates or deactivates the automatic calendar scrolling, when dragging an entry to the borders.
      *
-     * @see <a href="https://fullcalendar.io/docs/dragScroll">https://fullcalendar.io/docs/dragScroll</a>
      * @param dragScrollActive activate drag scroll
+     * @see <a href="https://fullcalendar.io/docs/dragScroll">https://fullcalendar.io/docs/dragScroll</a>
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#DRAG_SCROLL} instead.
      */
     @Deprecated
     public void setDragScrollActive(boolean dragScrollActive) {
         setOption(Option.DRAG_SCROLL, dragScrollActive);
-    }
-
-
-    /**
-     * Enables prefetching of entries of adjacent time ranges (enabled by default).
-     * <p></p>
-     * Prefetching means, that entries of adjacent periods are also fetched. For instance, when the current view is
-     * month based and prefetching is enabled, the client will not only fetch the entries of the shown month, but also
-     * the one before and after. This prevents flickering / jumping calendar cells, when switching to the previous
-     * or next time period.
-     * <p></p>
-     * The additional fetched entries are not cached on the client side. When switching to an adjacent period,
-     * the client will fetch the entries for that period again (inclusive its own adjacent periods). Therefore,
-     * if network performance is more important than visual appearence, you should disable prefetching.
-     *
-     * @param prefetchEnabled enable prefetch
-     */
-    public void setPrefetchEnabled(boolean prefetchEnabled) {
-        getElement().setProperty("prefetchEnabled", prefetchEnabled);
     }
 
     /**
@@ -2327,7 +2324,25 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * Enables prefetching of entries of adjacent time ranges (enabled by default).
+     * <p></p>
+     * Prefetching means, that entries of adjacent periods are also fetched. For instance, when the current view is
+     * month based and prefetching is enabled, the client will not only fetch the entries of the shown month, but also
+     * the one before and after. This prevents flickering / jumping calendar cells, when switching to the previous
+     * or next time period.
+     * <p></p>
+     * The additional fetched entries are not cached on the client side. When switching to an adjacent period,
+     * the client will fetch the entries for that period again (inclusive its own adjacent periods). Therefore,
+     * if network performance is more important than visual appearence, you should disable prefetching.
+     *
+     * @param prefetchEnabled enable prefetch
+     */
+    public void setPrefetchEnabled(boolean prefetchEnabled) {
+        getElement().setProperty("prefetchEnabled", prefetchEnabled);
+    }
+
     /**
+     * /**
      * Tries to find the calendar view based on the given client-side value. Empty, when the view name is not known
      * on the Java side (can be the case with unregistered custom views).
      *
@@ -2353,7 +2368,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @throws NullPointerException if null is passed
      * @see <a href="https://fullcalendar.io/docs/eventDisplay">eventDisplay</a>
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_DISPLAY} instead.
-     *             Accepts a {@link DisplayMode} directly.
+     * Accepts a {@link DisplayMode} directly.
      */
     @Deprecated
     public void setEntryDisplay(DisplayMode displayMode) {
@@ -2447,6 +2462,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * {@link FullCalendarBuilder#withCustomCalendarViews(CustomCalendarView...)} plus anonymous instances for any
      * view, that has been registered via the initial options. Views, that had been registered in both ways will
      * return the original type, not an anonymous one.
+     *
      * @return custom calendar views map
      */
     public Map<String, CustomCalendarView> getCustomCalendarViews() {
@@ -2459,6 +2475,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * This method may be called only once and only before the component
      * is attached, otherwise an exception will be thrown. Same goes for calendar instances, that have already
      * registered custom views via the FC builder.
+     *
      * @param customCalendarViews custom calendar views
      */
     public void setCustomCalendarViews(CustomCalendarView... customCalendarViews) {
@@ -2482,8 +2499,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Adds theme variants to the calendar.
      *
-     * @param variants
-     *            theme variants to add
+     * @param variants theme variants to add
      */
     public void addThemeVariants(FullCalendarVariant... variants) {
         getThemeNames()
@@ -2494,8 +2510,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Removes theme variants from the calendar.
      *
-     * @param variants
-     *            theme variants to remove
+     * @param variants theme variants to remove
      */
     public void removeThemeVariants(FullCalendarVariant... variants) {
         getThemeNames()
@@ -2514,33 +2529,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
 
+    // -------------------------------------------------------------------------
+    // Typed setters — Display options and render hooks
+    // -------------------------------------------------------------------------
 
 
+    // ---- Accessibility, Touch, and Print Options ----
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // ---- Advanced and Niche Options ----
 
     /**
      * Sets the week number calculation algorithm.
@@ -2549,57 +2546,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @throws NullPointerException when null is passed
      * @see <a href="https://fullcalendar.io/docs/weekNumberCalculation">weekNumberCalculation</a>
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#WEEK_NUMBER_CALCULATION} instead.
-     *             Accepts a {@link WeekNumberCalculation} directly.
+     * Accepts a {@link WeekNumberCalculation} directly.
      */
     @Deprecated
     public void setWeekNumberCalculation(WeekNumberCalculation calc) {
         Objects.requireNonNull(calc);
         setOption(Option.WEEK_NUMBER_CALCULATION, calc);
     }
-
-
-
-
-
-
-
-
-
-    // -------------------------------------------------------------------------
-    // Typed setters — Display options and render hooks
-    // -------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // ---- Accessibility, Touch, and Print Options ----
-
-
-
-
-
-
-
-
-
-    // ---- Advanced and Niche Options ----
-
-
-
 
     /**
      * Constrains entry dragging and resizing to the specified business hours. Entries can only
@@ -2608,16 +2561,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param hours business hours definition; must not be null
      * @see <a href="https://fullcalendar.io/docs/eventConstraint">FC eventConstraint documentation</a>
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_CONSTRAINT} instead.
-     *             Accepts a {@link BusinessHours} directly via converter.
+     * Accepts a {@link BusinessHours} directly via converter.
      */
     @Deprecated
     public void setEntryConstraint(BusinessHours hours) {
         Objects.requireNonNull(hours);
         setOption(Option.ENTRY_CONSTRAINT, hours.toJson());
     }
-
-
-
 
     /**
      * Sets a view-specific option override. The option applies only when the calendar is
@@ -2718,19 +2668,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             viewSpecificOptionsMap.forEach(viewsNode::set);
             setOption("views", viewsNode);
         }
-    }
-
-    /**
-     * Creates a bounded LinkedHashMap for caching entries.
-     * This is a separate method to avoid type name conflicts with java.util.Map.Entry.
-     */
-    private static Map<String, Entry> createBoundedEntryCache() {
-        return new LinkedHashMap<String, org.vaadin.stefan.fullcalendar.Entry>(16, 0.75f, true) {
-            @Override
-            protected boolean removeEldestEntry(java.util.Map.Entry<String, org.vaadin.stefan.fullcalendar.Entry> eldest) {
-                return size() > MAX_CACHED_ENTRIES;
-            }
-        };
     }
 
 
@@ -3582,7 +3519,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         WEEK_TEXT_LONG,
 
 
-
         /**
          * Keep duration when dragging a timed entry to/from the all-day slot.
          * <dl>
@@ -3787,8 +3723,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         NATIVE_TOOLBAR_TITLE_RANGE_SEPARATOR("titleRangeSeparator"),
 
 
-
-
         /**
          * Controls whether a time-range selection is allowed. Accepts a {@link JsCallback}.
          * Called on every mouse move during selection drag; must return boolean synchronously.
@@ -3850,7 +3784,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         DROP_ACCEPT,
 
 
-
         /**
          * Default query parameter name for the range start sent to JSON feed event sources.
          * <dl>
@@ -3899,7 +3832,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY("googleCalendarApiKey"),
 
 
-
         /**
          * Make entries focusable for keyboard accessibility.
          * <dl>
@@ -3910,7 +3842,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * @see <a href="https://fullcalendar.io/docs/eventInteractive">eventInteractive</a>
          */
         ENTRY_INTERACTIVE,
-
 
 
         /**
@@ -4596,8 +4527,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         ;
 
-        private final String optionKey;
-
         private static final Map<Option, List<JsonItemPropertyConverter<?, ?>>> CONVERTER_CACHE;
 
         static {
@@ -4619,6 +4548,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             }
             CONVERTER_CACHE = Collections.unmodifiableMap(map);
         }
+
+        private final String optionKey;
 
         Option() {
             this.optionKey = CaseUtils.toCamelCase(name().replace("ENTRY", "EVENT"), false, '_');

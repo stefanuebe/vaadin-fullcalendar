@@ -44,15 +44,20 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
 
     /**
      * Applies the changes on the entry including updating a resource change.
+     * Both JSON changes and resource delta are routed through a single
+     * {@code signal.modify()} call when signal binding is active (spec BR-05/BR-18).
      * @return this event's entry instance
      */
     @Override
     public Entry applyChangesOnEntry() {
-        ResourceEntry entry = (ResourceEntry) super.applyChangesOnEntry();
+        // Safe cast: this event type is only fired for ResourceEntry instances
+        ResourceEntry entry = (ResourceEntry) getEntry();
         ObjectNode object = getJsonObject();
 
-        updateResourcesFromEventResourceDelta(entry, object);
+        getSource().applyEntryChangesFromEvent(entry, object,
+                e -> updateResourcesFromEventResourceDelta(e, object));
 
+        markChangesApplied();
         return entry;
     }
 
