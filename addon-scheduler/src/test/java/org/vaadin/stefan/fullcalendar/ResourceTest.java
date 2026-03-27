@@ -152,17 +152,17 @@ public class ResourceTest {
     }
 
     // -------------------------------------------------------------------------
-    // getEvents()
+    // getEntries()
     // -------------------------------------------------------------------------
 
     @Test
-    void getEvents_withoutScheduler_returnsEmptySet() {
+    void getEntries_withoutScheduler_returnsEmptySet() {
         Resource resource = new Resource();
-        Assertions.assertTrue(resource.getEvents().isEmpty());
+        Assertions.assertTrue(resource.getEntries().isEmpty());
     }
 
     @Test
-    void getEvents_returnsEntriesAssignedToResource() {
+    void getEntries_returnsEntriesAssignedToResource() {
         FullCalendarScheduler scheduler = new FullCalendarScheduler();
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
         scheduler.setEntryProvider(provider);
@@ -177,14 +177,14 @@ public class ResourceTest {
         ResourceEntry other = new ResourceEntry(); // no resource assigned
         provider.addEntry(other);
 
-        Set<ResourceEntry> events = resource.getEvents();
+        Set<ResourceEntry> events = resource.getEntries();
         Assertions.assertEquals(1, events.size());
         Assertions.assertTrue(events.contains(assigned));
         Assertions.assertFalse(events.contains(other));
     }
 
     @Test
-    void getEvents_multipleResources_returnsOnlyOwn() {
+    void getEntries_multipleResources_returnsOnlyOwn() {
         FullCalendarScheduler scheduler = new FullCalendarScheduler();
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
         scheduler.setEntryProvider(provider);
@@ -201,8 +201,8 @@ public class ResourceTest {
         e2.addResources(r2);
         provider.addEntry(e2);
 
-        Assertions.assertEquals(Set.of(e1), r1.getEvents());
-        Assertions.assertEquals(Set.of(e2), r2.getEvents());
+        Assertions.assertEquals(Set.of(e1), r1.getEntries());
+        Assertions.assertEquals(Set.of(e2), r2.getEntries());
     }
 
     // -------------------------------------------------------------------------
