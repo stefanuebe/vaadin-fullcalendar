@@ -79,7 +79,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * Suppresses per-resource effects during list-level processing to avoid redundant updates.
      * See SignalEntryProvider for the detailed rationale and synchronous execution assumption.
      */
-    private volatile boolean suppressResourceEffects;
+    private boolean suppressResourceEffects;
 
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).

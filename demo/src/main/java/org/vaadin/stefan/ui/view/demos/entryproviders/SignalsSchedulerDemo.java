@@ -134,18 +134,26 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         Card entriesPerMonth = new Card();
         entriesPerMonth.setSubtitle("Entries/month");
 
+        // Four separate effects with minimal dependency sets — avoids cross-signal over-subscription.
+        // Previously one monolithic effect subscribed to ALL resource + entry signals, so any single
+        // property change (e.g., renaming a resource) triggered a full O(N×M) recompute of all stats.
+
+        // Effect 1: resource count — fires only on resource add/remove
+        Signal.effect(this, () ->
+                resourceCount.setTitle("" + resourcesSignal.get().size()));
+
+        // Effect 2: entry count — fires only on entry add/remove
+        Signal.effect(this, () ->
+                entryCount.setTitle("" + entriesSignal.get().size()));
+
+        // Effect 3: "most entries" — depends on resource + entry list structure AND all individual
+        // signals (resource titles for display, entry resource-membership for counting).
+        // This is inherently wide; isolating it prevents other stats from re-running with it.
         Signal.effect(this, () -> {
-            List<ValueSignal<Resource>> resources = resourcesSignal.get();
-            List<ValueSignal<Entry>> entries = entriesSignal.get();
-
-            resourceCount.setTitle("" + resources.size());
-            entryCount.setTitle("" + entries.size());
-
-            // Resource with most entries
+            List<Resource> resources = resourcesSignal.get().stream().map(ValueSignal::get).toList();
+            List<Entry> entries = entriesSignal.get().stream().map(ValueSignal::get).toList();
             Map<Resource, Long> countByResource = resources.stream()
-                    .map(ValueSignal::get)
                     .collect(Collectors.toMap(r -> r, r -> entries.stream()
-                            .map(ValueSignal::get)
                             .filter(e -> e instanceof ResourceEntry re && re.getResourcesOrEmpty().contains(r))
                             .count()));
             long maxCount = countByResource.values().stream().mapToLong(Long::longValue).max().orElse(0);
@@ -155,17 +163,19 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
                     .map(en -> en.getKey().getTitle())
                     .findFirst().orElse("-");
             entriesPerResource.setTitle(maxResourceName + " (" + maxCount + ")");
+        });
 
-            // Average entries per month
+        // Effect 4: entries/month — depends on entry list structure + individual entry start dates
+        Signal.effect(this, () -> {
             Map<YearMonth, Integer> perMonth = new TreeMap<>();
-            for (ValueSignal<Entry> es : entries) {
+            for (ValueSignal<Entry> es : entriesSignal.get()) {
                 Entry e = es.get();
                 if (e.getStart() != null) {
                     perMonth.merge(YearMonth.from(e.getStartAsLocalDate()), 1, Integer::sum);
                 }
             }
-            double avgPerMonth = perMonth.isEmpty() ? 0 : perMonth.values().stream().mapToInt(Integer::intValue).average().orElse(0);
-            entriesPerMonth.setTitle(String.format("%.1f", avgPerMonth));
+            double avg = perMonth.isEmpty() ? 0 : perMonth.values().stream().mapToInt(Integer::intValue).average().orElse(0);
+            entriesPerMonth.setTitle(String.format("%.1f", avg));
         });
 
         HorizontalLayout statsBar = new HorizontalLayout(resourceCount, entryCount, entriesPerResource, entriesPerMonth);
@@ -258,7 +268,11 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         details.setWidthFull();
         details.setOpened(false);
 
-        // This effect rebuilds the entry list when resources, entries, or entry properties change.
+        // This effect rebuilds the entry list on structural changes (add/remove) and resource-membership
+        // changes (drag-to-reassign routes through signal.modify(), so .get() is needed to detect it).
+        // Note: .get() on each entry also subscribes to title/date changes, which causes unnecessary
+        // rebuilds when non-membership properties change. Acceptable for a demo; a production implementation
+        // would use a filtered computed signal or a dedicated membership signal per entry.
         Signal.effect(details, () -> {
             Resource resource = resourceSignal.get();
             List<ValueSignal<Entry>> allEntries = entriesSignal.get();

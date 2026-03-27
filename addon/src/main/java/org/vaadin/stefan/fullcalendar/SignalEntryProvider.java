@@ -48,7 +48,7 @@ class SignalEntryProvider<T extends Entry> extends AbstractEntryProvider<T> {
      * the redundant refresh. This was verified in the spike (see specs/use-cases/use-case-025,
      * Spike Result #3: "Effects fire synchronously within the same server roundtrip").
      */
-    private volatile boolean suppressEntryEffects;
+    private boolean suppressEntryEffects;
 
     SignalEntryProvider(ListSignal<T> listSignal) {
         this.listSignal = Objects.requireNonNull(listSignal);
