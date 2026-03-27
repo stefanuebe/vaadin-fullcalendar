@@ -42,7 +42,7 @@
         <vaadin.version>25.1.0</vaadin.version>
         <apache.commons-text.version>1.14.0</apache.commons-text.version>
         <lombok.version>1.18.42</lombok.version>
-        <junit.version>5.10.0</junit.version> <mockito.version>5.0.0</mockito.version>
+        <junit.version>5.10.0</junit.version> <mockito.version>5.14.2</mockito.version>
 
         <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>
         <plugin.version.maven-surefire>3.5.4</plugin.version.maven-surefire>
