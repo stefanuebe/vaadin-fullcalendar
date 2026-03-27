@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.entryproviders;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
@@ -27,7 +28,8 @@ import org.vaadin.stefan.ui.view.CalendarViewToolbar;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -44,14 +46,17 @@ import java.util.List;
 public class SignalsSchedulerDemo extends AbstractSchedulerView {
 
     private static final String[] COLORS = {"#3788d8", "#e53935", "#43a047", "#fb8c00", "#8e24aa", "#00897b"};
-
     private ListSignal<Entry> entriesSignal;
     private ListSignal<Resource> resourcesSignal;
+
+    private DateTimeFormatter dtFormatter;
 
     @Override
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         entriesSignal = new ListSignal<>();
         resourcesSignal = new ListSignal<>();
+
+        dtFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(UI.getCurrent().getLocale());
 
         // Pre-populate resources
         Resource roomA = new Resource(null, "Room A", "#3788d8");
@@ -62,20 +67,35 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         resourcesSignal.insertLast(roomC);
 
         // Pre-populate entries: 2-3 per resource per month (last, current, next month)
+        // Entries are all-day with varying durations and staggered start days per resource
         Resource[] rooms = {roomA, roomB, roomC};
         String[] titles = {"Standup", "Review", "Planning"};
+        // day offsets per resource to avoid alignment (relative to month start)
+        int[][] dayOffsets = {
+                {1, 10, 20},  // Room A
+                {4, 14, 23},  // Room B
+                {7, 17, 26},  // Room C
+        };
+        // duration in days per entry (varies per title)
+        int[][] durations = {
+                {1, 3, 2},  // Room A
+                {2, 1, 4},  // Room B
+                {3, 2, 1},  // Room C
+        };
         LocalDate now = LocalDate.now();
         for (int monthOffset = -1; monthOffset <= 1; monthOffset++) {
             LocalDate month = now.plusMonths(monthOffset).withDayOfMonth(1);
-            for (Resource room : rooms) {
+            for (int i = 0; i < rooms.length; i++) {
                 for (int j = 0; j < titles.length; j++) {
-                    LocalDate day = month.plusDays(j * 7 + 2); // spread across the month
+                    LocalDate startDay = month.plusDays(dayOffsets[i][j]);
+                    LocalDate endDay = startDay.plusDays(durations[i][j]);
                     ResourceEntry entry = new ResourceEntry();
-                    entry.setTitle(titles[j] + " " + room.getTitle());
-                    entry.setStart(day.atTime(9 + j, 0));
-                    entry.setEnd(entry.getStart().plusHours(1));
-                    entry.setColor(room.getColor());
-                    entry.addResources(room);
+                    entry.setTitle(titles[j] + " " + rooms[i].getTitle());
+                    entry.setAllDay(true);
+                    entry.setStart(startDay);
+                    entry.setEnd(endDay);
+                    entry.setColor(rooms[i].getColor());
+                    entry.addResources(rooms[i]);
                     entriesSignal.insertLast(entry);
                 }
             }
@@ -85,9 +105,9 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
                 .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
                 .withInitialOptions(defaultInitialOptions)
                 .withEntryLimit(3)
+                .withInitialView(SchedulerView.RESOURCE_TIMELINE_MONTH)
                 .build();
 
-        scheduler.setOption("initialView", SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE, true);
 
         scheduler.bindResources(resourcesSignal);
@@ -103,8 +123,6 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         remove(calendar);
 
         VerticalLayout sidebar = createSidebar();
-        sidebar.setWidth("300px");
-        sidebar.setMinWidth("300px");
 
         Scroller sidebarScroller = new Scroller(sidebar);
         sidebarScroller.setWidth("300px");
@@ -115,6 +133,7 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         content.setSizeFull();
         content.setFlexGrow(1, calendar);
         content.setFlexGrow(0, sidebarScroller);
+        content.setAlignItems(Alignment.STRETCH);
 
         add(content);
         setFlexGrow(1, content);
@@ -147,15 +166,18 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         card.setWidthFull();
 
         // Title bound to resource name
-        Div title = new Div();
-        Signal.effect(title, () -> {
+        Signal.effect(card, () -> {
             Resource r = resourceSignal.get();
-            title.setText(r.getTitle());
-            title.getStyle().set("font-weight", "bold");
+            card.setTitle(r.getTitle());
             if (r.getColor() != null) {
-                title.getStyle().set("color", r.getColor());
+                card.getStyle().set("color", r.getColor());
             }
         });
+
+        // Expand/collapse toggle (default: collapsed)
+        Button expandBtn = new Button(VaadinIcon.ANGLE_RIGHT.create());
+        expandBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
+        card.setHeaderPrefix(expandBtn);
 
         // Action buttons
         Button editBtn = new Button(VaadinIcon.EDIT.create(), e ->
@@ -171,16 +193,23 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
                 openNewEntryDialog(resourceSignal.peek()));
         addEntryBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
 
-        HorizontalLayout header = new HorizontalLayout(title, editBtn, addEntryBtn, deleteBtn);
-        header.setAlignItems(FlexComponent.Alignment.CENTER);
-        header.setFlexGrow(1, title);
-        header.setWidthFull();
-        card.setHeader(header);
+        HorizontalLayout buttons = new HorizontalLayout(editBtn, addEntryBtn, deleteBtn);
+        buttons.setAlignItems(FlexComponent.Alignment.CENTER);
+        card.setHeaderSuffix(buttons);
 
         // Entry list inside the card — rebuilt via effect
         VerticalLayout entryList = new VerticalLayout();
         entryList.setPadding(false);
         entryList.setSpacing(false);
+        entryList.setWidthFull();
+        entryList.setAlignItems(Alignment.STRETCH);
+        entryList.setVisible(false); // default: collapsed
+
+        expandBtn.addClickListener(e -> {
+            boolean expanded = !entryList.isVisible();
+            entryList.setVisible(expanded);
+            expandBtn.setIcon(expanded ? VaadinIcon.ANGLE_DOWN.create() : VaadinIcon.ANGLE_RIGHT.create());
+        });
 
         // This effect rebuilds the entry list when resources, entries, or entry properties change.
         // Note: using .get() on each entry signal registers dependencies on ALL entries,
@@ -210,15 +239,14 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         return card;
     }
 
-    private Div createEntryRow(ValueSignal<Entry> entrySignal) {
-        Div row = new Div();
-        row.getStyle().set("display", "flex").set("align-items", "center")
-                .set("gap", "4px").set("padding", "2px 0");
+    private Card createEntryRow(ValueSignal<Entry> entrySignal) {
+        Card card = new Card();
 
-        Span titleSpan = new Span();
-        titleSpan.getStyle().set("flex-grow", "1").set("font-size", "var(--lumo-font-size-s)")
-                .set("overflow", "hidden").set("text-overflow", "ellipsis").set("white-space", "nowrap");
-        Signal.effect(titleSpan, () -> titleSpan.setText(entrySignal.get().getTitle()));
+        Signal.effect(card, () -> {
+            Entry entry = entrySignal.get();
+            card.setTitle(entry.getTitle());
+            card.setSubtitle(dtFormatter.format(entry.getStartAsLocalDate()) + " - " + dtFormatter.format(entry.getEndAsLocalDate()));
+        });
 
         Button editBtn = new Button(VaadinIcon.EDIT.create(), e -> {
             Entry entry = entrySignal.peek();
@@ -239,8 +267,8 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         deleteBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY,
                 ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_ICON);
 
-        row.add(titleSpan, editBtn, deleteBtn);
-        return row;
+        card.setHeaderSuffix(new HorizontalLayout(editBtn, deleteBtn));
+        return card;
     }
 
     // ---- Dialogs ----
