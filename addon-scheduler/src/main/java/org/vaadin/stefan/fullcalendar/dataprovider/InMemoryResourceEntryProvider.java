@@ -1,9 +1,9 @@
 package org.vaadin.stefan.fullcalendar.dataprovider;
 
 import lombok.NonNull;
-import org.vaadin.stefan.fullcalendar.Resource;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
@@ -12,11 +12,37 @@ import java.util.stream.Stream;
  *     Queries with {@code resource == null} will return ALL entries.
  * </p>
  * @param <T> resource entry type
- * @param <R> resource type
  */
 public class InMemoryResourceEntryProvider<T extends ResourceEntry>
         extends InMemoryEntryProvider<T>
         implements ResourceEntryProvider<T> {
+
+    public InMemoryResourceEntryProvider(Iterable<T> entries) {
+        super(entries);
+    }
+
+    /**
+     * Creates a lazy loading instance. The given entries are used as initial items. Leave empty, if there
+     * are no initial entries.
+     * @param entries initial entries
+     * @param <T> type
+     * @return lazy loading in memory provider
+     */
+    @SafeVarargs
+    public static <T extends ResourceEntry> InMemoryResourceEntryProvider<T> fromResourceEntries(T... entries) {
+        return fromResourceEntries(Arrays.asList(entries));
+    }
+
+    /**
+     * Creates a lazy loading instance. The given entries are used as initial items, but the given iterable
+     * is not used as the backing collection or similar. It will never be modified by this provider.
+     * @param entries initial entries
+     * @param <T> type
+     * @return lazy loading in memory provider
+     */
+    public static <T extends ResourceEntry> InMemoryResourceEntryProvider<T> fromResourceEntries(Iterable<T> entries) {
+        return new InMemoryResourceEntryProvider<>(entries);
+    }
 
     /**
      * Fetches the entries based on the given {@link ResourceEntryQuery}.
@@ -28,15 +54,7 @@ public class InMemoryResourceEntryProvider<T extends ResourceEntry>
      */
     @Override
     public Stream<T> fetchResourceEntries(@NonNull ResourceEntryQuery query) {
-        Stream<T> stream = fetch(query);
-
-        Resource resource = query.getResource();
-        if (resource == null) {
-            return stream;
-        }
-
-        return stream
-                .filter(ResourceEntry::hasResources)
-                .filter(e -> e.getResources().contains(resource));
+        // overridden for a more specific behavior description in the javadocs.
+        return ResourceEntryProvider.super.fetchResourceEntries(query);
     }
 }

@@ -45,7 +45,7 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
      */
     @SafeVarargs
     public static <T extends Entry> InMemoryEntryProvider<T> from(T... entries) {
-        return new InMemoryEntryProvider<>(Arrays.asList(entries));
+        return from(Arrays.asList(entries));
     }
 
     /**
