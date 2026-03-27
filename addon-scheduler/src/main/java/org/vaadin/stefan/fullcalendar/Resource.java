@@ -19,6 +19,9 @@ package org.vaadin.stefan.fullcalendar;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.ResourceEntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.ResourceEntryQuery;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -489,13 +492,11 @@ public class Resource {
     }
 
     /**
-     * Returns all entries currently associated with this resource. Works with any
-     * {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider} type (in-memory,
-     * callback, or signal-based).
+     * Returns all entries currently associated with this resource.
      * <p>
-     * Note: For callback-based providers this fetches all entries without a time range filter,
-     * which may be expensive. Consider using the entry provider's {@code fetch()} method
-     * with appropriate filters if performance is a concern.
+     * Note: When using a plain {@link EntryProvider} this call fetches all entries without a time range filter,
+     * which may be expensive. Consider using a {@link ResourceEntryProvider} or your plain entry provider's
+     * {@code fetch()} method with appropriate filters if performance is a concern.
      *
      * @return unmodifiable set of entries assigned to this resource; empty if not attached
      */
@@ -503,7 +504,12 @@ public class Resource {
         if (scheduler == null) {
             return Collections.emptySet();
         }
-        return scheduler.getEntryProvider().fetchAll()
+        EntryProvider<Entry> entryProvider = scheduler.getEntryProvider();
+        if (entryProvider instanceof ResourceEntryProvider<?> resourceEntryProvider) {
+            return resourceEntryProvider.fetchResourceEntries(new ResourceEntryQuery(this)).collect(Collectors.toSet());
+        }
+
+        return entryProvider.fetchAll()
                 .filter(e -> e instanceof ResourceEntry)
                 .map(e -> (ResourceEntry) e)
                 .filter(e -> e.getResourcesOrEmpty().contains(this))

@@ -1,6 +1,7 @@
 package org.vaadin.stefan.fullcalendar.dataprovider;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Builder
+@SuperBuilder
 public class EntryQuery {
 
 //    private final FullCalendar source; // needed?

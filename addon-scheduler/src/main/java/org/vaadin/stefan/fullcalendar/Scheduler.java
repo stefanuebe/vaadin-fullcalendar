@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.signals.local.ListSignal;
+import org.vaadin.stefan.fullcalendar.dataprovider.ResourceEntryProvider;
 
 import java.util.*;
 import java.util.Arrays;
@@ -443,4 +444,13 @@ public interface Scheduler {
      * @throws NullPointerException when null is passed
      */
     Registration addTimeslotsSelectedSchedulerListener(ComponentEventListener<? extends TimeslotsSelectedSchedulerEvent> listener);
+
+    /**
+     * Returns the entry provider of this calendar as a {@link ResourceEntryProvider}. Never null. Throws, when the assigned
+     * entry provider is NOT a {@link ResourceEntryProvider}.
+     * @param <T> entry provider class or subclass
+     * @return entry provider
+     * @throws ClassCastException - if the assigned entry provider is not a {@link ResourceEntryProvider}
+     */
+    <T extends ResourceEntry> ResourceEntryProvider<T> getResourceEntryProvider();
 }

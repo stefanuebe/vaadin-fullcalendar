@@ -31,11 +31,13 @@ import com.vaadin.flow.signals.local.ListSignal;
 import com.vaadin.flow.signals.local.ValueSignal;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
+import org.vaadin.stefan.fullcalendar.dataprovider.ResourceEntryProvider;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -817,7 +819,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
-     * via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
+     * via {@link #setOption(SchedulerOption, Object, Object)}, that will be returned instead.
      * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
@@ -833,7 +835,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     /**
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
-     * value has been set via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
+     * value has been set via {@link #setOption(SchedulerOption, Object, Object)}, that will be returned instead.
      * <br><br>
      * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
@@ -855,6 +857,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             optional = (Optional<T>) SchedulerView.ofClientSideValue(clientSideValue);
         }
         return optional;
+    }
+
+    @Override
+    public <T extends ResourceEntry> ResourceEntryProvider<T> getResourceEntryProvider() {
+        return getEntryProvider();
     }
 
     /**
