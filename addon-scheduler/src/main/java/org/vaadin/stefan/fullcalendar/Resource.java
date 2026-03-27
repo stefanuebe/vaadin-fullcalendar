@@ -23,6 +23,7 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents a resource. ResourceEntries contain these resources (a resource itself does not know anything about
@@ -475,24 +476,38 @@ public class Resource {
     }
 
     /**
-     * Returns all entries currently associated with this resource. Only works when this resource
-     * has been added to a {@link FullCalendarScheduler} that uses an
-     * {@link org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider}; returns an empty
-     * set for callback-based providers (entries are fetched lazily and cannot be enumerated).
+     * Returns all entries currently associated with this resource.
      *
-     * @return unmodifiable set of entries assigned to this resource; empty if not attached or provider is not in-memory
+     * @return set of entries assigned to this resource; empty if not attached
+     * @deprecated Use {@link #getEntries()} instead — same behavior, correct naming
+     *             ("entries" instead of "events" per addon naming convention). This method
+     *             will be removed in a future version.
      */
+    @Deprecated
     public Set<ResourceEntry> getEvents() {
-        if (scheduler == null || !scheduler.getEntryProvider().isInMemory()) {
+        return getEntries();
+    }
+
+    /**
+     * Returns all entries currently associated with this resource. Works with any
+     * {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider} type (in-memory,
+     * callback, or signal-based).
+     * <p>
+     * Note: For callback-based providers this fetches all entries without a time range filter,
+     * which may be expensive. Consider using the entry provider's {@code fetch()} method
+     * with appropriate filters if performance is a concern.
+     *
+     * @return unmodifiable set of entries assigned to this resource; empty if not attached
+     */
+    public Set<ResourceEntry> getEntries() {
+        if (scheduler == null) {
             return Collections.emptySet();
         }
-        Set<ResourceEntry> result = new LinkedHashSet<>();
-        scheduler.getEntryProvider().asInMemory().getEntries().stream()
+        return scheduler.getEntryProvider().fetchAll()
                 .filter(e -> e instanceof ResourceEntry)
                 .map(e -> (ResourceEntry) e)
                 .filter(e -> e.getResourcesOrEmpty().contains(this))
-                .forEach(result::add);
-        return Collections.unmodifiableSet(result);
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /**
