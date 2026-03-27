@@ -120,8 +120,8 @@ public interface Scheduler {
     void setResourcesInitiallyExpanded(boolean resourcesInitiallyExpanded);
     
     /**
-     * When this setting is activated, only resources that have associated events will be displayed.
-     * When activated, please be aware that in order for resources to render, event data will need to finish being fetched.
+     * When this setting is activated, only resources that have associated entries will be displayed.
+     * When activated, please be aware that in order for resources to render, entry data will need to finish being fetched.
      * @param filterResourcesWithEvents
      * @deprecated Use {@link FullCalendarScheduler#setOption(FullCalendarScheduler.SchedulerOption, Object)}
      *             with {@link FullCalendarScheduler.SchedulerOption#FILTER_RESOURCES_WITH_ENTRIES} instead.
@@ -141,7 +141,7 @@ public interface Scheduler {
     void setResourceOrder(String resourceOrder);
     
     /**
-     * Determines whether the user can drag events between resources.
+     * Determines whether the user can drag entries between resources.
      * The default value is inherited from the master editable flag, which is false by default.
      * @param eventResourceEditable
      * @deprecated Use {@link FullCalendarScheduler#setOption(FullCalendarScheduler.SchedulerOption, Object)}
@@ -151,7 +151,7 @@ public interface Scheduler {
     void setEntryResourceEditable(boolean eventResourceEditable);
 
     /**
-     * Adds an resource to this calendar. Noop if the resource id is already registered.
+     * Adds a resource to this calendar. Does nothing if the resource ID is already registered.
      * @param resource resource
      * @throws NullPointerException when null is passed
      */
@@ -165,7 +165,7 @@ public interface Scheduler {
     }
 
     /**
-     * Adds resources to this calendar. Noop already registered resources.
+     * Adds resources to this calendar. Does nothing for already registered resources.
      *
      * @param resources resources to add
      * @throws NullPointerException when null is passed
@@ -178,7 +178,7 @@ public interface Scheduler {
     }
 
     /**
-     * Adds resources to this calendar. Noop already registered resources.
+     * Adds resources to this calendar. Does nothing for already registered resources.
      *
      * @param resources resources to add
      * @throws NullPointerException when null is passed
@@ -202,7 +202,7 @@ public interface Scheduler {
      * Removes the given resources. Also removes them from their related entries.
      * Does not send an extra update for the entries.
      * <br><br>
-     * Noop on not registered resources.
+     * Does nothing for unregistered resources.
      *
      * @param resources resources
      * @throws NullPointerException when null is passed
@@ -214,7 +214,7 @@ public interface Scheduler {
      * Removes the given resources.  Also removes them from their related entries.
      * Does not send an extra update for the entries.
      * <br><br>
-     * Noop on not registered resources.
+     * Does nothing for unregistered resources.
      *
      * @param resources resources
      * @throws NullPointerException when null is passed
@@ -231,7 +231,7 @@ public interface Scheduler {
     Optional<Resource> getResourceById(String id);
 
     /**
-     * Returns all resources registered in this instance, including child resources. Changes in an resource instance is reflected in the
+     * Returns all resources registered in this instance, including child resources. Changes in a resource instance are reflected in the
      * calendar instance on server side, but not client side. Resources can currently not be updated on the client side.
      * <br><br>
      * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content
@@ -247,7 +247,7 @@ public interface Scheduler {
      * call to reflect the latest state of possible changes in the resources' structure. If you need it multiple times
      * in a row and can be sure, that there haven't been changes, you should cache the list for that short time.
      * <br><br>
-     * Changes in an resource instance is reflected in the
+     * Changes in a resource instance are reflected in the
      * calendar instance on server side, but not client side. Resources can currently not be updated on the client side.
      * <br><br>
      * Changes in the list are not reflected to the calendar's list instance. Also please note, that the content

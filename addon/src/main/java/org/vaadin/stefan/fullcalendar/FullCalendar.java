@@ -86,12 +86,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public static final String FC_CLIENT_VERSION = "6.1.20";
 
     /**
-     * This is the default duration of an timeslot event in hours. Will be dynamic settable in a later version.
+     * This is the default duration of a timed entry in hours. Will be dynamically settable in a later version.
      */
     public static final int DEFAULT_TIMED_EVENT_DURATION = 1;
 
     /**
-     * This is the default duration of an daily event in days. Will be dynamic settable in a later version.
+     * This is the default duration of a daily entry in days. Will be dynamically settable in a later version.
      */
     public static final int DEFAULT_DAY_EVENT_DURATION = 1;
 
@@ -184,7 +184,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * and would show the limit also for basic views where it makes no sense (might change in future).
      * Passing a negative number disabled the entry limit (same as passing no number at all).
      * <br><br>
-     * Sets the locale to {@link CalendarLocale#getDefaultLocale()} ()}
+     * Sets the locale to {@link CalendarLocale#getDefaultLocale()}.
      * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      *
@@ -727,8 +727,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Sets a option for this instance. Passing a null value removes the option.
      * <br><br>
-     * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * Please be aware that this method does not check the passed value. Use the typed
+     * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
      *
      * @param option option
      * @param value  value
@@ -752,8 +752,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * // returns the original locale (as optional)
      * Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
      * </pre>
-     * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * Please be aware that this method does not check the passed value. Use the typed
+     * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
      *
      * @param option             option
      * @param value              value
@@ -767,8 +767,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Sets an option for this instance. Passing a null value removes the option.
      * <br><br>
-     * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * Please be aware that this method does not check the passed value. Use the typed
+     * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
      * <br><br>
      * For a full overview of possible options have a look at the FullCalendar documentation
      * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
@@ -792,8 +792,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * {@link JsonItemPropertyConverter#supports(Object)} returns {@code true} for the value will be used.
      * The original value is stored as the server-side value.
      * <br><br>
-     * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * Please be aware that this method does not check the passed value. Use the typed
+     * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
      * <p>
      * For a full overview of possible options have a look at the FullCalendar documentation
      * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
@@ -1253,7 +1253,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Removes the business hours for this calendar instance.
      *
-     * @throws NullPointerException when null is passed
      * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#BUSINESS_HOURS} instead.
      *             Accepts {@link BusinessHours}, {@code BusinessHours[]}, or {@code boolean}. Pass {@code null} to remove.
      */
@@ -1368,7 +1367,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Allow events’ durations to be editable through resizing.
+     * Allow entries’ durations to be editable through resizing.
      * <p>
      * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setDurationEditable(Boolean)}
      *
@@ -1414,7 +1413,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Allow events’ start times to be editable through dragging.
+     * Allow entries’ start times to be editable through dragging.
      * <p>
      * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setStartEditable(Boolean)}
      *
@@ -1438,9 +1437,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Determines whether the events on the calendar can be modified.
+     * Determines whether the entries on the calendar can be modified.
      * <p>
-     * This determines if the events can be dragged and resized.
+     * This determines if the entries can be dragged and resized.
      * Enables/disables both at the same time.
      * If you don’t want both, use the more specific {@link #setEntryStartEditable(boolean)} and {@link #setEntryDurationEditable(boolean)} instead.
      * <br><br>
@@ -1663,7 +1662,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Force the client side instance to re-render it's content.
+     * Force the client side instance to re-render its content.
      */
     public void render() {
         getElement().callJsFunction("renderCalendar");

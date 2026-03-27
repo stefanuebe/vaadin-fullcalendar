@@ -20,7 +20,7 @@ import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * An event, that occur, when a entry has been changed on the client side.
+ * An event that occurs when an entry has been changed on the client side.
  * <br><br>
  * You can apply the changes to the referred entry by calling the method {@link #applyChangesOnEntry()}.
  */

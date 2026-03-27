@@ -74,7 +74,7 @@ public class Entry {
     private String textColor;
     private Boolean overlap;
 
-    /** Whether the event is keyboard-focusable (tabbable) independently of drag/drop. Null inherits the calendar-level {@code eventInteractive} option. */
+    /** Whether the entry is keyboard-focusable (tabbable) independently of drag/drop. Null inherits the calendar-level {@code eventInteractive} option. */
     private Boolean interactive;
 
     /**
@@ -551,8 +551,8 @@ public class Entry {
      * Returns the start time as a local date time after applying the timezone's offset to
      * the utc based start date ({@link #getStart()}).
      * <p></p>
-     * This method is intended to be used for new entrys that have not yet been added to the
-     * calender and thus have no reference to its timezone.
+     * This method is intended to be used for new entries that have not yet been added to the
+     * calendar and thus have no reference to its timezone.
      * <p></p>
      * To get a {@link OffsetDateTime} please use {@link #getStartWithTimezone()} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
@@ -625,7 +625,7 @@ public class Entry {
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting start time will be ...T00:00.
      * <p></p>
-     * This method is intended to be used in cases where entry is not yet added to the calender and thus
+     * This method is intended to be used in cases where entry is not yet added to the calendar and thus
      * cannot use its timezone to interpret the offset.
      * <p></p>
      *
@@ -690,8 +690,8 @@ public class Entry {
      * Returns the end time as a local date time after applying the timezone's offset to
      * the utc based end date ({@link #getEnd()}).
      * <p></p>
-     * This method is intended to be used for new entrys that have not yet been added to the
-     * calender and thus have no reference to its timezone.
+     * This method is intended to be used for new entries that have not yet been added to the
+     * calendar and thus have no reference to its timezone.
      * <p></p>
      * To get a {@link OffsetDateTime} please use {@link #getEndWithTimezone()} and call
      * {@link ZonedDateTime#toOffsetDateTime()}
@@ -764,7 +764,7 @@ public class Entry {
      * For instance, when passing an instance with ...T01:00 and the timezone is Europe/Berlin in winter,
      * the resulting end time will be ...T00:00.
      * <p></p>
-     * This method is intended to be used in cases where entry is not yet added to the calender and thus
+     * This method is intended to be used in cases where entry is not yet added to the calendar and thus
      * cannot use its timezone to interpret the offset.
      * <p></p>
      *
@@ -1145,7 +1145,7 @@ public class Entry {
     /**
      * Indicates, if this entry is recurring. This is indicated by having any "recurring" property set (e.g.
      * {@link #getRecurringDaysOfWeek()}) or an {@link RRule}.
-     * @return is a recurring event
+     * @return is a recurring entry
      */
     public boolean isRecurring() {
         if (rrule != null) {
