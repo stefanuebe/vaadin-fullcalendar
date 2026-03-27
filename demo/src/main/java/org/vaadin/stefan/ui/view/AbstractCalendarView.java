@@ -90,12 +90,14 @@ public abstract class AbstractCalendarView extends VerticalLayout {
             setHorizontalComponentAlignment(Alignment.CENTER, toolbar);
         }
 
+
         add(calendar);
 
         setFlexGrow(1, calendar);
         setHorizontalComponentAlignment(Alignment.STRETCH, calendar);
 
         setSizeFull();
+        setAlignItems(Alignment.STRETCH);
 
         postConstruct(calendar);
     }

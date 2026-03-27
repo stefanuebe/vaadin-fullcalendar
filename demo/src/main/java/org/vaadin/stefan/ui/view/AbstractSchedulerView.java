@@ -13,6 +13,8 @@ public abstract class AbstractSchedulerView extends AbstractCalendarView {
         calendar.addEntryDroppedSchedulerListener(this::onEntryDroppedScheduler);
         calendar.addTimeslotsSelectedSchedulerListener(this::onTimeslotsSelectedScheduler);
         calendar.addTimeslotClickedSchedulerListener(this::onTimeslotClickedScheduler);
+
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_ORDER, "title");
     }
 
     /**

@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -15,6 +16,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.signals.Signal;
 import com.vaadin.flow.signals.local.ListSignal;
@@ -28,11 +30,11 @@ import org.vaadin.stefan.ui.view.CalendarViewToolbar;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This demo shows signal binding for a scheduler with resources.
@@ -69,7 +71,11 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         // Pre-populate entries: 2-3 per resource per month (last, current, next month)
         // Entries are all-day with varying durations and staggered start days per resource
         Resource[] rooms = {roomA, roomB, roomC};
-        String[] titles = {"Standup", "Review", "Planning"};
+        String[][] titles = {
+                {"Standup", "Sprint Review", "Retro"},           // Room A
+                {"Workshop", "1:1 Meeting", "Tech Talk"},        // Room B
+                {"Planning", "Demo", "All-Hands"},               // Room C
+        };
         // day offsets per resource to avoid alignment (relative to month start)
         int[][] dayOffsets = {
                 {1, 10, 20},  // Room A
@@ -86,11 +92,11 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         for (int monthOffset = -1; monthOffset <= 1; monthOffset++) {
             LocalDate month = now.plusMonths(monthOffset).withDayOfMonth(1);
             for (int i = 0; i < rooms.length; i++) {
-                for (int j = 0; j < titles.length; j++) {
+                for (int j = 0; j < titles[i].length; j++) {
                     LocalDate startDay = month.plusDays(dayOffsets[i][j]);
                     LocalDate endDay = startDay.plusDays(durations[i][j]);
                     ResourceEntry entry = new ResourceEntry();
-                    entry.setTitle(titles[j] + " " + rooms[i].getTitle());
+                    entry.setTitle(titles[i][j]);
                     entry.setAllDay(true);
                     entry.setStart(startDay);
                     entry.setEnd(endDay);
@@ -118,9 +124,55 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
 
     @Override
     protected void postConstruct(FullCalendar calendar) {
-        // Remove calendar from the VerticalLayout (added by AbstractCalendarView)
-        // and wrap it in a HorizontalLayout with the sidebar
-        remove(calendar);
+        // Statistics bar
+        Span resourceCount = new Span();
+        Span entryCount = new Span();
+        Span entriesPerResource = new Span();
+        Span entriesPerMonth = new Span();
+
+        String statStyle = "font-size:var(--lumo-font-size-s);color:var(--lumo-secondary-text-color)";
+        for (Span s : new Span[]{resourceCount, entryCount, entriesPerResource, entriesPerMonth}) {
+            s.getStyle().set("cssText", statStyle);
+        }
+
+        Signal.effect(this, () -> {
+            List<ValueSignal<Resource>> resources = resourcesSignal.get();
+            List<ValueSignal<Entry>> entries = entriesSignal.get();
+
+            resourceCount.setText("Resources: " + resources.size());
+            entryCount.setText("Entries: " + entries.size());
+
+            // Resource with most entries
+            Map<Resource, Long> countByResource = resources.stream()
+                    .map(ValueSignal::get)
+                    .collect(Collectors.toMap(r -> r, r -> entries.stream()
+                            .map(ValueSignal::get)
+                            .filter(e -> e instanceof ResourceEntry re && re.getResourcesOrEmpty().contains(r))
+                            .count()));
+            long maxCount = countByResource.values().stream().mapToLong(Long::longValue).max().orElse(0);
+            boolean allEqual = countByResource.values().stream().distinct().count() <= 1;
+            String maxResourceName = allEqual ? "-even-" : countByResource.entrySet().stream()
+                    .filter(en -> en.getValue() == maxCount)
+                    .map(en -> en.getKey().getTitle())
+                    .findFirst().orElse("-");
+            entriesPerResource.setText("Most entries: " + maxResourceName + " (" + maxCount + ")");
+
+            // Average entries per month
+            Map<YearMonth, Integer> perMonth = new TreeMap<>();
+            for (ValueSignal<Entry> es : entries) {
+                Entry e = es.get();
+                if (e.getStart() != null) {
+                    perMonth.merge(YearMonth.from(e.getStartAsLocalDate()), 1, Integer::sum);
+                }
+            }
+            double avgPerMonth = perMonth.isEmpty() ? 0 : perMonth.values().stream().mapToInt(Integer::intValue).average().orElse(0);
+            entriesPerMonth.setText(String.format("Entries/month: %.1f", avgPerMonth));
+        });
+
+        HorizontalLayout statsBar = new HorizontalLayout(resourceCount, entryCount, entriesPerResource, entriesPerMonth);
+        statsBar.setWidthFull();
+        statsBar.setSpacing(true);
+        statsBar.getStyle().set("flex-wrap", "wrap");
 
         VerticalLayout sidebar = createSidebar();
 
@@ -130,12 +182,12 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         sidebarScroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
 
         HorizontalLayout content = new HorizontalLayout(sidebarScroller, calendar);
-        content.setSizeFull();
         content.setFlexGrow(1, calendar);
         content.setFlexGrow(0, sidebarScroller);
         content.setAlignItems(Alignment.STRETCH);
+        content.getStyle().setOverflow(Style.Overflow.HIDDEN);
 
-        add(content);
+        add(statsBar, content);
         setFlexGrow(1, content);
     }
 
@@ -161,67 +213,61 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         return sidebar;
     }
 
-    private Card createResourceCard(ValueSignal<Resource> resourceSignal) {
-        Card card = new Card();
-        card.setWidthFull();
-
-        // Title bound to resource name
-        Signal.effect(card, () -> {
+    private Details createResourceCard(ValueSignal<Resource> resourceSignal) {
+        // Summary: resource title + action buttons
+        Span title = new Span();
+        Signal.effect(title, () -> {
             Resource r = resourceSignal.get();
-            card.setTitle(r.getTitle());
+            title.setText(r.getTitle());
             if (r.getColor() != null) {
-                card.getStyle().set("color", r.getColor());
+                title.getStyle().set("color", r.getColor());
+                title.getStyle().set("font-weight", "bold");
             }
         });
 
-        // Expand/collapse toggle (default: collapsed)
-        Button expandBtn = new Button(VaadinIcon.ANGLE_RIGHT.create());
-        expandBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
-        card.setHeaderPrefix(expandBtn);
-
-        // Action buttons
+        // Action buttons — stop propagation so they don't toggle the details
         Button editBtn = new Button(VaadinIcon.EDIT.create(), e ->
                 openResourceDialog(resourceSignal));
         editBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
-
-        Button deleteBtn = new Button(VaadinIcon.TRASH.create(), e -> {
-            resourcesSignal.remove(resourceSignal);
-        });
-        deleteBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
 
         Button addEntryBtn = new Button(VaadinIcon.PLUS.create(), e ->
                 openNewEntryDialog(resourceSignal.peek()));
         addEntryBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
 
+        Button deleteBtn = new Button(VaadinIcon.TRASH.create(), e ->
+                resourcesSignal.remove(resourceSignal));
+        deleteBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ERROR);
+
         HorizontalLayout buttons = new HorizontalLayout(editBtn, addEntryBtn, deleteBtn);
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
-        card.setHeaderSuffix(buttons);
+        // Prevent button clicks from toggling the details
+        buttons.getElement().executeJs("this.addEventListener('click', function(e) { e.stopPropagation(); })");
 
-        // Entry list inside the card — rebuilt via effect
+        HorizontalLayout summary = new HorizontalLayout(title, buttons);
+        summary.setAlignItems(FlexComponent.Alignment.CENTER);
+        summary.setFlexGrow(1, title);
+        summary.setWidthFull();
+
+        // Entry list — rebuilt via effect
         VerticalLayout entryList = new VerticalLayout();
         entryList.setPadding(false);
         entryList.setSpacing(false);
         entryList.setWidthFull();
         entryList.setAlignItems(Alignment.STRETCH);
-        entryList.setVisible(false); // default: collapsed
 
-        expandBtn.addClickListener(e -> {
-            boolean expanded = !entryList.isVisible();
-            entryList.setVisible(expanded);
-            expandBtn.setIcon(expanded ? VaadinIcon.ANGLE_DOWN.create() : VaadinIcon.ANGLE_RIGHT.create());
-        });
+        Details details = new Details(summary, entryList);
+        details.setWidthFull();
+        details.setOpened(false);
 
         // This effect rebuilds the entry list when resources, entries, or entry properties change.
-        // Note: using .get() on each entry signal registers dependencies on ALL entries,
-        // so any entry change rebuilds all resource cards. Acceptable for a demo.
-        Signal.effect(card, () -> {
+        Signal.effect(details, () -> {
             Resource resource = resourceSignal.get();
             List<ValueSignal<Entry>> allEntries = entriesSignal.get();
 
             entryList.removeAll();
 
             for (ValueSignal<Entry> entrySignal : allEntries) {
-                Entry entry = entrySignal.get(); // .get() establishes dependency — effect re-fires on entry property changes
+                Entry entry = entrySignal.get();
                 if (entry instanceof ResourceEntry re && re.getResourcesOrEmpty().contains(resource)) {
                     entryList.add(createEntryRow(entrySignal));
                 }
@@ -235,8 +281,7 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
             }
         });
 
-        card.add(entryList);
-        return card;
+        return details;
     }
 
     private Card createEntryRow(ValueSignal<Entry> entrySignal) {
