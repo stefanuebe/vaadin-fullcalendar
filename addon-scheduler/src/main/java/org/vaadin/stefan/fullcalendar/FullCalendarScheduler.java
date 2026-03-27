@@ -54,7 +54,7 @@ import java.util.stream.StreamSupport;
 public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
     /**
-     * The scheduler base version used in this addon. Some additionl libraries might have a different version number due to
+     * The scheduler base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
     public static final String FC_SCHEDULER_CLIENT_VERSION = "6.1.9";
@@ -521,8 +521,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     /**
      * Sets a option for this instance. Passing a null value removes the option.
      * <br><br>
-     * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * Please be aware that this method does not check the passed value. Use the typed
+     * {@link SchedulerOption} constants for type safety.
      *
      * @param option option
      * @param value  value
@@ -538,8 +538,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * by {@link #getOption(SchedulerOption)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
      * <pre>
-     * Please be aware that this method does not check the passed value. Explicit setter
-     * methods should be prefered (e.g. {@link #setLocale(Locale)}).
+     * Please be aware that this method does not check the passed value. Use the typed
+     * {@link SchedulerOption} constants for type safety.
      *
      * @param option             option
      * @param value              value

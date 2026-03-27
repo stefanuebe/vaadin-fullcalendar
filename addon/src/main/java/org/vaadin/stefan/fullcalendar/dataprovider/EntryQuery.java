@@ -63,7 +63,7 @@ public class EntryQuery {
                 if (e.isRecurring()) {
                     LocalDateTime recurringEnd = e.getRecurringEnd();
 
-                    // recurring events, that have no end may go indefinitely to the future. So we return
+                    // recurring entries that have no end may go indefinitely into the future, so we return
                     // them always
                     return recurringEnd == null || recurringEnd.isAfter(start);
                 }
@@ -83,7 +83,7 @@ public class EntryQuery {
                 if (e.isRecurring()) {
                     LocalDateTime recurringStart = e.getRecurringStart();
 
-                    // recurring events, that have no start may go indefinitely to the past. So we return
+                    // recurring entries that have no start may go indefinitely into the past, so we return
                     // them always
                     return recurringStart == null || recurringStart.isBefore(end);
                 }

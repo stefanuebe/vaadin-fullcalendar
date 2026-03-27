@@ -51,7 +51,7 @@ public class Resource {
 
     /**
      * The color of this resource.
-     * Events associated with this resources will have their backgrounds and borders colored.
+     * Entries associated with this resource will have their backgrounds and borders colored.
      */
     private String color;
 
@@ -62,7 +62,7 @@ public class Resource {
     private final BusinessHours[] businessHoursArray;
 
     /**
-     * The childern's of the resource
+     * The children of the resource
      */
     private Set<Resource> children;
     /**
@@ -75,7 +75,7 @@ public class Resource {
      */
     private final HashMap<String, Object> extendedProps = new HashMap<>();
 
-    // Per-resource event style overrides
+    // Per-resource entry style overrides
     @Getter(AccessLevel.NONE)
     private String eventBackgroundColor;
     @Getter(AccessLevel.NONE)
@@ -300,7 +300,7 @@ public class Resource {
     }
 
     /**
-     * Sets the event color shorthand for this resource (sets both background and border color of
+     * Sets the entry color shorthand for this resource (sets both background and border color of
      * events associated with this resource). If this resource has been added to a scheduler,
      * the change is propagated to the client immediately.
      * <p>
@@ -545,8 +545,8 @@ public class Resource {
     }
 
     /**
-     * Converts the instance to a JsonObject. Calls itself also for child methods. Please be aware, that this method
-     * <b>does not check</b> for potential hierarchial loops (e. g. infinite loops), this has to be done manually before.
+     * Converts this resource to a JSON object. Recursively converts child resources. Please be aware that this method
+     * <b>does not check</b> for potential hierarchical loops (e.g. infinite loops); this has to be prevented manually.
      *
      * @return json object
      */
