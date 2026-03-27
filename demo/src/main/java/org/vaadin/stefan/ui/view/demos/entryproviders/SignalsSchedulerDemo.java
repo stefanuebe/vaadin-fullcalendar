@@ -165,7 +165,8 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
             entriesPerResource.setTitle(maxResourceName + " (" + maxCount + ")");
         });
 
-        // Effect 4: entries/month — depends on entry list structure + individual entry start dates
+        // Effect 4: entries/month — depends on entry list structure + individual entry start dates.
+        // Note: es.get() also fires on title/color changes (same trade-off as the resource card filter).
         Signal.effect(this, () -> {
             Map<YearMonth, Integer> perMonth = new TreeMap<>();
             for (ValueSignal<Entry> es : entriesSignal.get()) {
