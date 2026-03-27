@@ -343,16 +343,16 @@ See `specs/verification.md` §2 for the general decision rule on Unit vs Browser
 
 ### Unit Tests (pure logic, no Vaadin context)
 
-- [ ] `SignalEntryProviderTest` — fetch/fetchAll/fetchById delegate to ListSignal via peek()
+- [x] `SignalEntryProviderTest` — fetch/fetchAll/fetchById delegate to ListSignal via peek()
 
 ### Browserless Tests (Vaadin context, no browser)
 
 Browserless tests are appropriate here because signal binding is purely server-side Java state — no `@EventData` or JS client needed. Unlike the auto-revert feature (where drop/resize events require structured JSON from the real JS client), signal binding lifecycle, exception enforcement, and `signal.modify()` state changes can all be verified without a browser.
 
-- [ ] `FullCalendarSignalBindingTest` — bindEntries/unbind lifecycle, exclusivity with setEntryProvider, AutoRevert prerequisite enforcement, builder integration
-- [ ] `SignalApplyChangesTest` — applyChangesOnEntry routes through signal.modify(), verifies signal state after apply
-- [ ] `SignalBindingExceptionTest` — all `BindingActiveException` scenarios (both directions, builder, AutoRevert coupling)
-- [ ] `SchedulerSignalResourceBindingTest` (Phase 2) — bindResources lifecycle, exclusivity with addResource
+- [x] `FullCalendarSignalBindingTest` — bindEntries/unbind lifecycle, exclusivity with setEntryProvider, AutoRevert prerequisite enforcement, builder integration
+- [x] `SignalApplyChangesTest` — applyChangesOnEntry routes through signal.modify(), verifies signal state after apply
+- [x] `SignalBindingExceptionTest` — all `BindingActiveException` scenarios (both directions, builder, AutoRevert coupling)
+- [x] `SchedulerSignalResourceBindingTest` (Phase 2) — bindResources lifecycle, exclusivity with addResource
 - [x] `SignalApplyChangesSchedulerTest` — applyEntryChangesFromEvent Consumer overload: consumer invocation, resource delta via consumer, null consumer safety
 - [x] `ResourceDeltaTest` — updateResourcesFromEventResourceDelta: assign, unassign, reassign, no-op, detached entry safety
 
@@ -360,9 +360,9 @@ Browserless tests are appropriate here because signal binding is purely server-s
 
 E2E is needed here because we must verify that `callJsFunction()` actually causes entries to appear/disappear/move in the rendered calendar. The FullCalendar JS client must execute for this.
 
-- [ ] `signal-entry-binding.spec.js` — add/remove/update entries via signal, verify entries appear/disappear/change in the calendar
-- [ ] `signal-resource-binding.spec.js` (Phase 2) — add/remove/update resources via signal, verify scheduler display
-- [ ] `signal-drop-resize.spec.js` — drop/resize with signal binding, verify applyChanges + autoRevert visual behavior (no flicker)
+- [x] `signal-entry-binding.spec.js` — add/remove/update entries via signal, verify entries appear/disappear/change in the calendar
+- [x] `signal-resource-binding.spec.js` (Phase 2) — add/remove/update resources via signal, verify scheduler display
+- [x] `signal-drop-resize.spec.js` — drop/resize with signal binding, verify applyChanges + autoRevert visual behavior (no flicker)
 
 ---
 

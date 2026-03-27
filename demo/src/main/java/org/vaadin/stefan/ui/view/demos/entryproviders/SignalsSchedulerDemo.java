@@ -227,8 +227,10 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
                 openResourceDialog(resourceSignal));
         editBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
 
-        Button addEntryBtn = new Button(VaadinIcon.PLUS.create(), e ->
-                openNewEntryDialog(resourceSignal.peek()));
+        Button addEntryBtn = new Button(VaadinIcon.PLUS.create(), e -> {
+            Resource r = resourceSignal.peek();
+            if (r != null) openNewEntryDialog(r);
+        });
         addEntryBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
 
         Button deleteBtn = new Button(VaadinIcon.TRASH.create(), e ->
