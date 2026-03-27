@@ -81,7 +81,7 @@ FullCalendar calendar = FullCalendarBuilder.create()
 
 ### Rules
 
-- `bindEntries()` and `setEntryProvider()` are mutually exclusive. Calling one while the other is active throws `BindingActiveException`.
+- `bindEntries()` and `setEntryProvider()` are mutually exclusive. Calling one while the other is active throws `com.vaadin.flow.signals.BindingActiveException`.
 - `bindEntries()` requires `autoRevertUnappliedEntryChanges` to be `true` (the default).
 - `applyChangesOnEntry()` in drop/resize listeners automatically routes through `signal.modify()` when a signal binding is active, ensuring all effects observe the change.
 - Direct mutation of Entry objects (e.g., `entry.setTitle(...)`) does **not** trigger reactive updates. Always use `ValueSignal.modify()`.

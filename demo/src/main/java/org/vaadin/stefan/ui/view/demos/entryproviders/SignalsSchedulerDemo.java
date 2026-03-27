@@ -125,22 +125,21 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
     @Override
     protected void postConstruct(FullCalendar calendar) {
         // Statistics bar
-        Span resourceCount = new Span();
-        Span entryCount = new Span();
-        Span entriesPerResource = new Span();
-        Span entriesPerMonth = new Span();
-
-        String statStyle = "font-size:var(--lumo-font-size-s);color:var(--lumo-secondary-text-color)";
-        for (Span s : new Span[]{resourceCount, entryCount, entriesPerResource, entriesPerMonth}) {
-            s.getStyle().set("cssText", statStyle);
-        }
+        Card resourceCount = new Card();
+        resourceCount.setSubtitle("Resources");
+        Card entryCount = new Card();
+        entryCount.setSubtitle("Entries");
+        Card entriesPerResource = new Card();
+        entriesPerResource.setSubtitle("Most entries");
+        Card entriesPerMonth = new Card();
+        entriesPerMonth.setSubtitle("Entries/month");
 
         Signal.effect(this, () -> {
             List<ValueSignal<Resource>> resources = resourcesSignal.get();
             List<ValueSignal<Entry>> entries = entriesSignal.get();
 
-            resourceCount.setText("Resources: " + resources.size());
-            entryCount.setText("Entries: " + entries.size());
+            resourceCount.setTitle("" + resources.size());
+            entryCount.setTitle("" + entries.size());
 
             // Resource with most entries
             Map<Resource, Long> countByResource = resources.stream()
@@ -155,7 +154,7 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
                     .filter(en -> en.getValue() == maxCount)
                     .map(en -> en.getKey().getTitle())
                     .findFirst().orElse("-");
-            entriesPerResource.setText("Most entries: " + maxResourceName + " (" + maxCount + ")");
+            entriesPerResource.setTitle(maxResourceName + " (" + maxCount + ")");
 
             // Average entries per month
             Map<YearMonth, Integer> perMonth = new TreeMap<>();
@@ -166,13 +165,11 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
                 }
             }
             double avgPerMonth = perMonth.isEmpty() ? 0 : perMonth.values().stream().mapToInt(Integer::intValue).average().orElse(0);
-            entriesPerMonth.setText(String.format("Entries/month: %.1f", avgPerMonth));
+            entriesPerMonth.setTitle(String.format("%.1f", avgPerMonth));
         });
 
         HorizontalLayout statsBar = new HorizontalLayout(resourceCount, entryCount, entriesPerResource, entriesPerMonth);
-        statsBar.setWidthFull();
-        statsBar.setSpacing(true);
-        statsBar.getStyle().set("flex-wrap", "wrap");
+        statsBar.addToEnd(getToolbar());
 
         VerticalLayout sidebar = createSidebar();
 
@@ -303,9 +300,10 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         editBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_ICON);
 
         Button deleteBtn = new Button(VaadinIcon.TRASH.create(), e -> {
-            List<ValueSignal<Entry>> signals = entriesSignal.peek();
-            signals.stream()
-                    .filter(vs -> entrySignal.peek().getId().equals(vs.peek().getId()))
+            Entry target = entrySignal.peek();
+            if (target == null) return;
+            entriesSignal.peek().stream()
+                    .filter(vs -> { Entry v = vs.peek(); return v != null && target.getId().equals(v.getId()); })
                     .findFirst()
                     .ifPresent(entriesSignal::remove);
         });
@@ -432,7 +430,7 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
         List<ValueSignal<Entry>> signals = entriesSignal.peek();
         for (Entry entry : entries) {
             signals.stream()
-                    .filter(vs -> entry.getId().equals(vs.peek().getId()))
+                    .filter(vs -> { Entry e = vs.peek(); return e != null && entry.getId().equals(e.getId()); })
                     .findFirst()
                     .ifPresent(entriesSignal::remove);
         }
@@ -441,7 +439,7 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
     @Override
     protected void onEntryChanged(Entry entry) {
         entriesSignal.peek().stream()
-                .filter(vs -> entry.getId().equals(vs.peek().getId()))
+                .filter(vs -> { Entry e = vs.peek(); return e != null && entry.getId().equals(e.getId()); })
                 .findFirst()
                 .ifPresent(vs -> vs.modify(e -> {
                     e.setTitle(entry.getTitle());
@@ -455,8 +453,10 @@ public class SignalsSchedulerDemo extends AbstractSchedulerView {
 
     @Override
     protected String createDescription() {
-        return "Signal binding for a scheduler with resources. " +
-                "The sidebar shows resource cards with their entries — all managed via ListSignal. " +
-                "Changes in the sidebar update the calendar, and drag/drop in the calendar updates the sidebar.";
+        return "Demonstrates bindEntries() and bindResources() together on a FullCalendarScheduler " +
+                "(requires Vaadin 25.1+, experimental). Both the calendar and the sidebar are reactively " +
+                "driven by ListSignal — the sidebar uses Vaadin's bindChildren() to render resource cards. " +
+                "Try adding/editing/deleting resources or entries in the sidebar and watch the calendar update, " +
+                "or drag entries between resources in the calendar and watch the sidebar reflect the change.";
     }
 }

@@ -55,7 +55,7 @@ public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
         ObjectNode object = getJsonObject();
 
         getSource().applyEntryChangesFromEvent(entry, object,
-                e -> updateResourcesFromEventResourceDelta(e, object));
+                e -> updateResourcesFromEventResourceDelta((ResourceEntry) e, object));
 
         markChangesApplied();
         return entry;

@@ -97,10 +97,11 @@ public class SignalsDemo extends AbstractCalendarView {
     @Override
     protected void onEntriesRemoved(Collection<Entry> entries) {
         // Find the ValueSignal for each entry and remove it
+        // ListSignal stores ValueSignal wrappers, not raw Entry objects — we match by entry ID
         List<ValueSignal<Entry>> signals = entriesSignal.peek();
         for (Entry entry : entries) {
             signals.stream()
-                    .filter(vs -> entry.getId().equals(vs.peek().getId()))
+                    .filter(vs -> { Entry e = vs.peek(); return e != null && entry.getId().equals(e.getId()); })
                     .findFirst()
                     .ifPresent(entriesSignal::remove);
         }
@@ -111,7 +112,7 @@ public class SignalsDemo extends AbstractCalendarView {
         // Find the ValueSignal for this entry and modify it
         // The modify() call triggers the per-entry effect → calendar updates automatically
         entriesSignal.peek().stream()
-                .filter(vs -> entry.getId().equals(vs.peek().getId()))
+                .filter(vs -> { Entry e = vs.peek(); return e != null && entry.getId().equals(e.getId()); })
                 .findFirst()
                 .ifPresent(vs -> vs.modify(e -> {
                     e.setTitle(entry.getTitle());
@@ -125,7 +126,7 @@ public class SignalsDemo extends AbstractCalendarView {
 
     @Override
     protected String createDescription() {
-        return "This demo shows signal binding for reactive entry management. " +
+        return "This demo shows signal binding for reactive entry management (requires Vaadin 25.1+, experimental). " +
                 "Entries are managed via a ListSignal — the calendar updates automatically " +
                 "when entries are added, removed, or modified through the signal. " +
                 "No manual refreshItem() or refreshAll() calls are needed. " +

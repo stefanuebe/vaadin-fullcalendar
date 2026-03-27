@@ -26,9 +26,12 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.Collection;
 
 /**
- * A basic class for simple calendar views, e.g. for demo or testing purposes. Takes care of
- * creating a toolbar, a description element and embedding the created calendar into the view.
- * Also registers a dates rendered listener to update the toolbar.
+ * Demo view for the auto-revert feature ({@code autoRevertUnappliedEntryChanges}).
+ * <p>
+ * Provides two checkboxes: "Auto Revert" toggles whether the calendar reverts client-side
+ * entry changes (drop/resize) that are not explicitly applied by the server. "Accept drop/resize
+ * (applyChangesOnEntry)" controls whether {@code applyChangesOnEntry()} is called in the drop/resize
+ * handler. Use this demo to explore how the calendar behaves under different combinations.
  */
 @Route(value = "auto-revert", layout = MainLayout.class)
 @Getter(AccessLevel.PROTECTED)
@@ -44,7 +47,7 @@ public class AutoRevertView extends VerticalLayout {
         autoApply = new ValueSignal<>(false);
 
         Checkbox autoRevertCB = new Checkbox("Auto Revert");
-        Checkbox autoApplyCB = new Checkbox("Apply changes on server side");
+        Checkbox autoApplyCB = new Checkbox("Accept drop/resize (applyChangesOnEntry)");
 
         autoRevertCB.bindValue(autoRevert, autoRevert::set);
         autoApplyCB.bindValue(autoApply, autoApply::set);

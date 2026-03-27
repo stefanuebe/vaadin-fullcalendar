@@ -230,6 +230,10 @@ calendar.setPrefetchEnabled(false); // disables the prefetch feature
 Instead of using an entry provider, you can bind a `ListSignal<Entry>` to the calendar. Entries are then managed
 reactively — the calendar updates automatically when entries are added, removed, or modified through the signal.
 
+> **Prerequisite:** Signal binding requires `autoRevertUnappliedEntryChanges` to be `true` (the default).
+> Calling `bindEntries()` while auto-revert is disabled throws `IllegalStateException`.
+> Use `bindResources(null)` / `bindEntries(null)` to unbind, which restores the default provider.
+
 ```java
 ListSignal<Entry> entries = new ListSignal<>();
 
@@ -259,6 +263,10 @@ throws `BindingActiveException`. Use `bindEntries(null)` to unbind.
 For scheduler resources, use `bindResources()`:
 
 ```java
+FullCalendarScheduler scheduler = (FullCalendarScheduler) FullCalendarBuilder.create()
+    .withScheduler(licenseKey)
+    .build();
+
 ListSignal<Resource> resources = new ListSignal<>();
 ListSignal<Entry> entries = new ListSignal<>();
 

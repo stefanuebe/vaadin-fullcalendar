@@ -17,7 +17,7 @@ not a full list of all features. If you find any library features missing, pleas
 - Custom native JS event handlers for entries
 - Client-side event sources (JSON feeds, Google Calendar, iCalendar)
 - Auto-revert of client-side entry changes when not explicitly applied (drop/resize validation)
-- Signal binding for reactive entry management (experimental, Vaadin 25.1 Signals)
+- Signal binding for reactive entry management (experimental, Vaadin 25.1 Signals) — bind a `ListSignal<Entry>` to the calendar so it updates automatically when data changes, without manual refresh calls; see [Samples](Samples#signal-binding-experimental-vaadin-251)
 
 ### Entry model
 The `Entry` class supports the following properties:

@@ -13,7 +13,7 @@
 [Details](release-notes-detail/Release-notes-7.2.md)
 - requires Vaadin 25.1 (up from 25.0)
 - added auto-revert for unapplied entry changes after drop/resize (#225)
-- added signal binding for reactive entry and resource management (experimental, Vaadin 25.1 Signals)
+- added signal binding for reactive entry and resource management (experimental, Vaadin 25.1 Signals; requires auto-revert, enabled by default)
 
 ## 7.1.x
 [Details](release-notes-detail/Release-notes-7.1.md)
