@@ -213,7 +213,7 @@ class JsCallbackTest {
     @Test
     void buildMerged_userCallbackOnly_returnsCallbackAsIs() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setAutoAssignEntryIds(false);
+        calendar.setAutoProvideEntryIdOnClient(false);
         calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
 
@@ -224,7 +224,7 @@ class JsCallbackTest {
     @Test
     void buildMerged_nativeListenerOnly_generatesWrapper() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setAutoAssignEntryIds(false);
+        calendar.setAutoProvideEntryIdOnClient(false);
         calendar.addEntryNativeEventListener("click", "e => alert(1)");
 
         String merged = calendar.buildEntryDidMountMerged();
@@ -255,14 +255,14 @@ class JsCallbackTest {
     @Test
     void buildMerged_nothingSet_returnsNull() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setAutoAssignEntryIds(false);
+        calendar.setAutoProvideEntryIdOnClient(false);
         assertNull(calendar.buildEntryDidMountMerged());
     }
 
     @Test
     void buildMerged_userCallbackCleared_nativeListenerRemains() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setAutoAssignEntryIds(false);
+        calendar.setAutoProvideEntryIdOnClient(false);
         calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { }"));
         calendar.addEntryNativeEventListener("mouseover", "e => {}");
@@ -277,21 +277,21 @@ class JsCallbackTest {
         assertFalse(merged.contains("info.el"));
     }
 
-    // --- autoAssignEntryIds — default snippet injection ---
+    // --- autoProvideEntryIdOnClient — default snippet injection ---
 
     @Test
-    void autoAssignEntryIds_defaultsToTrue() {
+    void autoProvideEntryIdOnClient_defaultsToTrue() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
-        assertTrue(calendar.isAutoAssignEntryIds());
+        assertTrue(calendar.isAutoProvideEntryIdOnClient());
     }
 
     @Test
-    void setAutoAssignEntryIds_roundTrip() {
+    void setAutoProvideEntryIdOnClient_roundTrip() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
-        calendar.setAutoAssignEntryIds(false);
-        assertFalse(calendar.isAutoAssignEntryIds());
-        calendar.setAutoAssignEntryIds(true);
-        assertTrue(calendar.isAutoAssignEntryIds());
+        calendar.setAutoProvideEntryIdOnClient(false);
+        assertFalse(calendar.isAutoProvideEntryIdOnClient());
+        calendar.setAutoProvideEntryIdOnClient(true);
+        assertTrue(calendar.isAutoProvideEntryIdOnClient());
     }
 
     @Test
