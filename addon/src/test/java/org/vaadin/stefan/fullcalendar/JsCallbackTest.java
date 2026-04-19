@@ -295,7 +295,7 @@ class JsCallbackTest {
     }
 
     @Test
-    void buildMerged_autoAssignOnly_wrapsSnippetInFunction() {
+    void buildMerged_autoProvideOnly_wrapsSnippetInFunction() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
         String merged = calendar.buildEntryDidMountMerged();
         assertNotNull(merged);
@@ -305,7 +305,7 @@ class JsCallbackTest {
     }
 
     @Test
-    void buildMerged_autoAssignAndUserCallback_defaultPrefixesUser() {
+    void buildMerged_autoProvideAndUserCallback_defaultPrefixesUser() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
         calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
@@ -320,7 +320,7 @@ class JsCallbackTest {
     }
 
     @Test
-    void buildMerged_autoAssignUserAndNative_allThreePresentInOrder() {
+    void buildMerged_autoProvideUserAndNative_allThreePresentInOrder() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
         calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
@@ -336,7 +336,7 @@ class JsCallbackTest {
     }
 
     @Test
-    void buildMerged_autoAssignAndNativeOnly_wrapsBoth() {
+    void buildMerged_autoProvideAndNativeOnly_wrapsBoth() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
         calendar.addEntryNativeEventListener("mouseover", "e => {}");
 
@@ -360,7 +360,7 @@ class JsCallbackTest {
     @Test
     void buildMerged_expressionBodyArrowCallback_returnedAsIsNoCorruption() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
-        // auto-assign default: true. User provides an expression-body arrow (no braces).
+        // auto-provide default: true. User provides an expression-body arrow (no braces).
         calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
                 JsCallback.of("info => info.el.title = 'x'"));
 

@@ -1073,9 +1073,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Builds the merged eventDidMount function string from three layers:
-     * the default id-assignment snippet (when auto-assign is enabled), the user callback
-     * set via {@link Option#ENTRY_DID_MOUNT}, and native entry event listeners registered
-     * via {@link #addEntryNativeEventListener(String, String)}.
+     * the default id-assignment snippet (when {@link #isAutoProvideEntryIdOnClient()} is true),
+     * the user callback set via {@link Option#ENTRY_DID_MOUNT}, and native entry event listeners
+     * registered via {@link #addEntryNativeEventListener(String, String)}.
      * <p>
      * Ordering inside the merged function: default snippet first, user callback body next,
      * native listeners last. This lets the user callback override the default id by
