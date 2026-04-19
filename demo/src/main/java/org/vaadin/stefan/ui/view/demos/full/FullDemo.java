@@ -382,6 +382,9 @@ public class FullDemo extends AbstractSchedulerView {
 
         entry.setCalendar(event.getSource());
 
+        // Pre-assign the resource the user clicked on, if any (#164).
+        event.getResource().ifPresent(entry::addResources);
+
         DemoDialog dialog = new DemoDialog(entry, true);
         dialog.setSaveConsumer(e -> onEntriesCreated(Collections.singletonList(e)));
         dialog.setDeleteConsumer(e -> onEntriesRemoved(Collections.singletonList(e)));
