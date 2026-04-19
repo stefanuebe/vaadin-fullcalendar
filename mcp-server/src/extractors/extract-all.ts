@@ -59,7 +59,7 @@ async function main() {
   ]);
 
   const docsExtractor = new DocsExtractor(
-    path.join(PROJECT_ROOT, 'docs'),
+    path.join(PROJECT_ROOT, 'wiki'),
     path.join(PROJECT_ROOT, 'demo')
   );
 

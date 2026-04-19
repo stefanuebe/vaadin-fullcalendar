@@ -143,20 +143,21 @@ Uses Jackson 3 for serialization (changed from elemental.json in v7.0). Custom a
 
 ## Documentation
 
-Detailed documentation available in `docs/`:
-- `Home.md` - Documentation index
-- `Features.md` - Feature overview
-- `Samples.md` - Code examples
-- `Migration-guides.md` - Version migration instructions
-- `Release-notes.md` - Version release notes
-- `Scheduler-license.md` - Scheduler extension licensing info
-- `FAQ.md` - Frequently asked questions
-- `Known-issues.md` - Known issues and workarounds
-- `MCP-Server.md` - MCP server documentation (copy of `mcp-server/README.md` - keep in sync!)
+User-facing documentation lives in the **GitHub wiki as the single source of truth** — there is no in-repo `docs/` folder (removed in 6.5). Key pages:
 
-**Note**: `docs/MCP-Server.md` is a full copy of `mcp-server/README.md`. When updating the MCP server README, also update the docs copy.
+- [Home](https://github.com/stefanuebe/vaadin-fullcalendar/wiki)
+- [Getting Started](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Getting-Started)
+- [Samples](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Samples)
+- [Features](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Features)
+- [Release notes](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Release-notes) — one detail page per minor (`Release-notes-<major>.<minor>`)
+- [Migration guides](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Migration-guides) — one detail page per version jump (`Migration-guide-<from>-to-<to>`)
+- [MCP-Server](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/MCP-Server), [FAQ](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/FAQ), [Known Issues](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Known-Issues), [Scheduler license](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Scheduler-license)
 
-Wiki: https://github.com/stefanuebe/vaadin-fullcalendar/wiki
+The wiki is a separate git repo: `https://github.com/stefanuebe/vaadin-fullcalendar.wiki.git`. In this devcontainer it is checked out at `/workspace/wiki/` (remote `origin-wiki`). Edit files there and commit/push to the wiki remote.
+
+### MCP server documentation
+
+`mcp-server/` extracts content from the wiki (cloned during Docker build) and serves it as MCP resources. If you rewrite wiki pages, the MCP server picks them up on the next container rebuild — no in-repo sync needed.
 
 ## Thread Safety & Performance Notes
 

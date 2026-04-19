@@ -13,8 +13,11 @@ RUN npm ci
 COPY mcp-server/tsconfig.json ./
 COPY mcp-server/src ./src
 
+# Clone the wiki repository (single source of truth since 6.5 — #234 equivalent).
+RUN apk add --no-cache git && \
+    git clone --depth=1 https://github.com/stefanuebe/vaadin-fullcalendar.wiki.git /project/wiki
+
 # Copy project files needed for extraction
-COPY docs /project/docs
 COPY addon /project/addon
 COPY addon-scheduler /project/addon-scheduler
 COPY demo /project/demo

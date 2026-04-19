@@ -1,1 +1,0 @@
-Nothing to see here, check migration page for 6.0.
