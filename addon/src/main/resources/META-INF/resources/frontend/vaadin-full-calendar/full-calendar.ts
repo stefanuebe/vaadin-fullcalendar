@@ -191,8 +191,17 @@ export class FullCalendar extends HTMLElement {
 
                     const startedAt = performance.now();
                     const retryUpdateSize = () => {
-                        const stuck = this.querySelector('.fc-scrollgrid-sync-table') as HTMLElement | null;
-                        if (stuck && stuck.style.width === '0px' &&
+                        // Check ALL scrollgrid sync tables: the scheduler timeline has separate
+                        // header and body tables, and the race can leave a later table stuck
+                        // while the first one is already settled. Treat "no tables yet" as
+                        // still-settling — Preact may not have mounted them at the first tick
+                        // with many resources.
+                        const tables = Array.from(
+                            this.querySelectorAll('.fc-scrollgrid-sync-table')
+                        ) as HTMLElement[];
+                        const stillSettling = tables.length === 0
+                                || tables.some(t => t.style.width === '0px');
+                        if (stillSettling &&
                                 performance.now() - startedAt < this.sizingRetryMaxWaitMs) {
                             this._calendar?.updateSize();
                             setTimeout(retryUpdateSize, this.sizingRetryIntervalMs);
