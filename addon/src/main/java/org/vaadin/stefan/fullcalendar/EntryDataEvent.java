@@ -89,11 +89,19 @@ public abstract class EntryDataEvent extends EntryEvent {
     }
 
     /**
-     * Creates a copy based on the referenced entry and the received data.
+     * Returns a new {@link Entry} instance with the changes from this event applied on top of the
+     * original entry. The original entry stored in {@link #getEntry()} is not modified.
+     * <p>
+     * This is the standard way to inspect "the entry as it would look after applying the change"
+     * without touching server-side state — useful for validation before calling
+     * {@link #applyChangesOnEntry()} or for rendering a dialog preview.
+     *
      * @param <R> return type
-     * @return copy
+     * @return a new entry reflecting the pending change
+     * @since 7.2.0
      */
-    public <R extends Entry> R createCopyBasedOnChanges() {
+    @SuppressWarnings("unchecked")
+    public <R extends Entry> R getChangesAsEntry() {
         try {
             Entry copy = getEntry().copy();
 
@@ -105,6 +113,17 @@ public abstract class EntryDataEvent extends EntryEvent {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * @param <R> return type
+     * @return copy reflecting the pending change
+     * @deprecated since 7.2.0, use {@link #getChangesAsEntry()} — the new name is shorter and
+     *             clearer about what the method returns.
+     */
+    @Deprecated(since = "7.2.0")
+    public <R extends Entry> R createCopyBasedOnChanges() {
+        return getChangesAsEntry();
     }
 
 
