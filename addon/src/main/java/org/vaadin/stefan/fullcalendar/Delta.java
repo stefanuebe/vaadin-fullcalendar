@@ -190,6 +190,7 @@ public class Delta {
      * @param dateTime date time to modify
      * @return date time with this delta subtracted
      * @throws NullPointerException when null is passed
+     * @since 7.2.0
      */
     public LocalDateTime subtractFrom(LocalDateTime dateTime) {
         return dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours).minusMinutes(minutes).minusSeconds(seconds);
@@ -202,6 +203,7 @@ public class Delta {
      * @param date date to modify
      * @return date with this delta subtracted
      * @throws NullPointerException when null is passed
+     * @since 7.2.0
      */
     public LocalDate subtractFrom(LocalDate date) {
         return date.minusYears(years).minusMonths(months).minusDays(days);
@@ -214,6 +216,7 @@ public class Delta {
      * @param instant instant to modify
      * @return instant with this delta subtracted
      * @throws NullPointerException when null is passed
+     * @since 7.2.0
      */
     public Instant subtractFrom(Instant instant) {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));

@@ -7,6 +7,7 @@ import elemental.json.JsonObject;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@SuppressWarnings("deprecation") // exercises Delta.getYears()/getMonths() intentionally
 public class DeltaTest {
 
     private static void assertLessThan(String name, int current, int lessThanThis) {

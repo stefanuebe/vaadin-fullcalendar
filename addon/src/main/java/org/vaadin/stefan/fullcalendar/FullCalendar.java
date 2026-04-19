@@ -137,7 +137,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     private final Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
     private volatile JsCallback userEntryDidMountCallback;
-    private boolean autoProvideEntryIdOnClient = true;
+    private volatile boolean autoProvideEntryIdOnClient = true;
 
     /**
      * Server-side registry of client-managed event sources, keyed by source id.
@@ -154,7 +154,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Whether to automatically revert client-side entry changes when
      * {@link EntryDataEvent#applyChangesOnEntry()} is not called. Default is {@code true}.
      */
-    private boolean autoRevertUnappliedEntryChanges = true;
+    private volatile boolean autoRevertUnappliedEntryChanges = true;
 
     // ---- View-Specific Options ----
     private final Map<String, JsonObject> viewSpecificOptionsMap = new LinkedHashMap<>();
@@ -1695,6 +1695,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Default is {@code true}.
      *
      * @return true if auto-revert is enabled
+     * @since 7.2.0
      */
     public boolean isAutoRevertUnappliedEntryChanges() {
         return autoRevertUnappliedEntryChanges;
@@ -1713,6 +1714,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * regardless of whether changes were applied on the server.
      *
      * @param autoRevert true to enable auto-revert
+     * @since 7.2.0
      */
     public void setAutoRevertUnappliedEntryChanges(boolean autoRevert) {
         this.autoRevertUnappliedEntryChanges = autoRevert;
@@ -1724,6 +1726,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @return true if the client-side id is provided automatically
      * @see #setAutoProvideEntryIdOnClient(boolean)
+     * @since 7.2.0
      */
     public boolean isAutoProvideEntryIdOnClient() {
         return autoProvideEntryIdOnClient;
@@ -1758,6 +1761,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @param autoProvide true to enable automatic client-side id publication (default),
      *                    false to disable
+     * @since 7.2.0
      */
     public void setAutoProvideEntryIdOnClient(boolean autoProvide) {
         if (this.autoProvideEntryIdOnClient == autoProvide) {
@@ -1778,6 +1782,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param listener the user's listener
      * @param <T> event type extending EntryDataEvent
      * @return registration to remove the listener
+     * @since 7.2.0
      */
     protected <T extends EntryDataEvent> Registration addAutoRevertAwareListener(
             Class<T> eventType, ComponentEventListener<T> listener) {
@@ -3202,6 +3207,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see FullCalendar#changeView(CalendarView)
          * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
+         * @since 7.2.0
          */
         INITIAL_VIEW("initialView"),
 
