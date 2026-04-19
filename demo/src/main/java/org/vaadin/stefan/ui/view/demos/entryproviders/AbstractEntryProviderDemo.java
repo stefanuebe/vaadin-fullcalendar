@@ -33,11 +33,10 @@ public abstract class AbstractEntryProviderDemo extends AbstractCalendarView {
         entryService = EntryService.createRandomInstance();
         entryProvider = createEntryProvider(entryService);
 
-        return FullCalendarBuilder.create()
-                .withEntryProvider(entryProvider)
-                .withInitialOptions(defaultInitialOptions)
-                .withEntryLimit(3)
-                .build();
+        FullCalendar calendar = new FullCalendar(defaultInitialOptions);
+        calendar.setEntryProvider(entryProvider);
+        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+        return calendar;
     }
 
     @Override

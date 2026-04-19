@@ -116,7 +116,7 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         counters.getStyle().set("font-size", "12px");
         add(counters);
 
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix the date for reproducible tests

@@ -129,11 +129,10 @@ public class AutoRevertView extends VerticalLayout {
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         EntryService<Entry> simpleInstance = EntryService.createSimpleInstance();
 
-        return FullCalendarBuilder.create()
-                .withInitialOptions(defaultInitialOptions)
-                .withInitialEntries(simpleInstance.getEntries())
-                .withEntryLimit(3)
-                .build();
+        FullCalendar calendar = new FullCalendar(defaultInitialOptions);
+        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(simpleInstance.getEntries());
+        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+        return calendar;
     }
 
     /**

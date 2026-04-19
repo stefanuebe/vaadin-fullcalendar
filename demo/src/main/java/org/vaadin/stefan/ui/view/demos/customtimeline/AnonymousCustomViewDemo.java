@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.customtimeline;
 
+import com.vaadin.flow.component.UI;
 import org.vaadin.stefan.fullcalendar.*;
 import org.vaadin.stefan.ui.view.AbstractSchedulerView;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
@@ -15,11 +16,9 @@ public class AnonymousCustomViewDemo extends AbstractSchedulerView {
     @Override
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         calendarView = new SomeCalendarView(28);
-        FullCalendar calendar = FullCalendarBuilder.create()
-                .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
-                .withAutoBrowserLocale()
-                .withInitialOptions(calendarView.getInitialOptions())
-                .build();
+        FullCalendarScheduler calendar = new FullCalendarScheduler(calendarView.getInitialOptions());
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
+        calendar.setLocale(UI.getCurrent().getLocale());
 
         List<Entry> entries = EntryService.createRandomInstance().getEntries();
         calendar.getEntryProvider().asInMemory().addEntries(entries);

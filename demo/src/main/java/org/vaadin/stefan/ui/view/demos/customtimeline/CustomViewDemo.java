@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.customtimeline;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
 
 import org.vaadin.stefan.fullcalendar.*;
@@ -27,12 +28,10 @@ public class CustomViewDemo extends AbstractSchedulerView {
 //        views.put(calendarView.getClientSideValue(), new FixedDaysCalendarView(5).getViewSettings());
 //        initialOptions.put("views", views);
 
-        FullCalendar calendar = FullCalendarBuilder.create()
-                .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
-//                .withInitialOptions(initialOptions)
-                .withCustomCalendarViews(calendarView)
-                .withAutoBrowserLocale()
-                .build();
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
+        calendar.setCustomCalendarViews(calendarView);
+        calendar.setLocale(UI.getCurrent().getLocale());
 
         List<Entry> entries = EntryService.createRandomInstance().getEntries();
         calendar.getEntryProvider().asInMemory().addEntries(entries);

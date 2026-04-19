@@ -34,7 +34,7 @@ public class RenderHooksTestView extends VerticalLayout {
                 "and week numbers get class 'hook-weeknum'. " +
                 "The all-day row gets class 'hook-allday'."));
 
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
 

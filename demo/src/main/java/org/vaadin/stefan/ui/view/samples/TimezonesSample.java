@@ -2,7 +2,6 @@ package org.vaadin.stefan.ui.view.samples;
 
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
 import java.time.Instant;
@@ -32,9 +31,8 @@ public class TimezonesSample extends AbstractSample {
         // There are other ways to obtain the browser's timezone, so you are not obliged to use the listener.
         calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
 
-        // If you want to let the calendar obtain the browser time zone automatically, you may simply use the builder.
-        // In that case as soon as the client connected, it will set it's timezone in the server side instance.
-        FullCalendarBuilder.create().withAutoBrowserTimezone().build();
+        // The same mechanism as above in one line — the listener auto-registers when we pass the setter directly.
+        calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
 
         // Entries use internally utc to define times. The LocalDateTime and Instant methods setStart/End have the same effect.
         entry.setStart(Instant.now()); // UTC

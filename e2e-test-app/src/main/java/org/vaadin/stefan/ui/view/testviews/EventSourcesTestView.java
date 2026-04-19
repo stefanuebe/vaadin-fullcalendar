@@ -51,7 +51,7 @@ public class EventSourcesTestView extends VerticalLayout {
         );
         add(counters);
 
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 

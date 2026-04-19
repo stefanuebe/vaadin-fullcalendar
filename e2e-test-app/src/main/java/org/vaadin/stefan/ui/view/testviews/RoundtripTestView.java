@@ -37,7 +37,7 @@ public class RoundtripTestView extends VerticalLayout {
         add(new Paragraph("Click entries to trigger server-side modifications visible in the client."));
 
         // --- Calendar ---
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setLocale(Locale.ENGLISH);
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());

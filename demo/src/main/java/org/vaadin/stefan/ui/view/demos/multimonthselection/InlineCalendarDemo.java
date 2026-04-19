@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.multimonthselection;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -36,9 +37,8 @@ public class InlineCalendarDemo extends VerticalLayout {
         setSizeFull();
         setAlignItems(Alignment.STRETCH);
 
-        FullCalendar calendar = FullCalendarBuilder.create()
-                .withAutoBrowserLocale()
-                .build();
+        FullCalendar calendar = new FullCalendar();
+        calendar.setLocale(UI.getCurrent().getLocale());
         calendar.addClassName("inline-calendar");
 
         // activate cross month selection

@@ -4,6 +4,7 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import org.vaadin.stefan.fullcalendar.*;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
@@ -19,11 +20,10 @@ public class BasicDemo extends AbstractCalendarView {
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         EntryService<Entry> simpleInstance = EntryService.createSimpleInstance();
 
-        return FullCalendarBuilder.create()
-                .withInitialOptions(defaultInitialOptions)
-                .withInitialEntries(simpleInstance.getEntries())
-                .withEntryLimit(3)
-                .build();
+        FullCalendar calendar = new FullCalendar(defaultInitialOptions);
+        ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(simpleInstance.getEntries());
+        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+        return calendar;
     }
 
     @Override

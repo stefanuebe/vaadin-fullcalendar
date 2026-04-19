@@ -17,6 +17,7 @@
 package org.vaadin.stefan.ui.view.demos.full;
 
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.notification.Notification;
@@ -55,26 +56,12 @@ public class FullDemo extends AbstractSchedulerView {
 //                "  return 'WORLD';" +
 //                "}");
 
-        FullCalendar calendar = FullCalendarBuilder.create()
-                .withAutoBrowserTimezone()
-                .withAutoBrowserLocale()
-//                .withEntryContent("""
-//                        function(arg) {
-//                            let italicEl = document.createElement('i');
-//                            if (arg.event.getCustomProperty('isUrgent', false)) {
-//                                italicEl.innerHTML = 'urgent event';
-//                            } else {
-//                                italicEl.innerHTML = 'normal event';
-//                            }
-//                            let arrayOfDomNodes = [ italicEl ];
-//                            return { domNodes: arrayOfDomNodes }
-//                        }""")
-                .withInitialOptions(initialOptions)
-                .withEntryLimit(3)
-                .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
-                .build();
-
-        FullCalendarScheduler scheduler = (FullCalendarScheduler) calendar;
+        FullCalendarScheduler scheduler = new FullCalendarScheduler(initialOptions);
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
+        scheduler.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+        scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
+        scheduler.setLocale(UI.getCurrent().getLocale());
+        FullCalendar calendar = scheduler;
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "15%");
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.SLOT_MIN_WIDTH, 100);
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCES_INITIALLY_EXPANDED, false);

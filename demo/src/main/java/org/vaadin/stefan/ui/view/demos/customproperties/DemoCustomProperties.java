@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.JsCallback;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -37,8 +36,7 @@ public class DemoCustomProperties extends VerticalLayout {
     }
     
     private void createCalendarInstance() {
-    	calendar = FullCalendarBuilder.create()
-                .build();
+    	calendar = new FullCalendar();
     	
     	calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH);
 
