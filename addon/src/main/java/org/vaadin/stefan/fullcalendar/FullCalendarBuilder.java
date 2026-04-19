@@ -29,8 +29,9 @@ import java.util.*;
  *
  * @deprecated since 7.2.0 — {@link FullCalendar} and {@link FullCalendarScheduler} can be constructed
  * directly and configured through {@link FullCalendar#setOption(FullCalendar.Option, Object)}. The
- * builder no longer provides value beyond syntactic sugar and is scheduled for removal in a future
- * major version.
+ * builder no longer provides value beyond syntactic sugar. <b>No removal is scheduled for 7.x</b> —
+ * existing code keeps working throughout the 7.x line; the class is only slated for removal in a
+ * future major version.
  * <p>
  * Migration:
  * <table>
