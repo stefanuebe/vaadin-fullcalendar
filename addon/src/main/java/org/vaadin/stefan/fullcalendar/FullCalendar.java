@@ -137,6 +137,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     private final Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
     private volatile JsCallback userEntryDidMountCallback;
+    private boolean autoAssignEntryIds = true;
 
     /**
      * Server-side registry of client-managed event sources, keyed by source id.
@@ -1051,13 +1052,42 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Builds the merged eventDidMount function string from the user callback and native event listeners.
-     * Returns {@code null} when both are empty (meaning "clear the callback").
+     * JS snippet injected at the start of the merged eventDidMount callback when
+     * {@link #isAutoAssignEntryIds()} is {@code true}. Assigns {@code id="entry-<entryId>"}
+     * to the start segment of each rendered entry, with a {@code -<resourceId>} suffix
+     * when the entry is assigned to more than one resource (Scheduler resource views).
+     * Drag-preview elements (mirrors) and non-start segments of multi-day entries are
+     * skipped so the id remains unique.
+     */
+    static final String DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET =
+            "if (arguments[0].el && arguments[0].el.classList && arguments[0].el.classList.contains('fc-event-mirror')) return;\n"
+                    + "if (arguments[0].event.id && arguments[0].isStart) {\n"
+                    + "  var _resFn = arguments[0].event.getResources;\n"
+                    + "  var _resources = _resFn ? _resFn.call(arguments[0].event) : [];\n"
+                    + "  var _resEl = arguments[0].el.closest ? arguments[0].el.closest('[data-resource-id]') : null;\n"
+                    + "  var _resId = _resEl ? _resEl.getAttribute('data-resource-id') : null;\n"
+                    + "  arguments[0].el.id = (_resources.length > 1 && _resId)\n"
+                    + "    ? 'entry-' + arguments[0].event.id + '-' + _resId\n"
+                    + "    : 'entry-' + arguments[0].event.id;\n"
+                    + "}\n";
+
+    /**
+     * Builds the merged eventDidMount function string from three layers:
+     * the default id-assignment snippet (when auto-assign is enabled), the user callback
+     * set via {@link Option#ENTRY_DID_MOUNT}, and native entry event listeners registered
+     * via {@link #addEntryNativeEventListener(String, String)}.
+     * <p>
+     * Ordering inside the merged function: default snippet first, user callback body next,
+     * native listeners last. This lets the user callback override the default id by
+     * reassigning {@code info.el.id}.
+     * <p>
+     * Returns {@code null} only when all three layers are empty.
      * <p>
      * Package-private for testing.
      */
     String buildEntryDidMountMerged() {
         String userCallback = userEntryDidMountCallback != null ? userEntryDidMountCallback.getJsFunction() : null;
+        String defaultSnippet = autoAssignEntryIds ? DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET : null;
 
         StringBuilder events = null;
         if (!customNativeEventsMap.isEmpty()) {
@@ -1071,19 +1101,45 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             }
         }
 
-        String merged = null;
-        if (StringUtils.isNotBlank(userCallback)) {
-            if (events != null) {
-                int index = userCallback.lastIndexOf("}");
-                merged = userCallback.substring(0, index) + events + userCallback.substring(index);
-            } else {
-                merged = userCallback;
-            }
-        } else if (events != null) {
-            merged = "function(info) {\n" + events + "}";
+        boolean hasUser = StringUtils.isNotBlank(userCallback);
+        boolean hasDefault = defaultSnippet != null;
+        boolean hasEvents = events != null;
+
+        if (!hasUser && !hasDefault && !hasEvents) {
+            return null;
         }
 
-        return merged;
+        if (hasUser) {
+            String merged = userCallback;
+            int openBrace = merged.indexOf('{');
+            int closeBrace = merged.lastIndexOf('}');
+            // Expression-body callbacks like "info => info.el.title = 'x'" have no braces —
+            // there is no body to splice into. Return the user callback untouched; the default
+            // snippet and native listeners are dropped for this call. This keeps the output
+            // syntactically valid instead of corrupting it by prepending snippets outside
+            // the expression.
+            if (openBrace < 0 || closeBrace < openBrace) {
+                return merged;
+            }
+            if (hasDefault) {
+                merged = merged.substring(0, openBrace + 1) + "\n" + defaultSnippet + merged.substring(openBrace + 1);
+            }
+            if (hasEvents) {
+                int finalClose = merged.lastIndexOf('}');
+                merged = merged.substring(0, finalClose) + events + merged.substring(finalClose);
+            }
+            return merged;
+        }
+
+        StringBuilder sb = new StringBuilder("function(info) {\n");
+        if (hasDefault) {
+            sb.append(defaultSnippet);
+        }
+        if (hasEvents) {
+            sb.append(events);
+        }
+        sb.append("}");
+        return sb.toString();
     }
 
     /**
@@ -1660,6 +1716,50 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public void setAutoRevertUnappliedEntryChanges(boolean autoRevert) {
         this.autoRevertUnappliedEntryChanges = autoRevert;
+    }
+
+    /**
+     * Returns whether the calendar automatically assigns DOM ids to rendered entry elements.
+     * Default is {@code true}.
+     *
+     * @return true if auto-assign is enabled
+     * @see #setAutoAssignEntryIds(boolean)
+     */
+    public boolean isAutoAssignEntryIds() {
+        return autoAssignEntryIds;
+    }
+
+    /**
+     * Sets whether the calendar should automatically assign a DOM {@code id} to each
+     * rendered entry element, so server-side components (e.g. {@code Popover}) can anchor
+     * to a specific entry via {@code document.getElementById}.
+     * <p>
+     * When enabled (the default), an internal {@code eventDidMount} hook assigns
+     * {@code id="entry-<entryId>"} to the start segment of each rendered entry.
+     * For entries assigned to more than one resource in a Scheduler resource view,
+     * the id is suffixed with the resource id ({@code id="entry-<entryId>-<resourceId>"})
+     * to preserve HTML id-uniqueness.
+     * <p>
+     * <b>Limitations:</b>
+     * <ul>
+     *     <li>For multi-day entries in day/week/month views, only the <b>start segment</b>
+     *     receives the id; continuation segments remain id-free.</li>
+     *     <li>Drag-preview ("mirror") elements are not tagged.</li>
+     *     <li>For anchoring to the segment the user actually clicked, prefer the element
+     *     delivered in the click event over {@code getElementById}.</li>
+     * </ul>
+     * A custom {@code eventDidMount} callback set via
+     * {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT} runs after
+     * the default snippet, so it can override the id by reassigning {@code info.el.id}.
+     *
+     * @param autoAssign true to enable auto-assign (default), false to disable
+     */
+    public void setAutoAssignEntryIds(boolean autoAssign) {
+        if (this.autoAssignEntryIds == autoAssign) {
+            return;
+        }
+        this.autoAssignEntryIds = autoAssign;
+        applyEntryDidMountMerge(true);
     }
 
     /**
