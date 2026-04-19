@@ -3186,6 +3186,22 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         MAX_ENTRIES_PER_DAY("dayMaxEvents"),
 
         /**
+         * The view the calendar renders on first attach. Pass a {@link CalendarView}'s
+         * {@link CalendarView#getClientSideValue() client-side value} (for example
+         * {@code CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue()}).
+         * <p>
+         * Set this before attach to skip the {@code changeView()}-after-attach workaround
+         * that was necessary in earlier FC versions.
+         * <dl>
+         *   <dt>Type</dt> <dd>String (FC view key, e.g. {@code "timeGridWeek"})</dd>
+         * </dl>
+         *
+         * @see FullCalendar#changeView(CalendarView)
+         * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
+         */
+        INITIAL_VIEW("initialView"),
+
+        /**
          * Format of the month label in multi-month grid views.
          * <dl>
          *   <dt>Type</dt> <dd>format object with {@code month}, {@code year}, and other properties</dd>
