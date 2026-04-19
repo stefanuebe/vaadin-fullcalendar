@@ -196,6 +196,31 @@ public class Delta {
     }
 
     /**
+     * Inverse of {@link #applyOn(LocalDate)}: returns the given date with all day-related components
+     * of this delta subtracted. Time components are ignored.
+     *
+     * @param date date to modify
+     * @return date with this delta subtracted
+     * @throws NullPointerException when null is passed
+     */
+    public LocalDate subtractFrom(LocalDate date) {
+        return date.minusYears(years).minusMonths(months).minusDays(days);
+    }
+
+    /**
+     * Inverse of {@link #applyOn(Instant)}: returns the given instant with all components of this
+     * delta subtracted.
+     *
+     * @param instant instant to modify
+     * @return instant with this delta subtracted
+     * @throws NullPointerException when null is passed
+     */
+    public Instant subtractFrom(Instant instant) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
+        return subtractFrom(localDateTime).toInstant(ZoneOffset.UTC);
+    }
+
+    /**
      * Applies this delta instance on the given local date by adding all day related delta values. Time values are ignored.
      *
      * @param date date time to modify

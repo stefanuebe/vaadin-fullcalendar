@@ -412,15 +412,7 @@ public class FullCalendarBuilder {
         }
 
         if (initialView != null) {
-            // initial view is not working currently, no idea why - the initial rendering is broken
-            // therefore we workaround this with a one time attachlistener for initial view.
-            // this way we also know on the server side which view we have
-
-//            calendar.setOption("initialView", initialView.getClientSideValue());
-            calendar.addAttachListener(event -> {
-                calendar.changeView(initialView);
-                event.unregisterListener();
-            });
+            calendar.setOption(FullCalendar.Option.INITIAL_VIEW, initialView.getClientSideValue());
         }
         if (locale != null) {
             calendar.setLocale(locale);
