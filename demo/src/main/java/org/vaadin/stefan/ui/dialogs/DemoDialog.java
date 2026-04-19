@@ -19,12 +19,16 @@ import com.vaadin.flow.function.SerializableConsumer;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.Delta;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.Resource;
 import org.vaadin.stefan.fullcalendar.ResourceEntry;
+import org.vaadin.stefan.fullcalendar.Scheduler;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class DemoDialog extends Dialog {
 	private static final long serialVersionUID = 1L;
@@ -93,10 +97,25 @@ public class DemoDialog extends Dialog {
         fieldRDays = new MultiSelectComboBox<>("Recurrence days of week", DayOfWeek.values());
         fieldRDays.setItemLabelGenerator(item -> item.getDisplayName(TextStyle.FULL, getLocale()));
 
+        // Resource field — only populated and shown for ResourceEntry on a Scheduler calendar (#164)
+        MultiSelectComboBox<Resource> fieldResources = null;
+        Scheduler scheduler = entry.getCalendar()
+                .filter(c -> c instanceof Scheduler)
+                .map(c -> (Scheduler) c)
+                .orElse(null);
+        if (entry instanceof ResourceEntry && scheduler != null) {
+            fieldResources = new MultiSelectComboBox<>("Resources");
+            fieldResources.setItems(scheduler.getResources());
+            fieldResources.setItemLabelGenerator(Resource::getTitle);
+        }
+
         // layouting - MUST be initialized here, otherwise might lead to null pointer exception
         componentsLayout = new VerticalLayout(fieldTitle, fieldColor, fieldDescription,
                 new HorizontalLayout(fieldAllDay, fieldRecurring),
                 fieldStart, fieldEnd, infoEnd, fieldRDays);
+        if (fieldResources != null) {
+            componentsLayout.add(fieldResources);
+        }
 
         componentsLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
         componentsLayout.setSizeFull();
@@ -142,6 +161,19 @@ public class DemoDialog extends Dialog {
         binder.bind(fieldAllDay, Entry::isAllDay, Entry::setAllDay);
         binder.bind(fieldRecurring, item -> this.recurring, (item, value) -> this.recurring = value);
         binder.bind(fieldRDays, Entry::getRecurringDaysOfWeek, Entry::setRecurringDaysOfWeek);
+
+        if (fieldResources != null) {
+            binder.forField(fieldResources)
+                    .bind(
+                            e -> e instanceof ResourceEntry re
+                                    ? new LinkedHashSet<>(re.getResourcesOrEmpty())
+                                    : new HashSet<>(),
+                            (e, value) -> {
+                                if (e instanceof ResourceEntry re) {
+                                    re.setResources(new LinkedHashSet<>(value));
+                                }
+                            });
+        }
 
         binder.setBean(this.tmpEntry);
 
@@ -211,6 +243,9 @@ public class DemoDialog extends Dialog {
             fieldEnd.setReadOnly(!entry.isDurationEditable());
             fieldColor.setReadOnly(true);
             fieldRDays.setReadOnly(true);
+            if (fieldResources != null) {
+                fieldResources.setReadOnly(true);
+            }
 
             buttonSave.setVisible(entry.isStartEditable() || entry.isDurationEditable());
 
