@@ -3,9 +3,10 @@ const { test, expect } = require('@playwright/test');
 const { waitForVaadin } = require('./fixtures');
 
 /**
- * Regression test for issue #202: FullCalendar assigns id="entry-<entryId>" to the
- * start segment of each rendered entry by default, so server-side components such as
- * Popover can anchor to a specific entry via document.getElementById.
+ * Regression test for issue #202: FullCalendar exposes the server-side entry id as
+ * id="entry-<entryId>" on the rendered DOM element for the start segment of each entry
+ * by default, so server-side components such as Popover can anchor to a specific entry
+ * via document.getElementById.
  *
  * Verifies:
  *  - default on → single-day entry has id="entry-simple"
@@ -16,9 +17,9 @@ const { waitForVaadin } = require('./fixtures');
  * side effect); DOM-level removal only takes effect on re-mount, which is FC's standard
  * behaviour and not an API guarantee worth pinning down in an E2E.
  */
-test.describe('Auto-assign entry IDs (#202)', () => {
+test.describe('Auto-provide entry id on client (#202)', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('/test/auto-assign-entry-ids');
+        await page.goto('/test/auto-provide-entry-id-on-client');
         await page.waitForSelector('.fc', { timeout: 15000 });
         await page.waitForSelector('.fc-event', { timeout: 15000 });
         await waitForVaadin(page);
