@@ -52,7 +52,7 @@ import java.util.*;
  *   <tr><td>{@code .withInitialEntries(entries).build()}</td>
  *       <td>{@code new FullCalendar()} + {@code ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(entries)}</td></tr>
  *   <tr><td>{@code .withInitialView(view).build()}</td>
- *       <td>{@code new FullCalendar()} + {@code addAttachListener(e -> { calendar.changeView(view); e.unregisterListener(); })}</td></tr>
+ *       <td>{@code new FullCalendar()} + {@code setOption(Option.INITIAL_VIEW, view.getClientSideValue())}</td></tr>
  *   <tr><td>{@code .withLocale(l)} / {@code .withTimezone(t)} / {@code .withBusinessHours(h)}</td>
  *       <td>{@code setLocale(l)} / {@code setTimezone(t)} / {@code setBusinessHours(h)} on the calendar</td></tr>
  *   <tr><td>{@code .withDirection(d).build()}</td>
