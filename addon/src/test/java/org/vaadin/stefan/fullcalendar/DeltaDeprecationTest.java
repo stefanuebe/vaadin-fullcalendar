@@ -55,4 +55,24 @@ class DeltaDeprecationTest {
         java.time.LocalDate result = delta.applyOn(start);
         assertEquals(java.time.LocalDate.of(2026, 3, 4), result);
     }
+
+    @Test
+    void subtractFrom_isInverseOfApplyOn() {
+        @SuppressWarnings("deprecation")
+        Delta delta = Delta.builder().years(0).months(0).days(2).hours(3).minutes(15).seconds(30).build();
+        java.time.LocalDateTime now = java.time.LocalDateTime.of(2025, 3, 3, 9, 0, 0);
+        assertEquals(now, delta.subtractFrom(delta.applyOn(now)), "subtractFrom must undo applyOn");
+    }
+
+    @Test
+    void subtractFrom_handlesAllDeltaComponents() {
+        // Cover every field, including the deprecated year/month, to verify the helper
+        // is symmetric with applyOn for all components.
+        @SuppressWarnings("deprecation")
+        Delta delta = Delta.builder().years(1).months(2).days(3).hours(4).minutes(5).seconds(6).build();
+        java.time.LocalDateTime start = java.time.LocalDateTime.of(2026, 4, 19, 12, 0, 0);
+        java.time.LocalDateTime after = delta.applyOn(start);
+        java.time.LocalDateTime before = delta.subtractFrom(after);
+        assertEquals(start, before);
+    }
 }
