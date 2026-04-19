@@ -83,18 +83,7 @@ public class ExternalEntryDroppedEvent extends ExternalEntryEvent {
 
         LocalDateTime newStart = getEntry().getStart();
         LocalDateTime newEnd = getEntry().getEnd();
-        this.oldStart = newStart != null ? subtractDelta(newStart, delta) : null;
-        this.oldEnd = newEnd != null ? subtractDelta(newEnd, delta) : null;
-    }
-
-    private static LocalDateTime subtractDelta(LocalDateTime t, Delta d) {
-        // FC normalises year/month portions into days (see #191), but Delta.fromJson still
-        // populates those fields if present, so we subtract them too for symmetry with applyOn.
-        @SuppressWarnings("deprecation")
-        int years = d.getYears();
-        @SuppressWarnings("deprecation")
-        int months = d.getMonths();
-        return t.minusYears(years).minusMonths(months).minusDays(d.getDays())
-                .minusHours(d.getHours()).minusMinutes(d.getMinutes()).minusSeconds(d.getSeconds());
+        this.oldStart = newStart != null ? delta.subtractFrom(newStart) : null;
+        this.oldEnd = newEnd != null ? delta.subtractFrom(newEnd) : null;
     }
 }

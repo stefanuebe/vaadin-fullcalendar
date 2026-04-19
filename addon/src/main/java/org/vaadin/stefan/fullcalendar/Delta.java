@@ -182,6 +182,20 @@ public class Delta {
     }
 
     /**
+     * Inverse of {@link #applyOn(LocalDateTime)}: returns the given date-time with all components of
+     * this delta subtracted. Useful for reconstructing the "before" value from a received delta +
+     * "after" value (e.g. in external drop/resize events, where only the new position is known on
+     * the server side).
+     *
+     * @param dateTime date time to modify
+     * @return date time with this delta subtracted
+     * @throws NullPointerException when null is passed
+     */
+    public LocalDateTime subtractFrom(LocalDateTime dateTime) {
+        return dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours).minusMinutes(minutes).minusSeconds(seconds);
+    }
+
+    /**
      * Applies this delta instance on the given local date by adding all day related delta values. Time values are ignored.
      *
      * @param date date time to modify
