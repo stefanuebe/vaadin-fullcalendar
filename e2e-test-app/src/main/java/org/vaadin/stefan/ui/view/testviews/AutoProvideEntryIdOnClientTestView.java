@@ -16,26 +16,26 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Regression test view for issue #202: {@code FullCalendar} assigns
- * {@code id="entry-<entryId>"} to the start segment of each rendered entry when
- * {@code setAutoProvideEntryIdOnClient(true)} (the default).
+ * Regression test view for issue #202: {@code FullCalendar} exposes the server-side
+ * entry id as {@code id="entry-<entryId>"} on the rendered DOM element for the start
+ * segment of each entry when {@code setAutoProvideEntryIdOnClient(true)} (the default).
  * <p>
  * Renders two entries — a single-day entry ("simple") and a 3-day entry ("multi") — in
- * month view. A toggle button flips {@code setAutoProvideEntryIdOnClient}. Playwright verifies
- * that id assignment follows the flag and that multi-day entries produce exactly one
- * DOM element with the id (the start segment).
+ * month view. A toggle button flips {@code setAutoProvideEntryIdOnClient}. Playwright
+ * verifies that id assignment follows the flag and that multi-day entries produce exactly
+ * one DOM element with the id (the start segment).
  * <p>
- * Route: /test/auto-assign-entry-ids
+ * Route: /test/auto-provide-entry-id-on-client
  */
-@Route(value = "auto-assign-entry-ids", layout = TestLayout.class)
-@MenuItem(label = "Auto-Assign Entry IDs")
-public class AutoAssignEntryIdsTestView extends VerticalLayout {
+@Route(value = "auto-provide-entry-id-on-client", layout = TestLayout.class)
+@MenuItem(label = "Auto-Provide Entry ID on Client")
+public class AutoProvideEntryIdOnClientTestView extends VerticalLayout {
 
-    public AutoAssignEntryIdsTestView() {
+    public AutoProvideEntryIdOnClientTestView() {
         setSizeFull();
         setPadding(true);
 
-        add(new H2("Auto-Assign Entry IDs — Regression #202"));
+        add(new H2("Auto-Provide Entry ID on Client — Regression #202"));
         add(new Paragraph(
                 "Default on: rendered entries have id=entry-<entryId>. Toggle to turn off."));
 
@@ -57,7 +57,8 @@ public class AutoAssignEntryIdsTestView extends VerticalLayout {
 
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(List.of(simple, multi)));
 
-        Button toggleBtn = new Button("Toggle auto-assign", e -> calendar.setAutoProvideEntryIdOnClient(!calendar.isAutoProvideEntryIdOnClient()));
+        Button toggleBtn = new Button("Toggle auto-provide",
+                e -> calendar.setAutoProvideEntryIdOnClient(!calendar.isAutoProvideEntryIdOnClient()));
         toggleBtn.getElement().setAttribute("data-testid", "btn-toggle");
 
         add(toggleBtn, calendar);
