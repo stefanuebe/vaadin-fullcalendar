@@ -136,7 +136,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     private final Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
     private volatile JsCallback userEntryDidMountCallback;
-    private boolean autoAssignEntryIds = true;
+    private boolean autoProvideEntryIdOnClient = true;
 
     /**
      * Server-side registry of client-managed event sources, keyed by source id.
@@ -1049,7 +1049,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * JS snippet injected at the start of the merged eventDidMount callback when
-     * {@link #isAutoAssignEntryIds()} is {@code true}. Assigns {@code id="entry-<entryId>"}
+     * {@link #isAutoProvideEntryIdOnClient()} is {@code true}. Assigns {@code id="entry-<entryId>"}
      * to the start segment of each rendered entry, with a {@code -<resourceId>} suffix
      * when the entry is assigned to more than one resource (Scheduler resource views).
      * Drag-preview elements (mirrors) and non-start segments of multi-day entries are
@@ -1083,7 +1083,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     String buildEntryDidMountMerged() {
         String userCallback = userEntryDidMountCallback != null ? userEntryDidMountCallback.getJsFunction() : null;
-        String defaultSnippet = autoAssignEntryIds ? DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET : null;
+        String defaultSnippet = autoProvideEntryIdOnClient ? DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET : null;
 
         StringBuilder events = null;
         if (!customNativeEventsMap.isEmpty()) {
@@ -1714,23 +1714,25 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Returns whether the calendar automatically assigns DOM ids to rendered entry elements.
-     * Default is {@code true}.
+     * Returns whether the calendar automatically exposes the server-side entry id as a DOM
+     * {@code id} attribute on the client-rendered entry element. Default is {@code true}.
      *
-     * @return true if auto-assign is enabled
-     * @see #setAutoAssignEntryIds(boolean)
+     * @return true if the client-side id is provided automatically
+     * @see #setAutoProvideEntryIdOnClient(boolean)
      */
-    public boolean isAutoAssignEntryIds() {
-        return autoAssignEntryIds;
+    public boolean isAutoProvideEntryIdOnClient() {
+        return autoProvideEntryIdOnClient;
     }
 
     /**
-     * Sets whether the calendar should automatically assign a DOM {@code id} to each
-     * rendered entry element, so server-side components (e.g. {@code Popover}) can anchor
-     * to a specific entry via {@code document.getElementById}.
+     * Controls whether the server-side entry id is automatically propagated to the client as a
+     * DOM {@code id} attribute on the rendered entry element, so server-side components
+     * (e.g. {@code Popover}) can anchor to a specific entry via {@code document.getElementById}.
+     * The method only toggles client-side id <b>publication</b>; it does not generate ids
+     * server-side — the id on the {@link Entry} itself is unaffected.
      * <p>
-     * When enabled (the default), an internal {@code eventDidMount} hook assigns
-     * {@code id="entry-<entryId>"} to the start segment of each rendered entry.
+     * When enabled (the default), an internal {@code eventDidMount} hook sets
+     * {@code id="entry-<entryId>"} on the start segment of each rendered entry.
      * For entries assigned to more than one resource in a Scheduler resource view,
      * the id is suffixed with the resource id ({@code id="entry-<entryId>-<resourceId>"})
      * to preserve HTML id-uniqueness.
@@ -1743,17 +1745,20 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *     <li>For anchoring to the segment the user actually clicked, prefer the element
      *     delivered in the click event over {@code getElementById}.</li>
      * </ul>
-     * A custom {@code eventDidMount} callback set via
-     * {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT} runs after
-     * the default snippet, so it can override the id by reassigning {@code info.el.id}.
+     * If you set a custom {@code eventDidMount} callback via
+     * {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT}, your callback
+     * runs after the default snippet for brace-bodied functions (so you can reassign
+     * {@code info.el.id} to override). For expression-body arrow callbacks the merge is
+     * bypassed entirely and only your callback runs.
      *
-     * @param autoAssign true to enable auto-assign (default), false to disable
+     * @param autoProvide true to enable automatic client-side id publication (default),
+     *                    false to disable
      */
-    public void setAutoAssignEntryIds(boolean autoAssign) {
-        if (this.autoAssignEntryIds == autoAssign) {
+    public void setAutoProvideEntryIdOnClient(boolean autoProvide) {
+        if (this.autoProvideEntryIdOnClient == autoProvide) {
             return;
         }
-        this.autoAssignEntryIds = autoAssign;
+        this.autoProvideEntryIdOnClient = autoProvide;
         applyEntryDidMountMerge(true);
     }
 

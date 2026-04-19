@@ -18,10 +18,10 @@ import java.util.List;
 /**
  * Regression test view for issue #202: {@code FullCalendar} assigns
  * {@code id="entry-<entryId>"} to the start segment of each rendered entry when
- * {@code setAutoAssignEntryIds(true)} (the default).
+ * {@code setAutoProvideEntryIdOnClient(true)} (the default).
  * <p>
  * Renders two entries — a single-day entry ("simple") and a 3-day entry ("multi") — in
- * month view. A toggle button flips {@code setAutoAssignEntryIds}. Playwright verifies
+ * month view. A toggle button flips {@code setAutoProvideEntryIdOnClient}. Playwright verifies
  * that id assignment follows the flag and that multi-day entries produce exactly one
  * DOM element with the id (the start segment).
  * <p>
@@ -57,7 +57,7 @@ public class AutoAssignEntryIdsTestView extends VerticalLayout {
 
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(List.of(simple, multi)));
 
-        Button toggleBtn = new Button("Toggle auto-assign", e -> calendar.setAutoAssignEntryIds(!calendar.isAutoAssignEntryIds()));
+        Button toggleBtn = new Button("Toggle auto-assign", e -> calendar.setAutoProvideEntryIdOnClient(!calendar.isAutoProvideEntryIdOnClient()));
         toggleBtn.getElement().setAttribute("data-testid", "btn-toggle");
 
         add(toggleBtn, calendar);
