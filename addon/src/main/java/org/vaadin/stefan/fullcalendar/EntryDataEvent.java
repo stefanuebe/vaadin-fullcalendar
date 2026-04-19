@@ -98,7 +98,6 @@ public abstract class EntryDataEvent extends EntryEvent {
      *
      * @param <R> return type
      * @return a new entry reflecting the pending change
-     * @since 7.2.0
      */
     @SuppressWarnings("unchecked")
     public <R extends Entry> R getChangesAsEntry() {
@@ -118,10 +117,10 @@ public abstract class EntryDataEvent extends EntryEvent {
     /**
      * @param <R> return type
      * @return copy reflecting the pending change
-     * @deprecated since 7.2.0, use {@link #getChangesAsEntry()} — the new name is shorter and
+     * @deprecated use {@link #getChangesAsEntry()} — the new name is shorter and
      *             clearer about what the method returns.
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public <R extends Entry> R createCopyBasedOnChanges() {
         return getChangesAsEntry();
     }

@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * produces, for example, {@code days: 31} rather than {@code months: 1}. The {@code years} and
  * {@code months} fields on this class therefore remain zero for every real FC-originated delta
  * and are present only for historical / manually-constructed instances. The corresponding
- * getters are {@code @Deprecated(since = "7.2.0")}; downstream code that only needs to react
+ * getters are {@code @Deprecated}; downstream code that only needs to react
  * to drag/drop changes can rely on {@link #getDays()} alone.
  */
 @Getter
@@ -95,11 +95,11 @@ public class Delta {
      * Returns the years component of this delta.
      *
      * @return years
-     * @deprecated since 7.2.0 — FullCalendar never produces a non-zero {@code years} component for
+     * @deprecated FullCalendar never produces a non-zero {@code years} component for
      *             drop/resize events. Retained for backward compatibility with manually-constructed
      *             {@code Delta} instances. See class-level Javadoc for details.
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public int getYears() {
         return years;
     }
@@ -108,11 +108,11 @@ public class Delta {
      * Returns the months component of this delta.
      *
      * @return months
-     * @deprecated since 7.2.0 — FullCalendar never produces a non-zero {@code months} component for
+     * @deprecated FullCalendar never produces a non-zero {@code months} component for
      *             drop/resize events. Retained for backward compatibility with manually-constructed
      *             {@code Delta} instances. See class-level Javadoc for details.
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public int getMonths() {
         return months;
     }
@@ -190,7 +190,6 @@ public class Delta {
      * @param dateTime date time to modify
      * @return date time with this delta subtracted
      * @throws NullPointerException when null is passed
-     * @since 7.2.0
      */
     public LocalDateTime subtractFrom(LocalDateTime dateTime) {
         return dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours).minusMinutes(minutes).minusSeconds(seconds);
@@ -203,7 +202,6 @@ public class Delta {
      * @param date date to modify
      * @return date with this delta subtracted
      * @throws NullPointerException when null is passed
-     * @since 7.2.0
      */
     public LocalDate subtractFrom(LocalDate date) {
         return date.minusYears(years).minusMonths(months).minusDays(days);
@@ -216,7 +214,6 @@ public class Delta {
      * @param instant instant to modify
      * @return instant with this delta subtracted
      * @throws NullPointerException when null is passed
-     * @since 7.2.0
      */
     public Instant subtractFrom(Instant instant) {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));

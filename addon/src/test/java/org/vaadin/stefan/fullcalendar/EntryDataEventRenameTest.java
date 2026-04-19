@@ -3,7 +3,7 @@ package org.vaadin.stefan.fullcalendar;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tools.jackson.databind.node.ObjectNode;
+import elemental.json.JsonObject;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Verifies the #189 / 7.2.0 rename on {@link EntryDataEvent}:
+ * Verifies the #189 rename on {@link EntryDataEvent}:
  * {@code createCopyBasedOnChanges()} is now deprecated and delegates to
  * the new {@code getChangesAsEntry()}.
  */
@@ -32,12 +32,11 @@ class EntryDataEventRenameTest {
     }
 
     @Test
-    void createCopyBasedOnChanges_isDeprecatedSince720() throws NoSuchMethodException {
+    void createCopyBasedOnChanges_isDeprecated() throws NoSuchMethodException {
         Method m = EntryDataEvent.class.getMethod("createCopyBasedOnChanges");
         Deprecated d = m.getAnnotation(Deprecated.class);
         assertNotNull(d, "createCopyBasedOnChanges must be @Deprecated");
-        assertEquals("7.2.0", d.since());
-        assertEquals(false, d.forRemoval(), "no removal scheduled — keep in 7.x");
+        assertEquals(false, d.forRemoval(), "no removal scheduled — keep in 6.x");
     }
 
     @Test
@@ -53,7 +52,7 @@ class EntryDataEventRenameTest {
         when(calendar.getCachedEntryFromFetch("test-1")).thenReturn(Optional.of(original));
 
         // updateFromJson only applies to fields tagged @JsonUpdateAllowed (allDay is one of them)
-        ObjectNode changes = JsonFactory.createObject();
+        JsonObject changes = JsonFactory.createObject();
         changes.put("id", "test-1");
         changes.put("allDay", true);
 

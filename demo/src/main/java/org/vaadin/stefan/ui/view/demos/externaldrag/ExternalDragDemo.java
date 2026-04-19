@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 public class ExternalDragDemo extends AbstractCalendarView {
 
     @Override
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
         calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
 

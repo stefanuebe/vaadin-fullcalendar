@@ -183,9 +183,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Uses {@link InMemoryEntryProvider} by default.
      *
      * @param entryLimit The max number of stacked event levels within a given day. This excludes the +more link if present. The rest will show up in a popover.
-     * @deprecated since 7.2.0 — use the no-arg constructor and {@code setOption(Option.MAX_ENTRIES_PER_DAY, entryLimit)} instead.
+     * @deprecated use the no-arg constructor and {@code setOption(Option.MAX_ENTRIES_PER_DAY, entryLimit)} instead.
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendar(int entryLimit) {
         if (entryLimit >= 0) {
             setMaxEntriesPerDay(entryLimit);
@@ -1695,7 +1695,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Default is {@code true}.
      *
      * @return true if auto-revert is enabled
-     * @since 7.2.0
      */
     public boolean isAutoRevertUnappliedEntryChanges() {
         return autoRevertUnappliedEntryChanges;
@@ -1714,7 +1713,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * regardless of whether changes were applied on the server.
      *
      * @param autoRevert true to enable auto-revert
-     * @since 7.2.0
      */
     public void setAutoRevertUnappliedEntryChanges(boolean autoRevert) {
         this.autoRevertUnappliedEntryChanges = autoRevert;
@@ -1726,7 +1724,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @return true if the client-side id is provided automatically
      * @see #setAutoProvideEntryIdOnClient(boolean)
-     * @since 7.2.0
      */
     public boolean isAutoProvideEntryIdOnClient() {
         return autoProvideEntryIdOnClient;
@@ -1761,7 +1758,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @param autoProvide true to enable automatic client-side id publication (default),
      *                    false to disable
-     * @since 7.2.0
      */
     public void setAutoProvideEntryIdOnClient(boolean autoProvide) {
         if (this.autoProvideEntryIdOnClient == autoProvide) {
@@ -1782,7 +1778,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param listener the user's listener
      * @param <T> event type extending EntryDataEvent
      * @return registration to remove the listener
-     * @since 7.2.0
      */
     protected <T extends EntryDataEvent> Registration addAutoRevertAwareListener(
             Class<T> eventType, ComponentEventListener<T> listener) {
@@ -3207,7 +3202,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see FullCalendar#changeView(CalendarView)
          * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
-         * @since 7.2.0
          */
         INITIAL_VIEW("initialView"),
 

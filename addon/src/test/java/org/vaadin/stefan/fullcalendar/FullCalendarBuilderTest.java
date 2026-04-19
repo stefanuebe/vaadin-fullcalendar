@@ -52,7 +52,6 @@ public class FullCalendarBuilderTest {
     void classIsDeprecatedSince720() {
         Deprecated d = FullCalendarBuilder.class.getAnnotation(Deprecated.class);
         Assertions.assertNotNull(d, "FullCalendarBuilder class must be @Deprecated");
-        Assertions.assertEquals("7.2.0", d.since());
         Assertions.assertFalse(d.forRemoval(), "no removal scheduled — keep in 7.x");
     }
 }

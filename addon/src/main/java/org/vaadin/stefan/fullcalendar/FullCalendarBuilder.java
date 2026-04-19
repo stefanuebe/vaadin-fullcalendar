@@ -27,7 +27,7 @@ import java.util.*;
 /**
  * This class can be used to create FullCalendar instances via a fluent builder api.
  *
- * @deprecated since 7.2.0 — {@link FullCalendar} and {@link FullCalendarScheduler} can be constructed
+ * @deprecated {@link FullCalendar} and {@link FullCalendarScheduler} can be constructed
  * directly and configured through {@link FullCalendar#setOption(FullCalendar.Option, Object)}. The
  * builder no longer provides value beyond syntactic sugar. <b>No removal is scheduled for 7.x</b> —
  * existing code keeps working throughout the 7.x line; the class is only slated for removal in a
@@ -67,7 +67,7 @@ import java.util.*;
  *       <td>{@code new Cls()} directly</td></tr>
  * </table>
  */
-@Deprecated(since = "7.2.0")
+@Deprecated
 public class FullCalendarBuilder {
 
     private boolean autoBrowserTimezone;
@@ -97,9 +97,9 @@ public class FullCalendarBuilder {
      * Creates a new builder instance with default settings.
      *
      * @return builder instance
-     * @deprecated since 7.2.0 — see class-level deprecation note for direct replacements.
+     * @deprecated see class-level deprecation note for direct replacements.
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public static FullCalendarBuilder create() {
         return new FullCalendarBuilder();
     }
@@ -111,7 +111,7 @@ public class FullCalendarBuilder {
      * @param initialEntries initial entries
      * @return this instance
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withInitialEntries(Collection<Entry> initialEntries) {
         this.initialEntries = Objects.requireNonNull(initialEntries);
         return this;
@@ -125,7 +125,7 @@ public class FullCalendarBuilder {
      * @param customType custom type to be used
      * @return this instance
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withCustomType(Class<? extends FullCalendar> customType) {
         this.customType = Objects.requireNonNull(customType);
         return this;
@@ -139,7 +139,7 @@ public class FullCalendarBuilder {
      * @return this instance
      */
     @SuppressWarnings("unchecked")
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withEntryProvider(EntryProvider<? extends Entry> entryProvider) {
         this.entryProvider = (EntryProvider<Entry>) Objects.requireNonNull(entryProvider);
         return this;
@@ -154,7 +154,7 @@ public class FullCalendarBuilder {
      *
      * @return this instance
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withScheduler() {
         this.scheduler = true;
         return this;
@@ -169,7 +169,7 @@ public class FullCalendarBuilder {
      * @param licenseKey scheduler license key to be used
      * @return this instance
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withScheduler(String licenseKey) {
         this.scheduler = true;
         this.schedulerLicenseKey = licenseKey;
@@ -185,7 +185,7 @@ public class FullCalendarBuilder {
      * @param entryLimit limit
      * @return this instance
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withEntryLimit(int entryLimit) {
         this.entryLimit = entryLimit;
         return this;
@@ -196,7 +196,7 @@ public class FullCalendarBuilder {
      *
      * @return this instance
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withAutoBrowserTimezone() {
         this.autoBrowserTimezone = true;
         return this;
@@ -208,7 +208,7 @@ public class FullCalendarBuilder {
      *
      * @return this instance
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withAutoBrowserLocale() {
         this.autoBrowserLocale = true;
         return this;
@@ -242,8 +242,8 @@ public class FullCalendarBuilder {
      * @throws NullPointerException when null is passed
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
-    @Deprecated(since = "7.2.0")
-    public FullCalendarBuilder withInitialOptions(ObjectNode initialOptions) {
+    @Deprecated
+    public FullCalendarBuilder withInitialOptions(JsonObject initialOptions) {
         this.initialOptions = initialOptions;
         return this;
     }
@@ -281,9 +281,9 @@ public class FullCalendarBuilder {
      *
      * @param entryContent function to be attached
      * @return this instance
-     * @deprecated since 7.2.0 — use {@link FullCalendar#setOption(FullCalendar.Option, Object)} with {@link FullCalendar.Option#ENTRY_CONTENT} and {@link JsCallback} after building instead.
+     * @deprecated use {@link FullCalendar#setOption(FullCalendar.Option, Object)} with {@link FullCalendar.Option#ENTRY_CONTENT} and {@link JsCallback} after building instead.
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withEntryContent(String entryContent) {
         this.entryContent = entryContent;
         return this;
@@ -298,7 +298,7 @@ public class FullCalendarBuilder {
      * @param customCalendarViews custom calendar views
      * @return this instance
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withCustomCalendarViews(CustomCalendarView... customCalendarViews) {
         this.customCalendarViews = customCalendarViews;
         return this;
@@ -311,7 +311,7 @@ public class FullCalendarBuilder {
      * @return this instance
      * @throws NullPointerException when null is passed
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withInitialView(CalendarView view) {
         this.initialView = Objects.requireNonNull(view);
         return this;
@@ -324,7 +324,7 @@ public class FullCalendarBuilder {
      * @return this instance
      * @throws NullPointerException when null is passed
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withLocale(Locale locale) {
         this.locale = Objects.requireNonNull(locale);
         return this;
@@ -337,7 +337,7 @@ public class FullCalendarBuilder {
      * @return this instance
      * @throws NullPointerException when null is passed
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withTimezone(Timezone timezone) {
         this.timezone = Objects.requireNonNull(timezone);
         return this;
@@ -350,7 +350,7 @@ public class FullCalendarBuilder {
      * @return this instance
      * @throws NullPointerException when null is passed
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withBusinessHours(BusinessHours... hours) {
         this.businessHours = Objects.requireNonNull(hours);
         return this;
@@ -363,7 +363,7 @@ public class FullCalendarBuilder {
      * @return this instance
      * @throws NullPointerException when null is passed
      */
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public FullCalendarBuilder withDirection(Direction direction) {
         this.direction = Objects.requireNonNull(direction);
         return this;
@@ -376,7 +376,7 @@ public class FullCalendarBuilder {
      * @return FullCalendar instance
      */
     @SuppressWarnings("unchecked")
-    @Deprecated(since = "7.2.0")
+    @Deprecated
     public <T extends FullCalendar> T build() {
         FullCalendar calendar;
         if (scheduler) {

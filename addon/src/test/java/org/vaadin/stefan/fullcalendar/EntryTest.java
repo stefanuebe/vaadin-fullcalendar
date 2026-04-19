@@ -570,8 +570,8 @@ public class EntryTest {
         // Public API stays boolean — default is "editable".
         assertTrue(entry.isEditable());
         // JSON must NOT contain the editable key, so FC falls back to the calendar-level option.
-        ObjectNode json = entry.toJson();
-        Assertions.assertFalse(json.has("editable"), "editable must not appear in JSON when not explicitly set");
+        JsonObject json = entry.toJson();
+        Assertions.assertFalse(json.hasKey("editable"), "editable must not appear in JSON when not explicitly set");
     }
 
     @Test
@@ -579,8 +579,8 @@ public class EntryTest {
         Entry entry = new Entry();
         entry.setEditable(false);
         Assertions.assertFalse(entry.isEditable());
-        ObjectNode json = entry.toJson();
-        Assertions.assertTrue(json.has("editable"));
+        JsonObject json = entry.toJson();
+        Assertions.assertTrue(json.hasKey("editable"));
         Assertions.assertFalse(json.get("editable").asBoolean());
     }
 
@@ -589,8 +589,8 @@ public class EntryTest {
         Entry entry = new Entry();
         entry.setEditable(true);
         assertTrue(entry.isEditable());
-        ObjectNode json = entry.toJson();
-        Assertions.assertTrue(json.has("editable"));
+        JsonObject json = entry.toJson();
+        Assertions.assertTrue(json.hasKey("editable"));
         Assertions.assertTrue(json.get("editable").asBoolean());
     }
 
@@ -603,18 +603,18 @@ public class EntryTest {
         entry.setEditable(false);
         Entry copy = entry.copy();
         Assertions.assertFalse(copy.isEditable());
-        Assertions.assertFalse(copy.toJson().get("editable").asBoolean());
+        Assertions.assertFalse(copy.toJson().getBoolean("editable"));
     }
 
     @Test
     void editable_setNull_restoresInherit() {
         Entry entry = new Entry();
         entry.setEditable(false);
-        Assertions.assertTrue(entry.toJson().has("editable"));
+        Assertions.assertTrue(entry.toJson().hasKey("editable"));
 
         entry.setEditable((Boolean) null);
         assertTrue(entry.isEditable(), "null means inherit; public isEditable() reports true");
-        Assertions.assertFalse(entry.toJson().has("editable"), "null is not serialized");
+        Assertions.assertFalse(entry.toJson().hasKey("editable"), "null is not serialized");
     }
 
 }

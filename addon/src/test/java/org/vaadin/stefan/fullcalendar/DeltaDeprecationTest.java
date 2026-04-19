@@ -10,12 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Verifies the #191 Delta deprecation: {@code getYears()} and {@code getMonths()}
- * are deprecated since 7.2.0 because FullCalendar JS normalises year/month portions
+ * are deprecated because FullCalendar JS normalises year/month portions
  * into {@code days} when emitting drag/drop deltas.
  * <p>
  * In {@link Delta}, Lombok {@code @Getter} is disabled for {@code years}/{@code months}
  * via {@code @Getter(AccessLevel.NONE)} and the two getters are written out manually,
- * carrying the explicit {@code @Deprecated(since = "7.2.0")}. These tests read the
+ * carrying the explicit {@code @Deprecated}. These tests read the
  * annotation off the accessor methods.
  */
 class DeltaDeprecationTest {
@@ -25,7 +25,6 @@ class DeltaDeprecationTest {
         Method m = Delta.class.getMethod("getYears");
         Deprecated d = m.getAnnotation(Deprecated.class);
         assertNotNull(d, "getYears must be @Deprecated (Lombok should copy from field)");
-        assertEquals("7.2.0", d.since());
         assertTrue(!d.forRemoval(), "no removal scheduled — keep in 7.x");
     }
 
@@ -34,7 +33,6 @@ class DeltaDeprecationTest {
         Method m = Delta.class.getMethod("getMonths");
         Deprecated d = m.getAnnotation(Deprecated.class);
         assertNotNull(d, "getMonths must be @Deprecated (Lombok should copy from field)");
-        assertEquals("7.2.0", d.since());
         assertTrue(!d.forRemoval(), "no removal scheduled — keep in 7.x");
     }
 

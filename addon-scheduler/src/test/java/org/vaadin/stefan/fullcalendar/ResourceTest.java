@@ -364,11 +364,11 @@ public class ResourceTest {
         resource.addExtendedProps("department", "Engineering");
         resource.addExtendedProps("capacity", 42);
 
-        ObjectNode json = resource.toJson();
+        JsonObject json = resource.toJson();
 
-        Assertions.assertTrue(json.has("department"), "extended prop 'department' should be a top-level key");
-        Assertions.assertEquals("Engineering", json.get("department").asString());
-        Assertions.assertTrue(json.has("capacity"), "extended prop 'capacity' should be a top-level key");
-        Assertions.assertEquals(42, json.get("capacity").asInt());
+        Assertions.assertTrue(json.hasKey("department"), "extended prop 'department' should be a top-level key");
+        Assertions.assertEquals("Engineering", json.getString("department"));
+        Assertions.assertTrue(json.hasKey("capacity"), "extended prop 'capacity' should be a top-level key");
+        Assertions.assertEquals(42, (int)json.getNumber("capacity"));
     }
 }

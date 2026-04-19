@@ -8,8 +8,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.signals.Signal;
-import com.vaadin.flow.signals.local.ValueSignal;
+import elemental.json.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -21,9 +20,9 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.CalendarViewToolbar;
 import org.vaadin.stefan.ui.view.CalendarViewToolbar.CalendarViewToolbarBuilder;
 import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
-import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Demo view for the auto-revert feature ({@code autoRevertUnappliedEntryChanges}).
@@ -38,21 +37,20 @@ import java.util.Collection;
 @MenuItem(label = "Auto Revert")
 public class AutoRevertView extends VerticalLayout {
     private final FullCalendar calendar;
-    private final ValueSignal<Boolean> autoApply;
+    private final AtomicBoolean autoApply;
 
     public AutoRevertView() {
         calendar = createCalendar(createDefaultInitialOptions());
 
-        ValueSignal<Boolean> autoRevert = new ValueSignal<>(calendar.isAutoRevertUnappliedEntryChanges());
-        autoApply = new ValueSignal<>(false);
+        autoApply = new AtomicBoolean(false);
 
         Checkbox autoRevertCB = new Checkbox("Auto Revert");
         Checkbox autoApplyCB = new Checkbox("Accept drop/resize (applyChangesOnEntry)");
 
-        autoRevertCB.bindValue(autoRevert, autoRevert::set);
-        autoApplyCB.bindValue(autoApply, autoApply::set);
-
-        Signal.effect(calendar, () -> calendar.setAutoRevertUnappliedEntryChanges(autoRevert.get()));
+        autoRevertCB.setValue(calendar.isAutoRevertUnappliedEntryChanges());
+        autoRevertCB.addValueChangeListener(e -> calendar.setAutoRevertUnappliedEntryChanges(Boolean.TRUE.equals(e.getValue())));
+        autoApplyCB.setValue(false);
+        autoApplyCB.addValueChangeListener(e -> autoApply.set(Boolean.TRUE.equals(e.getValue())));
 
         add(new HorizontalLayout(autoRevertCB, autoApplyCB));
 
@@ -92,10 +90,10 @@ public class AutoRevertView extends VerticalLayout {
     }
 
     private void handleEvent(EntryDataEvent event) {
-        if (autoApply.peek()) {
+        if (autoApply.get()) {
             event.applyChangesOnEntry();
         }
-        ObjectNode jsonObject = event.getJsonObject();
+        JsonObject jsonObject = event.getJsonObject();
         Entry entry = event.getEntry();
         Notification.show("Client: " + jsonObject.get("start") + " - " + jsonObject.get("end") + " | Server: " + entry.getStart().toLocalDate() + " - " + entry.getEnd().toLocalDate());
     }
@@ -126,7 +124,7 @@ public class AutoRevertView extends VerticalLayout {
      * @param defaultInitialOptions default initial options
      * @return calendar instance
      */
-    protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
+    protected FullCalendar createCalendar(JsonObject defaultInitialOptions) {
         EntryService<Entry> simpleInstance = EntryService.createSimpleInstance();
 
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
@@ -140,14 +138,14 @@ public class AutoRevertView extends VerticalLayout {
      *
      * @return initial options
      */
-    protected ObjectNode createDefaultInitialOptions() {
-        ObjectNode initialOptions = JsonFactory.createObject();
-        ObjectNode eventTimeFormat = JsonFactory.createObject();
+    protected JsonObject createDefaultInitialOptions() {
+        JsonObject initialOptions = JsonFactory.createObject();
+        JsonObject eventTimeFormat = JsonFactory.createObject();
         eventTimeFormat.put("hour", "2-digit");
         eventTimeFormat.put("minute", "2-digit");
         eventTimeFormat.put("meridiem", false);
         eventTimeFormat.put("hour12", false);
-        initialOptions.set("eventTimeFormat", eventTimeFormat);
+        initialOptions.put("eventTimeFormat", eventTimeFormat);
         return initialOptions;
     }
 
@@ -248,7 +246,7 @@ public class AutoRevertView extends VerticalLayout {
     }
 
     /**
-     * Returns the entry provider set to the calendar. Will be available after {@link #createCalendar(ObjectNode)}
+     * Returns the entry provider set to the calendar. Will be available after {@link #createCalendar(JsonObject)}
      * has been called.
      *
      * @return entry provider or null
