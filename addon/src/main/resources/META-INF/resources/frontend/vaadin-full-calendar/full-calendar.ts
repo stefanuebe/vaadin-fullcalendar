@@ -561,11 +561,13 @@ export class FullCalendar extends HTMLElement {
                         const eventDetails = events[eventName](eventInfo);
                         if (eventDetails) {
                             const entryId: string = eventInfo.event?.id;
-                            // Store the revert function so the server can trigger it if needed
-                            if (entryId != null && typeof eventInfo.revert === 'function') {
+                            const isExternal = entryId != null && !this.serverEntryIds.has(entryId);
+                            // Only store the revert for internal entries — auto-revert semantics
+                            // apply to drag/resize of existing entries, not to external-source drops.
+                            // Storing them for external entries would leak into _pendingReverts.
+                            if (!isExternal && entryId != null && typeof eventInfo.revert === 'function') {
                                 this._pendingReverts.set(entryId, eventInfo.revert);
                             }
-                            const isExternal = entryId != null && !this.serverEntryIds.has(entryId);
                             const domEventName = isExternal
                                 ? (eventName === "eventDrop" ? "externalEntryDrop" : "externalEntryResize")
                                 : eventName;
