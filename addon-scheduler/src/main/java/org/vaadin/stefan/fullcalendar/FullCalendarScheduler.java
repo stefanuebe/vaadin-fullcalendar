@@ -82,9 +82,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      *
      *
      * @param entryLimit max entries to shown per day
-     * @deprecated use the {@link FullCalendarBuilder#withEntryLimit(int)} instead
+     * @deprecated since 7.2.0 — use the no-arg constructor and {@code setOption(Option.MAX_ENTRIES_PER_DAY, entryLimit)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "7.2.0")
     public FullCalendarScheduler(int entryLimit) {
         super(entryLimit);
     }

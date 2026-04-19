@@ -1375,7 +1375,7 @@ public class Entry {
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
-     * @see FullCalendarBuilder#withEntryContent(String)
+     * @see FullCalendar.Option#ENTRY_CONTENT
      * @param customProperties custom properties
      */
     public void setCustomProperties(Map<String, Object> customProperties) {
@@ -1388,7 +1388,7 @@ public class Entry {
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
-     *  @see FullCalendarBuilder#withEntryContent(String)
+     *  @see FullCalendar.Option#ENTRY_CONTENT
      *
      * @param key   the name of the property to set
      * @param value value to set
@@ -1404,7 +1404,7 @@ public class Entry {
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
-     * @see FullCalendarBuilder#withEntryContent(String)
+     * @see FullCalendar.Option#ENTRY_CONTENT
      *
      * @param key name of the custom property
      * @param <T> return type
@@ -1451,7 +1451,7 @@ public class Entry {
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
-     * @see FullCalendarBuilder#withEntryContent(String)
+     * @see FullCalendar.Option#ENTRY_CONTENT
      *
      * @return Map
      * @see #getCustomPropertiesOrEmpty()
