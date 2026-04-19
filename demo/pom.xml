@@ -15,7 +15,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <vaadin.version>24.9.8</vaadin.version>
-        <spring-boot.version>4.0.4</spring-boot.version>
+        <spring-boot.version>3.5.0</spring-boot.version>
         <fullcalendar.version>6.5.0-SNAPSHOT</fullcalendar.version>
 
 

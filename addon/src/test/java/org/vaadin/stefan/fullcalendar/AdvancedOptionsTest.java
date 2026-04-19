@@ -68,7 +68,7 @@ public class AdvancedOptionsTest {
     }
 
     @Test
-    void setEntryConstraint_businessHours_storesJsonNode() {
+    void setEntryConstraint_businessHours_storesJsonObject() {
         BusinessHours hours = BusinessHours.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY);
         calendar.setEntryConstraint(hours);
         Optional<Object> opt = calendar.getOption(Option.ENTRY_CONSTRAINT);

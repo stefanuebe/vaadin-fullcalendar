@@ -147,7 +147,7 @@ public class FullCalendarTest {
         calendar.setLocale(locale);
         assertSame(locale, calendar.getLocale());
         assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
-        // Client-side value is the locale tag string, possibly wrapped in a JsonNode
+        // Client-side value is the locale tag string, possibly wrapped in a JsonValue
         Optional<Object> clientSideLocale = calendar.getOption(Option.LOCALE, true);
         assertTrue(clientSideLocale.isPresent());
         Object rawClientValue = clientSideLocale.get();

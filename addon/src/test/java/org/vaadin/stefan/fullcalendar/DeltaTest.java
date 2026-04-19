@@ -73,7 +73,7 @@ public class DeltaTest {
     }
 
     @Test
-    void testCreationFromObjectNode() {
+    void testCreationFromJsonObject() {
         JsonObject jsonObject = JsonFactory.createObject();
         jsonObject.put("years", 1);
         jsonObject.put("months", 2);
