@@ -14,9 +14,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <vaadin.version>24.10.0</vaadin.version>
-        <spring-boot.version>3.5.0</spring-boot.version>
-        <fullcalendar.version>6.5.0-SNAPSHOT</fullcalendar.version>
+        <vaadin.version>25.1.0</vaadin.version>
+        <spring-boot.version>4.0.4</spring-boot.version>
+        <fullcalendar.version>7.2.0-SNAPSHOT</fullcalendar.version>
 
 
         <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>

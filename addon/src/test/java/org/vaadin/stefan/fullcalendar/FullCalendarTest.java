@@ -503,4 +503,27 @@ public class FullCalendarTest {
     // Removed: subTestEntryTimeChangedEventSubClass + test_fetchFromServer — entirely commented out.
     // Covered by E2E tests.
 
+    // ---- Auto-Revert Tests ----
+
+    @Test
+    void autoRevertDefaultIsTrue() {
+        FullCalendar calendar = createTestCalendar();
+        assertTrue(calendar.isAutoRevertUnappliedEntryChanges());
+    }
+
+    @Test
+    void autoRevertCanBeDisabled() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.setAutoRevertUnappliedEntryChanges(false);
+        assertFalse(calendar.isAutoRevertUnappliedEntryChanges());
+    }
+
+    @Test
+    void autoRevertCanBeReEnabled() {
+        FullCalendar calendar = createTestCalendar();
+        calendar.setAutoRevertUnappliedEntryChanges(false);
+        calendar.setAutoRevertUnappliedEntryChanges(true);
+        assertTrue(calendar.isAutoRevertUnappliedEntryChanges());
+    }
+
 }

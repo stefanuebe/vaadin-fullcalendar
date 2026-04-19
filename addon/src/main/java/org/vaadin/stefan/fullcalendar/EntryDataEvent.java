@@ -34,6 +34,22 @@ public abstract class EntryDataEvent extends EntryEvent {
     private final JsonObject jsonObject;
 
     /**
+     * Whether {@link #applyChangesOnEntry()} has been called on this event.
+     * Used by the auto-revert mechanism to determine if the client-side change
+     * should be reverted.
+     */
+    @Getter
+    private boolean changesApplied;
+
+    /**
+     * Whether a revert check has been scheduled via {@code beforeClientResponse}
+     * for this event instance. Prevents duplicate scheduling when multiple
+     * listeners are registered for the same event type.
+     */
+    @Getter(lombok.AccessLevel.NONE)
+    private boolean revertCheckScheduled;
+
+    /**
      * New instance. Awaits the changed data object.
      * @param source source component
      * @param fromClient is from client
@@ -52,7 +68,24 @@ public abstract class EntryDataEvent extends EntryEvent {
     public Entry applyChangesOnEntry() {
         Entry entry = getEntry();
         entry.updateFromJson(getJsonObject());
+        this.changesApplied = true;
         return entry;
+    }
+
+    /**
+     * Returns whether a revert check has already been scheduled for this event.
+     * Package-private — used by {@link FullCalendar} auto-revert logic.
+     */
+    boolean isRevertCheckScheduled() {
+        return revertCheckScheduled;
+    }
+
+    /**
+     * Marks that a revert check has been scheduled for this event.
+     * Package-private — used by {@link FullCalendar} auto-revert logic.
+     */
+    void markRevertCheckScheduled() {
+        this.revertCheckScheduled = true;
     }
 
     /**
