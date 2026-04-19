@@ -143,20 +143,28 @@ Uses Jackson 3 for serialization (changed from elemental.json in v7.0). Custom a
 
 ## Documentation
 
-Detailed documentation available in `docs/`:
-- `Home.md` - Documentation index
-- `Features.md` - Feature overview
-- `Samples.md` - Code examples
-- `Migration-guides.md` - Version migration instructions
-- `Release-notes.md` - Version release notes
-- `Scheduler-license.md` - Scheduler extension licensing info
-- `FAQ.md` - Frequently asked questions
-- `Known-issues.md` - Known issues and workarounds
-- `MCP-Server.md` - MCP server documentation (copy of `mcp-server/README.md` - keep in sync!)
+User-facing documentation lives in the **GitHub wiki as the single source of truth** — there is no in-repo `docs/` folder. Key pages:
 
-**Note**: `docs/MCP-Server.md` is a full copy of `mcp-server/README.md`. When updating the MCP server README, also update the docs copy.
+- [Home](https://github.com/stefanuebe/vaadin-fullcalendar/wiki)
+- [Getting Started](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Getting-Started)
+- [Samples](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Samples)
+- [Features](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Features)
+- [Release notes](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Release-notes) — one detail page per minor (`Release-notes-<major>.<minor>`)
+- [Migration guides](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Migration-guides) — one detail page per version jump (`Migration-guide-<from>-to-<to>`)
+- [MCP-Server](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/MCP-Server), [FAQ](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/FAQ), [Known Issues](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Known-Issues), [Scheduler license](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Scheduler-license)
 
-Wiki: https://github.com/stefanuebe/vaadin-fullcalendar/wiki
+The wiki is a separate git repo: `https://github.com/stefanuebe/vaadin-fullcalendar.wiki.git`. In this devcontainer it is checked out at `/workspace/wiki/` (remote `origin-wiki`). Edit files there and commit/push to the wiki remote.
+
+### Documentation conventions
+
+- **Link style** — wiki-internal links use full GitHub URLs (`https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Page-Name`), not relative wiki links. External viewers (Vaadin Directory etc.) do not resolve relative wiki links.
+- **Work-in-progress pages** — while a release or migration guide is being drafted, the wiki page title carries a `-wip` suffix (`Release-notes-7.2-wip`, `Migration-guide-7.1-to-7.2-wip`). Add an entry to the relevant index (`Release-notes` / `Migration-guides`) with a visible "(work in progress)" marker. On release, rename the page (GitHub wiki auto-creates redirects), drop the suffix and marker, and update every cross-reference.
+- **Page structure** — one release-notes detail page per minor version; one migration-guide detail page per version jump; main index pages stay one-line-per-entry.
+- **v6 vs v7 in the same wiki** — code-level difference is only elemental JSON (v6) vs Jackson 3 (v7). Call out version-specific API differences inline where relevant; do not maintain parallel page sets.
+
+### MCP server documentation
+
+`mcp-server/` extracts content from the wiki (cloned during Docker build) and serves it as MCP resources. If you rewrite wiki pages, the MCP server picks them up on the next container rebuild — no in-repo sync needed.
 
 ## Thread Safety & Performance Notes
 

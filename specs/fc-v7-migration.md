@@ -391,9 +391,9 @@ Remove from enum (deprecated in Phase 2):
 
 ## Documentation Updates (all part of 8.0.0)
 
-- `docs/Migration-guides.md` — add "7.x → 8.0" section covering all 4 phases
-- `docs/Release-notes.md` — FC v7 upgrade notes
-- `docs/Scheduler-license.md` — AGPL note
+- Wiki `Migration-guide-7.x-to-8.0` — new page covering all 4 phases
+- Wiki `Release-notes-8.0` — FC v7 upgrade notes
+- Wiki `Scheduler-license` — AGPL note update
 - `specs/architecture.md` — update "FullCalendar JS v6.1.x" to v7
 - `specs/project-context.md` — update version references
 - Migration note for renamed options (Java constant names unchanged, wire names changed)

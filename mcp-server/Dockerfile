@@ -14,10 +14,13 @@ COPY mcp-server/tsconfig.json ./
 COPY mcp-server/src ./src
 
 # Copy project files needed for extraction
-COPY docs /project/docs
 COPY addon /project/addon
 COPY addon-scheduler /project/addon-scheduler
 COPY demo /project/demo
+
+# Clone wiki (single source of user documentation; no in-repo docs/ folder)
+RUN apk add --no-cache git && \
+    git clone --depth=1 https://github.com/stefanuebe/vaadin-fullcalendar.wiki.git /project/wiki
 
 # Create data directory and run extraction + build
 RUN mkdir -p data

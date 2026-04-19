@@ -137,7 +137,7 @@ Get full documentation page content.
 { "name": "get_documentation", "arguments": { "path": "Getting-Started.md" } }
 ```
 
-Available pages: `Getting-Started.md`, `Samples.md`, `Features.md`, `FAQ.md`, `Migration-guides.md`, `Known-issues.md`, `Scheduler-license.md`
+Available pages: `Getting-Started.md`, `Samples.md`, `Features.md`, `FAQ.md`, `Migration-guides.md`, `Known-Issues.md`, `Scheduler-license.md`
 
 ## Features
 
