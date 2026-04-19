@@ -41,6 +41,7 @@
       }
     }
   },
+  "initializeCommand": "mkdir -p ${HOME}/.claude_transfer ${HOME}/.vaadin",
   "remoteUser": "node",
   "mounts": [
     "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
@@ -51,7 +52,11 @@
   "containerEnv": {
     "NODE_OPTIONS": "--max-old-space-size=4096",
     "CLAUDE_CONFIG_DIR": "/home/node/.claude",
-    "POWERLEVEL9K_DISABLE_GITSTATUS": "true"
+    "POWERLEVEL9K_DISABLE_GITSTATUS": "true",
+    "GIT_AUTHOR_NAME": "Stefan",
+    "GIT_AUTHOR_EMAIL": "stefan@vaadin.com",
+    "GIT_COMMITTER_NAME": "Stefan",
+    "GIT_COMMITTER_EMAIL": "stefan@vaadin.com"
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
   "workspaceFolder": "/workspace"

@@ -134,11 +134,24 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
   -a "unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY no_proxy NO_PROXY" \
   -x
 
-# Install Claude
+# Install Claude Code
 RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
-# Install Playwright globally and download browser
-# HINWEIS: Auf Raspberry Pi (ARM) kann der Chromium Download langsam sein oder fehlschlagen.
-# Falls es hier hakt, nimm 'chromium' aus den apt-Paketen oben dazu.
-RUN npm install -g playwright && \
-  npx playwright install chromium
+# Install Vaadin plugin (requires marketplace registration first)
+RUN claude plugin marketplace add vaadin/claude-plugin --scope user && \
+    claude plugin install vaadin-claude@vaadin-claude --scope user
+
+# Install official plugins (marketplace must be registered explicitly during build)
+RUN claude plugin marketplace add anthropics/claude-plugins-official --scope user && \
+    claude plugin install code-review@claude-plugins-official --scope user && \
+    claude plugin install commit-commands@claude-plugins-official --scope user && \
+    claude plugin install feature-dev@claude-plugins-official --scope user && \
+    claude plugin install security-guidance@claude-plugins-official --scope user && \
+    claude plugin install jdtls-lsp@claude-plugins-official --scope user && \
+    claude plugin install typescript-lsp@claude-plugins-official --scope user && \
+    claude plugin install frontend-design@claude-plugins-official --scope user && \
+    claude plugin install claude-md-management@claude-plugins-official --scope user && \
+    claude plugin install code-simplifier@claude-plugins-official --scope user && \
+    claude plugin install claude-code-setup@claude-plugins-official --scope user && \
+    claude plugin install superpowers@claude-plugins-official --scope user && \
+    claude plugin install playwright@claude-plugins-official --scope user
