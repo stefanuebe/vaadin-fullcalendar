@@ -41,10 +41,9 @@ public class ComponentColumnsDemo extends VerticalLayout {
                 "Edit a date picker to move the entry, or drag/resize the entry to update the pickers."));
 
         // Build scheduler
-        scheduler = (FullCalendarScheduler) FullCalendarBuilder.create()
-                .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
-                .withAutoBrowserTimezone()
-                .build();
+        scheduler = new FullCalendarScheduler();
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
+        scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
 
         scheduler.addThemeVariants(FullCalendarVariant.VAADIN);
         scheduler.setOption("initialView", SchedulerView.RESOURCE_TIMELINE_MONTH.getClientSideValue());

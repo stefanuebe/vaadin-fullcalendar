@@ -44,7 +44,7 @@ public class CalendarOptionsTestView extends VerticalLayout {
         // ========================
         add(new H3("DayGrid — Locale DE, No Weekends"));
 
-        FullCalendar cal1 = FullCalendarBuilder.create().build();
+        FullCalendar cal1 = new FullCalendar();
         cal1.addThemeVariants(FullCalendarVariant.VAADIN);
         cal1.getElement().setAttribute("id", "cal-daygrid");
         cal1.setLocale(Locale.GERMAN);
@@ -72,7 +72,7 @@ public class CalendarOptionsTestView extends VerticalLayout {
         // ========================
         add(new H3("TimeGrid — Slot Options & Business Hours"));
 
-        FullCalendar cal2 = FullCalendarBuilder.create().build();
+        FullCalendar cal2 = new FullCalendar();
         cal2.addThemeVariants(FullCalendarVariant.VAADIN);
         cal2.getElement().setAttribute("id", "cal-timegrid");
         cal2.setLocale(Locale.ENGLISH);
@@ -100,7 +100,7 @@ public class CalendarOptionsTestView extends VerticalLayout {
         // ========================
         add(new H3("DayGrid — Hidden Days, Now Indicator, Scroll Time"));
 
-        FullCalendar cal3 = FullCalendarBuilder.create().build();
+        FullCalendar cal3 = new FullCalendar();
         cal3.addThemeVariants(FullCalendarVariant.VAADIN);
         cal3.getElement().setAttribute("id", "cal-extra");
         cal3.setLocale(Locale.ENGLISH);

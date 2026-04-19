@@ -24,10 +24,9 @@ public abstract class AbstractEntryProviderView extends VerticalLayout {
         entryService = EntryService.createRandomInstance();
         entryProvider = createEntryProvider(entryService);
 
-        calendar = FullCalendarBuilder.create()
-                .withEntryProvider(entryProvider)
-                .withEntryLimit(3)
-                .build();
+        calendar = new FullCalendar();
+        calendar.setEntryProvider(entryProvider);
+        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
         calendar.setOption(FullCalendar.Option.SELECTABLE, true);

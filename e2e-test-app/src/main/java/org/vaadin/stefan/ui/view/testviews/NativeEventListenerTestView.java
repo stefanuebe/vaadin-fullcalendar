@@ -43,7 +43,7 @@ public class NativeEventListenerTestView extends VerticalLayout {
         clickCounter.setId("click-count");
         add(clickCounter);
 
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix date for reproducible tests

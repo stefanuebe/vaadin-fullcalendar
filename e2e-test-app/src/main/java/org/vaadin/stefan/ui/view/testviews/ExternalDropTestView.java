@@ -73,7 +73,7 @@ public class ExternalDropTestView extends VerticalLayout {
         entryData.setEnd(LocalDateTime.of(2025, 3, 12, 11, 0));
 
         // --- Calendar ---
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setLocale(Locale.ENGLISH);
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());

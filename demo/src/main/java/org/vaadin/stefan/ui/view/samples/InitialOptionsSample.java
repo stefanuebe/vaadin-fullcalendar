@@ -1,7 +1,7 @@
 package org.vaadin.stefan.ui.view.samples;
 
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
+import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import elemental.json.JsonObject;
 
@@ -19,6 +19,6 @@ public class InitialOptionsSample extends AbstractSample {
         initialOptions.put("eventLimit", false); // pass an int value to limit the entries per day
         initialOptions.put("navLinks", true);
         initialOptions.put("selectable", true);
-        calendar = FullCalendarBuilder.create().withScheduler().withInitialOptions(initialOptions).build();
+        calendar = new FullCalendarScheduler(initialOptions);
     }
 }

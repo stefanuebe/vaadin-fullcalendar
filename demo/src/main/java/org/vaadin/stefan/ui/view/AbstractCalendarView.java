@@ -230,8 +230,6 @@ public abstract class AbstractCalendarView extends VerticalLayout {
 
     /**
      * Called by the calendar's browser timezone obtained listener. Noop by default.
-     * Please note, that the full calendar builder registers also a listener, when the
-     * {@link FullCalendarBuilder#withAutoBrowserTimezone()} option is used.
      * @see FullCalendar#addBrowserTimezoneObtainedListener(ComponentEventListener)
      * @param event event
      */

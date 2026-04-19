@@ -34,9 +34,8 @@ public class SchedulerReattachTestView extends VerticalLayout {
         add(new Paragraph("Click the button to detach and reattach the calendar. Resources must survive."));
 
         // Build the scheduler calendar
-        FullCalendarScheduler calendar = (FullCalendarScheduler) FullCalendarBuilder.create()
-                .withScheduler(Scheduler.DEVELOPER_LICENSE_KEY)
-                .build();
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
 
         calendar.getElement().setAttribute("data-testid", "calendar");
 

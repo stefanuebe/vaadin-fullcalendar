@@ -74,7 +74,7 @@ public class AutoRevertTestView extends VerticalLayout {
         toggleBtn.setId("toggle-apply-btn");
         add(toggleBtn);
 
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix date for reproducible tests

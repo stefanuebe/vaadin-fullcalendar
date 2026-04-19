@@ -83,7 +83,7 @@ public class DetachReattachTestView extends VerticalLayout {
         add(buttons);
 
         // --- Calendar ---
-        calendar = FullCalendarBuilder.create().build();
+        calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setLocale(Locale.ENGLISH);
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());

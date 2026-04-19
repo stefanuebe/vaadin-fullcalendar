@@ -41,7 +41,7 @@ public class DisplayOptionsTestView extends VerticalLayout {
                 "dayMaxEventRows=2, displayEventEnd=true. " +
                 "On 2025-03-10 there are 5 events, so a '+3 more' link should appear."));
 
-        FullCalendar calendar = FullCalendarBuilder.create().build();
+        FullCalendar calendar = new FullCalendar();
         // Note: don't add FullCalendarVariant.VAADIN here — its CSS overrides
         // prevent dayMaxEventRows from working (overflow: visible on day cells)
         calendar.setLocale(Locale.ENGLISH);
