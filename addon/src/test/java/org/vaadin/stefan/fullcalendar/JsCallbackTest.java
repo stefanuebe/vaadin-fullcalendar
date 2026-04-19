@@ -213,6 +213,7 @@ class JsCallbackTest {
     @Test
     void buildMerged_userCallbackOnly_returnsCallbackAsIs() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setAutoAssignEntryIds(false);
         calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { info.el.title = 'x'; }"));
 
@@ -223,6 +224,7 @@ class JsCallbackTest {
     @Test
     void buildMerged_nativeListenerOnly_generatesWrapper() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setAutoAssignEntryIds(false);
         calendar.addEntryNativeEventListener("click", "e => alert(1)");
 
         String merged = calendar.buildEntryDidMountMerged();
@@ -253,12 +255,14 @@ class JsCallbackTest {
     @Test
     void buildMerged_nothingSet_returnsNull() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setAutoAssignEntryIds(false);
         assertNull(calendar.buildEntryDidMountMerged());
     }
 
     @Test
     void buildMerged_userCallbackCleared_nativeListenerRemains() {
         FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setAutoAssignEntryIds(false);
         calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { }"));
         calendar.addEntryNativeEventListener("mouseover", "e => {}");
@@ -271,6 +275,114 @@ class JsCallbackTest {
         assertTrue(merged.contains("addEventListener('mouseover'"));
         // User callback content should NOT be in the merged string
         assertFalse(merged.contains("info.el"));
+    }
+
+    // --- autoAssignEntryIds — default snippet injection ---
+
+    @Test
+    void autoAssignEntryIds_defaultsToTrue() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        assertTrue(calendar.isAutoAssignEntryIds());
+    }
+
+    @Test
+    void setAutoAssignEntryIds_roundTrip() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setAutoAssignEntryIds(false);
+        assertFalse(calendar.isAutoAssignEntryIds());
+        calendar.setAutoAssignEntryIds(true);
+        assertTrue(calendar.isAutoAssignEntryIds());
+    }
+
+    @Test
+    void buildMerged_autoAssignOnly_wrapsSnippetInFunction() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        String merged = calendar.buildEntryDidMountMerged();
+        assertNotNull(merged);
+        assertTrue(merged.startsWith("function(info) {"));
+        assertTrue(merged.contains(FullCalendar.DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET));
+        assertTrue(merged.endsWith("}"));
+    }
+
+    @Test
+    void buildMerged_autoAssignAndUserCallback_defaultPrefixesUser() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+                JsCallback.of("function(info) { info.el.title = 'x'; }"));
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertNotNull(merged);
+        int snippetIdx = merged.indexOf("arguments[0].el.id = ");
+        int userIdx = merged.indexOf("info.el.title = 'x'");
+        assertTrue(snippetIdx > 0, "default snippet must be present");
+        assertTrue(userIdx > 0, "user callback body must be present");
+        assertTrue(snippetIdx < userIdx, "default snippet must run before user callback so user can override the id");
+    }
+
+    @Test
+    void buildMerged_autoAssignUserAndNative_allThreePresentInOrder() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+                JsCallback.of("function(info) { info.el.title = 'x'; }"));
+        calendar.addEntryNativeEventListener("click", "e => {}");
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertNotNull(merged);
+        int defaultIdx = merged.indexOf("arguments[0].el.id = ");
+        int userIdx = merged.indexOf("info.el.title = 'x'");
+        int nativeIdx = merged.indexOf("addEventListener('click'");
+        assertTrue(defaultIdx > 0 && userIdx > defaultIdx && nativeIdx > userIdx,
+                "order must be: default -> user -> native, got default=" + defaultIdx + " user=" + userIdx + " native=" + nativeIdx);
+    }
+
+    @Test
+    void buildMerged_autoAssignAndNativeOnly_wrapsBoth() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.addEntryNativeEventListener("mouseover", "e => {}");
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertNotNull(merged);
+        assertTrue(merged.startsWith("function(info) {"));
+        assertTrue(merged.contains(FullCalendar.DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET));
+        assertTrue(merged.contains("addEventListener('mouseover'"));
+        assertTrue(merged.endsWith("}"));
+    }
+
+    @Test
+    void defaultSnippet_contains_mirrorGuard_and_isStartGuard() {
+        String s = FullCalendar.DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET;
+        assertTrue(s.contains("fc-event-mirror"), "must skip mirror elements via CSS class");
+        assertTrue(s.contains("isStart"), "must skip non-start segments");
+        assertTrue(s.contains("data-resource-id"), "must look up resource context for multi-resource disambiguation");
+        assertTrue(s.contains("'entry-' + arguments[0].event.id"), "must use entry-<id> schema");
+    }
+
+    @Test
+    void buildMerged_expressionBodyArrowCallback_returnedAsIsNoCorruption() {
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        // auto-assign default: true. User provides an expression-body arrow (no braces).
+        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+                JsCallback.of("info => info.el.title = 'x'"));
+
+        String merged = calendar.buildEntryDidMountMerged();
+        // Output must be syntactically valid JS — returned verbatim when there is no
+        // brace-delimited body to splice into. The default snippet is intentionally dropped
+        // rather than prepended raw outside the arrow expression.
+        assertEquals("info => info.el.title = 'x'", merged);
+    }
+
+    @Test
+    void buildMerged_expressionBodyArrowWithNativeListeners_droppedByContract() {
+        // Documents the current contract: addEntryNativeEventListener's Javadoc requires
+        // a braced body; if the user callback is an expression-body arrow, native listeners
+        // are silently skipped because there is nowhere syntactically valid to splice them.
+        FullCalendar calendar = FullCalendarBuilder.create().build();
+        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+                JsCallback.of("info => info.el.title = 'x'"));
+        calendar.addEntryNativeEventListener("click", "e => {}");
+
+        String merged = calendar.buildEntryDidMountMerged();
+        assertEquals("info => info.el.title = 'x'", merged, "native listeners must not corrupt an expression-body arrow");
     }
 
     // --- Helpers ---
