@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests for {@link JsCallback} and the callback-related paths in {@link FullCalendar}.
  */
+@SuppressWarnings("deprecation")
 class JsCallbackTest {
 
     // --- setOption with JsCallback ---

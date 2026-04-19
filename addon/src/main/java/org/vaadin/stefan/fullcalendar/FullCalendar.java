@@ -182,8 +182,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Uses {@link InMemoryEntryProvider} by default.
      *
      * @param entryLimit The max number of stacked event levels within a given day. This excludes the +more link if present. The rest will show up in a popover.
-     * @deprecated use the {@link FullCalendarBuilder#withEntryLimit(int)} instead.
+     * @deprecated since 7.2.0 — use the no-arg constructor and {@code setOption(Option.MAX_ENTRIES_PER_DAY, entryLimit)} instead.
      */
+    @Deprecated(since = "7.2.0")
     public FullCalendar(int entryLimit) {
         if (entryLimit >= 0) {
             setMaxEntriesPerDay(entryLimit);
@@ -2329,8 +2330,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Returns an unmodifiable copy of the custom calendar views. Any changes to this instance's custom views will
      * be reflected in the returned map.
      * <br><br>
-     * This map contains any custom calendar view, that has been registered via the builder's method
-     * {@link FullCalendarBuilder#withCustomCalendarViews(CustomCalendarView...)} plus anonymous instances for any
+     * This map contains any custom calendar view, that has been registered via
+     * {@link #setCustomCalendarViews(CustomCalendarView...)} plus anonymous instances for any
      * view, that has been registered via the initial options. Views, that had been registered in both ways will
      * return the original type, not an anonymous one.
      * @return custom calendar views map
