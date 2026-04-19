@@ -27,7 +27,16 @@ import java.time.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents a delta between two times. A delta can contain negative values if the first date is later then the second one.
+ * Represents a delta between two times. A delta can contain negative values if the first date is later than the second one.
+ * <p>
+ * <b>Note on {@code years} and {@code months} (see issue #191):</b> FullCalendar JS emits drop/resize
+ * deltas as {@code {years, months, days, milliseconds}}, but in practice the client always
+ * normalises the year/month portion into {@code days}. Dragging an entry across several months
+ * produces, for example, {@code days: 31} rather than {@code months: 1}. The {@code years} and
+ * {@code months} fields on this class therefore remain zero for every real FC-originated delta
+ * and are present only for historical / manually-constructed instances. The corresponding
+ * getters are {@code @Deprecated(since = "7.2.0")}; downstream code that only needs to react
+ * to drag/drop changes can rely on {@link #getDays()} alone.
  */
 @Getter
 @ToString
@@ -35,12 +44,16 @@ import java.util.concurrent.TimeUnit;
 public class Delta {
 
     /**
-     * The delta's years part.
+     * The delta's years part. FC-originated deltas are normalised so this is always zero in
+     * practice — see class-level Javadoc.
      */
+    @Getter(lombok.AccessLevel.NONE)
     private final int years;
     /**
-     * The delta's months part.
+     * The delta's months part. FC-originated deltas are normalised so this is always zero in
+     * practice — see class-level Javadoc.
      */
+    @Getter(lombok.AccessLevel.NONE)
     private final int months;
     /**
      * The delta's days part.
@@ -76,6 +89,32 @@ public class Delta {
         this.hours = hours;
         this.minutes = minutes;
         this.seconds = seconds;
+    }
+
+    /**
+     * Returns the years component of this delta.
+     *
+     * @return years
+     * @deprecated since 7.2.0 — FullCalendar never produces a non-zero {@code years} component for
+     *             drop/resize events. Retained for backward compatibility with manually-constructed
+     *             {@code Delta} instances. See class-level Javadoc for details.
+     */
+    @Deprecated(since = "7.2.0")
+    public int getYears() {
+        return years;
+    }
+
+    /**
+     * Returns the months component of this delta.
+     *
+     * @return months
+     * @deprecated since 7.2.0 — FullCalendar never produces a non-zero {@code months} component for
+     *             drop/resize events. Retained for backward compatibility with manually-constructed
+     *             {@code Delta} instances. See class-level Javadoc for details.
+     */
+    @Deprecated(since = "7.2.0")
+    public int getMonths() {
+        return months;
     }
 
     /**
