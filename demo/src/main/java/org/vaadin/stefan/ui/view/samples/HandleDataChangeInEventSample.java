@@ -21,7 +21,7 @@ public class HandleDataChangeInEventSample extends AbstractSample {
 
         // create a copy to do some business logic checks
         calendar.addEntryDroppedListener(event -> {
-            Entry copy = event.createCopyBasedOnChanges();
+            Entry copy = event.getChangesAsEntry();
 
             if(copy.getStartAsLocalDate().isBefore(someRequiredMinimalDate) /* do some background checks on the changed data */){
                 event.applyChangesOnEntry();

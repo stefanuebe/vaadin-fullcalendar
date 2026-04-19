@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Entry (Boolean) and ResourceEntry (boolean) fields during reflection-based copy.
  * <p>
  * These tests cover the same code paths as {@code EntryDataEvent.applyChangesOnEntry()}
- * and {@code EntryDataEvent.createCopyBasedOnChanges()}.
+ * and {@code EntryDataEvent.getChangesAsEntry()} (formerly {@code createCopyBasedOnChanges}).
  */
 public class ResourceEntryCopyTest {
 
@@ -138,7 +138,7 @@ public class ResourceEntryCopyTest {
         assertDoesNotThrow(() -> entry.updateFromJson(json));
     }
 
-    // --- copy + updateFromJson (same code path as EntryDataEvent.createCopyBasedOnChanges) ---
+    // --- copy + updateFromJson (same code path as EntryDataEvent.getChangesAsEntry) ---
 
     @Test
     void copyThenUpdateFromJson_shouldNotThrow() {
@@ -152,7 +152,7 @@ public class ResourceEntryCopyTest {
         Resource room = new Resource("r1", "Room A", null);
         entry.addResources(room);
 
-        // simulate createCopyBasedOnChanges
+        // simulate getChangesAsEntry
         ResourceEntry copy = entry.copy();
 
         JsonObject json = JsonFactory.createObject();
