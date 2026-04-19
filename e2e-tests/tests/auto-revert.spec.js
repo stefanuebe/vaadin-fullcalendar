@@ -65,8 +65,12 @@ test.describe('Auto Revert (#225)', () => {
         // Drag to next day
         await dragEntryToNextDay(page);
 
-        // Wait for revert animation
-        await page.waitForTimeout(500);
+        // Wait deterministically for the server round-trip to update drop-status,
+        // then let Vaadin settle. No hardcoded sleep.
+        await page.waitForFunction(
+            () => document.getElementById('drop-status')?.textContent?.length > 0,
+            { timeout: 5000 }
+        );
         await waitForVaadin(page);
 
         // Verify: status should say "rejected"
@@ -100,8 +104,12 @@ test.describe('Auto Revert (#225)', () => {
         // Drag to next day
         await dragEntryToNextDay(page);
 
-        // Wait for potential revert (should NOT happen)
-        await page.waitForTimeout(500);
+        // Wait deterministically for drop-status to reflect the round-trip outcome.
+        // If a revert were to fire (should NOT), it would also update this element.
+        await page.waitForFunction(
+            () => document.getElementById('drop-status')?.textContent?.length > 0,
+            { timeout: 5000 }
+        );
         await waitForVaadin(page);
 
         // Verify: status should say "applied"
@@ -143,7 +151,12 @@ test.describe('Auto Revert (#225)', () => {
 
         // Drag to next day
         await dragEntryToNextDay(page);
-        await page.waitForTimeout(500);
+        // Wait for the round-trip outcome so the observer has captured any flicker
+        // between "moved to new slot" and the subsequent revert.
+        await page.waitForFunction(
+            () => document.getElementById('drop-status')?.textContent?.length > 0,
+            { timeout: 5000 }
+        );
 
         // Stop the observer and get the log
         const positionLog = await page.evaluate(() => {
