@@ -69,9 +69,17 @@ public class ExternalEntryResizedEvent extends ExternalEntryEvent {
         this.delta = Delta.fromJson(jsonDelta);
 
         LocalDateTime newEnd = getEntry().getEnd();
-        this.oldEnd = newEnd != null
-                ? newEnd.minusYears(delta.getYears()).minusMonths(delta.getMonths()).minusDays(delta.getDays())
-                       .minusHours(delta.getHours()).minusMinutes(delta.getMinutes()).minusSeconds(delta.getSeconds())
-                : null;
+        this.oldEnd = newEnd != null ? subtractDelta(newEnd, delta) : null;
+    }
+
+    private static LocalDateTime subtractDelta(LocalDateTime t, Delta d) {
+        // FC normalises year/month portions into days (see #191), but Delta.fromJson still
+        // populates those fields if present, so we subtract them too for symmetry with applyOn.
+        @SuppressWarnings("deprecation")
+        int years = d.getYears();
+        @SuppressWarnings("deprecation")
+        int months = d.getMonths();
+        return t.minusYears(years).minusMonths(months).minusDays(d.getDays())
+                .minusHours(d.getHours()).minusMinutes(d.getMinutes()).minusSeconds(d.getSeconds());
     }
 }
