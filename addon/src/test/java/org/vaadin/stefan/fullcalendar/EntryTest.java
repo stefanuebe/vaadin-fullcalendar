@@ -99,7 +99,9 @@ public class EntryTest {
 
         Set<String> defaultKeys = new HashSet<>(Arrays.asList(
                         Fields.ID,
-                        Fields.EDITABLE,
+                        // Fields.EDITABLE is intentionally omitted: since #212 the editable field
+                        // defaults to null and is skipped during JSON serialization so that a
+                        // calendar-level editable:false is no longer overridden by every entry.
                         Fields.DURATION_EDITABLE,
                         Fields.START_EDITABLE,
                         Fields.ALL_DAY,
@@ -555,6 +557,63 @@ public class EntryTest {
         assertNull(entry.getTextColor());
         assertNull(entry.getDescription());
         assertEquals(DisplayMode.AUTO, entry.getDisplayMode());
+    }
+
+    // Issue #212: disable DnD via calendar-level editable:false must no longer be overridden
+    // by every entry's per-entry editable: true default. The fix makes the editable field
+    // nullable internally so null (default) is skipped during JSON serialization.
+
+    @Test
+    void editable_default_isTrueButNotInJson() {
+        Entry entry = new Entry();
+        // Public API stays boolean — default is "editable".
+        assertTrue(entry.isEditable());
+        // JSON must NOT contain the editable key, so FC falls back to the calendar-level option.
+        ObjectNode json = entry.toJson();
+        Assertions.assertFalse(json.has("editable"), "editable must not appear in JSON when not explicitly set");
+    }
+
+    @Test
+    void editable_setFalse_isFalseAndInJson() {
+        Entry entry = new Entry();
+        entry.setEditable(false);
+        Assertions.assertFalse(entry.isEditable());
+        ObjectNode json = entry.toJson();
+        Assertions.assertTrue(json.has("editable"));
+        Assertions.assertFalse(json.get("editable").asBoolean());
+    }
+
+    @Test
+    void editable_setTrue_isTrueAndInJson() {
+        Entry entry = new Entry();
+        entry.setEditable(true);
+        assertTrue(entry.isEditable());
+        ObjectNode json = entry.toJson();
+        Assertions.assertTrue(json.has("editable"));
+        Assertions.assertTrue(json.get("editable").asBoolean());
+    }
+
+    @Test
+    void editable_copyPropagatesExplicitFalse() {
+        // Entry.copy() walks properties via BeanProperties; the setter must be discoverable
+        // with the boxed type for the explicit value to transfer correctly. Without the
+        // Boolean-typed setter, the copy would silently revert to the null default.
+        Entry entry = new Entry();
+        entry.setEditable(false);
+        Entry copy = entry.copy();
+        Assertions.assertFalse(copy.isEditable());
+        Assertions.assertFalse(copy.toJson().get("editable").asBoolean());
+    }
+
+    @Test
+    void editable_setNull_restoresInherit() {
+        Entry entry = new Entry();
+        entry.setEditable(false);
+        Assertions.assertTrue(entry.toJson().has("editable"));
+
+        entry.setEditable((Boolean) null);
+        assertTrue(entry.isEditable(), "null means inherit; public isEditable() reports true");
+        Assertions.assertFalse(entry.toJson().has("editable"), "null is not serialized");
     }
 
 }

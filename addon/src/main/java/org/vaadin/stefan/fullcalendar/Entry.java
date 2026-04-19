@@ -62,7 +62,22 @@ public class Entry {
     @JsonUpdateAllowed
     private boolean allDay;
 
-    private boolean editable = true;
+    /**
+     * Whether this entry is editable (draggable + resizable). Internal storage is
+     * nullable: {@code null} means "not explicitly set — inherit the calendar-level
+     * {@code editable} option". {@code true}/{@code false} are explicit overrides.
+     * <p>
+     * The public API ({@link #isEditable()}) keeps its pre-7.2 semantics — treating
+     * null as {@code true} — so the default behaviour ("entries are editable by default
+     * when the calendar is editable") is preserved. The difference is that {@code null}
+     * is now skipped during JSON serialization, so a calendar-level {@code editable: false}
+     * is no longer overridden by every entry's per-entry {@code editable: true} default.
+     * See issue #212.
+     */
+    @Getter(AccessLevel.NONE)
+    @lombok.Setter(AccessLevel.NONE)
+    @JsonReadField
+    private Boolean editable;
     private Boolean startEditable;
     private Boolean durationEditable;
     private String color;
@@ -1018,6 +1033,39 @@ public class Entry {
      */
     public void setOverlapAllowed(Boolean overlap) {
         setOverlap(overlap);
+    }
+
+    /**
+     * Checks whether this entry is editable (draggable + resizable). Returns {@code true}
+     * by default — if {@code editable} has not been explicitly set, the entry inherits the
+     * calendar-level {@code editable} option at render time.
+     * <p>
+     * Semantically equivalent to the pre-7.2 getter. Internally, the field is now nullable
+     * so that {@code null} can be skipped during JSON serialization, which is what makes
+     * a calendar-level {@code editable: false} actually take effect (see issue #212).
+     *
+     * @return {@code true} if the entry is editable or the editable state has not been
+     *         explicitly set; {@code false} if explicitly set to {@code false}.
+     */
+    public boolean isEditable() {
+        return editable == null || editable;
+    }
+
+    /**
+     * Sets whether this entry is editable (draggable + resizable). The value is an explicit
+     * override of the calendar-level {@code editable} option. Pass {@code null} to clear
+     * the override and inherit the calendar-level setting instead.
+     * <p>
+     * Boolean parameter is used so that {@link org.vaadin.stefan.fullcalendar.json.BeanProperties}
+     * can discover the setter (it looks for the boxed type matching the field), so that
+     * {@code Entry.copy()} and similar framework paths correctly propagate the value. Primitive
+     * {@code boolean} callers auto-box and continue to work as before.
+     *
+     * @param editable {@code true} to make this entry editable, {@code false} to make it read-only,
+     *                 or {@code null} to clear the override and inherit the calendar-level setting
+     */
+    public void setEditable(Boolean editable) {
+        this.editable = editable;
     }
 
     /**
