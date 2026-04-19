@@ -515,7 +515,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public Registration addEntryDroppedSchedulerListener(ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EntryDroppedSchedulerEvent.class, (ComponentEventListener) listener);
+        return addAutoRevertAwareListener(EntryDroppedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
     /**
