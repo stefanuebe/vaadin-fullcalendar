@@ -350,4 +350,24 @@ public class ResourceTest {
         ObjectNode json = resource.toJson();
         Assertions.assertFalse(json.has("eventAllow"), "eventAllow should not be in JSON when null");
     }
+
+    /**
+     * Safety net for issue #230: the client-side {@code updateResource} fix relies on extended props
+     * being serialized as top-level JSON keys (that matches the FC Resource constructor shape).
+     * Without this invariant, the new {@code setExtendedProp} loop in
+     * {@code full-calendar-scheduler.ts} would silently miss the props.
+     */
+    @Test
+    void extendedProps_inJson_asTopLevelKeys() {
+        Resource resource = new Resource("r1", "Room 1", null);
+        resource.addExtendedProps("department", "Engineering");
+        resource.addExtendedProps("capacity", 42);
+
+        ObjectNode json = resource.toJson();
+
+        Assertions.assertTrue(json.has("department"), "extended prop 'department' should be a top-level key");
+        Assertions.assertEquals("Engineering", json.get("department").asString());
+        Assertions.assertTrue(json.has("capacity"), "extended prop 'capacity' should be a top-level key");
+        Assertions.assertEquals(42, json.get("capacity").asInt());
+    }
 }

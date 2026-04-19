@@ -95,6 +95,20 @@ export class FullCalendarScheduler extends FullCalendar {
             if (data.eventOverlap !== undefined) resource.setProp('eventOverlap', evaluateCallbacks(data.eventOverlap));
             if (data.eventAllow !== undefined) resource.setProp('eventAllow', evaluateCallbacks(data.eventAllow));
             if (data.eventClassNames !== undefined) resource.setProp('eventClassNames', evaluateCallbacks(data.eventClassNames));
+
+            // Extended props: any top-level JSON key not covered above is treated as an extended prop.
+            // Resource.toJson() serializes extended props flat at the top level (the FC Resource
+            // constructor accepts them that way), so we mirror that shape here on update.
+            const handled = new Set([
+                'id', 'title', 'parentId', 'children', 'businessHours',
+                'eventColor', 'eventBackgroundColor', 'eventBorderColor', 'eventTextColor',
+                'eventConstraint', 'eventOverlap', 'eventAllow', 'eventClassNames'
+            ]);
+            for (const key of Object.keys(data)) {
+                if (!handled.has(key)) {
+                    resource.setExtendedProp(key, data[key]);
+                }
+            }
         }
     }
 
