@@ -7,6 +7,8 @@ import com.vaadin.flow.router.Route;
 import elemental.json.JsonObject;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.EntryDataEvent;
+import org.vaadin.stefan.fullcalendar.EntryDroppedEvent;
+import org.vaadin.stefan.fullcalendar.EntryResizedEvent;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
@@ -28,9 +30,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @MenuItem(label = "Auto Revert")
 public class AutoRevertView extends AbstractCalendarView {
 
-    // Set inside postConstruct; AbstractCalendarView's constructor calls createCalendar +
-    // postConstruct before this subclass's field initialisers run, so we can't use an inline
-    // initialiser. handleEvent guards against the pre-init window.
     private final AtomicBoolean autoApply = new AtomicBoolean(false);
 
     @Override
@@ -39,10 +38,20 @@ public class AutoRevertView extends AbstractCalendarView {
         ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider())
                 .addEntries(EntryService.createSimpleInstance().getEntries());
         calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
-
-        calendar.addEntryDroppedListener(this::handleEvent);
-        calendar.addEntryResizedListener(this::handleEvent);
         return calendar;
+    }
+
+    // Override ACV's defaults: they unconditionally call applyChangesOnEntry(), which would
+    // short-circuit the revert mechanism. Delegate to handleEvent instead, which gates the
+    // apply call on the "Accept drop/resize" checkbox.
+    @Override
+    protected void onEntryDropped(EntryDroppedEvent event) {
+        handleEvent(event);
+    }
+
+    @Override
+    protected void onEntryResized(EntryResizedEvent event) {
+        handleEvent(event);
     }
 
     @Override
