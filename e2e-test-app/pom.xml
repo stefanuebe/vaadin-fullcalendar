@@ -6,11 +6,11 @@
     <parent>
         <groupId>org.vaadin.stefan</groupId>
         <artifactId>fullcalendar-parent</artifactId>
-        <version>6.5.0</version>
+        <version>6.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>fullcalendar-e2e-test-app</artifactId>
-    <version>6.5.0</version>
+    <version>6.5.1-SNAPSHOT</version>
     <name>Full Calendar E2E Test App</name>
     <description>Dedicated Spring Boot app serving test views for Playwright E2E tests</description>
     <packaging>jar</packaging>
@@ -18,7 +18,7 @@
     <properties>
         <vaadin.version>24.9.8</vaadin.version>
         <spring-boot.version>3.5.0</spring-boot.version>
-        <fullcalendar.version>6.5.0</fullcalendar.version>
+        <fullcalendar.version>6.5.1-SNAPSHOT</fullcalendar.version>
 
         <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>
         <plugin.version.maven-surefire>3.5.4</plugin.version.maven-surefire>
