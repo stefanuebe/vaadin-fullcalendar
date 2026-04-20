@@ -60,10 +60,10 @@ public class FullCalendarTest {
     void testNonArgsConstructor() {
         FullCalendar calendar = new FullCalendar();
 
-        // this shall assure that all init options are handled
-        // locale + dayMaxEvents set in postConstruct
-        assertExistingOptionCount(calendar, 2);
+        // locale + dayMaxEvents + editable (addon default, since #212 changed entry-level serialization)
+        assertExistingOptionCount(calendar, 3);
         assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
+        assertEquals(Boolean.TRUE, calendar.getOption(Option.EDITABLE).orElse(null));
     }
 
     @Test
@@ -73,9 +73,8 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar();
         calendar.setMaxEntriesPerDay(entryLimit);
 
-        // this shall assure that all init options are handled
-        // locale + dayMaxEvents set in postConstruct
-        assertExistingOptionCount(calendar, 2);
+        // locale + dayMaxEvents + editable (addon default)
+        assertExistingOptionCount(calendar, 3);
         assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
 
         assertEquals(entryLimit, calendar.getOption(Option.MAX_ENTRIES_PER_DAY).orElse(-1));
@@ -88,15 +87,30 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar(options);
         Element element = calendar.getElement();
 
-        // this shall assure that all init options are handled
-        // locale + dayMaxEvents set in postConstruct
-        assertExistingOptionCount(calendar, 2);
+        // locale + dayMaxEvents + editable (addon default)
+        assertExistingOptionCount(calendar, 3);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
         assertTrue(returnedOptions instanceof ObjectNode, "Returned initial options not instanceof JsonObject");
 
         // TODO integrate Testbench test
 
+    }
+
+    @Test
+    void testInitialOptions_explicitEditableFalse_notOverriddenByAddonDefault() {
+        ObjectNode options = JsonFactory.createObject();
+        options.put(Option.EDITABLE.getOptionKey(), false);
+
+        FullCalendar calendar = new FullCalendar(options);
+
+        // The addon-default branch in postConstruct is skipped because the ctor's
+        // initialOptions already carry editable. Since the user set it via setPropertyJson
+        // (not setOption), the Java-side getOption(EDITABLE) stays empty — the user's value
+        // lives only in the element's initialOptions JSON payload delivered to the client.
+        // The critical assertion: addon default did NOT sneak in a true value.
+        assertTrue(calendar.getOption(Option.EDITABLE).isEmpty(),
+                "addon must not set EDITABLE when the ctor's initialOptions already declares it");
     }
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
