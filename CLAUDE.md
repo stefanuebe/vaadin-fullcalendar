@@ -54,6 +54,7 @@ bash mutation-test-a.sh        # E2E mutations (~5min, requires app on :8080)
 - **Every bug fix must include a verification test.** No bug fix is complete without a test that reproduces the bug and verifies the fix.
 - **Every new feature must include verification** as defined in the relevant spec (see `specs/` directory).
 - **Never commit test code without running it first.** Tests must pass before they are considered done.
+- **Do not start a dev server for the user to verify.** Claude runs inside the devcontainer and its servers are unreachable from the host browser. For UI verification either (a) run Playwright yourself inside the devcontainer and report findings, or (b) hand verification back to the user explicitly ("please run `mvn spring-boot:run` on your host and tell me what you see"). Never leave a background `spring-boot:run` expecting the user to click around.
 
 ## Module Structure
 
