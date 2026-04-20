@@ -1062,8 +1062,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     static final String DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET =
             "if (arguments[0].el && arguments[0].el.classList && arguments[0].el.classList.contains('fc-event-mirror')) return;\n"
                     + "if (arguments[0].event.id && arguments[0].isStart) {\n"
-                    + "  var _resFn = arguments[0].event.getResources;\n"
-                    + "  var _resources = _resFn ? _resFn.call(arguments[0].event) : [];\n"
+                    // FC's Scheduler plugin patches EventApi.prototype.getResources even for
+                    // plain (non-scheduler) calendars when the plugin is on the classpath.
+                    // Its body is `this._def.resourceIds.map(...)` which throws for entries
+                    // that were never set up with resource support (_def.resourceIds is
+                    // undefined). Swallow the error here; we only need the resource id for
+                    // multi-resource uniqueness, which by definition means the entry HAS
+                    // resources, so a throw means "no resources, plain entry-<id>".
+                    + "  var _resources = [];\n"
+                    + "  try { var _resFn = arguments[0].event.getResources; if (_resFn) _resources = _resFn.call(arguments[0].event) || []; } catch (_e) { _resources = []; }\n"
                     + "  var _resEl = arguments[0].el.closest ? arguments[0].el.closest('[data-resource-id]') : null;\n"
                     + "  var _resId = _resEl ? _resEl.getAttribute('data-resource-id') : null;\n"
                     + "  arguments[0].el.id = (_resources.length > 1 && _resId)\n"
