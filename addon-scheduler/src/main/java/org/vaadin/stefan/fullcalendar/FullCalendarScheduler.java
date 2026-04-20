@@ -507,8 +507,17 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     /**
      * Registers a single {@code beforeClientResponse} callback that flushes all
      * pending resource ops. Subsequent calls within the same request are idempotent;
-     * {@link #flushResourceOps()} clears the pending state so the next request starts
-     * fresh.
+     * the callback's {@code finally} block resets both the pending state and the
+     * {@code resourceFlushScheduled} guard so the next request re-schedules fresh.
+     * <p>
+     * <b>Detach mid-request:</b> if the component is detached after a pending write
+     * but before the callback fires, the {@code runWhenAttached} closure is held by
+     * the Vaadin node and re-invoked when the component reattaches, at which point
+     * {@link #onAttach(AttachEvent)} has already (re-)populated {@code pendingAdds}
+     * with the current {@code resources} map. The flush then fires with the correct
+     * state. The guard is intentionally NOT reset on detach — that would cause a
+     * double-registration on reattach because {@code onAttach} also calls this
+     * method.
      * <p>
      * Package-private for testing.
      */
@@ -545,6 +554,9 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         if (pendingRemoveAll) {
             getElement().callJsFunction("removeAllResources");
         } else if (!pendingRemoves.isEmpty()) {
+            // The client-side removeResources handler only reads array[i].id, but we
+            // keep sending full resource.toJson() for wire-shape consistency with
+            // addResources above.
             ArrayNode array = JsonFactory.createArray();
             pendingRemoves.values().forEach(r -> array.add(r.toJson()));
             getElement().callJsFunction("removeResources", array);

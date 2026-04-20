@@ -48,6 +48,33 @@ class SchedulerBatchedWritesTest {
         }
     }
 
+    /**
+     * Simulates a Vaadin request boundary: dispatches pending ops like
+     * {@code flushResourceOps()} and then clears all pending state + the
+     * flush-scheduled guard, exactly as the real {@code beforeClientResponse}
+     * callback's {@code finally} block would. Used by tests that span two
+     * simulated requests.
+     */
+    private void simulateRequestBoundary(FullCalendarScheduler s) {
+        s.flushResourceOps();
+        pending(s, "pendingAdds").clear();
+        pending(s, "pendingRemoves").clear();
+        pending(s, "pendingUpdates").clear();
+        setFlag(s, "pendingRemoveAll", false);
+        setFlag(s, "pendingScrollToLast", false);
+        setFlag(s, "resourceFlushScheduled", false);
+    }
+
+    private void setFlag(FullCalendarScheduler s, String fieldName, boolean value) {
+        try {
+            Field f = FullCalendarScheduler.class.getDeclaredField(fieldName);
+            f.setAccessible(true);
+            f.set(s, value);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     void addResources_queuesInPendingAdds_doesNotFlushImmediately() {
         FullCalendarScheduler s = newScheduler();
@@ -78,9 +105,7 @@ class SchedulerBatchedWritesTest {
         FullCalendarScheduler s = newScheduler();
         Resource original = new Resource("r1", "Original", null);
         s.addResource(original);
-        s.flushResourceOps();
-        // clear pending state as scheduleFlush would do at end of request
-        pending(s, "pendingAdds").clear();
+        simulateRequestBoundary(s);
 
         // Now in a fresh request:
         Resource replacement = new Resource("r1", "Replacement", null);
@@ -90,6 +115,7 @@ class SchedulerBatchedWritesTest {
         assertEquals(1, pending(s, "pendingRemoves").size(), "remove queued");
         assertEquals(1, pending(s, "pendingAdds").size(), "re-add queued as separate op");
         assertSame(replacement, pending(s, "pendingAdds").get("r1"));
+        assertTrue(flag(s, "resourceFlushScheduled"), "second request re-registers the flush");
     }
 
     @Test
@@ -109,8 +135,7 @@ class SchedulerBatchedWritesTest {
         FullCalendarScheduler s = newScheduler();
         Resource r = new Resource("r1", "Room 1", null);
         s.addResource(r);
-        s.flushResourceOps();
-        pending(s, "pendingAdds").clear();
+        simulateRequestBoundary(s);
 
         s.removeResource(r);
         s.updateResource(r);
@@ -132,6 +157,23 @@ class SchedulerBatchedWritesTest {
         assertTrue(pending(s, "pendingRemoves").isEmpty(), "piecewise removes dropped");
         assertTrue(pending(s, "pendingUpdates").isEmpty(), "piecewise updates dropped");
         assertTrue(flag(s, "pendingRemoveAll"), "removeAll flag set");
+    }
+
+    @Test
+    void removeAllThenAdd_sameRequest_flushOrderKeepsRemovesAllBeforeAdds() {
+        FullCalendarScheduler s = newScheduler();
+        s.addResource(new Resource("r1", "R1", null));
+        simulateRequestBoundary(s);
+
+        // Fresh request: wipe the server state, then seed a fresh resource.
+        Resource replacement = new Resource("r2", "R2", null);
+        s.removeAllResources();
+        s.addResource(replacement);
+
+        assertTrue(flag(s, "pendingRemoveAll"), "removeAll flag survives the subsequent add");
+        assertEquals(1, pending(s, "pendingAdds").size(), "new resource queued for add");
+        assertSame(replacement, pending(s, "pendingAdds").get("r2"));
+        // flushResourceOps dispatches removeAll before adds — see flushResourceOps() order.
     }
 
     @Test
