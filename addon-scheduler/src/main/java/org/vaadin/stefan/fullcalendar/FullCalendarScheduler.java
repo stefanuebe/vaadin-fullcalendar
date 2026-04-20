@@ -62,6 +62,22 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     private final List<ComponentResourceAreaColumn<?>> activeComponentColumns = new ArrayList<>();
     private Element hiddenContainer;
 
+    // --- Batched resource-write pending state (see #231) ---
+    // Pending resource ops accumulated within the current server request. All writes
+    // (addResources / removeResources / updateResource / removeAllResources) mutate only
+    // this state; the actual client-side JS calls fire once at beforeClientResponse in
+    // a single, minimal op set. This avoids sending N inner FC updates for N writes —
+    // which was the root cause of the scrollgrid sizing race previously papered over
+    // by a retry loop on the client.
+    // LinkedHashMap preserves insertion order so adds/updates reach the client in the
+    // order the server code performed them.
+    private final Map<String, Resource> pendingAdds = new LinkedHashMap<>();
+    private final Map<String, Resource> pendingRemoves = new LinkedHashMap<>();
+    private final Map<String, Resource> pendingUpdates = new LinkedHashMap<>();
+    private boolean pendingRemoveAll = false;
+    private boolean pendingScrollToLast = false;
+    private boolean resourceFlushScheduled = false;
+
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
      */
@@ -139,20 +155,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                 });
             }
 
-            // Step 3: re-add resources to FC (existing logic)
+            // Step 3: re-add resources to FC. Route through the pending-flush pipeline so
+            // any user-code add/remove/update calls in the same reattach request are
+            // merged into one client dispatch.
             if (!resources.isEmpty()) {
-                getElement().getNode().runWhenAttached(ui -> {
-                    ui.beforeClientResponse(this, executionContext -> {
-                        JsonArray array = JsonFactory.createArray();
-                        resources.values().forEach(resource -> {
-                            // only add top-level resources; children are included via toJson() recursively
-                            if (resource.getParent().isEmpty()) {
-                                array.set(array.length(), resource.toJson());
-                            }
-                        });
-                        getElement().callJsFunction("addResources", array, false);
-                    });
-                });
+                resources.values().forEach(r -> pendingAdds.put(r.getId(), r));
+                scheduleResourceFlush();
             }
         }
     }
@@ -222,13 +230,17 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public void addResources(Iterable<Resource> iterableResource, boolean scrollToLast) {
         Objects.requireNonNull(iterableResource);
 
-        JsonArray array = JsonFactory.createArray();
         iterableResource.forEach(resource -> {
             String id = resource.getId();
             if (!resources.containsKey(id)) {
                 resources.put(id, resource);
                 resource.attachScheduler(this);
-                array.set(array.length(), resource.toJson()); // this automatically sends sub resources to the client side
+                // Queue for client dispatch in beforeClientResponse. Sub-resources are
+                // serialised recursively by toJson() at flush time, so no separate add.
+                pendingAdds.put(id, resource);
+                // Any earlier pending update for this id is collapsed — the add payload
+                // carries the latest state.
+                pendingUpdates.remove(id);
 
                 // create components for active component columns
                 for (var col : activeComponentColumns) {
@@ -239,7 +251,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             // now also register child resources
             registerResourcesInternally(resource.getChildren());
         });
-        getElement().callJsFunction("addResources", array, scrollToLast);
+        pendingScrollToLast = pendingScrollToLast || scrollToLast;
+        scheduleResourceFlush();
     }
 
     /**
@@ -267,8 +280,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         removeFromEntries(iterableResources);
 
-        // create registry of removed items to send to client
-        JsonArray array = JsonFactory.createArray();
         iterableResources.forEach(resource -> {
             String id = resource.getId();
             if (this.resources.containsKey(id)) {
@@ -282,11 +293,18 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
                 this.resources.remove(id);
                 resource.detachScheduler();
-                array.set(array.length(), resource.toJson());
+
+                // Collapse: if this resource was added earlier in the same request, the
+                // client never heard about it — just cancel the pending add.
+                if (pendingAdds.remove(id) == null) {
+                    pendingRemoves.put(id, resource);
+                }
+                // Drop any pending update for a resource we're about to remove anyway.
+                pendingUpdates.remove(id);
             }
         });
 
-        getElement().callJsFunction("removeResources", array);
+        scheduleResourceFlush();
     }
 
     /**
@@ -341,7 +359,15 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         resources.values().forEach(Resource::detachScheduler);
     	resources.clear();
-        getElement().callJsFunction("removeAllResources");
+
+        // The client will receive a single removeAllResources; any earlier piecewise
+        // pending ops in this same request are now moot.
+        pendingAdds.clear();
+        pendingRemoves.clear();
+        pendingUpdates.clear();
+        pendingRemoveAll = true;
+        pendingScrollToLast = false;
+        scheduleResourceFlush();
     }
 
     @Override
@@ -464,7 +490,85 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void updateResource(Resource resource) {
         Objects.requireNonNull(resource);
-        getElement().callJsFunction("updateResource", resource.toJson().toString());
+        String id = resource.getId();
+        if (pendingAdds.containsKey(id)) {
+            // Same-request add + update: the pending add will already carry the
+            // latest toJson() state at flush time; no separate update needed.
+            pendingAdds.put(id, resource);
+        } else if (pendingRemoves.containsKey(id)) {
+            // Updating a resource that's being removed in the same request — the
+            // remove wins; the update is moot.
+            return;
+        } else {
+            pendingUpdates.put(id, resource);
+        }
+        scheduleResourceFlush();
+    }
+
+    /**
+     * Registers a single {@code beforeClientResponse} callback that flushes all
+     * pending resource ops. Subsequent calls within the same request are idempotent;
+     * {@link #flushResourceOps()} clears the pending state so the next request starts
+     * fresh.
+     * <p>
+     * Package-private for testing.
+     */
+    void scheduleResourceFlush() {
+        if (resourceFlushScheduled) {
+            return;
+        }
+        resourceFlushScheduled = true;
+        getElement().getNode().runWhenAttached(ui ->
+                ui.beforeClientResponse(this, ctx -> {
+                    try {
+                        flushResourceOps();
+                    } finally {
+                        resourceFlushScheduled = false;
+                        pendingAdds.clear();
+                        pendingRemoves.clear();
+                        pendingUpdates.clear();
+                        pendingRemoveAll = false;
+                        pendingScrollToLast = false;
+                    }
+                }));
+    }
+
+    /**
+     * Dispatches the minimal set of client-side resource ops that matches the pending
+     * state. Order: {@code removeAllResources} → {@code removeResources} →
+     * {@code addResources} → {@code updateResource} (per entry). A single request with
+     * any number of resource writes fires at most four JS calls plus one per lingering
+     * update.
+     * <p>
+     * Package-private for testing.
+     */
+    void flushResourceOps() {
+        if (pendingRemoveAll) {
+            getElement().callJsFunction("removeAllResources");
+        } else if (!pendingRemoves.isEmpty()) {
+            ArrayNode array = JsonFactory.createArray();
+            pendingRemoves.values().forEach(r -> array.add(r.toJson()));
+            getElement().callJsFunction("removeResources", array);
+        }
+        if (!pendingAdds.isEmpty()) {
+            ArrayNode array = JsonFactory.createArray();
+            pendingAdds.values().forEach(r -> {
+                // only top-level resources; children are included recursively via toJson()
+                if (r.getParent().isEmpty()) {
+                    array.add(r.toJson());
+                }
+            });
+            if (!array.isEmpty()) {
+                getElement().callJsFunction("addResources", array, pendingScrollToLast);
+            }
+        }
+        if (!pendingUpdates.isEmpty()) {
+            // The client-side updateResource takes a single resource JSON. Keep that shape
+            // to avoid a TS-side API addition; the loop still emits at most one JS call per
+            // pending update, batched together in the same request.
+            pendingUpdates.values().forEach(r ->
+                    getElement().callJsFunction("updateResource", r.toJson().toString()));
+        }
     }
 
 
