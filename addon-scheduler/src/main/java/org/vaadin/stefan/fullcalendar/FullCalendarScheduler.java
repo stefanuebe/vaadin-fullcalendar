@@ -559,8 +559,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             // The client-side removeResources handler only reads array[i].id, but we
             // keep sending full resource.toJson() for wire-shape consistency with
             // addResources above.
-            ArrayNode array = JsonFactory.createArray();
-            pendingRemoves.values().forEach(r -> array.add(r.toJson()));
+            JsonArray array = JsonFactory.createArray();
+            pendingRemoves.values().forEach(r -> array.set(array.length(), r.toJson()));
             getElement().callJsFunction("removeResources", array);
         }
         if (!pendingAdds.isEmpty()) {
@@ -568,8 +568,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             // are registered via registerResourcesInternally (which does NOT touch
             // pendingAdds) and serialised recursively via each root's toJson(). The
             // onAttach replay filters to top-level before populating pendingAdds.
-            ArrayNode array = JsonFactory.createArray();
-            pendingAdds.values().forEach(r -> array.add(r.toJson()));
+            JsonArray array = JsonFactory.createArray();
+            pendingAdds.values().forEach(r -> array.set(array.length(), r.toJson()));
             getElement().callJsFunction("addResources", array, pendingScrollToLast);
         }
         if (!pendingUpdates.isEmpty()) {
