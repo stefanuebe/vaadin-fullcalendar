@@ -8,6 +8,8 @@ import com.vaadin.flow.signals.Signal;
 import com.vaadin.flow.signals.local.ValueSignal;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.EntryDataEvent;
+import org.vaadin.stefan.fullcalendar.EntryDroppedEvent;
+import org.vaadin.stefan.fullcalendar.EntryResizedEvent;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
@@ -28,10 +30,10 @@ import tools.jackson.databind.node.ObjectNode;
 @MenuItem(label = "Auto Revert")
 public class AutoRevertView extends AbstractCalendarView {
 
-    // NOTE: not initialised inline — AbstractCalendarView's constructor calls
-    // createCalendar + postConstruct before this subclass's field initialisers run,
-    // so we defer instantiation to postConstruct. The drop/resize handler is registered
-    // from createCalendar, which runs first; handleEvent therefore checks for null.
+    // Not initialised inline — AbstractCalendarView's constructor runs createCalendar and
+    // postConstruct before this subclass's field initialisers, so we defer to postConstruct.
+    // handleEvent keeps a null-guard because ACV wires the drop/resize listeners during its
+    // constructor, which is before postConstruct has had a chance to run.
     private ValueSignal<Boolean> autoApply;
 
     @Override
@@ -40,10 +42,20 @@ public class AutoRevertView extends AbstractCalendarView {
         ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider())
                 .addEntries(EntryService.createSimpleInstance().getEntries());
         calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
-
-        calendar.addEntryDroppedListener(this::handleEvent);
-        calendar.addEntryResizedListener(this::handleEvent);
         return calendar;
+    }
+
+    // Override ACV's defaults: they unconditionally call applyChangesOnEntry(), which would
+    // short-circuit the revert mechanism. Delegate to handleEvent instead, which gates the
+    // apply call on the "Accept drop/resize" checkbox.
+    @Override
+    protected void onEntryDropped(EntryDroppedEvent event) {
+        handleEvent(event);
+    }
+
+    @Override
+    protected void onEntryResized(EntryResizedEvent event) {
+        handleEvent(event);
     }
 
     @Override
