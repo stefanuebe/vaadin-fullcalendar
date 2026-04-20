@@ -84,19 +84,6 @@ export class FullCalendar extends HTMLElement {
     /** Pending revert functions from eventDrop/eventResize, keyed by entry ID. */
     private _pendingReverts: Map<string, () => void> = new Map();
 
-    /**
-     * Maximum wall-clock time (ms) to keep retrying updateSize after initial render
-     * while the scrollgrid is stuck at width: 0px. See issue #231.
-     * Override from Java with {@code getElement().setProperty("sizingRetryMaxWaitMs", 1000)}.
-     */
-    sizingRetryMaxWaitMs = 500;
-
-    /**
-     * Retry interval (ms) used while waiting for the scrollgrid to settle. See issue #231.
-     * Override from Java with {@code getElement().setProperty("sizingRetryIntervalMs", 20)}.
-     */
-    sizingRetryIntervalMs = 10;
-
     // contains any json based initial options (not the ones set via setOption). might be empty in most cases
     protected initialJsonOptions = {};
     protected initialOptions = {};
@@ -179,26 +166,9 @@ export class FullCalendar extends HTMLElement {
             // Deferred updateSize to fix broken initial layout when the container dimensions
             // are not yet finalized at render time (e.g. inside tabs, dialogs, lazy-loaded views).
             // Two nested rAFs ensure the call happens after both layout and paint are complete.
-            //
-            // Additional retry loop for issue #231: in dense timeline layouts (many resources)
-            // the inner Preact tree can take longer to settle than two rAFs. computeScrollerDims()
-            // then writes width: 0px onto scrollgrid chunk tables, and nothing re-fires because
-            // the outer element never resizes. Retry updateSize in wall-clock intervals until the
-            // scrollgrid stabilises (width no longer 0px) or we hit the max wait time.
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     this._calendar?.updateSize();
-
-                    const startedAt = performance.now();
-                    const retryUpdateSize = () => {
-                        const stuck = this.querySelector('.fc-scrollgrid-sync-table') as HTMLElement | null;
-                        if (stuck && stuck.style.width === '0px' &&
-                                performance.now() - startedAt < this.sizingRetryMaxWaitMs) {
-                            this._calendar?.updateSize();
-                            setTimeout(retryUpdateSize, this.sizingRetryIntervalMs);
-                        }
-                    };
-                    setTimeout(retryUpdateSize, this.sizingRetryIntervalMs);
                 });
             });
 
