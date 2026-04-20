@@ -115,6 +115,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * map, like eventContent
      */
     private final Map<String, Object> initialOptions = new HashMap<>();
+
+    /**
+     * The JsonObject passed to {@link #FullCalendar(JsonObject)}, kept so the addon-default
+     * logic in {@link #postConstruct()} can tell whether the caller already provided a
+     * particular option. {@code null} for the no-arg / int-limit constructors.
+     */
+    private JsonObject constructorInitialOptions;
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
     private EntryProvider<? extends Entry> entryProvider;
@@ -241,6 +248,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
 
         this.getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
+        this.constructorInitialOptions = initialOptions;
 
         if (!(initialOptions.hasKey(Option.LOCALE.getOptionKey()) && initialOptions.get(Option.LOCALE.getOptionKey()).getType() != JsonType.NULL)) {
             // fallback to prevent strange locale effects on the client side
@@ -278,6 +286,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /* to allow class based styling for custom subclasses (e.g. for applying the lumo theme)*/
         addClassName("vaadin-full-calendar");
         addThemeVariants(FullCalendarVariant.VAADIN);
+
+        // Addon default: editable=true. FC's native default is false; since #212 the per-entry
+        // editable flag is no longer force-pushed, so without this the out-of-the-box UX would
+        // flip to "nothing draggable". Don't override an explicit value in the initialOptions ctor.
+        String editableKey = Option.EDITABLE.getOptionKey();
+        if (constructorInitialOptions == null
+                || !constructorInitialOptions.hasKey(editableKey)
+                || constructorInitialOptions.get(editableKey).getType() == JsonType.NULL) {
+            setOption(Option.EDITABLE, true);
+        }
     }
 
     @Override
