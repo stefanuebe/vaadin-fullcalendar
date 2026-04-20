@@ -96,6 +96,6 @@ public class AutoRevertView extends AbstractCalendarView {
         Entry entry = event.getEntry();
         Notification.show(
                 "Client: " + jsonObject.get("start") + " - " + jsonObject.get("end")
-                        + " | Server: " + entry.getStart().toLocalDate() + " - " + entry.getEnd().toLocalDate());
+                        + " | Server: " + entry.getStartAsLocalDate() + " - " + entry.getEndAsLocalDate());
     }
 }
