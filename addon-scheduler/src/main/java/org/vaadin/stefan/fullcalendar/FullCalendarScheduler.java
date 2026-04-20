@@ -157,9 +157,14 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
             // Step 3: re-add resources to FC. Route through the pending-flush pipeline so
             // any user-code add/remove/update calls in the same reattach request are
-            // merged into one client dispatch.
+            // merged into one client dispatch. Filter to top-level resources here because
+            // the resources map also contains children (registered via
+            // registerResourcesInternally); children are serialised recursively via
+            // each root's toJson() and must not be sent separately.
             if (!resources.isEmpty()) {
-                resources.values().forEach(r -> pendingAdds.put(r.getId(), r));
+                resources.values().stream()
+                        .filter(r -> r.getParent().isEmpty())
+                        .forEach(r -> pendingAdds.put(r.getId(), r));
                 scheduleResourceFlush();
             }
         }
@@ -519,10 +524,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * state. The guard is intentionally NOT reset on detach — that would cause a
      * double-registration on reattach because {@code onAttach} also calls this
      * method.
-     * <p>
-     * Package-private for testing.
      */
-    void scheduleResourceFlush() {
+    protected void scheduleResourceFlush() {
         if (resourceFlushScheduled) {
             return;
         }
@@ -548,10 +551,8 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * {@code addResources} → {@code updateResource} (per entry). A single request with
      * any number of resource writes fires at most four JS calls plus one per lingering
      * update.
-     * <p>
-     * Package-private for testing.
      */
-    void flushResourceOps() {
+    protected void flushResourceOps() {
         if (pendingRemoveAll) {
             getElement().callJsFunction("removeAllResources");
         } else if (!pendingRemoves.isEmpty()) {
@@ -563,16 +564,13 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             getElement().callJsFunction("removeResources", array);
         }
         if (!pendingAdds.isEmpty()) {
+            // pendingAdds is expected to contain only top-level resources; children
+            // are registered via registerResourcesInternally (which does NOT touch
+            // pendingAdds) and serialised recursively via each root's toJson(). The
+            // onAttach replay filters to top-level before populating pendingAdds.
             ArrayNode array = JsonFactory.createArray();
-            pendingAdds.values().forEach(r -> {
-                // only top-level resources; children are included recursively via toJson()
-                if (r.getParent().isEmpty()) {
-                    array.add(r.toJson());
-                }
-            });
-            if (!array.isEmpty()) {
-                getElement().callJsFunction("addResources", array, pendingScrollToLast);
-            }
+            pendingAdds.values().forEach(r -> array.add(r.toJson()));
+            getElement().callJsFunction("addResources", array, pendingScrollToLast);
         }
         if (!pendingUpdates.isEmpty()) {
             // The client-side updateResource takes a single resource JSON. Keep that shape
