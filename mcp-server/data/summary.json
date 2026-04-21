@@ -1,11 +1,11 @@
 {
-  "version": "7.1.2",
-  "extractedAt": "2026-03-23T08:00:41.916Z",
+  "version": "7.2.0",
+  "extractedAt": "2026-04-21T04:33:59.629Z",
   "counts": {
-    "documentation": 17,
-    "classes": 101,
-    "examples": 83,
-    "entryProperties": 47,
+    "documentation": 41,
+    "classes": 104,
+    "examples": 90,
+    "entryProperties": 42,
     "calendarViews": 44,
     "eventTypes": 15
   }
