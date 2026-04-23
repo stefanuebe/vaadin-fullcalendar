@@ -258,8 +258,8 @@ public class EntryModelTest {
         assertTrue(rruleStr.contains("FREQ=WEEKLY"), "RRULE string must contain FREQ=WEEKLY");
 
         JsonNode json = rrule.toJson();
-        assertTrue(json.isString(), "toJson() must return a StringNode");
-        assertEquals(rruleStr, json.asString());
+        assertTrue(json.isObject(), "toJson() must return an ObjectNode for structured form");
+        assertEquals("weekly", json.get("freq").asString(), "freq must be lowercase 'weekly' for the rrule plugin");
     }
 
     @Test
@@ -354,6 +354,26 @@ public class EntryModelTest {
         assertTrue(rruleStr.contains("BYDAY=-1FR,2MO"), "RRULE string must contain BYDAY=-1FR,2MO: " + rruleStr);
     }
 
+    @Test
+    void rrule_positionalByWeekday_serializesAsString() {
+        // Object form would break FC: it resolves weekday strings via RRule[day.toUpperCase()],
+        // which only knows plain MO..SU. A positional token like "-1fr" would resolve to undefined
+        // and crash the plugin. Keep string form so FC's iCal parser handles it.
+        JsonNode json = RRule.monthly().byWeekday("-1fr").toJson();
+        assertTrue(json.isString(), "positional byweekday must fall back to StringNode");
+        assertTrue(json.asString().contains("BYDAY=-1FR"));
+    }
+
+    @Test
+    void rrule_plainByWeekday_serializesAsObjectWithLowercaseDays() {
+        JsonNode json = RRule.weekly().byWeekday(DayOfWeek.MONDAY, DayOfWeek.FRIDAY).toJson();
+        assertTrue(json.isObject(), "plain byweekday must serialize as ObjectNode");
+        JsonNode days = json.get("byweekday");
+        assertTrue(days.isArray());
+        assertEquals("mo", days.get(0).asString());
+        assertEquals("fr", days.get(1).asString());
+    }
+
     // -------------------------------------------------------------------------
     // RRule — raw string form
     // -------------------------------------------------------------------------
@@ -397,9 +417,63 @@ public class EntryModelTest {
 
         ObjectNode json = entry.toJson();
         assertTrue(json.hasNonNull("rrule"), "rrule key must be present in entry JSON");
-        assertTrue(json.get("rrule").isString(), "rrule value must be a StringNode for structured form");
-        assertTrue(json.get("rrule").asString().contains("FREQ=WEEKLY"), "rrule string must contain FREQ=WEEKLY");
-        assertTrue(json.get("rrule").asString().contains("BYDAY=MO"), "rrule string must contain BYDAY=MO");
+        JsonNode rruleNode = json.get("rrule");
+        assertTrue(rruleNode.isObject(), "structured rrule must serialize as an ObjectNode");
+        assertEquals("weekly", rruleNode.get("freq").asString());
+        assertTrue(rruleNode.get("byweekday").isArray(), "byweekday must be an ArrayNode");
+        assertEquals("mo", rruleNode.get("byweekday").get(0).asString());
+    }
+
+    @Test
+    void entry_rrule_missingDtstart_injectedFromAllDayEntryStart() {
+        // Without dtstart rrule-js generates no occurrences. If the entry has a start, use it.
+        Entry entry = new Entry();
+        entry.setAllDay(true);
+        entry.setStart(LocalDate.of(2025, 3, 3).atStartOfDay());
+        entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.MONDAY));
+
+        JsonNode rruleNode = entry.toJson().get("rrule");
+        assertTrue(rruleNode.isObject());
+        assertEquals("2025-03-03", rruleNode.get("dtstart").asString(),
+                "all-day entries must emit a date-only dtstart");
+    }
+
+    @Test
+    void entry_rrule_missingDtstart_injectedFromTimedEntryStart() {
+        Entry entry = new Entry();
+        entry.setAllDay(false);
+        entry.setStart(LocalDateTime.of(2025, 3, 3, 10, 30));
+        entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.MONDAY));
+
+        JsonNode rruleNode = entry.toJson().get("rrule");
+        assertTrue(rruleNode.isObject());
+        assertEquals("2025-03-03T10:30:00", rruleNode.get("dtstart").asString(),
+                "timed entries must emit a datetime dtstart");
+    }
+
+    @Test
+    void entry_rrule_existingDtstart_notOverridden() {
+        Entry entry = new Entry();
+        entry.setAllDay(true);
+        entry.setStart(LocalDate.of(2025, 1, 1).atStartOfDay());
+        entry.setRRule(RRule.weekly().dtstart(LocalDate.of(2025, 3, 3)).byWeekday(DayOfWeek.MONDAY));
+
+        JsonNode rruleNode = entry.toJson().get("rrule");
+        assertEquals("2025-03-03", rruleNode.get("dtstart").asString(),
+                "explicit dtstart on the RRule must win over the entry's start");
+    }
+
+    @Test
+    void entry_rrule_rawForm_dtstartNotInjected() {
+        // Raw form is a StringNode; converter must not try to add dtstart.
+        Entry entry = new Entry();
+        entry.setAllDay(true);
+        entry.setStart(LocalDate.of(2025, 3, 3).atStartOfDay());
+        entry.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO"));
+
+        JsonNode rruleNode = entry.toJson().get("rrule");
+        assertTrue(rruleNode.isString());
+        assertEquals("FREQ=WEEKLY;BYDAY=MO", rruleNode.asString());
     }
 
     @Test
@@ -441,9 +515,10 @@ public class EntryModelTest {
 
         ObjectNode json = entry.toJson();
         assertTrue(json.hasNonNull("exrule"), "exrule must be present");
-        assertTrue(json.get("exrule").isString(), "single exrule must be serialized as StringNode");
-        assertTrue(json.get("exrule").asString().contains("FREQ=DAILY"), "exrule string must contain FREQ=DAILY");
-        assertTrue(json.get("exrule").asString().contains("COUNT=3"), "exrule string must contain COUNT=3");
+        JsonNode exruleNode = json.get("exrule");
+        assertTrue(exruleNode.isObject(), "single exrule must be serialized as an ObjectNode");
+        assertEquals("daily", exruleNode.get("freq").asString());
+        assertEquals(3, exruleNode.get("count").asInt());
     }
 
     @Test
@@ -458,8 +533,10 @@ public class EntryModelTest {
         assertTrue(json.get("exrule").isArray(), "multiple exrules must be serialized as ArrayNode");
         ArrayNode array = (ArrayNode) json.get("exrule");
         assertEquals(2, array.size());
-        assertTrue(array.get(0).isString(), "each exrule element must be a StringNode");
-        assertTrue(array.get(1).isString(), "each exrule element must be a StringNode");
+        assertTrue(array.get(0).isObject(), "each exrule element must be an ObjectNode");
+        assertEquals("daily", array.get(0).get("freq").asString());
+        assertTrue(array.get(1).isObject());
+        assertEquals("monthly", array.get(1).get("freq").asString());
     }
 
     @Test

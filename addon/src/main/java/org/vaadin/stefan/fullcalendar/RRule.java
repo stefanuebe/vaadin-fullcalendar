@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import lombok.Getter;
 import lombok.NonNull;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
@@ -499,14 +500,92 @@ public class RRule {
     /**
      * Serializes this RRule to a JsonNode for sending to the FC client.
      * <ul>
-     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a StringNode.</li>
-     *   <li>Otherwise, returns an ObjectNode with the structured properties.</li>
+     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a StringNode so FC
+     *       parses it through the iCalendar string parser.</li>
+     *   <li>If {@link #byweekday} contains a positional token such as {@code "-1fr"} or {@code "2mo"},
+     *       returns a StringNode. FC's object-form parser resolves weekday strings via
+     *       {@code rrule.RRule[day.toUpperCase()]}, which only knows plain {@code MO..SU} — a
+     *       positional token would resolve to {@code undefined} and crash the plugin. The string
+     *       (iCal) parser handles positional BYDAY tokens natively.</li>
+     *   <li>Otherwise, returns an ObjectNode with the structured properties. FC's rrule plugin
+     *       requires the object form when the enclosing entry also carries {@code exdate} or
+     *       {@code exrule} — sending the rrule as a string in those cases crashes the plugin.</li>
      * </ul>
      *
      * @return JsonNode representing this RRule
      */
     public JsonNode toJson() {
-        return JsonUtils.toJsonNode(toRRuleString());
+        if (rawRRule != null || hasPositionalByWeekday()) {
+            return JsonUtils.toJsonNode(toRRuleString());
+        }
+        return toJsonObject();
+    }
+
+    /**
+     * Positional BYDAY tokens take the form {@code <sign><n><day>} (e.g. {@code "-1fr"}, {@code "2mo"}),
+     * i.e. anything longer than the two-letter day abbreviation.
+     */
+    private boolean hasPositionalByWeekday() {
+        return byweekday != null && byweekday.stream().anyMatch(d -> d != null && d.length() > 2);
+    }
+
+    /**
+     * Serializes the structured form to an ObjectNode using the lowercase property names expected
+     * by the rrule-js library (e.g. {@code freq}, {@code dtstart}, {@code byweekday}).
+     *
+     * @return ObjectNode representation of this RRule
+     */
+    private ObjectNode toJsonObject() {
+        ObjectNode obj = JsonFactory.createObject();
+        if (freq != null) {
+            obj.put("freq", freq.getClientSideValue());
+        }
+        if (dtstart != null) {
+            obj.put("dtstart", dtstart);
+        }
+        if (until != null) {
+            obj.put("until", until);
+        }
+        if (count != null) {
+            obj.put("count", count);
+        }
+        if (interval != null) {
+            obj.put("interval", interval);
+        }
+        if (byweekday != null && !byweekday.isEmpty()) {
+            ArrayNode arr = JsonFactory.createArray();
+            byweekday.forEach(arr::add);
+            obj.set("byweekday", arr);
+        }
+        if (byyearday != null && !byyearday.isEmpty()) {
+            ArrayNode arr = JsonFactory.createArray();
+            byyearday.forEach(arr::add);
+            obj.set("byyearday", arr);
+        }
+        if (bymonth != null && !bymonth.isEmpty()) {
+            ArrayNode arr = JsonFactory.createArray();
+            bymonth.forEach(arr::add);
+            obj.set("bymonth", arr);
+        }
+        if (bymonthday != null && !bymonthday.isEmpty()) {
+            ArrayNode arr = JsonFactory.createArray();
+            bymonthday.forEach(arr::add);
+            obj.set("bymonthday", arr);
+        }
+        if (byhour != null && !byhour.isEmpty()) {
+            ArrayNode arr = JsonFactory.createArray();
+            byhour.forEach(arr::add);
+            obj.set("byhour", arr);
+        }
+        if (byminute != null && !byminute.isEmpty()) {
+            ArrayNode arr = JsonFactory.createArray();
+            byminute.forEach(arr::add);
+            obj.set("byminute", arr);
+        }
+        if (wkst != null) {
+            obj.put("wkst", wkst);
+        }
+        return obj;
     }
 
     /**

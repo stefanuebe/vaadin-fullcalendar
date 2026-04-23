@@ -112,6 +112,66 @@ test.describe('Entry Model', () => {
     });
 
     // -------------------------------------------------------------------------
+    // Exdate WITHOUT DTSTART — reproduces suspected byWeekday + exdate breakage.
+    // If exdate works without DTSTART, these pass. If it fails silently, the
+    // skipped-Monday and total-count assertions fail (5 occurrences instead of 4).
+    // -------------------------------------------------------------------------
+
+    test('exdate (no dtstart): skipped Monday is absent from its day cell', async ({ page }) => {
+        const march10Cell = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
+        await expect(march10Cell.locator('.fc-event:has-text("Exdate No DTSTART")')).toHaveCount(0);
+    });
+
+    test('exdate (no dtstart): non-excluded Monday still renders', async ({ page }) => {
+        const march17Cell = page.locator('.fc-daygrid-day[data-date="2025-03-17"]');
+        await expect(march17Cell.locator('.fc-event:has-text("Exdate No DTSTART")')).toHaveCount(1);
+    });
+
+    test('exdate (no dtstart): total occurrences is 4', async ({ page }) => {
+        const occurrences = page.locator('.fc-event:has-text("Exdate No DTSTART")');
+        await expect(occurrences).toHaveCount(4);
+    });
+
+    // -------------------------------------------------------------------------
+    // Exdate WITHOUT byWeekday — DTSTART on a Monday implies weekly-on-Monday.
+    // -------------------------------------------------------------------------
+
+    test('exdate (no byWeekday): skipped Monday is absent from its day cell', async ({ page }) => {
+        const march10Cell = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
+        await expect(march10Cell.locator('.fc-event:has-text("Exdate No ByWeekday")')).toHaveCount(0);
+    });
+
+    test('exdate (no byWeekday): non-excluded Monday still renders', async ({ page }) => {
+        const march17Cell = page.locator('.fc-daygrid-day[data-date="2025-03-17"]');
+        await expect(march17Cell.locator('.fc-event:has-text("Exdate No ByWeekday")')).toHaveCount(1);
+    });
+
+    test('exdate (no byWeekday): total occurrences is 4', async ({ page }) => {
+        const occurrences = page.locator('.fc-event:has-text("Exdate No ByWeekday")');
+        await expect(occurrences).toHaveCount(4);
+    });
+
+    // -------------------------------------------------------------------------
+    // Exrule — main weekly Mondays, exrule excludes the Monday of 2025-03-17.
+    // Expected: 4 occurrences (3, 10, 24, 31). Never verified in the calendar before.
+    // -------------------------------------------------------------------------
+
+    test('exrule: excluded Monday (March 17) is absent', async ({ page }) => {
+        const march17Cell = page.locator('.fc-daygrid-day[data-date="2025-03-17"]');
+        await expect(march17Cell.locator('.fc-event:has-text("Exrule Test")')).toHaveCount(0);
+    });
+
+    test('exrule: non-excluded Monday (March 24) still renders', async ({ page }) => {
+        const march24Cell = page.locator('.fc-daygrid-day[data-date="2025-03-24"]');
+        await expect(march24Cell.locator('.fc-event:has-text("Exrule Test")')).toHaveCount(1);
+    });
+
+    test('exrule: total occurrences is 4 (5 Mondays minus 1 via exrule)', async ({ page }) => {
+        const occurrences = page.locator('.fc-event:has-text("Exrule Test")');
+        await expect(occurrences).toHaveCount(4);
+    });
+
+    // -------------------------------------------------------------------------
     // Monthly last-Friday
     // -------------------------------------------------------------------------
 
