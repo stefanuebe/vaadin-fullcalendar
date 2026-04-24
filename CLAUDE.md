@@ -48,6 +48,24 @@ bash mutation-test-a.sh        # E2E mutations (~5min, requires app on :8080)
 ./demo/mvnw clean install
 ```
 
+## Release Workflow
+
+The `v-herd-demo` branch always reflects the **currently released** version — it is the source for the demo server and the MCP server deployment. Therefore, releases must happen in a strict order so the tag, the demo branch, and the next snapshot all line up.
+
+For every release (patch, minor, or major):
+
+1. **Strip `-SNAPSHOT`** from every `<version>` and `<fullcalendar.version>` across all POMs (root, `addon`, `addon-scheduler`, `demo`, `e2e-test-app`).
+2. **Commit** as `Release <version>` (matches the style of existing release commits, e.g. `5f861d00`).
+3. **Tag** the commit as annotated tag `<version>` with message `Release <version>` (e.g. `git tag -a 7.2.1 -m "Release 7.2.1"`).
+4. **Do not bump the snapshot yet.** The next snapshot bump goes *after* step 5.
+5. **Sync `v-herd-demo` to the release state.** Check out `v-herd-demo` and merge master (`git merge master -X theirs` to take master's POM values over the historical `v-herd-version` commit). Resulting tree should show the released version across all POMs. Push.
+6. **Back on master: bump to the next snapshot** (usually `+1` on the patch, e.g. `7.2.1 → 7.2.2-SNAPSHOT`). Commit as `Bump to <next>-SNAPSHOT`.
+7. **Push master and the new tag.**
+
+Why this order matters: if the snapshot is bumped before `v-herd-demo` is synced, merging master into `v-herd-demo` brings in the snapshot version — then the demo server redeploys against a `-SNAPSHOT` artifact that isn't in any public repo, and the deployment breaks.
+
+Never push the release tag before confirming with the user — tags are public the moment they hit the remote and can't be rewritten cleanly.
+
 ## Verification / Testing Rules
 
 - **Bug report triage: always check for existing tests first.** When a bug is reported, immediately check whether an existing test (unit, integration, or E2E) covers the affected use case. If a test exists but didn't catch the bug, fix the test. If no test exists, create one.
