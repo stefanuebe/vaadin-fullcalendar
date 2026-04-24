@@ -55,14 +55,17 @@ The `v-herd-demo` branch always reflects the **currently released** version — 
 For every release (patch, minor, or major):
 
 1. **Strip `-SNAPSHOT`** from every `<version>` and `<fullcalendar.version>` across all POMs (root, `addon`, `addon-scheduler`, `demo`, `e2e-test-app`).
-2. **Commit** as `Release <version>` (matches the style of existing release commits, e.g. `5f861d00`).
-3. **Tag** the commit as annotated tag `<version>` with message `Release <version>` (e.g. `git tag -a 7.2.1 -m "Release 7.2.1"`).
-4. **Do not bump the snapshot yet.** The next snapshot bump goes *after* step 5.
-5. **Sync `v-herd-demo` to the release state.** Check out `v-herd-demo` and merge master (`git merge master -X theirs` to take master's POM values over the historical `v-herd-version` commit). Resulting tree should show the released version across all POMs. Push.
-6. **Back on master: bump to the next snapshot** (usually `+1` on the patch, e.g. `7.2.1 → 7.2.2-SNAPSHOT`). Commit as `Bump to <next>-SNAPSHOT`.
-7. **Push master and the new tag.**
+2. **Update `ADDON_VERSION`** in `demo/src/main/java/org/vaadin/stefan/ui/layouts/AbstractLayout.java` to the release version (without `-SNAPSHOT`). This string constant is rendered in the demo/MCP-server footer, so it must match the deployed artifact version. The same file also exists in `spike/` but is not on the release path — leave it alone.
+3. **Commit** as `Release <version>` (matches the style of existing release commits, e.g. `5f861d00`). The commit must include both the POM and the `ADDON_VERSION` change so the tag and the `v-herd-demo` merge both carry a consistent tree.
+4. **Tag** the commit as annotated tag `<version>` with message `Release <version>` (e.g. `git tag -a 7.2.1 -m "Release 7.2.1"`).
+5. **Do not bump the snapshot yet.** The next snapshot bump goes *after* step 6.
+6. **Sync `v-herd-demo` to the release state.** Check out `v-herd-demo` and merge master (`git merge master -X theirs` to take master's POM values over the historical `v-herd-version` commit). Resulting tree should show the released version across all POMs *and* in `ADDON_VERSION`. Push.
+7. **Back on master: bump to the next snapshot** (usually `+1` on the patch, e.g. `7.2.1 → 7.2.2-SNAPSHOT`). Update both the POMs *and* `ADDON_VERSION` (e.g. `"7.2.2-SNAPSHOT"`). Commit as `Bump to <next>-SNAPSHOT`.
+8. **Push master and the new tag.**
 
 Why this order matters: if the snapshot is bumped before `v-herd-demo` is synced, merging master into `v-herd-demo` brings in the snapshot version — then the demo server redeploys against a `-SNAPSHOT` artifact that isn't in any public repo, and the deployment breaks.
+
+Why `ADDON_VERSION` matters: the demo server and the MCP server both render this constant as "Version X" in their UI. If it drifts from the actual POM version, deployed demos display a misleading version number. Forgetting to update it at release time has historically required a follow-up cherry-pick into `v-herd-demo`, which is the kind of thing the workflow is supposed to prevent.
 
 Never push the release tag before confirming with the user — tags are public the moment they hit the remote and can't be rewritten cleanly.
 
