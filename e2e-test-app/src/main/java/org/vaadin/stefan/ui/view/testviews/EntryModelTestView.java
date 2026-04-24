@@ -151,6 +151,56 @@ public class EntryModelTestView extends VerticalLayout {
         rawEntry.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=WE;DTSTART=20250305;UNTIL=20250331"));
         provider.addEntry(rawEntry);
 
+        // 8. Exdate WITHOUT DTSTART — byWeekday only, relying on entry.start as reference.
+        //    Hypothesis: exdate silently fails because rrule-lib receives no dtstart and
+        //    generates occurrences with an implicit time part that doesn't match the
+        //    date-only exdate "2025-03-10".
+        //    Mondays: 3, 10, 17, 24, 31 → expected after exdate: 4 occurrences.
+        Entry exdateNoDtstart = new Entry();
+        exdateNoDtstart.setTitle("Exdate No DTSTART");
+        exdateNoDtstart.setStart(LocalDate.of(2025, 3, 3).atStartOfDay());
+        exdateNoDtstart.setAllDay(true);
+        exdateNoDtstart.setRRule(
+                RRule.weekly()
+                        .until(LocalDate.of(2025, 3, 31))
+                        .byWeekday(DayOfWeek.MONDAY)
+                        .excludeDates(LocalDate.of(2025, 3, 10))
+        );
+        provider.addEntry(exdateNoDtstart);
+
+        // 9. Exdate WITHOUT byWeekday — DTSTART on a Monday implies weekly-on-Monday.
+        //    Mondays: 3, 10, 17, 24, 31 → expected after exdate: 4 occurrences.
+        Entry exdateNoByWeekday = new Entry();
+        exdateNoByWeekday.setTitle("Exdate No ByWeekday");
+        exdateNoByWeekday.setAllDay(true);
+        exdateNoByWeekday.setRRule(
+                RRule.weekly()
+                        .dtstart(LocalDate.of(2025, 3, 3))
+                        .until(LocalDate.of(2025, 3, 31))
+                        .excludeDates(LocalDate.of(2025, 3, 10))
+        );
+        provider.addEntry(exdateNoByWeekday);
+
+        // 10. Exrule — main: weekly Mondays in March 2025 (5 occurrences),
+        //     exrule: weekly, single Monday 2025-03-17 (count=1) → exclude that one.
+        //     Expected: 4 occurrences (3, 10, 24, 31).
+        Entry exruleEntry = new Entry();
+        exruleEntry.setTitle("Exrule Test");
+        exruleEntry.setAllDay(true);
+        exruleEntry.setRRule(
+                RRule.weekly()
+                        .dtstart(LocalDate.of(2025, 3, 3))
+                        .until(LocalDate.of(2025, 3, 31))
+                        .byWeekday(DayOfWeek.MONDAY)
+                        .excludeRules(
+                                RRule.weekly()
+                                        .dtstart(LocalDate.of(2025, 3, 17))
+                                        .count(1)
+                                        .byWeekday(DayOfWeek.MONDAY)
+                        )
+        );
+        provider.addEntry(exruleEntry);
+
         calendar.setEntryProvider(provider);
 
         // --- Click listener updates counter and title ---
