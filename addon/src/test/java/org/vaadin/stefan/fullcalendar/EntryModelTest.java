@@ -259,8 +259,8 @@ public class EntryModelTest {
         assertTrue(rruleStr.contains("FREQ=WEEKLY"), "RRULE string must contain FREQ=WEEKLY");
 
         JsonValue json = rrule.toJson();
-        assertEquals(JsonType.STRING, json.getType(), "toJson() must return a string value");
-        assertEquals(rruleStr, json.asString());
+        assertEquals(JsonType.OBJECT, json.getType(), "toJson() must return a JsonObject for structured form");
+        assertEquals("weekly", ((JsonObject) json).getString("freq"), "freq must be lowercase 'weekly' for the rrule plugin");
     }
 
     @Test
@@ -355,6 +355,26 @@ public class EntryModelTest {
         assertTrue(rruleStr.contains("BYDAY=-1FR,2MO"), "RRULE string must contain BYDAY=-1FR,2MO: " + rruleStr);
     }
 
+    @Test
+    void rrule_positionalByWeekday_serializesAsString() {
+        // Object form would break FC: it resolves weekday strings via RRule[day.toUpperCase()],
+        // which only knows plain MO..SU. A positional token like "-1fr" would resolve to undefined
+        // and crash the plugin. Keep string form so FC's iCal parser handles it.
+        JsonValue json = RRule.monthly().byWeekday("-1fr").toJson();
+        assertEquals(JsonType.STRING, json.getType(), "positional byweekday must fall back to string");
+        assertTrue(json.asString().contains("BYDAY=-1FR"));
+    }
+
+    @Test
+    void rrule_plainByWeekday_serializesAsObjectWithLowercaseDays() {
+        JsonValue json = RRule.weekly().byWeekday(DayOfWeek.MONDAY, DayOfWeek.FRIDAY).toJson();
+        assertEquals(JsonType.OBJECT, json.getType(), "plain byweekday must serialize as JsonObject");
+        JsonArray days = ((JsonObject) json).getArray("byweekday");
+        assertEquals(2, days.length());
+        assertEquals("mo", days.getString(0));
+        assertEquals("fr", days.getString(1));
+    }
+
     // -------------------------------------------------------------------------
     // RRule — raw string form
     // -------------------------------------------------------------------------
@@ -398,9 +418,75 @@ public class EntryModelTest {
 
         JsonObject json = entry.toJson();
         assertTrue(json.hasKey("rrule") && json.get("rrule").getType() != JsonType.NULL, "rrule key must be present in entry JSON");
-        assertEquals(JsonType.STRING, json.get("rrule").getType(), "rrule value must be a string for structured form");
-        assertTrue(json.get("rrule").asString().contains("FREQ=WEEKLY"), "rrule string must contain FREQ=WEEKLY");
-        assertTrue(json.get("rrule").asString().contains("BYDAY=MO"), "rrule string must contain BYDAY=MO");
+        assertEquals(JsonType.OBJECT, json.get("rrule").getType(), "structured rrule must serialize as a JsonObject");
+        JsonObject rruleNode = json.getObject("rrule");
+        assertEquals("weekly", rruleNode.getString("freq"));
+        assertEquals(JsonType.ARRAY, rruleNode.get("byweekday").getType(), "byweekday must be a JsonArray");
+        assertEquals("mo", rruleNode.getArray("byweekday").getString(0));
+    }
+
+    @Test
+    void entry_rrule_missingDtstart_injectedFromAllDayEntryStart() {
+        // Without dtstart rrule-js generates no occurrences. If the entry has a start, use it.
+        Entry entry = new Entry();
+        entry.setAllDay(true);
+        entry.setStart(LocalDate.of(2025, 3, 3).atStartOfDay());
+        entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.MONDAY));
+
+        JsonObject rruleNode = entry.toJson().getObject("rrule");
+        assertEquals("2025-03-03", rruleNode.getString("dtstart"),
+                "all-day entries must emit a date-only dtstart");
+    }
+
+    @Test
+    void entry_rrule_missingDtstart_injectedFromTimedEntryStart() {
+        Entry entry = new Entry();
+        entry.setAllDay(false);
+        entry.setStart(LocalDateTime.of(2025, 3, 3, 10, 30));
+        entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.MONDAY));
+
+        JsonObject rruleNode = entry.toJson().getObject("rrule");
+        assertEquals("2025-03-03T10:30:00", rruleNode.getString("dtstart"),
+                "timed entries must emit a datetime dtstart");
+    }
+
+    @Test
+    void entry_rrule_existingDtstart_notOverridden() {
+        Entry entry = new Entry();
+        entry.setAllDay(true);
+        entry.setStart(LocalDate.of(2025, 1, 1).atStartOfDay());
+        entry.setRRule(RRule.weekly().dtstart(LocalDate.of(2025, 3, 3)).byWeekday(DayOfWeek.MONDAY));
+
+        JsonObject rruleNode = entry.toJson().getObject("rrule");
+        assertEquals("2025-03-03", rruleNode.getString("dtstart"),
+                "explicit dtstart on the RRule must win over the entry's start");
+    }
+
+    @Test
+    void entry_rrule_rawForm_dtstartNotInjected() {
+        // Raw form is a string; converter must not try to add dtstart.
+        Entry entry = new Entry();
+        entry.setAllDay(true);
+        entry.setStart(LocalDate.of(2025, 3, 3).atStartOfDay());
+        entry.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO"));
+
+        JsonValue rruleNode = entry.toJson().get("rrule");
+        assertEquals(JsonType.STRING, rruleNode.getType());
+        assertEquals("FREQ=WEEKLY;BYDAY=MO", rruleNode.asString());
+    }
+
+    @Test
+    void entry_rrule_allDay_nonMidnightStart_emitsDateOnlyDtstart() {
+        // allDay flag must win over a stray time-of-day on entry.start; FC's parser would
+        // otherwise interpret the dtstart as timed and shift occurrences.
+        Entry entry = new Entry();
+        entry.setAllDay(true);
+        entry.setStart(LocalDateTime.of(2025, 3, 3, 10, 30));
+        entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.MONDAY));
+
+        JsonObject rruleNode = entry.toJson().getObject("rrule");
+        assertEquals("2025-03-03", rruleNode.getString("dtstart"),
+                "all-day entries must emit a date-only dtstart regardless of the start's time part");
     }
 
     @Test
@@ -442,9 +528,10 @@ public class EntryModelTest {
 
         JsonObject json = entry.toJson();
         assertTrue(json.hasKey("exrule") && json.get("exrule").getType() != JsonType.NULL, "exrule must be present");
-        assertEquals(JsonType.STRING, json.get("exrule").getType(), "single exrule must be serialized as string");
-        assertTrue(json.get("exrule").asString().contains("FREQ=DAILY"), "exrule string must contain FREQ=DAILY");
-        assertTrue(json.get("exrule").asString().contains("COUNT=3"), "exrule string must contain COUNT=3");
+        assertEquals(JsonType.OBJECT, json.get("exrule").getType(), "single exrule must be serialized as a JsonObject");
+        JsonObject exruleNode = json.getObject("exrule");
+        assertEquals("daily", exruleNode.getString("freq"));
+        assertEquals(3, (int) exruleNode.getNumber("count"));
     }
 
     @Test
@@ -459,8 +546,10 @@ public class EntryModelTest {
         assertEquals(JsonType.ARRAY, json.get("exrule").getType(), "multiple exrules must be serialized as array");
         JsonArray array = (JsonArray) json.get("exrule");
         assertEquals(2, array.length());
-        assertEquals(JsonType.STRING, array.get(0).getType(), "each exrule element must be a string");
-        assertEquals(JsonType.STRING, array.get(1).getType(), "each exrule element must be a string");
+        assertEquals(JsonType.OBJECT, array.get(0).getType(), "each exrule element must be a JsonObject");
+        assertEquals("daily", ((JsonObject) array.get(0)).getString("freq"));
+        assertEquals(JsonType.OBJECT, array.get(1).getType());
+        assertEquals("monthly", ((JsonObject) array.get(1)).getString("freq"));
     }
 
     @Test
@@ -481,6 +570,32 @@ public class EntryModelTest {
         entry.setRRule(null);
 
         assertFalse(entry.toJson().hasKey("exrule"), "exrule should not be in JSON after clearing RRule");
+    }
+
+    @Test
+    void excludeRules_rejectsRawRRule_varargs() {
+        // FC's rrule plugin only accepts exrule as a structured object. An ofRaw rule would
+        // serialize as a String and reintroduce the "Invalid options: 0, 1, ..." crash that
+        // breaks all event rendering. Fail fast at the API boundary instead.
+        RRule main = RRule.weekly();
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> main.excludeRules(RRule.ofRaw("FREQ=DAILY;COUNT=3")));
+        assertTrue(ex.getMessage().contains("ofRaw"),
+                "message should mention ofRaw so the caller knows what to change: " + ex.getMessage());
+    }
+
+    @Test
+    void excludeRules_rejectsRawRRule_list() {
+        RRule main = RRule.weekly();
+        assertThrows(IllegalArgumentException.class,
+                () -> main.excludeRules(List.of(RRule.daily(), RRule.ofRaw("FREQ=DAILY"))));
+    }
+
+    @Test
+    void excludeRules_acceptsStructuredRRules() {
+        // Baseline: non-raw rules still work and are stored on the main RRule.
+        RRule main = RRule.weekly().excludeRules(RRule.daily().count(3), RRule.monthly().byMonthday(15));
+        assertEquals(2, main.getExcludedRules().size());
     }
 
     // -------------------------------------------------------------------------

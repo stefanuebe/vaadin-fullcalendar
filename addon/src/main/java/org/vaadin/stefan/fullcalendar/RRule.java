@@ -18,6 +18,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
 import lombok.NonNull;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
 import java.time.DayOfWeek;
@@ -466,13 +468,18 @@ public class RRule {
      * Sets RRules that define exclusion patterns for this recurrence. When this RRule is set on
      * an {@link Entry} via {@link Entry#setRRule(RRule)}, these rules are transferred to the
      * entry's {@code exrule} property and serialized for FullCalendar's RRule plugin.
+     * <p>
+     * The FC rrule plugin only accepts exrule as a structured object (or array of objects),
+     * never as an iCalendar string. Passing a rule created via {@link #ofRaw(String)} therefore
+     * throws an {@link IllegalArgumentException} — translate the raw string into a structured
+     * RRule via the fluent API before excluding it.
      *
      * @param rules RRules defining exclusion patterns
      * @return this instance
+     * @throws IllegalArgumentException if any rule was created via {@link #ofRaw(String)}
      */
     public RRule excludeRules(RRule... rules) {
-        this.excludedRules = Arrays.asList(rules);
-        return this;
+        return excludeRules(Arrays.asList(rules));
     }
 
     /**
@@ -480,9 +487,21 @@ public class RRule {
      *
      * @param rules RRules defining exclusion patterns
      * @return this instance
+     * @throws IllegalArgumentException if any rule was created via {@link #ofRaw(String)}
      * @see #excludeRules(RRule...)
      */
     public RRule excludeRules(List<RRule> rules) {
+        if (rules != null) {
+            for (RRule rule : rules) {
+                if (rule != null && rule.rawRRule != null) {
+                    throw new IllegalArgumentException(
+                            "RRule.ofRaw(...) cannot be used in excludeRules(): FullCalendar's "
+                                    + "rrule plugin only accepts exrule as a structured object, "
+                                    + "not as an iCalendar string. Translate the raw string into "
+                                    + "a structured RRule via the fluent API first.");
+                }
+            }
+        }
         this.excludedRules = rules;
         return this;
     }
@@ -498,14 +517,105 @@ public class RRule {
     /**
      * Serializes this RRule to a JsonValue for sending to the FC client.
      * <ul>
-     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a string JsonValue.</li>
-     *   <li>Otherwise, returns a string JsonValue with the structured properties as an RRULE string.</li>
+     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a string JsonValue so FC
+     *       parses it through the iCalendar string parser.</li>
+     *   <li>If {@link #byweekday} contains a positional token such as {@code "-1fr"} or {@code "2mo"},
+     *       returns a string JsonValue. FC's object-form parser resolves weekday strings via
+     *       {@code rrule.RRule[day.toUpperCase()]}, which only knows plain {@code MO..SU} — a
+     *       positional token would resolve to {@code undefined} and crash the plugin. The string
+     *       (iCal) parser handles positional BYDAY tokens natively.</li>
+     *   <li>Otherwise, returns a JsonObject with the structured properties. FC's rrule plugin
+     *       requires the object form when the enclosing entry also carries {@code exdate} or
+     *       {@code exrule} — sending the rrule as a string in those cases crashes the plugin.</li>
      * </ul>
      *
      * @return JsonValue representing this RRule
      */
     public JsonValue toJson() {
-        return JsonUtils.toJsonValue(toRRuleString());
+        if (rawRRule != null || hasPositionalByWeekday()) {
+            return JsonUtils.toJsonValue(toRRuleString());
+        }
+        return toJsonObject();
+    }
+
+    /**
+     * Positional BYDAY tokens take the form {@code <sign><n><day>} (e.g. {@code "-1fr"}, {@code "2mo"}),
+     * i.e. anything longer than the two-letter day abbreviation.
+     */
+    private boolean hasPositionalByWeekday() {
+        return byweekday != null && byweekday.stream().anyMatch(d -> d != null && d.length() > 2);
+    }
+
+    /**
+     * Serializes the structured form to a JsonObject using the lowercase property names expected
+     * by the rrule-js library (e.g. {@code freq}, {@code dtstart}, {@code byweekday}).
+     */
+    private JsonObject toJsonObject() {
+        JsonObject obj = JsonFactory.createObject();
+        if (freq != null) {
+            // rrule-js expects lowercase strings ("weekly", "daily", ...) in object form;
+            // the iCal string form emitted by toRRuleString() uses uppercase ("WEEKLY") — hence
+            // the asymmetry with the same field.
+            obj.put("freq", freq.getClientSideValue());
+        }
+        if (dtstart != null) {
+            obj.put("dtstart", dtstart);
+        }
+        if (until != null) {
+            obj.put("until", until);
+        }
+        if (count != null) {
+            obj.put("count", count);
+        }
+        if (interval != null) {
+            obj.put("interval", interval);
+        }
+        if (byweekday != null && !byweekday.isEmpty()) {
+            JsonArray arr = JsonFactory.createArray();
+            for (String d : byweekday) {
+                arr.set(arr.length(), d);
+            }
+            obj.put("byweekday", arr);
+        }
+        if (byyearday != null && !byyearday.isEmpty()) {
+            JsonArray arr = JsonFactory.createArray();
+            for (Integer v : byyearday) {
+                arr.set(arr.length(), v);
+            }
+            obj.put("byyearday", arr);
+        }
+        if (bymonth != null && !bymonth.isEmpty()) {
+            JsonArray arr = JsonFactory.createArray();
+            for (Integer v : bymonth) {
+                arr.set(arr.length(), v);
+            }
+            obj.put("bymonth", arr);
+        }
+        if (bymonthday != null && !bymonthday.isEmpty()) {
+            JsonArray arr = JsonFactory.createArray();
+            for (Integer v : bymonthday) {
+                arr.set(arr.length(), v);
+            }
+            obj.put("bymonthday", arr);
+        }
+        if (byhour != null && !byhour.isEmpty()) {
+            JsonArray arr = JsonFactory.createArray();
+            for (Integer v : byhour) {
+                arr.set(arr.length(), v);
+            }
+            obj.put("byhour", arr);
+        }
+        if (byminute != null && !byminute.isEmpty()) {
+            JsonArray arr = JsonFactory.createArray();
+            for (Integer v : byminute) {
+                arr.set(arr.length(), v);
+            }
+            obj.put("byminute", arr);
+        }
+        if (wkst != null) {
+            obj.put("wkst", wkst);
+        }
+        return obj;
     }
 
     /**
