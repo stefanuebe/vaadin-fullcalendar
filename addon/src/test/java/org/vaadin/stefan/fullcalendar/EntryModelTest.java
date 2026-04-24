@@ -477,6 +477,20 @@ public class EntryModelTest {
     }
 
     @Test
+    void entry_rrule_allDay_nonMidnightStart_emitsDateOnlyDtstart() {
+        // allDay flag must win over a stray time-of-day on entry.start; FC's parser would
+        // otherwise interpret the dtstart as timed and shift occurrences.
+        Entry entry = new Entry();
+        entry.setAllDay(true);
+        entry.setStart(LocalDateTime.of(2025, 3, 3, 10, 30));
+        entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.MONDAY));
+
+        JsonNode rruleNode = entry.toJson().get("rrule");
+        assertEquals("2025-03-03", rruleNode.get("dtstart").asString(),
+                "all-day entries must emit a date-only dtstart regardless of the start's time part");
+    }
+
+    @Test
     void entry_rrule_raw_serializedAsString() {
         Entry entry = new Entry();
         entry.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO"));
@@ -557,6 +571,32 @@ public class EntryModelTest {
         entry.setRRule(null);
 
         assertFalse(entry.toJson().has("exrule"), "exrule should not be in JSON after clearing RRule");
+    }
+
+    @Test
+    void excludeRules_rejectsRawRRule_varargs() {
+        // FC's rrule plugin only accepts exrule as a structured object. An ofRaw rule would
+        // serialize as a String and reintroduce the "Invalid options: 0, 1, ..." crash that
+        // breaks all event rendering. Fail fast at the API boundary instead.
+        RRule main = RRule.weekly();
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> main.excludeRules(RRule.ofRaw("FREQ=DAILY;COUNT=3")));
+        assertTrue(ex.getMessage().contains("ofRaw"),
+                "message should mention ofRaw so the caller knows what to change: " + ex.getMessage());
+    }
+
+    @Test
+    void excludeRules_rejectsRawRRule_list() {
+        RRule main = RRule.weekly();
+        assertThrows(IllegalArgumentException.class,
+                () -> main.excludeRules(List.of(RRule.daily(), RRule.ofRaw("FREQ=DAILY"))));
+    }
+
+    @Test
+    void excludeRules_acceptsStructuredRRules() {
+        // Baseline: non-raw rules still work and are stored on the main RRule.
+        RRule main = RRule.weekly().excludeRules(RRule.daily().count(3), RRule.monthly().byMonthday(15));
+        assertEquals(2, main.getExcludedRules().size());
     }
 
     // -------------------------------------------------------------------------

@@ -468,13 +468,18 @@ public class RRule {
      * Sets RRules that define exclusion patterns for this recurrence. When this RRule is set on
      * an {@link Entry} via {@link Entry#setRRule(RRule)}, these rules are transferred to the
      * entry's {@code exrule} property and serialized for FullCalendar's RRule plugin.
+     * <p>
+     * The FC rrule plugin only accepts exrule as a structured object (or array of objects),
+     * never as an iCalendar string. Passing a rule created via {@link #ofRaw(String)} therefore
+     * throws an {@link IllegalArgumentException} — translate the raw string into a structured
+     * RRule via the fluent API before excluding it.
      *
      * @param rules RRules defining exclusion patterns
      * @return this instance
+     * @throws IllegalArgumentException if any rule was created via {@link #ofRaw(String)}
      */
     public RRule excludeRules(RRule... rules) {
-        this.excludedRules = Arrays.asList(rules);
-        return this;
+        return excludeRules(Arrays.asList(rules));
     }
 
     /**
@@ -482,9 +487,21 @@ public class RRule {
      *
      * @param rules RRules defining exclusion patterns
      * @return this instance
+     * @throws IllegalArgumentException if any rule was created via {@link #ofRaw(String)}
      * @see #excludeRules(RRule...)
      */
     public RRule excludeRules(List<RRule> rules) {
+        if (rules != null) {
+            for (RRule rule : rules) {
+                if (rule != null && rule.rawRRule != null) {
+                    throw new IllegalArgumentException(
+                            "RRule.ofRaw(...) cannot be used in excludeRules(): FullCalendar's "
+                                    + "rrule plugin only accepts exrule as a structured object, "
+                                    + "not as an iCalendar string. Translate the raw string into "
+                                    + "a structured RRule via the fluent API first.");
+                }
+            }
+        }
         this.excludedRules = rules;
         return this;
     }
@@ -538,6 +555,9 @@ public class RRule {
     private ObjectNode toJsonObject() {
         ObjectNode obj = JsonFactory.createObject();
         if (freq != null) {
+            // rrule-js expects lowercase strings ("weekly", "daily", ...) in object form;
+            // the iCal string form emitted by toRRuleString() uses uppercase ("WEEKLY") — hence
+            // the asymmetry with the same field.
             obj.put("freq", freq.getClientSideValue());
         }
         if (dtstart != null) {

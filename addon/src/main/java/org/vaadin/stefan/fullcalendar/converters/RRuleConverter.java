@@ -33,7 +33,12 @@ public class RRuleConverter implements JsonItemPropertyConverter<RRule, Entry> {
         if (json.isObject() && !json.has("dtstart") && currentInstance != null) {
             String dtstart = entryStartAsDtstart(currentInstance);
             if (dtstart != null) {
-                ((ObjectNode) json).put("dtstart", dtstart);
+                // Copy before mutating: RRule.toJson() currently builds a fresh ObjectNode on
+                // every call, but this converter must not depend on that — caching or reuse in
+                // toJson() would otherwise silently leak injected dtstart back into the RRule.
+                ObjectNode copy = ((ObjectNode) json).deepCopy();
+                copy.put("dtstart", dtstart);
+                return copy;
             }
         }
         return json;
