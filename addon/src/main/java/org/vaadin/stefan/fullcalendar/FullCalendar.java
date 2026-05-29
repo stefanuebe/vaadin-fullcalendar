@@ -55,18 +55,18 @@ import java.util.stream.Stream;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
+// v7 npm packages: declare only real installable package names (npm dependency/override keys cannot be
+// subpaths). daygrid/timegrid/list/multimonth/interaction are subpath EXPORTS of the single "fullcalendar"
+// package (TS imports them as "fullcalendar/<plugin>", resolved via the package exports map, so they need
+// no own entry). rrule/google-calendar/icalendar/format-moment remain separate scoped @fullcalendar/* packages.
 @NpmPackage(value = "fullcalendar", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar/interaction", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar/daygrid", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar/multimonth", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar/rrule", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "temporal-polyfill", version = "0.3.0")
+@NpmPackage(value = "@fullcalendar/rrule", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/google-calendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/icalendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "temporal-polyfill", version = "0.3.2") // fullcalendar v7 peer-requires ^0.3.2 (exports ./fns/*)
+@NpmPackage(value = "clsx", version = "2.1.1")
 @NpmPackage(value = "moment", version = "2.30.1")
 @NpmPackage(value = "@fullcalendar/format-moment", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar/google-calendar", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar/icalendar", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "ical.js", version = "2.0.1")
 
 @JsModule("./vaadin-full-calendar/full-calendar.ts")

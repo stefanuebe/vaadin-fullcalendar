@@ -42,10 +42,10 @@ import java.util.stream.StreamSupport;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "fullcalendar-scheduler/resource", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar-scheduler/resource-timeline", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar-scheduler/resource-timegrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
-@NpmPackage(value = "fullcalendar-scheduler/resource-daygrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
+// v7: resource / resource-timeline / resource-timegrid / resource-daygrid are subpath exports of the
+// single "fullcalendar-scheduler" npm package — declare only the installable package; the TS imports
+// use the "fullcalendar-scheduler/<plugin>" subpaths.
+@NpmPackage(value = "fullcalendar-scheduler", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @JsModule("./vaadin-full-calendar/full-calendar-scheduler.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-scheduler-styles.css")
 

@@ -23,11 +23,12 @@ import dayGridPlugin from 'fullcalendar/daygrid';
 import timeGridPlugin from 'fullcalendar/timegrid';
 import listPlugin from 'fullcalendar/list';
 import multiMonthPlugin from 'fullcalendar/multimonth';
-import rrulePlugin from 'fullcalendar/rrule';
-import {toMoment} from '@fullcalendar/format-moment'; // only for formatting
+import rrulePlugin from '@fullcalendar/rrule';
+import momentPlugin from '@fullcalendar/format-moment'; // moment-style format strings (v7: toMoment removed, timezones are built-in)
+import moment from 'moment';
 import allLocales from 'fullcalendar/locales-all';
-import googleCalendarPlugin from 'fullcalendar/google-calendar';
-import iCalendarPlugin from 'fullcalendar/icalendar';
+import googleCalendarPlugin from '@fullcalendar/google-calendar';
+import iCalendarPlugin from '@fullcalendar/icalendar';
 import clsx from 'clsx';
 
 // Simple type, that allows JS object property access via ["xyz"]
@@ -230,6 +231,7 @@ export class FullCalendar extends HTMLElement {
             listPlugin,
             multiMonthPlugin,
             rrulePlugin,
+            momentPlugin,
             googleCalendarPlugin,
             iCalendarPlugin
         ];
@@ -545,13 +547,15 @@ export class FullCalendar extends HTMLElement {
             date = new Date(date);
         }
 
-        let moment = toMoment(date, this.calendar!);
+        // v7: toMoment(date, calendar) was removed — convert directly with moment.
+        // Named-timezone resolution is now built into FullCalendar (temporal-polyfill).
+        let m = moment(date);
         if (asDay) {
             // maybe also utc necessary?
-            return moment.startOf('day').format().substring(0, 10);
+            return m.startOf('day').format().substring(0, 10);
         }
 
-        return moment.utc().format();
+        return m.utc().format();
     }
 
     /**
