@@ -4,8 +4,8 @@ const { expect, waitForVaadin } = require('./fixtures');
 
 async function gotoExternalDropView(page) {
     await page.goto('/test/external-drop');
-    await page.waitForSelector('.fc', { timeout: 10000 });
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 5000 });
     await waitForVaadin(page);
 }
 
@@ -22,14 +22,14 @@ base.describe('External Drop — Draggable API', () => {
     });
 
     base('calendar is droppable', async ({ page }) => {
-        await expect(page.locator('.fc-dayGridMonth-view')).toBeVisible();
+        await expect(page.locator('.vfc-view-dayGridMonth')).toBeVisible();
     });
 
     base('dragging external element onto calendar fires DropEvent with component and entry', async ({ page }) => {
         await expect(page.locator('#drop-count')).toHaveText('0');
 
         const dragEl = page.locator('#external-draggable');
-        const targetCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const targetCell = page.locator('.vfc-day-cell[data-date="2025-03-12"]'); // TODO-v7-verify: .fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame
 
         const srcBox = await dragEl.boundingBox();
         const tgtBox = await targetCell.boundingBox();

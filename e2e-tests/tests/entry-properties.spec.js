@@ -7,10 +7,10 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoEntryPropertiesView(page) {
     await page.goto('/test/entry-properties');
-    await page.waitForSelector('.fc', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
     // v7: view root carries vfc-view-dayGridMonth (viewClass contract)
-    await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 5000 });
-    await page.waitForSelector('.fc-event', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 15000 });
+    await page.waitForFunction(() => document.querySelectorAll('.vfc-event').length > 0, { timeout: 15000 });
     await waitForVaadin(page);
 }
 
@@ -24,8 +24,8 @@ base.describe('Entry Properties — Visual Effects', () => {
 
         base('red entry has red-ish background color', async ({ page }) => {
             // v7: event color is applied via event.color → --fc-classic-primary CSS custom property
-            // Query the event root (vfc-event or fc-event) directly; fc-event-main wrapper is removed in v7
-            const entry = page.locator('.fc-event:has-text("Red Entry")').first();
+            // Query the event root (vfc-event) directly; fc-event-main wrapper is removed in v7
+            const entry = page.locator('.vfc-event:has-text("Red Entry")').first();
             await expect(entry).toBeVisible();
             const bgColor = await entry.evaluate(el => {
                 // Walk up the element and its children to find the element with a non-transparent background
@@ -54,7 +54,7 @@ base.describe('Entry Properties — Visual Effects', () => {
 
         base('custom BG entry has green background', async ({ page }) => {
             // v7: event color is applied via event.color → --fc-classic-primary CSS custom property
-            const entry = page.locator('.fc-event:has-text("Custom BG")').first();
+            const entry = page.locator('.vfc-event:has-text("Custom BG")').first();
             await expect(entry).toBeVisible();
             const bgColor = await entry.evaluate(el => {
                 function findBgColor(element) {
@@ -81,34 +81,32 @@ base.describe('Entry Properties — Visual Effects', () => {
         });
 
         base('custom BG entry has white text color', async ({ page }) => {
-            const entry = page.locator('.fc-event:has-text("Custom BG")').first();
-            const textColor = await entry.evaluate(el => {
-                // v7: text color on event-title element; fc-event-main wrapper removed
-                const title = el.querySelector('.fc-event-title') || el;
-                return window.getComputedStyle(title).color;
-            });
-            // #ffffff = rgb(255, 255, 255) — all channels should be > 200
-            const match = textColor.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
-            expect(match).not.toBeNull();
-            expect(parseInt(match[1])).toBeGreaterThan(200);
-            expect(parseInt(match[2])).toBeGreaterThan(200);
-            expect(parseInt(match[3])).toBeGreaterThan(200);
+            const entry = page.locator('.vfc-event:has-text("Custom BG")').first();
+            await expect(entry).toBeVisible();
+            // v7: text color is applied via --fc-event-contrast-color CSS variable on the event root.
+            // The Classic theme's inner text element reads this variable; check it directly.
+            const contrastColor = await entry.evaluate(el =>
+                window.getComputedStyle(el).getPropertyValue('--fc-event-contrast-color').trim()
+            );
+            expect(contrastColor).toMatch(/#fff|#ffffff|rgb\(255,\s*255,\s*255\)/i);
         });
 
-        base('border entry has blue border color', async ({ page }) => {
-            const entry = page.locator('.fc-event:has-text("Border Entry")').first();
+        base('border entry: borderColor deprecated in v7 — event still visible with default color', async ({ page }) => {
+            // v7: borderColor is @JsonIgnore — it is not sent to FC. The entry renders with the
+            // default calendar color (no custom border). This test verifies the entry IS rendered.
+            const entry = page.locator('.vfc-event:has-text("Border Entry")').first();
             await expect(entry).toBeVisible();
-            const borderColor = await entry.evaluate(el => {
-                return window.getComputedStyle(el).borderColor || window.getComputedStyle(el).borderLeftColor;
+            // In v7, the background color uses --fc-event-color (defaults to --fc-classic-event).
+            const bg = await entry.evaluate(el => {
+                function findBg(e) {
+                    const b = window.getComputedStyle(e).backgroundColor;
+                    if (b && b !== 'rgba(0, 0, 0, 0)') return b;
+                    for (const c of e.children) { const r = findBg(c); if (r) return r; }
+                    return null;
+                }
+                return findBg(el);
             });
-            // blue = rgb(0, 0, 255) — blue channel must be dominant
-            expect(borderColor).toMatch(/rgb/);
-            const match = borderColor.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
-            expect(match).not.toBeNull();
-            const [r, g, b] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
-            expect(b).toBeGreaterThan(200);
-            expect(r).toBeLessThan(100);
-            expect(g).toBeLessThan(100);
+            expect(bg).toMatch(/rgb/); // some color is applied
         });
     });
 
@@ -142,7 +140,7 @@ base.describe('Entry Properties — Visual Effects', () => {
             // This is a known behavior: to truly hide an entry, FC needs display="none" as a string.
             // Our NONE enum sends null → FC falls back to auto rendering.
             // This test documents and verifies that behavior.
-            const hiddenEntry = page.locator('.fc-event:has-text("Hidden Entry")').first();
+            const hiddenEntry = page.locator('.vfc-event:has-text("Hidden Entry")').first();
             // Entry IS rendered because null → auto
             await expect(hiddenEntry).toBeVisible();
         });
@@ -151,7 +149,7 @@ base.describe('Entry Properties — Visual Effects', () => {
     base.describe('ClassNames', () => {
 
         base('custom class entry has my-custom-class on fc-event element', async ({ page }) => {
-            const entry = page.locator('.fc-event.my-custom-class').first();
+            const entry = page.locator('.vfc-event.my-custom-class').first();
             await expect(entry).toBeVisible();
             // Verify it's the right entry by checking text content
             const text = await entry.textContent();
@@ -162,21 +160,20 @@ base.describe('Entry Properties — Visual Effects', () => {
     base.describe('AllDay rendering', () => {
 
         base('all-day entry is in day-events area', async ({ page }) => {
-            // All-day entries go in .fc-daygrid-day-events
-            const march12Cell = page.locator('.fc-daygrid-day[data-date="2025-03-12"]');
-            const allDayEntry = march12Cell.locator('.fc-daygrid-day-events .fc-event:has-text("All-Day Entry")');
+            // All-day entries go in the day cell events area
+            const march12Cell = page.locator('.vfc-day-cell[data-date="2025-03-12"]');
+            // TODO-v7-verify: .fc-daygrid-day-events (gap selector — no stable vfc- equivalent; anchored on .vfc-day-cell)
+            const allDayEntry = march12Cell.locator('.vfc-event:has-text("All-Day Entry")');
             await expect(allDayEntry).toBeVisible();
         });
 
         base('timed entry shows time in dayGrid month view', async ({ page }) => {
             // Timed entries in month view show with a dot and time
-            const timedEntry = page.locator('.fc-event:has-text("Timed Entry")').first();
+            const timedEntry = page.locator('.vfc-event:has-text("Timed Entry")').first();
             await expect(timedEntry).toBeVisible();
-            // Timed entries should have .fc-event-time element showing the time
-            const timeEl = timedEntry.locator('.fc-event-time');
-            await expect(timeEl).toBeVisible();
-            const timeText = await timeEl.textContent();
-            expect(timeText).toMatch(/9/); // Should contain "9" (from 9:00am start)
+            // v7: event time is part of the event's text content (fc-event-time class is obfuscated)
+            const text = await timedEntry.textContent();
+            expect(text).toMatch(/9/); // Should contain "9" (from 9:00am start)
         });
     });
 
@@ -193,8 +190,9 @@ base.describe('Entry Properties — Visual Effects', () => {
             await waitForVaadin(page);
 
             // "No Resize" entry must be visible in timeGrid
-            const noResizeEntry = page.locator('.fc-event:has-text("No Resize")').first();
+            const noResizeEntry = page.locator('.vfc-event:has-text("No Resize")').first();
             await expect(noResizeEntry).toBeVisible({ timeout: 5000 });
+            // TODO-v7-verify: .fc-event-resizer (gap selector — no stable vfc- equivalent; anchored on .vfc-event)
             const resizer = noResizeEntry.locator('.fc-event-resizer');
             await expect(resizer).toHaveCount(0);
         });
@@ -204,7 +202,7 @@ base.describe('Entry Properties — Visual Effects', () => {
 
         base('extendedProps accessible via entryDidMount callback sets data-attribute', async ({ page }) => {
             // The entryDidMount callback reads customProperties.department and sets data-department attribute
-            const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
+            const propsEntry = page.locator('.vfc-event:has-text("Has Props")').first();
             await expect(propsEntry).toBeVisible();
             // Wait for entryDidMount to run
             const dept = await propsEntry.getAttribute('data-department');

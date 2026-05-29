@@ -4,13 +4,13 @@ const { test, expect, closeDialog, closeAllDialogs, clickEntry, waitForCalendarU
 test.describe('Calendar Entry Interactions', () => {
 
   test('should display calendar entries on initial load', async ({ page }) => {
-    const entries = await page.locator('.fc-event').all();
+    const entries = await page.locator('.vfc-event').all();
     expect(entries.length).toBeGreaterThan(0);
   });
 
   test('should open entry dialog when clicking an entry', async ({ page }) => {
     // Click on the first entry
-    await page.locator('.fc-event').first().click();
+    await page.locator('.vfc-event').first().click();
     await page.waitForTimeout(1000);
 
     // Verify dialog opened - vaadin-dialog-overlay
@@ -26,7 +26,7 @@ test.describe('Calendar Entry Interactions', () => {
 
   test('should show entry details in dialog', async ({ page }) => {
     // Click on a known entry
-    const entry = page.locator('.fc-event:has-text("Meeting")').first();
+    const entry = page.locator('.vfc-event:has-text("Meeting")').first();
     if (await entry.isVisible()) {
       await entry.click();
       await page.waitForTimeout(1000);
@@ -46,7 +46,7 @@ test.describe('Calendar Entry Interactions', () => {
   });
 
   test('should have All day event checkbox', async ({ page }) => {
-    await page.locator('.fc-event').first().click();
+    await page.locator('.vfc-event').first().click();
     await page.waitForTimeout(1000);
 
     // From DemoDialog.java: Checkbox fieldAllDay = new Checkbox("All day event");
@@ -57,7 +57,7 @@ test.describe('Calendar Entry Interactions', () => {
   });
 
   test('should have Recurring event checkbox', async ({ page }) => {
-    await page.locator('.fc-event').first().click();
+    await page.locator('.vfc-event').first().click();
     await page.waitForTimeout(1000);
 
     // From DemoDialog.java: Checkbox fieldRecurring = new Checkbox("Recurring event");
@@ -68,7 +68,7 @@ test.describe('Calendar Entry Interactions', () => {
   });
 
   test('should show recurrence fields when Recurring is checked', async ({ page }) => {
-    await page.locator('.fc-event').first().click();
+    await page.locator('.vfc-event').first().click();
 
     // Wait for dialog to open
     const dialog = page.locator('vaadin-dialog-overlay');
@@ -97,7 +97,7 @@ test.describe('Calendar Entry Interactions', () => {
 
   test('should open dialog for multi-day events', async ({ page }) => {
     // Click on "Short trip" multi-day event
-    const shortTrip = page.locator('.fc-event:has-text("Short trip")').first();
+    const shortTrip = page.locator('.vfc-event:has-text("Short trip")').first();
 
     if (await shortTrip.isVisible()) {
       await shortTrip.click();
@@ -118,7 +118,7 @@ test.describe('Calendar Entry Interactions', () => {
   test('should handle double-click on entry', async ({ page }) => {
     // Note: Double-click in FullCalendar fires click events for each click,
     // which may open multiple dialogs (one per click). This is expected behavior.
-    await page.locator('.fc-event').first().dblclick();
+    await page.locator('.vfc-event').first().dblclick();
 
     // Wait for at least one dialog to be visible
     const dialog = page.locator('vaadin-dialog-overlay');
@@ -133,7 +133,7 @@ test.describe('Calendar Entry Interactions', () => {
 
   test('should open create dialog when clicking empty day slot', async ({ page }) => {
     // Click on an empty area of the calendar
-    const dayFrame = page.locator('.fc-daygrid-day-frame').first();
+    const dayFrame = page.locator('.vfc-day-cell').first();
     await dayFrame.click();
     await page.waitForTimeout(1000);
 
@@ -146,18 +146,18 @@ test.describe('Calendar Entry Interactions', () => {
 
   test('should show popover when clicking +more link', async ({ page }) => {
     // Find and click a "+more" link if it exists
-    const moreLink = page.locator('.fc-more-link, .fc-daygrid-more-link').first();
+    const moreLink = page.locator('.vfc-more-link, .vfc-more-link').first();
 
     if (await moreLink.isVisible({ timeout: 2000 })) {
       await moreLink.click();
       await page.waitForTimeout(500);
 
       // Verify popover appears with entries
-      const popover = page.locator('.fc-popover');
+      const popover = page.locator('.vfc-popover');
       await expect(popover).toBeVisible();
 
       // Popover should contain events
-      const popoverEvents = await page.locator('.fc-popover .fc-event').count();
+      const popoverEvents = await page.locator('.vfc-popover .vfc-event').count();
       expect(popoverEvents).toBeGreaterThan(0);
 
       // Close popover
@@ -166,7 +166,7 @@ test.describe('Calendar Entry Interactions', () => {
   });
 
   test('should support drag and drop of entries', async ({ page }) => {
-    const entry = page.locator('.fc-event:has-text("Meeting")').first();
+    const entry = page.locator('.vfc-event:has-text("Meeting")').first();
 
     if (await entry.isVisible()) {
       const box = await entry.boundingBox();
@@ -180,7 +180,7 @@ test.describe('Calendar Entry Interactions', () => {
         await waitForCalendarUpdate(page);
 
         // No error should occur - calendar should still be visible
-        const calendar = page.locator('.fc');
+        const calendar = page.locator('.vfc-view');
         await expect(calendar).toBeVisible();
       }
     }
@@ -188,7 +188,7 @@ test.describe('Calendar Entry Interactions', () => {
 
   test('should create entry from date range selection', async ({ page }) => {
     // Select a range of days by dragging
-    const dayCells = await page.locator('.fc-daygrid-day-frame').all();
+    const dayCells = await page.locator('.vfc-day-cell').all();
 
     if (dayCells.length >= 15) {
       const firstDay = await dayCells[10].boundingBox();

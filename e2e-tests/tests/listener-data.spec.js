@@ -7,9 +7,9 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoListenerDataView(page) {
     await page.goto('/test/listener-data');
-    await page.waitForSelector('.fc', { timeout: 10000 });
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
-    await page.waitForSelector('.fc-event', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 5000 });
+    await page.waitForSelector('.vfc-event', { timeout: 5000 });
     await waitForVaadin(page);
 }
 
@@ -60,7 +60,7 @@ base.describe('Listener Data — MoreLinkClickedEvent', () => {
     });
 
     base('clicking +more link increments counter', async ({ page }) => {
-        const moreLink = page.locator('.fc-daygrid-more-link').first();
+        const moreLink = page.locator('.vfc-more-link').first();
         await expect(moreLink).toBeVisible({ timeout: 10000 });
 
         await expect(page.locator('#more-link-count')).toHaveText('0');
@@ -71,7 +71,7 @@ base.describe('Listener Data — MoreLinkClickedEvent', () => {
     });
 
     base('more-link-date contains 2025-03-10', async ({ page }) => {
-        const moreLink = page.locator('.fc-daygrid-more-link').first();
+        const moreLink = page.locator('.vfc-more-link').first();
         await expect(moreLink).toBeVisible({ timeout: 10000 });
 
         await moreLink.click();
@@ -91,7 +91,7 @@ base.describe('Listener Data — TimeslotClickedEvent', () => {
         await expect(page.locator('#timeslot-click-count')).toHaveText('0');
 
         // Click an empty day cell (March 12 should be empty)
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.vfc-day-cell[data-date="2025-03-12"]'); // TODO-v7-verify: .fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame
         await emptyCell.click();
         await waitForVaadin(page);
 
@@ -99,7 +99,7 @@ base.describe('Listener Data — TimeslotClickedEvent', () => {
     });
 
     base('timeslot-click-date contains the clicked date', async ({ page }) => {
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.vfc-day-cell[data-date="2025-03-12"]'); // TODO-v7-verify: .fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame
         await emptyCell.click();
         await waitForVaadin(page);
 
@@ -107,7 +107,7 @@ base.describe('Listener Data — TimeslotClickedEvent', () => {
     });
 
     base('timeslot-click-allday is true in dayGrid month view', async ({ page }) => {
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.vfc-day-cell[data-date="2025-03-12"]'); // TODO-v7-verify: .fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame
         await emptyCell.click();
         await waitForVaadin(page);
 
@@ -124,7 +124,7 @@ base.describe('Listener Data — EntryClickedEvent (data)', () => {
     base('clicking entry increments counter', async ({ page }) => {
         await expect(page.locator('#entry-click-count')).toHaveText('0');
 
-        const entry = page.locator('.fc-event:has-text("Clickable Event")').first();
+        const entry = page.locator('.vfc-event:has-text("Clickable Event")').first();
         await entry.click();
         await waitForVaadin(page);
 
@@ -132,7 +132,7 @@ base.describe('Listener Data — EntryClickedEvent (data)', () => {
     });
 
     base('entry-click-title contains the clicked entry title', async ({ page }) => {
-        const entry = page.locator('.fc-event:has-text("Clickable Event")').first();
+        const entry = page.locator('.vfc-event:has-text("Clickable Event")').first();
         await entry.click();
         await waitForVaadin(page);
 
@@ -140,7 +140,7 @@ base.describe('Listener Data — EntryClickedEvent (data)', () => {
     });
 
     base('entry-click-start contains the entry start date', async ({ page }) => {
-        const entry = page.locator('.fc-event:has-text("Clickable Event")').first();
+        const entry = page.locator('.vfc-event:has-text("Clickable Event")').first();
         await entry.click();
         await waitForVaadin(page);
 
@@ -157,7 +157,7 @@ base.describe('Listener Data — EntryMouseEnterEvent', () => {
     base('hovering over entry increments mouse-enter-count', async ({ page }) => {
         await expect(page.locator('#mouse-enter-count')).toHaveText('0');
 
-        const entry = page.locator('.fc-event:has-text("Hover Me")').first();
+        const entry = page.locator('.vfc-event:has-text("Hover Me")').first();
         await entry.hover();
         await waitForVaadin(page);
 
@@ -165,7 +165,7 @@ base.describe('Listener Data — EntryMouseEnterEvent', () => {
     });
 
     base('mouse-enter-title contains the hovered entry title', async ({ page }) => {
-        const entry = page.locator('.fc-event:has-text("Hover Me")').first();
+        const entry = page.locator('.vfc-event:has-text("Hover Me")').first();
         await entry.hover();
         await waitForVaadin(page);
 
@@ -183,12 +183,12 @@ base.describe('Listener Data — EntryMouseLeaveEvent', () => {
         await expect(page.locator('#mouse-leave-count')).toHaveText('0');
 
         // Hover the entry first
-        const entry = page.locator('.fc-event:has-text("Hover Me")').first();
+        const entry = page.locator('.vfc-event:has-text("Hover Me")').first();
         await entry.hover();
         await waitForVaadin(page);
 
         // Move mouse away to an empty area
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-20"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.vfc-day-cell[data-date="2025-03-20"]'); // TODO-v7-verify: .fc-daygrid-day[data-date="2025-03-20"] .fc-daygrid-day-frame
         await emptyCell.hover();
         await waitForVaadin(page);
 
@@ -232,7 +232,7 @@ base.describe('Listener Data — DayNumberClickedEvent', () => {
 
         // navLinks is enabled, so day numbers are clickable links
         // Click day number for March 15
-        const dayLink = page.locator('.fc-daygrid-day[data-date="2025-03-15"] .fc-daygrid-day-number').first();
+        const dayLink = page.locator('.vfc-day-cell[data-date="2025-03-15"] .vfc-day-number').first();
         await expect(dayLink).toBeVisible();
         await dayLink.click();
         await waitForVaadin(page);
@@ -252,7 +252,7 @@ base.describe('Listener Data — WeekNumberClickedEvent', () => {
         await expect(page.locator('#week-number-count')).toHaveText('0');
 
         // weekNumbers is enabled, click first week number
-        const weekLink = page.locator('.fc-daygrid-week-number').first();
+        const weekLink = page.locator('.vfc-week-number').first();
         await expect(weekLink).toBeVisible();
         await weekLink.click();
         await waitForVaadin(page);

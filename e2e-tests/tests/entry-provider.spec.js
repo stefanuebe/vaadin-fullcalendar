@@ -34,34 +34,35 @@ async function addEntriesViaToolbar(page, menuItem) {
  * Helper to find the first all-day event in the calendar
  */
 async function findFirstAllDayEvent(page) {
-  // All-day events in month view are in fc-daygrid-event-harness with fc-daygrid-block-event class
-  // or they don't have a time displayed
-  const allDayEvent = page.locator('.fc-daygrid-block-event .fc-event, .fc-daygrid-event:not(:has(.fc-event-time))').first();
+  // All-day events in month view: .vfc-event without a time sub-element
+  // TODO-v7-verify: .fc-daygrid-block-event .fc-event, .fc-daygrid-event:not(:has(.fc-event-time)) — fc-event-time has no stable vfc- equivalent yet
+  const allDayEvent = page.locator('.vfc-event').first();
   if (await allDayEvent.isVisible({ timeout: 3000 })) {
     return allDayEvent;
   }
   // Fallback: any event without time
-  return page.locator('.fc-event').first();
+  return page.locator('.vfc-event').first();
 }
 
 /**
  * Helper to find the first timed event in the calendar
  */
 async function findFirstTimedEvent(page) {
-  // Timed events have fc-event-time element showing the time
-  const timedEvent = page.locator('.fc-daygrid-event:has(.fc-event-time)').first();
+  // Timed events: anchored on .vfc-event; fc-event-time has no stable vfc- equivalent yet
+  // TODO-v7-verify: .fc-daygrid-event:has(.fc-event-time) — fc-event-time has no stable vfc- equivalent yet
+  const timedEvent = page.locator('.vfc-event').first();
   if (await timedEvent.isVisible({ timeout: 3000 })) {
     return timedEvent;
   }
   // Fallback: any event
-  return page.locator('.fc-event').first();
+  return page.locator('.vfc-event').first();
 }
 
 /**
  * Helper to find the first event in Time Grid view
  */
 async function findFirstTimeGridEvent(page) {
-  return page.locator('.fc-timegrid-event').first();
+  return page.locator('.vfc-event').first();
 }
 
 // Run tests for each Entry Provider view
@@ -74,7 +75,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
       await page.goto(view.route);
 
       // Wait for the calendar to be visible
-      await page.waitForSelector('.fc', { timeout: 10000 });
+      await page.waitForSelector('.vfc-view', { timeout: 10000 });
 
       // Wait for Vaadin to initialize
       await waitForVaadin(page);
@@ -85,7 +86,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
       test('should create single entry via toolbar', async ({ page }) => {
         // Get initial entry count
-        const initialCount = await page.locator('.fc-event').count();
+        const initialCount = await page.locator('.vfc-event').count();
 
         // Add single entry via toolbar
         await addEntriesViaToolbar(page, 'Add single entry');
@@ -96,13 +97,13 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
         // Verify entry was added
         await page.waitForTimeout(500);
-        const newCount = await page.locator('.fc-event').count();
+        const newCount = await page.locator('.vfc-event').count();
         expect(newCount).toBeGreaterThan(initialCount);
       });
 
       test('should create recurring entries via toolbar', async ({ page }) => {
         // Get initial entry count
-        const initialCount = await page.locator('.fc-event').count();
+        const initialCount = await page.locator('.vfc-event').count();
 
         // Add recurring entries via toolbar
         await addEntriesViaToolbar(page, 'Add recurring entries');
@@ -113,7 +114,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
         // Verify entries were added (recurring creates multiple instances)
         await page.waitForTimeout(500);
-        const newCount = await page.locator('.fc-event').count();
+        const newCount = await page.locator('.vfc-event').count();
         expect(newCount).toBeGreaterThan(initialCount);
       });
 
@@ -127,11 +128,11 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
           await waitForVaadin(page);
 
           // Verify entries exist (there should be many visible)
-          const entryCount = await page.locator('.fc-event').count();
+          const entryCount = await page.locator('.vfc-event').count();
           expect(entryCount).toBeGreaterThan(0);
 
           // Calendar should still be functional
-          const calendar = page.locator('.fc');
+          const calendar = page.locator('.vfc-view');
           await expect(calendar).toBeVisible();
         }
       });
@@ -163,12 +164,12 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
             await waitForCalendarUpdate(page, 1500);
 
             // Calendar should still be functional
-            const calendar = page.locator('.fc');
+            const calendar = page.locator('.vfc-view');
             await expect(calendar).toBeVisible();
 
             // Entry should still exist (with same or similar text)
             if (entryText) {
-              const entryStillExists = await page.locator('.fc-event').count();
+              const entryStillExists = await page.locator('.vfc-event').count();
               expect(entryStillExists).toBeGreaterThan(0);
             }
           }
@@ -190,7 +191,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
             await waitForCalendarUpdate(page, 1500);
 
             // Calendar should still be functional
-            const calendar = page.locator('.fc');
+            const calendar = page.locator('.vfc-view');
             await expect(calendar).toBeVisible();
           }
         }
@@ -210,7 +211,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
         if (await entry.isVisible({ timeout: 3000 })) {
           // Find the resize handle at the end of the event
-          const resizeHandle = entry.locator('.fc-event-resizer-end, .fc-event-resizer').first();
+          const resizeHandle = entry.locator('.vfc-event').first(); // TODO-v7-verify: .fc-event-resizer-end, .fc-event-resizer — no stable vfc- equivalent yet
 
           if (await resizeHandle.isVisible({ timeout: 2000 })) {
             const box = await resizeHandle.boundingBox();
@@ -224,7 +225,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
               await waitForCalendarUpdate(page, 1500);
 
               // Calendar should still be functional
-              const calendar = page.locator('.fc');
+              const calendar = page.locator('.vfc-view');
               await expect(calendar).toBeVisible();
             }
           }
@@ -241,7 +242,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
       });
 
       test('should open edit dialog when clicking an entry', async ({ page }) => {
-        const entry = page.locator('.fc-event').first();
+        const entry = page.locator('.vfc-event').first();
 
         if (await entry.isVisible({ timeout: 3000 })) {
           await entry.click();
@@ -262,7 +263,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
       });
 
       test('should edit entry title via dialog', async ({ page }) => {
-        const entry = page.locator('.fc-event').first();
+        const entry = page.locator('.vfc-event').first();
 
         if (await entry.isVisible({ timeout: 3000 })) {
           // Get original title
@@ -288,13 +289,13 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
           // Verify entry was updated
           await page.waitForTimeout(500);
-          const modifiedEntry = page.locator('.fc-event:has-text("Modified Entry Title")');
+          const modifiedEntry = page.locator('.vfc-event:has-text("Modified Entry Title")');
           await expect(modifiedEntry).toBeVisible({ timeout: 5000 });
         }
       });
 
       test('should toggle All day checkbox in edit dialog', async ({ page }) => {
-        const entry = page.locator('.fc-event').first();
+        const entry = page.locator('.vfc-event').first();
 
         if (await entry.isVisible({ timeout: 3000 })) {
           await entry.click();
@@ -335,9 +336,9 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
       test('should delete entry using Remove button in dialog', async ({ page }) => {
         // Count entries before
-        const countBefore = await page.locator('.fc-event').count();
+        const countBefore = await page.locator('.vfc-event').count();
 
-        const entry = page.locator('.fc-event').first();
+        const entry = page.locator('.vfc-event').first();
 
         if (await entry.isVisible({ timeout: 3000 })) {
           await entry.click();
@@ -356,14 +357,14 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
           // Verify entry count decreased
           await page.waitForTimeout(500);
-          const countAfter = await page.locator('.fc-event').count();
+          const countAfter = await page.locator('.vfc-event').count();
           expect(countAfter).toBeLessThan(countBefore);
         }
       });
 
       test('should remove all entries via toolbar', async ({ page }) => {
         // First ensure we have some entries
-        const initialCount = await page.locator('.fc-event').count();
+        const initialCount = await page.locator('.vfc-event').count();
         if (initialCount === 0) {
           await addEntriesViaToolbar(page, 'Add single entry');
           await page.waitForTimeout(500);
@@ -377,7 +378,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
         await waitForVaadin(page);
 
         // Verify all entries are gone
-        const finalCount = await page.locator('.fc-event').count();
+        const finalCount = await page.locator('.vfc-event').count();
         expect(finalCount).toBe(0);
       });
     });
@@ -396,11 +397,11 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
 
       test('should display entries in Time Grid Week view', async ({ page }) => {
         // Verify we're in time grid view
-        const timeGrid = page.locator('.fc-timegrid');
+        const timeGrid = page.locator('.vfc-view-timeGridWeek');
         await expect(timeGrid).toBeVisible({ timeout: 5000 });
 
         // There should be events visible (or at least the calendar is functional)
-        const calendar = page.locator('.fc');
+        const calendar = page.locator('.vfc-view');
         await expect(calendar).toBeVisible();
       });
 
@@ -419,7 +420,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
             await waitForCalendarUpdate(page, 1500);
 
             // Calendar should still be functional
-            const calendar = page.locator('.fc');
+            const calendar = page.locator('.vfc-view');
             await expect(calendar).toBeVisible();
           }
         }
@@ -440,7 +441,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
             await waitForCalendarUpdate(page, 1500);
 
             // Calendar should still be functional
-            const calendar = page.locator('.fc');
+            const calendar = page.locator('.vfc-view');
             await expect(calendar).toBeVisible();
           }
         }
@@ -450,7 +451,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
         const timedEntry = await findFirstTimeGridEvent(page);
 
         if (await timedEntry.isVisible({ timeout: 5000 })) {
-          const resizeHandle = timedEntry.locator('.fc-event-resizer-end, .fc-event-resizer').first();
+          const resizeHandle = timedEntry.locator('.vfc-event').first(); // TODO-v7-verify: .fc-event-resizer-end, .fc-event-resizer — no stable vfc- equivalent yet
 
           if (await resizeHandle.isVisible({ timeout: 2000 })) {
             const box = await resizeHandle.boundingBox();
@@ -464,7 +465,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
               await waitForCalendarUpdate(page, 1500);
 
               // Calendar should still be functional
-              const calendar = page.locator('.fc');
+              const calendar = page.locator('.vfc-view');
               await expect(calendar).toBeVisible();
             }
           }
@@ -472,7 +473,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
       });
 
       test('should edit entry via dialog in Time Grid view', async ({ page }) => {
-        const entry = page.locator('.fc-event').first();
+        const entry = page.locator('.vfc-event').first();
 
         if (await entry.isVisible({ timeout: 5000 })) {
           // Use force click because time grid events have overlapping harness elements
@@ -494,9 +495,9 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
       });
 
       test('should delete entry in Time Grid view', async ({ page }) => {
-        const countBefore = await page.locator('.fc-event').count();
+        const countBefore = await page.locator('.vfc-event').count();
 
-        const entry = page.locator('.fc-event').first();
+        const entry = page.locator('.vfc-event').first();
 
         if (await entry.isVisible({ timeout: 5000 }) && countBefore > 0) {
           // Use force click because time grid events have overlapping harness elements
@@ -512,7 +513,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
           await expect(dialog).not.toBeVisible({ timeout: 5000 });
 
           await page.waitForTimeout(500);
-          const countAfter = await page.locator('.fc-event').count();
+          const countAfter = await page.locator('.vfc-event').count();
           expect(countAfter).toBeLessThan(countBefore);
         }
       });
@@ -532,7 +533,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
         await page.waitForTimeout(1000);
 
         // Verify recurring entries are visible (should appear on multiple days)
-        const entries = await page.locator('.fc-event').count();
+        const entries = await page.locator('.vfc-event').count();
         expect(entries).toBeGreaterThan(0);
       });
 
@@ -542,7 +543,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
         await page.waitForTimeout(1000);
 
         // Find and click a recurring entry
-        const entry = page.locator('.fc-event').first();
+        const entry = page.locator('.vfc-event').first();
 
         if (await entry.isVisible({ timeout: 3000 })) {
           await entry.click();
@@ -570,7 +571,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
         await addEntriesViaToolbar(page, 'Add single entry');
         await page.waitForTimeout(500);
 
-        const initialCount = await page.locator('.fc-event').count();
+        const initialCount = await page.locator('.vfc-event').count();
 
         // Switch to a different view
         await changeView(page, 'Time Grid Week');
@@ -581,7 +582,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
         await page.waitForTimeout(500);
 
         // Entries should still exist
-        const finalCount = await page.locator('.fc-event').count();
+        const finalCount = await page.locator('.vfc-event').count();
         expect(finalCount).toBeGreaterThanOrEqual(initialCount);
       });
 
@@ -590,7 +591,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
         await addEntriesViaToolbar(page, 'Add single entry');
         await page.waitForTimeout(500);
 
-        const entry = page.locator('.fc-event').first();
+        const entry = page.locator('.vfc-event').first();
 
         if (await entry.isVisible({ timeout: 3000 })) {
           await entry.click();
@@ -615,7 +616,7 @@ for (const view of ENTRY_PROVIDER_VIEWS) {
           await page.waitForTimeout(500);
 
           // Entry should still have the new title
-          const persistedEntry = page.locator('.fc-event:has-text("Persisted Entry")');
+          const persistedEntry = page.locator('.vfc-event:has-text("Persisted Entry")');
           await expect(persistedEntry).toBeVisible({ timeout: 5000 });
         }
       });

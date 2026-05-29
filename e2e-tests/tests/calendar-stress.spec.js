@@ -24,12 +24,12 @@ test.describe('Calendar Stress Tests', () => {
       await waitForCalendarUpdate(page);
 
       // Calendar should still be functional
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
 
       // Should be able to return to today
       await clickToday(page);
-      const todayCell = page.locator('.fc-day-today');
+      const todayCell = page.locator('.vfc-today');
       await expect(todayCell).toBeVisible();
     });
 
@@ -53,12 +53,12 @@ test.describe('Calendar Stress Tests', () => {
       await waitForCalendarUpdate(page);
 
       // Calendar should still be functional
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
 
     test('should handle rapid entry clicking without errors', async ({ page }) => {
-      const entries = await page.locator('.fc-event').all();
+      const entries = await page.locator('.vfc-event').all();
 
       // Click multiple entries rapidly
       for (let i = 0; i < Math.min(5, entries.length); i++) {
@@ -69,12 +69,12 @@ test.describe('Calendar Stress Tests', () => {
       }
 
       // Calendar should still be functional
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
 
     test('should handle rapid dialog open/close without errors', async ({ page }) => {
-      const entry = page.locator('.fc-event').first();
+      const entry = page.locator('.vfc-event').first();
 
       // Open and close dialog rapidly 5 times
       for (let i = 0; i < 5; i++) {
@@ -85,7 +85,7 @@ test.describe('Calendar Stress Tests', () => {
       }
 
       // Calendar should still be functional
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
   });
@@ -93,7 +93,7 @@ test.describe('Calendar Stress Tests', () => {
   test.describe('Edge Cases', () => {
 
     test('should handle clicking on calendar boundaries', async ({ page }) => {
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       const box = await calendar.boundingBox();
 
       if (box) {
@@ -116,7 +116,7 @@ test.describe('Calendar Stress Tests', () => {
     });
 
     test('should handle right-click on entries', async ({ page }) => {
-      const entry = page.locator('.fc-event').first();
+      const entry = page.locator('.vfc-event').first();
       await entry.click({ button: 'right' });
       await page.waitForTimeout(500);
 
@@ -124,12 +124,12 @@ test.describe('Calendar Stress Tests', () => {
       await page.keyboard.press('Escape');
 
       // Calendar should still be functional
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
 
     test('should handle right-click on empty calendar area', async ({ page }) => {
-      const calendar = page.locator('.fc-daygrid-body');
+      const calendar = page.locator('.vfc-view'); // TODO-v7-verify: .fc-daygrid-body
       await calendar.click({ button: 'right' });
       await page.waitForTimeout(500);
 
@@ -137,7 +137,7 @@ test.describe('Calendar Stress Tests', () => {
       await page.keyboard.press('Escape');
 
       // Calendar should still be functional
-      const calendarEl = page.locator('.fc');
+      const calendarEl = page.locator('.vfc-view');
       await expect(calendarEl).toBeVisible();
     });
 
@@ -149,13 +149,13 @@ test.describe('Calendar Stress Tests', () => {
       }
 
       // Calendar should still be functional
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
 
     test('should handle keyboard input on calendar', async ({ page }) => {
       // Focus calendar and try various keys
-      await page.click('.fc');
+      await page.click('.vfc-view');
 
       const keys = ['t', 'n', 'p', 'ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Enter', 'Tab'];
 
@@ -169,7 +169,7 @@ test.describe('Calendar Stress Tests', () => {
       await page.waitForTimeout(200);
 
       // Calendar should still be functional
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
   });
@@ -178,11 +178,11 @@ test.describe('Calendar Stress Tests', () => {
 
     test('should maintain entry count after multiple operations', async ({ page }) => {
       // Get initial entry count
-      const initialCount = await page.locator('.fc-event').count();
+      const initialCount = await page.locator('.vfc-event').count();
       expect(initialCount).toBeGreaterThan(0);
 
       // Perform various operations
-      await page.locator('.fc-event').first().click();
+      await page.locator('.vfc-event').first().click();
       await page.waitForTimeout(500);
       await closeDialog(page);
 
@@ -193,13 +193,13 @@ test.describe('Calendar Stress Tests', () => {
       await clickToday(page);
 
       // Entry count should still be positive
-      const finalCount = await page.locator('.fc-event').count();
+      const finalCount = await page.locator('.vfc-event').count();
       expect(finalCount).toBeGreaterThan(0);
     });
 
     test('should preserve entry data after navigation', async ({ page }) => {
       // Click an entry and remember its title
-      await page.locator('.fc-event').first().click();
+      await page.locator('.vfc-event').first().click();
       await page.waitForTimeout(1000);
 
       const dialog = page.locator('vaadin-dialog-overlay');
@@ -218,7 +218,7 @@ test.describe('Calendar Stress Tests', () => {
       await clickToday(page);
 
       // Click the same entry again
-      await page.locator('.fc-event').first().click();
+      await page.locator('.vfc-event').first().click();
       await page.waitForTimeout(1000);
 
       const titleInputAfter = page.locator('vaadin-text-field input').first();
@@ -236,7 +236,7 @@ test.describe('Calendar Stress Tests', () => {
 
     test('should handle navigation while dialog is open', async ({ page }) => {
       // Open a dialog
-      await page.locator('.fc-event').first().click();
+      await page.locator('.vfc-event').first().click();
       await page.waitForTimeout(1000);
 
       const dialog = page.locator('vaadin-dialog-overlay');
@@ -256,7 +256,7 @@ test.describe('Calendar Stress Tests', () => {
       await closeDialog(page);
 
       // Calendar should still be functional
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
   });

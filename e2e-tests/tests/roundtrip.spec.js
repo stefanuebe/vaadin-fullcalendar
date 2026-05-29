@@ -7,9 +7,9 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoRoundtripView(page) {
     await page.goto('/test/roundtrip');
-    await page.waitForSelector('.fc', { timeout: 10000 });
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
-    await page.waitForSelector('.fc-event', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 5000 });
+    await page.waitForSelector('.vfc-event', { timeout: 5000 });
     await waitForVaadin(page);
 }
 
@@ -21,7 +21,7 @@ base.describe('Roundtrip — Server modifies entry on click', () => {
 
     base('clicking "Click to Rename" changes entry text to "Renamed!"', async ({ page }) => {
         // Verify entry exists with original title
-        const entry = page.locator('.fc-event:has-text("Click to Rename")').first();
+        const entry = page.locator('.vfc-event:has-text("Click to Rename")').first();
         await expect(entry).toBeVisible();
 
         // Click the entry
@@ -29,18 +29,18 @@ base.describe('Roundtrip — Server modifies entry on click', () => {
         await waitForVaadin(page);
 
         // After click, server changes title to "Renamed!" — verify it appears in DOM
-        await expect(page.locator('.fc-event:has-text("Renamed!")')).toBeVisible({ timeout: 5000 });
+        await expect(page.locator('.vfc-event:has-text("Renamed!")')).toBeVisible({ timeout: 5000 });
     });
 
     base('clicking "Click to Recolor" changes entry to red', async ({ page }) => {
-        const entry = page.locator('.fc-event:has-text("Click to Recolor")').first();
+        const entry = page.locator('.vfc-event:has-text("Click to Recolor")').first();
         await expect(entry).toBeVisible();
 
         // Verify initial color is blue — blue channel dominant
         const initialBg = await entry.evaluate(el => {
             const style = window.getComputedStyle(el);
             return style.backgroundColor !== 'rgba(0, 0, 0, 0)' ? style.backgroundColor :
-                   window.getComputedStyle(el.querySelector('.fc-event-main') || el).backgroundColor;
+                   window.getComputedStyle(el).backgroundColor; // TODO-v7-verify: .fc-event-main
         });
         const blueMatch = initialBg.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
         expect(blueMatch).not.toBeNull();
@@ -52,12 +52,12 @@ base.describe('Roundtrip — Server modifies entry on click', () => {
         await page.waitForTimeout(500);
 
         // After click, server changes color to red — verify the entry is now red-ish
-        const recoloredEntry = page.locator('.fc-event:has-text("Click to Recolor")').first();
+        const recoloredEntry = page.locator('.vfc-event:has-text("Click to Recolor")').first();
         await expect(recoloredEntry).toBeVisible({ timeout: 5000 });
         const newBg = await recoloredEntry.evaluate(el => {
             const style = window.getComputedStyle(el);
             return style.backgroundColor !== 'rgba(0, 0, 0, 0)' ? style.backgroundColor :
-                   window.getComputedStyle(el.querySelector('.fc-event-main') || el).backgroundColor;
+                   window.getComputedStyle(el).backgroundColor; // TODO-v7-verify: .fc-event-main
         });
         const redMatch = newBg.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
         expect(redMatch).not.toBeNull();
@@ -76,12 +76,12 @@ base.describe('Roundtrip — Drop moves entry to new date', () => {
 
     base('dragging "Drop Target" to another date moves it visually', async ({ page }) => {
         // Verify entry is on March 10
-        const march10Cell = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
-        await expect(march10Cell.locator('.fc-event:has-text("Drop Target")')).toBeVisible();
+        const march10Cell = page.locator('.vfc-day-cell[data-date="2025-03-10"]');
+        await expect(march10Cell.locator('.vfc-event:has-text("Drop Target")')).toBeVisible();
 
         // Get the entry and a target cell
-        const entry = page.locator('.fc-event:has-text("Drop Target")').first();
-        const targetCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const entry = page.locator('.vfc-event:has-text("Drop Target")').first();
+        const targetCell = page.locator('.vfc-day-cell[data-date="2025-03-12"]'); // TODO-v7-verify: .fc-daygrid-day-frame (inner frame of day cell)
 
         const entryBox = await entry.boundingBox();
         const targetBox = await targetCell.boundingBox();
@@ -100,8 +100,8 @@ base.describe('Roundtrip — Drop moves entry to new date', () => {
         await page.waitForTimeout(500);
 
         // Entry should now be in March 12 cell
-        const march12Cell = page.locator('.fc-daygrid-day[data-date="2025-03-12"]');
-        await expect(march12Cell.locator('.fc-event:has-text("Drop Target")')).toBeVisible({ timeout: 5000 });
+        const march12Cell = page.locator('.vfc-day-cell[data-date="2025-03-12"]');
+        await expect(march12Cell.locator('.vfc-event:has-text("Drop Target")')).toBeVisible({ timeout: 5000 });
     });
 });
 
@@ -112,14 +112,14 @@ base.describe('Roundtrip — Server removes entry on click', () => {
     });
 
     base('clicking "Click to Remove" removes entry from calendar', async ({ page }) => {
-        const entry = page.locator('.fc-event:has-text("Click to Remove")').first();
+        const entry = page.locator('.vfc-event:has-text("Click to Remove")').first();
         await expect(entry).toBeVisible();
 
         await entry.click();
         await waitForVaadin(page);
 
         // Entry should be gone
-        await expect(page.locator('.fc-event:has-text("Click to Remove")')).toHaveCount(0, { timeout: 5000 });
+        await expect(page.locator('.vfc-event:has-text("Click to Remove")')).toHaveCount(0, { timeout: 5000 });
     });
 });
 
@@ -131,14 +131,14 @@ base.describe('Roundtrip — Server creates entry on timeslot click', () => {
 
     base('clicking empty day creates "Server Created" entry', async ({ page }) => {
         // March 20 should be empty
-        await expect(page.locator('.fc-event:has-text("Server Created")')).toHaveCount(0);
+        await expect(page.locator('.vfc-event:has-text("Server Created")')).toHaveCount(0);
 
         // Click the empty day cell
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-20"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.vfc-day-cell[data-date="2025-03-20"]'); // TODO-v7-verify: .fc-daygrid-day-frame (inner frame of day cell)
         await emptyCell.click();
         await waitForVaadin(page);
 
         // New entry should appear
-        await expect(page.locator('.fc-event:has-text("Server Created")')).toBeVisible({ timeout: 5000 });
+        await expect(page.locator('.vfc-event:has-text("Server Created")')).toBeVisible({ timeout: 5000 });
     });
 });

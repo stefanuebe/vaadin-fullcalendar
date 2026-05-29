@@ -7,7 +7,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should drag an all-day entry to another day', async ({ page }) => {
       // Find an all-day event (like "Short trip" or "This special holiday")
-      const allDayEntry = page.locator('.fc-daygrid-event:has-text("Short trip"), .fc-daygrid-event:has-text("holiday")').first();
+      const allDayEntry = page.locator('.vfc-event:has-text("Short trip"), .vfc-event:has-text("holiday")').first();
 
       if (await allDayEntry.isVisible({ timeout: 3000 })) {
         const box = await allDayEntry.boundingBox();
@@ -21,7 +21,7 @@ test.describe('Calendar Interaction Tests', () => {
           await waitForCalendarUpdate(page, 1500);
 
           // Calendar should still be functional
-          const calendar = page.locator('.fc');
+          const calendar = page.locator('.vfc-view');
           await expect(calendar).toBeVisible();
         }
       }
@@ -29,7 +29,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should drag a timed entry to another day', async ({ page }) => {
       // Find a timed entry (like "Meeting" with time)
-      const timedEntry = page.locator('.fc-daygrid-event:has-text("Meeting")').first();
+      const timedEntry = page.locator('.vfc-event:has-text("Meeting")').first();
 
       if (await timedEntry.isVisible({ timeout: 3000 })) {
         const box = await timedEntry.boundingBox();
@@ -43,7 +43,7 @@ test.describe('Calendar Interaction Tests', () => {
           await waitForCalendarUpdate(page, 1500);
 
           // Calendar should still be functional
-          const calendar = page.locator('.fc');
+          const calendar = page.locator('.vfc-view');
           await expect(calendar).toBeVisible();
         }
       }
@@ -51,11 +51,11 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should resize an all-day entry to span 2 days', async ({ page }) => {
       // Find an all-day event with a resize handle
-      const allDayEntry = page.locator('.fc-daygrid-event:has-text("Short trip"), .fc-daygrid-event:has-text("holiday")').first();
+      const allDayEntry = page.locator('.vfc-event:has-text("Short trip"), .vfc-event:has-text("holiday")').first();
 
       if (await allDayEntry.isVisible({ timeout: 3000 })) {
         // Find the resize handle at the end of the event
-        const resizeHandle = allDayEntry.locator('.fc-event-resizer-end, .fc-event-resizer').first();
+        const resizeHandle = allDayEntry.locator('.fc-event-resizer-end, .fc-event-resizer').first(); // TODO-v7-verify: .fc-event-resizer-end, .fc-event-resizer
 
         if (await resizeHandle.isVisible({ timeout: 2000 })) {
           const box = await resizeHandle.boundingBox();
@@ -69,7 +69,7 @@ test.describe('Calendar Interaction Tests', () => {
             await waitForCalendarUpdate(page, 1500);
 
             // Calendar should still be functional
-            const calendar = page.locator('.fc');
+            const calendar = page.locator('.vfc-view');
             await expect(calendar).toBeVisible();
           }
         }
@@ -81,7 +81,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should create a new all-day entry by clicking empty cell', async ({ page }) => {
       // Click on an empty day cell to open create dialog
-      const dayFrame = page.locator('.fc-daygrid-day-frame').nth(5);
+      const dayFrame = page.locator('.vfc-day-cell').nth(5); // TODO-v7-verify: .fc-daygrid-day-frame
       await dayFrame.click();
       await page.waitForTimeout(1000);
 
@@ -101,13 +101,13 @@ test.describe('Calendar Interaction Tests', () => {
       await page.waitForTimeout(1500);
 
       // Verify the entry was created
-      const newEntry = page.locator('.fc-event:has-text("Test All Day Entry")');
+      const newEntry = page.locator('.vfc-event:has-text("Test All Day Entry")');
       await expect(newEntry).toBeVisible({ timeout: 5000 });
     });
 
     test('should create a new timed entry by clicking empty cell', async ({ page }) => {
       // Click on an empty day cell to open create dialog
-      const dayFrame = page.locator('.fc-daygrid-day-frame').nth(6);
+      const dayFrame = page.locator('.vfc-day-cell').nth(6); // TODO-v7-verify: .fc-daygrid-day-frame
       await dayFrame.click();
       await page.waitForTimeout(1000);
 
@@ -130,7 +130,7 @@ test.describe('Calendar Interaction Tests', () => {
       await page.waitForTimeout(1500);
 
       // Verify the entry was created
-      const newEntry = page.locator('.fc-event:has-text("Test Timed Entry")');
+      const newEntry = page.locator('.vfc-event:has-text("Test Timed Entry")');
       await expect(newEntry).toBeVisible({ timeout: 5000 });
     });
   });
@@ -163,7 +163,7 @@ test.describe('Calendar Interaction Tests', () => {
     });
 
     test('should drag newly created all-day entry', async ({ page }) => {
-      const testEntry = page.locator('.fc-event:has-text("Test All Day")').first();
+      const testEntry = page.locator('.vfc-event:has-text("Test All Day")').first();
 
       if (await testEntry.isVisible({ timeout: 3000 })) {
         const box = await testEntry.boundingBox();
@@ -175,13 +175,13 @@ test.describe('Calendar Interaction Tests', () => {
           await waitForCalendarUpdate(page, 1500);
 
           // Entry should still exist
-          await expect(page.locator('.fc-event:has-text("Test All Day")')).toBeVisible();
+          await expect(page.locator('.vfc-event:has-text("Test All Day")')).toBeVisible();
         }
       }
     });
 
     test('should drag newly created timed entry', async ({ page }) => {
-      const testEntry = page.locator('.fc-event:has-text("Test Timed")').first();
+      const testEntry = page.locator('.vfc-event:has-text("Test Timed")').first();
 
       if (await testEntry.isVisible({ timeout: 3000 })) {
         const box = await testEntry.boundingBox();
@@ -193,16 +193,16 @@ test.describe('Calendar Interaction Tests', () => {
           await waitForCalendarUpdate(page, 1500);
 
           // Entry should still exist
-          await expect(page.locator('.fc-event:has-text("Test Timed")')).toBeVisible();
+          await expect(page.locator('.vfc-event:has-text("Test Timed")')).toBeVisible();
         }
       }
     });
 
     test('should resize newly created all-day entry', async ({ page }) => {
-      const testEntry = page.locator('.fc-event:has-text("Test All Day")').first();
+      const testEntry = page.locator('.vfc-event:has-text("Test All Day")').first();
 
       if (await testEntry.isVisible({ timeout: 3000 })) {
-        const resizeHandle = testEntry.locator('.fc-event-resizer-end, .fc-event-resizer').first();
+        const resizeHandle = testEntry.locator('.fc-event-resizer-end, .fc-event-resizer').first(); // TODO-v7-verify: .fc-event-resizer-end, .fc-event-resizer
 
         if (await resizeHandle.isVisible({ timeout: 2000 })) {
           const box = await resizeHandle.boundingBox();
@@ -214,7 +214,7 @@ test.describe('Calendar Interaction Tests', () => {
             await waitForCalendarUpdate(page, 1500);
 
             // Entry should still exist
-            await expect(page.locator('.fc-event:has-text("Test All Day")')).toBeVisible();
+            await expect(page.locator('.vfc-event:has-text("Test All Day")')).toBeVisible();
           }
         }
       }
@@ -225,7 +225,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test.beforeEach(async ({ page }) => {
       // Create test entry by clicking on an empty day cell (use a cell that's likely empty)
-      const dayCells = page.locator('.fc-daygrid-day-frame');
+      const dayCells = page.locator('.vfc-day-cell'); // TODO-v7-verify: .fc-daygrid-day-frame
       // Try to find a day cell that doesn't have many events
       const dayFrame = dayCells.nth(10);
       await dayFrame.click();
@@ -243,12 +243,12 @@ test.describe('Calendar Interaction Tests', () => {
 
       // Wait for dialog to close and entry to appear
       await expect(dialog).not.toBeVisible({ timeout: 5000 });
-      await expect(page.locator('.fc-event:has-text("Entry To Delete")')).toBeVisible({ timeout: 5000 });
+      await expect(page.locator('.vfc-event:has-text("Entry To Delete")')).toBeVisible({ timeout: 5000 });
     });
 
     test('should delete entry using the edit dialog Remove button', async ({ page }) => {
       // Click on the entry to open edit dialog
-      const entry = page.locator('.fc-event:has-text("Entry To Delete")').first();
+      const entry = page.locator('.vfc-event:has-text("Entry To Delete")').first();
       await expect(entry).toBeVisible({ timeout: 3000 });
       await entry.click();
 
@@ -265,14 +265,14 @@ test.describe('Calendar Interaction Tests', () => {
       await expect(dialog).not.toBeVisible({ timeout: 5000 });
 
       // Entry should be gone
-      const deletedEntry = page.locator('.fc-event:has-text("Entry To Delete")');
+      const deletedEntry = page.locator('.vfc-event:has-text("Entry To Delete")');
       await expect(deletedEntry).not.toBeVisible({ timeout: 5000 });
     });
 
     test('should delete Multi 2 entry using the edit dialog', async ({ page }) => {
       // Note: We use "Multi 2" because "Multi 1" matches "Multi 10" as well
       // Navigate to find Multi 2 entry (might need to scroll or it might be in +more)
-      const multiEntry = page.locator('.fc-event').filter({ hasText: /^.*Multi 2.*$/ }).first();
+      const multiEntry = page.locator('.vfc-event').filter({ hasText: /^.*Multi 2.*$/ }).first();
 
       // Skip if not visible (might be hidden in +more link)
       if (!(await multiEntry.isVisible({ timeout: 3000 }))) {
@@ -281,7 +281,7 @@ test.describe('Calendar Interaction Tests', () => {
       }
 
       // Count how many Multi 2 entries exist before deletion
-      const countBefore = await page.locator('.fc-event').filter({ hasText: /Multi 2/ }).count();
+      const countBefore = await page.locator('.vfc-event').filter({ hasText: /Multi 2/ }).count();
 
       await multiEntry.click();
 
@@ -302,7 +302,7 @@ test.describe('Calendar Interaction Tests', () => {
       await expect(dialog).not.toBeVisible({ timeout: 5000 });
 
       // Verify one less Multi 2 entry exists
-      const countAfter = await page.locator('.fc-event').filter({ hasText: /Multi 2/ }).count();
+      const countAfter = await page.locator('.vfc-event').filter({ hasText: /Multi 2/ }).count();
       expect(countAfter).toBeLessThan(countBefore);
     });
   });
@@ -311,7 +311,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should edit recurring event and change recurrence settings', async ({ page }) => {
       // Find the sunday event (recurring)
-      const sundayEvent = page.locator('.fc-event:has-text("sunday event")').first();
+      const sundayEvent = page.locator('.vfc-event:has-text("sunday event")').first();
 
       // Skip test if recurring event not visible
       if (!(await sundayEvent.isVisible({ timeout: 5000 }))) {
@@ -357,11 +357,11 @@ test.describe('Calendar Interaction Tests', () => {
       await expect(dialog).not.toBeVisible({ timeout: 3000 });
 
       // Calendar should still be functional
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
 
       // The recurring event should still exist (there are multiple instances)
-      await expect(page.locator('.fc-event:has-text("sunday event")').first()).toBeVisible();
+      await expect(page.locator('.vfc-event:has-text("sunday event")').first()).toBeVisible();
     });
   });
 
@@ -374,7 +374,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should create timed entry in Time Grid Week view', async ({ page }) => {
       // Click on a time slot to open create dialog
-      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(10);
+      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(10); // TODO-v7-verify: .fc-timegrid-slot-lane
       await timeSlot.click();
       await page.waitForTimeout(1000);
 
@@ -389,13 +389,13 @@ test.describe('Calendar Interaction Tests', () => {
       await page.waitForTimeout(1500);
 
       // Verify entry exists
-      const entry = page.locator('.fc-event:has-text("Time Grid Test Entry")');
+      const entry = page.locator('.vfc-event:has-text("Time Grid Test Entry")');
       await expect(entry).toBeVisible({ timeout: 5000 });
     });
 
     test('should drag timed entry to another time slot on same day', async ({ page }) => {
       // Find a timed entry in the time grid
-      const timedEntry = page.locator('.fc-timegrid-event, .fc-event').first();
+      const timedEntry = page.locator('.vfc-event').first();
 
       if (await timedEntry.isVisible({ timeout: 5000 })) {
         const box = await timedEntry.boundingBox();
@@ -409,7 +409,7 @@ test.describe('Calendar Interaction Tests', () => {
           await waitForCalendarUpdate(page, 1500);
 
           // Calendar should still be functional
-          const calendar = page.locator('.fc');
+          const calendar = page.locator('.vfc-view');
           await expect(calendar).toBeVisible();
         }
       }
@@ -417,7 +417,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should drag timed entry to another day in Time Grid Week', async ({ page }) => {
       // Find a timed entry
-      const timedEntry = page.locator('.fc-timegrid-event, .fc-event').first();
+      const timedEntry = page.locator('.vfc-event').first();
 
       if (await timedEntry.isVisible({ timeout: 5000 })) {
         const box = await timedEntry.boundingBox();
@@ -431,7 +431,7 @@ test.describe('Calendar Interaction Tests', () => {
           await waitForCalendarUpdate(page, 1500);
 
           // Calendar should still be functional
-          const calendar = page.locator('.fc');
+          const calendar = page.locator('.vfc-view');
           await expect(calendar).toBeVisible();
         }
       }
@@ -439,11 +439,11 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should resize timed entry to increase duration by one hour', async ({ page }) => {
       // Find a timed entry with resize handle
-      const timedEntry = page.locator('.fc-timegrid-event, .fc-event').first();
+      const timedEntry = page.locator('.vfc-event').first();
 
       if (await timedEntry.isVisible({ timeout: 5000 })) {
         // Find the bottom resize handle
-        const resizeHandle = timedEntry.locator('.fc-event-resizer-end, .fc-event-resizer').first();
+        const resizeHandle = timedEntry.locator('.fc-event-resizer-end, .fc-event-resizer').first(); // TODO-v7-verify: .fc-event-resizer-end, .fc-event-resizer
 
         if (await resizeHandle.isVisible({ timeout: 2000 })) {
           const box = await resizeHandle.boundingBox();
@@ -457,7 +457,7 @@ test.describe('Calendar Interaction Tests', () => {
             await waitForCalendarUpdate(page, 1500);
 
             // Calendar should still be functional
-            const calendar = page.locator('.fc');
+            const calendar = page.locator('.vfc-view');
             await expect(calendar).toBeVisible();
           }
         }
@@ -466,7 +466,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should delete created entries in Time Grid Week view', async ({ page }) => {
       // First create an entry by clicking on a time slot
-      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(15);
+      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(15); // TODO-v7-verify: .fc-timegrid-slot-lane
       await timeSlot.click();
       await page.waitForTimeout(1000);
 
@@ -476,7 +476,7 @@ test.describe('Calendar Interaction Tests', () => {
       await page.waitForTimeout(1500);
 
       // Now delete it
-      const entry = page.locator('.fc-event:has-text("Entry To Delete In TimeGrid")').first();
+      const entry = page.locator('.vfc-event:has-text("Entry To Delete In TimeGrid")').first();
       if (await entry.isVisible({ timeout: 3000 })) {
         await entry.click();
         await page.waitForTimeout(1000);
@@ -487,7 +487,7 @@ test.describe('Calendar Interaction Tests', () => {
         await page.waitForTimeout(1500);
 
         // Entry should be gone
-        await expect(page.locator('.fc-event:has-text("Entry To Delete In TimeGrid")')).not.toBeVisible({ timeout: 3000 });
+        await expect(page.locator('.vfc-event:has-text("Entry To Delete In TimeGrid")')).not.toBeVisible({ timeout: 3000 });
       }
     });
   });

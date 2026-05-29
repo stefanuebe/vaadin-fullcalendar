@@ -7,8 +7,11 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoAutoRevertView(page) {
     await page.goto('/test/auto-revert');
-    await page.waitForSelector('.fc', { timeout: 10000 });
-    await page.waitForSelector('.fc-timegrid-slot', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view-timeGridWeek', { timeout: 15000 });
+    await page.waitForFunction(
+        () => document.querySelectorAll('.vfc-event').length > 0,
+        { timeout: 15000 }
+    );
     await waitForVaadin(page);
 }
 
@@ -16,7 +19,7 @@ async function gotoAutoRevertView(page) {
  * Get the bounding box of the "Drag Me" entry.
  */
 async function getDragMeBox(page) {
-    const entry = page.locator('.fc-event:has-text("Drag Me")').first();
+    const entry = page.locator('.vfc-event:has-text("Drag Me")').first();
     await expect(entry).toBeVisible({ timeout: 10000 });
     const box = await entry.boundingBox();
     if (!box) throw new Error('Could not get bounding box for Drag Me entry');
@@ -139,7 +142,7 @@ test.describe('Auto Revert (#225)', () => {
         await page.evaluate(() => {
             window._positionLog = [];
             const observer = new MutationObserver(() => {
-                const entry = document.querySelector('.fc-event');
+                const entry = document.querySelector('.vfc-event');
                 if (entry) {
                     const rect = entry.getBoundingClientRect();
                     window._positionLog.push({ x: rect.x, y: rect.y, t: Date.now() });

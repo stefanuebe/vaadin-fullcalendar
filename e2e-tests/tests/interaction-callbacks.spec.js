@@ -7,9 +7,11 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoInteractionCallbacksView(page) {
     await page.goto('/test/interaction-callbacks');
-    await page.waitForSelector('.fc', { timeout: 10000 });
-    // timeGridWeek renders time-slot rows
-    await page.waitForSelector('.fc-timegrid-slot', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view-timeGridWeek', { timeout: 15000 });
+    await page.waitForFunction(
+        () => document.querySelectorAll('.vfc-event').length > 0,
+        { timeout: 15000 }
+    );
     await waitForVaadin(page);
 }
 
@@ -29,7 +31,7 @@ test.describe('Interaction Callbacks', () => {
 
     test('drag start/stop listeners: counters increment after drag', async ({ page }) => {
         // Locate the "Drag Me" event in the timegrid
-        const dragEvent = page.locator('.fc-event:has-text("Drag Me")').first();
+        const dragEvent = page.locator('.vfc-event:has-text("Drag Me")').first();
         await expect(dragEvent).toBeVisible({ timeout: 10000 });
 
         // Initial counter values
@@ -59,7 +61,7 @@ test.describe('Interaction Callbacks', () => {
     // -------------------------------------------------------------------------
 
     test('resize start/stop listeners: counters increment after resize', async ({ page }) => {
-        const resizeEvent = page.locator('.fc-event:has-text("Resize Me")').first();
+        const resizeEvent = page.locator('.vfc-event:has-text("Resize Me")').first();
         await expect(resizeEvent).toBeVisible({ timeout: 10000 });
 
         await expect(page.locator('#resize-start-count')).toHaveText('0');
@@ -67,7 +69,7 @@ test.describe('Interaction Callbacks', () => {
 
         // Hover over the event to make the resize handle visible (FC shows it on hover)
         await resizeEvent.hover();
-        const handle = resizeEvent.locator('.fc-event-resizer-end');
+        const handle = resizeEvent.locator('.fc-event-resizer-end'); // TODO-v7-verify: .fc-event-resizer-end (resize handle sub-element of .vfc-event)
         await expect(handle).toBeVisible({ timeout: 5000 });
         const handleBox = await handle.boundingBox();
         if (!handleBox) throw new Error('Could not get bounding box for resize handle');
@@ -124,7 +126,7 @@ test.describe('Interaction Callbacks', () => {
         // Tuesday 2025-03-04 is allowed — click a slot in that column
         // Week starts Monday 2025-03-03, so column index 2 (0-based) is Wednesday, etc.
         // Just verify the calendar renders without error and no console error fires
-        const col = page.locator('.fc-col-header-cell').nth(2); // some column
+        const col = page.locator('.vfc-day-header').nth(2); // some column
         await expect(col).toBeVisible({ timeout: 5000 });
         // No assertion beyond "no crash" — selectAllow is a client-side-only callback
     });
@@ -134,16 +136,16 @@ test.describe('Interaction Callbacks', () => {
     // -------------------------------------------------------------------------
 
     test('calendar renders in timeGridWeek view', async ({ page }) => {
-        await expect(page.locator('.fc')).toBeVisible();
-        await expect(page.locator('.fc-timeGridWeek-view')).toBeVisible();
+        await expect(page.locator('.vfc-view')).toBeVisible();
+        await expect(page.locator('.vfc-view-timeGridWeek')).toBeVisible();
     });
 
     test('draggable entry is visible', async ({ page }) => {
-        await expect(page.locator('.fc-event:has-text("Drag Me")')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('.vfc-event:has-text("Drag Me")')).toBeVisible({ timeout: 10000 });
     });
 
     test('resizable entry is visible', async ({ page }) => {
-        await expect(page.locator('.fc-event:has-text("Resize Me")')).toBeVisible({ timeout: 10000 });
+        await expect(page.locator('.vfc-event:has-text("Resize Me")')).toBeVisible({ timeout: 10000 });
     });
 
     // -------------------------------------------------------------------------
@@ -155,7 +157,7 @@ test.describe('Interaction Callbacks', () => {
 
         // "Drag Me" is on Monday 2025-03-03 but eventAllow blocks drops ONTO Monday 03-03
         // We need to drag to a different day (e.g. Tuesday column) to get a successful drop
-        const dragEvent = page.locator('.fc-event:has-text("Drag Me")').first();
+        const dragEvent = page.locator('.vfc-event:has-text("Drag Me")').first();
         const box = await dragEvent.boundingBox();
         if (!box) throw new Error('Could not get bounding box');
 
@@ -170,7 +172,7 @@ test.describe('Interaction Callbacks', () => {
     });
 
     test('entry dropped data: title and new start populated', async ({ page }) => {
-        const dragEvent = page.locator('.fc-event:has-text("Drag Me")').first();
+        const dragEvent = page.locator('.vfc-event:has-text("Drag Me")').first();
         const box = await dragEvent.boundingBox();
         if (!box) throw new Error('Could not get bounding box');
 
@@ -194,9 +196,9 @@ test.describe('Interaction Callbacks', () => {
     test('entry resized listener: counter increments after resize', async ({ page }) => {
         await expect(page.locator('#entry-resized-count')).toHaveText('0');
 
-        const resizeEvent = page.locator('.fc-event:has-text("Resize Me")').first();
+        const resizeEvent = page.locator('.vfc-event:has-text("Resize Me")').first();
         await resizeEvent.hover();
-        const handle = resizeEvent.locator('.fc-event-resizer-end');
+        const handle = resizeEvent.locator('.fc-event-resizer-end'); // TODO-v7-verify: .fc-event-resizer-end (resize handle sub-element of .vfc-event)
         await expect(handle).toBeVisible({ timeout: 5000 });
         const handleBox = await handle.boundingBox();
         if (!handleBox) throw new Error('Could not get bounding box for resize handle');
@@ -211,9 +213,9 @@ test.describe('Interaction Callbacks', () => {
     });
 
     test('entry resized data: title contains Resize Me', async ({ page }) => {
-        const resizeEvent = page.locator('.fc-event:has-text("Resize Me")').first();
+        const resizeEvent = page.locator('.vfc-event:has-text("Resize Me")').first();
         await resizeEvent.hover();
-        const handle = resizeEvent.locator('.fc-event-resizer-end');
+        const handle = resizeEvent.locator('.fc-event-resizer-end'); // TODO-v7-verify: .fc-event-resizer-end (resize handle sub-element of .vfc-event)
         await expect(handle).toBeVisible({ timeout: 5000 });
         const handleBox = await handle.boundingBox();
         if (!handleBox) throw new Error('Could not get bounding box');

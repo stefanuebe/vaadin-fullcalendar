@@ -4,9 +4,11 @@ const { expect, waitForVaadin } = require('./fixtures');
 
 async function gotoConstraintView(page) {
     await page.goto('/test/constraint-overlap');
-    await page.waitForSelector('.fc', { timeout: 10000 });
-    await page.waitForSelector('.fc-timegrid-slot', { timeout: 5000 });
-    await page.waitForSelector('.fc-event', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view', { timeout: 15000 });
+    await page.waitForFunction(
+        () => document.querySelectorAll('.vfc-event').length > 0,
+        { timeout: 20000 }
+    );
     await waitForVaadin(page);
 }
 
@@ -16,32 +18,33 @@ base.describe('Per-Entry Editable Flags', () => {
         await gotoConstraintView(page);
     });
 
-    base('locked entry (editable=false) is not draggable — no fc-event-draggable class', async ({ page }) => {
-        const locked = page.locator('.fc-event:has-text("Locked Entry")').first();
+    base('locked entry (editable=false) is not draggable — no fc-DD class', async ({ page }) => {
+        const locked = page.locator('.vfc-event:has-text("Locked Entry")').first();
         await expect(locked).toBeVisible();
-        // FC adds fc-event-draggable class only to draggable entries
+        // v7: FC uses fc-DD (internalEventDraggable) class for draggable entries
         const classes = await locked.getAttribute('class');
-        expect(classes).not.toContain('fc-event-draggable');
+        expect(classes).not.toContain('fc-DD');
     });
 
-    base('normal entry has fc-event-draggable class', async ({ page }) => {
-        const normal = page.locator('.fc-event:has-text("Normal Entry")').first();
+    base('normal entry has fc-DD draggable class', async ({ page }) => {
+        const normal = page.locator('.vfc-event:has-text("Normal Entry")').first();
         await expect(normal).toBeVisible();
         const classes = await normal.getAttribute('class');
-        expect(classes).toContain('fc-event-draggable');
+        expect(classes).toContain('fc-DD');
     });
 
-    base('startEditable=false entry has no fc-event-draggable class', async ({ page }) => {
-        const noStart = page.locator('.fc-event:has-text("No Start Edit")').first();
+    base('startEditable=false entry has no fc-DD draggable class', async ({ page }) => {
+        const noStart = page.locator('.vfc-event:has-text("No Start Edit")').first();
         await expect(noStart).toBeVisible();
         const classes = await noStart.getAttribute('class');
-        expect(classes).not.toContain('fc-event-draggable');
+        expect(classes).not.toContain('fc-DD');
     });
 
     base('startEditable=false entry still has resize handle', async ({ page }) => {
-        const noStart = page.locator('.fc-event:has-text("No Start Edit")').first();
+        const noStart = page.locator('.vfc-event:has-text("No Start Edit")').first();
         await noStart.hover();
-        const resizer = noStart.locator('.fc-event-resizer');
+        // v7: resize handles use fc-aL (internalEventResizer) class
+        const resizer = noStart.locator('.fc-aL');
         const count = await resizer.count();
         expect(count).toBeGreaterThanOrEqual(1);
     });
@@ -54,12 +57,12 @@ base.describe('Overlap Prevention', () => {
     });
 
     base('entry with overlap=false exists and is visible', async ({ page }) => {
-        const noOverlap = page.locator('.fc-event:has-text("No Overlap")').first();
+        const noOverlap = page.locator('.vfc-event:has-text("No Overlap")').first();
         await expect(noOverlap).toBeVisible();
     });
 
     base('blocker entry exists on same day', async ({ page }) => {
-        const blocker = page.locator('.fc-event:has-text("Blocker")').first();
+        const blocker = page.locator('.vfc-event:has-text("Blocker")').first();
         await expect(blocker).toBeVisible();
     });
 });
@@ -71,13 +74,13 @@ base.describe('Constraint (businessHours)', () => {
     });
 
     base('constrained entry is visible', async ({ page }) => {
-        const entry = page.locator('.fc-event:has-text("BH Constrained")').first();
+        const entry = page.locator('.vfc-event:has-text("BH Constrained")').first();
         await expect(entry).toBeVisible();
     });
 
     base('non-business hour slots have fc-non-business class', async ({ page }) => {
         // Business hours default Mon-Fri 9am-5pm, view is timeGridWeek
-        const nonBiz = page.locator('.fc-non-business');
+        const nonBiz = page.locator('.vfc-non-business');
         const count = await nonBiz.count();
         expect(count).toBeGreaterThanOrEqual(1);
     });
@@ -105,7 +108,7 @@ base.describe('ValidRange', () => {
 
         // FC should NOT show February — it should stay within valid range
         // Check that the view still shows dates in March or later
-        const allDayHeader = page.locator('.fc-col-header-cell[data-date]').first();
+        const allDayHeader = page.locator('.vfc-day-header[data-date]').first();
         const dateStr = await allDayHeader.getAttribute('data-date');
         expect(dateStr).toBeTruthy();
         // The date should be >= 2025-03-01 (ISO-8601 dates compare correctly lexicographically)

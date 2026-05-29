@@ -7,11 +7,11 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoEntryModelView(page) {
     await page.goto('/test/entry-model');
-    await page.waitForSelector('.fc', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
     // v7: dayGridMonth view root carries vfc-view-dayGridMonth (viewClass contract)
     await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 5000 });
     // Wait for entries to be rendered before running assertions
-    await page.waitForSelector('.fc-event', { timeout: 5000 });
+    await page.waitForSelector('.vfc-event', { timeout: 5000 });
     await waitForVaadin(page);
 }
 
@@ -39,7 +39,7 @@ test.describe('Entry Model', () => {
     // -------------------------------------------------------------------------
 
     test('url entry is present and has href attribute', async ({ page }) => {
-        const urlEvent = page.locator('.fc-event:has-text("Visit Homepage")').first();
+        const urlEvent = page.locator('.vfc-event:has-text("Visit Homepage")').first();
         await expect(urlEvent).toBeVisible();
 
         // In FC v6, URL entries render as <a> tags directly (the .fc-event IS the <a>)
@@ -53,13 +53,13 @@ test.describe('Entry Model', () => {
     // -------------------------------------------------------------------------
 
     test('interactive entry is visible', async ({ page }) => {
-        await expect(page.locator('.fc-event:has-text("Keyboard Event")').first()).toBeVisible();
+        await expect(page.locator('.vfc-event:has-text("Keyboard Event")').first()).toBeVisible();
     });
 
     test('interactive entry is focusable via keyboard (tabindex="0")', async ({ page }) => {
         // FullCalendar adds tabindex="0" to events when eventInteractive is true
         const tabindex = await page
-            .locator('.fc-event:has-text("Keyboard Event")')
+            .locator('.vfc-event:has-text("Keyboard Event")')
             .first()
             .getAttribute('tabindex');
         expect(tabindex).toBe('0');
@@ -72,8 +72,8 @@ test.describe('Entry Model', () => {
     test('recurring duration entry renders as multi-day span', async ({ page }) => {
         // Monday 2025-03-03 and Tuesday 2025-03-04 should both show the event
         // (recurringDuration="P2D" = 2-day span starting on each Monday/Wednesday)
-        const monday = page.locator('.fc-daygrid-day[data-date="2025-03-03"] .fc-event:has-text("Multi-Day Recurring")');
-        const tuesday = page.locator('.fc-daygrid-day[data-date="2025-03-04"] .fc-event:has-text("Multi-Day Recurring")');
+        const monday = page.locator('.vfc-day-cell[data-date="2025-03-03"] .vfc-event:has-text("Multi-Day Recurring")');
+        const tuesday = page.locator('.vfc-day-cell[data-date="2025-03-04"] .vfc-event:has-text("Multi-Day Recurring")');
         await expect(monday).toBeVisible();
         await expect(tuesday).toBeVisible();
     });
@@ -85,7 +85,7 @@ test.describe('Entry Model', () => {
     test('rrule weekly entry renders multiple occurrences', async ({ page }) => {
         // Weekly on Monday + Friday in March 2025 = 9 occurrences
         // (Mon 3,10,17,24,31 + Fri 7,14,21,28)
-        const occurrences = page.locator('.fc-event:has-text("RRule Weekly")');
+        const occurrences = page.locator('.vfc-event:has-text("RRule Weekly")');
         const count = await occurrences.count();
         expect(count).toBeGreaterThanOrEqual(8);
     });
@@ -96,19 +96,19 @@ test.describe('Entry Model', () => {
 
     test('exdate: skipped Monday is absent from its day cell', async ({ page }) => {
         // March 10 is excluded via exdate — the cell should have no "Exdate Test" event
-        const march10Cell = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
-        await expect(march10Cell.locator('.fc-event:has-text("Exdate Test")')).toHaveCount(0);
+        const march10Cell = page.locator('.vfc-day-cell[data-date="2025-03-10"]');
+        await expect(march10Cell.locator('.vfc-event:has-text("Exdate Test")')).toHaveCount(0);
     });
 
     test('exdate: non-excluded Monday still renders', async ({ page }) => {
         // March 17 is not excluded and should show the event
-        const march17Cell = page.locator('.fc-daygrid-day[data-date="2025-03-17"]');
-        await expect(march17Cell.locator('.fc-event:has-text("Exdate Test")')).toHaveCount(1);
+        const march17Cell = page.locator('.vfc-day-cell[data-date="2025-03-17"]');
+        await expect(march17Cell.locator('.vfc-event:has-text("Exdate Test")')).toHaveCount(1);
     });
 
     test('exdate: total occurrences is 4 (5 Mondays minus 1 excluded)', async ({ page }) => {
         // Mondays in March 2025: 3, 10, 17, 24, 31 — exdate removes March 10 → 4 left
-        const occurrences = page.locator('.fc-event:has-text("Exdate Test")');
+        const occurrences = page.locator('.vfc-event:has-text("Exdate Test")');
         await expect(occurrences).toHaveCount(4);
     });
 
@@ -119,17 +119,17 @@ test.describe('Entry Model', () => {
     // -------------------------------------------------------------------------
 
     test('exdate (no dtstart): skipped Monday is absent from its day cell', async ({ page }) => {
-        const march10Cell = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
-        await expect(march10Cell.locator('.fc-event:has-text("Exdate No DTSTART")')).toHaveCount(0);
+        const march10Cell = page.locator('.vfc-day-cell[data-date="2025-03-10"]');
+        await expect(march10Cell.locator('.vfc-event:has-text("Exdate No DTSTART")')).toHaveCount(0);
     });
 
     test('exdate (no dtstart): non-excluded Monday still renders', async ({ page }) => {
-        const march17Cell = page.locator('.fc-daygrid-day[data-date="2025-03-17"]');
-        await expect(march17Cell.locator('.fc-event:has-text("Exdate No DTSTART")')).toHaveCount(1);
+        const march17Cell = page.locator('.vfc-day-cell[data-date="2025-03-17"]');
+        await expect(march17Cell.locator('.vfc-event:has-text("Exdate No DTSTART")')).toHaveCount(1);
     });
 
     test('exdate (no dtstart): total occurrences is 4', async ({ page }) => {
-        const occurrences = page.locator('.fc-event:has-text("Exdate No DTSTART")');
+        const occurrences = page.locator('.vfc-event:has-text("Exdate No DTSTART")');
         await expect(occurrences).toHaveCount(4);
     });
 
@@ -138,17 +138,17 @@ test.describe('Entry Model', () => {
     // -------------------------------------------------------------------------
 
     test('exdate (no byWeekday): skipped Monday is absent from its day cell', async ({ page }) => {
-        const march10Cell = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
-        await expect(march10Cell.locator('.fc-event:has-text("Exdate No ByWeekday")')).toHaveCount(0);
+        const march10Cell = page.locator('.vfc-day-cell[data-date="2025-03-10"]');
+        await expect(march10Cell.locator('.vfc-event:has-text("Exdate No ByWeekday")')).toHaveCount(0);
     });
 
     test('exdate (no byWeekday): non-excluded Monday still renders', async ({ page }) => {
-        const march17Cell = page.locator('.fc-daygrid-day[data-date="2025-03-17"]');
-        await expect(march17Cell.locator('.fc-event:has-text("Exdate No ByWeekday")')).toHaveCount(1);
+        const march17Cell = page.locator('.vfc-day-cell[data-date="2025-03-17"]');
+        await expect(march17Cell.locator('.vfc-event:has-text("Exdate No ByWeekday")')).toHaveCount(1);
     });
 
     test('exdate (no byWeekday): total occurrences is 4', async ({ page }) => {
-        const occurrences = page.locator('.fc-event:has-text("Exdate No ByWeekday")');
+        const occurrences = page.locator('.vfc-event:has-text("Exdate No ByWeekday")');
         await expect(occurrences).toHaveCount(4);
     });
 
@@ -158,17 +158,17 @@ test.describe('Entry Model', () => {
     // -------------------------------------------------------------------------
 
     test('exrule: excluded Monday (March 17) is absent', async ({ page }) => {
-        const march17Cell = page.locator('.fc-daygrid-day[data-date="2025-03-17"]');
-        await expect(march17Cell.locator('.fc-event:has-text("Exrule Test")')).toHaveCount(0);
+        const march17Cell = page.locator('.vfc-day-cell[data-date="2025-03-17"]');
+        await expect(march17Cell.locator('.vfc-event:has-text("Exrule Test")')).toHaveCount(0);
     });
 
     test('exrule: non-excluded Monday (March 24) still renders', async ({ page }) => {
-        const march24Cell = page.locator('.fc-daygrid-day[data-date="2025-03-24"]');
-        await expect(march24Cell.locator('.fc-event:has-text("Exrule Test")')).toHaveCount(1);
+        const march24Cell = page.locator('.vfc-day-cell[data-date="2025-03-24"]');
+        await expect(march24Cell.locator('.vfc-event:has-text("Exrule Test")')).toHaveCount(1);
     });
 
     test('exrule: total occurrences is 4 (5 Mondays minus 1 via exrule)', async ({ page }) => {
-        const occurrences = page.locator('.fc-event:has-text("Exrule Test")');
+        const occurrences = page.locator('.vfc-event:has-text("Exrule Test")');
         await expect(occurrences).toHaveCount(4);
     });
 
@@ -178,14 +178,14 @@ test.describe('Entry Model', () => {
 
     test('monthly last-friday renders on correct day (March 28)', async ({ page }) => {
         // Last Friday of March 2025 = March 28
-        const march28Cell = page.locator('.fc-daygrid-day[data-date="2025-03-28"]');
-        await expect(march28Cell.locator('.fc-event:has-text("Last Friday")')).toHaveCount(1);
+        const march28Cell = page.locator('.vfc-day-cell[data-date="2025-03-28"]');
+        await expect(march28Cell.locator('.vfc-event:has-text("Last Friday")')).toHaveCount(1);
     });
 
     test('monthly last-friday does not render on non-last Friday (March 21)', async ({ page }) => {
         // March 21 is a Friday but not the last one
-        const march21Cell = page.locator('.fc-daygrid-day[data-date="2025-03-21"]');
-        await expect(march21Cell.locator('.fc-event:has-text("Last Friday")')).toHaveCount(0);
+        const march21Cell = page.locator('.vfc-day-cell[data-date="2025-03-21"]');
+        await expect(march21Cell.locator('.vfc-event:has-text("Last Friday")')).toHaveCount(0);
     });
 
     // -------------------------------------------------------------------------
@@ -194,7 +194,7 @@ test.describe('Entry Model', () => {
 
     test('ofRaw renders correct number of occurrences', async ({ page }) => {
         // BYDAY=WE in March 2025: Wednesdays 5, 12, 19, 26 = 4 occurrences
-        const occurrences = page.locator('.fc-event:has-text("Raw RRule")');
+        const occurrences = page.locator('.vfc-event:has-text("Raw RRule")');
         await expect(occurrences).toHaveCount(4);
     });
 
@@ -207,7 +207,7 @@ test.describe('Entry Model', () => {
         await expect(page.locator('#click-count')).toHaveText('0');
 
         // Click the interactive entry (safe to click — no URL navigation)
-        await page.locator('.fc-event:has-text("Keyboard Event")').first().click();
+        await page.locator('.vfc-event:has-text("Keyboard Event")').first().click();
 
         // Counter should increment to 1 within 5 seconds
         await expect(page.locator('#click-count')).not.toHaveText('0', { timeout: 5000 });

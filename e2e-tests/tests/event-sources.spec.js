@@ -7,9 +7,9 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoEventSourcesView(page) {
     await page.goto('/test/event-sources');
-    await page.waitForSelector('.fc', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
     // timeGridWeek renders time-slot rows
-    await page.waitForSelector('.fc-timegrid-slot', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view-timeGridWeek', { timeout: 5000 }); // TODO-v7-verify: .fc-timegrid-slot
     await waitForVaadin(page);
 }
 
@@ -27,12 +27,12 @@ test.describe('Event Source Improvements', () => {
     // Calendar renders correctly
     // -------------------------------------------------------------------------
 
-    test('calendar renders with .fc element', async ({ page }) => {
-        await expect(page.locator('.fc')).toBeVisible();
+    test('calendar renders with .vfc-view element', async ({ page }) => {
+        await expect(page.locator('.vfc-view')).toBeVisible();
     });
 
     test('calendar renders in timeGridWeek view', async ({ page }) => {
-        await expect(page.locator('.fc-timeGridWeek-view')).toBeVisible();
+        await expect(page.locator('.vfc-view-timeGridWeek')).toBeVisible();
     });
 
     // -------------------------------------------------------------------------

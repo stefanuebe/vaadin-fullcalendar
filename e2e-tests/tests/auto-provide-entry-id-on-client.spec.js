@@ -20,8 +20,8 @@ const { waitForVaadin } = require('./fixtures');
 test.describe('Auto-provide entry id on client (#202)', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/test/auto-provide-entry-id-on-client');
-        await page.waitForSelector('.fc', { timeout: 15000 });
-        await page.waitForSelector('.fc-event', { timeout: 15000 });
+        await page.waitForSelector('.vfc-view', { timeout: 15000 });
+        await page.waitForSelector('.vfc-event', { timeout: 15000 });
         await waitForVaadin(page);
     });
 

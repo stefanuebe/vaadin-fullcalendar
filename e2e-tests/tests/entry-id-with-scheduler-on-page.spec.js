@@ -24,9 +24,9 @@ test.describe('Entry ID snippet survives Scheduler-plugin-patched getResources',
 
         const plain = page.locator('[data-testid="plain-calendar"]');
         // Wait until at least one entry is visible inside the plain calendar.
-        await plain.locator('.fc-event').first().waitFor({ timeout: 10000 });
+        await plain.locator('.vfc-event').first().waitFor({ timeout: 10000 });
 
-        const entryTitles = await plain.locator('.fc-event .fc-event-title').allTextContents();
+        const entryTitles = await plain.locator('.vfc-event .fc-event-title').allTextContents(); // TODO-v7-verify: .fc-event-title
         expect(entryTitles).toContain('Entry 1');
         expect(entryTitles).toContain('Entry 2');
 

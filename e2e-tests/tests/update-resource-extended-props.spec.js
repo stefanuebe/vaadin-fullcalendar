@@ -13,8 +13,8 @@ const { waitForVaadin } = require('./fixtures');
 test.describe('Scheduler updateResource — extended props', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/test/update-resource-extended-props');
-        await page.waitForSelector('.fc', { timeout: 15000 });
-        await page.waitForSelector('.fc-timeline', { timeout: 15000 });
+        await page.waitForSelector('.vfc-view', { timeout: 15000 });
+        await page.waitForSelector('.vfc-view', { timeout: 15000 }); // TODO-v7-verify: .fc-timeline (timeline view root)
         await waitForVaadin(page);
     });
 

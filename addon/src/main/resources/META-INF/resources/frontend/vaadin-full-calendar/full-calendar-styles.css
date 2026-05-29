@@ -1,6 +1,15 @@
 @import "full-calendar-theme-vaadin.css";
 
 /* FIXES AND WORKAROUNDS */
+/* FC v7 RC: TimeGrid event harnessses (position:absolute wrappers) start with visibility:hidden
+   from FC's pre-layout state. If the slot-height measurement never completes (e.g. first render
+   race), events stay invisible. Override visibility on .vfc-event in TimeGrid views only.
+   Do NOT apply globally: FC uses visibility:hidden for DayGrid overflow events (dayMaxEventRows). */
+[class*="vfc-view-timeGrid"] .vfc-event,
+[class*="vfc-view-resourceTimeline"] .vfc-event,
+[class*="vfc-view-resourceTimeGrid"] .vfc-event {
+    visibility: visible;
+}
 /* we use the class name selector here to allow subclasses to easily remove it if these styles should not be applied.
 Also these styles automatically are applied to any subclasses and do not bleed into other elements also using "fc"
 as a classname. */

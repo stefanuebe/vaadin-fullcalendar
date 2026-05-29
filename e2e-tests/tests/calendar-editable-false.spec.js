@@ -15,18 +15,21 @@ const { waitForVaadin } = require('./fixtures');
 test.describe('Calendar-level editable=false (#212)', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/test/calendar-editable-false');
-        await page.waitForSelector('.fc', { timeout: 15000 });
-        await page.waitForSelector('.fc-event', { timeout: 15000 });
+        await page.waitForSelector('.vfc-view', { timeout: 15000 });
+        await page.waitForFunction(
+            () => document.querySelectorAll('.vfc-event').length > 0,
+            { timeout: 15000 }
+        );
         await waitForVaadin(page);
     });
 
     test('no entry is draggable when calendar-level editable is false', async ({ page }) => {
         // Both entries exist in the DOM
-        const events = page.locator('.fc-event');
+        const events = page.locator('.vfc-event');
         await expect(events).toHaveCount(2);
 
-        // None carries the draggable marker class
-        const draggable = page.locator('.fc-event.fc-event-draggable');
+        // v7: draggable entries carry fc-DD (internalEventDraggable) — none should have it when editable=false
+        const draggable = page.locator('.vfc-event.fc-DD');
         await expect(draggable).toHaveCount(0);
     });
 });

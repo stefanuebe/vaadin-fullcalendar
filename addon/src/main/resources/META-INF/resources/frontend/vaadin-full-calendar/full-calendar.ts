@@ -23,6 +23,8 @@ import dayGridPlugin from 'fullcalendar/daygrid';
 import timeGridPlugin from 'fullcalendar/timegrid';
 import listPlugin from 'fullcalendar/list';
 import multiMonthPlugin from 'fullcalendar/multimonth';
+import classicTheme from 'fullcalendar/themes/classic'; // v7: theme is a plugin; Classic reproduces v6 look + applies event color CSS vars
+import 'fullcalendar/themes/classic/theme.css'; // v7 Classic: required CSS rules (background-color via --fc-event-color, etc.)
 import rrulePlugin from '@fullcalendar/rrule';
 import momentPlugin from '@fullcalendar/format-moment'; // moment-style format strings (v7: toMoment removed, timezones are built-in)
 import moment from 'moment';
@@ -164,10 +166,11 @@ export class FullCalendar extends HTMLElement {
             }
 
             this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
+            // v7 RC: TimeGrid events stay visibility:hidden because clientHeight/slatInnerHeight aren't measured
+            // until after the first layout pass. Defer updateSize() to the next frame so the browser has
+            // completed layout before FC re-measures.
+            requestAnimationFrame(() => this._calendar?.updateSize());
 
-            // v7: ResizeObserver is built into FC — manual updateSize() calls are no longer needed.
-            // We keep a ResizeObserver reference only to suppress the benign loop-limit error
-            // from Vaadin AppLayout transitions (see issue #97).
             window.addEventListener('error', (event: ErrorEvent) => {
                 if (event.message && event.message.startsWith('ResizeObserver loop')) {
                     console.debug('Ignored: ResizeObserver loop limit exceeded');
@@ -175,10 +178,12 @@ export class FullCalendar extends HTMLElement {
                 }
             });
 
-            // Store ResizeObserver reference for cleanup in disconnectedCallback
+            // v7 RC: TimeGrid event harnessses stay visibility:hidden until updateSize() is triggered.
+            // FC's own ResizeObserver fires on size changes but not always on the initial render cycle.
+            // We call updateSize() on our ResizeObserver to ensure timed events are positioned and shown.
             // @ts-ignore - webpack has problems with the resize observer type
             this._resizeObserver = new ResizeObserver((_entries: any) => {
-                // v7 auto-sizes via its own ResizeObserver; no manual updateSize() needed here.
+                this._calendar?.updateSize();
             });
             this._resizeObserver.observe(this);
         }
@@ -209,8 +214,6 @@ export class FullCalendar extends HTMLElement {
             // no native control elements
             headerToolbar: false,
             weekNumbers: true,
-            stickyHeaderDates: true,
-            stickyFooterScrollbar: true,
             ...initialOptions,
         };
 
@@ -225,6 +228,7 @@ export class FullCalendar extends HTMLElement {
         options['locales'] = allLocales;
         // @ts-ignore
         options['plugins'] = [
+            classicTheme,
             interaction,
             dayGridPlugin,
             timeGridPlugin,
@@ -247,15 +251,19 @@ export class FullCalendar extends HTMLElement {
         const serverRowEventClass = (options as any).rowEventClass;
         (options as any).rowEventClass = clsx('vfc-row-event', serverRowEventClass);
 
-        const serverDayHeaderClass = (options as any).dayHeaderClass;
+        const serverDayHeaderClass = evaluateCallbacks((options as any).dayHeaderClass);
         const userDayHeaderClass = typeof serverDayHeaderClass === 'function' ? serverDayHeaderClass : null;
         (options as any).dayHeaderClass = (data: any) => {
             const base = clsx('vfc-day-header', data.isToday && 'vfc-today');
             return userDayHeaderClass ? clsx(base, userDayHeaderClass(data)) : base;
         };
 
-        const serverDayCellClass = (options as any).dayCellClass;
-        (options as any).dayCellClass = clsx('vfc-day-cell', typeof serverDayCellClass === 'string' ? serverDayCellClass : undefined);
+        const serverDayCellClass = evaluateCallbacks((options as any).dayCellClass);
+        const userDayCellClass = typeof serverDayCellClass === 'function' ? serverDayCellClass : null;
+        (options as any).dayCellClass = (data: any) => {
+            const base = clsx('vfc-day-cell', data.isToday && 'vfc-today');
+            return userDayCellClass ? clsx(base, userDayCellClass(data)) : base;
+        };
 
         // Mark the day-number element so the CSS contract (.vfc-day-number) can target it
         // (v7 puts the day number in the cell-top inner element; the month-start label uses a different text).
@@ -266,13 +274,16 @@ export class FullCalendar extends HTMLElement {
             return userDayCellTopInnerClass ? clsx(base, userDayCellTopInnerClass(data)) : base;
         };
 
-        const serverInlineWeekNumberClass = (options as any).inlineWeekNumberClass;
-        (options as any).inlineWeekNumberClass = clsx('vfc-week-number', serverInlineWeekNumberClass);
+        const serverInlineWeekNumberClass = evaluateCallbacks((options as any).inlineWeekNumberClass);
+        const userInlineWeekNumberClass = typeof serverInlineWeekNumberClass === 'function' ? serverInlineWeekNumberClass : null;
+        (options as any).inlineWeekNumberClass = (data: any) => {
+            return userInlineWeekNumberClass ? clsx('vfc-week-number', userInlineWeekNumberClass(data)) : 'vfc-week-number';
+        };
 
         const serverSlotHeaderClass = (options as any).slotHeaderClass;
         (options as any).slotHeaderClass = clsx('vfc-slot-header', serverSlotHeaderClass);
 
-        const serverListDayHeaderClass = (options as any).listDayHeaderClass;
+        const serverListDayHeaderClass = evaluateCallbacks((options as any).listDayHeaderClass);
         const userListDayHeaderClass = typeof serverListDayHeaderClass === 'function' ? serverListDayHeaderClass : null;
         (options as any).listDayHeaderClass = (data: any) => {
             const base = clsx('vfc-list-day-header', data.isToday && 'vfc-today');
@@ -294,14 +305,15 @@ export class FullCalendar extends HTMLElement {
         const serverViewClass = (options as any).viewClass;
         const userViewClass = typeof serverViewClass === 'function' ? serverViewClass : null;
         (options as any).viewClass = (data: any) => {
-            const base = clsx('vfc-view', data.type && ('vfc-view-' + data.type));
+            const type = data.view?.type ?? data.type;
+            const base = clsx('vfc-view', type && ('vfc-view-' + type));
             return userViewClass ? clsx(base, userViewClass(data)) : base;
         };
 
         // Evaluate any JsCallback markers in initial options before passing to FC
         for (const key of Object.keys(options)) {
             // Skip function-valued class hooks — they must not be serialised through evaluateCallbacks
-            const skip = ['dayHeaderClass', 'listDayHeaderClass', 'viewClass', 'dayCellTopInnerClass'];
+            const skip = ['dayHeaderClass', 'listDayHeaderClass', 'viewClass', 'dayCellTopInnerClass', 'dayCellClass', 'inlineWeekNumberClass'];
             if (!skip.includes(key)) {
                 (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key]);
             }

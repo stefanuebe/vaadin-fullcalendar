@@ -8,21 +8,21 @@ test.describe('Calendar Responsive Design', () => {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ width: 768, height: 1024 });
       await page.reload();
-      await page.waitForSelector('.fc', { timeout: 10000 });
+      await page.waitForSelector('.vfc-view', { timeout: 10000 });
       await waitForVaadin(page);
     });
 
     test('should display calendar correctly on tablet', async ({ page }) => {
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
 
       // Calendar entries should still be visible
-      const entries = await page.locator('.fc-event').count();
+      const entries = await page.locator('.vfc-event').count();
       expect(entries).toBeGreaterThan(0);
     });
 
     test('should allow clicking entries on tablet', async ({ page }) => {
-      const entry = page.locator('.fc-event').first();
+      const entry = page.locator('.vfc-event').first();
       await entry.click();
       await page.waitForTimeout(1000);
 
@@ -37,7 +37,7 @@ test.describe('Calendar Responsive Design', () => {
       await nextBtn.click();
       await waitForCalendarUpdate(page);
 
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
   });
@@ -47,12 +47,12 @@ test.describe('Calendar Responsive Design', () => {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
       await page.reload();
-      await page.waitForSelector('.fc', { timeout: 10000 });
+      await page.waitForSelector('.vfc-view', { timeout: 10000 });
       await waitForVaadin(page);
     });
 
     test('should display calendar correctly on mobile', async ({ page }) => {
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
 
@@ -65,7 +65,7 @@ test.describe('Calendar Responsive Design', () => {
     });
 
     test('should allow clicking entries on mobile', async ({ page }) => {
-      const entry = page.locator('.fc-event').first();
+      const entry = page.locator('.vfc-event').first();
 
       if (await entry.isVisible({ timeout: 2000 })) {
         await entry.click();
@@ -79,7 +79,7 @@ test.describe('Calendar Responsive Design', () => {
     });
 
     test('should display entry dialog correctly on mobile', async ({ page }) => {
-      const entry = page.locator('.fc-event').first();
+      const entry = page.locator('.vfc-event').first();
 
       if (await entry.isVisible({ timeout: 2000 })) {
         await entry.click();
@@ -108,18 +108,18 @@ test.describe('Calendar Responsive Design', () => {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 568 });
       await page.reload();
-      await page.waitForSelector('.fc', { timeout: 10000 });
+      await page.waitForSelector('.vfc-view', { timeout: 10000 });
       await waitForVaadin(page);
     });
 
     test('should display calendar on very small screen', async ({ page }) => {
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     });
 
     test('should handle viewport resize during use', async ({ page }) => {
       // Start at mobile size
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
 
       // Resize to tablet
@@ -144,16 +144,16 @@ test.describe('Calendar Responsive Design', () => {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ width: 2560, height: 1440 });
       await page.reload();
-      await page.waitForSelector('.fc', { timeout: 10000 });
+      await page.waitForSelector('.vfc-view', { timeout: 10000 });
       await waitForVaadin(page);
     });
 
     test('should display calendar correctly on wide screen', async ({ page }) => {
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
 
       // Calendar should use available space
-      const entries = await page.locator('.fc-event').count();
+      const entries = await page.locator('.vfc-event').count();
       expect(entries).toBeGreaterThan(0);
     });
   });

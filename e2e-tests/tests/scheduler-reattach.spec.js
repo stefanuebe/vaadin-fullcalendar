@@ -7,8 +7,8 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoReattachView(page) {
     await page.goto('/test/scheduler-reattach');
-    await page.waitForSelector('.fc', { timeout: 30000 });
-    await page.waitForSelector('.fc-timeline', { timeout: 30000 });
+    await page.waitForSelector('.vfc-view', { timeout: 30000 });
+    await page.waitForSelector('.vfc-view', { timeout: 30000 }); // TODO-v7-verify: .fc-timeline (timeline view root)
     await waitForVaadin(page);
 }
 
@@ -33,7 +33,7 @@ test.describe('Scheduler Resource Reattach', () => {
         await page.locator('#reattach-button').click();
 
         // Wait for calendar to re-render after reattach
-        await page.waitForSelector('.fc-timeline', { timeout: 30000 });
+        await page.waitForSelector('.vfc-view', { timeout: 30000 }); // TODO-v7-verify: .fc-timeline (timeline view root)
         await waitForVaadin(page);
 
         // Resources must still be visible
@@ -43,19 +43,19 @@ test.describe('Scheduler Resource Reattach', () => {
 
     test('entries survive detach and reattach', async ({ page }) => {
         // Verify entries are there initially
-        await expect(page.locator('.fc-event:has-text("Alice Task")')).toBeVisible();
-        await expect(page.locator('.fc-event:has-text("Bob Task")')).toBeVisible();
+        await expect(page.locator('.vfc-event:has-text("Alice Task")')).toBeVisible();
+        await expect(page.locator('.vfc-event:has-text("Bob Task")')).toBeVisible();
 
         // Click the detach & reattach button
         await page.locator('#reattach-button').click();
 
         // Wait for calendar to re-render after reattach
-        await page.waitForSelector('.fc-timeline', { timeout: 30000 });
+        await page.waitForSelector('.vfc-view', { timeout: 30000 }); // TODO-v7-verify: .fc-timeline (timeline view root)
         await waitForVaadin(page);
 
         // Entries must still be visible
-        await expect(page.locator('.fc-event:has-text("Alice Task")')).toBeVisible();
-        await expect(page.locator('.fc-event:has-text("Bob Task")')).toBeVisible();
+        await expect(page.locator('.vfc-event:has-text("Alice Task")')).toBeVisible();
+        await expect(page.locator('.vfc-event:has-text("Bob Task")')).toBeVisible();
     });
 
 });

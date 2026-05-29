@@ -7,8 +7,8 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoAdvancedOptionsView(page) {
     await page.goto('/test/advanced-options');
-    await page.waitForSelector('.fc', { timeout: 10000 });
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 5000 });
     await waitForVaadin(page);
 }
 
@@ -27,7 +27,7 @@ test.describe('Advanced Options', () => {
     // -------------------------------------------------------------------------
 
     test('calendar renders in dayGridMonth view', async ({ page }) => {
-        await expect(page.locator('.fc-dayGridMonth-view')).toBeVisible();
+        await expect(page.locator('.vfc-view-dayGridMonth')).toBeVisible();
     });
 
     // -------------------------------------------------------------------------
@@ -36,7 +36,7 @@ test.describe('Advanced Options', () => {
 
     test('more link is present due to view-specific dayMaxEventRows=2', async ({ page }) => {
         // 5 events on 2025-03-05 with dayMaxEventRows=2 → at least "+3 more"
-        await expect(page.locator('.fc-daygrid-more-link')).toBeVisible({ timeout: 5000 });
+        await expect(page.locator('.vfc-more-link')).toBeVisible({ timeout: 5000 });
     });
 
     // -------------------------------------------------------------------------
@@ -44,15 +44,27 @@ test.describe('Advanced Options', () => {
     // -------------------------------------------------------------------------
 
     test('prev button is still in the toolbar', async ({ page }) => {
-        await expect(page.locator('button.fc-prev-button')).toBeVisible();
+        // v7: FC uses native <button> elements (not vaadin-button). Prev button is icon-only.
+        const buttons = await page.locator('button').all();
+        expect(buttons.length).toBeGreaterThanOrEqual(1);
+        const prevAriaLabel = await buttons[0].getAttribute('aria-label');
+        expect(prevAriaLabel).not.toBeNull();
     });
 
     test('next button is still in the toolbar', async ({ page }) => {
-        await expect(page.locator('button.fc-next-button')).toBeVisible();
+        // v7: FC uses native <button> elements. Next button is icon-only.
+        const buttons = await page.locator('button').all();
+        expect(buttons.length).toBeGreaterThanOrEqual(2);
+        const nextAriaLabel = await buttons[1].getAttribute('aria-label');
+        expect(nextAriaLabel).not.toBeNull();
     });
 
     test('today button is still in the toolbar', async ({ page }) => {
-        await expect(page.locator('button.fc-today-button')).toBeVisible();
+        // v7: FC uses native <button> elements. Today button (any locale text).
+        const buttons = await page.locator('button').all();
+        expect(buttons.length).toBeGreaterThanOrEqual(3);
+        const todayText = await buttons[2].textContent();
+        expect((todayText || '').trim().length).toBeGreaterThan(0);
     });
 
 });

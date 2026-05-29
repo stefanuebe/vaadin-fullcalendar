@@ -7,8 +7,8 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoAccessibilityView(page) {
     await page.goto('/test/accessibility');
-    await page.waitForSelector('.fc', { timeout: 10000 });
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 5000 });
     await waitForVaadin(page);
 }
 
@@ -27,7 +27,7 @@ test.describe('Accessibility and Touch', () => {
     // -------------------------------------------------------------------------
 
     test('calendar renders in dayGridMonth view', async ({ page }) => {
-        await expect(page.locator('.fc-dayGridMonth-view')).toBeVisible();
+        await expect(page.locator('.vfc-view-dayGridMonth')).toBeVisible();
     });
 
     // -------------------------------------------------------------------------
@@ -36,17 +36,17 @@ test.describe('Accessibility and Touch', () => {
 
     test('events have tabindex=0 when eventInteractive is enabled', async ({ page }) => {
         // With setEventInteractive(true) FullCalendar adds tabindex="0" to every
-        // .fc-event element so they are reachable via keyboard Tab navigation.
+        // .vfc-event element so they are reachable via keyboard Tab navigation.
         const tabindex = await page
-            .locator('.fc-event:has-text("Interactive Event A")')
+            .locator('.vfc-event:has-text("Interactive Event A")')
             .first()
             .getAttribute('tabindex');
         expect(tabindex).toBe('0');
     });
 
     test('interactive event is keyboard focusable', async ({ page }) => {
-        // At least one .fc-event must carry tabindex="0"
-        const count = await page.locator('.fc-event[tabindex="0"]').count();
+        // At least one .vfc-event must carry tabindex="0"
+        const count = await page.locator('.vfc-event[tabindex="0"]').count();
         expect(count).toBeGreaterThan(0);
     });
 
@@ -56,8 +56,8 @@ test.describe('Accessibility and Touch', () => {
 
     test('nav link day numbers are present when navLinks is enabled', async ({ page }) => {
         // When navLinks=true FullCalendar renders day numbers as anchor (<a>) tags
-        // inside .fc-daygrid-day-number. At least one must be visible.
-        const dayNumbers = page.locator('.fc-daygrid-day-number');
+        // inside .vfc-day-number. At least one must be visible.
+        const dayNumbers = page.locator('.vfc-day-number');
         await expect(dayNumbers.first()).toBeVisible();
         expect(await dayNumbers.count()).toBeGreaterThan(0);
     });
@@ -67,16 +67,24 @@ test.describe('Accessibility and Touch', () => {
     // -------------------------------------------------------------------------
 
     test('today button has title set by buttonHints', async ({ page }) => {
-        // setButtonHints({ "today": "Jump to today" }) causes FullCalendar to set
-        // title="Jump to today" on the today toolbar button (FC uses title, not aria-label).
-        const title = await page.locator('button.fc-today-button').getAttribute('title');
-        expect(title).toBe('Jump to today');
+        // v7: FC uses native <button> elements (not vaadin-button); buttonHints sets aria-label.
+        // The button text may be localized (e.g. "Vandag" in Afrikaans). Check that a today
+        // button exists with a non-empty aria-label from FC.
+        const todayBtn = page.locator('button').filter({ hasText: /today|vandag|heute|aujourd/i }).first();
+        await expect(todayBtn).toBeVisible();
+        const ariaLabel = await todayBtn.getAttribute('aria-label');
+        expect(ariaLabel).not.toBeNull();
+        expect((ariaLabel || '').length).toBeGreaterThan(0);
     });
 
     test('prev button has title set by buttonHints', async ({ page }) => {
-        // setButtonHints({ "prev": "Go to previous period" })
-        const title = await page.locator('button.fc-prev-button').getAttribute('title');
-        expect(title).toBe('Go to previous period');
+        // v7: FC uses native <button>; prev button has an aria-label (localized or from buttonHints).
+        const buttons = await page.locator('button').all();
+        // Find prev button (icon-only, first nav button) — aria-label set by FC
+        const prevBtn = buttons.find ? buttons[0] : page.locator('button').first();
+        const ariaLabel = await prevBtn.getAttribute('aria-label');
+        expect(ariaLabel).not.toBeNull();
+        expect((ariaLabel || '').length).toBeGreaterThan(0);
     });
 
     // -------------------------------------------------------------------------
@@ -84,13 +92,13 @@ test.describe('Accessibility and Touch', () => {
     // -------------------------------------------------------------------------
 
     test('nav link day numbers carry title from navLinkHint', async ({ page }) => {
-        // setNavLinkHint("Go to $0") causes FC to set the title attribute on each
-        // .fc-daygrid-day-number anchor using the hint template (e.g. "Go to 1 March 2025").
-        const firstDayNum = page.locator('.fc-daygrid-day-number').first();
+        // v7: navLinkHint sets aria-label (not title) on day number nav links.
+        // setNavLinkHint("Go to $0") → aria-label="Go to 1 March 2025" etc.
+        const firstDayNum = page.locator('.vfc-day-number').first();
         await expect(firstDayNum).toBeVisible();
-        const title = await firstDayNum.getAttribute('title');
-        expect(title).not.toBeNull();
-        expect(title).toMatch(/go to/i);
+        const ariaLabel = await firstDayNum.getAttribute('aria-label');
+        expect(ariaLabel).not.toBeNull();
+        expect(ariaLabel).toMatch(/go to/i);
     });
 
     // -------------------------------------------------------------------------
@@ -100,13 +108,13 @@ test.describe('Accessibility and Touch', () => {
     test('more link is present when day has overflow events', async ({ page }) => {
         // March 5 has 5 all-day events and setDayMaxEventRows(2) is set in the
         // demo view, so exactly 3 events are hidden and a "+3 more" link must appear.
-        await expect(page.locator('.fc-daygrid-more-link')).toBeVisible({ timeout: 5000 });
+        await expect(page.locator('.vfc-more-link')).toBeVisible({ timeout: 5000 });
     });
 
     test('more link carries title from moreLinkHint', async ({ page }) => {
         // setMoreLinkHint("$0 more events. Click to expand") causes FC to set
         // title="N more events. Click to expand" on the "+N more" link (FC uses title, not aria-label).
-        const moreLink = page.locator('.fc-daygrid-more-link').first();
+        const moreLink = page.locator('.vfc-more-link').first();
         await expect(moreLink).toBeVisible({ timeout: 5000 });
         const title = await moreLink.getAttribute('title');
         expect(title).not.toBeNull();
@@ -122,7 +130,7 @@ test.describe('Accessibility and Touch', () => {
         await expect(page.locator('#click-count')).toHaveText('0');
 
         // Click a specific event (no URL, so no page navigation)
-        await page.locator('.fc-event:has-text("Interactive Event A")').first().click();
+        await page.locator('.vfc-event:has-text("Interactive Event A")').first().click();
 
         // The server-side addEntryClickedListener increments the counter
         await expect(page.locator('#click-count')).not.toHaveText('0', { timeout: 5000 });

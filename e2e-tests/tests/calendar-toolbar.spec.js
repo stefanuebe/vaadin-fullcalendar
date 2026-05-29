@@ -31,7 +31,7 @@ test.describe('Calendar Toolbar', () => {
 
     test('should create entry via Add single entry menu', async ({ page }) => {
       // Count entries before
-      const initialCount = await page.locator('.fc-event').count();
+      const initialCount = await page.locator('.vfc-event').count();
 
       const result = await clickEntriesMenuItem(page, 'Add single entry');
       expect(result).toBe(true);
@@ -40,7 +40,7 @@ test.describe('Calendar Toolbar', () => {
 
       // "Add single entry" creates an entry directly (no dialog)
       // Verify a new entry was created
-      const newCount = await page.locator('.fc-event').count();
+      const newCount = await page.locator('.vfc-event').count();
       expect(newCount).toBeGreaterThan(initialCount);
     });
 
@@ -109,7 +109,7 @@ test.describe('Calendar Toolbar', () => {
         await lumoOption.click();
         await waitForCalendarUpdate(page, 1500);
 
-        const calendar = page.locator('.fc');
+        const calendar = page.locator('.vfc-view');
         await expect(calendar).toBeVisible();
       } else {
         await page.keyboard.press('Escape');
@@ -126,7 +126,7 @@ test.describe('Calendar Toolbar', () => {
         await materialOption.click();
         await waitForCalendarUpdate(page, 1500);
 
-        const calendar = page.locator('.fc');
+        const calendar = page.locator('.vfc-view');
         await expect(calendar).toBeVisible();
       } else {
         await page.keyboard.press('Escape');
@@ -152,7 +152,7 @@ test.describe('Calendar Toolbar', () => {
         await darkOption.click();
         await waitForCalendarUpdate(page, 1500);
 
-        const calendar = page.locator('.fc');
+        const calendar = page.locator('.vfc-view');
         await expect(calendar).toBeVisible();
       } else {
         await page.keyboard.press('Escape');
@@ -169,7 +169,7 @@ test.describe('Calendar Toolbar', () => {
         await lightOption.click();
         await waitForCalendarUpdate(page, 1500);
 
-        const calendar = page.locator('.fc');
+        const calendar = page.locator('.vfc-view');
         await expect(calendar).toBeVisible();
       } else {
         await page.keyboard.press('Escape');

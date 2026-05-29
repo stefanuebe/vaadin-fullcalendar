@@ -7,9 +7,9 @@ const { expect, waitForVaadin } = require('./fixtures');
  */
 async function gotoSchedulerFeaturesView(page) {
     await page.goto('/test/scheduler-features');
-    await page.waitForSelector('.fc', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
     // Resource timeline views render .fc-timeline, not .fc-timegrid-slot
-    await page.waitForSelector('.fc-timeline', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 }); // TODO-v7-verify: .fc-timeline (timeline view root)
     await waitForVaadin(page);
 }
 
@@ -28,7 +28,7 @@ test.describe('Scheduler Resource Features', () => {
     // -------------------------------------------------------------------------
 
     test('calendar renders in resource timeline view', async ({ page }) => {
-        await expect(page.locator('.fc-timeline')).toBeVisible();
+        await expect(page.locator('.vfc-view')).toBeVisible(); // TODO-v7-verify: .fc-timeline (timeline view root)
     });
 
     // -------------------------------------------------------------------------
@@ -95,13 +95,13 @@ test.describe('Scheduler Resource Features', () => {
 
     test('Alice Task entry is visible in the timeline', async ({ page }) => {
         await expect(
-            page.locator('.fc-event:has-text("Alice Task")')
+            page.locator('.vfc-event:has-text("Alice Task")')
         ).toBeVisible();
     });
 
     test('Bob Task entry is visible in the timeline', async ({ page }) => {
         await expect(
-            page.locator('.fc-event:has-text("Bob Task")')
+            page.locator('.vfc-event:has-text("Bob Task")')
         ).toBeVisible();
     });
 

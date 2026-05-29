@@ -5,11 +5,11 @@ test.describe('Calendar Navigation', () => {
 
   test('should display current month on initial load', async ({ page }) => {
     // The calendar should be visible with current month
-    const calendar = page.locator('.fc');
+    const calendar = page.locator('.vfc-view');
     await expect(calendar).toBeVisible();
 
     // Should have today cell highlighted
-    const todayCell = page.locator('.fc-day-today');
+    const todayCell = page.locator('.vfc-today');
     await expect(todayCell).toBeVisible();
   });
 
@@ -18,7 +18,7 @@ test.describe('Calendar Navigation', () => {
     await navigateMonth(page, 'prev');
 
     // Calendar should still be visible
-    const calendar = page.locator('.fc');
+    const calendar = page.locator('.vfc-view');
     await expect(calendar).toBeVisible();
   });
 
@@ -27,7 +27,7 @@ test.describe('Calendar Navigation', () => {
     await navigateMonth(page, 'next');
 
     // Calendar should still be visible
-    const calendar = page.locator('.fc');
+    const calendar = page.locator('.vfc-view');
     await expect(calendar).toBeVisible();
   });
 
@@ -41,7 +41,7 @@ test.describe('Calendar Navigation', () => {
     await clickToday(page);
 
     // Calendar should show current month - verify today's date is highlighted
-    const todayCell = page.locator('.fc-day-today');
+    const todayCell = page.locator('.vfc-today');
     await expect(todayCell).toBeVisible();
   });
 
@@ -57,12 +57,12 @@ test.describe('Calendar Navigation', () => {
     await waitForCalendarUpdate(page);
 
     // Calendar should still be functional
-    const calendar = page.locator('.fc');
+    const calendar = page.locator('.vfc-view');
     await expect(calendar).toBeVisible();
 
     // Should be able to return to today
     await clickToday(page);
-    const todayCell = page.locator('.fc-day-today');
+    const todayCell = page.locator('.vfc-today');
     await expect(todayCell).toBeVisible();
   });
 
@@ -78,7 +78,7 @@ test.describe('Calendar Navigation', () => {
     await waitForCalendarUpdate(page);
 
     // Calendar should still work
-    const calendar = page.locator('.fc');
+    const calendar = page.locator('.vfc-view');
     await expect(calendar).toBeVisible();
   });
 
@@ -94,7 +94,7 @@ test.describe('Calendar Navigation', () => {
     await waitForCalendarUpdate(page);
 
     // Calendar should still work
-    const calendar = page.locator('.fc');
+    const calendar = page.locator('.vfc-view');
     await expect(calendar).toBeVisible();
 
     // Should be able to return to today

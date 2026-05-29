@@ -35,7 +35,10 @@ html {
     --fc-outer-border-color: var(--vaadin-border-color); /* addon custom var, consumed by .vfc-view border rule */
 
     --fc-classic-primary: var(--vaadin-fc-highlight-color);
-    /* --fc-classic-primary-foreground: maps to --fc-event-text-color if ever needed */
+    --fc-classic-primary-foreground: #fff;
+    /* v7 Classic: event default color (used when no per-entry color is set) */
+    --fc-classic-event: var(--fc-classic-primary);
+    --fc-classic-event-contrast: var(--fc-classic-primary-foreground);
     --fc-classic-muted: var(--vaadin-fc-hover-color); /* list event hover */
 
     --fc-classic-faint: var(--vaadin-fc-neutral-color);

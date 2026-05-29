@@ -13,12 +13,12 @@ const test = base.extend({
     await page.goto('/');
 
     // Wait for the calendar to be visible
-    await page.waitForSelector('.fc', { timeout: 10000 });
+    await page.waitForSelector('.vfc-view', { timeout: 10000 });
 
     // Wait for Vaadin to fully initialize - wait for the calendar entries to load
     await page.waitForFunction(() => {
-      const calendar = document.querySelector('.fc');
-      const entries = document.querySelectorAll('.fc-event');
+      const calendar = document.querySelector('.vfc-view');
+      const entries = document.querySelectorAll('.vfc-event');
       return calendar && entries.length > 0;
     }, { timeout: 10000 });
 
@@ -111,14 +111,14 @@ async function waitForCalendarUpdate(page, timeout = 500) {
  * Get all visible calendar entries
  */
 async function getCalendarEntries(page) {
-  return page.locator('.fc-event').all();
+  return page.locator('.vfc-event').all();
 }
 
 /**
  * Click on the first entry matching the text
  */
 async function clickEntry(page, text) {
-  const entry = page.locator(`.fc-event:has-text("${text}")`).first();
+  const entry = page.locator(`.vfc-event:has-text("${text}")`).first();
   await entry.click();
   await page.waitForTimeout(500);
 }

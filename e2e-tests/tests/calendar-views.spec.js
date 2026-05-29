@@ -24,8 +24,8 @@ test.describe('Calendar Views', () => {
     const dayView = page.locator('.vfc-view-timeGridDay');
     await expect(dayView).toBeVisible();
 
-    // Should have time slots (fc-timegrid-slot[data-time] persists in v7 DOM)
-    const timeSlots = page.locator('.fc-timegrid-slot');
+    // v7: time slots use [data-time] attribute (fc-timegrid-slot class is obfuscated in v7)
+    const timeSlots = page.locator('[data-time]');
     const slotCount = await timeSlots.count();
     expect(slotCount).toBeGreaterThan(0);
   });
@@ -37,8 +37,8 @@ test.describe('Calendar Views', () => {
     const weekTimeView = page.locator('.vfc-view-timeGridWeek');
     await expect(weekTimeView).toBeVisible();
 
-    // Should have time slots (fc-timegrid-slot[data-time] persists in v7 DOM)
-    const timeSlots = page.locator('.fc-timegrid-slot');
+    // v7: time slots use [data-time] attribute
+    const timeSlots = page.locator('[data-time]');
     const slotCount = await timeSlots.count();
     expect(slotCount).toBeGreaterThan(0);
   });
@@ -47,7 +47,7 @@ test.describe('Calendar Views', () => {
     await changeView(page, 'List Week');
 
     // v7: view root carries vfc-view-listWeek via viewClass contract
-    const listView = page.locator('.vfc-view-listWeek, .fc-list');
+    const listView = page.locator('.vfc-view-listWeek, .vfc-view');
     await expect(listView).toBeVisible();
   });
 
@@ -55,7 +55,7 @@ test.describe('Calendar Views', () => {
     await changeView(page, 'List Month');
 
     // v7: view root carries vfc-view-listMonth via viewClass contract
-    const listView = page.locator('.vfc-view-listMonth, .fc-list');
+    const listView = page.locator('.vfc-view-listMonth, .vfc-view');
     await expect(listView).toBeVisible();
   });
 
@@ -65,27 +65,27 @@ test.describe('Calendar Views', () => {
     // Verify multi-month view shows
     await waitForCalendarUpdate(page);
 
-    const calendar = page.locator('.fc');
+    const calendar = page.locator('.vfc-view');
     await expect(calendar).toBeVisible();
   });
 
   test('should preserve entries when switching views', async ({ page }) => {
     // Count entries in month view
-    const initialCount = await page.locator('.fc-event').count();
+    const initialCount = await page.locator('.vfc-event').count();
     expect(initialCount).toBeGreaterThan(0);
 
     // Switch to week view
     await changeView(page, 'Day Grid Week');
 
     // Calendar should still be visible
-    const calendar = page.locator('.fc');
+    const calendar = page.locator('.vfc-view');
     await expect(calendar).toBeVisible();
 
     // Switch back to month view
     await changeView(page, 'Day Grid Month');
 
     // Count should be similar (entries weren't lost)
-    const finalCount = await page.locator('.fc-event').count();
+    const finalCount = await page.locator('.vfc-event').count();
     expect(finalCount).toBeGreaterThan(0);
   });
 
@@ -109,7 +109,7 @@ test.describe('Calendar Views', () => {
     await waitForCalendarUpdate(page);
 
     // Calendar should still be functional
-    const calendar = page.locator('.fc');
+    const calendar = page.locator('.vfc-view');
     await expect(calendar).toBeVisible();
   });
 
@@ -117,7 +117,7 @@ test.describe('Calendar Views', () => {
     await changeView(page, 'Time Grid Week');
 
     // Find any scroll container — fc-scroller-liquid-absolute removed in v7, fc-scroller may still exist
-    const scrollContainer = page.locator('.fc-scroller, .fc-timegrid').first();
+    const scrollContainer = page.locator('.fc-scroller, .vfc-view-timeGridWeek').first(); // TODO-v7-verify: .fc-scroller
 
     if (await scrollContainer.isVisible({ timeout: 2000 })) {
       // Scroll down
@@ -125,7 +125,7 @@ test.describe('Calendar Views', () => {
       await page.waitForTimeout(500);
 
       // Verify calendar is still visible
-      const calendar = page.locator('.fc');
+      const calendar = page.locator('.vfc-view');
       await expect(calendar).toBeVisible();
     }
   });
