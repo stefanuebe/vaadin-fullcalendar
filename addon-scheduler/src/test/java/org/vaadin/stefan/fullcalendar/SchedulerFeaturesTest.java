@@ -231,8 +231,9 @@ public class SchedulerFeaturesTest {
 
         calendar.setResourceAreaColumns(columns);
 
-        Optional<Object> option = calendar.getOption("resourceAreaColumns");
-        Assertions.assertTrue(option.isPresent(), "resourceAreaColumns option is set");
+        // v7: resourceAreaColumns → resourceColumns
+        Optional<Object> option = calendar.getOption("resourceColumns");
+        Assertions.assertTrue(option.isPresent(), "resourceColumns option is set");
         // The server-side value stored is the original List
         Assertions.assertSame(columns, option.get(), "server-side value is the original list");
     }
@@ -244,8 +245,9 @@ public class SchedulerFeaturesTest {
 
         calendar.setResourceAreaColumns(col1, col2);
 
-        Optional<Object> option = calendar.getOption("resourceAreaColumns");
-        Assertions.assertTrue(option.isPresent(), "resourceAreaColumns option is set via varargs");
+        // v7: resourceAreaColumns → resourceColumns
+        Optional<Object> option = calendar.getOption("resourceColumns");
+        Assertions.assertTrue(option.isPresent(), "resourceColumns option is set via varargs");
     }
 
     // -------------------------------------------------------------------------
@@ -459,8 +461,9 @@ public class SchedulerFeaturesTest {
         Assertions.assertEquals("#aabbcc", resource.getEntryBackgroundColor());
 
         ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventBackgroundColor"), "json has eventBackgroundColor");
-        Assertions.assertEquals("#aabbcc", json.get("eventBackgroundColor").asString());
+        // v7: eventBackgroundColor is serialized as the unified "eventColor" prop
+        Assertions.assertTrue(json.has("eventColor"), "json has eventColor");
+        Assertions.assertEquals("#aabbcc", json.get("eventColor").asString());
     }
 
     @Test
@@ -469,7 +472,8 @@ public class SchedulerFeaturesTest {
         // eventBackgroundColor is null by default
 
         ObjectNode json = resource.toJson();
-        Assertions.assertFalse(json.has("eventBackgroundColor"), "null eventBackgroundColor not serialized");
+        // v7: no background/border set -> no eventColor emitted
+        Assertions.assertFalse(json.has("eventColor"), "null eventBackgroundColor not serialized as eventColor");
     }
 
     @Test
@@ -480,8 +484,10 @@ public class SchedulerFeaturesTest {
         Assertions.assertEquals("#001122", resource.getEntryBorderColor());
 
         ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventBorderColor"), "json has eventBorderColor");
-        Assertions.assertEquals("#001122", json.get("eventBorderColor").asString());
+        // v7: border and background are merged into the single "eventColor" prop;
+        // with only the border set, eventColor takes the border value.
+        Assertions.assertTrue(json.has("eventColor"), "json has eventColor");
+        Assertions.assertEquals("#001122", json.get("eventColor").asString());
     }
 
     @Test
@@ -492,8 +498,9 @@ public class SchedulerFeaturesTest {
         Assertions.assertEquals("white", resource.getEntryTextColor());
 
         ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventTextColor"), "json has eventTextColor");
-        Assertions.assertEquals("white", json.get("eventTextColor").asString());
+        // v7: eventTextColor is serialized as "eventContrastColor"
+        Assertions.assertTrue(json.has("eventContrastColor"), "json has eventContrastColor");
+        Assertions.assertEquals("white", json.get("eventContrastColor").asString());
     }
 
     @Test
@@ -558,9 +565,10 @@ public class SchedulerFeaturesTest {
         Assertions.assertEquals(2, returned.size());
 
         ObjectNode json = resource.toJson();
-        Assertions.assertTrue(json.has("eventClassNames"), "json has eventClassNames");
-        ArrayNode classNamesJson = (ArrayNode) json.get("eventClassNames");
-        Assertions.assertEquals(2, classNamesJson.size(), "json eventClassNames has 2 elements");
+        // v7: eventClassNames is serialized as "eventClass"
+        Assertions.assertTrue(json.has("eventClass"), "json has eventClass");
+        ArrayNode classNamesJson = (ArrayNode) json.get("eventClass");
+        Assertions.assertEquals(2, classNamesJson.size(), "json eventClass has 2 elements");
     }
 
     @Test
@@ -571,7 +579,8 @@ public class SchedulerFeaturesTest {
         Assertions.assertNull(resource.getEntryClassNames());
 
         ObjectNode json = resource.toJson();
-        Assertions.assertFalse(json.has("eventClassNames"), "null eventClassNames not serialized");
+        // v7: eventClassNames is serialized as "eventClass"
+        Assertions.assertFalse(json.has("eventClass"), "null eventClassNames not serialized as eventClass");
     }
 
     @Test

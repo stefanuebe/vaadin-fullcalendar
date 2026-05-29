@@ -19,14 +19,15 @@ test.describe('Scheduler Resource Reattach', () => {
     });
 
     test('resources are visible before reattach', async ({ page }) => {
-        await expect(page.locator('.fc-datagrid-cell:has-text("Alice")')).toBeVisible();
-        await expect(page.locator('.fc-datagrid-cell:has-text("Bob")')).toBeVisible();
+        // v7: resource title cells carry vfc-resource-cell (resourceCellClass contract)
+        await expect(page.locator('.vfc-resource-cell:has-text("Alice")')).toBeVisible();
+        await expect(page.locator('.vfc-resource-cell:has-text("Bob")')).toBeVisible();
     });
 
     test('resources survive detach and reattach', async ({ page }) => {
         // Verify resources are there initially
-        await expect(page.locator('.fc-datagrid-cell:has-text("Alice")')).toBeVisible();
-        await expect(page.locator('.fc-datagrid-cell:has-text("Bob")')).toBeVisible();
+        await expect(page.locator('.vfc-resource-cell:has-text("Alice")')).toBeVisible();
+        await expect(page.locator('.vfc-resource-cell:has-text("Bob")')).toBeVisible();
 
         // Click the detach & reattach button
         await page.locator('#reattach-button').click();
@@ -36,8 +37,8 @@ test.describe('Scheduler Resource Reattach', () => {
         await waitForVaadin(page);
 
         // Resources must still be visible
-        await expect(page.locator('.fc-datagrid-cell:has-text("Alice")')).toBeVisible();
-        await expect(page.locator('.fc-datagrid-cell:has-text("Bob")')).toBeVisible();
+        await expect(page.locator('.vfc-resource-cell:has-text("Alice")')).toBeVisible();
+        await expect(page.locator('.vfc-resource-cell:has-text("Bob")')).toBeVisible();
     });
 
     test('entries survive detach and reattach', async ({ page }) => {

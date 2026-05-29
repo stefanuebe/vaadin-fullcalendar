@@ -32,7 +32,8 @@ public class FullCalendarSchedulerTest {
     void testSetResourceAreaHeaderContent() {
         calendar.setResourceAreaHeaderContent("Hello");
 
-        Optional<Object> option = calendar.getOption("resourceAreaHeaderContent");
+        // v7: resourceAreaHeaderContent → resourceColumnHeaderContent
+        Optional<Object> option = calendar.getOption("resourceColumnHeaderContent");
 
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals("Hello", option.get());
@@ -42,7 +43,8 @@ public class FullCalendarSchedulerTest {
     void testSetResourceAreaWidtht() {
         calendar.setResourceAreaWidth("10%");
 
-        Optional<Object> option = calendar.getOption("resourceAreaWidth");
+        // v7: resourceAreaWidth → resourceColumnsWidth
+        Optional<Object> option = calendar.getOption("resourceColumnsWidth");
 
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals("10%", option.get());

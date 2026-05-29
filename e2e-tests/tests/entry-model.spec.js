@@ -8,8 +8,8 @@ const { expect, waitForVaadin } = require('./fixtures');
 async function gotoEntryModelView(page) {
     await page.goto('/test/entry-model');
     await page.waitForSelector('.fc', { timeout: 10000 });
-    // dayGridMonth renders day-grid cells
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
+    // v7: dayGridMonth view root carries vfc-view-dayGridMonth (viewClass contract)
+    await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 5000 });
     // Wait for entries to be rendered before running assertions
     await page.waitForSelector('.fc-event', { timeout: 5000 });
     await waitForVaadin(page);
@@ -30,7 +30,8 @@ test.describe('Entry Model', () => {
     // -------------------------------------------------------------------------
 
     test('calendar renders in dayGridMonth view', async ({ page }) => {
-        await expect(page.locator('.fc-dayGridMonth-view')).toBeVisible();
+        // v7: view root carries vfc-view-dayGridMonth (viewClass contract)
+        await expect(page.locator('.vfc-view-dayGridMonth')).toBeVisible();
     });
 
     // -------------------------------------------------------------------------

@@ -36,14 +36,16 @@ test.describe('Scheduler Resource Features', () => {
     // -------------------------------------------------------------------------
 
     test('resource area shows Resource Name column header', async ({ page }) => {
+        // v7: resource column header cells carry vfc-resource-col-header (resourceColumnHeaderClass contract)
         await expect(
-            page.locator('.fc-datagrid-header').getByText('Resource Name')
+            page.locator('.vfc-resource-col-header').getByText('Resource Name')
         ).toBeVisible();
     });
 
     test('resource area shows Dept column header', async ({ page }) => {
+        // v7: resource column header cells carry vfc-resource-col-header (resourceColumnHeaderClass contract)
         await expect(
-            page.locator('.fc-datagrid-header').getByText('Dept')
+            page.locator('.vfc-resource-col-header').getByText('Dept')
         ).toBeVisible();
     });
 
@@ -52,20 +54,21 @@ test.describe('Scheduler Resource Features', () => {
     // -------------------------------------------------------------------------
 
     test('resource Alice is visible in the resource list', async ({ page }) => {
+        // v7: resource title cells carry vfc-resource-cell (resourceCellClass contract)
         await expect(
-            page.locator('.fc-datagrid-cell:has-text("Alice")')
+            page.locator('.vfc-resource-cell:has-text("Alice")')
         ).toBeVisible();
     });
 
     test('resource Bob is visible in the resource list', async ({ page }) => {
         await expect(
-            page.locator('.fc-datagrid-cell:has-text("Bob")')
+            page.locator('.vfc-resource-cell:has-text("Bob")')
         ).toBeVisible();
     });
 
     test('resource Carol is visible in the resource list', async ({ page }) => {
         await expect(
-            page.locator('.fc-datagrid-cell:has-text("Carol")')
+            page.locator('.vfc-resource-cell:has-text("Carol")')
         ).toBeVisible();
     });
 
@@ -74,14 +77,15 @@ test.describe('Scheduler Resource Features', () => {
     // -------------------------------------------------------------------------
 
     test('resource grouping renders Engineering group header', async ({ page }) => {
+        // v7: resource group header rows carry vfc-resource-group-header (resourceGroupHeaderClass contract)
         await expect(
-            page.locator('.fc-datagrid-cell:has-text("Engineering")')
+            page.locator('.vfc-resource-group-header:has-text("Engineering")')
         ).toBeVisible();
     });
 
     test('resource grouping renders Design group header', async ({ page }) => {
         await expect(
-            page.locator('.fc-datagrid-cell:has-text("Design")')
+            page.locator('.vfc-resource-group-header:has-text("Design")')
         ).toBeVisible();
     });
 
@@ -108,7 +112,8 @@ test.describe('Scheduler Resource Features', () => {
     test('resourceGroupClassNamesCallback: group header rows have custom-group class', async ({ page }) => {
         // setResourceGroupClassNamesCallback("function(arg) { return ['custom-group']; }") causes
         // FC to add the custom-group CSS class to each resource group header cell.
-        const groupCells = page.locator('.fc-datagrid-cell.custom-group');
+        // v7: group header rows carry vfc-resource-group-header (resourceGroupHeaderClass contract)
+        const groupCells = page.locator('.vfc-resource-group-header.custom-group');
         const count = await groupCells.count();
         // There are 2 departments (Engineering, Design) → 2 group header rows
         expect(count).toBeGreaterThanOrEqual(2);

@@ -10,7 +10,8 @@ async function gotoCalendarOptionsView(page) {
     await page.waitForSelector('.fc', { timeout: 10000 });
     await waitForVaadin(page);
     // Wait for both calendars to render
-    await page.waitForSelector('#cal-daygrid .fc-dayGridMonth-view', { timeout: 5000 });
+    // v7: daygrid view root carries vfc-view-dayGridMonth (viewClass contract); fc-timegrid root persists
+    await page.waitForSelector('#cal-daygrid .vfc-view-dayGridMonth', { timeout: 5000 });
     await page.waitForSelector('#cal-timegrid .fc-timegrid', { timeout: 5000 });
     await page.waitForSelector('#cal-extra .fc-timegrid', { timeout: 5000 });
 }
@@ -68,7 +69,8 @@ base.describe('Calendar Options — DayGrid (Locale DE, No Weekends)', () => {
 
     base('week numbers are displayed', async ({ page }) => {
         const cal = page.locator('#cal-daygrid');
-        const weekNumbers = cal.locator('.fc-daygrid-week-number');
+        // v7: week number cells carry vfc-week-number (inlineWeekNumberClass contract)
+        const weekNumbers = cal.locator('.vfc-week-number');
         const count = await weekNumbers.count();
         expect(count).toBeGreaterThanOrEqual(4);
     });
@@ -82,9 +84,9 @@ base.describe('Calendar Options — TimeGrid (Slot Duration, Business Hours)', (
 
     base('first time slot label starts at 08:00', async ({ page }) => {
         const cal = page.locator('#cal-timegrid');
-        // Get all slot labels that have text content
-        const slotLabels = cal.locator('.fc-timegrid-slot-label:not(:empty)');
-        // First visible slot label should be 8am or 8:00
+        // v7: slot header label cells carry vfc-slot-header (slotHeaderClass contract)
+        const slotLabels = cal.locator('.vfc-slot-header:not(:empty)');
+        // First visible slot header should be 8am or 8:00
         const firstLabel = slotLabels.first();
         const text = await firstLabel.textContent();
         expect(text.trim()).toMatch(/8/);
@@ -92,8 +94,8 @@ base.describe('Calendar Options — TimeGrid (Slot Duration, Business Hours)', (
 
     base('last time slot label is before 18:00', async ({ page }) => {
         const cal = page.locator('#cal-timegrid');
-        // Get all slot labels — the last major label should be around 17:xx
-        const slotLabels = cal.locator('.fc-timegrid-slot-label[data-time]');
+        // v7: slot header cells carry vfc-slot-header; data-time attribute persists
+        const slotLabels = cal.locator('.vfc-slot-header[data-time]');
         const count = await slotLabels.count();
         expect(count).toBeGreaterThan(0);
         // Check the last slot's data-time attribute
@@ -107,7 +109,8 @@ base.describe('Calendar Options — TimeGrid (Slot Duration, Business Hours)', (
     base('slot duration is 15 minutes (many slots between hours)', async ({ page }) => {
         const cal = page.locator('#cal-timegrid');
         // With 15-min slots from 08:00 to 18:00 = 10 hours * 4 = 40 slots
-        // FC renders 2 <tr> per slot (label row + lane row), so total ~80 rows
+        // FC renders 2 rows per slot (header + lane), so total ~80 rows
+        // fc-timegrid-slot[data-time] still present in v7 as structural elements
         const allSlots = cal.locator('.fc-timegrid-slot[data-time]');
         const count = await allSlots.count();
         // Should be approximately 80 (10 hours * 4 slots/hour * 2 rows/slot)
@@ -115,11 +118,12 @@ base.describe('Calendar Options — TimeGrid (Slot Duration, Business Hours)', (
         expect(count).toBeLessThanOrEqual(84);
     });
 
-    base('non-business hours have fc-non-business class', async ({ page }) => {
+    base('non-business hours have vfc-non-business class', async ({ page }) => {
         const cal = page.locator('#cal-timegrid');
         // Business hours default: Mon-Fri 9am-5pm
         // Since we're on a Wednesday (March 5, 2025), 8:00-9:00 should be non-business
-        const nonBusiness = cal.locator('.fc-non-business');
+        // v7: non-business cells carry vfc-non-business (nonBusinessHoursClass contract)
+        const nonBusiness = cal.locator('.vfc-non-business');
         const count = await nonBusiness.count();
         expect(count).toBeGreaterThanOrEqual(1);
     });

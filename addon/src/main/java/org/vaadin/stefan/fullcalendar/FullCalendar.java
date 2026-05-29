@@ -55,20 +55,18 @@ import java.util.stream.Stream;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/core", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/interaction", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/daygrid", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/multimonth", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/rrule", version = FullCalendar.FC_CLIENT_VERSION)
-// TODO still necessary?
+@NpmPackage(value = "fullcalendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar/interaction", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar/daygrid", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar/multimonth", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar/rrule", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "temporal-polyfill", version = "0.3.0")
 @NpmPackage(value = "moment", version = "2.30.1")
-@NpmPackage(value = "moment-timezone", version = "0.6.0")
-@NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/google-calendar", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/icalendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "@fullcalendar/format-moment", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar/google-calendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar/icalendar", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "ical.js", version = "2.0.1")
 
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
@@ -80,7 +78,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * The library base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_CLIENT_VERSION = "6.1.20";
+    public static final String FC_CLIENT_VERSION = "7.0.0-rc.3";
 
     /**
      * This is the default duration of a timed entry in hours. Will be dynamically settable in a later version.
@@ -2910,15 +2908,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         EDITABLE,
 
         /**
-         * Default background color for all entries.
+         * Default color for all entries (background and border combined).
          * <dl>
          *   <dt>Type</dt> <dd>CSS color string</dd>
          * </dl>
          * Can be overridden per-entry via {@link Entry#setBackgroundColor(String)}.
+         * <p>
+         * <b>v7 change:</b> FullCalendar v7 merged {@code eventBackgroundColor} and
+         * {@code eventBorderColor} into a single {@code eventColor} option.
          *
-         * @see <a href="https://fullcalendar.io/docs/eventBackgroundColor">eventBackgroundColor</a>
+         * @see <a href="https://fullcalendar.io/docs/eventColor">eventColor</a>
          */
-        ENTRY_BACKGROUND_COLOR,
+        ENTRY_BACKGROUND_COLOR("eventColor"),
 
         /**
          * Default border color for all entries.
@@ -2926,10 +2927,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *   <dt>Type</dt> <dd>CSS color string</dd>
          * </dl>
          * Can be overridden per-entry via {@link Entry#setBorderColor(String)}.
+         * <p>
+         * <b>v7 change:</b> FullCalendar v7 merged {@code eventBorderColor} into
+         * {@code eventColor}. This option now sets the same {@code eventColor} key as
+         * {@link #ENTRY_BACKGROUND_COLOR}; the last writer wins. Prefer
+         * {@link #ENTRY_BACKGROUND_COLOR} or {@link #ENTRY_COLOR} going forward.
          *
-         * @see <a href="https://fullcalendar.io/docs/eventBorderColor">eventBorderColor</a>
+         * @deprecated since v7 — use {@link #ENTRY_COLOR} or {@link #ENTRY_BACKGROUND_COLOR} instead.
+         * @see <a href="https://fullcalendar.io/docs/eventColor">eventColor</a>
          */
-        ENTRY_BORDER_COLOR,
+        @Deprecated
+        ENTRY_BORDER_COLOR("eventColor"),
 
         /**
          * Default combined background and border color for all entries.
@@ -3052,10 +3060,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *   <dt>Type</dt> <dd>CSS color string</dd>
          * </dl>
          * Can be overridden per-entry via {@link Entry#setTextColor(String)}.
+         * <p>
+         * <b>v7 change:</b> FullCalendar v7 renamed {@code eventTextColor} to
+         * {@code eventContrastColor}.
          *
-         * @see <a href="https://fullcalendar.io/docs/eventTextColor">eventTextColor</a>
+         * @see <a href="https://fullcalendar.io/docs/eventContrastColor">eventContrastColor</a>
          */
-        ENTRY_TEXT_COLOR,
+        ENTRY_TEXT_COLOR("eventContrastColor"),
 
         /**
          * Format of the time shown on entry elements.
@@ -3254,23 +3265,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * Minimum pixel width of each month cell in multi-month view before wrapping to next row.
          * <dl>
-         *   <dt>Type</dt>    <dd>{@code number} (pixels)</dd>
+         *   <dt>Type</dt>    <dd>{@code number} (pixels, including padding in v7)</dd>
          *   <dt>Default</dt> <dd>auto-calculated</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code multiMonthMinWidth} to {@code singleMonthMinWidth}.
+         * The value now includes padding.
          *
-         * @see <a href="https://fullcalendar.io/docs/multiMonthMinWidth">multiMonthMinWidth</a>
+         * @see <a href="https://fullcalendar.io/docs/singleMonthMinWidth">singleMonthMinWidth</a>
          */
-        MULTI_MONTH_MIN_WIDTH,
+        MULTI_MONTH_MIN_WIDTH("singleMonthMinWidth"),
 
         /**
          * Format of each month's title in multi-month view.
          * <dl>
          *   <dt>Type</dt> <dd>format object with {@code month}, {@code year}, and other properties</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code multiMonthTitleFormat} to {@code singleMonthTitleFormat}.
          *
-         * @see <a href="https://fullcalendar.io/docs/multiMonthTitleFormat">multiMonthTitleFormat</a>
+         * @see <a href="https://fullcalendar.io/docs/singleMonthTitleFormat">singleMonthTitleFormat</a>
          */
-        MULTI_MONTH_TITLE_FORMAT,
+        MULTI_MONTH_TITLE_FORMAT("singleMonthTitleFormat"),
 
         /**
          * Make day/week numbers clickable to navigate to that period.
@@ -3423,26 +3439,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         SLOT_ENTRY_OVERLAP,
 
         /**
-         * Format of the time slot labels.
+         * Format of the time slot header labels.
          * <dl>
          *   <dt>Type</dt> <dd>format object with {@code hour}, {@code minute}, {@code meridiem}, and other properties</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code slotLabelFormat} to {@code slotHeaderFormat}.
          *
-         * @see <a href="https://fullcalendar.io/docs/slotLabelFormat">slotLabelFormat</a>
+         * @see <a href="https://fullcalendar.io/docs/slotHeaderFormat">slotHeaderFormat</a>
          */
-        SLOT_LABEL_FORMAT,
+        SLOT_LABEL_FORMAT("slotHeaderFormat"),
 
         /**
-         * Interval between visible time slot labels.
+         * Interval between visible time slot header labels.
          * <dl>
          *   <dt>Type</dt>    <dd>{@link java.time.Duration} | {@link java.time.LocalTime} | duration string (e.g. {@code "HH:MM:SS"})</dd>
          *   <dt>Default</dt> <dd>auto-computed based on {@link #SLOT_DURATION}</dd>
          * </dl>
          *
-         * @see <a href="https://fullcalendar.io/docs/slotLabelInterval">slotLabelInterval</a>
+         * <b>v7 change:</b> renamed from {@code slotLabelInterval} to {@code slotHeaderInterval}.
+         *
+         * @see <a href="https://fullcalendar.io/docs/slotHeaderInterval">slotHeaderInterval</a>
          */
         @JsonConverter(DurationConverter.class)
-        SLOT_LABEL_INTERVAL,
+        SLOT_LABEL_INTERVAL("slotHeaderInterval"),
 
         /**
          * End of the visible time range in timegrid views.
@@ -3635,7 +3655,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/buttonText">buttonText</a>
          */
-        NATIVE_TOOLBAR_BUTTON_TEXT("buttonText"),
+        NATIVE_TOOLBAR_BUTTON_TEXT("buttonText"), // v7: buttonText removed — per-button text via buttons map; no-op with default headerToolbar:false
 
         /**
          * Default all-day status for entries without an explicit time.
@@ -4111,7 +4131,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventClassNames</a>
          */
-        ENTRY_CLASS_NAMES("eventClassNames"),
+        ENTRY_CLASS_NAMES("eventClass"),
 
         /**
          * Customize the inner content of entry elements. Called when an entry is rendered.
@@ -4164,7 +4184,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellClassNames</a>
          */
-        DAY_CELL_CLASS_NAMES("dayCellClassNames"),
+        DAY_CELL_CLASS_NAMES("dayCellClass"),
 
         /**
          * Customize the content inside day cells. Accepts a {@link JsCallback}.
@@ -4175,7 +4195,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellContent</a>
          */
-        DAY_CELL_CONTENT("dayCellContent"),
+        DAY_CELL_CONTENT("dayCellTopContent"),
 
         /**
          * Called after a day cell element is added to the DOM. Accepts a {@link JsCallback}.
@@ -4207,7 +4227,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderClassNames</a>
          */
-        DAY_HEADER_CLASS_NAMES("dayHeaderClassNames"),
+        DAY_HEADER_CLASS_NAMES("dayHeaderClass"),
 
         /**
          * Customize the content inside day header cells. Accepts a {@link JsCallback}.
@@ -4242,15 +4262,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         // ---- Render hooks: Slot Label ----
         /**
-         * Add CSS classes to time slot label cells. Accepts a {@link JsCallback}.
+         * Add CSS classes to time slot header cells. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {date, text, view}}</dd>
          *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code slotLabelClassNames} to {@code slotHeaderClass}.
          *
-         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLabelClassNames</a>
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotHeaderClass</a>
          */
-        SLOT_LABEL_CLASS_NAMES("slotLabelClassNames"),
+        SLOT_LABEL_CLASS_NAMES("slotHeaderClass"),
 
         /**
          * Customize the content inside time slot label cells. Accepts a {@link JsCallback}.
@@ -4258,20 +4280,24 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *   <dt>Arguments</dt> <dd>{@code {date, text, view}}</dd>
          *   <dt>Returns</dt>   <dd>content object or HTML string</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code slotLabelContent} to {@code slotHeaderContent}.
          *
-         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLabelContent</a>
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotHeaderContent</a>
          */
-        SLOT_LABEL_CONTENT("slotLabelContent"),
+        SLOT_LABEL_CONTENT("slotHeaderContent"),
 
         /**
          * Called after a slot label element is added to the DOM. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {date, text, view, el}}</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code slotLabelDidMount} to {@code slotHeaderDidMount}.
          *
-         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLabelDidMount</a>
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotHeaderDidMount</a>
          */
-        SLOT_LABEL_DID_MOUNT("slotLabelDidMount"),
+        SLOT_LABEL_DID_MOUNT("slotHeaderDidMount"),
 
         /**
          * Called before a slot label element is removed from the DOM. Accepts a {@link JsCallback}.
@@ -4279,9 +4305,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *   <dt>Arguments</dt> <dd>{@code {date, text, view, el}}</dd>
          * </dl>
          *
-         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLabelWillUnmount</a>
+         * <b>v7 change:</b> renamed from {@code slotLabelWillUnmount} to {@code slotHeaderWillUnmount}.
+         *
+         * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotHeaderWillUnmount</a>
          */
-        SLOT_LABEL_WILL_UNMOUNT("slotLabelWillUnmount"),
+        SLOT_LABEL_WILL_UNMOUNT("slotHeaderWillUnmount"),
 
         // ---- Render hooks: Slot Lane ----
         /**
@@ -4293,7 +4321,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLaneClassNames</a>
          */
-        SLOT_LANE_CLASS_NAMES("slotLaneClassNames"),
+        SLOT_LANE_CLASS_NAMES("slotLaneClass"),
 
         /**
          * Customize the content inside time slot lane cells. Accepts a {@link JsCallback}.
@@ -4304,7 +4332,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/slot-render-hooks">slotLaneContent</a>
          */
-        SLOT_LANE_CONTENT("slotLaneContent"),
+        SLOT_LANE_CONTENT("slotLaneContent"), // v7: slotLaneContent removed — emitting this key is a no-op
 
         /**
          * Called after a slot lane element is added to the DOM. Accepts a {@link JsCallback}.
@@ -4336,7 +4364,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewClassNames</a>
          */
-        VIEW_CLASS_NAMES("viewClassNames"),
+        VIEW_CLASS_NAMES("viewClass"),
 
         /**
          * Called after the view root element is added to the DOM. Accepts a {@link JsCallback}.
@@ -4368,7 +4396,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/now-indicator-render-hooks">nowIndicatorClassNames</a>
          */
-        NOW_INDICATOR_CLASS_NAMES("nowIndicatorClassNames"),
+        NOW_INDICATOR_CLASS_NAMES("nowIndicatorLineClass"),
 
         /**
          * Customize the content inside now indicator elements. Accepts a {@link JsCallback}.
@@ -4379,7 +4407,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/now-indicator-render-hooks">nowIndicatorContent</a>
          */
-        NOW_INDICATOR_CONTENT("nowIndicatorContent"),
+        NOW_INDICATOR_CONTENT("nowIndicatorLineContent"),
 
         /**
          * Called after a now indicator element is added to the DOM. Accepts a {@link JsCallback}.
@@ -4389,7 +4417,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/now-indicator-render-hooks">nowIndicatorDidMount</a>
          */
-        NOW_INDICATOR_DID_MOUNT("nowIndicatorDidMount"),
+        NOW_INDICATOR_DID_MOUNT("nowIndicatorLineDidMount"),
 
         /**
          * Called before a now indicator element is removed from the DOM. Accepts a {@link JsCallback}.
@@ -4399,7 +4427,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/now-indicator-render-hooks">nowIndicatorWillUnmount</a>
          */
-        NOW_INDICATOR_WILL_UNMOUNT("nowIndicatorWillUnmount"),
+        NOW_INDICATOR_WILL_UNMOUNT("nowIndicatorLineWillUnmount"),
 
         // ---- Render hooks: Week Number ----
         /**
@@ -4411,7 +4439,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/week-number-render-hooks">weekNumberClassNames</a>
          */
-        WEEK_NUMBER_CLASS_NAMES("weekNumberClassNames"),
+        WEEK_NUMBER_CLASS_NAMES("inlineWeekNumberClass"),
 
         /**
          * Customize the content inside week number cells. Accepts a {@link JsCallback}.
@@ -4422,7 +4450,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/week-number-render-hooks">weekNumberContent</a>
          */
-        WEEK_NUMBER_CONTENT("weekNumberContent"),
+        WEEK_NUMBER_CONTENT("inlineWeekNumberContent"),
 
         /**
          * Called after a week number element is added to the DOM. Accepts a {@link JsCallback}.
@@ -4432,7 +4460,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/week-number-render-hooks">weekNumberDidMount</a>
          */
-        WEEK_NUMBER_DID_MOUNT("weekNumberDidMount"),
+        WEEK_NUMBER_DID_MOUNT("inlineWeekNumberDidMount"),
 
         /**
          * Called before a week number element is removed from the DOM. Accepts a {@link JsCallback}.
@@ -4442,7 +4470,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/week-number-render-hooks">weekNumberWillUnmount</a>
          */
-        WEEK_NUMBER_WILL_UNMOUNT("weekNumberWillUnmount"),
+        WEEK_NUMBER_WILL_UNMOUNT("inlineWeekNumberWillUnmount"),
 
         // ---- Render hooks: More Link ----
         /**
@@ -4454,7 +4482,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkClassNames</a>
          */
-        MORE_LINK_CLASS_NAMES("moreLinkClassNames"),
+        MORE_LINK_CLASS_NAMES("moreLinkClass"),
 
         /**
          * Customize the content of the "+N more" link. Accepts a {@link JsCallback}.
@@ -4497,7 +4525,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsClassNames</a>
          */
-        NO_ENTRIES_CLASS_NAMES("noEventsClassNames"),
+        NO_ENTRIES_CLASS_NAMES("noEventsClass"),
 
         /**
          * Customize the "No events" message in list view. Accepts a {@link JsCallback}.
@@ -4540,7 +4568,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/all-day-render-hooks">allDayClassNames</a>
          */
-        ALL_DAY_CLASS_NAMES("allDayClassNames"),
+        ALL_DAY_CLASS_NAMES("allDayHeaderClass"),
 
         /**
          * Customize the content inside the all-day header cell. Accepts a {@link JsCallback}.
@@ -4551,7 +4579,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/all-day-render-hooks">allDayContent</a>
          */
-        ALL_DAY_CONTENT("allDayContent"),
+        ALL_DAY_CONTENT("allDayHeaderContent"),
 
         /**
          * Called after the all-day header element is added to the DOM. Accepts a {@link JsCallback}.
@@ -4561,7 +4589,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/all-day-render-hooks">allDayDidMount</a>
          */
-        ALL_DAY_DID_MOUNT("allDayDidMount"),
+        ALL_DAY_DID_MOUNT("allDayHeaderDidMount"),
 
         /**
          * Called before the all-day header element is removed from the DOM. Accepts a {@link JsCallback}.
@@ -4571,7 +4599,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/all-day-render-hooks">allDayWillUnmount</a>
          */
-        ALL_DAY_WILL_UNMOUNT("allDayWillUnmount"),
+        ALL_DAY_WILL_UNMOUNT("allDayHeaderWillUnmount"),
 
         // ---- Data transform / loading callbacks ----
         /**

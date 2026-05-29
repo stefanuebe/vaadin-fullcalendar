@@ -143,12 +143,13 @@ public class EventSourcesTest {
 
     @Test
     void jsonFeedEventSource_toJson_classNames() {
+        // v7: classNames (array) → className (space-separated string) per FC7 migration
         ObjectNode json = new JsonFeedEventSource("/api/events")
                 .withClassNames(List.of("foo", "bar"))
                 .toJson();
-        assertTrue(json.has("classNames"));
-        assertEquals("foo", json.get("classNames").get(0).asString());
-        assertEquals("bar", json.get("classNames").get(1).asString());
+        assertTrue(json.has("className"), "v7 serializes className as a space-separated string, not classNames array");
+        assertFalse(json.has("classNames"), "v7 must not emit the old classNames array key");
+        assertEquals("foo bar", json.get("className").asString());
     }
 
     // -------------------------------------------------------------------------

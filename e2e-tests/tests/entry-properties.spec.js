@@ -8,7 +8,8 @@ const { expect, waitForVaadin } = require('./fixtures');
 async function gotoEntryPropertiesView(page) {
     await page.goto('/test/entry-properties');
     await page.waitForSelector('.fc', { timeout: 10000 });
-    await page.waitForSelector('.fc-dayGridMonth-view', { timeout: 5000 });
+    // v7: view root carries vfc-view-dayGridMonth (viewClass contract)
+    await page.waitForSelector('.vfc-view-dayGridMonth', { timeout: 5000 });
     await page.waitForSelector('.fc-event', { timeout: 5000 });
     await waitForVaadin(page);
 }
@@ -22,21 +23,24 @@ base.describe('Entry Properties — Visual Effects', () => {
     base.describe('Color properties', () => {
 
         base('red entry has red-ish background color', async ({ page }) => {
+            // v7: event color is applied via event.color → --fc-classic-primary CSS custom property
+            // Query the event root (vfc-event or fc-event) directly; fc-event-main wrapper is removed in v7
             const entry = page.locator('.fc-event:has-text("Red Entry")').first();
             await expect(entry).toBeVisible();
-            // FC renders entry color as inline style on a wrapper element
-            // Check that red is applied somewhere in the entry's element tree
             const bgColor = await entry.evaluate(el => {
-                const style = window.getComputedStyle(el);
-                // Check both the event itself and its inner elements
-                if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+                // Walk up the element and its children to find the element with a non-transparent background
+                function findBgColor(element) {
+                    const style = window.getComputedStyle(element);
+                    if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)' && style.backgroundColor !== 'transparent') {
+                        return style.backgroundColor;
+                    }
+                    for (const child of element.children) {
+                        const found = findBgColor(child);
+                        if (found) return found;
+                    }
                     return style.backgroundColor;
                 }
-                const inner = el.querySelector('.fc-event-main');
-                if (inner) {
-                    return window.getComputedStyle(inner).backgroundColor;
-                }
-                return style.backgroundColor;
+                return findBgColor(el);
             });
             // red = rgb(255, 0, 0) — red channel must be dominant (high red, low green+blue)
             expect(bgColor).toMatch(/rgb/);
@@ -49,15 +53,22 @@ base.describe('Entry Properties — Visual Effects', () => {
         });
 
         base('custom BG entry has green background', async ({ page }) => {
+            // v7: event color is applied via event.color → --fc-classic-primary CSS custom property
             const entry = page.locator('.fc-event:has-text("Custom BG")').first();
             await expect(entry).toBeVisible();
             const bgColor = await entry.evaluate(el => {
-                const style = window.getComputedStyle(el);
-                if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+                function findBgColor(element) {
+                    const style = window.getComputedStyle(element);
+                    if (style.backgroundColor && style.backgroundColor !== 'rgba(0, 0, 0, 0)' && style.backgroundColor !== 'transparent') {
+                        return style.backgroundColor;
+                    }
+                    for (const child of element.children) {
+                        const found = findBgColor(child);
+                        if (found) return found;
+                    }
                     return style.backgroundColor;
                 }
-                const inner = el.querySelector('.fc-event-main');
-                return inner ? window.getComputedStyle(inner).backgroundColor : style.backgroundColor;
+                return findBgColor(el);
             });
             // #00ff00 = rgb(0, 255, 0) — green channel must be dominant
             expect(bgColor).toMatch(/rgb/);
@@ -72,8 +83,8 @@ base.describe('Entry Properties — Visual Effects', () => {
         base('custom BG entry has white text color', async ({ page }) => {
             const entry = page.locator('.fc-event:has-text("Custom BG")').first();
             const textColor = await entry.evaluate(el => {
-                // Text color may be on the event-main or event-title element
-                const title = el.querySelector('.fc-event-title') || el.querySelector('.fc-event-main') || el;
+                // v7: text color on event-title element; fc-event-main wrapper removed
+                const title = el.querySelector('.fc-event-title') || el;
                 return window.getComputedStyle(title).color;
             });
             // #ffffff = rgb(255, 255, 255) — all channels should be > 200
@@ -103,14 +114,14 @@ base.describe('Entry Properties — Visual Effects', () => {
 
     base.describe('DisplayMode', () => {
 
-        base('background display mode renders as fc-bg-event', async ({ page }) => {
-            // Background events are rendered differently — look for fc-bg-event
-            const bgEvents = page.locator('.fc-bg-event');
+        base('background display mode renders as vfc-bg-event', async ({ page }) => {
+            // v7: background events carry vfc-bg-event (backgroundEventClass contract)
+            const bgEvents = page.locator('.vfc-bg-event');
             const count = await bgEvents.count();
             expect(count).toBeGreaterThanOrEqual(1);
         });
 
-        base('inverse background entry renders as fc-bg-event in timeGrid', async ({ page }) => {
+        base('inverse background entry renders as vfc-bg-event in timeGrid', async ({ page }) => {
             // INVERSE_BACKGROUND only renders visually in timeGrid views, not in dayGrid.
             // Switch to timeGridWeek to verify.
             await page.evaluate(() => {
@@ -120,8 +131,8 @@ base.describe('Entry Properties — Visual Effects', () => {
                 }
             });
             await waitForVaadin(page);
-            // In timeGrid, inverse background should render fc-bg-event elements
-            const bgEvents = page.locator('.fc-bg-event');
+            // v7: background events carry vfc-bg-event (backgroundEventClass contract)
+            const bgEvents = page.locator('.vfc-bg-event');
             const count = await bgEvents.count();
             expect(count).toBeGreaterThanOrEqual(1);
         });

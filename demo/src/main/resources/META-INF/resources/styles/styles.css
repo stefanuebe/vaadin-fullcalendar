@@ -17,11 +17,11 @@ span.description {
     font-size: 0.8rem;
 }
 
-.resource-component-columns-view .fc-event{
+.resource-component-columns-view .vfc-event{
     margin-top: var(--vaadin-padding-m);
 }
 
-.resource-component-columns-view .fc-datagrid-cell-frame:not(:has(vaadin-date-picker)){
+.resource-component-columns-view .vfc-resource-cell:not(:has(vaadin-date-picker)){
     display: flex;
     align-items: center;
 }

@@ -4,8 +4,8 @@ const { test, expect, changeView, waitForCalendarUpdate } = require('./fixtures'
 test.describe('Calendar Views', () => {
 
   test('should default to Day Grid Month view', async ({ page }) => {
-    // Check for month view specific elements
-    const monthView = page.locator('.fc-dayGridMonth-view');
+    // v7: view root carries vfc-view-<viewType> injected via viewClass contract
+    const monthView = page.locator('.vfc-view-dayGridMonth');
     await expect(monthView).toBeVisible();
   });
 
@@ -13,7 +13,7 @@ test.describe('Calendar Views', () => {
     await changeView(page, 'Day Grid Week');
 
     // Verify week view is displayed
-    const weekView = page.locator('.fc-dayGridWeek-view');
+    const weekView = page.locator('.vfc-view-dayGridWeek');
     await expect(weekView).toBeVisible();
   });
 
@@ -21,10 +21,10 @@ test.describe('Calendar Views', () => {
     await changeView(page, 'Time Grid Day');
 
     // Verify time grid day view
-    const dayView = page.locator('.fc-timeGridDay-view');
+    const dayView = page.locator('.vfc-view-timeGridDay');
     await expect(dayView).toBeVisible();
 
-    // Should have time slots
+    // Should have time slots (fc-timegrid-slot[data-time] persists in v7 DOM)
     const timeSlots = page.locator('.fc-timegrid-slot');
     const slotCount = await timeSlots.count();
     expect(slotCount).toBeGreaterThan(0);
@@ -34,10 +34,10 @@ test.describe('Calendar Views', () => {
     await changeView(page, 'Time Grid Week');
 
     // Verify time grid week view
-    const weekTimeView = page.locator('.fc-timeGridWeek-view');
+    const weekTimeView = page.locator('.vfc-view-timeGridWeek');
     await expect(weekTimeView).toBeVisible();
 
-    // Should have time slots
+    // Should have time slots (fc-timegrid-slot[data-time] persists in v7 DOM)
     const timeSlots = page.locator('.fc-timegrid-slot');
     const slotCount = await timeSlots.count();
     expect(slotCount).toBeGreaterThan(0);
@@ -46,16 +46,16 @@ test.describe('Calendar Views', () => {
   test('should switch to List Week view', async ({ page }) => {
     await changeView(page, 'List Week');
 
-    // Verify list view
-    const listView = page.locator('.fc-listWeek-view, .fc-list');
+    // v7: view root carries vfc-view-listWeek via viewClass contract
+    const listView = page.locator('.vfc-view-listWeek, .fc-list');
     await expect(listView).toBeVisible();
   });
 
   test('should switch to List Month view', async ({ page }) => {
     await changeView(page, 'List Month');
 
-    // Verify list month view
-    const listView = page.locator('.fc-listMonth-view, .fc-list');
+    // v7: view root carries vfc-view-listMonth via viewClass contract
+    const listView = page.locator('.vfc-view-listMonth, .fc-list');
     await expect(listView).toBeVisible();
   });
 
@@ -116,8 +116,8 @@ test.describe('Calendar Views', () => {
   test('should allow scrolling in Time Grid view', async ({ page }) => {
     await changeView(page, 'Time Grid Week');
 
-    // Find any scroll container
-    const scrollContainer = page.locator('.fc-scroller-liquid-absolute, .fc-scroller').first();
+    // Find any scroll container — fc-scroller-liquid-absolute removed in v7, fc-scroller may still exist
+    const scrollContainer = page.locator('.fc-scroller, .fc-timegrid').first();
 
     if (await scrollContainer.isVisible({ timeout: 2000 })) {
       // Scroll down
@@ -132,7 +132,8 @@ test.describe('Calendar Views', () => {
 
   test('should show week numbers in month view', async ({ page }) => {
     // Week numbers should be visible (W1, W2, etc.)
-    const weekNumbers = page.locator('.fc-daygrid-week-number, [class*="week-number"]');
+    // v7: week number cells carry vfc-week-number (inlineWeekNumberClass contract)
+    const weekNumbers = page.locator('.vfc-week-number, [class*="week-number"]');
     const count = await weekNumbers.count();
 
     // Should have week numbers for each week row

@@ -52,13 +52,17 @@ public interface Scheduler {
     public static final String NON_COMMERCIAL_CREATIVE_COMMONS_LICENSE_KEY = "CC-Attribution-NonCommercial-NoDerivatives";
     
     /**
-     * 
-     * Constant for the GPL v3 open source license.
+     * Constant for the AGPLv3 open source license.
+     * <br><br>
+     * Use this key if your project's frontend <b>and</b> backend are both open-source under an
+     * AGPL-compatible license. FullCalendar v7 upgraded from GPLv3 to AGPLv3 (which closes the
+     * "SaaS loophole" of GPLv3). The old {@code "GPL-My-Project-Is-Open-Source"} key is no longer
+     * accepted in v7.
      * <br><br>
      * For more details visit
      * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
      */
-    public static final String GPL_V3_LICENSE_KEY = "GPL-My-Project-Is-Open-Source";
+    public static final String GPL_V3_LICENSE_KEY = "AGPL-My-Frontend-And-Backend-Are-Open-Source";
 
     /**
      * Sets the license key to be used for the scheduler. For more details visit

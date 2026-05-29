@@ -616,4 +616,62 @@ public class EntryTest {
         Assertions.assertFalse(entry.toJson().has("editable"), "null is not serialized");
     }
 
+    // -------------------------------------------------------------------------
+    // FC7 serialization: color/contrastColor/className (v7 renamed keys)
+    // -------------------------------------------------------------------------
+
+    @Test
+    void toJson_v7_backgroundColor_serializedAsColor() {
+        // v7: event backgroundColor → color; the old backgroundColor key must not appear
+        Entry entry = new Entry();
+        entry.setBackgroundColor("red");
+        ObjectNode json = entry.toJson();
+        assertTrue(json.has("color"), "v7 serializes backgroundColor as 'color'");
+        assertEquals("red", json.get("color").asString());
+        Assertions.assertFalse(json.has("backgroundColor"), "v7 must not emit 'backgroundColor'");
+    }
+
+    @Test
+    void toJson_v7_textColor_serializedAsContrastColor() {
+        // v7: event textColor → contrastColor; the old textColor key must not appear
+        Entry entry = new Entry();
+        entry.setTextColor("white");
+        ObjectNode json = entry.toJson();
+        assertTrue(json.has("contrastColor"), "v7 serializes textColor as 'contrastColor'");
+        assertEquals("white", json.get("contrastColor").asString());
+        Assertions.assertFalse(json.has("textColor"), "v7 must not emit 'textColor'");
+    }
+
+    @Test
+    void toJson_v7_borderColor_notEmittedSeparately() {
+        // v7: borderColor is consolidated into color; borderColor key must not appear
+        Entry entry = new Entry();
+        entry.setBorderColor("blue");
+        ObjectNode json = entry.toJson();
+        Assertions.assertFalse(json.has("borderColor"), "v7 must not emit 'borderColor' separately");
+    }
+
+    @Test
+    void toJson_v7_classNames_serializedAsSpaceSeparatedClassName() {
+        // v7: classNames (Set<String>) → className (space-separated String); old classNames key must not appear
+        Entry entry = new Entry();
+        entry.assignClassNames("foo", "bar");
+        ObjectNode json = entry.toJson();
+        assertTrue(json.has("className"), "v7 serializes classNames as 'className'");
+        String className = json.get("className").asString();
+        // Both class names must appear in the space-separated string
+        assertTrue(className.contains("foo"), "className must contain 'foo'");
+        assertTrue(className.contains("bar"), "className must contain 'bar'");
+        Assertions.assertFalse(json.has("classNames"), "v7 must not emit the old 'classNames' array key");
+    }
+
+    @Test
+    void toJson_v7_emptyClassNames_notEmitted() {
+        // No classNames set → className key must not appear
+        Entry entry = new Entry();
+        ObjectNode json = entry.toJson();
+        Assertions.assertFalse(json.has("className"), "className must not appear when no classNames are set");
+        Assertions.assertFalse(json.has("classNames"), "classNames must not appear when no classNames are set");
+    }
+
 }

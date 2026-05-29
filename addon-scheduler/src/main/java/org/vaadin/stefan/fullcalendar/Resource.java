@@ -555,7 +555,6 @@ public class Resource {
 
         jsonObject.put("id", getId());
         jsonObject.set("title", JsonUtils.toJsonNode(getTitle()));
-        jsonObject.set("eventColor", JsonUtils.toJsonNode(getColor()));
 
         BusinessHours[] businessHours = getBusinessHoursArray();
         if(businessHours != null && businessHours.length > 0) {
@@ -579,15 +578,21 @@ public class Resource {
             jsonObject.set("children", jsonArray);
         }
 
-        if (eventBackgroundColor != null) jsonObject.put("eventBackgroundColor", eventBackgroundColor);
-        if (eventBorderColor != null) jsonObject.put("eventBorderColor", eventBorderColor);
-        if (eventTextColor != null) jsonObject.put("eventTextColor", eventTextColor);
+        // v7: background + border colors are merged into the single eventColor prop;
+        //     eventTextColor -> eventContrastColor; eventClassNames -> eventClass. Serializing the v7
+        //     keys here keeps the initial addResource() path correct (it passes this JSON straight to FC).
+        //     Precedence: an explicit background/border override wins over the setColor() shorthand,
+        //     and eventColor is only emitted when at least one of them is set (no null placeholder).
+        String resolvedEventColor = eventBackgroundColor != null ? eventBackgroundColor
+                : (eventBorderColor != null ? eventBorderColor : getColor());
+        if (resolvedEventColor != null) jsonObject.put("eventColor", resolvedEventColor);
+        if (eventTextColor != null) jsonObject.put("eventContrastColor", eventTextColor);
         if (eventConstraint != null) jsonObject.put("eventConstraint", eventConstraint);
         if (eventOverlap != null) jsonObject.put("eventOverlap", eventOverlap);
         if (eventClassNames != null && !eventClassNames.isEmpty()) {
             ArrayNode classNamesArray = JsonFactory.createArray();
             eventClassNames.forEach(classNamesArray::add);
-            jsonObject.set("eventClassNames", classNamesArray);
+            jsonObject.set("eventClass", classNamesArray);
         }
         if (eventAllow != null) jsonObject.set("eventAllow", eventAllow.toMarkerJson());
 

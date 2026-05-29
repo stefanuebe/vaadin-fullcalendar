@@ -55,7 +55,8 @@ test.describe('Render Hook Callbacks', () => {
 
   test('weekNumberClassNames: week number cells have hook-weeknum class', async ({ page }) => {
     // Week numbers are visible (setWeekNumbersVisible(true) in the view)
-    const weeknums = page.locator('.fc-daygrid-week-number.hook-weeknum');
+    // v7: week number cells carry vfc-week-number (inlineWeekNumberClass contract) plus any custom class
+    const weeknums = page.locator('.vfc-week-number.hook-weeknum');
     const count = await weeknums.count();
     // March 2025 spans 5–6 week rows depending on locale's first-day-of-week
     expect(count).toBeGreaterThanOrEqual(5);
@@ -95,14 +96,16 @@ test.describe('Display Options', () => {
 
   test('calendar is visible in dayGridMonth view', async ({ page }) => {
     await expect(page.locator('.fc')).toBeVisible();
-    await expect(page.locator('.fc-dayGridMonth-view')).toBeVisible();
+    // v7: view root carries vfc-view-dayGridMonth (viewClass contract)
+    await expect(page.locator('.vfc-view-dayGridMonth')).toBeVisible();
   });
 
   test('maxEntriesPerDay: "+3 more" overflow link appears on 2025-03-10', async ({ page }) => {
     // 5 events on 2025-03-10 with maxEntriesPerDay=2 → "+3 more" link must appear
     const crowdedDay = page.locator('.fc-daygrid-day[data-date="2025-03-10"]');
     await expect(crowdedDay).toBeVisible();
-    const moreLink = crowdedDay.locator('.fc-daygrid-more-link');
+    // v7: more-link element carries vfc-more-link (moreLinkClass contract)
+    const moreLink = crowdedDay.locator('.vfc-more-link');
     await expect(moreLink).toBeVisible({ timeout: 10000 });
     // Verify the link shows exactly "+3 more" (5 events − 2 visible = 3 hidden)
     await expect(moreLink).toHaveText(/\+3\s+more/i);

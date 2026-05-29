@@ -42,11 +42,10 @@ import java.util.stream.StreamSupport;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/resource", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/resource-timeline", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/resource-timegrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/resource-daygrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/scrollgrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar-scheduler/resource", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar-scheduler/resource-timeline", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar-scheduler/resource-timegrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar-scheduler/resource-daygrid", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @JsModule("./vaadin-full-calendar/full-calendar-scheduler.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-scheduler-styles.css")
 
@@ -57,7 +56,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * The scheduler base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_SCHEDULER_CLIENT_VERSION = "6.1.9";
+    public static final String FC_SCHEDULER_CLIENT_VERSION = "7.0.0-rc.3";
     private final Map<String, Resource> resources = new HashMap<>();
     private final List<ComponentResourceAreaColumn<?>> activeComponentColumns = new ArrayList<>();
     private Element hiddenContainer;
@@ -810,10 +809,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          *   <dt>Type</dt>    <dd>array of column configuration objects</dd>
          *   <dt>Default</dt> <dd>single column with resource name</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceAreaColumns} to {@code resourceColumns}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resourceAreaColumns">resourceAreaColumns</a>
+         * @see <a href="https://fullcalendar.io/docs/resourceColumns">resourceColumns</a>
          */
-        RESOURCE_AREA_COLUMNS("resourceAreaColumns"),
+        RESOURCE_AREA_COLUMNS("resourceColumns"),
 
         /**
          * Custom content for the resource area header cell (top-left corner in timeline views).
@@ -822,10 +823,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          * </dl>
          * To use a JS function callback, use {@link FullCalendarScheduler#setOption(String, Object)}
          * with a {@link JsCallback} value.
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceAreaHeaderContent} to {@code resourceColumnHeaderContent}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceAreaHeaderContent</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceColumnHeaderContent</a>
          */
-        RESOURCE_AREA_HEADER_CONTENT("resourceAreaHeaderContent"),
+        RESOURCE_AREA_HEADER_CONTENT("resourceColumnHeaderContent"),
 
         /**
          * Width of the resource area (left column in timeline/vertical-resource views).
@@ -833,10 +836,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          *   <dt>Type</dt>    <dd>CSS width string (e.g., {@code "200px"}, {@code "20%"})</dd>
          *   <dt>Default</dt> <dd>auto-calculated by FullCalendar</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceAreaWidth} to {@code resourceColumnsWidth}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resourceAreaWidth">resourceAreaWidth</a>
+         * @see <a href="https://fullcalendar.io/docs/resourceColumnsWidth">resourceColumnsWidth</a>
          */
-        RESOURCE_AREA_WIDTH("resourceAreaWidth"),
+        RESOURCE_AREA_WIDTH("resourceColumnsWidth"),
 
         /**
          * Field name in resource data used to group resources.
@@ -885,48 +890,56 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         // ---- Callback options (merged from SchedulerCallbackOption) ----
 
-        // ---- Render hooks: Resource Label ----
+        // ---- Render hooks: Resource Cell (Timeline) ----
         /**
-         * Add CSS classes to resource name label cells. Accepts a {@link JsCallback}.
+         * Add CSS classes to resource cell elements in the resource data grid. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
          *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceLabelClassNames} to {@code resourceCellClass}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLabelClassNames</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceCellClass</a>
          */
-        RESOURCE_LABEL_CLASS_NAMES("resourceLabelClassNames"),
+        RESOURCE_LABEL_CLASS_NAMES("resourceCellClass"),
 
         /**
-         * Customize the content inside a resource name label cell. Accepts a {@link JsCallback}.
+         * Customize the content inside a resource cell. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
          *   <dt>Returns</dt>   <dd>content object or HTML string</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceLabelContent} to {@code resourceCellContent}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLabelContent</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceCellContent</a>
          */
-        RESOURCE_LABEL_CONTENT("resourceLabelContent"),
+        RESOURCE_LABEL_CONTENT("resourceCellContent"),
 
         /**
-         * Called after a resource label element is added to the DOM. Accepts a {@link JsCallback}.
+         * Called after a resource cell element is added to the DOM. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceLabelDidMount} to {@code resourceCellDidMount}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLabelDidMount</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceCellDidMount</a>
          */
-        RESOURCE_LABEL_DID_MOUNT("resourceLabelDidMount"),
+        RESOURCE_LABEL_DID_MOUNT("resourceCellDidMount"),
 
         /**
-         * Called before a resource label element is removed from the DOM. Accepts a {@link JsCallback}.
+         * Called before a resource cell element is removed from the DOM. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceLabelWillUnmount} to {@code resourceCellWillUnmount}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLabelWillUnmount</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceCellWillUnmount</a>
          */
-        RESOURCE_LABEL_WILL_UNMOUNT("resourceLabelWillUnmount"),
+        RESOURCE_LABEL_WILL_UNMOUNT("resourceCellWillUnmount"),
 
         // ---- Render hooks: Resource Lane ----
         /**
@@ -935,21 +948,27 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
          *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceLaneClassNames} to {@code resourceLaneClass}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLaneClassNames</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLaneClass</a>
          */
-        RESOURCE_LANE_CLASS_NAMES("resourceLaneClassNames"),
+        RESOURCE_LANE_CLASS_NAMES("resourceLaneClass"),
 
         /**
-         * Customize the content inside a resource lane. Accepts a {@link JsCallback}.
+         * Customize the top content inside a resource lane. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {resource, el, view}}</dd>
          *   <dt>Returns</dt>   <dd>content object or HTML string</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> {@code resourceLaneContent} was split into
+         * {@code resourceLaneTopContent} and {@code resourceLaneBottomContent}.
+         * This option maps to {@code resourceLaneTopContent} (the top portion of the lane).
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLaneContent</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-render-hooks">resourceLaneTopContent</a>
          */
-        RESOURCE_LANE_CONTENT("resourceLaneContent"),
+        RESOURCE_LANE_CONTENT("resourceLaneTopContent"),
 
         /**
          * Called after a resource lane element is added to the DOM. Accepts a {@link JsCallback}.
@@ -971,77 +990,99 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          */
         RESOURCE_LANE_WILL_UNMOUNT("resourceLaneWillUnmount"),
 
-        // ---- Render hooks: Resource Group ----
+        // ---- Render hooks: Resource Group Header ----
         /**
          * Add CSS classes to a resource group header row. Accepts a {@link JsCallback}.
          * <dl>
-         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Arguments</dt> <dd>{@code {fieldValue, el, view}}</dd>
          *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceGroupClassNames} to
+         * {@code resourceGroupHeaderClass}. Callback arg {@code groupValue} renamed to {@code fieldValue}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupClassNames</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupHeaderClass</a>
          */
-        RESOURCE_GROUP_CLASS_NAMES("resourceGroupClassNames"),
+        RESOURCE_GROUP_CLASS_NAMES("resourceGroupHeaderClass"),
 
         /**
          * Customize the content inside a resource group header row. Accepts a {@link JsCallback}.
          * <dl>
-         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Arguments</dt> <dd>{@code {fieldValue, el, view}}</dd>
          *   <dt>Returns</dt>   <dd>content object or HTML string</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceGroupContent} to
+         * {@code resourceGroupHeaderContent}. Callback arg {@code groupValue} renamed to {@code fieldValue}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupContent</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupHeaderContent</a>
          */
-        RESOURCE_GROUP_CONTENT("resourceGroupContent"),
+        RESOURCE_GROUP_CONTENT("resourceGroupHeaderContent"),
 
         /**
          * Called after a resource group header element is added to the DOM. Accepts a {@link JsCallback}.
          * <dl>
-         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Arguments</dt> <dd>{@code {fieldValue, el, view}}</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceGroupDidMount} to
+         * {@code resourceGroupHeaderDidMount}. Callback arg {@code groupValue} renamed to {@code fieldValue}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupDidMount</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupHeaderDidMount</a>
          */
-        RESOURCE_GROUP_DID_MOUNT("resourceGroupDidMount"),
+        RESOURCE_GROUP_DID_MOUNT("resourceGroupHeaderDidMount"),
 
         /**
          * Called before a resource group header element is removed from the DOM. Accepts a {@link JsCallback}.
          * <dl>
-         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Arguments</dt> <dd>{@code {fieldValue, el, view}}</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceGroupWillUnmount} to
+         * {@code resourceGroupHeaderWillUnmount}. Callback arg {@code groupValue} renamed to {@code fieldValue}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupWillUnmount</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupHeaderWillUnmount</a>
          */
-        RESOURCE_GROUP_WILL_UNMOUNT("resourceGroupWillUnmount"),
+        RESOURCE_GROUP_WILL_UNMOUNT("resourceGroupHeaderWillUnmount"),
 
         // ---- Render hooks: Resource Group Lane ----
         /**
          * Add CSS classes to a resource group lane row. Accepts a {@link JsCallback}.
          * <dl>
-         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Arguments</dt> <dd>{@code {fieldValue, el, view}}</dd>
          *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceGroupLaneClassNames} to
+         * {@code resourceGroupLaneClass}. Callback arg {@code groupValue} renamed to {@code fieldValue}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneClassNames</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneClass</a>
          */
-        RESOURCE_GROUP_LANE_CLASS_NAMES("resourceGroupLaneClassNames"),
+        RESOURCE_GROUP_LANE_CLASS_NAMES("resourceGroupLaneClass"),
 
         /**
-         * Customize the content inside a resource group lane row. Accepts a {@link JsCallback}.
+         * Customize the top content inside a resource group lane row. Accepts a {@link JsCallback}.
          * <dl>
-         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Arguments</dt> <dd>{@code {fieldValue, el, view}}</dd>
          *   <dt>Returns</dt>   <dd>content object or HTML string</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> {@code resourceGroupLaneContent} was split into
+         * {@code resourceGroupLaneTopContent} and {@code resourceGroupLaneBottomContent}.
+         * This option maps to {@code resourceGroupLaneTopContent}.
+         * Callback arg {@code groupValue} renamed to {@code fieldValue}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneContent</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneTopContent</a>
          */
-        RESOURCE_GROUP_LANE_CONTENT("resourceGroupLaneContent"),
+        RESOURCE_GROUP_LANE_CONTENT("resourceGroupLaneTopContent"),
 
         /**
          * Called after a resource group lane element is added to the DOM. Accepts a {@link JsCallback}.
          * <dl>
-         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Arguments</dt> <dd>{@code {fieldValue, el, view}}</dd>
          * </dl>
+         * <p>
+         * <b>v7 note:</b> callback arg {@code groupValue} renamed to {@code fieldValue}.
          *
          * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneDidMount</a>
          */
@@ -1050,44 +1091,55 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         /**
          * Called before a resource group lane element is removed from the DOM. Accepts a {@link JsCallback}.
          * <dl>
-         *   <dt>Arguments</dt> <dd>{@code {groupValue, el, view}}</dd>
+         *   <dt>Arguments</dt> <dd>{@code {fieldValue, el, view}}</dd>
          * </dl>
+         * <p>
+         * <b>v7 note:</b> callback arg {@code groupValue} renamed to {@code fieldValue}.
          *
          * @see <a href="https://fullcalendar.io/docs/resource-group-render-hooks">resourceGroupLaneWillUnmount</a>
          */
         RESOURCE_GROUP_LANE_WILL_UNMOUNT("resourceGroupLaneWillUnmount"),
 
-        // ---- Render hooks: Resource Area Header ----
+        // ---- Render hooks: Resource Column Header ----
         /**
-         * Add CSS classes to the resource area header cell. Accepts a {@link JsCallback}.
+         * Add CSS classes to the resource column header cell. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {el, view}}</dd>
          *   <dt>Returns</dt>   <dd>string array of CSS class names</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceAreaHeaderClassNames} to
+         * {@code resourceColumnHeaderClass}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceAreaHeaderClassNames</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceColumnHeaderClass</a>
          */
-        RESOURCE_AREA_HEADER_CLASS_NAMES("resourceAreaHeaderClassNames"),
+        RESOURCE_AREA_HEADER_CLASS_NAMES("resourceColumnHeaderClass"),
 
         /**
-         * Called after the resource area header element is added to the DOM. Accepts a {@link JsCallback}.
+         * Called after the resource column header element is added to the DOM. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {el, view}}</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceAreaHeaderDidMount} to
+         * {@code resourceColumnHeaderDidMount}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceAreaHeaderDidMount</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceColumnHeaderDidMount</a>
          */
-        RESOURCE_AREA_HEADER_DID_MOUNT("resourceAreaHeaderDidMount"),
+        RESOURCE_AREA_HEADER_DID_MOUNT("resourceColumnHeaderDidMount"),
 
         /**
-         * Called before the resource area header element is removed from the DOM. Accepts a {@link JsCallback}.
+         * Called before the resource column header element is removed from the DOM. Accepts a {@link JsCallback}.
          * <dl>
          *   <dt>Arguments</dt> <dd>{@code {el, view}}</dd>
          * </dl>
+         * <p>
+         * <b>v7 change:</b> renamed from {@code resourceAreaHeaderWillUnmount} to
+         * {@code resourceColumnHeaderWillUnmount}.
          *
-         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceAreaHeaderWillUnmount</a>
+         * @see <a href="https://fullcalendar.io/docs/resource-area-header-render-hooks">resourceColumnHeaderWillUnmount</a>
          */
-        RESOURCE_AREA_HEADER_WILL_UNMOUNT("resourceAreaHeaderWillUnmount"),
+        RESOURCE_AREA_HEADER_WILL_UNMOUNT("resourceColumnHeaderWillUnmount"),
 
         // ---- Resource lifecycle callbacks ----
         /**

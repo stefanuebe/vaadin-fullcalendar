@@ -17,7 +17,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
-import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
@@ -375,9 +374,8 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
         if (failure != null) json.set("failure", failure.toMarkerJson());
         if (eventDataTransform != null) json.set("eventDataTransform", eventDataTransform.toMarkerJson());
         if (classNames != null && !classNames.isEmpty()) {
-            ArrayNode namesNode = JsonFactory.createArray();
-            classNames.forEach(namesNode::add);
-            json.set("classNames", namesNode);
+            // v7: FC expects className:string (space-separated, clsx-compatible) instead of classNames:array
+            json.put("className", String.join(" ", classNames));
         }
     }
 

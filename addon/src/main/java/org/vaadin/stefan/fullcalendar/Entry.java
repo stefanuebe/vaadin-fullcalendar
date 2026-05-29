@@ -84,8 +84,21 @@ public class Entry {
     @Getter(AccessLevel.NONE)
     @lombok.Setter(AccessLevel.NONE)
     private Object constraint;
+    @JsonName("color")
     private String backgroundColor;
+    /**
+     * Per-entry border color.
+     * <p>
+     * <b>v7 change:</b> FullCalendar v7 has no separate border color — the {@code color} property
+     * controls both background and border. This field is therefore excluded from JSON serialization.
+     * Use {@link #setBackgroundColor(String)} or {@link #setColor(String)} instead.
+     *
+     * @deprecated since v7 — use {@link #setColor(String)} or {@link #setBackgroundColor(String)}.
+     */
+    @Deprecated
+    @JsonIgnore
     private String borderColor;
+    @JsonName("contrastColor")
     private String textColor;
     private Boolean overlap;
 
@@ -197,6 +210,8 @@ public class Entry {
         this.exrule = rrule != null ? rrule.getExcludedRules() : null;
     }
 
+    @JsonName("className")
+    @JsonConverter(ClassNamesConverter.class)
     private Set<String> classNames;
 
     private Map<String, Object> customProperties;

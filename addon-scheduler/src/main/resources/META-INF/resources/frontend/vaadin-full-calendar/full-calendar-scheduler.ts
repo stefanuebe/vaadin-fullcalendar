@@ -17,10 +17,10 @@
    Exception of this license is the separately licensed part of the styles.
 */
 import {FullCalendar, evaluateCallbacks} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
-import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
-import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
-import resourceDayGridPlugin from '@fullcalendar/resource-daygrid';
-import scrollgridPlugin from '@fullcalendar/scrollgrid';
+import resourceTimelinePlugin from 'fullcalendar-scheduler/resource-timeline';
+import resourceTimeGridPlugin from 'fullcalendar-scheduler/resource-timegrid';
+import resourceDayGridPlugin from 'fullcalendar-scheduler/resource-daygrid';
+import clsx from 'clsx';
 
 export class FullCalendarScheduler extends FullCalendar {
 
@@ -49,7 +49,26 @@ export class FullCalendarScheduler extends FullCalendar {
 
         options.resources = options.resources ?? [];
 
-        options.plugins.push(scrollgridPlugin, resourceTimeGridPlugin, resourceDayGridPlugin, resourceTimelinePlugin);
+        // scrollgridPlugin removed in v7 (merged into core)
+        options.plugins.push(resourceTimeGridPlugin, resourceDayGridPlugin, resourceTimelinePlugin);
+
+        // --- v7 class API: inject scheduler-specific CSS class names ---
+        const serverResourceLaneClass = options.resourceLaneClass;
+        options.resourceLaneClass = clsx('vfc-resource-lane', serverResourceLaneClass);
+
+        const serverResourceCellClass = options.resourceCellClass;
+        options.resourceCellClass = clsx('vfc-resource-cell', serverResourceCellClass);
+
+        const serverResourceColumnHeaderClass = options.resourceColumnHeaderClass;
+        options.resourceColumnHeaderClass = clsx('vfc-resource-col-header', serverResourceColumnHeaderClass);
+
+        const serverResourceGroupHeaderClass = options.resourceGroupHeaderClass;
+        const userResourceGroupHeaderClass = typeof serverResourceGroupHeaderClass === 'function' ? serverResourceGroupHeaderClass : null;
+        options.resourceGroupHeaderClass = (data: any) => {
+            // v7 renamed data.groupValue -> data.fieldValue
+            const base = 'vfc-resource-group-header';
+            return userResourceGroupHeaderClass ? clsx(base, userResourceGroupHeaderClass(data)) : base;
+        };
 
         return options;
     }
@@ -87,22 +106,30 @@ export class FullCalendarScheduler extends FullCalendar {
         const resource = this.calendar.getResourceById(data.id);
         if (resource) {
             if (data.title !== undefined) resource.setProp('title', data.title);
+            // v7: eventColor is the unified color prop (replaces eventBackgroundColor + eventBorderColor)
             if (data.eventColor !== undefined) resource.setProp('eventColor', data.eventColor);
-            if (data.eventBackgroundColor !== undefined) resource.setProp('eventBackgroundColor', data.eventBackgroundColor);
-            if (data.eventBorderColor !== undefined) resource.setProp('eventBorderColor', data.eventBorderColor);
-            if (data.eventTextColor !== undefined) resource.setProp('eventTextColor', data.eventTextColor);
+            // v7: eventBackgroundColor / eventBorderColor are obsolete — map both into eventColor
+            if (data.eventBackgroundColor !== undefined) resource.setProp('eventColor', data.eventBackgroundColor);
+            if (data.eventBorderColor !== undefined) resource.setProp('eventColor', data.eventBorderColor);
+            // v7: eventTextColor -> eventContrastColor
+            if (data.eventTextColor !== undefined) resource.setProp('eventContrastColor', data.eventTextColor);
+            if (data.eventContrastColor !== undefined) resource.setProp('eventContrastColor', data.eventContrastColor);
             if (data.eventConstraint !== undefined) resource.setProp('eventConstraint', data.eventConstraint);
             if (data.eventOverlap !== undefined) resource.setProp('eventOverlap', evaluateCallbacks(data.eventOverlap));
             if (data.eventAllow !== undefined) resource.setProp('eventAllow', evaluateCallbacks(data.eventAllow));
-            if (data.eventClassNames !== undefined) resource.setProp('eventClassNames', evaluateCallbacks(data.eventClassNames));
+            // v7: eventClassNames -> eventClass
+            if (data.eventClassNames !== undefined) resource.setProp('eventClass', evaluateCallbacks(data.eventClassNames));
+            if (data.eventClass !== undefined) resource.setProp('eventClass', evaluateCallbacks(data.eventClass));
 
             // Extended props: any top-level JSON key not covered above is treated as an extended prop.
             // Resource.toJson() serializes extended props flat at the top level (the FC Resource
             // constructor accepts them that way), so we mirror that shape here on update.
             const handled = new Set([
                 'id', 'title', 'parentId', 'children', 'businessHours',
-                'eventColor', 'eventBackgroundColor', 'eventBorderColor', 'eventTextColor',
-                'eventConstraint', 'eventOverlap', 'eventAllow', 'eventClassNames'
+                'eventColor', 'eventBackgroundColor', 'eventBorderColor',
+                'eventTextColor', 'eventContrastColor',
+                'eventConstraint', 'eventOverlap', 'eventAllow',
+                'eventClassNames', 'eventClass'
             ]);
             for (const key of Object.keys(data)) {
                 if (!handled.has(key)) {

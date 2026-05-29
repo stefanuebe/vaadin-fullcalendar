@@ -16,18 +16,19 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {Calendar, CalendarOptions, DateInput, DateRangeInput, DurationInput} from '@fullcalendar/core';
-import interaction, {Draggable} from '@fullcalendar/interaction';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import listPlugin from '@fullcalendar/list';
-import multiMonthPlugin from '@fullcalendar/multimonth';
-import rrulePlugin from '@fullcalendar/rrule';
-import {toMoment} from '@fullcalendar/moment'; // only for formatting
-import momentTimezonePlugin from '@fullcalendar/moment-timezone';
-import allLocales from '@fullcalendar/core/locales-all';
-import googleCalendarPlugin from '@fullcalendar/google-calendar';
-import iCalendarPlugin from '@fullcalendar/icalendar';
+import 'temporal-polyfill/global';
+import {Calendar, CalendarOptions, DateInput, DateRangeInput, DurationInput} from 'fullcalendar';
+import interaction, {Draggable} from 'fullcalendar/interaction';
+import dayGridPlugin from 'fullcalendar/daygrid';
+import timeGridPlugin from 'fullcalendar/timegrid';
+import listPlugin from 'fullcalendar/list';
+import multiMonthPlugin from 'fullcalendar/multimonth';
+import rrulePlugin from 'fullcalendar/rrule';
+import {toMoment} from '@fullcalendar/format-moment'; // only for formatting
+import allLocales from 'fullcalendar/locales-all';
+import googleCalendarPlugin from 'fullcalendar/google-calendar';
+import iCalendarPlugin from 'fullcalendar/icalendar';
+import clsx from 'clsx';
 
 // Simple type, that allows JS object property access via ["xyz"]
 export type IterableObject = {
@@ -133,7 +134,7 @@ export class FullCalendar extends HTMLElement {
                 }
 
                 // Entry render hooks: inject getCustomProperty via info.event
-                const entryInfoHooks = ['eventClassNames', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
+                const entryInfoHooks = ['eventClass', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
                 if (entryInfoHooks.includes(key)) {
                     // in these cases add custom api to the event to allow for instance accessing custom properties
                     _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
@@ -163,21 +164,9 @@ export class FullCalendar extends HTMLElement {
 
             this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
 
-            // Deferred updateSize to fix broken initial layout when the container dimensions
-            // are not yet finalized at render time (e.g. inside tabs, dialogs, lazy-loaded views).
-            // Two nested rAFs ensure the call happens after both layout and paint are complete.
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    this._calendar?.updateSize();
-                });
-            });
-
-            // Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/97
-            // calling updateSize or render inside the resize observer leads to an error in combination
-            // with the Vaadin AppLayout. To prevent having errors on every collapse/expand of the app layout's
-            // sidebar, this error handler will catch this error and ignore it. the error seem to come up due to
-            // the transition / animation. Normal resizes should not bring it up.
-            // Using addEventListener instead of replacing window.onerror to avoid conflicts with other error handlers.
+            // v7: ResizeObserver is built into FC — manual updateSize() calls are no longer needed.
+            // We keep a ResizeObserver reference only to suppress the benign loop-limit error
+            // from Vaadin AppLayout transitions (see issue #97).
             window.addEventListener('error', (event: ErrorEvent) => {
                 if (event.message && event.message.startsWith('ResizeObserver loop')) {
                     console.debug('Ignored: ResizeObserver loop limit exceeded');
@@ -187,13 +176,8 @@ export class FullCalendar extends HTMLElement {
 
             // Store ResizeObserver reference for cleanup in disconnectedCallback
             // @ts-ignore - webpack has problems with the resize observer type
-            this._resizeObserver = new ResizeObserver((entries: any) => {
-                if (!Array.isArray(entries) || !entries.length) {
-                    return;
-                }
-                requestAnimationFrame(() => {
-                    this.calendar?.updateSize();
-                });
+            this._resizeObserver = new ResizeObserver((_entries: any) => {
+                // v7 auto-sizes via its own ResizeObserver; no manual updateSize() needed here.
             });
             this._resizeObserver.observe(this);
         }
@@ -221,7 +205,7 @@ export class FullCalendar extends HTMLElement {
 
         let options: CalendarOptions = {
             timeZone: 'UTC',
-            // // no native control elements
+            // no native control elements
             headerToolbar: false,
             weekNumbers: true,
             stickyHeaderDates: true,
@@ -245,15 +229,80 @@ export class FullCalendar extends HTMLElement {
             timeGridPlugin,
             listPlugin,
             multiMonthPlugin,
-            momentTimezonePlugin,
             rrulePlugin,
             googleCalendarPlugin,
             iCalendarPlugin
         ];
 
+        // --- v7 class API: inject stable CSS class names (shared contract with CSS group) ---
+        // These merge with any server-supplied *Class values from initialOptions.
+        const serverEventClass = (options as any).eventClass;
+        (options as any).eventClass = clsx('vfc-event', serverEventClass);
+
+        const serverBgEventClass = (options as any).backgroundEventClass;
+        (options as any).backgroundEventClass = clsx('vfc-bg-event', serverBgEventClass);
+
+        const serverRowEventClass = (options as any).rowEventClass;
+        (options as any).rowEventClass = clsx('vfc-row-event', serverRowEventClass);
+
+        const serverDayHeaderClass = (options as any).dayHeaderClass;
+        const userDayHeaderClass = typeof serverDayHeaderClass === 'function' ? serverDayHeaderClass : null;
+        (options as any).dayHeaderClass = (data: any) => {
+            const base = clsx('vfc-day-header', data.isToday && 'vfc-today');
+            return userDayHeaderClass ? clsx(base, userDayHeaderClass(data)) : base;
+        };
+
+        const serverDayCellClass = (options as any).dayCellClass;
+        (options as any).dayCellClass = clsx('vfc-day-cell', typeof serverDayCellClass === 'string' ? serverDayCellClass : undefined);
+
+        // Mark the day-number element so the CSS contract (.vfc-day-number) can target it
+        // (v7 puts the day number in the cell-top inner element; the month-start label uses a different text).
+        const serverDayCellTopInnerClass = (options as any).dayCellTopInnerClass;
+        const userDayCellTopInnerClass = typeof serverDayCellTopInnerClass === 'function' ? serverDayCellTopInnerClass : null;
+        (options as any).dayCellTopInnerClass = (data: any) => {
+            const base = clsx(data.text === data.dayNumberText && 'vfc-day-number');
+            return userDayCellTopInnerClass ? clsx(base, userDayCellTopInnerClass(data)) : base;
+        };
+
+        const serverInlineWeekNumberClass = (options as any).inlineWeekNumberClass;
+        (options as any).inlineWeekNumberClass = clsx('vfc-week-number', serverInlineWeekNumberClass);
+
+        const serverSlotHeaderClass = (options as any).slotHeaderClass;
+        (options as any).slotHeaderClass = clsx('vfc-slot-header', serverSlotHeaderClass);
+
+        const serverListDayHeaderClass = (options as any).listDayHeaderClass;
+        const userListDayHeaderClass = typeof serverListDayHeaderClass === 'function' ? serverListDayHeaderClass : null;
+        (options as any).listDayHeaderClass = (data: any) => {
+            const base = clsx('vfc-list-day-header', data.isToday && 'vfc-today');
+            return userListDayHeaderClass ? clsx(base, userListDayHeaderClass(data)) : base;
+        };
+
+        const serverHighlightClass = (options as any).highlightClass;
+        (options as any).highlightClass = clsx('vfc-highlight', serverHighlightClass);
+
+        const serverNonBusinessHoursClass = (options as any).nonBusinessHoursClass;
+        (options as any).nonBusinessHoursClass = clsx('vfc-non-business', serverNonBusinessHoursClass);
+
+        const serverMoreLinkClass = (options as any).moreLinkClass;
+        (options as any).moreLinkClass = clsx('vfc-more-link', typeof serverMoreLinkClass === 'string' ? serverMoreLinkClass : undefined);
+
+        const serverPopoverClass = (options as any).popoverClass;
+        (options as any).popoverClass = clsx('vfc-popover', serverPopoverClass);
+
+        const serverViewClass = (options as any).viewClass;
+        const userViewClass = typeof serverViewClass === 'function' ? serverViewClass : null;
+        (options as any).viewClass = (data: any) => {
+            const base = clsx('vfc-view', data.type && ('vfc-view-' + data.type));
+            return userViewClass ? clsx(base, userViewClass(data)) : base;
+        };
+
         // Evaluate any JsCallback markers in initial options before passing to FC
         for (const key of Object.keys(options)) {
-            (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key]);
+            // Skip function-valued class hooks — they must not be serialised through evaluateCallbacks
+            const skip = ['dayHeaderClass', 'listDayHeaderClass', 'viewClass', 'dayCellTopInnerClass'];
+            if (!skip.includes(key)) {
+                (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key]);
+            }
         }
 
         this.applyCustomPropertiesApi(options);
@@ -423,7 +472,7 @@ export class FullCalendar extends HTMLElement {
                 let data: any = {
                     ...this.convertToEventData(event),
                     title: event.title || '',
-                    color: event.backgroundColor || event.borderColor || '',
+                    color: event.color || event.backgroundColor || event.borderColor || '',
                     display: event.display || '',
                 };
 
@@ -624,7 +673,7 @@ export class FullCalendar extends HTMLElement {
         // see _initCalendar for details
 
         // Entry render hooks: inject getCustomProperty via info.event
-        const entryInfoHooks = ['eventClassNames', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
+        const entryInfoHooks = ['eventClass', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
         for (const hookKey of entryInfoHooks) {
             if (typeof options[hookKey] === "function") {
                 const initHook = options[hookKey];
@@ -860,7 +909,7 @@ export class FullCalendar extends HTMLElement {
     }
 
     updateSize() {
-        this.calendar?.updateSize();
+        // v7: ResizeObserver handles sizing automatically — this method is kept as a no-op for backward compatibility.
     }
 
     // --- Draggable management ---
