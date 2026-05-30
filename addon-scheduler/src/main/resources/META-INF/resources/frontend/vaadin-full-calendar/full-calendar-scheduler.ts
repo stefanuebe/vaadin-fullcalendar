@@ -25,13 +25,35 @@ import clsx from 'clsx';
 export class FullCalendarScheduler extends FullCalendar {
 
     private _componentContainer: HTMLElement | null = null;
+    // Cells waiting for their Vaadin component: key = "resourceId::columnKey"
+    _pendingCells = new Map<string, HTMLElement>();
+    private _componentObserver: MutationObserver | null = null;
 
     connectedCallback() {
+        // BEFORE super.connectedCallback: FC's Calendar(this) wipes ALL DOM children.
+        // Rescue any Vaadin component elements that Vaadin inserted into our light DOM.
+        // They have data-rc-resource-id so we can re-insert them after FC's init.
+        const rescued = Array.from(this.querySelectorAll('[data-rc-resource-id]')) as HTMLElement[];
+
         super.connectedCallback();
-        // Ensure the component container exists after FC has rendered.
-        // FC's Calendar(this) wipes all light DOM children during init,
-        // so any server-appended container is lost. We re-create it here.
-        this.ensureComponentContainer();
+        // FC has now initialized and wiped the DOM. Re-create the hidden container.
+        const container = this.ensureComponentContainer();
+        // Re-insert rescued components into the hidden container so cellDidMount can find them.
+        rescued.forEach(el => {
+            el.style.display = 'none';
+            container.appendChild(el);
+        });
+
+        // Watch for Vaadin component elements appended AFTER connectedCallback
+        // (e.g. dynamically-added resources). subtree:true catches them wherever they land.
+        this._setupComponentObserver();
+    }
+
+    disconnectedCallback() {
+        this._componentObserver?.disconnect();
+        this._componentObserver = null;
+        this._pendingCells.clear();
+        super.disconnectedCallback();
     }
 
     private ensureComponentContainer(): HTMLElement {
@@ -42,6 +64,53 @@ export class FullCalendarScheduler extends FullCalendar {
             this.appendChild(this._componentContainer);
         }
         return this._componentContainer;
+    }
+
+    private _setupComponentObserver() {
+        this._componentObserver?.disconnect();
+        this._pendingCells.clear();
+        this._componentObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                for (const node of mutation.addedNodes) {
+                    this._tryPlaceComponent(node as HTMLElement);
+                }
+            }
+        });
+        // Observe the document body with subtree so we catch virtual children rendered via
+        // <flow-component-renderer> which FC's Calendar(el) wipe does not affect.
+        this._componentObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
+    private _tryPlaceComponent(el: HTMLElement) {
+        if (el.nodeType !== 1 || !el.hasAttribute) return;
+        if (el.hasAttribute('data-rc-resource-id')) {
+            this._placeOrDefer(el);
+        }
+        // Also check children (in case Vaadin wraps the element)
+        if (el.querySelectorAll) {
+            el.querySelectorAll('[data-rc-resource-id]').forEach((child) => {
+                this._placeOrDefer(child as HTMLElement);
+            });
+        }
+    }
+
+    private _placeOrDefer(el: HTMLElement) {
+        const resourceId = el.getAttribute('data-rc-resource-id')!;
+        const columnKey = el.getAttribute('data-rc-column-key')!;
+        const cellKey = `${resourceId}::${columnKey}`;
+        const cellEl = this._pendingCells.get(cellKey);
+        if (cellEl) {
+            cellEl.appendChild(el);
+            el.style.display = '';
+            this._pendingCells.delete(cellKey);
+        } else {
+            // No pending cell yet — move to hidden container so cellDidMount can find it later
+            const container = this.querySelector('[data-fc-component-container]');
+            if (container && !this.contains(el)) {
+                el.style.display = 'none';
+                container.appendChild(el);
+            }
+        }
     }
 
     protected createInitOptions(initialOptions: any) {

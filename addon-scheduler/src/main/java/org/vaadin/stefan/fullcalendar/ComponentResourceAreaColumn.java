@@ -143,10 +143,12 @@ public class ComponentResourceAreaColumn<T extends Component> extends ResourceAr
         component.getElement().getStyle().set("display", "none");
 
         if (boundCalendar != null) {
-            // Append directly to calendar element. The TS-side cellDidMount callback
-            // moves it into the FC cell and makes it visible. We don't use the hidden
-            // container for initial attachment because FC's Calendar(el) wipes all
-            // light DOM children during init. Vaadin re-sends components via UIDL.
+            // Append to the calendar element in both cases:
+            //   Pre-attach: Vaadin includes this in the initial UIDL. The TS connectedCallback
+            //   rescues it from FC's DOM wipe and moves it to the hidden container.
+            //   Post-attach (dynamic add): FC is already initialized and does NOT wipe new
+            //   children added after init. The TS MutationObserver detects the arrival and
+            //   places it in the correct resource cell or the hidden container.
             boundCalendar.getElement().appendChild(component.getElement());
         }
 
@@ -393,27 +395,27 @@ public class ComponentResourceAreaColumn<T extends Component> extends ResourceAr
         // (parent fields are null since withXxx throws, so super.toJson() didn't write them)
         String columnKey = getField();
 
-        json.set("cellContent", JsCallback.of(
-                "function() { return { domNodes: [] } }"
-        ).toMarkerJson());
+        // No cellContent override: use FC's default rendering (empty for custom columns).
+        // In v7, explicitly returning { domNodes: [] } from cellContent can disrupt the
+        // cell's layout (absolute positioning), causing columns to stack vertically.
 
         json.set("cellDidMount", JsCallback.of(
                 "function(info) {" +
                 "  var calendarEl = info.el.closest('vaadin-full-calendar-scheduler');" +
                 "  if (!calendarEl) return;" +
-                "  var resourceId = CSS.escape(info.resource.id);" +
-                // Search the entire calendar element for the component (it may be a direct
-                // child of the calendar element or parked in the hidden container)
-                "  var component = calendarEl.querySelector(" +
-                "    '[data-rc-resource-id=\"' + resourceId + '\"][data-rc-column-key=\"" + columnKey + "\"]'" +
+                "  var resourceId = info.resource && info.resource.id;" +
+                "  if (!resourceId) return;" +
+                "  var cellKey = resourceId + '::' + '" + columnKey + "';" +
+                // Search the entire document — virtual children may be in a flow-component-renderer
+                // sibling or in the hidden container inside the calendar
+                "  var component = document.querySelector(" +
+                "    '[data-rc-resource-id=\"' + CSS.escape(resourceId) + '\"][data-rc-column-key=\"" + columnKey + "\"]'" +
                 "  );" +
                 "  if (component) {" +
-                // Inject into FC's cell cushion (the content area inside the cell frame)
-                // so the component sits alongside/replacing the cell text, not below the frame
-                "    var cushion = info.el.querySelector('.fc-datagrid-cell-cushion');" +
-                "    var target = cushion || info.el;" +
-                "    target.appendChild(component);" +
+                "    info.el.appendChild(component);" +
                 "    component.style.display = '';" +
+                "  } else if (calendarEl._pendingCells) {" +
+                "    calendarEl._pendingCells.set(cellKey, info.el);" +
                 "  }" +
                 "}"
         ).toMarkerJson());
@@ -422,9 +424,13 @@ public class ComponentResourceAreaColumn<T extends Component> extends ResourceAr
                 "function(info) {" +
                 "  var calendarEl = info.el.closest('vaadin-full-calendar-scheduler');" +
                 "  if (!calendarEl) return;" +
+                // Clean up any pending cell registration for this cell
+                "  var resourceId = info.resource && info.resource.id;" +
+                "  if (resourceId && calendarEl._pendingCells) {" +
+                "    calendarEl._pendingCells.delete(resourceId + '::' + '" + columnKey + "');" +
+                "  }" +
                 "  var container = calendarEl.querySelector('[data-fc-component-container]');" +
                 "  if (!container) return;" +
-                // Search within the entire cell (component may be in cushion or directly in td)
                 "  var component = info.el.querySelector(" +
                 "    '[data-rc-resource-id][data-rc-column-key=\"" + columnKey + "\"]'" +
                 "  );" +

@@ -24,6 +24,7 @@ import timeGridPlugin from 'fullcalendar/timegrid';
 import listPlugin from 'fullcalendar/list';
 import multiMonthPlugin from 'fullcalendar/multimonth';
 import classicTheme from 'fullcalendar/themes/classic'; // v7: theme is a plugin; Classic reproduces v6 look + applies event color CSS vars
+import 'fullcalendar/skeleton.css'; // v7 core layout CSS: flexRow/flexCol/position rules for all FC obfuscated class names
 import 'fullcalendar/themes/classic/theme.css'; // v7 Classic: required CSS rules (background-color via --fc-event-color, etc.)
 import rrulePlugin from '@fullcalendar/rrule';
 import momentPlugin from '@fullcalendar/format-moment'; // moment-style format strings (v7: toMoment removed, timezones are built-in)

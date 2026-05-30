@@ -138,21 +138,21 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent); // Step 1: restoreStateFromServer (registers beforeClientResponse)
 
+        if (!attachEvent.isInitialAttach() && !activeComponentColumns.isEmpty()) {
+            // On re-attach, the components are no longer children of the calendar element
+            // (they were moved to a different parent on detach or lost). Re-append them so
+            // the TS connectedCallback can rescue them before FC's init wipe, then place
+            // them in the hidden container after FC re-initializes.
+            attachEvent.getUI().beforeClientResponse(this, ctx -> {
+                for (var col : activeComponentColumns) {
+                    for (var comp : col.getComponents().values()) {
+                        getElement().appendChild(((com.vaadin.flow.component.Component) comp).getElement());
+                    }
+                }
+            });
+        }
+
         if (!attachEvent.isInitialAttach()) {
-            // Step 2: re-append components to calendar element (registered BEFORE Step 3 for FIFO order).
-            // Components are appended directly to the calendar element (not the hidden container)
-            // because FC's Calendar(el) wipes all light DOM children during init. Vaadin re-sends
-            // them via UIDL, and the TS-side ensureComponentContainer() + cellDidMount handle the rest.
-            if (!activeComponentColumns.isEmpty()) {
-                getElement().getNode().runWhenAttached(ui -> {
-                    ui.beforeClientResponse(this, executionContext -> {
-                        for (var col : activeComponentColumns) {
-                            col.getComponents().values().forEach(comp ->
-                                    getElement().appendChild(((com.vaadin.flow.component.Component) comp).getElement()));
-                        }
-                    });
-                });
-            }
 
             // Step 3: re-add resources to FC. Route through the pending-flush pipeline so
             // any user-code add/remove/update calls in the same reattach request are

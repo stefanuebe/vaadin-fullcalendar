@@ -256,11 +256,9 @@ public class ComponentResourceAreaColumnTest {
         Assertions.assertEquals("deadline", json.get("field").asString());
         Assertions.assertEquals("Deadline", json.get("headerContent").asString());
 
-        // auto-generated cellContent
-        Assertions.assertTrue(json.has("cellContent"), "should have cellContent");
-        ObjectNode cellContent = (ObjectNode) json.get("cellContent");
-        Assertions.assertTrue(cellContent.has("__jsCallback"), "cellContent should be a JsCallback marker");
-        Assertions.assertTrue(cellContent.get("__jsCallback").asString().contains("domNodes"));
+        // cellContent is intentionally NOT generated (v7: explicit cellContent disrupts FC's
+        // CSS module layout, causing column cells to stack vertically instead of horizontally)
+        Assertions.assertFalse(json.has("cellContent"), "cellContent must NOT be generated in v7");
 
         // auto-generated cellDidMount
         Assertions.assertTrue(json.has("cellDidMount"), "should have cellDidMount");
@@ -418,7 +416,8 @@ public class ComponentResourceAreaColumnTest {
         ObjectNode componentJson = component.toJson();
 
         Assertions.assertFalse(regularJson.has("cellContent"), "regular column has no cellContent by default");
-        Assertions.assertTrue(componentJson.has("cellContent"), "component column has auto-generated cellContent");
+        // v7: cellContent is intentionally absent (would break column layout)
+        Assertions.assertFalse(componentJson.has("cellContent"), "component column must NOT generate cellContent in v7");
         Assertions.assertTrue(componentJson.has("cellDidMount"), "component column has auto-generated cellDidMount");
     }
 

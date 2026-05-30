@@ -59,6 +59,7 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
         calendar.setOption("initialView", SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
 
+
         // Component columns
         dateColumn = new ComponentResourceAreaColumn<>("deadline", "Deadline",
                 resource -> {
