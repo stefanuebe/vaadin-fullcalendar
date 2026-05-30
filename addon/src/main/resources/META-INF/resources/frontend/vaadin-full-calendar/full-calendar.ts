@@ -307,6 +307,15 @@ export class FullCalendar extends HTMLElement {
             return userViewClass ? clsx(base, userViewClass(data)) : base;
         };
 
+        // v7: buttonHints map { prev, next, today } → individual prevHint/nextHint/todayHint options
+        const buttonHints = (options as any).buttonHints;
+        if (buttonHints && typeof buttonHints === 'object') {
+            if (buttonHints.prev)   (options as any).prevHint  = buttonHints.prev;
+            if (buttonHints.next)   (options as any).nextHint  = buttonHints.next;
+            if (buttonHints.today)  (options as any).todayHint = buttonHints.today;
+            delete (options as any).buttonHints;
+        }
+
         // Evaluate any JsCallback markers in initial options before passing to FC
         for (const key of Object.keys(options)) {
             // Skip function-valued class hooks — they must not be serialised through evaluateCallbacks
@@ -779,6 +788,14 @@ export class FullCalendar extends HTMLElement {
         let calendar = this.calendar;
 
         value = evaluateCallbacks(value);
+
+        // v7: buttonHints { prev, next, today } → individual prevHint/nextHint/todayHint
+        if (key === 'buttonHints' && value && typeof value === 'object') {
+            if (value.prev)  this.setOption('prevHint', value.prev);
+            if (value.next)  this.setOption('nextHint', value.next);
+            if (value.today) this.setOption('todayHint', value.today);
+            return;
+        }
 
         // @ts-ignore
         let oldValue = calendar.getOption(key);

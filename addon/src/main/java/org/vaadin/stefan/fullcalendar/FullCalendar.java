@@ -4032,13 +4032,44 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         /**
          * Accessible labels ({@code aria-label}) for the native FC toolbar buttons.
-         * <dl>
-         *   <dt>Type</dt> <dd>map of button name to hint {@code string} (e.g., {@code Map.of("today", "Go to today")})</dd>
-         * </dl>
+         * Pass a map of button name to hint string, e.g. {@code Map.of("today", "Go to today", "prev", "Previous", "next", "Next")}.
+         * <p>
+         * <b>FC v7 note:</b> {@code buttonHints} was split into individual options
+         * {@code prevHint}, {@code nextHint}, {@code todayHint} in FC v7.
+         * The TS adapter in this addon automatically converts this map to the v7 format,
+         * so existing code continues to work. New code may use
+         * {@link #PREV_HINT}, {@link #NEXT_HINT}, {@link #TODAY_HINT} directly.
          *
-         * @see <a href="https://fullcalendar.io/docs/hints">buttonHints</a>
+         * @see <a href="https://fullcalendar.io/docs/hints">prevHint/nextHint/todayHint</a>
          */
         NATIVE_TOOLBAR_BUTTON_HINTS("buttonHints"),
+
+        /**
+         * Accessible label ({@code aria-label}) for the "previous" toolbar button.
+         * <dl>
+         *   <dt>Type</dt> <dd>{@code string}</dd>
+         * </dl>
+         * @see <a href="https://fullcalendar.io/docs/prevHint">prevHint</a>
+         */
+        PREV_HINT("prevHint"),
+
+        /**
+         * Accessible label ({@code aria-label}) for the "next" toolbar button.
+         * <dl>
+         *   <dt>Type</dt> <dd>{@code string}</dd>
+         * </dl>
+         * @see <a href="https://fullcalendar.io/docs/nextHint">nextHint</a>
+         */
+        NEXT_HINT("nextHint"),
+
+        /**
+         * Accessible label ({@code aria-label}) for the "today" toolbar button.
+         * <dl>
+         *   <dt>Type</dt> <dd>{@code string}</dd>
+         * </dl>
+         * @see <a href="https://fullcalendar.io/docs/todayHint">todayHint</a>
+         */
+        TODAY_HINT("todayHint"),
 
         /**
          * Accessible label for the view-switcher buttons in the native FC toolbar.
