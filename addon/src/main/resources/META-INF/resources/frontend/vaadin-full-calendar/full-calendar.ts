@@ -166,10 +166,6 @@ export class FullCalendar extends HTMLElement {
             }
 
             this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
-            // v7 RC: TimeGrid events stay visibility:hidden because clientHeight/slatInnerHeight aren't measured
-            // until after the first layout pass. Defer updateSize() to the next frame so the browser has
-            // completed layout before FC re-measures.
-            requestAnimationFrame(() => this._calendar?.updateSize());
 
             window.addEventListener('error', (event: ErrorEvent) => {
                 if (event.message && event.message.startsWith('ResizeObserver loop')) {
@@ -178,12 +174,9 @@ export class FullCalendar extends HTMLElement {
                 }
             });
 
-            // v7 RC: TimeGrid event harnessses stay visibility:hidden until updateSize() is triggered.
-            // FC's own ResizeObserver fires on size changes but not always on the initial render cycle.
-            // We call updateSize() on our ResizeObserver to ensure timed events are positioned and shown.
             // @ts-ignore - webpack has problems with the resize observer type
             this._resizeObserver = new ResizeObserver((_entries: any) => {
-                this._calendar?.updateSize();
+                // v7: FC handles size updates automatically via its own ResizeObserver.
             });
             this._resizeObserver.observe(this);
         }
@@ -237,7 +230,7 @@ export class FullCalendar extends HTMLElement {
             rrulePlugin,
             momentPlugin,
             googleCalendarPlugin,
-            iCalendarPlugin
+            iCalendarPlugin as any
         ];
 
         // --- v7 class API: inject stable CSS class names (shared contract with CSS group) ---
