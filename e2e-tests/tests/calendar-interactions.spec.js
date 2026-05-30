@@ -373,9 +373,15 @@ test.describe('Calendar Interaction Tests', () => {
     });
 
     test('should create timed entry in Time Grid Week view', async ({ page }) => {
-      // Click on a time slot to open create dialog
+      // Use mouse events (not .click()) — FC v7 timegrid selection requires synthetic mouse down/up
       const timeSlot = page.locator('.vfc-slot-lane').nth(10); // v7: vfc-slot-lane (was fc-timegrid-slot-lane in v6)
-      await timeSlot.click();
+      await expect(timeSlot).toBeVisible({ timeout: 5000 });
+      const slotBox = await timeSlot.boundingBox();
+      if (slotBox) {
+          await page.mouse.move(slotBox.x + slotBox.width / 2, slotBox.y + slotBox.height / 2);
+          await page.mouse.down();
+          await page.mouse.up();
+      }
       await page.waitForTimeout(1000);
 
       // Fill in entry
@@ -466,8 +472,15 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should delete created entries in Time Grid Week view', async ({ page }) => {
       // First create an entry by clicking on a time slot
+      // Use mouse events (not .click()) — FC v7 timegrid selection requires synthetic mouse down/up
       const timeSlot = page.locator('.vfc-slot-lane').nth(15); // v7: vfc-slot-lane (was fc-timegrid-slot-lane in v6)
-      await timeSlot.click();
+      await expect(timeSlot).toBeVisible({ timeout: 5000 });
+      const slotBox = await timeSlot.boundingBox();
+      if (slotBox) {
+          await page.mouse.move(slotBox.x + slotBox.width / 2, slotBox.y + slotBox.height / 2);
+          await page.mouse.down();
+          await page.mouse.up();
+      }
       await page.waitForTimeout(1000);
 
       const titleInput = page.locator('vaadin-text-field input').first();
