@@ -71,9 +71,8 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
         calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_FIELD, "department");
 
         // 3. Add CSS class to group header rows via JS callback
-        // Use raw string key because SchedulerOption.RESOURCE_GROUP_CLASS_NAMES maps to a
-        // non-existent FC option. The correct FC v6 option is "resourceGroupLabelClassNames".
-        calendar.setOption("resourceGroupLabelClassNames",
+        // v7: resourceGroupLabelClassNames → resourceGroupHeaderClass
+        calendar.setOption("resourceGroupHeaderClass",
                 JsCallback.of("function(arg) { return ['custom-group']; }"));
 
         // --- Resources ---

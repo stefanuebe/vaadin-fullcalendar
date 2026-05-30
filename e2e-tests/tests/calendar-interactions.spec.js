@@ -374,7 +374,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should create timed entry in Time Grid Week view', async ({ page }) => {
       // Click on a time slot to open create dialog
-      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(10); // TODO-v7-verify: .fc-timegrid-slot-lane
+      const timeSlot = page.locator('.vfc-slot-lane').nth(10); // v7: vfc-slot-lane (was fc-timegrid-slot-lane in v6)
       await timeSlot.click();
       await page.waitForTimeout(1000);
 
@@ -466,7 +466,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should delete created entries in Time Grid Week view', async ({ page }) => {
       // First create an entry by clicking on a time slot
-      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(15); // TODO-v7-verify: .fc-timegrid-slot-lane
+      const timeSlot = page.locator('.vfc-slot-lane').nth(15); // v7: vfc-slot-lane (was fc-timegrid-slot-lane in v6)
       await timeSlot.click();
       await page.waitForTimeout(1000);
 

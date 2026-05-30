@@ -277,6 +277,9 @@ export class FullCalendar extends HTMLElement {
         const serverSlotHeaderClass = (options as any).slotHeaderClass;
         (options as any).slotHeaderClass = clsx('vfc-slot-header', serverSlotHeaderClass);
 
+        const serverSlotLaneClass = (options as any).slotLaneClass;
+        (options as any).slotLaneClass = clsx('vfc-slot-lane', serverSlotLaneClass);
+
         const serverListDayHeaderClass = evaluateCallbacks((options as any).listDayHeaderClass);
         const userListDayHeaderClass = typeof serverListDayHeaderClass === 'function' ? serverListDayHeaderClass : null;
         (options as any).listDayHeaderClass = (data: any) => {

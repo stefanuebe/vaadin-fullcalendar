@@ -69,7 +69,7 @@ test.describe('Interaction Callbacks', () => {
 
         // Hover over the event to make the resize handle visible (FC shows it on hover)
         await resizeEvent.hover();
-        const handle = resizeEvent.locator('.fc-event-resizer-end'); // TODO-v7-verify: .fc-event-resizer-end (resize handle sub-element of .vfc-event)
+        const handle = resizeEvent.locator('.fc-PM'); // v7: fc-PM = internalEventResizerEnd (was fc-event-resizer-end in v6)
         await expect(handle).toBeVisible({ timeout: 5000 });
         const handleBox = await handle.boundingBox();
         if (!handleBox) throw new Error('Could not get bounding box for resize handle');
@@ -198,7 +198,7 @@ test.describe('Interaction Callbacks', () => {
 
         const resizeEvent = page.locator('.vfc-event:has-text("Resize Me")').first();
         await resizeEvent.hover();
-        const handle = resizeEvent.locator('.fc-event-resizer-end'); // TODO-v7-verify: .fc-event-resizer-end (resize handle sub-element of .vfc-event)
+        const handle = resizeEvent.locator('.fc-PM'); // v7: fc-PM = internalEventResizerEnd (was fc-event-resizer-end in v6)
         await expect(handle).toBeVisible({ timeout: 5000 });
         const handleBox = await handle.boundingBox();
         if (!handleBox) throw new Error('Could not get bounding box for resize handle');
@@ -215,7 +215,7 @@ test.describe('Interaction Callbacks', () => {
     test('entry resized data: title contains Resize Me', async ({ page }) => {
         const resizeEvent = page.locator('.vfc-event:has-text("Resize Me")').first();
         await resizeEvent.hover();
-        const handle = resizeEvent.locator('.fc-event-resizer-end'); // TODO-v7-verify: .fc-event-resizer-end (resize handle sub-element of .vfc-event)
+        const handle = resizeEvent.locator('.fc-PM'); // v7: fc-PM = internalEventResizerEnd (was fc-event-resizer-end in v6)
         await expect(handle).toBeVisible({ timeout: 5000 });
         const handleBox = await handle.boundingBox();
         if (!handleBox) throw new Error('Could not get bounding box');

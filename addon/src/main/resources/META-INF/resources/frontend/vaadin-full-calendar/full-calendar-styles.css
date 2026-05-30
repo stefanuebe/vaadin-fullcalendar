@@ -1,6 +1,13 @@
 @import "full-calendar-theme-vaadin.css";
 
 /* FIXES AND WORKAROUNDS */
+/* skeleton.css uses display:flex !important on fc-iT which overrides [hidden] display:none.
+   Restore Vaadin's setVisible(false) behaviour with an element+attribute selector. */
+vaadin-full-calendar[hidden], vaadin-full-calendar-scheduler[hidden] {
+    display: none !important;
+}
+
+
 /* FC v7 RC: TimeGrid event harnessses (position:absolute wrappers) start with visibility:hidden
    from FC's pre-layout state. If the slot-height measurement never completes (e.g. first render
    race), events stay invisible. Override visibility on .vfc-event in TimeGrid views only.
