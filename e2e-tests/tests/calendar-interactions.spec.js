@@ -374,10 +374,17 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should create timed entry in Time Grid Week view', async ({ page }) => {
       // FC v7's timegrid doesn't respond to Playwright synthetic mouse events for slot selection.
-      // Use FC's programmatic dateClick trigger to simulate a timeslot click.
+      // Use FC's programmatic select() API which fires the select/timeslotsSelected event.
+      // Use calendar's current date so the entry is in the visible week.
       await page.evaluate(() => {
-          const cal = (document.querySelector('vaadin-full-calendar') as any)?.calendar;
-          if (cal) cal.trigger('dateClick', { date: new Date('2025-03-05T10:00:00Z'), dateStr: '2025-03-05T10:00:00', allDay: false, jsEvent: {}, view: cal.view });
+          const el = document.querySelector('vaadin-full-calendar');
+          const cal = el && el.calendar;
+          if (cal) {
+              const now = cal.getDate();
+              const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0, 0);
+              const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 11, 0, 0);
+              cal.select(start, end);
+          }
       });
       await page.waitForTimeout(1000);
 
@@ -468,11 +475,12 @@ test.describe('Calendar Interaction Tests', () => {
     });
 
     test('should delete created entries in Time Grid Week view', async ({ page }) => {
-      // First create an entry by triggering dateClick programmatically
+      // First create an entry via FC's programmatic select() API
       // FC v7's timegrid doesn't respond to Playwright synthetic mouse events for slot selection.
       await page.evaluate(() => {
-          const cal = (document.querySelector('vaadin-full-calendar') as any)?.calendar;
-          if (cal) cal.trigger('dateClick', { date: new Date('2025-03-05T11:00:00Z'), dateStr: '2025-03-05T11:00:00', allDay: false, jsEvent: {}, view: cal.view });
+          const el = document.querySelector('vaadin-full-calendar');
+          const cal = el && el.calendar;
+          if (cal) cal.select('2025-03-05T11:00:00', '2025-03-05T12:00:00');
       });
       await page.waitForTimeout(1000);
 
