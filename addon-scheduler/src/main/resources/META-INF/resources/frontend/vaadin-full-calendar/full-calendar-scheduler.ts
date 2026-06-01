@@ -30,23 +30,40 @@ export class FullCalendarScheduler extends FullCalendar {
     private _componentObserver: MutationObserver | null = null;
 
     connectedCallback() {
-        // BEFORE super.connectedCallback: FC's Calendar(this) wipes ALL DOM children.
-        // Rescue any Vaadin component elements that Vaadin inserted into our light DOM.
-        // They have data-rc-resource-id so we can re-insert them after FC's init.
+        // Rescue Vaadin component elements before FC's Calendar(this) wipes all DOM children.
+        // FC wipes this.children synchronously inside super.connectedCallback().
         const rescued = Array.from(this.querySelectorAll('[data-rc-resource-id]')) as HTMLElement[];
 
-        super.connectedCallback();
-        // FC has now initialized and wiped the DOM. Re-create the hidden container.
-        const container = this.ensureComponentContainer();
-        // Re-insert rescued components into the hidden container so cellDidMount can find them.
-        rescued.forEach(el => {
-            el.style.display = 'none';
-            container.appendChild(el);
-        });
+        // Clear pending cells here — they will be re-populated by cellDidMount during render().
+        // Do NOT clear inside _setupComponentObserver: that runs after render() and would erase
+        // the cells that cellDidMount just registered.
+        this._pendingCells.clear();
 
-        // Watch for Vaadin component elements appended AFTER connectedCallback
-        // (e.g. dynamically-added resources). subtree:true catches them wherever they land.
+        super.connectedCallback();
+
+        // FC has now initialized and rendered. Cells are in _pendingCells.
+        const container = this.ensureComponentContainer();
+
+        // Set up the observer BEFORE processing rescued elements so any components that Vaadin
+        // adds asynchronously (after connectedCallback returns) are caught automatically.
         this._setupComponentObserver();
+
+        // Place rescued elements directly and synchronously — no MutationObserver round-trip needed.
+        for (const el of rescued) {
+            const resourceId = el.getAttribute('data-rc-resource-id')!;
+            const columnKey = el.getAttribute('data-rc-column-key')!;
+            const cellKey = `${resourceId}::${columnKey}`;
+            const cellEl = this._pendingCells.get(cellKey);
+            if (cellEl) {
+                cellEl.appendChild(el);
+                el.style.display = '';
+                this._pendingCells.delete(cellKey);
+            } else {
+                // Cell not yet known — park in hidden container; cellDidMount will pick it up.
+                el.style.display = 'none';
+                container.appendChild(el);
+            }
+        }
     }
 
     disconnectedCallback() {
@@ -68,7 +85,9 @@ export class FullCalendarScheduler extends FullCalendar {
 
     private _setupComponentObserver() {
         this._componentObserver?.disconnect();
-        this._pendingCells.clear();
+        // _pendingCells is intentionally NOT cleared here. It is cleared at the start of
+        // connectedCallback() before super.connectedCallback() runs, so that cellDidMount
+        // can populate it freshly. Clearing here would erase those registrations.
         this._componentObserver = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 for (const node of mutation.addedNodes) {
@@ -104,7 +123,10 @@ export class FullCalendarScheduler extends FullCalendar {
             el.style.display = '';
             this._pendingCells.delete(cellKey);
         } else {
-            // No pending cell yet — move to hidden container so cellDidMount can find it later
+            // No pending cell yet — move to hidden container so cellDidMount can find it later.
+            // Do NOT move if already inside this element (e.g. as a direct child after Vaadin appended
+            // it, or inside a cell after cellDidMount placed it) — cellDidMount will find it there via
+            // document.querySelector. Moving it back would undo placement done by cellDidMount.
             const container = this.querySelector('[data-fc-component-container]');
             if (container && !this.contains(el)) {
                 el.style.display = 'none';
