@@ -58,6 +58,8 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
         calendar.getElement().setAttribute("data-testid", "calendar");
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
         calendar.setOption("initialView", SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
+        // Name(150) + Deadline(160) + Notes(150) = 460px; FC v7 default 30% ~384px → columns overflow
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "480px");
 
 
         // Component columns

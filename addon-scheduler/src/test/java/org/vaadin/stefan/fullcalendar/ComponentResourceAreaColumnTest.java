@@ -273,6 +273,8 @@ public class ComponentResourceAreaColumnTest {
                 "should escape resource IDs");
         Assertions.assertTrue(didMountJs.contains("deadline"),
                 "should contain the column key");
+        Assertions.assertTrue(didMountJs.contains("firstElementChild"),
+                "should mount into inner wrapper (firstElementChild) to avoid being pushed below FC's own div");
 
         // auto-generated cellWillUnmount
         Assertions.assertTrue(json.has("cellWillUnmount"), "should have cellWillUnmount");

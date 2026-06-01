@@ -406,16 +406,20 @@ public class ComponentResourceAreaColumn<T extends Component> extends ResourceAr
                 "  var resourceId = info.resource && info.resource.id;" +
                 "  if (!resourceId) return;" +
                 "  var cellKey = resourceId + '::' + '" + columnKey + "';" +
-                // Search the entire document — virtual children may be in a flow-component-renderer
-                // sibling or in the hidden container inside the calendar
+                // In FC v7 the cell outer div (info.el) is a column-flex container whose first
+                // child is FC's inner wrapper div. Appending directly to info.el places the
+                // component as a second column item, pushing it below the visible 36px row height.
+                // Appending to the inner wrapper (firstElementChild) keeps it in the same row-flex
+                // context as the cell content, so the component appears at the top of the cell.
+                "  var mountTarget = info.el.firstElementChild || info.el;" +
                 "  var component = document.querySelector(" +
                 "    '[data-rc-resource-id=\"' + CSS.escape(resourceId) + '\"][data-rc-column-key=\"" + columnKey + "\"]'" +
                 "  );" +
                 "  if (component) {" +
-                "    info.el.appendChild(component);" +
+                "    mountTarget.appendChild(component);" +
                 "    component.style.display = '';" +
                 "  } else if (calendarEl._pendingCells) {" +
-                "    calendarEl._pendingCells.set(cellKey, info.el);" +
+                "    calendarEl._pendingCells.set(cellKey, mountTarget);" +
                 "  }" +
                 "}"
         ).toMarkerJson());
