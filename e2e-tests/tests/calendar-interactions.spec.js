@@ -80,8 +80,13 @@ test.describe('Calendar Interaction Tests', () => {
   test.describe('Create New Entries', () => {
 
     test('should create a new all-day entry by clicking empty cell', async ({ page }) => {
-      // Click on an empty day cell to open create dialog
-      const dayFrame = page.locator('.vfc-day-cell').nth(5); // TODO-v7-verify: .fc-daygrid-day-frame
+      // Click on tomorrow's cell — always free (Short trip starts today+2, meeting is timed today)
+      // Using data-date avoids nth()-index drift caused by today's fc-ti overlay covering neighbors.
+      const tomorrowStr = await page.evaluate(() => {
+        const d = new Date(); d.setDate(d.getDate() + 1);
+        return d.toISOString().split('T')[0];
+      });
+      const dayFrame = page.locator(`.vfc-day-cell[data-date="${tomorrowStr}"]`);
       await dayFrame.click();
       await page.waitForTimeout(1000);
 
