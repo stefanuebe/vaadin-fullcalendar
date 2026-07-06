@@ -20,6 +20,7 @@ import lombok.Getter;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ import java.util.UUID;
  * @param <S> concrete subtype for fluent chaining
  */
 @Getter
-public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> {
+public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> implements Serializable {
 
     /**
      * Developer-assigned ID. Auto-generated UUID if not set.
