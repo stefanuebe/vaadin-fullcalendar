@@ -62,4 +62,25 @@ public class SchedulerSerializationTest {
         resource.addExtendedProps("capacity", 42);
         assertNotNull(roundtrip(resource));
     }
+
+    @Test
+    void schedulerWithComponentResourceAreaColumnIsSerializable() throws Exception {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        calendar.addResource(new Resource("r1", "Room A", "#ff0000"));
+
+        // component column keeps a SerializableFunction factory + a back-ref to the calendar and,
+        // once a resource exists, a created Vaadin component in the hidden container
+        calendar.setResourceAreaColumns(
+                new ComponentResourceAreaColumn<>("title", "Title",
+                        resource -> new com.vaadin.flow.component.html.Span(resource.getTitle())));
+
+        assertNotNull(roundtrip(calendar));
+    }
+
+    @Test
+    void schedulerWithSchedulerViewIsSerializable() throws Exception {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        calendar.changeView(SchedulerView.RESOURCE_TIMELINE_DAY);
+        assertNotNull(roundtrip(calendar));
+    }
 }
