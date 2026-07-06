@@ -3,6 +3,7 @@ package org.vaadin.stefan.fullcalendar;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -13,7 +14,7 @@ import java.util.Objects;
  * next day. Basically a simple variant of Duration with a specific purpose.
  */
 @Getter
-public final class RecurringTime {
+public final class RecurringTime implements Serializable {
     private final int hour;
     private final int minute;
 

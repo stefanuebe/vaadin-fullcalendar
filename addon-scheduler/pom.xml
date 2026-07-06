@@ -87,6 +87,13 @@
         </dependency>
 
         <dependency>
+            <!-- Vaadin's Component.writeObject references servlet session interfaces; needed on the
+                 test classpath to exercise real component serialization (see SchedulerSerializationTest). -->
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>

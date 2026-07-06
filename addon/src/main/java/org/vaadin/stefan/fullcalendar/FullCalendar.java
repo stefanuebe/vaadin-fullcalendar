@@ -96,15 +96,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private static final String INITIAL_OPTIONS = "initialOptions";
 
     /**
-     * Maximum number of entries to cache. This prevents unbounded memory growth in long-running applications.
+     * Caches the entries of the last client fetch for entry based events. Cleared and repopulated
+     * on every {@link #fetchEntriesFromServer(ObjectNode)}, so it only ever holds one viewport worth.
      */
-    private static final int MAX_CACHED_ENTRIES = 10000;
-
-    /**
-     * Caches the last fetched entries for entry based events.
-     * Uses a bounded LinkedHashMap to prevent unbounded memory growth.
-     */
-    private final Map<String, Entry> lastFetchedEntries = createBoundedEntryCache();
+    private final Map<String, Entry> lastFetchedEntries = new HashMap<>();
     private final Map<String, Object> options = new HashMap<>();
 
     /**
@@ -138,12 +133,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private LocalDate currentIntervalEnd;
     private CalendarView currentView;
 
-    private volatile boolean refreshAllEntriesRequested;
-    private final Object refreshLock = new Object();
+    // only ever accessed under the Vaadin session lock (all component mutation is), so no extra guarding needed
+    private boolean refreshAllEntriesRequested;
 
     private final Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
-    private volatile JsCallback userEntryDidMountCallback;
-    private volatile boolean autoProvideEntryIdOnClient = true;
+    private JsCallback userEntryDidMountCallback;
+    private boolean autoProvideEntryIdOnClient = true;
 
     /**
      * Server-side registry of client-managed event sources, keyed by source id.
@@ -160,7 +155,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Whether to automatically revert client-side entry changes when
      * {@link EntryDataEvent#applyChangesOnEntry()} is not called. Default is {@code true}.
      */
-    private volatile boolean autoRevertUnappliedEntryChanges = true;
+    private boolean autoRevertUnappliedEntryChanges = true;
 
     // ---- View-Specific Options ----
     private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
@@ -386,36 +381,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(entryProvider);
 
         if (this.entryProvider != entryProvider) {
-            // Remove old listeners first to ensure cleanup even if setCalendar throws
             entryProviderDataListeners.forEach(Registration::remove);
             entryProviderDataListeners.clear();
 
-            EntryProvider<? extends Entry> oldProvider = this.entryProvider;
-            try {
-                if (oldProvider != null) {
-                    oldProvider.setCalendar(null);
-                }
-
-                this.entryProvider = entryProvider;
-                entryProvider.setCalendar(this);
-
-                entryProviderDataListeners.add(entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
-                entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAllEntries()));
-            } catch (RuntimeException e) {
-                // Restore old provider on failure to maintain consistent state
-                this.entryProvider = oldProvider;
-                if (oldProvider != null) {
-                    try {
-                        oldProvider.setCalendar(this);
-                        entryProviderDataListeners.add(oldProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
-                        entryProviderDataListeners.add(oldProvider.addEntriesChangeListener(event -> requestRefreshAllEntries()));
-                    } catch (RuntimeException restoreException) {
-                        // Log and suppress restore exception, throw original
-                        e.addSuppressed(restoreException);
-                    }
-                }
-                throw e;
+            if (this.entryProvider != null) {
+                this.entryProvider.setCalendar(null);
             }
+
+            this.entryProvider = entryProvider;
+            entryProvider.setCalendar(this);
+
+            entryProviderDataListeners.add(entryProvider.addEntryRefreshListener(event -> requestRefresh(event.getItemToRefresh())));
+            entryProviderDataListeners.add(entryProvider.addEntriesChangeListener(event -> requestRefreshAllEntries()));
         }
     }
 
@@ -463,18 +440,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * they are called, whereas only the first call of this method is relevant.
      */
     protected void requestRefreshAllEntries() {
-        synchronized (refreshLock) {
-            if (!refreshAllEntriesRequested) {
-                refreshAllEntriesRequested = true;
-                getElement().getNode().runWhenAttached(ui -> {
-                    ui.beforeClientResponse(this, pExecutionContext -> {
-                        getElement().callJsFunction("refreshAllEvents");
-                        synchronized (refreshLock) {
-                            refreshAllEntriesRequested = false;
-                        }
-                    });
+        if (!refreshAllEntriesRequested) {
+            refreshAllEntriesRequested = true;
+            getElement().getNode().runWhenAttached(ui -> {
+                ui.beforeClientResponse(this, pExecutionContext -> {
+                    getElement().callJsFunction("refreshAllEvents");
+                    refreshAllEntriesRequested = false;
                 });
-            }
+            });
         }
     }
 
@@ -2735,20 +2708,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             setOption("views", viewsNode);
         }
     }
-
-    /**
-     * Creates a bounded LinkedHashMap for caching entries.
-     * This is a separate method to avoid type name conflicts with java.util.Map.Entry.
-     */
-    private static Map<String, Entry> createBoundedEntryCache() {
-        return new LinkedHashMap<String, org.vaadin.stefan.fullcalendar.Entry>(16, 0.75f, true) {
-            @Override
-            protected boolean removeEldestEntry(java.util.Map.Entry<String, org.vaadin.stefan.fullcalendar.Entry> eldest) {
-                return size() > MAX_CACHED_ENTRIES;
-            }
-        };
-    }
-
 
     /**
      * Enumeration of options that can be applied to the calendar via
