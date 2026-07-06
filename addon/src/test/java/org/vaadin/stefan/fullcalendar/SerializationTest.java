@@ -92,4 +92,20 @@ public class SerializationTest {
         entry.setCustomProperty("foo", "bar");
         assertNotNull(roundtrip(entry));
     }
+
+    @Test
+    void calendarWithClientSideEventSourcesIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        calendar.addClientSideEventSource(new JsonFeedEventSource("/api/events").withEditable(true));
+        calendar.addClientSideEventSource(new ICalendarEventSource("/feed.ics"));
+        calendar.addClientSideEventSource(new GoogleCalendarEventSource("cal-id").withApiKey("api-key"));
+        assertNotNull(roundtrip(calendar));
+    }
+
+    @Test
+    void calendarWithDraggableIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        calendar.addDraggable(new Draggable(new com.vaadin.flow.component.html.Span("drag me")));
+        assertNotNull(roundtrip(calendar));
+    }
 }
