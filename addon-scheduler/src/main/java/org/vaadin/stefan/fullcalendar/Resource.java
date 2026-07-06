@@ -22,6 +22,7 @@ import lombok.Getter;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
  */
 @Getter
 @EqualsAndHashCode(of = "id")
-public class Resource {
+public class Resource implements Serializable {
 
     /**
      * The id of this resource.
