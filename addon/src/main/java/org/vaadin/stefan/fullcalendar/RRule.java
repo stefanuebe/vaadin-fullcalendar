@@ -22,6 +22,7 @@ import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 import elemental.json.JsonValue;
 
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,7 +56,7 @@ import java.util.stream.Stream;
  * @see <a href="https://fullcalendar.io/docs/rrule-plugin">FC rrule plugin documentation</a>
  */
 @Getter
-public class RRule {
+public class RRule implements Serializable {
 
     /**
      * The recurrence frequency. Maps to FC's {@code freq} property.

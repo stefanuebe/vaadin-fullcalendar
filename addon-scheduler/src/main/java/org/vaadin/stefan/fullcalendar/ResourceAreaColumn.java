@@ -19,6 +19,8 @@ package org.vaadin.stefan.fullcalendar;
 import lombok.NonNull;
 import elemental.json.JsonObject;
 
+import java.io.Serializable;
+
 /**
  * Represents a column definition for the resource area sidebar in timeline and vertical resource views.
  * When {@link Scheduler#setResourceAreaColumns(java.util.List) resourceAreaColumns} is configured,
@@ -41,7 +43,7 @@ import elemental.json.JsonObject;
  * @see Scheduler#setResourceAreaColumns(java.util.List)
  * @see <a href="https://fullcalendar.io/docs/resourceAreaColumns">FullCalendar resourceAreaColumns</a>
  */
-public class ResourceAreaColumn {
+public class ResourceAreaColumn implements Serializable {
 
     private final String field;
     private Object headerContent; // String or JsCallback

@@ -22,6 +22,7 @@ import lombok.Getter;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -34,7 +35,7 @@ import java.util.*;
  */
 @Getter
 @EqualsAndHashCode(of = "id")
-public class Resource {
+public class Resource implements Serializable {
 
     /**
      * The id of this resource.

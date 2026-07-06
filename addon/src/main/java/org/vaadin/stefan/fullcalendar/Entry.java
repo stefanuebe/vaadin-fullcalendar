@@ -35,6 +35,7 @@ import elemental.json.JsonObject;
 import elemental.json.JsonType;
 import elemental.json.JsonValue;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.time.*;
 import java.util.*;
@@ -44,7 +45,7 @@ import java.util.stream.Stream;
 @lombok.Setter // prevent conflicts with Vaadin Setter
 @EqualsAndHashCode(of = "id")
 @FieldNameConstants
-public class Entry {
+public class Entry implements Serializable {
 
     private static final Set<BeanProperties<Entry>> PROPERTIES = BeanProperties.read(Entry.class);
 

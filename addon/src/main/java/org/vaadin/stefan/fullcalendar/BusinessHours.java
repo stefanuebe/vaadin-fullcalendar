@@ -20,6 +20,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import elemental.json.JsonObject;
 
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.*;
@@ -35,7 +36,7 @@ import java.util.stream.Stream;
  */
 @EqualsAndHashCode
 @ToString
-public class BusinessHours {
+public class BusinessHours implements Serializable {
     /**
      * Represents all days of week.
      */
