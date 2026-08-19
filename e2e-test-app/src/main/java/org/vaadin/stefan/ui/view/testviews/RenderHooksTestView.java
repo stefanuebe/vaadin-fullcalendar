@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -80,6 +81,26 @@ public class RenderHooksTestView extends VerticalLayout {
         // --- allDayClassNames: all-day row header gets 'hook-allday' (timegrid only) ---
         calendar.setOption(FullCalendar.Option.ALL_DAY_CLASS_NAMES,
                 JsCallback.of("function(info) { return ['hook-allday']; }"));
+
+        // --- entryClassNames: every entry gets 'hook-entry' ---
+        // Set before attach, so this goes out as an initial option. The addon's own 'vfc-*' classes
+        // have to survive alongside it — see buildEntryClass() in full-calendar.ts.
+        calendar.setOption(FullCalendar.Option.ENTRY_CLASS_NAMES,
+                JsCallback.of("function(info) { return ['hook-entry']; }"));
+
+        // The same option set after attach travels the other route (callJsFunction -> setOption),
+        // which used to drop the vfc-* classes entirely.
+        Button entryClassCallback = new Button("Entry class via callback", e ->
+                calendar.setOption(FullCalendar.Option.ENTRY_CLASS_NAMES,
+                        JsCallback.of("function(info) { return ['hook-entry-runtime']; }")));
+        entryClassCallback.setId("set-entry-class-callback");
+
+        // A plain string instead of a JsCallback — used to blow up at render time.
+        Button entryClassString = new Button("Entry class via string", e ->
+                calendar.setOption(FullCalendar.Option.ENTRY_CLASS_NAMES, "hook-entry-string"));
+        entryClassString.setId("set-entry-class-string");
+
+        add(entryClassCallback, entryClassString);
 
         add(calendar);
         setFlexGrow(1, calendar);

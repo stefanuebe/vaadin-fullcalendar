@@ -18,35 +18,34 @@ base.describe('Per-Entry Editable Flags', () => {
         await gotoConstraintView(page);
     });
 
-    base('locked entry (editable=false) is not draggable — no fc-DD class', async ({ page }) => {
+    base('locked entry (editable=false) is not draggable', async ({ page }) => {
         const locked = page.locator('.vfc-event:has-text("Locked Entry")').first();
         await expect(locked).toBeVisible();
-        // v7: FC uses fc-DD (internalEventDraggable) class for draggable entries
+        // vfc-draggable mirrors FC's own isDraggable state — see buildEntryClass() in full-calendar.ts
         const classes = await locked.getAttribute('class');
-        expect(classes).not.toContain('fc-DD');
+        expect(classes).not.toContain('vfc-draggable');
     });
 
-    base('normal entry has fc-DD draggable class', async ({ page }) => {
+    base('normal entry is draggable', async ({ page }) => {
         const normal = page.locator('.vfc-event:has-text("Normal Entry")').first();
         await expect(normal).toBeVisible();
         const classes = await normal.getAttribute('class');
-        expect(classes).toContain('fc-DD');
+        expect(classes).toContain('vfc-draggable');
     });
 
-    base('startEditable=false entry has no fc-DD draggable class', async ({ page }) => {
+    base('startEditable=false entry is not draggable', async ({ page }) => {
         const noStart = page.locator('.vfc-event:has-text("No Start Edit")').first();
         await expect(noStart).toBeVisible();
         const classes = await noStart.getAttribute('class');
-        expect(classes).not.toContain('fc-DD');
+        expect(classes).not.toContain('vfc-draggable');
     });
 
-    base('startEditable=false entry still has resize handle', async ({ page }) => {
+    base('startEditable=false entry is still resizable', async ({ page }) => {
         const noStart = page.locator('.vfc-event:has-text("No Start Edit")').first();
-        await noStart.hover();
-        // v7: resize handles use fc-aL (internalEventResizer) class
-        const resizer = noStart.locator('.fc-aL');
-        const count = await resizer.count();
-        expect(count).toBeGreaterThanOrEqual(1);
+        await expect(noStart).toBeVisible();
+        // startEditable only locks the start — the duration stays editable
+        const classes = await noStart.getAttribute('class');
+        expect(classes).toContain('vfc-resizable-end');
     });
 });
 

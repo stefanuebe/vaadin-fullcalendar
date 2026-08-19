@@ -1,6 +1,6 @@
 // @ts-check
 const { test } = require('@playwright/test');
-const { expect, waitForVaadin } = require('./fixtures');
+const { expect, waitForVaadin, resizeEntry } = require('./fixtures');
 
 /**
  * Navigate to the interaction callbacks test view and wait for the calendar to render.
@@ -67,21 +67,8 @@ test.describe('Interaction Callbacks', () => {
         await expect(page.locator('#resize-start-count')).toHaveText('0');
         await expect(page.locator('#resize-stop-count')).toHaveText('0');
 
-        // Hover over the event to make the resize handle visible (FC shows it on hover)
-        await resizeEvent.hover();
-        const handle = resizeEvent.locator('.fc-PM'); // v7: fc-PM = internalEventResizerEnd (was fc-event-resizer-end in v6)
-        await expect(handle).toBeVisible({ timeout: 5000 });
-        const handleBox = await handle.boundingBox();
-        if (!handleBox) throw new Error('Could not get bounding box for resize handle');
-
-        await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
-        await page.mouse.down();
-        await page.mouse.move(
-            handleBox.x + handleBox.width / 2,
-            handleBox.y + handleBox.height / 2 + 10,
-            { steps: 3 }
-        );
-        await page.mouse.up();
+        await expect(resizeEvent).toHaveClass(/vfc-resizable-end/);
+        await resizeEntry(page, resizeEvent, 10);
 
         await expect(page.locator('#resize-start-count')).toHaveText('1', { timeout: 5000 });
         await expect(page.locator('#resize-stop-count')).toHaveText('1', { timeout: 5000 });
@@ -197,16 +184,8 @@ test.describe('Interaction Callbacks', () => {
         await expect(page.locator('#entry-resized-count')).toHaveText('0');
 
         const resizeEvent = page.locator('.vfc-event:has-text("Resize Me")').first();
-        await resizeEvent.hover();
-        const handle = resizeEvent.locator('.fc-PM'); // v7: fc-PM = internalEventResizerEnd (was fc-event-resizer-end in v6)
-        await expect(handle).toBeVisible({ timeout: 5000 });
-        const handleBox = await handle.boundingBox();
-        if (!handleBox) throw new Error('Could not get bounding box for resize handle');
-
-        await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
-        await page.mouse.down();
-        await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2 + 30, { steps: 5 });
-        await page.mouse.up();
+        await expect(resizeEvent).toHaveClass(/vfc-resizable-end/);
+        await resizeEntry(page, resizeEvent, 30);
         await waitForVaadin(page);
 
         await expect(page.locator('#entry-resized-count')).toHaveText('1', { timeout: 5000 });
@@ -214,16 +193,8 @@ test.describe('Interaction Callbacks', () => {
 
     test('entry resized data: title contains Resize Me', async ({ page }) => {
         const resizeEvent = page.locator('.vfc-event:has-text("Resize Me")').first();
-        await resizeEvent.hover();
-        const handle = resizeEvent.locator('.fc-PM'); // v7: fc-PM = internalEventResizerEnd (was fc-event-resizer-end in v6)
-        await expect(handle).toBeVisible({ timeout: 5000 });
-        const handleBox = await handle.boundingBox();
-        if (!handleBox) throw new Error('Could not get bounding box');
-
-        await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
-        await page.mouse.down();
-        await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2 + 30, { steps: 5 });
-        await page.mouse.up();
+        await expect(resizeEvent).toHaveClass(/vfc-resizable-end/);
+        await resizeEntry(page, resizeEvent, 30);
         await waitForVaadin(page);
 
         await expect(page.locator('#resized-entry-title')).toHaveText('Resize Me', { timeout: 5000 });

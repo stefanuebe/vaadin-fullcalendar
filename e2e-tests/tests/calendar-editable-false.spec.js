@@ -28,8 +28,8 @@ test.describe('Calendar-level editable=false (#212)', () => {
         const events = page.locator('.vfc-event');
         await expect(events).toHaveCount(2);
 
-        // v7: draggable entries carry fc-DD (internalEventDraggable) — none should have it when editable=false
-        const draggable = page.locator('.vfc-event.fc-DD');
+        // vfc-draggable mirrors FC's own isDraggable state — see buildEntryClass() in full-calendar.ts
+        const draggable = page.locator('.vfc-event.vfc-draggable');
         await expect(draggable).toHaveCount(0);
     });
 });

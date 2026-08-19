@@ -1,8 +1,9 @@
 @import "full-calendar-theme-vaadin.css";
 
 /* FIXES AND WORKAROUNDS */
-/* skeleton.css uses display:flex !important on fc-iT which overrides [hidden] display:none.
-   Restore Vaadin's setVisible(false) behaviour with an element+attribute selector. */
+/* skeleton.css sets display:flex !important on the calendar root, which overrides [hidden]
+   display:none. Restore Vaadin's setVisible(false) behaviour with an element+attribute selector.
+   (The root's own class is an obfuscated CSS-module name and must not be referenced.) */
 vaadin-full-calendar[hidden], vaadin-full-calendar-scheduler[hidden] {
     display: none !important;
 }

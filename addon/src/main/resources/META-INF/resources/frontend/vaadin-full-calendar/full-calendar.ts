@@ -139,7 +139,10 @@ export class FullCalendar extends HTMLElement {
 
                 // Entry render hooks: inject getCustomProperty via info.event
                 const entryInfoHooks = ['eventClass', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
-                if (entryInfoHooks.includes(key)) {
+                if (key === 'eventClass') {
+                    // Re-apply the vfc-* contract — a plain setOption would drop it (see buildEntryClass)
+                    _setOptionCallbackWithCustomApi.call(this._calendar, key, this.buildEntryClass(value));
+                } else if (entryInfoHooks.includes(key)) {
                     // in these cases add custom api to the event to allow for instance accessing custom properties
                     _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
                 // eventOverlap(stillEvent, movingEvent) — two direct event args
@@ -236,8 +239,7 @@ export class FullCalendar extends HTMLElement {
 
         // --- v7 class API: inject stable CSS class names (shared contract with CSS group) ---
         // These merge with any server-supplied *Class values from initialOptions.
-        const serverEventClass = (options as any).eventClass;
-        (options as any).eventClass = clsx('vfc-event', serverEventClass);
+        (options as any).eventClass = this.buildEntryClass(evaluateCallbacks((options as any).eventClass));
 
         const serverBgEventClass = (options as any).backgroundEventClass;
         (options as any).backgroundEventClass = clsx('vfc-bg-event', serverBgEventClass);
@@ -319,7 +321,7 @@ export class FullCalendar extends HTMLElement {
         // Evaluate any JsCallback markers in initial options before passing to FC
         for (const key of Object.keys(options)) {
             // Skip function-valued class hooks — they must not be serialised through evaluateCallbacks
-            const skip = ['dayHeaderClass', 'listDayHeaderClass', 'viewClass', 'dayCellTopInnerClass', 'dayCellClass', 'inlineWeekNumberClass'];
+            const skip = ['dayHeaderClass', 'listDayHeaderClass', 'viewClass', 'dayCellTopInnerClass', 'dayCellClass', 'inlineWeekNumberClass', 'eventClass'];
             if (!skip.includes(key)) {
                 (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key]);
             }
@@ -688,6 +690,26 @@ export class FullCalendar extends HTMLElement {
             })
         };
         this.calendar?.setOption("events", callback);
+    }
+
+    /**
+     * Composes the function for FC's `eventClass` option.
+     *
+     * FC v7 exposes an entry's interaction state (draggable / resizable) only through CSS-module
+     * class names that are obfuscated at build time — their hashes change with every FC release,
+     * so neither our CSS nor the E2E suite may depend on them. This mirrors that state onto the
+     * stable `vfc-*` class contract and merges the server-provided value (callback, string or
+     * array of strings) on top.
+     */
+    private buildEntryClass(serverValue: any) {
+        const userFn = typeof serverValue === 'function' ? serverValue : null;
+        return (data: any) => clsx(
+            'vfc-event',
+            data.isDraggable && 'vfc-draggable',
+            data.isStartResizable && 'vfc-resizable-start',
+            data.isEndResizable && 'vfc-resizable-end',
+            userFn ? userFn.call(this._calendar, data) : serverValue,
+        );
     }
 
     private applyCustomPropertiesApi(options: any) {

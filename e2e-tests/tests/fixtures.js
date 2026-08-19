@@ -124,6 +124,30 @@ async function clickEntry(page, text) {
 }
 
 /**
+ * Resize an entry by dragging its bottom edge downwards by deltaY pixels.
+ *
+ * FC v7 renders the resize handle with an obfuscated CSS-module class name whose hash changes
+ * with every FC release, so the handle must not be addressed by class. It sits at the bottom
+ * edge of the entry and becomes visible on hover, which is what this reproduces.
+ *
+ * Caveat: on a very short entry the grab point can land on the title instead of the handle, which
+ * turns the gesture into a move. Use entries of at least a full slot height.
+ */
+async function resizeEntry(page, entry, deltaY) {
+  await entry.hover();
+  const box = await entry.boundingBox();
+  if (!box) throw new Error('Could not get bounding box for entry');
+
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height - 2;
+
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y + deltaY, { steps: 5 });
+  await page.mouse.up();
+}
+
+/**
  * Navigate to next/previous month using the toolbar buttons
  */
 async function navigateMonth(page, direction = 'next') {
@@ -200,6 +224,7 @@ module.exports = {
   waitForVaadin,
   getCalendarEntries,
   clickEntry,
+  resizeEntry,
   navigateMonth,
   clickToday,
   changeView,
