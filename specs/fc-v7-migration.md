@@ -1,8 +1,9 @@
 # Migration Plan: FullCalendar JS v6 → v7
 
-> **Status:** Draft — awaiting FC v7 stable release
+> **Status:** In progress on branch `fullcalendar-v7-migration`. Phases 1–3 implemented, Phase 4 partial.
 > **Addon version:** 7.x (FC v6) → 8.0.0 (FC v7)
-> **Date:** 2026-03-21
+> **FC client version on the branch:** `7.0.2` (FC v7 went final 2026-06-19; 7.0.2 is latest as of 2026-08-17)
+> **Date:** 2026-03-21, last revised 2026-08-17
 
 ---
 
@@ -30,31 +31,38 @@ All phases ship together as **8.0.0**.
 
 ---
 
-## npm Package Research Results (confirmed 2026-03-21 against v7.0.0-rc.0)
+## npm Package Research Results
 
-**Key finding:** All `@fullcalendar/*` packages **still exist as separate npm packages** in v7 RC. The `fullcalendar` and `fullcalendar-scheduler` packages are **metapackages** that bundle them as dependencies. This means:
-- **No `@NpmPackage` name changes needed** — only version bumps
-- **No TypeScript import path changes needed** — `'@fullcalendar/core'`, `'@fullcalendar/daygrid'`, etc. still work
-- `@fullcalendar/core/locales-all` export path confirmed unchanged
-- `@fullcalendar/moment-timezone` still exists at v7 RC (changelog says removed — contradicts npm)
-- No `temporal-polyfill` peer dependency in v7 RC (changelog mentions it — may be added in stable)
-- `@fullcalendar/scrollgrid` still exists at v7 RC (changelog says merged into core — contradicts npm)
-
-**This dramatically simplifies Phase 1** — it becomes a pure version bump.
+> **The 2026-03-21 findings below (against `7.0.0-rc.0`) turned out to be WRONG.** They were based on the
+> scoped `@fullcalendar/*` packages still being publishable at rc.0. From rc.1 on, the vanilla-JS
+> distribution was consolidated. What is actually true (verified 2026-08-17 against `7.0.2`) is recorded in
+> `fc-docs/_docs-v7/v7-changelog-and-migration.md` and implemented on the branch:
+>
+> - `@fullcalendar/core|daygrid|timegrid|list|multimonth|interaction` → the single **`fullcalendar`** package,
+>   plugins imported as `fullcalendar/<plugin>` **subpath exports**.
+> - `@fullcalendar/resource*|timeline|scrollgrid|adaptive` → subpaths of **`fullcalendar-scheduler`**.
+>   The scoped premium packages stopped publishing at `7.0.0-rc.0`.
+> - `@fullcalendar/rrule|google-calendar|icalendar|format-moment` → **still separate scoped packages**.
+> - `temporal-polyfill` **is** a required peer dependency: `^0.3.2` up to rc.3, **`^1.0.1` from 7.0.0 final**.
+> - `@fullcalendar/moment-timezone` **is** gone; `@fullcalendar/moment` → `@fullcalendar/format-moment`.
+> - `clsx` is a new runtime dependency.
+> - `@NpmPackage` may only name real packages — a subpath such as `fullcalendar/daygrid` breaks the Vaadin
+>   frontend build with `npm error Override without name`.
 
 ---
 
 ## Prerequisites (before starting Phase 1)
 
 ### Package Verification
-- [x] ~~Package names~~ — `@fullcalendar/*` confirmed unchanged in v7 RC
-- [x] ~~Scheduler packages~~ — `@fullcalendar/resource-*` confirmed at v7 RC
-- [x] ~~locales-all path~~ — `@fullcalendar/core/locales-all` confirmed
-- [ ] FC v7 stable release published to npm
-- [ ] Re-verify all above against stable release (RC findings may change)
-- [ ] Confirm `temporal-polyfill` status in stable (not a peer dep in RC)
-- [ ] Confirm `@fullcalendar/moment-timezone` is still supported in stable (exists in RC, changelog says removed)
-- [ ] Confirm `@fullcalendar/scrollgrid` status in stable (exists in RC, changelog says merged)
+- [x] Package names — restructured, see the box above (the rc.0 finding was wrong)
+- [x] Scheduler packages — subpaths of `fullcalendar-scheduler`
+- [x] locales-all path — `fullcalendar/locales-all`
+- [x] FC v7 stable release published to npm — `7.0.0` on 2026-06-19, `7.0.2` on 2026-07-24
+- [x] Re-verified against stable — `exports` maps of `fullcalendar` / `fullcalendar-scheduler` are identical
+      between rc.3 and 7.0.2, so rc.3 → 7.0.2 is a pure version bump
+- [x] `temporal-polyfill` in stable — required peer dep, `^1.0.1` (branch pins `1.0.4`)
+- [x] `@fullcalendar/moment-timezone` — removed
+- [x] `@fullcalendar/scrollgrid` — `fullcalendar-scheduler/scrollgrid` subpath
 
 ### Option Wire Name Verification
 - [ ] Confirm `buttons` option structure (replacement for `buttonText`)

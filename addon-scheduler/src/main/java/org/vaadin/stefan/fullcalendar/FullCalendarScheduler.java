@@ -56,7 +56,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * The scheduler base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_SCHEDULER_CLIENT_VERSION = "7.0.0-rc.3";
+    public static final String FC_SCHEDULER_CLIENT_VERSION = "7.0.2";
     private final Map<String, Resource> resources = new HashMap<>();
     private final List<ComponentResourceAreaColumn<?>> activeComponentColumns = new ArrayList<>();
     private Element hiddenContainer;
