@@ -17,6 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 
+import java.io.Serializable;
 import java.util.Optional;
 
 /**
@@ -24,7 +25,7 @@ import java.util.Optional;
  * An enumeration for instance would return a client side parseable version of the server side enum instance,
  * e.g. RenderingMode.INVERSE_BACKGROUND.getClientSideName() // returns "inverse-background"
  */
-public interface ClientSideValue {
+public interface ClientSideValue extends Serializable {
     /**
      * Returns a client side representation of this instance.
      *

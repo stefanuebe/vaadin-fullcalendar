@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import lombok.Getter;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +38,7 @@ import java.util.UUID;
  * @param <S> concrete subtype for fluent chaining
  */
 @Getter
-public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> {
+public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> implements Serializable {
 
     /**
      * Developer-assigned ID. Auto-generated UUID if not set.

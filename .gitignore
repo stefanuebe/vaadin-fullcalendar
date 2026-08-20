@@ -29,5 +29,10 @@ index.html
 /demo/src/main/bundles/prod.bundle
 /.claude/
 /.devcontainer/
+# Playwright output when accidentally run from the repo root instead of e2e-tests/
+test-results/
+playwright-report/
 fc-docs/
 wiki
+/test-results/.last-run.json
+/e2e-tests/.claude/inspection-result.json

@@ -6,6 +6,7 @@ import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
  * on time spans instead of row counts.
  * @author Stefan Uebe
  */
-public interface EntryProvider<T extends Entry> {
+public interface EntryProvider<T extends Entry> extends Serializable {
 
     /**
      * Creates a new instance that will fetch its content from the given callbacks. Passing null will lead to an exception.

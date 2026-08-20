@@ -190,9 +190,9 @@ The wiki is a separate git repo: `https://github.com/stefanuebe/vaadin-fullcalen
 
 ## Thread Safety & Performance Notes
 
-- `FullCalendar.refreshAllEntriesRequested` uses volatile + synchronized for thread safety
+- Component state (e.g. `FullCalendar.refreshAllEntriesRequested`) needs no extra locking/`volatile`: all Vaadin component access is serialized by the `VaadinSession` lock. The addon must, however, stay Java-`Serializable` (session passivation / cluster replication) — see `SerializationTest` / `SchedulerSerializationTest`. Avoid non-serializable fields; mark genuinely transient ones `transient`.
 - `BeanProperties` caches reflection data (annotations, converters) for performance
-- Entry cache is bounded to 10,000 entries max (LRU eviction)
+- `lastFetchedEntries` is a plain map, cleared and repopulated on every client fetch (one viewport worth) — not a long-lived cache
 - ResizeObserver is cleaned up in `disconnectedCallback()` to prevent memory leaks
 - Server-defined JS callbacks use `new Function()` intentionally for dynamic evaluation
 

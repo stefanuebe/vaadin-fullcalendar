@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.Component;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ import java.util.Optional;
  * @see FullCalendar#addDraggable(Draggable)
  * @see DropEvent
  */
-public class Draggable {
+public class Draggable implements Serializable {
 
     @Getter
     private final Component component;
