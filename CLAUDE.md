@@ -50,12 +50,12 @@ bash mutation-test-a.sh        # E2E mutations (~5min, requires app on :8080)
 
 ## Release Workflow
 
-The `v-herd-demo` branch always reflects the **currently released** version — it is the source for the demo server and the MCP server deployment. Therefore, releases must happen in a strict order so the tag, the demo branch, and the next snapshot all line up.
+The `v-herd-demo` branch always reflects the **currently released** version — it is the source for the demo server deployment. Therefore, releases must happen in a strict order so the tag, the demo branch, and the next snapshot all line up.
 
 For every release (patch, minor, or major):
 
 1. **Strip `-SNAPSHOT`** from every `<version>` and `<fullcalendar.version>` across all POMs (root, `addon`, `addon-scheduler`, `demo`, `e2e-test-app`).
-2. **Update `ADDON_VERSION`** in `demo/src/main/java/org/vaadin/stefan/ui/layouts/AbstractLayout.java` to the release version (without `-SNAPSHOT`). This string constant is rendered in the demo/MCP-server footer, so it must match the deployed artifact version. The same file also exists in `spike/` but is not on the release path — leave it alone.
+2. **Update `ADDON_VERSION`** in `demo/src/main/java/org/vaadin/stefan/ui/layouts/AbstractLayout.java` to the release version (without `-SNAPSHOT`). This string constant is rendered in the demo footer, so it must match the deployed artifact version. The same file also exists in `spike/` but is not on the release path — leave it alone.
 3. **Commit** as `Release <version>` (matches the style of existing release commits, e.g. `5f861d00`). The commit must include both the POM and the `ADDON_VERSION` change so the tag and the `v-herd-demo` merge both carry a consistent tree.
 4. **Tag** the commit as annotated tag `<version>` with message `Release <version>` (e.g. `git tag -a 7.2.1 -m "Release 7.2.1"`).
 5. **Do not bump the snapshot yet.** The next snapshot bump goes *after* step 6.
@@ -65,7 +65,7 @@ For every release (patch, minor, or major):
 
 Why this order matters: if the snapshot is bumped before `v-herd-demo` is synced, merging master into `v-herd-demo` brings in the snapshot version — then the demo server redeploys against a `-SNAPSHOT` artifact that isn't in any public repo, and the deployment breaks.
 
-Why `ADDON_VERSION` matters: the demo server and the MCP server both render this constant as "Version X" in their UI. If it drifts from the actual POM version, deployed demos display a misleading version number. Forgetting to update it at release time has historically required a follow-up cherry-pick into `v-herd-demo`, which is the kind of thing the workflow is supposed to prevent.
+Why `ADDON_VERSION` matters: the demo server renders this constant as "Version X" in its UI. If it drifts from the actual POM version, deployed demos display a misleading version number. Forgetting to update it at release time has historically required a follow-up cherry-pick into `v-herd-demo`, which is the kind of thing the workflow is supposed to prevent.
 
 Never push the release tag before confirming with the user — tags are public the moment they hit the remote and can't be rewritten cleanly.
 
@@ -85,7 +85,6 @@ addon-scheduler/    # Scheduler extension for resource-based views (org.vaadin.s
 demo/               # Spring Boot demo application
 e2e-test-app/       # Vaadin Spring Boot app serving as E2E test target (Playwright)
 e2e-tests/          # Playwright test suite (tests/*.spec.js) — NOT a Maven module, uses npm
-mcp-server/         # Node.js MCP server for addon documentation (TypeScript/Express)
 fc-docs/            # Local copy of FullCalendar JS docs — v6 (current) + v7 changelog/migration guide
 ```
 
@@ -173,7 +172,7 @@ User-facing documentation lives in the **GitHub wiki as the single source of tru
 - [Features](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Features)
 - [Release notes](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Release-notes) — one detail page per minor (`Release-notes-<major>.<minor>`)
 - [Migration guides](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Migration-guides) — one detail page per version jump (`Migration-guide-<from>-to-<to>`)
-- [MCP-Server](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/MCP-Server), [FAQ](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/FAQ), [Known Issues](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Known-Issues), [Scheduler license](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Scheduler-license)
+- [FAQ](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/FAQ), [Known Issues](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Known-Issues), [Scheduler license](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Scheduler-license)
 
 The wiki is a separate git repo: `https://github.com/stefanuebe/vaadin-fullcalendar.wiki.git`. In this devcontainer it is checked out at `/workspace/wiki/` (remote `origin-wiki`). Edit files there and commit/push to the wiki remote.
 
@@ -184,9 +183,13 @@ The wiki is a separate git repo: `https://github.com/stefanuebe/vaadin-fullcalen
 - **Page structure** — one release-notes detail page per minor version; one migration-guide detail page per version jump; main index pages stay one-line-per-entry.
 - **v6 vs v7 in the same wiki** — code-level difference is only elemental JSON (v6) vs Jackson 3 (v7). Call out version-specific API differences inline where relevant; do not maintain parallel page sets.
 
-### MCP server documentation
+### Discontinued: the FullCalendar MCP server
 
-`mcp-server/` extracts content from the wiki (cloned during Docker build) and serves it as MCP resources. If you rewrite wiki pages, the MCP server picks them up on the next container rebuild — no in-repo sync needed.
+The `mcp-server/` module and its deployment at `v-herd.eu/vaadin-fullcalendar-mcp` were **removed**
+(2026-09-03). Its npm dependency tree produced a constant stream of security advisories, and since
+it only re-served wiki content, the maintenance cost outweighed the benefit. The wiki stays the
+single source of truth. Do not reintroduce it; if the tooling is ever missed, prefer something that
+reads the wiki directly over a service with its own dependency tree.
 
 ## Thread Safety & Performance Notes
 
@@ -197,19 +200,6 @@ The wiki is a separate git repo: `https://github.com/stefanuebe/vaadin-fullcalen
 - Server-defined JS callbacks use `new Function()` intentionally for dynamic evaluation
 
 ## MCP Servers and other docs
-
-FullCalendar Vaadin MCP server for addon-specific documentation, API reference, and code examples:
-
-```json
-{
-  "mcpServers": {
-    "fullcalendar": {
-      "type": "http",
-      "url": "https://v-herd.eu/vaadin-fullcalendar-mcp/mcp"
-    }
-  }
-}
-```
 
 Vaadin documentation MCP server for component DOM structure and API reference:
 
