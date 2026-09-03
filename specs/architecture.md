@@ -27,7 +27,6 @@ fullcalendar-parent (pom, root)
 ├── demo/                  # Spring Boot 4.x demo application
 ├── e2e-test-app/          # Vaadin Spring Boot app serving Playwright test views
 ├── e2e-tests/             # Playwright test suite (npm, NOT a Maven module)
-├── mcp-server/            # Node.js/TypeScript MCP server for addon documentation (NOT a Maven module)
 └── fc-docs/               # Local copy of FullCalendar JS v6 docs (reference)
 ```
 
