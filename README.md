@@ -40,28 +40,13 @@ use the GitHub repository issues page.
 * Fullcalendar: https://vaadin.com/directory/component/full-calendar-flow
 * Fullcalendar Scheduler: https://vaadin.com/directory/component/full-calendar-scheduler-flow/overview
 
-## AI Assistant Integration (MCP Server)
-An MCP (Model Context Protocol) server is available for AI assistants like Claude Code, providing:
-- Documentation search and retrieval
-- Java API reference for all classes
-- Code examples for common use cases
-- Entry and Resource model schemas
+## AI Assistant Integration (MCP Server) — removed
+The FullCalendar Vaadin MCP server has been **discontinued** and its sources were removed from this
+repository. It was a Node.js service that only re-served the wiki content, and keeping its npm
+dependency tree free of security advisories cost more than the convenience was worth.
 
-**MCP Endpoint:** `https://v-herd.eu/vaadin-fullcalendar-mcp/mcp`
-
-Add to your `.mcp.json`:
-```json
-{
-  "mcpServers": {
-    "fullcalendar": {
-      "type": "http",
-      "url": "https://v-herd.eu/vaadin-fullcalendar-mcp/mcp"
-    }
-  }
-}
-```
-
-See [mcp-server/README.md](mcp-server/README.md) for more details.
+Point your AI assistant at the [wiki](https://github.com/stefanuebe/vaadin-fullcalendar/wiki)
+instead — it is and always was the single source of truth.
 
 ## Additional links and information
 * Homepage about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/

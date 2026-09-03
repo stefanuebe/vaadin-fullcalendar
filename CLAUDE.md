@@ -63,7 +63,6 @@ addon-scheduler/    # Scheduler extension for resource-based views (org.vaadin.s
 demo/               # Spring Boot demo application
 e2e-test-app/       # Vaadin Spring Boot app serving as E2E test target (Playwright)
 e2e-tests/          # Playwright test suite (tests/*.spec.js) — NOT a Maven module, uses npm
-mcp-server/         # Node.js MCP server for addon documentation (TypeScript/Express)
 fc-docs/            # Local copy of FullCalendar JS docs — v6 (current) + v7 changelog/migration guide
 ```
 
@@ -151,13 +150,17 @@ User-facing documentation lives in the **GitHub wiki as the single source of tru
 - [Features](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Features)
 - [Release notes](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Release-notes) — one detail page per minor (`Release-notes-<major>.<minor>`)
 - [Migration guides](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Migration-guides) — one detail page per version jump (`Migration-guide-<from>-to-<to>`)
-- [MCP-Server](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/MCP-Server), [FAQ](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/FAQ), [Known Issues](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Known-Issues), [Scheduler license](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Scheduler-license)
+- [FAQ](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/FAQ), [Known Issues](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Known-Issues), [Scheduler license](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Scheduler-license)
 
 The wiki is a separate git repo: `https://github.com/stefanuebe/vaadin-fullcalendar.wiki.git`. In this devcontainer it is checked out at `/workspace/wiki/` (remote `origin-wiki`). Edit files there and commit/push to the wiki remote.
 
-### MCP server documentation
+### Discontinued: the FullCalendar MCP server
 
-`mcp-server/` extracts content from the wiki (cloned during Docker build) and serves it as MCP resources. If you rewrite wiki pages, the MCP server picks them up on the next container rebuild — no in-repo sync needed.
+The `mcp-server/` module and its deployment at `v-herd.eu/vaadin-fullcalendar-mcp` were **removed**
+(2026-09-03). Its npm dependency tree produced a constant stream of security advisories, and since
+it only re-served wiki content, the maintenance cost outweighed the benefit. The wiki stays the
+single source of truth. Do not reintroduce it; if the tooling is ever missed, prefer something that
+reads the wiki directly over a service with its own dependency tree.
 
 ## Thread Safety & Performance Notes
 
@@ -168,19 +171,6 @@ The wiki is a separate git repo: `https://github.com/stefanuebe/vaadin-fullcalen
 - Server-defined JS callbacks use `new Function()` intentionally for dynamic evaluation
 
 ## MCP Servers and other docs
-
-FullCalendar Vaadin MCP server for addon-specific documentation, API reference, and code examples:
-
-```json
-{
-  "mcpServers": {
-    "fullcalendar": {
-      "type": "http",
-      "url": "https://v-herd.eu/vaadin-fullcalendar-mcp/mcp"
-    }
-  }
-}
-```
 
 Vaadin documentation MCP server for component DOM structure and API reference:
 
