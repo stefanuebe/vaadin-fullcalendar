@@ -97,6 +97,7 @@
                  test classpath to exercise real component serialization (see SerializationTest). -->
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
