@@ -2,8 +2,93 @@
 
 > **Status:** In progress on branch `fullcalendar-v7-migration`. Phases 1–3 implemented, Phase 4 partial.
 > **Addon version:** 7.x (FC v6) → 8.0.0 (FC v7)
-> **FC client version on the branch:** `7.0.2` (FC v7 went final 2026-06-19; 7.0.2 is latest as of 2026-08-17)
-> **Date:** 2026-03-21, last revised 2026-08-17
+> **FC client version on the branch:** `7.0.2` (FC v7 went final 2026-06-19; 7.0.2 is latest as of 2026-08-20)
+> **Date:** 2026-03-21, last revised 2026-08-20
+
+---
+
+## Current State (2026-08-20)
+
+Branch tip `75fc857d`, pushed, identical to `origin/fullcalendar-v7-migration`. Full green:
+unit 421 + 152, E2E 323 passed / 0 failed / 0 flaky.
+
+### Done in the 2026-08-20 session
+- FC client `7.0.0-rc.3` → **`7.0.2`**, `temporal-polyfill` `0.3.2` → **`1.0.4`** (FC 7.0.0 raised the
+  peer dep to `^1.0.1`; that is the only breaking change since rc.3). The `exports` maps of
+  `fullcalendar` / `fullcalendar-scheduler` are identical between rc.3 and 7.0.2, so no import or
+  `@NpmPackage` name changes were needed.
+- `eventClass` is now function-based (`buildEntryClass()` in `full-calendar.ts`) and mirrors FC's
+  `isDraggable` / `isStartResizable` / `isEndResizable` onto `vfc-draggable` /
+  `vfc-resizable-start` / `vfc-resizable-end`. See "Class name contract" below.
+- Fixed two defects this surfaced in how `Option.ENTRY_CLASS_NAMES` shares FC's `eventClass` slot:
+  the JsCallback marker was handed to `clsx` before `evaluateCallbacks` ran (every entry got a
+  literal `__jsCallback` class, user callback dropped), and the runtime `setOption` route replaced
+  the option wholesale (dropping `vfc-event`; a plain string additionally threw at render time).
+  Covered by `e2e-tests/tests/render-hooks.spec.js`.
+- Removed the rc.3 TimeGrid `visibility: visible` override — fixed upstream in 7.0.2.
+- Merged `master` into the branch (`git log HEAD..master` is empty). This brought the
+  Serializable fix (#239) plus its two test classes, and master's reversal of the bounded entry
+  cache and the `volatile` guards. Without it, 8.0.0 would have been a regression against 7.2.3.
+
+### Open decision — branch version
+The merge brought master's POMs, so the branch now reads **`7.2.4-SNAPSHOT`** while it is destined
+to become 8.0.0. Left as-is deliberately: setting `8.0.0-SNAPSHOT` (POMs + `ADDON_VERSION` in
+`demo/.../AbstractLayout.java`) makes every future master merge raise a predictable, isolated
+conflict resolved as "ours", instead of silently pulling in master's next 7.2.x. Recommended, but
+it is a release decision and was not taken unilaterally.
+
+### Next up (order is open — pick one)
+1. **Phase 4 code** — add the missing v7 options `HEADING_LEVEL`, `EVENT_SLICING`,
+   `VIEW_CHANGE_HINT` and `printMaxRows` (new in FC 7.0.1, Resource Timeline print cutoff); mark
+   `FIXED_MIRROR_PARENT`, `NOW_INDICATOR_SNAP`, `SLOT_LANE_CONTENT` as `@Deprecated` — all three are
+   still plain enum constants today and silently do nothing in v7.
+2. **User docs** — the wiki items under "Documentation Updates" below, starting with the broken
+   `.fc-daygrid-*` examples in `FullCalendar-Examples.md` / `Samples.md`.
+3. **Branch version** — decide `8.0.0-SNAPSHOT`, see above.
+
+### Keeping up with master
+master → branch by **`git merge`**, never rebase: the branch is published, so rebase would mean a
+force-push on every catch-up, replay the same conflicts each time, and invalidate commit hashes
+referenced from this file and `fc-docs/`. Nothing goes branch → master until the migration is done.
+
+> **Gotcha:** master untracked `.devcontainer/` (`1ca0b066`) and gitignores it, so merging master
+> *deletes the local `.devcontainer/` files*. Restore with
+> `git checkout <pre-merge-tip> -- .devcontainer/`; they stay untracked.
+
+---
+
+## Class name contract (`vfc-*`) — decided 2026-08-20
+
+FC v7 emits its own class names as **obfuscated CSS-module hashes** (`fc-DD`, `fc-PM`, `fc-J6`, …).
+The hashes change with every FC release — the rc.3 → 7.0.2 bump alone renamed all of them. Nothing
+in this repo may key on them: not the addon CSS, not the demo, not the E2E suite.
+
+Instead the addon layers its own stable contract on top of v7's class API: `vfc-event`,
+`vfc-bg-event`, `vfc-row-event`, `vfc-day-cell`, `vfc-day-header`, `vfc-day-number`, `vfc-today`,
+`vfc-week-number`, `vfc-slot-header`, `vfc-slot-lane`, `vfc-list-day-header`, `vfc-more-link`,
+`vfc-popover`, `vfc-highlight`, `vfc-non-business`, `vfc-view`, `vfc-view-<type>`,
+`vfc-draggable`, `vfc-resizable-start`, `vfc-resizable-end`, plus the scheduler's
+`vfc-resource-cell`, `vfc-resource-col-header`, `vfc-resource-group-header`, `vfc-resource-lane`.
+
+**Rejected: re-emitting the v6 `fc-*` names as aliases** to spare v6 users a CSS rewrite. Measured
+against the 25 `fc-*` classes the addon's own v6 CSS used:
+
+| | |
+|---|---|
+| exactly mappable (4) | `fc-event`, `fc-bg-event`, `fc-highlight`, `fc-more-link` |
+| different name or element (~8) | `fc-day-today`→`vfc-today`, `fc-col-header-cell`→`vfc-day-header`, `fc-daygrid-day-number`→`vfc-day-number`, `fc-daygrid-week-number`→`vfc-week-number`, `fc-list-day-text`/`-side-text`/`-cushion`→ one `vfc-list-day-header`, `fc-timeline-slot-cushion`→`vfc-slot-header` |
+| no equivalent (~10) | `fc-scrollgrid`, `fc-scrollgrid-section-header`, `fc-scrollgrid-section-sticky`, `fc-scroller-harness`, `fc-timegrid-axis`, `fc-col-header-cell-cushion`, `fc-daygrid-dot-event`, `fc-multimonth-multicol`, `fc-list`, `fc-timeline-header-row` |
+
+Aliasing would return the *name* without the *structure* — v7 replaced the tables with flexbox, so
+a v6 rule like `.fc-daygrid-day .fc-daygrid-day-frame` would match outside and miss inside, and the
+layout would silently shift. A clean break is easier to diagnose. Also, self-emitting `fc-*` sits
+next to FC's own obfuscated `fc-*` in the DOM, so nobody can tell which are stable.
+
+Instead the migration guide carries the mapping table above. If users ask for more, an **opt-in**
+`full-calendar-v6-compat.css` aliasing the mappable names is the fallback — not built (YAGNI).
+
+**Still to do:** the `vfc-*` contract is documented nowhere outside this file — neither in
+`specs/design-system.md` nor in the wiki.
 
 ---
 
@@ -11,10 +96,15 @@
 
 The migration from FullCalendar JS v6 to v7 touches four layers:
 
-1. **NPM packages and TypeScript imports** — Package names stay as `@fullcalendar/*` (confirmed via npm RC), only version bump needed. `fullcalendar` / `fullcalendar-scheduler` are metapackages. TS imports unchanged.
-2. **Option name mapping** — ~30 FC option wire names change across `Option` and `SchedulerOption` enums
-3. **License key** — GPLv3 → AGPLv3 for the scheduler
-4. **CSS/Theme** — fc-* classes and --fc-* variables appear unchanged in v7 source (confirmed via GitHub), but the changelog claims "CSS variables refactored/renamed" — **must be verified against stable release before implementing**
+1. **NPM packages and TypeScript imports** — the vanilla-JS distribution was consolidated into
+   `fullcalendar` / `fullcalendar-scheduler` with subpath exports; imports and `@NpmPackage`
+   declarations both had to change. `temporal-polyfill` is a new required peer dependency.
+   (Done — see "npm Package Research Results" below.)
+2. **Option name mapping** — ~30 FC option wire names change across `Option` and `SchedulerOption` enums (done)
+3. **License key** — GPLv3 → AGPLv3 for the scheduler (done)
+4. **CSS/Theme** — the biggest layer: FC no longer ships CSS, the theme is a plugin, and FC's own
+   class names are obfuscated per build. All styling moved to v7's class API behind the addon's
+   `vfc-*` contract. (Done for the addon; user-facing docs still open.)
 
 The JS Calendar API (`setOption`, `changeView`, `prev`, `next`, etc.) is **unchanged**.
 
@@ -24,8 +114,9 @@ All phases ship together as **8.0.0**.
 
 ## Rollback Strategy
 
-- Maintain a `7.x-maintenance` branch from the current `fc7` HEAD before starting Phase 1
-- All Phase 1 work happens on a feature branch (`fc-v7-upgrade`) — only merge after full E2E green
+- The released 7.x line lives on `master` and keeps shipping independently; it is the fallback.
+- All work happens on `fullcalendar-v7-migration` — nothing goes to `master` before the migration
+  is complete and the full E2E suite is green.
 - If FC v7 stable API differs from beta docs, abort and stay on v6 until docs are updated
 - The `(verify)` markers in this plan are **blocking prerequisites** — each must be confirmed before that section is implemented
 
@@ -399,9 +490,17 @@ Remove from enum (deprecated in Phase 2):
 
 ## Documentation Updates (all part of 8.0.0)
 
-- Wiki `Migration-guide-7.x-to-8.0` — new page covering all 4 phases
+- Wiki `Migration-guide-7.x-to-8.0` — new page covering all 4 phases, including the `vfc-*` class
+  mapping table from "Class name contract" above.
+  **Naming trap:** the existing wiki page `Migration-guide-6.x-to-7.x` means the *addon* 6→7 jump
+  (Vaadin 24→25, elemental→Jackson), NOT FullCalendar JS v6→v7. Name the new page so the two are
+  not confused.
 - Wiki `Release-notes-8.0` — FC v7 upgrade notes
 - Wiki `Scheduler-license` — AGPL note update
+- Wiki `FullCalendar-Examples.md` and `Samples.md` — **broken CSS examples**: they show
+  `.fc-daygrid-day-number` (6×) and `.fc-daygrid-week-number` (4×), which do not exist in FC v7.
+  Replace with `.vfc-day-number` / `.vfc-week-number`.
+- Document the `vfc-*` class contract (see above) — it currently exists only in code
 - `specs/architecture.md` — update "FullCalendar JS v6.1.x" to v7
 - `specs/project-context.md` — update version references
 - Migration note for renamed options (Java constant names unchanged, wire names changed)
