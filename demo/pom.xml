@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <vaadin.version>25.1.0</vaadin.version>
+        <vaadin.version>25.3.0</vaadin.version>
         <spring-boot.version>4.0.4</spring-boot.version>
         <fullcalendar.version>7.2.4-SNAPSHOT</fullcalendar.version>
 
@@ -68,6 +68,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-dev</artifactId>
+            <optional>true</optional>
             <exclusions>
                 <exclusion>
                     <groupId>com.vaadin</groupId>
