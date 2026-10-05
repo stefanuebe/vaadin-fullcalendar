@@ -9,4 +9,4 @@ FullCalendar 7 renders no semantic `.fc-*` class names anymore (only hashed, bui
 
 ## Consequences
 
-The curated class list becomes API we maintain across FullCalendar upgrades. Selectors relying on v6 DOM structure (e.g. `table td`) still break; only class-based selectors survive.
+The curated class list becomes API we maintain across FullCalendar upgrades. Selectors relying on v6 DOM structure (e.g. `table td`) still break. Only class-based selectors survive.
