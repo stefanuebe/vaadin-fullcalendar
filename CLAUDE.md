@@ -1,234 +1,228 @@
-# CLAUDE.md
+# FullCalendar for Flow
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+A Vaadin Flow integration of the FullCalendar JavaScript library. Java components
+(`FullCalendar`, `FullCalendarScheduler`) wrap FullCalendar so Vaadin developers
+configure and drive it from the server.
 
-## Project Overview
+Current state, what is next and what the add-on guarantees live in the issue
+tracker, see `docs/agents/issue-tracker.md`. Decisions with their reasons are in
+`docs/adr/`. Feature specs are in `specs/`.
 
-FullCalendar for Flow is a Vaadin Flow integration of the FullCalendar JavaScript library (v6). It provides Java components that wrap FullCalendar for use in Vaadin applications.
+## How I work here
 
-**Version 7**: Vaadin 25 / Java 21 (current)
-**Version 6**: Vaadin 14-24 / Java 11
+- Code and document for humans. They have to understand and maintain this
+  add-on after you are gone from the conversation.
+- Don't guess, confirm with docs / sources / research results / MCP. Being
+  uncertain is fine and saying so is fine. Stating an assumption as fact is not.
+- If there is no solution or answer, say it. Acknowledging failure is better than
+  trying to hide it.
+- Answer the question you were asked before you edit anything.
+- Never silently revert or tidy away something in the workspace you cannot
+  explain. Ask, or leave it.
+- Never self-dispatch after a question. If you ask something, wait for the
+  answer before acting.
+- Use plain and clear language, don't try to sound creative.
+- Review before the gate and before the commit, see *Review before the gate,
+  review before the commit*. That order is not yours to reorder.
+- Pick the cheapest model that fits a subagent. Always pass `model` explicitly,
+  because the inherited default is Opus or better. Restate the critical rules in
+  each subagent's prompt. When unsure, start cheaper and escalate only if the
+  output is shallow.
 
-## Build Commands
+  | Subagent role | Model |
+  |---|---|
+  | Mechanical implementer (plan specifies the exact code) | Haiku |
+  | Explore / search ("where is X defined") | Haiku |
+  | Multi-file integration / pattern matching | Sonnet |
+  | Per-phase code-quality or spec-compliance review | Sonnet |
+  | Final whole-branch / holistic / deep design review | Opus or better |
+
+## Working conventions
+
+- **Commits:** one commit per logical phase or feature. Run the tests before
+  committing, and don't commit on the user's behalf unless asked.
+- **Docs:** a change that users of the add-on notice (new or changed API, changed
+  behaviour, a new limitation) updates the wiki in the same piece of work, see
+  *Documentation*.
+- **Never push.** Pushing, opening pull requests and anything else that leaves this
+  machine is the maintainer's step, always. This includes the wiki repo.
+- **Tests & long-running ops:** run new/changed tests first, and only run the full
+  gate once those pass. Don't wrap waits in `until … done` sleep loops. Poll
+  periodically and check whether a background job has died. A change that only
+  touches `demo/` needs `mvn -pl demo verify`, not the full gate, because the demo
+  has no tests.
+
+## Stack
+
+- **Vaadin** 25.x (Core), **Java** 21, **Spring Boot** 4.x (demo and e2e test app only)
+- FullCalendar JS client version: `FullCalendar.FC_CLIENT_VERSION` (currently 6.1.21)
+- Lombok, Jackson 3 (since 7.0, replacing elemental.json), Vite, Maven multi-module
+- Base package: `org.vaadin.stefan.fullcalendar` (core and scheduler share it)
+
+Spring Boot is the version `com.vaadin:flow-project:<flow version>` names in its
+`spring.boot.version` property, not the newest Spring Boot. Derive it from the
+Vaadin release when bumping.
+
+Before raising the Vaadin version, build `e2e-test-app` with an empty `user.home`
+and check that it still passes. A Vaadin release can start asking for a license key
+in a production build even with core components only.
+
+**Version lines:** `master` carries the current major, `v7_master` the 7.x line
+(Vaadin 25), `v6_master` the 6.x line (Vaadin 24). Fixes are made on `master` and
+ported back where they apply. Whether a feature goes back is decided per feature.
+After switching branches, delete the generated frontend files in `demo/` and
+`e2e-test-app/` (`node_modules`, `package.json`, `package-lock.json`,
+`src/main/frontend/generated`), or the Vite build fails on the other line's
+half-installed packages.
+
+## Module structure
+
+- **`addon/`** (`org.vaadin.stefan:fullcalendar2`) is the core component, published
+  to the Vaadin Directory. Holds the unit and browserless tests. Spring-free, tests
+  included. TypeScript client: `full-calendar.ts` in its frontend resources.
+- **`addon-scheduler/`** (`fullcalendar2-scheduler`) adds resource views. The
+  FullCalendar Scheduler library needs its own license, and the addon's MIT license
+  covers only the addon code.
+- **`demo/`** is the Spring Boot demo app. Holds **no tests at all**. Free to change.
+- **`e2e-test-app/`** is the Vaadin app the browser tests run against. It owns its
+  **Test views** and depends on the addons only, never on `demo/`.
+- **`e2e-tests/`** is the Playwright suite (`tests/*.spec.js`, npm, not a Maven
+  module). `mvn verify -Pit` in `e2e-test-app/` starts the app and runs it.
+- **`fc-docs/`** is a local copy of the FullCalendar JS docs (v6). Prefer it over
+  web fetches.
+
+## Testing
 
 ```bash
-# Build all modules (install to local repo for cross-module deps)
-mvn clean install
-
-# Build for production (optimized frontend)
-mvn clean install -Pproduction -DskipTests
-
-# Run the demo application (requires production profile for full build)
-cd demo && mvn spring-boot:run -Pproduction
-
-# Run unit tests (all modules)
-mvn test
-
-# Run a single test class
-mvn test -pl addon -Dtest=EntryTest
-
-# Run a single test method
-mvn test -pl addon -Dtest=EntryTest#testSomeMethod
-
-# Run integration tests
-mvn verify
-
-# Run E2E tests (starts Vaadin app + Playwright)
-cd e2e-test-app && mvn clean verify -Pit
-
-# Run mutation testing (PIT — unit tests)
-mvn test -pl addon -Ppit
-# Report: addon/target/pit-reports/index.html
-
-# Run manual mutation test scripts (see specs/verification.md §3)
-bash mutation-test-b.sh        # Unit mutations (~75s, standalone)
-bash mutation-test-a.sh        # E2E mutations (~5min, requires app on :8080)
-
-# Alternative: Use Maven wrapper from demo/ if mvn not available
-./demo/mvnw clean install
+mvn clean install                               # build all modules, unit tests
+mvn test -pl addon -Dtest=EntryTest#someMethod  # one class or method
+cd e2e-test-app && mvn clean verify -Pit        # Playwright E2E against the test app
+mvn test -pl addon -Ppit                        # mutation testing (PIT)
 ```
 
-## Release Workflow
+- **JUnit 5 + Mockito** for unit tests, in `addon/` and `addon-scheduler/`.
+- **Browserless** tests (Vaadin `browserless-test`, free on 25.1+) for server-side
+  behaviour that needs a Vaadin context but no browser. Spring-free, in the addon
+  modules. They execute no JavaScript and assert server-side state and element
+  properties only.
+- **Playwright** in `e2e-tests/` for every behaviour that needs the client-side
+  JavaScript to run.
+- Manual mutation scripts `mutation-test-a.sh` / `mutation-test-b.sh`, see
+  `specs/verification.md` §3.
 
-The `v-herd-demo` branch always reflects the **currently released** version — it is the source for the demo server deployment. Therefore, releases must happen in a strict order so the tag, the demo branch, and the next snapshot all line up.
+**No test lives in `demo/`, ever.** Browser tests drive Test views they own,
+browserless tests build the component directly. A test that reads the demo breaks
+on a label change.
 
-For every release (patch, minor, or major):
+**Test our wiring, not FullCalendar.** The add-on's job is the connection between
+Flow and FullCalendar: does the option we pass reach the client, does the entry we
+change arrive, does the client event come back. Whether FullCalendar itself behaves
+correctly is its scope.
 
-1. **Strip `-SNAPSHOT`** from every `<version>` and `<fullcalendar.version>` across all POMs (root, `addon`, `addon-scheduler`, `demo`, `e2e-test-app`).
-2. **Update `ADDON_VERSION`** in `demo/src/main/java/org/vaadin/stefan/ui/layouts/AbstractLayout.java` to the release version (without `-SNAPSHOT`). This string constant is rendered in the demo footer, so it must match the deployed artifact version. The same file also exists in `spike/` but is not on the release path — leave it alone.
-3. **Commit** as `Release <version>` (matches the style of existing release commits, e.g. `5f861d00`). The commit must include both the POM and the `ADDON_VERSION` change so the tag and the `v-herd-demo` merge both carry a consistent tree.
-4. **Tag** the commit as annotated tag `<version>` with message `Release <version>` (e.g. `git tag -a 7.2.1 -m "Release 7.2.1"`).
-5. **Do not bump the snapshot yet.** The bump is the *last* step — it comes after the pushes and the release build, not before.
-6. **Sync `v-herd-demo` to the release state.** Check out `v-herd-demo` and merge master (`git merge master -X theirs` to take master's POM values over the historical `v-herd-version` commit). Resulting tree should show the released version across all POMs *and* in `ADDON_VERSION` — it should be identical to the tagged tree (`git diff <version> HEAD` comes back empty). Prepare the merge here, but do not push it on its own.
-7. **Push master, the tag and `v-herd-demo` together**, then run the release build. Pushing them in one go avoids a ping-pong between the two branches.
-8. **Back on master: bump to the next snapshot** (usually `+1` on the patch, e.g. `7.2.1 → 7.2.2-SNAPSHOT`). Update both the POMs *and* `ADDON_VERSION` (e.g. `"7.2.2-SNAPSHOT"`). Commit as `Bump to <next>-SNAPSHOT` and push.
+- **Bug reports:** first check whether an existing test covers the case. If one
+  exists but missed the bug, fix the test. Otherwise create one.
+- **Every bug fix includes a test** that reproduces the bug. Every new feature
+  includes the verification defined in its spec.
+- Never commit test code without running it.
 
-Why this order matters: if the snapshot is bumped before `v-herd-demo` is synced and pushed, merging master into `v-herd-demo` brings in the snapshot version — then the demo server redeploys against a `-SNAPSHOT` artifact that isn't in any public repo, and the deployment breaks.
+Driving Vaadin from Playwright has traps that let a test pass with the bug put
+back. They are under *Testing standards* in `STYLEGUIDE.md`. Read them before
+writing a browser test. When an addon's Java or frontend changes, rebuild it
+(`mvn install -DskipTests -pl addon,addon-scheduler`) before running the demo or
+the E2E tests so they don't run against a stale jar.
 
-Why `ADDON_VERSION` matters: the demo server renders this constant as "Version X" in its UI. If it drifts from the actual POM version, deployed demos display a misleading version number. Forgetting to update it at release time has historically required a follow-up cherry-pick into `v-herd-demo`, which is the kind of thing the workflow is supposed to prevent.
+## Review before the gate, review before the commit
 
-Never push the release tag before confirming with the user — tags are public the moment they hit the remote and can't be rewritten cleanly.
+The order is fixed:
 
-## Verification / Testing Rules
+1. the tests covering what changed are green (the targeted run, not the gate)
+2. `/code-review` (from `mattpocock-skills`): findings reported, then fixed. A fix
+   that changes code is reviewed too, before the gate.
+3. the full gate: `mvn clean install`, then the E2E run in `e2e-test-app/`
+4. commit
 
-- **Bug report triage: always check for existing tests first.** When a bug is reported, immediately check whether an existing test (unit, integration, or E2E) covers the affected use case. If a test exists but didn't catch the bug, fix the test. If no test exists, create one.
-- **Every bug fix must include a verification test.** No bug fix is complete without a test that reproduces the bug and verifies the fix.
-- **Every new feature must include verification** as defined in the relevant spec (see `specs/` directory).
-- **Never commit test code without running it first.** Tests must pass before they are considered done.
-- **Do not start a dev server for the user to verify.** Claude runs inside the devcontainer and its servers are unreachable from the host browser. For UI verification either (a) run Playwright yourself inside the devcontainer and report findings, or (b) hand verification back to the user explicitly ("please run `mvn spring-boot:run` on your host and tell me what you see"). Never leave a background `spring-boot:run` expecting the user to click around.
+Reviewing after the gate pays for the long build twice. Committing before the
+review means the commit is not the reviewed state. A commit without code (docs, a
+status capture) goes in directly. This order overrides any skill that orders it
+differently.
 
-## Module Structure
+`/code-review` diffs `<fixed-point>...HEAD`, which before the commit still shows the
+old state. Have it diff the working tree (`git diff <fixed-point>`) and name the
+fixed point yourself: `HEAD` for one change, the branch point for several commits.
 
-```
-addon/              # Core FullCalendar Flow component (org.vaadin.stefan:fullcalendar2)
-addon-scheduler/    # Scheduler extension for resource-based views (org.vaadin.stefan:fullcalendar2-scheduler)
-demo/               # Spring Boot demo application
-e2e-test-app/       # Vaadin Spring Boot app serving as E2E test target (Playwright)
-e2e-tests/          # Playwright test suite (tests/*.spec.js) — NOT a Maven module, uses npm
-fc-docs/            # Local copy of FullCalendar JS docs — v6 (current) + v7 changelog/migration guide
-```
+## Dev server
 
-## Specs (Working Basis)
+Vaadin dev loop (25.3+): `demo/.vaadin/vaadin-dev status | start | apply | restart |
+stop`, serving on port 8080. The `vaadin-devloop` skill describes the cycle. Never
+start the app with `spring-boot:run` beside it. Run `demo/.vaadin/vaadin-dev
+shutdown` before the gate, because `mvn clean` deletes `demo/target` under the
+running app. The dev loop does not run Lombok, so edits to Lombok-annotated classes
+need a Maven build (`mvn clean install -DskipTests -pl addon,addon-scheduler`).
 
-The `specs/` directory is the **primary working basis** for implementation tasks. Always read the relevant spec files before starting work:
+The dev loop runs only in the devcontainer. The maintainer opens the app from the
+host at the container's IP, which the status line shows. The dev server is for
+looking at the app, never a substitute for the gate. Stop it when you are done.
 
-1. `specs/project-context.md` — Read first: vision, problem, users, scope, risks
-2. `specs/architecture.md` — Tech stack and application structure
-3. `specs/datamodel/datamodel.md` — Entity definitions and relationships
-4. `specs/use-cases/` — Individual feature specs (copy `use-case-template.md` per feature)
-5. `specs/verification.md` — Visual verification checklists (Playwright MCP)
-6. `specs/design-system.md` — Design system rules
+## Release
 
-Workflow: Define context → Outline architecture → Specify features → Implement → Verify → Write tests. Specs are the single source of truth — keep them up to date as the project evolves.
-
-## Naming Convention
-
-FullCalendar JS calls them "events"; this Java addon calls them **"entries"** (`Entry.java`, not `Event.java`). This avoids collision with Vaadin's event system. All enum constants, method names, and class names use `ENTRY_` / `Entry` prefix, never `EVENT_`.
-
-## Architecture
-
-### Core Component (`addon/`)
-
-The main component is `FullCalendar` (custom element tag: `<vaadin-full-calendar>`) extending Vaadin's `Component`. Key classes:
-
-- `FullCalendar.java` - Main calendar component with bidirectional JS communication
-- `FullCalendarBuilder.java` - Fluent builder for calendar configuration
-- `Entry.java` - Calendar event/entry model with properties (title, start/end, color, recurrence, etc.)
-- `dataprovider/` - Data provider abstraction:
-  - `EntryProvider` - Interface for providing entries
-  - `InMemoryEntryProvider` - Client-side data storage
-  - `CallbackEntryProvider` - Lazy loading from backend
-
-### Scheduler Extension (`addon-scheduler/`)
-
-Extends the base calendar with resource management:
-
-- `FullCalendarScheduler.java` / `Scheduler.java` - Resource-based calendar views
-- `Resource.java` - Resource model (supports hierarchies)
-- Timeline and Vertical Resource views
-
-**Note**: The Scheduler extension requires a separate FullCalendar license. The MIT license only covers this addon's code, not the underlying FullCalendar Scheduler library.
-
-### Event System
-
-Server-side events for calendar interactions:
-- `EntryClickedEvent`, `EntryDroppedEvent`, `EntryResizedEvent`
-- `TimeslotClickedEvent`, `TimeslotsSelectedEvent`
-- `DatesRenderedEvent`, `MoreLinkClickedEvent`
-- `DayNumberClickedEvent`, `WeekNumberClickedEvent`
-
-### Frontend
-
-TypeScript source lives at `addon/src/main/resources/META-INF/resources/frontend/vaadin-full-calendar/full-calendar.ts`. This is the client-side web component that communicates with the Java `FullCalendar` class. The FullCalendar JS client version is defined by `FullCalendar.FC_CLIENT_VERSION` (currently 6.1.21).
-
-### JSON Handling
-
-Uses Jackson 3 for serialization (changed from elemental.json in v7.0). Custom annotations in `json/` package for property mapping.
-
-## Tech Stack
-
-- Java 21
-- Vaadin 25.x
-- Spring Boot 4.x (demo only)
-- Maven multi-module build
-- Lombok for boilerplate reduction
-- JUnit 5 + Mockito for testing
-- Vite for frontend bundling
-
-## Key Patterns
-
-1. **Vaadin Component Pattern**: Components extend `com.vaadin.flow.component.Component` and use `@JsModule` for frontend resources
-2. **Builder Pattern**: `FullCalendarBuilder` provides fluent configuration API
-3. **Data Provider Pattern**: Similar to Vaadin's DataProvider for managing calendar entries
-4. **Light DOM**: v6+ uses light DOM instead of shadow DOM for easier styling
+Only when the maintainer asks, and the push is always the maintainer's. Follow
+`docs/agents/release.md` step by step, because the order of tag, `v-herd-demo` merge
+and snapshot bump matters for the demo deployment.
 
 ## Documentation
 
-User-facing documentation lives in the **GitHub wiki as the single source of truth** — there is no in-repo `docs/` folder. Key pages:
+User-facing documentation lives in the **GitHub wiki**, the single source of truth.
+There is no user doc folder in this repo. The wiki is its own git repo, checked out
+at `wiki/` (remote `origin-wiki`). Key pages: Home, Getting Started, Samples,
+Features, Release notes, Migration guides, FAQ, Known Issues, Scheduler license.
 
-- [Home](https://github.com/stefanuebe/vaadin-fullcalendar/wiki)
-- [Getting Started](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Getting-Started)
-- [Samples](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Samples)
-- [Features](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Features)
-- [Release notes](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Release-notes) — one detail page per minor (`Release-notes-<major>.<minor>`)
-- [Migration guides](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Migration-guides) — one detail page per version jump (`Migration-guide-<from>-to-<to>`)
-- [FAQ](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/FAQ), [Known Issues](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Known-Issues), [Scheduler license](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Scheduler-license)
+- Wiki-internal links use full GitHub URLs
+  (`https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Page-Name`), because the
+  Vaadin Directory does not resolve relative wiki links.
+- One release-notes page per minor (`Release-notes-<major>.<minor>`) and one
+  migration guide per version jump (`Migration-guide-<from>-to-<to>`). Index pages
+  stay one line per entry.
+- Docs always describe the final state. Wiki work for an unreleased version happens
+  on a local branch of the wiki repo (e.g. `8.0`) and is merged at release, so the
+  live wiki keeps describing the released version. No "work in progress" pages or
+  markers.
+- One wiki for all major versions. Call out version-specific API differences inline
+  where relevant, don't maintain parallel page sets.
+- The former `mcp-server/` module was removed for its dependency churn. Don't
+  reintroduce it. If tooling is missed, prefer something that reads the wiki directly.
 
-The wiki is a separate git repo: `https://github.com/stefanuebe/vaadin-fullcalendar.wiki.git`. In this devcontainer it is checked out at `/workspace/wiki/` (remote `origin-wiki`). Edit files there and commit/push to the wiki remote.
+## Architecture notes
 
-### Documentation conventions
+- Component state needs no locking or `volatile`, because the `VaadinSession` lock
+  serializes all component access. The addon must stay `Serializable` (see
+  `SerializationTest` / `SchedulerSerializationTest`).
+- `lastFetchedEntries` holds one viewport worth and is repopulated on every client
+  fetch. It is not a long-lived cache.
 
-- **Link style** — wiki-internal links use full GitHub URLs (`https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Page-Name`), not relative wiki links. External viewers (Vaadin Directory etc.) do not resolve relative wiki links.
-- **Work-in-progress pages** — while a release or migration guide is being drafted, the wiki page title carries a `-wip` suffix (`Release-notes-7.2-wip`, `Migration-guide-7.1-to-7.2-wip`). Add an entry to the relevant index (`Release-notes` / `Migration-guides`) with a visible "(work in progress)" marker. On release, rename the page (GitHub wiki auto-creates redirects), drop the suffix and marker, and update every cross-reference.
-- **Page structure** — one release-notes detail page per minor version; one migration-guide detail page per version jump; main index pages stay one-line-per-entry.
-- **v6 vs v7 in the same wiki** — code-level difference is only elemental JSON (v6) vs Jackson 3 (v7). Call out version-specific API differences inline where relevant; do not maintain parallel page sets.
+## Who owns which file
 
-### Discontinued: the FullCalendar MCP server
+| File | Owner | Rule |
+|---|---|---|
+| `docs/adr/` | Claude | Decisions with their reasons. Sparingly: hard to reverse, surprising, a real trade-off. |
+| `specs/` | shared | Working basis for features. Keep it in line with the code. |
+| `CLAUDE.md`, `STYLEGUIDE.md`, `CONTEXT.md` | shared | Standing rules. Add here only what outlives the piece of work that raised it. |
 
-The `mcp-server/` module and its deployment at `v-herd.eu/vaadin-fullcalendar-mcp` were **removed**
-(2026-09-03). Its npm dependency tree produced a constant stream of security advisories, and since
-it only re-served wiki content, the maintenance cost outweighed the benefit. The wiki stays the
-single source of truth. Do not reintroduce it; if the tooling is ever missed, prefer something that
-reads the wiki directly over a service with its own dependency tree.
+## Conventions
 
-## Thread Safety & Performance Notes
-
-- Component state (e.g. `FullCalendar.refreshAllEntriesRequested`) needs no extra locking/`volatile`: all Vaadin component access is serialized by the `VaadinSession` lock. The addon must, however, stay Java-`Serializable` (session passivation / cluster replication) — see `SerializationTest` / `SchedulerSerializationTest`. Avoid non-serializable fields; mark genuinely transient ones `transient`.
-- `BeanProperties` caches reflection data (annotations, converters) for performance
-- `lastFetchedEntries` is a plain map, cleared and repopulated on every client fetch (one viewport worth) — not a long-lived cache
-- ResizeObserver is cleaned up in `disconnectedCallback()` to prevent memory leaks
-- Server-defined JS callbacks use `new Function()` intentionally for dynamic evaluation
-
-## MCP Servers and other docs
-
-Vaadin documentation MCP server for component DOM structure and API reference:
-
-```json
-{
-  "mcpServers": {
-    "vaadin": {
-      "type": "http",
-      "url": "https://mcp.vaadin.com/docs"
-    }
-  }
-}
-```
-
-If the MCP server does not have instructions on particular client side elements (web-components) of Vaadin, you
-may also check the typescript api: https://cdn.vaadin.com/vaadin-web-components/25.0.2, where each element has its
-own page, e.g. https://cdn.vaadin.com/vaadin-web-components/25.0.2/elements/vaadin-menu-bar/ . Only use that page as
-a last resort and only open the respective element's page.
+- The MCP `vaadin` server (`https://mcp.vaadin.com/docs`) is the source of truth
+  for Vaadin API. Prefer it over memory. As a last resort for web component DOM, the
+  per-element pages under `https://cdn.vaadin.com/vaadin-web-components/<version>/`.
+- Don't pin dependency versions to a guessed "latest". Resolve the current release
+  first.
+- Code style: read and follow `STYLEGUIDE.md`.
+- Domain language: use the terms in `CONTEXT.md`. A calendar item is an **Entry**
+  (`ENTRY_` / `Entry` prefixes), never an event, to avoid clashing with Vaadin's
+  event system.
 
 ## Agent skills
 
-### Issue tracker
-
-Issues live in GitHub Issues (`stefanuebe/vaadin-fullcalendar`), accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-Default vocabulary, except `needs-info` → `waiting for author`: `needs-triage`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-Single-context: root `CONTEXT.md` + `docs/adr/`, alongside the existing `specs/` working basis. See `docs/agents/domain.md`.
+- Issue tracker: GitHub Issues via `gh`, see `docs/agents/issue-tracker.md`.
+- Triage labels: default vocabulary, except `needs-info` → `waiting for author`, see
+  `docs/agents/triage-labels.md`.
+- Domain docs: single-context (`CONTEXT.md`, `docs/adr/`, plus `specs/`), see
+  `docs/agents/domain.md`.
