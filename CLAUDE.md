@@ -58,12 +58,12 @@ For every release (patch, minor, or major):
 2. **Update `ADDON_VERSION`** in `demo/src/main/java/org/vaadin/stefan/ui/layouts/AbstractLayout.java` to the release version (without `-SNAPSHOT`). This string constant is rendered in the demo footer, so it must match the deployed artifact version. The same file also exists in `spike/` but is not on the release path — leave it alone.
 3. **Commit** as `Release <version>` (matches the style of existing release commits, e.g. `5f861d00`). The commit must include both the POM and the `ADDON_VERSION` change so the tag and the `v-herd-demo` merge both carry a consistent tree.
 4. **Tag** the commit as annotated tag `<version>` with message `Release <version>` (e.g. `git tag -a 7.2.1 -m "Release 7.2.1"`).
-5. **Do not bump the snapshot yet.** The next snapshot bump goes *after* step 6.
-6. **Sync `v-herd-demo` to the release state.** Check out `v-herd-demo` and merge master (`git merge master -X theirs` to take master's POM values over the historical `v-herd-version` commit). Resulting tree should show the released version across all POMs *and* in `ADDON_VERSION`. Push.
-7. **Back on master: bump to the next snapshot** (usually `+1` on the patch, e.g. `7.2.1 → 7.2.2-SNAPSHOT`). Update both the POMs *and* `ADDON_VERSION` (e.g. `"7.2.2-SNAPSHOT"`). Commit as `Bump to <next>-SNAPSHOT`.
-8. **Push master and the new tag.**
+5. **Do not bump the snapshot yet.** The bump is the *last* step — it comes after the pushes and the release build, not before.
+6. **Sync `v-herd-demo` to the release state.** Check out `v-herd-demo` and merge master (`git merge master -X theirs` to take master's POM values over the historical `v-herd-version` commit). Resulting tree should show the released version across all POMs *and* in `ADDON_VERSION` — it should be identical to the tagged tree (`git diff <version> HEAD` comes back empty). Prepare the merge here, but do not push it on its own.
+7. **Push master, the tag and `v-herd-demo` together**, then run the release build. Pushing them in one go avoids a ping-pong between the two branches.
+8. **Back on master: bump to the next snapshot** (usually `+1` on the patch, e.g. `7.2.1 → 7.2.2-SNAPSHOT`). Update both the POMs *and* `ADDON_VERSION` (e.g. `"7.2.2-SNAPSHOT"`). Commit as `Bump to <next>-SNAPSHOT` and push.
 
-Why this order matters: if the snapshot is bumped before `v-herd-demo` is synced, merging master into `v-herd-demo` brings in the snapshot version — then the demo server redeploys against a `-SNAPSHOT` artifact that isn't in any public repo, and the deployment breaks.
+Why this order matters: if the snapshot is bumped before `v-herd-demo` is synced and pushed, merging master into `v-herd-demo` brings in the snapshot version — then the demo server redeploys against a `-SNAPSHOT` artifact that isn't in any public repo, and the deployment breaks.
 
 Why `ADDON_VERSION` matters: the demo server renders this constant as "Version X" in its UI. If it drifts from the actual POM version, deployed demos display a misleading version number. Forgetting to update it at release time has historically required a follow-up cherry-pick into `v-herd-demo`, which is the kind of thing the workflow is supposed to prevent.
 
@@ -218,3 +218,17 @@ If the MCP server does not have instructions on particular client side elements 
 may also check the typescript api: https://cdn.vaadin.com/vaadin-web-components/25.0.2, where each element has its
 own page, e.g. https://cdn.vaadin.com/vaadin-web-components/25.0.2/elements/vaadin-menu-bar/ . Only use that page as
 a last resort and only open the respective element's page.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues (`stefanuebe/vaadin-fullcalendar`), accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary, except `needs-info` → `waiting for author`: `needs-triage`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `CONTEXT.md` + `docs/adr/`, alongside the existing `specs/` working basis. See `docs/agents/domain.md`.
