@@ -33,12 +33,12 @@ change. Optimise for the next reader.
 
 These are mechanical and non-negotiable:
 
-- **Always use `{}` blocks** for one-line `if`/`else`/`for`/`while` — never the
+- **Always use `{}` blocks** for one-line `if`/`else`/`for`/`while`. Never use the
   braceless form.
 - A **guard clause / early-return `if`** is followed by exactly one blank line
-  before the main logic — *unless* the next line closes the method (`}`).
+  before the main logic, *unless* the next line closes the method (`}`).
 - The **terminating `return`** that produces the method's result is preceded by
-  exactly one blank line, separating it from the code that built the value —
+  exactly one blank line, separating it from the code that built the value,
   *unless* it is the method's only statement, or it sits immediately after the
   opening `{`.
 - **Multiline comments** are always preceded by one blank line.
@@ -74,7 +74,7 @@ statement. Tightly related one-liners stay together.
 ## 5. Comments
 
 - Less is more. Keep comments **short and focused on the WHY**.
-- The WHAT must be obvious from the code itself — if it isn't, rewrite the code
+- The WHAT must be obvious from the code itself. If it isn't, rewrite the code
   rather than explaining it in a comment.
 - No commented-out code without a stated reason.
 - **The code is not your logbook.** A comment records why the code is the way it
@@ -88,7 +88,7 @@ statement. Tightly related one-liners stay together.
   make something testable. Test through the real public interface or restructure.
 - Prefer **deep modules**: a small, stable interface over a substantial
   implementation. A class whose interface is nearly as complex as its body is a
-  smell — see `/improve-codebase-architecture`.
+  smell, see `/improve-codebase-architecture`.
 - **The add-on stays framework-agnostic.** `addon/` and `addon-scheduler/` depend
   on Vaadin Flow only. Spring, configuration lookup and other application concerns belong to the
   consuming app (and to the demo), not to the add-on.
@@ -115,7 +115,7 @@ Anything written here becomes a rule a reviewer can cite.
 
 ### Vaadin / UI conventions
 
-Prefer official Vaadin API over custom workarounds or DOM manipulation — verify
+Prefer official Vaadin API over custom workarounds or DOM manipulation. Verify
 against the Vaadin MCP before rolling your own.
 
 - The client part is a light-DOM web component in TypeScript, loaded with
