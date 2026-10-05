@@ -37,9 +37,5 @@ _Avoid_: Color theme, skin
 Light or dark rendering of a calendar's palette.
 _Avoid_: Dark theme, mode
 
-**Variant**:
-A small Vaadin-style modifier applied to a calendar via its `theme` attribute, layered on top of an FC theme.
-_Avoid_: Theme variant (when an FC theme is meant)
-
 **Vaadin application theme**:
 The Vaadin theme of the surrounding application (Lumo or Aura). Not part of the calendar, but the Vaadin FC theme takes its look from it.
