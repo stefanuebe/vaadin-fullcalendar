@@ -42,7 +42,7 @@ import java.util.*;
  *   <tr><td>{@code .withScheduler().build()}</td>
  *       <td>{@code new FullCalendarScheduler()}</td></tr>
  *   <tr><td>{@code .withScheduler(key).build()}</td>
- *       <td>{@code new FullCalendarScheduler()} + {@code setOption(Option.SCHEDULER_LICENSE_KEY, key)}</td></tr>
+ *       <td>{@code new FullCalendarScheduler()} + {@code setOption(SchedulerOption.LICENSE_KEY, key)}</td></tr>
  *   <tr><td>{@code .withInitialOptions(obj).build()}</td>
  *       <td>{@code new FullCalendar(obj)} / {@code new FullCalendarScheduler(obj)}</td></tr>
  *   <tr><td>{@code .withEntryLimit(n).build()}</td>
