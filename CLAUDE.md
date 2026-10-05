@@ -88,8 +88,11 @@ half-installed packages.
   **Test views** and depends on the addons only, never on `demo/`.
 - **`e2e-tests/`** is the Playwright suite (`tests/*.spec.js`, npm, not a Maven
   module). `mvn verify -Pit` in `e2e-test-app/` starts the app and runs it.
-- **`fc-docs/`** is a local copy of the FullCalendar JS docs (v6). Prefer it over
-  web fetches.
+- **`fc-docs/`** holds local copies of the FullCalendar JS docs, `_docs-v6` and
+  `_docs-v7` (Markdown, `index.md` lists every page, `CHANGELOG.md` beside it).
+  Prefer them over web fetches. The folder is git-ignored. The v7 copy is built from
+  `https://fullcalendar.io/docs/llms.txt`, which links every page as Markdown, plus
+  the `CHANGELOG.md` of `fullcalendar/fullcalendar`.
 
 ## Testing
 
