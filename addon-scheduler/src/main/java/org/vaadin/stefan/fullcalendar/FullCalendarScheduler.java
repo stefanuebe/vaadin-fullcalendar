@@ -618,6 +618,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          *
          * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
          */
+        ENTRY_RESOURCE_EDITABLE("eventResourceEditable"),
+
+        /**
+         * @deprecated use {@link #ENTRY_RESOURCE_EDITABLE}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
 
         /**

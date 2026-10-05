@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.WEEKENDS`, `Option.HIDDEN_DAYS`, `Option.ALL_DAY_SLOT`, `Option.SLOT_DURATION`, `Option.SLOT_MIN_TIME`, `Option.SLOT_MAX_TIME`, `Option.SLOT_LABEL_FORMAT`, `Option.SLOT_LABEL_INTERVAL`, `Option.HEIGHT`, `Option.CONTENT_HEIGHT`, `Option.ASPECT_RATIO`, `Option.EXPAND_ROWS`, `Option.FIXED_WEEK_COUNT`, `Option.SHOW_NON_CURRENT_DATES`, `Option.DAY_HEADERS`, `Option.DAY_HEADER_FORMAT`, `Option.DAY_MIN_WIDTH`, `Option.MAX_ENTRIES_PER_DAY`, `Option.DAY_MAX_EVENT_ROWS`, `Option.ENTRY_MAX_STACK`, `Option.NOW_INDICATOR`, `Option.WEEK_NUMBERS`, `Option.WEEK_TEXT`, `Option.SCROLL_TIME`, `Option.NEXT_DAY_THRESHOLD`, `Option.MULTI_MONTH_MAX_COLUMNS`
+**Related Options:** `Option.WEEKENDS`, `Option.HIDDEN_DAYS`, `Option.ALL_DAY_SLOT`, `Option.SLOT_DURATION`, `Option.SLOT_MIN_TIME`, `Option.SLOT_MAX_TIME`, `Option.SLOT_LABEL_FORMAT`, `Option.SLOT_LABEL_INTERVAL`, `Option.HEIGHT`, `Option.CONTENT_HEIGHT`, `Option.ASPECT_RATIO`, `Option.EXPAND_ROWS`, `Option.FIXED_WEEK_COUNT`, `Option.SHOW_NON_CURRENT_DATES`, `Option.DAY_HEADERS`, `Option.DAY_HEADER_FORMAT`, `Option.DAY_MIN_WIDTH`, `Option.DAY_MAX_ENTRIES`, `Option.DAY_MAX_ENTRY_ROWS`, `Option.ENTRY_MAX_STACK`, `Option.NOW_INDICATOR`, `Option.WEEK_NUMBERS`, `Option.WEEK_TEXT`, `Option.SCROLL_TIME`, `Option.NEXT_DAY_THRESHOLD`, `Option.MULTI_MONTH_MAX_COLUMNS`
 **Related Events:** `MoreLinkClickedEvent`
 
 ---
@@ -70,7 +70,7 @@ calendar.setOption(Option.SCROLL_TIME, LocalTime.of(8, 0));
 | BR-02 | `HIDDEN_DAYS` can hide any combination of days |
 | BR-03 | `SLOT_MIN_TIME` / `SLOT_MAX_TIME` restrict visible time range in timegrid |
 | BR-04 | Duration options accept `Duration`, `LocalTime`, or string (`"HH:MM:SS"`) |
-| BR-05 | `MAX_ENTRIES_PER_DAY` triggers "+N more" popover when exceeded |
+| BR-05 | `DAY_MAX_ENTRIES` triggers "+N more" popover when exceeded |
 | BR-06 | `MoreLinkClickedEvent` fires when user clicks "+N more" |
 | BR-07 | `NOW_INDICATOR` only works in timegrid views |
 | BR-08 | View-specific options can override these for particular views |

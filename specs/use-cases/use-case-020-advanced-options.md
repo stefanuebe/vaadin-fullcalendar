@@ -32,11 +32,14 @@ calendar.setOption(Option.EDITABLE, true);
 calendar.setOption(Option.SLOT_DURATION, Duration.ofMinutes(15));
 calendar.setOption(Option.LOCALE, Locale.GERMAN);
 
+// Initial date
+calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+
 // Raw option (not in enum)
 calendar.setOption("someNewFcOption", "value");
 
 // View-specific override
-calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_EVENT_ROWS, 3);
+calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_ENTRY_ROWS, 3);
 calendar.setViewSpecificOption("timeGrid", Option.SLOT_DURATION, Duration.ofMinutes(30));
 
 // Scheduler option
@@ -53,11 +56,13 @@ Optional<Boolean> editable = calendar.getOption(Option.EDITABLE);
 | ID | Rule |
 |----|------|
 | BR-01 | Option enum constants auto-convert names to camelCase FC option names |
-| BR-02 | Some options have explicit `@JsonName` overrides (e.g., `MAX_ENTRIES_PER_DAY` → `"dayMaxEvents"`) |
+| BR-02 | Some options have explicit `@JsonName` overrides (e.g., `DAY_MAX_ENTRIES` → `"dayMaxEvents"`) |
 | BR-03 | `@JsonConverter` on option enums handles type conversion (Duration, DayOfWeek, BusinessHours, etc.) |
 | BR-04 | View-specific options are scoped to FC view name prefixes |
 | BR-05 | Raw string options bypass validation — incorrect values may cause client-side errors |
 | BR-06 | Options set via constructor `initialOptions` are NOT cached server-side — `getOption()` will return empty for these values. To read back or later override an option, set it via `setOption()` instead. |
+| BR-07 | A deprecated option constant is an alias of a renamed constant. It sets the same FC option with the same converters, so a value set through the alias is read back through the renamed constant |
+| BR-08 | `Option.INITIAL_DATE` takes a `LocalDate` and sends it as an ISO date string |
 
 ---
 
@@ -69,13 +74,15 @@ Optional<Boolean> editable = calendar.getOption(Option.EDITABLE);
 - [ ] Type converters handle Duration, DayOfWeek, Locale, BusinessHours correctly
 - [ ] `getOption()` returns previously set values
 - [ ] `getOption()` returns empty for values set only via `initialOptions` constructor
+- [ ] Every deprecated alias maps to the same FC option key and converters as its renamed constant
+- [ ] `INITIAL_DATE` converts a `LocalDate` to an ISO date string
 
 ---
 
 ## Tests
 
 ### Unit Tests
-- [ ] `FullCalendarOptionsTest` — option set/get
+- [ ] `FullCalendarOptionsTest` — option set/get, deprecated aliases, `INITIAL_DATE` conversion
 - [ ] `AdvancedOptionsTest` — raw options, view-specific options
 - [ ] `ConverterTest` — type conversion
 

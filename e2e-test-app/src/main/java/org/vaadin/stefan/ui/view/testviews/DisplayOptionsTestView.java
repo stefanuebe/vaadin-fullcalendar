@@ -47,22 +47,22 @@ public class DisplayOptionsTestView extends VerticalLayout {
         calendar.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
 
         // Fix date so the test is reproducible
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // Display options under test
-        // MAX_ENTRIES_PER_DAY (= FC dayMaxEvents) removes excess events from the DOM.
+        // DAY_MAX_ENTRIES (= FC dayMaxEvents) removes excess events from the DOM.
         // With value=2: 2 events in DOM + "+3 more" link (5 total - 2 visible = 3 hidden).
-        // Note: DAY_MAX_EVENT_ROWS is tested separately in AdvancedOptionsTestView.
+        // Note: DAY_MAX_ENTRY_ROWS is tested separately in AdvancedOptionsTestView.
         calendar.setMaxEntriesPerDay(2);
-        calendar.setOption(FullCalendar.Option.DISPLAY_EVENT_END, true);
+        calendar.setOption(FullCalendar.Option.DISPLAY_ENTRY_END, true);
 
         // Use 24h time format for consistent time display (test expects "10:00 - 11:30")
         ObjectNode eventTimeFormat = JsonFactory.createObject();
         eventTimeFormat.put("hour", "2-digit");
         eventTimeFormat.put("minute", "2-digit");
         eventTimeFormat.put("hour12", false);
-        calendar.setOption("eventTimeFormat", eventTimeFormat);
+        calendar.setOption(FullCalendar.Option.ENTRY_TIME_FORMAT, eventTimeFormat);
 
         // Create 5 entries on 2025-03-10 to trigger the "+N more" overflow link
         LocalDate crowdedDay = LocalDate.of(2025, 3, 10);

@@ -33,22 +33,22 @@ public class EventSourcesTest {
 
     @Test
     void option_startParam_key() {
-        assertEquals("startParam", Option.EXTERNAL_EVENT_SOURCE_START_PARAM.getOptionKey());
+        assertEquals("startParam", Option.ENTRY_SOURCE_START_PARAM.getOptionKey());
     }
 
     @Test
     void option_endParam_key() {
-        assertEquals("endParam", Option.EXTERNAL_EVENT_SOURCE_END_PARAM.getOptionKey());
+        assertEquals("endParam", Option.ENTRY_SOURCE_END_PARAM.getOptionKey());
     }
 
     @Test
     void option_timeZoneParam_key() {
-        assertEquals("timeZoneParam", Option.EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM.getOptionKey());
+        assertEquals("timeZoneParam", Option.ENTRY_SOURCE_TIME_ZONE_PARAM.getOptionKey());
     }
 
     @Test
     void option_googleCalendarApiKey_key() {
-        assertEquals("googleCalendarApiKey", Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY.getOptionKey());
+        assertEquals("googleCalendarApiKey", Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY.getOptionKey());
     }
 
     // -------------------------------------------------------------------------
@@ -57,26 +57,26 @@ public class EventSourcesTest {
 
     @Test
     void setStartParam_storesOption() {
-        calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_START_PARAM, "from");
-        assertOptionalEquals("from", calendar.getOption(Option.EXTERNAL_EVENT_SOURCE_START_PARAM));
+        calendar.setOption(Option.ENTRY_SOURCE_START_PARAM, "from");
+        assertOptionalEquals("from", calendar.getOption(Option.ENTRY_SOURCE_START_PARAM));
     }
 
     @Test
     void setEndParam_storesOption() {
-        calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_END_PARAM, "to");
-        assertOptionalEquals("to", calendar.getOption(Option.EXTERNAL_EVENT_SOURCE_END_PARAM));
+        calendar.setOption(Option.ENTRY_SOURCE_END_PARAM, "to");
+        assertOptionalEquals("to", calendar.getOption(Option.ENTRY_SOURCE_END_PARAM));
     }
 
     @Test
     void setTimeZoneParam_storesOption() {
-        calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM, "tz");
-        assertOptionalEquals("tz", calendar.getOption(Option.EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM));
+        calendar.setOption(Option.ENTRY_SOURCE_TIME_ZONE_PARAM, "tz");
+        assertOptionalEquals("tz", calendar.getOption(Option.ENTRY_SOURCE_TIME_ZONE_PARAM));
     }
 
     @Test
     void setGoogleCalendarApiKey_storesOption() {
-        calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY, "AIzaSy-test");
-        assertOptionalEquals("AIzaSy-test", calendar.getOption(Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY));
+        calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, "AIzaSy-test");
+        assertOptionalEquals("AIzaSy-test", calendar.getOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY));
     }
 
     // -------------------------------------------------------------------------

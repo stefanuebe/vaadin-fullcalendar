@@ -46,7 +46,7 @@ public class EntryIdWithSchedulerOnPageTestView extends VerticalLayout {
         FullCalendar plain = new FullCalendar();
         plain.getElement().setAttribute("data-testid", "plain-calendar");
         plain.changeView(CalendarViewImpl.DAY_GRID_MONTH);
-        plain.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
+        plain.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
 
         Entry e1 = new Entry("e1");
         e1.setTitle("Entry 1");

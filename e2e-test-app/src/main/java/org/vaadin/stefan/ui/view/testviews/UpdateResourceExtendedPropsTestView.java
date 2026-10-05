@@ -5,6 +5,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 import org.vaadin.stefan.fullcalendar.Resource;
 import org.vaadin.stefan.fullcalendar.Scheduler;
@@ -41,7 +42,7 @@ public class UpdateResourceExtendedPropsTestView extends VerticalLayout {
         calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
+        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
         calendar.changeView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
         Resource room = new Resource("r1", "Room 1", null);

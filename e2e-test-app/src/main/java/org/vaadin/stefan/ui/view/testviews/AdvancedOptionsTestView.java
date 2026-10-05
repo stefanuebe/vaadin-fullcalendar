@@ -55,8 +55,8 @@ public class AdvancedOptionsTestView extends VerticalLayout {
         center.addItem(HeaderFooterItem.TITLE);
         var right = new HeaderFooterPart(HeaderFooterPartPosition.END);
         calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, new Header(List.of(left, center, right)));
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // dateAlignment --------------------------------------------------------
         // Aligning to "month" is the default for dayGridMonth; this just exercises the setter.
@@ -65,7 +65,7 @@ public class AdvancedOptionsTestView extends VerticalLayout {
         // View-specific option ------------------------------------------------
         // Limit displayed event rows to 2 only in the dayGrid view family (not in other views).
         // With 5 events on 2025-03-05 this guarantees a "+N more" link in month view.
-        calendar.setViewSpecificOption("dayGrid", FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2);
+        calendar.setViewSpecificOption("dayGrid", FullCalendar.Option.DAY_MAX_ENTRY_ROWS, 2);
 
         // eventConstraint -------------------------------------------------------
         // Constrain drag-and-drop to business hours (does not affect rendering, exercises setter).

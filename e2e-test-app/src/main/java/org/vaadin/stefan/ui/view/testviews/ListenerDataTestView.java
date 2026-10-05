@@ -119,9 +119,9 @@ public class ListenerDataTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2); // triggers +more link
+        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(FullCalendar.Option.DAY_MAX_ENTRY_ROWS, 2); // triggers +more link
         calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
         calendar.setOption(FullCalendar.Option.SELECTABLE, true);
         calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);

@@ -30,7 +30,7 @@ import java.util.Objects;
  * <br><br>
  * The request includes {@code start} and {@code end} query parameters (names overridable per-source via
  * {@link #withStartParam(String)} / {@link #withEndParam(String)}, or globally via
- * {@code setOption(Option.EXTERNAL_EVENT_SOURCE_START_PARAM, ...)} / {@code setOption(Option.EXTERNAL_EVENT_SOURCE_END_PARAM, ...)})
+ * {@code setOption(Option.ENTRY_SOURCE_START_PARAM, ...)} / {@code setOption(Option.ENTRY_SOURCE_END_PARAM, ...)})
  * plus optional extra parameters from {@link #withExtraParams(Map)}.
  * <br><br>
  * Example:

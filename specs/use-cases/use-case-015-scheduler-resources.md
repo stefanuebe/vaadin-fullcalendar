@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon-scheduler
-**Related Options:** `SchedulerOption.RESOURCE_AREA_WIDTH`, `SchedulerOption.RESOURCE_AREA_HEADER_CONTENT`, `SchedulerOption.RESOURCE_ORDER`, `SchedulerOption.RESOURCES_INITIALLY_EXPANDED`, `SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES`, `SchedulerOption.RESOURCE_GROUP_FIELD`, `SchedulerOption.RESOURCE_AREA_COLUMNS`, `SchedulerOption.ENTRY_RESOURCES_EDITABLE`
+**Related Options:** `SchedulerOption.RESOURCE_AREA_WIDTH`, `SchedulerOption.RESOURCE_AREA_HEADER_CONTENT`, `SchedulerOption.RESOURCE_ORDER`, `SchedulerOption.RESOURCES_INITIALLY_EXPANDED`, `SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES`, `SchedulerOption.RESOURCE_GROUP_FIELD`, `SchedulerOption.RESOURCE_AREA_COLUMNS`, `SchedulerOption.ENTRY_RESOURCE_EDITABLE`
 **Related Events:** `EntryDroppedSchedulerEvent`, `TimeslotClickedSchedulerEvent`, `TimeslotsSelectedSchedulerEvent`
 
 ---
@@ -21,7 +21,7 @@
 - Entries are displayed in the row/column of their assigned resource(s)
 - Resources support hierarchical trees (parent/child)
 - Resources can be colored, grouped, filtered, and ordered
-- Entries can be dragged between resources (when `ENTRY_RESOURCES_EDITABLE = true`)
+- Entries can be dragged between resources (when `ENTRY_RESOURCE_EDITABLE = true`)
 - Resource area can have multiple columns showing resource properties
 
 ---
@@ -62,7 +62,7 @@ scheduler.setResourceAreaColumns(
 );
 
 // Enable inter-resource DnD
-scheduler.setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, true);
+scheduler.setOption(SchedulerOption.ENTRY_RESOURCE_EDITABLE, true);
 
 // Scheduler-specific events (resources are Optional)
 scheduler.addEntryDroppedSchedulerListener(event -> {

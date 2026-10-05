@@ -59,9 +59,16 @@ public class FullCalendarTest {
     void testNonArgsConstructor() {
         FullCalendar calendar = new FullCalendar();
 
-        // dayMaxEvents + editable (addon default, since #212 changed entry-level serialization)
-        assertExistingOptionCount(calendar, 3);
+        // locale + dayMaxEvents + height + editable (addon default)
+        assertExistingOptionCount(calendar, 4);
         assertEquals(Boolean.TRUE, calendar.getOption(Option.EDITABLE).orElse(null));
+    }
+
+    @Test
+    void noArgConstructor_setsDefaultLocale() {
+        FullCalendar calendar = new FullCalendar();
+
+        assertSame(CalendarLocale.getDefaultLocale(), calendar.getOption(Option.LOCALE).orElse(null));
     }
 
     @Test
@@ -78,10 +85,10 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar();
         calendar.setMaxEntriesPerDay(entryLimit);
 
-        // dayMaxEvents + editable (addon default)
-        assertExistingOptionCount(calendar, 3);
+        // locale + dayMaxEvents + height + editable (addon default)
+        assertExistingOptionCount(calendar, 4);
 
-        assertEquals(entryLimit, calendar.getOption(Option.MAX_ENTRIES_PER_DAY).orElse(-1));
+        assertEquals(entryLimit, calendar.getOption(Option.DAY_MAX_ENTRIES).orElse(-1));
     }
 
     @Test
@@ -118,7 +125,8 @@ public class FullCalendarTest {
     }
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
-        assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
+        // deprecated aliases share the key of their renamed constant, so count keys, not constants
+        assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(Option::getOptionKey).distinct().map(calendar::getOption).filter(Optional::isPresent).count());
     }
 
     @Test

@@ -91,7 +91,7 @@ public class FullCalendarSchedulerTest {
     @Test
     void testNonArgsConstructor() {
         // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 3); // + editable (addon default since #212 change)
+        assertExistingOptionCount(calendar, 4); // locale + dayMaxEvents + height + editable (addon default)
     }
 
     @Test
@@ -101,13 +101,29 @@ public class FullCalendarSchedulerTest {
         calendar.setMaxEntriesPerDay(entryLimit);
 
         // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 3); // + editable (addon default since #212 change)
+        assertExistingOptionCount(calendar, 4); // locale + dayMaxEvents + height + editable (addon default)
 
-        Assertions.assertEquals(entryLimit, calendar.getOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY).orElse(-1));
+        Assertions.assertEquals(entryLimit, calendar.getOption(FullCalendar.Option.DAY_MAX_ENTRIES).orElse(-1));
+    }
+
+    @Test
+    void noArgConstructor_setsDefaultLocale() {
+        Assertions.assertSame(CalendarLocale.getDefaultLocale(), new FullCalendarScheduler().getOption(FullCalendar.Option.LOCALE).orElse(null));
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void deprecatedEntryResourcesEditable_setsSameOptionAsEntryResourceEditable() {
+        FullCalendarScheduler.SchedulerOption alias = FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE;
+        FullCalendarScheduler.SchedulerOption renamed = FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCE_EDITABLE;
+
+        Assertions.assertEquals(renamed.getOptionKey(), alias.getOptionKey());
+        Assertions.assertEquals(renamed.getConverters(), alias.getConverters());
     }
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
-        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(FullCalendar.Option.values()).map(calendar::getOption).filter(Optional::isPresent).count());
+        // deprecated aliases share the key of their renamed constant, so count keys, not constants
+        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(FullCalendar.Option.values()).map(FullCalendar.Option::getOptionKey).distinct().map(calendar::getOption).filter(Optional::isPresent).count());
     }
 
 

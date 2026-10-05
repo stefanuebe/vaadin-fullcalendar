@@ -59,6 +59,7 @@ calendar.addBrowserTimezoneObtainedListener(event -> {
 | BR-03 | Timezone converts all entry times for display — the Java model stores `LocalDateTime` (UTC-normalized). Setters accept `LocalDateTime`, `Instant`, or `LocalDate`. |
 | BR-04 | `BrowserTimezoneObtainedEvent` fires once on initial load |
 | BR-05 | `WEEK_NUMBER_CALCULATION` can be `"locale"` or `"ISO"` |
+| BR-06 | A calendar created without a locale gets `CalendarLocale.getDefaultLocale()`, so `getOption(Option.LOCALE)` is never empty unless the locale is removed explicitly |
 
 ---
 

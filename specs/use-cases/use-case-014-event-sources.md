@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.EXTERNAL_EVENT_SOURCE_START_PARAM`, `Option.EXTERNAL_EVENT_SOURCE_END_PARAM`, `Option.EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM`, `Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY`
+**Related Options:** `Option.ENTRY_SOURCE_START_PARAM`, `Option.ENTRY_SOURCE_END_PARAM`, `Option.ENTRY_SOURCE_TIME_ZONE_PARAM`, `Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY`
 **Related Events:** `EventSourceFailureEvent`, `ExternalEntryDroppedEvent`, `ExternalEntryResizedEvent`
 
 ---

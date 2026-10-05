@@ -48,8 +48,8 @@ public class CalendarOptionsTestView extends VerticalLayout {
         cal1.addThemeVariants(FullCalendarVariant.VAADIN);
         cal1.getElement().setAttribute("id", "cal-daygrid");
         cal1.setOption(FullCalendar.Option.LOCALE, Locale.GERMAN);
-        cal1.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        cal1.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        cal1.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        cal1.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
         cal1.setOption(FullCalendar.Option.FIRST_DAY, DayOfWeek.MONDAY);
         cal1.setOption(FullCalendar.Option.WEEKENDS, false);
         cal1.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
@@ -76,8 +76,8 @@ public class CalendarOptionsTestView extends VerticalLayout {
         cal2.addThemeVariants(FullCalendarVariant.VAADIN);
         cal2.getElement().setAttribute("id", "cal-timegrid");
         cal2.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
-        cal2.setOption("initialDate", LocalDate.of(2025, 3, 5).toString());
-        cal2.setOption("initialView", CalendarViewImpl.TIME_GRID_DAY.getClientSideValue());
+        cal2.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 5));
+        cal2.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_DAY.getClientSideValue());
         cal2.setOption(FullCalendar.Option.SLOT_MIN_TIME, "08:00:00");
         cal2.setOption(FullCalendar.Option.SLOT_MAX_TIME, "18:00:00");
         cal2.setOption(FullCalendar.Option.SLOT_DURATION, "00:15:00");
@@ -105,8 +105,8 @@ public class CalendarOptionsTestView extends VerticalLayout {
         cal3.getElement().setAttribute("id", "cal-extra");
         cal3.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
         // Use today's date (no hiddenDays!) so nowIndicator is always visible
-        cal3.setOption("initialDate", java.time.LocalDate.now().toString());
-        cal3.setOption("initialView", CalendarViewImpl.TIME_GRID_DAY.getClientSideValue());
+        cal3.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.now());
+        cal3.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_DAY.getClientSideValue());
         cal3.setOption(FullCalendar.Option.NOW_INDICATOR, true);
         cal3.setOption(FullCalendar.Option.SCROLL_TIME, "14:00:00");
 

@@ -28,12 +28,12 @@ public class DisplayOptionsTest {
 
     @Test
     void option_displayEventEnd_key() {
-        assertEquals("displayEventEnd", Option.DISPLAY_EVENT_END.getOptionKey());
+        assertEquals("displayEventEnd", Option.DISPLAY_ENTRY_END.getOptionKey());
     }
 
     @Test
     void option_progressiveEventRendering_key() {
-        assertEquals("progressiveEventRendering", Option.PROGRESSIVE_EVENT_RENDERING.getOptionKey());
+        assertEquals("progressiveEventRendering", Option.PROGRESSIVE_ENTRY_RENDERING.getOptionKey());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class DisplayOptionsTest {
 
     @Test
     void option_dayMaxEventRows_key() {
-        assertEquals("dayMaxEventRows", Option.DAY_MAX_EVENT_ROWS.getOptionKey());
+        assertEquals("dayMaxEventRows", Option.DAY_MAX_ENTRY_ROWS.getOptionKey());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class DisplayOptionsTest {
 
     @Test
     void option_forceEventDuration_key() {
-        assertEquals("forceEventDuration", Option.FORCE_EVENT_DURATION.getOptionKey());
+        assertEquals("forceEventDuration", Option.FORCE_ENTRY_DURATION.getOptionKey());
     }
 
     @Test
@@ -122,11 +122,11 @@ public class DisplayOptionsTest {
 
     @Test
     void setDisplayEventEnd_storesOption() {
-        calendar.setOption(Option.DISPLAY_EVENT_END, true);
-        assertOptionalEquals(true, calendar.getOption(Option.DISPLAY_EVENT_END));
+        calendar.setOption(Option.DISPLAY_ENTRY_END, true);
+        assertOptionalEquals(true, calendar.getOption(Option.DISPLAY_ENTRY_END));
 
-        calendar.setOption(Option.DISPLAY_EVENT_END, false);
-        assertOptionalEquals(false, calendar.getOption(Option.DISPLAY_EVENT_END));
+        calendar.setOption(Option.DISPLAY_ENTRY_END, false);
+        assertOptionalEquals(false, calendar.getOption(Option.DISPLAY_ENTRY_END));
     }
 
     // -------------------------------------------------------------------------
@@ -151,8 +151,8 @@ public class DisplayOptionsTest {
 
     @Test
     void setProgressiveEventRendering_storesOption() {
-        calendar.setOption(Option.PROGRESSIVE_EVENT_RENDERING, true);
-        assertOptionalEquals(true, calendar.getOption(Option.PROGRESSIVE_EVENT_RENDERING));
+        calendar.setOption(Option.PROGRESSIVE_ENTRY_RENDERING, true);
+        assertOptionalEquals(true, calendar.getOption(Option.PROGRESSIVE_ENTRY_RENDERING));
     }
 
     // -------------------------------------------------------------------------
@@ -234,22 +234,22 @@ public class DisplayOptionsTest {
 
     @Test
     void setDayMaxEventRows_storesInt() {
-        calendar.setOption(Option.DAY_MAX_EVENT_ROWS, 3);
-        assertOptionalEquals(3, calendar.getOption(Option.DAY_MAX_EVENT_ROWS));
+        calendar.setOption(Option.DAY_MAX_ENTRY_ROWS, 3);
+        assertOptionalEquals(3, calendar.getOption(Option.DAY_MAX_ENTRY_ROWS));
     }
 
     @Test
     void setDayMaxEventRowsFitToCell_storesTrue() {
-        calendar.setOption(Option.DAY_MAX_EVENT_ROWS, true);
-        assertOptionalEquals(true, calendar.getOption(Option.DAY_MAX_EVENT_ROWS));
+        calendar.setOption(Option.DAY_MAX_ENTRY_ROWS, true);
+        assertOptionalEquals(true, calendar.getOption(Option.DAY_MAX_ENTRY_ROWS));
     }
 
     @Test
     void setDayMaxEventRows_afterFitToCell_overridesWithInt() {
         // setDayMaxEventRowsFitToCell() stores true; a subsequent int call must overwrite it
-        calendar.setOption(Option.DAY_MAX_EVENT_ROWS, true);
-        calendar.setOption(Option.DAY_MAX_EVENT_ROWS, 5);
-        assertOptionalEquals(5, calendar.getOption(Option.DAY_MAX_EVENT_ROWS));
+        calendar.setOption(Option.DAY_MAX_ENTRY_ROWS, true);
+        calendar.setOption(Option.DAY_MAX_ENTRY_ROWS, 5);
+        assertOptionalEquals(5, calendar.getOption(Option.DAY_MAX_ENTRY_ROWS));
     }
 
     // -------------------------------------------------------------------------
@@ -308,8 +308,8 @@ public class DisplayOptionsTest {
 
     @Test
     void setForceEventDuration_storesOption() {
-        calendar.setOption(Option.FORCE_EVENT_DURATION, true);
-        assertOptionalEquals(true, calendar.getOption(Option.FORCE_EVENT_DURATION));
+        calendar.setOption(Option.FORCE_ENTRY_DURATION, true);
+        assertOptionalEquals(true, calendar.getOption(Option.FORCE_ENTRY_DURATION));
     }
 
     @Test

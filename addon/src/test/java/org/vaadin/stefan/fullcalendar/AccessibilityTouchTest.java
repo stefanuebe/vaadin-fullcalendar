@@ -39,7 +39,7 @@ public class AccessibilityTouchTest {
 
     @Test
     void option_viewHint_key() {
-        assertEquals("viewHint", Option.NATIVE_TOOLBAR_VIEW_HINT.getOptionKey());
+        assertEquals("viewHint", Option.VIEW_HINT.getOptionKey());
     }
 
     @Test
@@ -108,15 +108,15 @@ public class AccessibilityTouchTest {
 
     @Test
     void setViewHint_storesOption() {
-        calendar.setOption(Option.NATIVE_TOOLBAR_VIEW_HINT, "Switch to $0 view");
-        assertOptionalEquals("Switch to $0 view", calendar.getOption(Option.NATIVE_TOOLBAR_VIEW_HINT));
+        calendar.setOption(Option.VIEW_HINT, "Switch to $0 view");
+        assertOptionalEquals("Switch to $0 view", calendar.getOption(Option.VIEW_HINT));
     }
 
     @Test
     void setViewHint_null_clearsOption() {
-        calendar.setOption(Option.NATIVE_TOOLBAR_VIEW_HINT, "Switch to $0 view");
-        calendar.setOption(Option.NATIVE_TOOLBAR_VIEW_HINT, null);
-        assertTrue(calendar.getOption(Option.NATIVE_TOOLBAR_VIEW_HINT).isEmpty());
+        calendar.setOption(Option.VIEW_HINT, "Switch to $0 view");
+        calendar.setOption(Option.VIEW_HINT, null);
+        assertTrue(calendar.getOption(Option.VIEW_HINT).isEmpty());
     }
 
     // -------------------------------------------------------------------------

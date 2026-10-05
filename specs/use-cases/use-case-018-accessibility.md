@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.ENTRY_INTERACTIVE`, `Option.NATIVE_TOOLBAR_BUTTON_HINTS`, `Option.NAV_LINK_HINT`, `Option.MORE_LINK_HINT`, `Option.NATIVE_TOOLBAR_VIEW_HINT`, `Option.CLOSE_HINT`, `Option.TIME_HINT`, `Option.ENTRY_HINT`, `Option.LONG_PRESS_DELAY`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.SELECT_LONG_PRESS_DELAY`
+**Related Options:** `Option.ENTRY_INTERACTIVE`, `Option.NATIVE_TOOLBAR_BUTTON_HINTS`, `Option.NAV_LINK_HINT`, `Option.MORE_LINK_HINT`, `Option.VIEW_HINT`, `Option.CLOSE_HINT`, `Option.TIME_HINT`, `Option.ENTRY_HINT`, `Option.LONG_PRESS_DELAY`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.SELECT_LONG_PRESS_DELAY`
 **Related Events:** —
 
 ---

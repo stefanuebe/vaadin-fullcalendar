@@ -26,7 +26,7 @@ public abstract class AbstractEntryProviderView extends VerticalLayout {
 
         calendar = new FullCalendar();
         calendar.setEntryProvider(entryProvider);
-        calendar.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+        calendar.setOption(FullCalendar.Option.DAY_MAX_ENTRIES, 3);
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
         calendar.setOption(FullCalendar.Option.SELECTABLE, true);

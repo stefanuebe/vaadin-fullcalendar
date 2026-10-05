@@ -54,8 +54,8 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
-        calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // Enable native toolbar so buttonHints (NATIVE_TOOLBAR_BUTTON_HINTS) has buttons to label.
         // The addon disables headerToolbar by default; this view needs it for its buttonHints tests.
@@ -69,7 +69,7 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         calendar.setOption(FullCalendar.Option.ENTRY_INTERACTIVE, true);
         calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
         // Limit event rows to 2 so the 5 events on 2025-03-05 reliably produce a "+N more" link
-        calendar.setOption(FullCalendar.Option.DAY_MAX_EVENT_ROWS, 2);
+        calendar.setOption(FullCalendar.Option.DAY_MAX_ENTRY_ROWS, 2);
         calendar.setOption(FullCalendar.Option.NAV_LINK_HINT, "Go to $0");
         calendar.setOption(FullCalendar.Option.MORE_LINK_HINT, "$0 more events. Click to expand");
         calendar.setOption(FullCalendar.Option.NATIVE_TOOLBAR_BUTTON_HINTS, Map.of(

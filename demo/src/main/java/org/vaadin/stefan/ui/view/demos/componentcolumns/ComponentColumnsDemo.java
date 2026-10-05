@@ -47,16 +47,16 @@ public class ComponentColumnsDemo extends VerticalLayout {
         scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
 
         scheduler.addThemeVariants(FullCalendarVariant.VAADIN);
-        scheduler.setOption("initialView", SchedulerView.RESOURCE_TIMELINE_MONTH.getClientSideValue());
-        scheduler.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
+        scheduler.setOption(FullCalendar.Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_MONTH.getClientSideValue());
+        scheduler.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
         scheduler.setOption(FullCalendar.Option.ENTRY_DURATION_EDITABLE, true);
         scheduler.setOption(FullCalendar.Option.EDITABLE, true);
         // Disable cross-resource dragging
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE, false);
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCE_EDITABLE, false);
         // Wider resource area to fit both date picker columns
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "500px");
         // Taller rows for date pickers
-        scheduler.setOption("resourceAreaHeaderContent", "Project Plan");
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_HEADER_CONTENT, "Project Plan");
 
         entryProvider = scheduler.getEntryProvider().asInMemory();
 

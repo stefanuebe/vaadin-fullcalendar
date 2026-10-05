@@ -42,7 +42,7 @@ public class AutoProvideEntryIdOnClientTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
         calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH);
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
+        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
 
         Entry simple = new Entry("simple");
         simple.setTitle("Simple");

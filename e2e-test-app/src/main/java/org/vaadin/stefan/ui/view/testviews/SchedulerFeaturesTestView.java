@@ -53,8 +53,8 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
         calendar.getElement().setAttribute("data-testid", "calendar");
 
         // Fix date and view for reproducibility
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
-        calendar.setOption("initialView", SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
+        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
 
         // --- Scheduler features ---
 

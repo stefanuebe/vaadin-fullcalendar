@@ -41,7 +41,7 @@ public class CalendarEditableFalseTestView extends VerticalLayout {
 
         FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
-        calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
+        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
         calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
         calendar.setOption(FullCalendar.Option.EDITABLE, false);
 

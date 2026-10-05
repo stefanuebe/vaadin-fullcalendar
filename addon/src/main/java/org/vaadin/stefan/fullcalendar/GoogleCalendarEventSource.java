@@ -25,7 +25,7 @@ import java.util.Objects;
  * A client-managed event source that fetches events from a public Google Calendar.
  * <br><br>
  * Requires the {@code @fullcalendar/google-calendar} npm package and a Google Calendar API key.
- * Set a global key via {@code calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY, key)},
+ * Set a global key via {@code calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, key)},
  * or set a per-source key via {@link #withApiKey(String)}.
  * <br><br>
  * <strong>Note:</strong> Only public Google Calendars are supported. Private calendars require OAuth and cannot
@@ -34,7 +34,7 @@ import java.util.Objects;
  * <br><br>
  * Example:
  * <pre>
- * calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY, "AIzaSy...");
+ * calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, "AIzaSy...");
  * calendar.addClientSideEventSource(new GoogleCalendarEventSource("holidays@group.calendar.google.com")
  *     .withId("holidays")
  *     .withColor("green"));
@@ -50,7 +50,7 @@ public class GoogleCalendarEventSource extends ClientSideEventSource<GoogleCalen
 
     /**
      * Optional per-source API key. Falls back to the global key set via
-     * {@code calendar.setOption(Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY, key)}.
+     * {@code calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, key)}.
      */
     private String googleCalendarApiKey;
 

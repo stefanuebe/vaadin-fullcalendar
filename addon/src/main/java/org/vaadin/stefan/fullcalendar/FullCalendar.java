@@ -29,6 +29,7 @@ import org.vaadin.stefan.fullcalendar.converters.DayOfWeekArrayConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.DurationConverter;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
+import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocaleConverter;
 import org.vaadin.stefan.fullcalendar.converters.StringArrayConverter;
 import org.vaadin.stefan.fullcalendar.converters.ToolbarConverter;
@@ -166,6 +167,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Uses {@link InMemoryEntryProvider} by default.
      */
     public FullCalendar() {
+        setOption(Option.LOCALE, CalendarLocale.getDefaultLocale());
         setMaxEntriesPerDayUnlimited();
         postConstruct();
     }
@@ -944,7 +946,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param maxEntriesPerDay maximal entries per day
      */
     public void setMaxEntriesPerDay(int maxEntriesPerDay) {
-        setOption(Option.MAX_ENTRIES_PER_DAY, maxEntriesPerDay);
+        setOption(Option.DAY_MAX_ENTRIES, maxEntriesPerDay);
     }
 
     /**
@@ -955,7 +957,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
      */
     public void setMaxEntriesPerDayFitToCell() {
-        setOption(Option.MAX_ENTRIES_PER_DAY, true);
+        setOption(Option.DAY_MAX_ENTRIES, true);
     }
 
     /**
@@ -966,7 +968,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
      */
     public void setMaxEntriesPerDayUnlimited() {
-        setOption(Option.MAX_ENTRIES_PER_DAY, false);
+        setOption(Option.DAY_MAX_ENTRIES, false);
     }
 
 
@@ -2019,7 +2021,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * <p>
      * Example — limit event rows only in month view:
      * <pre>{@code
-     * calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_EVENT_ROWS, 3);
+     * calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_ENTRY_ROWS, 3);
      * }</pre>
      *
      * @param viewType  FullCalendar view type name (e.g., {@code "dayGrid"}, {@code "timeGrid"},
@@ -2123,9 +2125,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * where the underlying FullCalendar JS option uses {@code event}
      * (e.g., {@code ENTRY_BACKGROUND_COLOR} → {@code eventBackgroundColor}).
      * Constants that provide an explicit string key via their constructor override this rule.
-     * Exceptions to the {@code ENTRY_} convention exist for historical reasons and are noted
-     * in their individual Javadoc ({@link #DISPLAY_EVENT_END}, {@link #FORCE_EVENT_DURATION},
-     * {@link #PROGRESSIVE_EVENT_RENDERING}).
+     * Deprecated constants are aliases of a renamed constant and set the same FullCalendar option.
      * Note: the {@code ENTRY} → {@code EVENT} substitution is applied to all occurrences of
      * {@code ENTRY} in the constant name, not only at the prefix. For example,
      * {@code DISPLAY_ENTRY_TIME} maps to {@code displayEventTime}.
@@ -2312,7 +2312,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         /**
          * Maximum number of overlapping entries rendered in a time slot before showing a "+N more" link.
          * In timeGrid view entries stack left-to-right; in timeline view they stack top-to-bottom.
-         * Does not apply to dayGrid view (use {@link #MAX_ENTRIES_PER_DAY} instead).
+         * Does not apply to dayGrid view (use {@link #DAY_MAX_ENTRIES} instead).
          * <dl>
          *   <dt>Type</dt>    <dd>{@code integer} | {@code null} (no limit)</dd>
          *   <dt>Default</dt> <dd>{@code null} (all entries shown)</dd>
@@ -2565,6 +2565,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * @see FullCalendar#setMaxEntriesPerDayUnlimited()
          * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">dayMaxEvents</a>
          */
+        DAY_MAX_ENTRIES("dayMaxEvents"),
+
+        /**
+         * @deprecated use {@link #DAY_MAX_ENTRIES}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         MAX_ENTRIES_PER_DAY("dayMaxEvents"),
 
         /**
@@ -2583,6 +2589,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * @since 7.2.0
          */
         INITIAL_VIEW("initialView"),
+
+        /**
+         * The date the calendar shows on first attach. Pass a {@link LocalDate}.
+         * <dl>
+         *   <dt>Type</dt>    <dd>{@code LocalDate}</dd>
+         *   <dt>Default</dt> <dd>the current date</dd>
+         * </dl>
+         *
+         * @see FullCalendar#gotoDate(LocalDate)
+         * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
+         */
+        @JsonConverter(LocalDateConverter.class)
+        INITIAL_DATE,
 
         /**
          * Format of the month label in multi-month grid views.
@@ -3022,6 +3041,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
          */
+        DAY_MAX_ENTRY_ROWS,
+
+        /**
+         * @deprecated use {@link #DAY_MAX_ENTRY_ROWS}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         DAY_MAX_EVENT_ROWS,
 
         /**
@@ -3040,11 +3065,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *   <dt>Type</dt>    <dd>{@code boolean}</dd>
          *   <dt>Default</dt> <dd>{@code true} for timed entries in agenda views, {@code false} for all-day entries</dd>
          * </dl>
-         * <p>Note: this constant uses the {@code EVENT_} naming convention instead of the usual
-         * {@code ENTRY_} prefix, retained for historical reasons.
          *
          * @see <a href="https://fullcalendar.io/docs/displayEventEnd">displayEventEnd</a>
          */
+        DISPLAY_ENTRY_END,
+
+        /**
+         * @deprecated use {@link #DISPLAY_ENTRY_END}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         DISPLAY_EVENT_END,
 
         /**
@@ -3086,11 +3115,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *   <dt>Type</dt>    <dd>{@code boolean}</dd>
          *   <dt>Default</dt> <dd>{@code false}</dd>
          * </dl>
-         * <p>Note: this constant uses the {@code EVENT_} naming convention instead of the usual
-         * {@code ENTRY_} prefix, retained for historical reasons.
          *
          * @see <a href="https://fullcalendar.io/docs/forceEventDuration">forceEventDuration</a>
          */
+        FORCE_ENTRY_DURATION,
+
+        /**
+         * @deprecated use {@link #FORCE_ENTRY_DURATION}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         FORCE_EVENT_DURATION,
 
 
@@ -3133,11 +3166,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *   <dt>Type</dt>    <dd>{@code boolean}</dd>
          *   <dt>Default</dt> <dd>{@code false}</dd>
          * </dl>
-         * <p>Note: this constant uses the {@code EVENT_} naming convention instead of the usual
-         * {@code ENTRY_} prefix, retained for historical reasons.
          *
          * @see <a href="https://fullcalendar.io/docs/progressiveEventRendering">progressiveEventRendering</a>
          */
+        PROGRESSIVE_ENTRY_RENDERING,
+
+        /**
+         * @deprecated use {@link #PROGRESSIVE_ENTRY_RENDERING}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         PROGRESSIVE_EVENT_RENDERING,
 
         /**
@@ -3248,6 +3285,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
          */
+        ENTRY_SOURCE_START_PARAM("startParam"),
+
+        /**
+         * @deprecated use {@link #ENTRY_SOURCE_START_PARAM}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         EXTERNAL_EVENT_SOURCE_START_PARAM("startParam"),
 
         /**
@@ -3260,6 +3303,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/endParam">endParam</a>
          */
+        ENTRY_SOURCE_END_PARAM("endParam"),
+
+        /**
+         * @deprecated use {@link #ENTRY_SOURCE_END_PARAM}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         EXTERNAL_EVENT_SOURCE_END_PARAM("endParam"),
 
         /**
@@ -3272,6 +3321,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/timeZoneParam">timeZoneParam</a>
          */
+        ENTRY_SOURCE_TIME_ZONE_PARAM("timeZoneParam"),
+
+        /**
+         * @deprecated use {@link #ENTRY_SOURCE_TIME_ZONE_PARAM}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM("timeZoneParam"),
 
         /**
@@ -3283,6 +3338,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/google-calendar">googleCalendarApiKey</a>
          */
+        ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY("googleCalendarApiKey"),
+
+        /**
+         * @deprecated use {@link #ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY("googleCalendarApiKey"),
 
 
@@ -3382,6 +3443,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          *
          * @see <a href="https://fullcalendar.io/docs/hints">viewHint</a>
          */
+        VIEW_HINT("viewHint"),
+
+        /**
+         * @deprecated use {@link #VIEW_HINT}, which sets the same FullCalendar option
+         */
+        @Deprecated(since = "8.0.0", forRemoval = true)
         NATIVE_TOOLBAR_VIEW_HINT("viewHint"),
 
         /**

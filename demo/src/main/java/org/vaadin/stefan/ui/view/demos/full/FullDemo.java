@@ -58,7 +58,7 @@ public class FullDemo extends AbstractSchedulerView {
 
         FullCalendarScheduler scheduler = new FullCalendarScheduler(initialOptions);
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
-        scheduler.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
+        scheduler.setOption(FullCalendar.Option.DAY_MAX_ENTRIES, 3);
         scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
         scheduler.setOption(FullCalendar.Option.LOCALE, UI.getCurrent().getLocale());
         FullCalendar calendar = scheduler;
@@ -105,7 +105,7 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
                 .setCustomProperty("count", "1");
 
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE, false);
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCE_EDITABLE, false);
 
 //        calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
 //        calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
