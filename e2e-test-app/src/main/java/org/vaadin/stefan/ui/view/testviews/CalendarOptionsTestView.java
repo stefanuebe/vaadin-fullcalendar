@@ -47,7 +47,7 @@ public class CalendarOptionsTestView extends VerticalLayout {
         FullCalendar cal1 = new FullCalendar();
         cal1.addThemeVariants(FullCalendarVariant.VAADIN);
         cal1.getElement().setAttribute("id", "cal-daygrid");
-        cal1.setLocale(Locale.GERMAN);
+        cal1.setOption(FullCalendar.Option.LOCALE, Locale.GERMAN);
         cal1.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
         cal1.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
         cal1.setOption(FullCalendar.Option.FIRST_DAY, DayOfWeek.MONDAY);
@@ -75,7 +75,7 @@ public class CalendarOptionsTestView extends VerticalLayout {
         FullCalendar cal2 = new FullCalendar();
         cal2.addThemeVariants(FullCalendarVariant.VAADIN);
         cal2.getElement().setAttribute("id", "cal-timegrid");
-        cal2.setLocale(Locale.ENGLISH);
+        cal2.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
         cal2.setOption("initialDate", LocalDate.of(2025, 3, 5).toString());
         cal2.setOption("initialView", CalendarViewImpl.TIME_GRID_DAY.getClientSideValue());
         cal2.setOption(FullCalendar.Option.SLOT_MIN_TIME, "08:00:00");
@@ -103,7 +103,7 @@ public class CalendarOptionsTestView extends VerticalLayout {
         FullCalendar cal3 = new FullCalendar();
         cal3.addThemeVariants(FullCalendarVariant.VAADIN);
         cal3.getElement().setAttribute("id", "cal-extra");
-        cal3.setLocale(Locale.ENGLISH);
+        cal3.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
         // Use today's date (no hiddenDays!) so nowIndicator is always visible
         cal3.setOption("initialDate", java.time.LocalDate.now().toString());
         cal3.setOption("initialView", CalendarViewImpl.TIME_GRID_DAY.getClientSideValue());

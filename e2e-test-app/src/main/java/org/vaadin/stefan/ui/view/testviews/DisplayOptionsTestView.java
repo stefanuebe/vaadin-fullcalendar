@@ -44,7 +44,7 @@ public class DisplayOptionsTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         // Note: don't add FullCalendarVariant.VAADIN here — its CSS overrides
         // prevent dayMaxEventRows from working (overflow: visible on day cells)
-        calendar.setLocale(Locale.ENGLISH);
+        calendar.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
 
         // Fix date so the test is reproducible
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());

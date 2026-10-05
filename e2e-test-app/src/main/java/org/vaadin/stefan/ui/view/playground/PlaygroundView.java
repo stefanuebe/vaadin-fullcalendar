@@ -62,7 +62,7 @@ public class PlaygroundView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
         calendar.setOption(FullCalendar.Option.SELECTABLE, true);
-        calendar.setLocale(Locale.ENGLISH);
+        calendar.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
 
         // --- Entry provider with pre-loaded entries ---
         entryProvider = new InMemoryEntryProvider<>();

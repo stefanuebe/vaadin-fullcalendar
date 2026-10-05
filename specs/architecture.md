@@ -37,7 +37,6 @@ The main Vaadin component. Custom element tag: `<vaadin-full-calendar>`.
 ```
 org.vaadin.stefan.fullcalendar/
   FullCalendar.java           — Main component (extends Component, @JsModule, @NpmPackage)
-  FullCalendarBuilder.java    — Fluent builder for calendar configuration
   Entry.java                  — Calendar entry model (title, start/end, color, recurrence, etc.)
   FullCalendar.Option         — Enum of all supported calendar options
   dataprovider/

@@ -15,14 +15,6 @@ import tools.jackson.databind.node.ObjectNode;
 public class FullCalendarWithTooltip extends FullCalendarScheduler {
 	private static final long serialVersionUID = 1L;
 
-    public FullCalendarWithTooltip() {
-        super(3);
-    }
-
-    public FullCalendarWithTooltip(int entryLimit) {
-        super(entryLimit);
-    }
-
     public FullCalendarWithTooltip(ObjectNode initialOptions) {
         super(initialOptions);
     }

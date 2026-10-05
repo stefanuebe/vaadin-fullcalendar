@@ -86,26 +86,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     /**
-     * Creates a new instance.
-     * <br><br>
-     * Expects the default limit of entries shown per day. This does not affect basic or
-     * list views. This value has to be set here and cannot be modified afterwards due to
-     * technical reasons of FC. If set afterwards the entry limit would overwrite settings
-     * and would show the limit also for basic views where it makes no sense (might change in future).
-     * Passing a negative number or 0 disabled the entry limit (same as passing no number at all).
-     * <br><br>
-     * Sets the locale to {@link CalendarLocale#getDefault()}
-     *
-     *
-     * @param entryLimit max entries to shown per day
-     * @deprecated since 7.2.0 — use the no-arg constructor and {@code setOption(Option.MAX_ENTRIES_PER_DAY, entryLimit)} instead.
-     */
-    @Deprecated(since = "7.2.0")
-    public FullCalendarScheduler(int entryLimit) {
-        super(entryLimit);
-    }
-
-    /**
      * Creates a new instance with custom initial options. This allows a full override of the default
      * initial options, that the calendar would normally receive. Theoretically you can set all options,
      * as long as they are not based on a client side variable (as for instance "plugins" or "locales").
@@ -176,54 +156,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             getElement().callJsFunction("returnAllComponentsToContainer");
         }
         super.onDetach(detachEvent);
-    }
-
-    @Deprecated
-    @Override
-    public void setSchedulerLicenseKey(String schedulerLicenseKey) {
-        setOption(SchedulerOption.LICENSE_KEY, schedulerLicenseKey);
-    }
-
-    @Deprecated
-    @Override
-    public void setResourceAreaHeaderContent(String resourceAreaHeaderContent) {
-        setOption(SchedulerOption.RESOURCE_AREA_HEADER_CONTENT, resourceAreaHeaderContent);
-    }
-    
-    @Deprecated
-    @Override
-    public void setResourceAreaWidth(String resourceAreaWidth) {
-        setOption(SchedulerOption.RESOURCE_AREA_WIDTH, resourceAreaWidth);
-    }
-    
-    @Deprecated
-    @Override
-    public void setSlotMinWidth(String slotMinWidth) {
-        setOption(SchedulerOption.SLOT_MIN_WIDTH, slotMinWidth);
-    }
-    
-    @Deprecated
-    @Override
-    public void setResourcesInitiallyExpanded(boolean resourcesInitiallyExpanded) {
-        setOption(SchedulerOption.RESOURCES_INITIALLY_EXPANDED, resourcesInitiallyExpanded);
-    }
-    
-    @Deprecated
-    @Override
-    public void setFilterResourcesWithEvents(boolean filterResourcesWithEvents) {
-        setOption(SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES, filterResourcesWithEvents);
-    }
-
-    @Deprecated
-    @Override
-    public void setResourceOrder(String resourceOrder) {
-        setOption(SchedulerOption.RESOURCE_ORDER, resourceOrder);
-    }
-    
-    @Deprecated
-    @Override
-    public void setEntryResourceEditable(boolean eventResourceEditable) {
-    	setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, eventResourceEditable);
     }
 
     @Override
@@ -373,54 +305,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         pendingRemoveAll = true;
         pendingScrollToLast = false;
         scheduleResourceFlush();
-    }
-
-    @Override
-    @Deprecated
-    public void setResourceLabelClassNamesCallback(String s) {
-        setOption(SchedulerOption.RESOURCE_LABEL_CLASS_NAMES, JsCallback.of(s));
-    }
-
-    @Override
-    @Deprecated
-    public void setResourceLabelContentCallback(String s) {
-        setOption(SchedulerOption.RESOURCE_LABEL_CONTENT, JsCallback.of(s));
-    }
-
-    @Override
-    @Deprecated
-    public void setResourceLabelDidMountCallback(String s) {
-        setOption(SchedulerOption.RESOURCE_LABEL_DID_MOUNT, JsCallback.of(s));
-    }
-
-    @Override
-    @Deprecated
-    public void setResourceLablelWillUnmountCallback(String s) {
-        setOption(SchedulerOption.RESOURCE_LABEL_WILL_UNMOUNT, JsCallback.of(s));
-    }
-
-    @Override
-    @Deprecated
-    public void setResourceLaneClassNamesCallback(String s) {
-        setOption(SchedulerOption.RESOURCE_LANE_CLASS_NAMES, JsCallback.of(s));
-    }
-
-    @Override
-    @Deprecated
-    public void setResourceLaneContentCallback(String s) {
-        setOption(SchedulerOption.RESOURCE_LANE_CONTENT, JsCallback.of(s));
-    }
-
-    @Override
-    @Deprecated
-    public void setResourceLaneDidMountCallback(String s) {
-        setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(s));
-    }
-
-    @Override
-    @Deprecated
-    public void setResourceLaneWillUnmountCallback(String s) {
-        setOption(SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of(s));
     }
 
     @Override
@@ -668,8 +552,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
      * via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
-     * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
      * @param <T>    type of value
@@ -684,8 +566,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
-     * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option               option
      * @param forceClientSideValue explicitly return the value that has been sent to client

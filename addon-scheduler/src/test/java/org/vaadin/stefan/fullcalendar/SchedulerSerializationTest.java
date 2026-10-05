@@ -48,7 +48,7 @@ public class SchedulerSerializationTest {
         entry.setTitle("Booking");
         entry.setStart(LocalDateTime.now());
         entry.setEnd(LocalDateTime.now().plusHours(2));
-        entry.assignResource(child);
+        entry.addResources(child);
         calendar.getEntryProvider().asInMemory().addEntry(entry);
 
         FullCalendarScheduler restored = roundtrip(calendar);

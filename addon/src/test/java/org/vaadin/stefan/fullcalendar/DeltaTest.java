@@ -7,29 +7,13 @@ import tools.jackson.databind.node.ObjectNode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@SuppressWarnings("deprecation") // exercises Delta.getYears()/getMonths() intentionally
 public class DeltaTest {
-
-    private static void assertLessThan(String name, int current, int lessThanThis) {
-        if (current >= lessThanThis) {
-            throw new IllegalArgumentException("Value'" + name + "' must be less than or equal to '" + lessThanThis + "' (as absolute) but was '" + current + "'!");
-        }
-    }
-
-    @Test
-    void testAssertLessThanThisWorks() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> assertLessThan("test 1 < 1", 1, 1));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> assertLessThan("test 2 < 1", 2, 1));
-        assertLessThan("test 1 < 2", 1, 2);
-    }
 
     @Test
     void testConstructor() {
         // max valid values
         Delta delta = new Delta(Integer.MAX_VALUE, 11, 30, 23, 59, 59);
 
-        Assertions.assertEquals(Integer.MAX_VALUE, delta.getYears());
-        Assertions.assertEquals(11, delta.getMonths());
         Assertions.assertEquals(30, delta.getDays());
         Assertions.assertEquals(23, delta.getHours());
         Assertions.assertEquals(59, delta.getMinutes());
@@ -84,11 +68,25 @@ public class DeltaTest {
 
         Delta delta = Delta.fromJson(jsonObject);
 
-        Assertions.assertEquals(1, delta.getYears());
-        Assertions.assertEquals(2, delta.getMonths());
+        Assertions.assertEquals(new Delta(1, 2, 3, 4, 5, 6), delta);
         Assertions.assertEquals(3, delta.getDays());
         Assertions.assertEquals(4, delta.getHours());
         Assertions.assertEquals(5, delta.getMinutes());
         Assertions.assertEquals(6, delta.getSeconds());
+    }
+
+    @Test
+    void applyOn_appliesYearsAndMonths() {
+        Delta delta = Delta.builder().years(1).months(2).days(3).build();
+
+        Assertions.assertEquals(LocalDate.of(2026, 3, 4), delta.applyOn(LocalDate.of(2025, 1, 1)));
+    }
+
+    @Test
+    void subtractFrom_isInverseOfApplyOn() {
+        Delta delta = Delta.builder().years(1).months(2).days(3).hours(4).minutes(5).seconds(6).build();
+        LocalDateTime start = LocalDateTime.of(2026, 4, 19, 12, 0, 0);
+
+        Assertions.assertEquals(start, delta.subtractFrom(delta.applyOn(start)));
     }
 }

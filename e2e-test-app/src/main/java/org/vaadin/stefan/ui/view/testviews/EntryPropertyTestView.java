@@ -47,7 +47,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setLocale(Locale.ENGLISH);
+        calendar.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 1).toString());
         calendar.setOption("initialView", CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
         calendar.setOption(FullCalendar.Option.EDITABLE, true);

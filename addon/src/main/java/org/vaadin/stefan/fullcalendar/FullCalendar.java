@@ -171,35 +171,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Creates a new instance.
-     * <br><br>
-     * Expects the default limit of entries shown per day. This does not affect basic or
-     * list views. This value has to be set here and cannot be modified afterwards due to
-     * technical reasons of FC. If set afterwards the entry limit would overwrite settings
-     * and would show the limit also for basic views where it makes no sense (might change in future).
-     * Passing a negative number disabled the entry limit (same as passing no number at all).
-     * <br><br>
-     * Sets the locale to {@link CalendarLocale#getDefaultLocale()}.
-     * <p></p>
-     * Uses {@link InMemoryEntryProvider} by default.
-     *
-     * @param entryLimit The max number of stacked event levels within a given day. This excludes the +more link if present. The rest will show up in a popover.
-     * @deprecated since 7.2.0 — use the no-arg constructor and {@code setOption(Option.MAX_ENTRIES_PER_DAY, entryLimit)} instead.
-     */
-    @Deprecated(since = "7.2.0")
-    public FullCalendar(int entryLimit) {
-        if (entryLimit >= 0) {
-            setMaxEntriesPerDay(entryLimit);
-        } else {
-            setMaxEntriesPerDayUnlimited();
-        }
-
-        setLocale(CalendarLocale.getDefaultLocale());
-
-        postConstruct();
-    }
-
-    /**
      * Creates a new instance with custom initial options. This allows a full override of the default
      * initial options, that the calendar would normally receive. Theoretically you can set all options,
      * as long as they are not based on a client side variable (as for instance "plugins" or "locales").
@@ -246,9 +217,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
         if (!initialOptions.hasNonNull(Option.LOCALE.getOptionKey())) {
             // fallback to prevent strange locale effects on the client side
-            setLocale(CalendarLocale.getDefaultLocale());
+            setOption(Option.LOCALE, CalendarLocale.getDefaultLocale());
         }
-
 
         postConstruct();
     }
@@ -776,213 +746,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
     }
 
-    /**
-     * Sets the first day of a week to be shown by the calendar. Per default sunday.
-     * <br><br>
-     * <b>Note:</b> FC works internally with 0 for sunday. This method converts SUNDAY to
-     * this number before passing it to the client.
-     *
-     * @param firstDay first day to be shown
-     * @throws NullPointerException when null is passed
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#FIRST_DAY} instead.
-     *             Accepts a {@link DayOfWeek} directly via the option converter.
-     */
-    @Deprecated
-    public void setFirstDay(DayOfWeek firstDay) {
-        Objects.requireNonNull(firstDay);
-        int value = firstDay == DayOfWeek.SUNDAY ? 0 : firstDay.getValue();
-        setOption(Option.FIRST_DAY, value, firstDay);
-    }
-
-    /**
-     *
-     * Sets the calendar's height to a fixed amount of pixels.
-     *
-     * @param heightInPixels height in pixels (e.g. 300)
-     * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
-     */
-    @Deprecated
-    public void setHeight(int heightInPixels) {
-        setHeight(heightInPixels, Unit.PIXELS);
-    }
-
-    /**
-     * Sets the calendar's height to be calculated from parents height. Please be aware, that a block parent with
-     * relative height (e. g. 100%) might not work properly. In this case use flex layout or set a fixed height for
-     * the parent or the calendar.
-     * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
-     */
-    @Deprecated
-    public void setHeightByParent() {
-        setHeight("100%");
-    }
-
-    /**
-     * Sets the calendar's height to be calculated automatically. In current implementation this means by the calendars
-     * width-height-ratio.
-     * @deprecated Use {@link #setHeight(String)} or {@link #setHeight(float, Unit)} instead
-     */
-    @Deprecated
-    public void setHeightAuto() {
-        setHeight("auto");
-    }
-
     @Override
     public void setHeight(String height) {
         // we use the calendar option as it would otherwise override the plain style set by Vaadin
         setOption(Option.HEIGHT, height);
     }
 
-    /**
-     * Set if timeslots might be selected by the user. Please see also documentation of {@link #addTimeslotsSelectedListener(ComponentEventListener)}.
-     *
-     * @param selectable activate selectable
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#SELECTABLE} instead.
-     */
-    @Deprecated
-    public void setTimeslotsSelectable(boolean selectable) {
-        setOption(Option.SELECTABLE, selectable);
-    }
-
-
-    /**
-     * Should the calendar show week numbers (when available for the current view)?
-     *
-     * @param weekNumbersVisible week numbers visible
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#WEEK_NUMBERS} instead.
-     */
-    @Deprecated
-    public void setWeekNumbersVisible(boolean weekNumbersVisible) {
-        setOption(Option.WEEK_NUMBERS, weekNumbersVisible);
-    }
-
-    /**
-     * Determines the styling for week numbers in Month and DayGrid views.
-     *
-     * @param weekNumbersWithinDays by default to false
-     * @deprecated this functionality is no longer supported, thus you can remove the call
-     */
-    @Deprecated
-    public void setWeekNumbersWithinDays(boolean weekNumbersWithinDays) {
-        // NOOP
-    }
-
-    /**
-     * Returns the current set locale.
-     *
-     * @return locale
-     * @deprecated Use {@link #getOption(Option)} with {@link Option#LOCALE} instead.
-     *             Accepts a {@link Locale} directly.
-     */
-    @Deprecated
-    public Locale getLocale() {
-        Optional<Object> option = getOption(Option.LOCALE);
-
-        if (!option.isPresent()) {
-            return CalendarLocale.getDefaultLocale();
-        }
-
-        Object value = option.get();
-        return value instanceof Locale ? (Locale) value : Locale.forLanguageTag((String) value);
-    }
-
-    /**
-     * Sets the locale to be used. If invoked for the first time it will load additional language scripts.
-     *
-     * @param locale locale
-     * @throws NullPointerException when null is passed
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#LOCALE} instead.
-     *             Accepts a {@link Locale} directly.
-     */
-    @Deprecated
-    public void setLocale(Locale locale) {
-        Objects.requireNonNull(locale);
-        setOption(Option.LOCALE, locale);
-    }
 
     protected String toClientSideLocale(Locale locale) {
         return locale.toLanguageTag().toLowerCase();
     }
 
-    /**
-     * If true is passed then the calendar will show a indicator for the current time, depending on the view.
-     *
-     * @param shown show indicator for now
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#NOW_INDICATOR} instead.
-     */
-    @Deprecated
-    public void setNowIndicatorShown(boolean shown) {
-        setOption(Option.NOW_INDICATOR, shown);
-    }
 
-
-    /**
-     * When true is passed the day / week numbers (or texts) will become clickable by the user and fire an event
-     * for the clicked day / week.
-     *
-     * @param clickable clickable
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#NAV_LINKS} instead.
-     */
-    @Deprecated
-    public void setNumberClickable(boolean clickable) {
-        setOption(Option.NAV_LINKS, clickable);
-    }
-
-
-    /**
-     * The given string will be interpreted as JS function on the client side
-     * and attached to the calendar as the eventClassNames callback. It must be a valid JavaScript function.
-     * <br><br>
-     * A ClassName Input for adding classNames to the outermost event element. If supplied as a callback function, it is called every time the associated event data changes.
-     * <br><br>
-     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
-     * other security mechanism applied on this string, so check it yourself before passing it to the client.
-     * <br><br>
-     * <b>Example</b>
-     * <pre>
-     * calendar.setOption(Option.ENTRY_CLASS_NAMES, JsCallback.of("" +
-     * "function(arg) { " +
-     * "  if (arg.event.getCustomProperty('isUrgent', false)) {" +
-     * "    return [ 'urgent' ];" +
-     * "  } else { " +
-     * "    return [ 'normal' ];" +
-     * "  }" +
-     * "}"));
-     * </pre>
-     *
-     * @param s function to be attached
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_CLASS_NAMES}
-     *             and {@link JsCallback} instead.
-     */
-    @Deprecated
-    public void setEntryClassNamesCallback(String s) {
-        setOption(Option.ENTRY_CLASS_NAMES, JsCallback.of(s));
-    }
-
-    /**
-     * The given string will be interpreted as JS function on the client side
-     * and attached to the calendar as the eventDidMount callback. It must be a valid JavaScript function.
-     * <br><br>
-     * Called right after the element has been added to the DOM. If the event data changes, this is <b>NOT</b> called again.
-     * <br><br>
-     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
-     * other security mechanism applied on this string, so check it yourself before passing it to the client.
-     * <br><br>
-     * If you also setup native event listeners via {@link #addEntryNativeEventListener(String, String)},
-     * then these will automatically be merged into the callback (the function must end with a closing brace {@code }}).
-     *
-     * @param s function to be attached
-     * @see #addEntryNativeEventListener(String, String)
-     *
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT}
-     *             and {@link JsCallback} instead.
-     *             Native event listeners registered via {@link #addEntryNativeEventListener(String, String)}
-     *             are automatically merged regardless of which method is used.
-     */
-    @Deprecated
-    public void setEntryDidMountCallback(String s) {
-        setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(s));
-    }
 
     /**
      * Adds a native, client side / java script event listener, that will be added for all entries, when they
@@ -1135,143 +910,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * The given string will be interpreted as JS function on the client side
-     * and attached to the calendar as the eventWillUnmount callback. It must be a valid JavaScript function.
-     * <br><br>
-     * Called right before the element will be removed from the DOM.
-     * <br><br>
-     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
-     * other security mechanism applied on this string, so check it yourself before passing it to the client.
-     * <br><br>
-     *
-     * @param s function to be attached
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_WILL_UNMOUNT}
-     *             and {@link JsCallback} instead.
-     */
-    @Deprecated
-    public void setEntryWillUnmountCallback(String s) {
-        setOption(Option.ENTRY_WILL_UNMOUNT, JsCallback.of(s));
-    }
-
-    /**
-     * The given string will be interpreted as JS function on the client side
-     * and attached to the calendar as the "eventContent" callback. It must be a valid JavaScript function.
-     * <br><br>
-     * Called when an entry is being rendered, allowing you to return custom HTML content or a DOM node to replace the default entry content.
-     * <b>Note: </b> Please be aware, that there is <b>NO</b> content parsing, escaping, quoting or
-     * other security mechanism applied on this string, so check it yourself before passing it to the client.
-     * <br><br>
-     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">https://fullcalendar.io/docs/event-render-hooks</a>
-     * @see <a href="https://fullcalendar.io/docs/content-injection">https://fullcalendar.io/docs/content-injection</a>
-     *
-     * @param s function to be attached
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_CONTENT}
-     *             and {@link JsCallback} instead.
-     */
-    @Deprecated
-    public void setEntryContentCallback(String s) {
-        setOption(Option.ENTRY_CONTENT, JsCallback.of(s));
-    }
-
-    /**
-     * Sets the business hours for this calendar instance. You may pass multiple instances for different configurations.
-     * Please be aware, that instances with crossing days or times are handled by the client side and may lead
-     * to unexpected results.
-     *
-     * @param hours hours to set
-     * @throws NullPointerException when null is passed
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#BUSINESS_HOURS} instead.
-     *             Accepts {@link BusinessHours}, {@code BusinessHours[]}, or {@code boolean}. Pass {@code null} to remove.
-     */
-    @Deprecated
-    public void setBusinessHours(BusinessHours... hours) {
-        Objects.requireNonNull(hours);
-
-        setOption(Option.BUSINESS_HOURS, JsonUtils.toJsonNode(Arrays.stream(hours).map(BusinessHours::toJson)), hours);
-    }
-
-    /**
-     * Removes the business hours for this calendar instance.
-     *
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#BUSINESS_HOURS} instead.
-     *             Accepts {@link BusinessHours}, {@code BusinessHours[]}, or {@code boolean}. Pass {@code null} to remove.
-     */
-    @Deprecated
-    public void removeBusinessHours() {
-        setOption(Option.BUSINESS_HOURS, null);
-    }
-
-    /**
-     * Sets the snap duration for this calendar instance (the time interval entries snap to when dragging).
-     * The default is {@code "00:30:00"}.
-     *
-     * @param duration duration (e.g. {@code "00:15:00"} for 15-minute snapping)
-     * @throws NullPointerException when null is passed
-     * @see <a href="https://fullcalendar.io/docs/snapDuration">snapDuration</a>
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#SNAP_DURATION} instead.
-     *             Accepts a {@code String} (e.g. {@code "00:15:00"}) or a {@link java.time.Duration}.
-     */
-    @Deprecated
-    public void setSnapDuration(String duration) {
-        Objects.requireNonNull(duration);
-        setOption(Option.SNAP_DURATION, duration);
-    }
-
-    /**
-     * Sets the min time for this calendar instance. This is the first time slot that will be displayed for each day.
-     * The default is {@code "00:00:00"}.
-     *
-     * @param slotMinTime slotMinTime to set
-     * @throws NullPointerException when null is passed
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#SLOT_MIN_TIME} instead.
-     *             Accepts a {@link java.time.LocalTime}, a {@link java.time.Duration}, or a duration string.
-     */
-    @Deprecated
-    public void setSlotMinTime(LocalTime slotMinTime) {
-        Objects.requireNonNull(slotMinTime);
-        setOption(Option.SLOT_MIN_TIME, slotMinTime);
-    }
-
-    /**
-     * Returns the fixedWeekCount. By default true.
-     *
-     * @return fixedWeekCount
-     * @deprecated Use {@link #getOption(Option)} with {@link Option#FIXED_WEEK_COUNT} instead.
-     */
-    @Deprecated
-    public boolean getFixedWeekCount() {
-        return (boolean) getOption(Option.FIXED_WEEK_COUNT).orElse(true);
-    }
-
-    /**
-     * Determines the number of weeks displayed in a month view.
-     * If true, the calendar will always be 6 weeks tall.
-     * If false, the calendar will have either 4, 5, or 6 weeks, depending on the month.
-     *
-     * @param fixedWeekCount
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#FIXED_WEEK_COUNT} instead.
-     */
-    @Deprecated
-    public void setFixedWeekCount(boolean fixedWeekCount) {
-        setOption(Option.FIXED_WEEK_COUNT, fixedWeekCount);
-    }
-
-    /**
-     * Sets the max time for this calendar instance. This is the last time slot that will be displayed for each day.
-     * The default is {@code "24:00:00"}.
-     *
-     * @param slotMaxTime slotMaxTime to set
-     * @throws NullPointerException when null is passed
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#SLOT_MAX_TIME} instead.
-     *             Accepts a {@link java.time.LocalTime}, a {@link java.time.Duration}, or a duration string.
-     */
-    @Deprecated
-    public void setSlotMaxTime(LocalTime slotMaxTime) {
-        Objects.requireNonNull(slotMaxTime);
-        setOption(Option.SLOT_MAX_TIME, slotMaxTime);
-    }
-
-    /**
      * Returns the current timezone of this calendar. Entries will be displayed related to this timezone.
      * Does not affect the server side times of entries, only their client side displayment.
      *
@@ -1293,105 +931,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         if (!timezone.equals(oldTimezone)) {
             setOption(Option.TIMEZONE, timezone);
         }
-    }
-
-    /**
-     * Returns the editable flag. By default true.
-     *
-     * @return editable editable
-     * @deprecated Use {@link #getOption(Option)} with {@link Option#ENTRY_DURATION_EDITABLE} instead.
-     */
-    @Deprecated
-    public boolean getEntryDurationEditable() {
-        return (boolean) getOption(Option.ENTRY_DURATION_EDITABLE).orElse(true);
-    }
-
-    /**
-     * Allow entries’ durations to be editable through resizing.
-     * <p>
-     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setDurationEditable(Boolean)}
-     *
-     * @param editable editable
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_DURATION_EDITABLE} instead.
-     */
-    @Deprecated
-    public void setEntryDurationEditable(boolean editable) {
-        setOption(Option.ENTRY_DURATION_EDITABLE, editable);
-    }
-
-    /**
-     * Returns the editable flag. By default false.
-     *
-     * @return editable editable
-     * @deprecated Use {@link #getOption(Option)} with {@link Option#ENTRY_RESIZABLE_FROM_START} instead.
-     */
-    @Deprecated
-    public boolean getEntryResizableFromStart() {
-        return (boolean) getOption(Option.ENTRY_RESIZABLE_FROM_START).orElse(false);
-    }
-
-    /**
-     * Whether the user can resize an event from its starting edge.
-     *
-     * @param editable editable
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_RESIZABLE_FROM_START} instead.
-     */
-    @Deprecated
-    public void setEntryResizableFromStart(boolean editable) {
-        setOption(Option.ENTRY_RESIZABLE_FROM_START, editable);
-    }
-
-    /**
-     * Returns the editable flag. By default true.
-     *
-     * @return editable editable
-     * @deprecated Use {@link #getOption(Option)} with {@link Option#ENTRY_START_EDITABLE} instead.
-     */
-    @Deprecated
-    public boolean getEntryStartEditable() {
-        return (boolean) getOption(Option.ENTRY_START_EDITABLE).orElse(true);
-    }
-
-    /**
-     * Allow entries’ start times to be editable through dragging.
-     * <p>
-     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setStartEditable(Boolean)}
-     *
-     * @param editable editable
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_START_EDITABLE} instead.
-     */
-    @Deprecated
-    public void setEntryStartEditable(boolean editable) {
-        setOption(Option.ENTRY_START_EDITABLE, editable);
-    }
-
-    /**
-     * Returns the editable flag. By default false.
-     *
-     * @return editable editable
-     * @deprecated Use {@link #getOption(Option)} with {@link Option#EDITABLE} instead.
-     */
-    @Deprecated
-    public boolean getEditable() {
-        return (boolean) getOption(Option.EDITABLE).orElse(false);
-    }
-
-    /**
-     * Determines whether the entries on the calendar can be modified.
-     * <p>
-     * This determines if the entries can be dragged and resized.
-     * Enables/disables both at the same time.
-     * If you don’t want both, use the more specific {@link #setEntryStartEditable(boolean)} and {@link #setEntryDurationEditable(boolean)} instead.
-     * <br><br>
-     * This option can be overridden with {@link org.vaadin.stefan.fullcalendar.Entry#setEditable(boolean)}.
-     * However, Background Events can not be dragged or resized.
-     *
-     * @param editable editable
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#EDITABLE} instead.
-     */
-    @Deprecated
-    public void setEditable(boolean editable) {
-        setOption(Option.EDITABLE, editable);
     }
 
     /**
@@ -1430,74 +969,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         setOption(Option.MAX_ENTRIES_PER_DAY, false);
     }
 
-    /**
-     * Returns the weekends display status. By default true.
-     *
-     * @return weekends
-     * @deprecated Use {@link #getOption(Option)} with {@link Option#WEEKENDS} instead.
-     */
-    @Deprecated
-    public boolean getWeekends() {
-        return (boolean) getOption(Option.WEEKENDS).orElse(true);
-    }
-
-    /**
-     * Whether to include Saturday/Sunday columns in any of the calendar views.
-     *
-     * @param weekends
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#WEEKENDS} instead.
-     */
-    @Deprecated
-    public void setWeekends(boolean weekends) {
-        setOption(Option.WEEKENDS, weekends);
-    }
-
-
-    /**
-     * display the header.
-     *
-     * @param header
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#HEADER_TOOLBAR} instead.
-     *             Accepts a {@link Header} directly.
-     */
-    @Deprecated
-    public void setHeaderToolbar(Header header) {
-        setOption(Option.HEADER_TOOLBAR, header.toJson());
-    }
-
-    /**
-     * display the footer.
-     *
-     * @param footer
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#FOOTER_TOOLBAR} instead.
-     *             Accepts a {@link Footer} directly.
-     */
-    @Deprecated
-    public void setFooterToolbar(Footer footer) {
-        setOption(Option.FOOTER_TOOLBAR, footer.toJson());
-    }
-
-    /**
-     * Returns the columnHeader.
-     *
-     * @return columnHeader
-     * @deprecated Use {@link #getOption(Option)} with {@link Option#DAY_HEADERS} instead.
-     */
-    @Deprecated
-    public boolean getColumnHeader() {
-        return (boolean) getOption(Option.DAY_HEADERS).orElse(true);
-    }
-
-    /**
-     * Whether the day headers should appear. For the Month, TimeGrid, and DayGrid views.
-     *
-     * @param columnHeader whether to show day headers
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#DAY_HEADERS} instead.
-     */
-    @Deprecated
-    public void setColumnHeader(boolean columnHeader) {
-        setOption(Option.DAY_HEADERS, columnHeader);
-    }
 
     /**
      * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone,
@@ -1528,8 +999,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
      * via {@link #setOption(Option, Object, Object)}, that will be returned instead.
-     * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
      * @param <T>    type of value
@@ -1544,8 +1013,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Object, Object)}, that will be returned instead.
-     * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option               option
      * @param forceClientSideValue explicitly return the value that has been sent to client
@@ -1561,8 +1028,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If a server side version of the value has been set
      * via {@link #setOption(Option, Object, Object)}, that will be returned instead.
-     * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      *
      * @param option option
      * @param <T>    type of value
@@ -1577,8 +1042,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Object, Object)}, that will be returned instead.
-     * <br><br>
-     * If there is a explicit getter method, it is recommended to use these instead (e.g. {@link #getLocale()}).
      * <br><br>
      * Returns {@code null} for initial options. Please use #getRawOption(String)
      *
@@ -1865,7 +1328,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Registers a listener to be informed, when a user clicks a day's number.
      * <br><br>
-     * {@link #setNumberClickable(boolean)} needs to be called with true before.
+     * Requires {@link Option#NAV_LINKS} to be {@code true}.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -1879,7 +1342,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Registers a listener to be informed, when a user clicks a week's number.
      * <br><br>
-     * {@link #setNumberClickable(boolean)} needs to be called with true before.
+     * Requires {@link Option#NAV_LINKS} to be {@code true}.
      *
      * @param listener listener
      * @return registration to remove the listener
@@ -2266,18 +1729,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         getElement().setProperty("moreLinkClickAction", (moreLinkClickAction != null ? moreLinkClickAction : MoreLinkClickAction.POPUP).getClientSideValue());
     }
 
-    /**
-     * Activates or deactivates the automatic calendar scrolling, when dragging an entry to the borders.
-     *
-     * @see <a href="https://fullcalendar.io/docs/dragScroll">https://fullcalendar.io/docs/dragScroll</a>
-     * @param dragScrollActive activate drag scroll
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#DRAG_SCROLL} instead.
-     */
-    @Deprecated
-    public void setDragScrollActive(boolean dragScrollActive) {
-        setOption(Option.DRAG_SCROLL, dragScrollActive);
-    }
-
 
     /**
      * Enables prefetching of entries of adjacent time ranges (enabled by default).
@@ -2330,23 +1781,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             return optional;
         }
         return Optional.ofNullable((T) customCalendarViews.get(clientSideValue));
-    }
-
-    /**
-     * Sets the default display mode for all events on this calendar.
-     * Corresponds to the FC {@code eventDisplay} option.
-     * <br><br>
-     * Default is {@link DisplayMode#AUTO}.
-     *
-     * @param displayMode the display mode; must not be null
-     * @throws NullPointerException if null is passed
-     * @see <a href="https://fullcalendar.io/docs/eventDisplay">eventDisplay</a>
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_DISPLAY} instead.
-     *             Accepts a {@link DisplayMode} directly.
-     */
-    @Deprecated
-    public void setEntryDisplay(DisplayMode displayMode) {
-        this.setOption(Option.ENTRY_DISPLAY, displayMode != null ? displayMode : DisplayMode.AUTO);
     }
 
     /**
@@ -2531,21 +1965,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
 
-    /**
-     * Sets the week number calculation algorithm.
-     *
-     * @param calc week number calculation
-     * @throws NullPointerException when null is passed
-     * @see <a href="https://fullcalendar.io/docs/weekNumberCalculation">weekNumberCalculation</a>
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#WEEK_NUMBER_CALCULATION} instead.
-     *             Accepts a {@link WeekNumberCalculation} directly.
-     */
-    @Deprecated
-    public void setWeekNumberCalculation(WeekNumberCalculation calc) {
-        Objects.requireNonNull(calc);
-        setOption(Option.WEEK_NUMBER_CALCULATION, calc);
-    }
-
 
 
 
@@ -2589,21 +2008,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
 
-
-    /**
-     * Constrains entry dragging and resizing to the specified business hours. Entries can only
-     * be moved to or resized within business hours slots.
-     *
-     * @param hours business hours definition; must not be null
-     * @see <a href="https://fullcalendar.io/docs/eventConstraint">FC eventConstraint documentation</a>
-     * @deprecated Use {@link #setOption(Option, Object)} with {@link Option#ENTRY_CONSTRAINT} instead.
-     *             Accepts a {@link BusinessHours} directly via converter.
-     */
-    @Deprecated
-    public void setEntryConstraint(BusinessHours hours) {
-        Objects.requireNonNull(hours);
-        setOption(Option.ENTRY_CONSTRAINT, hours.toJson());
-    }
 
 
 
@@ -2781,15 +2185,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * @see <a href="https://fullcalendar.io/docs/dayHeaders">dayHeaders</a>
          */
         DAY_HEADERS,
-
-        /**
-         * Deprecated alias for {@link #DAY_HEADERS}.
-         *
-         * @see <a href="https://fullcalendar.io/docs/dayHeaders">dayHeaders</a>
-         * @deprecated use {@link #DAY_HEADERS} instead
-         */
-        @Deprecated
-        COLUMN_HEADER("dayHeaders"),
 
         /**
          * Height of the calendar's event area.

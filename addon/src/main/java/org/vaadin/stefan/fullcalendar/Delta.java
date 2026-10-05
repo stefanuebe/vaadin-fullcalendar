@@ -33,10 +33,9 @@ import java.util.concurrent.TimeUnit;
  * deltas as {@code {years, months, days, milliseconds}}, but in practice the client always
  * normalises the year/month portion into {@code days}. Dragging an entry across several months
  * produces, for example, {@code days: 31} rather than {@code months: 1}. The {@code years} and
- * {@code months} fields on this class therefore remain zero for every real FC-originated delta
- * and are present only for historical / manually-constructed instances. The corresponding
- * getters are {@code @Deprecated(since = "7.2.0")}; downstream code that only needs to react
- * to drag/drop changes can rely on {@link #getDays()} alone.
+ * {@code months} fields on this class therefore remain zero for every real FC-originated delta.
+ * They have no getters and only take effect in {@code applyOn} and {@code subtractFrom}. Code
+ * that reacts to drag/drop changes can rely on {@link #getDays()} alone.
  */
 @Getter
 @ToString
@@ -89,45 +88,6 @@ public class Delta {
         this.hours = hours;
         this.minutes = minutes;
         this.seconds = seconds;
-    }
-
-    /**
-     * Returns the years component of this delta.
-     *
-     * @return years
-     * @deprecated since 7.2.0 — FullCalendar never produces a non-zero {@code years} component for
-     *             drop/resize events. Retained for backward compatibility with manually-constructed
-     *             {@code Delta} instances. See class-level Javadoc for details.
-     */
-    @Deprecated(since = "7.2.0")
-    public int getYears() {
-        return years;
-    }
-
-    /**
-     * Returns the months component of this delta.
-     *
-     * @return months
-     * @deprecated since 7.2.0 — FullCalendar never produces a non-zero {@code months} component for
-     *             drop/resize events. Retained for backward compatibility with manually-constructed
-     *             {@code Delta} instances. See class-level Javadoc for details.
-     */
-    @Deprecated(since = "7.2.0")
-    public int getMonths() {
-        return months;
-    }
-
-    /**
-     * @deprecated Since this is just a simple comparison, this method should not be used anymore.
-     * @param name
-     * @param current
-     * @param lessThanThis
-     */
-    @Deprecated
-    static void assertLessThan(String name, int current, int lessThanThis) {
-        if (current >= lessThanThis) {
-            throw new IllegalArgumentException("Value'" + name + "' must be less than or equal to '" + lessThanThis + "' (as absolute) but was '" + current + "'!");
-        }
     }
 
     /**

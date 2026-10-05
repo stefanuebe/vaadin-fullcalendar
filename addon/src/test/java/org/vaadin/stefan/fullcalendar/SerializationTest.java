@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,7 +46,7 @@ public class SerializationTest {
     void calendarWithInMemoryEntriesIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
         calendar.setTimezone(Timezone.getSystem());
-        calendar.setLocale(java.util.Locale.ENGLISH);
+        calendar.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
 
         InMemoryEntryProvider<Entry> provider = calendar.getEntryProvider().asInMemory();
         Entry entry = new Entry();

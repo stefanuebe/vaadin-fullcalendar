@@ -60,7 +60,7 @@ public class FullDemo extends AbstractSchedulerView {
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
         scheduler.setOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY, 3);
         scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
-        scheduler.setLocale(UI.getCurrent().getLocale());
+        scheduler.setOption(FullCalendar.Option.LOCALE, UI.getCurrent().getLocale());
         FullCalendar calendar = scheduler;
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "15%");
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.SLOT_MIN_WIDTH, 100);
@@ -107,17 +107,6 @@ public class FullDemo extends AbstractSchedulerView {
 
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE, false);
 
-//        calendar.setEntryClassNamesCallback("function(arg) {\n" +
-//                "    return [ 'hello','world' ]\n" +
-//                "}");
-//        calendar.setEntryContentCallback("" +
-//                "function(arg, createElement) {" +
-//                " console.warn('hello');" +
-//                "  return 'WORLD';" +
-//                "}");
-
-
-
 //        calendar.addEntryNativeEventListener("mouseover", "e => info.el.style.opacity = '0.5'");
 //        calendar.addEntryNativeEventListener("mouseout", "e => info.el.style.opacity = ''");
 //        calendar.addEntryNativeEventListener("contextmenu", "e => console.warn('just a context menu event')");
@@ -127,29 +116,11 @@ public class FullDemo extends AbstractSchedulerView {
                 "   e.preventDefault(); " +
                 "   this.el.parentElement.$server.openContextMenu(info.event.id);" +
                 "}");
-//        calendar.setEntryDidMountCallback("""
-//                function(info) {
-//                    info.el.id = "entry-" + info.event.id;
-//                }""");
-
-//
-//        scheduler.setResourceLabelContentCallback(
-//                "function(arg, createElement) {" +
-//                " console.warn('hello');" +
-//                "  return 'Hello';" +
-//                "}");
-//
-//        scheduler.setResourceLaneContentCallback(
-//                "function(arg, createElement) {" +
-//                " console.warn('world');" +
-//                "  return 'World';" +
-//                "}");
 
         createTestEntries(calendar);
 
 //        calendar.changeView(CalendarViewImpl.MULTI_MONTH);
 //        calendar.gotoDate(LocalDate.now().plusYears(1));
-
 
         return calendar;
     }
@@ -265,7 +236,6 @@ public class FullDemo extends AbstractSchedulerView {
         EntryManager.createDayEntry(calendar, "Multi 8", now.withDayOfMonth(12), 2, "tomato");
         EntryManager.createDayEntry(calendar, "Multi 9", now.withDayOfMonth(12), 2, "tomato");
         EntryManager.createDayEntry(calendar, "Multi 10", now.withDayOfMonth(12), 2, "tomato");
-
 
         EntryManager.createDayBackgroundEntry(calendar, now.withDayOfMonth(4), 6, "#B9FFC3");
         EntryManager.createDayBackgroundEntry(calendar, now.withDayOfMonth(19), 2, "#CEE3FF");

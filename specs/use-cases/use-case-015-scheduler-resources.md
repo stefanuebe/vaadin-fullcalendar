@@ -30,9 +30,8 @@
 
 ```java
 // Create scheduler
-FullCalendarScheduler scheduler = FullCalendarBuilder.create()
-    .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
-    .build();
+FullCalendarScheduler scheduler = new FullCalendarScheduler();
+scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
 
 // Add resources
 Resource room1 = new Resource(null, "Room A", "#3788d8");

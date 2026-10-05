@@ -865,50 +865,13 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Assign an additional className to this entry. Already assigned classNames will be kept.
-     *
-     * @param className class name to assign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addClassNames(String...)}
-     */
-    @Deprecated
-    public void assignClassName(String className) {
-        assignClassNames(Objects.requireNonNull(className));
-    }
-
-    /**
-     * Assign additional classNames to this entry. Already assigned classNames will be kept.
-     *
-     * @param classNames class names to assign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addClassNames(String...)}
-     */
-    @Deprecated
-    public void assignClassNames(String... classNames) {
-        assignClassNames(Arrays.asList(classNames));
-    }
-
-    /**
-     * Assign additional classNames to this entry. Already assigned classNames will be kept.
-     *
-     * @param classNames class names to assign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addClassNames(Collection)}
-     */
-    @Deprecated
-    public void assignClassNames(Collection<String> classNames) {
-        Objects.requireNonNull(classNames);
-        getOrCreateClassNames().addAll(classNames);
-    }
-
-    /**
      * Adds css class names to this entry. Duplicates will automatically be filtered out.
      *
      * @param classNames class names to add
      * @throws NullPointerException when null is passed
      */
     public void addClassNames(String... classNames) {
-        assignClassNames(Arrays.asList(classNames));
+        addClassNames(Arrays.asList(classNames));
     }
 
     /**
@@ -920,52 +883,6 @@ public class Entry implements Serializable {
     public void addClassNames(Collection<String> classNames) {
         Objects.requireNonNull(classNames);
         getOrCreateClassNames().addAll(classNames);
-    }
-
-    /**
-     * Unassigns the given className from this entry.
-     *
-     * @param className class name to unassign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #removeClassNames(String...)}
-     */
-    @Deprecated
-    public void unassignClassName(String className) {
-        unassignClassNames(Objects.requireNonNull(className));
-    }
-
-    /**
-     * Unassigns the given classNames from this entry.
-     *
-     * @param classNames class names to unassign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #removeClassNames(String...)}
-     */
-    @Deprecated
-    public void unassignClassNames(String... classNames) {
-        unassignClassNames(Arrays.asList(classNames));
-    }
-
-    /**
-     * Unassigns the given classNames from this entry.
-     *
-     * @param classNamesToRemove class names to unassign
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #removeClassNames(Collection)}
-     */
-    @Deprecated
-    public void unassignClassNames(Collection<String> classNamesToRemove) {
-        removeClassNames(classNamesToRemove);
-    }
-
-    /**
-     * Unassigns all classNames from this entry.
-     *
-     * @deprecated use {@link #removeClassNames()}
-     */
-    @Deprecated
-    public void unassignAllClassNames() {
-        removeClassNames();
     }
 
     /**

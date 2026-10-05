@@ -47,7 +47,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setLocale(Locale.UK); // Monday-start
+        calendar.setOption(FullCalendar.Option.LOCALE, Locale.UK); // Monday-start
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
         calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
         calendar.setOption(FullCalendar.Option.EDITABLE, true);

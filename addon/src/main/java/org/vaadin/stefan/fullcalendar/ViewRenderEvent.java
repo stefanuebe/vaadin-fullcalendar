@@ -87,16 +87,6 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
     }
 
     /**
-     * Same as {@link #getViewName()}
-     * @deprecated use {@link #getViewName()} instead
-     * @return Client side name of the view
-     */
-    @Deprecated
-    public String getName() {
-        return viewName;
-    }
-
-    /**
      * The calendar view of this event. Empty, if the view name could not be matched with one of the predefined
      * views (e.g. in case of a custom view).
      * @return calendar view

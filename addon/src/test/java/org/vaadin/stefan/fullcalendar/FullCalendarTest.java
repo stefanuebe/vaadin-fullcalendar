@@ -19,7 +19,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertNPE;
@@ -60,10 +59,16 @@ public class FullCalendarTest {
     void testNonArgsConstructor() {
         FullCalendar calendar = new FullCalendar();
 
-        // locale + dayMaxEvents + editable (addon default, since #212 changed entry-level serialization)
+        // dayMaxEvents + editable (addon default, since #212 changed entry-level serialization)
         assertExistingOptionCount(calendar, 3);
-        assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
         assertEquals(Boolean.TRUE, calendar.getOption(Option.EDITABLE).orElse(null));
+    }
+
+    @Test
+    void initialOptionsConstructor_setsDefaultLocaleWhenNoneGiven() {
+        FullCalendar calendar = new FullCalendar(JsonFactory.createObject());
+
+        assertSame(CalendarLocale.getDefaultLocale(), calendar.getOption(Option.LOCALE).orElse(null));
     }
 
     @Test
@@ -73,9 +78,8 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar();
         calendar.setMaxEntriesPerDay(entryLimit);
 
-        // locale + dayMaxEvents + editable (addon default)
+        // dayMaxEvents + editable (addon default)
         assertExistingOptionCount(calendar, 3);
-        assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
 
         assertEquals(entryLimit, calendar.getOption(Option.MAX_ENTRIES_PER_DAY).orElse(-1));
     }
@@ -140,26 +144,20 @@ public class FullCalendarTest {
     void testClientSideOptionMethods() {
         FullCalendar calendar = createTestCalendar();
 
-        // first day of week
-        assertNPE(calendar, c -> c.setFirstDay(null));
-
-        calendar.setFirstDay(DayOfWeek.MONDAY);
+        calendar.setOption(Option.FIRST_DAY, DayOfWeek.MONDAY);
         assertOptionalEquals(DayOfWeek.MONDAY, calendar.getOption(Option.FIRST_DAY));
-        assertOptionalEquals(DayOfWeek.MONDAY.getValue(), calendar.getOption(Option.FIRST_DAY, true));
+        assertEquals("1", calendar.getOption(Option.FIRST_DAY, true).orElseThrow().toString());
 
-        calendar.setFirstDay(DayOfWeek.SUNDAY);
+        calendar.setOption(Option.FIRST_DAY, DayOfWeek.SUNDAY);
         assertOptionalEquals(DayOfWeek.SUNDAY, calendar.getOption(Option.FIRST_DAY));
-        assertOptionalEquals(0, calendar.getOption(Option.FIRST_DAY, true));
-
-        assertNPE(calendar, c -> c.setLocale(null));
+        assertEquals("0", calendar.getOption(Option.FIRST_DAY, true).orElseThrow().toString());
 
         Locale locale = CalendarLocale.GREEK.getLocale();
 
         // we want to be sure to not use the default to test.
         assertNotEquals(CalendarLocale.getDefaultLocale(), locale);
 
-        calendar.setLocale(locale);
-        assertSame(locale, calendar.getLocale());
+        calendar.setOption(Option.LOCALE, locale);
         assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
         // Client-side value is the locale tag string, possibly wrapped in a JsonNode
         Optional<Object> clientSideLocale = calendar.getOption(Option.LOCALE, true);
@@ -167,31 +165,15 @@ public class FullCalendarTest {
         String clientValue = clientSideLocale.get().toString().replace("\"", "");
         assertEquals(locale.toLanguageTag().toLowerCase(), clientValue);
 
-        assertCorrectBooleanOption(calendar, Option.SELECTABLE, calendar::setTimeslotsSelectable);
-        assertCorrectBooleanOption(calendar, Option.WEEK_NUMBERS, calendar::setWeekNumbersVisible);
-        assertCorrectBooleanOption(calendar, Option.NOW_INDICATOR, calendar::setNowIndicatorShown);
-
-        // this must be tested before the other setNumberClickForwads...Target methods
-        assertCorrectBooleanOption(calendar, Option.NAV_LINKS, calendar::setNumberClickable);
-
-        assertNPE(calendar, c -> calendar.setBusinessHours(null));
         BusinessHours hours = BusinessHours.allDays().start(5).end(10);
-        calendar.setBusinessHours(hours);
+        calendar.setOption(Option.BUSINESS_HOURS, hours);
 
         Optional<Object> option = calendar.getOption(Option.BUSINESS_HOURS);
         assertTrue(option.isPresent());
-        assertTrue(option.get() instanceof BusinessHours[]);
-        assertEquals(hours, ((BusinessHours[]) option.get())[0]);
 
-        calendar.removeBusinessHours();
+        calendar.setOption(Option.BUSINESS_HOURS, null);
         option = calendar.getOption(Option.BUSINESS_HOURS);
         assertFalse(option.isPresent());
-    }
-
-    private void assertCorrectBooleanOption(FullCalendar calendar, Option optionToCheck, Consumer<Boolean> function) {
-        function.accept(true);
-        assertOptionalEquals(true, calendar.getOption(optionToCheck), "Checking set true for setter of "
-                + optionToCheck.name() + " failed. Option returned false.");
     }
 
 

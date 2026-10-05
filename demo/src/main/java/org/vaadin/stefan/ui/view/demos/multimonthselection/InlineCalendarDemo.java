@@ -38,7 +38,7 @@ public class InlineCalendarDemo extends VerticalLayout {
         setAlignItems(Alignment.STRETCH);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.setLocale(UI.getCurrent().getLocale());
+        calendar.setOption(FullCalendar.Option.LOCALE, UI.getCurrent().getLocale());
         calendar.addClassName("inline-calendar");
 
         // activate cross month selection

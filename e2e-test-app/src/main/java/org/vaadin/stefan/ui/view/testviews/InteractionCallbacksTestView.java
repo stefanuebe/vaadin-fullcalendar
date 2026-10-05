@@ -120,7 +120,7 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix the date for reproducible tests
-        calendar.setLocale(Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
+        calendar.setOption(FullCalendar.Option.LOCALE, Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
         calendar.setOption("initialDate", LocalDate.of(2025, 3, 3).toString());
         calendar.setOption("initialView", CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
         calendar.setOption(FullCalendar.Option.EDITABLE, true);

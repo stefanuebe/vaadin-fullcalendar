@@ -32,9 +32,8 @@
 ### Basic: Component column with callback
 
 ```java
-FullCalendarScheduler scheduler = FullCalendarBuilder.create()
-    .withScheduler(Scheduler.GPL_V3_LICENSE_KEY)
-    .build();
+FullCalendarScheduler scheduler = new FullCalendarScheduler();
+scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
 
 // Define a component column — callback receives Resource, returns Component.
 // The "field" parameter serves as a unique column key. FC still looks up the field

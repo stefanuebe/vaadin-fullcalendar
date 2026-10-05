@@ -616,4 +616,19 @@ public class EntryTest {
         Assertions.assertFalse(entry.toJson().has("editable"), "null is not serialized");
     }
 
+    @Test
+    void addAndRemoveClassNames() {
+        Entry entry = new Entry();
+        entry.addClassNames("a", "b");
+        entry.addClassNames(List.of("b", "c"));
+
+        assertEquals(Set.of("a", "b", "c"), entry.getClassNames());
+
+        entry.removeClassNames("a");
+        entry.removeClassNames(List.of("b"));
+        assertEquals(Set.of("c"), entry.getClassNames());
+
+        entry.removeClassNames();
+        assertFalse(entry.hasClassNames());
+    }
 }

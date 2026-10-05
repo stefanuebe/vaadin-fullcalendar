@@ -20,7 +20,7 @@ public class FullCalendarSchedulerTest {
 
     @Test
     void testSetLicenseKey() {
-        calendar.setSchedulerLicenseKey("123456");
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, "123456");
 
         Optional<Object> option = calendar.getOption("schedulerLicenseKey");
 
@@ -30,7 +30,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetResourceAreaHeaderContent() {
-        calendar.setResourceAreaHeaderContent("Hello");
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_HEADER_CONTENT, "Hello");
 
         Optional<Object> option = calendar.getOption("resourceAreaHeaderContent");
 
@@ -40,7 +40,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetResourceAreaWidtht() {
-        calendar.setResourceAreaWidth("10%");
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "10%");
 
         Optional<Object> option = calendar.getOption("resourceAreaWidth");
 
@@ -50,7 +50,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetSlotWidtht() {
-        calendar.setSlotMinWidth("100");
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.SLOT_MIN_WIDTH, "100");
 
         Optional<Object> option = calendar.getOption("slotMinWidth");
 
@@ -60,7 +60,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetResourceInitiallyExpanded() {
-        calendar.setResourcesInitiallyExpanded(false);
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCES_INITIALLY_EXPANDED, false);
 
         Optional<Object> option = calendar.getOption("resourcesInitiallyExpanded");
 
@@ -70,7 +70,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetFilterResourcesWithEvents() {
-        calendar.setFilterResourcesWithEvents(true);
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES, true);
 
         Optional<Object> option = calendar.getOption("filterResourcesWithEvents");
 
@@ -80,7 +80,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetResourceOrder() {
-        calendar.setResourceOrder("-title");
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_ORDER, "-title");
 
         Optional<Object> option = calendar.getOption("resourceOrder");
 
@@ -90,10 +90,8 @@ public class FullCalendarSchedulerTest {
 
     @Test
     void testNonArgsConstructor() {
-
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 3); // + editable (addon default since #212 change)
-        Assertions.assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
     }
 
     @Test
@@ -104,7 +102,6 @@ public class FullCalendarSchedulerTest {
 
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 3); // + editable (addon default since #212 change)
-        Assertions.assertSame(CalendarLocale.getDefaultLocale(), calendar.getLocale());
 
         Assertions.assertEquals(entryLimit, calendar.getOption(FullCalendar.Option.MAX_ENTRIES_PER_DAY).orElse(-1));
     }

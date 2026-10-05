@@ -477,19 +477,6 @@ public class Resource implements Serializable {
     }
 
     /**
-     * Returns all entries currently associated with this resource.
-     *
-     * @return set of entries assigned to this resource; empty if not attached
-     * @deprecated Use {@link #getEntries()} instead — same behavior, correct naming
-     *             ("entries" instead of "events" per addon naming convention). This method
-     *             will be removed in a future version.
-     */
-    @Deprecated
-    public Set<ResourceEntry> getEvents() {
-        return getEntries();
-    }
-
-    /**
      * Returns all entries currently associated with this resource. Works with any
      * {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider} type (in-memory,
      * callback, or signal-based).

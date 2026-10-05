@@ -155,28 +155,6 @@ public class ResourceEntry extends Entry {
      * @param resources resources
      * @throws NullPointerException when null is passed
      */
-    @Deprecated
-    public void assignResources(Resource... resources) {
-        addResources(resources);
-    }
-
-    /**
-     * Assign an additional resource to this entry. Already assigned resources will be kept.
-     *
-     * @param resource resource
-     * @throws NullPointerException when null is passed
-     */
-    @Deprecated
-    public void assignResource(Resource resource) {
-        addResources(Objects.requireNonNull(resource));
-    }
-
-    /**
-     * Assigns additional resources to this entry. Already assigned resources will be kept.
-     *
-     * @param resources resources
-     * @throws NullPointerException when null is passed
-     */
     public void addResources(Resource... resources) {
         addResources(Arrays.asList(resources));
     }
@@ -212,14 +190,6 @@ public class ResourceEntry extends Entry {
         if (hasResources()) {
             getOrCreateResources().removeAll(resources);
         }
-    }
-
-    /**
-     * Unassigns all resources from this entry.
-     */
-    @Deprecated
-    public void unassignAllResources() {
-        removeAllResources();
     }
 
     /**

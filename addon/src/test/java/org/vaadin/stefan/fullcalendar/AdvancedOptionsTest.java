@@ -68,13 +68,11 @@ public class AdvancedOptionsTest {
     }
 
     @Test
-    void setEntryConstraint_businessHours_storesJsonNode() {
+    void setEntryConstraint_businessHours_sendsJsonObject() {
         BusinessHours hours = BusinessHours.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY);
-        calendar.setEntryConstraint(hours);
-        Optional<Object> opt = calendar.getOption(Option.ENTRY_CONSTRAINT);
-        assertTrue(opt.isPresent());
-        // stored as ObjectNode
-        assertInstanceOf(ObjectNode.class, opt.get());
+        calendar.setOption(Option.ENTRY_CONSTRAINT, hours);
+        assertOptionalEquals(hours, calendar.getOption(Option.ENTRY_CONSTRAINT));
+        assertInstanceOf(ObjectNode.class, calendar.getOption(Option.ENTRY_CONSTRAINT, true).orElseThrow());
     }
 
     @Test
@@ -88,11 +86,6 @@ public class AdvancedOptionsTest {
         calendar.setOption(Option.ENTRY_CONSTRAINT, "myGroup");
         calendar.setOption(Option.ENTRY_CONSTRAINT, null);
         assertTrue(calendar.getOption(Option.ENTRY_CONSTRAINT).isEmpty());
-    }
-
-    @Test
-    void setEntryConstraint_businessHours_null_throws() {
-        assertThrows(NullPointerException.class, () -> calendar.setEntryConstraint((BusinessHours) null));
     }
 
     // -------------------------------------------------------------------------
