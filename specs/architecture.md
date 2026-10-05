@@ -48,7 +48,7 @@ org.vaadin.stefan.fullcalendar/
   model/                      — Header/Footer toolbar models
 ```
 
-Frontend (TypeScript): `addon/src/main/resources/META-INF/resources/frontend/vaadin-full-calendar/full-calendar.ts`
+Frontend (TypeScript): `addon/src/main/resources/META-INF/frontend/vaadin-full-calendar/full-calendar.ts`
 
 ### addon-scheduler/ (scheduler extension)
 

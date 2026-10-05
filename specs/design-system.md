@@ -58,7 +58,7 @@ When developers use custom entry background colors, FullCalendar defaults entry 
 
 Since the component uses light DOM, any CSS can target FC elements from document scope.
 
-**Addon-internal CSS** (bundled with the addon): Uses `@CssImport("./vaadin-full-calendar/...")` on the component class. Files live under `META-INF/resources/frontend/`. This is the correct V25 mechanism for addon/component CSS bundled via Vite.
+**Addon-internal CSS** (bundled with the addon): Uses `@CssImport("./vaadin-full-calendar/...")` on the component class. Files live under `META-INF/frontend/`. This is the correct V25 mechanism for addon/component CSS bundled via Vite.
 
 **Application-level customization** (by addon users): Use `@StyleSheet` on `AppShellConfigurator` or place CSS in the app's stylesheet. Example:
 
