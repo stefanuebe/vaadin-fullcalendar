@@ -22,6 +22,8 @@ pnpmfile.js
 .pnpmfile.cjs
 frontend/index.html
 tsconfig.json
+# demo keeps a customized tsconfig (excludes generated jsx-dev-transform, see wiki Known Issues)
+!demo/tsconfig.json
 types.d.ts
 vite.config.ts
 vite.generated.ts
