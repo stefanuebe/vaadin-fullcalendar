@@ -139,7 +139,7 @@ Server-side events for calendar interactions:
 
 ### Frontend
 
-TypeScript source lives at `addon/src/main/resources/META-INF/resources/frontend/vaadin-full-calendar/full-calendar.ts`. This is the client-side web component that communicates with the Java `FullCalendar` class. The FullCalendar JS client version is defined by `FullCalendar.FC_CLIENT_VERSION` (currently 6.1.20).
+TypeScript source lives at `addon/src/main/resources/META-INF/resources/frontend/vaadin-full-calendar/full-calendar.ts`. This is the client-side web component that communicates with the Java `FullCalendar` class. The FullCalendar JS client version is defined by `FullCalendar.FC_CLIENT_VERSION` (currently 6.1.21).
 
 ### JSON Handling
 

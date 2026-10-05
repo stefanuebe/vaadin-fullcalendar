@@ -80,7 +80,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * The library base version used in this addon. Some additional libraries might have a different version number due to
      * a different release cycle or known issues.
      */
-    public static final String FC_CLIENT_VERSION = "6.1.20";
+    public static final String FC_CLIENT_VERSION = "6.1.21";
 
     /**
      * This is the default duration of a timed entry in hours. Will be dynamically settable in a later version.
