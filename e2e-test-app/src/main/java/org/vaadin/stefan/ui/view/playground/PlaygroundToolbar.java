@@ -104,7 +104,6 @@ public class PlaygroundToolbar extends HorizontalLayout {
             entry.setRecurringStartTime(LocalTime.of(10, 0));
             entry.setRecurringEndTime(LocalTime.of(11, 0));
             entry.setColor("lightblue");
-            entry.setBorderColor("blue");
             onCreated.accept(Collections.singletonList(entry));
             Notification.show("Added recurring entries");
             e.getSource().setEnabled(false);

@@ -20,10 +20,8 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `editable` | `boolean` | Per-entry drag/resize toggle |
 | `startEditable` | `Boolean` | Per-entry override for `ENTRY_START_EDITABLE` (`null` = inherit global) |
 | `durationEditable` | `Boolean` | Per-entry override for `ENTRY_DURATION_EDITABLE` (`null` = inherit global) |
-| `color` | `String` | Combined background + border color (CSS color string) |
-| `backgroundColor` | `String` | Background color override |
-| `borderColor` | `String` | Border color override |
-| `textColor` | `String` | Text color override |
+| `color` | `String` | Entry color (CSS color string). The theme decides which parts it colors |
+| `contrastColor` | `String` | Color for text and other elements drawn on the entry color |
 | `description` | `String` | Description (available in JS callbacks) |
 | `groupId` | `String` | Group ID for visual linking and constraint-by-group |
 | `displayMode` | `DisplayMode` | Rendering mode: `AUTO`, `BLOCK`, `LIST_ITEM`, `BACKGROUND`, `INVERSE_BACKGROUND`, `NONE` |
@@ -31,7 +29,7 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `constraint` | `String` | Group ID or `"businessHours"` restricting placement |
 | `url` | `String` | Makes entry an `<a>` tag — navigates on click |
 | `interactive` | `Boolean` | Keyboard focusability (`null` = inherit global `eventInteractive`) |
-| `classNames` | `Set<String>` | CSS classes applied to the entry element |
+| `classNames` | `Set<String>` | CSS classes applied to the entry element (sent as one space-separated `className` string) |
 | `recurringDaysOfWeek` | `Set<DayOfWeek>` | Simple weekly recurrence |
 | `recurringStartTime` | `RecurringTime` | Start time for recurring entries |
 | `recurringEndTime` | `RecurringTime` | End time for recurring entries |

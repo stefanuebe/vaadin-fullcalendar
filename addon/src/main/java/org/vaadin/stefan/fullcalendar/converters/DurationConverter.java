@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
  * Converts a {@link Duration} or {@link LocalTime} to a FullCalendar duration string in {@code "HH:mm:ss"} format
  * (e.g. {@code "00:30:00"}, {@code "06:00:00"}).
  * <p>
- * FullCalendar options like {@code slotDuration}, {@code snapDuration}, {@code slotLabelInterval},
+ * FullCalendar options like {@code slotDuration}, {@code snapDuration}, {@code slotHeaderInterval},
  * {@code scrollTime}, {@code slotMinTime}, {@code slotMaxTime}, and {@code nextDayThreshold}
  * accept this format.
  */

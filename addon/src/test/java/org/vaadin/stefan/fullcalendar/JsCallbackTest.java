@@ -17,7 +17,7 @@ class JsCallbackTest {
     void setOption_withJsCallback_doesNotThrow() {
         FullCalendar calendar = new FullCalendar();
         assertDoesNotThrow(() ->
-            calendar.setOption(FullCalendar.Option.DAY_CELL_CLASS_NAMES,
+            calendar.setOption(FullCalendar.Option.DAY_CELL_CLASS,
                 JsCallback.of("function(arg) { return []; }")));
     }
 
@@ -111,10 +111,10 @@ class JsCallbackTest {
     void setOption_withJsCallback_getOptionReturnsJsCallback() {
         FullCalendar calendar = new FullCalendar();
         JsCallback cb = JsCallback.of("function(arg) { return []; }");
-        calendar.setOption(FullCalendar.Option.DAY_CELL_CLASS_NAMES, cb);
+        calendar.setOption(FullCalendar.Option.DAY_CELL_CLASS, cb);
 
         // getOption should return the original JsCallback, not the marker JSON
-        var result = calendar.getOption(FullCalendar.Option.DAY_CELL_CLASS_NAMES);
+        var result = calendar.getOption(FullCalendar.Option.DAY_CELL_CLASS);
         assertTrue(result.isPresent());
         assertInstanceOf(JsCallback.class, result.get());
         assertEquals(cb, result.get());

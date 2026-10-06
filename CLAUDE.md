@@ -157,7 +157,8 @@ The order is fixed:
    scope under review. The agents judge what is major. Pass each round the
    findings already rejected, with the reason. Once a round finds no major, report
    the minors and ask whether to fix them and review again. Minors in test code
-   are fixed without asking. If round 5 still finds a major, stop and ask how to
+   and obvious minor errors (a stale name, a wrong doc row) are fixed without
+   asking. If round 5 still finds a major, stop and ask how to
    go on.
 3. the full gate: `mvn clean install`, then the E2E run in `e2e-test-app/`
 4. commit

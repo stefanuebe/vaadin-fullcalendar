@@ -181,7 +181,6 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
                         entry.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
                         entry.setDescription("Our weekly meeting at 10");
                         entry.setColor("lightblue");
-                        entry.setBorderColor("blue");
                         entry.setCalendar(calendar);
 
                         ui.access(() -> {

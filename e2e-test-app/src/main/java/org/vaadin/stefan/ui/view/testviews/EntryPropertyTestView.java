@@ -21,8 +21,7 @@ import java.util.Set;
  * Verifies Pattern 1: "When I set a property on an entry, does it have the expected effect in the client?"
  * <ul>
  *   <li>color — CSS background-color</li>
- *   <li>backgroundColor / textColor — CSS background + text color</li>
- *   <li>borderColor — CSS border-color</li>
+ *   <li>color / contrastColor — CSS background + text color</li>
  *   <li>displayMode BACKGROUND — fc-bg-event class</li>
  *   <li>displayMode INVERSE_BACKGROUND — fc-bg-event class</li>
  *   <li>displayMode NONE — entry not visible</li>
@@ -63,24 +62,16 @@ public class EntryPropertyTestView extends VerticalLayout {
         redEntry.setColor("red");
         provider.addEntry(redEntry);
 
-        // 2. Custom background + text color
-        Entry customBg = new Entry();
-        customBg.setTitle("Custom BG");
-        customBg.setStart(LocalDate.of(2025, 3, 4).atStartOfDay());
-        customBg.setAllDay(true);
-        customBg.setBackgroundColor("#00ff00");
-        customBg.setTextColor("#ffffff");
-        provider.addEntry(customBg);
+        // 2. Custom color + contrast color
+        Entry customColor = new Entry();
+        customColor.setTitle("Custom Color");
+        customColor.setStart(LocalDate.of(2025, 3, 4).atStartOfDay());
+        customColor.setAllDay(true);
+        customColor.setColor("#00ff00");
+        customColor.setContrastColor("#ffffff");
+        provider.addEntry(customColor);
 
-        // 3. Border color
-        Entry borderEntry = new Entry();
-        borderEntry.setTitle("Border Entry");
-        borderEntry.setStart(LocalDate.of(2025, 3, 5).atStartOfDay());
-        borderEntry.setAllDay(true);
-        borderEntry.setBorderColor("blue");
-        provider.addEntry(borderEntry);
-
-        // 4. DisplayMode BACKGROUND
+        // 3. DisplayMode BACKGROUND
         Entry bgMode = new Entry();
         bgMode.setTitle("Background Mode");
         bgMode.setStart(LocalDate.of(2025, 3, 6).atStartOfDay());
@@ -89,7 +80,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         bgMode.setColor("orange");
         provider.addEntry(bgMode);
 
-        // 5. DisplayMode INVERSE_BACKGROUND
+        // 4. DisplayMode INVERSE_BACKGROUND
         Entry inverseBg = new Entry();
         inverseBg.setTitle("Inverse BG Mode");
         inverseBg.setStart(LocalDate.of(2025, 3, 7).atStartOfDay());
@@ -98,7 +89,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         inverseBg.setColor("purple");
         provider.addEntry(inverseBg);
 
-        // 6. DisplayMode NONE — hidden
+        // 5. DisplayMode NONE — hidden
         Entry hiddenEntry = new Entry();
         hiddenEntry.setTitle("Hidden Entry");
         hiddenEntry.setStart(LocalDate.of(2025, 3, 8).atStartOfDay());
@@ -106,7 +97,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         hiddenEntry.setDisplayMode(DisplayMode.NONE);
         provider.addEntry(hiddenEntry);
 
-        // 7. Custom classNames
+        // 6. Custom classNames
         Entry classEntry = new Entry();
         classEntry.setTitle("Custom Class");
         classEntry.setStart(LocalDate.of(2025, 3, 10).atStartOfDay());
@@ -114,14 +105,14 @@ public class EntryPropertyTestView extends VerticalLayout {
         classEntry.setClassNames(Set.of("my-custom-class"));
         provider.addEntry(classEntry);
 
-        // 8. All-day entry
+        // 7. All-day entry
         Entry allDayEntry = new Entry();
         allDayEntry.setTitle("All-Day Entry");
         allDayEntry.setStart(LocalDate.of(2025, 3, 12).atStartOfDay());
         allDayEntry.setAllDay(true);
         provider.addEntry(allDayEntry);
 
-        // 9. Timed entry (not all-day)
+        // 8. Timed entry (not all-day)
         Entry timedEntry = new Entry();
         timedEntry.setTitle("Timed Entry");
         timedEntry.setStart(LocalDateTime.of(2025, 3, 12, 9, 0));
@@ -129,7 +120,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         timedEntry.setAllDay(false);
         provider.addEntry(timedEntry);
 
-        // 10. Non-editable entry (per-entry override)
+        // 9. Non-editable entry (per-entry override)
         Entry notEditable = new Entry();
         notEditable.setTitle("Not Editable");
         notEditable.setStart(LocalDate.of(2025, 3, 14).atStartOfDay());
@@ -137,7 +128,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         notEditable.setEditable(false);
         provider.addEntry(notEditable);
 
-        // 11. Non-resizable entry (durationEditable=false)
+        // 10. Non-resizable entry (durationEditable=false)
         Entry noResize = new Entry();
         noResize.setTitle("No Resize");
         noResize.setStart(LocalDateTime.of(2025, 3, 14, 10, 0));
@@ -146,7 +137,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         noResize.setDurationEditable(false);
         provider.addEntry(noResize);
 
-        // 12. Entry with extendedProps — verified via entryDidMount console.log
+        // 11. Entry with extendedProps — verified via entryDidMount console.log
         Entry propsEntry = new Entry();
         propsEntry.setTitle("Has Props");
         propsEntry.setStart(LocalDate.of(2025, 3, 17).atStartOfDay());

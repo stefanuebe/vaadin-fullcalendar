@@ -88,9 +88,9 @@ Entries can be styled at multiple levels (highest priority wins):
 
 | Level | Mechanism | Example |
 |-------|-----------|---------|
-| **Global** | `Option.ENTRY_COLOR`, `ENTRY_BACKGROUND_COLOR`, etc. | `calendar.setOption(Option.ENTRY_COLOR, "#3788d8")` |
+| **Global** | `Option.ENTRY_COLOR`, `ENTRY_CONTRAST_COLOR` | `calendar.setOption(Option.ENTRY_COLOR, "#3788d8")` |
 | **Per-resource** | `Resource.setEntryBackgroundColor()`, etc. | `resource.setEntryBackgroundColor("#ff6b6b")` |
-| **Per-entry** | `Entry.setColor()`, `setBackgroundColor()`, `setTextColor()`, `setBorderColor()` | `entry.setColor("red")` |
+| **Per-entry** | `Entry.setColor()`, `setContrastColor()` | `entry.setColor("red")` |
 | **CSS classes** | `Entry.setClassNames(Set)` or `Resource.setEntryClassNames(Set)` | `entry.setClassNames(Set.of("urgent"))` |
 | **Display mode** | `Entry.setDisplayMode(DisplayMode)` | `BACKGROUND`, `INVERSE_BACKGROUND`, `BLOCK`, `LIST_ITEM`, `NONE` |
 
@@ -122,7 +122,7 @@ calendar.setOption(Option.HEADER_TOOLBAR,
            "right", "dayGridMonth,timeGridWeek,timeGridDay"));
 ```
 
-Button labels: `Option.NATIVE_TOOLBAR_BUTTON_TEXT` (e.g., `Map.of("today", "Heute")`).
+Button labels: the `buttons` option, one map per button (e.g., `calendar.setOption("buttons", Map.of("today", Map.of("text", "Heute")))`).
 
 ---
 

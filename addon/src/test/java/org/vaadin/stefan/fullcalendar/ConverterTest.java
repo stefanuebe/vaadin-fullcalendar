@@ -21,6 +21,23 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConverterTest {
 
     // -------------------------------------------------------------------------
+    // ClassNameConverter
+    // -------------------------------------------------------------------------
+
+    @Test
+    void className_joinsWithSpaces() {
+        ClassNameConverter conv = new ClassNameConverter();
+        assertTrue(conv.supports(List.of("a", "b")));
+        assertEquals("a b", conv.toClientModel(List.of("a", "b"), null).asString());
+    }
+
+    @Test
+    void className_splitsOnWhitespace() {
+        ClassNameConverter conv = new ClassNameConverter();
+        assertEquals(Set.of("a", "b"), conv.toServerModel(JsonUtils.toJsonNode(" a \tb "), null));
+    }
+
+    // -------------------------------------------------------------------------
     // DurationConverter
     // -------------------------------------------------------------------------
 

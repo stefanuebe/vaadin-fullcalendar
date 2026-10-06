@@ -17,7 +17,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
-import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
@@ -47,17 +46,11 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
      */
     private String id = UUID.randomUUID().toString();
 
-    /** Background + border color shorthand. */
+    /** Entry color. The theme decides which parts of an entry it colors. */
     private String color;
 
-    /** Background color override. */
-    private String backgroundColor;
-
-    /** Border color override. */
-    private String borderColor;
-
-    /** Text color override. */
-    private String textColor;
+    /** Contrast color, used for text and other elements drawn on the entry color. */
+    private String contrastColor;
 
     /** CSS class names applied to all entries from this source. */
     private List<String> classNames;
@@ -97,7 +90,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     private Boolean defaultAllDay;
 
     /**
-     * Per-source {@code eventAllow} JS callback. Receives {@code (dropInfo, draggedEvent)} and returns a boolean.
+     * Per-source {@code allow} JS callback (the source counterpart of the calendar-wide {@code eventAllow}). Receives {@code (dropInfo, draggedEvent)} and returns a boolean.
      */
     private JsCallback allow;
 
@@ -135,7 +128,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
-     * Sets the color (background + border shorthand) for all entries from this source.
+     * Sets the color for all entries from this source. The theme decides which parts of an entry it colors.
      * @param color color string (CSS color value or FullCalendar named color)
      * @return this
      */
@@ -145,33 +138,24 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
-     * Sets the background color for all entries from this source.
-     * @param backgroundColor background color
+     * Sets the contrast color for all entries from this source, used for text and other elements drawn on
+     * the entry color.
+     * @param contrastColor contrast color
      * @return this
      */
-    public S withBackgroundColor(String backgroundColor) {
-        this.backgroundColor = backgroundColor;
+    public S withContrastColor(String contrastColor) {
+        this.contrastColor = contrastColor;
         return self();
     }
 
     /**
-     * Sets the border color for all entries from this source.
-     * @param borderColor border color
+     * @param textColor contrast color
      * @return this
+     * @deprecated use {@link #withContrastColor(String)}. FullCalendar 7 renamed the text color to contrast color.
      */
-    public S withBorderColor(String borderColor) {
-        this.borderColor = borderColor;
-        return self();
-    }
-
-    /**
-     * Sets the text color for all entries from this source.
-     * @param textColor text color
-     * @return this
-     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public S withTextColor(String textColor) {
-        this.textColor = textColor;
-        return self();
+        return withContrastColor(textColor);
     }
 
     /**
@@ -272,7 +256,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
-     * Sets a per-source {@code eventAllow} JS callback that controls where entries can be dropped.
+     * Sets a per-source {@code allow} JS callback that controls where entries from this source can be dropped.
      * @param jsFunction JS function string
      * @return this
      */
@@ -282,7 +266,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
-     * Sets a per-source {@code eventAllow} JS callback that controls where entries can be dropped.
+     * Sets a per-source {@code allow} JS callback that controls where entries from this source can be dropped.
      * @param callback JsCallback
      * @return this
      */
@@ -360,9 +344,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     protected void addCommonToJson(ObjectNode json) {
         json.put("id", id);
         if (color != null) json.put("color", color);
-        if (backgroundColor != null) json.put("backgroundColor", backgroundColor);
-        if (borderColor != null) json.put("borderColor", borderColor);
-        if (textColor != null) json.put("textColor", textColor);
+        if (contrastColor != null) json.put("contrastColor", contrastColor);
         if (editable != null) json.put("editable", editable);
         if (startEditable != null) json.put("startEditable", startEditable);
         if (durationEditable != null) json.put("durationEditable", durationEditable);
@@ -371,14 +353,12 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
         if (display != null) json.put("display", display);
         if (resourceEditable != null) json.put("resourceEditable", resourceEditable);
         if (defaultAllDay != null) json.put("defaultAllDay", defaultAllDay);
-        if (allow != null) json.set("eventAllow", allow.toMarkerJson());
+        if (allow != null) json.set("allow", allow.toMarkerJson());
         if (success != null) json.set("success", success.toMarkerJson());
         if (failure != null) json.set("failure", failure.toMarkerJson());
         if (eventDataTransform != null) json.set("eventDataTransform", eventDataTransform.toMarkerJson());
         if (classNames != null && !classNames.isEmpty()) {
-            ArrayNode namesNode = JsonFactory.createArray();
-            classNames.forEach(namesNode::add);
-            json.set("classNames", namesNode);
+            json.put("className", String.join(" ", classNames));
         }
     }
 

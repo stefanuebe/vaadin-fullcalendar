@@ -85,9 +85,7 @@ public class Entry implements Serializable {
     @Getter(AccessLevel.NONE)
     @lombok.Setter(AccessLevel.NONE)
     private Object constraint;
-    private String backgroundColor;
-    private String borderColor;
-    private String textColor;
+    private String contrastColor;
     private Boolean overlap;
 
     /** Whether the entry is keyboard-focusable (tabbable) independently of drag/drop. Null inherits the calendar-level {@code eventInteractive} option. */
@@ -198,6 +196,8 @@ public class Entry implements Serializable {
         this.exrule = rrule != null ? rrule.getExcludedRules() : null;
     }
 
+    @JsonName("className")
+    @JsonConverter(ClassNameConverter.class)
     private Set<String> classNames;
 
     private Map<String, Object> customProperties;
@@ -1046,8 +1046,8 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the color for this entry. This is interpreted as background and border color on the client side.
-     * Null or empty string resets the color to the FC's default.
+     * Sets the color for this entry. The theme decides which parts of the entry it colors (background, border,
+     * dot). Null or empty string resets the color to the FC's default.
      *
      * @param color color
      */
@@ -1056,30 +1056,31 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the background color for this entry. Null or empty string resets the color to the FC's default.
+     * Sets the contrast color for this entry, used for text and other elements drawn on the entry color.
+     * Null or empty string resets the color to the FC's default.
      *
-     * @param backgroundColor background color
+     * @param contrastColor contrast color
      */
-    public void setBackgroundColor(String backgroundColor) {
-        this.backgroundColor = StringUtils.trimToNull(backgroundColor);
+    public void setContrastColor(String contrastColor) {
+        this.contrastColor = StringUtils.trimToNull(contrastColor);
     }
 
     /**
-     * Sets the text color for this entry. Null or empty string resets the color to the FC's default.
-     *
-     * @param textColor text color
+     * @return the contrast color
+     * @deprecated use {@link #getContrastColor()}. FullCalendar 7 renamed the text color to contrast color.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    public String getTextColor() {
+        return getContrastColor();
+    }
+
+    /**
+     * @param textColor contrast color
+     * @deprecated use {@link #setContrastColor(String)}. FullCalendar 7 renamed the text color to contrast color.
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setTextColor(String textColor) {
-        this.textColor = StringUtils.trimToNull(textColor);
-    }
-
-    /**
-     * Sets the border color for this entry. Null or empty string resets the color to the FC's default.
-     *
-     * @param borderColor border color
-     */
-    public void setBorderColor(String borderColor) {
-        this.borderColor = StringUtils.trimToNull(borderColor);
+        setContrastColor(textColor);
     }
 
     /**

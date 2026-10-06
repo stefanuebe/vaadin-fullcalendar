@@ -132,8 +132,9 @@ export class FullCalendar extends HTMLElement {
 
             // TODO this is somehow double to the initial options variant, might be reduced to one variant?
             this._calendar.setOption = (key: any, value: any) => {
-                // Null/undefined values pass through directly to clear the option — no wrapping
-                if (value == null) {
+                // Only functions get wrapped. Null/undefined clears the option, and plain values (a class name
+                // string for eventClass, a boolean for eventOverlap) pass through as they are.
+                if (typeof value !== 'function') {
                     _setOption.call(this._calendar, key, value);
                     return;
                 }

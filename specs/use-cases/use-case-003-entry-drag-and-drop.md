@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.EDITABLE`, `Option.ENTRY_START_EDITABLE`, `Option.SNAP_DURATION`, `Option.DRAG_SCROLL`, `Option.ALL_DAY_MAINTAIN_DURATION`, `Option.ENTRY_ALLOW`, `Option.ENTRY_OVERLAP`, `Option.ENTRY_CONSTRAINT`, `Option.ENTRY_DRAG_MIN_DISTANCE`, `Option.DRAG_REVERT_DURATION`, `Option.FIXED_MIRROR_PARENT`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.LONG_PRESS_DELAY`
+**Related Options:** `Option.EDITABLE`, `Option.ENTRY_START_EDITABLE`, `Option.SNAP_DURATION`, `Option.DRAG_SCROLL`, `Option.ALL_DAY_MAINTAIN_DURATION`, `Option.ENTRY_ALLOW`, `Option.ENTRY_OVERLAP`, `Option.ENTRY_CONSTRAINT`, `Option.ENTRY_DRAG_MIN_DISTANCE`, `Option.DRAG_REVERT_DURATION`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.LONG_PRESS_DELAY`
 **Related Events:** `EntryDroppedEvent`, `EntryDragStartEvent`, `EntryDragStopEvent`
 
 ---

@@ -123,6 +123,44 @@ public class EntryTest {
         }
     }
 
+    @Test
+    void toJson_usesFullCalendar7ColorAndClassKeys() {
+        Entry entry = new Entry();
+        entry.setColor("red");
+        entry.setContrastColor("white");
+        entry.addClassNames("urgent", "large");
+
+        ObjectNode json = entry.toJson();
+
+        assertEquals("red", json.get("color").asString());
+        assertEquals("white", json.get("contrastColor").asString());
+        assertEquals("urgent large", json.get("className").asString());
+        assertFalse(json.has("classNames"));
+        assertFalse(json.has("textColor"));
+    }
+
+    @Test
+    void updateFromJson_readsClassNameString() {
+        Entry entry = new Entry("1");
+        ObjectNode json = JsonFactory.createObject();
+        json.put("id", "1");
+        json.put("className", "urgent  large");
+
+        entry.updateAllFromJson(json, true);
+
+        assertEquals(Set.of("urgent", "large"), entry.getClassNames());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void textColor_isAliasOfContrastColor() {
+        Entry entry = new Entry();
+        entry.setTextColor(" white ");
+
+        assertEquals("white", entry.getContrastColor());
+        assertEquals("white", entry.getTextColor());
+    }
+
     /**
      * Returns the json key to be used for the given field. Expects the field name as it is set in the class
      * and returns either the field name or the name given in the {@link JsonName} annotation.
@@ -552,9 +590,7 @@ public class EntryTest {
         assertFalse(entry.isRecurring());
         assertNull(entry.getTitle());
         assertNull(entry.getColor());
-        assertNull(entry.getBorderColor());
-        assertNull(entry.getBackgroundColor());
-        assertNull(entry.getTextColor());
+        assertNull(entry.getContrastColor());
         assertNull(entry.getDescription());
         assertEquals(DisplayMode.AUTO, entry.getDisplayMode());
     }

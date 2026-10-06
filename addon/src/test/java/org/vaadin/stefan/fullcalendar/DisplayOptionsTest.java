@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,23 +46,8 @@ public class DisplayOptionsTest {
     }
 
     @Test
-    void option_defaultRangeSeparator_key() {
-        assertEquals("defaultRangeSeparator", Option.NATIVE_TOOLBAR_DEFAULT_RANGE_SEPARATOR.getOptionKey());
-    }
-
-    @Test
-    void option_buttonText_key() {
-        assertEquals("buttonText", Option.NATIVE_TOOLBAR_BUTTON_TEXT.getOptionKey());
-    }
-
-    @Test
-    void option_titleRangeSeparator_key() {
-        assertEquals("titleRangeSeparator", Option.NATIVE_TOOLBAR_TITLE_RANGE_SEPARATOR.getOptionKey());
-    }
-
-    @Test
-    void option_dayPopoverFormat_key() {
-        assertEquals("dayPopoverFormat", Option.DAY_POPOVER_FORMAT.getOptionKey());
+    void option_popoverFormat_key() {
+        assertEquals("popoverFormat", Option.POPOVER_FORMAT.getOptionKey());
     }
 
     @Test
@@ -185,46 +169,13 @@ public class DisplayOptionsTest {
     }
 
     // -------------------------------------------------------------------------
-    // setDefaultRangeSeparator / setTitleRangeSeparator
+    // popoverFormat
     // -------------------------------------------------------------------------
 
     @Test
-    void setDefaultRangeSeparator_storesOption() {
-        calendar.setOption(Option.NATIVE_TOOLBAR_DEFAULT_RANGE_SEPARATOR, " – ");
-        assertOptionalEquals(" – ", calendar.getOption(Option.NATIVE_TOOLBAR_DEFAULT_RANGE_SEPARATOR));
-    }
-
-    @Test
-    void setTitleRangeSeparator_storesOption() {
-        calendar.setOption(Option.NATIVE_TOOLBAR_TITLE_RANGE_SEPARATOR, " / ");
-        assertOptionalEquals(" / ", calendar.getOption(Option.NATIVE_TOOLBAR_TITLE_RANGE_SEPARATOR));
-    }
-
-    // -------------------------------------------------------------------------
-    // buttonText
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setButtonText_storesMap() {
-        Map<String, String> labels = Map.of("today", "Jetzt", "month", "Monat");
-        calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_TEXT, labels);
-        Optional<Object> opt = calendar.getOption(Option.NATIVE_TOOLBAR_BUTTON_TEXT);
-        assertTrue(opt.isPresent());
-        assertTrue(opt.get() instanceof Map, "buttonText option should be stored as a Map");
-        @SuppressWarnings("unchecked")
-        Map<String, String> stored = (Map<String, String>) opt.get();
-        assertEquals("Jetzt", stored.get("today"));
-        assertEquals("Monat", stored.get("month"));
-    }
-
-    // -------------------------------------------------------------------------
-    // setDayPopoverFormat
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setDayPopoverFormat_storesOption() {
-        calendar.setOption(Option.DAY_POPOVER_FORMAT, "{ weekday: 'long', month: 'long', day: 'numeric' }");
-        Optional<String> opt = calendar.getOption(Option.DAY_POPOVER_FORMAT);
+    void setPopoverFormat_storesOption() {
+        calendar.setOption(Option.POPOVER_FORMAT, "{ weekday: 'long', month: 'long', day: 'numeric' }");
+        Optional<String> opt = calendar.getOption(Option.POPOVER_FORMAT);
         assertTrue(opt.isPresent());
     }
 

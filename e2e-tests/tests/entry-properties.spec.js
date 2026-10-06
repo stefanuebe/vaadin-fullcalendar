@@ -48,8 +48,8 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(b).toBeLessThan(100);
         });
 
-        base('custom BG entry has green background', async ({ page }) => {
-            const entry = page.locator('.fc-event:has-text("Custom BG")').first();
+        base('custom color entry has green background', async ({ page }) => {
+            const entry = page.locator('.fc-event:has-text("Custom Color")').first();
             await expect(entry).toBeVisible();
             const bgColor = await entry.evaluate(el => {
                 const style = window.getComputedStyle(el);
@@ -69,8 +69,8 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(b).toBeLessThan(100);
         });
 
-        base('custom BG entry has white text color', async ({ page }) => {
-            const entry = page.locator('.fc-event:has-text("Custom BG")').first();
+        base('custom color entry has white text from its contrast color', async ({ page }) => {
+            const entry = page.locator('.fc-event:has-text("Custom Color")').first();
             const textColor = await entry.evaluate(el => {
                 // Text color may be on the event-main or event-title element
                 const title = el.querySelector('.fc-event-title') || el.querySelector('.fc-event-main') || el;
@@ -82,22 +82,6 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(parseInt(match[1])).toBeGreaterThan(200);
             expect(parseInt(match[2])).toBeGreaterThan(200);
             expect(parseInt(match[3])).toBeGreaterThan(200);
-        });
-
-        base('border entry has blue border color', async ({ page }) => {
-            const entry = page.locator('.fc-event:has-text("Border Entry")').first();
-            await expect(entry).toBeVisible();
-            const borderColor = await entry.evaluate(el => {
-                return window.getComputedStyle(el).borderColor || window.getComputedStyle(el).borderLeftColor;
-            });
-            // blue = rgb(0, 0, 255) — blue channel must be dominant
-            expect(borderColor).toMatch(/rgb/);
-            const match = borderColor.match(/rgb\w?\((\d+),\s*(\d+),\s*(\d+)/);
-            expect(match).not.toBeNull();
-            const [r, g, b] = [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
-            expect(b).toBeGreaterThan(200);
-            expect(r).toBeLessThan(100);
-            expect(g).toBeLessThan(100);
         });
     });
 

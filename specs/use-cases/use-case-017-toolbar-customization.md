@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.HEADER_TOOLBAR`, `Option.FOOTER_TOOLBAR`, `Option.NATIVE_TOOLBAR_BUTTON_TEXT`, `Option.NATIVE_TOOLBAR_BUTTON_HINTS`, `Option.NATIVE_TOOLBAR_DEFAULT_RANGE_SEPARATOR`, `Option.NATIVE_TOOLBAR_TITLE_RANGE_SEPARATOR`, `Option.VIEW_HINT`
+**Related Options:** `Option.HEADER_TOOLBAR`, `Option.FOOTER_TOOLBAR`, `Option.TODAY_HINT`, `Option.PREV_HINT`, `Option.NEXT_HINT`, `Option.VIEW_HINT`
 **Related Events:** —
 
 ---
@@ -40,13 +40,15 @@ calendar.setOption(Option.HEADER_TOOLBAR, false);
 calendar.setOption(Option.FOOTER_TOOLBAR,
     Map.of("center", "prev,next"));
 
-// Localize button text
-calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_TEXT,
-    Map.of("today", "Heute", "month", "Monat", "week", "Woche", "day", "Tag"));
+// Localize button text (FullCalendar's buttons option, one map per button)
+calendar.setOption("buttons", Map.of(
+    "today", Map.of("text", "Heute"),
+    "dayGridMonth", Map.of("text", "Monat")));
 
-// ARIA labels for accessibility
-calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS,
-    Map.of("prev", "Previous period", "next", "Next period", "today", "Go to today"));
+// ARIA labels for accessibility ($0 is the unit text of the current view)
+calendar.setOption(Option.PREV_HINT, "Previous $0");
+calendar.setOption(Option.NEXT_HINT, "Next $0");
+calendar.setOption(Option.TODAY_HINT, "Go to today");
 ```
 
 ---
@@ -86,4 +88,5 @@ calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS,
 
 - [headerToolbar](https://fullcalendar.io/docs/headerToolbar)
 - [footerToolbar](https://fullcalendar.io/docs/footerToolbar)
-- [buttonText](https://fullcalendar.io/docs/buttonText)
+- [buttons](https://fullcalendar.io/docs/buttons)
+- [prevHint, nextHint, todayHint](https://fullcalendar.io/docs/locale)

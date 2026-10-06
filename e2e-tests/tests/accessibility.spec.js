@@ -63,20 +63,17 @@ test.describe('Accessibility and Touch', () => {
     });
 
     // -------------------------------------------------------------------------
-    // buttonHints: toolbar buttons carry aria-label
+    // todayHint / prevHint: toolbar buttons carry aria-label
     // -------------------------------------------------------------------------
 
-    test('today button has title set by buttonHints', async ({ page }) => {
-        // setButtonHints({ "today": "Jump to today" }) causes FullCalendar to set
-        // title="Jump to today" on the today toolbar button (FC uses title, not aria-label).
-        const title = await page.locator('button.fc-today-button').getAttribute('title');
-        expect(title).toBe('Jump to today');
+    test('today button has aria-label set by todayHint', async ({ page }) => {
+        // TODAY_HINT "Jump to today" makes FullCalendar set aria-label="Jump to today" on the today button.
+        await expect(page.locator('button.fc-today-button')).toHaveAttribute('aria-label', 'Jump to today');
     });
 
-    test('prev button has title set by buttonHints', async ({ page }) => {
-        // setButtonHints({ "prev": "Go to previous period" })
-        const title = await page.locator('button.fc-prev-button').getAttribute('title');
-        expect(title).toBe('Go to previous period');
+    test('prev button has aria-label set by prevHint', async ({ page }) => {
+        // PREV_HINT "Go to previous $0" makes FullCalendar fill in the unit text of the current view ("Month").
+        await expect(page.locator('button.fc-prev-button')).toHaveAttribute('aria-label', 'Go to previous Month');
     });
 
     // -------------------------------------------------------------------------

@@ -26,7 +26,30 @@ public class FullCalendarOptionsTest {
             Map.entry(Option.EXTERNAL_EVENT_SOURCE_END_PARAM, Option.ENTRY_SOURCE_END_PARAM),
             Map.entry(Option.EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM, Option.ENTRY_SOURCE_TIME_ZONE_PARAM),
             Map.entry(Option.EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY, Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY),
-            Map.entry(Option.NATIVE_TOOLBAR_VIEW_HINT, Option.VIEW_HINT));
+            Map.entry(Option.NATIVE_TOOLBAR_VIEW_HINT, Option.VIEW_HINT),
+            // FullCalendar 7 renames
+            Map.entry(Option.ENTRY_TEXT_COLOR, Option.ENTRY_CONTRAST_COLOR),
+            Map.entry(Option.LIST_DAY_SIDE_FORMAT, Option.LIST_DAY_ALT_FORMAT),
+            Map.entry(Option.MULTI_MONTH_MIN_WIDTH, Option.SINGLE_MONTH_MIN_WIDTH),
+            Map.entry(Option.MULTI_MONTH_TITLE_FORMAT, Option.SINGLE_MONTH_TITLE_FORMAT),
+            Map.entry(Option.SLOT_LABEL_FORMAT, Option.SLOT_HEADER_FORMAT),
+            Map.entry(Option.SLOT_LABEL_INTERVAL, Option.SLOT_HEADER_INTERVAL),
+            Map.entry(Option.STICKY_FOOTER_SCROLLBAR, Option.FOOTER_SCROLLBAR_STICKY),
+            Map.entry(Option.STICKY_HEADER_DATES, Option.TABLE_HEADER_STICKY),
+            Map.entry(Option.WEEK_TEXT, Option.WEEK_TEXT_SHORT),
+            Map.entry(Option.DAY_POPOVER_FORMAT, Option.POPOVER_FORMAT),
+            Map.entry(Option.ENTRY_CLASS_NAMES, Option.ENTRY_CLASS),
+            Map.entry(Option.DAY_CELL_CLASS_NAMES, Option.DAY_CELL_CLASS),
+            Map.entry(Option.DAY_CELL_CONTENT, Option.DAY_CELL_TOP_CONTENT),
+            Map.entry(Option.DAY_HEADER_CLASS_NAMES, Option.DAY_HEADER_CLASS),
+            Map.entry(Option.SLOT_LABEL_CLASS_NAMES, Option.SLOT_HEADER_CLASS),
+            Map.entry(Option.SLOT_LABEL_CONTENT, Option.SLOT_HEADER_CONTENT),
+            Map.entry(Option.SLOT_LABEL_DID_MOUNT, Option.SLOT_HEADER_DID_MOUNT),
+            Map.entry(Option.SLOT_LABEL_WILL_UNMOUNT, Option.SLOT_HEADER_WILL_UNMOUNT),
+            Map.entry(Option.SLOT_LANE_CLASS_NAMES, Option.SLOT_LANE_CLASS),
+            Map.entry(Option.VIEW_CLASS_NAMES, Option.VIEW_CLASS),
+            Map.entry(Option.MORE_LINK_CLASS_NAMES, Option.MORE_LINK_CLASS),
+            Map.entry(Option.NO_ENTRIES_CLASS_NAMES, Option.NO_ENTRIES_CLASS));
 
     @Test
     void testNonEmptyOptionKeys() {
@@ -49,6 +72,37 @@ public class FullCalendarOptionsTest {
             boolean deprecated = Option.class.getField(option.name()).isAnnotationPresent(Deprecated.class);
             assertEquals(deprecated, DEPRECATED_ALIASES.containsKey(option), option.name());
         }
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void deprecatedAlias_isReadBackUnderTheRenamedConstant() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setOption(Option.ENTRY_CLASS_NAMES, "urgent");
+
+        assertEquals("urgent", calendar.getOption(Option.ENTRY_CLASS).orElse(null));
+    }
+
+    @Test
+    void renamedConstants_useTheFullCalendar7Keys() {
+        assertEquals("eventClass", Option.ENTRY_CLASS.getOptionKey());
+        assertEquals("eventContrastColor", Option.ENTRY_CONTRAST_COLOR.getOptionKey());
+        assertEquals("dayCellTopContent", Option.DAY_CELL_TOP_CONTENT.getOptionKey());
+        assertEquals("slotHeaderInterval", Option.SLOT_HEADER_INTERVAL.getOptionKey());
+        assertEquals("tableHeaderSticky", Option.TABLE_HEADER_STICKY.getOptionKey());
+        assertEquals("noEventsClass", Option.NO_ENTRIES_CLASS.getOptionKey());
+    }
+
+    @Test
+    void splitHooks_haveOneConstantPerPart() {
+        assertEquals("nowIndicatorHeaderClass", Option.NOW_INDICATOR_HEADER_CLASS.getOptionKey());
+        assertEquals("nowIndicatorLineContent", Option.NOW_INDICATOR_LINE_CONTENT.getOptionKey());
+        assertEquals("inlineWeekNumberClass", Option.INLINE_WEEK_NUMBER_CLASS.getOptionKey());
+        assertEquals("weekNumberHeaderDidMount", Option.WEEK_NUMBER_HEADER_DID_MOUNT.getOptionKey());
+        assertEquals("allDayHeaderWillUnmount", Option.ALL_DAY_HEADER_WILL_UNMOUNT.getOptionKey());
+        assertEquals("dayLaneClass", Option.DAY_LANE_CLASS.getOptionKey());
+        assertEquals("listDayHeaderContent", Option.LIST_DAY_HEADER_CONTENT.getOptionKey());
     }
 
     @Test

@@ -22,38 +22,39 @@ test.describe('Render Hook Callbacks', () => {
     await waitForVaadin(page);
   });
 
-  test('dayCellClassNames: all day cells have hook-day-cell class', async ({ page }) => {
-    const cells = page.locator('.fc-daygrid-day.hook-day-cell');
-    const count = await cells.count();
-    expect(count).toBeGreaterThan(0);
+  test('dayCellClass: all day cells have hook-day-cell class', async ({ page }) => {
+    // March 2025 in dayGridMonth: 5 or 6 week rows of 7 cells, depending on the first day of the week
+    const count = await page.locator('.fc-daygrid-day.hook-day-cell').count();
+    expect(count).toBeGreaterThanOrEqual(35);
+    expect(count).toBe(await page.locator('.fc-daygrid-day').count());
   });
 
-  test('dayCellContent: custom span with hook-day-content data-testid is rendered', async ({ page }) => {
-    const customContent = page.locator('[data-testid="hook-day-content"]');
-    const count = await customContent.count();
-    expect(count).toBeGreaterThan(0);
+  test('dayCellTopContent: custom span with hook-day-content data-testid is rendered', async ({ page }) => {
+    await expect(page.locator('.fc-daygrid-day[data-date="2025-03-10"] [data-testid="hook-day-content"]')).toHaveText('10');
   });
 
-  test('dayCellContent: custom span with hook-day-num class is rendered', async ({ page }) => {
-    const customSpans = page.locator('.hook-day-num');
-    const count = await customSpans.count();
-    expect(count).toBeGreaterThan(0);
+  test('dayCellTopContent: custom span with hook-day-num class is rendered', async ({ page }) => {
+    const count = await page.locator('.hook-day-num').count();
+    expect(count).toBeGreaterThanOrEqual(35);
   });
 
-  test('dayHeaderClassNames: all column headers have hook-header class', async ({ page }) => {
+  test('dayCellDidMount: every mounted day cell carries the attribute set by the hook', async ({ page }) => {
+    const count = await page.locator('.fc-daygrid-day[data-hook-mounted="true"]').count();
+    expect(count).toBeGreaterThanOrEqual(35);
+    expect(count).toBe(await page.locator('.fc-daygrid-day').count());
+  });
+
+  test('dayHeaderClass: a plain class name string reaches all column headers', async ({ page }) => {
     const headers = page.locator('.fc-col-header-cell.hook-header');
-    const count = await headers.count();
     // dayGridMonth always has 7 column headers (Mon–Sun or Sun–Sat)
-    expect(count).toBe(7);
+    await expect(headers).toHaveCount(7);
   });
 
   test('dayHeaderContent: custom spans with hook-header-text class are rendered', async ({ page }) => {
-    const headerSpans = page.locator('.hook-header-text');
-    const count = await headerSpans.count();
-    expect(count).toBe(7);
+    await expect(page.locator('.hook-header-text')).toHaveCount(7);
   });
 
-  test('weekNumberClassNames: week number cells have hook-weeknum class', async ({ page }) => {
+  test('inlineWeekNumberClass: week number cells have hook-weeknum class', async ({ page }) => {
     // Week numbers are visible (Option.WEEK_NUMBERS in the view)
     const weeknums = page.locator('.fc-daygrid-week-number.hook-weeknum');
     const count = await weeknums.count();
@@ -61,22 +62,30 @@ test.describe('Render Hook Callbacks', () => {
     expect(count).toBeGreaterThanOrEqual(5);
   });
 
-  test('weekNumberContent: custom spans with hook-weeknum-text class are rendered', async ({ page }) => {
-    const weeknumSpans = page.locator('.hook-weeknum-text');
-    const count = await weeknumSpans.count();
+  test('inlineWeekNumberContent: custom spans with hook-weeknum-text class are rendered', async ({ page }) => {
+    const count = await page.locator('.hook-weeknum-text').count();
     expect(count).toBeGreaterThanOrEqual(5);
   });
 
-  test('weekNumberContent: week numbers are prefixed with W', async ({ page }) => {
+  test('inlineWeekNumberContent: week numbers are prefixed with W', async ({ page }) => {
     // The callback returns 'W' + info.num → cells show e.g. "W9", "W10"
     // Use toHaveText to avoid a textContent() race condition after toBeVisible()
     const firstWeeknum = page.locator('.hook-weeknum-text').first();
     await expect(firstWeeknum).toHaveText(/^W\d+$/);
   });
 
-  // Note: allDayClassNames (adds 'hook-allday') only applies in timegrid views
-  // where the all-day row header exists. The current test view uses dayGridMonth,
-  // which has no all-day row header. The option is verified by DisplayOptionsTest.java.
+  test('allDayHeaderClass: the time grid all-day header carries hook-allday', async ({ page }) => {
+    await page.evaluate(() => document.querySelector('vaadin-full-calendar').calendar.changeView('timeGridWeek'));
+    await expect(page.locator('.hook-allday')).toHaveCount(1);
+  });
+
+  test('entryClass: a plain class name string set at runtime reaches the entries', async ({ page }) => {
+    // Goes through the add-on's calendar.setOption wrapper, which wraps entry hooks that are functions only.
+    // FullCalendar 7 class options are often plain strings, which the wrapper has to pass through as they are.
+    await page.evaluate(() => document.querySelector('vaadin-full-calendar').calendar.setOption('eventClass', 'hook-entry'));
+    await expect(page.locator('.fc-event.hook-entry')).toHaveCount(1);
+    await expect(page.locator('.fc-event.hook-entry')).toContainText('Test Event');
+  });
 
 });
 
