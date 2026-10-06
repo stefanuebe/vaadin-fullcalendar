@@ -38,7 +38,7 @@ The main Vaadin component. Custom element tag: `<vaadin-full-calendar>`.
 org.vaadin.stefan.fullcalendar/
   FullCalendar.java           — Main component (extends Component, @JsModule, @NpmPackage)
   Entry.java                  — Calendar entry model (title, start/end, color, recurrence, etc.)
-  FullCalendar.Option         — Enum of all supported calendar options
+  Option.java                 — Enum of all supported calendar options
   dataprovider/
     EntryProvider.java        — Interface for providing entries to the calendar
     InMemoryEntryProvider.java — Client-side entry storage (all entries sent to browser)
@@ -58,7 +58,7 @@ Extends the base calendar with resource management. Custom element tag: `<vaadin
 org.vaadin.stefan.fullcalendar/
   FullCalendarScheduler.java  — Extends FullCalendar, implements Scheduler
   Scheduler.java              — Interface for resource management
-  FullCalendarScheduler.SchedulerOption — Scheduler-specific option enum
+  SchedulerOption.java        — Scheduler-specific option enum
   Resource.java               — Resource model (hierarchical, per-resource styling)
   ResourceEntry.java          — Entry subclass with resource assignments
   SchedulerView.java          — Scheduler view enum (timeline, resource-timeline, resource-timegrid)

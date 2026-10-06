@@ -192,9 +192,9 @@ public interface Scheduler {
      * @param option scheduler option
      * @param <T> type of value
      * @return optional value or empty
-     * @see FullCalendarScheduler#getOption(FullCalendarScheduler.SchedulerOption)
+     * @see FullCalendarScheduler#getOption(SchedulerOption)
      */
-    <T> Optional<T> getOption(FullCalendarScheduler.SchedulerOption option);
+    <T> Optional<T> getOption(SchedulerOption option);
     
     /**
      * Configures the resource area as a multi-column data grid. Each column maps to a resource property.

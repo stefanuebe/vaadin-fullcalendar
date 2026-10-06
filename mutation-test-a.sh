@@ -163,7 +163,7 @@ echo "--- A3: CalendarOptionsTestView ---"
 run_mutation_simple "A3.1" "$COV" 's/Locale.GERMAN/Locale.ENGLISH/' \
     "calendar-options.spec.js" "German" "German→English"
 
-run_mutation_simple "A3.2" "$COV" 's/FullCalendar.Option.WEEKENDS, false/FullCalendar.Option.WEEKENDS, true/' \
+run_mutation_simple "A3.2" "$COV" 's/Option.WEEKENDS, false/Option.WEEKENDS, true/' \
     "calendar-options.spec.js" "weekends" "weekends false→true"
 
 echo ""

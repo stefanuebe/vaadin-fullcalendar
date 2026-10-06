@@ -35,11 +35,11 @@ public class SchedulerReattachTestView extends VerticalLayout {
 
         // Build the scheduler calendar
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        calendar.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
 
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
         calendar.changeView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
         calendar.setResourceColumns(

@@ -47,11 +47,11 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setOption(FullCalendar.Option.LOCALE, Locale.UK); // Monday-start
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
-        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
+        calendar.setOption(Option.LOCALE, Locale.UK); // Monday-start
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
+        calendar.setOption(Option.EDITABLE, true);
+        calendar.setOption(Option.SELECTABLE, true);
 
         // validRange: prevent navigation before 2025-03-01 and after 2025-04-30
         calendar.setValidRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 4, 30));
@@ -108,7 +108,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         calendar.setEntryProvider(provider);
 
         // businessHours option for constraint testing
-        calendar.setOption(FullCalendar.Option.BUSINESS_HOURS, true);
+        calendar.setOption(Option.BUSINESS_HOURS, true);
 
         // --- Listeners ---
         calendar.addEntryDroppedListener(e -> {

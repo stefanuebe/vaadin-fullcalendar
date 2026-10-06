@@ -4,7 +4,6 @@ import com.vaadin.flow.component.ComponentEventBusUtil;
 import com.vaadin.flow.dom.Element;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import tools.jackson.databind.node.ObjectNode;
 

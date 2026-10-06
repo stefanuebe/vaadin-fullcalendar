@@ -5,7 +5,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.*;
-import org.vaadin.stefan.fullcalendar.FullCalendarScheduler.SchedulerOption;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -34,8 +33,8 @@ public class SchedulerViewsTestView extends VerticalLayout {
         FullCalendarScheduler calendar = new FullCalendarScheduler();
         calendar.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
         calendar.getElement().setAttribute("data-testid", "calendar");
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_DAY.getClientSideValue());
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        calendar.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_DAY.getClientSideValue());
 
         // timeline hooks
         calendar.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT, "Rooms");

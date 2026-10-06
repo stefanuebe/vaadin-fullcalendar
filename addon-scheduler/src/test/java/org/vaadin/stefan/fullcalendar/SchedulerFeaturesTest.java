@@ -184,7 +184,7 @@ public class SchedulerFeaturesTest {
 
     @Test
     void testSetResourceGroupField() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_FIELD, "department");
+        calendar.setOption(SchedulerOption.RESOURCE_GROUP_FIELD, "department");
 
         Optional<Object> option = calendar.getOption("resourceGroupField");
         Assertions.assertTrue(option.isPresent());
@@ -193,7 +193,7 @@ public class SchedulerFeaturesTest {
 
     @Test
     void testSetDatesAboveResources() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.DATES_ABOVE_RESOURCES, true);
+        calendar.setOption(SchedulerOption.DATES_ABOVE_RESOURCES, true);
 
         Optional<Object> option = calendar.getOption("datesAboveResources");
         Assertions.assertTrue(option.isPresent());
@@ -202,7 +202,7 @@ public class SchedulerFeaturesTest {
 
     @Test
     void testSetDatesAboveResourcesFalse() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.DATES_ABOVE_RESOURCES, false);
+        calendar.setOption(SchedulerOption.DATES_ABOVE_RESOURCES, false);
 
         Optional<Object> option = calendar.getOption("datesAboveResources");
         Assertions.assertTrue(option.isPresent());
@@ -211,7 +211,7 @@ public class SchedulerFeaturesTest {
 
     @Test
     void testSetEntryMinWidth() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_MIN_WIDTH, 10);
+        calendar.setOption(SchedulerOption.ENTRY_MIN_WIDTH, 10);
 
         Optional<Object> option = calendar.getOption("eventMinWidth");
         Assertions.assertTrue(option.isPresent());
@@ -247,7 +247,7 @@ public class SchedulerFeaturesTest {
     void deprecatedSetResourceAreaColumns_setsTheResourceColumnsOption() {
         calendar.setResourceAreaColumns(new ResourceAreaColumn("title", "Title"));
 
-        Assertions.assertTrue(calendar.getOption(FullCalendarScheduler.SchedulerOption.RESOURCE_COLUMNS).isPresent());
+        Assertions.assertTrue(calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).isPresent());
     }
 
     @Test
@@ -284,28 +284,28 @@ public class SchedulerFeaturesTest {
     @Test
     void testSetResourceAddCallback() {
         Assertions.assertDoesNotThrow(() ->
-                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_ADD, JsCallback.of("function(info) { }"))
+                calendar.setOption(SchedulerOption.RESOURCE_ADD, JsCallback.of("function(info) { }"))
         );
     }
 
     @Test
     void testSetResourceChangeCallback() {
         Assertions.assertDoesNotThrow(() ->
-                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_CHANGE, JsCallback.of("function(info) { }"))
+                calendar.setOption(SchedulerOption.RESOURCE_CHANGE, JsCallback.of("function(info) { }"))
         );
     }
 
     @Test
     void testSetResourceRemoveCallback() {
         Assertions.assertDoesNotThrow(() ->
-                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_REMOVE, JsCallback.of("function(info) { }"))
+                calendar.setOption(SchedulerOption.RESOURCE_REMOVE, JsCallback.of("function(info) { }"))
         );
     }
 
     @Test
     void testSetResourcesSetCallback() {
         Assertions.assertDoesNotThrow(() ->
-                calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCES_SET, JsCallback.of("function(info) { }"))
+                calendar.setOption(SchedulerOption.RESOURCES_SET, JsCallback.of("function(info) { }"))
         );
     }
 

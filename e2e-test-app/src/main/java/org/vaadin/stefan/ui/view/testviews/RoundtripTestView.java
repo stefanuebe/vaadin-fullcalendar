@@ -39,10 +39,10 @@ public class RoundtripTestView extends VerticalLayout {
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
+        calendar.setOption(Option.LOCALE, Locale.ENGLISH);
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(Option.EDITABLE, true);
 
         // --- Entries ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -74,7 +74,7 @@ public class RoundtripTestView extends VerticalLayout {
         provider.addEntry(removeMe);
 
         calendar.setEntryProvider(provider);
-        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
+        calendar.setOption(Option.SELECTABLE, true);
 
         // --- Listeners ---
 

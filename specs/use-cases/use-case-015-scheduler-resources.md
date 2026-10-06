@@ -31,7 +31,7 @@
 ```java
 // Create scheduler
 FullCalendarScheduler scheduler = new FullCalendarScheduler();
-scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
+scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
 
 // Add resources
 Resource room1 = new Resource(null, "Room A", "#3788d8");

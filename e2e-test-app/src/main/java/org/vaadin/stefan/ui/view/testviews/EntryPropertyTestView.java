@@ -46,10 +46,10 @@ public class EntryPropertyTestView extends VerticalLayout {
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
+        calendar.setOption(Option.LOCALE, Locale.ENGLISH);
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(Option.EDITABLE, true);
 
         // --- Entry provider ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -149,7 +149,7 @@ public class EntryPropertyTestView extends VerticalLayout {
         calendar.setEntryProvider(provider);
 
         // entryDidMount callback that logs extendedProps to a data attribute for E2E verification
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+        calendar.setOption(Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { " +
                 "  var ep = info.event.extendedProps || {}; " +
                 "  if (ep.customProperties && ep.customProperties.department) { " +

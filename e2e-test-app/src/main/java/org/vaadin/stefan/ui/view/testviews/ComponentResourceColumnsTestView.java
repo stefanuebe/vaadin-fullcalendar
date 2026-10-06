@@ -54,10 +54,10 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
 
         // Build scheduler
         calendar = new FullCalendarScheduler();
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        calendar.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
         calendar.getElement().setAttribute("data-testid", "calendar");
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        calendar.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
 
         // Component columns
         dateColumn = new ComponentResourceColumn<>("deadline", "Deadline",

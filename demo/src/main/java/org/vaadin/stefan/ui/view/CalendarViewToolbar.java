@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+import static org.vaadin.stefan.fullcalendar.Option.*;
 
 /**
  * @author Stefan Uebe

@@ -20,6 +20,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -40,7 +41,7 @@ public class DemoWithTooltip extends AbstractCalendarView {
         EntryService entryService = EntryService.createSimpleInstance();
 
         FullCalendarWithTooltip calendar = new FullCalendarWithTooltip(defaultInitialOptions);
-        calendar.setOption(FullCalendar.Option.DAY_MAX_ENTRIES, 3);
+        calendar.setOption(Option.DAY_MAX_ENTRIES, 3);
         ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(entryService.getEntries());
 
         return calendar;

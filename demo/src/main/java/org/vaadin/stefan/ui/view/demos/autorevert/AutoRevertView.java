@@ -11,6 +11,7 @@ import org.vaadin.stefan.fullcalendar.EntryDataEvent;
 import org.vaadin.stefan.fullcalendar.EntryDroppedEvent;
 import org.vaadin.stefan.fullcalendar.EntryResizedEvent;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.ui.layouts.MainLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -41,7 +42,7 @@ public class AutoRevertView extends AbstractCalendarView {
         FullCalendar calendar = new FullCalendar(defaultInitialOptions);
         ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider())
                 .addEntries(EntryService.createSimpleInstance().getEntries());
-        calendar.setOption(FullCalendar.Option.DAY_MAX_ENTRIES, 3);
+        calendar.setOption(Option.DAY_MAX_ENTRIES, 3);
         return calendar;
     }
 

@@ -2,7 +2,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.html.Span;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.FullCalendarScheduler.SchedulerOption;
 import tools.jackson.databind.node.ArrayNode;
 
 import java.util.List;

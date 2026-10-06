@@ -3,7 +3,6 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collection;

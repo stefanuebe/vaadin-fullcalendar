@@ -14,7 +14,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+import static org.vaadin.stefan.fullcalendar.Option.*;
 
 @Route(value = "demoextendedprops", layout = MainLayout.class)
 @MenuItem(label = "Custom Properties")

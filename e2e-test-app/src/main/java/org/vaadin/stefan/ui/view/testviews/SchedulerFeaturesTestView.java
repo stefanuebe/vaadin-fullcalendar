@@ -48,13 +48,13 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
 
         // Build the scheduler calendar
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+        calendar.setOption(SchedulerOption.LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
 
         calendar.getElement().setAttribute("data-testid", "calendar");
 
         // Fix date and view for reproducibility
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        calendar.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
 
         // --- Scheduler features ---
 
@@ -68,10 +68,10 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
         );
 
         // 2. Group resources by the "department" extendedProp
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_FIELD, "department");
+        calendar.setOption(SchedulerOption.RESOURCE_GROUP_FIELD, "department");
 
         // 3. Add CSS class to group header cells via JS callback
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_HEADER_CLASS,
+        calendar.setOption(SchedulerOption.RESOURCE_GROUP_HEADER_CLASS,
                 JsCallback.of("function(arg) { return 'custom-group'; }"));
 
         // --- Resources ---

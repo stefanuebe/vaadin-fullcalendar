@@ -5,7 +5,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.time.LocalDate;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+import static org.vaadin.stefan.fullcalendar.Option.*;
 
 /**
  * Demonstrates entry URL navigation and keyboard-accessible interactive entries.

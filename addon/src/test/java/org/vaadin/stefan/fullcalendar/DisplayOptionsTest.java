@@ -2,7 +2,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 
 import java.util.Optional;
 

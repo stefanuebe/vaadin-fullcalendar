@@ -21,7 +21,7 @@ import java.time.LocalDate;
  *   <li>A native click listener registered via {@code addEntryNativeEventListener} fires on click
  *       and increments a visible counter</li>
  *   <li>Both the user callback and the native listener work when set via
- *       {@link FullCalendar#setOption(FullCalendar.Option, Object)} with {@link JsCallback}</li>
+ *       {@link FullCalendar#setOption(Option, Object)} with {@link JsCallback}</li>
  * </ul>
  * <p>
  * Route: /test/native-event-listener
@@ -47,8 +47,8 @@ public class NativeEventListenerTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix date for reproducible tests
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));
+        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         Entry entry = new Entry();
         entry.setTitle("Click Me");
@@ -57,7 +57,7 @@ public class NativeEventListenerTestView extends VerticalLayout {
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(entry));
 
         // ENTRY_DID_MOUNT via JsCallback — must end with closing brace for merge to work
-        calendar.setOption(FullCalendar.Option.ENTRY_DID_MOUNT,
+        calendar.setOption(Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { info.el.setAttribute('data-did-mount', 'true'); }"));
 
         // Native click listener — increments the visible counter element

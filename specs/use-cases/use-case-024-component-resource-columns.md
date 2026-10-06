@@ -33,7 +33,7 @@
 
 ```java
 FullCalendarScheduler scheduler = new FullCalendarScheduler();
-scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
+scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
 
 // Define a component column — callback receives Resource, returns Component.
 // The "field" parameter serves as a unique column key. FC still looks up the field
