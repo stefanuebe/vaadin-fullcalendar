@@ -23,6 +23,10 @@ jobs:
       with:
         node-version: '20'
 
+    # the E2E app resolves the addon snapshots from the local repository, so install them first
+    - name: Install addons
+      run: mvn -B install -DskipTests -pl addon,addon-scheduler -am
+
     - name: Install Playwright system dependencies
       run: cd e2e-tests && npx playwright install-deps chromium
 
