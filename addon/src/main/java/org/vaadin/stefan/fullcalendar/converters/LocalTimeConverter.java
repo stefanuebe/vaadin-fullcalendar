@@ -38,6 +38,7 @@ public class LocalTimeConverter<T extends Entry> implements JsonItemPropertyConv
             return JsonUtils.parseClientSideTime(clientValue.asString());
         }
 
-        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
+        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was "
+                + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
     }
 }

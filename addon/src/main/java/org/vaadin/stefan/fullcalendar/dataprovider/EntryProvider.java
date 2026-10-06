@@ -27,7 +27,8 @@ public interface EntryProvider<T extends Entry> extends Serializable {
      * @param <T> type
      * @return callback entry provider
      */
-    static <T extends Entry> CallbackEntryProvider<T> fromCallbacks(SerializableFunction<EntryQuery, Stream<T>> fetchItems, SerializableFunction<String, T> fetchSingleItem) {
+    static <T extends Entry> CallbackEntryProvider<T> fromCallbacks(SerializableFunction<EntryQuery, Stream<T>> fetchItems,
+                                                                    SerializableFunction<String, T> fetchSingleItem) {
         return new CallbackEntryProvider<>(fetchItems, fetchSingleItem);
     }
 

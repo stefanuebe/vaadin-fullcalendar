@@ -37,6 +37,7 @@ public class LocalDateTimeConverter<T extends Entry> implements JsonItemProperty
             return JsonUtils.parseClientSideDateTime(clientValue.asString());
         }
 
-        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
+        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was "
+                + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
     }
 }
