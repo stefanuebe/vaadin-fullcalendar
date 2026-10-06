@@ -14,8 +14,9 @@ module.exports = defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
 
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  /* No retries while the scheduler failures of #263 are open, so each costs one run.
+     Back to `process.env.CI ? 2 : 0` once #263 is green. */
+  retries: 0,
 
   /* Opt out of parallel tests on CI */
   workers: process.env.CI ? 1 : undefined,
@@ -40,6 +41,9 @@ module.exports = defineConfig({
 
     /* Video on failure */
     video: 'on-first-retry',
+
+    /* A click or fill on a missing element fails after this, not after the whole test timeout */
+    actionTimeout: 5000,
   },
 
   /* Configure projects for major browsers */
@@ -59,10 +63,11 @@ module.exports = defineConfig({
     // },
   ],
 
-  /* Timeout settings */
-  timeout: 60000,
+  /* Timeout settings. The slowest passing test takes about 7s, so a broken test fails fast
+     instead of hanging for a minute per retry. */
+  timeout: 20000,
   expect: {
-    timeout: 10000
+    timeout: 5000
   },
 
   /* Output directory for test artifacts */
