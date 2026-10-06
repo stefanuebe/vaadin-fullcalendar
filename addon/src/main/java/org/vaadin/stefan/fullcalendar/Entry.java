@@ -47,6 +47,7 @@ import java.util.stream.Stream;
  * ({@link #setStart(LocalDateTime)}). The calendar's {@link Option#TIMEZONE} only changes how they are shown.
  * An entry can repeat, either with the simple recurrence properties ({@link #setRecurringDaysOfWeek(Set)},
  * {@link #setRecurringStartTime(LocalTime)}, ...) or with an {@link RRule} ({@link #setRRule(RRule)}).
+ * <p>
  * Color, class names, editability and display mode can be set per entry and override the calendar's options.
  * Values the client library does not know can be attached with {@link #setCustomProperty(String, Object)}.
  * <p>
