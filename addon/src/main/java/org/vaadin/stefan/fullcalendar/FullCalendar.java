@@ -3487,7 +3487,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         ENTRY_CLASS("eventClass"),
 
         /**
-         * @deprecated use {@link #ENTRY_CLASS}, which sets the same FullCalendar option. Return a class name string, FullCalendar 7 drops arrays.
+         * @deprecated use {@link #ENTRY_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
          */
         @Deprecated(since = "8.0.0", forRemoval = true)
         ENTRY_CLASS_NAMES("eventClass"),
@@ -3547,7 +3547,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         DAY_CELL_CLASS("dayCellClass"),
 
         /**
-         * @deprecated use {@link #DAY_CELL_CLASS}, which sets the same FullCalendar option. Return a class name string, FullCalendar 7 drops arrays.
+         * @deprecated use {@link #DAY_CELL_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
          * It no longer applies to time grid day columns, see {@link #DAY_LANE_CLASS}.
          */
         @Deprecated(since = "8.0.0", forRemoval = true)
@@ -3636,7 +3636,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         DAY_HEADER_CLASS("dayHeaderClass"),
 
         /**
-         * @deprecated use {@link #DAY_HEADER_CLASS}, which sets the same FullCalendar option. Return a class name string, FullCalendar 7 drops arrays.
+         * @deprecated use {@link #DAY_HEADER_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
          */
         @Deprecated(since = "8.0.0", forRemoval = true)
         DAY_HEADER_CLASS_NAMES("dayHeaderClass"),
@@ -3729,7 +3729,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         SLOT_HEADER_CLASS("slotHeaderClass"),
 
         /**
-         * @deprecated use {@link #SLOT_HEADER_CLASS}, which sets the same FullCalendar option. Return a class name string, FullCalendar 7 drops arrays.
+         * @deprecated use {@link #SLOT_HEADER_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
          */
         @Deprecated(since = "8.0.0", forRemoval = true)
         SLOT_LABEL_CLASS_NAMES("slotHeaderClass"),
@@ -3796,7 +3796,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         SLOT_LANE_CLASS("slotLaneClass"),
 
         /**
-         * @deprecated use {@link #SLOT_LANE_CLASS}, which sets the same FullCalendar option. Return a class name string, FullCalendar 7 drops arrays.
+         * @deprecated use {@link #SLOT_LANE_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
          */
         @Deprecated(since = "8.0.0", forRemoval = true)
         SLOT_LANE_CLASS_NAMES("slotLaneClass"),
@@ -3834,7 +3834,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         VIEW_CLASS("viewClass"),
 
         /**
-         * @deprecated use {@link #VIEW_CLASS}, which sets the same FullCalendar option. Return a class name string, FullCalendar 7 drops arrays.
+         * @deprecated use {@link #VIEW_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
          */
         @Deprecated(since = "8.0.0", forRemoval = true)
         VIEW_CLASS_NAMES("viewClass"),
@@ -4044,7 +4044,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         MORE_LINK_CLASS("moreLinkClass"),
 
         /**
-         * @deprecated use {@link #MORE_LINK_CLASS}, which sets the same FullCalendar option. Return a class name string, FullCalendar 7 drops arrays.
+         * @deprecated use {@link #MORE_LINK_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
          */
         @Deprecated(since = "8.0.0", forRemoval = true)
         MORE_LINK_CLASS_NAMES("moreLinkClass"),
@@ -4093,7 +4093,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         NO_ENTRIES_CLASS("noEventsClass"),
 
         /**
-         * @deprecated use {@link #NO_ENTRIES_CLASS}, which sets the same FullCalendar option. Return a class name string, FullCalendar 7 drops arrays.
+         * @deprecated use {@link #NO_ENTRIES_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
          */
         @Deprecated(since = "8.0.0", forRemoval = true)
         NO_ENTRIES_CLASS_NAMES("noEventsClass"),

@@ -17,7 +17,7 @@ public class AnonymousCustomViewDemo extends AbstractSchedulerView {
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {
         calendarView = new SomeCalendarView(28);
         FullCalendarScheduler calendar = new FullCalendarScheduler(calendarView.getInitialOptions());
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
         calendar.setOption(FullCalendar.Option.LOCALE, UI.getCurrent().getLocale());
 
         List<Entry> entries = EntryService.createRandomInstance().getEntries();

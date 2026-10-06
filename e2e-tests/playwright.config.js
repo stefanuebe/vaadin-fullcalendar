@@ -14,9 +14,8 @@ module.exports = defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
 
-  /* No retries while the scheduler failures of #263 are open, so each costs one run.
-     Back to `process.env.CI ? 2 : 0` once #263 is green. */
-  retries: 0,
+  /* Retry on CI only */
+  retries: process.env.CI ? 2 : 0,
 
   /* Opt out of parallel tests on CI */
   workers: process.env.CI ? 1 : undefined,

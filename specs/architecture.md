@@ -62,7 +62,8 @@ org.vaadin.stefan.fullcalendar/
   Resource.java               — Resource model (hierarchical, per-resource styling)
   ResourceEntry.java          — Entry subclass with resource assignments
   SchedulerView.java          — Scheduler view enum (timeline, resource-timeline, resource-timegrid)
-  ResourceAreaColumn.java     — Column definition for resource area
+  ResourceColumn.java         — Column definition for resource columns
+  ComponentResourceColumn.java — Resource column that renders a Vaadin component per resource
 ```
 
 ---

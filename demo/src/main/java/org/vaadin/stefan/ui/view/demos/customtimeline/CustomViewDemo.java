@@ -29,7 +29,7 @@ public class CustomViewDemo extends AbstractSchedulerView {
 //        initialOptions.put("views", views);
 
         FullCalendarScheduler calendar = new FullCalendarScheduler();
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
         calendar.setCustomCalendarViews(calendarView);
         calendar.setOption(FullCalendar.Option.LOCALE, UI.getCurrent().getLocale());
 

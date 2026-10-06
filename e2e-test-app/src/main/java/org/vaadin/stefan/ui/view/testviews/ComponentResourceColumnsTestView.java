@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Test view for component resource area columns (UC-024).
+ * Test view for component resource columns (UC-024).
  * <p>
  * Verifies:
  * <ul>
@@ -37,8 +37,8 @@ import java.util.List;
 public class ComponentResourceColumnsTestView extends VerticalLayout {
 
     private final FullCalendarScheduler calendar;
-    private final ComponentResourceAreaColumn<DatePicker> dateColumn;
-    private final ComponentResourceAreaColumn<TextField> notesColumn;
+    private final ComponentResourceColumn<DatePicker> dateColumn;
+    private final ComponentResourceColumn<TextField> notesColumn;
     private final Span stateSpan;
 
     public ComponentResourceColumnsTestView() {
@@ -60,7 +60,7 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
         calendar.setOption(FullCalendar.Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_WEEK.getClientSideValue());
 
         // Component columns
-        dateColumn = new ComponentResourceAreaColumn<>("deadline", "Deadline",
+        dateColumn = new ComponentResourceColumn<>("deadline", "Deadline",
                 resource -> {
                     DatePicker picker = new DatePicker();
                     picker.setWidth("130px");
@@ -72,7 +72,7 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
                     return picker;
                 });
 
-        notesColumn = new ComponentResourceAreaColumn<>("notes", "Notes",
+        notesColumn = new ComponentResourceColumn<>("notes", "Notes",
                 resource -> {
                     TextField field = new TextField();
                     field.setWidth("120px");
@@ -82,8 +82,8 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
                     return field;
                 });
 
-        calendar.setResourceAreaColumns(List.of(
-                new ResourceAreaColumn("title", "Name").withWidth("150px"),
+        calendar.setResourceColumns(List.of(
+                new ResourceColumn("title", "Name").withWidth("150px"),
                 dateColumn.withWidth("160px"),
                 notesColumn.withWidth("150px")
         ));

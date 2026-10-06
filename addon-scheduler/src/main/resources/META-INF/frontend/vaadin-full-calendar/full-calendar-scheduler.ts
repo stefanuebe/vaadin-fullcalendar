@@ -35,6 +35,16 @@ export class FullCalendarScheduler extends FullCalendar {
         this.ensureComponentContainer();
     }
 
+    protected initCalendar() {
+        // FullCalendar's first render replaces the element's content, which removes the component column
+        // elements the server attached before. Park them and put them back into the component container.
+        const parked = Array.from(this.querySelectorAll(':scope > [data-rc-resource-id]'));
+        parked.forEach(el => el.remove());
+        super.initCalendar();
+        const container = this.ensureComponentContainer();
+        parked.forEach(el => container.appendChild(el));
+    }
+
     private ensureComponentContainer(): HTMLElement {
         if (!this._componentContainer || !this.contains(this._componentContainer)) {
             this._componentContainer = document.createElement('div');
@@ -90,21 +100,19 @@ export class FullCalendarScheduler extends FullCalendar {
         if (resource) {
             if (data.title !== undefined) resource.setProp('title', data.title);
             if (data.eventColor !== undefined) resource.setProp('eventColor', data.eventColor);
-            if (data.eventBackgroundColor !== undefined) resource.setProp('eventBackgroundColor', data.eventBackgroundColor);
-            if (data.eventBorderColor !== undefined) resource.setProp('eventBorderColor', data.eventBorderColor);
-            if (data.eventTextColor !== undefined) resource.setProp('eventTextColor', data.eventTextColor);
+            if (data.eventContrastColor !== undefined) resource.setProp('eventContrastColor', data.eventContrastColor);
             if (data.eventConstraint !== undefined) resource.setProp('eventConstraint', data.eventConstraint);
             if (data.eventOverlap !== undefined) resource.setProp('eventOverlap', evaluateCallbacks(data.eventOverlap));
             if (data.eventAllow !== undefined) resource.setProp('eventAllow', evaluateCallbacks(data.eventAllow));
-            if (data.eventClassNames !== undefined) resource.setProp('eventClassNames', evaluateCallbacks(data.eventClassNames));
+            if (data.eventClass !== undefined) resource.setProp('eventClass', data.eventClass);
 
             // Extended props: any top-level JSON key not covered above is treated as an extended prop.
             // Resource.toJson() serializes extended props flat at the top level (the FC Resource
             // constructor accepts them that way), so we mirror that shape here on update.
             const handled = new Set([
                 'id', 'title', 'parentId', 'children', 'businessHours',
-                'eventColor', 'eventBackgroundColor', 'eventBorderColor', 'eventTextColor',
-                'eventConstraint', 'eventOverlap', 'eventAllow', 'eventClassNames'
+                'eventColor', 'eventContrastColor',
+                'eventConstraint', 'eventOverlap', 'eventAllow', 'eventClass'
             ]);
             for (const key of Object.keys(data)) {
                 if (!handled.has(key)) {

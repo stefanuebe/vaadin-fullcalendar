@@ -42,8 +42,8 @@ public class SchedulerReattachTestView extends VerticalLayout {
         calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
         calendar.changeView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
-        calendar.setResourceAreaColumns(
-                new ResourceAreaColumn("title", "Resource Name")
+        calendar.setResourceColumns(
+                new ResourceColumn("title", "Resource Name")
         );
 
         // Resources

@@ -20,7 +20,7 @@ import java.util.List;
  * Verifies:
  * <ul>
  *   <li>Calendar renders in resource timeline view</li>
- *   <li>Resource area columns (title + department) are rendered</li>
+ *   <li>Resource columns (title + department) are rendered</li>
  *   <li>Resources are listed in the resource area</li>
  *   <li>Resource grouping by department renders group headers</li>
  *   <li>ResourceEntry events are visible in the timeline</li>
@@ -39,7 +39,7 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
         add(new H2("Scheduler Resource Features"));
         add(new Paragraph(
                 "A FullCalendarScheduler is shown in resourceTimelineWeek view with three resources " +
-                "grouped by department, two resource area columns, and resource group class name callback."));
+                "grouped by department, two resource columns, and a resource group header class callback."));
 
         // Stable DOM anchor for Playwright
         Span groupLabelArea = new Span("Resource Groups:");
@@ -58,23 +58,21 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
 
         // --- Scheduler features ---
 
-        // 1. Two resource area columns: built-in "title" field + a "dept" column
+        // 1. Two resource columns: built-in "title" field + a "dept" column
         // Note: use "dept" (not "department") for the column field so individual resource rows
         // don't show the department text — only group headers should show "Engineering"/"Design"
         // to avoid Playwright strict mode violations (multiple elements matching the same text)
-        calendar.setResourceAreaColumns(
-                new ResourceAreaColumn("title", "Resource Name"),
-                new ResourceAreaColumn("dept", "Dept")
+        calendar.setResourceColumns(
+                new ResourceColumn("title", "Resource Name"),
+                new ResourceColumn("dept", "Dept").withHeaderClass("dept-header").withCellClass("dept-cell")
         );
 
         // 2. Group resources by the "department" extendedProp
         calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_FIELD, "department");
 
-        // 3. Add CSS class to group header rows via JS callback
-        // Use raw string key because SchedulerOption.RESOURCE_GROUP_CLASS_NAMES maps to a
-        // non-existent FC option. The correct FC v6 option is "resourceGroupLabelClassNames".
-        calendar.setOption("resourceGroupLabelClassNames",
-                JsCallback.of("function(arg) { return ['custom-group']; }"));
+        // 3. Add CSS class to group header cells via JS callback
+        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_GROUP_HEADER_CLASS,
+                JsCallback.of("function(arg) { return 'custom-group'; }"));
 
         // --- Resources ---
         Resource r1 = new Resource("r1", "Alice", "blue");

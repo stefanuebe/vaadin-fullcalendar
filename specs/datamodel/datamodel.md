@@ -62,17 +62,15 @@ Represents a schedulable resource (room, person, equipment). Supports hierarchic
 |-------|------|-------------|
 | `id` | `String` | Unique identifier (auto-generated UUID if not provided) |
 | `title` | `String` | Display name |
-| `color` | `String` | Color shorthand for associated entries |
+| `color` | `String` | Entry color of associated entries, sent as `eventColor`. FullCalendar 7 has no separate background and border colors, the theme decides which parts it colors |
 | `children` | `Set<Resource>` | Child resources (hierarchical) |
 | `parent` | `Resource` | Parent resource (null for top-level) |
 | `businessHoursArray` | `BusinessHours[]` | Per-resource business hours |
 | `extendedProps` | `Map<String, Object>` | Custom properties |
-| `entryBackgroundColor` | `String` | Per-resource entry background color (Java setter: `setEntryBackgroundColor()`) |
-| `entryBorderColor` | `String` | Per-resource entry border color (Java setter: `setEntryBorderColor()`) |
-| `entryTextColor` | `String` | Per-resource entry text color (Java setter: `setEntryTextColor()`) |
+| `entryContrastColor` | `String` | Per-resource entry contrast color, sent as `eventContrastColor` (Java setter: `setEntryContrastColor()`) |
 | `entryConstraint` | `String` | Per-resource entry constraint (Java setter: `setEntryConstraint()`) |
 | `entryOverlap` | `Boolean` | Per-resource entry overlap setting (Java setter: `setEntryOverlap()`) |
-| `entryClassNames` | `Set<String>` | Per-resource CSS classes for entries (Java setter: `setEntryClassNames()`) |
+| `entryClassNames` | `Set<String>` | Per-resource CSS classes for entries, sent as one space-separated `eventClass` string (Java setter: `setEntryClassNames()`) |
 | `entryAllow` | `JsCallback` | Per-resource drop-allow callback (Java setter: `setEntryAllow(JsCallback)` — see UC-016) |
 
 **Auto-push**: `setTitle()` and `setColor()` auto-push updates to client. Other entry style properties require manual `scheduler.updateResource(resource)`.

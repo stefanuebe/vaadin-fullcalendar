@@ -52,12 +52,22 @@ public interface Scheduler {
     public static final String NON_COMMERCIAL_CREATIVE_COMMONS_LICENSE_KEY = "CC-Attribution-NonCommercial-NoDerivatives";
     
     /**
-     * 
-     * Constant for the GPL v3 open source license.
+     * Constant for the AGPL v3 open source license, for projects whose frontend and backend are open source
+     * and AGPLv3 compliant.
      * <br><br>
      * For more details visit
      * <a href="https://fullcalendar.io/scheduler/license">https://fullcalendar.io/scheduler/license</a>
      */
+    public static final String AGPL_V3_LICENSE_KEY = "AGPL-My-Frontend-And-Backend-Are-Open-Source";
+
+    /**
+     * Constant for the GPL v3 open source license.
+     *
+     * @deprecated FullCalendar Scheduler 7 no longer accepts the GPL v3 key. It treats it as invalid and shows the
+     * license warning.
+     * Open source projects use {@link #AGPL_V3_LICENSE_KEY}.
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public static final String GPL_V3_LICENSE_KEY = "GPL-My-Project-Is-Open-Source";
 
     /**
@@ -187,39 +197,50 @@ public interface Scheduler {
     <T> Optional<T> getOption(FullCalendarScheduler.SchedulerOption option);
     
     /**
-     * Set a grouping option for entries based on their assigned resource(s) and date.
-     *
-     * @param groupEntriesBy group entries by option
-     */
-    void setGroupEntriesBy(GroupEntriesBy groupEntriesBy);
-
-    /**
      * Configures the resource area as a multi-column data grid. Each column maps to a resource property.
      * When set, FC renders a header row with column titles above the resource list.
      * <p>
      * Example:
      * <pre>{@code
-     * scheduler.setResourceAreaColumns(List.of(
-     *     new ResourceAreaColumn("title", "Resource").withWidth("200px"),
-     *     new ResourceAreaColumn("department", "Department").withWidth("150px").withGroup(true)
+     * scheduler.setResourceColumns(List.of(
+     *     new ResourceColumn("title", "Resource").withWidth("200px"),
+     *     new ResourceColumn("department", "Department").withWidth("150px").withGroup(true)
      * ));
      * }</pre>
      *
      * @param columns list of column definitions; must not be null
-     * @see ResourceAreaColumn
-     * @see <a href="https://fullcalendar.io/docs/resourceAreaColumns">FullCalendar resourceAreaColumns</a>
+     * @see ResourceColumn
+     * @see ComponentResourceColumn
+     * @see <a href="https://fullcalendar.io/docs/resourceColumns">FullCalendar resourceColumns</a>
      */
-    void setResourceAreaColumns(List<ResourceAreaColumn> columns);
+    void setResourceColumns(List<? extends ResourceColumn> columns);
 
     /**
-     * Convenience overload for {@link #setResourceAreaColumns(List)}.
+     * Convenience overload for {@link #setResourceColumns(List)}.
      *
      * @param columns column definitions
      */
-    default void setResourceAreaColumns(ResourceAreaColumn... columns) {
-        setResourceAreaColumns(Arrays.asList(columns));
+    default void setResourceColumns(ResourceColumn... columns) {
+        setResourceColumns(Arrays.asList(columns));
     }
 
+    /**
+     * @param columns list of column definitions; must not be null
+     * @deprecated use {@link #setResourceColumns(List)}. FullCalendar 7 calls them resource columns
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    default void setResourceAreaColumns(List<? extends ResourceColumn> columns) {
+        setResourceColumns(columns);
+    }
+
+    /**
+     * @param columns column definitions
+     * @deprecated use {@link #setResourceColumns(ResourceColumn...)}. FullCalendar 7 calls them resource columns
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    default void setResourceAreaColumns(ResourceColumn... columns) {
+        setResourceColumns(columns);
+    }
 
     /**
      * Propagates a server-side resource change to the client. Call this after modifying
@@ -227,6 +248,10 @@ public interface Scheduler {
      * <p>
      * Note: This is called automatically when using {@link Resource#setTitle(String)} or
      * {@link Resource#setColor(String)} on a resource that has been added to this scheduler.
+     * <p>
+     * The title and extended props update on the client. The entry style props (color, contrast color,
+     * class names) reach the client too, but FullCalendar does not re-derive the resource's entry styles from
+     * them. Entries of this resource keep their old look, also those rendered later.
      *
      * @param resource the resource to update on the client side; must not be null
      */

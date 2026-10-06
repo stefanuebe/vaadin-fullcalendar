@@ -56,6 +56,7 @@ vaadin-full-calendar .fc-event.fc-event-past {
 - [x] The dragged entry outside the calendar carries `fc-event` and `fc-event-dragging`. A resize mirror carries `fc-event-mirror`.
 - [x] The day number carries `fc-daygrid-day-number` also when its text is more than the number (e.g. `10日` in Japanese).
 - [x] Theme classes stay on elements that carry stable classes.
+- [x] Resource timeline, resource time grid and resource day grid views carry the scheduler classes (wiki page *Stable class names*, section Scheduler).
 
 ---
 
@@ -68,6 +69,7 @@ vaadin-full-calendar .fc-event.fc-event-past {
 ### E2E Tests
 
 - [x] `stable-class-names.spec.js`: representative class per element family in day grid, time grid, popover, drag and resize mirror; joined with the theme's classes
+- [x] `scheduler-views.spec.js`: the timeline test "carries the scheduler stable classes", and `fc-resource` on the resource day headers in the time grid and day grid tests
 - [x] The other specs use stable classes, `data-date` / `data-time` and ARIA attributes as selectors
 
 ---
