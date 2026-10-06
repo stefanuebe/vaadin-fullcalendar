@@ -40,6 +40,38 @@ import java.time.*;
 import java.util.*;
 import java.util.stream.Stream;
 
+/**
+ * A calendar item shown by {@link FullCalendar}, called "event" in the FullCalendar client library.
+ * <p>
+ * An entry has a title, a start and an end, and can be all-day. Start and end are stored as UTC
+ * ({@link #setStart(LocalDateTime)}). The calendar's {@link Option#TIMEZONE} only changes how they are shown.
+ * An entry can repeat, either with the simple recurrence properties ({@link #setRecurringDaysOfWeek(Set)},
+ * {@link #setRecurringStartTime(LocalTime)}, ...) or with an {@link RRule} ({@link #setRRule(RRule)}).
+ * <p>
+ * Color, class names, editability and display mode can be set per entry and override the calendar's options.
+ * Values the client library does not know can be attached with {@link #setCustomProperty(String, Object)}.
+ * <p>
+ * The calendar gets its entries from its {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
+ * After changing an entry that is already shown, call
+ * {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider#refreshItem(Entry)} to send the change to the
+ * client:
+ * <pre>{@code
+ * Entry entry = new Entry();
+ * entry.setTitle("Meeting");
+ * entry.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+ * entry.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
+ *
+ * InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+ * provider.addEntry(entry);
+ * calendar.setEntryProvider(provider);
+ *
+ * entry.setTitle("Team meeting");
+ * provider.refreshItem(entry);
+ * }</pre>
+ * Entries are equal when their ids are equal. The id must be unique within a calendar. Without an id given to the
+ * constructor, the entry generates one. Use {@code ResourceEntry} of the scheduler add-on to assign entries to
+ * resources.
+ */
 @Getter
 @lombok.Setter // prevent conflicts with Vaadin Setter
 @EqualsAndHashCode(of = "id")
@@ -85,9 +117,7 @@ public class Entry implements Serializable {
     @Getter(AccessLevel.NONE)
     @lombok.Setter(AccessLevel.NONE)
     private Object constraint;
-    private String backgroundColor;
-    private String borderColor;
-    private String textColor;
+    private String contrastColor;
     private Boolean overlap;
 
     /** Whether the entry is keyboard-focusable (tabbable) independently of drag/drop. Null inherits the calendar-level {@code eventInteractive} option. */
@@ -198,6 +228,8 @@ public class Entry implements Serializable {
         this.exrule = rrule != null ? rrule.getExcludedRules() : null;
     }
 
+    @JsonName("className")
+    @JsonConverter(ClassNameConverter.class)
     private Set<String> classNames;
 
     private Map<String, Object> customProperties;
@@ -1046,40 +1078,59 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the color for this entry. This is interpreted as background and border color on the client side.
+     * Sets the color for this entry. FullCalendar sets it on the entry's element as the CSS variable
+     * {@code --fc-event-color}. The theme's styles read it, so where the color shows depends on the theme.
+     * Own styles can read the variable as well, e.g. for entries with a CSS class:
+     * <pre>{@code
+     * .fc-event.important { border-left: 4px solid var(--fc-event-color); }
+     * }</pre>
+     * The class {@code fc-event} marks foreground entries, background entries carry {@code fc-bg-event}.
      * Null or empty string resets the color to the FC's default.
      *
      * @param color color
+     * @see <a href="https://fullcalendar.io/docs/custom-themes">Custom themes: event colors</a>
      */
     public void setColor(String color) {
         this.color = StringUtils.trimToNull(color);
     }
 
     /**
-     * Sets the background color for this entry. Null or empty string resets the color to the FC's default.
+     * Sets the contrast color for this entry, used for text and other elements drawn on the entry color.
+     * FullCalendar sets it on the entry's element as the CSS variable {@code --fc-event-contrast-color}. The
+     * theme's styles read it, so where the color shows depends on the theme. Own styles can read the variable
+     * as well:
+     * <pre>{@code
+     * .fc-event.important { outline: 2px dashed var(--fc-event-contrast-color); }
+     * }</pre>
+     * Null or empty string resets the color to the FC's default.
      *
-     * @param backgroundColor background color
+     * @param contrastColor contrast color
+     * @see #setColor(String)
      */
-    public void setBackgroundColor(String backgroundColor) {
-        this.backgroundColor = StringUtils.trimToNull(backgroundColor);
+    public void setContrastColor(String contrastColor) {
+        this.contrastColor = StringUtils.trimToNull(contrastColor);
     }
 
     /**
-     * Sets the text color for this entry. Null or empty string resets the color to the FC's default.
+     * Former name of {@link #getContrastColor()}: returns the contrast color of this entry. Delegates to it.
      *
-     * @param textColor text color
+     * @return the contrast color
+     * @deprecated use {@link #getContrastColor()}. FullCalendar 7 renamed the text color to contrast color.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    public String getTextColor() {
+        return getContrastColor();
+    }
+
+    /**
+     * Former name of {@link #setContrastColor(String)}: sets the contrast color of this entry. Delegates to it.
+     *
+     * @param textColor contrast color
+     * @deprecated use {@link #setContrastColor(String)}. FullCalendar 7 renamed the text color to contrast color.
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setTextColor(String textColor) {
-        this.textColor = StringUtils.trimToNull(textColor);
-    }
-
-    /**
-     * Sets the border color for this entry. Null or empty string resets the color to the FC's default.
-     *
-     * @param borderColor border color
-     */
-    public void setBorderColor(String borderColor) {
-        this.borderColor = StringUtils.trimToNull(borderColor);
+        setContrastColor(textColor);
     }
 
     /**
@@ -1341,7 +1392,7 @@ public class Entry implements Serializable {
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
-     * @see FullCalendar.Option#ENTRY_CONTENT
+     * @see Option#ENTRY_CONTENT
      * @param customProperties custom properties
      */
     public void setCustomProperties(Map<String, Object> customProperties) {
@@ -1354,7 +1405,7 @@ public class Entry implements Serializable {
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
-     *  @see FullCalendar.Option#ENTRY_CONTENT
+     *  @see Option#ENTRY_CONTENT
      *
      * @param key   the name of the property to set
      * @param value value to set
@@ -1370,7 +1421,7 @@ public class Entry implements Serializable {
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
-     * @see FullCalendar.Option#ENTRY_CONTENT
+     * @see Option#ENTRY_CONTENT
      *
      * @param key name of the custom property
      * @param <T> return type
@@ -1417,7 +1468,7 @@ public class Entry implements Serializable {
      * You can access custom properties on the client side when customizing the event rendering via the property
      * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
      *
-     * @see FullCalendar.Option#ENTRY_CONTENT
+     * @see Option#ENTRY_CONTENT
      *
      * @return Map
      * @see #getCustomPropertiesOrEmpty()

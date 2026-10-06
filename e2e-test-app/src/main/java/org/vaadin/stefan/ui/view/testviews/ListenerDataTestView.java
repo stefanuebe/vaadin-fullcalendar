@@ -118,13 +118,13 @@ public class ListenerDataTestView extends VerticalLayout {
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-        calendar.setOption(FullCalendar.Option.LOCALE, Locale.ENGLISH);
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.DAY_MAX_ENTRY_ROWS, 2); // triggers +more link
-        calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
-        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
-        calendar.setOption(FullCalendar.Option.WEEK_NUMBERS, true);
+        calendar.setOption(Option.LOCALE, Locale.ENGLISH);
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(Option.DAY_MAX_ENTRY_ROWS, 2); // triggers +more link
+        calendar.setOption(Option.NAV_LINKS, true);
+        calendar.setOption(Option.SELECTABLE, true);
+        calendar.setOption(Option.WEEK_NUMBERS, true);
 
         // --- Entries ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();

@@ -3,7 +3,6 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collection;
@@ -146,9 +145,26 @@ public class EventSourcesTest {
         ObjectNode json = new JsonFeedEventSource("/api/events")
                 .withClassNames(List.of("foo", "bar"))
                 .toJson();
-        assertTrue(json.has("classNames"));
-        assertEquals("foo", json.get("classNames").get(0).asString());
-        assertEquals("bar", json.get("classNames").get(1).asString());
+        assertEquals("foo bar", json.get("className").asString());
+        assertFalse(json.has("classNames"));
+    }
+
+    @Test
+    void jsonFeedEventSource_toJson_colors() {
+        ObjectNode json = new JsonFeedEventSource("/api/events")
+                .withColor("red")
+                .withContrastColor("white")
+                .toJson();
+        assertEquals("red", json.get("color").asString());
+        assertEquals("white", json.get("contrastColor").asString());
+        assertFalse(json.has("textColor"));
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void jsonFeedEventSource_withTextColor_setsContrastColor() {
+        ObjectNode json = new JsonFeedEventSource("/api/events").withTextColor("white").toJson();
+        assertEquals("white", json.get("contrastColor").asString());
     }
 
     // -------------------------------------------------------------------------
@@ -394,14 +410,15 @@ public class EventSourcesTest {
     @Test
     void eventSource_allow_defaultAbsent() {
         ObjectNode json = new JsonFeedEventSource("/api").toJson();
-        assertFalse(json.has("eventAllow"));
+        assertFalse(json.has("allow"));
     }
 
     @Test
     void eventSource_allow_whenSet() {
         ObjectNode json = new JsonFeedEventSource("/api").withAllow("function() { return true; }").toJson();
-        assertTrue(json.get("eventAllow").isObject());
-        assertEquals("function() { return true; }", json.get("eventAllow").get("__jsCallback").asString());
+        // FullCalendar reads the per-source callback as "allow"; "eventAllow" is the calendar-wide option only
+        assertEquals("function() { return true; }", json.get("allow").get("__jsCallback").asString());
+        assertFalse(json.has("eventAllow"));
     }
 
     @Test

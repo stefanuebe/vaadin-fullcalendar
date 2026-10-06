@@ -4,7 +4,7 @@
 
 ## 1. Vision
 
-FullCalendar for Flow brings the full power of the [FullCalendar](https://fullcalendar.io/) JavaScript library (v6) into the Vaadin Flow ecosystem as a first-class server-side Java component. Developers should be able to build rich, interactive calendar UIs — including drag-and-drop, recurrence, multiple views, and resource scheduling — without writing any JavaScript. The addon handles all client-server communication transparently, so calendar state is always synchronized between the Java backend and the browser.
+FullCalendar for Flow brings the full power of the [FullCalendar](https://fullcalendar.io/) JavaScript library (v7) into the Vaadin Flow ecosystem as a first-class server-side Java component. Developers should be able to build rich, interactive calendar UIs — including drag-and-drop, recurrence, multiple views, and resource scheduling — without writing any JavaScript. The addon handles all client-server communication transparently, so calendar state is always synchronized between the Java backend and the browser.
 
 Success looks like: a Vaadin developer adds the Maven dependency, creates a `FullCalendar` instance in Java, and immediately has a fully interactive calendar with entries, views, drag-and-drop, and event handling — all controlled from server-side Java code.
 
@@ -18,9 +18,9 @@ Success looks like: a Vaadin developer adds the Maven dependency, creates a `Ful
 ## 3. Constraints
 
 - **Vaadin Flow only**: No Hilla/React support. The component extends `com.vaadin.flow.component.Component`.
-- **FullCalendar JS v6**: The addon wraps FC v6.1.x. Not all FC options are exposed — only those with explicit `Option` / `SchedulerOption` enum constants or `setOption(String, Object)`.
-- **Scheduler license**: The `addon-scheduler` module integrates the commercial FullCalendar Scheduler plugin. Production use requires a valid license key (CC-NonCommercial for development/evaluation, GPL v3 for open-source, or a commercial license).
-- **Java 21 / Vaadin 25**: Current version (v7) requires Java 21 and Vaadin 25.x. Version 6 supported Vaadin 14-24 / Java 11.
+- **FullCalendar JS v7**: The addon wraps FC 7.1.x. Not all FC options are exposed. Only those with explicit `Option` / `SchedulerOption` enum constants or `setOption(String, Object)` are.
+- **Scheduler license**: The `addon-scheduler` module integrates the commercial FullCalendar Scheduler plugin. Production use requires a valid license key (CC-NonCommercial for development/evaluation, AGPL v3 for open-source, or a commercial license).
+- **Java 21 / Vaadin 25**: The current versions (8 and 7) require Java 21 and Vaadin 25.x. Version 6 supported Vaadin 14-24 / Java 11.
 - **Light DOM**: The component uses light DOM (not shadow DOM) for easier CSS styling and FullCalendar compatibility.
 - **Jackson 3**: JSON serialization uses Jackson 3 (tools.jackson). Custom converters in the `converters/` package handle Java ↔ JS type mapping.
 - **No database dependency**: The addon is a pure UI component. Data persistence is the responsibility of the consuming application.

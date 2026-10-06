@@ -4,7 +4,7 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.JsCallback;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+import static org.vaadin.stefan.fullcalendar.Option.*;
 
 /**
  * @author Stefan Uebe

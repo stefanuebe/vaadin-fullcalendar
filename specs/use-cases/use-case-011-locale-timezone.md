@@ -81,7 +81,8 @@ calendar.addBrowserTimezoneObtainedListener(event -> {
 - [ ] `TimezoneTests` — timezone conversion
 
 ### E2E Tests
-- [ ] No dedicated E2E tests for locale/timezone — coverage gap. Visual verification recommended.
+- [x] `date-format.spec.js`: day dates sent to the server are `yyyy-MM-dd` in a named time zone, also for a time that is not midnight (25-hour DST day)
+- [x] `stable-class-names.spec.js`: day numbers in the Japanese locale
 
 ---
 

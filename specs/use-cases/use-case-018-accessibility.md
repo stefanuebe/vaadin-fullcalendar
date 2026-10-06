@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.ENTRY_INTERACTIVE`, `Option.NATIVE_TOOLBAR_BUTTON_HINTS`, `Option.NAV_LINK_HINT`, `Option.MORE_LINK_HINT`, `Option.VIEW_HINT`, `Option.CLOSE_HINT`, `Option.TIME_HINT`, `Option.ENTRY_HINT`, `Option.LONG_PRESS_DELAY`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.SELECT_LONG_PRESS_DELAY`
+**Related Options:** `Option.ENTRY_INTERACTIVE`, `Option.TODAY_HINT`, `Option.PREV_HINT`, `Option.NEXT_HINT`, `Option.NAV_LINK_HINT`, `Option.MORE_LINK_HINT`, `Option.VIEW_HINT`, `Option.CLOSE_HINT`, `Option.LONG_PRESS_DELAY`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.SELECT_LONG_PRESS_DELAY`
 **Related Events:** —
 
 ---
@@ -31,11 +31,10 @@
 calendar.setOption(Option.ENTRY_INTERACTIVE, true);
 
 // Screen reader labels
-calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS,
-    Map.of("prev", "Go to previous period", "next", "Go to next period"));
+calendar.setOption(Option.PREV_HINT, "Go to previous $0");
+calendar.setOption(Option.NEXT_HINT, "Go to next $0");
 calendar.setOption(Option.NAV_LINK_HINT, "Navigate to $0");
 calendar.setOption(Option.MORE_LINK_HINT, "$0 more events");
-calendar.setOption(Option.ENTRY_HINT, "Event: $0");
 
 // Touch device settings
 calendar.setOption(Option.LONG_PRESS_DELAY, 500);

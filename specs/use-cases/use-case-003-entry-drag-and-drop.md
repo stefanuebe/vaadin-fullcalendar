@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.EDITABLE`, `Option.ENTRY_START_EDITABLE`, `Option.SNAP_DURATION`, `Option.DRAG_SCROLL`, `Option.ALL_DAY_MAINTAIN_DURATION`, `Option.ENTRY_ALLOW`, `Option.ENTRY_OVERLAP`, `Option.ENTRY_CONSTRAINT`, `Option.ENTRY_DRAG_MIN_DISTANCE`, `Option.DRAG_REVERT_DURATION`, `Option.FIXED_MIRROR_PARENT`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.LONG_PRESS_DELAY`
+**Related Options:** `Option.EDITABLE`, `Option.ENTRY_START_EDITABLE`, `Option.SNAP_DURATION`, `Option.DRAG_SCROLL`, `Option.ALL_DAY_MAINTAIN_DURATION`, `Option.ENTRY_ALLOW`, `Option.ENTRY_OVERLAP`, `Option.ENTRY_CONSTRAINT`, `Option.ENTRY_DRAG_MIN_DISTANCE`, `Option.DRAG_REVERT_DURATION`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.LONG_PRESS_DELAY`
 **Related Events:** `EntryDroppedEvent`, `EntryDragStartEvent`, `EntryDragStopEvent`
 
 ---
@@ -18,7 +18,7 @@
 ## User-Facing Behavior
 
 - When `editable` is enabled, the user can click and drag an entry to a new time slot or day
-- A "mirror" (semi-transparent clone inheriting the entry's color) follows the cursor during drag. The mirror uses FC's default opacity (`--fc-event-mirror-opacity`). The Vaadin theme does not override this.
+- A clone of the entry, inheriting its color, follows the cursor during drag. It carries `fc-event-dragging` (see UC-025 BR-04).
 - When dropped, the entry snaps to the nearest slot (configurable via `SNAP_DURATION`)
 - The server receives an `EntryDroppedEvent` with the new start/end and the delta
 - If the drop is invalid (constraint/overlap violation), the entry reverts to its original position

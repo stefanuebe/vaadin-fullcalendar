@@ -120,14 +120,14 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix the date for reproducible tests
-        calendar.setOption(FullCalendar.Option.LOCALE, Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
-        calendar.setOption(FullCalendar.Option.SELECTABLE, true);
-        calendar.setOption(FullCalendar.Option.DROPPABLE, true);
-        calendar.setOption(FullCalendar.Option.UNSELECT_AUTO, true);
-        calendar.setOption(FullCalendar.Option.SELECT_MIRROR, true);
+        calendar.setOption(Option.LOCALE, Locale.UK); // Monday-start week, so 2025-03-03 is first visible day
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
+        calendar.setOption(Option.EDITABLE, true);
+        calendar.setOption(Option.SELECTABLE, true);
+        calendar.setOption(Option.DROPPABLE, true);
+        calendar.setOption(Option.UNSELECT_AUTO, true);
+        calendar.setOption(Option.SELECT_MIRROR, true);
 
         // Add some timed entries so drag/resize can be tested
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -205,11 +205,11 @@ public class InteractionCallbacksTestView extends VerticalLayout {
         });
 
         // selectAllow: deny selections before 2025-03-01
-        calendar.setOption(FullCalendar.Option.SELECT_ALLOW,
+        calendar.setOption(Option.SELECT_ALLOW,
                 JsCallback.of("function(selectInfo) { return selectInfo.start >= new Date(2025, 2, 1); }"));
 
         // eventAllow: prevent drops onto Monday 2025-03-03 (used for the Playwright deny test)
-        calendar.setOption(FullCalendar.Option.ENTRY_ALLOW,
+        calendar.setOption(Option.ENTRY_ALLOW,
                 JsCallback.of("function(dropInfo, draggedEvent) { " +
                 "  var d = dropInfo.start; " +
                 "  return !(d.getFullYear() === 2025 && d.getMonth() === 2 && d.getDate() === 3); " +

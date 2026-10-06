@@ -8,8 +8,7 @@ import java.util.Collection;
 
 /**
  * Converts {@code String[]} or {@code Collection<String>} to a single comma-joined
- * JSON string value. Used for FullCalendar options that accept comma-separated
- * CSS selectors (e.g. {@code dragScrollEls}).
+ * JSON string value, for FullCalendar options that accept comma-separated CSS selectors.
  */
 public class StringArrayConverter implements JsonItemPropertyConverter<Object, Object> {
 

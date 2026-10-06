@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+import static org.vaadin.stefan.fullcalendar.Option.*;
 
 /**
  * @author Stefan Uebe
@@ -181,7 +181,6 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
                         entry.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
                         entry.setDescription("Our weekly meeting at 10");
                         entry.setColor("lightblue");
-                        entry.setBorderColor("blue");
                         entry.setCalendar(calendar);
 
                         ui.access(() -> {

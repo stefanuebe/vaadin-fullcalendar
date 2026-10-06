@@ -43,7 +43,7 @@ calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_ENTRY_ROWS, 3);
 calendar.setViewSpecificOption("timeGrid", Option.SLOT_DURATION, Duration.ofMinutes(30));
 
 // Scheduler option
-scheduler.setOption(SchedulerOption.RESOURCE_AREA_WIDTH, "200px");
+scheduler.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "200px");
 
 // Read back
 Optional<Boolean> editable = calendar.getOption(Option.EDITABLE);

@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.WEEKENDS`, `Option.HIDDEN_DAYS`, `Option.ALL_DAY_SLOT`, `Option.SLOT_DURATION`, `Option.SLOT_MIN_TIME`, `Option.SLOT_MAX_TIME`, `Option.SLOT_LABEL_FORMAT`, `Option.SLOT_LABEL_INTERVAL`, `Option.HEIGHT`, `Option.CONTENT_HEIGHT`, `Option.ASPECT_RATIO`, `Option.EXPAND_ROWS`, `Option.FIXED_WEEK_COUNT`, `Option.SHOW_NON_CURRENT_DATES`, `Option.DAY_HEADERS`, `Option.DAY_HEADER_FORMAT`, `Option.DAY_MIN_WIDTH`, `Option.DAY_MAX_ENTRIES`, `Option.DAY_MAX_ENTRY_ROWS`, `Option.ENTRY_MAX_STACK`, `Option.NOW_INDICATOR`, `Option.WEEK_NUMBERS`, `Option.WEEK_TEXT`, `Option.SCROLL_TIME`, `Option.NEXT_DAY_THRESHOLD`, `Option.MULTI_MONTH_MAX_COLUMNS`
+**Related Options:** `Option.WEEKENDS`, `Option.HIDDEN_DAYS`, `Option.ALL_DAY_SLOT`, `Option.SLOT_DURATION`, `Option.SLOT_MIN_TIME`, `Option.SLOT_MAX_TIME`, `Option.SLOT_HEADER_FORMAT`, `Option.SLOT_HEADER_INTERVAL`, `Option.HEIGHT`, `Option.CONTENT_HEIGHT`, `Option.ASPECT_RATIO`, `Option.EXPAND_ROWS`, `Option.FIXED_WEEK_COUNT`, `Option.SHOW_NON_CURRENT_DATES`, `Option.DAY_HEADERS`, `Option.DAY_HEADER_FORMAT`, `Option.DAY_MIN_WIDTH`, `Option.DAY_MAX_ENTRIES`, `Option.DAY_MAX_ENTRY_ROWS`, `Option.ENTRY_MAX_STACK`, `Option.NOW_INDICATOR`, `Option.WEEK_NUMBERS`, `Option.WEEK_TEXT_SHORT`, `Option.SCROLL_TIME`, `Option.NEXT_DAY_THRESHOLD`, `Option.MULTI_MONTH_MAX_COLUMNS`
 **Related Events:** `MoreLinkClickedEvent`
 
 ---

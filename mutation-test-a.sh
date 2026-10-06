@@ -132,14 +132,11 @@ echo "--- A1: EntryPropertyTestView ---"
 run_mutation_simple "A1.1" "$EPV" 's/redEntry.setColor("red")/redEntry.setColor("blue")/' \
     "entry-properties.spec.js" "red entry" "red→blue"
 
-run_mutation_simple "A1.2" "$EPV" 's/setBackgroundColor("#00ff00")/setBackgroundColor("#ff0000")/' \
+run_mutation_simple "A1.2" "$EPV" 's/setColor("#00ff00")/setColor("#ff0000")/' \
     "entry-properties.spec.js" "green background" "green bg→red bg"
 
-run_mutation_simple "A1.3" "$EPV" 's/setTextColor("#ffffff")/setTextColor("#000000")/' \
+run_mutation_simple "A1.3" "$EPV" 's/setContrastColor("#ffffff")/setContrastColor("#000000")/' \
     "entry-properties.spec.js" "white text" "white text→black text"
-
-run_mutation_simple "A1.4" "$EPV" 's/setBorderColor("blue")/setBorderColor("red")/' \
-    "entry-properties.spec.js" "border entry" "blue border→red border"
 
 run_mutation_simple "A1.5" "$EPV" 's/setDisplayMode(DisplayMode.BACKGROUND)/setDisplayMode(DisplayMode.AUTO)/' \
     "entry-properties.spec.js" "background display" "BACKGROUND→AUTO"
@@ -166,7 +163,7 @@ echo "--- A3: CalendarOptionsTestView ---"
 run_mutation_simple "A3.1" "$COV" 's/Locale.GERMAN/Locale.ENGLISH/' \
     "calendar-options.spec.js" "German" "German→English"
 
-run_mutation_simple "A3.2" "$COV" 's/FullCalendar.Option.WEEKENDS, false/FullCalendar.Option.WEEKENDS, true/' \
+run_mutation_simple "A3.2" "$COV" 's/Option.WEEKENDS, false/Option.WEEKENDS, true/' \
     "calendar-options.spec.js" "weekends" "weekends false→true"
 
 echo ""

@@ -20,10 +20,8 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `editable` | `boolean` | Per-entry drag/resize toggle |
 | `startEditable` | `Boolean` | Per-entry override for `ENTRY_START_EDITABLE` (`null` = inherit global) |
 | `durationEditable` | `Boolean` | Per-entry override for `ENTRY_DURATION_EDITABLE` (`null` = inherit global) |
-| `color` | `String` | Combined background + border color (CSS color string) |
-| `backgroundColor` | `String` | Background color override |
-| `borderColor` | `String` | Border color override |
-| `textColor` | `String` | Text color override |
+| `color` | `String` | Entry color (CSS color string). FullCalendar sets it as the CSS variable `--fc-event-color`, the theme's styles decide where it shows |
+| `contrastColor` | `String` | Color for text and other elements drawn on the entry color |
 | `description` | `String` | Description (available in JS callbacks) |
 | `groupId` | `String` | Group ID for visual linking and constraint-by-group |
 | `displayMode` | `DisplayMode` | Rendering mode: `AUTO`, `BLOCK`, `LIST_ITEM`, `BACKGROUND`, `INVERSE_BACKGROUND`, `NONE` |
@@ -31,7 +29,7 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `constraint` | `String` | Group ID or `"businessHours"` restricting placement |
 | `url` | `String` | Makes entry an `<a>` tag — navigates on click |
 | `interactive` | `Boolean` | Keyboard focusability (`null` = inherit global `eventInteractive`) |
-| `classNames` | `Set<String>` | CSS classes applied to the entry element |
+| `classNames` | `Set<String>` | CSS classes applied to the entry element (sent as one space-separated `className` string) |
 | `recurringDaysOfWeek` | `Set<DayOfWeek>` | Simple weekly recurrence |
 | `recurringStartTime` | `RecurringTime` | Start time for recurring entries |
 | `recurringEndTime` | `RecurringTime` | End time for recurring entries |
@@ -64,17 +62,15 @@ Represents a schedulable resource (room, person, equipment). Supports hierarchic
 |-------|------|-------------|
 | `id` | `String` | Unique identifier (auto-generated UUID if not provided) |
 | `title` | `String` | Display name |
-| `color` | `String` | Color shorthand for associated entries |
+| `color` | `String` | Entry color of associated entries, sent as `eventColor`. FullCalendar 7 has no separate background and border colors, the theme's styles read it from `--fc-event-color` |
 | `children` | `Set<Resource>` | Child resources (hierarchical) |
 | `parent` | `Resource` | Parent resource (null for top-level) |
 | `businessHoursArray` | `BusinessHours[]` | Per-resource business hours |
 | `extendedProps` | `Map<String, Object>` | Custom properties |
-| `entryBackgroundColor` | `String` | Per-resource entry background color (Java setter: `setEntryBackgroundColor()`) |
-| `entryBorderColor` | `String` | Per-resource entry border color (Java setter: `setEntryBorderColor()`) |
-| `entryTextColor` | `String` | Per-resource entry text color (Java setter: `setEntryTextColor()`) |
+| `entryContrastColor` | `String` | Per-resource entry contrast color, sent as `eventContrastColor` (Java setter: `setEntryContrastColor()`) |
 | `entryConstraint` | `String` | Per-resource entry constraint (Java setter: `setEntryConstraint()`) |
 | `entryOverlap` | `Boolean` | Per-resource entry overlap setting (Java setter: `setEntryOverlap()`) |
-| `entryClassNames` | `Set<String>` | Per-resource CSS classes for entries (Java setter: `setEntryClassNames()`) |
+| `entryClassNames` | `Set<String>` | Per-resource CSS classes for entries, sent as one space-separated `eventClass` string (Java setter: `setEntryClassNames()`) |
 | `entryAllow` | `JsCallback` | Per-resource drop-allow callback (Java setter: `setEntryAllow(JsCallback)` — see UC-016) |
 
 **Auto-push**: `setTitle()` and `setColor()` auto-push updates to client. Other entry style properties require manual `scheduler.updateResource(resource)`.

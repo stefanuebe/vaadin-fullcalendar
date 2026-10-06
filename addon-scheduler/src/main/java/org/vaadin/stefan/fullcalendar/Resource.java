@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
  * Represents a resource. ResourceEntries contain these resources (a resource itself does not know anything about
  * the assigned entries). A resource can have sub resources / child resources.
  * <p>
- * Resources can carry per-resource entry style overrides ({@link #setEntryBackgroundColor(String)},
- * {@link #setEntryBorderColor(String)}, {@link #setEntryTextColor(String)}, and
- * {@link #setEntryClassNames(java.util.Set)}) that apply to all entries associated with the resource.
+ * Resources can carry per-resource entry style overrides ({@link #setColor(String)},
+ * {@link #setEntryContrastColor(String)} and {@link #setEntryClassNames(java.util.Set)}) that apply to all
+ * entries associated with the resource.
  */
 @Getter
 @EqualsAndHashCode(of = "id")
@@ -51,8 +51,10 @@ public class Resource implements Serializable {
     private String title;
 
     /**
-     * The color of this resource.
-     * Entries associated with this resource will have their backgrounds and borders colored.
+     * The color of this resource, sent as FullCalendar's {@code eventColor}.
+     * Entries associated with this resource use it. FullCalendar sets it on each entry's element as the CSS
+     * variable {@code --fc-event-color}. The theme's styles read it, so where the color shows depends on the
+     * theme. See {@link Entry#setColor(String)}.
      */
     private String color;
 
@@ -78,11 +80,7 @@ public class Resource implements Serializable {
 
     // Per-resource entry style overrides
     @Getter(AccessLevel.NONE)
-    private String eventBackgroundColor;
-    @Getter(AccessLevel.NONE)
-    private String eventBorderColor;
-    @Getter(AccessLevel.NONE)
-    private String eventTextColor;
+    private String eventContrastColor;
     @Getter(AccessLevel.NONE)
     private String eventConstraint;
     @Getter(AccessLevel.NONE)
@@ -301,12 +299,11 @@ public class Resource implements Serializable {
     }
 
     /**
-     * Sets the entry color shorthand for this resource (sets both background and border color of
-     * events associated with this resource). If this resource has been added to a scheduler,
-     * the change is propagated to the client immediately.
-     * <p>
-     * To control background and border colors independently, use
-     * {@link #setEntryBackgroundColor(String)} and {@link #setEntryBorderColor(String)}.
+     * Sets the entry color for this resource ({@code eventColor}). Entries associated with this resource use it.
+     * FullCalendar sets it on each entry's element as the CSS variable {@code --fc-event-color}, and the theme's
+     * styles decide where it shows, see {@link Entry#setColor(String)}. If this resource has been added to a scheduler,
+     * the change is sent to the client immediately. Entries do not repaint from it, see
+     * {@link Scheduler#updateResource(Resource)}.
      *
      * @param color CSS color string (e.g., {@code "#3788d8"}, {@code "blue"})
      */
@@ -316,8 +313,10 @@ public class Resource implements Serializable {
     }
 
     /**
-     * Sets the background color for entries associated with this resource.
-     * Overrides the {@link #setColor(String) eventColor} shorthand for background color.
+     * Sets the contrast color for entries associated with this resource ({@code eventContrastColor}), used for
+     * text and other content drawn on top of the entry color. FullCalendar sets it on each entry's element as the
+     * CSS variable {@code --fc-event-contrast-color}. The theme's styles read it, so where the color shows
+     * depends on the theme.
      * <p>
      * Unlike {@link #setTitle(String)} and {@link #setColor(String)}, this change is NOT
      * automatically propagated to the client. Call {@link Scheduler#updateResource(Resource)}
@@ -325,62 +324,41 @@ public class Resource implements Serializable {
      *
      * @param color CSS color string
      */
-    public void setEntryBackgroundColor(String color) {
-        this.eventBackgroundColor = color;
+    public void setEntryContrastColor(String color) {
+        this.eventContrastColor = color;
     }
 
     /**
-     * Returns the entry background color override for this resource, or {@code null} if not set.
+     * Returns the entry contrast color override for this resource, or {@code null} if not set.
      *
      * @return CSS color string or null
      */
-    public String getEntryBackgroundColor() {
-        return eventBackgroundColor;
+    public String getEntryContrastColor() {
+        return eventContrastColor;
     }
 
     /**
-     * Sets the border color for entries associated with this resource.
-     * Overrides the {@link #setColor(String) eventColor} shorthand for border color.
-     * <p>
-     * Unlike {@link #setTitle(String)} and {@link #setColor(String)}, this change is NOT
-     * automatically propagated to the client. Call {@link Scheduler#updateResource(Resource)}
-     * on the scheduler after modifying entry style properties.
+     * Former name of {@link #setEntryContrastColor(String)}: sets the contrast color for entries associated
+     * with this resource. Delegates to it, so the change is likewise not propagated to the client automatically.
      *
      * @param color CSS color string
+     * @deprecated use {@link #setEntryContrastColor(String)}. FullCalendar 7 calls it the contrast color
      */
-    public void setEntryBorderColor(String color) {
-        this.eventBorderColor = color;
-    }
-
-    /**
-     * Returns the entry border color override for this resource, or {@code null} if not set.
-     *
-     * @return CSS color string or null
-     */
-    public String getEntryBorderColor() {
-        return eventBorderColor;
-    }
-
-    /**
-     * Sets the text color for entries associated with this resource.
-     * <p>
-     * Unlike {@link #setTitle(String)} and {@link #setColor(String)}, this change is NOT
-     * automatically propagated to the client. Call {@link Scheduler#updateResource(Resource)}
-     * on the scheduler after modifying entry style properties.
-     *
-     * @param color CSS color string
-     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setEntryTextColor(String color) {
-        this.eventTextColor = color;
+        setEntryContrastColor(color);
     }
 
     /**
-     * Returns the entry text color override for this resource, or {@code null} if not set.
+     * Former name of {@link #getEntryContrastColor()}: returns the entry contrast color override for this
+     * resource, or {@code null} if not set. Delegates to it.
      *
      * @return CSS color string or null
+     * @deprecated use {@link #getEntryContrastColor()}. FullCalendar 7 calls it the contrast color
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public String getEntryTextColor() {
-        return eventTextColor;
+        return getEntryContrastColor();
     }
 
     /**
@@ -424,7 +402,8 @@ public class Resource implements Serializable {
     }
 
     /**
-     * Sets CSS class names to be applied to entries associated with this resource.
+     * Sets CSS class names to be applied to entries associated with this resource. They are sent as one
+     * space-separated {@code eventClass} string.
      * <p>
      * Unlike {@link #setTitle(String)} and {@link #setColor(String)}, this change is NOT
      * automatically propagated to the client. Call {@link Scheduler#updateResource(Resource)}
@@ -567,15 +546,11 @@ public class Resource implements Serializable {
             jsonObject.set("children", jsonArray);
         }
 
-        if (eventBackgroundColor != null) jsonObject.put("eventBackgroundColor", eventBackgroundColor);
-        if (eventBorderColor != null) jsonObject.put("eventBorderColor", eventBorderColor);
-        if (eventTextColor != null) jsonObject.put("eventTextColor", eventTextColor);
+        if (eventContrastColor != null) jsonObject.put("eventContrastColor", eventContrastColor);
         if (eventConstraint != null) jsonObject.put("eventConstraint", eventConstraint);
         if (eventOverlap != null) jsonObject.put("eventOverlap", eventOverlap);
         if (eventClassNames != null && !eventClassNames.isEmpty()) {
-            ArrayNode classNamesArray = JsonFactory.createArray();
-            eventClassNames.forEach(classNamesArray::add);
-            jsonObject.set("eventClassNames", classNamesArray);
+            jsonObject.put("eventClass", String.join(" ", eventClassNames));
         }
         if (eventAllow != null) jsonObject.set("eventAllow", eventAllow.toMarkerJson());
 

@@ -22,7 +22,7 @@ import java.util.Map;
  *   <li>Calendar renders in dayGridMonth view</li>
  *   <li>Events have tabindex="0" when eventInteractive is enabled</li>
  *   <li>Nav link day numbers are rendered when navLinks is enabled</li>
- *   <li>Toolbar buttons carry aria-label values from setButtonHints</li>
+ *   <li>Toolbar buttons carry aria-label values from the today, prev and next hints</li>
  *   <li>"+N more" overflow link appears and carries the moreLinkHint aria-label</li>
  *   <li>Clicking an interactive event increments the click counter</li>
  * </ul>
@@ -39,7 +39,7 @@ public class AccessibilityTouchTestView extends VerticalLayout {
 
         add(new H2("Accessibility and Touch"));
         add(new Paragraph(
-                "Tests eventInteractive (tabindex), buttonHints (aria-label on toolbar buttons), " +
+                "Tests eventInteractive (tabindex), button hints (aria-label on toolbar buttons), " +
                 "navLinkHint (aria-label on day numbers), and moreLinkHint (aria-label on +N more links)."));
 
         // --- Status span for Playwright ---
@@ -54,29 +54,27 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
-        // Enable native toolbar so buttonHints (NATIVE_TOOLBAR_BUTTON_HINTS) has buttons to label.
-        // The addon disables headerToolbar by default; this view needs it for its buttonHints tests.
-        calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, Map.of(
+        // Enable native toolbar so the button hints (TODAY_HINT, PREV_HINT, NEXT_HINT) have buttons to label.
+        // The addon disables headerToolbar by default; this view needs it for its button hint tests.
+        calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
                 "left", "prev,next today",
                 "center", "title",
                 "right", ""
         ));
 
         // Accessibility options
-        calendar.setOption(FullCalendar.Option.ENTRY_INTERACTIVE, true);
-        calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
+        calendar.setOption(Option.ENTRY_INTERACTIVE, true);
+        calendar.setOption(Option.NAV_LINKS, true);
         // Limit event rows to 2 so the 5 events on 2025-03-05 reliably produce a "+N more" link
-        calendar.setOption(FullCalendar.Option.DAY_MAX_ENTRY_ROWS, 2);
-        calendar.setOption(FullCalendar.Option.NAV_LINK_HINT, "Go to $0");
-        calendar.setOption(FullCalendar.Option.MORE_LINK_HINT, "$0 more events. Click to expand");
-        calendar.setOption(FullCalendar.Option.NATIVE_TOOLBAR_BUTTON_HINTS, Map.of(
-                "today", "Jump to today",
-                "prev",  "Go to previous period",
-                "next",  "Go to next period"
-        ));
+        calendar.setOption(Option.DAY_MAX_ENTRY_ROWS, 2);
+        calendar.setOption(Option.NAV_LINK_HINT, "Open $0"); // not FullCalendar's default "Go to $0", so the test sees our value
+        calendar.setOption(Option.MORE_LINK_HINT, "$0 more events. Click to expand");
+        calendar.setOption(Option.TODAY_HINT, "Jump to today");
+        calendar.setOption(Option.PREV_HINT, "Go to previous $0");
+        calendar.setOption(Option.NEXT_HINT, "Go to next $0");
 
         // --- Entry provider ---
         // Five all-day events on 2025-03-05. In month view with default row limits

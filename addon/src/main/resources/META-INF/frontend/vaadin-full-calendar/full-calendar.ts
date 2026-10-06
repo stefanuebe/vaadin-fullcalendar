@@ -16,18 +16,25 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {Calendar, CalendarOptions, DateInput, DateRangeInput, DurationInput} from '@fullcalendar/core';
-import interaction, {Draggable} from '@fullcalendar/interaction';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import listPlugin from '@fullcalendar/list';
-import multiMonthPlugin from '@fullcalendar/multimonth';
+import {Calendar, CalendarOptions, DateInput, DateRangeInput, DurationInput} from 'fullcalendar';
+import interaction, {Draggable} from 'fullcalendar/interaction';
+import dayGridPlugin from 'fullcalendar/daygrid';
+import timeGridPlugin from 'fullcalendar/timegrid';
+import listPlugin from 'fullcalendar/list';
+import multiMonthPlugin from 'fullcalendar/multimonth';
+import allLocales from 'fullcalendar/locales-all';
+import classicThemePlugin from 'fullcalendar/themes/classic';
 import rrulePlugin from '@fullcalendar/rrule';
-import {toMoment} from '@fullcalendar/moment'; // only for formatting
-import momentTimezonePlugin from '@fullcalendar/moment-timezone';
-import allLocales from '@fullcalendar/core/locales-all';
 import googleCalendarPlugin from '@fullcalendar/google-calendar';
 import iCalendarPlugin from '@fullcalendar/icalendar';
+import legacyClassNamesPlugin from './legacy-class-names';
+
+import 'fullcalendar/skeleton.css';
+import 'fullcalendar/themes/classic/theme.css';
+import 'fullcalendar/themes/classic/palette.css';
+
+// Render hooks whose info.event gets the custom property api (getCustomProperty) before the hook runs.
+const ENTRY_INFO_HOOKS = ['eventClass', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
 
 // Simple type, that allows JS object property access via ["xyz"]
 export type IterableObject = {
@@ -70,7 +77,6 @@ export function evaluateCallbacks(value: any): any {
 export class FullCalendar extends HTMLElement {
 
     private _calendar!: Calendar;
-    private _resizeObserver: ResizeObserver | null = null;
     private _draggables: Map<HTMLElement, Draggable> = new Map();
 
     /** IDs of entries fetched from the server-side EntryProvider. Used to distinguish external-source entries. */
@@ -126,15 +132,15 @@ export class FullCalendar extends HTMLElement {
 
             // TODO this is somehow double to the initial options variant, might be reduced to one variant?
             this._calendar.setOption = (key: any, value: any) => {
-                // Null/undefined values pass through directly to clear the option — no wrapping
-                if (value == null) {
+                // Only functions get wrapped. Null/undefined clears the option, and plain values (a class name
+                // string for eventClass, a boolean for eventOverlap) pass through as they are.
+                if (typeof value !== 'function') {
                     _setOption.call(this._calendar, key, value);
                     return;
                 }
 
                 // Entry render hooks: inject getCustomProperty via info.event
-                const entryInfoHooks = ['eventClassNames', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
-                if (entryInfoHooks.includes(key)) {
+                if (ENTRY_INFO_HOOKS.includes(key)) {
                     // in these cases add custom api to the event to allow for instance accessing custom properties
                     _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
                 // eventOverlap(stillEvent, movingEvent) — two direct event args
@@ -161,41 +167,9 @@ export class FullCalendar extends HTMLElement {
                 }
             }
 
-            this._calendar.render(); // needed for method calls, that somehow access the calendar's internals.
-
-            // Deferred updateSize to fix broken initial layout when the container dimensions
-            // are not yet finalized at render time (e.g. inside tabs, dialogs, lazy-loaded views).
-            // Two nested rAFs ensure the call happens after both layout and paint are complete.
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    this._calendar?.updateSize();
-                });
-            });
-
-            // Fix for https://github.com/stefanuebe/vaadin_fullcalendar/issues/97
-            // calling updateSize or render inside the resize observer leads to an error in combination
-            // with the Vaadin AppLayout. To prevent having errors on every collapse/expand of the app layout's
-            // sidebar, this error handler will catch this error and ignore it. the error seem to come up due to
-            // the transition / animation. Normal resizes should not bring it up.
-            // Using addEventListener instead of replacing window.onerror to avoid conflicts with other error handlers.
-            window.addEventListener('error', (event: ErrorEvent) => {
-                if (event.message && event.message.startsWith('ResizeObserver loop')) {
-                    console.debug('Ignored: ResizeObserver loop limit exceeded');
-                    event.stopImmediatePropagation();
-                }
-            });
-
-            // Store ResizeObserver reference for cleanup in disconnectedCallback
-            // @ts-ignore - webpack has problems with the resize observer type
-            this._resizeObserver = new ResizeObserver((entries: any) => {
-                if (!Array.isArray(entries) || !entries.length) {
-                    return;
-                }
-                requestAnimationFrame(() => {
-                    this.calendar?.updateSize();
-                });
-            });
-            this._resizeObserver.observe(this);
+            // needed for method calls, that somehow access the calendar's internals.
+            // FullCalendar resizes itself when the element changes size.
+            this._calendar.render();
         }
     }
 
@@ -203,11 +177,6 @@ export class FullCalendar extends HTMLElement {
      * Called when the element is removed from the DOM. Cleans up resources.
      */
     disconnectedCallback() {
-        if (this._resizeObserver) {
-            this._resizeObserver.disconnect();
-            this._resizeObserver = null;
-        }
-
         // Clean up draggable instances to prevent listener leaks
         this._draggables.forEach(d => d.destroy());
         this._draggables.clear();
@@ -224,8 +193,8 @@ export class FullCalendar extends HTMLElement {
             // // no native control elements
             headerToolbar: false,
             weekNumbers: true,
-            stickyHeaderDates: true,
-            stickyFooterScrollbar: true,
+            tableHeaderSticky: true,
+            footerScrollbarSticky: true,
             ...initialOptions,
         };
 
@@ -245,10 +214,11 @@ export class FullCalendar extends HTMLElement {
             timeGridPlugin,
             listPlugin,
             multiMonthPlugin,
-            momentTimezonePlugin,
             rrulePlugin,
             googleCalendarPlugin,
-            iCalendarPlugin
+            iCalendarPlugin,
+            classicThemePlugin,
+            legacyClassNamesPlugin
         ];
 
         // Evaluate any JsCallback markers in initial options before passing to FC
@@ -423,7 +393,7 @@ export class FullCalendar extends HTMLElement {
                 let data: any = {
                     ...this.convertToEventData(event),
                     title: event.title || '',
-                    color: event.backgroundColor || event.borderColor || '',
+                    color: event.color || '',
                     display: event.display || '',
                 };
 
@@ -484,25 +454,24 @@ export class FullCalendar extends HTMLElement {
     }
 
     /**
-     * Formats the given date as an iso string. Setting asDay to true will cut of any time information. Also ignores
-     * potential timezone offsets. Should be used for events where the server side works with a LocalDate instance.
+     * Formats the given date as an iso string. Setting asDay to true returns the day in the calendar's time zone
+     * (yyyy-MM-dd), for values the server side reads as a LocalDate. Otherwise the instant is
+     * returned as UTC (yyyy-MM-ddTHH:mm:ssZ).
      * @param date date
      * @param asDay format as day iso string (optional)
-     * @returns {*}
-     * @private
      */
     protected formatDate(date: string | Date, asDay = false) {
         if (!(date instanceof Date)) {
             date = new Date(date);
         }
 
-        let moment = toMoment(date, this.calendar!);
         if (asDay) {
-            // maybe also utc necessary?
-            return moment.startOf('day').format().substring(0, 10);
+            // formatIso drops the time only when it is exactly midnight. Otherwise (e.g. 23:00 at the end of a
+            // 25-hour DST day) it appends the time, which is cut off here. The wall date comes first.
+            return this.calendar.formatIso(date, true).substring(0, 10);
         }
 
-        return moment.utc().format();
+        return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
     }
 
     /**
@@ -624,8 +593,7 @@ export class FullCalendar extends HTMLElement {
         // see _initCalendar for details
 
         // Entry render hooks: inject getCustomProperty via info.event
-        const entryInfoHooks = ['eventClassNames', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
-        for (const hookKey of entryInfoHooks) {
+        for (const hookKey of ENTRY_INFO_HOOKS) {
             if (typeof options[hookKey] === "function") {
                 const initHook = options[hookKey];
                 options[hookKey] = (info: any) => {
@@ -857,10 +825,6 @@ export class FullCalendar extends HTMLElement {
 
     nextYear() {
         this.calendar.nextYear();
-    }
-
-    updateSize() {
-        this.calendar?.updateSize();
     }
 
     // --- Draggable management ---

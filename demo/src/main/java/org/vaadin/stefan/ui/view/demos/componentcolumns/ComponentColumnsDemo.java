@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Demo view for component resource area columns (UC-024).
+ * Demo view for component resource columns (UC-024).
  * <p>
  * Shows a scheduler with tasks assigned to resources. Each resource row has two
  * DatePicker columns (Start, End) that reflect the assigned entry's time range.
@@ -28,8 +28,8 @@ import java.util.List;
 public class ComponentColumnsDemo extends VerticalLayout {
 
     private final FullCalendarScheduler scheduler;
-    private final ComponentResourceAreaColumn<DatePicker> startColumn;
-    private final ComponentResourceAreaColumn<DatePicker> endColumn;
+    private final ComponentResourceColumn<DatePicker> startColumn;
+    private final ComponentResourceColumn<DatePicker> endColumn;
     private final InMemoryEntryProvider<Entry> entryProvider;
 
     public ComponentColumnsDemo() {
@@ -43,25 +43,25 @@ public class ComponentColumnsDemo extends VerticalLayout {
 
         // Build scheduler
         scheduler = new FullCalendarScheduler();
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, Scheduler.GPL_V3_LICENSE_KEY);
+        scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
         scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
 
         scheduler.addThemeVariants(FullCalendarVariant.VAADIN);
-        scheduler.setOption(FullCalendar.Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_MONTH.getClientSideValue());
-        scheduler.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        scheduler.setOption(FullCalendar.Option.ENTRY_DURATION_EDITABLE, true);
-        scheduler.setOption(FullCalendar.Option.EDITABLE, true);
+        scheduler.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_MONTH.getClientSideValue());
+        scheduler.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        scheduler.setOption(Option.ENTRY_DURATION_EDITABLE, true);
+        scheduler.setOption(Option.EDITABLE, true);
         // Disable cross-resource dragging
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCE_EDITABLE, false);
+        scheduler.setOption(SchedulerOption.ENTRY_RESOURCE_EDITABLE, false);
         // Wider resource area to fit both date picker columns
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "500px");
+        scheduler.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "500px");
         // Taller rows for date pickers
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_HEADER_CONTENT, "Project Plan");
+        scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT, "Project Plan");
 
         entryProvider = scheduler.getEntryProvider().asInMemory();
 
         // Component columns: Start and End date pickers
-        startColumn = new ComponentResourceAreaColumn<>("start", "Start",
+        startColumn = new ComponentResourceColumn<>("start", "Start",
                 resource -> {
                     DatePicker picker = createCompactDatePicker();
                     picker.addValueChangeListener(e -> {
@@ -72,7 +72,7 @@ public class ComponentColumnsDemo extends VerticalLayout {
                     return picker;
                 });
 
-        endColumn = new ComponentResourceAreaColumn<>("end", "End",
+        endColumn = new ComponentResourceColumn<>("end", "End",
                 resource -> {
                     DatePicker picker = createCompactDatePicker();
                     picker.addValueChangeListener(e -> {
@@ -83,8 +83,8 @@ public class ComponentColumnsDemo extends VerticalLayout {
                     return picker;
                 });
 
-        scheduler.setResourceAreaColumns(List.of(
-                new ResourceAreaColumn("title", "Task").withWidth("150px"),
+        scheduler.setResourceColumns(List.of(
+                new ResourceColumn("title", "Task").withWidth("150px"),
                 startColumn.withWidth("170px"),
                 endColumn.withWidth("170px")
         ));

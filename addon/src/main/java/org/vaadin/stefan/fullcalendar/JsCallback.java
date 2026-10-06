@@ -28,7 +28,7 @@ import java.util.Objects;
  * JS function object before passing it to FullCalendar.
  *
  * <p><b>Custom property injection:</b> For well-known entry callback keys
- * ({@code eventDidMount}, {@code eventContent}, {@code eventClassNames},
+ * ({@code eventDidMount}, {@code eventContent}, {@code eventClass},
  * {@code eventWillUnmount}, {@code eventOverlap}, {@code eventAllow}, {@code selectOverlap}),
  * the client automatically injects {@code event.getCustomProperty(key, defaultValue)} on the
  * event objects passed to the callback. This mirrors data set on the server via

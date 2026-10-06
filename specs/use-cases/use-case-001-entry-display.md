@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.ENTRY_COLOR`, `Option.ENTRY_BACKGROUND_COLOR`, `Option.ENTRY_BORDER_COLOR`, `Option.ENTRY_TEXT_COLOR`, `Option.ENTRY_DISPLAY`, `Option.DISPLAY_ENTRY_TIME`, `Option.DISPLAY_ENTRY_END`, `Option.FORCE_ENTRY_DURATION`
+**Related Options:** `Option.ENTRY_COLOR`, `Option.ENTRY_CONTRAST_COLOR`, `Option.ENTRY_DISPLAY`, `Option.DISPLAY_ENTRY_TIME`, `Option.DISPLAY_ENTRY_END`, `Option.FORCE_ENTRY_DURATION`
 **Related Events:** —
 
 ---

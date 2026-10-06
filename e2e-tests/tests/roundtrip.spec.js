@@ -81,7 +81,7 @@ base.describe('Roundtrip — Drop moves entry to new date', () => {
 
         // Get the entry and a target cell
         const entry = page.locator('.fc-event:has-text("Drop Target")').first();
-        const targetCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const targetCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"]');
 
         const entryBox = await entry.boundingBox();
         const targetBox = await targetCell.boundingBox();
@@ -134,7 +134,7 @@ base.describe('Roundtrip — Server creates entry on timeslot click', () => {
         await expect(page.locator('.fc-event:has-text("Server Created")')).toHaveCount(0);
 
         // Click the empty day cell
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-20"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-20"]');
         await emptyCell.click();
         await waitForVaadin(page);
 

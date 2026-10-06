@@ -10,9 +10,9 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.*;
 
 /**
- * Unit tests for {@link ComponentResourceAreaColumn}.
+ * Unit tests for {@link ComponentResourceColumn}.
  */
-public class ComponentResourceAreaColumnTest {
+public class ComponentResourceColumnTest {
 
     private FullCalendarScheduler calendar;
 
@@ -26,21 +26,21 @@ public class ComponentResourceAreaColumnTest {
     @Test
     void testNullCallbackThrowsNPE() {
         Assertions.assertThrows(NullPointerException.class,
-                () -> new ComponentResourceAreaColumn<>("field", "Header", null));
+                () -> new ComponentResourceColumn<>("field", "Header", null));
     }
 
     @Test
     void testNullFieldThrowsNPE() {
         Assertions.assertThrows(NullPointerException.class,
-                () -> new ComponentResourceAreaColumn<>(null, resource -> new Span()));
+                () -> new ComponentResourceColumn<>(null, resource -> new Span()));
     }
 
     @Test
     void testCallbackInvocationAndMapManagement() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col",
+        var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceAreaColumns(List.of(col));
+        calendar.setResourceColumns(List.of(col));
 
         Resource res = new Resource(null, "Room A", null);
         calendar.addResource(res);
@@ -52,7 +52,7 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testCallbackReturnsNullThrowsISE() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col", resource -> null);
+        var col = new ComponentResourceColumn<Span>("col", "Col", resource -> null);
 
         Assertions.assertThrows(IllegalStateException.class,
                 () -> col.createComponent(new Resource(null, "Test", null)));
@@ -65,7 +65,7 @@ public class ComponentResourceAreaColumnTest {
         var parent = new com.vaadin.flow.component.html.Div();
         parent.add(shared);
 
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col", resource -> shared);
+        var col = new ComponentResourceColumn<Span>("col", "Col", resource -> shared);
         col.bind(calendar);
 
         Assertions.assertThrows(IllegalStateException.class,
@@ -74,7 +74,7 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testCallbackThrowsExceptionResourceHasNoComponent() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col",
+        var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> { throw new RuntimeException("factory error"); });
         col.bind(calendar);
 
@@ -90,7 +90,7 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testDoubleBind_DifferentCalendar_ThrowsISE() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         var calendar2 = new FullCalendarScheduler();
 
         col.bind(calendar);
@@ -99,14 +99,14 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testDoubleBind_SameCalendar_OK() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         col.bind(calendar);
         Assertions.assertDoesNotThrow(() -> col.bind(calendar));
     }
 
     @Test
     void testUnbindAndReuse() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         var calendar2 = new FullCalendarScheduler();
 
         col.bind(calendar);
@@ -121,7 +121,7 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testGetComponentsReturnsUnmodifiableMap() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         col.bind(calendar);
 
         Map<String, Span> components = col.getComponents();
@@ -131,7 +131,7 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testGetComponentReturnsTypedOptional() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col",
+        var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span("test"));
         col.bind(calendar);
 
@@ -145,7 +145,7 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testGetComponentNullThrowsNPE() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         Assertions.assertThrows(NullPointerException.class, () -> col.getComponent(null));
     }
 
@@ -153,7 +153,7 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testRefreshUnregisteredResourceIsNoop() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         col.bind(calendar);
 
         Resource unregistered = new Resource(null, "Ghost", null);
@@ -163,13 +163,13 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testRefreshNullThrowsNPE() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         Assertions.assertThrows(NullPointerException.class, () -> col.refresh(null));
     }
 
     @Test
     void testRefreshAllWithNoResourcesIsNoop() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         col.bind(calendar);
         // should not throw
         col.refreshAll();
@@ -178,67 +178,67 @@ public class ComponentResourceAreaColumnTest {
     // ---- Fluent methods ----
 
     @Test
-    void testFluentMethodsReturnComponentResourceAreaColumn() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+    void testFluentMethodsReturnComponentResourceColumn() {
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
 
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class, col.withWidth("100px"));
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class, col.withGroup(true));
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class, col.withHeaderClassNames("cls"));
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class,
-                col.withHeaderClassNames(JsCallback.of("function() { return []; }")));
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class,
+        Assertions.assertInstanceOf(ComponentResourceColumn.class, col.withWidth("100px"));
+        Assertions.assertInstanceOf(ComponentResourceColumn.class, col.withGroup(true));
+        Assertions.assertInstanceOf(ComponentResourceColumn.class, col.withHeaderClass("cls"));
+        Assertions.assertInstanceOf(ComponentResourceColumn.class,
+                col.withHeaderClass(JsCallback.of("function() { return ''; }")));
+        Assertions.assertInstanceOf(ComponentResourceColumn.class,
                 col.withHeaderDidMount("function() {}"));
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class,
+        Assertions.assertInstanceOf(ComponentResourceColumn.class,
                 col.withHeaderDidMount(JsCallback.of("function() {}")));
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class,
+        Assertions.assertInstanceOf(ComponentResourceColumn.class,
                 col.withHeaderWillUnmount("function() {}"));
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class,
+        Assertions.assertInstanceOf(ComponentResourceColumn.class,
                 col.withHeaderWillUnmount(JsCallback.of("function() {}")));
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class, col.withCellClassNames("cls"));
-        Assertions.assertInstanceOf(ComponentResourceAreaColumn.class,
-                col.withCellClassNames(JsCallback.of("function() { return []; }")));
+        Assertions.assertInstanceOf(ComponentResourceColumn.class, col.withCellClass("cls"));
+        Assertions.assertInstanceOf(ComponentResourceColumn.class,
+                col.withCellClass(JsCallback.of("function() { return ''; }")));
     }
 
     // ---- Blocked methods (UnsupportedOperationException) ----
 
     @Test
     void testWithCellContentStringThrows() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         Assertions.assertThrows(UnsupportedOperationException.class,
                 () -> col.withCellContent("text"));
     }
 
     @Test
     void testWithCellContentCallbackThrows() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         Assertions.assertThrows(UnsupportedOperationException.class,
                 () -> col.withCellContent(JsCallback.of("function() {}")));
     }
 
     @Test
     void testWithCellDidMountStringThrows() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         Assertions.assertThrows(UnsupportedOperationException.class,
                 () -> col.withCellDidMount("function() {}"));
     }
 
     @Test
     void testWithCellDidMountCallbackThrows() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         Assertions.assertThrows(UnsupportedOperationException.class,
                 () -> col.withCellDidMount(JsCallback.of("function() {}")));
     }
 
     @Test
     void testWithCellWillUnmountStringThrows() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         Assertions.assertThrows(UnsupportedOperationException.class,
                 () -> col.withCellWillUnmount("function() {}"));
     }
 
     @Test
     void testWithCellWillUnmountCallbackThrows() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         Assertions.assertThrows(UnsupportedOperationException.class,
                 () -> col.withCellWillUnmount(JsCallback.of("function() {}")));
     }
@@ -247,7 +247,7 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testToJsonContainsAutoGeneratedCallbacks() {
-        var col = new ComponentResourceAreaColumn<Span>("deadline", "Deadline",
+        var col = new ComponentResourceColumn<Span>("deadline", "Deadline",
                 resource -> new Span());
 
         ObjectNode json = col.toJson();
@@ -287,27 +287,27 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testToJsonInheritsParentProperties() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Header", resource -> new Span())
+        var col = new ComponentResourceColumn<Span>("col", "Header", resource -> new Span())
                 .withWidth("200px")
                 .withGroup(true)
-                .withHeaderClassNames("my-class");
+                .withHeaderClass("my-class");
 
         ObjectNode json = col.toJson();
 
         Assertions.assertEquals("200px", json.get("width").asString());
         Assertions.assertTrue(json.get("group").asBoolean());
-        Assertions.assertEquals("my-class", json.get("headerClassNames").asString());
+        Assertions.assertEquals("my-class", json.get("headerClass").asString());
     }
 
     // ---- Scheduler integration ----
 
     @Test
     void testAddResourceTriggersComponentCreation() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col",
+        var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceAreaColumns(List.of(
-                new ResourceAreaColumn("title", "Name"),
+        calendar.setResourceColumns(List.of(
+                new ResourceColumn("title", "Name"),
                 col
         ));
 
@@ -319,10 +319,10 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testRemoveResourceDestroysComponent() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col",
+        var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceAreaColumns(List.of(col));
+        calendar.setResourceColumns(List.of(col));
 
         Resource res = new Resource(null, "Room A", null);
         calendar.addResource(res);
@@ -334,10 +334,10 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testRemoveResourceWithChildrenDestroysRecursively() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col",
+        var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceAreaColumns(List.of(col));
+        calendar.setResourceColumns(List.of(col));
 
         Resource parent = new Resource(null, "Building", null);
         Resource child = new Resource(null, "Floor 1", null);
@@ -354,10 +354,10 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testRemoveAllResourcesDestroysAllComponents() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col",
+        var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceAreaColumns(List.of(col));
+        calendar.setResourceColumns(List.of(col));
 
         calendar.addResource(new Resource(null, "A", null));
         calendar.addResource(new Resource(null, "B", null));
@@ -368,17 +368,17 @@ public class ComponentResourceAreaColumnTest {
     }
 
     @Test
-    void testSetResourceAreaColumnsReplacingCleansUp() {
-        var col1 = new ComponentResourceAreaColumn<Span>("col1", resource -> new Span());
-        calendar.setResourceAreaColumns(List.of(col1));
+    void testSetResourceColumnsReplacingCleansUp() {
+        var col1 = new ComponentResourceColumn<Span>("col1", resource -> new Span());
+        calendar.setResourceColumns(List.of(col1));
 
         calendar.addResource(new Resource(null, "A", null));
         Assertions.assertEquals(1, col1.getComponents().size());
         Assertions.assertTrue(col1.isBound());
 
         // Replace with different columns
-        var col2 = new ComponentResourceAreaColumn<Span>("col2", resource -> new Span());
-        calendar.setResourceAreaColumns(List.of(col2));
+        var col2 = new ComponentResourceColumn<Span>("col2", resource -> new Span());
+        calendar.setResourceColumns(List.of(col2));
 
         Assertions.assertEquals(0, col1.getComponents().size(), "old column components should be destroyed");
         Assertions.assertFalse(col1.isBound(), "old column should be unbound");
@@ -387,12 +387,12 @@ public class ComponentResourceAreaColumnTest {
     }
 
     @Test
-    void testSetResourceAreaColumnsEmptyListCleansUp() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
-        calendar.setResourceAreaColumns(List.of(col));
+    void testSetResourceColumnsEmptyListCleansUp() {
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
+        calendar.setResourceColumns(List.of(col));
         calendar.addResource(new Resource(null, "A", null));
 
-        calendar.setResourceAreaColumns(List.of());
+        calendar.setResourceColumns(List.of());
 
         Assertions.assertEquals(0, col.getComponents().size());
         Assertions.assertFalse(col.isBound());
@@ -400,17 +400,17 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testDuplicateColumnFieldKeysThrowsIAE() {
-        var col1 = new ResourceAreaColumn("samefield", "Header 1");
-        var col2 = new ResourceAreaColumn("samefield", "Header 2");
+        var col1 = new ResourceColumn("samefield", "Header 1");
+        var col2 = new ResourceColumn("samefield", "Header 2");
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> calendar.setResourceAreaColumns(List.of(col1, col2)));
+                () -> calendar.setResourceColumns(List.of(col1, col2)));
     }
 
     @Test
     void testMixedColumnsProduceCorrectJson() {
-        var regular = new ResourceAreaColumn("title", "Name").withWidth("200px");
-        var component = new ComponentResourceAreaColumn<Span>("status", "Status",
+        var regular = new ResourceColumn("title", "Name").withWidth("200px");
+        var component = new ComponentResourceColumn<Span>("status", "Status",
                 resource -> new Span());
 
         // Both should be serializable without error
@@ -424,10 +424,10 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testUpdateResourceDoesNotReCreateComponent() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col",
+        var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceAreaColumns(List.of(col));
+        calendar.setResourceColumns(List.of(col));
 
         Resource res = new Resource(null, "Room A", null);
         calendar.addResource(res);
@@ -443,16 +443,16 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testSetColumnsThenAddResourcesThenSetColumnsAgain() {
-        var col = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
-        calendar.setResourceAreaColumns(List.of(col));
+        var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
+        calendar.setResourceColumns(List.of(col));
 
         calendar.addResource(new Resource(null, "A", null));
         calendar.addResource(new Resource(null, "B", null));
         Assertions.assertEquals(2, col.getComponents().size());
 
         // Re-set same column config — should re-create components
-        var col2 = new ComponentResourceAreaColumn<Span>("col", resource -> new Span());
-        calendar.setResourceAreaColumns(List.of(col2));
+        var col2 = new ComponentResourceColumn<Span>("col", resource -> new Span());
+        calendar.setResourceColumns(List.of(col2));
 
         Assertions.assertFalse(col.isBound());
         Assertions.assertEquals(0, col.getComponents().size());
@@ -462,10 +462,10 @@ public class ComponentResourceAreaColumnTest {
 
     @Test
     void testChildResourceGetsComponent() {
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col",
+        var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span(resource.getTitle()));
 
-        calendar.setResourceAreaColumns(List.of(col));
+        calendar.setResourceColumns(List.of(col));
 
         Resource parent = new Resource(null, "Building", null);
         Resource child = new Resource(null, "Floor 1", null);
@@ -479,12 +479,12 @@ public class ComponentResourceAreaColumnTest {
     @Test
     void testCallbackReceivesCorrectResourceInstance() {
         Resource[] captured = new Resource[1];
-        var col = new ComponentResourceAreaColumn<Span>("col", "Col", resource -> {
+        var col = new ComponentResourceColumn<Span>("col", "Col", resource -> {
             captured[0] = resource;
             return new Span();
         });
 
-        calendar.setResourceAreaColumns(List.of(col));
+        calendar.setResourceColumns(List.of(col));
 
         Resource res = new Resource(null, "Room A", null);
         res.addExtendedProps("custom", "value");

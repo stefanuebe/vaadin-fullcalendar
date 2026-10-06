@@ -6,7 +6,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-import static org.vaadin.stefan.fullcalendar.FullCalendar.Option.*;
+import static org.vaadin.stefan.fullcalendar.Option.*;
 
 /**
  * @author Stefan Uebe

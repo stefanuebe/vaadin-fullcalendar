@@ -78,10 +78,10 @@ public class AutoRevertTestView extends VerticalLayout {
         calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix date for reproducible tests
-        calendar.setOption(FullCalendar.Option.LOCALE, Locale.UK);
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
-        calendar.setOption(FullCalendar.Option.EDITABLE, true);
+        calendar.setOption(Option.LOCALE, Locale.UK);
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
+        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
+        calendar.setOption(Option.EDITABLE, true);
 
         // autoRevert is true by default — no need to set explicitly
 

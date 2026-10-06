@@ -133,7 +133,7 @@ test.describe('Calendar Entry Interactions', () => {
 
   test('should open create dialog when clicking empty day slot', async ({ page }) => {
     // Click on an empty area of the calendar
-    const dayFrame = page.locator('.fc-daygrid-day-frame').first();
+    const dayFrame = page.locator('.fc-daygrid-day').first();
     await dayFrame.click();
     await page.waitForTimeout(1000);
 
@@ -145,24 +145,17 @@ test.describe('Calendar Entry Interactions', () => {
   });
 
   test('should show popover when clicking +more link', async ({ page }) => {
-    // Find and click a "+more" link if it exists
-    const moreLink = page.locator('.fc-more-link, .fc-daygrid-more-link').first();
+    const moreLink = page.locator('.fc-more-link').first();
+    await expect(moreLink).toBeVisible();
+    await moreLink.click();
 
-    if (await moreLink.isVisible({ timeout: 2000 })) {
-      await moreLink.click();
-      await page.waitForTimeout(500);
+    // Verify popover appears with entries
+    const popover = page.locator('.fc-popover');
+    await expect(popover).toBeVisible();
+    await expect(popover.locator('.fc-event').first()).toBeVisible();
 
-      // Verify popover appears with entries
-      const popover = page.locator('.fc-popover');
-      await expect(popover).toBeVisible();
-
-      // Popover should contain events
-      const popoverEvents = await page.locator('.fc-popover .fc-event').count();
-      expect(popoverEvents).toBeGreaterThan(0);
-
-      // Close popover
-      await page.keyboard.press('Escape');
-    }
+    // Close popover
+    await page.keyboard.press('Escape');
   });
 
   test('should support drag and drop of entries', async ({ page }) => {
@@ -188,30 +181,26 @@ test.describe('Calendar Entry Interactions', () => {
 
   test('should create entry from date range selection', async ({ page }) => {
     // Select a range of days by dragging
-    const dayCells = await page.locator('.fc-daygrid-day-frame').all();
+    const dayCells = page.locator('.fc-daygrid-day');
+    await expect(dayCells).toHaveCount(42); // six weeks in the month view
 
-    if (dayCells.length >= 15) {
-      const firstDay = await dayCells[10].boundingBox();
-      const lastDay = await dayCells[14].boundingBox();
+    const firstDay = await dayCells.nth(10).boundingBox();
+    const lastDay = await dayCells.nth(14).boundingBox();
+    if (!firstDay || !lastDay) throw new Error('day cells have no bounding box');
 
-      if (firstDay && lastDay) {
-        await page.mouse.move(firstDay.x + 10, firstDay.y + 10);
-        await page.mouse.down();
-        await page.mouse.move(lastDay.x + lastDay.width - 10, lastDay.y + 10, { steps: 10 });
-        await page.mouse.up();
+    await page.mouse.move(firstDay.x + 10, firstDay.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(lastDay.x + lastDay.width - 10, lastDay.y + 10, { steps: 10 });
+    await page.mouse.up();
 
-        await page.waitForTimeout(1000);
+    // A dialog should open for creating a new entry with the date range
+    const dialog = page.locator('vaadin-dialog-overlay');
+    await expect(dialog).toBeVisible({ timeout: 5000 });
 
-        // A dialog should open for creating a new entry with the date range
-        const dialog = page.locator('vaadin-dialog-overlay');
-        await expect(dialog).toBeVisible({ timeout: 5000 });
+    // The "All day event" checkbox should be visible
+    const allDayCheckbox = page.locator('vaadin-checkbox:has-text("All day")');
+    await expect(allDayCheckbox).toBeVisible();
 
-        // The "All day event" checkbox should be visible
-        const allDayCheckbox = page.locator('vaadin-checkbox:has-text("All day")');
-        await expect(allDayCheckbox).toBeVisible();
-
-        await closeDialog(page);
-      }
-    }
+    await closeDialog(page);
   });
 });

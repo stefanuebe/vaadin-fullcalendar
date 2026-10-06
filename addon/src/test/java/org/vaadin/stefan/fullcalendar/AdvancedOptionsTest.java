@@ -2,7 +2,6 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
@@ -15,8 +14,8 @@ import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
  * Tests for advanced and niche options.
- * Covers eventConstraint, dateIncrement/dateAlignment, CSP nonce,
- * view-specific options, fixedMirrorParent, dragScrollEls, validRange/selectOverlap callbacks,
+ * Covers eventConstraint, dateIncrement/dateAlignment,
+ * view-specific options, validRange/selectOverlap callbacks,
  * navigation methods, and getCurrentIntervalStart/End.
  */
 public class AdvancedOptionsTest {
@@ -45,16 +44,6 @@ public class AdvancedOptionsTest {
     @Test
     void option_dateAlignment_key() {
         assertEquals("dateAlignment", Option.DATE_ALIGNMENT.getOptionKey());
-    }
-
-    @Test
-    void option_contentSecurityPolicy_key() {
-        assertEquals("contentSecurityPolicy", Option.CONTENT_SECURITY_POLICY.getOptionKey());
-    }
-
-    @Test
-    void option_dragScrollEls_key() {
-        assertEquals("dragScrollEls", Option.DRAG_SCROLL_ELS.getOptionKey());
     }
 
     // -------------------------------------------------------------------------
@@ -116,26 +105,6 @@ public class AdvancedOptionsTest {
         calendar.setOption(Option.DATE_ALIGNMENT, "week");
         calendar.setOption(Option.DATE_ALIGNMENT, null);
         assertTrue(calendar.getOption(Option.DATE_ALIGNMENT).isEmpty());
-    }
-
-    // -------------------------------------------------------------------------
-    // 7.12 CSP nonce
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setContentSecurityPolicyNonce_storesMapOption() {
-        calendar.setOption(Option.CONTENT_SECURITY_POLICY, Map.of("nonce", "abc123"));
-        Optional<Object> opt = calendar.getOption(Option.CONTENT_SECURITY_POLICY);
-        assertTrue(opt.isPresent());
-        Map<?, ?> map = (Map<?, ?>) opt.get();
-        assertEquals("abc123", map.get("nonce"));
-    }
-
-    @Test
-    void setContentSecurityPolicyNonce_null_clearsOption() {
-        calendar.setOption(Option.CONTENT_SECURITY_POLICY, Map.of("nonce", "abc123"));
-        calendar.setOption(Option.CONTENT_SECURITY_POLICY, null);
-        assertTrue(calendar.getOption(Option.CONTENT_SECURITY_POLICY).isEmpty());
     }
 
     // -------------------------------------------------------------------------
@@ -227,29 +196,6 @@ public class AdvancedOptionsTest {
     void setViewSpecificOption_optionKey_null_throws() {
         assertThrows(NullPointerException.class,
                 () -> calendar.setViewSpecificOption("dayGrid", (String) null, 3));
-    }
-
-    // -------------------------------------------------------------------------
-    // 7.15 dragScrollEls
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setDragScrollEls_single_storesValue() {
-        calendar.setOption(Option.DRAG_SCROLL_ELS, new String[]{".my-scroller"});
-        assertTrue(calendar.getOption(Option.DRAG_SCROLL_ELS).isPresent());
-    }
-
-    @Test
-    void setDragScrollEls_multiple_storesValue() {
-        calendar.setOption(Option.DRAG_SCROLL_ELS, new String[]{".scroll-a", "body"});
-        assertTrue(calendar.getOption(Option.DRAG_SCROLL_ELS).isPresent());
-    }
-
-    @Test
-    void setDragScrollEls_null_clearsOption() {
-        calendar.setOption(Option.DRAG_SCROLL_ELS, new String[]{".scroller"});
-        calendar.setOption(Option.DRAG_SCROLL_ELS, null);
-        assertTrue(calendar.getOption(Option.DRAG_SCROLL_ELS).isEmpty());
     }
 
     // -------------------------------------------------------------------------

@@ -7,6 +7,7 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
@@ -54,22 +55,22 @@ public class AdvancedOptionsTestView extends VerticalLayout {
         var center = new HeaderFooterPart(HeaderFooterPartPosition.CENTER);
         center.addItem(HeaderFooterItem.TITLE);
         var right = new HeaderFooterPart(HeaderFooterPartPosition.END);
-        calendar.setOption(FullCalendar.Option.HEADER_TOOLBAR, new Header(List.of(left, center, right)));
-        calendar.setOption(FullCalendar.Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
-        calendar.setOption(FullCalendar.Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
+        calendar.setOption(Option.HEADER_TOOLBAR, new Header(List.of(left, center, right)));
+        calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
+        calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 
         // dateAlignment --------------------------------------------------------
         // Aligning to "month" is the default for dayGridMonth; this just exercises the setter.
-        calendar.setOption(FullCalendar.Option.DATE_ALIGNMENT, "month");
+        calendar.setOption(Option.DATE_ALIGNMENT, "month");
 
         // View-specific option ------------------------------------------------
         // Limit displayed event rows to 2 only in the dayGrid view family (not in other views).
         // With 5 events on 2025-03-05 this guarantees a "+N more" link in month view.
-        calendar.setViewSpecificOption("dayGrid", FullCalendar.Option.DAY_MAX_ENTRY_ROWS, 2);
+        calendar.setViewSpecificOption("dayGrid", Option.DAY_MAX_ENTRY_ROWS, 2);
 
         // eventConstraint -------------------------------------------------------
         // Constrain drag-and-drop to business hours (does not affect rendering, exercises setter).
-        calendar.setOption(FullCalendar.Option.ENTRY_CONSTRAINT, "businessHours");
+        calendar.setOption(Option.ENTRY_CONSTRAINT, "businessHours");
 
         // --- Entry provider --------------------------------------------------------------
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();

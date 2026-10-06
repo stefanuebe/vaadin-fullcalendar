@@ -17,12 +17,16 @@
 package org.vaadin.stefan.ui.layouts;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.SvgIcon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.ColorScheme;
@@ -102,14 +106,27 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
 
         footer.addClassName("footer");
         footer.add(new Span("Version " + ADDON_VERSION));
-        footer.add(new Html("<span>Using the FullCalendar " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 25.<br> " +
-                " More information can be found <a href=\"https://vaadin.com/directory/component/full-calendar-flow\" target=\"_blank\">here</a>.</span>"));
+        footer.add(new Span("Using the FullCalendar " + FullCalendar.FC_CLIENT_VERSION + " and Vaadin 25."));
+        footer.add(new HorizontalLayout(
+                createIconLink(VaadinIcon.VAADIN_H.create(), "Vaadin Directory",
+                        "https://vaadin.com/directory/component/full-calendar-flow"),
+                // GitHub mark from Primer Octicons (MIT)
+                createIconLink(new SvgIcon("images/github-mark.svg"), "Source code on GitHub",
+                        "https://github.com/stefanuebe/vaadin-fullcalendar")));
 
         sideNav = new SideNav();
         createMenuEntries(sideNav);
 
         addToDrawer(header, new Scroller(sideNav), footer);
 
+    }
+
+    private static Anchor createIconLink(Component icon, String title, String href) {
+        Anchor link = new Anchor(href, icon);
+        link.setTarget(AnchorTarget.BLANK);
+        link.setTitle(title);
+        link.setAriaLabel(title);
+        return link;
     }
 
     protected abstract void createMenuEntries(SideNav menuBuilder);

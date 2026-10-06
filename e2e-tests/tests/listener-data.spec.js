@@ -91,7 +91,7 @@ base.describe('Listener Data — TimeslotClickedEvent', () => {
         await expect(page.locator('#timeslot-click-count')).toHaveText('0');
 
         // Click an empty day cell (March 12 should be empty)
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"]');
         await emptyCell.click();
         await waitForVaadin(page);
 
@@ -99,7 +99,7 @@ base.describe('Listener Data — TimeslotClickedEvent', () => {
     });
 
     base('timeslot-click-date contains the clicked date', async ({ page }) => {
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"]');
         await emptyCell.click();
         await waitForVaadin(page);
 
@@ -107,7 +107,7 @@ base.describe('Listener Data — TimeslotClickedEvent', () => {
     });
 
     base('timeslot-click-allday is true in dayGrid month view', async ({ page }) => {
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"]');
         await emptyCell.click();
         await waitForVaadin(page);
 
@@ -188,7 +188,7 @@ base.describe('Listener Data — EntryMouseLeaveEvent', () => {
         await waitForVaadin(page);
 
         // Move mouse away to an empty area
-        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-20"] .fc-daygrid-day-frame');
+        const emptyCell = page.locator('.fc-daygrid-day[data-date="2025-03-20"]');
         await emptyCell.hover();
         await waitForVaadin(page);
 

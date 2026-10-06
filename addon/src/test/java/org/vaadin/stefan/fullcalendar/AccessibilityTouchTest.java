@@ -2,10 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 
-import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
@@ -33,8 +30,10 @@ public class AccessibilityTouchTest {
     }
 
     @Test
-    void option_buttonHints_key() {
-        assertEquals("buttonHints", Option.NATIVE_TOOLBAR_BUTTON_HINTS.getOptionKey());
+    void option_buttonHintKeys() {
+        assertEquals("todayHint", Option.TODAY_HINT.getOptionKey());
+        assertEquals("prevHint", Option.PREV_HINT.getOptionKey());
+        assertEquals("nextHint", Option.NEXT_HINT.getOptionKey());
     }
 
     @Test
@@ -57,16 +56,6 @@ public class AccessibilityTouchTest {
         assertEquals("closeHint", Option.CLOSE_HINT.getOptionKey());
     }
 
-    @Test
-    void option_timeHint_key() {
-        assertEquals("timeHint", Option.TIME_HINT.getOptionKey());
-    }
-
-    @Test
-    void option_eventHint_key() {
-        assertEquals("eventHint", Option.ENTRY_HINT.getOptionKey());
-    }
-
     // -------------------------------------------------------------------------
     // setEventInteractive
     // -------------------------------------------------------------------------
@@ -84,22 +73,21 @@ public class AccessibilityTouchTest {
     }
 
     // -------------------------------------------------------------------------
-    // setButtonHints
+    // button hints
     // -------------------------------------------------------------------------
 
     @Test
-    void setButtonHints_storesMap() {
-        Map<String, String> hints = Map.of("today", "Go to today", "prev", "Previous period", "next", "Next period");
-        calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS, hints);
-        assertOptionalEquals(hints, calendar.getOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS));
+    void setTodayHint_storesOption() {
+        calendar.setOption(Option.TODAY_HINT, "Go to today");
+        assertOptionalEquals("Go to today", calendar.getOption(Option.TODAY_HINT));
     }
 
     @Test
-    void setButtonHints_null_clearsOption() {
-        calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS, Map.of("today", "Go to today"));
-        calendar.setOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS, null);
+    void setTodayHint_null_clearsOption() {
+        calendar.setOption(Option.TODAY_HINT, "Go to today");
+        calendar.setOption(Option.TODAY_HINT, null);
         // null clears the option from the map
-        assertTrue(calendar.getOption(Option.NATIVE_TOOLBAR_BUTTON_HINTS).isEmpty());
+        assertTrue(calendar.getOption(Option.TODAY_HINT).isEmpty());
     }
 
     // -------------------------------------------------------------------------
@@ -147,26 +135,6 @@ public class AccessibilityTouchTest {
     void setCloseHint_storesOption() {
         calendar.setOption(Option.CLOSE_HINT, "Close");
         assertOptionalEquals("Close", calendar.getOption(Option.CLOSE_HINT));
-    }
-
-    // -------------------------------------------------------------------------
-    // setTimeHint
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setTimeHint_storesOption() {
-        calendar.setOption(Option.TIME_HINT, "Time");
-        assertOptionalEquals("Time", calendar.getOption(Option.TIME_HINT));
-    }
-
-    // -------------------------------------------------------------------------
-    // setEventHint
-    // -------------------------------------------------------------------------
-
-    @Test
-    void setEventHint_storesOption() {
-        calendar.setOption(Option.ENTRY_HINT, "Event");
-        assertOptionalEquals("Event", calendar.getOption(Option.ENTRY_HINT));
     }
 
     // -------------------------------------------------------------------------

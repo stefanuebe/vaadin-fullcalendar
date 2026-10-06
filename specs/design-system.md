@@ -6,11 +6,12 @@
 
 ## 1. Theme Architecture
 
-The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directly accessible. Four style layers:
+The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directly accessible. Style layers:
 
 | Layer | File | Purpose |
 |-------|------|---------|
-| **FullCalendar native** | Bundled via `@fullcalendar/*` npm packages | Default FC appearance (grid, entries, toolbar) |
+| **FullCalendar skeleton and classic theme** | `fullcalendar/skeleton.css`, `fullcalendar/themes/classic/theme.css` and `palette.css`, imported by `full-calendar.ts` | Layout and default FC appearance (grid, entries, toolbar) |
+| **Stable class names** | `legacy-class-names.ts`, `legacy-class-names-scheduler.ts` (FC plugins) | Re-add the documented v6 class names, see UC-025 and ADR 0001 |
 | **Addon base styles** | `full-calendar-styles.css` | Sizing, layout fixes, integration with Vaadin |
 | **Vaadin theme variant** | `full-calendar-theme-vaadin.css` | Aligns FC look with Vaadin Lumo/Aura theme |
 | **Scheduler styles** | `full-calendar-scheduler-styles.css` | Additional styles for scheduler views |
@@ -56,7 +57,7 @@ When developers use custom entry background colors, FullCalendar defaults entry 
 
 ## 2. CSS Customization
 
-Since the component uses light DOM, any CSS can target FC elements from document scope.
+Since the component uses light DOM, any CSS can target FC elements from document scope. FullCalendar 7 renders build-generated class names only. Stable hooks for CSS and tests are the stable class names (UC-025), the `data-date` / `data-time` / `data-resource-id` attributes and ARIA roles. Selectors that depend on the DOM structure (`table td`, `> a`) are not stable.
 
 **Addon-internal CSS** (bundled with the addon): Uses `@CssImport("./vaadin-full-calendar/...")` on the component class. Files live under `META-INF/frontend/`. This is the correct V25 mechanism for addon/component CSS bundled via Vite.
 
@@ -87,9 +88,9 @@ Entries can be styled at multiple levels (highest priority wins):
 
 | Level | Mechanism | Example |
 |-------|-----------|---------|
-| **Global** | `Option.ENTRY_COLOR`, `ENTRY_BACKGROUND_COLOR`, etc. | `calendar.setOption(Option.ENTRY_COLOR, "#3788d8")` |
-| **Per-resource** | `Resource.setEntryBackgroundColor()`, etc. | `resource.setEntryBackgroundColor("#ff6b6b")` |
-| **Per-entry** | `Entry.setColor()`, `setBackgroundColor()`, `setTextColor()`, `setBorderColor()` | `entry.setColor("red")` |
+| **Global** | `Option.ENTRY_COLOR`, `ENTRY_CONTRAST_COLOR` | `calendar.setOption(Option.ENTRY_COLOR, "#3788d8")` |
+| **Per-resource** | `Resource.setColor()`, `setEntryContrastColor()` | `resource.setColor("#ff6b6b")` |
+| **Per-entry** | `Entry.setColor()`, `setContrastColor()` | `entry.setColor("red")` |
 | **CSS classes** | `Entry.setClassNames(Set)` or `Resource.setEntryClassNames(Set)` | `entry.setClassNames(Set.of("urgent"))` |
 | **Display mode** | `Entry.setDisplayMode(DisplayMode)` | `BACKGROUND`, `INVERSE_BACKGROUND`, `BLOCK`, `LIST_ITEM`, `NONE` |
 
@@ -103,10 +104,10 @@ Entries can be styled at multiple levels (highest priority wins):
 | `Option.CONTENT_HEIGHT` | Event area height | `"auto"` |
 | `Option.ASPECT_RATIO` | Width-to-height ratio | `1.35` |
 | `Option.EXPAND_ROWS` | Stretch rows to fill vertically | `false` |
-| `SchedulerOption.RESOURCE_AREA_WIDTH` | Resource panel width in scheduler | Auto |
+| `SchedulerOption.RESOURCE_COLUMNS_WIDTH` | Resource column width in scheduler | Auto |
 | `SchedulerOption.SLOT_MIN_WIDTH` | Minimum slot width in timeline | Auto |
 
-The component includes a `ResizeObserver` for responsive sizing (cleaned up in `disconnectedCallback()`).
+FullCalendar resizes itself when the component's size changes. There is no `updateSize()` to call.
 
 ---
 
@@ -121,13 +122,13 @@ calendar.setOption(Option.HEADER_TOOLBAR,
            "right", "dayGridMonth,timeGridWeek,timeGridDay"));
 ```
 
-Button labels: `Option.NATIVE_TOOLBAR_BUTTON_TEXT` (e.g., `Map.of("today", "Heute")`).
+Button labels: the `buttons` option, one map per button (e.g., `calendar.setOption("buttons", Map.of("today", Map.of("text", "Heute")))`).
 
 ---
 
 ## 6. Responsive Behavior
 
-- The calendar adapts to its container width automatically via a `ResizeObserver`
+- The calendar adapts to its container size automatically (FullCalendar observes its own size)
 - The host element must have a sized ancestor — without explicit height on a parent, the calendar may collapse to 0px
 - Use `Option.DAY_MIN_WIDTH` to enable horizontal scrolling on narrow containers (sensible default: ~100px)
 

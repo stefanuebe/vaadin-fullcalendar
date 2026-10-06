@@ -20,7 +20,7 @@ public class FullCalendarSchedulerTest {
 
     @Test
     void testSetLicenseKey() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.LICENSE_KEY, "123456");
+        calendar.setOption(SchedulerOption.LICENSE_KEY, "123456");
 
         Optional<Object> option = calendar.getOption("schedulerLicenseKey");
 
@@ -29,20 +29,20 @@ public class FullCalendarSchedulerTest {
     }
     
     @Test
-    void testSetResourceAreaHeaderContent() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_HEADER_CONTENT, "Hello");
+    void testSetResourceColumnHeaderContent() {
+        calendar.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT, "Hello");
 
-        Optional<Object> option = calendar.getOption("resourceAreaHeaderContent");
+        Optional<Object> option = calendar.getOption("resourceColumnHeaderContent");
 
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals("Hello", option.get());
     }
     
     @Test
-    void testSetResourceAreaWidtht() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "10%");
+    void testSetResourceColumnsWidth() {
+        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "10%");
 
-        Optional<Object> option = calendar.getOption("resourceAreaWidth");
+        Optional<Object> option = calendar.getOption("resourceColumnsWidth");
 
         Assertions.assertTrue(option.isPresent());
         Assertions.assertEquals("10%", option.get());
@@ -50,7 +50,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetSlotWidtht() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.SLOT_MIN_WIDTH, "100");
+        calendar.setOption(SchedulerOption.SLOT_MIN_WIDTH, "100");
 
         Optional<Object> option = calendar.getOption("slotMinWidth");
 
@@ -60,7 +60,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetResourceInitiallyExpanded() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCES_INITIALLY_EXPANDED, false);
+        calendar.setOption(SchedulerOption.RESOURCES_INITIALLY_EXPANDED, false);
 
         Optional<Object> option = calendar.getOption("resourcesInitiallyExpanded");
 
@@ -70,7 +70,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetFilterResourcesWithEvents() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES, true);
+        calendar.setOption(SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES, true);
 
         Optional<Object> option = calendar.getOption("filterResourcesWithEvents");
 
@@ -80,7 +80,7 @@ public class FullCalendarSchedulerTest {
     
     @Test
     void testSetResourceOrder() {
-        calendar.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_ORDER, "-title");
+        calendar.setOption(SchedulerOption.RESOURCE_ORDER, "-title");
 
         Optional<Object> option = calendar.getOption("resourceOrder");
 
@@ -103,19 +103,19 @@ public class FullCalendarSchedulerTest {
         // this shall assure that all init options are handled
         assertExistingOptionCount(calendar, 4); // locale + dayMaxEvents + height + editable (addon default)
 
-        Assertions.assertEquals(entryLimit, calendar.getOption(FullCalendar.Option.DAY_MAX_ENTRIES).orElse(-1));
+        Assertions.assertEquals(entryLimit, calendar.getOption(Option.DAY_MAX_ENTRIES).orElse(-1));
     }
 
     @Test
     void noArgConstructor_setsDefaultLocale() {
-        Assertions.assertSame(CalendarLocale.getDefaultLocale(), new FullCalendarScheduler().getOption(FullCalendar.Option.LOCALE).orElse(null));
+        Assertions.assertSame(CalendarLocale.getDefaultLocale(), new FullCalendarScheduler().getOption(Option.LOCALE).orElse(null));
     }
 
     @Test
     @SuppressWarnings("removal")
     void deprecatedEntryResourcesEditable_setsSameOptionAsEntryResourceEditable() {
-        FullCalendarScheduler.SchedulerOption alias = FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE;
-        FullCalendarScheduler.SchedulerOption renamed = FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCE_EDITABLE;
+        SchedulerOption alias = SchedulerOption.ENTRY_RESOURCES_EDITABLE;
+        SchedulerOption renamed = SchedulerOption.ENTRY_RESOURCE_EDITABLE;
 
         Assertions.assertEquals(renamed.getOptionKey(), alias.getOptionKey());
         Assertions.assertEquals(renamed.getConverters(), alias.getConverters());
@@ -123,7 +123,7 @@ public class FullCalendarSchedulerTest {
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
         // deprecated aliases share the key of their renamed constant, so count keys, not constants
-        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(FullCalendar.Option.values()).map(FullCalendar.Option::getOptionKey).distinct().map(calendar::getOption).filter(Optional::isPresent).count());
+        Assertions.assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(Option::getOptionKey).distinct().map(calendar::getOption).filter(Optional::isPresent).count());
     }
 
 
