@@ -38,3 +38,5 @@ fc-docs/
 wiki
 /test-results/.last-run.json
 /e2e-tests/.claude/inspection-result.json
+# dev-loop state when demo/.vaadin/vaadin-dev drives e2e-test-app (--app), holds a token
+/e2e-test-app/.vaadin/

@@ -46,6 +46,12 @@ tracker, see `docs/agents/issue-tracker.md`. Decisions with their reasons are in
   *Documentation*.
 - **Never push.** Pushing, opening pull requests and anything else that leaves this
   machine is the maintainer's step, always. This includes the wiki repo.
+- **Branches and pull requests:** ticket work happens on a branch, one per ticket,
+  or one integration branch for tickets that only turn green together. It is not
+  merged into `master` locally. It reaches `master` through a GitHub pull request,
+  where the maintainer reviews the code. Pushing the branch and opening the pull
+  request are the maintainer's step (see *Never push*). Releases are not ticket
+  work and follow `docs/agents/release.md`.
 - **Tests & long-running ops:** run new/changed tests first, and only run the full
   gate once those pass. Don't wrap waits in `until … done` sleep loops. Poll
   periodically and check whether a background job has died. A change that only
@@ -55,7 +61,7 @@ tracker, see `docs/agents/issue-tracker.md`. Decisions with their reasons are in
 ## Stack
 
 - **Vaadin** 25.x (Core), **Java** 21, **Spring Boot** 4.x (demo and e2e test app only)
-- FullCalendar JS client version: `FullCalendar.FC_CLIENT_VERSION` (currently 6.1.21)
+- FullCalendar JS client version: `FullCalendar.FC_CLIENT_VERSION` (currently 7.1.0)
 - Lombok, Jackson 3 (since 7.0, replacing elemental.json), Vite, Maven multi-module
 - Base package: `org.vaadin.stefan.fullcalendar` (core and scheduler share it)
 
@@ -68,8 +74,10 @@ and check that it still passes. A Vaadin release can start asking for a license 
 in a production build even with core components only.
 
 **Version lines:** `master` carries the current major, `v7_master` the 7.x line
-(Vaadin 25), `v6_master` the 6.x line (Vaadin 24). Fixes are made on `master` and
-ported back where they apply. Whether a feature goes back is decided per feature.
+(Vaadin 25), `v6_master` the 6.x line (Vaadin 24). Fixes go to `master` through a
+pull request and are ported back where they apply. A backport that applies about
+1:1 is committed on the version line directly. One that deviates substantially goes
+through its own pull request. Whether a feature goes back is decided per feature.
 After switching branches, delete the generated frontend files in `demo/` and
 `e2e-test-app/` (`node_modules`, `package.json`, `package-lock.json`,
 `src/main/frontend/generated`), or the Vite build fails on the other line's
@@ -139,8 +147,18 @@ the E2E tests so they don't run against a stale jar.
 The order is fixed:
 
 1. the tests covering what changed are green (the targeted run, not the gate)
-2. `/code-review` (from `mattpocock-skills`): findings reported, then fixed. A fix
-   that changes code is reviewed too, before the gate.
+2. the review: **always three agents**, in parallel. `/code-review` (from
+   `mattpocock-skills`) brings two (Standards, Spec). The third takes an axis from
+   the change itself, picked so it can disagree with the other two: Vaadin API
+   usage, the FullCalendar integration, or test quality (do the tests prove the
+   behaviour, or pass around it?). For a document: claims against source, framing
+   and language. Without a spec `/code-review` skips Spec, so add a second axis of
+   that kind. The review loops. Fix every major and run the next round on the whole
+   scope under review. The agents judge what is major. Pass each round the
+   findings already rejected, with the reason. Once a round finds no major, report
+   the minors and ask whether to fix them and review again. Minors in test code
+   are fixed without asking. If round 5 still finds a major, stop and ask how to
+   go on.
 3. the full gate: `mvn clean install`, then the E2E run in `e2e-test-app/`
 4. commit
 
