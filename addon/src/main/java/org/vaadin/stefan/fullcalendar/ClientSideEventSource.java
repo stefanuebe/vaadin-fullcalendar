@@ -96,7 +96,8 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     private Boolean defaultAllDay;
 
     /**
-     * Per-source {@code allow} JS callback (the source counterpart of the calendar-wide {@code eventAllow}). Receives {@code (dropInfo, draggedEvent)} and returns a boolean.
+     * Per-source {@code allow} JS callback (the source counterpart of the calendar-wide {@code eventAllow}). Receives
+     * {@code (dropInfo, draggedEvent)} and returns a boolean.
      */
     private JsCallback allow;
 

@@ -97,7 +97,9 @@ public enum Option {
     /**
      * Called after the cell in the header area of time grid views that labels the all-day section is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow}, {@code view}, and {@code el} (the all-day header cell, a {@code <div role="rowheader">}, only in allDayHeaderDidMount and allDayHeaderWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow}, {@code view},
+     *                         and {@code el} (the all-day header cell, a {@code <div role="rowheader">}, only in
+     *                         allDayHeaderDidMount and allDayHeaderWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.ALL_DAY_HEADER_DID_MOUNT, JsCallback.of("""
@@ -113,7 +115,9 @@ public enum Option {
     /**
      * Called before the cell in the header area of time grid views that labels the all-day section is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow}, {@code view}, and {@code el} (the all-day header cell, a {@code <div role="rowheader">}, only in allDayHeaderDidMount and allDayHeaderWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow}, {@code view},
+     *                         and {@code el} (the all-day header cell, a {@code <div role="rowheader">}, only in
+     *                         allDayHeaderDidMount and allDayHeaderWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.ALL_DAY_HEADER_WILL_UNMOUNT, JsCallback.of("""
@@ -127,7 +131,9 @@ public enum Option {
     ALL_DAY_HEADER_WILL_UNMOUNT("allDayHeaderWillUnmount"),
 
     /**
-     * How the duration of an entry changes when it is dragged between the timed and the all-day section. With {@code true}, the duration stays roughly the same (hourly durations are rounded down to whole days). With {@code false}, the duration is reset to the default all-day or timed entry duration of the target section.
+     * How the duration of an entry changes when it is dragged between the timed and the all-day section. With
+     * {@code true}, the duration stays roughly the same (hourly durations are rounded down to whole days). With
+     * {@code false}, the duration is reset to the default all-day or timed entry duration of the target section.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
@@ -154,7 +160,8 @@ public enum Option {
      * this ratio (larger numbers make smaller heights). More precisely, it is the ratio of the calendar's content area.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code number} (e.g., {@code 1.35})</dd>
-     *   <dt>Default</dt> <dd>{@code 1.35}. Only used while neither {@link #HEIGHT} nor {@link #CONTENT_HEIGHT} is set, and the add-on sets {@link #HEIGHT} to {@code "100%"}.</dd>
+     *   <dt>Default</dt> <dd>{@code 1.35}. Only used while neither {@link #HEIGHT} nor {@link #CONTENT_HEIGHT} is set,
+     *                        and the add-on sets {@link #HEIGHT} to {@code "100%"}.</dd>
      * </dl>
      *
      * @see <a href="https://fullcalendar.io/docs/aspectRatio">aspectRatio</a>
@@ -501,9 +508,11 @@ public enum Option {
     DAY_MAX_ENTRIES("dayMaxEvents"),
 
     /**
-     * Maximum number of stacked entry rows within a day in daygrid views, including the "+N more" link. The remaining entries are shown in a popover. For timegrid and timeline views, FullCalendar uses {@code eventMaxStack}.
+     * Maximum number of stacked entry rows within a day in daygrid views, including the "+N more" link. The remaining
+     * entries are shown in a popover. For timegrid and timeline views, FullCalendar uses {@code eventMaxStack}.
      * <dl>
-     *   <dt>Type</dt> <dd>{@code boolean} | {@code integer}. {@code true} limits the rows to the height of the day cell, an integer to that number of rows, {@code false} shows all entries.</dd>
+     *   <dt>Type</dt> <dd>{@code boolean} | {@code integer}. {@code true} limits the rows to the height of the day
+     *                     cell, an integer to that number of rows, {@code false} shows all entries.</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
      * </dl>
      *
@@ -833,7 +842,8 @@ public enum Option {
     /**
      * Default display mode for entries.
      * <dl>
-     *   <dt>Type</dt>    <dd>{@code "auto"} | {@code "block"} | {@code "list-item"} | {@code "background"} | {@code "inverse-background"} | {@code "none"} | {@link DisplayMode}</dd>
+     *   <dt>Type</dt>    <dd>{@code "auto"} | {@code "block"} | {@code "list-item"} | {@code "background"} |
+     *                        {@code "inverse-background"} | {@code "none"} | {@link DisplayMode}</dd>
      *   <dt>Default</dt> <dd>{@code "auto"}</dd>
      * </dl>
      *
@@ -1029,7 +1039,9 @@ public enum Option {
      * into the entry array. Accepts a {@link JsCallback}. To transform each single entry, use {@link #ENTRY_DATA_TRANSFORM} instead.
      * <dl>
      *   <dt>Type</dt> <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(rawEvents, response)}. The arguments are given directly, there is no {@code info} object. {@code rawEvents} is the raw response content, {@code response} a {@code Response} object if the source was a JSON feed.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(rawEvents, response)}. The arguments are given directly, there is no
+     *                         {@code info} object. {@code rawEvents} is the raw response content, {@code response} a
+     *                         {@code Response} object if the source was a JSON feed.</dd>
      *   <dt>Returns</dt> <dd>a new array of parsable entry (event) objects, which is used instead of the received response</dd>
      * </dl>
      * <pre>{@code
@@ -1189,7 +1201,9 @@ public enum Option {
 
 
     /**
-     * Whether the view's horizontal scrollbar is fixed to the bottom of the viewport while the page is scrolled vertically, if the calendar is in view but the scrollbar is below the fold. Relevant for views with a horizontal scrollbar, e.g. timeline views.
+     * Whether the view's horizontal scrollbar is fixed to the bottom of the viewport while the page is scrolled
+     * vertically, if the calendar is in view but the scrollbar is below the fold. Relevant for views with a horizontal
+     * scrollbar, e.g. timeline views.
      * With {@code "auto"}, the scrollbar is sticky when the calendar height is {@code auto}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@code "auto"}</dd>
@@ -1265,7 +1279,8 @@ public enum Option {
      * the height of its parent element.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code integer} (pixels) | {@code "auto"} | any CSS value like {@code "100%"}</dd>
-     *   <dt>Default</dt> <dd>{@code "100%"}, set by the add-on's constructor ({@code setHeightFull()}). Without a height, FullCalendar calculates it from {@link #ASPECT_RATIO}.</dd>
+     *   <dt>Default</dt> <dd>{@code "100%"}, set by the add-on's constructor ({@code setHeightFull()}). Without a
+     *                        height, FullCalendar calculates it from {@link #ASPECT_RATIO}.</dd>
      * </dl>
      *
      * @see FullCalendar#setHeight(String)
@@ -1323,7 +1338,8 @@ public enum Option {
      * CSS classes for the week number shown inline in day grid cells.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
+     *                         {@code date}, {@code isNarrow}, {@code hasNavLink}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.INLINE_WEEK_NUMBER_CLASS, JsCallback.of("""
@@ -1340,7 +1356,8 @@ public enum Option {
      * Custom content for the week number shown inline in day grid cells. Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
+     *                         {@code date}, {@code isNarrow}, {@code hasNavLink}.</dd>
      *   <dt>Returns</dt> <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
      * </dl>
      * <pre>{@code
@@ -1357,7 +1374,9 @@ public enum Option {
     /**
      * Called after the week number shown inline in day grid cells is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink}, and {@code el} (the element, only in inlineWeekNumberDidMount and inlineWeekNumberWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
+     *                         {@code date}, {@code isNarrow}, {@code hasNavLink}, and {@code el} (the element, only in
+     *                         inlineWeekNumberDidMount and inlineWeekNumberWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.INLINE_WEEK_NUMBER_DID_MOUNT, JsCallback.of("""
@@ -1373,7 +1392,9 @@ public enum Option {
     /**
      * Called before the week number shown inline in day grid cells is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink}, and {@code el} (the element, only in inlineWeekNumberDidMount and inlineWeekNumberWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
+     *                         {@code date}, {@code isNarrow}, {@code hasNavLink}, and {@code el} (the element, only in
+     *                         inlineWeekNumberDidMount and inlineWeekNumberWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.INLINE_WEEK_NUMBER_WILL_UNMOUNT, JsCallback.of("""
@@ -1388,7 +1409,9 @@ public enum Option {
 
 
     /**
-     * When entries are fetched. With {@code true}, the calendar fetches only when it needs to and reuses entries it already has, e.g. when the user switches from month to week view within the same month. With {@code false}, it fetches on every view switch and every date change.
+     * When entries are fetched. With {@code true}, the calendar fetches only when it needs to and reuses entries it
+     * already has, e.g. when the user switches from month to week view within the same month. With {@code false}, it
+     * fetches on every view switch and every date change.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -1446,7 +1469,11 @@ public enum Option {
      * for {@link #LIST_DAY_FORMAT} and 1 for {@link #LIST_DAY_ALT_FORMAT}. Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code isPast}, {@code isFuture}, {@code isToday}, {@code text}, {@code textParts}, {@code dayNumberText}, {@code weekdayText}, {@code hasNavLink}, {@code level}. {@code text} is the formatted date text, {@code level} is 0 for the primary format and 1 for the alternative format.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code isPast}, {@code isFuture},
+     *                         {@code isToday}, {@code text}, {@code textParts}, {@code dayNumberText},
+     *                         {@code weekdayText}, {@code hasNavLink}, {@code level}. {@code text} is the formatted
+     *                         date text, {@code level} is 0 for the primary format and 1 for the alternative
+     *                         format.</dd>
      *   <dt>Returns</dt> <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
      * </dl>
      * <pre>{@code
@@ -1463,7 +1490,9 @@ public enum Option {
     /**
      * Called after a list view day heading is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code isPast}, {@code isFuture}, {@code isToday}, and {@code el} (the element, only in listDayHeaderDidMount and listDayHeaderWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code isPast}, {@code isFuture},
+     *                         {@code isToday}, and {@code el} (the element, only in listDayHeaderDidMount and
+     *                         listDayHeaderWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.LIST_DAY_HEADER_DID_MOUNT, JsCallback.of("""
@@ -1479,7 +1508,9 @@ public enum Option {
     /**
      * Called before a list view day heading is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code isPast}, {@code isFuture}, {@code isToday}, and {@code el} (the element, only in listDayHeaderDidMount and listDayHeaderWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code isPast}, {@code isFuture},
+     *                         {@code isToday}, and {@code el} (the element, only in listDayHeaderDidMount and
+     *                         listDayHeaderWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.LIST_DAY_HEADER_WILL_UNMOUNT, JsCallback.of("""
@@ -1507,7 +1538,9 @@ public enum Option {
      * With the scheduler, it is also called when resources are fetched.
      * <dl>
      *   <dt>Type</dt> <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(isLoading)}. The argument is given directly, there is no {@code info} object. {@code isLoading} is {@code true} when fetching begins and {@code false} when it is done.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(isLoading)}. The argument is given directly, there is no {@code info}
+     *                         object. {@code isLoading} is {@code true} when fetching begins and {@code false} when it
+     *                         is done.</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.LOADING, JsCallback.of("""
@@ -1533,7 +1566,8 @@ public enum Option {
     LOCALE,
 
     /**
-     * Time a touch user must hold down before an entry can be dragged or a date can be selected. Has no effect on non-touch devices. See {@link #ENTRY_LONG_PRESS_DELAY} for entry dragging only.
+     * Time a touch user must hold down before an entry can be dragged or a date can be selected. Has no effect on
+     * non-touch devices. See {@link #ENTRY_LONG_PRESS_DELAY} for entry dragging only.
      * <dl>
      *   <dt>Type</dt> <dd>{@code integer} (milliseconds)</dd>
      *   <dt>Default</dt> <dd>{@code 1000}</dd>
@@ -1571,7 +1605,11 @@ public enum Option {
      * CSS classes for the "+N more" link.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText}, {@code longText}, {@code isNarrow}. {@code num} is the number of hidden entries, {@code text} the localized default text, {@code numericText} its numeric part (for example {@code "+5"}) and {@code longText} the full text (for example {@code "+5 events"}).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText},
+     *                         {@code longText}, {@code isNarrow}. {@code num} is the number of hidden entries,
+     *                         {@code text} the localized default text, {@code numericText} its numeric part (for
+     *                         example {@code "+5"}) and {@code longText} the full text (for example
+     *                         {@code "+5 events"}).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.MORE_LINK_CLASS, JsCallback.of("""
@@ -1614,7 +1652,11 @@ public enum Option {
      * Custom content for the "+N more" link. Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText}, {@code longText}, {@code isNarrow}. {@code num} is the number of hidden entries, {@code text} the localized default text, {@code numericText} its numeric part (for example {@code "+5"}) and {@code longText} the full text (for example {@code "+5 events"}).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText},
+     *                         {@code longText}, {@code isNarrow}. {@code num} is the number of hidden entries,
+     *                         {@code text} the localized default text, {@code numericText} its numeric part (for
+     *                         example {@code "+5"}) and {@code longText} the full text (for example
+     *                         {@code "+5 events"}).</dd>
      *   <dt>Returns</dt> <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
      * </dl>
      * <pre>{@code
@@ -1631,7 +1673,11 @@ public enum Option {
     /**
      * Called right after a "+N more" link is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText}, {@code longText}, {@code isNarrow}, and {@code el} (the element, only in moreLinkDidMount and moreLinkWillUnmount). {@code num} is the number of hidden entries, {@code text} the localized default text, {@code numericText} its numeric part (for example {@code "+5"}) and {@code longText} the full text (for example {@code "+5 events"}).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText},
+     *                         {@code longText}, {@code isNarrow}, and {@code el} (the element, only in moreLinkDidMount
+     *                         and moreLinkWillUnmount). {@code num} is the number of hidden entries, {@code text} the
+     *                         localized default text, {@code numericText} its numeric part (for example {@code "+5"})
+     *                         and {@code longText} the full text (for example {@code "+5 events"}).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.MORE_LINK_DID_MOUNT, JsCallback.of("""
@@ -1665,7 +1711,11 @@ public enum Option {
     /**
      * Called right before a "+N more" link is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText}, {@code longText}, {@code isNarrow}, and {@code el} (the element, only in moreLinkDidMount and moreLinkWillUnmount). {@code num} is the number of hidden entries, {@code text} the localized default text, {@code numericText} its numeric part (for example {@code "+5"}) and {@code longText} the full text (for example {@code "+5 events"}).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText},
+     *                         {@code longText}, {@code isNarrow}, and {@code el} (the element, only in moreLinkDidMount
+     *                         and moreLinkWillUnmount). {@code num} is the number of hidden entries, {@code text} the
+     *                         localized default text, {@code numericText} its numeric part (for example {@code "+5"})
+     *                         and {@code longText} the full text (for example {@code "+5 events"}).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.MORE_LINK_WILL_UNMOUNT, JsCallback.of("""
@@ -1732,11 +1782,15 @@ public enum Option {
     NAV_LINKS,
 
     /**
-     * Determines what happens upon a click on a day heading nav link (requires {@link #NAV_LINKS}). By default, the user is taken to the first day view in the header toolbar. A view name {@code String} navigates to that view instead.
+     * Determines what happens upon a click on a day heading nav link (requires {@link #NAV_LINKS}). By default, the
+     * user is taken to the first day view in the header toolbar. A view name {@code String} navigates to that view
+     * instead.
      * A custom function replaces the default, the user is not navigated automatically then. The {@code dateClick} handler is not fired for such a click.
      * <dl>
      *   <dt>Type</dt> <dd>view name {@code String} | {@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(date, jsEvent)}. The arguments are given directly, there is no {@code info} object. {@code date} is a Date object, {@code jsEvent} the browser's click event.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(date, jsEvent)}. The arguments are given directly, there is no
+     *                         {@code info} object. {@code date} is a Date object, {@code jsEvent} the browser's click
+     *                         event.</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.NAV_LINK_DAY_CLICK, "timeGridDay");
@@ -1767,11 +1821,15 @@ public enum Option {
     NAV_LINK_HINT,
 
     /**
-     * Determines what happens upon a click on a week number nav link (requires {@link #NAV_LINKS}). By default, the user is taken to the first week view in the header toolbar. A view name {@code String} navigates to that view instead.
+     * Determines what happens upon a click on a week number nav link (requires {@link #NAV_LINKS}). By default, the
+     * user is taken to the first week view in the header toolbar. A view name {@code String} navigates to that view
+     * instead.
      * A custom function replaces the default, the user is not navigated automatically then.
      * <dl>
      *   <dt>Type</dt> <dd>view name {@code String} | {@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(weekStart, jsEvent)}. The arguments are given directly, there is no {@code info} object. {@code weekStart} is a Date object, {@code jsEvent} the browser's click event.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(weekStart, jsEvent)}. The arguments are given directly, there is no
+     *                         {@code info} object. {@code weekStart} is a Date object, {@code jsEvent} the browser's
+     *                         click event.</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.NAV_LINK_WEEK_CLICK, "timeGridWeek");
@@ -1867,7 +1925,8 @@ public enum Option {
     /**
      * Called after the now indicator arrow is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, and {@code el} (the element, only in nowIndicatorHeaderDidMount and nowIndicatorHeaderWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, and {@code el} (the element, only
+     *                         in nowIndicatorHeaderDidMount and nowIndicatorHeaderWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.NOW_INDICATOR_HEADER_DID_MOUNT, JsCallback.of("""
@@ -1883,7 +1942,8 @@ public enum Option {
     /**
      * Called before the now indicator arrow is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, and {@code el} (the element, only in nowIndicatorHeaderDidMount and nowIndicatorHeaderWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, and {@code el} (the element, only
+     *                         in nowIndicatorHeaderDidMount and nowIndicatorHeaderWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.NOW_INDICATOR_HEADER_WILL_UNMOUNT, JsCallback.of("""
@@ -1934,7 +1994,8 @@ public enum Option {
     /**
      * Called after the now indicator line is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, and {@code el} (the element, only in nowIndicatorLineDidMount and nowIndicatorLineWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, and {@code el} (the element, only
+     *                         in nowIndicatorLineDidMount and nowIndicatorLineWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.NOW_INDICATOR_LINE_DID_MOUNT, JsCallback.of("""
@@ -1950,7 +2011,8 @@ public enum Option {
     /**
      * Called before the now indicator line is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, and {@code el} (the element, only in nowIndicatorLineDidMount and nowIndicatorLineWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, and {@code el} (the element, only
+     *                         in nowIndicatorLineDidMount and nowIndicatorLineWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.NOW_INDICATOR_LINE_WILL_UNMOUNT, JsCallback.of("""
@@ -1965,7 +2027,9 @@ public enum Option {
 
     /**
      * Whether the now indicator aligns with the start of its slot. Relevant for timeline views.
-     * With {@code "auto"}, it snaps when the slot unit is a year, month, week, day or hour. For smaller units, its position reflects the exact current time. With {@code false}, its position always reflects the exact current time.
+     * With {@code "auto"}, it snaps when the slot unit is a year, month, week, day or hour. For smaller units, its
+     * position reflects the exact current time. With {@code false}, its position always reflects the exact current
+     * time.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@code "auto"}</dd>
      *   <dt>Default</dt> <dd>{@code "auto"}</dd>
@@ -1979,7 +2043,8 @@ public enum Option {
      * CSS classes for the "No events to display" message of list views.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from the {@code noEventsText} option), {@code view} (the current view object).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from the
+     *                         {@code noEventsText} option), {@code view} (the current view object).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.NO_ENTRIES_CLASS, JsCallback.of("""
@@ -2003,7 +2068,8 @@ public enum Option {
      * Custom content for the "No events to display" message of list views. Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from the {@code noEventsText} option), {@code view} (the current view object).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from the
+     *                         {@code noEventsText} option), {@code view} (the current view object).</dd>
      *   <dt>Returns</dt> <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
      * </dl>
      * <pre>{@code
@@ -2020,7 +2086,9 @@ public enum Option {
     /**
      * Called after the "No events to display" message of list views is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from the {@code noEventsText} option), {@code view} (the current view object), and {@code el} (the element, only in noEventsDidMount and noEventsWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from the
+     *                         {@code noEventsText} option), {@code view} (the current view object), and {@code el} (the
+     *                         element, only in noEventsDidMount and noEventsWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.NO_ENTRIES_DID_MOUNT, JsCallback.of("""
@@ -2036,7 +2104,9 @@ public enum Option {
     /**
      * Called before the "No events to display" message of list views is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from the {@code noEventsText} option), {@code view} (the current view object), and {@code el} (the element, only in noEventsDidMount and noEventsWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from the
+     *                         {@code noEventsText} option), {@code view} (the current view object), and {@code el} (the
+     *                         element, only in noEventsDidMount and noEventsWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.NO_ENTRIES_WILL_UNMOUNT, JsCallback.of("""
@@ -2081,7 +2151,9 @@ public enum Option {
     PREV_HINT,
 
     /**
-     * When entries of multiple asynchronous entry sources are rendered. With {@code true}, each source is rendered as soon as it is received (more renders). With {@code false}, rendering waits until all sources are received (fewer renders).
+     * When entries of multiple asynchronous entry sources are rendered. With {@code true}, each source is rendered as
+     * soon as it is received (more renders). With {@code false}, rendering waits until all sources are received (fewer
+     * renders).
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
@@ -2113,7 +2185,8 @@ public enum Option {
     RERENDER_DELAY,
 
     /**
-     * Initial vertical scroll position of timegrid views, as time of day. The user can still scroll back to earlier times; use {@link #SLOT_MIN_TIME} to prevent that.
+     * Initial vertical scroll position of timegrid views, as time of day. The user can still scroll back to earlier
+     * times; use {@link #SLOT_MIN_TIME} to prevent that.
      * <dl>
      *   <dt>Type</dt> <dd>{@link Duration} | {@link LocalTime} | duration string (e.g. {@code "HH:MM:SS"})</dd>
      *   <dt>Default</dt> <dd>{@code "06:00:00"}</dd>
@@ -2168,7 +2241,8 @@ public enum Option {
     SELECT_ALLOW,
 
     /**
-     * Limits where the user can make selections to certain windows of time. Accepts the same values as {@code eventConstraint} does for entries. Only applies when {@link #SELECTABLE} is {@code true}.
+     * Limits where the user can make selections to certain windows of time. Accepts the same values as
+     * {@code eventConstraint} does for entries. Only applies when {@link #SELECTABLE} is {@code true}.
      * <dl>
      *   <dt>Type</dt> <dd>group id {@code String} | {@code "businessHours"} | object like {@link BusinessHours}</dd>
      * </dl>
@@ -2195,7 +2269,9 @@ public enum Option {
     SELECT_LONG_PRESS_DELAY,
 
     /**
-     * Minimum distance in pixels the mouse must travel after a mouse down before a selection starts. {@code 0} puts no restriction on the distance. A non-zero value helps to tell a selection from a date click. Applies to mouse interaction only.
+     * Minimum distance in pixels the mouse must travel after a mouse down before a selection starts. {@code 0} puts no
+     * restriction on the distance. A non-zero value helps to tell a selection from a date click. Applies to mouse
+     * interaction only.
      * <dl>
      *   <dt>Type</dt> <dd>{@code integer}</dd>
      *   <dt>Default</dt> <dd>{@code 0}</dd>
@@ -2217,11 +2293,13 @@ public enum Option {
     SELECT_MIRROR,
 
     /**
-     * Whether the user may select periods of time that are occupied by entries. With a function, it is called once for every entry the selection intersects. Only applies when {@link #SELECTABLE} is {@code true}.
+     * Whether the user may select periods of time that are occupied by entries. With a function, it is called once for
+     * every entry the selection intersects. Only applies when {@link #SELECTABLE} is {@code true}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@link JsCallback} returning a boolean</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(event)}. The intersected entry (FullCalendar event object) is passed directly as the argument, not wrapped in an info object.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(event)}. The intersected entry (FullCalendar event object) is passed
+     *                         directly as the argument, not wrapped in an info object.</dd>
      *   <dt>Returns</dt> <dd>{@code true} to allow the selection, {@code false} to prevent it</dd>
      * </dl>
      * <pre>{@code
@@ -2287,7 +2365,8 @@ public enum Option {
     SLOT_DURATION,
 
     /**
-     * Whether timed entries in timegrid views visually overlap. With {@code true}, at most half of each entry is obscured; with {@code false}, entries never overlap.
+     * Whether timed entries in timegrid views visually overlap. With {@code true}, at most half of each entry is
+     * obscured; with {@code false}, entries never overlap.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -2301,7 +2380,11 @@ public enum Option {
      * CSS classes for time slot headers, where time grid and timeline views show the date or time text of a slot.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast}, {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, {@code isNarrow}, {@code hasNavLink}, {@code isFirst}, and {@code level} (only in timeline views when {@link #SLOT_HEADER_FORMAT} is an array: the tier being rendered, 0 is the bottom-most).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast},
+     *                         {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, {@code isNarrow},
+     *                         {@code hasNavLink}, {@code isFirst}, and {@code level} (only in timeline views when
+     *                         {@link #SLOT_HEADER_FORMAT} is an array: the tier being rendered, 0 is the
+     *                         bottom-most).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.SLOT_HEADER_CLASS, JsCallback.of("""
@@ -2318,7 +2401,10 @@ public enum Option {
      * Custom content for a time slot header. Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast}, {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, {@code isNarrow}, {@code hasNavLink}, {@code isFirst}, and {@code level} (only in timeline views when {@link #SLOT_HEADER_FORMAT} is an array).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast},
+     *                         {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, {@code isNarrow},
+     *                         {@code hasNavLink}, {@code isFirst}, and {@code level} (only in timeline views when
+     *                         {@link #SLOT_HEADER_FORMAT} is an array).</dd>
      *   <dt>Returns</dt> <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
      * </dl>
      * <pre>{@code
@@ -2335,7 +2421,11 @@ public enum Option {
     /**
      * Called after a time slot header is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast}, {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, {@code isNarrow}, {@code hasNavLink}, {@code isFirst}, {@code level} (only in timeline views when {@link #SLOT_HEADER_FORMAT} is an array), and {@code el} (the element, only in slotHeaderDidMount and slotHeaderWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast},
+     *                         {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, {@code isNarrow},
+     *                         {@code hasNavLink}, {@code isFirst}, {@code level} (only in timeline views when
+     *                         {@link #SLOT_HEADER_FORMAT} is an array), and {@code el} (the element, only in
+     *                         slotHeaderDidMount and slotHeaderWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.SLOT_HEADER_DID_MOUNT, JsCallback.of("""
@@ -2352,7 +2442,8 @@ public enum Option {
      * Text format of the time slot headers. In timeline views, a list of formats creates multiple tiers of header rows.
      * <dl>
      *   <dt>Type</dt> <dd>format object, e.g. a {@code Map} with {@code hour}, {@code minute}, {@code meridiem}, and other properties</dd>
-     *   <dt>Default</dt> <dd>{@code {hour: 'numeric', minute: '2-digit', omitZeroMinute: true, meridiem: 'short'}}, which shows times like {@code 5pm} and {@code 5:30pm} in English</dd>
+     *   <dt>Default</dt> <dd>{@code {hour: 'numeric', minute: '2-digit', omitZeroMinute: true, meridiem: 'short'}},
+     *                        which shows times like {@code 5pm} and {@code 5:30pm} in English</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.SLOT_HEADER_FORMAT,
@@ -2364,7 +2455,8 @@ public enum Option {
     SLOT_HEADER_FORMAT,
 
     /**
-     * Interval at which time slots are labeled with a header text, e.g. {@code "01:00"} shows headers on the hour marks even if {@link #SLOT_DURATION} is 15 or 30 minutes.
+     * Interval at which time slots are labeled with a header text, e.g. {@code "01:00"} shows headers on the hour marks
+     * even if {@link #SLOT_DURATION} is 15 or 30 minutes.
      * <dl>
      *   <dt>Type</dt> <dd>{@link Duration} | {@link LocalTime} | duration string (e.g. {@code "HH:MM:SS"})</dd>
      *   <dt>Default</dt> <dd>computed automatically from {@link #SLOT_DURATION}</dd>
@@ -2378,7 +2470,11 @@ public enum Option {
     /**
      * Called before a time slot header is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast}, {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, {@code isNarrow}, {@code hasNavLink}, {@code isFirst}, {@code level} (only in timeline views when {@link #SLOT_HEADER_FORMAT} is an array), and {@code el} (the element, only in slotHeaderDidMount and slotHeaderWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast},
+     *                         {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, {@code isNarrow},
+     *                         {@code hasNavLink}, {@code isFirst}, {@code level} (only in timeline views when
+     *                         {@link #SLOT_HEADER_FORMAT} is an array), and {@code el} (the element, only in
+     *                         slotHeaderDidMount and slotHeaderWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.SLOT_HEADER_WILL_UNMOUNT, JsCallback.of("""
@@ -2437,10 +2533,12 @@ public enum Option {
     SLOT_LABEL_WILL_UNMOUNT("slotHeaderWillUnmount"),
 
     /**
-     * CSS classes for the lane of a time slot. In time grid views this is the horizontal space passing under all days, in timeline views the vertical space passing through the resources.
+     * CSS classes for the lane of a time slot. In time grid views this is the horizontal space passing under all days,
+     * in timeline views the vertical space passing through the resources.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast}, {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast},
+     *                         {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.SLOT_LANE_CLASS, JsCallback.of("""
@@ -2454,7 +2552,8 @@ public enum Option {
     SLOT_LANE_CLASS("slotLaneClass"),
 
     /**
-     * Former name of {@link #SLOT_LANE_CLASS}: CSS classes for the lane of a time slot. In time grid views this is the horizontal space passing under all days, in timeline views the vertical space passing through the resources.
+     * Former name of {@link #SLOT_LANE_CLASS}: CSS classes for the lane of a time slot. In time grid views this is the
+     * horizontal space passing under all days, in timeline views the vertical space passing through the resources.
      * @deprecated use {@link #SLOT_LANE_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -2463,7 +2562,9 @@ public enum Option {
     /**
      * Called after a time slot lane is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast}, {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, and {@code el} (the element, only in slotLaneDidMount and slotLaneWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast},
+     *                         {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, and {@code el} (the
+     *                         element, only in slotLaneDidMount and slotLaneWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.SLOT_LANE_DID_MOUNT, JsCallback.of("""
@@ -2479,7 +2580,9 @@ public enum Option {
     /**
      * Called before a time slot lane is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast}, {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, and {@code el} (the element, only in slotLaneDidMount and slotLaneWillUnmount).</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast},
+     *                         {@code isFuture}, {@code isToday}, {@code isMajor}, {@code isMinor}, and {@code el} (the
+     *                         element, only in slotLaneDidMount and slotLaneWillUnmount).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.SLOT_LANE_WILL_UNMOUNT, JsCallback.of("""
@@ -2493,7 +2596,8 @@ public enum Option {
     SLOT_LANE_WILL_UNMOUNT("slotLaneWillUnmount"),
 
     /**
-     * Last time slot displayed for each day, as an exclusive end time. {@code "24:00:00"} ends at midnight. The slot limit also applies when the view is scrolled back all the way.
+     * Last time slot displayed for each day, as an exclusive end time. {@code "24:00:00"} ends at midnight. The slot
+     * limit also applies when the view is scrolled back all the way.
      * <dl>
      *   <dt>Type</dt> <dd>{@link Duration} | {@link LocalTime} | duration string (e.g. {@code "HH:MM:SS"})</dd>
      *   <dt>Default</dt> <dd>{@code "24:00:00"}</dd>
@@ -2545,7 +2649,8 @@ public enum Option {
     STICKY_HEADER_DATES("tableHeaderSticky"),
 
     /**
-     * Whether the date headers at the top of the calendar are fixed to the top of the viewport while the page is scrolled vertically. List view day headings are always sticky.
+     * Whether the date headers at the top of the calendar are fixed to the top of the viewport while the page is
+     * scrolled vertically. List view day headings are always sticky.
      * With {@code "auto"}, the headers are sticky when the calendar height is {@code auto}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@code "auto"}</dd>
@@ -2557,10 +2662,13 @@ public enum Option {
     TABLE_HEADER_STICKY,
 
     /**
-     * Time zone used for displaying and interpreting dates on the calendar. It affects the displayed times of entries, their position on the calendar and the dates the client sends to the server.
+     * Time zone used for displaying and interpreting dates on the calendar. It affects the displayed times of entries,
+     * their position on the calendar and the dates the client sends to the server.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String} (e.g., {@code "local"}, {@code "UTC"}, {@code "America/New_York"}) | {@link Timezone}</dd>
-     *   <dt>Default</dt> <dd>{@code "UTC"}, set by the add-on (FullCalendar's own default is {@code "local"}). {@link FullCalendar#getTimezone()} returns {@code Timezone.UTC} as long as the option is not set.</dd>
+     *   <dt>Default</dt> <dd>{@code "UTC"}, set by the add-on (FullCalendar's own default is {@code "local"}).
+     *                        {@link FullCalendar#getTimezone()} returns {@code Timezone.UTC} as long as the option is
+     *                        not set.</dd>
      * </dl>
      *
      * @see FullCalendar#setTimezone(Timezone)
@@ -2598,7 +2706,8 @@ public enum Option {
     UNSELECT_AUTO,
 
     /**
-     * CSS selector for elements that, when clicked, do not clear the current selection (see {@link #UNSELECT_AUTO}). Useful for a "create entry" form that opens after a selection.
+     * CSS selector for elements that, when clicked, do not clear the current selection (see {@link #UNSELECT_AUTO}).
+     * Useful for a "create entry" form that opens after a selection.
      * <dl>
      *   <dt>Type</dt> <dd>CSS selector {@code String} (e.g., {@code ".dialog, .menu"})</dd>
      *   <dt>Default</dt> <dd>{@code ""}</dd>
@@ -2609,10 +2718,15 @@ public enum Option {
     UNSELECT_CANCEL,
 
     /**
-     * Limits the dates the user can navigate to and where entries can go. Dates outside the range are grayed out, entries cannot be dragged or resized into them, and the prev/next buttons are disabled when they would leave the range.
+     * Limits the dates the user can navigate to and where entries can go. Dates outside the range are grayed out,
+     * entries cannot be dragged or resized into them, and the prev/next buttons are disabled when they would leave the
+     * range.
      * <dl>
-     *   <dt>Type</dt> <dd>object with {@code start} and/or {@code end} date strings (one may be omitted for an open-ended range) | {@link JsCallback} returning such an object</dd>
-     *   <dt>Callback</dt> <dd>{@code function(todayDate)}. {@code todayDate} is the start of the day of "now" as a {@code Date}. The function is called several times per view render, so keep it cheap. No info object is involved.</dd>
+     *   <dt>Type</dt> <dd>object with {@code start} and/or {@code end} date strings (one may be omitted for an
+     *                     open-ended range) | {@link JsCallback} returning such an object</dd>
+     *   <dt>Callback</dt> <dd>{@code function(todayDate)}. {@code todayDate} is the start of the day of "now" as a
+     *                         {@code Date}. The function is called several times per view render, so keep it cheap. No
+     *                         info object is involved.</dd>
      *   <dt>Returns</dt> <dd>object with {@code start} and/or {@code end}</dd>
      * </dl>
      * <pre>{@code
@@ -2680,7 +2794,10 @@ public enum Option {
      *   <dt>Returns</dt>  <dd>the label {@code String}</dd>
      * </dl>
      * <pre>{@code
-     * calendar.setOption(Option.VIEW_HINT, JsCallback.of("function(buttonText, buttonName) { return buttonText + (buttonName.startsWith('list') ? ' list view' : ' view'); }"));
+     * calendar.setOption(Option.VIEW_HINT, JsCallback.of("""
+     *         function(buttonText, buttonName) {
+     *             return buttonText + (buttonName.startsWith('list') ? ' list view' : ' view');
+     *         }"""));
      * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/hints">viewHint</a>
@@ -2726,7 +2843,8 @@ public enum Option {
     WEEK_NUMBERS,
 
     /**
-     * Method used to calculate the week numbers shown by {@link #WEEK_NUMBERS}. {@code "ISO"} also changes the default of {@code firstDay} to {@code 1} (Monday).
+     * Method used to calculate the week numbers shown by {@link #WEEK_NUMBERS}. {@code "ISO"} also changes the default
+     * of {@code firstDay} to {@code 1} (Monday).
      * <dl>
      *   <dt>Type</dt> <dd>{@code "local"} | {@code "ISO"} (ISO 8601) | {@link WeekNumberCalculation} | {@link JsCallback} returning an integer</dd>
      *   <dt>Default</dt> <dd>{@code "local"} (calculation of the calendar locale)</dd>
@@ -2742,7 +2860,8 @@ public enum Option {
     WEEK_NUMBER_CALCULATION,
 
     /**
-     * Text format of the week numbers. The text depends on {@link #WEEK_TEXT_SHORT}: with {@code "W"}, {@code narrow} gives {@code "W6"}, {@code short} gives {@code "W 6"}, {@code numeric} gives {@code "6"}.
+     * Text format of the week numbers. The text depends on {@link #WEEK_TEXT_SHORT}: with {@code "W"}, {@code narrow}
+     * gives {@code "W6"}, {@code short} gives {@code "W 6"}, {@code numeric} gives {@code "6"}.
      * <dl>
      *   <dt>Type</dt> <dd>format object, e.g. a {@code Map} with a {@code week} property</dd>
      *   <dt>Default</dt> <dd>{@code {week: 'narrow'}}</dd>
@@ -2759,7 +2878,9 @@ public enum Option {
      * CSS classes for the week number in the header above the time axis of time grid views.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}. {@code options} is the calendar options object.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
+     *                         {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}. {@code options} is
+     *                         the calendar options object.</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.WEEK_NUMBER_HEADER_CLASS, JsCallback.of("""
@@ -2776,7 +2897,9 @@ public enum Option {
      * Custom content for the week number in the header above the time axis of time grid views. Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}. {@code options} is the calendar options object.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
+     *                         {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}. {@code options} is
+     *                         the calendar options object.</dd>
      *   <dt>Returns</dt> <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
      * </dl>
      * <pre>{@code
@@ -2793,7 +2916,10 @@ public enum Option {
     /**
      * Called after the week number in the header above the time axis of time grid views is added to the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}, and {@code el} (the element, only in weekNumberHeaderDidMount and weekNumberHeaderWillUnmount). {@code options} is the calendar options object.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
+     *                         {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}, and {@code el} (the
+     *                         element, only in weekNumberHeaderDidMount and weekNumberHeaderWillUnmount).
+     *                         {@code options} is the calendar options object.</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.WEEK_NUMBER_HEADER_DID_MOUNT, JsCallback.of("""
@@ -2809,7 +2935,10 @@ public enum Option {
     /**
      * Called before the week number in the header above the time axis of time grid views is removed from the DOM. Accepts a {@link JsCallback}.
      * <dl>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts}, {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}, and {@code el} (the element, only in weekNumberHeaderDidMount and weekNumberHeaderWillUnmount). {@code options} is the calendar options object.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
+     *                         {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}, and {@code el} (the
+     *                         element, only in weekNumberHeaderDidMount and weekNumberHeaderWillUnmount).
+     *                         {@code options} is the calendar options object.</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.WEEK_NUMBER_HEADER_WILL_UNMOUNT, JsCallback.of("""
@@ -2842,7 +2971,8 @@ public enum Option {
     WEEK_TEXT_LONG,
 
     /**
-     * Short heading text for week numbers (e.g., "W" in "W1"). Shown above the week number column in daygrid views and next to the week number in the top-left cell of timegrid views. Also used for weeks in date formatting.
+     * Short heading text for week numbers (e.g., "W" in "W1"). Shown above the week number column in daygrid views and
+     * next to the week number in the top-left cell of timegrid views. Also used for weeks in date formatting.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      *   <dt>Default</dt> <dd>{@code "W"}, changes with the locale</dd>
