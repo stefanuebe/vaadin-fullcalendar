@@ -17,10 +17,11 @@
    Exception of this license is the separately licensed part of the styles.
 */
 import {FullCalendar, evaluateCallbacks} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
-import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
-import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid';
-import resourceDayGridPlugin from '@fullcalendar/resource-daygrid';
-import scrollgridPlugin from '@fullcalendar/scrollgrid';
+import resourceTimelinePlugin from 'fullcalendar-scheduler/resource-timeline';
+import resourceTimeGridPlugin from 'fullcalendar-scheduler/resource-timegrid';
+import resourceDayGridPlugin from 'fullcalendar-scheduler/resource-daygrid';
+import scrollgridPlugin from 'fullcalendar-scheduler/scrollgrid';
+import stableClassNamesSchedulerPlugin from './stable-class-names-scheduler';
 
 export class FullCalendarScheduler extends FullCalendar {
 
@@ -49,7 +50,8 @@ export class FullCalendarScheduler extends FullCalendar {
 
         options.resources = options.resources ?? [];
 
-        options.plugins.push(scrollgridPlugin, resourceTimeGridPlugin, resourceDayGridPlugin, resourceTimelinePlugin);
+        options.plugins.push(scrollgridPlugin, resourceTimeGridPlugin, resourceDayGridPlugin, resourceTimelinePlugin,
+            stableClassNamesSchedulerPlugin);
 
         return options;
     }

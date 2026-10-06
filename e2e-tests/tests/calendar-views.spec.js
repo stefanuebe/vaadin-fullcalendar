@@ -116,18 +116,18 @@ test.describe('Calendar Views', () => {
   test('should allow scrolling in Time Grid view', async ({ page }) => {
     await changeView(page, 'Time Grid Week');
 
-    // Find any scroll container
-    const scrollContainer = page.locator('.fc-scroller-liquid-absolute, .fc-scroller').first();
+    await expect(page.locator('.fc-timegrid-slot-lane').first()).toBeVisible();
 
-    if (await scrollContainer.isVisible({ timeout: 2000 })) {
-      // Scroll down
-      await scrollContainer.evaluate(el => el.scrollTop = 300);
-      await page.waitForTimeout(500);
-
-      // Verify calendar is still visible
-      const calendar = page.locator('.fc');
-      await expect(calendar).toBeVisible();
-    }
+    // FullCalendar 7 has no stable class on its scroll container, so look for the element that scrolls
+    const scrolledTo = await page.evaluate(() => {
+      const scroller = [...document.querySelectorAll('.fc-view *')]
+          .find(el => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY !== 'visible'
+              && getComputedStyle(el).overflowY !== 'hidden');
+      if (!scroller) return -1;
+      scroller.scrollTop = 300;
+      return scroller.scrollTop;
+    });
+    expect(scrolledTo).toBeGreaterThan(0);
   });
 
   test('should show week numbers in month view', async ({ page }) => {

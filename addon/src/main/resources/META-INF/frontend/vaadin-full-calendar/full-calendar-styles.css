@@ -1,5 +1,13 @@
 @import "full-calendar-theme-vaadin.css";
 
+/* FullCalendar renders its root classes, which set display, onto the component element itself.
+   Without this rule setVisible(false) (the hidden attribute) would not hide the calendar. The selector
+   uses "fc", which the add-on always puts on that element, so it also holds for subclasses that remove
+   the "vaadin-full-calendar" class to opt out of the fixes below. */
+.fc[hidden] {
+    display: none !important;
+}
+
 /* FIXES AND WORKAROUNDS */
 /* we use the class name selector here to allow subclasses to easily remove it if these styles should not be applied.
 Also these styles automatically are applied to any subclasses and do not bleed into other elements also using "fc"

@@ -6,11 +6,12 @@
 
 ## 1. Theme Architecture
 
-The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directly accessible. Four style layers:
+The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directly accessible. Style layers:
 
 | Layer | File | Purpose |
 |-------|------|---------|
-| **FullCalendar native** | Bundled via `@fullcalendar/*` npm packages | Default FC appearance (grid, entries, toolbar) |
+| **FullCalendar skeleton and classic theme** | `fullcalendar/skeleton.css`, `fullcalendar/themes/classic/theme.css` and `palette.css`, imported by `full-calendar.ts` | Layout and default FC appearance (grid, entries, toolbar) |
+| **Stable class names** | `stable-class-names.ts`, `stable-class-names-scheduler.ts` (FC plugins) | Re-add the documented v6 class names, see UC-025 and ADR 0001 |
 | **Addon base styles** | `full-calendar-styles.css` | Sizing, layout fixes, integration with Vaadin |
 | **Vaadin theme variant** | `full-calendar-theme-vaadin.css` | Aligns FC look with Vaadin Lumo/Aura theme |
 | **Scheduler styles** | `full-calendar-scheduler-styles.css` | Additional styles for scheduler views |
@@ -56,7 +57,7 @@ When developers use custom entry background colors, FullCalendar defaults entry 
 
 ## 2. CSS Customization
 
-Since the component uses light DOM, any CSS can target FC elements from document scope.
+Since the component uses light DOM, any CSS can target FC elements from document scope. FullCalendar 7 renders build-generated class names only. Stable hooks for CSS and tests are the stable class names (UC-025), the `data-date` / `data-time` / `data-resource-id` attributes and ARIA roles. Selectors that depend on the DOM structure (`table td`, `> a`) are not stable.
 
 **Addon-internal CSS** (bundled with the addon): Uses `@CssImport("./vaadin-full-calendar/...")` on the component class. Files live under `META-INF/frontend/`. This is the correct V25 mechanism for addon/component CSS bundled via Vite.
 
@@ -106,7 +107,7 @@ Entries can be styled at multiple levels (highest priority wins):
 | `SchedulerOption.RESOURCE_AREA_WIDTH` | Resource panel width in scheduler | Auto |
 | `SchedulerOption.SLOT_MIN_WIDTH` | Minimum slot width in timeline | Auto |
 
-The component includes a `ResizeObserver` for responsive sizing (cleaned up in `disconnectedCallback()`).
+FullCalendar resizes itself when the component's size changes. There is no `updateSize()` to call.
 
 ---
 
@@ -127,7 +128,7 @@ Button labels: `Option.NATIVE_TOOLBAR_BUTTON_TEXT` (e.g., `Map.of("today", "Heut
 
 ## 6. Responsive Behavior
 
-- The calendar adapts to its container width automatically via a `ResizeObserver`
+- The calendar adapts to its container size automatically (FullCalendar observes its own size)
 - The host element must have a sized ancestor — without explicit height on a parent, the calendar may collapse to 0px
 - Use `Option.DAY_MIN_WIDTH` to enable horizontal scrolling on narrow containers (sensible default: ~100px)
 

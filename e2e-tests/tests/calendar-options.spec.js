@@ -106,13 +106,9 @@ base.describe('Calendar Options — TimeGrid (Slot Duration, Business Hours)', (
 
     base('slot duration is 15 minutes (many slots between hours)', async ({ page }) => {
         const cal = page.locator('#cal-timegrid');
-        // With 15-min slots from 08:00 to 18:00 = 10 hours * 4 = 40 slots
-        // FC renders 2 <tr> per slot (label row + lane row), so total ~80 rows
-        const allSlots = cal.locator('.fc-timegrid-slot[data-time]');
-        const count = await allSlots.count();
-        // Should be approximately 80 (10 hours * 4 slots/hour * 2 rows/slot)
-        expect(count).toBeGreaterThanOrEqual(76);
-        expect(count).toBeLessThanOrEqual(84);
+        // With 15-min slots from 08:00 to 18:00 = 10 hours * 4 = 40 slot lanes
+        const lanes = cal.locator('.fc-timegrid-slot-lane[data-time]');
+        await expect(lanes).toHaveCount(40);
     });
 
     base('non-business hours have fc-non-business class', async ({ page }) => {

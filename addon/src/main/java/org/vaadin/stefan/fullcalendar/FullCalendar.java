@@ -56,18 +56,9 @@ import java.util.stream.Stream;
  * Please visit <a href="https://fullcalendar.io/">https://fullcalendar.io/</a> for details about the client side
  * component, API, functionality, etc.
  */
-@NpmPackage(value = "@fullcalendar/core", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/interaction", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/daygrid", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/timegrid", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/list", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/multimonth", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "fullcalendar", version = FullCalendar.FC_CLIENT_VERSION)
+@NpmPackage(value = "temporal-polyfill", version = "1.0.5") // peer dependency of fullcalendar 7.1.0 (^1.0.1)
 @NpmPackage(value = "@fullcalendar/rrule", version = FullCalendar.FC_CLIENT_VERSION)
-// TODO still necessary?
-@NpmPackage(value = "moment", version = "2.30.1")
-@NpmPackage(value = "moment-timezone", version = "0.6.0")
-@NpmPackage(value = "@fullcalendar/moment", version = FullCalendar.FC_CLIENT_VERSION)
-@NpmPackage(value = "@fullcalendar/moment-timezone", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/google-calendar", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "@fullcalendar/icalendar", version = FullCalendar.FC_CLIENT_VERSION)
 @NpmPackage(value = "ical.js", version = "2.0.1")
@@ -78,10 +69,10 @@ import java.util.stream.Stream;
 public class FullCalendar extends Component implements HasStyle, HasSize, HasTheme {
 
     /**
-     * The library base version used in this addon. Some additional libraries might have a different version number due to
-     * a different release cycle or known issues.
+     * The FullCalendar version used in this addon, for the core package and its plugins. Third-party libraries such as
+     * ical.js and temporal-polyfill have their own version numbers.
      */
-    public static final String FC_CLIENT_VERSION = "6.1.21";
+    public static final String FC_CLIENT_VERSION = "7.1.0";
 
     /**
      * This is the default duration of a timed entry in hours. Will be dynamically settable in a later version.

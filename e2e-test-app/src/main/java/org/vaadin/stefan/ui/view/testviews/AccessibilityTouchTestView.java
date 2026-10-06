@@ -70,7 +70,7 @@ public class AccessibilityTouchTestView extends VerticalLayout {
         calendar.setOption(FullCalendar.Option.NAV_LINKS, true);
         // Limit event rows to 2 so the 5 events on 2025-03-05 reliably produce a "+N more" link
         calendar.setOption(FullCalendar.Option.DAY_MAX_ENTRY_ROWS, 2);
-        calendar.setOption(FullCalendar.Option.NAV_LINK_HINT, "Go to $0");
+        calendar.setOption(FullCalendar.Option.NAV_LINK_HINT, "Open $0"); // not FullCalendar's default "Go to $0", so the test sees our value
         calendar.setOption(FullCalendar.Option.MORE_LINK_HINT, "$0 more events. Click to expand");
         calendar.setOption(FullCalendar.Option.NATIVE_TOOLBAR_BUTTON_HINTS, Map.of(
                 "today", "Jump to today",

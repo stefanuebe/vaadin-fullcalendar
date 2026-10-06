@@ -29,7 +29,7 @@ base.describe('External Drop — Draggable API', () => {
         await expect(page.locator('#drop-count')).toHaveText('0');
 
         const dragEl = page.locator('#external-draggable');
-        const targetCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"] .fc-daygrid-day-frame');
+        const targetCell = page.locator('.fc-daygrid-day[data-date="2025-03-12"]');
 
         const srcBox = await dragEl.boundingBox();
         const tgtBox = await targetCell.boundingBox();

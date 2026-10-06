@@ -83,14 +83,12 @@ test.describe('Accessibility and Touch', () => {
     // navLinkHint: day number anchors carry an aria-label from the hint template
     // -------------------------------------------------------------------------
 
-    test('nav link day numbers carry title from navLinkHint', async ({ page }) => {
-        // setNavLinkHint("Go to $0") causes FC to set the title attribute on each
-        // .fc-daygrid-day-number anchor using the hint template (e.g. "Go to 1 March 2025").
+    test('nav link day numbers carry aria-label from navLinkHint', async ({ page }) => {
+        // NAV_LINK_HINT "Open $0" makes FC set the aria-label of each day number link from the template
+        // (e.g. "Open March 1, 2025"). FC's default is "Go to $0", so "Open" proves our value arrived.
         const firstDayNum = page.locator('.fc-daygrid-day-number').first();
         await expect(firstDayNum).toBeVisible();
-        const title = await firstDayNum.getAttribute('title');
-        expect(title).not.toBeNull();
-        expect(title).toMatch(/go to/i);
+        await expect(firstDayNum).toHaveAttribute('aria-label', /^Open /);
     });
 
     // -------------------------------------------------------------------------

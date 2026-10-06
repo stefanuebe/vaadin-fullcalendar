@@ -1,6 +1,14 @@
 // @ts-check
 const { test, expect, closeDialog, waitForCalendarUpdate, changeView, clickToday } = require('./fixtures');
 
+// Slot lanes lie below the day columns in FullCalendar 7, so click the point, not the element.
+async function clickSlotLane(page, lane) {
+  await lane.scrollIntoViewIfNeeded();
+  const box = await lane.boundingBox();
+  if (!box) throw new Error('slot lane has no bounding box');
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+}
+
 test.describe('Calendar Interaction Tests', () => {
 
   test.describe('Drag and Drop - Month View', () => {
@@ -81,8 +89,8 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should create a new all-day entry by clicking empty cell', async ({ page }) => {
       // Click on an empty day cell to open create dialog
-      const dayFrame = page.locator('.fc-daygrid-day-frame').nth(5);
-      await dayFrame.click();
+      const dayFrame = page.locator('.fc-daygrid-day').nth(5);
+      await dayFrame.click({ position: { x: 5, y: 5 } }); // corner, away from entries and the day number
       await page.waitForTimeout(1000);
 
       // Fill in the entry details
@@ -107,8 +115,8 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should create a new timed entry by clicking empty cell', async ({ page }) => {
       // Click on an empty day cell to open create dialog
-      const dayFrame = page.locator('.fc-daygrid-day-frame').nth(6);
-      await dayFrame.click();
+      const dayFrame = page.locator('.fc-daygrid-day').nth(6);
+      await dayFrame.click({ position: { x: 5, y: 5 } }); // corner, away from entries and the day number
       await page.waitForTimeout(1000);
 
       // Fill in the entry details
@@ -225,10 +233,10 @@ test.describe('Calendar Interaction Tests', () => {
 
     test.beforeEach(async ({ page }) => {
       // Create test entry by clicking on an empty day cell (use a cell that's likely empty)
-      const dayCells = page.locator('.fc-daygrid-day-frame');
+      const dayCells = page.locator('.fc-daygrid-day');
       // Try to find a day cell that doesn't have many events
       const dayFrame = dayCells.nth(10);
-      await dayFrame.click();
+      await dayFrame.click({ position: { x: 5, y: 5 } }); // corner, away from entries and the day number
 
       // Wait for dialog to open
       const dialog = page.locator('vaadin-dialog-overlay');
@@ -374,8 +382,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should create timed entry in Time Grid Week view', async ({ page }) => {
       // Click on a time slot to open create dialog
-      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(10);
-      await timeSlot.click();
+      await clickSlotLane(page, page.locator('.fc-timegrid-slot-lane').nth(10));
       await page.waitForTimeout(1000);
 
       // Fill in entry
@@ -466,8 +473,7 @@ test.describe('Calendar Interaction Tests', () => {
 
     test('should delete created entries in Time Grid Week view', async ({ page }) => {
       // First create an entry by clicking on a time slot
-      const timeSlot = page.locator('.fc-timegrid-slot-lane').nth(15);
-      await timeSlot.click();
+      await clickSlotLane(page, page.locator('.fc-timegrid-slot-lane').nth(15));
       await page.waitForTimeout(1000);
 
       const titleInput = page.locator('vaadin-text-field input').first();

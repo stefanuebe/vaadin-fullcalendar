@@ -8,7 +8,7 @@
 
 - **Java 21** — minimum language level
 - **Vaadin 25.x** — Flow component framework (BOM-managed)
-- **FullCalendar JS v6.1.x** — client-side calendar library (bundled via `@NpmPackage`)
+- **FullCalendar JS 7.1.x** — client-side calendar library (`fullcalendar`, `fullcalendar-scheduler`, bundled via `@NpmPackage`)
 - **Jackson 3** (`tools.jackson`) — JSON serialization for client-server data exchange
 - **Lombok** — boilerplate reduction (`@Getter`, `@Setter`, `@EqualsAndHashCode`, etc.)
 - **Apache Commons Text** — string utilities (camelCase conversion for option names)
@@ -27,7 +27,7 @@ fullcalendar-parent (pom, root)
 ├── demo/                  # Spring Boot 4.x demo application
 ├── e2e-test-app/          # Vaadin Spring Boot app serving Playwright test views
 ├── e2e-tests/             # Playwright test suite (npm, NOT a Maven module)
-└── fc-docs/               # Local copy of FullCalendar JS v6 docs (reference)
+└── fc-docs/               # Local copies of the FullCalendar JS v6 and v7 docs (reference)
 ```
 
 ### addon/ (core)
