@@ -467,7 +467,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public void changeView(CalendarView view) {
         Objects.requireNonNull(view);
 
-        lookupViewName(view.getClientSideValue()).orElseThrow(() -> new IllegalArgumentException("Unknown view: " + view.getClientSideValue() + ". If you want to use a custom view, please register it first by using addCustomView()."));
+        lookupViewName(view.getClientSideValue()).orElseThrow(() -> new IllegalArgumentException("Unknown view: "
+                + view.getClientSideValue()
+                + ". If you want to use a custom view, please register it first by using addCustomView()."));
 
         currentView = view;
         currentViewName = view.getClientSideValue();
@@ -811,7 +813,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                     // multi-resource uniqueness, which by definition means the entry HAS
                     // resources, so a throw means "no resources, plain entry-<id>".
                     + "  var _resources = [];\n"
-                    + "  try { var _resFn = arguments[0].event.getResources; if (_resFn) _resources = _resFn.call(arguments[0].event) || []; } catch (_e) { _resources = []; }\n"
+                    + "  try { var _resFn = arguments[0].event.getResources;"
+                    + " if (_resFn) _resources = _resFn.call(arguments[0].event) || []; } catch (_e) { _resources = []; }\n"
                     + "  var _resEl = arguments[0].el.closest ? arguments[0].el.closest('[data-resource-id]') : null;\n"
                     + "  var _resId = _resEl ? _resEl.getAttribute('data-resource-id') : null;\n"
                     + "  arguments[0].el.id = (_resources.length > 1 && _resId)\n"

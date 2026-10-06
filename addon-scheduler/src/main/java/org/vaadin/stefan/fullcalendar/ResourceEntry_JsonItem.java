@@ -213,7 +213,9 @@
 //        // - https://github.com/fullcalendar/fullcalendar/issues/5262
 //        // Therefore this if will lead to a lot of "reset event", due to the fact, that resource editable
 //        // etc. might be set often.
-//        if (changedValuesOnly && (getColor() == null && hasResources() || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCES) || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCE_EDITABLE))) {
+//        if (changedValuesOnly && (getColor() == null && hasResources()
+//                || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCES)
+//                || isMarkedAsChangedProperty(ResourceEntryKey.RESOURCE_EDITABLE))) {
 //            // set correctly. Might change in future, if not performant
 //            super.toJson(jsonObject, false);
 ////            writeHardResetToJson(jsonObject);

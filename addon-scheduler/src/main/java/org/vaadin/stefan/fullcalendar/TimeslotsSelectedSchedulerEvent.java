@@ -43,7 +43,11 @@ public class TimeslotsSelectedSchedulerEvent extends TimeslotsSelectedEvent {
      * @param allDay    all day event
      * @param resourceId optional resource id
      */
-    public TimeslotsSelectedSchedulerEvent(FullCalendarScheduler source, boolean fromClient, @EventData("event.detail.start") String start, @EventData("event.detail.end") String end, @EventData("event.detail.allDay") boolean allDay, @EventData("event.detail.resource") String resourceId) {
+    public TimeslotsSelectedSchedulerEvent(FullCalendarScheduler source, boolean fromClient,
+                                           @EventData("event.detail.start") String start,
+                                           @EventData("event.detail.end") String end,
+                                           @EventData("event.detail.allDay") boolean allDay,
+                                           @EventData("event.detail.resource") String resourceId) {
         super(source, fromClient, start, end, allDay);
 
         if (resourceId != null) {

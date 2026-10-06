@@ -45,7 +45,8 @@ public class BusinessHours implements Serializable {
     /**
      * Represents default business days (mo-fr).
      */
-    public static final Set<DayOfWeek> DEFAULT_BUSINESS_WEEK = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY);
+    public static final Set<DayOfWeek> DEFAULT_BUSINESS_WEEK = Set.of(
+            DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY);
 
     private final Set<DayOfWeek> dayOfWeeks;
     private final LocalTime start;

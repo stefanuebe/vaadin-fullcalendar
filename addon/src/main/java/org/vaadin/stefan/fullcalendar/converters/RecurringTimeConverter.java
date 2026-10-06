@@ -34,6 +34,7 @@ public class RecurringTimeConverter<T extends Entry> implements JsonItemProperty
             return RecurringTime.of(string);
         }
 
-        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was " + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
+        throw new IllegalArgumentException(clientValue + " must either be of type NullNode or StringNode, but was "
+                + (clientValue != null ? clientValue.getClass() : null) + ": " + clientValue);
     }
 }
