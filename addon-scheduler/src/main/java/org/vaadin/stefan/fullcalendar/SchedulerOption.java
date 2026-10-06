@@ -46,15 +46,15 @@ public enum SchedulerOption {
     DATES_ABOVE_RESOURCES("datesAboveResources"),
 
     /**
-     * Allows the user to drag entries between resources.
+     * Minimum width of an entry in the timeline view, in pixels.
      * <dl>
-     *   <dt>Type</dt>    <dd>{@code boolean}</dd>
-     *   <dt>Default</dt> <dd>inherited from {@link Option#EDITABLE}, which the add-on sets to {@code true}</dd>
+     *   <dt>Type</dt>    <dd>{@code number} (pixels)</dd>
+     *   <dt>Default</dt> <dd>{@code 30}</dd>
      * </dl>
      *
-     * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
+     * @see <a href="https://fullcalendar.io/docs/eventMinWidth">eventMinWidth</a>
      */
-    ENTRY_RESOURCE_EDITABLE("eventResourceEditable"),
+    ENTRY_MIN_WIDTH("eventMinWidth"),
 
     /**
      * Former name of {@link #ENTRY_RESOURCE_EDITABLE}: allows the user to drag entries between resources.
@@ -65,15 +65,15 @@ public enum SchedulerOption {
     ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
 
     /**
-     * Minimum width of an entry in the timeline view, in pixels.
+     * Allows the user to drag entries between resources.
      * <dl>
-     *   <dt>Type</dt>    <dd>{@code number} (pixels)</dd>
-     *   <dt>Default</dt> <dd>{@code 30}</dd>
+     *   <dt>Type</dt>    <dd>{@code boolean}</dd>
+     *   <dt>Default</dt> <dd>inherited from {@link Option#EDITABLE}, which the add-on sets to {@code true}</dd>
      * </dl>
      *
-     * @see <a href="https://fullcalendar.io/docs/eventMinWidth">eventMinWidth</a>
+     * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
      */
-    ENTRY_MIN_WIDTH("eventMinWidth"),
+    ENTRY_RESOURCE_EDITABLE("eventResourceEditable"),
 
     /**
      * Shows only resources that have entries assigned. The entries must be fetched before the resources can
@@ -115,89 +115,6 @@ public enum SchedulerOption {
     REFETCH_RESOURCES_ON_NAVIGATE("refetchResourcesOnNavigate"),
 
     /**
-     * Turns the resource area from a plain list of resource titles into a grid of data. Each column shows a
-     * property of the resource and can be grouped, sized and customized.
-     * Prefer {@link Scheduler#setResourceColumns(java.util.List)}. Passing a list of {@link ResourceColumn}
-     * to {@link FullCalendarScheduler#setOption(SchedulerOption, Object)} is forwarded to it, so component
-     * columns are bound. Raw JSON is sent as it is and cannot carry component columns.
-     * <dl>
-     *   <dt>Type</dt>    <dd>{@link java.util.List} of {@link ResourceColumn}</dd>
-     *   <dt>Default</dt> <dd>none, the resource area is a plain list of resource titles</dd>
-     * </dl>
-     * <pre>{@code
-     * scheduler.setResourceColumns(
-     *         new ResourceColumn("title", "Resource").withWidth("200px"),
-     *         new ResourceColumn("department", "Department").withGroup(true));
-     * }</pre>
-     *
-     * @see <a href="https://fullcalendar.io/docs/resourceColumns">resourceColumns</a>
-     */
-    RESOURCE_COLUMNS("resourceColumns"),
-
-    /**
-     * Former name of {@link #RESOURCE_COLUMNS}: column definitions of the resource area.
-     *
-     * @deprecated use {@link #RESOURCE_COLUMNS}, which sets the same FullCalendar option
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_AREA_COLUMNS("resourceColumns"),
-
-    /**
-     * Custom content for the resource column header, shown above the resource data in the timeline view
-     * (the text "Resources" by default).
-     * <dl>
-     *   <dt>Type</dt>     <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function()}. FullCalendar documents no argument for this hook. Only the DidMount
-     *                         and WillUnmount hooks of the resource column header get an {@code info} with {@code el}.</dd>
-     *   <dt>Returns</dt>  <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
-     * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT, JsCallback.of("() => 'Staff'"));
-     * }</pre>
-     *
-     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderContent</a>
-     */
-    RESOURCE_COLUMN_HEADER_CONTENT("resourceColumnHeaderContent"),
-
-    /**
-     * Former name of {@link #RESOURCE_COLUMN_HEADER_CONTENT}: custom content for the resource column header.
-     *
-     * @deprecated use {@link #RESOURCE_COLUMN_HEADER_CONTENT}, which sets the same FullCalendar option
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_AREA_HEADER_CONTENT("resourceColumnHeaderContent"),
-
-    /**
-     * Width of the area that contains the list of resources.
-     * <dl>
-     *   <dt>Type</dt>    <dd>number of pixels, or CSS width string (e.g. {@code "200px"}, {@code "25%"})</dd>
-     *   <dt>Default</dt> <dd>{@code "30%"}</dd>
-     * </dl>
-     *
-     * @see <a href="https://fullcalendar.io/docs/resourceColumnsWidth">resourceColumnsWidth</a>
-     */
-    RESOURCE_COLUMNS_WIDTH("resourceColumnsWidth"),
-
-    /**
-     * Former name of {@link #RESOURCE_COLUMNS_WIDTH}: width of the resource area.
-     *
-     * @deprecated use {@link #RESOURCE_COLUMNS_WIDTH}, which sets the same FullCalendar option
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_AREA_WIDTH("resourceColumnsWidth"),
-
-    /**
-     * Visually groups resources by a field that each resource has. Each group gets a divider at the top. The text
-     * of the divider is set by {@link #RESOURCE_GROUP_HEADER_CONTENT}.
-     * <dl>
-     *   <dt>Type</dt> <dd>{@code String} (field name of the resource)</dd>
-     * </dl>
-     *
-     * @see <a href="https://fullcalendar.io/docs/resourceGroupField">resourceGroupField</a>
-     */
-    RESOURCE_GROUP_FIELD("resourceGroupField"),
-
-    /**
      * Whether child resources are expanded when the view loads. Set to {@code false} to start with them
      * collapsed. Only supported in the timeline view.
      * <dl>
@@ -210,27 +127,88 @@ public enum SchedulerOption {
     RESOURCES_INITIALLY_EXPANDED("resourcesInitiallyExpanded"),
 
     /**
-     * Order of the resource list. A property name of the resource sorts ascending by that property, a leading
-     * minus sign ({@code "-name"}) sorts descending. Several criteria are separated by commas.
+     * Called after the resource data is initialized or changed in any way.
      * <dl>
-     *   <dt>Type</dt>    <dd>{@code String}, e.g. {@code "title"}, {@code "-type1,type2"}</dd>
-     *   <dt>Default</dt> <dd>{@code "id,title"}</dd>
+     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
+     *   <dt>Callback</dt> <dd>{@code function(resources)}. {@code resources} is an array of all resources, the
+     *                         same as {@code Calendar.getResources} returns.</dd>
      * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCES_SET, JsCallback.of(
+     *         "resources => console.log(resources.length + ' resources')"));
+     * }</pre>
      *
-     * @see <a href="https://fullcalendar.io/docs/resourceOrder">resourceOrder</a>
+     * @see <a href="https://fullcalendar.io/docs/resourcesSet">resourcesSet</a>
      */
-    RESOURCE_ORDER("resourceOrder"),
+    RESOURCES_SET("resourcesSet"),
 
     /**
-     * Width of each time slot (time axis slot) in the timeline view, in pixels.
+     * Called after a resource has been added to the calendar, that is after {@code Calendar.addResource} was
+     * called on the client.
      * <dl>
-     *   <dt>Type</dt>    <dd>{@code number} (pixels)</dd>
-     *   <dt>Default</dt> <dd>not set, FullCalendar computes a reasonable value</dd>
+     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
+     *   <dt>Callback</dt> <dd>{@code function(addInfo)}. {@code addInfo} has {@code resource} (the added resource),
+     *                         {@code revert} (a function that reverses the action).</dd>
      * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_ADD, JsCallback.of(
+     *         "addInfo => console.log('added', addInfo.resource.title)"));
+     * }</pre>
      *
-     * @see <a href="https://fullcalendar.io/docs/slotMinWidth">slotMinWidth</a>
+     * @see <a href="https://fullcalendar.io/docs/resourceAdd">resourceAdd</a>
      */
-    SLOT_MIN_WIDTH("slotMinWidth"),
+    RESOURCE_ADD("resourceAdd"),
+
+    /**
+     * Former name of {@link #RESOURCE_COLUMNS}: column definitions of the resource area.
+     *
+     * @deprecated use {@link #RESOURCE_COLUMNS}, which sets the same FullCalendar option
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    RESOURCE_AREA_COLUMNS("resourceColumns"),
+
+    /**
+     * Former name of {@link #RESOURCE_COLUMN_HEADER_CLASS}: CSS classes for the resource column header.
+     *
+     * @deprecated use {@link #RESOURCE_COLUMN_HEADER_CLASS}, which sets the same FullCalendar option.
+     * Return a class name string. FullCalendar 7 drops arrays.
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    RESOURCE_AREA_HEADER_CLASS_NAMES("resourceColumnHeaderClass"),
+
+    /**
+     * Former name of {@link #RESOURCE_COLUMN_HEADER_CONTENT}: custom content for the resource column header.
+     *
+     * @deprecated use {@link #RESOURCE_COLUMN_HEADER_CONTENT}, which sets the same FullCalendar option
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    RESOURCE_AREA_HEADER_CONTENT("resourceColumnHeaderContent"),
+
+    /**
+     * Former name of {@link #RESOURCE_COLUMN_HEADER_DID_MOUNT}: called after the resource column header is added
+     * to the DOM.
+     *
+     * @deprecated use {@link #RESOURCE_COLUMN_HEADER_DID_MOUNT}, which sets the same FullCalendar option
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    RESOURCE_AREA_HEADER_DID_MOUNT("resourceColumnHeaderDidMount"),
+
+    /**
+     * Former name of {@link #RESOURCE_COLUMN_HEADER_WILL_UNMOUNT}: called before the resource column header is
+     * removed from the DOM.
+     *
+     * @deprecated use {@link #RESOURCE_COLUMN_HEADER_WILL_UNMOUNT}, which sets the same FullCalendar option
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    RESOURCE_AREA_HEADER_WILL_UNMOUNT("resourceColumnHeaderWillUnmount"),
+
+    /**
+     * Former name of {@link #RESOURCE_COLUMNS_WIDTH}: width of the resource area.
+     *
+     * @deprecated use {@link #RESOURCE_COLUMNS_WIDTH}, which sets the same FullCalendar option
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    RESOURCE_AREA_WIDTH("resourceColumnsWidth"),
 
     /**
      * Adds CSS classes to the cells of the resource area in the timeline view. Each cell shows one column field
@@ -302,6 +280,120 @@ public enum SchedulerOption {
      * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellWillUnmount</a>
      */
     RESOURCE_CELL_WILL_UNMOUNT("resourceCellWillUnmount"),
+
+    /**
+     * Called after a resource has been modified, that is after {@code Resource.setProp} or
+     * {@code Resource.setExtendedProp} was called on the client.
+     * <dl>
+     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
+     *   <dt>Callback</dt> <dd>{@code function(changeInfo)}. {@code changeInfo} has {@code resource} (with the
+     *                         changed data), {@code oldResource} (with the data before the change),
+     *                         {@code revert} (a function that reverses the action).</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_CHANGE, JsCallback.of("""
+     *         function(changeInfo) {
+     *             console.log(changeInfo.oldResource.title, '->', changeInfo.resource.title);
+     *         }"""));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resourceChange">resourceChange</a>
+     */
+    RESOURCE_CHANGE("resourceChange"),
+
+    /**
+     * Turns the resource area from a plain list of resource titles into a grid of data. Each column shows a
+     * property of the resource and can be grouped, sized and customized.
+     * Prefer {@link Scheduler#setResourceColumns(List)}. Passing a list of {@link ResourceColumn}
+     * to {@link FullCalendarScheduler#setOption(SchedulerOption, Object)} is forwarded to it, so component
+     * columns are bound. Raw JSON is sent as it is and cannot carry component columns.
+     * <dl>
+     *   <dt>Type</dt>    <dd>{@link List} of {@link ResourceColumn}</dd>
+     *   <dt>Default</dt> <dd>none, the resource area is a plain list of resource titles</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setResourceColumns(
+     *         new ResourceColumn("title", "Resource").withWidth("200px"),
+     *         new ResourceColumn("department", "Department").withGroup(true));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resourceColumns">resourceColumns</a>
+     */
+    RESOURCE_COLUMNS("resourceColumns"),
+
+    /**
+     * Width of the area that contains the list of resources.
+     * <dl>
+     *   <dt>Type</dt>    <dd>number of pixels, or CSS width string (e.g. {@code "200px"}, {@code "25%"})</dd>
+     *   <dt>Default</dt> <dd>{@code "30%"}</dd>
+     * </dl>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resourceColumnsWidth">resourceColumnsWidth</a>
+     */
+    RESOURCE_COLUMNS_WIDTH("resourceColumnsWidth"),
+
+    /**
+     * Adds CSS classes to the resource column header, shown above the resource data in the timeline view.
+     * <dl>
+     *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function()}. FullCalendar documents no argument for this hook. Only the DidMount
+     *                         and WillUnmount hooks of the resource column header get an {@code info} with {@code el}.</dd>
+     *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CLASS, "staff-header");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderClass</a>
+     */
+    RESOURCE_COLUMN_HEADER_CLASS("resourceColumnHeaderClass"),
+
+    /**
+     * Custom content for the resource column header, shown above the resource data in the timeline view
+     * (the text "Resources" by default).
+     * <dl>
+     *   <dt>Type</dt>     <dd>text, or a {@link JsCallback} returning content</dd>
+     *   <dt>Callback</dt> <dd>{@code function()}. FullCalendar documents no argument for this hook. Only the DidMount
+     *                         and WillUnmount hooks of the resource column header get an {@code info} with {@code el}.</dd>
+     *   <dt>Returns</dt>  <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT, JsCallback.of("() => 'Staff'"));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderContent</a>
+     */
+    RESOURCE_COLUMN_HEADER_CONTENT("resourceColumnHeaderContent"),
+
+    /**
+     * Called after the resource column header is added to the DOM.
+     * <dl>
+     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code el}.</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_DID_MOUNT, JsCallback.of(
+     *         "info => info.el.title = 'Resources'"));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderDidMount</a>
+     */
+    RESOURCE_COLUMN_HEADER_DID_MOUNT("resourceColumnHeaderDidMount"),
+
+    /**
+     * Called before the resource column header is removed from the DOM.
+     * <dl>
+     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code el}.</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_WILL_UNMOUNT, JsCallback.of(
+     *         "info => info.el.removeAttribute('title')"));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderWillUnmount</a>
+     */
+    RESOURCE_COLUMN_HEADER_WILL_UNMOUNT("resourceColumnHeaderWillUnmount"),
 
     /**
      * Adds CSS classes to the column header cells that show the resource names in the vertical resource views
@@ -378,124 +470,42 @@ public enum SchedulerOption {
     RESOURCE_DAY_HEADER_WILL_UNMOUNT("resourceDayHeaderWillUnmount"),
 
     /**
-     * Adds CSS classes to a resource lane. A resource lane runs horizontally across the timeline slots of a
-     * resource in the timeline view.
-     * <dl>
-     *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
-     *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
-     * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_CLASS, JsCallback.of(
-     *         "info => info.resource.extendedProps.isUrgent ? 'urgent-lane' : ''"));
-     * }</pre>
+     * Former name of {@link #RESOURCE_GROUP_HEADER_CLASS}: CSS classes for resource group headers.
      *
-     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneClass</a>
-     */
-    RESOURCE_LANE_CLASS("resourceLaneClass"),
-
-    /**
-     * Former name of {@link #RESOURCE_LANE_CLASS}: CSS classes for resource lanes.
-     *
-     * @deprecated use {@link #RESOURCE_LANE_CLASS}, which sets the same FullCalendar option.
+     * @deprecated use {@link #RESOURCE_GROUP_HEADER_CLASS}, which sets the same FullCalendar option.
      * Return a class name string. FullCalendar 7 drops arrays.
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_LANE_CLASS_NAMES("resourceLaneClass"),
+    RESOURCE_GROUP_CLASS_NAMES("resourceGroupHeaderClass"),
 
     /**
-     * Adds CSS classes to the element above the entries of a resource lane.
-     * <dl>
-     *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
-     *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
-     * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_TOP_CLASS, JsCallback.of(
-     *         "info => 'lane-top-' + info.resource.id"));
-     * }</pre>
+     * Former name of {@link #RESOURCE_GROUP_HEADER_CONTENT}: customizes the content of a resource group header.
      *
-     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneTopClass</a>
+     * @deprecated use {@link #RESOURCE_GROUP_HEADER_CONTENT}, which sets the same FullCalendar option.
+     * The group value is now {@code info.fieldValue}.
      */
-    RESOURCE_LANE_TOP_CLASS("resourceLaneTopClass"),
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    RESOURCE_GROUP_CONTENT("resourceGroupHeaderContent"),
 
     /**
-     * Content inserted at the top of a resource lane, above its entries.
-     * <dl>
-     *   <dt>Type</dt>     <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
-     *   <dt>Returns</dt>  <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
-     * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_TOP_CONTENT, JsCallback.of(
-     *         "info => info.resource.title"));
-     * }</pre>
+     * Former name of {@link #RESOURCE_GROUP_HEADER_DID_MOUNT}: called after a resource group header is added to
+     * the DOM.
      *
-     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneTopContent</a>
+     * @deprecated use {@link #RESOURCE_GROUP_HEADER_DID_MOUNT}, which sets the same FullCalendar option
      */
-    RESOURCE_LANE_TOP_CONTENT("resourceLaneTopContent"),
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    RESOURCE_GROUP_DID_MOUNT("resourceGroupHeaderDidMount"),
 
     /**
-     * Adds CSS classes to the element below the entries of a resource lane.
+     * Visually groups resources by a field that each resource has. Each group gets a divider at the top. The text
+     * of the divider is set by {@link #RESOURCE_GROUP_HEADER_CONTENT}.
      * <dl>
-     *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
-     *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
+     *   <dt>Type</dt> <dd>{@code String} (field name of the resource)</dd>
      * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_BOTTOM_CLASS, JsCallback.of(
-     *         "info => 'lane-bottom-' + info.resource.id"));
-     * }</pre>
      *
-     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneBottomClass</a>
+     * @see <a href="https://fullcalendar.io/docs/resourceGroupField">resourceGroupField</a>
      */
-    RESOURCE_LANE_BOTTOM_CLASS("resourceLaneBottomClass"),
-
-    /**
-     * Content inserted at the bottom of a resource lane, below its entries.
-     * <dl>
-     *   <dt>Type</dt>     <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
-     *   <dt>Returns</dt>  <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
-     * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_BOTTOM_CONTENT, JsCallback.of(
-     *         "info => 'End of ' + info.resource.title"));
-     * }</pre>
-     *
-     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneBottomContent</a>
-     */
-    RESOURCE_LANE_BOTTOM_CONTENT("resourceLaneBottomContent"),
-
-    /**
-     * Called after a resource lane element is added to the DOM.
-     * <dl>
-     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code el}.</dd>
-     * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(
-     *         "info => info.el.dataset.resourceId = info.resource.id"));
-     * }</pre>
-     *
-     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneDidMount</a>
-     */
-    RESOURCE_LANE_DID_MOUNT("resourceLaneDidMount"),
-
-    /**
-     * Called before a resource lane element is removed from the DOM.
-     * <dl>
-     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code el}.</dd>
-     * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of(
-     *         "info => delete info.el.dataset.resourceId"));
-     * }</pre>
-     *
-     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneWillUnmount</a>
-     */
-    RESOURCE_LANE_WILL_UNMOUNT("resourceLaneWillUnmount"),
+    RESOURCE_GROUP_FIELD("resourceGroupField"),
 
     /**
      * Adds CSS classes to a resource group header, the cell that shows the group name at the top of each row
@@ -516,15 +526,6 @@ public enum SchedulerOption {
     RESOURCE_GROUP_HEADER_CLASS("resourceGroupHeaderClass"),
 
     /**
-     * Former name of {@link #RESOURCE_GROUP_HEADER_CLASS}: CSS classes for resource group headers.
-     *
-     * @deprecated use {@link #RESOURCE_GROUP_HEADER_CLASS}, which sets the same FullCalendar option.
-     * Return a class name string. FullCalendar 7 drops arrays.
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_GROUP_CLASS_NAMES("resourceGroupHeaderClass"),
-
-    /**
      * Customizes the content of a resource group header. This sets the text of the group divider created by
      * {@link #RESOURCE_GROUP_FIELD}.
      * <dl>
@@ -543,15 +544,6 @@ public enum SchedulerOption {
     RESOURCE_GROUP_HEADER_CONTENT("resourceGroupHeaderContent"),
 
     /**
-     * Former name of {@link #RESOURCE_GROUP_HEADER_CONTENT}: customizes the content of a resource group header.
-     *
-     * @deprecated use {@link #RESOURCE_GROUP_HEADER_CONTENT}, which sets the same FullCalendar option.
-     * The group value is now {@code info.fieldValue}.
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_GROUP_CONTENT("resourceGroupHeaderContent"),
-
-    /**
      * Called after a resource group header is added to the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
@@ -568,15 +560,6 @@ public enum SchedulerOption {
     RESOURCE_GROUP_HEADER_DID_MOUNT("resourceGroupHeaderDidMount"),
 
     /**
-     * Former name of {@link #RESOURCE_GROUP_HEADER_DID_MOUNT}: called after a resource group header is added to
-     * the DOM.
-     *
-     * @deprecated use {@link #RESOURCE_GROUP_HEADER_DID_MOUNT}, which sets the same FullCalendar option
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_GROUP_DID_MOUNT("resourceGroupHeaderDidMount"),
-
-    /**
      * Called before a resource group header is removed from the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
@@ -591,15 +574,6 @@ public enum SchedulerOption {
      * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderWillUnmount</a>
      */
     RESOURCE_GROUP_HEADER_WILL_UNMOUNT("resourceGroupHeaderWillUnmount"),
-
-    /**
-     * Former name of {@link #RESOURCE_GROUP_HEADER_WILL_UNMOUNT}: called before a resource group header is removed
-     * from the DOM.
-     *
-     * @deprecated use {@link #RESOURCE_GROUP_HEADER_WILL_UNMOUNT}, which sets the same FullCalendar option
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_GROUP_WILL_UNMOUNT("resourceGroupHeaderWillUnmount"),
 
     /**
      * Adds CSS classes to a resource group lane, the horizontal area of a group along the time slots in the
@@ -678,114 +652,145 @@ public enum SchedulerOption {
     RESOURCE_GROUP_LANE_WILL_UNMOUNT("resourceGroupLaneWillUnmount"),
 
     /**
-     * Adds CSS classes to the resource column header, shown above the resource data in the timeline view.
+     * Former name of {@link #RESOURCE_GROUP_HEADER_WILL_UNMOUNT}: called before a resource group header is removed
+     * from the DOM.
+     *
+     * @deprecated use {@link #RESOURCE_GROUP_HEADER_WILL_UNMOUNT}, which sets the same FullCalendar option
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    RESOURCE_GROUP_WILL_UNMOUNT("resourceGroupHeaderWillUnmount"),
+
+    /**
+     * Adds CSS classes to the element below the entries of a resource lane.
      * <dl>
      *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function()}. FullCalendar documents no argument for this hook. Only the DidMount
-     *                         and WillUnmount hooks of the resource column header get an {@code info} with {@code el}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
      *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
      * </dl>
      * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_CLASS, "staff-header");
+     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_BOTTOM_CLASS, JsCallback.of(
+     *         "info => 'lane-bottom-' + info.resource.id"));
      * }</pre>
      *
-     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderClass</a>
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneBottomClass</a>
      */
-    RESOURCE_COLUMN_HEADER_CLASS("resourceColumnHeaderClass"),
+    RESOURCE_LANE_BOTTOM_CLASS("resourceLaneBottomClass"),
 
     /**
-     * Former name of {@link #RESOURCE_COLUMN_HEADER_CLASS}: CSS classes for the resource column header.
+     * Content inserted at the bottom of a resource lane, below its entries.
+     * <dl>
+     *   <dt>Type</dt>     <dd>text, or a {@link JsCallback} returning content</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
+     *   <dt>Returns</dt>  <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_BOTTOM_CONTENT, JsCallback.of(
+     *         "info => 'End of ' + info.resource.title"));
+     * }</pre>
      *
-     * @deprecated use {@link #RESOURCE_COLUMN_HEADER_CLASS}, which sets the same FullCalendar option.
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneBottomContent</a>
+     */
+    RESOURCE_LANE_BOTTOM_CONTENT("resourceLaneBottomContent"),
+
+    /**
+     * Adds CSS classes to a resource lane. A resource lane runs horizontally across the timeline slots of a
+     * resource in the timeline view.
+     * <dl>
+     *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
+     *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_CLASS, JsCallback.of(
+     *         "info => info.resource.extendedProps.isUrgent ? 'urgent-lane' : ''"));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneClass</a>
+     */
+    RESOURCE_LANE_CLASS("resourceLaneClass"),
+
+    /**
+     * Former name of {@link #RESOURCE_LANE_CLASS}: CSS classes for resource lanes.
+     *
+     * @deprecated use {@link #RESOURCE_LANE_CLASS}, which sets the same FullCalendar option.
      * Return a class name string. FullCalendar 7 drops arrays.
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_AREA_HEADER_CLASS_NAMES("resourceColumnHeaderClass"),
+    RESOURCE_LANE_CLASS_NAMES("resourceLaneClass"),
 
     /**
-     * Called after the resource column header is added to the DOM.
+     * Called after a resource lane element is added to the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code el}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code el}.</dd>
      * </dl>
      * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_DID_MOUNT, JsCallback.of(
-     *         "info => info.el.title = 'Resources'"));
+     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(
+     *         "info => info.el.dataset.resourceId = info.resource.id"));
      * }</pre>
      *
-     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderDidMount</a>
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneDidMount</a>
      */
-    RESOURCE_COLUMN_HEADER_DID_MOUNT("resourceColumnHeaderDidMount"),
+    RESOURCE_LANE_DID_MOUNT("resourceLaneDidMount"),
 
     /**
-     * Former name of {@link #RESOURCE_COLUMN_HEADER_DID_MOUNT}: called after the resource column header is added
-     * to the DOM.
+     * Adds CSS classes to the element above the entries of a resource lane.
+     * <dl>
+     *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
+     *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_TOP_CLASS, JsCallback.of(
+     *         "info => 'lane-top-' + info.resource.id"));
+     * }</pre>
      *
-     * @deprecated use {@link #RESOURCE_COLUMN_HEADER_DID_MOUNT}, which sets the same FullCalendar option
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneTopClass</a>
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_AREA_HEADER_DID_MOUNT("resourceColumnHeaderDidMount"),
+    RESOURCE_LANE_TOP_CLASS("resourceLaneTopClass"),
 
     /**
-     * Called before the resource column header is removed from the DOM.
+     * Content inserted at the top of a resource lane, above its entries.
+     * <dl>
+     *   <dt>Type</dt>     <dd>text, or a {@link JsCallback} returning content</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
+     *   <dt>Returns</dt>  <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_TOP_CONTENT, JsCallback.of(
+     *         "info => info.resource.title"));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneTopContent</a>
+     */
+    RESOURCE_LANE_TOP_CONTENT("resourceLaneTopContent"),
+
+    /**
+     * Called before a resource lane element is removed from the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code el}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code el}.</dd>
      * </dl>
      * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_WILL_UNMOUNT, JsCallback.of(
-     *         "info => info.el.removeAttribute('title')"));
+     * scheduler.setOption(SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of(
+     *         "info => delete info.el.dataset.resourceId"));
      * }</pre>
      *
-     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderWillUnmount</a>
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneWillUnmount</a>
      */
-    RESOURCE_COLUMN_HEADER_WILL_UNMOUNT("resourceColumnHeaderWillUnmount"),
+    RESOURCE_LANE_WILL_UNMOUNT("resourceLaneWillUnmount"),
 
     /**
-     * Former name of {@link #RESOURCE_COLUMN_HEADER_WILL_UNMOUNT}: called before the resource column header is
-     * removed from the DOM.
-     *
-     * @deprecated use {@link #RESOURCE_COLUMN_HEADER_WILL_UNMOUNT}, which sets the same FullCalendar option
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    RESOURCE_AREA_HEADER_WILL_UNMOUNT("resourceColumnHeaderWillUnmount"),
-
-    /**
-     * Called after a resource has been added to the calendar, that is after {@code Calendar.addResource} was
-     * called on the client.
+     * Order of the resource list. A property name of the resource sorts ascending by that property, a leading
+     * minus sign ({@code "-name"}) sorts descending. Several criteria are separated by commas.
      * <dl>
-     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(addInfo)}. {@code addInfo} has {@code resource} (the added resource),
-     *                         {@code revert} (a function that reverses the action).</dd>
+     *   <dt>Type</dt>    <dd>{@code String}, e.g. {@code "title"}, {@code "-type1,type2"}</dd>
+     *   <dt>Default</dt> <dd>{@code "id,title"}</dd>
      * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_ADD, JsCallback.of(
-     *         "addInfo => console.log('added', addInfo.resource.title)"));
-     * }</pre>
      *
-     * @see <a href="https://fullcalendar.io/docs/resourceAdd">resourceAdd</a>
+     * @see <a href="https://fullcalendar.io/docs/resourceOrder">resourceOrder</a>
      */
-    RESOURCE_ADD("resourceAdd"),
-
-    /**
-     * Called after a resource has been modified, that is after {@code Resource.setProp} or
-     * {@code Resource.setExtendedProp} was called on the client.
-     * <dl>
-     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(changeInfo)}. {@code changeInfo} has {@code resource} (with the
-     *                         changed data), {@code oldResource} (with the data before the change),
-     *                         {@code revert} (a function that reverses the action).</dd>
-     * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCE_CHANGE, JsCallback.of("""
-     *         function(changeInfo) {
-     *             console.log(changeInfo.oldResource.title, '->', changeInfo.resource.title);
-     *         }"""));
-     * }</pre>
-     *
-     * @see <a href="https://fullcalendar.io/docs/resourceChange">resourceChange</a>
-     */
-    RESOURCE_CHANGE("resourceChange"),
+    RESOURCE_ORDER("resourceOrder"),
 
     /**
      * Called after a resource has been removed from the calendar, that is after {@code Resource.remove} was
@@ -805,20 +810,15 @@ public enum SchedulerOption {
     RESOURCE_REMOVE("resourceRemove"),
 
     /**
-     * Called after the resource data is initialized or changed in any way.
+     * Width of each time slot (time axis slot) in the timeline view, in pixels.
      * <dl>
-     *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(resources)}. {@code resources} is an array of all resources, the
-     *                         same as {@code Calendar.getResources} returns.</dd>
+     *   <dt>Type</dt>    <dd>{@code number} (pixels)</dd>
+     *   <dt>Default</dt> <dd>not set, FullCalendar computes a reasonable value</dd>
      * </dl>
-     * <pre>{@code
-     * scheduler.setOption(SchedulerOption.RESOURCES_SET, JsCallback.of(
-     *         "resources => console.log(resources.length + ' resources')"));
-     * }</pre>
      *
-     * @see <a href="https://fullcalendar.io/docs/resourcesSet">resourcesSet</a>
+     * @see <a href="https://fullcalendar.io/docs/slotMinWidth">slotMinWidth</a>
      */
-    RESOURCES_SET("resourcesSet"),
+    SLOT_MIN_WIDTH("slotMinWidth"),
 
     ;
 
