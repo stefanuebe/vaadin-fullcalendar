@@ -40,6 +40,37 @@ import java.time.*;
 import java.util.*;
 import java.util.stream.Stream;
 
+/**
+ * A calendar item shown by {@link FullCalendar}, called "event" in the FullCalendar client library.
+ * <p>
+ * An entry has a title, a start and an end, and can be all-day. Start and end are stored as UTC
+ * ({@link #setStart(LocalDateTime)}). The calendar's {@link Option#TIMEZONE} only changes how they are shown.
+ * An entry can repeat, either with the simple recurrence properties ({@link #setRecurringDaysOfWeek(Set)},
+ * {@link #setRecurringStartTime(LocalTime)}, ...) or with an {@link RRule} ({@link #setRRule(RRule)}).
+ * Color, class names, editability and display mode can be set per entry and override the calendar's options.
+ * Values the client library does not know can be attached with {@link #setCustomProperty(String, Object)}.
+ * <p>
+ * The calendar gets its entries from its {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
+ * After changing an entry that is already shown, call
+ * {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider#refreshItem(Entry)} to send the change to the
+ * client:
+ * <pre>{@code
+ * Entry entry = new Entry();
+ * entry.setTitle("Meeting");
+ * entry.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+ * entry.setEnd(LocalDateTime.of(2025, 3, 3, 10, 0));
+ *
+ * InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
+ * provider.addEntry(entry);
+ * calendar.setEntryProvider(provider);
+ *
+ * entry.setTitle("Team meeting");
+ * provider.refreshItem(entry);
+ * }</pre>
+ * Entries are equal when their ids are equal. The id must be unique within a calendar. Without an id given to the
+ * constructor, the entry generates one. Use {@code ResourceEntry} of the scheduler add-on to assign entries to
+ * resources.
+ */
 @Getter
 @lombok.Setter // prevent conflicts with Vaadin Setter
 @EqualsAndHashCode(of = "id")

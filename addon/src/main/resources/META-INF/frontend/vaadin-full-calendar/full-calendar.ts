@@ -27,7 +27,7 @@ import classicThemePlugin from 'fullcalendar/themes/classic';
 import rrulePlugin from '@fullcalendar/rrule';
 import googleCalendarPlugin from '@fullcalendar/google-calendar';
 import iCalendarPlugin from '@fullcalendar/icalendar';
-import stableClassNamesPlugin from './stable-class-names';
+import legacyClassNamesPlugin from './legacy-class-names';
 
 import 'fullcalendar/skeleton.css';
 import 'fullcalendar/themes/classic/theme.css';
@@ -218,7 +218,7 @@ export class FullCalendar extends HTMLElement {
             googleCalendarPlugin,
             iCalendarPlugin,
             classicThemePlugin,
-            stableClassNamesPlugin
+            legacyClassNamesPlugin
         ];
 
         // Evaluate any JsCallback markers in initial options before passing to FC

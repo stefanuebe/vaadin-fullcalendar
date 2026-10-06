@@ -50,7 +50,7 @@ const eventTimingClasses = (info: EventDisplayInfo) =>
     );
 
 const plugin: PluginInput = {
-    name: 'vaadin-stable-class-names',
+    name: 'vaadin-legacy-class-names',
     optionDefaults: {
         // root and view container
         className: 'fc',

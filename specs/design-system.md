@@ -11,7 +11,7 @@ The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directl
 | Layer | File | Purpose |
 |-------|------|---------|
 | **FullCalendar skeleton and classic theme** | `fullcalendar/skeleton.css`, `fullcalendar/themes/classic/theme.css` and `palette.css`, imported by `full-calendar.ts` | Layout and default FC appearance (grid, entries, toolbar) |
-| **Stable class names** | `stable-class-names.ts`, `stable-class-names-scheduler.ts` (FC plugins) | Re-add the documented v6 class names, see UC-025 and ADR 0001 |
+| **Stable class names** | `legacy-class-names.ts`, `legacy-class-names-scheduler.ts` (FC plugins) | Re-add the documented v6 class names, see UC-025 and ADR 0001 |
 | **Addon base styles** | `full-calendar-styles.css` | Sizing, layout fixes, integration with Vaadin |
 | **Vaadin theme variant** | `full-calendar-theme-vaadin.css` | Aligns FC look with Vaadin Lumo/Aura theme |
 | **Scheduler styles** | `full-calendar-scheduler-styles.css` | Additional styles for scheduler views |

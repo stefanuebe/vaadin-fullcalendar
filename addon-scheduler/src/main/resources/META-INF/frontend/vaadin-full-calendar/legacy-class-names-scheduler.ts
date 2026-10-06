@@ -27,7 +27,7 @@ import {joinClassNames} from 'fullcalendar';
 
 // Typed loosely, because the scheduler options are not part of the core CalendarOptions type.
 const plugin: any = {
-    name: 'vaadin-stable-class-names-scheduler',
+    name: 'vaadin-legacy-class-names-scheduler',
     optionDefaults: {
         // datagrid cells: column header, group header and resource cell
         resourceColumnHeaderClass: 'fc-datagrid-cell',
