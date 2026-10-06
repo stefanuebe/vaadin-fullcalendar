@@ -46,10 +46,16 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
      */
     private String id = UUID.randomUUID().toString();
 
-    /** Entry color. The theme decides which parts of an entry it colors. */
+    /**
+     * Entry color. FullCalendar sets it on each entry's element as the CSS variable {@code --fc-event-color}.
+     * The theme's styles read it, so where the color shows depends on the theme. See {@link Entry#setColor(String)}.
+     */
     private String color;
 
-    /** Contrast color, used for text and other elements drawn on the entry color. */
+    /**
+     * Contrast color, used for text and other elements drawn on the entry color. FullCalendar sets it on each
+     * entry's element as the CSS variable {@code --fc-event-contrast-color}.
+     */
     private String contrastColor;
 
     /** CSS class names applied to all entries from this source. */
@@ -128,7 +134,10 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
-     * Sets the color for all entries from this source. The theme decides which parts of an entry it colors.
+     * Sets the color for all entries from this source. FullCalendar sets it on each entry's element as the CSS
+     * variable {@code --fc-event-color}. The theme's styles read it, so where the color shows depends on the
+     * theme. See {@link Entry#setColor(String)}.
+     *
      * @param color color string (CSS color value or FullCalendar named color)
      * @return this
      */
@@ -139,7 +148,9 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
 
     /**
      * Sets the contrast color for all entries from this source, used for text and other elements drawn on
-     * the entry color.
+     * the entry color. FullCalendar sets it on each entry's element as the CSS variable
+     * {@code --fc-event-contrast-color}. The theme's styles read it, so where the color shows depends on the theme.
+     *
      * @param contrastColor contrast color
      * @return this
      */
@@ -149,6 +160,9 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
+     * Former name of {@link #withContrastColor(String)}: sets the contrast color for all entries from this
+     * source. Delegates to it.
+     *
      * @param textColor contrast color
      * @return this
      * @deprecated use {@link #withContrastColor(String)}. FullCalendar 7 renamed the text color to contrast color.

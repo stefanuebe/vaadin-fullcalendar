@@ -20,7 +20,7 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `editable` | `boolean` | Per-entry drag/resize toggle |
 | `startEditable` | `Boolean` | Per-entry override for `ENTRY_START_EDITABLE` (`null` = inherit global) |
 | `durationEditable` | `Boolean` | Per-entry override for `ENTRY_DURATION_EDITABLE` (`null` = inherit global) |
-| `color` | `String` | Entry color (CSS color string). The theme decides which parts it colors |
+| `color` | `String` | Entry color (CSS color string). FullCalendar sets it as the CSS variable `--fc-event-color`, the theme's styles decide where it shows |
 | `contrastColor` | `String` | Color for text and other elements drawn on the entry color |
 | `description` | `String` | Description (available in JS callbacks) |
 | `groupId` | `String` | Group ID for visual linking and constraint-by-group |
@@ -62,7 +62,7 @@ Represents a schedulable resource (room, person, equipment). Supports hierarchic
 |-------|------|-------------|
 | `id` | `String` | Unique identifier (auto-generated UUID if not provided) |
 | `title` | `String` | Display name |
-| `color` | `String` | Entry color of associated entries, sent as `eventColor`. FullCalendar 7 has no separate background and border colors, the theme decides which parts it colors |
+| `color` | `String` | Entry color of associated entries, sent as `eventColor`. FullCalendar 7 has no separate background and border colors, the theme's styles read it from `--fc-event-color` |
 | `children` | `Set<Resource>` | Child resources (hierarchical) |
 | `parent` | `Resource` | Parent resource (null for top-level) |
 | `businessHoursArray` | `BusinessHours[]` | Per-resource business hours |

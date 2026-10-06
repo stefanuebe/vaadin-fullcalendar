@@ -1046,10 +1046,17 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the color for this entry. The theme decides which parts of the entry it colors (background, border,
-     * dot). Null or empty string resets the color to the FC's default.
+     * Sets the color for this entry. FullCalendar sets it on the entry's element as the CSS variable
+     * {@code --fc-event-color}. The theme's styles read it, so where the color shows depends on the theme.
+     * Own styles can read the variable as well, e.g. for entries with a CSS class:
+     * <pre>{@code
+     * .fc-event.important { border-left: 4px solid var(--fc-event-color); }
+     * }</pre>
+     * The class {@code fc-event} marks foreground entries, background entries carry {@code fc-bg-event}.
+     * Null or empty string resets the color to the FC's default.
      *
      * @param color color
+     * @see <a href="https://fullcalendar.io/docs/custom-themes">Custom themes: event colors</a>
      */
     public void setColor(String color) {
         this.color = StringUtils.trimToNull(color);
@@ -1057,15 +1064,24 @@ public class Entry implements Serializable {
 
     /**
      * Sets the contrast color for this entry, used for text and other elements drawn on the entry color.
+     * FullCalendar sets it on the entry's element as the CSS variable {@code --fc-event-contrast-color}. The
+     * theme's styles read it, so where the color shows depends on the theme. Own styles can read the variable
+     * as well:
+     * <pre>{@code
+     * .fc-event.important { outline: 2px dashed var(--fc-event-contrast-color); }
+     * }</pre>
      * Null or empty string resets the color to the FC's default.
      *
      * @param contrastColor contrast color
+     * @see #setColor(String)
      */
     public void setContrastColor(String contrastColor) {
         this.contrastColor = StringUtils.trimToNull(contrastColor);
     }
 
     /**
+     * Former name of {@link #getContrastColor()}: returns the contrast color of this entry. Delegates to it.
+     *
      * @return the contrast color
      * @deprecated use {@link #getContrastColor()}. FullCalendar 7 renamed the text color to contrast color.
      */
@@ -1075,6 +1091,8 @@ public class Entry implements Serializable {
     }
 
     /**
+     * Former name of {@link #setContrastColor(String)}: sets the contrast color of this entry. Delegates to it.
+     *
      * @param textColor contrast color
      * @deprecated use {@link #setContrastColor(String)}. FullCalendar 7 renamed the text color to contrast color.
      */

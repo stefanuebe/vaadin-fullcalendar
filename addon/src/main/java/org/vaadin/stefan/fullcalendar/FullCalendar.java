@@ -138,7 +138,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     private boolean autoRevertUnappliedEntryChanges = true;
 
-    // ---- View-Specific Options ----
     private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
 
     /**
@@ -752,7 +751,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * issues.
      * <br><br>
      * Native event listeners are merged into the {@code eventDidMount} callback and attached to each
-     * entry element automatically on render. You may also provide a custom {@code eventDidMount}
+     * entry's DOM element automatically on render. You may also provide a custom {@code eventDidMount}
      * function via {@link #setOption(Option, Object)} with {@link Option#ENTRY_DID_MOUNT} and {@link JsCallback}
      * — the native event registrations will be appended to the end of it automatically
      * (the function must end with a closing brace {@code }}). Adding a native event listener after the
@@ -1158,7 +1157,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Returns whether the calendar automatically exposes the server-side entry id as a DOM
-     * {@code id} attribute on the client-rendered entry element. Default is {@code true}.
+     * {@code id} attribute on the DOM element of each client-rendered entry. Default is {@code true}.
      *
      * @return true if the client-side id is provided automatically
      * @see #setAutoProvideEntryIdOnClient(boolean)
@@ -1170,7 +1169,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Controls whether the server-side entry id is automatically propagated to the client as a
-     * DOM {@code id} attribute on the rendered entry element, so server-side components
+     * DOM {@code id} attribute on the DOM element of each rendered entry, so server-side components
      * (e.g. {@code Popover}) can anchor to a specific entry via {@code document.getElementById}.
      * The method only toggles client-side id <b>publication</b>; it does not generate ids
      * server-side — the id on the {@link Entry} itself is unaffected.
@@ -1346,10 +1345,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(listener);
         return addListener(BrowserTimezoneObtainedEvent.class, listener);
     }
-
-    // -------------------------------------------------------------------------
-    // Interaction callback listeners
-    // -------------------------------------------------------------------------
 
     /**
      * Registers a listener for when the user begins dragging an entry. Fires regardless of whether the
@@ -1543,10 +1538,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         Objects.requireNonNull(listener);
         return addListener(EntryLeaveEvent.class, listener);
     }
-
-    // -------------------------------------------------------------------------
-    // Event source management
-    // -------------------------------------------------------------------------
 
     /**
      * Adds a client-side event source to this calendar. The browser will fetch events from this source directly,
@@ -1920,73 +1911,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // -------------------------------------------------------------------------
-    // Typed setters — Display options and render hooks
-    // -------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // ---- Accessibility, Touch, and Print Options ----
-
-
-
-
-
-
-
-
-
-    // ---- Advanced and Niche Options ----
 
 
 

@@ -132,6 +132,11 @@ public class ResourceAreaColumn extends ResourceColumn {
     }
 
     /**
+     * Former name of {@link #withHeaderClass(String)}: sets a static CSS class name string for the column
+     * header. Separate several classes with spaces. Delegates to it.
+     *
+     * @param classNames static class name string
+     * @return this instance for fluent chaining
      * @deprecated use {@link #withHeaderClass(String)}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -140,6 +145,11 @@ public class ResourceAreaColumn extends ResourceColumn {
     }
 
     /**
+     * Former name of {@link #withHeaderClass(JsCallback)}: sets a JavaScript callback for dynamic CSS
+     * class names on the column header. Delegates to it.
+     *
+     * @param callback JsCallback returning a class name string
+     * @return this instance for fluent chaining
      * @deprecated use {@link #withHeaderClass(JsCallback)}. Return a class name string. FullCalendar 7 drops arrays.
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -148,6 +158,11 @@ public class ResourceAreaColumn extends ResourceColumn {
     }
 
     /**
+     * Former name of {@link #withCellClass(String)}: sets a static CSS class name string for each cell of
+     * this column. Separate several classes with spaces. Delegates to it.
+     *
+     * @param classNames static class name string
+     * @return this instance for fluent chaining
      * @deprecated use {@link #withCellClass(String)}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -156,6 +171,11 @@ public class ResourceAreaColumn extends ResourceColumn {
     }
 
     /**
+     * Former name of {@link #withCellClass(JsCallback)}: sets a JsCallback for dynamic CSS class names on
+     * each cell. Delegates to it.
+     *
+     * @param callback JsCallback returning a class name string
+     * @return this instance for fluent chaining
      * @deprecated use {@link #withCellClass(JsCallback)}. Return a class name string. FullCalendar 7 drops arrays.
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -164,6 +184,10 @@ public class ResourceAreaColumn extends ResourceColumn {
     }
 
     /**
+     * Former name of {@link #getHeaderClass()}: returns the header class (String or JsCallback), or {@code
+     * null} if not set. Delegates to it.
+     *
+     * @return header class or null
      * @deprecated use {@link #getHeaderClass()}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -172,6 +196,10 @@ public class ResourceAreaColumn extends ResourceColumn {
     }
 
     /**
+     * Former name of {@link #getCellClass()}: returns the cell class (String or JsCallback), or {@code
+     * null} if not set. Delegates to it.
+     *
+     * @return cell class or null
      * @deprecated use {@link #getCellClass()}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)

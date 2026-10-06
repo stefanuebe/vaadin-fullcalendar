@@ -61,7 +61,8 @@ public interface Scheduler {
     public static final String AGPL_V3_LICENSE_KEY = "AGPL-My-Frontend-And-Backend-Are-Open-Source";
 
     /**
-     * Constant for the GPL v3 open source license.
+     * Constant for the GPL v3 open source license. FullCalendar Scheduler 7 no longer accepts it, so setting it
+     * as license key has no working effect anymore.
      *
      * @deprecated FullCalendar Scheduler 7 no longer accepts the GPL v3 key. It treats it as invalid and shows the
      * license warning.
@@ -225,6 +226,9 @@ public interface Scheduler {
     }
 
     /**
+     * Former name of {@link #setResourceColumns(List)}: configures the resource area as a multi-column data
+     * grid. Delegates to it.
+     *
      * @param columns list of column definitions; must not be null
      * @deprecated use {@link #setResourceColumns(List)}. FullCalendar 7 calls them resource columns
      */
@@ -234,6 +238,9 @@ public interface Scheduler {
     }
 
     /**
+     * Former name of {@link #setResourceColumns(ResourceColumn...)}: convenience overload for
+     * {@link #setResourceAreaColumns(List)}. Delegates to {@link #setResourceColumns(ResourceColumn...)}.
+     *
      * @param columns column definitions
      * @deprecated use {@link #setResourceColumns(ResourceColumn...)}. FullCalendar 7 calls them resource columns
      */

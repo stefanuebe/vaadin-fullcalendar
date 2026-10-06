@@ -52,7 +52,9 @@ public class Resource implements Serializable {
 
     /**
      * The color of this resource, sent as FullCalendar's {@code eventColor}.
-     * Entries associated with this resource use it. The theme decides which parts of an entry it colors.
+     * Entries associated with this resource use it. FullCalendar sets it on each entry's element as the CSS
+     * variable {@code --fc-event-color}. The theme's styles read it, so where the color shows depends on the
+     * theme. See {@link Entry#setColor(String)}.
      */
     private String color;
 
@@ -297,8 +299,9 @@ public class Resource implements Serializable {
     }
 
     /**
-     * Sets the entry color for this resource ({@code eventColor}). Entries associated with this resource use it,
-     * and the theme decides which parts of an entry it colors. If this resource has been added to a scheduler,
+     * Sets the entry color for this resource ({@code eventColor}). Entries associated with this resource use it.
+     * FullCalendar sets it on each entry's element as the CSS variable {@code --fc-event-color}, and the theme's
+     * styles decide where it shows, see {@link Entry#setColor(String)}. If this resource has been added to a scheduler,
      * the change is sent to the client immediately. Entries do not repaint from it, see
      * {@link Scheduler#updateResource(Resource)}.
      *
@@ -311,7 +314,9 @@ public class Resource implements Serializable {
 
     /**
      * Sets the contrast color for entries associated with this resource ({@code eventContrastColor}), used for
-     * text and other content drawn on top of the entry color.
+     * text and other content drawn on top of the entry color. FullCalendar sets it on each entry's element as the
+     * CSS variable {@code --fc-event-contrast-color}. The theme's styles read it, so where the color shows
+     * depends on the theme.
      * <p>
      * Unlike {@link #setTitle(String)} and {@link #setColor(String)}, this change is NOT
      * automatically propagated to the client. Call {@link Scheduler#updateResource(Resource)}
@@ -333,6 +338,9 @@ public class Resource implements Serializable {
     }
 
     /**
+     * Former name of {@link #setEntryContrastColor(String)}: sets the contrast color for entries associated
+     * with this resource. Delegates to it, so the change is likewise not propagated to the client automatically.
+     *
      * @param color CSS color string
      * @deprecated use {@link #setEntryContrastColor(String)}. FullCalendar 7 calls it the contrast color
      */
@@ -342,6 +350,9 @@ public class Resource implements Serializable {
     }
 
     /**
+     * Former name of {@link #getEntryContrastColor()}: returns the entry contrast color override for this
+     * resource, or {@code null} if not set. Delegates to it.
+     *
      * @return CSS color string or null
      * @deprecated use {@link #getEntryContrastColor()}. FullCalendar 7 calls it the contrast color
      */
