@@ -44,7 +44,6 @@ public class NativeEventListenerTestView extends VerticalLayout {
         add(clickCounter);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix date for reproducible tests
         calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));

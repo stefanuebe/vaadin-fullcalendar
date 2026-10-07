@@ -10,18 +10,23 @@ The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directl
 
 | Layer | File | Purpose |
 |-------|------|---------|
-| **FullCalendar skeleton and classic theme** | `fullcalendar/skeleton.css`, `fullcalendar/themes/classic/theme.css` and `palette.css`, imported by `full-calendar.ts` | Layout and default FC appearance (grid, entries, toolbar) |
+| **FullCalendar skeleton** | `fullcalendar/skeleton.css`, imported by `full-calendar.ts` | Layout every FC theme builds on |
+| **FC theme** | Theme plugin plus `theme.css`, loaded on demand by the theme registry in `full-calendar.ts` (UC-027). Stock themes bring their default palette inside the cascade layer `fc-palette` (ADR 0002) | Look of the calendar (grid, entries, toolbar) |
 | **Stable class names** | `legacy-class-names.ts`, `legacy-class-names-scheduler.ts` (FC plugins) | Re-add the documented v6 class names, see UC-025 and ADR 0001 |
 | **Addon base styles** | `full-calendar-styles.css` | Sizing, layout fixes, integration with Vaadin |
-| **Vaadin theme variant** | `full-calendar-theme-vaadin.css` | Aligns FC look with Vaadin Lumo/Aura theme |
+| **Vaadin FC theme** | `FullCalendarTheme.VAADIN`, the default. Built in #266, until then it renders as classic | Aligns FC look with Vaadin Lumo/Aura theme |
 | **Scheduler styles** | `full-calendar-scheduler-styles.css` | Additional styles for scheduler views |
 
-Apply the Vaadin theme variant:
+Select an FC theme per calendar:
 ```java
-calendar.addThemeVariants(FullCalendarVariant.VAADIN);
+calendar.setTheme(FullCalendarTheme.MONARCH);
 ```
 
 ### Custom Properties (`--vaadin-fc-*`)
+
+These belong to the former Vaadin theme variant (`full-calendar-theme-vaadin.css`). Its rules select
+`[theme~="vaadin"]`, which no element carries since the variant was removed. #266 replaces the file with the
+Vaadin FC theme.
 
 The Vaadin theme variant defines these CSS custom properties on `html`. Override them to retheme:
 

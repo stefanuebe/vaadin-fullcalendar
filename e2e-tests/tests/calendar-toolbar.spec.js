@@ -83,9 +83,9 @@ test.describe('Calendar Toolbar', () => {
     test('should open Settings menu', async ({ page }) => {
       await openSettingsMenu(page);
 
-      // Settings menu contains checkboxes - check for visible checkbox
-      const lumoCheckbox = page.locator('vaadin-checkbox:has-text("Lumo")');
-      await expect(lumoCheckbox).toBeVisible({ timeout: 3000 });
+      // Settings menu contains the calendar theme submenu
+      const themeItem = page.getByRole('menuitem', { name: 'Calendar theme' });
+      await expect(themeItem).toBeVisible({ timeout: 3000 });
 
       await page.keyboard.press('Escape');
     });

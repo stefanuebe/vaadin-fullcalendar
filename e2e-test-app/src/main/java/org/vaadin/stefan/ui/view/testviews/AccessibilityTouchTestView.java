@@ -51,7 +51,6 @@ public class AccessibilityTouchTestView extends VerticalLayout {
 
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
         calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));

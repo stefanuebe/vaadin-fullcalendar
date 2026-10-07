@@ -45,7 +45,6 @@ public class CalendarOptionsTestView extends VerticalLayout {
         add(new H3("DayGrid — Locale DE, No Weekends"));
 
         FullCalendar cal1 = new FullCalendar();
-        cal1.addThemeVariants(FullCalendarVariant.VAADIN);
         cal1.getElement().setAttribute("id", "cal-daygrid");
         cal1.setOption(Option.LOCALE, Locale.GERMAN);
         cal1.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
@@ -73,7 +72,6 @@ public class CalendarOptionsTestView extends VerticalLayout {
         add(new H3("TimeGrid — Slot Options & Business Hours"));
 
         FullCalendar cal2 = new FullCalendar();
-        cal2.addThemeVariants(FullCalendarVariant.VAADIN);
         cal2.getElement().setAttribute("id", "cal-timegrid");
         cal2.setOption(Option.LOCALE, Locale.ENGLISH);
         cal2.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 5));
@@ -101,7 +99,6 @@ public class CalendarOptionsTestView extends VerticalLayout {
         add(new H3("DayGrid — Hidden Days, Now Indicator, Scroll Time"));
 
         FullCalendar cal3 = new FullCalendar();
-        cal3.addThemeVariants(FullCalendarVariant.VAADIN);
         cal3.getElement().setAttribute("id", "cal-extra");
         cal3.setOption(Option.LOCALE, Locale.ENGLISH);
         // Use today's date (no hiddenDays!) so nowIndicator is always visible

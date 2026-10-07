@@ -1,9 +1,9 @@
-# UC-023: Vaadin Theme Variant
+# UC-023: Vaadin FC Theme
 
-**As a** Vaadin application developer, **I want to** apply the Vaadin theme variant to the calendar **so that** the calendar visually matches other Vaadin components (Lumo/Aura styling).
+**As a** Vaadin application developer, **I want** the calendar to use the Vaadin FC theme by default **so that** the calendar visually matches other Vaadin components (Lumo/Aura styling).
 
-**Status:** Implemented
-**Date:** 2026-03-21
+**Status:** Draft. Since #265 the theme is selected through `setTheme` (UC-027) and the theme variant is removed. The Vaadin FC theme itself, with light and dark color scheme, is built in #266, which rewrites this spec. Until then `FullCalendarTheme.VAADIN` renders as the classic theme.
+**Date:** 2026-10-07
 
 ---
 
@@ -17,20 +17,21 @@
 
 ## User-Facing Behavior
 
-- By default, the calendar uses FullCalendar's native styling
-- When the Vaadin theme variant is applied, the calendar adopts Vaadin Lumo/Aura colors, fonts, and spacing
-- The variant affects toolbar buttons, entry styling, grid lines, and day headers to align with the surrounding Vaadin UI
+- By default, the calendar uses the Vaadin FC theme
+- The Vaadin FC theme adopts Vaadin Lumo/Aura colors, fonts, and spacing
+- It affects toolbar buttons, entry styling, grid lines, and day headers to align with the surrounding Vaadin UI
+- Another FC theme can be selected per calendar (UC-027)
 
 ---
 
 ## Java API Usage
 
 ```java
-// Apply Vaadin theme
-calendar.addThemeVariants(FullCalendarVariant.VAADIN);
+// default, no call needed
+calendar.setTheme(FullCalendarTheme.VAADIN);
 
-// Remove Vaadin theme
-calendar.removeThemeVariants(FullCalendarVariant.VAADIN);
+// FullCalendar's classic look instead
+calendar.setTheme(FullCalendarTheme.CLASSIC);
 ```
 
 ---
@@ -39,19 +40,18 @@ calendar.removeThemeVariants(FullCalendarVariant.VAADIN);
 
 | ID | Rule |
 |----|------|
-| BR-01 | `FullCalendarVariant.VAADIN` is the only available variant |
-| BR-02 | The variant applies `full-calendar-theme-vaadin.css` via `@CssImport` |
-| BR-03 | The variant can be toggled at runtime via `addThemeVariants` / `removeThemeVariants` |
-| BR-04 | Custom CSS applied by the developer takes precedence over the variant styles |
+| BR-01 | `FullCalendarTheme.VAADIN` is the default theme of every calendar |
+| BR-02 | It is an FC theme like the stock themes: a theme plugin plus CSS (#266) |
+| BR-03 | The theme can be changed at runtime via `setTheme` |
+| BR-04 | Custom CSS applied by the developer takes precedence over the theme styles |
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Calendar with `VAADIN` variant visually matches other Vaadin components *(manual verification)*
-- [ ] Calendar without variant uses default FC styling *(manual verification)*
-- [ ] Toggling the variant at runtime updates the appearance
-- [ ] Custom CSS overrides variant styles *(manual verification)*
+- [ ] Calendar with the `VAADIN` theme visually matches other Vaadin components *(manual verification)*
+- [ ] Switching the theme at runtime updates the appearance
+- [ ] Custom CSS overrides theme styles *(manual verification)*
 
 ---
 
@@ -61,7 +61,7 @@ calendar.removeThemeVariants(FullCalendarVariant.VAADIN);
 - [ ] No dedicated unit tests — visual theming requires browser
 
 ### E2E Tests
-- [ ] No dedicated E2E tests for theme variant — coverage gap. Visual verification via Playwright MCP recommended.
+- [ ] No dedicated E2E tests for the Vaadin FC theme yet (#266).
 
 ---
 
