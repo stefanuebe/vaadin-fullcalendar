@@ -49,7 +49,7 @@ import java.util.stream.Stream;
  * {@link #setRecurringStartTime(LocalTime)}, ...) or with an {@link RRule} ({@link #setRRule(RRule)}).
  * <p>
  * Color, class names, editability and display mode can be set per entry and override the calendar's options.
- * Values the client library does not know can be attached with {@link #setExtendedProp(String, Object)}.
+ * Values of your own, such as an ID from your backend, can be attached with {@link #setExtendedProp(String, Object)}.
  * <p>
  * The calendar gets its entries from its {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
  * After changing an entry that is already shown, call
@@ -1136,24 +1136,6 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the description of this entry. Since the description is an <b>extended prop</b>, it will
-     * not automatically be shown on the entry.
-     * @return description
-     */
-    public String getDescription() {
-        return getExtendedProp(EntryExtendedProps.DESCRIPTION, null);
-    }
-
-    /**
-     * Sets the description of this entry. Since the description is an <b>extended prop</b>, it will
-     * not automatically be shown on the entry.
-     * @param description description
-     */
-    public void setDescription(String description) {
-        setExtendedProp(EntryExtendedProps.DESCRIPTION, description);
-    }
-
-    /**
      * Sets the display mode for this entry. Passing null will reset it to the default.
      * @param displayMode how to display the entry
      */
@@ -1405,10 +1387,12 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets an extended prop, a value the client library does not know itself. An existing value is overwritten.
+     * Sets an extended prop. An extended prop is an additional value of your own, stored under a key of your
+     * choice. Extended props do not change the regular properties of the entry, such as its title or color, and FullCalendar does not
+     * use them itself. Setting a key again overwrites the extended prop stored under that key.
      * <p>
-     * Extended props are sent to the client as the entry's {@code extendedProps}. JavaScript callbacks read them
-     * there, for instance in {@link Option#ENTRY_DID_MOUNT}:
+     * Extended props are sent to the client as the entry's {@code extendedProps}, where your own JavaScript
+     * callbacks can read them, for instance in {@link Option#ENTRY_DID_MOUNT}:
      * <pre>{@code
      * entry.setExtendedProp("department", "Engineering");
      *
@@ -1417,9 +1401,10 @@ public class Entry implements Serializable {
      * }</pre>
      * Strings, numbers, booleans, maps, collections, arrays and {@link tools.jackson.databind.JsonNode}s are sent
      * as the matching JSON values. Numbers other than {@code Integer} and {@code Long} are sent as doubles, so a
-     * {@code BigDecimal} can lose precision. Any other object is serialized with Jackson. Entries the client sends back
-     * ({@link EntryReceiveEvent}, {@link DropEvent}) carry the values as they were parsed from JSON, so an
-     * object arrives as a {@code Map}.
+     * {@code BigDecimal} can lose precision. Any other object is serialized with Jackson.
+     * <p>
+     * Entries that come from the client ({@link EntryReceiveEvent}, {@link DropEvent}) carry their extended props
+     * as they were parsed from JSON, so an object you set arrives in those entries as a {@code Map}.
      * <p>
      * Call {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider#refreshItem(Entry)} after changing the
      * extended props of an entry that is already shown.
@@ -1437,7 +1422,8 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns an extended prop, or null if the key is not set or set to null.
+     * Returns an extended prop, or null if the key is not set or set to null. Use
+     * {@link #hasExtendedProp(String)} to tell the two apart.
      *
      * @param key name of the extended prop
      * @return value or null
@@ -1445,6 +1431,16 @@ public class Entry implements Serializable {
      */
     public Object getExtendedProp(String key) {
         return getExtendedProps().get(key);
+    }
+
+    /**
+     * Returns whether an extended prop is set under the given key, also when its value is null.
+     *
+     * @param key name of the extended prop
+     * @return true if the key is set
+     */
+    public boolean hasExtendedProp(String key) {
+        return getExtendedProps().containsKey(key);
     }
 
     /**
@@ -1495,17 +1491,6 @@ public class Entry implements Serializable {
 
     protected <T, R> R convertNullable(T value, SerializableFunction<T, R> converter) {
         return value != null ? converter.apply(value) : null;
-    }
-
-
-    /**
-     * Defines known extended props, for instance since they are widely used.
-     */
-    public static final class EntryExtendedProps {
-        /**
-         * Key for an entry's description.
-         */
-        public static final String DESCRIPTION = "description";
     }
 
 

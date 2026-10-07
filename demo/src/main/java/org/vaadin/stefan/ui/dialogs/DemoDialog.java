@@ -157,7 +157,8 @@ public class DemoDialog extends Dialog {
 
         // optional fields
         binder.bind(fieldColor, Entry::getColor, Entry::setColor);
-        binder.bind(fieldDescription, Entry::getDescription, Entry::setDescription);
+        binder.bind(fieldDescription, item -> item.<String>getExtendedProp("description", null),
+                (item, value) -> item.setExtendedProp("description", value));
         binder.bind(fieldAllDay, Entry::isAllDay, Entry::setAllDay);
         binder.bind(fieldRecurring, item -> this.recurring, (item, value) -> this.recurring = value);
         binder.bind(fieldRDays, Entry::getRecurringDaysOfWeek, Entry::setRecurringDaysOfWeek);

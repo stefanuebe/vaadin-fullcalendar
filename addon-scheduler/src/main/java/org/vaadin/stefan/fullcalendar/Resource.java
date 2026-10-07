@@ -254,13 +254,17 @@ public class Resource implements Serializable {
     }
 
     /**
-     * Sets an extended prop, a value the client library does not know itself. An existing value is overwritten.
-     * If this resource has been added to a scheduler, the change is propagated to the client immediately.
+     * Sets an extended prop. An extended prop is an additional value of your own, stored under a key of your
+     * choice. Extended props do not change the regular properties of the resource, such as its title or color, and
+     * FullCalendar does not use them itself. Setting a key again overwrites the extended prop stored under that key.
+     * <p>
+     * On the client, your own JavaScript callbacks can read it as {@code resource.extendedProps.<key>}. If this
+     * resource has been added to a scheduler, the change is propagated to the client immediately.
      * Objects other than strings, numbers, booleans, maps, collections and arrays are serialized with Jackson.
      * Numbers other than {@code Integer} and {@code Long} are sent as doubles.
      *
      * @param key   property name
-     * @param value property value
+     * @param value property value, can be null
      */
     public void setExtendedProp(String key, Object value) {
         extendedProps.put(Objects.requireNonNull(key), value);
@@ -298,6 +302,16 @@ public class Resource implements Serializable {
         this.extendedProps.clear();
         this.extendedProps.putAll(copy);
         pushUpdateToClient();
+    }
+
+    /**
+     * Returns whether an extended prop is set under the given key, also when its value is null.
+     *
+     * @param key name of the extended prop
+     * @return true if the key is set
+     */
+    public boolean hasExtendedProp(String key) {
+        return extendedProps.containsKey(key);
     }
 
     /**

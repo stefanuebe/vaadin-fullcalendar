@@ -314,7 +314,7 @@ public class FullCalendarTest {
         entry.setAllDay(allDay);
         entry.setEditable(editable);
         entry.setColor(color);
-        entry.setDescription(description);
+        entry.setExtendedProp("description", description);
 
         return entry;
     }

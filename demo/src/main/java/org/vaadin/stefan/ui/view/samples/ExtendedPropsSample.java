@@ -16,14 +16,14 @@ public class ExtendedPropsSample extends AbstractSample{
     @Override
     protected void buildSample(FullCalendar calendar) {
         // set the extended prop beforehand
-                entry.setExtendedProp(Entry.EntryExtendedProps.DESCRIPTION, "some description");
+                entry.setExtendedProp("description", "some description");
 
         // use the extended prop in the entryContent callback
         calendar.setOption(ENTRY_CONTENT,
                 JsCallback.of("function(info) {" +
                         "   let entry = info.event;" +
                         "   console.log(entry.title);" + // standard property
-                        "   console.log(entry.extendedProps." + Entry.EntryExtendedProps.DESCRIPTION + ");" + // extended prop
+                        "   console.log(entry.extendedProps.description);" + // extended prop
                         "   /* ... do something with the event content ...*/" +
                         "   return info.el; " +
                         "}")

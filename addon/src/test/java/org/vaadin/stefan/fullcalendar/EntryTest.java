@@ -530,7 +530,7 @@ public class EntryTest {
         entry.setAllDay(true);
         entry.setEditable(true);
         entry.setColor(DEFAULT_COLOR);
-        entry.setDescription(DEFAULT_DESCRIPTION);
+        entry.setExtendedProp("description", DEFAULT_DESCRIPTION);
         entry.setDisplayMode(DEFAULT_DISPLAY_MODE_ALTERN);
 
         // TODO extend values
@@ -593,7 +593,7 @@ public class EntryTest {
         assertNull(entry.getTitle());
         assertNull(entry.getColor());
         assertNull(entry.getContrastColor());
-        assertNull(entry.getDescription());
+        assertFalse(entry.hasExtendedProp("description"));
         assertEquals(DisplayMode.AUTO, entry.getDisplayMode());
     }
 
@@ -725,6 +725,19 @@ public class EntryTest {
         Map<String, Object> props = new HashMap<>();
         props.put(null, 1);
         assertThrows(NullPointerException.class, () -> entry.setExtendedProps(props));
+    }
+
+    @Test
+    void hasExtendedProp_alsoForNullValue() {
+        Entry entry = new Entry();
+        assertFalse(entry.hasExtendedProp("a"));
+
+        entry.setExtendedProp("a", null);
+        assertTrue(entry.hasExtendedProp("a"));
+        assertNull(entry.getExtendedProp("a"));
+
+        entry.removeExtendedProp("a");
+        assertFalse(entry.hasExtendedProp("a"));
     }
 
     @Test

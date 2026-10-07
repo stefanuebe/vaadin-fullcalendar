@@ -27,8 +27,8 @@ import java.util.Objects;
  * string via {@code new Function("return " + jsFunction)()} to produce a real
  * JS function object before passing it to FullCalendar.
  *
- * <p>Entry callbacks read the extended props set on the server under {@code event.extendedProps}, see
- * {@link Entry#setExtendedProp(String, Object)}.
+ * <p>Extended props you set on an entry with {@link Entry#setExtendedProp(String, Object)} can be read in entry
+ * callbacks as {@code info.event.extendedProps}.
  *
  * <p><b>CSP note:</b> This class uses {@code new Function()} on the client side, which requires
  * {@code unsafe-eval} in the Content Security Policy. This is compatible with Vaadin's default

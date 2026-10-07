@@ -254,6 +254,18 @@ public class ResourceTest {
     }
 
     @Test
+    void hasExtendedProp_alsoForNullValue() {
+        Resource resource = new Resource();
+        Assertions.assertFalse(resource.hasExtendedProp("dept"));
+
+        resource.setExtendedProp("dept", null);
+        Assertions.assertTrue(resource.hasExtendedProp("dept"));
+
+        resource.removeExtendedProp("dept");
+        Assertions.assertFalse(resource.hasExtendedProp("dept"));
+    }
+
+    @Test
     void getExtendedProps_isReadOnly() {
         Resource resource = new Resource();
         Assertions.assertThrows(UnsupportedOperationException.class, () -> resource.getExtendedProps().put("dept", "x"));

@@ -22,7 +22,6 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `durationEditable` | `Boolean` | Per-entry override for `ENTRY_DURATION_EDITABLE` (`null` = inherit global) |
 | `color` | `String` | Entry color (CSS color string). FullCalendar sets it as the CSS variable `--fc-event-color`, the theme's styles decide where it shows |
 | `contrastColor` | `String` | Color for text and other elements drawn on the entry color |
-| `description` | `String` | Description (available in JS callbacks) |
 | `groupId` | `String` | Group ID for visual linking and constraint-by-group |
 | `displayMode` | `DisplayMode` | Rendering mode: `AUTO`, `BLOCK`, `LIST_ITEM`, `BACKGROUND`, `INVERSE_BACKGROUND`, `NONE` |
 | `overlap` | `Boolean` | Whether entry may overlap others (`null` = inherit global) |
@@ -37,7 +36,7 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `recurringEndDate` | `LocalDate` | End bound for recurrence range |
 | `recurringDuration` | `String` | Duration for multi-day recurring all-day entries (ISO 8601 string, e.g., `"P2D"`) |
 | `rrule` | `RRule` | RFC 5545 recurrence rule |
-| `extendedProps` | `Map<String, Object>` | Arbitrary data, set with `setExtendedProp(key, value)`, sent as `extendedProps` and read in JS callbacks as `event.extendedProps.<key>`. The getter returns a read-only map, never null, that may not reflect later changes. Objects are serialized with Jackson |
+| `extendedProps` | `Map<String, Object>` | Arbitrary data, set with `setExtendedProp(key, value)`, sent as `extendedProps` and read in JS callbacks as `event.extendedProps.<key>`. The getter returns a read-only map, never null, that may not reflect later changes. `hasExtendedProp(key)` tells a key set to null apart from an absent one. Objects are serialized with Jackson |
 
 **Serialization**: `Entry.toJson()` uses reflection-based `BeanProperties` with `@JsonName`, `@JsonConverter`, and `@JsonIgnore` annotations.
 
