@@ -58,6 +58,23 @@ public enum SchedulerOption {
     ENTRY_MIN_WIDTH("eventMinWidth"),
 
     /**
+     * How time grid views lay out entries when printing. Browsers, especially Firefox, have difficulties printing
+     * absolutely positioned elements across pages, which affects time grid views most.
+     * Requires FullCalendar's adaptive premium plugin, which {@link FullCalendarScheduler} loads.
+     * <dl>
+     *   <dt>Type</dt>    <dd>{@link EntryPrintLayout}</dd>
+     *   <dt>Default</dt> <dd>{@link EntryPrintLayout#AUTO} (FullCalendar stacks the entries in Firefox and keeps the
+     *                        grid otherwise)</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.ENTRY_PRINT_LAYOUT, EntryPrintLayout.STACK);
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventPrintLayout">eventPrintLayout</a>
+     */
+    ENTRY_PRINT_LAYOUT("eventPrintLayout"),
+
+    /**
      * Former name of {@link #ENTRY_RESOURCE_EDITABLE}: allows the user to drag entries between resources.
      *
      * @deprecated use {@link #ENTRY_RESOURCE_EDITABLE}, which sets the same FullCalendar option
@@ -102,6 +119,23 @@ public enum SchedulerOption {
      * @see <a href="https://fullcalendar.io/docs/schedulerLicenseKey">schedulerLicenseKey</a>
      */
     LICENSE_KEY("schedulerLicenseKey"),
+
+    /**
+     * Maximum number of rows rendered when printing. Printed output does not use virtual rendering, so a calendar
+     * with very many resources could overwhelm the browser. If there are more rows, the extra rows are left out and
+     * the client logs a warning to the browser console. Only takes effect with FullCalendar's adaptive plugin
+     * (loaded by {@link FullCalendarScheduler}) and currently only applies to timeline views.
+     * <dl>
+     *   <dt>Type</dt>    <dd>{@code number}</dd>
+     *   <dt>Default</dt> <dd>{@code 1000}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.PRINT_MAX_ROWS, 200);
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/printMaxRows">printMaxRows</a>
+     */
+    PRINT_MAX_ROWS("printMaxRows"),
 
     /**
      * Refetches and rerenders the resources when the user changes the date or the view. The resources
@@ -268,6 +302,27 @@ public enum SchedulerOption {
     RESOURCE_CELL_DID_MOUNT("resourceCellDidMount"),
 
     /**
+     * CSS classes for the inner wrapper of a resource cell in the timeline view. A resource cell is a cell in the
+     * resource area on the left side of the view, one per column field (such as the resource title or a custom
+     * column). The hook also applies to resource group cells. The inner wrapper holds the content and is useful for
+     * adjusting padding.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource} (absent for group cells),
+     *       {@code field}, {@code fieldValue}, {@code view}.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_CELL_INNER_CLASS, JsCallback.of("""
+     *         function(info) {
+     *             return info.field === 'title' ? 'resource-title-cell' : '';
+     *         }"""));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellInnerClass</a>
+     */
+    RESOURCE_CELL_INNER_CLASS("resourceCellInnerClass"),
+
+    /**
      * Called before a cell of the resource area is removed from the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
@@ -336,11 +391,23 @@ public enum SchedulerOption {
     RESOURCE_COLUMNS_WIDTH("resourceColumnsWidth"),
 
     /**
+     * CSS classes for the divider line between the resource area and the timeline area in the timeline view.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated). A callback is not supported for this option.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_COLUMN_DIVIDER_CLASS, "thick-divider");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-divider-render-hooks">resourceColumnDividerClass</a>
+     */
+    RESOURCE_COLUMN_DIVIDER_CLASS("resourceColumnDividerClass"),
+
+    /**
      * Adds CSS classes to the resource column header, shown above the resource data in the timeline view.
      * <dl>
      *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function()}. FullCalendar documents no argument for this hook. Only the DidMount
-     *                         and WillUnmount hooks of the resource column header get an {@code info} with {@code el}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code view}.</dd>
      *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
      * </dl>
      * <pre>{@code
@@ -356,8 +423,7 @@ public enum SchedulerOption {
      * (the text "Resources" by default).
      * <dl>
      *   <dt>Type</dt>     <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function()}. FullCalendar documents no argument for this hook. Only the DidMount
-     *                         and WillUnmount hooks of the resource column header get an {@code info} with {@code el}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code view}.</dd>
      *   <dt>Returns</dt>  <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
      * </dl>
      * <pre>{@code
@@ -372,7 +438,7 @@ public enum SchedulerOption {
      * Called after the resource column header is added to the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code el}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code view} and {@code el}.</dd>
      * </dl>
      * <pre>{@code
      * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_DID_MOUNT, JsCallback.of(
@@ -384,10 +450,25 @@ public enum SchedulerOption {
     RESOURCE_COLUMN_HEADER_DID_MOUNT("resourceColumnHeaderDidMount"),
 
     /**
+     * CSS classes for the inner wrapper of the resource column header in the timeline view. The resource column
+     * header is the header above the resource data and shows the text "Resources" by default.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code view}.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_INNER_CLASS, "resource-header-padding");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderInnerClass</a>
+     */
+    RESOURCE_COLUMN_HEADER_INNER_CLASS("resourceColumnHeaderInnerClass"),
+
+    /**
      * Called before the resource column header is removed from the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code el}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code view} and {@code el}.</dd>
      * </dl>
      * <pre>{@code
      * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_WILL_UNMOUNT, JsCallback.of(
@@ -397,6 +478,39 @@ public enum SchedulerOption {
      * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderWillUnmount</a>
      */
     RESOURCE_COLUMN_HEADER_WILL_UNMOUNT("resourceColumnHeaderWillUnmount"),
+
+    /**
+     * CSS classes for the handle the user drags to resize a resource column in the timeline view. The handle sits at
+     * the end edge of every column header except the last one and is not rendered when printing.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code view}.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_COLUMN_RESIZER_CLASS, "wide-resizer");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnResizerClass</a>
+     */
+    RESOURCE_COLUMN_RESIZER_CLASS("resourceColumnResizerClass"),
+
+    /**
+     * Horizontal alignment of the resource name in the column header cells of the vertical resource views
+     * ({@code resourceTimeGrid} and {@code resourceDayGrid}). In a left-to-right locale, start means left and end
+     * means right.
+     * <dl>
+     *   <dt>Type</dt> <dd>{@link HeaderAlign} | {@link JsCallback} returning {@code 'start'}, {@code 'center'} or
+     *       {@code 'end'}</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code level}.</dd>
+     *   <dt>Default</dt> <dd>decided by the theme</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_DAY_HEADER_ALIGN, HeaderAlign.CENTER);
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderAlign</a>
+     */
+    RESOURCE_DAY_HEADER_ALIGN("resourceDayHeaderAlign"),
 
     /**
      * Adds CSS classes to the column header cells that show the resource names in the vertical resource views
@@ -455,6 +569,27 @@ public enum SchedulerOption {
     RESOURCE_DAY_HEADER_DID_MOUNT("resourceDayHeaderDidMount"),
 
     /**
+     * CSS classes for the inner wrapper of a resource day header in the vertical resource views
+     * ({@code resourceTimeGrid} and {@code resourceDayGrid}). A resource day header is the cell in the column header
+     * that shows a resource's name. The inner wrapper is useful for adjusting padding.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code date} (if the column
+     *       is scoped to a date), {@code text}, {@code isOther}, {@code isToday}, {@code isPast}, {@code isFuture},
+     *       {@code isDisabled}, {@code isNarrow}, {@code isMajor}, {@code level}.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_DAY_HEADER_INNER_CLASS, JsCallback.of("""
+     *         function(info) {
+     *             return info.isNarrow ? 'compact-resource-header' : '';
+     *         }"""));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderInnerClass</a>
+     */
+    RESOURCE_DAY_HEADER_INNER_CLASS("resourceDayHeaderInnerClass"),
+
+    /**
      * Called before a resource day header cell is removed from the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
@@ -471,6 +606,43 @@ public enum SchedulerOption {
      * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderWillUnmount</a>
      */
     RESOURCE_DAY_HEADER_WILL_UNMOUNT("resourceDayHeaderWillUnmount"),
+
+    /**
+     * CSS classes for the expand/collapse toggle in front of expandable resource rows in the hierarchical timeline
+     * view.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code isExpanded}.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_EXPANDER_CLASS, JsCallback.of("""
+     *         function(info) {
+     *             return info.isExpanded ? 'expander-open' : 'expander-closed';
+     *         }"""));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-expander-render-hooks">resourceExpanderClass</a>
+     */
+    RESOURCE_EXPANDER_CLASS("resourceExpanderClass"),
+
+    /**
+     * Content of the expand/collapse toggle in front of expandable resource rows in the hierarchical timeline view.
+     * The content is inserted inside the toggle, typically as an icon, and is hidden from assistive technology.
+     * <dl>
+     *   <dt>Type</dt> <dd>text | {@link JsCallback} returning content</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code isExpanded}.</dd>
+     *   <dt>Returns</dt> <dd>a string, or an object like {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_EXPANDER_CONTENT, JsCallback.of("""
+     *         function(info) {
+     *             return info.isExpanded ? '-' : '+';
+     *         }"""));
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-expander-render-hooks">resourceExpanderContent</a>
+     */
+    RESOURCE_EXPANDER_CONTENT("resourceExpanderContent"),
 
     /**
      * Former name of {@link #RESOURCE_GROUP_HEADER_CLASS}: CSS classes for resource group headers.
@@ -563,6 +735,22 @@ public enum SchedulerOption {
     RESOURCE_GROUP_HEADER_DID_MOUNT("resourceGroupHeaderDidMount"),
 
     /**
+     * CSS classes for the inner wrapper of a resource group header cell in the timeline view. A group's header is
+     * where its name is displayed, at the top of each row group.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code fieldValue} (the value of the group
+     *       field), {@code view}.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_GROUP_HEADER_INNER_CLASS, "group-header-padding");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderInnerClass</a>
+     */
+    RESOURCE_GROUP_HEADER_INNER_CLASS("resourceGroupHeaderInnerClass"),
+
+    /**
      * Called before a resource group header is removed from the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
@@ -639,6 +827,22 @@ public enum SchedulerOption {
     RESOURCE_GROUP_LANE_DID_MOUNT("resourceGroupLaneDidMount"),
 
     /**
+     * CSS classes for the inner wrapper of a resource group lane cell in the timeline view. A group's lane is the
+     * horizontal area running along the time slots.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code fieldValue} (the value of the group
+     *       field), {@code view}.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_GROUP_LANE_INNER_CLASS, "group-lane-inner");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneInnerClass</a>
+     */
+    RESOURCE_GROUP_LANE_INNER_CLASS("resourceGroupLaneInnerClass"),
+
+    /**
      * Called before a resource group lane is removed from the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
@@ -664,10 +868,37 @@ public enum SchedulerOption {
     RESOURCE_GROUP_WILL_UNMOUNT("resourceGroupHeaderWillUnmount"),
 
     /**
+     * CSS classes for the header rows of the resource area in the timeline view.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated). A callback is not supported for this option.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_HEADER_ROW_CLASS, "resource-header-row");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-header-row-render-hooks">resourceHeaderRowClass</a>
+     */
+    RESOURCE_HEADER_ROW_CLASS("resourceHeaderRowClass"),
+
+    /**
+     * CSS classes for the indentation space in front of each resource row in the hierarchical timeline view.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated). A callback is not supported for this option.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_INDENT_CLASS, "resource-indent");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-expander-render-hooks">resourceIndentClass</a>
+     */
+    RESOURCE_INDENT_CLASS("resourceIndentClass"),
+
+    /**
      * Adds CSS classes to the element below the entries of a resource lane.
      * <dl>
      *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}
+     *                         (holds only {@code eventOverlap}).</dd>
      *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
      * </dl>
      * <pre>{@code
@@ -683,7 +914,8 @@ public enum SchedulerOption {
      * Content inserted at the bottom of a resource lane, below its entries.
      * <dl>
      *   <dt>Type</dt>     <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}
+     *                         (holds only {@code eventOverlap}).</dd>
      *   <dt>Returns</dt>  <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
      * </dl>
      * <pre>{@code
@@ -700,7 +932,8 @@ public enum SchedulerOption {
      * resource in the timeline view.
      * <dl>
      *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}
+     *                         (holds only {@code eventOverlap}).</dd>
      *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
      * </dl>
      * <pre>{@code
@@ -725,7 +958,8 @@ public enum SchedulerOption {
      * Called after a resource lane element is added to the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code el}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code options}
+     *                         (holds only {@code eventOverlap}) and {@code el}.</dd>
      * </dl>
      * <pre>{@code
      * scheduler.setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(
@@ -740,7 +974,8 @@ public enum SchedulerOption {
      * Adds CSS classes to the element above the entries of a resource lane.
      * <dl>
      *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}
+     *                         (holds only {@code eventOverlap}).</dd>
      *   <dt>Returns</dt>  <dd>a class name string. FullCalendar 7 drops arrays.</dd>
      * </dl>
      * <pre>{@code
@@ -756,7 +991,8 @@ public enum SchedulerOption {
      * Content inserted at the top of a resource lane, above its entries.
      * <dl>
      *   <dt>Type</dt>     <dd>text, or a {@link JsCallback} returning content</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource} and {@code options}
+     *                         (holds only {@code eventOverlap}).</dd>
      *   <dt>Returns</dt>  <dd>unescaped text {@code String}, {@code {html: '...'}} or {@code {domNodes: [...]}}</dd>
      * </dl>
      * <pre>{@code
@@ -772,7 +1008,8 @@ public enum SchedulerOption {
      * Called before a resource lane element is removed from the DOM.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
-     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code el}.</dd>
+     *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code options}
+     *                         (holds only {@code eventOverlap}) and {@code el}.</dd>
      * </dl>
      * <pre>{@code
      * scheduler.setOption(SchedulerOption.RESOURCE_LANE_WILL_UNMOUNT, JsCallback.of(
@@ -813,6 +1050,20 @@ public enum SchedulerOption {
     RESOURCE_REMOVE("resourceRemove"),
 
     /**
+     * CSS classes for the body rows of the resource area in the timeline view. Does not apply to the resource group
+     * header rows within the body.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated). A callback is not supported for this option.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.RESOURCE_ROW_CLASS, "resource-row");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-row-render-hooks">resourceRowClass</a>
+     */
+    RESOURCE_ROW_CLASS("resourceRowClass"),
+
+    /**
      * Width of each time slot (time axis slot) in the timeline view, in pixels.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code number} (pixels)</dd>
@@ -822,6 +1073,49 @@ public enum SchedulerOption {
      * @see <a href="https://fullcalendar.io/docs/slotMinWidth">slotMinWidth</a>
      */
     SLOT_MIN_WIDTH("slotMinWidth"),
+
+    /**
+     * CSS classes for the element below the entries in the timeline view without resources.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated). A callback is not supported for this option.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.TIMELINE_BOTTOM_CLASS, "timeline-bottom");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/timeline-render-hooks">timelineBottomClass</a>
+     */
+    TIMELINE_BOTTOM_CLASS("timelineBottomClass"),
+
+    /**
+     * CSS classes for the element above the entries in the timeline view without resources.
+     * <dl>
+     *   <dt>Type</dt> <dd>class name {@code String} (space separated). A callback is not supported for this option.</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.TIMELINE_TOP_CLASS, "timeline-top");
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/timeline-render-hooks">timelineTopClass</a>
+     */
+    TIMELINE_TOP_CLASS("timelineTopClass"),
+
+    /**
+     * Renders only the rows and columns currently visible in the scroll viewport. This improves performance when a
+     * calendar has a large number of resources: rows and columns that leave the viewport are removed from the DOM
+     * and newly visible ones are rendered while the user scrolls. Currently only applies to timeline views that
+     * display resources.
+     * <dl>
+     *   <dt>Type</dt>    <dd>{@code boolean}</dd>
+     *   <dt>Default</dt> <dd>{@code false}</dd>
+     * </dl>
+     * <pre>{@code
+     * calendar.setOption(SchedulerOption.VIRTUALIZATION, true);
+     * }</pre>
+     *
+     * @see <a href="https://fullcalendar.io/docs/virtualization">virtualization</a>
+     */
+    VIRTUALIZATION("virtualization"),
 
     ;
 

@@ -723,7 +723,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
 
         if (attached) {
-            Object[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Object[]::new);
+            // a JsCallback nested in a map or collection (e.g. a button's click) only becomes a marker in our conversion
+            Object clientValue = value instanceof Map<?, ?> || value instanceof Collection<?>
+                    ? JsonUtils.toJsonNodeWithJackson(value) : value;
+            Object[] parameters = Stream.concat(Stream.of(option, clientValue), Stream.of(additionalParameters)).toArray(Object[]::new);
             getElement().callJsFunction(method, parameters);
         } else {
             ObjectNode initialOptions = (ObjectNode) getElement().getPropertyRaw("initialOptions");

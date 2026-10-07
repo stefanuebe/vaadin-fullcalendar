@@ -8,15 +8,19 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Typed option values (time zone, valid range, more-link click action, day max entries) reach the client the same
- * way before and after attach, and the deprecated setters store the same value as the option (#259).
+ * way before and after attach, and the deprecated setters store the same value as the option (#259). The same holds
+ * for the typed values of the FullCalendar 7 options (#264), including callbacks nested in a map like the buttons.
  */
 @SuppressWarnings("removal")
 public class TypedOptionValuesTest extends BrowserlessTest {
@@ -246,5 +250,90 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         assertEquals(false, calendar.getOption(Option.DAY_MAX_ENTRIES).orElseThrow());
         assertTrue(initialClientValue(Option.DAY_MAX_ENTRIES).isBoolean());
         assertFalse(initialClientValue(Option.DAY_MAX_ENTRIES).booleanValue());
+    }
+
+    // -------------------------------------------------------------------------
+    // Buttons: callbacks nested in the map
+    // -------------------------------------------------------------------------
+
+    private static Map<String, Object> buttons() {
+        return Map.of(
+                ToolbarParts.TODAY, Map.of("text", "Now", "display", ButtonDisplay.TEXT),
+                "hello", Map.of("text", "Hello", "click", JsCallback.of("function() { window.helloClicked = true; }")));
+    }
+
+    private static void assertButtonsJson(JsonNode json) {
+        assertEquals("Now", json.get("today").get("text").asString());
+        assertEquals("text", json.get("today").get("display").asString());
+        assertEquals("function() { window.helloClicked = true; }",
+                json.get("hello").get("click").get("__jsCallback").asString());
+    }
+
+    @Test
+    void buttons_beforeAttach_sendsNestedCallbacksAsMarkers() {
+        calendar.setOption(Option.BUTTONS, buttons());
+
+        assertButtonsJson(initialClientValue(Option.BUTTONS));
+        assertEquals(buttons(), calendar.getOption(Option.BUTTONS).orElseThrow());
+    }
+
+    @Test
+    void buttons_afterAttach_sendsNestedCallbacksAsMarkers() {
+        Serializable sent = clientValueAfterAttach(Option.BUTTONS, () -> calendar.setOption(Option.BUTTONS, buttons()));
+
+        assertButtonsJson((JsonNode) sent);
+        assertEquals(buttons(), calendar.getOption(Option.BUTTONS).orElseThrow());
+    }
+
+    // -------------------------------------------------------------------------
+    // Enum values of the FullCalendar 7 options
+    // -------------------------------------------------------------------------
+
+    @Test
+    void buttonDisplay_sendsClientValue() {
+        calendar.setOption(Option.BUTTON_DISPLAY, ButtonDisplay.ICON_TEXT);
+
+        assertEquals("icon-text", initialClientValue(Option.BUTTON_DISPLAY).asString());
+        assertEquals(ButtonDisplay.ICON_TEXT, calendar.getOption(Option.BUTTON_DISPLAY).orElseThrow());
+    }
+
+    @Test
+    void headerAlign_afterAttach_sendsClientValue() {
+        Serializable sent = clientValueAfterAttach(Option.DAY_HEADER_ALIGN,
+                () -> calendar.setOption(Option.DAY_HEADER_ALIGN, HeaderAlign.CENTER));
+
+        assertEquals("center", sent);
+        assertEquals(HeaderAlign.CENTER, calendar.getOption(Option.DAY_HEADER_ALIGN).orElseThrow());
+    }
+
+    // -------------------------------------------------------------------------
+    // Converted values of the FullCalendar 7 options
+    // -------------------------------------------------------------------------
+
+    @Test
+    void visibleRange_sendsStartAndEnd() {
+        calendar.setOption(Option.VISIBLE_RANGE, new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 3, 15)));
+
+        JsonNode json = initialClientValue(Option.VISIBLE_RANGE);
+        assertEquals("2025-03-01", json.get("start").asString());
+        assertEquals("2025-03-15", json.get("end").asString());
+    }
+
+    @Test
+    void now_sendsIsoDateOrUtcDateTime() {
+        calendar.setOption(Option.NOW, LocalDate.of(2025, 3, 10));
+        assertEquals("2025-03-10", initialClientValue(Option.NOW).asString());
+
+        LocalDateTime now = LocalDateTime.of(2025, 3, 10, 9, 30);
+        calendar.setOption(Option.NOW, now);
+        assertEquals("2025-03-10T09:30Z", initialClientValue(Option.NOW).asString());
+        assertEquals(now, calendar.getOption(Option.NOW).orElseThrow());
+    }
+
+    @Test
+    void defaultTimedEntryDuration_sendsDurationString() {
+        calendar.setOption(Option.DEFAULT_TIMED_ENTRY_DURATION, Duration.ofMinutes(90));
+
+        assertEquals("01:30:00", initialClientValue(Option.DEFAULT_TIMED_ENTRY_DURATION).asString());
     }
 }

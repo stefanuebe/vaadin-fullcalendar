@@ -78,6 +78,14 @@ calendar.setOption(Option.SCROLL_TIME, LocalTime.of(8, 0));
 | BR-07 | `NOW_INDICATOR` only works in timegrid views |
 | BR-08 | View-specific options can override these for particular views |
 | BR-09 | The "+N more" popover inherits `--fc-page-bg-color`. **Known gap**: FullCalendar's popover does not implement keyboard focus trapping or Escape-to-close-and-return-focus. This is a FC limitation. |
+| BR-10 | Format options (`DAY_CELL_FORMAT`, `TITLE_FORMAT`, …) take a format object, e.g. a `Map<String, Object>` |
+| BR-11 | `DURATION` takes a `Map` or a `String`, not a `java.time.Duration`, which is converted to hours, minutes and seconds and cannot express days or weeks. `DEFAULT_TIMED_ENTRY_DURATION` takes a `Duration` or a string, `DEFAULT_ALL_DAY_ENTRY_DURATION` a `Map` or a string |
+| BR-12 | `DAY_COUNT` sets the exact number of days, regardless of `WEEKENDS` and `HIDDEN_DAYS`. With `DURATION`, hidden days are omitted |
+| BR-13 | `NOW` takes a `LocalDate`, a `LocalDateTime` (sent as UTC, like entry start and end) or an ISO 8601 string |
+| BR-14 | `COLOR_SCHEME` is per calendar. Without it, the calendar follows what the page sets (e.g. `data-color-scheme` on a parent element) |
+| BR-15 | `HEADING_LEVEL` changes the `aria-level` of the title, not how it looks. Default 2 |
+| BR-16 | `DAY_NARROW_WIDTH` is the day column width in pixels below which FullCalendar uses narrow text. It shows up as `isNarrow` in the `info` of related render hooks |
+| BR-17 | `STICKY_HEADER_DATES` and `STICKY_FOOTER_SCROLLBAR` are deprecated aliases of `TABLE_HEADER_STICKY` and `FOOTER_SCROLLBAR_STICKY` |
 
 ---
 
@@ -92,6 +100,10 @@ calendar.setOption(Option.SCROLL_TIME, LocalTime.of(8, 0));
 - [ ] Now indicator visible in timegrid
 - [ ] Week numbers displayed when enabled
 - [ ] Custom scroll time positions timegrid correctly
+- [ ] Day cell and title formats change the shown text
+- [ ] `DAY_COUNT` and `DURATION` change the number of days shown
+- [ ] `NO_ENTRIES_TEXT` shows in an empty list view, `TODAY_TEXT` on the today button
+- [ ] `BORDERLESS_X` and `COLOR_SCHEME` change the calendar's appearance, `HEADING_LEVEL` sets `aria-level` of the title
 
 ---
 
@@ -100,9 +112,12 @@ calendar.setOption(Option.SCROLL_TIME, LocalTime.of(8, 0));
 ### Unit Tests
 - [ ] `DisplayOptionsTest` — option validation
 - [ ] `FullCalendarOptionsTest` — option setting/getting
+- `TypedOptionValuesTest` — typed values (`HeaderAlign`, `DateRange`, durations, `LocalDate`/`LocalDateTime` for `NOW`) reach the client in the expected form
+- `OptionCompletenessTest` (addon-scheduler) — every FullCalendar 7.1.0 option has a constant, or is left out with a reason
 
 ### E2E Tests
 - [ ] `display-options.spec.js` — display option rendering
+- [x] `fc7-options.spec.js`: `NO_ENTRIES_TEXT` shows in an empty list view, `HEADING_LEVEL` sets the toolbar title's heading level
 - [x] `more-link-click.spec.js`: action and callback, set before and after attach, are applied and the server receives the click
 
 ---
