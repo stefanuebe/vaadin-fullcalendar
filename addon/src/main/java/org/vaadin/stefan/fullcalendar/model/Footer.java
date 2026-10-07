@@ -20,7 +20,15 @@ import java.util.Collection;
 
 /**
  * Definition of footer for a calendar instance.
+ *
+ * @deprecated set the toolbar with {@link org.vaadin.stefan.fullcalendar.Option#HEADER_TOOLBAR} or
+ * {@link org.vaadin.stefan.fullcalendar.Option#FOOTER_TOOLBAR} and a {@code Map} of the positions
+ * ({@code start}, {@code center}, {@code end}) to FullCalendar's button string, for example
+ * {@code Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek")}.
+ * {@link org.vaadin.stefan.fullcalendar.ToolbarParts} has constants for the positions and the built-in buttons.
+ * This model knows only some of the buttons. View and custom buttons cannot be expressed with it, therefore it is deprecated.
  */
+@Deprecated(since = "8.0.0", forRemoval = true)
 public class Footer extends AbstractHeaderFooter {
 
     /**

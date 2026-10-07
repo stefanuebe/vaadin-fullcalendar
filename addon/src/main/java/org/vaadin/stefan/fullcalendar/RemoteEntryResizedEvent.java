@@ -25,22 +25,23 @@ import tools.jackson.databind.node.ObjectNode;
 import java.time.LocalDateTime;
 
 /**
- * Fires when an entry from a <em>client-managed</em> event source (JSON feed, Google Calendar, iCal) is resized.
+ * Fires when an entry from an entry source (a {@link RemoteEntrySource} such as a JSON feed, Google Calendar or
+ * iCal) is resized.
  * This event fires instead of {@link EntryResizedEvent} when the resized entry's id is not in the server-side
- * entry cache (i.e. it came from a {@link ClientSideEventSource}).
+ * entry cache (i.e. it came from a {@link RemoteEntrySource}).
  * <br><br>
  * The {@link #getEntry()} method returns a <em>transient</em> data carrier. NOT owned by any EntryProvider.
  * Use {@link #getOldEnd()} to get the end time before the resize.
  * <br><br>
- * Resize on client-managed source entries is opt-in. Set {@code withEditable(true)} or
- * {@code withDurationEditable(true)} on the {@link ClientSideEventSource} to enable it.
+ * Resize of entry source entries is opt-in. Set {@code withEditable(true)} or
+ * {@code withDurationEditable(true)} on the {@link RemoteEntrySource} to enable it.
  * <br><br>
  * Client side name: externalEntryResize
  */
 @DomEvent("externalEntryResize")
 @Getter
 @ToString
-public class ExternalEntryResizedEvent extends ExternalEntryEvent {
+public class RemoteEntryResizedEvent extends RemoteEntryEvent {
 
     /**
      * The end-time delta by which the entry was resized.
@@ -59,12 +60,12 @@ public class ExternalEntryResizedEvent extends ExternalEntryEvent {
      * @param fromClient  true if from client
      * @param entryData   JSON data of the resized entry (new end time)
      * @param jsonDelta   end delta JSON object
-     * @param sourceId    id of the ClientSideEventSource
+     * @param sourceId    id of the RemoteEntrySource
      */
-    public ExternalEntryResizedEvent(FullCalendar source, boolean fromClient,
-                                     @EventData("event.detail.data") ObjectNode entryData,
-                                     @EventData("event.detail.delta") ObjectNode jsonDelta,
-                                     @EventData("event.detail.sourceId") String sourceId) {
+    public RemoteEntryResizedEvent(FullCalendar source, boolean fromClient,
+                                   @EventData("event.detail.data") ObjectNode entryData,
+                                   @EventData("event.detail.delta") ObjectNode jsonDelta,
+                                   @EventData("event.detail.sourceId") String sourceId) {
         super(source, fromClient, entryData, sourceId);
         this.delta = Delta.fromJson(jsonDelta);
 

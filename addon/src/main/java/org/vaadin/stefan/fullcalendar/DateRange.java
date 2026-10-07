@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Stefan Uebe
+ * Copyright 2026, Stefan Uebe
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -14,30 +14,32 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.vaadin.stefan.fullcalendar.model;
+package org.vaadin.stefan.fullcalendar;
 
-import lombok.Getter;
+import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
- * Definition of header and footer positions.
+ * A range of dates, for example the value of {@link Option#VALID_RANGE}. Either bound may be {@code null} for an
+ * open-ended range. The end is exclusive, as in FullCalendar.
+ * <pre>{@code
+ * // nothing before March 2025
+ * calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 3, 1), null));
+ * }</pre>
  *
- * @deprecated set the toolbar with {@link org.vaadin.stefan.fullcalendar.Option#HEADER_TOOLBAR} or
- * {@link org.vaadin.stefan.fullcalendar.Option#FOOTER_TOOLBAR} and a {@code Map} of the positions
- * ({@code start}, {@code center}, {@code end}) to FullCalendar's button string, for example
- * {@code Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek")}.
- * {@link org.vaadin.stefan.fullcalendar.ToolbarParts} has constants for the positions and the built-in buttons.
- * This model knows only some of the buttons. View and custom buttons cannot be expressed with it, therefore it is deprecated.
+ * @param start first date of the range, or {@code null} for an open start
+ * @param end   date after the range, or {@code null} for an open end
  */
-@Deprecated(since = "8.0.0", forRemoval = true)
-@Getter
-public enum HeaderFooterPartPosition {
-	START("start"),
-	CENTER("center"),
-	END("end");
-	
-	private final String code;
-	
-	HeaderFooterPartPosition(String code) {
-		this.code = code;
-	}
+public record DateRange(LocalDate start, LocalDate end) implements Serializable {
+
+    /**
+     * Creates a new range.
+     *
+     * @throws IllegalArgumentException if both bounds are set and {@code start} is not before {@code end}
+     */
+    public DateRange {
+        if (start != null && end != null && !start.isBefore(end)) {
+            throw new IllegalArgumentException("Start must be before end");
+        }
+    }
 }

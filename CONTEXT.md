@@ -13,8 +13,8 @@ A single item shown on the calendar (a meeting, a booking, a holiday). FullCalen
 _Avoid_: Event (reserved for Vaadin component events)
 
 **Entry source**:
-A provider of entries that the calendar loads on its own, outside the server-side entry provider (for example a JSON feed or an iCalendar URL). FullCalendar JS calls it an "event source".
-_Avoid_: Event source, external entries
+A provider of entries that the browser loads on its own, outside the server-side entry provider (for example a JSON feed or an iCalendar URL). Called a remote entry source where it is set apart from the entry provider. FullCalendar JS calls it an "event source".
+_Avoid_: Event source, external entries, client-side source
 
 **Resource**:
 A thing entries can be assigned to in the scheduler views (a room, a person, a machine).

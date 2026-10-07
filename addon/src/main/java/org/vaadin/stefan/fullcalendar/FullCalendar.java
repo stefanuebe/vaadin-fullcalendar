@@ -20,6 +20,8 @@ import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.shared.Registration;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
@@ -55,7 +57,7 @@ import java.util.stream.Stream;
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-styles.css")
 @Tag("vaadin-full-calendar")
-public class FullCalendar extends Component implements HasStyle, HasSize, HasTheme {
+public class FullCalendar extends Component implements HasStyle, HasSize, HasTheme, LocaleChangeObserver {
 
     /**
      * The FullCalendar version used in this addon, for the core package and its plugins. Third-party libraries such as
@@ -108,6 +110,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private int timeslotsSelectedListenerCount;
 
     private Timezone browserTimezone;
+    private boolean autoBrowserTimezone;
+    private boolean autoUiLocale;
 
     private String currentViewName;
     private LocalDate currentIntervalStart;
@@ -122,9 +126,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private boolean autoProvideEntryIdOnClient = true;
 
     /**
-     * Server-side registry of client-managed event sources, keyed by source id.
+     * Server-side registry of remote entry sources, keyed by source id.
      */
-    private final Map<String, ClientSideEventSource<?>> clientSideEventSourceRegistry = new LinkedHashMap<>();
+    private final Map<String, RemoteEntrySource<?>> remoteEntrySourceRegistry = new LinkedHashMap<>();
 
     /**
      * Server-side registry of draggable components, keyed by draggable UUID.
@@ -147,7 +151,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public FullCalendar() {
         setOption(Option.LOCALE, CalendarLocale.getDefaultLocale());
-        setMaxEntriesPerDayUnlimited();
+        setOption(Option.DAY_MAX_ENTRIES, false);
         postConstruct();
     }
 
@@ -264,9 +268,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                             JsonUtils.toJsonNode(currentViewName),
                             JsonUtils.toJsonNode(currentIntervalStart));
 
-                    if (!clientSideEventSourceRegistry.isEmpty()) {
+                    if (!remoteEntrySourceRegistry.isEmpty()) {
                         ArrayNode sourcesArray = JsonFactory.createArray();
-                        clientSideEventSourceRegistry.values().stream().map(ClientSideEventSource::toJson).forEach(sourcesArray::add);
+                        remoteEntrySourceRegistry.values().stream().map(RemoteEntrySource::toJson).forEach(sourcesArray::add);
                         getElement().callJsFunction("restoreEventSources", sourcesArray);
                     }
 
@@ -575,14 +579,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
      * <br><br>
-     * Example:
-     * <pre>
-     * // sends a client parseable version to client and stores original in server side
-     * calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
-     *
-     * // returns the original locale (as optional)
-     * Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
-     * </pre>
      * Please be aware that this method does not check the passed value. Use the typed
      * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
      *
@@ -590,7 +586,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param value              value
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #setOption(Option, Object)} with the typed value. The option's converter creates the
+     * client-side value from it, so the client and {@link #getOption(Option)} cannot get out of step.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setOption(Option option, Object value, Object valueForServerSide) {
         setOption(option.getOptionKey(), value, valueForServerSide, option.getConverters());
     }
@@ -634,7 +633,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param valueForServerSide value to be stored on server side
      * @param converters         optional converters to apply to the value
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #setOption(String, Object, JsonItemPropertyConverter...)}. A converter creates the
+     * client-side value and the passed value is stored on the server side, so the two cannot get out of step.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setOption(String option, Object value, Object valueForServerSide, @SuppressWarnings("rawtypes") JsonItemPropertyConverter... converters) {
         setOption(option, value, valueForServerSide, List.of(converters));
     }
@@ -658,6 +660,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     private void callOptionUpdate(String option, Object value, Object valueForServerSide, String method, Serializable... additionalParameters) {
         Objects.requireNonNull(option);
+
+        // 0. A time zone given as id is kept as Timezone, so getOption() and the offset helpers can rely on it
+        if (Option.TIMEZONE.getOptionKey().equals(option)) {
+            if (valueForServerSide instanceof String id) {
+                valueForServerSide = parseTimezone(id);
+            } else if (valueForServerSide == null && value instanceof String id) {
+                value = parseTimezone(id);
+            }
+        }
 
         // 1. ENTRY_DID_MOUNT intercept: detect this key and route to merge logic
         if (Option.ENTRY_DID_MOUNT.getOptionKey().equals(option)) {
@@ -898,23 +909,50 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Does not affect the server side times of entries, only their client side displayment.
      *
      * @return time zone
+     * @deprecated use {@link #getOption(Option)} with {@link Option#TIMEZONE}. {@code getOption} is empty while the
+     * option is not set, where this method returns UTC, which is not necessarily the time zone the client uses.
+     * {@link #getOptionOrDefault(Option, Object)} with {@code Timezone.UTC} returns what this method returns
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public Timezone getTimezone() {
-        return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
+        return getTimezoneForOffsets();
+    }
+
+    /**
+     * Time zone the offset helpers of entries and events convert with: the time zone option, or UTC, the add-on's
+     * client default, while it is not set.
+     */
+    Timezone getTimezoneForOffsets() {
+        return getOptionOrDefault(Option.TIMEZONE, Timezone.UTC);
+    }
+
+    /**
+     * Turns a time zone id into a {@link Timezone}. FullCalendar's {@code "local"} is rejected, because the server
+     * needs the real zone to compute entry offsets.
+     */
+    private static Timezone parseTimezone(String id) {
+        if ("local".equalsIgnoreCase(id)) {
+            throw new IllegalArgumentException("The time zone \"local\" is not supported, because the server needs the "
+                    + "real zone. Use withAutoBrowserTimezone() to follow the browser's time zone.");
+        }
+        try {
+            return new Timezone(ZoneId.of(id));
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException("Unknown time zone id: " + id, e);
+        }
     }
 
     /**
      * Sets the timezone the calendar shall show. Does not affect the entries directly but only their client side displayment.
      *
-     * @param timezone
+     * @param timezone time zone to show the entries in
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#TIMEZONE}, which takes a {@link Timezone}
+     * or a time zone id
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setTimezone(Timezone timezone) {
         Objects.requireNonNull(timezone);
-
-        Timezone oldTimezone = getTimezone();
-        if (!timezone.equals(oldTimezone)) {
-            setOption(Option.TIMEZONE, timezone);
-        }
+        setOption(Option.TIMEZONE, timezone);
     }
 
     /**
@@ -926,7 +964,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
      *
      * @param maxEntriesPerDay maximal entries per day
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#DAY_MAX_ENTRIES} and the number
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setMaxEntriesPerDay(int maxEntriesPerDay) {
         setOption(Option.DAY_MAX_ENTRIES, maxEntriesPerDay);
     }
@@ -937,7 +977,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see #setMaxEntriesPerDay(int)
      * @see #setMaxEntriesPerDayUnlimited()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#DAY_MAX_ENTRIES} and {@code true}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setMaxEntriesPerDayFitToCell() {
         setOption(Option.DAY_MAX_ENTRIES, true);
     }
@@ -948,15 +990,58 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see #setMaxEntriesPerDay(int)
      * @see #setMaxEntriesPerDayFitToCell()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#DAY_MAX_ENTRIES} and {@code false}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setMaxEntriesPerDayUnlimited() {
         setOption(Option.DAY_MAX_ENTRIES, false);
     }
 
 
     /**
+     * Lets the calendar follow the time zone of the browser. The client reports it after attach, and the calendar
+     * sets it as {@link Option#TIMEZONE}. If the browser time zone is already known, it is applied at once. A later
+     * {@code setOption(Option.TIMEZONE, …)} applies until the browser reports its time zone again, for instance
+     * after the calendar is attached anew.
+     *
+     * @return this instance
+     */
+    public FullCalendar withAutoBrowserTimezone() {
+        autoBrowserTimezone = true;
+        getBrowserTimezone().ifPresent(timezone -> setOption(Option.TIMEZONE, timezone));
+        return this;
+    }
+
+    /**
+     * Lets the calendar follow the locale of the UI. The calendar sets the UI locale as {@link Option#LOCALE} on
+     * attach and whenever the UI locale changes ({@link UI#setLocale(Locale)}). Vaadin
+     * derives the initial UI locale from the browser, unless the application sets it. A later
+     * {@code setOption(Option.LOCALE, …)} applies until the next locale change.
+     *
+     * @return this instance
+     */
+    public FullCalendar withAutoUiLocale() {
+        autoUiLocale = true;
+        getUI().ifPresent(ui -> setOption(Option.LOCALE, ui.getLocale()));
+        return this;
+    }
+
+    /**
+     * Sets the UI locale as {@link Option#LOCALE}, if {@link #withAutoUiLocale()} is enabled. Called by Vaadin on
+     * attach and when the UI locale changes. Does nothing otherwise.
+     *
+     * @param event locale change event
+     */
+    @Override
+    public void localeChange(LocaleChangeEvent event) {
+        if (autoUiLocale) {
+            setOption(Option.LOCALE, event.getLocale());
+        }
+    }
+
+    /**
      * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone,
-     * except for when the FC builder has been used with the auto timezone parameter.
+     * unless {@link #withAutoBrowserTimezone()} is enabled.
      * <p></p>
      * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
      *
@@ -975,6 +1060,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     protected void setBrowserTimezone(String timezoneId) {
         if (timezoneId != null) {
             this.browserTimezone = new Timezone(ZoneId.of(timezoneId));
+            if (autoBrowserTimezone) {
+                setOption(Option.TIMEZONE, browserTimezone);
+            }
             getEventBus().fireEvent(new BrowserTimezoneObtainedEvent(this, false, browserTimezone));
         }
     }
@@ -991,6 +1079,40 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public <T> Optional<T> getOption(Option option) {
         return getOption(option, false);
+    }
+
+    /**
+     * Returns the value of the given option like {@link #getOption(Option)}, or the given default when the option
+     * is not set. Named like {@link Map#getOrDefault(Object, Object)}, because a {@code getOption} overload with a
+     * {@code Boolean} default would clash with {@link #getOption(Option, boolean)}.
+     * <pre>{@code
+     * Timezone timezone = calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC);
+     * }</pre>
+     *
+     * @param option       option
+     * @param defaultValue value to return when the option is not set
+     * @param <T>          type of value
+     * @return the option's value or the default
+     * @throws NullPointerException when null is passed as option
+     * @throws ClassCastException at the call site when the option's value is not of the default's type
+     */
+    public <T> T getOptionOrDefault(Option option, T defaultValue) {
+        return this.<T>getOption(option).orElse(defaultValue);
+    }
+
+    /**
+     * Returns the value of the given option like {@link #getOption(String)}, or the given default when the option
+     * is not set.
+     *
+     * @param option       option
+     * @param defaultValue value to return when the option is not set
+     * @param <T>          type of value
+     * @return the option's value or the default
+     * @throws NullPointerException when null is passed as option
+     * @see #getOptionOrDefault(Option, Object)
+     */
+    public <T> T getOptionOrDefault(String option, T defaultValue) {
+        return this.<T>getOption(option).orElse(defaultValue);
     }
 
     /**
@@ -1543,104 +1665,104 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Adds a client-side event source to this calendar. The browser will fetch events from this source directly,
+     * Adds a remote entry source to this calendar. The browser will fetch entries from this source directly,
      * bypassing the server-side {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
      * <br><br>
      * A server-side registry entry is kept so the source can be restored on reattachment.
      * <br><br>
      * Returns a {@link Registration} that removes this source when invoked.
      *
-     * @param source event source to add; must not be null
+     * @param source entry source to add; must not be null
      * @return a registration that removes the source
      * @throws NullPointerException if source is null
      */
-    public Registration addClientSideEventSource(ClientSideEventSource<?> source) {
+    public Registration addRemoteEntrySource(RemoteEntrySource<?> source) {
         Objects.requireNonNull(source, "source must not be null");
-        clientSideEventSourceRegistry.put(source.getId(), source);
+        remoteEntrySourceRegistry.put(source.getId(), source);
         getElement().callJsFunction("addEventSource", source.toJson());
-        return () -> removeClientSideEventSource(source.getId());
+        return () -> removeRemoteEntrySource(source.getId());
     }
 
     /**
-     * Removes the client-side event source with the given id from this calendar.
+     * Removes the remote entry source with the given id from this calendar.
      * Does nothing if no source with that id has been added.
      *
      * @param id id of the source to remove; must not be null
      * @throws NullPointerException if id is null
      */
-    public void removeClientSideEventSource(String id) {
+    public void removeRemoteEntrySource(String id) {
         Objects.requireNonNull(id, "id must not be null");
-        clientSideEventSourceRegistry.remove(id);
+        remoteEntrySourceRegistry.remove(id);
         getElement().callJsFunction("removeEventSource", id);
     }
 
     /**
-     * Replaces all current client-side event sources with the given collection.
+     * Replaces all current remote entry sources with the given collection.
      * Previously added sources are removed. If the collection is empty, all client-side
      * sources are cleared.
      * <br><br>
-     * Returns a {@link Registration} that clears all client-side event sources when invoked.
+     * Returns a {@link Registration} that clears all remote entry sources when invoked.
      *
-     * @param sources new set of event sources; must not be null
-     * @return a registration that clears all client-side sources
+     * @param sources new set of entry sources; must not be null
+     * @return a registration that clears all remote entry sources
      * @throws NullPointerException if sources is null
      */
-    public Registration setClientSideEventSources(java.util.Collection<? extends ClientSideEventSource<?>> sources) {
+    public Registration setRemoteEntrySources(java.util.Collection<? extends RemoteEntrySource<?>> sources) {
         Objects.requireNonNull(sources, "sources must not be null");
-        clientSideEventSourceRegistry.clear();
-        sources.forEach(s -> clientSideEventSourceRegistry.put(s.getId(), s));
+        remoteEntrySourceRegistry.clear();
+        sources.forEach(s -> remoteEntrySourceRegistry.put(s.getId(), s));
         ArrayNode array = JsonFactory.createArray();
-        sources.stream().map(ClientSideEventSource::toJson).forEach(array::add);
+        sources.stream().map(RemoteEntrySource::toJson).forEach(array::add);
         getElement().callJsFunction("setEventSources", array);
-        return () -> setClientSideEventSources(java.util.Collections.emptyList());
+        return () -> setRemoteEntrySources(java.util.Collections.emptyList());
     }
 
     /**
-     * Returns an unmodifiable view of all registered client-side event sources.
+     * Returns an unmodifiable view of all registered remote entry sources.
      *
-     * @return collection of registered event sources
+     * @return collection of registered entry sources
      */
-    public java.util.Collection<ClientSideEventSource<?>> getClientSideEventSources() {
-        return java.util.Collections.unmodifiableCollection(clientSideEventSourceRegistry.values());
+    public java.util.Collection<RemoteEntrySource<?>> getRemoteEntrySources() {
+        return java.util.Collections.unmodifiableCollection(remoteEntrySourceRegistry.values());
     }
 
     /**
-     * Returns the client-side event source with the given ID, or empty if no such source is registered.
+     * Returns the remote entry source with the given ID, or empty if no such source is registered.
      *
-     * @param id event source id; must not be null
-     * @return the event source, or empty
+     * @param id entry source id; must not be null
+     * @return the entry source, or empty
      * @throws NullPointerException if id is null
      */
-    public Optional<ClientSideEventSource<?>> getClientSideEventSourceById(String id) {
+    public Optional<RemoteEntrySource<?>> getRemoteEntrySourceById(String id) {
         Objects.requireNonNull(id, "id must not be null");
-        return Optional.ofNullable(clientSideEventSourceRegistry.get(id));
+        return Optional.ofNullable(remoteEntrySourceRegistry.get(id));
     }
 
     /**
-     * Forces all event sources to re-fetch their data immediately. This includes both the server-side
-     * {@link EntryProvider} and any client-side event sources added via {@link #addClientSideEventSource}.
+     * Forces all entry sources to re-fetch their data immediately. This includes both the server-side
+     * {@link EntryProvider} and any remote entry sources added via {@link #addRemoteEntrySource}.
      * <br><br>
-     * To refresh only a single client-side source, use {@link #refetchClientSideEventSource(String)}.
+     * To refresh only a single remote entry source, use {@link #refetchRemoteEntrySource(String)}.
      */
     public void refetchEvents() {
         getElement().callJsFunction("refetchEvents");
     }
 
     /**
-     * Forces a single <em>client-side</em> event source to re-fetch its data. Only the source with the given id is
+     * Forces a single <em>remote</em> entry source to re-fetch its data. Only the source with the given id is
      * refreshed; all other sources remain untouched.
      * <br><br>
-     * <strong>Important:</strong> This method only works for client-side event sources added via
-     * {@link #addClientSideEventSource} (e.g. {@link JsonFeedEventSource}, {@link GoogleCalendarEventSource},
-     * {@link ICalendarEventSource}). It cannot be used to refresh the server-side {@link EntryProvider} — use
+     * <strong>Important:</strong> This method only works for remote entry sources added via
+     * {@link #addRemoteEntrySource} (e.g. {@link JsonFeedEntrySource}, {@link GoogleCalendarEntrySource},
+     * {@link ICalendarEntrySource}). It cannot be used to refresh the server-side {@link EntryProvider} — use
      * {@link #refetchEvents()} or the entry provider's own {@code refresh} methods for that.
      *
-     * @param sourceId the id of the client-side event source to refetch; must not be null
+     * @param sourceId the id of the remote entry source to refetch; must not be null
      * @throws NullPointerException when null is passed
      * @see #refetchEvents()
      * @see <a href="https://fullcalendar.io/docs/EventSource-refetch">EventSource::refetch</a>
      */
-    public void refetchClientSideEventSource(String sourceId) {
+    public void refetchRemoteEntrySource(String sourceId) {
         Objects.requireNonNull(sourceId);
         getElement().executeJs("var s = this.calendar.getEventSourceById($0); if (s) s.refetch();", sourceId);
     }
@@ -1650,45 +1772,45 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
     /**
-     * Registers a listener for when a client-managed event source fails to load.
+     * Registers a listener for when a remote entry source fails to load.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEventSourceFailureListener(ComponentEventListener<EventSourceFailureEvent> listener) {
+    public Registration addRemoteEntrySourceFailureListener(ComponentEventListener<RemoteEntrySourceFailureEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EventSourceFailureEvent.class, listener);
+        return addListener(RemoteEntrySourceFailureEvent.class, listener);
     }
 
     /**
-     * Registers a listener for when an entry from a client-managed event source is dragged to a new time slot.
-     * Fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not in the server-side cache.
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is dragged to a new
+     * time slot. Fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not in the server-side cache.
      * <br><br>
-     * Requires that drag/drop is enabled on the source via {@link ClientSideEventSource#withEditable(boolean) withEditable(true)}.
+     * Requires that drag/drop is enabled on the source via {@link RemoteEntrySource#withEditable(boolean) withEditable(true)}.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addExternalEntryDroppedListener(ComponentEventListener<ExternalEntryDroppedEvent> listener) {
+    public Registration addRemoteEntryDroppedListener(ComponentEventListener<RemoteEntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(ExternalEntryDroppedEvent.class, listener);
+        return addListener(RemoteEntryDroppedEvent.class, listener);
     }
 
     /**
-     * Registers a listener for when an entry from a client-managed event source is resized.
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is resized.
      * Fires instead of {@link EntryResizedEvent} when the resized entry's id is not in the server-side cache.
      * <br><br>
-     * Requires that resize is enabled on the source via {@link ClientSideEventSource#withEditable(boolean) withEditable(true)}.
+     * Requires that resize is enabled on the source via {@link RemoteEntrySource#withEditable(boolean) withEditable(true)}.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addExternalEntryResizedListener(ComponentEventListener<ExternalEntryResizedEvent> listener) {
+    public Registration addRemoteEntryResizedListener(ComponentEventListener<RemoteEntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(ExternalEntryResizedEvent.class, listener);
+        return addListener(RemoteEntryResizedEvent.class, listener);
     }
 
     /**
@@ -1700,9 +1822,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param moreLinkClickAction action to set
      * @see MoreLinkClickAction
      * @see Option#MORE_LINK_CLICK
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#MORE_LINK_CLICK}, which takes the
+     * {@link MoreLinkClickAction}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setMoreLinkClickAction(MoreLinkClickAction moreLinkClickAction) {
-        getElement().setProperty("moreLinkClickAction", (moreLinkClickAction != null ? moreLinkClickAction : MoreLinkClickAction.POPUP).getClientSideValue());
+        setOption(Option.MORE_LINK_CLICK, moreLinkClickAction);
     }
 
 
@@ -1762,63 +1887,53 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Restricts the calendar so the user cannot navigate before {@code start}. Dates before this date are grayed
      * out and the previous-navigation buttons stop at this boundary. The end of the valid range remains open.
-     * <br><br>
-     * Use {@link #setValidRange(LocalDate, LocalDate)} to set both boundaries at once, or
-     * {@link #clearValidRange()} to remove the restriction.
      *
      * @param start earliest date the user can navigate to; must not be null
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and
+     * {@code new DateRange(start, null)}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setValidRangeStart(LocalDate start) {
-        setValidRange(start, null);
+        setOption(Option.VALID_RANGE, new DateRange(start, null));
     }
 
     /**
      * Restricts the calendar so the user cannot navigate past {@code end}. Dates after this date are grayed
      * out and the next-navigation buttons stop at this boundary. The start of the valid range remains open.
-     * <br><br>
-     * Use {@link #setValidRange(LocalDate, LocalDate)} to set both boundaries at once, or
-     * {@link #clearValidRange()} to remove the restriction.
      *
      * @param end latest date the user can navigate to; must not be null
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and
+     * {@code new DateRange(null, end)}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setValidRangeEnd(LocalDate end) {
-        setValidRange(null, end);
+        setOption(Option.VALID_RANGE, new DateRange(null, end));
     }
 
     /**
      * Restricts navigation to the given date range. Dates outside the range are grayed out and navigation
      * buttons stop at the boundaries. Pass {@code null} for either boundary to leave it open-ended.
      * Pass {@code null} for both to remove all restrictions (same as {@link #clearValidRange()}).
-     * <br><br>
-     * A static valid range set here is overridden if {@link Option#VALID_RANGE} is also configured with a
-     * {@link JsCallback}.
      *
      * @param start earliest navigable date, or {@code null} for open start
      * @param end   latest navigable date, or {@code null} for open end
      * @throws IllegalArgumentException if both are non-null and {@code start} is not before {@code end}
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and a {@link DateRange}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setValidRange(LocalDate start, LocalDate end) {
-        if (start != null && end != null && !(start.isBefore(end))) {
-            throw new IllegalArgumentException("Start must be before end");
-        }
-
-        ObjectNode jsonObject = JsonFactory.createObject();
-        if (start != null) {
-            jsonObject.put("start", JsonUtils.formatClientSideDateString(start));
-        }
-        if (end != null) {
-            jsonObject.put("end", JsonUtils.formatClientSideDateString(end));
-        }
-        setOption(Option.VALID_RANGE, jsonObject);
+        setOption(Option.VALID_RANGE, start == null && end == null ? null : new DateRange(start, end));
     }
 
     /**
      * Removes any navigation restriction previously set by {@link #setValidRange}, {@link #setValidRangeStart},
      * or {@link #setValidRangeEnd}. Also removes a dynamic valid range callback ({@link Option#VALID_RANGE})
      * if one had been set before. The user can navigate freely again.
+     *
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and {@code null}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void clearValidRange() {
-        setValidRange(null, null);
         setOption(Option.VALID_RANGE, null);
     }
 

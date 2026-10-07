@@ -29,9 +29,9 @@
 ```java
 // Configure header
 calendar.setOption(Option.HEADER_TOOLBAR,
-    Map.of("left", "prev,next,today",
+    Map.of("start", "prev,next,today",
            "center", "title",
-           "right", "dayGridMonth,timeGridWeek,timeGridDay"));
+           "end", "dayGridMonth,timeGridWeek,timeGridDay"));
 
 // Hide header toolbar
 calendar.setOption(Option.HEADER_TOOLBAR, false);
@@ -57,10 +57,11 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 
 | ID | Rule |
 |----|------|
-| BR-01 | Toolbar maps accept keys `"left"`, `"center"`, `"right"` |
-| BR-02 | Button names: `prev`, `next`, `today`, `prevYear`, `nextYear`, `title`, and any FC view name |
+| BR-01 | Toolbar maps accept keys `"start"`, `"center"`, `"end"` (FullCalendar also accepts `"left"` and `"right"`) |
+| BR-02 | Button names: `prev`, `next`, `today`, `prevYear`, `nextYear`, `title`, and any FC view name. `ToolbarParts` holds the positions and built-in names as constants |
 | BR-03 | Buttons separated by commas appear as a group; space-separated buttons have spacing between them |
 | BR-04 | Setting toolbar to `false` hides it entirely |
+| BR-05 | The toolbar model (`Header`, `Footer`, `HeaderFooterPart`, …) is deprecated in favour of the map |
 
 ---
 
@@ -77,10 +78,10 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 ## Tests
 
 ### Unit Tests
-- [ ] No dedicated unit tests — toolbar is covered by E2E tests
+- [x] `ToolbarOptionsTest`: toolbar maps, `false` and `null` reach the client, `ToolbarParts` builds the strings FullCalendar expects
 
 ### E2E Tests
-- [ ] `calendar-toolbar.spec.js` — toolbar rendering and customization
+- [x] `advanced-options.spec.js`: header and footer toolbar set as maps, view button switches the view
 
 ---
 

@@ -118,4 +118,20 @@ public class FullCalendarOptionsTest {
     private static Set<Class<?>> converterTypes(Option option) {
         return option.getConverters().stream().map(Object::getClass).collect(Collectors.toSet());
     }
+
+    @Test
+    void getOptionOrDefault_returnsValueOrDefault() {
+        FullCalendar calendar = new FullCalendar();
+        Timezone berlin = new Timezone(java.time.ZoneId.of("Europe/Berlin"));
+
+        assertEquals(Timezone.UTC, calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
+        assertEquals("fallback", calendar.getOptionOrDefault("someUnsetOption", "fallback"));
+
+        calendar.setOption(Option.TIMEZONE, berlin);
+        calendar.setOption(Option.EDITABLE, false);
+
+        assertEquals(berlin, calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
+        assertEquals(false, calendar.getOptionOrDefault(Option.EDITABLE, true));
+        assertEquals(berlin, calendar.getOptionOrDefault(Option.TIMEZONE.getOptionKey(), Timezone.UTC));
+    }
 }

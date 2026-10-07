@@ -25,30 +25,30 @@ import tools.jackson.databind.node.ObjectNode;
 import java.time.LocalDateTime;
 
 /**
- * Fires when an entry from a <em>client-managed</em> event source (JSON feed, Google Calendar, iCal) is dragged
- * to a new time slot. This event fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not
- * found in the server-side entry cache (i.e. it came from a {@link ClientSideEventSource}, not from the
+ * Fires when an entry from an entry source (a {@link RemoteEntrySource} such as a JSON feed, Google Calendar or
+ * iCal) is dragged to a new time slot. This event fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not
+ * found in the server-side entry cache (i.e. it came from a {@link RemoteEntrySource}, not from the
  * server-side {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}).
  * <br><br>
  * The {@link #getEntry()} method returns a <em>transient</em> data carrier constructed from the dropped entry's
  * JS data. This entry is NOT part of any {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
  * Do not add it to a provider; instead, use it to read the entry id and new position, then call the appropriate
  * external API (e.g. Google Calendar API) to persist the change.
- * The entry's {@link Entry#getId()} matches the FullCalendar event id as set in the external source —
+ * The entry's {@link Entry#getId()} matches the FullCalendar event id as set in the entry source,
  * use this id to locate and update the corresponding record in the external system.
  * <br><br>
  * {@link #getOldStart()} and {@link #getOldEnd()} return the position before the drag (computed from the
  * delta applied in reverse).
  * <br><br>
- * Drag/drop on client-managed source entries is opt-in. Set {@code withEditable(true)} on the
- * {@link ClientSideEventSource} to enable it.
+ * Drag/drop of entry source entries is opt-in. Set {@code withEditable(true)} on the
+ * {@link RemoteEntrySource} to enable it.
  * <br><br>
  * Client side name: externalEntryDrop
  */
 @DomEvent("externalEntryDrop")
 @Getter
 @ToString
-public class ExternalEntryDroppedEvent extends ExternalEntryEvent {
+public class RemoteEntryDroppedEvent extends RemoteEntryEvent {
 
     /**
      * The delta by which the entry was moved.
@@ -72,12 +72,12 @@ public class ExternalEntryDroppedEvent extends ExternalEntryEvent {
      * @param fromClient  true if from client
      * @param entryData   JSON data of the dropped entry (new position)
      * @param jsonDelta   delta JSON object
-     * @param sourceId    id of the ClientSideEventSource
+     * @param sourceId    id of the RemoteEntrySource
      */
-    public ExternalEntryDroppedEvent(FullCalendar source, boolean fromClient,
-                                     @EventData("event.detail.data") ObjectNode entryData,
-                                     @EventData("event.detail.delta") ObjectNode jsonDelta,
-                                     @EventData("event.detail.sourceId") String sourceId) {
+    public RemoteEntryDroppedEvent(FullCalendar source, boolean fromClient,
+                                   @EventData("event.detail.data") ObjectNode entryData,
+                                   @EventData("event.detail.delta") ObjectNode jsonDelta,
+                                   @EventData("event.detail.sourceId") String sourceId) {
         super(source, fromClient, entryData, sourceId);
         this.delta = Delta.fromJson(jsonDelta);
 

@@ -1,10 +1,13 @@
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.dom.DomEvent;
+import com.vaadin.flow.internal.nodefeature.ElementListenerMap;
 import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
- * Tests for event source improvements.
- * Covers ClientSideEventSource subclasses, toJson() output, Option enum keys, FullCalendar API,
+ * Tests for remote entry sources.
+ * Covers RemoteEntrySource subclasses, toJson() output, Option enum keys, FullCalendar API,
  * and the new server-side event classes.
  */
 public class EventSourcesTest {
@@ -79,50 +82,50 @@ public class EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // JsonFeedEventSource — toJson()
+    // JsonFeedEntrySource — toJson()
     // -------------------------------------------------------------------------
 
     @Test
-    void jsonFeedEventSource_toJson_hasUrl() {
-        JsonFeedEventSource source = new JsonFeedEventSource("/api/events");
+    void jsonFeedEntrySource_toJson_hasUrl() {
+        JsonFeedEntrySource source = new JsonFeedEntrySource("/api/events");
         ObjectNode json = source.toJson();
         assertEquals("/api/events", json.get("url").asString());
     }
 
     @Test
-    void jsonFeedEventSource_toJson_hasDefaultMethod() {
-        ObjectNode json = new JsonFeedEventSource("/api/events").toJson();
+    void jsonFeedEntrySource_toJson_hasDefaultMethod() {
+        ObjectNode json = new JsonFeedEntrySource("/api/events").toJson();
         assertEquals("GET", json.get("method").asString());
     }
 
     @Test
-    void jsonFeedEventSource_toJson_hasId() {
-        JsonFeedEventSource source = new JsonFeedEventSource("/api/events").withId("feed-1");
+    void jsonFeedEntrySource_toJson_hasId() {
+        JsonFeedEntrySource source = new JsonFeedEntrySource("/api/events").withId("feed-1");
         assertEquals("feed-1", source.toJson().get("id").asString());
     }
 
     @Test
-    void jsonFeedEventSource_toJson_hasColor() {
-        ObjectNode json = new JsonFeedEventSource("/api/events").withColor("steelblue").toJson();
+    void jsonFeedEntrySource_toJson_hasColor() {
+        ObjectNode json = new JsonFeedEntrySource("/api/events").withColor("steelblue").toJson();
         assertEquals("steelblue", json.get("color").asString());
     }
 
     @Test
-    void jsonFeedEventSource_toJson_editableDefaultAbsent() {
+    void jsonFeedEntrySource_toJson_editableDefaultAbsent() {
         // editable is not set by default — null means not serialized
-        ObjectNode json = new JsonFeedEventSource("/api/events").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api/events").toJson();
         assertFalse(json.has("editable"), "editable should not appear when not set");
     }
 
     @Test
-    void jsonFeedEventSource_toJson_editableWhenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api/events").withEditable(true).toJson();
+    void jsonFeedEntrySource_toJson_editableWhenSet() {
+        ObjectNode json = new JsonFeedEntrySource("/api/events").withEditable(true).toJson();
         assertTrue(json.get("editable").asBoolean());
     }
 
     @Test
-    void jsonFeedEventSource_toJson_extraParams() {
-        ObjectNode json = new JsonFeedEventSource("/api/events")
+    void jsonFeedEntrySource_toJson_extraParams() {
+        ObjectNode json = new JsonFeedEntrySource("/api/events")
                 .withExtraParams(Map.of("roomId", "101"))
                 .toJson();
         assertTrue(json.has("extraParams"));
@@ -130,19 +133,19 @@ public class EventSourcesTest {
     }
 
     @Test
-    void jsonFeedEventSource_toJson_method_post() {
-        ObjectNode json = new JsonFeedEventSource("/api/events").withMethod("POST").toJson();
+    void jsonFeedEntrySource_toJson_method_post() {
+        ObjectNode json = new JsonFeedEntrySource("/api/events").withMethod("POST").toJson();
         assertEquals("POST", json.get("method").asString());
     }
 
     @Test
-    void jsonFeedEventSource_constructor_nullUrl_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> new JsonFeedEventSource(null));
+    void jsonFeedEntrySource_constructor_nullUrl_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> new JsonFeedEntrySource(null));
     }
 
     @Test
-    void jsonFeedEventSource_toJson_classNames() {
-        ObjectNode json = new JsonFeedEventSource("/api/events")
+    void jsonFeedEntrySource_toJson_classNames() {
+        ObjectNode json = new JsonFeedEntrySource("/api/events")
                 .withClassNames(List.of("foo", "bar"))
                 .toJson();
         assertEquals("foo bar", json.get("className").asString());
@@ -150,8 +153,8 @@ public class EventSourcesTest {
     }
 
     @Test
-    void jsonFeedEventSource_toJson_colors() {
-        ObjectNode json = new JsonFeedEventSource("/api/events")
+    void jsonFeedEntrySource_toJson_colors() {
+        ObjectNode json = new JsonFeedEntrySource("/api/events")
                 .withColor("red")
                 .withContrastColor("white")
                 .toJson();
@@ -162,75 +165,75 @@ public class EventSourcesTest {
 
     @Test
     @SuppressWarnings("removal")
-    void jsonFeedEventSource_withTextColor_setsContrastColor() {
-        ObjectNode json = new JsonFeedEventSource("/api/events").withTextColor("white").toJson();
+    void jsonFeedEntrySource_withTextColor_setsContrastColor() {
+        ObjectNode json = new JsonFeedEntrySource("/api/events").withTextColor("white").toJson();
         assertEquals("white", json.get("contrastColor").asString());
     }
 
     // -------------------------------------------------------------------------
-    // GoogleCalendarEventSource — toJson()
+    // GoogleCalendarEntrySource — toJson()
     // -------------------------------------------------------------------------
 
     @Test
-    void googleCalendarEventSource_toJson_hasGoogleCalendarId() {
-        ObjectNode json = new GoogleCalendarEventSource("abc@group.calendar.google.com").toJson();
+    void googleCalendarEntrySource_toJson_hasGoogleCalendarId() {
+        ObjectNode json = new GoogleCalendarEntrySource("abc@group.calendar.google.com").toJson();
         assertEquals("abc@group.calendar.google.com", json.get("googleCalendarId").asString());
     }
 
     @Test
-    void googleCalendarEventSource_toJson_hasId() {
-        ObjectNode json = new GoogleCalendarEventSource("abc@group.calendar.google.com")
+    void googleCalendarEntrySource_toJson_hasId() {
+        ObjectNode json = new GoogleCalendarEntrySource("abc@group.calendar.google.com")
                 .withId("holidays")
                 .toJson();
         assertEquals("holidays", json.get("id").asString());
     }
 
     @Test
-    void googleCalendarEventSource_toJson_apiKeyAbsentByDefault() {
-        ObjectNode json = new GoogleCalendarEventSource("abc@group.calendar.google.com").toJson();
+    void googleCalendarEntrySource_toJson_apiKeyAbsentByDefault() {
+        ObjectNode json = new GoogleCalendarEntrySource("abc@group.calendar.google.com").toJson();
         assertFalse(json.has("googleCalendarApiKey"));
     }
 
     @Test
-    void googleCalendarEventSource_toJson_apiKeyWhenSet() {
-        ObjectNode json = new GoogleCalendarEventSource("abc@group.calendar.google.com")
+    void googleCalendarEntrySource_toJson_apiKeyWhenSet() {
+        ObjectNode json = new GoogleCalendarEntrySource("abc@group.calendar.google.com")
                 .withApiKey("AIzaSy-override")
                 .toJson();
         assertEquals("AIzaSy-override", json.get("googleCalendarApiKey").asString());
     }
 
     @Test
-    void googleCalendarEventSource_constructor_nullId_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> new GoogleCalendarEventSource(null));
+    void googleCalendarEntrySource_constructor_nullId_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> new GoogleCalendarEntrySource(null));
     }
 
     // -------------------------------------------------------------------------
-    // ICalendarEventSource — toJson()
+    // ICalendarEntrySource — toJson()
     // -------------------------------------------------------------------------
 
     @Test
-    void iCalendarEventSource_toJson_hasUrl() {
-        ObjectNode json = new ICalendarEventSource("https://example.com/cal.ics").toJson();
+    void iCalendarEntrySource_toJson_hasUrl() {
+        ObjectNode json = new ICalendarEntrySource("https://example.com/cal.ics").toJson();
         assertEquals("https://example.com/cal.ics", json.get("url").asString());
     }
 
     @Test
-    void iCalendarEventSource_toJson_hasFormatIcs() {
-        ObjectNode json = new ICalendarEventSource("https://example.com/cal.ics").toJson();
+    void iCalendarEntrySource_toJson_hasFormatIcs() {
+        ObjectNode json = new ICalendarEntrySource("https://example.com/cal.ics").toJson();
         assertEquals("ics", json.get("format").asString());
     }
 
     @Test
-    void iCalendarEventSource_toJson_hasId() {
-        ObjectNode json = new ICalendarEventSource("https://example.com/cal.ics")
+    void iCalendarEntrySource_toJson_hasId() {
+        ObjectNode json = new ICalendarEntrySource("https://example.com/cal.ics")
                 .withId("holiday-ics")
                 .toJson();
         assertEquals("holiday-ics", json.get("id").asString());
     }
 
     @Test
-    void iCalendarEventSource_constructor_nullUrl_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> new ICalendarEventSource(null));
+    void iCalendarEntrySource_constructor_nullUrl_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> new ICalendarEntrySource(null));
     }
 
     // -------------------------------------------------------------------------
@@ -238,48 +241,48 @@ public class EventSourcesTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void addClientSideEventSource_registersSource() {
-        JsonFeedEventSource source = new JsonFeedEventSource("/api").withId("src-1");
-        calendar.addClientSideEventSource(source);
-        assertTrue(calendar.getClientSideEventSources().contains(source));
+    void addRemoteEntrySource_registersSource() {
+        JsonFeedEntrySource source = new JsonFeedEntrySource("/api").withId("src-1");
+        calendar.addRemoteEntrySource(source);
+        assertTrue(calendar.getRemoteEntrySources().contains(source));
     }
 
     @Test
-    void addClientSideEventSource_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.addClientSideEventSource(null));
+    void addRemoteEntrySource_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.addRemoteEntrySource(null));
     }
 
     @Test
-    void removeClientSideEventSource_removesFromRegistry() {
-        JsonFeedEventSource source = new JsonFeedEventSource("/api").withId("src-1");
-        calendar.addClientSideEventSource(source);
-        calendar.removeClientSideEventSource("src-1");
-        assertFalse(calendar.getClientSideEventSources().contains(source));
+    void removeRemoteEntrySource_removesFromRegistry() {
+        JsonFeedEntrySource source = new JsonFeedEntrySource("/api").withId("src-1");
+        calendar.addRemoteEntrySource(source);
+        calendar.removeRemoteEntrySource("src-1");
+        assertFalse(calendar.getRemoteEntrySources().contains(source));
     }
 
     @Test
-    void removeClientSideEventSource_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.removeClientSideEventSource(null));
+    void removeRemoteEntrySource_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.removeRemoteEntrySource(null));
     }
 
     @Test
-    void setClientSideEventSources_replacesAll() {
-        calendar.addClientSideEventSource(new JsonFeedEventSource("/old").withId("old"));
-        JsonFeedEventSource newSource = new JsonFeedEventSource("/new").withId("new");
-        calendar.setClientSideEventSources(List.of(newSource));
-        Collection<ClientSideEventSource<?>> sources = calendar.getClientSideEventSources();
+    void setRemoteEntrySources_replacesAll() {
+        calendar.addRemoteEntrySource(new JsonFeedEntrySource("/old").withId("old"));
+        JsonFeedEntrySource newSource = new JsonFeedEntrySource("/new").withId("new");
+        calendar.setRemoteEntrySources(List.of(newSource));
+        Collection<RemoteEntrySource<?>> sources = calendar.getRemoteEntrySources();
         assertEquals(1, sources.size());
         assertTrue(sources.contains(newSource));
     }
 
     @Test
-    void setClientSideEventSources_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.setClientSideEventSources(null));
+    void setRemoteEntrySources_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.setRemoteEntrySources(null));
     }
 
     @Test
-    void getClientSideEventSources_emptyInitially() {
-        assertTrue(calendar.getClientSideEventSources().isEmpty());
+    void getRemoteEntrySources_emptyInitially() {
+        assertTrue(calendar.getRemoteEntrySources().isEmpty());
     }
 
     @Test
@@ -292,44 +295,99 @@ public class EventSourcesTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void addEventSourceFailureListener_returnsRegistration() {
-        Registration reg = calendar.addEventSourceFailureListener(event -> {});
+    void addRemoteEntrySourceFailureListener_returnsRegistration() {
+        Registration reg = calendar.addRemoteEntrySourceFailureListener(event -> {});
         assertNotNull(reg);
     }
 
     @Test
-    void addEventSourceFailureListener_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.addEventSourceFailureListener(null));
+    void addRemoteEntrySourceFailureListener_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.addRemoteEntrySourceFailureListener(null));
     }
 
     @Test
-    void addExternalEntryDroppedListener_returnsRegistration() {
-        Registration reg = calendar.addExternalEntryDroppedListener(event -> {});
+    void addRemoteEntryDroppedListener_returnsRegistration() {
+        Registration reg = calendar.addRemoteEntryDroppedListener(event -> {});
         assertNotNull(reg);
     }
 
     @Test
-    void addExternalEntryDroppedListener_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.addExternalEntryDroppedListener(null));
+    void addRemoteEntryDroppedListener_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.addRemoteEntryDroppedListener(null));
     }
 
     @Test
-    void addExternalEntryResizedListener_returnsRegistration() {
-        Registration reg = calendar.addExternalEntryResizedListener(event -> {});
+    void addRemoteEntryResizedListener_returnsRegistration() {
+        Registration reg = calendar.addRemoteEntryResizedListener(event -> {});
         assertNotNull(reg);
     }
 
     @Test
-    void addExternalEntryResizedListener_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.addExternalEntryResizedListener(null));
+    void addRemoteEntryResizedListener_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.addRemoteEntryResizedListener(null));
+    }
+
+    @Test
+    void entrySourceEntryDrop_reachesListener() {
+        List<RemoteEntryDroppedEvent> received = new ArrayList<>();
+        calendar.addRemoteEntryDroppedListener(received::add);
+
+        fireEntrySourceDomEvent("externalEntryDrop");
+
+        assertEquals(1, received.size());
+        assertEquals("ext-1", received.get(0).getEntry().getId());
+        assertEquals("my-feed", received.get(0).getSourceId());
+        // the delta of one day is applied in reverse for the old start
+        assertEquals(received.get(0).getEntry().getStart().minusDays(1), received.get(0).getOldStart());
+    }
+
+    @Test
+    void entrySourceEntryResize_reachesListener() {
+        List<RemoteEntryResizedEvent> received = new ArrayList<>();
+        calendar.addRemoteEntryResizedListener(received::add);
+
+        fireEntrySourceDomEvent("externalEntryResize");
+
+        assertEquals(1, received.size());
+        assertEquals("ext-1", received.get(0).getEntry().getId());
+        assertEquals("my-feed", received.get(0).getSourceId());
+        // the delta of one day is applied in reverse for the old end
+        assertEquals(received.get(0).getEntry().getEnd().minusDays(1), received.get(0).getOldEnd());
+    }
+
+    /**
+     * Fires the given client event on the calendar element, as the client does for an entry source entry. The event
+     * name and the detail keys mirror {@code full-calendar.ts}. A browser test would have to drag an entry of an
+     * editable entry source, which is not worth its cost here.
+     */
+    private void fireEntrySourceDomEvent(String eventName) {
+        ObjectNode entryData = JsonFactory.createObject();
+        entryData.put("id", "ext-1");
+        entryData.put("start", "2025-03-10T10:00:00Z");
+        entryData.put("end", "2025-03-10T11:00:00Z");
+        entryData.put("allDay", false);
+
+        ObjectNode delta = JsonFactory.createObject();
+        delta.put("years", 0);
+        delta.put("months", 0);
+        delta.put("days", 1);
+        delta.put("milliseconds", 0L);
+
+        ObjectNode eventData = JsonFactory.createObject();
+        eventData.set("event.detail.data", entryData);
+        eventData.set("event.detail.delta", delta);
+        eventData.put("event.detail.sourceId", "my-feed");
+
+        calendar.getElement().getNode().getFeature(ElementListenerMap.class)
+                .fireEvent(new DomEvent(calendar.getElement(), eventName, eventData));
     }
 
     // -------------------------------------------------------------------------
-    // ExternalEntryDroppedEvent — construction
+    // RemoteEntryDroppedEvent — construction
     // -------------------------------------------------------------------------
 
     @Test
-    void externalEntryDroppedEvent_populatesEntry() {
+    void entrySourceEntryDroppedEvent_populatesEntry() {
         FullCalendar cal = new FullCalendar();
         ObjectNode entryData = JsonFactory.createObject();
         entryData.put("id", "ext-1");
@@ -343,7 +401,7 @@ public class EventSourcesTest {
         delta.put("days", 1);
         delta.put("milliseconds", 0L);
 
-        ExternalEntryDroppedEvent event = new ExternalEntryDroppedEvent(cal, true, entryData, delta, "my-feed");
+        RemoteEntryDroppedEvent event = new RemoteEntryDroppedEvent(cal, true, entryData, delta, "my-feed");
 
         assertNotNull(event.getEntry());
         assertEquals("my-feed", event.getSourceId());
@@ -354,7 +412,7 @@ public class EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // ExternalEntryResizedEvent — construction
+    // RemoteEntryResizedEvent — construction
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
@@ -362,60 +420,60 @@ public class EventSourcesTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void getClientSideEventSourceById_found() {
-        JsonFeedEventSource source = new JsonFeedEventSource("/api").withId("src-1");
-        calendar.addClientSideEventSource(source);
-        assertTrue(calendar.getClientSideEventSourceById("src-1").isPresent());
-        assertSame(source, calendar.getClientSideEventSourceById("src-1").get());
+    void getRemoteEntrySourceById_found() {
+        JsonFeedEntrySource source = new JsonFeedEntrySource("/api").withId("src-1");
+        calendar.addRemoteEntrySource(source);
+        assertTrue(calendar.getRemoteEntrySourceById("src-1").isPresent());
+        assertSame(source, calendar.getRemoteEntrySourceById("src-1").get());
     }
 
     @Test
-    void getClientSideEventSourceById_notFound() {
-        assertTrue(calendar.getClientSideEventSourceById("nonexistent").isEmpty());
+    void getRemoteEntrySourceById_notFound() {
+        assertTrue(calendar.getRemoteEntrySourceById("nonexistent").isEmpty());
     }
 
     @Test
-    void getClientSideEventSourceById_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.getClientSideEventSourceById(null));
+    void getRemoteEntrySourceById_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.getRemoteEntrySourceById(null));
     }
 
     // -------------------------------------------------------------------------
-    // ClientSideEventSource — new properties
+    // RemoteEntrySource — new properties
     // -------------------------------------------------------------------------
 
     @Test
     void eventSource_resourceEditable_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").toJson();
         assertFalse(json.has("resourceEditable"));
     }
 
     @Test
     void eventSource_resourceEditable_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withResourceEditable(true).toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").withResourceEditable(true).toJson();
         assertTrue(json.get("resourceEditable").asBoolean());
     }
 
     @Test
     void eventSource_defaultAllDay_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").toJson();
         assertFalse(json.has("defaultAllDay"));
     }
 
     @Test
     void eventSource_defaultAllDay_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withDefaultAllDay(true).toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").withDefaultAllDay(true).toJson();
         assertTrue(json.get("defaultAllDay").asBoolean());
     }
 
     @Test
     void eventSource_allow_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").toJson();
         assertFalse(json.has("allow"));
     }
 
     @Test
     void eventSource_allow_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withAllow("function() { return true; }").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").withAllow("function() { return true; }").toJson();
         // FullCalendar reads the per-source callback as "allow"; "eventAllow" is the calendar-wide option only
         assertEquals("function() { return true; }", json.get("allow").get("__jsCallback").asString());
         assertFalse(json.has("eventAllow"));
@@ -423,49 +481,49 @@ public class EventSourcesTest {
 
     @Test
     void eventSource_success_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").toJson();
         assertFalse(json.has("success"));
     }
 
     @Test
     void eventSource_success_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withSuccess("function(content) {}").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").withSuccess("function(content) {}").toJson();
         assertTrue(json.get("success").isObject());
         assertEquals("function(content) {}", json.get("success").get("__jsCallback").asString());
     }
 
     @Test
     void eventSource_failure_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").toJson();
         assertFalse(json.has("failure"));
     }
 
     @Test
     void eventSource_failure_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withFailure("function(err) {}").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").withFailure("function(err) {}").toJson();
         assertTrue(json.get("failure").isObject());
         assertEquals("function(err) {}", json.get("failure").get("__jsCallback").asString());
     }
 
     @Test
     void eventSource_eventDataTransform_defaultAbsent() {
-        ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").toJson();
         assertFalse(json.has("eventDataTransform"));
     }
 
     @Test
     void eventSource_eventDataTransform_whenSet() {
-        ObjectNode json = new JsonFeedEventSource("/api").withEventDataTransform("function(e) { return e; }").toJson();
+        ObjectNode json = new JsonFeedEntrySource("/api").withEventDataTransform("function(e) { return e; }").toJson();
         assertTrue(json.get("eventDataTransform").isObject());
         assertEquals("function(e) { return e; }", json.get("eventDataTransform").get("__jsCallback").asString());
     }
 
     // -------------------------------------------------------------------------
-    // ExternalEntryResizedEvent — construction
+    // RemoteEntryResizedEvent — construction
     // -------------------------------------------------------------------------
 
     @Test
-    void externalEntryResizedEvent_populatesEntry() {
+    void entrySourceEntryResizedEvent_populatesEntry() {
         FullCalendar cal = new FullCalendar();
         ObjectNode entryData = JsonFactory.createObject();
         entryData.put("id", "ext-2");
@@ -479,7 +537,7 @@ public class EventSourcesTest {
         delta.put("days", 0);
         delta.put("milliseconds", 3600000L); // +1 hour
 
-        ExternalEntryResizedEvent event = new ExternalEntryResizedEvent(cal, true, entryData, delta, "my-feed");
+        RemoteEntryResizedEvent event = new RemoteEntryResizedEvent(cal, true, entryData, delta, "my-feed");
 
         assertNotNull(event.getEntry());
         assertEquals("my-feed", event.getSourceId());

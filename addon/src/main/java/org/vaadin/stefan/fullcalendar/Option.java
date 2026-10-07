@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.apache.commons.text.CaseUtils;
 import org.vaadin.stefan.fullcalendar.converters.BusinessHoursConverter;
+import org.vaadin.stefan.fullcalendar.converters.DateRangeConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekArrayConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.DurationConverter;
@@ -499,10 +500,11 @@ public enum Option {
      *   <dt>Type</dt> <dd>{@code false} | {@code integer} | {@code true} (false = no limit, integer = fixed count, true = limit to cell height)</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
      * </dl>
+     * <pre>{@code
+     * calendar.setOption(Option.DAY_MAX_ENTRIES, 3);    // "+N more" link after 3 entries
+     * calendar.setOption(Option.DAY_MAX_ENTRIES, true); // as many as fit into the cell
+     * }</pre>
      *
-     * @see FullCalendar#setMaxEntriesPerDay(int)
-     * @see FullCalendar#setMaxEntriesPerDayFitToCell()
-     * @see FullCalendar#setMaxEntriesPerDayUnlimited()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">dayMaxEvents</a>
      */
     DAY_MAX_ENTRIES("dayMaxEvents"),
@@ -1000,18 +1002,18 @@ public enum Option {
      *   <dt>Type</dt>    <dd>{@code String}</dd>
      *   <dt>Default</dt> <dd>{@code "end"}</dd>
      * </dl>
-     * Per-source override: {@link JsonFeedEventSource#withEndParam(String)}.
+     * Per-source override: {@link JsonFeedEntrySource#withEndParam(String)}.
      *
      * @see <a href="https://fullcalendar.io/docs/endParam">endParam</a>
      */
     ENTRY_SOURCE_END_PARAM("endParam"),
 
     /**
-     * Global Google Calendar API key used by all {@link GoogleCalendarEventSource} instances that do not specify their own key.
+     * Global Google Calendar API key used by all {@link GoogleCalendarEntrySource} instances that do not specify their own key.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
-     * Per-source override: {@link GoogleCalendarEventSource#withApiKey(String)}.
+     * Per-source override: {@link GoogleCalendarEntrySource#withApiKey(String)}.
      *
      * @see <a href="https://fullcalendar.io/docs/google-calendar">googleCalendarApiKey</a>
      */
@@ -1024,7 +1026,7 @@ public enum Option {
      *   <dt>Type</dt>    <dd>{@code String}</dd>
      *   <dt>Default</dt> <dd>{@code "start"}</dd>
      * </dl>
-     * Per-source override: {@link JsonFeedEventSource#withStartParam(String)}.
+     * Per-source override: {@link JsonFeedEntrySource#withStartParam(String)}.
      *
      * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
      */
@@ -1059,7 +1061,7 @@ public enum Option {
      *   <dt>Type</dt>    <dd>{@code String}</dd>
      *   <dt>Default</dt> <dd>{@code "timeZone"}</dd>
      * </dl>
-     * Per-source override: {@link JsonFeedEventSource#withTimeZoneParam(String)}.
+     * Per-source override: {@link JsonFeedEntrySource#withTimeZoneParam(String)}.
      *
      * @see <a href="https://fullcalendar.io/docs/timeZoneParam">timeZoneParam</a>
      */
@@ -1145,7 +1147,7 @@ public enum Option {
 
     /**
      * Former name of {@link #ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY}: global Google Calendar API key used by
-     * {@link GoogleCalendarEventSource} instances without their own key.
+     * {@link GoogleCalendarEntrySource} instances without their own key.
      *
      * @deprecated use {@link #ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY}, which sets the same FullCalendar option
      */
@@ -1213,19 +1215,20 @@ public enum Option {
      * Footer toolbar: the buttons and title shown at the bottom of the calendar. Values are strings of comma or space separated items,
      * comma separated items are shown adjacent, space separated items with a small gap. Items are {@code title},
      * {@code prev}, {@code next}, {@code prevYear}, {@code nextYear}, {@code today} or a view name like
-     * {@code dayGridMonth}.
+     * {@code dayGridMonth}. {@link ToolbarParts} has constants for the positions and the built-in items.
      * <dl>
-     *   <dt>Type</dt>    <dd>object with {@code left}, {@code center}, and {@code right} properties (FullCalendar also
-     *                        accepts {@code start} and {@code end}) | {@link Footer} |
-     *                        {@code Map<String, String>}</dd>
+     *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code start}, {@code center} and {@code end}
+     *                        properties (FullCalendar also accepts {@code left} and {@code right}) | {@code false} to hide
+     *                        the toolbar | {@link Footer} (deprecated)</dd>
      *   <dt>Default</dt> <dd>{@code false} (no toolbar)</dd>
      * </dl>
      * <pre>{@code
-     * calendar.setOption(Option.FOOTER_TOOLBAR, Map.of("left", "prev,next today", "center", "title", "right", "dayGridMonth,timeGridWeek"));
+     * calendar.setOption(Option.FOOTER_TOOLBAR, Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek"));
      * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/footerToolbar">footerToolbar</a>
      */
+    @SuppressWarnings("removal") // the converter goes with the deprecated toolbar model
     @JsonConverter(ToolbarConverter.class)
     FOOTER_TOOLBAR,
 
@@ -1252,19 +1255,20 @@ public enum Option {
      * Header toolbar: the buttons and title shown at the top of the calendar. Values are strings of comma or space separated items,
      * comma separated items are shown adjacent, space separated items with a small gap. Items are {@code title},
      * {@code prev}, {@code next}, {@code prevYear}, {@code nextYear}, {@code today} or a view name like
-     * {@code dayGridMonth}.
+     * {@code dayGridMonth}. {@link ToolbarParts} has constants for the positions and the built-in items.
      * <dl>
-     *   <dt>Type</dt>    <dd>object with {@code left}, {@code center}, and {@code right} properties (FullCalendar also
-     *                        accepts {@code start} and {@code end}) | {@link Header} |
-     *                        {@code Map<String, String>}</dd>
+     *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code start}, {@code center} and {@code end}
+     *                        properties (FullCalendar also accepts {@code left} and {@code right}) | {@code false} to hide
+     *                        the toolbar | {@link Header} (deprecated)</dd>
      *   <dt>Default</dt> <dd>{@code false} (no toolbar)</dd>
      * </dl>
      * <pre>{@code
-     * calendar.setOption(Option.HEADER_TOOLBAR, Map.of("left", "prev,next today", "center", "title", "right", "dayGridMonth,timeGridWeek"));
+     * calendar.setOption(Option.HEADER_TOOLBAR, Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek"));
      * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
      */
+    @SuppressWarnings("removal") // the converter goes with the deprecated toolbar model
     @JsonConverter(ToolbarConverter.class)
     HEADER_TOOLBAR,
 
@@ -1554,6 +1558,7 @@ public enum Option {
      *   <dt>Type</dt>    <dd>language code {@code string} (e.g., {@code "en"}, {@code "de"}, {@code "fr"}) | {@link Locale}</dd>
      *   <dt>Default</dt> <dd>{@link CalendarLocale#getDefaultLocale()}, set by the constructor</dd>
      * </dl>
+     * {@link FullCalendar#withAutoUiLocale()} sets the UI locale and follows its changes.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
      */
@@ -1627,7 +1632,8 @@ public enum Option {
     /**
      * Determines what happens when the user clicks a "+N more" link (created by the max entries options).
      * <dl>
-     *   <dt>Type</dt>     <dd>{@code String} ({@code "popover"} | {@code "week"} | {@code "day"} | view name) | {@link JsCallback}</dd>
+     *   <dt>Type</dt>     <dd>{@link FullCalendar.MoreLinkClickAction} | {@code String} ({@code "popover"} | {@code "week"} |
+     *                         {@code "day"} | view name) | {@link JsCallback}</dd>
      *   <dt>Default</dt>  <dd>{@code "popover"}</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code allSegs} (all entry
      *                         segments of the day), {@code hiddenSegs} (segments not displayed before) and
@@ -1635,10 +1641,12 @@ public enum Option {
      *   <dt>Returns</dt>  <dd>optionally a string like {@code "day"}, which is processed as the new value of the option</dd>
      * </dl>
      * <pre>{@code
+     * calendar.setOption(Option.MORE_LINK_CLICK, FullCalendar.MoreLinkClickAction.DAY);
      * calendar.setOption(Option.MORE_LINK_CLICK, JsCallback.of("function(info) { return 'day'; }"));
      * }</pre>
+     * {@link FullCalendar#addMoreLinkClickedListener} receives the
+     * click with every value, also with a callback.
      *
-     * @see FullCalendar#setMoreLinkClickAction(MoreLinkClickAction)
      * @see <a href="https://fullcalendar.io/docs/moreLinkClick">moreLinkClick</a>
      */
     MORE_LINK_CLICK,
@@ -2660,14 +2668,19 @@ public enum Option {
      * Time zone used for displaying and interpreting dates on the calendar. It affects the displayed times of entries,
      * their position on the calendar and the dates the client sends to the server.
      * <dl>
-     *   <dt>Type</dt> <dd>{@code String} (e.g., {@code "local"}, {@code "UTC"}, {@code "America/New_York"}) | {@link Timezone}</dd>
-     *   <dt>Default</dt> <dd>{@code "UTC"}, set by the add-on (FullCalendar's own default is {@code "local"}).
-     *                        {@link FullCalendar#getTimezone()} returns {@code Timezone.UTC} as long as the option is
-     *                        not set.</dd>
+     *   <dt>Type</dt> <dd>{@link Timezone} | time zone id as {@code String} (e.g., {@code "UTC"},
+     *                     {@code "America/New_York"}), stored as {@link Timezone}. FullCalendar's {@code "local"} is
+     *                     rejected with an {@link IllegalArgumentException}, because the server needs the real zone to
+     *                     compute entry offsets. Use {@link FullCalendar#withAutoBrowserTimezone()} to follow the
+     *                     browser's time zone.</dd>
+     *   <dt>Default</dt> <dd>not set. The client then uses {@code "UTC"}, set by the add-on (FullCalendar's own
+     *                        default is {@code "local"}).</dd>
      * </dl>
+     * <pre>{@code
+     * calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
+     * Optional<Timezone> timezone = calendar.getOption(Option.TIMEZONE); // Europe/Berlin
+     * }</pre>
      *
-     * @see FullCalendar#setTimezone(Timezone)
-     * @see FullCalendar#getTimezone()
      * @see <a href="https://fullcalendar.io/docs/timeZone">timeZone</a>
      */
     TIMEZONE("timeZone"),
@@ -2717,24 +2730,25 @@ public enum Option {
      * entries cannot be dragged or resized into them, and the prev/next buttons are disabled when they would leave the
      * range.
      * <dl>
-     *   <dt>Type</dt> <dd>object with {@code start} and/or {@code end} date strings (one may be omitted for an
-     *                     open-ended range) | {@link JsCallback} returning such an object</dd>
+     *   <dt>Type</dt> <dd>{@link DateRange} | object with {@code start} and/or {@code end} date strings (one may be
+     *                     omitted for an open-ended range) | {@link JsCallback} returning such an object</dd>
      *   <dt>Callback</dt> <dd>{@code function(todayDate)}. {@code todayDate} is the start of the day of "now" as a
      *                         {@code Date}. The function is called several times per view render, so keep it cheap. No
      *                         info object is involved.</dd>
      *   <dt>Returns</dt> <dd>object with {@code start} and/or {@code end}</dd>
      * </dl>
      * <pre>{@code
+     * // fixed range: March and April 2025
+     * calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1)));
+     *
      * // open-ended range: nothing before today
      * calendar.setOption(Option.VALID_RANGE,
      *         JsCallback.of("function(todayDate) { return { start: todayDate }; }"));
      * }</pre>
      *
-     * @see FullCalendar#setValidRange(LocalDate, LocalDate)
-     * @see FullCalendar#setValidRangeStart(LocalDate)
-     * @see FullCalendar#setValidRangeEnd(LocalDate)
      * @see <a href="https://fullcalendar.io/docs/validRange">validRange</a>
      */
+    @JsonConverter(DateRangeConverter.class)
     VALID_RANGE,
 
     /**

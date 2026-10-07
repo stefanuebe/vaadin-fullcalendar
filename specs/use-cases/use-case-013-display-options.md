@@ -46,9 +46,12 @@ calendar.setHeight("600px");
 calendar.setOption(Option.EXPAND_ROWS, true);
 
 // Limit entries per day
-calendar.setMaxEntriesPerDay(3); // "+N more" link after 3
-calendar.setMaxEntriesPerDayFitToCell(); // auto based on cell height
-calendar.setMaxEntriesPerDayUnlimited(); // no limit
+calendar.setOption(Option.DAY_MAX_ENTRIES, 3); // "+N more" link after 3
+calendar.setOption(Option.DAY_MAX_ENTRIES, true); // auto based on cell height
+calendar.setOption(Option.DAY_MAX_ENTRIES, false); // no limit
+
+// What the "+N more" link does; the server receives the click with every value
+calendar.setOption(Option.MORE_LINK_CLICK, FullCalendar.MoreLinkClickAction.DAY);
 
 // Current time indicator
 calendar.setOption(Option.NOW_INDICATOR, true);
@@ -71,7 +74,7 @@ calendar.setOption(Option.SCROLL_TIME, LocalTime.of(8, 0));
 | BR-03 | `SLOT_MIN_TIME` / `SLOT_MAX_TIME` restrict visible time range in timegrid |
 | BR-04 | Duration options accept `Duration`, `LocalTime`, or string (`"HH:MM:SS"`) |
 | BR-05 | `DAY_MAX_ENTRIES` triggers "+N more" popover when exceeded |
-| BR-06 | `MoreLinkClickedEvent` fires when user clicks "+N more" |
+| BR-06 | `MoreLinkClickedEvent` fires when user clicks "+N more", whatever `MORE_LINK_CLICK` is set to, also with a `JsCallback` |
 | BR-07 | `NOW_INDICATOR` only works in timegrid views |
 | BR-08 | View-specific options can override these for particular views |
 | BR-09 | The "+N more" popover inherits `--fc-page-bg-color`. **Known gap**: FullCalendar's popover does not implement keyboard focus trapping or Escape-to-close-and-return-focus. This is a FC limitation. |
@@ -100,6 +103,7 @@ calendar.setOption(Option.SCROLL_TIME, LocalTime.of(8, 0));
 
 ### E2E Tests
 - [ ] `display-options.spec.js` — display option rendering
+- [x] `more-link-click.spec.js`: action and callback, set before and after attach, are applied and the server receives the click
 
 ---
 

@@ -9,15 +9,11 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
-import org.vaadin.stefan.fullcalendar.model.Header;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterItem;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterPart;
-import org.vaadin.stefan.fullcalendar.model.HeaderFooterPartPosition;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Test view for advanced and niche options.
@@ -26,6 +22,7 @@ import java.util.List;
  * <ul>
  *   <li>Calendar renders in dayGridMonth view</li>
  *   <li>View-specific option (dayMaxEventRows=2 for dayGrid only) truncates events in month view</li>
+ *   <li>Header and footer toolbar set as maps, including a view button</li>
  * </ul>
  * <p>
  * Route: /test/advanced-options
@@ -47,15 +44,12 @@ public class AdvancedOptionsTestView extends VerticalLayout {
         FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
 
-        // Enable native FC toolbar (default is false in the web component)
-        var left = new HeaderFooterPart(HeaderFooterPartPosition.START);
-        left.addItem(HeaderFooterItem.BUTTON_PREVIOUS);
-        left.addItem(HeaderFooterItem.BUTTON_NEXT);
-        left.addItem(HeaderFooterItem.BUTTON_TODAY);
-        var center = new HeaderFooterPart(HeaderFooterPartPosition.CENTER);
-        center.addItem(HeaderFooterItem.TITLE);
-        var right = new HeaderFooterPart(HeaderFooterPartPosition.END);
-        calendar.setOption(Option.HEADER_TOOLBAR, new Header(List.of(left, center, right)));
+        // Enable native FC toolbars (default is false in the web component), set as maps, with a view button
+        calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
+                "start", "prev,next today",
+                "center", "title",
+                "end", "dayGridMonth,timeGridWeek"));
+        calendar.setOption(Option.FOOTER_TOOLBAR, Map.of("center", "prevYear,nextYear"));
         calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
         calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 

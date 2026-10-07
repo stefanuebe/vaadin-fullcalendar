@@ -115,6 +115,126 @@ class SchedulerOptionsTest {
     }
 
     @Test
+    void setResourceColumns_sendsColumnsAndKeepsListServerSide() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        List<ResourceColumn> columns = List.of(new ResourceColumn("title", "Resource"));
+
+        calendar.setResourceColumns(columns);
+
+        ArrayNode sent = calendar.getOption(SchedulerOption.RESOURCE_COLUMNS, true)
+                .map(ArrayNode.class::cast).orElseThrow();
+        assertEquals("title", sent.get(0).get("field").asString());
+        assertEquals(columns, calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).orElseThrow());
+
+        calendar.setResourceColumns(List.of());
+
+        assertTrue(calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).isEmpty());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void setOption_deprecatedAliasWithColumnList_bindsAndConverts() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        var column = new ComponentResourceColumn<Span>("status", resource -> new Span());
+
+        calendar.setOption(SchedulerOption.RESOURCE_AREA_COLUMNS, List.of(column));
+
+        assertTrue(column.isBound());
+        assertTrue(calendar.getOption(SchedulerOption.RESOURCE_COLUMNS, true).orElseThrow() instanceof ArrayNode);
+    }
+
+    @Test
+    void getOptionOrDefault_returnsValueOrDefault() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+
+        assertEquals("30%", calendar.getOptionOrDefault(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "30%"));
+
+        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "20%");
+
+        assertEquals("20%", calendar.getOptionOrDefault(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "30%"));
+    }
+
+    @Test
+    void setOption_withRawJson_unbindsComponentColumnsSetBefore() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        var column = new ComponentResourceColumn<Span>("status", resource -> new Span());
+        calendar.setResourceColumns(column);
+        ArrayNode raw = JsonFactory.createArray();
+        raw.add(JsonFactory.createObject().put("field", "title"));
+
+        calendar.addResource(new Resource());
+        assertEquals(1, column.getComponents().size());
+
+        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS, raw);
+
+        assertFalse(column.isBound());
+        assertTrue(column.getComponents().isEmpty(), "the components of the old column are destroyed");
+        assertEquals(raw, calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).orElse(null));
+    }
+
+    @Test
+    void setOption_withNull_unbindsAndRemovesOption() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        var column = new ComponentResourceColumn<Span>("status", resource -> new Span());
+        calendar.setResourceColumns(column);
+
+        calendar.setOption("resourceColumns", null);
+
+        assertFalse(column.isBound());
+        assertTrue(calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).isEmpty());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void deprecatedSetOptionWithServerValue_goesThroughTheColumnHandling() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        var column = new ComponentResourceColumn<Span>("status", resource -> new Span());
+        List<ResourceColumn> columns = List.of(column);
+
+        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS, columns, columns);
+
+        assertTrue(column.isBound());
+        assertEquals("status", calendar.<ArrayNode>getOption(SchedulerOption.RESOURCE_COLUMNS, true)
+                .orElseThrow().get(0).get("field").asString());
+        assertEquals(columns, calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).orElseThrow());
+
+        calendar.setOption(SchedulerOption.RESOURCE_COLUMNS, List.of(), "ignored");
+
+        assertFalse(column.isBound());
+        assertTrue(calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).isEmpty());
+    }
+
+    @Test
+    void setOption_withDuplicateFields_throwsAndKeepsTheColumnsSetBefore() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        var column = new ComponentResourceColumn<Span>("status", resource -> new Span());
+        calendar.setResourceColumns(column);
+
+        assertThrows(IllegalArgumentException.class, () -> calendar.setOption(SchedulerOption.RESOURCE_COLUMNS,
+                List.of(new ResourceColumn("title"), new ResourceColumn("title"))));
+
+        assertTrue(column.isBound());
+        assertEquals(List.of(column), calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).orElseThrow());
+    }
+
+    @Test
+    void setOption_stringKeyWithColumnList_bindsAndEmptyListRemoves() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        var column = new ComponentResourceColumn<Span>("status", resource -> new Span());
+
+        calendar.setOption("resourceColumns", List.of(column));
+
+        assertTrue(column.isBound());
+        assertEquals("status", calendar.<ArrayNode>getOption(SchedulerOption.RESOURCE_COLUMNS, true)
+                .orElseThrow().get(0).get("field").asString());
+
+        calendar.setOption("resourceColumns", List.of());
+
+        assertFalse(column.isBound());
+        assertTrue(calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).isEmpty());
+    }
+
+    @Test
     void setOption_withRawJson_isSentAsItIs() {
         FullCalendarScheduler calendar = new FullCalendarScheduler();
         ArrayNode raw = JsonFactory.createArray();

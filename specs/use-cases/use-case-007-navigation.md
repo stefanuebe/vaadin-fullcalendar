@@ -37,7 +37,7 @@ calendar.gotoDate(LocalDate.of(2025, 6, 15));
 calendar.setOption(Option.NAV_LINKS, true);
 
 // Restrict navigable range
-calendar.setValidRange(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31));
+calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)));
 
 // Listen to navigation
 calendar.addDatesRenderedListener(event -> {

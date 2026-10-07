@@ -8,6 +8,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.vaadin.stefan.fullcalendar.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
 import java.time.ZoneId;
@@ -26,7 +27,7 @@ public class SettingsDialog extends Dialog {
         setDraggable(true);
 
         VerticalLayout layout = new VerticalLayout();
-        Timezone initialTimezone = calendar.getTimezone();
+        Timezone initialTimezone = calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC);
 
         Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
             boolean current = calendar.<Boolean>getOption(FIXED_WEEK_COUNT).orElse(true);
@@ -53,11 +54,11 @@ public class SettingsDialog extends Dialog {
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
         updateTimezonesComboBox(calendar, timezoneComboBox, showOnlySomeTimezones.getValue());
         timezoneComboBox.addValueChangeListener(event -> {
-            if (!Objects.equals(calendar.getTimezone(), event.getValue())) {
+            if (!Objects.equals(calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC), event.getValue())) {
 
                 Timezone value = event.getValue();
-                calendar.setTimezone(value != null ? value : initialTimezone);
-                Notification.show("Timezone changed to " + calendar.getTimezone());
+                calendar.setOption(Option.TIMEZONE, value != null ? value : initialTimezone);
+                Notification.show("Timezone changed to " + calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
             }
         });
         showOnlySomeTimezones.addValueChangeListener(event -> updateTimezonesComboBox(calendar, timezoneComboBox, event.getValue()));
@@ -77,10 +78,10 @@ public class SettingsDialog extends Dialog {
             timezoneComboBox.setItems(Timezone.getAvailableZones());
         }
 
-        if (!SOME_TIMEZONES.contains(calendar.getTimezone())) {
+        if (!SOME_TIMEZONES.contains(calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC))) {
             timezoneComboBox.setValue(Timezone.UTC);
         } else {
-            timezoneComboBox.setValue(calendar.getTimezone());
+            timezoneComboBox.setValue(calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
         }
     }
 }

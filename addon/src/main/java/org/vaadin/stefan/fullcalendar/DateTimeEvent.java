@@ -68,7 +68,7 @@ public abstract class DateTimeEvent extends ComponentEvent<FullCalendar> {
      * For day slots the time will be at start of the day and ignore the timezone.
      */
     public LocalDateTime getDateTimeWithOffset() {
-        return isAllDay() ? dateTime : getSource().getTimezone().applyTimezoneOffset(dateTime);
+        return isAllDay() ? dateTime : getSource().getTimezoneForOffsets().applyTimezoneOffset(dateTime);
     }
 
     /**

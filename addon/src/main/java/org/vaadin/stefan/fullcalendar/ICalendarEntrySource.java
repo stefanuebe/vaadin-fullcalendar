@@ -22,7 +22,7 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.Objects;
 
 /**
- * A client-managed event source that fetches events from a public iCalendar ({@code .ics}) feed URL.
+ * A remote entry source that fetches entries from a public iCalendar ({@code .ics}) feed URL.
  * <br><br>
  * Requires the {@code @fullcalendar/icalendar} and {@code ical.js} npm packages. The URL must be accessible
  * from the browser (CORS headers are required for cross-origin feeds).
@@ -31,7 +31,7 @@ import java.util.Objects;
  * <br><br>
  * Example:
  * <pre>
- * calendar.addClientSideEventSource(new ICalendarEventSource("https://example.com/holidays.ics")
+ * calendar.addRemoteEntrySource(new ICalendarEntrySource("https://example.com/holidays.ics")
  *     .withId("holiday-ics")
  *     .withColor("purple"));
  * </pre>
@@ -39,18 +39,18 @@ import java.util.Objects;
  * @see <a href="https://fullcalendar.io/docs/icalendar">FullCalendar iCalendar documentation</a>
  */
 @Getter
-public class ICalendarEventSource extends ClientSideEventSource<ICalendarEventSource> {
+public class ICalendarEntrySource extends RemoteEntrySource<ICalendarEntrySource> {
 
     /** The URL of the iCalendar feed. */
     private final String url;
 
     /**
-     * Creates a new iCalendar event source for the given URL.
+     * Creates a new iCalendar entry source for the given URL.
      *
      * @param url the iCal feed URL; must not be null
      * @throws NullPointerException if url is null
      */
-    public ICalendarEventSource(String url) {
+    public ICalendarEntrySource(String url) {
         this.url = Objects.requireNonNull(url, "url must not be null");
     }
 

@@ -22,7 +22,7 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.Objects;
 
 /**
- * A client-managed event source that fetches events from a public Google Calendar.
+ * A remote entry source that fetches entries from a public Google Calendar.
  * <br><br>
  * Requires the {@code @fullcalendar/google-calendar} npm package and a Google Calendar API key.
  * Set a global key via {@code calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, key)},
@@ -35,7 +35,7 @@ import java.util.Objects;
  * Example:
  * <pre>
  * calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, "AIzaSy...");
- * calendar.addClientSideEventSource(new GoogleCalendarEventSource("holidays@group.calendar.google.com")
+ * calendar.addRemoteEntrySource(new GoogleCalendarEntrySource("holidays@group.calendar.google.com")
  *     .withId("holidays")
  *     .withColor("green"));
  * </pre>
@@ -43,7 +43,7 @@ import java.util.Objects;
  * @see <a href="https://fullcalendar.io/docs/google-calendar">FullCalendar Google Calendar documentation</a>
  */
 @Getter
-public class GoogleCalendarEventSource extends ClientSideEventSource<GoogleCalendarEventSource> {
+public class GoogleCalendarEntrySource extends RemoteEntrySource<GoogleCalendarEntrySource> {
 
     /** The Google Calendar ID (e.g. {@code "abc@group.calendar.google.com"}). */
     private final String googleCalendarId;
@@ -55,12 +55,12 @@ public class GoogleCalendarEventSource extends ClientSideEventSource<GoogleCalen
     private String googleCalendarApiKey;
 
     /**
-     * Creates a new Google Calendar event source for the given calendar ID.
+     * Creates a new Google Calendar entry source for the given calendar ID.
      *
      * @param googleCalendarId the Google Calendar ID; must not be null
      * @throws NullPointerException if googleCalendarId is null
      */
-    public GoogleCalendarEventSource(String googleCalendarId) {
+    public GoogleCalendarEntrySource(String googleCalendarId) {
         this.googleCalendarId = Objects.requireNonNull(googleCalendarId, "googleCalendarId must not be null");
     }
 
@@ -69,7 +69,7 @@ public class GoogleCalendarEventSource extends ClientSideEventSource<GoogleCalen
      * @param apiKey Google Calendar API key
      * @return this
      */
-    public GoogleCalendarEventSource withApiKey(String apiKey) {
+    public GoogleCalendarEntrySource withApiKey(String apiKey) {
         this.googleCalendarApiKey = apiKey;
         return this;
     }

@@ -25,6 +25,8 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.shared.Registration;
+import org.vaadin.stefan.fullcalendar.converter.ResourceColumnsConverter;
+import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -303,7 +305,14 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void setResourceColumns(List<? extends ResourceColumn> columns) {
         Objects.requireNonNull(columns);
+        setOption(SchedulerOption.RESOURCE_COLUMNS, columns);
+    }
 
+    /**
+     * Validates the columns and binds the component columns, so their components exist before the columns
+     * reach the client.
+     */
+    private void bindResourceColumns(List<? extends ResourceColumn> columns) {
         // validate no duplicate field keys
         Set<String> fieldKeys = new HashSet<>();
         for (ResourceColumn col : columns) {
@@ -337,15 +346,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                     col.createComponent(resource);
                 }
             }
-        }
-
-        // send to client
-        if (columns.isEmpty()) {
-            setOption(SchedulerOption.RESOURCE_COLUMNS, null, null);
-        } else {
-            ArrayNode array = JsonFactory.createArray();
-            columns.forEach(col -> array.add(col.toJson()));
-            setOption(SchedulerOption.RESOURCE_COLUMNS, array, columns);
         }
     }
 
@@ -501,16 +501,40 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @throws NullPointerException when null is passed
      */
     public void setOption(SchedulerOption option, Object value) {
-        // A column list goes through the typed setter, so component columns get bound
-        if (option.getOptionKey().equals(SchedulerOption.RESOURCE_COLUMNS.getOptionKey())
-                && (value == null || value instanceof List<?>)) {
-            List<?> list = value == null ? List.of() : (List<?>) value;
-            if (list.stream().allMatch(ResourceColumn.class::isInstance)) {
-                setResourceColumns(list.stream().map(ResourceColumn.class::cast).toList());
-                return;
+        setOption(option.getOptionKey(), value, null, option.getConverters());
+    }
+
+    /**
+     * Every way of setting an option ends here, so the resource columns are handled once. A column list
+     * binds its component columns and goes through {@link ResourceColumnsConverter}, an empty list removes
+     * the option. Any other value (raw JSON, null) unbinds the component columns set before.
+     * A column list always uses the column converter, also when the caller passed other converters.
+     */
+    @Override
+    protected void setOption(String option, Object value, Object valueForServerSide,
+                             List<JsonItemPropertyConverter<?, ?>> converters) {
+        if (SchedulerOption.RESOURCE_COLUMNS.getOptionKey().equals(option)) {
+            if (value instanceof List<?> list && list.stream().allMatch(ResourceColumn.class::isInstance)) {
+                bindResourceColumns(list.stream().map(ResourceColumn.class::cast).toList());
+                value = list.isEmpty() ? null : list;
+                converters = SchedulerOption.RESOURCE_COLUMNS.getConverters();
+            } else {
+                bindResourceColumns(List.of());
             }
         }
-        setOption(option.getOptionKey(), value, null, option.getConverters());
+        super.setOption(option, value, valueForServerSide, converters);
+    }
+
+    @Override
+    public FullCalendarScheduler withAutoBrowserTimezone() {
+        super.withAutoBrowserTimezone();
+        return this;
+    }
+
+    @Override
+    public FullCalendarScheduler withAutoUiLocale() {
+        super.withAutoUiLocale();
+        return this;
     }
 
     /**
@@ -518,7 +542,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(SchedulerOption)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <pre>
+     * <br><br>
      * Please be aware that this method does not check the passed value. Use the typed
      * {@link SchedulerOption} constants for type safety.
      *
@@ -526,7 +550,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param value              value
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #setOption(SchedulerOption, Object)} with the typed value. The option's converter creates
+     * the client-side value from it, so the client and {@link #getOption(SchedulerOption)} cannot get out of step.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setOption(SchedulerOption option, Object value, Object valueForServerSide) {
         setOption(option.getOptionKey(), value, valueForServerSide, option.getConverters());
     }
@@ -558,6 +585,21 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public <T> Optional<T> getOption(SchedulerOption option, boolean forceClientSideValue) {
         return getOption(option.getOptionKey(), forceClientSideValue);
+    }
+
+    /**
+     * Returns the value of the given option like {@link #getOption(SchedulerOption)}, or the given default when the
+     * option is not set.
+     *
+     * @param option       option
+     * @param defaultValue value to return when the option is not set
+     * @param <T>          type of value
+     * @return the option's value or the default
+     * @throws NullPointerException when null is passed as option
+     * @see #getOptionOrDefault(Option, Object)
+     */
+    public <T> T getOptionOrDefault(SchedulerOption option, T defaultValue) {
+        return this.<T>getOption(option).orElse(defaultValue);
     }
 
     @SuppressWarnings("unchecked")

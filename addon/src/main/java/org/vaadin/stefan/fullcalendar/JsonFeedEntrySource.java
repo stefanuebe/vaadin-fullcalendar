@@ -23,9 +23,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A client-managed event source that fetches events from a URL returning a JSON array of FullCalendar event objects.
+ * A remote entry source that fetches entries from a URL returning a JSON array of FullCalendar event objects.
  * <br><br>
- * The browser fetches events directly from the given URL — the server only configures the source, it does not
+ * The browser fetches entries directly from the given URL — the server only configures the source, it does not
  * own or observe the individual entries.
  * <br><br>
  * The request includes {@code start} and {@code end} query parameters (names overridable per-source via
@@ -35,7 +35,7 @@ import java.util.Objects;
  * <br><br>
  * Example:
  * <pre>
- * calendar.addClientSideEventSource(new JsonFeedEventSource("/api/events")
+ * calendar.addRemoteEntrySource(new JsonFeedEntrySource("/api/events")
  *     .withId("room-101")
  *     .withColor("steelblue")
  *     .withExtraParams(Map.of("roomId", "101")));
@@ -44,7 +44,7 @@ import java.util.Objects;
  * @see <a href="https://fullcalendar.io/docs/events-json-feed">FullCalendar JSON feed documentation</a>
  */
 @Getter
-public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSource> {
+public class JsonFeedEntrySource extends RemoteEntrySource<JsonFeedEntrySource> {
 
     /** The URL from which to fetch events. */
     private final String url;
@@ -65,12 +65,12 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
     private String timeZoneParam;
 
     /**
-     * Creates a new JSON feed event source for the given URL.
+     * Creates a new JSON feed entry source for the given URL.
      *
      * @param url the URL to fetch events from; must not be null
      * @throws NullPointerException if url is null
      */
-    public JsonFeedEventSource(String url) {
+    public JsonFeedEntrySource(String url) {
         this.url = Objects.requireNonNull(url, "url must not be null");
     }
 
@@ -79,7 +79,7 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
      * @param method {@code "GET"} or {@code "POST"}
      * @return this
      */
-    public JsonFeedEventSource withMethod(String method) {
+    public JsonFeedEntrySource withMethod(String method) {
         this.method = method;
         return this;
     }
@@ -95,7 +95,7 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
      * @param extraParams map of parameter names to values; must not be null
      * @return this
      */
-    public JsonFeedEventSource withExtraParams(Map<String, Object> extraParams) {
+    public JsonFeedEntrySource withExtraParams(Map<String, Object> extraParams) {
         this.extraParams = extraParams;
         return this;
     }
@@ -111,7 +111,7 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
      * @param startParam query parameter name for the start date; must not be null
      * @return this
      */
-    public JsonFeedEventSource withStartParam(String startParam) {
+    public JsonFeedEntrySource withStartParam(String startParam) {
         this.startParam = startParam;
         return this;
     }
@@ -124,7 +124,7 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
      * @param endParam query parameter name for the end date; must not be null
      * @return this
      */
-    public JsonFeedEventSource withEndParam(String endParam) {
+    public JsonFeedEntrySource withEndParam(String endParam) {
         this.endParam = endParam;
         return this;
     }
@@ -138,7 +138,7 @@ public class JsonFeedEventSource extends ClientSideEventSource<JsonFeedEventSour
      * @param timeZoneParam query parameter name for the timezone; must not be null
      * @return this
      */
-    public JsonFeedEventSource withTimeZoneParam(String timeZoneParam) {
+    public JsonFeedEntrySource withTimeZoneParam(String timeZoneParam) {
         this.timeZoneParam = timeZoneParam;
         return this;
     }

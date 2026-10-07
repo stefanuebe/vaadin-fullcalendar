@@ -42,7 +42,7 @@
         <vaadin.version>25.3.0</vaadin.version>
         <apache.commons-text.version>1.14.0</apache.commons-text.version>
         <lombok.version>1.18.42</lombok.version>
-        <junit.version>5.10.0</junit.version>
+        <junit.version>6.0.3</junit.version>
         <mockito.version>5.23.0</mockito.version>
 
         <plugin.version.maven-compiler>3.14.1</plugin.version.maven-compiler>
@@ -110,6 +110,14 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- Browserless tests: server-side component tests with a Vaadin context, no browser.
+                 Free since Vaadin 25.1, needs no commercial key. -->
+            <groupId>com.vaadin</groupId>
+            <artifactId>browserless-test-junit6</artifactId>
+            <version>${vaadin.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

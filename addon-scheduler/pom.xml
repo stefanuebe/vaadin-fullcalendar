@@ -40,7 +40,7 @@
 
         <vaadin.version>25.3.0</vaadin.version>
         <lombok.version>1.18.42</lombok.version>
-        <junit.version>5.10.0</junit.version>
+        <junit.version>6.0.3</junit.version>
 
         <fullcalendar.version>8.0.0-SNAPSHOT</fullcalendar.version>
 
