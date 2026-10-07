@@ -17,7 +17,7 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `start` | `LocalDateTime` | Start date/time (stored as UTC). Setters accept `LocalDateTime`, `Instant`, `LocalDate` |
 | `end` | `LocalDateTime` | End date/time (stored as UTC, optional — omitting creates point-in-time entry). Setters accept `LocalDateTime`, `Instant`, `LocalDate` |
 | `allDay` | `boolean` | Force all-day rendering regardless of time part |
-| `editable` | `boolean` | Per-entry drag/resize toggle |
+| `editable` | `Boolean` | Per-entry drag/resize toggle (`null` = inherit global). `startEditable` and `durationEditable` win over it, also in `isStartEditable()` / `isDurationEditable()` |
 | `startEditable` | `Boolean` | Per-entry override for `ENTRY_START_EDITABLE` (`null` = inherit global) |
 | `durationEditable` | `Boolean` | Per-entry override for `ENTRY_DURATION_EDITABLE` (`null` = inherit global) |
 | `color` | `String` | Combined background + border color (CSS color string) |
