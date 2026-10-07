@@ -41,7 +41,7 @@ import java.time.LocalDateTime;
 @DomEvent("externalEntryResize")
 @Getter
 @ToString
-public class EntrySourceEntryResizedEvent extends EntrySourceEntryEvent {
+public class ClientSideEntryResizedEvent extends ClientSideEntryEvent {
 
     /**
      * The end-time delta by which the entry was resized.
@@ -62,10 +62,10 @@ public class EntrySourceEntryResizedEvent extends EntrySourceEntryEvent {
      * @param jsonDelta   end delta JSON object
      * @param sourceId    id of the ClientSideEventSource
      */
-    public EntrySourceEntryResizedEvent(FullCalendar source, boolean fromClient,
-                                        @EventData("event.detail.data") ObjectNode entryData,
-                                        @EventData("event.detail.delta") ObjectNode jsonDelta,
-                                        @EventData("event.detail.sourceId") String sourceId) {
+    public ClientSideEntryResizedEvent(FullCalendar source, boolean fromClient,
+                                       @EventData("event.detail.data") ObjectNode entryData,
+                                       @EventData("event.detail.delta") ObjectNode jsonDelta,
+                                       @EventData("event.detail.sourceId") String sourceId) {
         super(source, fromClient, entryData, sourceId);
         this.delta = Delta.fromJson(jsonDelta);
 

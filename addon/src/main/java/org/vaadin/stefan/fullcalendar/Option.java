@@ -1215,15 +1215,15 @@ public enum Option {
      * Footer toolbar: the buttons and title shown at the bottom of the calendar. Values are strings of comma or space separated items,
      * comma separated items are shown adjacent, space separated items with a small gap. Items are {@code title},
      * {@code prev}, {@code next}, {@code prevYear}, {@code nextYear}, {@code today} or a view name like
-     * {@code dayGridMonth}.
+     * {@code dayGridMonth}. {@link ToolbarParts} has constants for the positions and the built-in items.
      * <dl>
-     *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code left}, {@code center} and {@code right}
-     *                        properties (FullCalendar also accepts {@code start} and {@code end}) | {@code false} to hide
+     *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code start}, {@code center} and {@code end}
+     *                        properties (FullCalendar also accepts {@code left} and {@code right}) | {@code false} to hide
      *                        the toolbar | {@link Footer} (deprecated)</dd>
      *   <dt>Default</dt> <dd>{@code false} (no toolbar)</dd>
      * </dl>
      * <pre>{@code
-     * calendar.setOption(Option.FOOTER_TOOLBAR, Map.of("left", "prev,next today", "center", "title", "right", "dayGridMonth,timeGridWeek"));
+     * calendar.setOption(Option.FOOTER_TOOLBAR, Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek"));
      * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/footerToolbar">footerToolbar</a>
@@ -1255,15 +1255,15 @@ public enum Option {
      * Header toolbar: the buttons and title shown at the top of the calendar. Values are strings of comma or space separated items,
      * comma separated items are shown adjacent, space separated items with a small gap. Items are {@code title},
      * {@code prev}, {@code next}, {@code prevYear}, {@code nextYear}, {@code today} or a view name like
-     * {@code dayGridMonth}.
+     * {@code dayGridMonth}. {@link ToolbarParts} has constants for the positions and the built-in items.
      * <dl>
-     *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code left}, {@code center} and {@code right}
-     *                        properties (FullCalendar also accepts {@code start} and {@code end}) | {@code false} to hide
+     *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code start}, {@code center} and {@code end}
+     *                        properties (FullCalendar also accepts {@code left} and {@code right}) | {@code false} to hide
      *                        the toolbar | {@link Header} (deprecated)</dd>
      *   <dt>Default</dt> <dd>{@code false} (no toolbar)</dd>
      * </dl>
      * <pre>{@code
-     * calendar.setOption(Option.HEADER_TOOLBAR, Map.of("left", "prev,next today", "center", "title", "right", "dayGridMonth,timeGridWeek"));
+     * calendar.setOption(Option.HEADER_TOOLBAR, Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek"));
      * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>

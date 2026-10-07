@@ -306,33 +306,33 @@ public class EventSourcesTest {
     }
 
     @Test
-    void addEntrySourceEntryDroppedListener_returnsRegistration() {
-        Registration reg = calendar.addEntrySourceEntryDroppedListener(event -> {});
+    void addClientSideEntryDroppedListener_returnsRegistration() {
+        Registration reg = calendar.addClientSideEntryDroppedListener(event -> {});
         assertNotNull(reg);
     }
 
     @Test
-    void addEntrySourceEntryDroppedListener_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.addEntrySourceEntryDroppedListener(null));
+    void addClientSideEntryDroppedListener_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.addClientSideEntryDroppedListener(null));
     }
 
     @Test
-    void addEntrySourceEntryResizedListener_returnsRegistration() {
-        Registration reg = calendar.addEntrySourceEntryResizedListener(event -> {});
+    void addClientSideEntryResizedListener_returnsRegistration() {
+        Registration reg = calendar.addClientSideEntryResizedListener(event -> {});
         assertNotNull(reg);
     }
 
     @Test
-    void addEntrySourceEntryResizedListener_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.addEntrySourceEntryResizedListener(null));
+    void addClientSideEntryResizedListener_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.addClientSideEntryResizedListener(null));
     }
 
     @Test
     @SuppressWarnings("removal")
     void entrySourceEntryDrop_reachesNewAndFormerListener() {
-        List<EntrySourceEntryDroppedEvent> received = new ArrayList<>();
+        List<ClientSideEntryDroppedEvent> received = new ArrayList<>();
         List<ExternalEntryDroppedEvent> receivedFormer = new ArrayList<>();
-        calendar.addEntrySourceEntryDroppedListener(received::add);
+        calendar.addClientSideEntryDroppedListener(received::add);
         calendar.addExternalEntryDroppedListener(receivedFormer::add);
 
         fireEntrySourceDomEvent("externalEntryDrop");
@@ -374,9 +374,9 @@ public class EventSourcesTest {
     @Test
     @SuppressWarnings("removal")
     void entrySourceEntryResize_reachesNewAndFormerListener() {
-        List<EntrySourceEntryResizedEvent> received = new ArrayList<>();
+        List<ClientSideEntryResizedEvent> received = new ArrayList<>();
         List<ExternalEntryResizedEvent> receivedFormer = new ArrayList<>();
-        calendar.addEntrySourceEntryResizedListener(received::add);
+        calendar.addClientSideEntryResizedListener(received::add);
         calendar.addExternalEntryResizedListener(receivedFormer::add);
 
         fireEntrySourceDomEvent("externalEntryResize");
@@ -419,7 +419,7 @@ public class EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // EntrySourceEntryDroppedEvent — construction
+    // ClientSideEntryDroppedEvent — construction
     // -------------------------------------------------------------------------
 
     @Test
@@ -437,7 +437,7 @@ public class EventSourcesTest {
         delta.put("days", 1);
         delta.put("milliseconds", 0L);
 
-        EntrySourceEntryDroppedEvent event = new EntrySourceEntryDroppedEvent(cal, true, entryData, delta, "my-feed");
+        ClientSideEntryDroppedEvent event = new ClientSideEntryDroppedEvent(cal, true, entryData, delta, "my-feed");
 
         assertNotNull(event.getEntry());
         assertEquals("my-feed", event.getSourceId());
@@ -448,7 +448,7 @@ public class EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // EntrySourceEntryResizedEvent — construction
+    // ClientSideEntryResizedEvent — construction
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
@@ -555,7 +555,7 @@ public class EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // EntrySourceEntryResizedEvent — construction
+    // ClientSideEntryResizedEvent — construction
     // -------------------------------------------------------------------------
 
     @Test
@@ -573,7 +573,7 @@ public class EventSourcesTest {
         delta.put("days", 0);
         delta.put("milliseconds", 3600000L); // +1 hour
 
-        EntrySourceEntryResizedEvent event = new EntrySourceEntryResizedEvent(cal, true, entryData, delta, "my-feed");
+        ClientSideEntryResizedEvent event = new ClientSideEntryResizedEvent(cal, true, entryData, delta, "my-feed");
 
         assertNotNull(event.getEntry());
         assertEquals("my-feed", event.getSourceId());

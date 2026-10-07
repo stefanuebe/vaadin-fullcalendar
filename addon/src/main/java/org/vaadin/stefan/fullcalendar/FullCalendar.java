@@ -910,7 +910,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      *
      * @return time zone
      * @deprecated use {@link #getOption(Option)} with {@link Option#TIMEZONE}. {@code getOption} is empty while the
-     * option is not set, where this method returns UTC, which is not necessarily the time zone the client uses
+     * option is not set, where this method returns UTC, which is not necessarily the time zone the client uses.
+     * {@link #getOptionOrDefault(Option, Object)} with {@code Timezone.UTC} returns what this method returns
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
     public Timezone getTimezone() {
@@ -922,7 +923,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * client default, while it is not set.
      */
     Timezone getTimezoneForOffsets() {
-        return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
+        return getOptionOrDefault(Option.TIMEZONE, Timezone.UTC);
     }
 
     /**
@@ -1078,6 +1079,40 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public <T> Optional<T> getOption(Option option) {
         return getOption(option, false);
+    }
+
+    /**
+     * Returns the value of the given option like {@link #getOption(Option)}, or the given default when the option
+     * is not set. Named like {@link Map#getOrDefault(Object, Object)}, because a {@code getOption} overload with a
+     * {@code Boolean} default would clash with {@link #getOption(Option, boolean)}.
+     * <pre>{@code
+     * Timezone timezone = calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC);
+     * }</pre>
+     *
+     * @param option       option
+     * @param defaultValue value to return when the option is not set
+     * @param <T>          type of value
+     * @return the option's value or the default
+     * @throws NullPointerException when null is passed as option
+     * @throws ClassCastException at the call site when the option's value is not of the default's type
+     */
+    public <T> T getOptionOrDefault(Option option, T defaultValue) {
+        return this.<T>getOption(option).orElse(defaultValue);
+    }
+
+    /**
+     * Returns the value of the given option like {@link #getOption(String)}, or the given default when the option
+     * is not set.
+     *
+     * @param option       option
+     * @param defaultValue value to return when the option is not set
+     * @param <T>          type of value
+     * @return the option's value or the default
+     * @throws NullPointerException when null is passed as option
+     * @see #getOptionOrDefault(Option, Object)
+     */
+    public <T> T getOptionOrDefault(String option, T defaultValue) {
+        return this.<T>getOption(option).orElse(defaultValue);
     }
 
     /**
@@ -1758,9 +1793,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntrySourceEntryDroppedListener(ComponentEventListener<EntrySourceEntryDroppedEvent> listener) {
+    public Registration addClientSideEntryDroppedListener(ComponentEventListener<ClientSideEntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EntrySourceEntryDroppedEvent.class, listener);
+        return addListener(ClientSideEntryDroppedEvent.class, listener);
     }
 
     /**
@@ -1773,18 +1808,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEntrySourceEntryResizedListener(ComponentEventListener<EntrySourceEntryResizedEvent> listener) {
+    public Registration addClientSideEntryResizedListener(ComponentEventListener<ClientSideEntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EntrySourceEntryResizedEvent.class, listener);
+        return addListener(ClientSideEntryResizedEvent.class, listener);
     }
 
     /**
-     * Former name of {@link #addEntrySourceEntryDroppedListener(ComponentEventListener)}.
+     * Former name of {@link #addClientSideEntryDroppedListener(ComponentEventListener)}.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addEntrySourceEntryDroppedListener(ComponentEventListener)}
+     * @deprecated use {@link #addClientSideEntryDroppedListener(ComponentEventListener)}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
     public Registration addExternalEntryDroppedListener(ComponentEventListener<ExternalEntryDroppedEvent> listener) {
@@ -1793,12 +1828,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Former name of {@link #addEntrySourceEntryResizedListener(ComponentEventListener)}.
+     * Former name of {@link #addClientSideEntryResizedListener(ComponentEventListener)}.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addEntrySourceEntryResizedListener(ComponentEventListener)}
+     * @deprecated use {@link #addClientSideEntryResizedListener(ComponentEventListener)}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
     public Registration addExternalEntryResizedListener(ComponentEventListener<ExternalEntryResizedEvent> listener) {

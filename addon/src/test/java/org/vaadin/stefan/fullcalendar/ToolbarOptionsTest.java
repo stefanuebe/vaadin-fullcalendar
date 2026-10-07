@@ -38,6 +38,20 @@ public class ToolbarOptionsTest {
     }
 
     @Test
+    void toolbarParts_buildTheButtonStringsFullCalendarExpects() {
+        calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
+                ToolbarParts.START, ToolbarParts.PREV_YEAR + "," + ToolbarParts.PREV + "," + ToolbarParts.NEXT + ","
+                        + ToolbarParts.NEXT_YEAR + " " + ToolbarParts.TODAY,
+                ToolbarParts.CENTER, ToolbarParts.TITLE,
+                ToolbarParts.END, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue()));
+
+        ObjectNode json = (ObjectNode) sentToClient().get("headerToolbar");
+        assertEquals("prevYear,prev,next,nextYear today", json.get("start").asString());
+        assertEquals("title", json.get("center").asString());
+        assertEquals("dayGridMonth", json.get("end").asString());
+    }
+
+    @Test
     void footerToolbar_map_reachesClientAsObject() {
         calendar.setOption(Option.FOOTER_TOOLBAR, Map.of("center", "prev,next"));
 

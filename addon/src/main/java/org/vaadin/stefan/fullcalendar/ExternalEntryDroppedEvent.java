@@ -21,14 +21,14 @@ import com.vaadin.flow.component.EventData;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Former name of {@link EntrySourceEntryDroppedEvent}. Listeners registered for this class keep receiving the event.
+ * Former name of {@link ClientSideEntryDroppedEvent}. Listeners registered for this class keep receiving the event.
  *
- * @deprecated use {@link EntrySourceEntryDroppedEvent} and {@link FullCalendar#addEntrySourceEntryDroppedListener}. The
+ * @deprecated use {@link ClientSideEntryDroppedEvent} and {@link FullCalendar#addClientSideEntryDroppedListener}. The
  * entry comes from an entry source, not from outside the calendar, which the former name suggested.
  */
 @Deprecated(since = "8.0.0", forRemoval = true)
 @DomEvent("externalEntryDrop")
-public class ExternalEntryDroppedEvent extends EntrySourceEntryDroppedEvent {
+public class ExternalEntryDroppedEvent extends ClientSideEntryDroppedEvent {
 
     /**
      * New instance.

@@ -21,14 +21,14 @@ import com.vaadin.flow.component.EventData;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Former name of {@link EntrySourceEntryResizedEvent}. Listeners registered for this class keep receiving the event.
+ * Former name of {@link ClientSideEntryResizedEvent}. Listeners registered for this class keep receiving the event.
  *
- * @deprecated use {@link EntrySourceEntryResizedEvent} and {@link FullCalendar#addEntrySourceEntryResizedListener}. The
+ * @deprecated use {@link ClientSideEntryResizedEvent} and {@link FullCalendar#addClientSideEntryResizedListener}. The
  * entry comes from an entry source, not from outside the calendar, which the former name suggested.
  */
 @Deprecated(since = "8.0.0", forRemoval = true)
 @DomEvent("externalEntryResize")
-public class ExternalEntryResizedEvent extends EntrySourceEntryResizedEvent {
+public class ExternalEntryResizedEvent extends ClientSideEntryResizedEvent {
 
     /**
      * New instance.

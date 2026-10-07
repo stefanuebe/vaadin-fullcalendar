@@ -303,7 +303,14 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Override
     public void setResourceColumns(List<? extends ResourceColumn> columns) {
         Objects.requireNonNull(columns);
+        setOption(SchedulerOption.RESOURCE_COLUMNS, columns);
+    }
 
+    /**
+     * Validates the columns and binds the component columns, so their components exist before the columns
+     * reach the client.
+     */
+    private void bindResourceColumns(List<? extends ResourceColumn> columns) {
         // validate no duplicate field keys
         Set<String> fieldKeys = new HashSet<>();
         for (ResourceColumn col : columns) {
@@ -337,15 +344,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
                     col.createComponent(resource);
                 }
             }
-        }
-
-        // send to client
-        if (columns.isEmpty()) {
-            setOption(SchedulerOption.RESOURCE_COLUMNS.getOptionKey(), null, null, SchedulerOption.RESOURCE_COLUMNS.getConverters());
-        } else {
-            ArrayNode array = JsonFactory.createArray();
-            columns.forEach(col -> array.add(col.toJson()));
-            setOption(SchedulerOption.RESOURCE_COLUMNS.getOptionKey(), array, columns, SchedulerOption.RESOURCE_COLUMNS.getConverters());
         }
     }
 
@@ -501,12 +499,13 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @throws NullPointerException when null is passed
      */
     public void setOption(SchedulerOption option, Object value) {
-        // A column list goes through the typed setter, so component columns get bound
+        // A column list binds its component columns first. An empty list removes the option.
         if (option.getOptionKey().equals(SchedulerOption.RESOURCE_COLUMNS.getOptionKey())
                 && (value == null || value instanceof List<?>)) {
             List<?> list = value == null ? List.of() : (List<?>) value;
             if (list.stream().allMatch(ResourceColumn.class::isInstance)) {
-                setResourceColumns(list.stream().map(ResourceColumn.class::cast).toList());
+                bindResourceColumns(list.stream().map(ResourceColumn.class::cast).toList());
+                setOption(option.getOptionKey(), list.isEmpty() ? null : list, null, option.getConverters());
                 return;
             }
         }
@@ -573,6 +572,21 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public <T> Optional<T> getOption(SchedulerOption option, boolean forceClientSideValue) {
         return getOption(option.getOptionKey(), forceClientSideValue);
+    }
+
+    /**
+     * Returns the value of the given option like {@link #getOption(SchedulerOption)}, or the given default when the
+     * option is not set.
+     *
+     * @param option       option
+     * @param defaultValue value to return when the option is not set
+     * @param <T>          type of value
+     * @return the option's value or the default
+     * @throws NullPointerException when null is passed as option
+     * @see #getOptionOrDefault(Option, Object)
+     */
+    public <T> T getOptionOrDefault(SchedulerOption option, T defaultValue) {
+        return this.<T>getOption(option).orElse(defaultValue);
     }
 
     @SuppressWarnings("unchecked")

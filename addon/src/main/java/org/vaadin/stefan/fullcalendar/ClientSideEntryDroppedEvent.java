@@ -48,7 +48,7 @@ import java.time.LocalDateTime;
 @DomEvent("externalEntryDrop")
 @Getter
 @ToString
-public class EntrySourceEntryDroppedEvent extends EntrySourceEntryEvent {
+public class ClientSideEntryDroppedEvent extends ClientSideEntryEvent {
 
     /**
      * The delta by which the entry was moved.
@@ -74,10 +74,10 @@ public class EntrySourceEntryDroppedEvent extends EntrySourceEntryEvent {
      * @param jsonDelta   delta JSON object
      * @param sourceId    id of the ClientSideEventSource
      */
-    public EntrySourceEntryDroppedEvent(FullCalendar source, boolean fromClient,
-                                        @EventData("event.detail.data") ObjectNode entryData,
-                                        @EventData("event.detail.delta") ObjectNode jsonDelta,
-                                        @EventData("event.detail.sourceId") String sourceId) {
+    public ClientSideEntryDroppedEvent(FullCalendar source, boolean fromClient,
+                                       @EventData("event.detail.data") ObjectNode entryData,
+                                       @EventData("event.detail.delta") ObjectNode jsonDelta,
+                                       @EventData("event.detail.sourceId") String sourceId) {
         super(source, fromClient, entryData, sourceId);
         this.delta = Delta.fromJson(jsonDelta);
 

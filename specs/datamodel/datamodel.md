@@ -149,7 +149,7 @@ Load entries directly in the browser (bypassing Java backend):
 | Google Calendar | `GoogleCalendarEventSource` | Requires API key |
 | iCalendar | `ICalendarEventSource` | Loads `.ics` feeds |
 
-Client-side entries fire `EntrySourceEntryDroppedEvent` / `EntrySourceEntryResizedEvent` (not the server-managed counterparts).
+Client-side entries fire `ClientSideEntryDroppedEvent` / `ClientSideEntryResizedEvent` (not the server-managed counterparts).
 
 ---
 

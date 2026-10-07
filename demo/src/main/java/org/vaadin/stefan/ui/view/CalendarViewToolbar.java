@@ -301,10 +301,10 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
 
         timezoneSelector.setValue(Timezone.UTC);
         timezoneSelector.addValueChangeListener(event -> {
-            if (!Objects.equals(calendar.<Timezone>getOption(Option.TIMEZONE).orElse(Timezone.UTC), event.getValue())) {
+            if (!Objects.equals(calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC), event.getValue())) {
                 Timezone value = event.getValue();
                 calendar.setOption(Option.TIMEZONE, value != null ? value : Timezone.UTC);
-                Notification.show("Timezone changed to " + calendar.<Timezone>getOption(Option.TIMEZONE).orElse(Timezone.UTC));
+                Notification.show("Timezone changed to " + calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
             }
         });
 

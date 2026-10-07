@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.converter.ResourceColumnsConverter;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import tools.jackson.databind.JsonNode;
@@ -165,6 +166,7 @@ public enum SchedulerOption {
      * @deprecated use {@link #RESOURCE_COLUMNS}, which sets the same FullCalendar option
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
+    @JsonConverter(ResourceColumnsConverter.class)
     RESOURCE_AREA_COLUMNS("resourceColumns"),
 
     /**
@@ -319,6 +321,7 @@ public enum SchedulerOption {
      *
      * @see <a href="https://fullcalendar.io/docs/resourceColumns">resourceColumns</a>
      */
+    @JsonConverter(ResourceColumnsConverter.class)
     RESOURCE_COLUMNS("resourceColumns"),
 
     /**

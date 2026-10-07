@@ -29,7 +29,7 @@ import tools.jackson.databind.node.ObjectNode;
  * Use {@link Entry#getId()} to locate and update the corresponding record in the external system.
  */
 @Getter
-public abstract class EntrySourceEntryEvent extends ComponentEvent<FullCalendar> {
+public abstract class ClientSideEntryEvent extends ComponentEvent<FullCalendar> {
 
     /**
      * Transient entry data carrier. NOT owned by any EntryProvider.
@@ -49,7 +49,7 @@ public abstract class EntrySourceEntryEvent extends ComponentEvent<FullCalendar>
      * @param entryData  JSON data of the entry (new position / state)
      * @param sourceId   id of the ClientSideEventSource
      */
-    protected EntrySourceEntryEvent(FullCalendar source, boolean fromClient,
+    protected ClientSideEntryEvent(FullCalendar source, boolean fromClient,
                                     ObjectNode entryData, String sourceId) {
         super(source, fromClient);
         // keep the id the entry has in its source, so the developer can find the record there

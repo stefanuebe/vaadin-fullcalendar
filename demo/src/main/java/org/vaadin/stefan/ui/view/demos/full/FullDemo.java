@@ -339,7 +339,7 @@ public class FullDemo extends AbstractSchedulerView {
         super.onTimeslotsSelectedScheduler(event);
         System.out.println(event.getClass().getSimpleName() + ": " + event);
 
-        System.out.println( "ZoneId: " + event.getSource().<Timezone>getOption(Option.TIMEZONE).orElse(Timezone.UTC).getZoneId() );
+        System.out.println( "ZoneId: " + event.getSource().getOptionOrDefault(Option.TIMEZONE, Timezone.UTC).getZoneId() );
         LocalDateTime startDate = event.getStart();
         System.out.println( "getStart(): " + event.getStart() );
         System.out.println( "getStartWithOffset():  " + event.getStartWithOffset() );

@@ -70,7 +70,7 @@ public class EventSourcesTestView extends VerticalLayout {
         });
 
         // Listen for drops of entry source entries (won't fire unless source is editable, but wiring is tested)
-        calendar.addEntrySourceEntryDroppedListener(e -> {
+        calendar.addClientSideEntryDroppedListener(e -> {
             int count = Integer.parseInt(externalDropCount.getText()) + 1;
             externalDropCount.setText(String.valueOf(count));
         });
