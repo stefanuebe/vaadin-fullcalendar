@@ -703,8 +703,29 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         callOptionUpdate(option, value, valueForServerSide, "setOption");
     }
 
+    /**
+     * Returns a {@link Timezone} for a valid zone id, otherwise the given string unchanged.
+     */
+    private static Object toTimezoneIfZoneId(String id) {
+        try {
+            return new Timezone(ZoneId.of(id));
+        } catch (DateTimeException e) {
+            return id;
+        }
+    }
+
     private void callOptionUpdate(String option, Object value, Object valueForServerSide, String method, Serializable... additionalParameters) {
         Objects.requireNonNull(option);
+
+        // 0. A time zone given as zone id is kept as Timezone, so getTimezone() and the offset helpers can rely on it.
+        //    Other strings, like "local", stay as they are, because FullCalendar accepts them.
+        if (Option.TIMEZONE.getOptionKey().equals(option)) {
+            if (valueForServerSide instanceof String id) {
+                valueForServerSide = toTimezoneIfZoneId(id);
+            } else if (valueForServerSide == null && value instanceof String id) {
+                value = toTimezoneIfZoneId(id);
+            }
+        }
 
         // 1. ENTRY_DID_MOUNT intercept: detect this key and route to merge logic
         if (Option.ENTRY_DID_MOUNT.getOptionKey().equals(option)) {
@@ -1276,9 +1297,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Does not affect the server side times of entries, only their client side displayment.
      *
      * @return time zone
+     * @throws IllegalStateException when the time zone option is a string that names no zone, e.g. {@code "local"}
      */
     public Timezone getTimezone() {
-        return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
+        Object timezone = getOption(Option.TIMEZONE).orElse(Timezone.UTC);
+        if (timezone instanceof Timezone t) {
+            return t;
+        }
+
+        throw new IllegalStateException("The time zone \"" + timezone + "\" names no zone the server can use. "
+                + "Set a zone id or a Timezone, or use FullCalendarBuilder.withAutoBrowserTimezone() to follow the browser.");
     }
 
     /**
@@ -1289,8 +1317,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     public void setTimezone(Timezone timezone) {
         Objects.requireNonNull(timezone);
 
-        Timezone oldTimezone = getTimezone();
-        if (!timezone.equals(oldTimezone)) {
+        // compare with the raw option, because getTimezone() throws for a string like "local"
+        if (!timezone.equals(getOption(Option.TIMEZONE).orElse(Timezone.UTC))) {
             setOption(Option.TIMEZONE, timezone);
         }
     }
@@ -3466,6 +3494,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * <dl>
          *   <dt>Type</dt> <dd>{@code string} (e.g., {@code "local"}, {@code "UTC"}, {@code "America/New_York"}) | {@link Timezone}</dd>
          * </dl>
+         * A zone id is stored as {@link Timezone} on the server. A string that names no zone, like {@code "local"},
+         * is passed to the client as it is. {@link FullCalendar#getTimezone()} and the server-side date conversions
+         * that need the zone then throw an {@link IllegalStateException}.
          *
          * @see FullCalendar#setTimezone(Timezone)
          * @see FullCalendar#getTimezone()

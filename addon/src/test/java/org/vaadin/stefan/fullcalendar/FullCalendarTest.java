@@ -537,4 +537,84 @@ public class FullCalendarTest {
         assertTrue(calendar.isAutoRevertUnappliedEntryChanges());
     }
 
+
+    // Issue #271. A time zone set as zone id is kept as Timezone on the server
+
+    @Test
+    void timezoneOptionAsZoneId_isStoredAsTimezone() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
+
+        Timezone expected = new Timezone(java.time.ZoneId.of("Europe/Berlin"));
+        assertEquals(expected, calendar.getTimezone());
+        assertOptionalEquals(expected, calendar.getOption(Option.TIMEZONE));
+        assertOptionalEquals("Europe/Berlin", calendar.getOption(Option.TIMEZONE, true));
+    }
+
+    @Test
+    void timezoneOptionLocal_reachesClient_getTimezoneThrowsIllegalState() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.setOption(Option.TIMEZONE, "local");
+
+        assertOptionalEquals("local", calendar.getOption(Option.TIMEZONE, true));
+        IllegalStateException e = assertThrows(IllegalStateException.class, calendar::getTimezone);
+        assertTrue(e.getMessage().contains("local"));
+    }
+
+    @Test
+    void timezoneOptionUtcId_equalsTimezoneUtc() {
+        FullCalendar calendar = new FullCalendar();
+        assertEquals(Timezone.UTC, calendar.getTimezone(), "default without option");
+
+        calendar.setOption(Option.TIMEZONE, "UTC");
+        assertEquals(Timezone.UTC, calendar.getTimezone());
+    }
+
+    @Test
+    void timezoneOptionUnknownString_isPassedThrough() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.setOption(Option.TIMEZONE, "Foo/Bar");
+
+        assertOptionalEquals("Foo/Bar", calendar.getOption(Option.TIMEZONE, true));
+        assertThrows(IllegalStateException.class, calendar::getTimezone);
+    }
+
+    @Test
+    void timezoneOptionLocalThenZoneId_getTimezoneWorksAgain() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.setOption(Option.TIMEZONE, "local");
+        calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
+
+        assertEquals(new Timezone(java.time.ZoneId.of("Europe/Berlin")), calendar.getTimezone());
+    }
+
+    @Test
+    void timezoneOptionWithServerSideZoneId_isStoredAsTimezone() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.setOption(Option.TIMEZONE, "Europe/Berlin", "Europe/Berlin");
+
+        assertEquals(new Timezone(java.time.ZoneId.of("Europe/Berlin")), calendar.getTimezone());
+        assertOptionalEquals("Europe/Berlin", calendar.getOption(Option.TIMEZONE, true));
+    }
+
+    @Test
+    void setTimezone_stillSetsTheOption() {
+        FullCalendar calendar = new FullCalendar();
+        Timezone berlin = new Timezone(java.time.ZoneId.of("Europe/Berlin"));
+        calendar.setTimezone(berlin);
+
+        assertEquals(berlin, calendar.getTimezone());
+        assertOptionalEquals("Europe/Berlin", calendar.getOption(Option.TIMEZONE, true));
+    }
+
+    @Test
+    void setTimezone_afterLocal_replacesIt() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.setOption(Option.TIMEZONE, "local");
+        Timezone berlin = new Timezone(java.time.ZoneId.of("Europe/Berlin"));
+
+        calendar.setTimezone(berlin);
+
+        assertEquals(berlin, calendar.getTimezone());
+    }
 }
