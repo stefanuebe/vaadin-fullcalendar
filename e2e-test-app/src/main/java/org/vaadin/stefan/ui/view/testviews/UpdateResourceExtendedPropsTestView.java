@@ -18,10 +18,11 @@ import java.time.LocalDate;
  * Regression test view for issue #230: {@code Scheduler.updateResource} must propagate
  * extended property changes to the client.
  * <p>
- * Renders a scheduler with one resource carrying an extended prop {@code department=Engineering}.
- * A button triggers {@code setExtendedProps("department", "Marketing")} followed by
- * {@code updateResource(resource)}. The Playwright spec reads the prop from the FC client via
- * {@code calendar.getResourceById('r1').extendedProps.department} before and after the click.
+ * Renders a scheduler with one resource carrying the extended props {@code department=Engineering} and
+ * {@code floor=3}. A button triggers {@code addExtendedProps("department", "Marketing")} followed by
+ * {@code updateResource(resource)}, a second removes {@code department}, a third replaces all extended props with
+ * {@code building=B} through the map and calls {@code updateResource(resource)}. The Playwright spec reads the
+ * props from the FC client via {@code calendar.getResourceById('r1').extendedProps} before and after the click.
  * <p>
  * Route: /test/update-resource-extended-props
  */
@@ -46,6 +47,7 @@ public class UpdateResourceExtendedPropsTestView extends VerticalLayout {
 
         Resource room = new Resource("r1", "Room 1", null);
         room.addExtendedProps("department", "Engineering");
+        room.addExtendedProps("floor", 3);
         calendar.addResource(room);
 
         Button updateBtn = new Button("Change department", e -> {
@@ -54,6 +56,16 @@ public class UpdateResourceExtendedPropsTestView extends VerticalLayout {
         });
         updateBtn.getElement().setAttribute("data-testid", "btn-change-dept");
 
-        add(updateBtn, calendar);
+        Button removeBtn = new Button("Remove department", e -> room.removeExtendedProps("department"));
+        removeBtn.getElement().setAttribute("data-testid", "btn-remove-dept");
+
+        Button replaceBtn = new Button("Replace extended props", e -> {
+            room.getExtendedProps().clear();
+            room.getExtendedProps().put("building", "B");
+            calendar.updateResource(room);
+        });
+        replaceBtn.getElement().setAttribute("data-testid", "btn-replace-props");
+
+        add(updateBtn, removeBtn, replaceBtn, calendar);
     }
 }

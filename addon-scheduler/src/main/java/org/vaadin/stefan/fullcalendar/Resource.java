@@ -268,7 +268,8 @@ public class Resource implements Serializable {
 
     /**
      * Removes a custom extended property from this resource by key. If this resource has been
-     * added to a scheduler, the change is propagated to the client immediately.
+     * added to a scheduler, the change is propagated to the client immediately. FullCalendar cannot delete an
+     * extended prop of a shown resource, so the client keeps the key with the value {@code undefined}.
      *
      * @param key property name to remove
      */
@@ -280,6 +281,8 @@ public class Resource implements Serializable {
     /**
      * Removes a custom extended property from this resource only if it matches both key and value.
      * If this resource has been added to a scheduler, the change is propagated to the client immediately.
+     * FullCalendar cannot delete an extended prop of a shown resource, so the client keeps the key with the value
+     * {@code undefined}.
      *
      * @param key   property name to remove
      * @param value value that must match
