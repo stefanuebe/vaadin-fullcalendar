@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Basic implementation of an in memory entry provider utilizing a hashmap.
@@ -105,6 +104,12 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
         });
     }
 
+    /**
+     * Called for each entry that {@link #addEntries(Iterable)} registers, after it has been added to this
+     * provider. Does nothing by default. Override it to react to added entries.
+     *
+     * @param entry added entry
+     */
     protected void onEntryAdd(T entry) {
 
     }
@@ -129,25 +134,41 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
         });
     }
 
+    /**
+     * Called for each entry that {@link #removeEntries(Iterable)} removes, after it has been removed from this
+     * provider. Does nothing by default. Override it to react to removed entries.
+     *
+     * @param entry removed entry
+     */
     protected void onEntryRemove(T entry) {
 
     }
 
     /**
-     * Updates the given entries on the client side. Ignores non-registered entries.
+     * Updates the given entries on the client side, the same way as {@link #refreshItem(Entry)} does for a
+     * single entry. Ignores entries that are not registered in this provider or have not been sent to the
+     * client yet.
      *
      * @param iterableEntries entries to update
      * @throws NullPointerException when null is passed
      */
     public void updateEntries(Iterable<T> iterableEntries) {
         Objects.requireNonNull(iterableEntries);
-        Map<String, T> entriesMap = getEntriesMap();
-        StreamSupport.stream(iterableEntries.spliterator(), true)
-                .filter(entry -> entriesMap.containsKey(entry.getId()) && entry.isKnownToTheClient())
-                .forEach(this::onEntryUpdate);
+        for (T entry : iterableEntries) {
+            if (entriesMap.containsKey(entry.getId()) && entry.isKnownToTheClient()) {
+                refreshItem(entry);
+                onEntryUpdate(entry);
+            }
+        }
     }
 
-    public void onEntryUpdate(T entry) {
+    /**
+     * Called for each entry that {@link #updateEntries(Iterable)} refreshes on the client side. Does nothing
+     * by default. Override it to react to updated entries.
+     *
+     * @param entry updated entry
+     */
+    protected void onEntryUpdate(T entry) {
 
     }
 

@@ -297,6 +297,29 @@ public class ResourceTest {
         Assertions.assertEquals(Set.of("resourceIds", "resourceEditable"), resourceEntryKeys);
     }
 
+    // Issue #269. An unset resourceEditable must not override the calendar-level eventResourceEditable
+
+    @Test
+    void resourceEditable_default_isTrueButNotInJson() {
+        ResourceEntry entry = new ResourceEntry();
+        Assertions.assertTrue(entry.isResourceEditable());
+        Assertions.assertFalse(entry.toJson().has("resourceEditable"));
+    }
+
+    @Test
+    void resourceEditable_explicitValues_areInJson() {
+        ResourceEntry entry = new ResourceEntry();
+        entry.setResourceEditable(false);
+        Assertions.assertFalse(entry.isResourceEditable());
+        Assertions.assertFalse(entry.toJson().get("resourceEditable").asBoolean());
+
+        entry.setResourceEditable(true);
+        Assertions.assertTrue(entry.toJson().get("resourceEditable").asBoolean());
+
+        entry.setResourceEditable(null);
+        Assertions.assertFalse(entry.toJson().has("resourceEditable"));
+    }
+
     private static Set<String> jsonNames(Entry entry) {
         return entry.streamProperties()
                 .filter(def -> !def.isJsonIgnored())

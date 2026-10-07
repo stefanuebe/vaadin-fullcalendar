@@ -17,7 +17,7 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `start` | `LocalDateTime` | Start date/time (stored as UTC). Setters accept `LocalDateTime`, `Instant`, `LocalDate` |
 | `end` | `LocalDateTime` | End date/time (stored as UTC, optional — omitting creates point-in-time entry). Setters accept `LocalDateTime`, `Instant`, `LocalDate` |
 | `allDay` | `boolean` | Force all-day rendering regardless of time part |
-| `editable` | `boolean` | Per-entry drag/resize toggle |
+| `editable` | `Boolean` | Per-entry drag/resize toggle (`null` = inherit global). `startEditable` and `durationEditable` win over it, also in `isStartEditable()` / `isDurationEditable()` |
 | `startEditable` | `Boolean` | Per-entry override for `ENTRY_START_EDITABLE` (`null` = inherit global) |
 | `durationEditable` | `Boolean` | Per-entry override for `ENTRY_DURATION_EDITABLE` (`null` = inherit global) |
 | `color` | `String` | Entry color (CSS color string). FullCalendar sets it as the CSS variable `--fc-event-color`, the theme's styles decide where it shows |
@@ -47,7 +47,7 @@ Entry subclass for scheduler views that can be assigned to one or more resources
 | Field | Type | Description |
 |-------|------|-------------|
 | `resources` | `Set<Resource>` | Assigned resources (LinkedHashSet) |
-| `resourceEditable` | `boolean` | Whether entry can be dragged between resources |
+| `resourceEditable` | `Boolean` | Whether entry can be dragged between resources (`null` = inherit `ENTRY_RESOURCE_EDITABLE`, not sent) |
 
 **Convenience accessor**: `getResource()` returns `Optional<Resource>` (first assigned resource). Use `getResourcesOrEmpty()` for all resources.
 

@@ -654,6 +654,60 @@ public class EntryTest {
         Assertions.assertFalse(entry.toJson().has("editable"), "null is not serialized");
     }
 
+    // Issue #268. The specific flags win over editable, as FullCalendar applies them
+
+    @Test
+    void startAndDurationEditable_explicitFalse_winsOverEditable() {
+        Entry entry = new Entry();
+        entry.setEditable(true);
+        entry.setStartEditable(false);
+        entry.setDurationEditable(false);
+
+        Assertions.assertFalse(entry.isStartEditable());
+        Assertions.assertFalse(entry.isDurationEditable());
+        ObjectNode json = entry.toJson();
+        Assertions.assertFalse(json.get("startEditable").asBoolean());
+        Assertions.assertFalse(json.get("durationEditable").asBoolean());
+    }
+
+    @Test
+    void startAndDurationEditable_explicitTrue_winsOverEditableFalse() {
+        // Regression guard, because this case already worked before #268
+        Entry entry = new Entry();
+        entry.setEditable(false);
+        entry.setStartEditable(true);
+        entry.setDurationEditable(true);
+
+        assertTrue(entry.isStartEditable());
+        assertTrue(entry.isDurationEditable());
+    }
+
+    @Test
+    void startAndDurationEditable_oneExplicit_otherFollowsEditable() {
+        Entry entry = new Entry();
+        entry.setEditable(true);
+        entry.setStartEditable(false);
+
+        Assertions.assertFalse(entry.isStartEditable());
+        assertTrue(entry.isDurationEditable());
+        Assertions.assertFalse(entry.toJson().has("durationEditable"));
+    }
+
+    @Test
+    void startAndDurationEditable_unset_followEditable() {
+        Entry entry = new Entry();
+        entry.setEditable(false);
+        Assertions.assertFalse(entry.isStartEditable());
+        Assertions.assertFalse(entry.isDurationEditable());
+        ObjectNode json = entry.toJson();
+        Assertions.assertFalse(json.has("startEditable"));
+        Assertions.assertFalse(json.has("durationEditable"));
+
+        entry.setEditable(true);
+        assertTrue(entry.isStartEditable());
+        assertTrue(entry.isDurationEditable());
+    }
+
     @Test
     void addAndRemoveClassNames() {
         Entry entry = new Entry();
