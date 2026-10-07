@@ -16,12 +16,14 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converter.ResourceConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.json.JsonReadField;
 import org.vaadin.stefan.fullcalendar.json.JsonUpdateAllowed;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -41,11 +43,15 @@ public class ResourceEntry extends Entry {
 
     /**
      * Whether this entry can be dragged between resources (scheduler only).
-     * {@code null} inherits the calendar-level {@code eventResourceEditable} option.
+     * {@code null} inherits the calendar-level {@code eventResourceEditable} option and is not sent to the client.
+     * Like {@link Entry#setEditable(Boolean)}, {@code null} means inherit.
      *
      * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
      */
-    private boolean resourceEditable = true;
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @JsonReadField
+    private Boolean resourceEditable;
 
     @JsonUpdateAllowed
     @JsonName("resourceIds")
@@ -62,6 +68,26 @@ public class ResourceEntry extends Entry {
      */
     public ResourceEntry(String id) {
         super(id);
+    }
+
+    /**
+     * Checks whether this entry can be dragged between resources. Returns {@code true} if the value has not been
+     * set explicitly. The entry then inherits the calendar-level {@code eventResourceEditable} option at render time.
+     *
+     * @return {@code true} unless explicitly set to {@code false}
+     */
+    public boolean isResourceEditable() {
+        return resourceEditable == null || resourceEditable;
+    }
+
+    /**
+     * Sets whether this entry can be dragged between resources. The value overrides the calendar-level
+     * {@code eventResourceEditable} option. Pass {@code null} to inherit the calendar-level option instead.
+     *
+     * @param resourceEditable {@code true} or {@code false} to override, {@code null} to inherit
+     */
+    public void setResourceEditable(Boolean resourceEditable) {
+        this.resourceEditable = resourceEditable;
     }
 
     @Override
