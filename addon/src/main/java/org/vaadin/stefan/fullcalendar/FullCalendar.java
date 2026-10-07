@@ -20,6 +20,8 @@ import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.i18n.LocaleChangeEvent;
+import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.shared.Registration;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
@@ -55,7 +57,7 @@ import java.util.stream.Stream;
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-styles.css")
 @Tag("vaadin-full-calendar")
-public class FullCalendar extends Component implements HasStyle, HasSize, HasTheme {
+public class FullCalendar extends Component implements HasStyle, HasSize, HasTheme, LocaleChangeObserver {
 
     /**
      * The FullCalendar version used in this addon, for the core package and its plugins. Third-party libraries such as
@@ -108,6 +110,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private int timeslotsSelectedListenerCount;
 
     private Timezone browserTimezone;
+    private boolean autoBrowserTimezone;
+    private boolean autoUiLocale;
 
     private String currentViewName;
     private LocalDate currentIntervalStart;
@@ -983,8 +987,49 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
     /**
+     * Lets the calendar follow the time zone of the browser. The client reports it after attach, and the calendar
+     * sets it as {@link Option#TIMEZONE}. If the browser time zone is already known, it is applied at once. A later
+     * {@code setOption(Option.TIMEZONE, …)} applies until the browser reports its time zone again, for instance
+     * after the calendar is attached anew.
+     *
+     * @return this instance
+     */
+    public FullCalendar withAutoBrowserTimezone() {
+        autoBrowserTimezone = true;
+        getBrowserTimezone().ifPresent(timezone -> setOption(Option.TIMEZONE, timezone));
+        return this;
+    }
+
+    /**
+     * Lets the calendar follow the locale of the UI. The calendar sets the UI locale as {@link Option#LOCALE} on
+     * attach and whenever the UI locale changes ({@link com.vaadin.flow.component.UI#setLocale(Locale)}). Vaadin
+     * derives the initial UI locale from the browser, unless the application sets it. A later
+     * {@code setOption(Option.LOCALE, …)} applies until the next locale change.
+     *
+     * @return this instance
+     */
+    public FullCalendar withAutoUiLocale() {
+        autoUiLocale = true;
+        getUI().ifPresent(ui -> setOption(Option.LOCALE, ui.getLocale()));
+        return this;
+    }
+
+    /**
+     * Sets the UI locale as {@link Option#LOCALE}, if {@link #withAutoUiLocale()} is enabled. Called by Vaadin on
+     * attach and when the UI locale changes, does nothing otherwise.
+     *
+     * @param event locale change event
+     */
+    @Override
+    public void localeChange(LocaleChangeEvent event) {
+        if (autoUiLocale) {
+            setOption(Option.LOCALE, event.getLocale());
+        }
+    }
+
+    /**
      * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone,
-     * except for when the FC builder has been used with the auto timezone parameter.
+     * unless {@link #withAutoBrowserTimezone()} is enabled.
      * <p></p>
      * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
      *
@@ -1003,6 +1048,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     protected void setBrowserTimezone(String timezoneId) {
         if (timezoneId != null) {
             this.browserTimezone = new Timezone(ZoneId.of(timezoneId));
+            if (autoBrowserTimezone) {
+                setOption(Option.TIMEZONE, browserTimezone);
+            }
             getEventBus().fireEvent(new BrowserTimezoneObtainedEvent(this, false, browserTimezone));
         }
     }

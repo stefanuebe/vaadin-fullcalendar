@@ -32,8 +32,8 @@ public class TimezonesSample extends AbstractSample {
         // There are other ways to obtain the browser's timezone, so you are not obliged to use the listener.
         calendar.addBrowserTimezoneObtainedListener(event -> calendar.setOption(Option.TIMEZONE, event.getTimezone()));
 
-        // The same mechanism as above in one line — the listener auto-registers when we pass the setter directly.
-        calendar.addBrowserTimezoneObtainedListener(event -> calendar.setOption(Option.TIMEZONE, event.getTimezone()));
+        // Or let the calendar follow the browser's time zone in one line.
+        calendar.withAutoBrowserTimezone();
 
         // Entries use internally utc to define times. The LocalDateTime and Instant methods setStart/End have the same effect.
         entry.setStart(Instant.now()); // UTC

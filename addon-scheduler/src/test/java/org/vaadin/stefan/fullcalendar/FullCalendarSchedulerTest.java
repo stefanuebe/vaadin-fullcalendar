@@ -19,6 +19,13 @@ public class FullCalendarSchedulerTest {
     }
 
     @Test
+    void autoBrowserSettings_keepSchedulerTypeForChaining() {
+        FullCalendarScheduler scheduler = new FullCalendarScheduler().withAutoBrowserTimezone().withAutoUiLocale();
+
+        Assertions.assertNotNull(scheduler);
+    }
+
+    @Test
     void testSetLicenseKey() {
         calendar.setOption(SchedulerOption.LICENSE_KEY, "123456");
 

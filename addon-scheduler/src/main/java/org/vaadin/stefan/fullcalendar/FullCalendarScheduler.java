@@ -513,6 +513,18 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         setOption(option.getOptionKey(), value, null, option.getConverters());
     }
 
+    @Override
+    public FullCalendarScheduler withAutoBrowserTimezone() {
+        super.withAutoBrowserTimezone();
+        return this;
+    }
+
+    @Override
+    public FullCalendarScheduler withAutoUiLocale() {
+        super.withAutoUiLocale();
+        return this;
+    }
+
     /**
      * Sets a option for this instance. Passing a null value removes the option. The third parameter
      * might be used to explicitly store a "more complex" variant of the option's value to be returned

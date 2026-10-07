@@ -1557,6 +1557,7 @@ public enum Option {
      *   <dt>Type</dt>    <dd>language code {@code string} (e.g., {@code "en"}, {@code "de"}, {@code "fr"}) | {@link Locale}</dd>
      *   <dt>Default</dt> <dd>{@link CalendarLocale#getDefaultLocale()}, set by the constructor</dd>
      * </dl>
+     * {@link FullCalendar#withAutoUiLocale()} sets the UI locale and follows its changes.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
      */
@@ -2669,7 +2670,8 @@ public enum Option {
      *   <dt>Type</dt> <dd>{@link Timezone} | time zone id as {@code String} (e.g., {@code "UTC"},
      *                     {@code "America/New_York"}), stored as {@link Timezone}. FullCalendar's {@code "local"} is
      *                     rejected with an {@link IllegalArgumentException}, because the server needs the real zone to
-     *                     compute entry offsets.</dd>
+     *                     compute entry offsets. Use {@link FullCalendar#withAutoBrowserTimezone()} to follow the
+     *                     browser's time zone.</dd>
      *   <dt>Default</dt> <dd>{@code "UTC"}, set by the add-on (FullCalendar's own default is {@code "local"}).
      *                        {@link FullCalendar#getTimezone()} returns {@code Timezone.UTC} as long as the option is
      *                        not set.</dd>

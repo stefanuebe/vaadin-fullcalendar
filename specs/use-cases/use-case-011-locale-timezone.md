@@ -50,6 +50,9 @@ calendar.setOption(Option.DIRECTION, "rtl");
 calendar.addBrowserTimezoneObtainedListener(event -> {
     Timezone browserTz = event.getTimezone();
 });
+
+// Follow the browser time zone and the UI locale (set on attach, follows UI.setLocale)
+FullCalendar calendar = new FullCalendar().withAutoBrowserTimezone().withAutoUiLocale();
 ```
 
 ---
