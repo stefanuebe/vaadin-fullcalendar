@@ -98,27 +98,38 @@ export class FullCalendarScheduler extends FullCalendar {
         const data = JSON.parse(jsonStr);
         const resource = this.calendar.getResourceById(data.id);
         if (resource) {
-            if (data.title !== undefined) resource.setProp('title', data.title);
-            if (data.eventColor !== undefined) resource.setProp('eventColor', data.eventColor);
-            if (data.eventContrastColor !== undefined) resource.setProp('eventContrastColor', data.eventContrastColor);
-            if (data.eventConstraint !== undefined) resource.setProp('eventConstraint', data.eventConstraint);
-            if (data.eventOverlap !== undefined) resource.setProp('eventOverlap', evaluateCallbacks(data.eventOverlap));
-            if (data.eventAllow !== undefined) resource.setProp('eventAllow', evaluateCallbacks(data.eventAllow));
-            if (data.eventClass !== undefined) resource.setProp('eventClass', data.eventClass);
+            // one render for all changes instead of one per setProp / setExtendedProp
+            this.calendar.batchRendering(() => {
+                if (data.title !== undefined) resource.setProp('title', data.title);
+                if (data.eventColor !== undefined) resource.setProp('eventColor', data.eventColor);
+                if (data.eventContrastColor !== undefined) resource.setProp('eventContrastColor', data.eventContrastColor);
+                if (data.eventConstraint !== undefined) resource.setProp('eventConstraint', data.eventConstraint);
+                if (data.eventOverlap !== undefined) resource.setProp('eventOverlap', evaluateCallbacks(data.eventOverlap));
+                if (data.eventAllow !== undefined) resource.setProp('eventAllow', evaluateCallbacks(data.eventAllow));
+                if (data.eventClass !== undefined) resource.setProp('eventClass', data.eventClass);
 
-            // Extended props: any top-level JSON key not covered above is treated as an extended prop.
-            // Resource.toJson() serializes extended props flat at the top level (the FC Resource
-            // constructor accepts them that way), so we mirror that shape here on update.
-            const handled = new Set([
-                'id', 'title', 'parentId', 'children', 'businessHours',
-                'eventColor', 'eventContrastColor',
-                'eventConstraint', 'eventOverlap', 'eventAllow', 'eventClass'
-            ]);
-            for (const key of Object.keys(data)) {
-                if (!handled.has(key)) {
-                    resource.setExtendedProp(key, data[key]);
+                // Extended props: any top-level JSON key not covered above is treated as an extended prop.
+                // Resource.toJson() serializes extended props flat at the top level (the FC Resource
+                // constructor accepts them that way), so we mirror that shape here on update.
+                const handled = new Set([
+                    'id', 'title', 'parentId', 'children', 'businessHours',
+                    'eventColor', 'eventContrastColor',
+                    'eventConstraint', 'eventOverlap', 'eventAllow', 'eventClass'
+                ]);
+                for (const key of Object.keys(data)) {
+                    if (!handled.has(key)) {
+                        resource.setExtendedProp(key, data[key]);
+                    }
                 }
-            }
+
+                // A key the server no longer sends was removed there. FC can only merge into extendedProps,
+                // not delete from it, so the removed key is set to undefined.
+                for (const key of Object.keys(resource.extendedProps)) {
+                    if (!(key in data) && resource.extendedProps[key] !== undefined) {
+                        resource.setExtendedProp(key, undefined);
+                    }
+                }
+            });
         }
     }
 

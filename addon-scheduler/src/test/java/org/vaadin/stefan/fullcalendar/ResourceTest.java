@@ -8,7 +8,9 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -223,6 +225,50 @@ public class ResourceTest {
         resource.setExtendedProp("dept", "Engineering");
         resource.removeExtendedProp("dept");
         Assertions.assertFalse(resource.getExtendedProps().containsKey("dept"));
+    }
+
+    @Test
+    void setExtendedProps_replacesAll() {
+        Resource resource = new Resource();
+        resource.setExtendedProp("dept", "Engineering");
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("floor", 3);
+        resource.setExtendedProps(props);
+        props.put("later", "ignored"); // the given map is copied
+        Assertions.assertEquals(Map.of("floor", 3), resource.getExtendedProps());
+
+        resource.setExtendedProps(null);
+        Assertions.assertTrue(resource.getExtendedProps().isEmpty());
+    }
+
+    @Test
+    void setExtendedProps_nullKey_throwsNPEAndKeepsProps() {
+        Resource resource = new Resource();
+        resource.setExtendedProp("dept", "Engineering");
+
+        Map<String, Object> props = new HashMap<>();
+        props.put(null, 1);
+        Assertions.assertThrows(NullPointerException.class, () -> resource.setExtendedProps(props));
+        Assertions.assertEquals(Map.of("dept", "Engineering"), resource.getExtendedProps());
+    }
+
+    @Test
+    void getExtendedProps_isReadOnly() {
+        Resource resource = new Resource();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> resource.getExtendedProps().put("dept", "x"));
+    }
+
+    @Test
+    void setExtendedProp_nullKey_throwsNPE() {
+        Resource resource = new Resource();
+        Assertions.assertThrows(NullPointerException.class, () -> resource.setExtendedProp(null, "x"));
+    }
+
+    @Test
+    void removeExtendedProp_nullKey_throwsNPE() {
+        Resource resource = new Resource();
+        Assertions.assertThrows(NullPointerException.class, () -> resource.removeExtendedProp(null));
     }
 
     /**

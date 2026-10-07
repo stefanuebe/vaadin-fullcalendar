@@ -698,12 +698,14 @@ public class EntryTest {
     }
 
     @Test
-    void extendedProps_neverNullAndMutable() {
+    void extendedProps_neverNullAndReadOnly() {
         Entry entry = new Entry();
         assertNotNull(entry.getExtendedProps());
+        assertThrows(UnsupportedOperationException.class, () -> entry.getExtendedProps().put("a", 1));
 
-        entry.getExtendedProps().put("a", 1);
+        entry.setExtendedProp("a", 1);
         assertEquals(1, entry.getExtendedProp("a"));
+        assertThrows(UnsupportedOperationException.class, () -> entry.getExtendedProps().put("b", 2));
 
         entry.setExtendedProps(null);
         assertNotNull(entry.getExtendedProps());
@@ -715,6 +717,14 @@ public class EntryTest {
 
         entry.removeExtendedProp("b");
         assertEquals(Map.of("c", 3), entry.getExtendedProps());
+    }
+
+    @Test
+    void setExtendedProps_nullKey_throwsNPE() {
+        Entry entry = new Entry();
+        Map<String, Object> props = new HashMap<>();
+        props.put(null, 1);
+        assertThrows(NullPointerException.class, () -> entry.setExtendedProps(props));
     }
 
     @Test
@@ -733,6 +743,9 @@ public class EntryTest {
     void toJson_sendsExtendedPropsUnderStandardKey() {
         Entry entry = new Entry();
         assertFalse(entry.toJson().has("extendedProps"), "no empty object for entries without extended props");
+
+        entry.setExtendedProps(Map.of());
+        assertFalse(entry.toJson().has("extendedProps"), "no empty object after setting an empty map");
 
         entry.setExtendedProp("department", "Engineering");
         ObjectNode json = entry.toJson();
@@ -817,5 +830,25 @@ public class EntryTest {
         copy.setExtendedProp("b", 2);
         assertEquals(Map.of("a", 1), entry.getExtendedProps());
         assertEquals(Map.of("a", 1, "b", 2), copy.getExtendedProps());
+    }
+
+    @Test
+    void copy_entryWithoutExtendedProps() {
+        Entry copy = new Entry().copy();
+        assertTrue(copy.getExtendedProps().isEmpty());
+
+        Entry target = new Entry();
+        target.setExtendedProp("a", 1);
+        Entry.copy(new Entry(), target, false);
+        assertTrue(target.getExtendedProps().isEmpty(), "copying an entry without extended props clears them");
+    }
+
+    @Test
+    void toJson_omitsExtendedPropsAfterRemovingTheLast() throws IllegalAccessException {
+        Entry entry = new Entry();
+        entry.setExtendedProp("a", 1);
+        entry.removeExtendedProp("a");
+        assertNull(FieldUtils.readField(entry, "extendedProps", true), "no empty map is kept");
+        assertFalse(entry.toJson().has("extendedProps"));
     }
 }

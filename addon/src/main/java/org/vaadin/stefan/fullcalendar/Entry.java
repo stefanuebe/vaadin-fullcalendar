@@ -232,8 +232,9 @@ public class Entry implements Serializable {
     @JsonConverter(ClassNameConverter.class)
     private Set<String> classNames;
 
+    // null until extended props are set, most entries have none
     @JsonConverter(ExtendedPropsConverter.class)
-    private Map<String, Object> extendedProps = new HashMap<>();
+    private Map<String, Object> extendedProps;
 
     @JsonIgnore
     private boolean knownToTheClient; // not sure if still needed?
@@ -1391,10 +1392,16 @@ public class Entry implements Serializable {
      * Replaces the extended props of this entry with a copy of the given map. {@code null} clears them.
      *
      * @param extendedProps extended props
+     * @throws NullPointerException when the map contains a null key
      * @see #setExtendedProp(String, Object)
      */
     public void setExtendedProps(Map<String, Object> extendedProps) {
-        this.extendedProps = extendedProps != null ? new HashMap<>(extendedProps) : new HashMap<>();
+        Map<String, Object> copy = extendedProps != null ? new HashMap<>(extendedProps) : new HashMap<>();
+        if (copy.containsKey(null)) {
+            throw new NullPointerException("Extended props must not contain a null key");
+        }
+
+        this.extendedProps = copy.isEmpty() ? null : copy;
     }
 
     /**
@@ -1409,7 +1416,8 @@ public class Entry implements Serializable {
      *         "info => info.el.title = info.event.extendedProps.department"));
      * }</pre>
      * Strings, numbers, booleans, maps, collections, arrays and {@link tools.jackson.databind.JsonNode}s are sent
-     * as they are. Any other object is serialized with Jackson. Entries the client sends back
+     * as the matching JSON values. Numbers other than {@code Integer} and {@code Long} are sent as doubles, so a
+     * {@code BigDecimal} can lose precision. Any other object is serialized with Jackson. Entries the client sends back
      * ({@link EntryReceiveEvent}, {@link DropEvent}) carry the values as they were parsed from JSON, so an
      * object arrives as a {@code Map}.
      * <p>
@@ -1420,7 +1428,12 @@ public class Entry implements Serializable {
      * @param value value to set, can be null
      */
     public void setExtendedProp(String key, Object value) {
-        extendedProps.put(Objects.requireNonNull(key), value);
+        Objects.requireNonNull(key);
+        if (extendedProps == null) {
+            extendedProps = new HashMap<>();
+        }
+
+        extendedProps.put(key, value);
     }
 
     /**
@@ -1431,7 +1444,7 @@ public class Entry implements Serializable {
      * @see #setExtendedProp(String, Object)
      */
     public Object getExtendedProp(String key) {
-        return extendedProps.get(key);
+        return getExtendedProps().get(key);
     }
 
     /**
@@ -1449,7 +1462,8 @@ public class Entry implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public <T> T getExtendedProp(String key, T defaultValue) {
-        return extendedProps.containsKey(key) ? (T) extendedProps.get(key) : defaultValue;
+        Map<String, Object> props = getExtendedProps();
+        return props.containsKey(key) ? (T) props.get(key) : defaultValue;
     }
 
     /**
@@ -1458,18 +1472,25 @@ public class Entry implements Serializable {
      * @param key the name of the extended prop to remove
      */
     public void removeExtendedProp(String key) {
-        extendedProps.remove(Objects.requireNonNull(key));
+        Objects.requireNonNull(key);
+        if (extendedProps != null) {
+            extendedProps.remove(key);
+            if (extendedProps.isEmpty()) {
+                extendedProps = null;
+            }
+        }
     }
 
     /**
-     * Returns the extended props of this entry. Never null. The map is mutable. Changes are sent to the client
-     * when the entry is refreshed.
+     * Returns the extended props of this entry as a read-only map. Never null. Change them with
+     * {@link #setExtendedProp(String, Object)}, {@link #removeExtendedProp(String)} or
+     * {@link #setExtendedProps(Map)}, then call this method again, because an earlier result may not reflect
+     * the change.
      *
-     * @return extended props
-     * @see #setExtendedProp(String, Object)
+     * @return extended props, not modifiable
      */
     public Map<String, Object> getExtendedProps() {
-        return extendedProps;
+        return extendedProps != null ? Collections.unmodifiableMap(extendedProps) : Collections.emptyMap();
     }
 
     protected <T, R> R convertNullable(T value, SerializableFunction<T, R> converter) {
