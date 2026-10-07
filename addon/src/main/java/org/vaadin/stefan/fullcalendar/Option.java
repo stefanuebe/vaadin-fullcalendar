@@ -1215,9 +1215,9 @@ public enum Option {
      * {@code prev}, {@code next}, {@code prevYear}, {@code nextYear}, {@code today} or a view name like
      * {@code dayGridMonth}.
      * <dl>
-     *   <dt>Type</dt>    <dd>object with {@code left}, {@code center}, and {@code right} properties (FullCalendar also
-     *                        accepts {@code start} and {@code end}) | {@link Footer} |
-     *                        {@code Map<String, String>}</dd>
+     *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code left}, {@code center} and {@code right}
+     *                        properties (FullCalendar also accepts {@code start} and {@code end}) | {@code false} to hide
+     *                        the toolbar | {@link Footer} (deprecated)</dd>
      *   <dt>Default</dt> <dd>{@code false} (no toolbar)</dd>
      * </dl>
      * <pre>{@code
@@ -1226,6 +1226,7 @@ public enum Option {
      *
      * @see <a href="https://fullcalendar.io/docs/footerToolbar">footerToolbar</a>
      */
+    @SuppressWarnings("removal") // the converter goes with the deprecated toolbar model
     @JsonConverter(ToolbarConverter.class)
     FOOTER_TOOLBAR,
 
@@ -1254,9 +1255,9 @@ public enum Option {
      * {@code prev}, {@code next}, {@code prevYear}, {@code nextYear}, {@code today} or a view name like
      * {@code dayGridMonth}.
      * <dl>
-     *   <dt>Type</dt>    <dd>object with {@code left}, {@code center}, and {@code right} properties (FullCalendar also
-     *                        accepts {@code start} and {@code end}) | {@link Header} |
-     *                        {@code Map<String, String>}</dd>
+     *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code left}, {@code center} and {@code right}
+     *                        properties (FullCalendar also accepts {@code start} and {@code end}) | {@code false} to hide
+     *                        the toolbar | {@link Header} (deprecated)</dd>
      *   <dt>Default</dt> <dd>{@code false} (no toolbar)</dd>
      * </dl>
      * <pre>{@code
@@ -1265,6 +1266,7 @@ public enum Option {
      *
      * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
      */
+    @SuppressWarnings("removal") // the converter goes with the deprecated toolbar model
     @JsonConverter(ToolbarConverter.class)
     HEADER_TOOLBAR,
 

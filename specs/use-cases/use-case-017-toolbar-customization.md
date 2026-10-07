@@ -61,6 +61,7 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 | BR-02 | Button names: `prev`, `next`, `today`, `prevYear`, `nextYear`, `title`, and any FC view name |
 | BR-03 | Buttons separated by commas appear as a group; space-separated buttons have spacing between them |
 | BR-04 | Setting toolbar to `false` hides it entirely |
+| BR-05 | The toolbar model (`Header`, `Footer`, `HeaderFooterPart`, …) is deprecated in favour of the map |
 
 ---
 
@@ -77,10 +78,10 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 ## Tests
 
 ### Unit Tests
-- [ ] No dedicated unit tests — toolbar is covered by E2E tests
+- [ ] `ToolbarOptionsTest`: toolbar maps, `false` and `null` reach the client
 
 ### E2E Tests
-- [ ] `calendar-toolbar.spec.js` — toolbar rendering and customization
+- [ ] `advanced-options.spec.js`: header and footer toolbar set as maps, view button switches the view
 
 ---
 

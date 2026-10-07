@@ -20,7 +20,14 @@ import java.util.Collection;
 
 /**
  * Definition of header for a calendar instance.
+ *
+ * @deprecated set the toolbar with {@link org.vaadin.stefan.fullcalendar.Option#HEADER_TOOLBAR} or
+ * {@link org.vaadin.stefan.fullcalendar.Option#FOOTER_TOOLBAR} and a {@code Map} of the positions
+ * ({@code start}, {@code center}, {@code end}) to FullCalendar's button string, for example
+ * {@code Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek")}.
+ * This model knows only some of the buttons, view and custom buttons cannot be expressed with it.
  */
+@Deprecated(since = "8.0.0", forRemoval = true)
 public class Header extends AbstractHeaderFooter {
     /**
      * Creates a new instance.

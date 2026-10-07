@@ -55,4 +55,22 @@ test.describe('Advanced Options', () => {
         await expect(page.locator('button.fc-today-button')).toBeVisible();
     });
 
+    // -------------------------------------------------------------------------
+    // Header and footer toolbar set as maps (HEADER_TOOLBAR / FOOTER_TOOLBAR)
+    // -------------------------------------------------------------------------
+
+    test('header toolbar view button switches the view', async ({ page }) => {
+        const weekButton = page.locator('.fc-header-toolbar button.fc-timeGridWeek-button');
+        await expect(weekButton).toBeVisible();
+
+        await weekButton.click();
+
+        await expect(page.locator('.fc-timeGridWeek-view')).toBeVisible();
+    });
+
+    test('footer toolbar shows its buttons', async ({ page }) => {
+        await expect(page.locator('.fc-footer-toolbar button.fc-prevYear-button')).toBeVisible();
+        await expect(page.locator('.fc-footer-toolbar button.fc-nextYear-button')).toBeVisible();
+    });
+
 });
