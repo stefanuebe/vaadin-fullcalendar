@@ -341,11 +341,11 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         // send to client
         if (columns.isEmpty()) {
-            setOption(SchedulerOption.RESOURCE_COLUMNS, null, null);
+            setOption(SchedulerOption.RESOURCE_COLUMNS.getOptionKey(), null, null, SchedulerOption.RESOURCE_COLUMNS.getConverters());
         } else {
             ArrayNode array = JsonFactory.createArray();
             columns.forEach(col -> array.add(col.toJson()));
-            setOption(SchedulerOption.RESOURCE_COLUMNS, array, columns);
+            setOption(SchedulerOption.RESOURCE_COLUMNS.getOptionKey(), array, columns, SchedulerOption.RESOURCE_COLUMNS.getConverters());
         }
     }
 
@@ -518,7 +518,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(SchedulerOption)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <pre>
+     * <br><br>
      * Please be aware that this method does not check the passed value. Use the typed
      * {@link SchedulerOption} constants for type safety.
      *
@@ -526,7 +526,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @param value              value
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #setOption(SchedulerOption, Object)} with the typed value. The option's converter creates
+     * the client-side value from it, so the client and {@link #getOption(SchedulerOption)} cannot get out of step.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setOption(SchedulerOption option, Object value, Object valueForServerSide) {
         setOption(option.getOptionKey(), value, valueForServerSide, option.getConverters());
     }

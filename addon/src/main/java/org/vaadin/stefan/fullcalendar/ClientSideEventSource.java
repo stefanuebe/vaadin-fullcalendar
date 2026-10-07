@@ -29,7 +29,7 @@ import java.util.UUID;
  * <br><br>
  * Entries fetched by these sources are NOT accessible as Java {@link Entry} objects on the server side.
  * If editable drag/drop is enabled (opt-in via {@link #withEditable(boolean)}), dropped or resized entries
- * from these sources fire {@link ExternalEntryDroppedEvent} / {@link ExternalEntryResizedEvent} instead of
+ * from these sources fire {@link EntrySourceEntryDroppedEvent} / {@link EntrySourceEntryResizedEvent} instead of
  * the normal entry events.
  * <br><br>
  * All client-managed sources default to {@code editable = false} (read-only). Call {@link #withEditable(boolean) withEditable(true)}
@@ -123,7 +123,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
 
     /**
      * Sets the developer-assigned id for this source.
-     * Use a meaningful id if you plan to handle {@link ExternalEntryDroppedEvent} / {@link ExternalEntryResizedEvent}
+     * Use a meaningful id if you plan to handle {@link EntrySourceEntryDroppedEvent} / {@link EntrySourceEntryResizedEvent}
      * for entries from this source.
      *
      * @param id id
@@ -186,7 +186,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     /**
      * Sets whether entries from this source can be dragged and resized. Defaults to {@code false} (read-only).
      * Set to {@code true} to opt in to drag/drop, then handle persistence in
-     * {@link FullCalendar#addExternalEntryDroppedListener} / {@link FullCalendar#addExternalEntryResizedListener}.
+     * {@link FullCalendar#addEntrySourceEntryDroppedListener} / {@link FullCalendar#addEntrySourceEntryResizedListener}.
      *
      * @param editable editable flag
      * @return this

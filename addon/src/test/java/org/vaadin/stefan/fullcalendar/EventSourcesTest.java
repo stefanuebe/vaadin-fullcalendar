@@ -1,10 +1,13 @@
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.dom.DomEvent;
+import com.vaadin.flow.internal.nodefeature.ElementListenerMap;
 import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -303,33 +306,89 @@ public class EventSourcesTest {
     }
 
     @Test
-    void addExternalEntryDroppedListener_returnsRegistration() {
-        Registration reg = calendar.addExternalEntryDroppedListener(event -> {});
+    void addEntrySourceEntryDroppedListener_returnsRegistration() {
+        Registration reg = calendar.addEntrySourceEntryDroppedListener(event -> {});
         assertNotNull(reg);
     }
 
     @Test
-    void addExternalEntryDroppedListener_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.addExternalEntryDroppedListener(null));
+    void addEntrySourceEntryDroppedListener_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.addEntrySourceEntryDroppedListener(null));
     }
 
     @Test
-    void addExternalEntryResizedListener_returnsRegistration() {
-        Registration reg = calendar.addExternalEntryResizedListener(event -> {});
+    void addEntrySourceEntryResizedListener_returnsRegistration() {
+        Registration reg = calendar.addEntrySourceEntryResizedListener(event -> {});
         assertNotNull(reg);
     }
 
     @Test
-    void addExternalEntryResizedListener_null_throwsNPE() {
-        assertThrows(NullPointerException.class, () -> calendar.addExternalEntryResizedListener(null));
+    void addEntrySourceEntryResizedListener_null_throwsNPE() {
+        assertThrows(NullPointerException.class, () -> calendar.addEntrySourceEntryResizedListener(null));
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void entrySourceEntryDrop_reachesNewAndFormerListener() {
+        List<EntrySourceEntryDroppedEvent> received = new ArrayList<>();
+        List<ExternalEntryDroppedEvent> receivedFormer = new ArrayList<>();
+        calendar.addEntrySourceEntryDroppedListener(received::add);
+        calendar.addExternalEntryDroppedListener(receivedFormer::add);
+
+        fireEntrySourceDomEvent("externalEntryDrop");
+
+        assertEquals(1, received.size());
+        assertEquals("ext-1", received.get(0).getEntry().getId());
+        assertEquals("my-feed", received.get(0).getSourceId());
+        assertEquals(1, receivedFormer.size());
+        assertEquals("ext-1", receivedFormer.get(0).getEntry().getId());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void entrySourceEntryResize_reachesNewAndFormerListener() {
+        List<EntrySourceEntryResizedEvent> received = new ArrayList<>();
+        List<ExternalEntryResizedEvent> receivedFormer = new ArrayList<>();
+        calendar.addEntrySourceEntryResizedListener(received::add);
+        calendar.addExternalEntryResizedListener(receivedFormer::add);
+
+        fireEntrySourceDomEvent("externalEntryResize");
+
+        assertEquals(1, received.size());
+        assertEquals("ext-1", received.get(0).getEntry().getId());
+        assertEquals(1, receivedFormer.size());
+        assertEquals("ext-1", receivedFormer.get(0).getEntry().getId());
+    }
+
+    /** Fires the given client event on the calendar element, as the client does for an entry source entry. */
+    private void fireEntrySourceDomEvent(String eventName) {
+        ObjectNode entryData = JsonFactory.createObject();
+        entryData.put("id", "ext-1");
+        entryData.put("start", "2025-03-10T10:00:00Z");
+        entryData.put("end", "2025-03-10T11:00:00Z");
+        entryData.put("allDay", false);
+
+        ObjectNode delta = JsonFactory.createObject();
+        delta.put("years", 0);
+        delta.put("months", 0);
+        delta.put("days", 1);
+        delta.put("milliseconds", 0L);
+
+        ObjectNode eventData = JsonFactory.createObject();
+        eventData.set("event.detail.data", entryData);
+        eventData.set("event.detail.delta", delta);
+        eventData.put("event.detail.sourceId", "my-feed");
+
+        calendar.getElement().getNode().getFeature(ElementListenerMap.class)
+                .fireEvent(new DomEvent(calendar.getElement(), eventName, eventData));
     }
 
     // -------------------------------------------------------------------------
-    // ExternalEntryDroppedEvent — construction
+    // EntrySourceEntryDroppedEvent — construction
     // -------------------------------------------------------------------------
 
     @Test
-    void externalEntryDroppedEvent_populatesEntry() {
+    void entrySourceEntryDroppedEvent_populatesEntry() {
         FullCalendar cal = new FullCalendar();
         ObjectNode entryData = JsonFactory.createObject();
         entryData.put("id", "ext-1");
@@ -343,7 +402,7 @@ public class EventSourcesTest {
         delta.put("days", 1);
         delta.put("milliseconds", 0L);
 
-        ExternalEntryDroppedEvent event = new ExternalEntryDroppedEvent(cal, true, entryData, delta, "my-feed");
+        EntrySourceEntryDroppedEvent event = new EntrySourceEntryDroppedEvent(cal, true, entryData, delta, "my-feed");
 
         assertNotNull(event.getEntry());
         assertEquals("my-feed", event.getSourceId());
@@ -354,7 +413,7 @@ public class EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // ExternalEntryResizedEvent — construction
+    // EntrySourceEntryResizedEvent — construction
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
@@ -461,11 +520,11 @@ public class EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // ExternalEntryResizedEvent — construction
+    // EntrySourceEntryResizedEvent — construction
     // -------------------------------------------------------------------------
 
     @Test
-    void externalEntryResizedEvent_populatesEntry() {
+    void entrySourceEntryResizedEvent_populatesEntry() {
         FullCalendar cal = new FullCalendar();
         ObjectNode entryData = JsonFactory.createObject();
         entryData.put("id", "ext-2");
@@ -479,7 +538,7 @@ public class EventSourcesTest {
         delta.put("days", 0);
         delta.put("milliseconds", 3600000L); // +1 hour
 
-        ExternalEntryResizedEvent event = new ExternalEntryResizedEvent(cal, true, entryData, delta, "my-feed");
+        EntrySourceEntryResizedEvent event = new EntrySourceEntryResizedEvent(cal, true, entryData, delta, "my-feed");
 
         assertNotNull(event.getEntry());
         assertEquals("my-feed", event.getSourceId());

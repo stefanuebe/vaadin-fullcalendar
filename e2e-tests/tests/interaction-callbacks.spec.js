@@ -237,4 +237,4 @@ test.describe('Interaction Callbacks', () => {
 //   - setEntryAllowCallback: client-side-only callback (no server-side event)
 //   - setUnselectCancel: CSS selector based configuration, no observable DOM change
 //   - setDropAccept: CSS selector filtering for external drops, requires external element
-//   - ExternalEntryDroppedEvent: requires dragging an element from outside the calendar
+//   - EntrySourceEntryDroppedEvent: requires an editable entry source and dragging one of its entries

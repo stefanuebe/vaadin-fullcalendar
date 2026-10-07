@@ -69,8 +69,8 @@ public class EventSourcesTestView extends VerticalLayout {
             failureMessage.setText(e.getMessage() != null ? e.getMessage() : "unknown error");
         });
 
-        // Listen for external entry drops (won't fire unless source is editable, but wiring is tested)
-        calendar.addExternalEntryDroppedListener(e -> {
+        // Listen for drops of entry source entries (won't fire unless source is editable, but wiring is tested)
+        calendar.addEntrySourceEntryDroppedListener(e -> {
             int count = Integer.parseInt(externalDropCount.getText()) + 1;
             externalDropCount.setText(String.valueOf(count));
         });

@@ -21,15 +21,15 @@ import lombok.Getter;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Base class for events fired when an entry from a <em>client-managed</em> event source
- * (JSON feed, Google Calendar, iCal) is interacted with (dropped or resized).
+ * Base class for events fired when an entry from an entry source (a {@link ClientSideEventSource} such as a JSON feed,
+ * Google Calendar or iCal) is dropped or resized.
  * <br><br>
  * The {@link #getEntry()} method returns a <em>transient</em> data carrier constructed from the entry's
  * JS data. This entry is NOT part of any {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
  * Use {@link Entry#getId()} to locate and update the corresponding record in the external system.
  */
 @Getter
-public abstract class ExternalEntryEvent extends ComponentEvent<FullCalendar> {
+public abstract class EntrySourceEntryEvent extends ComponentEvent<FullCalendar> {
 
     /**
      * Transient entry data carrier. NOT owned by any EntryProvider.
@@ -49,10 +49,11 @@ public abstract class ExternalEntryEvent extends ComponentEvent<FullCalendar> {
      * @param entryData  JSON data of the entry (new position / state)
      * @param sourceId   id of the ClientSideEventSource
      */
-    protected ExternalEntryEvent(FullCalendar source, boolean fromClient,
-                                 ObjectNode entryData, String sourceId) {
+    protected EntrySourceEntryEvent(FullCalendar source, boolean fromClient,
+                                    ObjectNode entryData, String sourceId) {
         super(source, fromClient);
-        Entry e = new Entry();
+        // keep the id the entry has in its source, so the developer can find the record there
+        Entry e = new Entry(entryData.hasNonNull("id") ? entryData.get("id").asString() : null);
         e.updateFromJson(entryData, false);
         this.entry = e;
         this.sourceId = sourceId;

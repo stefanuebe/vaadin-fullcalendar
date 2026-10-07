@@ -18,39 +18,18 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import lombok.Getter;
-import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.time.LocalDateTime;
-
 /**
- * Fires when an entry from a <em>client-managed</em> event source (JSON feed, Google Calendar, iCal) is resized.
- * This event fires instead of {@link EntryResizedEvent} when the resized entry's id is not in the server-side
- * entry cache (i.e. it came from a {@link ClientSideEventSource}).
- * <br><br>
- * The {@link #getEntry()} method returns a <em>transient</em> data carrier. NOT owned by any EntryProvider.
- * Use {@link #getOldEnd()} to get the end time before the resize.
- * <br><br>
- * Resize on client-managed source entries is opt-in. Set {@code withEditable(true)} or
- * {@code withDurationEditable(true)} on the {@link ClientSideEventSource} to enable it.
- * <br><br>
- * Client side name: externalEntryResize
+ * Former name of {@link EntrySourceEntryResizedEvent}. Listeners registered for this class keep receiving the event.
+ *
+ * @deprecated use {@link EntrySourceEntryResizedEvent} and
+ * {@link FullCalendar#addEntrySourceEntryResizedListener(com.vaadin.flow.component.ComponentEventListener)}. The entry
+ * comes from an entry source, not from outside the calendar, which the former name suggested.
  */
+@Deprecated(since = "8.0.0", forRemoval = true)
 @DomEvent("externalEntryResize")
-@Getter
-@ToString
-public class ExternalEntryResizedEvent extends ExternalEntryEvent {
-
-    /**
-     * The end-time delta by which the entry was resized.
-     */
-    private final Delta delta;
-
-    /**
-     * The end time before the resize, or {@code null} if the entry had no end time.
-     */
-    private final LocalDateTime oldEnd;
+public class ExternalEntryResizedEvent extends EntrySourceEntryResizedEvent {
 
     /**
      * New instance.
@@ -65,10 +44,6 @@ public class ExternalEntryResizedEvent extends ExternalEntryEvent {
                                      @EventData("event.detail.data") ObjectNode entryData,
                                      @EventData("event.detail.delta") ObjectNode jsonDelta,
                                      @EventData("event.detail.sourceId") String sourceId) {
-        super(source, fromClient, entryData, sourceId);
-        this.delta = Delta.fromJson(jsonDelta);
-
-        LocalDateTime newEnd = getEntry().getEnd();
-        this.oldEnd = newEnd != null ? delta.subtractFrom(newEnd) : null;
+        super(source, fromClient, entryData, jsonDelta, sourceId);
     }
 }

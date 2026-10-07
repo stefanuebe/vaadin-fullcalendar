@@ -18,52 +18,18 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
-import lombok.Getter;
-import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.time.LocalDateTime;
-
 /**
- * Fires when an entry from a <em>client-managed</em> event source (JSON feed, Google Calendar, iCal) is dragged
- * to a new time slot. This event fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not
- * found in the server-side entry cache (i.e. it came from a {@link ClientSideEventSource}, not from the
- * server-side {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}).
- * <br><br>
- * The {@link #getEntry()} method returns a <em>transient</em> data carrier constructed from the dropped entry's
- * JS data. This entry is NOT part of any {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
- * Do not add it to a provider; instead, use it to read the entry id and new position, then call the appropriate
- * external API (e.g. Google Calendar API) to persist the change.
- * The entry's {@link Entry#getId()} matches the FullCalendar event id as set in the external source —
- * use this id to locate and update the corresponding record in the external system.
- * <br><br>
- * {@link #getOldStart()} and {@link #getOldEnd()} return the position before the drag (computed from the
- * delta applied in reverse).
- * <br><br>
- * Drag/drop on client-managed source entries is opt-in. Set {@code withEditable(true)} on the
- * {@link ClientSideEventSource} to enable it.
- * <br><br>
- * Client side name: externalEntryDrop
+ * Former name of {@link EntrySourceEntryDroppedEvent}. Listeners registered for this class keep receiving the event.
+ *
+ * @deprecated use {@link EntrySourceEntryDroppedEvent} and
+ * {@link FullCalendar#addEntrySourceEntryDroppedListener(com.vaadin.flow.component.ComponentEventListener)}. The entry
+ * comes from an entry source, not from outside the calendar, which the former name suggested.
  */
+@Deprecated(since = "8.0.0", forRemoval = true)
 @DomEvent("externalEntryDrop")
-@Getter
-@ToString
-public class ExternalEntryDroppedEvent extends ExternalEntryEvent {
-
-    /**
-     * The delta by which the entry was moved.
-     */
-    private final Delta delta;
-
-    /**
-     * The start time before the drag, or {@code null} if the dropped entry had no start time.
-     */
-    private final LocalDateTime oldStart;
-
-    /**
-     * The end time before the drag, or {@code null} if the dropped entry had no end time.
-     */
-    private final LocalDateTime oldEnd;
+public class ExternalEntryDroppedEvent extends EntrySourceEntryDroppedEvent {
 
     /**
      * New instance.
@@ -78,12 +44,6 @@ public class ExternalEntryDroppedEvent extends ExternalEntryEvent {
                                      @EventData("event.detail.data") ObjectNode entryData,
                                      @EventData("event.detail.delta") ObjectNode jsonDelta,
                                      @EventData("event.detail.sourceId") String sourceId) {
-        super(source, fromClient, entryData, sourceId);
-        this.delta = Delta.fromJson(jsonDelta);
-
-        LocalDateTime newStart = getEntry().getStart();
-        LocalDateTime newEnd = getEntry().getEnd();
-        this.oldStart = newStart != null ? delta.subtractFrom(newStart) : null;
-        this.oldEnd = newEnd != null ? delta.subtractFrom(newEnd) : null;
+        super(source, fromClient, entryData, jsonDelta, sourceId);
     }
 }

@@ -68,4 +68,4 @@ test.describe('Event Source Improvements', () => {
 //   - GoogleCalendarEventSource: requires a Google Calendar API key
 //   - ICalendarEventSource: would require serving a real .ics file from the test app
 //   - setStartParam / setEndParam / setTimeZoneParam: require capturing HTTP request query params
-//   - ExternalEntryDroppedEvent: requires dragging an external DOM element into the calendar
+//   - EntrySourceEntryDroppedEvent: requires an editable entry source and dragging one of its entries

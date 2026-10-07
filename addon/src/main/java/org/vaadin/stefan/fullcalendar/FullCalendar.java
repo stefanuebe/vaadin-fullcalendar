@@ -575,14 +575,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
      * <br><br>
-     * Example:
-     * <pre>
-     * // sends a client parseable version to client and stores original in server side
-     * calendar.setOption(Option.LOCALE, locale.toLanguageTag().toLowerCase(), locale);
-     *
-     * // returns the original locale (as optional)
-     * Optional&lt;Locale&gt; optionalLocale = calendar.getOption(Option.LOCALE)
-     * </pre>
      * Please be aware that this method does not check the passed value. Use the typed
      * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
      *
@@ -590,7 +582,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param value              value
      * @param valueForServerSide value to be stored on server side
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #setOption(Option, Object)} with the typed value. The option's converter creates the
+     * client-side value from it, so the client and {@link #getOption(Option)} cannot get out of step.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setOption(Option option, Object value, Object valueForServerSide) {
         setOption(option.getOptionKey(), value, valueForServerSide, option.getConverters());
     }
@@ -634,7 +629,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param valueForServerSide value to be stored on server side
      * @param converters         optional converters to apply to the value
      * @throws NullPointerException when null is passed
+     * @deprecated use {@link #setOption(String, Object, JsonItemPropertyConverter...)}. A converter creates the
+     * client-side value and the passed value is stored on the server side, so the two cannot get out of step.
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setOption(String option, Object value, Object valueForServerSide, @SuppressWarnings("rawtypes") JsonItemPropertyConverter... converters) {
         setOption(option, value, valueForServerSide, List.of(converters));
     }
@@ -1662,8 +1660,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Registers a listener for when an entry from a client-managed event source is dragged to a new time slot.
-     * Fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not in the server-side cache.
+     * Registers a listener for when an entry from an entry source ({@link ClientSideEventSource}) is dragged to a new
+     * time slot. Fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not in the server-side cache.
      * <br><br>
      * Requires that drag/drop is enabled on the source via {@link ClientSideEventSource#withEditable(boolean) withEditable(true)}.
      *
@@ -1671,13 +1669,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addExternalEntryDroppedListener(ComponentEventListener<ExternalEntryDroppedEvent> listener) {
+    public Registration addEntrySourceEntryDroppedListener(ComponentEventListener<EntrySourceEntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(ExternalEntryDroppedEvent.class, listener);
+        return addListener(EntrySourceEntryDroppedEvent.class, listener);
     }
 
     /**
-     * Registers a listener for when an entry from a client-managed event source is resized.
+     * Registers a listener for when an entry from an entry source ({@link ClientSideEventSource}) is resized.
      * Fires instead of {@link EntryResizedEvent} when the resized entry's id is not in the server-side cache.
      * <br><br>
      * Requires that resize is enabled on the source via {@link ClientSideEventSource#withEditable(boolean) withEditable(true)}.
@@ -1686,6 +1684,34 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
+    public Registration addEntrySourceEntryResizedListener(ComponentEventListener<EntrySourceEntryResizedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(EntrySourceEntryResizedEvent.class, listener);
+    }
+
+    /**
+     * Former name of {@link #addEntrySourceEntryDroppedListener(ComponentEventListener)}.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     * @deprecated use {@link #addEntrySourceEntryDroppedListener(ComponentEventListener)}
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
+    public Registration addExternalEntryDroppedListener(ComponentEventListener<ExternalEntryDroppedEvent> listener) {
+        Objects.requireNonNull(listener);
+        return addListener(ExternalEntryDroppedEvent.class, listener);
+    }
+
+    /**
+     * Former name of {@link #addEntrySourceEntryResizedListener(ComponentEventListener)}.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     * @deprecated use {@link #addEntrySourceEntryResizedListener(ComponentEventListener)}
+     */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public Registration addExternalEntryResizedListener(ComponentEventListener<ExternalEntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
         return addListener(ExternalEntryResizedEvent.class, listener);

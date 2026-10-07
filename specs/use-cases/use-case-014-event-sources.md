@@ -11,7 +11,7 @@
 
 **Addon module:** addon
 **Related Options:** `Option.ENTRY_SOURCE_START_PARAM`, `Option.ENTRY_SOURCE_END_PARAM`, `Option.ENTRY_SOURCE_TIME_ZONE_PARAM`, `Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY`
-**Related Events:** `EventSourceFailureEvent`, `ExternalEntryDroppedEvent`, `ExternalEntryResizedEvent`
+**Related Events:** `EventSourceFailureEvent`, `EntrySourceEntryDroppedEvent`, `EntrySourceEntryResizedEvent`
 
 ---
 
@@ -49,9 +49,9 @@ reg.remove();
 // 2. Via source ID (when Registration reference is not available)
 calendar.removeClientSideEventSource(json.getId());
 
-// Handle DnD of external entries
-calendar.addExternalEntryDroppedListener(event -> { ... });
-calendar.addExternalEntryResizedListener(event -> { ... });
+// Handle DnD of entry source entries
+calendar.addEntrySourceEntryDroppedListener(event -> { ... });
+calendar.addEntrySourceEntryResizedListener(event -> { ... });
 
 // Handle source failures
 calendar.addEventSourceFailureListener(event -> { ... });
@@ -65,7 +65,7 @@ calendar.addEventSourceFailureListener(event -> { ... });
 |----|------|
 | BR-01 | Client-side entries are read-only by default (`editable = false`) |
 | BR-02 | `withEditable(true)` enables DnD/resize for entries from that source |
-| BR-03 | External entries fire `ExternalEntryDroppedEvent` / `ExternalEntryResizedEvent` (not server-managed counterparts) |
+| BR-03 | Entry source entries fire `EntrySourceEntryDroppedEvent` / `EntrySourceEntryResizedEvent` (not server-managed counterparts). The deprecated `ExternalEntryDroppedEvent` / `ExternalEntryResizedEvent` listeners receive the same drop / resize. `getEntry().getId()` is the id the entry has in its source |
 | BR-04 | JSON feed receives `start`, `end`, `timeZone` query parameters (configurable) |
 | BR-05 | Google Calendar requires an API key (per-source or global) |
 | BR-06 | Source failures fire `EventSourceFailureEvent` |
@@ -79,7 +79,7 @@ calendar.addEventSourceFailureListener(event -> { ... });
 - [ ] iCalendar entries display
 - [ ] Client-side entries are read-only by default
 - [ ] `withEditable(true)` enables DnD for source entries
-- [ ] `ExternalEntryDroppedEvent` fires on DnD of external entries
+- [ ] `EntrySourceEntryDroppedEvent` fires on DnD of entry source entries
 - [ ] `EventSourceFailureEvent` fires on load failure
 - [ ] Removing a source removes its entries from display
 
@@ -88,7 +88,7 @@ calendar.addEventSourceFailureListener(event -> { ... });
 ## Tests
 
 ### Unit Tests
-- [ ] `EventSourcesTest` — source construction and properties
+- [ ] `EventSourcesTest`: source construction and properties, drop / resize events reach the new and the deprecated listeners
 
 ### E2E Tests
 - [ ] `event-sources.spec.js` — event source loading
