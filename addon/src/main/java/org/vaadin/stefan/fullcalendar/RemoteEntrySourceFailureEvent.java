@@ -23,22 +23,22 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
- * Fires when a client-managed event source (JSON feed, Google Calendar, iCal) fails to load.
+ * Fires when a remote entry source (JSON feed, Google Calendar, iCal) fails to load.
  * <br><br>
  * Use this to react on the server side (e.g. show an error {@code Notification}, log the failure, etc.).
  * The {@link #getSourceId()} identifies which configured source failed — this is the id set on the
- * {@link ClientSideEventSource} when it was added.
+ * {@link RemoteEntrySource} when it was added.
  * <br><br>
  * Client side name: eventSourceFailure
  */
 @DomEvent("eventSourceFailure")
 @Getter
 @ToString
-public class EventSourceFailureEvent extends ComponentEvent<FullCalendar> {
+public class RemoteEntrySourceFailureEvent extends ComponentEvent<FullCalendar> {
 
     /**
-     * The id of the {@link ClientSideEventSource} that failed, as set when calling
-     * {@link FullCalendar#addEventSource(ClientSideEventSource)}.
+     * The id of the {@link RemoteEntrySource} that failed, as set when calling
+     * {@link FullCalendar#addRemoteEntrySource(RemoteEntrySource)}.
      */
     private final String sourceId;
 
@@ -52,10 +52,10 @@ public class EventSourceFailureEvent extends ComponentEvent<FullCalendar> {
      *
      * @param source     the source component
      * @param fromClient {@code true} if the event originated from the client
-     * @param sourceId   id of the event source that failed
+     * @param sourceId   id of the entry source that failed
      * @param message    error message
      */
-    public EventSourceFailureEvent(FullCalendar source, boolean fromClient,
+    public RemoteEntrySourceFailureEvent(FullCalendar source, boolean fromClient,
                                    @EventData("event.detail.sourceId") String sourceId,
                                    @EventData("event.detail.message") String message) {
         super(source, fromClient);

@@ -766,7 +766,7 @@ export class FullCalendar extends HTMLElement {
     }
 
     setEventSources(sourcesJson: any[]) {
-        // Remove all existing client-managed sources (but not the server-side events function)
+        // Remove all existing remote entry sources (but not the server-side events function)
         const sources = this.calendar?.getEventSources();
         if (sources) {
             sources.forEach((s: any) => { if (s.id !== undefined) s.remove(); });

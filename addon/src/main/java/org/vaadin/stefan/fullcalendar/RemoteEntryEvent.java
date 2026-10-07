@@ -21,7 +21,7 @@ import lombok.Getter;
 import tools.jackson.databind.node.ObjectNode;
 
 /**
- * Base class for events fired when an entry from an entry source (a {@link ClientSideEventSource} such as a JSON feed,
+ * Base class for events fired when an entry from an entry source (a {@link RemoteEntrySource} such as a JSON feed,
  * Google Calendar or iCal) is dropped or resized.
  * <br><br>
  * The {@link #getEntry()} method returns a <em>transient</em> data carrier constructed from the entry's
@@ -29,7 +29,7 @@ import tools.jackson.databind.node.ObjectNode;
  * Use {@link Entry#getId()} to locate and update the corresponding record in the external system.
  */
 @Getter
-public abstract class ClientSideEntryEvent extends ComponentEvent<FullCalendar> {
+public abstract class RemoteEntryEvent extends ComponentEvent<FullCalendar> {
 
     /**
      * Transient entry data carrier. NOT owned by any EntryProvider.
@@ -37,7 +37,7 @@ public abstract class ClientSideEntryEvent extends ComponentEvent<FullCalendar> 
     private final Entry entry;
 
     /**
-     * The id of the {@link ClientSideEventSource} the entry came from.
+     * The id of the {@link RemoteEntrySource} the entry came from.
      */
     private final String sourceId;
 
@@ -47,10 +47,10 @@ public abstract class ClientSideEntryEvent extends ComponentEvent<FullCalendar> 
      * @param source     source component
      * @param fromClient true if from client
      * @param entryData  JSON data of the entry (new position / state)
-     * @param sourceId   id of the ClientSideEventSource
+     * @param sourceId   id of the RemoteEntrySource
      */
-    protected ClientSideEntryEvent(FullCalendar source, boolean fromClient,
-                                    ObjectNode entryData, String sourceId) {
+    protected RemoteEntryEvent(FullCalendar source, boolean fromClient,
+                               ObjectNode entryData, String sourceId) {
         super(source, fromClient);
         // keep the id the entry has in its source, so the developer can find the record there
         Entry entry = new Entry(entryData.hasNonNull("id") ? entryData.get("id").asString() : null);

@@ -24,21 +24,21 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Abstract base class for all client-managed event sources. Client-managed sources (JSON feed, Google Calendar, iCal)
- * fetch events directly in the browser — they do NOT go through the server-side {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
+ * Abstract base class for all remote entry sources. Remote entry sources (JSON feed, Google Calendar, iCal)
+ * fetch entries directly in the browser — they do NOT go through the server-side {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
  * <br><br>
  * Entries fetched by these sources are NOT accessible as Java {@link Entry} objects on the server side.
  * If editable drag/drop is enabled (opt-in via {@link #withEditable(boolean)}), dropped or resized entries
- * from these sources fire {@link ClientSideEntryDroppedEvent} / {@link ClientSideEntryResizedEvent} instead of
+ * from these sources fire {@link RemoteEntryDroppedEvent} / {@link RemoteEntryResizedEvent} instead of
  * the normal entry events.
  * <br><br>
- * All client-managed sources default to {@code editable = false} (read-only). Call {@link #withEditable(boolean) withEditable(true)}
+ * All remote entry sources default to {@code editable = false} (read-only). Call {@link #withEditable(boolean) withEditable(true)}
  * to opt in to drag/drop, then handle persistence yourself in the corresponding server-side events.
  *
  * @param <S> concrete subtype for fluent chaining
  */
 @Getter
-public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> implements Serializable {
+public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implements Serializable {
 
     /**
      * Developer-assigned ID. Auto-generated UUID if not set.
@@ -64,7 +64,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     /**
      * Whether entries from this source can be dragged and resized.
      * {@code null} means "use the calendar default", which the addon overrides to {@code false}
-     * for all client-side sources. Set to {@code true} explicitly to opt in to drag/drop.
+     * for all remote entry sources. Set to {@code true} explicitly to opt in to drag/drop.
      */
     private Boolean editable;
 
@@ -123,7 +123,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
 
     /**
      * Sets the developer-assigned id for this source.
-     * Use a meaningful id if you plan to handle {@link ClientSideEntryDroppedEvent} / {@link ClientSideEntryResizedEvent}
+     * Use a meaningful id if you plan to handle {@link RemoteEntryDroppedEvent} / {@link RemoteEntryResizedEvent}
      * for entries from this source.
      *
      * @param id id
@@ -186,7 +186,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     /**
      * Sets whether entries from this source can be dragged and resized. Defaults to {@code false} (read-only).
      * Set to {@code true} to opt in to drag/drop, then handle persistence in
-     * {@link FullCalendar#addClientSideEntryDroppedListener} / {@link FullCalendar#addClientSideEntryResizedListener}.
+     * {@link FullCalendar#addRemoteEntryDroppedListener} / {@link FullCalendar#addRemoteEntryResizedListener}.
      *
      * @param editable editable flag
      * @return this
@@ -351,7 +351,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
-     * Serializes common properties shared by all client-side event sources into the given JSON object.
+     * Serializes common properties shared by all remote entry sources into the given JSON object.
      * Subclasses should call this and then add their own properties.
      *
      * @param json target JSON object
@@ -378,7 +378,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
-     * Serializes this event source to a JSON object suitable for passing to FullCalendar's {@code eventSources} config.
+     * Serializes this entry source to a JSON object suitable for passing to FullCalendar's {@code eventSources} config.
      *
      * @return JSON object
      */

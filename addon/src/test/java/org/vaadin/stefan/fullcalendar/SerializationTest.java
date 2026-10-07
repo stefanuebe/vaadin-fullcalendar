@@ -95,11 +95,11 @@ public class SerializationTest {
     }
 
     @Test
-    void calendarWithClientSideEventSourcesIsSerializable() throws Exception {
+    void calendarWithRemoteEntrySourcesIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
-        calendar.addClientSideEventSource(new JsonFeedEventSource("/api/events").withEditable(true));
-        calendar.addClientSideEventSource(new ICalendarEventSource("/feed.ics"));
-        calendar.addClientSideEventSource(new GoogleCalendarEventSource("cal-id").withApiKey("api-key"));
+        calendar.addRemoteEntrySource(new JsonFeedEntrySource("/api/events").withEditable(true));
+        calendar.addRemoteEntrySource(new ICalendarEntrySource("/feed.ics"));
+        calendar.addRemoteEntrySource(new GoogleCalendarEntrySource("cal-id").withApiKey("api-key"));
         assertNotNull(roundtrip(calendar));
     }
 

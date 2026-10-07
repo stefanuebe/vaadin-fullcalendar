@@ -139,17 +139,17 @@ Provides entries to the calendar. Two implementations:
 | `InMemoryEntryProvider` | All entries sent to client; client handles filtering | Small datasets (< few thousand entries) |
 | `CallbackEntryProvider` | Entries fetched lazily per visible date range via callback | Large datasets or database-backed calendars |
 
-### Client-Side Event Sources
+### Remote Entry Sources
 
 Load entries directly in the browser (bypassing Java backend):
 
 | Source | Class | Description |
 |--------|-------|-------------|
-| JSON Feed | `JsonFeedEventSource` | FC fetches from a REST endpoint with `start`/`end` params |
-| Google Calendar | `GoogleCalendarEventSource` | Requires API key |
-| iCalendar | `ICalendarEventSource` | Loads `.ics` feeds |
+| JSON Feed | `JsonFeedEntrySource` | FC fetches from a REST endpoint with `start`/`end` params |
+| Google Calendar | `GoogleCalendarEntrySource` | Requires API key |
+| iCalendar | `ICalendarEntrySource` | Loads `.ics` feeds |
 
-Client-side entries fire `ClientSideEntryDroppedEvent` / `ClientSideEntryResizedEvent` (not the server-managed counterparts).
+Entries of remote entry sources fire `RemoteEntryDroppedEvent` / `RemoteEntryResizedEvent` (not the server-managed counterparts).
 
 ---
 
@@ -159,7 +159,7 @@ Client-side entries fire `ClientSideEntryDroppedEvent` / `ClientSideEntryResized
 FullCalendar
   ├── has one EntryProvider
   │     └── manages many Entry instances
-  └── has many ClientSideEventSource instances
+  └── has many RemoteEntrySource instances
 
 FullCalendarScheduler (extends FullCalendar)
   ├── has many Resource instances

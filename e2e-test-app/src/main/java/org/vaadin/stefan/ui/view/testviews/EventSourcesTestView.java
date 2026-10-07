@@ -19,7 +19,7 @@ import java.time.LocalDate;
  * <ul>
  *   <li>Calendar renders with a JSON feed event source configured</li>
  *   <li>Event source failure fires when the configured URL does not exist</li>
- *   <li>External entry drop counter badge is present for Playwright</li>
+ *   <li>Remote entry drop counter badge is present for Playwright</li>
  * </ul>
  * <p>
  * Route: /test/event-sources
@@ -37,7 +37,7 @@ public class EventSourcesTestView extends VerticalLayout {
                 "A JSON feed source pointing to a non-existent URL is added. " +
                 "When the feed fails to load the failure message is shown below."));
 
-        // Badge for external entry drop events (opt-in via editable source)
+        // Badge for remote entry drop events (opt-in via editable source)
         Span externalDropCount = new Span("0");
         externalDropCount.setId("external-drop-count");
 
@@ -60,17 +60,17 @@ public class EventSourcesTestView extends VerticalLayout {
         calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue());
 
         // Add a JSON feed source pointing to a non-existent URL to trigger the failure event
-        JsonFeedEventSource failingSource = new JsonFeedEventSource("/test/api/event-sources/events")
+        JsonFeedEntrySource failingSource = new JsonFeedEntrySource("/test/api/event-sources/events")
                 .withId("failing-feed");
-        calendar.addClientSideEventSource(failingSource);
+        calendar.addRemoteEntrySource(failingSource);
 
         // Listen for event source failures
-        calendar.addEventSourceFailureListener(e -> {
+        calendar.addRemoteEntrySourceFailureListener(e -> {
             failureMessage.setText(e.getMessage() != null ? e.getMessage() : "unknown error");
         });
 
         // Listen for drops of entry source entries (won't fire unless source is editable, but wiring is tested)
-        calendar.addClientSideEntryDroppedListener(e -> {
+        calendar.addRemoteEntryDroppedListener(e -> {
             int count = Integer.parseInt(externalDropCount.getText()) + 1;
             externalDropCount.setText(String.valueOf(count));
         });

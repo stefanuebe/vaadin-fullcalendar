@@ -1002,18 +1002,18 @@ public enum Option {
      *   <dt>Type</dt>    <dd>{@code String}</dd>
      *   <dt>Default</dt> <dd>{@code "end"}</dd>
      * </dl>
-     * Per-source override: {@link JsonFeedEventSource#withEndParam(String)}.
+     * Per-source override: {@link JsonFeedEntrySource#withEndParam(String)}.
      *
      * @see <a href="https://fullcalendar.io/docs/endParam">endParam</a>
      */
     ENTRY_SOURCE_END_PARAM("endParam"),
 
     /**
-     * Global Google Calendar API key used by all {@link GoogleCalendarEventSource} instances that do not specify their own key.
+     * Global Google Calendar API key used by all {@link GoogleCalendarEntrySource} instances that do not specify their own key.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
-     * Per-source override: {@link GoogleCalendarEventSource#withApiKey(String)}.
+     * Per-source override: {@link GoogleCalendarEntrySource#withApiKey(String)}.
      *
      * @see <a href="https://fullcalendar.io/docs/google-calendar">googleCalendarApiKey</a>
      */
@@ -1026,7 +1026,7 @@ public enum Option {
      *   <dt>Type</dt>    <dd>{@code String}</dd>
      *   <dt>Default</dt> <dd>{@code "start"}</dd>
      * </dl>
-     * Per-source override: {@link JsonFeedEventSource#withStartParam(String)}.
+     * Per-source override: {@link JsonFeedEntrySource#withStartParam(String)}.
      *
      * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
      */
@@ -1061,7 +1061,7 @@ public enum Option {
      *   <dt>Type</dt>    <dd>{@code String}</dd>
      *   <dt>Default</dt> <dd>{@code "timeZone"}</dd>
      * </dl>
-     * Per-source override: {@link JsonFeedEventSource#withTimeZoneParam(String)}.
+     * Per-source override: {@link JsonFeedEntrySource#withTimeZoneParam(String)}.
      *
      * @see <a href="https://fullcalendar.io/docs/timeZoneParam">timeZoneParam</a>
      */
@@ -1147,7 +1147,7 @@ public enum Option {
 
     /**
      * Former name of {@link #ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY}: global Google Calendar API key used by
-     * {@link GoogleCalendarEventSource} instances without their own key.
+     * {@link GoogleCalendarEntrySource} instances without their own key.
      *
      * @deprecated use {@link #ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY}, which sets the same FullCalendar option
      */

@@ -126,9 +126,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private boolean autoProvideEntryIdOnClient = true;
 
     /**
-     * Server-side registry of client-managed event sources, keyed by source id.
+     * Server-side registry of remote entry sources, keyed by source id.
      */
-    private final Map<String, ClientSideEventSource<?>> clientSideEventSourceRegistry = new LinkedHashMap<>();
+    private final Map<String, RemoteEntrySource<?>> remoteEntrySourceRegistry = new LinkedHashMap<>();
 
     /**
      * Server-side registry of draggable components, keyed by draggable UUID.
@@ -268,9 +268,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                             JsonUtils.toJsonNode(currentViewName),
                             JsonUtils.toJsonNode(currentIntervalStart));
 
-                    if (!clientSideEventSourceRegistry.isEmpty()) {
+                    if (!remoteEntrySourceRegistry.isEmpty()) {
                         ArrayNode sourcesArray = JsonFactory.createArray();
-                        clientSideEventSourceRegistry.values().stream().map(ClientSideEventSource::toJson).forEach(sourcesArray::add);
+                        remoteEntrySourceRegistry.values().stream().map(RemoteEntrySource::toJson).forEach(sourcesArray::add);
                         getElement().callJsFunction("restoreEventSources", sourcesArray);
                     }
 
@@ -1665,104 +1665,104 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
-     * Adds a client-side event source to this calendar. The browser will fetch events from this source directly,
+     * Adds a remote entry source to this calendar. The browser will fetch entries from this source directly,
      * bypassing the server-side {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
      * <br><br>
      * A server-side registry entry is kept so the source can be restored on reattachment.
      * <br><br>
      * Returns a {@link Registration} that removes this source when invoked.
      *
-     * @param source event source to add; must not be null
+     * @param source entry source to add; must not be null
      * @return a registration that removes the source
      * @throws NullPointerException if source is null
      */
-    public Registration addClientSideEventSource(ClientSideEventSource<?> source) {
+    public Registration addRemoteEntrySource(RemoteEntrySource<?> source) {
         Objects.requireNonNull(source, "source must not be null");
-        clientSideEventSourceRegistry.put(source.getId(), source);
+        remoteEntrySourceRegistry.put(source.getId(), source);
         getElement().callJsFunction("addEventSource", source.toJson());
-        return () -> removeClientSideEventSource(source.getId());
+        return () -> removeRemoteEntrySource(source.getId());
     }
 
     /**
-     * Removes the client-side event source with the given id from this calendar.
+     * Removes the remote entry source with the given id from this calendar.
      * Does nothing if no source with that id has been added.
      *
      * @param id id of the source to remove; must not be null
      * @throws NullPointerException if id is null
      */
-    public void removeClientSideEventSource(String id) {
+    public void removeRemoteEntrySource(String id) {
         Objects.requireNonNull(id, "id must not be null");
-        clientSideEventSourceRegistry.remove(id);
+        remoteEntrySourceRegistry.remove(id);
         getElement().callJsFunction("removeEventSource", id);
     }
 
     /**
-     * Replaces all current client-side event sources with the given collection.
+     * Replaces all current remote entry sources with the given collection.
      * Previously added sources are removed. If the collection is empty, all client-side
      * sources are cleared.
      * <br><br>
-     * Returns a {@link Registration} that clears all client-side event sources when invoked.
+     * Returns a {@link Registration} that clears all remote entry sources when invoked.
      *
-     * @param sources new set of event sources; must not be null
-     * @return a registration that clears all client-side sources
+     * @param sources new set of entry sources; must not be null
+     * @return a registration that clears all remote entry sources
      * @throws NullPointerException if sources is null
      */
-    public Registration setClientSideEventSources(java.util.Collection<? extends ClientSideEventSource<?>> sources) {
+    public Registration setRemoteEntrySources(java.util.Collection<? extends RemoteEntrySource<?>> sources) {
         Objects.requireNonNull(sources, "sources must not be null");
-        clientSideEventSourceRegistry.clear();
-        sources.forEach(s -> clientSideEventSourceRegistry.put(s.getId(), s));
+        remoteEntrySourceRegistry.clear();
+        sources.forEach(s -> remoteEntrySourceRegistry.put(s.getId(), s));
         ArrayNode array = JsonFactory.createArray();
-        sources.stream().map(ClientSideEventSource::toJson).forEach(array::add);
+        sources.stream().map(RemoteEntrySource::toJson).forEach(array::add);
         getElement().callJsFunction("setEventSources", array);
-        return () -> setClientSideEventSources(java.util.Collections.emptyList());
+        return () -> setRemoteEntrySources(java.util.Collections.emptyList());
     }
 
     /**
-     * Returns an unmodifiable view of all registered client-side event sources.
+     * Returns an unmodifiable view of all registered remote entry sources.
      *
-     * @return collection of registered event sources
+     * @return collection of registered entry sources
      */
-    public java.util.Collection<ClientSideEventSource<?>> getClientSideEventSources() {
-        return java.util.Collections.unmodifiableCollection(clientSideEventSourceRegistry.values());
+    public java.util.Collection<RemoteEntrySource<?>> getRemoteEntrySources() {
+        return java.util.Collections.unmodifiableCollection(remoteEntrySourceRegistry.values());
     }
 
     /**
-     * Returns the client-side event source with the given ID, or empty if no such source is registered.
+     * Returns the remote entry source with the given ID, or empty if no such source is registered.
      *
-     * @param id event source id; must not be null
-     * @return the event source, or empty
+     * @param id entry source id; must not be null
+     * @return the entry source, or empty
      * @throws NullPointerException if id is null
      */
-    public Optional<ClientSideEventSource<?>> getClientSideEventSourceById(String id) {
+    public Optional<RemoteEntrySource<?>> getRemoteEntrySourceById(String id) {
         Objects.requireNonNull(id, "id must not be null");
-        return Optional.ofNullable(clientSideEventSourceRegistry.get(id));
+        return Optional.ofNullable(remoteEntrySourceRegistry.get(id));
     }
 
     /**
-     * Forces all event sources to re-fetch their data immediately. This includes both the server-side
-     * {@link EntryProvider} and any client-side event sources added via {@link #addClientSideEventSource}.
+     * Forces all entry sources to re-fetch their data immediately. This includes both the server-side
+     * {@link EntryProvider} and any remote entry sources added via {@link #addRemoteEntrySource}.
      * <br><br>
-     * To refresh only a single client-side source, use {@link #refetchClientSideEventSource(String)}.
+     * To refresh only a single remote entry source, use {@link #refetchRemoteEntrySource(String)}.
      */
     public void refetchEvents() {
         getElement().callJsFunction("refetchEvents");
     }
 
     /**
-     * Forces a single <em>client-side</em> event source to re-fetch its data. Only the source with the given id is
+     * Forces a single <em>remote</em> entry source to re-fetch its data. Only the source with the given id is
      * refreshed; all other sources remain untouched.
      * <br><br>
-     * <strong>Important:</strong> This method only works for client-side event sources added via
-     * {@link #addClientSideEventSource} (e.g. {@link JsonFeedEventSource}, {@link GoogleCalendarEventSource},
-     * {@link ICalendarEventSource}). It cannot be used to refresh the server-side {@link EntryProvider} — use
+     * <strong>Important:</strong> This method only works for remote entry sources added via
+     * {@link #addRemoteEntrySource} (e.g. {@link JsonFeedEntrySource}, {@link GoogleCalendarEntrySource},
+     * {@link ICalendarEntrySource}). It cannot be used to refresh the server-side {@link EntryProvider} — use
      * {@link #refetchEvents()} or the entry provider's own {@code refresh} methods for that.
      *
-     * @param sourceId the id of the client-side event source to refetch; must not be null
+     * @param sourceId the id of the remote entry source to refetch; must not be null
      * @throws NullPointerException when null is passed
      * @see #refetchEvents()
      * @see <a href="https://fullcalendar.io/docs/EventSource-refetch">EventSource::refetch</a>
      */
-    public void refetchClientSideEventSource(String sourceId) {
+    public void refetchRemoteEntrySource(String sourceId) {
         Objects.requireNonNull(sourceId);
         getElement().executeJs("var s = this.calendar.getEventSourceById($0); if (s) s.refetch();", sourceId);
     }
@@ -1772,73 +1772,45 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
 
     /**
-     * Registers a listener for when a client-managed event source fails to load.
+     * Registers a listener for when a remote entry source fails to load.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addEventSourceFailureListener(ComponentEventListener<EventSourceFailureEvent> listener) {
+    public Registration addRemoteEntrySourceFailureListener(ComponentEventListener<RemoteEntrySourceFailureEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(EventSourceFailureEvent.class, listener);
+        return addListener(RemoteEntrySourceFailureEvent.class, listener);
     }
 
     /**
-     * Registers a listener for when an entry from an entry source ({@link ClientSideEventSource}) is dragged to a new
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is dragged to a new
      * time slot. Fires instead of {@link EntryDroppedEvent} when the dropped entry's id is not in the server-side cache.
      * <br><br>
-     * Requires that drag/drop is enabled on the source via {@link ClientSideEventSource#withEditable(boolean) withEditable(true)}.
+     * Requires that drag/drop is enabled on the source via {@link RemoteEntrySource#withEditable(boolean) withEditable(true)}.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addClientSideEntryDroppedListener(ComponentEventListener<ClientSideEntryDroppedEvent> listener) {
+    public Registration addRemoteEntryDroppedListener(ComponentEventListener<RemoteEntryDroppedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(ClientSideEntryDroppedEvent.class, listener);
+        return addListener(RemoteEntryDroppedEvent.class, listener);
     }
 
     /**
-     * Registers a listener for when an entry from an entry source ({@link ClientSideEventSource}) is resized.
+     * Registers a listener for when an entry from an entry source ({@link RemoteEntrySource}) is resized.
      * Fires instead of {@link EntryResizedEvent} when the resized entry's id is not in the server-side cache.
      * <br><br>
-     * Requires that resize is enabled on the source via {@link ClientSideEventSource#withEditable(boolean) withEditable(true)}.
+     * Requires that resize is enabled on the source via {@link RemoteEntrySource#withEditable(boolean) withEditable(true)}.
      *
      * @param listener listener
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addClientSideEntryResizedListener(ComponentEventListener<ClientSideEntryResizedEvent> listener) {
+    public Registration addRemoteEntryResizedListener(ComponentEventListener<RemoteEntryResizedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(ClientSideEntryResizedEvent.class, listener);
-    }
-
-    /**
-     * Former name of {@link #addClientSideEntryDroppedListener(ComponentEventListener)}.
-     *
-     * @param listener listener
-     * @return registration to remove the listener
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addClientSideEntryDroppedListener(ComponentEventListener)}
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public Registration addExternalEntryDroppedListener(ComponentEventListener<ExternalEntryDroppedEvent> listener) {
-        Objects.requireNonNull(listener);
-        return addListener(ExternalEntryDroppedEvent.class, listener);
-    }
-
-    /**
-     * Former name of {@link #addClientSideEntryResizedListener(ComponentEventListener)}.
-     *
-     * @param listener listener
-     * @return registration to remove the listener
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #addClientSideEntryResizedListener(ComponentEventListener)}
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public Registration addExternalEntryResizedListener(ComponentEventListener<ExternalEntryResizedEvent> listener) {
-        Objects.requireNonNull(listener);
-        return addListener(ExternalEntryResizedEvent.class, listener);
+        return addListener(RemoteEntryResizedEvent.class, listener);
     }
 
     /**
