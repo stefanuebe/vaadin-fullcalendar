@@ -1021,21 +1021,21 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Checks, if the duration of this entry is editable. This is either the case, when this entry is
-     * editable in general ({@link #isEditable()} or has explicitly set `durationEditable` to be `true`.
+     * Checks, if the duration of this entry is editable. An explicitly set {@code durationEditable} wins, as in
+     * FullCalendar. Otherwise the entry falls back to {@link #isEditable()}.
      * @return is duration editable
      */
     public boolean isDurationEditable() {
-        return isEditable() || durationEditable == Boolean.TRUE;
+        return durationEditable != null ? durationEditable : isEditable();
     }
 
     /**
-     * Checks, if the start of this entry is editable. This is either the case, when this entry is
-     * editable in general ({@link #isEditable()} or has explicitly set `startEditable` to be `true`.
+     * Checks, if the start of this entry is editable. An explicitly set {@code startEditable} wins, as in
+     * FullCalendar. Otherwise the entry falls back to {@link #isEditable()}.
      * @return is start editable
      */
     public boolean isStartEditable() {
-        return isEditable() || startEditable == Boolean.TRUE;
+        return startEditable != null ? startEditable : isEditable();
     }
 
     /**
