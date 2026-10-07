@@ -78,10 +78,10 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 ## Tests
 
 ### Unit Tests
-- [ ] `ToolbarOptionsTest`: toolbar maps, `false` and `null` reach the client
+- [x] `ToolbarOptionsTest`: toolbar maps, `false` and `null` reach the client
 
 ### E2E Tests
-- [ ] `advanced-options.spec.js`: header and footer toolbar set as maps, view button switches the view
+- [x] `advanced-options.spec.js`: header and footer toolbar set as maps, view button switches the view
 
 ---
 

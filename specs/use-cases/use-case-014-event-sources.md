@@ -88,7 +88,7 @@ calendar.addEventSourceFailureListener(event -> { ... });
 ## Tests
 
 ### Unit Tests
-- [ ] `EventSourcesTest`: source construction and properties, drop / resize events reach the new and the deprecated listeners
+- [x] `EventSourcesTest`: source construction and properties, drop / resize events reach the new and the deprecated listeners
 
 ### E2E Tests
 - [ ] `event-sources.spec.js` — event source loading

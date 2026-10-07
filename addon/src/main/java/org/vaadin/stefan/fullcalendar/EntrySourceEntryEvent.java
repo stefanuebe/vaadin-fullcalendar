@@ -53,9 +53,9 @@ public abstract class EntrySourceEntryEvent extends ComponentEvent<FullCalendar>
                                     ObjectNode entryData, String sourceId) {
         super(source, fromClient);
         // keep the id the entry has in its source, so the developer can find the record there
-        Entry e = new Entry(entryData.hasNonNull("id") ? entryData.get("id").asString() : null);
-        e.updateFromJson(entryData, false);
-        this.entry = e;
+        Entry entry = new Entry(entryData.hasNonNull("id") ? entryData.get("id").asString() : null);
+        entry.updateFromJson(entryData, false);
+        this.entry = entry;
         this.sourceId = sourceId;
     }
 }

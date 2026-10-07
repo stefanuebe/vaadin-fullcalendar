@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -20,9 +21,12 @@ public class FullCalendarSchedulerTest {
 
     @Test
     void autoBrowserSettings_keepSchedulerTypeForChaining() {
+        // compiles only while both methods return FullCalendarScheduler
         FullCalendarScheduler scheduler = new FullCalendarScheduler().withAutoBrowserTimezone().withAutoUiLocale();
 
-        Assertions.assertNotNull(scheduler);
+        scheduler.setBrowserTimezone("Europe/Berlin");
+
+        Assertions.assertEquals(new Timezone(ZoneId.of("Europe/Berlin")), scheduler.getOption(Option.TIMEZONE).orElseThrow());
     }
 
     @Test

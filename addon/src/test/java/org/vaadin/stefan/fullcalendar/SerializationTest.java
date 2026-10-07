@@ -45,7 +45,7 @@ public class SerializationTest {
     @Test
     void calendarWithInMemoryEntriesIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
-        calendar.setTimezone(Timezone.getSystem());
+        calendar.setOption(Option.TIMEZONE, Timezone.getSystem());
         calendar.setOption(Option.LOCALE, Locale.ENGLISH);
 
         InMemoryEntryProvider<Entry> provider = calendar.getEntryProvider().asInMemory();

@@ -37,8 +37,8 @@ calendar.setOption(Option.TIMEZONE, new Timezone(ZoneId.of("Europe/Berlin")));
 calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
 // or UTC
 calendar.setOption(Option.TIMEZONE, Timezone.UTC);
-// typed read, Timezone.UTC when not set
-Timezone timezone = calendar.getTimezone();
+// read, empty while not set
+Optional<Timezone> timezone = calendar.getOption(Option.TIMEZONE);
 
 // Override first day of week
 calendar.setOption(Option.FIRST_DAY, DayOfWeek.MONDAY);
@@ -67,6 +67,8 @@ FullCalendar calendar = new FullCalendar().withAutoBrowserTimezone().withAutoUiL
 | BR-04 | `BrowserTimezoneObtainedEvent` fires once on initial load |
 | BR-05 | `WEEK_NUMBER_CALCULATION` can be `"locale"` or `"ISO"` |
 | BR-06 | A calendar created without a locale gets `CalendarLocale.getDefaultLocale()`, so `getOption(Option.LOCALE)` is never empty unless the locale is removed explicitly |
+| BR-07 | `Option.TIMEZONE` stores a zone id as `Timezone`, so `getOption(Option.TIMEZONE)` always returns a `Timezone`. `getTimezone()` is deprecated. `"local"` is rejected with an `IllegalArgumentException` |
+| BR-08 | `withAutoBrowserTimezone()` sets the time zone the browser reports, also when it is already known. `withAutoUiLocale()` sets the UI locale on attach and on every `UI.setLocale`. A later explicit `setOption` applies until the next report or locale change |
 
 ---
 
@@ -86,8 +88,11 @@ FullCalendar calendar = new FullCalendar().withAutoBrowserTimezone().withAutoUiL
 ### Unit Tests
 - [ ] `CalendarLocaleTest` — locale handling
 - [ ] `TimezoneTests` — timezone conversion
+- [x] `TypedOptionValuesTest`: zone id stored as `Timezone`, `"local"` rejected
+- [x] `AutoBrowserSettingsTest`: `withAutoBrowserTimezone()`, `withAutoUiLocale()`
 
 ### E2E Tests
+- [x] `auto-browser-timezone.spec.js`: the browser time zone becomes the calendar time zone on server and client
 - [x] `date-format.spec.js`: day dates sent to the server are `yyyy-MM-dd` in a named time zone, also for a time that is not midnight (25-hour DST day)
 - [x] `stable-class-names.spec.js`: day numbers in the Japanese locale
 

@@ -42,7 +42,7 @@ public class FullCalendarTest {
     private FullCalendar setupTestCalendar(FullCalendar calendar) {
         // to simulate a client timezone, we have to use the server time zone, since all the LocalDate... instances
         // will not be on utc, but on the server timezone.
-        calendar.setTimezone(Timezone.getSystem());
+        calendar.setOption(Option.TIMEZONE, Timezone.getSystem());
         return calendar;
     }
 

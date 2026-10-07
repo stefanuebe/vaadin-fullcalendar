@@ -35,7 +35,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
 
         calendar.setBrowserTimezone("Europe/Berlin");
 
-        assertEquals(BERLIN, calendar.getTimezone());
+        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
     }
 
     @Test
@@ -44,14 +44,14 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
 
         calendar.withAutoBrowserTimezone();
 
-        assertEquals(BERLIN, calendar.getTimezone());
+        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
     }
 
     @Test
     void withoutAutoBrowserTimezone_reportedTimezone_isNotApplied() {
         calendar.setBrowserTimezone("Europe/Berlin");
 
-        assertEquals(Timezone.UTC, calendar.getTimezone());
+        assertTrue(calendar.getOption(Option.TIMEZONE).isEmpty());
         assertEquals(BERLIN, calendar.getBrowserTimezone().orElseThrow());
     }
 

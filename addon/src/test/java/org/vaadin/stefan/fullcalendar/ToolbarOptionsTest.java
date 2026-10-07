@@ -48,7 +48,8 @@ public class ToolbarOptionsTest {
     void headerToolbar_false_hidesToolbar() {
         calendar.setOption(Option.HEADER_TOOLBAR, false);
 
-        assertFalse(sentToClient().get("headerToolbar").asBoolean());
+        assertTrue(sentToClient().get("headerToolbar").isBoolean());
+        assertFalse(sentToClient().get("headerToolbar").booleanValue());
     }
 
     @Test

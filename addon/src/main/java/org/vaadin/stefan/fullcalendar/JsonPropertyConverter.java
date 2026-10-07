@@ -4,11 +4,6 @@ package org.vaadin.stefan.fullcalendar;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Converts a server side value to a json value and (optionally) vice versa.
- *
- * @param <SERVER_TYPE>
- */
-/**
  * Converts a server-side value to its JSON representation and back.
  *
  * @param <SERVER_TYPE> server-side type

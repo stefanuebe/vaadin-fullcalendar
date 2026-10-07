@@ -500,10 +500,11 @@ public enum Option {
      *   <dt>Type</dt> <dd>{@code false} | {@code integer} | {@code true} (false = no limit, integer = fixed count, true = limit to cell height)</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
      * </dl>
+     * <pre>{@code
+     * calendar.setOption(Option.DAY_MAX_ENTRIES, 3);    // "+N more" link after 3 entries
+     * calendar.setOption(Option.DAY_MAX_ENTRIES, true); // as many as fit into the cell
+     * }</pre>
      *
-     * @see FullCalendar#setMaxEntriesPerDay(int)
-     * @see FullCalendar#setMaxEntriesPerDayFitToCell()
-     * @see FullCalendar#setMaxEntriesPerDayUnlimited()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">dayMaxEvents</a>
      */
     DAY_MAX_ENTRIES("dayMaxEvents"),
@@ -1643,7 +1644,7 @@ public enum Option {
      * calendar.setOption(Option.MORE_LINK_CLICK, FullCalendar.MoreLinkClickAction.DAY);
      * calendar.setOption(Option.MORE_LINK_CLICK, JsCallback.of("function(info) { return 'day'; }"));
      * }</pre>
-     * {@link FullCalendar#addMoreLinkClickedListener(com.vaadin.flow.component.ComponentEventListener)} receives the
+     * {@link FullCalendar#addMoreLinkClickedListener} receives the
      * click with every value, also with a callback.
      *
      * @see <a href="https://fullcalendar.io/docs/moreLinkClick">moreLinkClick</a>
@@ -2672,16 +2673,14 @@ public enum Option {
      *                     rejected with an {@link IllegalArgumentException}, because the server needs the real zone to
      *                     compute entry offsets. Use {@link FullCalendar#withAutoBrowserTimezone()} to follow the
      *                     browser's time zone.</dd>
-     *   <dt>Default</dt> <dd>{@code "UTC"}, set by the add-on (FullCalendar's own default is {@code "local"}).
-     *                        {@link FullCalendar#getTimezone()} returns {@code Timezone.UTC} as long as the option is
-     *                        not set.</dd>
+     *   <dt>Default</dt> <dd>not set. The client then uses {@code "UTC"}, set by the add-on (FullCalendar's own
+     *                        default is {@code "local"}).</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
-     * Timezone timezone = calendar.getTimezone(); // Europe/Berlin
+     * Optional<Timezone> timezone = calendar.getOption(Option.TIMEZONE); // Europe/Berlin
      * }</pre>
      *
-     * @see FullCalendar#getTimezone()
      * @see <a href="https://fullcalendar.io/docs/timeZone">timeZone</a>
      */
     TIMEZONE("timeZone"),

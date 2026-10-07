@@ -71,6 +71,13 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     }
 
     @Test
+    void timezone_idAsDeprecatedServerSideValue_isStoredAsTimezone() {
+        calendar.setOption(Option.TIMEZONE, "Europe/Berlin", "Europe/Berlin");
+
+        assertEquals(new Timezone(ZoneId.of("Europe/Berlin")), calendar.getOption(Option.TIMEZONE).orElseThrow());
+    }
+
+    @Test
     void timezone_utcId_equalsUtcConstant() {
         calendar.setOption(Option.TIMEZONE, "UTC");
 
@@ -98,6 +105,19 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         viaOption.setOption(Option.TIMEZONE, berlin);
 
         assertEquals(viaOption.getOption(Option.TIMEZONE), calendar.getOption(Option.TIMEZONE));
+    }
+
+    @Test
+    void timezone_deprecatedGetter_returnsUtcWhileNotSet() {
+        assertEquals(Timezone.UTC, calendar.getTimezone());
+        assertTrue(calendar.getOption(Option.TIMEZONE).isEmpty());
+    }
+
+    @Test
+    void timezone_setterWithDefaultUtc_storesOptionLikeTheOption() {
+        calendar.setTimezone(Timezone.UTC);
+
+        assertEquals(Timezone.UTC, calendar.getOption(Option.TIMEZONE).orElseThrow());
     }
 
     @Test
@@ -148,6 +168,16 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     }
 
     @Test
+    void validRange_startAndEndSetters_setOpenRanges() {
+        calendar.setValidRangeStart(LocalDate.of(2025, 3, 1));
+        assertEquals(new DateRange(LocalDate.of(2025, 3, 1), null), calendar.getOption(Option.VALID_RANGE).orElseThrow());
+
+        calendar.setValidRangeEnd(LocalDate.of(2025, 5, 1));
+        assertEquals(new DateRange(null, LocalDate.of(2025, 5, 1)), calendar.getOption(Option.VALID_RANGE).orElseThrow());
+        assertFalse(initialClientValue(Option.VALID_RANGE).has("start"));
+    }
+
+    @Test
     void validRange_clear_removesOption() {
         calendar.setValidRangeStart(LocalDate.of(2025, 3, 1));
 
@@ -182,6 +212,11 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         assertEquals(FullCalendar.MoreLinkClickAction.WEEK, calendar.getOption(Option.MORE_LINK_CLICK).orElseThrow());
         assertEquals("week", initialClientValue(Option.MORE_LINK_CLICK).asString());
         assertFalse(calendar.getElement().hasProperty("moreLinkClickAction"));
+
+        // null removes the option, the client then falls back to FullCalendar's "popover"
+        calendar.setMoreLinkClickAction(null);
+        assertTrue(calendar.getOption(Option.MORE_LINK_CLICK).isEmpty());
+        assertNull(initialClientValue(Option.MORE_LINK_CLICK));
     }
 
     @Test
@@ -200,11 +235,16 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     void dayMaxEntries_setterAndOption_storeSameValue() {
         calendar.setMaxEntriesPerDay(3);
         assertEquals(3, calendar.getOption(Option.DAY_MAX_ENTRIES).orElseThrow());
+        assertEquals(3, initialClientValue(Option.DAY_MAX_ENTRIES).asInt());
 
         calendar.setMaxEntriesPerDayFitToCell();
         assertEquals(true, calendar.getOption(Option.DAY_MAX_ENTRIES).orElseThrow());
+        assertTrue(initialClientValue(Option.DAY_MAX_ENTRIES).isBoolean());
+        assertTrue(initialClientValue(Option.DAY_MAX_ENTRIES).booleanValue());
 
         calendar.setMaxEntriesPerDayUnlimited();
         assertEquals(false, calendar.getOption(Option.DAY_MAX_ENTRIES).orElseThrow());
+        assertTrue(initialClientValue(Option.DAY_MAX_ENTRIES).isBoolean());
+        assertFalse(initialClientValue(Option.DAY_MAX_ENTRIES).booleanValue());
     }
 }

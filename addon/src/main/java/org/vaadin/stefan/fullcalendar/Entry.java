@@ -867,7 +867,7 @@ public class Entry implements Serializable {
      * @return timezone
      */
     public Timezone getStartTimezone() {
-        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+        return calendar != null ? calendar.getTimezoneForOffsets() : Timezone.UTC;
     }
 
     /**
@@ -877,7 +877,7 @@ public class Entry implements Serializable {
      * @return timezone
      */
     public Timezone getEndTimezone() {
-        return calendar != null ? calendar.getTimezone() : Timezone.UTC;
+        return calendar != null ? calendar.getTimezoneForOffsets() : Timezone.UTC;
     }
 
     /**

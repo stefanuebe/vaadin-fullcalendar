@@ -68,7 +68,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
                                   @EventData("event.detail.allDay") boolean allDay) {
         super(source, fromClient);
 
-        Timezone timezone = source.getTimezone();
+        Timezone timezone = source.getTimezoneForOffsets();
         this.allDay = allDay;
         this.start = JsonUtils.parseClientSideDateTime(start);
         this.end = JsonUtils.parseClientSideDateTime(end);
@@ -102,7 +102,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * @return start with offset
      */
     public LocalDateTime getStartWithOffset() {
-        return getSource().getTimezone().applyTimezoneOffset(start);
+        return getSource().getTimezoneForOffsets().applyTimezoneOffset(start);
     }
 
     /**
@@ -112,7 +112,7 @@ public class TimeslotsSelectedEvent extends ComponentEvent<FullCalendar> {
      * @return end with offset
      */
     public LocalDateTime getEndWithOffset() {
-        return getSource().getTimezone().applyTimezoneOffset(end);
+        return getSource().getTimezoneForOffsets().applyTimezoneOffset(end);
     }
 
     /**

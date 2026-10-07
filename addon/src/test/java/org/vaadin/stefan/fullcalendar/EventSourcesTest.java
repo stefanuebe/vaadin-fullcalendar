@@ -340,6 +340,33 @@ public class EventSourcesTest {
         assertEquals(1, received.size());
         assertEquals("ext-1", received.get(0).getEntry().getId());
         assertEquals("my-feed", received.get(0).getSourceId());
+        // the delta of one day is applied in reverse for the old start
+        assertEquals(received.get(0).getEntry().getStart().minusDays(1), received.get(0).getOldStart());
+        assertEquals(1, receivedFormer.size());
+        assertEquals("ext-1", receivedFormer.get(0).getEntry().getId());
+        assertEquals("my-feed", receivedFormer.get(0).getSourceId());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void entrySourceEntryDrop_reachesFormerListenerAlone() {
+        List<ExternalEntryDroppedEvent> receivedFormer = new ArrayList<>();
+        calendar.addExternalEntryDroppedListener(receivedFormer::add);
+
+        fireEntrySourceDomEvent("externalEntryDrop");
+
+        assertEquals(1, receivedFormer.size());
+        assertEquals("ext-1", receivedFormer.get(0).getEntry().getId());
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    void entrySourceEntryResize_reachesFormerListenerAlone() {
+        List<ExternalEntryResizedEvent> receivedFormer = new ArrayList<>();
+        calendar.addExternalEntryResizedListener(receivedFormer::add);
+
+        fireEntrySourceDomEvent("externalEntryResize");
+
         assertEquals(1, receivedFormer.size());
         assertEquals("ext-1", receivedFormer.get(0).getEntry().getId());
     }
@@ -356,11 +383,19 @@ public class EventSourcesTest {
 
         assertEquals(1, received.size());
         assertEquals("ext-1", received.get(0).getEntry().getId());
+        assertEquals("my-feed", received.get(0).getSourceId());
+        // the delta of one day is applied in reverse for the old end
+        assertEquals(received.get(0).getEntry().getEnd().minusDays(1), received.get(0).getOldEnd());
         assertEquals(1, receivedFormer.size());
         assertEquals("ext-1", receivedFormer.get(0).getEntry().getId());
+        assertEquals("my-feed", receivedFormer.get(0).getSourceId());
     }
 
-    /** Fires the given client event on the calendar element, as the client does for an entry source entry. */
+    /**
+     * Fires the given client event on the calendar element, as the client does for an entry source entry. The event
+     * name and the detail keys mirror {@code full-calendar.ts}. A browser test would have to drag an entry of an
+     * editable entry source, which is not worth its cost here.
+     */
     private void fireEntrySourceDomEvent(String eventName) {
         ObjectNode entryData = JsonFactory.createObject();
         entryData.put("id", "ext-1");

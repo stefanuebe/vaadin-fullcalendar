@@ -4,6 +4,9 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
@@ -20,14 +23,19 @@ import java.time.LocalDate;
  * Test view for {@link Option#MORE_LINK_CLICK}: the value set as option decides what the "+N more" link does, and the
  * server receives every click.
  * <p>
- * The calendar starts with {@code MoreLinkClickAction.DAY}, set before attach. A button sets a {@link JsCallback} that
- * returns {@code "week"}. {@code #more-link-count} counts the {@code MoreLinkClickedEvent}s on the server.
+ * Before attach the calendar gets {@code MoreLinkClickAction.DAY}, or with the parameter {@code callback} a
+ * {@link JsCallback} returning {@code "week"}. A button sets that callback after attach.
+ * {@code #more-link-count} counts the {@code MoreLinkClickedEvent}s on the server.
  * <p>
- * Route: /test/more-link-click
+ * Route: /test/more-link-click, /test/more-link-click/callback
  */
 @Route(value = "more-link-click", layout = TestLayout.class)
 @MenuItem(label = "More Link Click")
-public class MoreLinkClickTestView extends VerticalLayout {
+public class MoreLinkClickTestView extends VerticalLayout implements HasUrlParameter<String> {
+
+    private static final JsCallback RETURN_WEEK = JsCallback.of("function(info) { return 'week'; }");
+
+    private final FullCalendar calendar = new FullCalendar();
 
     public MoreLinkClickTestView() {
         setSizeFull();
@@ -35,12 +43,10 @@ public class MoreLinkClickTestView extends VerticalLayout {
 
         add(new H2("More Link Click"));
 
-        FullCalendar calendar = new FullCalendar();
         calendar.getElement().setAttribute("data-testid", "calendar");
         calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
         calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
         calendar.setOption(Option.DAY_MAX_ENTRY_ROWS, 2);
-        calendar.setOption(Option.MORE_LINK_CLICK, FullCalendar.MoreLinkClickAction.DAY);
 
         // 5 all-day entries on 2025-03-05 produce a "+N more" link with 2 rows
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();
@@ -58,9 +64,15 @@ public class MoreLinkClickTestView extends VerticalLayout {
         calendar.addMoreLinkClickedListener(e -> count.setText(String.valueOf(Integer.parseInt(count.getText()) + 1)));
 
         Button callbackButton = new Button("Callback returning week",
-                e -> calendar.setOption(Option.MORE_LINK_CLICK, JsCallback.of("function(info) { return 'week'; }")));
+                e -> calendar.setOption(Option.MORE_LINK_CLICK, RETURN_WEEK));
         callbackButton.getElement().setAttribute("data-testid", "btn-callback");
 
         add(callbackButton, count, calendar);
+    }
+
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+        // runs before the view is attached, so the option goes with the initial options
+        calendar.setOption(Option.MORE_LINK_CLICK, "callback".equals(parameter) ? RETURN_WEEK : FullCalendar.MoreLinkClickAction.DAY);
     }
 }

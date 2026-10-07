@@ -661,9 +661,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private void callOptionUpdate(String option, Object value, Object valueForServerSide, String method, Serializable... additionalParameters) {
         Objects.requireNonNull(option);
 
-        // 0. A time zone given as id is kept as Timezone, so getTimezone() and the offset helpers can rely on it
-        if (Option.TIMEZONE.getOptionKey().equals(option) && value instanceof String id && valueForServerSide == null) {
-            value = parseTimezone(id);
+        // 0. A time zone given as id is kept as Timezone, so getOption() and the offset helpers can rely on it
+        if (Option.TIMEZONE.getOptionKey().equals(option)) {
+            if (valueForServerSide instanceof String id) {
+                valueForServerSide = parseTimezone(id);
+            } else if (valueForServerSide == null && value instanceof String id) {
+                value = parseTimezone(id);
+            }
         }
 
         // 1. ENTRY_DID_MOUNT intercept: detect this key and route to merge logic
@@ -905,8 +909,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * Does not affect the server side times of entries, only their client side displayment.
      *
      * @return time zone
+     * @deprecated use {@link #getOption(Option)} with {@link Option#TIMEZONE}. {@code getOption} is empty while the
+     * option is not set, where this method returns UTC, which is not necessarily the time zone the client uses
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public Timezone getTimezone() {
+        return getTimezoneForOffsets();
+    }
+
+    /**
+     * Time zone the offset helpers of entries and events convert with: the time zone option, or UTC, the add-on's
+     * client default, while it is not set.
+     */
+    Timezone getTimezoneForOffsets() {
         return (Timezone) getOption(Option.TIMEZONE).orElse(Timezone.UTC);
     }
 
@@ -929,18 +944,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Sets the timezone the calendar shall show. Does not affect the entries directly but only their client side displayment.
      *
-     * @param timezone time zone
+     * @param timezone time zone to show the entries in
      * @deprecated use {@link #setOption(Option, Object)} with {@link Option#TIMEZONE}, which takes a {@link Timezone}
      * or a time zone id
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
     public void setTimezone(Timezone timezone) {
         Objects.requireNonNull(timezone);
-
-        Timezone oldTimezone = getTimezone();
-        if (!timezone.equals(oldTimezone)) {
-            setOption(Option.TIMEZONE, timezone);
-        }
+        setOption(Option.TIMEZONE, timezone);
     }
 
     /**
@@ -1002,7 +1013,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Lets the calendar follow the locale of the UI. The calendar sets the UI locale as {@link Option#LOCALE} on
-     * attach and whenever the UI locale changes ({@link com.vaadin.flow.component.UI#setLocale(Locale)}). Vaadin
+     * attach and whenever the UI locale changes ({@link UI#setLocale(Locale)}). Vaadin
      * derives the initial UI locale from the browser, unless the application sets it. A later
      * {@code setOption(Option.LOCALE, …)} applies until the next locale change.
      *
@@ -1016,7 +1027,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
 
     /**
      * Sets the UI locale as {@link Option#LOCALE}, if {@link #withAutoUiLocale()} is enabled. Called by Vaadin on
-     * attach and when the UI locale changes, does nothing otherwise.
+     * attach and when the UI locale changes. Does nothing otherwise.
      *
      * @param event locale change event
      */

@@ -27,7 +27,7 @@ public class SettingsDialog extends Dialog {
         setDraggable(true);
 
         VerticalLayout layout = new VerticalLayout();
-        Timezone initialTimezone = calendar.getTimezone();
+        Timezone initialTimezone = calendar.<Timezone>getOption(Option.TIMEZONE).orElse(Timezone.UTC);
 
         Button toogleFixedWeekCount = new Button("Toggle fixedWeekCount", event -> {
             boolean current = calendar.<Boolean>getOption(FIXED_WEEK_COUNT).orElse(true);
@@ -54,11 +54,11 @@ public class SettingsDialog extends Dialog {
         timezoneComboBox.setItemLabelGenerator(Timezone::getClientSideValue);
         updateTimezonesComboBox(calendar, timezoneComboBox, showOnlySomeTimezones.getValue());
         timezoneComboBox.addValueChangeListener(event -> {
-            if (!Objects.equals(calendar.getTimezone(), event.getValue())) {
+            if (!Objects.equals(calendar.<Timezone>getOption(Option.TIMEZONE).orElse(Timezone.UTC), event.getValue())) {
 
                 Timezone value = event.getValue();
                 calendar.setOption(Option.TIMEZONE, value != null ? value : initialTimezone);
-                Notification.show("Timezone changed to " + calendar.getTimezone());
+                Notification.show("Timezone changed to " + calendar.<Timezone>getOption(Option.TIMEZONE).orElse(Timezone.UTC));
             }
         });
         showOnlySomeTimezones.addValueChangeListener(event -> updateTimezonesComboBox(calendar, timezoneComboBox, event.getValue()));
@@ -78,10 +78,10 @@ public class SettingsDialog extends Dialog {
             timezoneComboBox.setItems(Timezone.getAvailableZones());
         }
 
-        if (!SOME_TIMEZONES.contains(calendar.getTimezone())) {
+        if (!SOME_TIMEZONES.contains(calendar.<Timezone>getOption(Option.TIMEZONE).orElse(Timezone.UTC))) {
             timezoneComboBox.setValue(Timezone.UTC);
         } else {
-            timezoneComboBox.setValue(calendar.getTimezone());
+            timezoneComboBox.setValue(calendar.<Timezone>getOption(Option.TIMEZONE).orElse(Timezone.UTC));
         }
     }
 }
