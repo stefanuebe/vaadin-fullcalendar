@@ -71,6 +71,7 @@ public class ResourceEntryCopyTest {
         assertNull(copy.getDurationEditable());
         assertNull(copy.getOverlap());
         assertNull(copy.getInteractive());
+        assertFalse(copy.toJson().has("resourceEditable"), "unset resourceEditable stays unset in the copy");
     }
 
     @Test

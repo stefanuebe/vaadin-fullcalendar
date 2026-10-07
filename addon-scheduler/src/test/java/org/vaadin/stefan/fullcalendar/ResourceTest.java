@@ -370,4 +370,27 @@ public class ResourceTest {
         Assertions.assertTrue(json.has("capacity"), "extended prop 'capacity' should be a top-level key");
         Assertions.assertEquals(42, json.get("capacity").asInt());
     }
+
+    // Issue #269. An unset resourceEditable must not override the calendar-level eventResourceEditable
+
+    @Test
+    void resourceEditable_default_isTrueButNotInJson() {
+        ResourceEntry entry = new ResourceEntry();
+        Assertions.assertTrue(entry.isResourceEditable());
+        Assertions.assertFalse(entry.toJson().has("resourceEditable"));
+    }
+
+    @Test
+    void resourceEditable_explicitValues_areInJson() {
+        ResourceEntry entry = new ResourceEntry();
+        entry.setResourceEditable(false);
+        Assertions.assertFalse(entry.isResourceEditable());
+        Assertions.assertFalse(entry.toJson().get("resourceEditable").asBoolean());
+
+        entry.setResourceEditable(true);
+        Assertions.assertTrue(entry.toJson().get("resourceEditable").asBoolean());
+
+        entry.setResourceEditable(null);
+        Assertions.assertFalse(entry.toJson().has("resourceEditable"));
+    }
 }

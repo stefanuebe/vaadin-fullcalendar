@@ -50,7 +50,7 @@ Entry subclass for scheduler views that can be assigned to one or more resources
 | Field | Type | Description |
 |-------|------|-------------|
 | `resources` | `Set<Resource>` | Assigned resources (LinkedHashSet) |
-| `resourceEditable` | `boolean` | Whether entry can be dragged between resources |
+| `resourceEditable` | `Boolean` | Whether entry can be dragged between resources (`null` = inherit `ENTRY_RESOURCES_EDITABLE`, not sent) |
 
 **Convenience accessor**: `getResource()` returns `Optional<Resource>` (first assigned resource). Use `getResourcesOrEmpty()` for all resources.
 
