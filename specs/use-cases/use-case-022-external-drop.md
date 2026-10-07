@@ -68,7 +68,7 @@ calendar.addEntryLeaveListener(event -> {
 | BR-01 | `DROPPABLE = false` (default) disables all external drops |
 | BR-02 | `DROP_ACCEPT` filters which external elements can be dropped (CSS selector or JS callback) |
 | BR-03 | `DropEvent` provides the drop date (`LocalDate`) but NOT a time or an Entry — the developer creates one. Since the return type is `LocalDate` (no time component), timezone normalization does not apply. |
-| BR-04 | `EntryReceiveEvent` provides the entry data but does NOT add it to the provider automatically |
+| BR-04 | `EntryReceiveEvent` provides the entry data, including the custom properties of the dragged entry data, but does NOT add it to the provider automatically |
 | BR-05 | Inter-calendar drag requires `EDITABLE = true` on source and `DROPPABLE = true` on target |
 | BR-06 | `EntryLeaveEvent` fires on the source calendar when an entry is dragged out |
 
@@ -91,7 +91,7 @@ calendar.addEntryLeaveListener(event -> {
 - [ ] No dedicated unit tests — external DnD requires browser interaction
 
 ### E2E Tests
-- [ ] No dedicated E2E tests for external drop — coverage gap. Requires real DOM drag simulation.
+- [x] `external-drop.spec.js` — a registered `Draggable` dropped onto the calendar fires `DropEvent` with component and entry data, and the received entry carries the custom properties of the entry data
 
 ---
 

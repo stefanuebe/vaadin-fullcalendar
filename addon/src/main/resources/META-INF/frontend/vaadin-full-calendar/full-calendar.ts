@@ -427,9 +427,10 @@ export class FullCalendar extends HTMLElement {
                     display: event.display || '',
                 };
 
-                // Include extendedProps if present
-                if (event.extendedProps && Object.keys(event.extendedProps).length > 0) {
-                    data.customProperty = event.extendedProps;
+                // FullCalendar moves unknown props of the dragged entry data into extendedProps. The server
+                // expects customProperties on the top level, so copy it back.
+                if (event.extendedProps && event.extendedProps.customProperties) {
+                    data.customProperties = event.extendedProps.customProperties;
                 }
 
                 // Remove the client-side phantom entry — the server will manage persistence
@@ -815,7 +816,9 @@ export class FullCalendar extends HTMLElement {
      * @return {*} property value
      */
     static getCustomProperty(event: any, key: string, defaultValue: any = undefined) {
-        if (event.extendedProps && event.extendedProps.customProperties && event.extendedProps.customProperties[key]) {
+        // a key check, not a truthiness check, so that 0, false and '' are returned as set
+        if (event.extendedProps && event.extendedProps.customProperties
+            && Object.prototype.hasOwnProperty.call(event.extendedProps.customProperties, key)) {
             return event.extendedProps.customProperties[key];
         }
 

@@ -41,6 +41,7 @@ public class ExternalDropTestView extends VerticalLayout {
         Span dropData = badge("drop-data", "");
         Span dropComponent = badge("drop-component", "");
         Span dropEntry = badge("drop-entry", "");
+        Span receiveCustomProperty = badge("receive-custom-property", "");
 
         Div badges = new Div(
                 label("dropCount: "), dropCount,
@@ -48,7 +49,8 @@ public class ExternalDropTestView extends VerticalLayout {
                 label(" | dropAllDay: "), dropAllDay,
                 label(" | dropData: "), dropData,
                 label(" | dropComponent: "), dropComponent,
-                label(" | dropEntry: "), dropEntry
+                label(" | dropEntry: "), dropEntry,
+                label(" | receiveCustomProperty: "), receiveCustomProperty
         );
         badges.getStyle().set("font-size", "12px");
         add(badges);
@@ -71,6 +73,7 @@ public class ExternalDropTestView extends VerticalLayout {
         entryData.setTitle("External Task");
         entryData.setStart(LocalDateTime.of(2025, 3, 12, 10, 0));
         entryData.setEnd(LocalDateTime.of(2025, 3, 12, 11, 0));
+        entryData.setCustomProperty("priority", "high");
 
         // --- Calendar ---
         FullCalendar calendar = new FullCalendar();
@@ -95,6 +98,9 @@ public class ExternalDropTestView extends VerticalLayout {
             dropComponent.setText(e.getDraggable().map(Draggable::getComponent).map(c -> c.getId().orElse("no-id")).orElse("none"));
             dropEntry.setText(e.getDraggable().flatMap(Draggable::getEntryData).map(Entry::getTitle).orElse("none"));
         });
+
+        calendar.addEntryReceiveListener(e ->
+                receiveCustomProperty.setText(String.valueOf(e.getEntry().<Object>getCustomProperty("priority"))));
 
         add(calendar);
         setFlexGrow(1, calendar);

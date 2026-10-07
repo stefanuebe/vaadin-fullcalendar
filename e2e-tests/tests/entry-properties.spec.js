@@ -199,5 +199,15 @@ base.describe('Entry Properties — Visual Effects', () => {
             const dept = await propsEntry.getAttribute('data-department');
             expect(dept).toBe('Engineering');
         });
+
+        base('getCustomProperty returns 0, false, an empty string and null as set, the default only for an absent key', async ({ page }) => {
+            const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
+            await expect(propsEntry).toHaveAttribute('data-count', '0');
+            await expect(propsEntry).toHaveAttribute('data-done', 'false');
+            await expect(propsEntry).toHaveAttribute('data-note', '');
+            // a key set to null is present, so it returns null and not the default
+            await expect(propsEntry).toHaveAttribute('data-cleared', 'null');
+            await expect(propsEntry).toHaveAttribute('data-absent', 'missing');
+        });
     });
 });

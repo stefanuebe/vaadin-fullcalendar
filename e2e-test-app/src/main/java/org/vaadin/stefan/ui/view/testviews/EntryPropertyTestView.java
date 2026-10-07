@@ -153,6 +153,10 @@ public class EntryPropertyTestView extends VerticalLayout {
         propsEntry.setAllDay(true);
         propsEntry.setCustomProperty("department", "Engineering");
         propsEntry.setCustomProperty("priority", "high");
+        propsEntry.setCustomProperty("count", 0);
+        propsEntry.setCustomProperty("done", false);
+        propsEntry.setCustomProperty("note", "");
+        propsEntry.setCustomProperty("cleared", null);
         provider.addEntry(propsEntry);
 
         calendar.setEntryProvider(provider);
@@ -164,6 +168,9 @@ public class EntryPropertyTestView extends VerticalLayout {
                 "  if (ep.customProperties && ep.customProperties.department) { " +
                 "    info.el.setAttribute('data-department', ep.customProperties.department); " +
                 "  } " +
+                "  ['count', 'done', 'note', 'cleared', 'absent'].forEach(function(key) { " +
+                "    info.el.setAttribute('data-' + key, String(info.event.getCustomProperty(key, 'missing'))); " +
+                "  }); " +
                 "}"));
 
         add(calendar);
