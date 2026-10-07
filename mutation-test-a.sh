@@ -144,7 +144,7 @@ run_mutation_simple "A1.5" "$EPV" 's/setDisplayMode(DisplayMode.BACKGROUND)/setD
 run_mutation_simple "A1.6" "$EPV" 's/Set.of("my-custom-class")/Set.of("other-class")/' \
     "entry-properties.spec.js" "custom class" "my-custom-class→other-class"
 
-run_mutation_simple "A1.7" "$EPV" 's/setCustomProperty("department", "Engineering")/setCustomProperty("department", "Finance")/' \
+run_mutation_simple "A1.7" "$EPV" 's/setExtendedProp("department", "Engineering")/setExtendedProp("department", "Finance")/' \
     "entry-properties.spec.js" "extendedProps" "Engineering→Finance"
 
 echo ""

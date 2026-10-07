@@ -4,7 +4,9 @@ import com.vaadin.flow.function.ValueProvider;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.vaadin.stefan.fullcalendar.converters.ExtendedPropsConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.lang.reflect.Field;
@@ -528,7 +530,7 @@ public class EntryTest {
         entry.setAllDay(true);
         entry.setEditable(true);
         entry.setColor(DEFAULT_COLOR);
-        entry.setDescription(DEFAULT_DESCRIPTION);
+        entry.setExtendedProp("description", DEFAULT_DESCRIPTION);
         entry.setDisplayMode(DEFAULT_DISPLAY_MODE_ALTERN);
 
         // TODO extend values
@@ -591,7 +593,7 @@ public class EntryTest {
         assertNull(entry.getTitle());
         assertNull(entry.getColor());
         assertNull(entry.getContrastColor());
-        assertNull(entry.getDescription());
+        assertFalse(entry.hasExtendedProp("description"));
         assertEquals(DisplayMode.AUTO, entry.getDisplayMode());
     }
 
@@ -666,5 +668,200 @@ public class EntryTest {
 
         entry.removeClassNames();
         assertFalse(entry.hasClassNames());
+    }
+
+    // -------------------------------------------------------------------------
+    // Extended props
+    // -------------------------------------------------------------------------
+
+    /**
+     * FullCalendar spreads every non-standard key of the entry JSON into extendedProps after the explicit
+     * extendedProps object, so such a key would overwrite an extended prop of the same name. Every key the entry
+     * sends must therefore be one FullCalendar 7 parses itself (event-parsing docs, plus the rrule plugin's keys).
+     */
+    static final Set<String> FULLCALENDAR_EVENT_KEYS = Set.of(
+            "id", "groupId", "allDay", "start", "end", "daysOfWeek", "startTime", "endTime", "startRecur", "endRecur",
+            "title", "url", "interactive", "className", "editable", "startEditable", "durationEditable",
+            "resourceEditable", "resourceId", "resourceIds", "display", "overlap", "constraint", "color",
+            "contrastColor", "extendedProps",
+            "rrule", "exrule", "exdate", "duration");
+
+    @Test
+    void everyJsonKeyIsAFullCalendarEventKey() {
+        Set<String> jsonNames = new Entry().streamProperties()
+                .filter(def -> !def.isJsonIgnored())
+                .map(BeanProperties::getJsonName)
+                .collect(Collectors.toSet());
+
+        jsonNames.removeAll(FULLCALENDAR_EVENT_KEYS);
+        assertEquals(Set.of(), jsonNames, "non-standard keys would overwrite extended props of the same name");
+    }
+
+    @Test
+    void extendedProps_neverNullAndReadOnly() {
+        Entry entry = new Entry();
+        assertNotNull(entry.getExtendedProps());
+        assertThrows(UnsupportedOperationException.class, () -> entry.getExtendedProps().put("a", 1));
+
+        entry.setExtendedProp("a", 1);
+        assertEquals(1, entry.getExtendedProp("a"));
+        assertThrows(UnsupportedOperationException.class, () -> entry.getExtendedProps().put("b", 2));
+
+        entry.setExtendedProps(null);
+        assertNotNull(entry.getExtendedProps());
+        assertTrue(entry.getExtendedProps().isEmpty());
+
+        entry.setExtendedProps(Map.of("b", 2));
+        entry.setExtendedProp("c", 3); // the given map is copied, so an immutable one does not break this
+        assertEquals(Map.of("b", 2, "c", 3), entry.getExtendedProps());
+
+        entry.removeExtendedProp("b");
+        assertEquals(Map.of("c", 3), entry.getExtendedProps());
+    }
+
+    @Test
+    void setExtendedProps_nullKey_throwsNPE() {
+        Entry entry = new Entry();
+        Map<String, Object> props = new HashMap<>();
+        props.put(null, 1);
+        assertThrows(NullPointerException.class, () -> entry.setExtendedProps(props));
+    }
+
+    @Test
+    void hasExtendedProp_alsoForNullValue() {
+        Entry entry = new Entry();
+        assertFalse(entry.hasExtendedProp("a"));
+
+        entry.setExtendedProp("a", null);
+        assertTrue(entry.hasExtendedProp("a"));
+        assertNull(entry.getExtendedProp("a"));
+
+        entry.removeExtendedProp("a");
+        assertFalse(entry.hasExtendedProp("a"));
+    }
+
+    @Test
+    void getExtendedProp_defaultOnlyForAbsentKey() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("set", "value");
+        entry.setExtendedProp("cleared", null);
+
+        assertEquals("value", entry.getExtendedProp("set", "default"));
+        assertNull(entry.getExtendedProp("cleared", "default"));
+        assertEquals("default", entry.getExtendedProp("absent", "default"));
+        assertNull(entry.getExtendedProp("absent"));
+    }
+
+    @Test
+    void toJson_sendsExtendedPropsUnderStandardKey() {
+        Entry entry = new Entry();
+        assertFalse(entry.toJson().has("extendedProps"), "no empty object for entries without extended props");
+
+        entry.setExtendedProps(Map.of());
+        assertFalse(entry.toJson().has("extendedProps"), "no empty object after setting an empty map");
+
+        entry.setExtendedProp("department", "Engineering");
+        ObjectNode json = entry.toJson();
+        assertEquals("Engineering", json.get("extendedProps").get("department").asString());
+        assertFalse(json.has("customProperties"));
+        assertFalse(json.has("department"));
+    }
+
+    record Room(String name, int floor) {
+    }
+
+    @Test
+    void toJson_serializesObjectValuesWithJackson() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("room", new Room("Atlas", 3));
+        entry.setExtendedProp("rooms", List.of(new Room("Atlas", 3)));
+
+        ObjectNode json = entry.toJson();
+        assertEquals("Atlas", json.get("extendedProps").get("room").get("name").asString());
+        assertEquals(3, json.get("extendedProps").get("room").get("floor").asInt());
+        assertEquals("Atlas", json.get("extendedProps").get("rooms").get(0).get("name").asString());
+    }
+
+    enum Level {
+        LOW;
+
+        @Override
+        public String toString() {
+            return "low level";
+        }
+    }
+
+    @Test
+    void toJson_serializesEnumsDatesAndNullsInExtendedProps() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("level", Level.LOW);
+        entry.setExtendedProp("date", LocalDate.of(2025, 3, 1));
+        entry.setExtendedProp("cleared", null);
+
+        ObjectNode extendedProps = (ObjectNode) entry.toJson().get("extendedProps");
+        assertEquals("low level", extendedProps.get("level").asString(), "Jackson 3 writes enums with toString(), as 7.x did");
+        assertEquals("2025-03-01", extendedProps.get("date").asString());
+        assertTrue(extendedProps.get("cleared").isNull());
+    }
+
+    static class NoProperties {
+    }
+
+    @Test
+    void toJson_sendsAnObjectWithoutPropertiesAsEmptyObject() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("empty", new NoProperties());
+
+        JsonNode value = entry.toJson().get("extendedProps").get("empty");
+        assertTrue(value.isObject() && value.isEmpty(), "Jackson 3 does not fail on empty beans");
+    }
+
+    @Test
+    void extendedPropsConverter_readsNonObjectAsEmptyMap() {
+        ExtendedPropsConverter converter = new ExtendedPropsConverter();
+        assertEquals(Map.of(), converter.toServerModel(JsonFactory.create("text"), null));
+        assertTrue(converter.toClientModel(new HashMap<>(), null).isNull());
+    }
+
+    @Test
+    void updateAllFromJson_readsExtendedProps() {
+        ObjectNode json = JsonFactory.createObject();
+        json.putObject("extendedProps").put("department", "Engineering").put("count", 0);
+
+        Entry entry = new Entry();
+        entry.updateAllFromJson(json, false);
+        assertEquals("Engineering", entry.getExtendedProp("department"));
+        assertEquals(0, entry.<Number>getExtendedProp("count", -1).intValue());
+    }
+
+    @Test
+    void copy_copiesExtendedProps() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("a", 1);
+
+        Entry copy = entry.copy();
+        copy.setExtendedProp("b", 2);
+        assertEquals(Map.of("a", 1), entry.getExtendedProps());
+        assertEquals(Map.of("a", 1, "b", 2), copy.getExtendedProps());
+    }
+
+    @Test
+    void copy_entryWithoutExtendedProps() {
+        Entry copy = new Entry().copy();
+        assertTrue(copy.getExtendedProps().isEmpty());
+
+        Entry target = new Entry();
+        target.setExtendedProp("a", 1);
+        Entry.copy(new Entry(), target, false);
+        assertTrue(target.getExtendedProps().isEmpty(), "copying an entry without extended props clears them");
+    }
+
+    @Test
+    void toJson_omitsExtendedPropsAfterRemovingTheLast() throws IllegalAccessException {
+        Entry entry = new Entry();
+        entry.setExtendedProp("a", 1);
+        entry.removeExtendedProp("a");
+        assertNull(FieldUtils.readField(entry, "extendedProps", true), "no empty map is kept");
+        assertFalse(entry.toJson().has("extendedProps"));
     }
 }

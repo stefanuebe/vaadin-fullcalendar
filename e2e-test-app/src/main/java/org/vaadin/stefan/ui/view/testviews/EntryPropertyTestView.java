@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
@@ -29,6 +30,7 @@ import java.util.Set;
  *   <li>allDay true/false — placement in day-events vs timed area</li>
  *   <li>editable=false per-entry — no drag when calendar is editable</li>
  *   <li>durationEditable=false — no resize handle</li>
+ *   <li>extended props — readable in render hooks under extendedProps, removable</li>
  * </ul>
  * Route: /test/entry-properties
  */
@@ -137,25 +139,59 @@ public class EntryPropertyTestView extends VerticalLayout {
         noResize.setDurationEditable(false);
         provider.addEntry(noResize);
 
-        // 11. Entry with extendedProps — verified via entryDidMount console.log
+        // 11. Entry with extended props, read by the render hooks below
         Entry propsEntry = new Entry();
         propsEntry.setTitle("Has Props");
         propsEntry.setStart(LocalDate.of(2025, 3, 17).atStartOfDay());
         propsEntry.setAllDay(true);
-        propsEntry.setCustomProperty("department", "Engineering");
-        propsEntry.setCustomProperty("priority", "high");
+        propsEntry.setExtendedProp("department", "Engineering");
+        propsEntry.setExtendedProp("priority", "high");
         provider.addEntry(propsEntry);
+
+        // 12. Entry with most fields set besides its extended props. None of these fields may end up in
+        // extendedProps, where it would overwrite an extended prop of the same name.
+        Entry allFields = new Entry();
+        allFields.setTitle("All Fields");
+        allFields.setGroupId("group");
+        allFields.setStart(LocalDateTime.of(2025, 3, 19, 9, 0));
+        allFields.setEnd(LocalDateTime.of(2025, 3, 19, 10, 0));
+        allFields.setAllDay(false);
+        allFields.setColor("teal");
+        allFields.setContrastColor("white");
+        allFields.setClassNames(Set.of("all-fields"));
+        allFields.setEditable(true);
+        allFields.setStartEditable(true);
+        allFields.setDurationEditable(true);
+        allFields.setOverlap(false);
+        allFields.setConstraint("businessHours");
+        allFields.setInteractive(true);
+        allFields.setUrl("#all-fields");
+        allFields.setDisplayMode(DisplayMode.BLOCK);
+        allFields.setExtendedProp("department", "Engineering");
+        provider.addEntry(allFields);
 
         calendar.setEntryProvider(provider);
 
-        // entryDidMount callback that logs extendedProps to a data attribute for E2E verification
+        // entryDidMount writes extended props to data attributes for E2E verification
         calendar.setOption(Option.ENTRY_DID_MOUNT,
                 JsCallback.of("function(info) { " +
-                "  var ep = info.event.extendedProps || {}; " +
-                "  if (ep.customProperties && ep.customProperties.department) { " +
-                "    info.el.setAttribute('data-department', ep.customProperties.department); " +
+                "  var ep = info.event.extendedProps; " +
+                "  if (ep.department) { " +
+                "    info.el.setAttribute('data-department', ep.department); " +
                 "  } " +
+                "  info.el.setAttribute('data-extended-keys', Object.keys(ep).sort().join(',')); " +
                 "}"));
+
+        // a FullCalendar 7 split class hook, run again on every render
+        calendar.setOption("eventTitleClass",
+                JsCallback.of("info => 'dept-' + (info.event.extendedProps.department || 'none')"));
+
+        Button removeDepartment = new Button("Remove department", e -> {
+            propsEntry.removeExtendedProp("department");
+            provider.refreshItem(propsEntry);
+        });
+        removeDepartment.setId("remove-department");
+        add(removeDepartment);
 
         add(calendar);
         setFlexGrow(1, calendar);

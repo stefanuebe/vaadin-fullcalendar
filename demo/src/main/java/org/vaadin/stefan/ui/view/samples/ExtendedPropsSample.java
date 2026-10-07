@@ -9,21 +9,21 @@ import static org.vaadin.stefan.fullcalendar.Option.*;
 /**
  * @author Stefan Uebe
  */
-public class CustomPropertySample extends AbstractSample{
+public class ExtendedPropsSample extends AbstractSample{
 
     private Entry entry;
 
     @Override
     protected void buildSample(FullCalendar calendar) {
-        // set the custom property beforehand
-                entry.setCustomProperty(Entry.EntryCustomProperties.DESCRIPTION, "some description");
+        // set the extended prop beforehand
+                entry.setExtendedProp("description", "some description");
 
-        // use the custom property in the entryContent callback
+        // use the extended prop in the entryContent callback
         calendar.setOption(ENTRY_CONTENT,
                 JsCallback.of("function(info) {" +
                         "   let entry = info.event;" +
                         "   console.log(entry.title);" + // standard property
-                        "   console.log(entry.getCustomProperty('" + Entry.EntryCustomProperties.DESCRIPTION+ "'));" + // custom property
+                        "   console.log(entry.extendedProps.description);" + // extended prop
                         "   /* ... do something with the event content ...*/" +
                         "   return info.el; " +
                         "}")

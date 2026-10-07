@@ -205,14 +205,14 @@ public class InteractionCallbacksTest {
     }
 
     @Test
-    void entryReceiveEvent_readsCustomProperties() {
+    void entryReceiveEvent_readsExtendedProps() {
         ObjectNode json = JsonFactory.createObject();
         json.put("start", "2025-03-10T09:00:00Z");
-        json.putObject("customProperties").put("priority", "high").put("weight", 3);
+        json.putObject("extendedProps").put("priority", "high").put("weight", 3);
 
         EntryReceiveEvent event = new EntryReceiveEvent(calendar, true, json, null);
-        assertEquals("high", event.getEntry().getCustomProperty("priority"));
-        assertEquals(3, event.getEntry().<Number>getCustomProperty("weight").intValue());
+        assertEquals("high", event.getEntry().getExtendedProp("priority"));
+        assertEquals(3, event.getEntry().<Number>getExtendedProp("weight", null).intValue());
     }
 
     // -------------------------------------------------------------------------

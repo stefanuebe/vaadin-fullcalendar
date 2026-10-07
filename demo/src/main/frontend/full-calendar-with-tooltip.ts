@@ -43,7 +43,7 @@ export class FullCalendarWithTooltip extends FullCalendarScheduler {
                     e.el._tippy.destroy();
                 }
 
-                let tooltip = e.event.getCustomProperty("description", e.event.title);
+                let tooltip = e.event.extendedProps.description ?? e.event.title;
 
                 e.el._tippy = tippy(e.el, {
                     theme: 'light',

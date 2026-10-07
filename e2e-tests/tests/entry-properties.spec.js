@@ -173,15 +173,34 @@ base.describe('Entry Properties — Visual Effects', () => {
         });
     });
 
-    base.describe('ExtendedProps (customProperties)', () => {
+    base.describe('Extended props', () => {
 
-        base('extendedProps accessible via entryDidMount callback sets data-attribute', async ({ page }) => {
-            // The entryDidMount callback reads customProperties.department and sets data-department attribute
+        base('extended props are readable in entryDidMount under extendedProps', async ({ page }) => {
             const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
-            await expect(propsEntry).toBeVisible();
-            // Wait for entryDidMount to run
-            const dept = await propsEntry.getAttribute('data-department');
-            expect(dept).toBe('Engineering');
+            await expect(propsEntry).toHaveAttribute('data-department', 'Engineering');
+            await expect(propsEntry).toHaveAttribute('data-extended-keys', 'department,priority');
+        });
+
+        base('extended props are readable in a FullCalendar 7 split class hook', async ({ page }) => {
+            const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
+            await expect(propsEntry.locator('.dept-Engineering')).toHaveCount(1);
+        });
+
+        base('no other entry field ends up in extendedProps', async ({ page }) => {
+            const allFields = page.locator('.fc-event:has-text("All Fields")').first();
+            await expect(allFields).toHaveAttribute('data-extended-keys', 'department');
+        });
+
+        base('a removed extended prop disappears on the client after refreshItem', async ({ page }) => {
+            const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
+            await expect(propsEntry.locator('.dept-Engineering')).toHaveCount(1);
+
+            await page.locator('#remove-department').click();
+            await waitForVaadin(page);
+
+            const refreshed = page.locator('.fc-event:has-text("Has Props")').first();
+            await expect(refreshed.locator('.dept-none')).toHaveCount(1);
+            await expect(refreshed).toHaveAttribute('data-extended-keys', 'priority');
         });
     });
 });

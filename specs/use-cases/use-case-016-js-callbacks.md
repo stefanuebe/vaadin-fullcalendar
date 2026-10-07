@@ -19,7 +19,7 @@
 
 - Developers can pass JavaScript functions as option values
 - JS callbacks execute client-side for render customization, constraint validation, and formatting
-- Entry custom properties (`setCustomProperty`) are accessible in JS callbacks
+- Entry extended props (`setExtendedProp`) are accessible in JS callbacks under `event.extendedProps`
 - Scheduler render hooks customize resource label/lane rendering
 
 ---
@@ -43,9 +43,9 @@ calendar.setOption(Option.SELECT_ALLOW,
 scheduler.setOption(SchedulerOption.RESOURCE_DAY_HEADER_CONTENT,
     JsCallback.of("function(info) { return { html: '<b>' + info.resource.title + '</b>' }; }"));
 
-// Entry custom properties (accessible in JS callbacks)
-entry.setCustomProperty("priority", "high");
-entry.setCustomProperty("department", "Engineering");
+// Entry extended props (accessible in JS callbacks as event.extendedProps.priority etc.)
+entry.setExtendedProp("priority", "high");
+entry.setExtendedProp("department", "Engineering");
 ```
 
 ---
@@ -80,8 +80,8 @@ calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
 |----|------|
 | BR-01 | `JsCallback.of(string)` wraps a JS function for client-side execution |
 | BR-02 | JS callbacks use `new Function()` intentionally for dynamic evaluation |
-| BR-03 | Custom properties set via `setCustomProperty` are available as `event.extendedProps` in JS |
-| BR-04 | Entry render hooks: `ENTRY_CONTENT`, `ENTRY_CLASS`, `ENTRY_DID_MOUNT`, `ENTRY_WILL_UNMOUNT`. They do not apply to background entries. Class options take a class name string or a callback returning one; FullCalendar 7 drops arrays. A plain value passes through without the custom property API. |
+| BR-03 | Extended props set via `setExtendedProp` are sent as the entry's `extendedProps` and are available as `event.extendedProps.<key>` in every entry callback, including the FullCalendar 7 split class hooks (`eventInnerClass`, `eventTitleClass`, …). No other key of the entry JSON lands in `extendedProps`, so none can overwrite an extended prop |
+| BR-04 | Entry render hooks: `ENTRY_CONTENT`, `ENTRY_CLASS`, `ENTRY_DID_MOUNT`, `ENTRY_WILL_UNMOUNT`. They do not apply to background entries. Class options take a class name string or a callback returning one; FullCalendar 7 drops arrays. |
 | BR-05 | Scheduler render hooks: `RESOURCE_CELL_*` (resource area cells, timeline views; also fires for group cells, then `info.resource` is absent), `RESOURCE_DAY_HEADER_*` (resource headers in resource time grid / day grid views), `RESOURCE_LANE_*` with `RESOURCE_LANE_TOP_CONTENT` / `RESOURCE_LANE_BOTTOM_CONTENT`, `RESOURCE_GROUP_HEADER_*` (the group value is `info.fieldValue`), `RESOURCE_COLUMN_HEADER_*`, etc. Class hooks take a class name string or a callback returning one. |
 | BR-06 | Callbacks must be synchronous (no async/await) |
 | BR-07 | Native DOM event listeners registered via `addEntryNativeEventListener(eventName, jsCode)` are automatically merged into `ENTRY_DID_MOUNT`. Example: `calendar.addEntryNativeEventListener("click", "console.log('clicked', e.target)")` registers a browser `click` handler on each entry's DOM element. |
@@ -92,7 +92,7 @@ calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
 
 - [ ] `ENTRY_ALLOW` callback can accept/reject drops
 - [ ] `SELECT_ALLOW` callback can accept/reject selections
-- [ ] Custom properties are accessible in JS callbacks via `extendedProps`
+- [x] Extended props are accessible in JS callbacks via `extendedProps` (`entry-properties.spec.js`)
 - [ ] Scheduler render hooks customize resource rendering
 - [ ] Invalid JS does not crash the calendar — graceful degradation *(manual verification)*
 

@@ -49,7 +49,7 @@ import java.util.stream.Stream;
  * {@link #setRecurringStartTime(LocalTime)}, ...) or with an {@link RRule} ({@link #setRRule(RRule)}).
  * <p>
  * Color, class names, editability and display mode can be set per entry and override the calendar's options.
- * Values the client library does not know can be attached with {@link #setCustomProperty(String, Object)}.
+ * Values of your own, such as an ID from your backend, can be attached with {@link #setExtendedProp(String, Object)}.
  * <p>
  * The calendar gets its entries from its {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
  * After changing an entry that is already shown, call
@@ -232,7 +232,9 @@ public class Entry implements Serializable {
     @JsonConverter(ClassNameConverter.class)
     private Set<String> classNames;
 
-    private Map<String, Object> customProperties;
+    // null until extended props are set, most entries have none
+    @JsonConverter(ExtendedPropsConverter.class)
+    private Map<String, Object> extendedProps;
 
     @JsonIgnore
     private boolean knownToTheClient; // not sure if still needed?
@@ -1134,24 +1136,6 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the description of this entry. Since the description is a <b>custom property</b>, it will
-     * not automatically be shown on the entry.
-     * @return description
-     */
-    public String getDescription() {
-        return getCustomProperty(EntryCustomProperties.DESCRIPTION);
-    }
-
-    /**
-     * Sets the description of this entry. Since the description is a <b>custom property</b>, it will
-     * not automatically be shown on the entry.
-     * @param description description
-     */
-    public void setDescription(String description) {
-        setCustomProperty(EntryCustomProperties.DESCRIPTION, description);
-    }
-
-    /**
      * Sets the display mode for this entry. Passing null will reset it to the default.
      * @param displayMode how to display the entry
      */
@@ -1387,141 +1371,126 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets custom properties.
-     * <p></p>
-     * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
+     * Replaces the extended props of this entry with a copy of the given map. {@code null} clears them.
      *
-     * @see Option#ENTRY_CONTENT
-     * @param customProperties custom properties
+     * @param extendedProps extended props
+     * @throws NullPointerException when the map contains a null key
+     * @see #setExtendedProp(String, Object)
      */
-    public void setCustomProperties(Map<String, Object> customProperties) {
-        this.customProperties = customProperties;
+    public void setExtendedProps(Map<String, Object> extendedProps) {
+        Map<String, Object> copy = extendedProps != null ? new HashMap<>(extendedProps) : new HashMap<>();
+        if (copy.containsKey(null)) {
+            throw new NullPointerException("Extended props must not contain a null key");
+        }
+
+        this.extendedProps = copy.isEmpty() ? null : copy;
     }
 
     /**
-     * Sets custom property for this entry. An existing property will be overwritten.
-     * <p></p>
-     * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
+     * Sets an extended prop. An extended prop is an additional value of your own, stored under a key of your
+     * choice. Extended props do not change the regular properties of the entry, such as its title or color, and FullCalendar does not
+     * use them itself. Setting a key again overwrites the extended prop stored under that key.
+     * <p>
+     * Extended props are sent to the client as the entry's {@code extendedProps}, where your own JavaScript
+     * callbacks can read them, for instance in {@link Option#ENTRY_DID_MOUNT}:
+     * <pre>{@code
+     * entry.setExtendedProp("department", "Engineering");
      *
-     *  @see Option#ENTRY_CONTENT
+     * calendar.setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(
+     *         "info => info.el.title = info.event.extendedProps.department"));
+     * }</pre>
+     * Strings, numbers, booleans, maps, collections, arrays and {@link tools.jackson.databind.JsonNode}s are sent
+     * as the matching JSON values. Numbers other than {@code Integer} and {@code Long} are sent as doubles, so a
+     * {@code BigDecimal} can lose precision. Any other object is serialized with Jackson.
+     * <p>
+     * Entries that come from the client ({@link EntryReceiveEvent}, {@link DropEvent}) carry their extended props
+     * as they were parsed from JSON, so an object you set arrives in those entries as a {@code Map}.
+     * <p>
+     * Call {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider#refreshItem(Entry)} after changing the
+     * extended props of an entry that is already shown.
      *
      * @param key   the name of the property to set
-     * @param value value to set
+     * @param value value to set, can be null
      */
-    public void setCustomProperty(String key, Object value) {
+    public void setExtendedProp(String key, Object value) {
         Objects.requireNonNull(key);
-        getOrCreateCustomProperties().put(key, value);
+        if (extendedProps == null) {
+            extendedProps = new HashMap<>();
+        }
+
+        extendedProps.put(key, value);
     }
 
     /**
-     * Returns a custom property (or null if not defined).
-     * <p></p>
-     * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
+     * Returns an extended prop, or null if the key is not set or set to null. Use
+     * {@link #hasExtendedProp(String)} to tell the two apart.
      *
-     * @see Option#ENTRY_CONTENT
+     * @param key name of the extended prop
+     * @return value or null
+     * @see #setExtendedProp(String, Object)
+     */
+    public Object getExtendedProp(String key) {
+        return getExtendedProps().get(key);
+    }
+
+    /**
+     * Returns whether an extended prop is set under the given key, also when its value is null.
      *
-     * @param key name of the custom property
-     * @param <T> return type
-     * @return custom property value or null
+     * @param key name of the extended prop
+     * @return true if the key is set
+     */
+    public boolean hasExtendedProp(String key) {
+        return getExtendedProps().containsKey(key);
+    }
+
+    /**
+     * Returns an extended prop, or the default value if the key is not set. A key set to {@code null} returns
+     * {@code null}, not the default value.
+     * <p>
+     * The value is cast to the type of the default value without a check, so a value of another type leads to a
+     * {@link ClassCastException} at the caller.
+     *
+     * @param key          name of the extended prop
+     * @param defaultValue value returned when the key is not set
+     * @param <T>          type of the value
+     * @return value or the default value
+     * @see #setExtendedProp(String, Object)
      */
     @SuppressWarnings("unchecked")
-    public <T> T getCustomProperty(String key) {
-        return (T) getCustomPropertiesOrEmpty().get(key);
+    public <T> T getExtendedProp(String key, T defaultValue) {
+        Map<String, Object> props = getExtendedProps();
+        return props.containsKey(key) ? (T) props.get(key) : defaultValue;
     }
 
     /**
-     * Remove the custom property based on the name.
+     * Removes an extended prop.
      *
-     * @param key the name of the property to remove
+     * @param key the name of the extended prop to remove
      */
-    public void removeCustomProperty(String key) {
-        Map<String, Object> customProperties = getCustomProperties();
-        if (customProperties != null) {
-            // FIXME this will currently not remove the custom property from the client side!
-            customProperties.remove(Objects.requireNonNull(key));
+    public void removeExtendedProp(String key) {
+        Objects.requireNonNull(key);
+        if (extendedProps != null) {
+            extendedProps.remove(key);
+            if (extendedProps.isEmpty()) {
+                extendedProps = null;
+            }
         }
     }
 
     /**
-     * Remove specific custom property where the name and value match.
+     * Returns the extended props of this entry as a read-only map. Never null. Change them with
+     * {@link #setExtendedProp(String, Object)}, {@link #removeExtendedProp(String)} or
+     * {@link #setExtendedProps(Map)}, then call this method again, because an earlier result may not reflect
+     * the change.
      *
-     * @param key   the name of the property to remove
-     * @param value the object to remove
+     * @return extended props, not modifiable
      */
-    public void removeCustomProperty(String key, Object value) {
-        Map<String, Object> customProperties = getCustomProperties();
-        if (customProperties != null) {
-            // FIXME this will currently not remove the custom property from the client side!
-            customProperties.remove(Objects.requireNonNull(key), Objects.requireNonNull(value));
-        }
-    }
-
-    /**
-     * Returns the map of the custom properties of this instance. This map is editable and any changes
-     * will be sent to the client when entries are refreshed.
-     * <p></p>
-     * Might be null.
-     * <p></p>
-     * You can access custom properties on the client side when customizing the event rendering via the property
-     * <code>event.getCustomProperty('key')</code>, for instance inside the entry content callback.
-     *
-     * @see Option#ENTRY_CONTENT
-     *
-     * @return Map
-     * @see #getCustomPropertiesOrEmpty()
-     * @see #getOrCreateCustomProperties()
-     */
-    public Map<String, Object> getCustomProperties() {
-        return customProperties;
-    }
-
-    /**
-     * Returns the custom properties map or an empty one, if none has yet been created. The map is not writable.
-     *
-     * @return map
-     * @see #getCustomProperties()
-     * @see #getOrCreateCustomProperties()
-     */
-    public Map<String, Object> getCustomPropertiesOrEmpty() {
-        return customProperties != null ? Collections.unmodifiableMap(customProperties) : Collections.emptyMap();
-    }
-
-    /**
-     * Returns the map of the custom properties of this instance. This map is editable and any changes
-     * will be sent to the client when the entry provider is refreshed.
-     * <p></p>
-     * Creates and registers a new map, if none is there yet.
-     * <p></p>
-     * Be aware, that any non standard property you
-     * set via "set(..., ...)" is not automatically put into this map, but this is done by the client later.
-     *
-     * @return Map
-     * @see #getCustomPropertiesOrEmpty()
-     * @see #getCustomProperties()
-     */
-    public Map<String, Object> getOrCreateCustomProperties() {
-        if (customProperties == null) {
-            customProperties = new HashMap<>();
-        }
-        return customProperties;
+    public Map<String, Object> getExtendedProps() {
+        return extendedProps != null ? Collections.unmodifiableMap(extendedProps) : Collections.emptyMap();
     }
 
     protected <T, R> R convertNullable(T value, SerializableFunction<T, R> converter) {
         return value != null ? converter.apply(value) : null;
-    }
-
-
-    /**
-     * Defines known custom properties, for instance since they are widely used.
-     */
-    public static final class EntryCustomProperties {
-        /**
-         * Key for an entry's description.
-         */
-        public static final String DESCRIPTION = "description";
     }
 
 

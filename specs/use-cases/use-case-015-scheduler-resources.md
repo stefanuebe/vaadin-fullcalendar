@@ -113,6 +113,7 @@ scheduler.addEntryDroppedSchedulerListener(event -> {
 - [x] Column header content, resource cell class, lane class and top content reach resource timeline views
 - [x] Resource day header class and content reach resource time grid and day grid views
 - [x] `updateResource` sends `eventColor`, `eventContrastColor` and `eventClass` under their FullCalendar 7 keys
+- [x] A removed or replaced extended prop of a shown resource reaches the client. FullCalendar cannot delete an extended prop, so the key stays with the value `undefined`
 
 **Limitation (FullCalendar):** `Resource.setColor()` and `Scheduler.updateResource()` send `eventColor`, `eventContrastColor` and `eventClass` to the client, but FullCalendar does not re-derive the styles of entries that are already shown. Those entries keep their old colors and classes. Title and extended props update normally.
 

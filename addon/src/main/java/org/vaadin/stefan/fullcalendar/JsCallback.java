@@ -27,12 +27,8 @@ import java.util.Objects;
  * string via {@code new Function("return " + jsFunction)()} to produce a real
  * JS function object before passing it to FullCalendar.
  *
- * <p><b>Custom property injection:</b> For well-known entry callback keys
- * ({@code eventDidMount}, {@code eventContent}, {@code eventClass},
- * {@code eventWillUnmount}, {@code eventOverlap}, {@code eventAllow}, {@code selectOverlap}),
- * the client automatically injects {@code event.getCustomProperty(key, defaultValue)} on the
- * event objects passed to the callback. This mirrors data set on the server via
- * {@link Entry#setCustomProperty(String, Object)}.
+ * <p>Extended props you set on an entry with {@link Entry#setExtendedProp(String, Object)} can be read in entry
+ * callbacks as {@code info.event.extendedProps}.
  *
  * <p><b>CSP note:</b> This class uses {@code new Function()} on the client side, which requires
  * {@code unsafe-eval} in the Content Security Policy. This is compatible with Vaadin's default

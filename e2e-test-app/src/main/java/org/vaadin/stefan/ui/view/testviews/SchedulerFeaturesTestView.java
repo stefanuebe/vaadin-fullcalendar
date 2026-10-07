@@ -76,13 +76,13 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
 
         // --- Resources ---
         Resource r1 = new Resource("r1", "Alice", "blue");
-        r1.addExtendedProps("department", "Engineering");
+        r1.setExtendedProp("department", "Engineering");
 
         Resource r2 = new Resource("r2", "Bob", null);
-        r2.addExtendedProps("department", "Engineering");
+        r2.setExtendedProp("department", "Engineering");
 
         Resource r3 = new Resource("r3", "Carol", "green");
-        r3.addExtendedProps("department", "Design");
+        r3.setExtendedProp("department", "Design");
 
         calendar.addResources(List.of(r1, r2, r3));
 

@@ -74,9 +74,10 @@ public class Resource implements Serializable {
     private Resource parent;
 
     /**
-     * The custom property list
+     * The extended props, sent flat on the top level of the resource JSON
      */
-    private final HashMap<String, Object> extendedProps = new HashMap<>();
+    @Getter(AccessLevel.NONE)
+    private final Map<String, Object> extendedProps = new HashMap<>();
 
     // Per-resource entry style overrides
     @Getter(AccessLevel.NONE)
@@ -253,38 +254,75 @@ public class Resource implements Serializable {
     }
 
     /**
-     * Adds or updates a custom extended property on this resource. If this resource has been
-     * added to a scheduler, the change is propagated to the client immediately.
+     * Sets an extended prop. An extended prop is an additional value of your own, stored under a key of your
+     * choice. Extended props do not change the regular properties of the resource, such as its title or color, and
+     * FullCalendar does not use them itself. Setting a key again overwrites the extended prop stored under that key.
+     * <p>
+     * On the client, your own JavaScript callbacks can read it as {@code resource.extendedProps.<key>}. If this
+     * resource has been added to a scheduler, the change is propagated to the client immediately.
+     * Objects other than strings, numbers, booleans, maps, collections and arrays are serialized with Jackson.
+     * Numbers other than {@code Integer} and {@code Long} are sent as doubles.
      *
      * @param key   property name
-     * @param value property value
+     * @param value property value, can be null
      */
-    public void addExtendedProps(String key, Object value) {
-        extendedProps.put(key, value);
+    public void setExtendedProp(String key, Object value) {
+        extendedProps.put(Objects.requireNonNull(key), value);
         pushUpdateToClient();
     }
 
     /**
-     * Removes a custom extended property from this resource by key. If this resource has been
-     * added to a scheduler, the change is propagated to the client immediately.
+     * Removes an extended prop from this resource. If this resource has been added to a scheduler, the change is
+     * propagated to the client immediately. FullCalendar cannot delete an extended prop of a shown resource, so
+     * the client keeps the key with the value {@code undefined}.
      *
      * @param key property name to remove
      */
-    public void removeExtendedProps(String key) {
-        extendedProps.remove(key);
+    public void removeExtendedProp(String key) {
+        extendedProps.remove(Objects.requireNonNull(key));
         pushUpdateToClient();
     }
 
     /**
-     * Removes a custom extended property from this resource only if it matches both key and value.
-     * If this resource has been added to a scheduler, the change is propagated to the client immediately.
+     * Replaces the extended props of this resource with the entries of the given map. {@code null} clears them.
+     * If this resource has been added to a scheduler, the change is propagated to the client immediately. Like
+     * {@link #removeExtendedProp(String)}, a key that is no longer set stays on the client with the value
+     * {@code undefined}.
      *
-     * @param key   property name to remove
-     * @param value value that must match
+     * @param extendedProps extended props
+     * @throws NullPointerException when the map contains a null key
+     * @see #setExtendedProp(String, Object)
      */
-    public void removeExtendedProps(String key, Object value) {
-        extendedProps.remove(key, value);
+    public void setExtendedProps(Map<String, Object> extendedProps) {
+        Map<String, Object> copy = extendedProps != null ? new HashMap<>(extendedProps) : new HashMap<>();
+        if (copy.containsKey(null)) {
+            throw new NullPointerException("Extended props must not contain a null key");
+        }
+
+        this.extendedProps.clear();
+        this.extendedProps.putAll(copy);
         pushUpdateToClient();
+    }
+
+    /**
+     * Returns whether an extended prop is set under the given key, also when its value is null.
+     *
+     * @param key name of the extended prop
+     * @return true if the key is set
+     */
+    public boolean hasExtendedProp(String key) {
+        return extendedProps.containsKey(key);
+    }
+
+    /**
+     * Returns the extended props of this resource as a read-only view. Never null. Change them with
+     * {@link #setExtendedProp(String, Object)}, {@link #removeExtendedProp(String)} or
+     * {@link #setExtendedProps(Map)}.
+     *
+     * @return extended props, not modifiable
+     */
+    public Map<String, Object> getExtendedProps() {
+        return Collections.unmodifiableMap(extendedProps);
     }
 
     /**
@@ -554,11 +592,8 @@ public class Resource implements Serializable {
         }
         if (eventAllow != null) jsonObject.set("eventAllow", eventAllow.toMarkerJson());
 
-        HashMap<String, Object> extendedProps = getExtendedProps();
-        if (!extendedProps.isEmpty()) {
-            for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
-            	jsonObject.set(prop.getKey(), JsonUtils.toJsonNode(prop.getValue()));
-            }
+        for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
+            jsonObject.set(prop.getKey(), JsonUtils.toJsonNodeWithJackson(prop.getValue()));
         }
 
         return jsonObject;

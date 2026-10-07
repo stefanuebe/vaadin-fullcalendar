@@ -19,6 +19,10 @@ _Avoid_: Event source, external entries
 **Resource**:
 A thing entries can be assigned to in the scheduler views (a room, a person, a machine).
 
+**Extended prop**:
+A value the developer attaches to an entry or resource that FullCalendar JS does not know itself, read in JavaScript callbacks as `extendedProps`. Named after FullCalendar's own term.
+_Avoid_: Custom property
+
 ### Configuration
 
 **Option**:

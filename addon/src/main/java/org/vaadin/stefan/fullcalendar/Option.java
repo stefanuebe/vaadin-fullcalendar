@@ -673,7 +673,6 @@ public enum Option {
      * Exact programmatic control over where an entry can be dropped. Called after {@link #ENTRY_OVERLAP} and
      * {@link #ENTRY_CONSTRAINT} have allowed the position, for every new potential drop position while the user
      * is dragging. Must return a boolean synchronously.
-     * {@code draggedEvent} has {@code getCustomProperty()} available.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(dropInfo, draggedEvent)}. {@code dropInfo} has {@code start},
@@ -692,8 +691,7 @@ public enum Option {
 
     /**
      * CSS classes for entries, set on the outermost element of each entry.
-     * {@code info.event} has {@code getCustomProperty()} available. Background entries use their own
-     * {@code backgroundEvent*} hooks.
+     * Background entries use their own {@code backgroundEvent*} hooks.
      * <dl>
      *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart},
@@ -757,8 +755,7 @@ public enum Option {
     /**
      * Custom content for entries. The generated content is inserted inside the inner-most wrapper of the entry.
      * If given as callback, it is called every time the entry data changes.
-     * {@code info.event} has {@code getCustomProperty()} available. Background entries use their own
-     * {@code backgroundEvent*} hooks.
+     * Background entries use their own {@code backgroundEvent*} hooks.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart},
@@ -816,8 +813,7 @@ public enum Option {
     /**
      * Called right after an entry's DOM element has been added to the DOM. Not called again when the entry data
      * changes.
-     * {@code info.event} has {@code getCustomProperty()} available. Background entries use their own
-     * {@code backgroundEvent*} hooks.
+     * Background entries use their own {@code backgroundEvent*} hooks.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart},
@@ -1108,8 +1104,7 @@ public enum Option {
 
     /**
      * Called right before an entry's DOM element is removed from the DOM.
-     * {@code info.event} has {@code getCustomProperty()} available. Background entries use their own
-     * {@code backgroundEvent*} hooks.
+     * Background entries use their own {@code backgroundEvent*} hooks.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart},
