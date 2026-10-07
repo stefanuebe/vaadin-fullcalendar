@@ -41,11 +41,22 @@ public class Fc7OptionsTestView extends VerticalLayout {
         // Buttons set before attach: override the today text, add a custom button
         Map<String, Map<String, Object>> buttons = new LinkedHashMap<>();
         buttons.put(ToolbarParts.TODAY, Map.of("text", "Jump to now", "display", ButtonDisplay.TEXT));
+        // a button with an icon shows only the icon by default, the display setting shows the text instead
+        buttons.put("textOnly", Map.of("text", "Text only", "display", ButtonDisplay.TEXT,
+                "iconContent", Map.of("html", "<span class=\"hook-icon\">*</span>")));
+        // control: the same button without display shows its icon
+        buttons.put("iconAuto", Map.of("text", "Icon auto",
+                "iconContent", Map.of("html", "<span class=\"hook-icon\">*</span>")));
         buttons.put("custom1", Map.of("text", "Custom One", "click", JsCallback.of(CLICK_CALLBACK.formatted("custom1"))));
         calendar.setOption(Option.BUTTONS, buttons);
+        // Toolbar elements: content from a callback and plain text
+        calendar.setOption(Option.TOOLBAR_ELEMENTS, Map.of(
+                "callbackElement", JsCallback.of("function() { return { html: '<span class=\"hook-toolbar-element\">From callback</span>' }; }"),
+                "textElement", "Plain text element"));
         calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-                ToolbarParts.START, "prev,next today custom1",
-                ToolbarParts.CENTER, ToolbarParts.TITLE));
+                ToolbarParts.START, "prev,next today custom1 textOnly iconAuto",
+                ToolbarParts.CENTER, ToolbarParts.TITLE,
+                ToolbarParts.END, "callbackElement textElement"));
 
         // Entries: one timed, one all-day, one background
         Entry timed = new Entry();
@@ -97,8 +108,9 @@ public class Fc7OptionsTestView extends VerticalLayout {
             all.put("custom2", Map.of("text", "Custom Two", "click", JsCallback.of(CLICK_CALLBACK.formatted("custom2"))));
             calendar.setOption(Option.BUTTONS, all);
             calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-                    ToolbarParts.START, "prev,next today custom1 custom2",
-                    ToolbarParts.CENTER, ToolbarParts.TITLE));
+                    ToolbarParts.START, "prev,next today custom1 textOnly iconAuto custom2",
+                    ToolbarParts.CENTER, ToolbarParts.TITLE,
+                    ToolbarParts.END, "callbackElement textElement"));
         });
         applyLate.setId("apply-late-button");
         views.add(applyLate);

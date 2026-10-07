@@ -18,9 +18,12 @@ package org.vaadin.stefan.fullcalendar;
 
 /**
  * Horizontal alignment of header cell text. Used by {@link Option#DAY_HEADER_ALIGN}, {@link Option#SLOT_HEADER_ALIGN}
- * and the scheduler's resource day header alignment.
+ * and the scheduler's {@code SchedulerOption.RESOURCE_DAY_HEADER_ALIGN}. FullCalendar has no doc page for
+ * {@code slotHeaderAlign}, it takes the same values.
  *
  * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderAlign</a>
+ * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderAlign</a>
+ * @see Option#SLOT_HEADER_ALIGN
  */
 public enum HeaderAlign implements ClientSideValue {
     /** Aligned to the start (left in left-to-right calendars). */

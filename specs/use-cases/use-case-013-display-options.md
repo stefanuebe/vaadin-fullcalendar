@@ -102,8 +102,10 @@ calendar.setOption(Option.SCROLL_TIME, LocalTime.of(8, 0));
 - [ ] Custom scroll time positions timegrid correctly
 - [ ] Day cell and title formats change the shown text
 - [ ] `DAY_COUNT` and `DURATION` change the number of days shown
-- [ ] `NO_ENTRIES_TEXT` shows in an empty list view, `TODAY_TEXT` on the today button
-- [ ] `BORDERLESS_X` and `COLOR_SCHEME` change the calendar's appearance, `HEADING_LEVEL` sets `aria-level` of the title
+- [x] `NO_ENTRIES_TEXT` shows in an empty list view
+- [ ] `TODAY_TEXT` shows on the today button
+- [ ] `BORDERLESS_X` and `COLOR_SCHEME` change the calendar's appearance
+- [x] `HEADING_LEVEL` sets `aria-level` of the title
 
 ---
 

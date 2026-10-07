@@ -28,6 +28,19 @@ test.describe('FullCalendar 7 options', () => {
     await expect(page.locator('.fc-toolbar button', { hasText: 'Jump to now' })).toBeVisible();
   });
 
+  test('BUTTONS before attach: display shows the text instead of the icon', async ({ page }) => {
+    const button = page.locator('.fc-toolbar button', { hasText: 'Text only' });
+    await expect(button).toBeVisible();
+    await expect(button.locator('.hook-icon')).toHaveCount(0);
+    // control: without display the same kind of button shows only its icon
+    await expect(page.locator('.fc-toolbar button[aria-label="Icon auto"] .hook-icon')).toHaveCount(1);
+  });
+
+  test('TOOLBAR_ELEMENTS: callback content and plain text render where they are placed', async ({ page }) => {
+    await expect(page.locator('.fc-toolbar .hook-toolbar-element')).toHaveText('From callback');
+    await expect(page.locator('.fc-toolbar', { hasText: 'Plain text element' })).toBeVisible();
+  });
+
   test('BUTTONS before attach: custom button renders and runs its click callback', async ({ page }) => {
     const button = page.locator('.fc-toolbar button', { hasText: 'Custom One' });
     await expect(button).toBeVisible();

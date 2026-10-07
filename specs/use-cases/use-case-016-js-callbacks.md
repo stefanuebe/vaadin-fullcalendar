@@ -108,7 +108,7 @@ calendar.setOption(Option.ENTRY_WILL_UNMOUNT,
 - [ ] `SELECT_ALLOW` callback can accept/reject selections
 - [x] Extended props are accessible in JS callbacks via `extendedProps` (`entry-properties.spec.js`)
 - [ ] Scheduler render hooks customize resource rendering
-- [x] A representative hook of each family reaches the client and runs (`fc7-options.spec.js`)
+- [x] A representative hook of each new entry family and of the toolbar reaches the client and runs (`fc7-options.spec.js`). Day, slot and list-day hooks are covered by `display-options.spec.js`
 - [x] A `JsCallback` inside the `BUTTONS` map runs on click
 - [ ] Invalid JS does not crash the calendar — graceful degradation *(manual verification)*
 

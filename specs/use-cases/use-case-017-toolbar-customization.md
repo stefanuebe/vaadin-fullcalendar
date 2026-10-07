@@ -94,7 +94,7 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 | BR-06 | `BUTTONS` is a `Map` of button name to a `Map` of button properties (`text`, `hint`, `click`, `iconClass`, `iconContent`, `class` or `className`, `isPrimary`, `display`, `didMount`, `willUnmount`). The built-in names are the `ToolbarParts` constants. A custom button is shown only when its name is used in `HEADER_TOOLBAR` or `FOOTER_TOOLBAR` |
 | BR-07 | `JsCallback` values inside the `BUTTONS` map (and in any `Map` or `Collection` option value) are sent as callbacks, set before or after attach. They run in the browser only and cannot call server code by themselves. Before 8.0 such a value arrived as text |
 | BR-08 | `ButtonDisplay` is the value of `BUTTON_DISPLAY` and of a button's `display` property |
-| BR-09 | `TOOLBAR_ELEMENTS` is a `Map` of name to `JsCallback` returning content (text, `{html}` or `{domNodes}`), placed through its name in a toolbar string |
+| BR-09 | `TOOLBAR_ELEMENTS` is a `Map` of name to content: text, or a `JsCallback` returning content (text, `{html}` or `{domNodes}`). The element is placed through its name in a toolbar string |
 
 ---
 
@@ -105,9 +105,9 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 - [ ] Toolbar can be hidden
 - [ ] Footer toolbar works
 - [ ] ARIA labels are applied to buttons
-- [ ] A built-in button's text override and `display` reach the button
+- [x] A button's text override and `display` reach the button
 - [x] A custom button placed in a toolbar renders and its `click` callback runs in the browser, set before and after attach
-- [ ] `TOOLBAR_ELEMENTS` content renders where its name is placed
+- [x] `TOOLBAR_ELEMENTS` content renders where its name is placed
 - [x] Toolbar and button class options reach the elements
 
 ---
@@ -121,7 +121,7 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 
 ### E2E Tests
 - [x] `advanced-options.spec.js`: header and footer toolbar set as maps, view button switches the view
-- [x] `fc7-options.spec.js`: `BUTTONS` text override and custom button with click callback, set before and after attach; toolbar and button classes
+- [x] `fc7-options.spec.js`: `BUTTONS` text override, a button's `display`, custom button with click callback set before and after attach, `TOOLBAR_ELEMENTS` with callback and plain text content, toolbar and button classes
 
 ---
 

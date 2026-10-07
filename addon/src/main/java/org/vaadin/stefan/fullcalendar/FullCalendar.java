@@ -260,7 +260,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                     // since that is also cached as a property
                     ObjectNode optionsJson = JsonFactory.createObject();
                     if (!options.isEmpty()) {
-                        options.forEach((key, value) -> optionsJson.set(key, JsonUtils.toJsonNode(value)));
+                        options.forEach((key, value) -> optionsJson.set(key, toClientJson(value)));
                     }
 
                     getElement().callJsFunction("restoreStateFromServer",
@@ -723,10 +723,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
 
         if (attached) {
-            // a JsCallback nested in a map or collection (e.g. a button's click) only becomes a marker in our conversion
-            Object clientValue = value instanceof Map<?, ?> || value instanceof Collection<?>
-                    ? JsonUtils.toJsonNodeWithJackson(value) : value;
-            Object[] parameters = Stream.concat(Stream.of(option, clientValue), Stream.of(additionalParameters)).toArray(Object[]::new);
+            Object[] parameters = Stream.concat(Stream.of(option, toClientJson(value)),
+                    Stream.of(additionalParameters)).toArray(Object[]::new);
             getElement().callJsFunction(method, parameters);
         } else {
             ObjectNode initialOptions = (ObjectNode) getElement().getPropertyRaw("initialOptions");
@@ -738,9 +736,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             if (value == null) {
                 initialOptions.remove(option);
             } else {
-                initialOptions.set(option, JsonUtils.toJsonNode(value));
+                initialOptions.set(option, toClientJson(value));
             }
         }
+    }
+
+    /**
+     * Converts an option value for the client. Every path that sends options uses it, so a value reaches the client
+     * the same way before attach, after attach, on re-attach and inside view-specific options. A JsCallback nested
+     * in a map (e.g. a button's click) becomes a marker, other objects are serialized with Jackson.
+     */
+    private static JsonNode toClientJson(Object value) {
+        return JsonUtils.toJsonNodeWithJackson(value);
     }
 
     @Override
@@ -2079,7 +2086,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                     break;
                 }
             }
-            viewNode.set(optionKey, JsonUtils.toJsonNode(clientValue));
+            viewNode.set(optionKey, toClientJson(clientValue));
         }
         syncViewSpecificOptions();
     }
