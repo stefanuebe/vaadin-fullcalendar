@@ -123,20 +123,32 @@ public class InMemoryEntryProviderTest {
         assertOptionalEquals(entry3, provider.getEntryById(entry3.getId()));
     }
 
-//    @Test
-//    void test_UpdateEntries() {
-//        // checks only for exceptions
-//        InMemoryEntryProvider<Entry> provider = EntryProvider.emptyInMemory();
-//
-//        assertNPE(provider, c -> c.updateEntries((Entry[]) null));
-//        assertNPE(provider, c -> c.updateEntries((Iterable<Entry>) null));
-//
-//        provider.addEntries(entries);
-//        provider.addEntries(entry3);
-//
-//        provider.updateEntries(entries);
-//        provider.updateEntries(entry3);
-//    }
+    // Issue #270. updateEntries refreshes the entries on the client and then calls the update hook
+
+    @Test
+    void test_UpdateEntries_refreshesRegisteredEntriesKnownToTheClient() {
+        List<String> calls = new ArrayList<>();
+        InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>() {
+            @Override
+            public void onEntryUpdate(Entry entry) {
+                calls.add("hook:" + entry.getId());
+            }
+        };
+        provider.addEntryRefreshListener(event -> calls.add("refresh:" + event.getItemToRefresh().getId()));
+        assertNPE(provider, c -> c.updateEntries(null));
+
+        Entry entry4 = new Entry("4");
+        provider.addEntries(entry1, entry2, entry4);
+        entry1.setKnownToTheClient(true);
+        entry4.setKnownToTheClient(true);
+        entry3.setKnownToTheClient(true); // not registered in the provider
+        // entry2 is registered, but has not been sent to the client
+
+        provider.updateEntries(List.of(entry1, entry2, entry3, entry4));
+
+        // The order proves refresh before hook. It is only a weak guard against a parallel stream.
+        assertEquals(List.of("refresh:1", "hook:1", "refresh:4", "hook:4"), calls);
+    }
 
     @Test
     void test_RemoveEntriesArray() {
