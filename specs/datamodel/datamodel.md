@@ -37,7 +37,7 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `recurringEndDate` | `LocalDate` | End bound for recurrence range |
 | `recurringDuration` | `String` | Duration for multi-day recurring all-day entries (ISO 8601 string, e.g., `"P2D"`) |
 | `rrule` | `RRule` | RFC 5545 recurrence rule |
-| `customProperties` | `Map<String, Object>` | Arbitrary data accessible in JS callbacks via `setCustomProperty(key, value)` |
+| `extendedProps` | `Map<String, Object>` | Arbitrary data, set with `setExtendedProp(key, value)`, sent as `extendedProps` and read in JS callbacks as `event.extendedProps.<key>`. Never null. Objects are serialized with Jackson |
 
 **Serialization**: `Entry.toJson()` uses reflection-based `BeanProperties` with `@JsonName`, `@JsonConverter`, and `@JsonIgnore` annotations.
 
@@ -66,7 +66,7 @@ Represents a schedulable resource (room, person, equipment). Supports hierarchic
 | `children` | `Set<Resource>` | Child resources (hierarchical) |
 | `parent` | `Resource` | Parent resource (null for top-level) |
 | `businessHoursArray` | `BusinessHours[]` | Per-resource business hours |
-| `extendedProps` | `Map<String, Object>` | Custom properties |
+| `extendedProps` | `Map<String, Object>` | Arbitrary data (`setExtendedProp(key, value)`), sent flat on the top level of the resource JSON |
 | `entryContrastColor` | `String` | Per-resource entry contrast color, sent as `eventContrastColor` (Java setter: `setEntryContrastColor()`) |
 | `entryConstraint` | `String` | Per-resource entry constraint (Java setter: `setEntryConstraint()`) |
 | `entryOverlap` | `Boolean` | Per-resource entry overlap setting (Java setter: `setEntryOverlap()`) |

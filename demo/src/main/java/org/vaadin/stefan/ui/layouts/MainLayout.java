@@ -40,7 +40,7 @@ public class MainLayout extends AbstractLayout {
         addMenu(nav, CallbackEntryProviderDemo.class);
         addMenu(nav, BackendEntryProviderDemo.class);
         addMenu(nav, DemoWithTooltip.class);
-//        addMenu(nav, DemoCustomProperties.class); // TODO overhaul the demo first
+//        addMenu(nav, DemoExtendedProps.class); // TODO overhaul the demo first
 //        addMenu(nav, DemoCalendarWithBackgroundEvent.class); // TODO overhaul the demo first
         addMenu(nav, CustomViewDemo.class);
         addMenu(nav, MultiMonthCrossMonthSelectionDemo.class);

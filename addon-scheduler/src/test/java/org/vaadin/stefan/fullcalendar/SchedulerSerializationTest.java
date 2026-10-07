@@ -59,7 +59,7 @@ public class SchedulerSerializationTest {
     @Test
     void resourceWithBusinessHoursIsSerializable() throws Exception {
         Resource resource = new Resource("r1", "Room", "#123456", null, BusinessHours.businessWeek());
-        resource.addExtendedProps("capacity", 42);
+        resource.setExtendedProp("capacity", 42);
         assertNotNull(roundtrip(resource));
     }
 

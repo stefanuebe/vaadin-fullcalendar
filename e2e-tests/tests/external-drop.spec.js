@@ -54,7 +54,8 @@ base.describe('External Drop — Draggable API', () => {
         await expect(page.locator('#drop-component')).toHaveText('external-draggable', { timeout: 5000 });
         await expect(page.locator('#drop-entry')).toHaveText('External Task', { timeout: 5000 });
 
-        // the received entry carries the custom properties of the dragged entry data (#278)
-        await expect(page.locator('#receive-custom-property')).toHaveText('high', { timeout: 5000 });
+        // the dropped and the received entry carry the extended props of the dragged entry data
+        await expect(page.locator('#drop-extended-prop')).toHaveText('high', { timeout: 5000 });
+        await expect(page.locator('#receive-extended-prop')).toHaveText('high', { timeout: 5000 });
     });
 });

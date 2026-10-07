@@ -33,9 +33,6 @@ import 'fullcalendar/skeleton.css';
 import 'fullcalendar/themes/classic/theme.css';
 import 'fullcalendar/themes/classic/palette.css';
 
-// Render hooks whose info.event gets the custom property api (getCustomProperty) before the hook runs.
-const ENTRY_INFO_HOOKS = ['eventClass', 'eventContent', 'eventDidMount', 'eventWillUnmount'];
-
 // Simple type, that allows JS object property access via ["xyz"]
 export type IterableObject = {
     [key: string]: any,
@@ -45,10 +42,6 @@ export type IterableObject = {
 /**
  * Recursively walks a value and evaluates any JsCallback markers.
  * A JsCallback marker is an object with a {@code __jsCallback} string property.
- * <p>
- * Custom property injection (getCustomProperty on event objects) is NOT handled here —
- * it is applied by the monkey-patched calendar.setOption() and applyCustomPropertiesApi()
- * in initCalendar, based on a hard-coded set of well-known entry callback keys.
  * <p>
  * IMPORTANT: This function must only be called on option/config objects, never on
  * entry/event data arrays, to prevent accidental code execution from user data.
@@ -114,59 +107,6 @@ export class FullCalendar extends HTMLElement {
 
             this.initEventProviderCallbacks();
 
-            // override set option to allow a combination of internal and custom eventDidMount events
-            // hacky and needs to be maintained on updates, but currently there seems to be no other way
-            let _setOption = this._calendar.setOption;
-
-            // This function is to be used for callback options, where a function is provided to
-            // modify the event. The event will be extended with some custom api. Currently there is no
-            // other way then hook into e.g. eventDidMount or eventContent to do this.
-            let _setOptionCallbackWithCustomApi = (key: any, value: any) => {
-                let callback = (info: any) => {
-                    this.addCustomAPI(info.event);
-                    return value.call(this._calendar, info);
-                };
-
-                _setOption.call(this._calendar, key, callback);
-            };
-
-            // TODO this is somehow double to the initial options variant, might be reduced to one variant?
-            this._calendar.setOption = (key: any, value: any) => {
-                // Only functions get wrapped. Null/undefined clears the option, and plain values (a class name
-                // string for eventClass, a boolean for eventOverlap) pass through as they are.
-                if (typeof value !== 'function') {
-                    _setOption.call(this._calendar, key, value);
-                    return;
-                }
-
-                // Entry render hooks: inject getCustomProperty via info.event
-                if (ENTRY_INFO_HOOKS.includes(key)) {
-                    // in these cases add custom api to the event to allow for instance accessing custom properties
-                    _setOptionCallbackWithCustomApi.call(this._calendar, key, value);
-                // eventOverlap(stillEvent, movingEvent) — two direct event args
-                } else if (key === 'eventOverlap') {
-                    _setOption.call(this._calendar, key, (stillEvent: any, movingEvent: any) => {
-                        this.addCustomAPI(stillEvent);
-                        this.addCustomAPI(movingEvent);
-                        return value(stillEvent, movingEvent);
-                    });
-                // eventAllow(dropInfo, draggedEvent) — event is second arg
-                } else if (key === 'eventAllow') {
-                    _setOption.call(this._calendar, key, (dropInfo: any, draggedEvent: any) => {
-                        this.addCustomAPI(draggedEvent);
-                        return value(dropInfo, draggedEvent);
-                    });
-                // selectOverlap(event) — event is first arg
-                } else if (key === 'selectOverlap') {
-                    _setOption.call(this._calendar, key, (event: any) => {
-                        this.addCustomAPI(event);
-                        return value(event);
-                    });
-                } else {
-                    _setOption.call(this._calendar, key, value);
-                }
-            }
-
             // needed for method calls, that somehow access the calendar's internals.
             // FullCalendar resizes itself when the element changes size.
             this._calendar.render();
@@ -225,8 +165,6 @@ export class FullCalendar extends HTMLElement {
         for (const key of Object.keys(options)) {
             (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key]);
         }
-
-        this.applyCustomPropertiesApi(options);
 
         return options;
     }
@@ -395,13 +333,8 @@ export class FullCalendar extends HTMLElement {
                     title: event.title || '',
                     color: event.color || '',
                     display: event.display || '',
+                    extendedProps: event.extendedProps,
                 };
-
-                // FullCalendar moves unknown props of the dragged entry data into extendedProps. The server
-                // expects customProperties on the top level, so copy it back.
-                if (event.extendedProps && event.extendedProps.customProperties) {
-                    data.customProperties = event.extendedProps.customProperties;
-                }
 
                 // Remove the client-side phantom entry — the server will manage persistence
                 event.remove();
@@ -589,60 +522,6 @@ export class FullCalendar extends HTMLElement {
         this.calendar?.setOption("events", callback);
     }
 
-    private applyCustomPropertiesApi(options: any) {
-        // if the calendar is options to modify the event appearance, we extend the custom api here
-        // see _initCalendar for details
-
-        // Entry render hooks: inject getCustomProperty via info.event
-        for (const hookKey of ENTRY_INFO_HOOKS) {
-            if (typeof options[hookKey] === "function") {
-                const initHook = options[hookKey];
-                options[hookKey] = (info: any) => {
-                    this.addCustomAPI(info.event);
-                    return initHook.call(this._calendar, info);
-                };
-            }
-        }
-
-        // eventOverlap(stillEvent, movingEvent) — two direct event args
-        if (typeof options.eventOverlap === "function") {
-            const initOverlap = options.eventOverlap;
-            options.eventOverlap = (stillEvent: any, movingEvent: any) => {
-                this.addCustomAPI(stillEvent);
-                this.addCustomAPI(movingEvent);
-                return initOverlap.call(this._calendar, stillEvent, movingEvent);
-            };
-        }
-
-        // eventAllow(dropInfo, draggedEvent) — event is second arg
-        if (typeof options.eventAllow === "function") {
-            const initAllow = options.eventAllow;
-            options.eventAllow = (dropInfo: any, draggedEvent: any) => {
-                this.addCustomAPI(draggedEvent);
-                return initAllow.call(this._calendar, dropInfo, draggedEvent);
-            };
-        }
-
-        // selectOverlap(event) — event is first arg
-        if (typeof options.selectOverlap === "function") {
-            const initSelectOverlap = options.selectOverlap;
-            options.selectOverlap = (event: any) => {
-                this.addCustomAPI(event);
-                return initSelectOverlap.call(this._calendar, event);
-            };
-        }
-    }
-
-
-    private addCustomAPI = (event: any) => {
-        if (!event.getCustomProperty) {
-            // @ts-ignore
-            event.getCustomProperty = (key, defaultValue = undefined) => {
-                return FullCalendar.getCustomProperty(event, key, defaultValue);
-            }
-        }
-    };
-
     /**
      * Restores the state from the server. All values are optional and might be undefined.
      * @param options options to set
@@ -774,34 +653,6 @@ export class FullCalendar extends HTMLElement {
      */
     clearPendingRevert(entryId: string) {
         this._pendingReverts.delete(entryId);
-    }
-
-    /**
-     * Reads a custom property from an event. Please use this method for the case, that the access behavior changes in future.
-     * @param event event to read from
-     * @param key property key to read
-     * @param defaultValue
-     * @return {*} property value
-     */
-    static getCustomProperty(event: any, key: string, defaultValue: any = undefined) {
-        if (event.extendedProps && event.extendedProps.customProperties && event.extendedProps.customProperties[key]) {
-            return event.extendedProps.customProperties[key];
-        }
-
-        return defaultValue;
-    }
-
-    /**
-     * Writes a custom property to an event. Please use this method for the case, that the access behavior changes in future.
-     * @param event event to write to
-     * @param key property key to write
-     * @param value value to write
-     */
-    static setCustomProperty(event: any, key: string, value: any) {
-        if (!event.extendedProps.customProperties) {
-            event.setExtendedProp("customProperties", {});
-        }
-        event.extendedProps.customProperties[key] = value;
     }
 
     changeView(viewName: string, date: DateInput | DateRangeInput | undefined) {

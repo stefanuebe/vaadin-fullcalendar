@@ -1,4 +1,4 @@
-package org.vaadin.stefan.ui.view.demos.customproperties;
+package org.vaadin.stefan.ui.view.demos.extendedprops;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,15 +17,15 @@ import com.vaadin.flow.router.Route;
 import static org.vaadin.stefan.fullcalendar.Option.*;
 
 @Route(value = "demoextendedprops", layout = MainLayout.class)
-@MenuItem(label = "Custom Properties")
-public class DemoCustomProperties extends VerticalLayout {
+@MenuItem(label = "Extended Props")
+public class DemoExtendedProps extends VerticalLayout {
 	private static final long serialVersionUID = -117988331031719049L;
 
 	private FullCalendar calendar;
 	
 	private Entry selected;
 
-    public DemoCustomProperties() {
+    public DemoExtendedProps() {
     	createCalendarInstance();
     	addDemoEntrys();
 
@@ -42,19 +42,19 @@ public class DemoCustomProperties extends VerticalLayout {
 
         calendar.setOption(ENTRY_DID_MOUNT,
                 JsCallback.of("function (info) {" +
-                "info.el.style.backgroundColor = info.event.getCustomProperty('selected', false) ? 'lightblue' : 'lightgreen';" +
+                "info.el.style.backgroundColor = info.event.extendedProps.selected ? 'lightblue' : 'lightgreen';" +
                 "}"));
 
         calendar.addEntryClickedListener(e -> {
             Entry oldSelected = this.selected;
             if (oldSelected != null) {
-                oldSelected.setCustomProperty("selected", false);
+                oldSelected.setExtendedProp("selected", false);
             }
 
             var entryProvider = calendar.getEntryProvider().asInMemory();
 
             this.selected = e.getEntry();
-            this.selected.setCustomProperty("selected", true);
+            this.selected.setExtendedProp("selected", true);
             if (oldSelected != null) {
                 entryProvider.removeEntries(oldSelected, this.selected);
                 entryProvider.addEntries(oldSelected, this.selected);
@@ -79,7 +79,7 @@ public class DemoCustomProperties extends VerticalLayout {
             entry.setStart(start.atStartOfDay());
             entry.setEnd(end.atTime(LocalTime.MAX));
             if (i == 1) {
-                entry.setCustomProperty("selected", true);
+                entry.setExtendedProp("selected", true);
                 selected = entry;
             }
             calendar.getEntryProvider().asInMemory().addEntry(entry);

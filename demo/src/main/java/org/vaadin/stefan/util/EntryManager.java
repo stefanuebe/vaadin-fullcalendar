@@ -136,7 +136,7 @@ public class EntryManager {
         entry.setEnd(entry.getStart().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
-        entry.setCustomProperty("description", "Description of " + title);
+        entry.setExtendedProp("description", "Description of " + title);
     }
 
     static void setValues(FullCalendar calendar, ResourceEntry entry, String title, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color, HashMap<String, Object> extendedProps) {
@@ -145,7 +145,7 @@ public class EntryManager {
         entry.setEnd(entry.getStart().plus(amountToAdd, unit));
         entry.setAllDay(unit == ChronoUnit.DAYS);
         entry.setColor(color);
-        entry.setCustomProperties(extendedProps);
+        entry.setExtendedProps(extendedProps);
     }
 
     static void setValues(FullCalendar calendar, ResourceEntry entry, LocalDateTime start, int amountToAdd, ChronoUnit unit, String color) {

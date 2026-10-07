@@ -74,7 +74,7 @@ public class Resource implements Serializable {
     private Resource parent;
 
     /**
-     * The custom property list
+     * The extended props, sent flat on the top level of the resource JSON
      */
     private final HashMap<String, Object> extendedProps = new HashMap<>();
 
@@ -253,37 +253,26 @@ public class Resource implements Serializable {
     }
 
     /**
-     * Adds or updates a custom extended property on this resource. If this resource has been
-     * added to a scheduler, the change is propagated to the client immediately.
+     * Sets an extended prop, a value the client library does not know itself. An existing value is overwritten.
+     * If this resource has been added to a scheduler, the change is propagated to the client immediately.
+     * Objects other than strings, numbers, booleans, maps, collections and arrays are serialized with Jackson.
      *
      * @param key   property name
      * @param value property value
      */
-    public void addExtendedProps(String key, Object value) {
+    public void setExtendedProp(String key, Object value) {
         extendedProps.put(key, value);
         pushUpdateToClient();
     }
 
     /**
-     * Removes a custom extended property from this resource by key. If this resource has been
-     * added to a scheduler, the change is propagated to the client immediately.
+     * Removes an extended prop from this resource. If this resource has been added to a scheduler, the change is
+     * propagated to the client immediately.
      *
      * @param key property name to remove
      */
-    public void removeExtendedProps(String key) {
+    public void removeExtendedProp(String key) {
         extendedProps.remove(key);
-        pushUpdateToClient();
-    }
-
-    /**
-     * Removes a custom extended property from this resource only if it matches both key and value.
-     * If this resource has been added to a scheduler, the change is propagated to the client immediately.
-     *
-     * @param key   property name to remove
-     * @param value value that must match
-     */
-    public void removeExtendedProps(String key, Object value) {
-        extendedProps.remove(key, value);
         pushUpdateToClient();
     }
 
@@ -557,7 +546,7 @@ public class Resource implements Serializable {
         HashMap<String, Object> extendedProps = getExtendedProps();
         if (!extendedProps.isEmpty()) {
             for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
-            	jsonObject.set(prop.getKey(), JsonUtils.toJsonNode(prop.getValue()));
+                jsonObject.set(prop.getKey(), JsonUtils.toJsonNodeWithJackson(prop.getValue()));
             }
         }
 

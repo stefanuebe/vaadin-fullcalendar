@@ -90,7 +90,7 @@ public class SerializationTest {
         Entry entry = new Entry();
         entry.setTitle("Standalone");
         entry.setStart(LocalDateTime.now());
-        entry.setCustomProperty("foo", "bar");
+        entry.setExtendedProp("foo", "bar");
         assertNotNull(roundtrip(entry));
     }
 

@@ -99,11 +99,11 @@ public class FullDemo extends AbstractSchedulerView {
 
         LocalDate now = LocalDate.now();
         EntryManager.createDayEntry(calendar, "Test 1", now.withDayOfMonth(12), 2, "lightgreen")
-                .setCustomProperty("count", "3");
+                .setExtendedProp("count", "3");
         EntryManager.createDayEntry(calendar, "Test 2", now.withDayOfMonth(12), 2, "tomato")
-                .setCustomProperty("count", "2");
+                .setExtendedProp("count", "2");
         EntryManager.createDayEntry(calendar, "Test 3", now.withDayOfMonth(12), 2, "lightblue")
-                .setCustomProperty("count", "1");
+                .setExtendedProp("count", "1");
 
         scheduler.setOption(SchedulerOption.ENTRY_RESOURCE_EDITABLE, false);
 

@@ -27,7 +27,7 @@ import java.io.Serializable;
  * the resource area becomes a multi-column data grid with a header row.
  * <p>
  * Each column maps to a resource property name (from the resource's built-in fields or
- * {@link Resource#addExtendedProps(String, Object) extendedProps}).
+ * {@link Resource#setExtendedProp(String, Object) extendedProps}).
  * <p>
  * Use the fluent {@code withXxx()} methods to configure optional properties:
  * <pre>{@code
@@ -61,7 +61,7 @@ public class ResourceColumn implements Serializable {
      * Creates a new column definition for the given resource field name.
      * The field name must match a property in the resource's JSON representation
      * (e.g., {@code "title"}, {@code "eventColor"}, or any key added via
-     * {@link Resource#addExtendedProps(String, Object)}).
+     * {@link Resource#setExtendedProp(String, Object)}).
      *
      * @param field the resource property name to display in this column; must not be null
      */

@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ResourceTest {
 
@@ -206,32 +207,53 @@ public class ResourceTest {
     }
 
     // -------------------------------------------------------------------------
-    // addExtendedProps / removeExtendedProps
+    // setExtendedProp / removeExtendedProp
     // -------------------------------------------------------------------------
 
     @Test
-    void addExtendedProps_storesValue() {
+    void setExtendedProp_storesValue() {
         Resource resource = new Resource();
-        resource.addExtendedProps("dept", "Engineering");
+        resource.setExtendedProp("dept", "Engineering");
         Assertions.assertEquals("Engineering", resource.getExtendedProps().get("dept"));
     }
 
     @Test
-    void removeExtendedProps_byKey_removesValue() {
+    void removeExtendedProp_removesValue() {
         Resource resource = new Resource();
-        resource.addExtendedProps("dept", "Engineering");
-        resource.removeExtendedProps("dept");
+        resource.setExtendedProp("dept", "Engineering");
+        resource.removeExtendedProp("dept");
         Assertions.assertFalse(resource.getExtendedProps().containsKey("dept"));
     }
 
+    /**
+     * FullCalendar spreads every non-standard key of the entry JSON into extendedProps, where it would overwrite an
+     * extended prop of the same name. The keys ResourceEntry adds to Entry's must be ones FullCalendar parses itself.
+     * Entry's own keys are checked in the core add-on's EntryTest.
+     */
     @Test
-    void removeExtendedProps_byKeyAndValue_removesOnlyOnMatch() {
+    void resourceEntry_addsOnlyFullCalendarEventKeys() {
+        Set<String> entryKeys = jsonNames(new Entry());
+        Set<String> resourceEntryKeys = jsonNames(new ResourceEntry());
+        resourceEntryKeys.removeAll(entryKeys);
+
+        Assertions.assertEquals(Set.of("resourceIds", "resourceEditable"), resourceEntryKeys);
+    }
+
+    private static Set<String> jsonNames(Entry entry) {
+        return entry.streamProperties()
+                .filter(def -> !def.isJsonIgnored())
+                .map(BeanProperties::getJsonName)
+                .collect(Collectors.toSet());
+    }
+
+    @Test
+    void setExtendedProp_serializesObjectValuesWithJackson() {
         Resource resource = new Resource();
-        resource.addExtendedProps("dept", "Engineering");
-        resource.removeExtendedProps("dept", "HR");           // wrong value — not removed
-        Assertions.assertTrue(resource.getExtendedProps().containsKey("dept"));
-        resource.removeExtendedProps("dept", "Engineering");  // correct value — removed
-        Assertions.assertFalse(resource.getExtendedProps().containsKey("dept"));
+        resource.setExtendedProp("room", new Room("Atlas", 3));
+        Assertions.assertEquals("Atlas", resource.toJson().get("room").get("name").asString());
+    }
+
+    record Room(String name, int floor) {
     }
 
     @Test
@@ -360,8 +382,8 @@ public class ResourceTest {
     @Test
     void extendedProps_inJson_asTopLevelKeys() {
         Resource resource = new Resource("r1", "Room 1", null);
-        resource.addExtendedProps("department", "Engineering");
-        resource.addExtendedProps("capacity", 42);
+        resource.setExtendedProp("department", "Engineering");
+        resource.setExtendedProp("capacity", 42);
 
         ObjectNode json = resource.toJson();
 

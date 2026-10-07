@@ -487,7 +487,7 @@ public class ComponentResourceColumnTest {
         calendar.setResourceColumns(List.of(col));
 
         Resource res = new Resource(null, "Room A", null);
-        res.addExtendedProps("custom", "value");
+        res.setExtendedProp("custom", "value");
         calendar.addResource(res);
 
         Assertions.assertSame(res, captured[0], "callback should receive the same Resource object");

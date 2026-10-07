@@ -22,7 +22,7 @@ import java.time.LocalDate;
  * extended property changes to the client.
  * <p>
  * Renders a scheduler with one resource carrying an extended prop {@code department=Engineering}.
- * A button triggers {@code setExtendedProps("department", "Marketing")} followed by
+ * A button triggers {@code setExtendedProp("department", "Marketing")} followed by
  * {@code updateResource(resource)}. The Playwright spec reads the prop from the FC client via
  * {@code calendar.getResourceById('r1').extendedProps.department} before and after the click.
  * <p>
@@ -48,11 +48,11 @@ public class UpdateResourceExtendedPropsTestView extends VerticalLayout {
         calendar.changeView(SchedulerView.RESOURCE_TIMELINE_WEEK);
 
         Resource room = new Resource("r1", "Room 1", null);
-        room.addExtendedProps("department", "Engineering");
+        room.setExtendedProp("department", "Engineering");
         calendar.addResource(room);
 
         Button updateBtn = new Button("Change department", e -> {
-            room.addExtendedProps("department", "Marketing");
+            room.setExtendedProp("department", "Marketing");
             calendar.updateResource(room);
         });
         updateBtn.getElement().setAttribute("data-testid", "btn-change-dept");

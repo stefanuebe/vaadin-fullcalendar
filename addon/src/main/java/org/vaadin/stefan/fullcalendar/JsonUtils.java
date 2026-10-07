@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import com.vaadin.flow.function.SerializableFunction;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeType;
 import tools.jackson.databind.node.ObjectNode;
@@ -111,6 +112,17 @@ public final class JsonUtils {
         }
 
         return customConverter != null ? customConverter.apply(value) : JsonFactory.create(String.valueOf(value));
+    }
+
+    /**
+     * Converts the given object like {@link #toJsonNode(Object)}, but serializes any object without a default
+     * conversion with Jackson instead of sending its {@code toString()}.
+     *
+     * @param value value
+     * @return json value
+     */
+    public static JsonNode toJsonNodeWithJackson(Object value) {
+        return toJsonNode(value, object -> JsonMapper.shared().valueToTree(object));
     }
 
     /**
