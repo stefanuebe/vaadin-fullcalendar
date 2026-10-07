@@ -1,11 +1,14 @@
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.flow.dom.DomEvent;
+import com.vaadin.flow.internal.nodefeature.ElementListenerMap;
 import com.vaadin.flow.shared.Registration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.FullCalendar.Option;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -469,5 +472,74 @@ public class EventSourcesTest {
         assertNotNull(event.getOldEnd());
         // oldEnd should be 1 hour before newEnd
         assertEquals(event.getEntry().getEnd().minusHours(1), event.getOldEnd());
+    }
+
+    // Issue #284. The events carry the id the entry has in its source
+
+    @Test
+    void externalEntryDrop_keepsSourceIdOfEntry() {
+        List<ExternalEntryDroppedEvent> received = new ArrayList<>();
+        calendar.addExternalEntryDroppedListener(received::add);
+
+        fireEntrySourceDomEvent("externalEntryDrop");
+
+        assertEquals(1, received.size());
+        assertEquals("ext-1", received.get(0).getEntry().getId());
+        assertEquals("my-feed", received.get(0).getSourceId());
+    }
+
+    @Test
+    void externalEntryResize_keepsSourceIdOfEntry() {
+        List<ExternalEntryResizedEvent> received = new ArrayList<>();
+        calendar.addExternalEntryResizedListener(received::add);
+
+        fireEntrySourceDomEvent("externalEntryResize");
+
+        assertEquals(1, received.size());
+        assertEquals("ext-1", received.get(0).getEntry().getId());
+        assertEquals("my-feed", received.get(0).getSourceId());
+    }
+
+    @Test
+    void externalEntryDroppedEvent_withoutId_generatesOne() {
+        ObjectNode entryData = JsonFactory.createObject();
+        entryData.put("start", "2025-03-10T10:00:00Z");
+        entryData.put("allDay", false);
+        ObjectNode delta = JsonFactory.createObject();
+        delta.put("years", 0);
+        delta.put("months", 0);
+        delta.put("days", 1);
+        delta.put("milliseconds", 0L);
+
+        ExternalEntryDroppedEvent event = new ExternalEntryDroppedEvent(calendar, true, entryData, delta, "my-feed");
+
+        assertNotNull(event.getEntry().getId());
+    }
+
+    /**
+     * Fires the given client event on the calendar element, as the client does for an entry source entry. The event
+     * name and the detail keys mirror {@code full-calendar.ts}. A browser test would have to drag an entry of an
+     * editable entry source, which is not worth its cost here.
+     */
+    private void fireEntrySourceDomEvent(String eventName) {
+        ObjectNode entryData = JsonFactory.createObject();
+        entryData.put("id", "ext-1");
+        entryData.put("start", "2025-03-10T10:00:00Z");
+        entryData.put("end", "2025-03-10T11:00:00Z");
+        entryData.put("allDay", false);
+
+        ObjectNode delta = JsonFactory.createObject();
+        delta.put("years", 0);
+        delta.put("months", 0);
+        delta.put("days", 1);
+        delta.put("milliseconds", 0L);
+
+        ObjectNode eventData = JsonFactory.createObject();
+        eventData.set("event.detail.data", entryData);
+        eventData.set("event.detail.delta", delta);
+        eventData.put("event.detail.sourceId", "my-feed");
+
+        calendar.getElement().getNode().getFeature(ElementListenerMap.class)
+                .fireEvent(new DomEvent(calendar.getElement(), eventName, eventData));
     }
 }

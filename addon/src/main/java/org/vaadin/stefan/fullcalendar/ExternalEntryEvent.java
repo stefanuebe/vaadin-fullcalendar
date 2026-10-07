@@ -52,9 +52,10 @@ public abstract class ExternalEntryEvent extends ComponentEvent<FullCalendar> {
     protected ExternalEntryEvent(FullCalendar source, boolean fromClient,
                                  ObjectNode entryData, String sourceId) {
         super(source, fromClient);
-        Entry e = new Entry();
-        e.updateFromJson(entryData, false);
-        this.entry = e;
+        // keep the id the entry has in its source, so the developer can find the record there
+        Entry entry = new Entry(entryData.hasNonNull("id") ? entryData.get("id").asString() : null);
+        entry.updateFromJson(entryData, false);
+        this.entry = entry;
         this.sourceId = sourceId;
     }
 }
