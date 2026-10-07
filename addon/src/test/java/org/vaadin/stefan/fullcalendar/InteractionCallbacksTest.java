@@ -204,6 +204,17 @@ public class InteractionCallbacksTest {
         assertNotNull(event.getEntry().getStart());
     }
 
+    @Test
+    void entryReceiveEvent_readsCustomProperties() {
+        ObjectNode json = JsonFactory.createObject();
+        json.put("start", "2025-03-10T09:00:00Z");
+        json.putObject("customProperties").put("priority", "high").put("weight", 3);
+
+        EntryReceiveEvent event = new EntryReceiveEvent(calendar, true, json, null);
+        assertEquals("high", event.getEntry().getCustomProperty("priority"));
+        assertEquals(3, event.getEntry().<Number>getCustomProperty("weight").intValue());
+    }
+
     // -------------------------------------------------------------------------
     // TimeslotsUnselectEvent — no-payload constructor
     // -------------------------------------------------------------------------
