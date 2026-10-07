@@ -1021,8 +1021,8 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Checks, if the duration of this entry is editable. An explicitly set {@code durationEditable} wins, as in
-     * FullCalendar. Otherwise the entry falls back to {@link #isEditable()}.
+     * Checks, if the duration of this entry is editable. An explicitly set {@code durationEditable} wins.
+     * Otherwise the entry falls back to {@link #isEditable()}.
      * @return is duration editable
      */
     public boolean isDurationEditable() {
@@ -1030,8 +1030,8 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Checks, if the start of this entry is editable. An explicitly set {@code startEditable} wins, as in
-     * FullCalendar. Otherwise the entry falls back to {@link #isEditable()}.
+     * Checks, if the start of this entry is editable. An explicitly set {@code startEditable} wins.
+     * Otherwise the entry falls back to {@link #isEditable()}.
      * @return is start editable
      */
     public boolean isStartEditable() {
