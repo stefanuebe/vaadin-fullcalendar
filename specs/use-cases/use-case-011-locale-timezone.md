@@ -32,9 +32,13 @@
 calendar.setOption(Option.LOCALE, Locale.GERMAN);
 
 // Set timezone
-calendar.setTimezone(new Timezone(ZoneId.of("Europe/Berlin")));
+calendar.setOption(Option.TIMEZONE, new Timezone(ZoneId.of("Europe/Berlin")));
+// or as zone id, stored as Timezone
+calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
 // or UTC
-calendar.setTimezone(Timezone.UTC);
+calendar.setOption(Option.TIMEZONE, Timezone.UTC);
+// typed read, Timezone.UTC when not set
+Timezone timezone = calendar.getTimezone();
 
 // Override first day of week
 calendar.setOption(Option.FIRST_DAY, DayOfWeek.MONDAY);

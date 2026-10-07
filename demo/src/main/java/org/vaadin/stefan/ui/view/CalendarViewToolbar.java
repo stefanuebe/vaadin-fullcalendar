@@ -303,7 +303,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         timezoneSelector.addValueChangeListener(event -> {
             if (!Objects.equals(calendar.getTimezone(), event.getValue())) {
                 Timezone value = event.getValue();
-                calendar.setTimezone(value != null ? value : Timezone.UTC);
+                calendar.setOption(Option.TIMEZONE, value != null ? value : Timezone.UTC);
                 Notification.show("Timezone changed to " + calendar.getTimezone());
             }
         });
@@ -329,7 +329,8 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         validRangeEnd.setClearButtonVisible(true);
 
         validRangeStart.addValueChangeListener(event -> {
-            calendar.setValidRange(validRangeStart.getValue(), validRangeEnd.getValue());
+            calendar.setOption(Option.VALID_RANGE, validRangeStart.getValue() == null && validRangeEnd.getValue() == null
+                    ? null : new DateRange(validRangeStart.getValue(), validRangeEnd.getValue()));
 
             if (event.getValue() != null) {
                 validRangeEnd.setMin(event.getValue().plusDays(1));
@@ -339,7 +340,8 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
 
         });
         validRangeEnd.addValueChangeListener(event -> {
-            calendar.setValidRange(validRangeStart.getValue(), validRangeEnd.getValue());
+            calendar.setOption(Option.VALID_RANGE, validRangeStart.getValue() == null && validRangeEnd.getValue() == null
+                    ? null : new DateRange(validRangeStart.getValue(), validRangeEnd.getValue()));
 
             if (event.getValue() != null) {
                 validRangeStart.setMax(event.getValue().minusDays(1));

@@ -147,7 +147,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      */
     public FullCalendar() {
         setOption(Option.LOCALE, CalendarLocale.getDefaultLocale());
-        setMaxEntriesPerDayUnlimited();
+        setOption(Option.DAY_MAX_ENTRIES, false);
         postConstruct();
     }
 
@@ -657,6 +657,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     private void callOptionUpdate(String option, Object value, Object valueForServerSide, String method, Serializable... additionalParameters) {
         Objects.requireNonNull(option);
 
+        // 0. A time zone given as id is kept as Timezone, so getTimezone() and the offset helpers can rely on it
+        if (Option.TIMEZONE.getOptionKey().equals(option) && value instanceof String id && valueForServerSide == null) {
+            value = parseTimezone(id);
+        }
+
         // 1. ENTRY_DID_MOUNT intercept: detect this key and route to merge logic
         if (Option.ENTRY_DID_MOUNT.getOptionKey().equals(option)) {
             boolean removed;
@@ -902,10 +907,29 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     }
 
     /**
+     * Turns a time zone id into a {@link Timezone}. FullCalendar's {@code "local"} is rejected, because the server
+     * needs the real zone to compute entry offsets.
+     */
+    private static Timezone parseTimezone(String id) {
+        if ("local".equalsIgnoreCase(id)) {
+            throw new IllegalArgumentException("The time zone \"local\" is not supported, because the server needs the "
+                    + "real zone. Use withAutoBrowserTimezone() to follow the browser's time zone.");
+        }
+        try {
+            return new Timezone(ZoneId.of(id));
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException("Unknown time zone id: " + id, e);
+        }
+    }
+
+    /**
      * Sets the timezone the calendar shall show. Does not affect the entries directly but only their client side displayment.
      *
-     * @param timezone
+     * @param timezone time zone
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#TIMEZONE}, which takes a {@link Timezone}
+     * or a time zone id
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setTimezone(Timezone timezone) {
         Objects.requireNonNull(timezone);
 
@@ -924,7 +948,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
      *
      * @param maxEntriesPerDay maximal entries per day
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#DAY_MAX_ENTRIES} and the number
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setMaxEntriesPerDay(int maxEntriesPerDay) {
         setOption(Option.DAY_MAX_ENTRIES, maxEntriesPerDay);
     }
@@ -935,7 +961,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see #setMaxEntriesPerDay(int)
      * @see #setMaxEntriesPerDayUnlimited()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#DAY_MAX_ENTRIES} and {@code true}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setMaxEntriesPerDayFitToCell() {
         setOption(Option.DAY_MAX_ENTRIES, true);
     }
@@ -946,7 +974,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @see #setMaxEntriesPerDay(int)
      * @see #setMaxEntriesPerDayFitToCell()
      * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#DAY_MAX_ENTRIES} and {@code false}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setMaxEntriesPerDayUnlimited() {
         setOption(Option.DAY_MAX_ENTRIES, false);
     }
@@ -1726,9 +1756,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
      * @param moreLinkClickAction action to set
      * @see MoreLinkClickAction
      * @see Option#MORE_LINK_CLICK
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#MORE_LINK_CLICK}, which takes the
+     * {@link MoreLinkClickAction}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setMoreLinkClickAction(MoreLinkClickAction moreLinkClickAction) {
-        getElement().setProperty("moreLinkClickAction", (moreLinkClickAction != null ? moreLinkClickAction : MoreLinkClickAction.POPUP).getClientSideValue());
+        setOption(Option.MORE_LINK_CLICK, moreLinkClickAction);
     }
 
 
@@ -1788,63 +1821,53 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
     /**
      * Restricts the calendar so the user cannot navigate before {@code start}. Dates before this date are grayed
      * out and the previous-navigation buttons stop at this boundary. The end of the valid range remains open.
-     * <br><br>
-     * Use {@link #setValidRange(LocalDate, LocalDate)} to set both boundaries at once, or
-     * {@link #clearValidRange()} to remove the restriction.
      *
      * @param start earliest date the user can navigate to; must not be null
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and
+     * {@code new DateRange(start, null)}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setValidRangeStart(LocalDate start) {
-        setValidRange(start, null);
+        setOption(Option.VALID_RANGE, new DateRange(start, null));
     }
 
     /**
      * Restricts the calendar so the user cannot navigate past {@code end}. Dates after this date are grayed
      * out and the next-navigation buttons stop at this boundary. The start of the valid range remains open.
-     * <br><br>
-     * Use {@link #setValidRange(LocalDate, LocalDate)} to set both boundaries at once, or
-     * {@link #clearValidRange()} to remove the restriction.
      *
      * @param end latest date the user can navigate to; must not be null
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and
+     * {@code new DateRange(null, end)}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setValidRangeEnd(LocalDate end) {
-        setValidRange(null, end);
+        setOption(Option.VALID_RANGE, new DateRange(null, end));
     }
 
     /**
      * Restricts navigation to the given date range. Dates outside the range are grayed out and navigation
      * buttons stop at the boundaries. Pass {@code null} for either boundary to leave it open-ended.
      * Pass {@code null} for both to remove all restrictions (same as {@link #clearValidRange()}).
-     * <br><br>
-     * A static valid range set here is overridden if {@link Option#VALID_RANGE} is also configured with a
-     * {@link JsCallback}.
      *
      * @param start earliest navigable date, or {@code null} for open start
      * @param end   latest navigable date, or {@code null} for open end
      * @throws IllegalArgumentException if both are non-null and {@code start} is not before {@code end}
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and a {@link DateRange}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setValidRange(LocalDate start, LocalDate end) {
-        if (start != null && end != null && !(start.isBefore(end))) {
-            throw new IllegalArgumentException("Start must be before end");
-        }
-
-        ObjectNode jsonObject = JsonFactory.createObject();
-        if (start != null) {
-            jsonObject.put("start", JsonUtils.formatClientSideDateString(start));
-        }
-        if (end != null) {
-            jsonObject.put("end", JsonUtils.formatClientSideDateString(end));
-        }
-        setOption(Option.VALID_RANGE, jsonObject);
+        setOption(Option.VALID_RANGE, start == null && end == null ? null : new DateRange(start, end));
     }
 
     /**
      * Removes any navigation restriction previously set by {@link #setValidRange}, {@link #setValidRangeStart},
      * or {@link #setValidRangeEnd}. Also removes a dynamic valid range callback ({@link Option#VALID_RANGE})
      * if one had been set before. The user can navigate freely again.
+     *
+     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and {@code null}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void clearValidRange() {
-        setValidRange(null, null);
         setOption(Option.VALID_RANGE, null);
     }
 

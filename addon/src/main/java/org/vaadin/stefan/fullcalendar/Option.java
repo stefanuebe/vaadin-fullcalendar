@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.apache.commons.text.CaseUtils;
 import org.vaadin.stefan.fullcalendar.converters.BusinessHoursConverter;
+import org.vaadin.stefan.fullcalendar.converters.DateRangeConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekArrayConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.DurationConverter;
@@ -1629,7 +1630,8 @@ public enum Option {
     /**
      * Determines what happens when the user clicks a "+N more" link (created by the max entries options).
      * <dl>
-     *   <dt>Type</dt>     <dd>{@code String} ({@code "popover"} | {@code "week"} | {@code "day"} | view name) | {@link JsCallback}</dd>
+     *   <dt>Type</dt>     <dd>{@link FullCalendar.MoreLinkClickAction} | {@code String} ({@code "popover"} | {@code "week"} |
+     *                         {@code "day"} | view name) | {@link JsCallback}</dd>
      *   <dt>Default</dt>  <dd>{@code "popover"}</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code allSegs} (all entry
      *                         segments of the day), {@code hiddenSegs} (segments not displayed before) and
@@ -1637,10 +1639,12 @@ public enum Option {
      *   <dt>Returns</dt>  <dd>optionally a string like {@code "day"}, which is processed as the new value of the option</dd>
      * </dl>
      * <pre>{@code
+     * calendar.setOption(Option.MORE_LINK_CLICK, FullCalendar.MoreLinkClickAction.DAY);
      * calendar.setOption(Option.MORE_LINK_CLICK, JsCallback.of("function(info) { return 'day'; }"));
      * }</pre>
+     * {@link FullCalendar#addMoreLinkClickedListener(com.vaadin.flow.component.ComponentEventListener)} receives the
+     * click with every value, also with a callback.
      *
-     * @see FullCalendar#setMoreLinkClickAction(MoreLinkClickAction)
      * @see <a href="https://fullcalendar.io/docs/moreLinkClick">moreLinkClick</a>
      */
     MORE_LINK_CLICK,
@@ -2662,13 +2666,19 @@ public enum Option {
      * Time zone used for displaying and interpreting dates on the calendar. It affects the displayed times of entries,
      * their position on the calendar and the dates the client sends to the server.
      * <dl>
-     *   <dt>Type</dt> <dd>{@code String} (e.g., {@code "local"}, {@code "UTC"}, {@code "America/New_York"}) | {@link Timezone}</dd>
+     *   <dt>Type</dt> <dd>{@link Timezone} | time zone id as {@code String} (e.g., {@code "UTC"},
+     *                     {@code "America/New_York"}), stored as {@link Timezone}. FullCalendar's {@code "local"} is
+     *                     rejected with an {@link IllegalArgumentException}, because the server needs the real zone to
+     *                     compute entry offsets.</dd>
      *   <dt>Default</dt> <dd>{@code "UTC"}, set by the add-on (FullCalendar's own default is {@code "local"}).
      *                        {@link FullCalendar#getTimezone()} returns {@code Timezone.UTC} as long as the option is
      *                        not set.</dd>
      * </dl>
+     * <pre>{@code
+     * calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
+     * Timezone timezone = calendar.getTimezone(); // Europe/Berlin
+     * }</pre>
      *
-     * @see FullCalendar#setTimezone(Timezone)
      * @see FullCalendar#getTimezone()
      * @see <a href="https://fullcalendar.io/docs/timeZone">timeZone</a>
      */
@@ -2719,24 +2729,25 @@ public enum Option {
      * entries cannot be dragged or resized into them, and the prev/next buttons are disabled when they would leave the
      * range.
      * <dl>
-     *   <dt>Type</dt> <dd>object with {@code start} and/or {@code end} date strings (one may be omitted for an
-     *                     open-ended range) | {@link JsCallback} returning such an object</dd>
+     *   <dt>Type</dt> <dd>{@link DateRange} | object with {@code start} and/or {@code end} date strings (one may be
+     *                     omitted for an open-ended range) | {@link JsCallback} returning such an object</dd>
      *   <dt>Callback</dt> <dd>{@code function(todayDate)}. {@code todayDate} is the start of the day of "now" as a
      *                         {@code Date}. The function is called several times per view render, so keep it cheap. No
      *                         info object is involved.</dd>
      *   <dt>Returns</dt> <dd>object with {@code start} and/or {@code end}</dd>
      * </dl>
      * <pre>{@code
+     * // fixed range: March and April 2025
+     * calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1)));
+     *
      * // open-ended range: nothing before today
      * calendar.setOption(Option.VALID_RANGE,
      *         JsCallback.of("function(todayDate) { return { start: todayDate }; }"));
      * }</pre>
      *
-     * @see FullCalendar#setValidRange(LocalDate, LocalDate)
-     * @see FullCalendar#setValidRangeStart(LocalDate)
-     * @see FullCalendar#setValidRangeEnd(LocalDate)
      * @see <a href="https://fullcalendar.io/docs/validRange">validRange</a>
      */
+    @JsonConverter(DateRangeConverter.class)
     VALID_RANGE,
 
     /**

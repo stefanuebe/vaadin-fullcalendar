@@ -54,7 +54,7 @@ public class DisplayOptionsTestView extends VerticalLayout {
         // DAY_MAX_ENTRIES (= FC dayMaxEvents) removes excess events from the DOM.
         // With value=2: 2 events in DOM + "+3 more" link (5 total - 2 visible = 3 hidden).
         // Note: DAY_MAX_ENTRY_ROWS is tested separately in AdvancedOptionsTestView.
-        calendar.setMaxEntriesPerDay(2);
+        calendar.setOption(Option.DAY_MAX_ENTRIES, 2);
         calendar.setOption(Option.DISPLAY_ENTRY_END, true);
 
         // Use 24h time format for consistent time display (test expects "10:00 - 11:30")

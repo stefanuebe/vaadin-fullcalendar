@@ -44,7 +44,7 @@ public class ComponentColumnsDemo extends VerticalLayout {
         // Build scheduler
         scheduler = new FullCalendarScheduler();
         scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
-        scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
+        scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setOption(Option.TIMEZONE, event.getTimezone()));
 
         scheduler.addThemeVariants(FullCalendarVariant.VAADIN);
         scheduler.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_MONTH.getClientSideValue());

@@ -59,7 +59,7 @@ public class FullDemo extends AbstractSchedulerView {
         FullCalendarScheduler scheduler = new FullCalendarScheduler(initialOptions);
         scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
         scheduler.setOption(Option.DAY_MAX_ENTRIES, 3);
-        scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setTimezone(event.getTimezone()));
+        scheduler.addBrowserTimezoneObtainedListener(event -> scheduler.setOption(Option.TIMEZONE, event.getTimezone()));
         scheduler.setOption(Option.LOCALE, UI.getCurrent().getLocale());
         FullCalendar calendar = scheduler;
         scheduler.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "15%");

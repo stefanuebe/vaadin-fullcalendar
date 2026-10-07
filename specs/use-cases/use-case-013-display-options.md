@@ -46,9 +46,12 @@ calendar.setHeight("600px");
 calendar.setOption(Option.EXPAND_ROWS, true);
 
 // Limit entries per day
-calendar.setMaxEntriesPerDay(3); // "+N more" link after 3
-calendar.setMaxEntriesPerDayFitToCell(); // auto based on cell height
-calendar.setMaxEntriesPerDayUnlimited(); // no limit
+calendar.setOption(Option.DAY_MAX_ENTRIES, 3); // "+N more" link after 3
+calendar.setOption(Option.DAY_MAX_ENTRIES, true); // auto based on cell height
+calendar.setOption(Option.DAY_MAX_ENTRIES, false); // no limit
+
+// What the "+N more" link does; the server receives the click with every value
+calendar.setOption(Option.MORE_LINK_CLICK, FullCalendar.MoreLinkClickAction.DAY);
 
 // Current time indicator
 calendar.setOption(Option.NOW_INDICATOR, true);

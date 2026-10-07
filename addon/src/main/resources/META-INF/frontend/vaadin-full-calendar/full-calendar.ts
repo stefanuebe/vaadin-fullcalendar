@@ -77,7 +77,11 @@ export class FullCalendar extends HTMLElement {
 
     protected noDatesRenderEvent = false;
     protected noDatesRenderEventOnOptionSetting = true;
-    protected moreLinkClickAction = "popover"
+    /**
+     * Value of the moreLinkClick option: a string like "popover" or "day", or a function. The option is not passed
+     * to FullCalendar, our own handler stays registered so the server keeps receiving the click.
+     */
+    protected moreLinkClickAction: any = "popover";
     protected prefetchEnabled = false;
 
     /** Pending revert functions from eventDrop/eventResize, keyed by entry ID. */
@@ -141,6 +145,10 @@ export class FullCalendar extends HTMLElement {
         if(this.customViews) {
             // extend the options with the custom views and override any "anonymous" views
             options.views = {...options.views, ...this.customViews};
+        }
+
+        if ("moreLinkClick" in options) {
+            this.setMoreLinkClickAction(options.moreLinkClick);
         }
 
         this.addEventHandlersToOptions(options, events);
@@ -447,7 +455,9 @@ export class FullCalendar extends HTMLElement {
                             }));
 
                             if (eventName === "moreLinkClick") {
-                                return this.moreLinkClickAction;
+                                return typeof this.moreLinkClickAction === "function"
+                                    ? this.moreLinkClickAction(eventInfo)
+                                    : this.moreLinkClickAction;
                             }
                         }
 
@@ -553,6 +563,10 @@ export class FullCalendar extends HTMLElement {
         this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
 
         for (let key in options) {
+            if (key === "moreLinkClick") {
+                this.setMoreLinkClickAction(options[key]);
+                continue;
+            }
             let value: any = evaluateCallbacks(options[key]);
             this.handleTimeZoneChange(calendar, /*key, */value);
             // @ts-ignore
@@ -562,6 +576,11 @@ export class FullCalendar extends HTMLElement {
     }
 
     setOption(key: string, value: any) {
+        if (key === "moreLinkClick") {
+            this.setMoreLinkClickAction(value);
+            return;
+        }
+
         let calendar = this.calendar;
 
         value = evaluateCallbacks(value);
@@ -580,6 +599,14 @@ export class FullCalendar extends HTMLElement {
                 this.handleTimeZoneChange(calendar, value);
             }
         }
+    }
+
+    /**
+     * Stores the value of the moreLinkClick option for our own handler. Null restores FullCalendar's default.
+     * @param value string, function or JsCallback marker
+     */
+    protected setMoreLinkClickAction(value: any) {
+        this.moreLinkClickAction = evaluateCallbacks(value) ?? "popover";
     }
 
     /**

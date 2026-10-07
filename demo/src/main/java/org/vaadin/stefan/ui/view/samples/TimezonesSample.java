@@ -2,6 +2,7 @@ package org.vaadin.stefan.ui.view.samples;
 
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
 import java.time.Instant;
@@ -22,17 +23,17 @@ public class TimezonesSample extends AbstractSample {
         // and might be interesting, when editing those entries in some kind of edit form
 
         Timezone tzBerlinGermany = new Timezone(ZoneId.of("Europe/Berlin"));
-        calendar.setTimezone(tzBerlinGermany); // will rerender the client side and show all times 1-2 hours "later".
+        calendar.setOption(Option.TIMEZONE, tzBerlinGermany); // will rerender the client side and show all times 1-2 hours "later".
 
         // We can also reset the timezone to default.
-        calendar.setTimezone(Timezone.UTC);
+        calendar.setOption(Option.TIMEZONE, Timezone.UTC);
 
         // We can also read the browsers timezone, after the component has been attached to the client side.
         // There are other ways to obtain the browser's timezone, so you are not obliged to use the listener.
-        calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
+        calendar.addBrowserTimezoneObtainedListener(event -> calendar.setOption(Option.TIMEZONE, event.getTimezone()));
 
         // The same mechanism as above in one line — the listener auto-registers when we pass the setter directly.
-        calendar.addBrowserTimezoneObtainedListener(event -> calendar.setTimezone(event.getTimezone()));
+        calendar.addBrowserTimezoneObtainedListener(event -> calendar.setOption(Option.TIMEZONE, event.getTimezone()));
 
         // Entries use internally utc to define times. The LocalDateTime and Instant methods setStart/End have the same effect.
         entry.setStart(Instant.now()); // UTC
@@ -40,7 +41,7 @@ public class TimezonesSample extends AbstractSample {
 
         // Entry provides some additional convenience methods to handle the current calendar's timezone's offset, e.g. to allow easy
         // integration into edit forms.
-        calendar.setTimezone(tzBerlinGermany); // times are now 1-2 hours "ahead" (depending on daylight saving)
+        calendar.setOption(Option.TIMEZONE, tzBerlinGermany); // times are now 1-2 hours "ahead" (depending on daylight saving)
         entry.setStart(LocalDate.of(2000, 1, 1).atStartOfDay());
 
         LocalDateTime utcStart = entry.getStart(); // will be 2000-01-01, 00:00

@@ -54,7 +54,7 @@ public class ConstraintOverlapTestView extends VerticalLayout {
         calendar.setOption(Option.SELECTABLE, true);
 
         // validRange: prevent navigation before 2025-03-01 and after 2025-04-30
-        calendar.setValidRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 4, 30));
+        calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 4, 30)));
 
         // --- Entries ---
         InMemoryEntryProvider<Entry> provider = new InMemoryEntryProvider<>();

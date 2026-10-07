@@ -8,6 +8,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.vaadin.stefan.fullcalendar.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
 import java.time.ZoneId;
@@ -56,7 +57,7 @@ public class SettingsDialog extends Dialog {
             if (!Objects.equals(calendar.getTimezone(), event.getValue())) {
 
                 Timezone value = event.getValue();
-                calendar.setTimezone(value != null ? value : initialTimezone);
+                calendar.setOption(Option.TIMEZONE, value != null ? value : initialTimezone);
                 Notification.show("Timezone changed to " + calendar.getTimezone());
             }
         });
