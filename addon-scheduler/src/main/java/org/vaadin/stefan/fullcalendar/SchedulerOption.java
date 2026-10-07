@@ -307,8 +307,8 @@ public enum SchedulerOption {
      * Turns the resource area from a plain list of resource titles into a grid of data. Each column shows a
      * property of the resource and can be grouped, sized and customized.
      * Prefer {@link Scheduler#setResourceColumns(List)}. Passing a list of {@link ResourceColumn}
-     * to {@link FullCalendarScheduler#setOption(SchedulerOption, Object)} is forwarded to it, so component
-     * columns are bound. Raw JSON is sent as it is and cannot carry component columns.
+     * to {@link FullCalendarScheduler#setOption(SchedulerOption, Object)} binds component columns the same way.
+     * Raw JSON is sent as it is, cannot carry component columns and unbinds the component columns set before.
      * <dl>
      *   <dt>Type</dt>    <dd>{@link List} of {@link ResourceColumn}</dd>
      *   <dt>Default</dt> <dd>none, the resource area is a plain list of resource titles</dd>

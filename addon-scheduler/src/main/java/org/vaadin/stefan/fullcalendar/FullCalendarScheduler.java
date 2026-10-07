@@ -25,6 +25,8 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.shared.Registration;
+import org.vaadin.stefan.fullcalendar.converter.ResourceColumnsConverter;
+import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -499,17 +501,28 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * @throws NullPointerException when null is passed
      */
     public void setOption(SchedulerOption option, Object value) {
-        // A column list binds its component columns first. An empty list removes the option.
-        if (option.getOptionKey().equals(SchedulerOption.RESOURCE_COLUMNS.getOptionKey())
-                && (value == null || value instanceof List<?>)) {
-            List<?> list = value == null ? List.of() : (List<?>) value;
-            if (list.stream().allMatch(ResourceColumn.class::isInstance)) {
+        setOption(option.getOptionKey(), value, null, option.getConverters());
+    }
+
+    /**
+     * Every way of setting an option ends here, so the resource columns are handled once. A column list
+     * binds its component columns and goes through {@link ResourceColumnsConverter}, an empty list removes
+     * the option. Any other value (raw JSON, null) unbinds the component columns set before.
+     * A column list always uses the column converter, also when the caller passed other converters.
+     */
+    @Override
+    protected void setOption(String option, Object value, Object valueForServerSide,
+                             List<JsonItemPropertyConverter<?, ?>> converters) {
+        if (SchedulerOption.RESOURCE_COLUMNS.getOptionKey().equals(option)) {
+            if (value instanceof List<?> list && list.stream().allMatch(ResourceColumn.class::isInstance)) {
                 bindResourceColumns(list.stream().map(ResourceColumn.class::cast).toList());
-                setOption(option.getOptionKey(), list.isEmpty() ? null : list, null, option.getConverters());
-                return;
+                value = list.isEmpty() ? null : list;
+                converters = SchedulerOption.RESOURCE_COLUMNS.getConverters();
+            } else {
+                bindResourceColumns(List.of());
             }
         }
-        setOption(option.getOptionKey(), value, null, option.getConverters());
+        super.setOption(option, value, valueForServerSide, converters);
     }
 
     @Override
