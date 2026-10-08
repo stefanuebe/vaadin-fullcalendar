@@ -157,6 +157,10 @@ messages and issues.
   either. Write two sentences, or join them with a word such as "because", "so" or
   "but". A colon is fine before an example, a list or a table. Chained clauses are
   hard to read and mark a text as machine-written.
+- **One kind of information per paragraph.** When a text moves on to a new kind
+  of information, such as what a value does, how it is shown, a limitation, or
+  when it loads, start a new paragraph: a `<p>` in Javadoc, a blank line
+  elsewhere. A summary sentence followed by one long block is hard to scan.
 - **The README and the wiki are written for developers who know Vaadin and
   FullCalendar.** It documents what the add-on adds or changes, not how Vaadin works.
   Where it states a rule or a failure case, a short example follows.

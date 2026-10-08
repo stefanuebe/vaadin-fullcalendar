@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon-scheduler
-**Related Options:** `SchedulerOption.RESOURCE_COLUMNS_WIDTH`, `SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT`, `SchedulerOption.RESOURCE_ORDER`, `SchedulerOption.RESOURCES_INITIALLY_EXPANDED`, `SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES`, `SchedulerOption.RESOURCE_GROUP_FIELD`, `SchedulerOption.RESOURCE_COLUMNS`, `SchedulerOption.ENTRY_RESOURCE_EDITABLE`, `SchedulerOption.DATES_ABOVE_RESOURCES`, and the render hooks `RESOURCE_CELL_*`, `RESOURCE_DAY_HEADER_*`, `RESOURCE_LANE_*`, `RESOURCE_GROUP_HEADER_*`, `RESOURCE_COLUMN_HEADER_*`
+**Related Options:** `SchedulerOption.RESOURCE_COLUMNS_WIDTH`, `SchedulerOption.RESOURCE_COLUMN_HEADER_CONTENT`, `SchedulerOption.RESOURCE_ORDER`, `SchedulerOption.RESOURCES_INITIALLY_EXPANDED`, `SchedulerOption.FILTER_RESOURCES_WITH_ENTRIES`, `SchedulerOption.RESOURCE_GROUP_FIELD`, `SchedulerOption.RESOURCE_COLUMNS`, `SchedulerOption.ENTRY_RESOURCE_EDITABLE`, `SchedulerOption.DATES_ABOVE_RESOURCES`, `SchedulerOption.RESOURCE_DAY_HEADER_ALIGN`, `SchedulerOption.RESOURCE_COLUMN_DIVIDER_CLASS`, `SchedulerOption.RESOURCE_EXPANDER_*`, and the render hooks `RESOURCE_CELL_*`, `RESOURCE_DAY_HEADER_*`, `RESOURCE_LANE_*`, `RESOURCE_GROUP_HEADER_*`, `RESOURCE_COLUMN_HEADER_*`
 **Related Events:** `EntryDroppedSchedulerEvent`, `TimeslotClickedSchedulerEvent`, `TimeslotsSelectedSchedulerEvent`
 
 ---
@@ -94,6 +94,7 @@ scheduler.addEntryDroppedSchedulerListener(event -> {
 | BR-09 | `setOption(SchedulerOption.RESOURCE_COLUMNS, List<ResourceColumn>)` is forwarded to `setResourceColumns`, so component columns get bound. Raw JSON is sent as it is. |
 | BR-10 | The date/resource order of resource time grid and day grid views is set with `SchedulerOption.DATES_ABOVE_RESOURCES`. |
 | BR-11 | `Scheduler.AGPL_V3_LICENSE_KEY` is the key for open source projects. FullCalendar 7 treats the former GPL key as invalid. |
+| BR-12 | The newer resource render hooks (`*_INNER_CLASS` variants, `RESOURCE_COLUMN_DIVIDER_CLASS`, `RESOURCE_COLUMN_RESIZER_CLASS`, `RESOURCE_EXPANDER_*`, `RESOURCE_INDENT_CLASS`, `RESOURCE_HEADER_ROW_CLASS`, `RESOURCE_ROW_CLASS`, `RESOURCE_GROUP_LANE_INNER_CLASS`) and `RESOURCE_DAY_HEADER_ALIGN` (`HeaderAlign`) have constants. Some take a class name string only, see the Javadoc of `SchedulerOption`. Virtualization and printing are in UC-026 |
 
 ---
 

@@ -22,6 +22,7 @@ import resourceTimelinePlugin from 'fullcalendar-scheduler/resource-timeline';
 import resourceTimeGridPlugin from 'fullcalendar-scheduler/resource-timegrid';
 import resourceDayGridPlugin from 'fullcalendar-scheduler/resource-daygrid';
 import scrollgridPlugin from 'fullcalendar-scheduler/scrollgrid';
+import adaptivePlugin from 'fullcalendar-scheduler/adaptive';
 import legacyClassNamesSchedulerPlugin from './legacy-class-names-scheduler';
 
 export class FullCalendarScheduler extends FullCalendar {
@@ -62,7 +63,7 @@ export class FullCalendarScheduler extends FullCalendar {
         options.resources = options.resources ?? [];
 
         options.plugins.push(scrollgridPlugin, resourceTimeGridPlugin, resourceDayGridPlugin, resourceTimelinePlugin,
-            legacyClassNamesSchedulerPlugin);
+            adaptivePlugin, legacyClassNamesSchedulerPlugin);
 
         return options;
     }
