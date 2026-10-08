@@ -44,6 +44,9 @@ import java.util.stream.StreamSupport;
 @NpmPackage(value = "fullcalendar-scheduler", version = FullCalendarScheduler.FC_SCHEDULER_CLIENT_VERSION)
 @JsModule("./vaadin-full-calendar/full-calendar-scheduler.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-scheduler-styles.css")
+// full-calendar-scheduler.ts imports this module. It is named here as well, because Vaadin checks only the files named
+// in these annotations to decide whether an application's frontend bundle needs a rebuild.
+@JsModule("./vaadin-full-calendar/legacy-class-names-scheduler.ts")
 
 @Tag("vaadin-full-calendar-scheduler")
 public class FullCalendarScheduler extends FullCalendar implements Scheduler {

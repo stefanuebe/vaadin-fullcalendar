@@ -14,7 +14,7 @@ The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directl
 | **FullCalendar theme** | Theme plugin plus `theme.css`, loaded on demand by the theme registry in `full-calendar.ts` (UC-027). Stock themes bring their default palette inside the cascade layer `fc-palette` (ADR 0002) | Look of the calendar (grid, entries, toolbar) |
 | **Stable class names** | `legacy-class-names.ts`, `legacy-class-names-scheduler.ts` (FullCalendar plugins) | Re-add the documented v6 class names, see UC-025 and ADR 0001 |
 | **Addon base styles** | `full-calendar-styles.css` | Sizing, layout fixes, integration with Vaadin |
-| **Vaadin FullCalendar theme** | `FullCalendarTheme.VAADIN`, the default. Built in #266, until then it renders as classic | Aligns FullCalendar look with Vaadin Lumo/Aura theme |
+| **Vaadin FullCalendar theme** | `vaadin-theme.ts` and `vaadin-theme.css`, `FullCalendarTheme.VAADIN`, the default. Loaded with the main module (UC-023) | Aligns FullCalendar look with Vaadin Lumo/Aura theme |
 | **Scheduler styles** | `full-calendar-scheduler-styles.css` | Additional styles for scheduler views |
 
 Select a FullCalendar theme per calendar:
@@ -22,30 +22,31 @@ Select a FullCalendar theme per calendar:
 calendar.setTheme(FullCalendarTheme.MONARCH);
 ```
 
-### Custom Properties (`--vaadin-fc-*`)
+### Vaadin FullCalendar Theme Variables
 
-These belong to the former Vaadin theme variant (`full-calendar-theme-vaadin.css`). Its rules select
-`[theme~="vaadin"]`, which no element carries since the variant was removed. #266 replaces the file with the
-Vaadin FullCalendar theme.
+The Vaadin FullCalendar theme is classic plus `vaadin-theme.css`. The plugin puts the class `fc-vaadin` on the calendar,
+its popover and its entries. The rules set classic's color variables `--fc-classic-*` on `.fc-vaadin`, inside the
+cascade layer `fc-palette` (ADR 0002), so unlayered application CSS overrides them:
 
-The Vaadin theme variant defines these CSS custom properties on `html`. Override them to retheme:
+```css
+.fc-vaadin { --fc-classic-event: #2e7d32; }
+```
 
-| Token | Resolves to | Purpose |
-|-------|-------------|---------|
-| `--vaadin-fc-bg-color` | `--vaadin-background-color` | Calendar background |
-| `--vaadin-fc-highlight-color` | `--lumo-primary-color` / `--aura-accent-color` | Primary accent (entries, selection, today badge) |
-| `--vaadin-fc-highlight-color-100..800` | `color-mix()` alpha variants of above | Hover, selection highlight, background entries |
-| `--vaadin-fc-highlight-text-color` | `--lumo-primary-text-color` / `--aura-accent-text-color` | Today badge text |
-| `--vaadin-fc-contrast-color` | `--lumo-contrast` / `--aura-accent-contrast-color` | Grid lines, now indicator |
-| `--vaadin-fc-contrast-color-50..800` | `color-mix()` alpha variants of above | Borders, non-business shading |
-| `--vaadin-fc-neutral-color` | `--vaadin-text-color-disabled` at 15% | Non-business hours shading |
-| `--vaadin-fc-hover-color` | `--vaadin-fc-highlight-color-100` | Entry/link hover background |
-| `--vaadin-fc-font-size-s` | `--lumo-font-size-s` / `--aura-font-size-s` | Small text (headers, labels) |
-| `--vaadin-fc-line-height-xs` | `--lumo-line-height-xs` / `--aura-line-height-xs` | Compact line height |
+The colors derive from three base colors of the application theme:
 
-**Fallback chain**: Every token uses `var(--lumo-*, var(--aura-*, fallback))`, so the theme works in both Lumo and Aura contexts. Custom themes that define neither will get CSS fallback values.
+| Base color | Lumo | Aura |
+|------------|------|------|
+| Background | `--lumo-base-color` | `--aura-surface-color-solid` |
+| Text | `--lumo-body-text-color` | `--aura-neutral` |
+| Accent | `--lumo-primary-color` | `--aura-accent-color` |
 
-**Browser compatibility**: The Vaadin theme variant uses `color-mix(in srgb, ...)` which requires Chrome 111+, Firefox 113+, Safari 16.2+.
+Neutral backgrounds, borders and secondary text are `color-mix()` of the text color. The base `--vaadin-*` colors are the
+fallback without Lumo and Aura. There are no `--vaadin-fc-*` variables.
+
+**Color scheme**: Lumo and Aura switch colors through `color-scheme`. `Option.COLOR_SCHEME` sets `data-color-scheme` on
+the calendar, its popover and a dragged entry, which switches `color-scheme` for them.
+
+**Browser compatibility**: The theme uses `color-mix(in srgb, ...)` which requires Chrome 111+, Firefox 113+, Safari 16.2+.
 
 **Entry hover effect**: The base styles apply `filter: brightness(90%) contrast(1.2)` on `.fc-event:not(.fc-bg-event):hover`. This is a direct CSS rule, not a custom property — there is no token to override it. To change or disable the hover effect, override the rule directly:
 ```css
@@ -56,7 +57,7 @@ vaadin-full-calendar .fc-event:not(.fc-bg-event):hover {
 
 ### Known Limitation: Entry Text Contrast
 
-When developers use custom entry background colors, FullCalendar defaults entry text to white. This can produce poor contrast on light backgrounds. The Vaadin theme includes a commented-out OKLCH-based auto-contrast rule (`--fc-event-text-color`) that is not yet active. **Developers using custom entry colors must verify text contrast meets WCAG 4.5:1 ratio themselves.**
+When developers use custom entry background colors, FullCalendar defaults entry text to white. This can produce poor contrast on light backgrounds. **Developers using custom entry colors must verify text contrast meets WCAG 4.5:1 ratio themselves.**
 
 ---
 

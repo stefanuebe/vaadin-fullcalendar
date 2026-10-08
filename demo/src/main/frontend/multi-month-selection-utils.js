@@ -142,7 +142,7 @@ window.Vaadin.Flow.multiMonthCrossSelectionUtils = {
                 // highlight.classList.add("multi-month-highlight");
 
                 // TODO move to a css class
-                highlight.style.backgroundColor = "var(--fc-highlight-color)";
+                highlight.style.backgroundColor = "var(--fc-classic-highlight)";
                 highlight.style.zIndex = "3";
                 highlight.style.position = "absolute";
                 highlight.style.top = "0";

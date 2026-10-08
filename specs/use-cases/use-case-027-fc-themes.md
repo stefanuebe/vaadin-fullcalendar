@@ -17,15 +17,15 @@
 
 ## User-Facing Behavior
 
-- Each calendar renders with one FullCalendar theme. Default is the Vaadin FullCalendar theme (`FullCalendarTheme.VAADIN`, UC-023). Until #266 builds it, it renders as classic.
+- Each calendar renders with one FullCalendar theme. Default is the Vaadin FullCalendar theme (`FullCalendarTheme.VAADIN`, UC-023).
 - The five FullCalendar stock themes can be selected: classic, monarch, breezy, forma, pulse. Each comes with its default palette (monarch purple, breezy indigo, forma blue, pulse red, classic its only palette).
-- The browser loads a theme only when a calendar on the page selects it. An application that uses one theme does not download the others.
+- The browser loads monarch, breezy, forma and pulse only when a calendar on the page selects them. The Vaadin FullCalendar theme comes with the main module, and with it classic's plugin and stylesheet, on which it builds. Classic's palette loads when a calendar selects classic.
 - Calendars with different themes can share a page.
 - The theme can be changed while the calendar is shown. View, date and entries stay.
 - A developer can register an own FullCalendar theme in the browser under a name and select it from Java like a stock theme.
 - A name that is not registered logs an error to the browser console. The calendar keeps the theme it had, or shows without a theme if it had none yet.
 - A theme that fails to load logs an error to the browser console. A calendar that was waiting for it shows without a theme.
-- Until its initial theme has loaded, the calendar is rendered but invisible, so it never shows unstyled. On a theme change it keeps the previous theme until the new one has loaded.
+- Until its initial theme has loaded, a calendar is rendered but invisible, so it never shows unstyled. The default theme needs no load and is shown at once. On a theme change it keeps the previous theme until the new one has loaded.
 
 ---
 
@@ -70,7 +70,7 @@ FullCalendar.registerTheme('corporate', () => import('./corporate-theme'));
 ## Acceptance Criteria
 
 - [x] `setTheme(String)` / `getTheme()` on the calendar, constants `VAADIN`, `CLASSIC`, `MONARCH`, `BREEZY`, `FORMA`, `PULSE` in `FullCalendarTheme`.
-- [x] Stock themes are loaded on demand. The production build of the e2e test app has one chunk per theme plugin, theme stylesheet and palette, and no theme code in the main bundle (checked by hand in the build output, no automated test).
+- [x] Monarch, breezy, forma and pulse are loaded on demand. The production build of the e2e test app has one chunk per theme plugin, theme stylesheet and palette for them, and no code of them in the main bundle. Classic's plugin and stylesheet are in the main bundle with the Vaadin FullCalendar theme, its palette has its own chunk (checked by hand in the build output on 2026-10-08, no automated test).
 - [x] A theme registered with `FullCalendar.registerTheme` can be selected from Java. An unknown name logs a console error.
 - [x] Two calendars with different themes on one page render each with its own theme (E2E).
 - [x] `HasTheme` and `FullCalendarVariant` are removed.
@@ -85,7 +85,7 @@ FullCalendar.registerTheme('corporate', () => import('./corporate-theme'));
 
 ### E2E Tests
 
-- [x] `theme.spec.js` against `ThemeTestView` (`/test/theme`): two themes on one page, lazy loading (`style[data-fc-theme]` appears only on selection, once), each stock theme with its palette, the application's palette override wins over the lazily loaded layered palette, a stock palette the application imports wins over the lazily loaded default palette, a theme switched to twice is loaded once, vaadin and classic share one stylesheet, custom theme registration, console error for an unknown name, a theme change keeps an option set after attach, a theme change on a scheduler keeps its resource view, the theme is kept after detach and reattach, a calendar is invisible until its initial theme has loaded, a calendar waiting for its initial theme becomes visible when switched to an unknown name, calendars whose initial theme fails to load become visible and log the failure (two calendars waiting on one load, selecting the theme again loads it again), a loader replaced while it loads is the one that applies, also when the replaced loader fails afterwards, a theme that finishes loading after the calendar switched away changes nothing.
+- [x] `theme.spec.js` against `ThemeTestView` (`/test/theme`): two themes on one page, lazy loading (`style[data-fc-theme]` appears only on selection, once), each stock theme with its palette, the application's palette override wins over the lazily loaded layered palette, a stock palette the application imports wins over the lazily loaded default palette, a theme switched to twice is loaded once, vaadin builds on classic, classic still loads its own stylesheet and palette, custom theme registration, console error for an unknown name, a theme change keeps an option set after attach, a theme change on a scheduler keeps its resource view, the theme is kept after detach and reattach, a calendar is invisible until its initial theme has loaded, a calendar waiting for its initial theme becomes visible when switched to an unknown name, calendars whose initial theme fails to load become visible and log the failure (two calendars waiting on one load, selecting the theme again loads it again), a loader replaced while it loads is the one that applies, also when the replaced loader fails afterwards, a theme that finishes loading after the calendar switched away changes nothing.
 
 ---
 

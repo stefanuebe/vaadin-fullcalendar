@@ -688,10 +688,14 @@ public enum Option {
     /**
      * Sets the color scheme of this calendar only.
      * <p>
-     * The stock themes support light and dark.
+     * The Vaadin FullCalendar theme follows the color scheme of the application. This option overrides it for one
+     * calendar. The stock themes support light and dark.
      * <p>
-     * Without it, the calendar follows what the page sets, e.g. a {@code data-color-scheme="dark"} attribute on the
-     * body or another parent element.
+     * With Lumo, the option cannot make a calendar light while the application is dark.
+     * <p>
+     * Without it, a stock theme follows what the page sets, e.g. a {@code data-color-scheme="dark"} attribute on the
+     * body or another parent element. The Vaadin FullCalendar theme follows the CSS color-scheme of the page, which
+     * {@code Page#setColorScheme} sets.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}: {@code "light"}, {@code "dark"}, or another value a theme understands</dd>
      * </dl>
@@ -699,6 +703,8 @@ public enum Option {
      * calendar.setOption(Option.COLOR_SCHEME, "dark");
      * }</pre>
      *
+     * @see <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#color-scheme">
+     *     Themes: Color scheme</a>
      * @see <a href="https://fullcalendar.io/docs/color-palettes">colorScheme (Color Palettes: Dark Mode)</a>
      */
     COLOR_SCHEME("colorScheme"),
