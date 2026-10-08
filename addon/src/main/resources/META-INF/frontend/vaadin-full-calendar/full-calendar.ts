@@ -71,6 +71,15 @@ const loadedThemes = new Map<string, Promise<PluginInput>>();
 const resolvedThemes = new Map<string, PluginInput>([['vaadin', vaadinTheme]]);
 
 /**
+ * Returns the value to pass to FullCalendar for the given option value. FullCalendar keeps every value passed to its
+ * setOption, null included, and converts colorScheme with String(), so null would become the attribute
+ * data-color-scheme="null". An empty colorScheme renders no attribute, so the calendar follows the page again.
+ */
+function replaceNullColorScheme(key: string, value: any): any {
+    return key === 'colorScheme' && value == null ? '' : value;
+}
+
+/**
  * Recursively walks a value and evaluates any JsCallback markers.
  * A JsCallback marker is an object with a {@code __jsCallback} string property.
  * <p>
@@ -651,7 +660,7 @@ export class FullCalendar extends HTMLElement {
                 this.setMoreLinkClickAction(options[key]);
                 continue;
             }
-            let value: any = evaluateCallbacks(options[key]);
+            let value: any = replaceNullColorScheme(key, evaluateCallbacks(options[key]));
             this.handleTimeZoneChange(calendar, /*key, */value);
             // @ts-ignore
             calendar.setOption(key, value);
@@ -667,7 +676,7 @@ export class FullCalendar extends HTMLElement {
 
         let calendar = this.calendar;
 
-        value = evaluateCallbacks(value);
+        value = replaceNullColorScheme(key, evaluateCallbacks(value));
 
         // @ts-ignore
         let oldValue = calendar.getOption(key);

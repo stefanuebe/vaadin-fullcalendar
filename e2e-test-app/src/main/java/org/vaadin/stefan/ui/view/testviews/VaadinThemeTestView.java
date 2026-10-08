@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -23,6 +24,8 @@ import java.time.ZoneOffset;
  * 2025 with one entry of a JSON feed entry source. Open the view with {@code ?theme=aura} and {@code ?scheme=dark} for
  * Aura and a dark application, see {@link AppTheme}.
  * <p>
+ * The button "Remove color scheme" sets the option colorScheme of the light calendar to null and disables itself.
+ * <p>
  * Route: /test/vaadin-theme
  */
 @Route(value = "vaadin-theme", layout = TestLayout.class)
@@ -45,6 +48,11 @@ public class VaadinThemeTestView extends VerticalLayout {
         FullCalendar light = createCalendar("cal-vaadin-light");
         light.setOption(Option.COLOR_SCHEME, "light");
 
+        Button removeColorScheme = new Button("Remove color scheme", event -> {
+            light.setOption(Option.COLOR_SCHEME, null);
+            event.getSource().setEnabled(false);
+        });
+
         FullCalendar classic = createCalendar("cal-classic");
         classic.setTheme(FullCalendarTheme.CLASSIC);
 
@@ -56,7 +64,7 @@ public class VaadinThemeTestView extends VerticalLayout {
         source.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));
         source.addRemoteEntrySource(new JsonFeedEntrySource("/test-data/vaadin-theme-entries.json"));
 
-        add(standard, dark, light, classic, custom, source);
+        add(removeColorScheme, standard, dark, light, classic, custom, source);
         setFlexGrow(1, standard, dark, light, classic, custom, source);
     }
 

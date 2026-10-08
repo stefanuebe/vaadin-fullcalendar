@@ -61,6 +61,18 @@ const isDark = (page, color) => page.evaluate((c) => {
 
 test.describe('FullCalendar Vaadin theme', () => {
 
+    test('removing the option colorScheme removes its attribute from the calendar', async ({ page }) => {
+        await gotoView(page, '');
+        const calendar = page.locator('#cal-vaadin-light');
+        await expect(calendar).toHaveAttribute('data-color-scheme', 'light');
+
+        const button = page.getByRole('button', { name: 'Remove color scheme' });
+        await button.click();
+        await expect(button).toBeDisabled();
+
+        await expect(calendar).not.toHaveAttribute('data-color-scheme');
+    });
+
     for (const appTheme of APP_THEMES) {
         for (const scheme of ['light', 'dark']) {
             test(`${appTheme.name} ${scheme}: entries take the accent color, the calendar follows the color scheme`, async ({ page }) => {
