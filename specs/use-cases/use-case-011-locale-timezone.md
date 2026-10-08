@@ -95,7 +95,7 @@ FullCalendar calendar = new FullCalendar().withAutoBrowserTimezone().withAutoUiL
 
 ### E2E Tests
 - [x] `auto-browser-timezone.spec.js`: the browser time zone becomes the calendar time zone on server and client
-- [x] `date-format.spec.js`: day dates sent to the server are `yyyy-MM-dd` in a named time zone, also for a time that is not midnight (25-hour DST day)
+- [x] `date-format.spec.js`: day dates sent to the server are `yyyy-MM-dd` in a named time zone, also for a time that is not midnight (25-hour DST day). The end of an all-day entry without end is the next day on the 25-hour DST day (#274)
 - [x] `stable-class-names.spec.js`: day numbers in the Japanese locale
 
 ---

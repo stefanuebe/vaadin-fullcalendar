@@ -48,6 +48,12 @@ test.describe('Event Source Improvements', () => {
         await expect(page.locator('#event-source-failure-message')).not.toHaveText('', { timeout: 10000 });
     });
 
+    test('the withFailure callback runs besides the server listener', async ({ page }) => {
+        await expect(page.locator('#event-source-failure-message')).not.toHaveText('', { timeout: 10000 });
+        // the client calls the user's callback before it dispatches the event to the server
+        expect(await page.evaluate(() => window.userFailureCalls)).toBe(1);
+    });
+
     // -------------------------------------------------------------------------
     // Counter badge is present and initially zero
     // -------------------------------------------------------------------------

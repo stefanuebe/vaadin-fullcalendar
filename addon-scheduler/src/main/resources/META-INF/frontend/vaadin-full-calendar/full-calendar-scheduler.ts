@@ -17,6 +17,7 @@
    Exception of this license is the separately licensed part of the styles.
 */
 import {FullCalendar, evaluateCallbacks} from "@vaadin/flow-frontend/vaadin-full-calendar/full-calendar";
+import {createEventUi} from 'fullcalendar/protected-api';
 import resourceTimelinePlugin from 'fullcalendar-scheduler/resource-timeline';
 import resourceTimeGridPlugin from 'fullcalendar-scheduler/resource-timegrid';
 import resourceDayGridPlugin from 'fullcalendar-scheduler/resource-daygrid';
@@ -102,12 +103,24 @@ export class FullCalendarScheduler extends FullCalendar {
             // one render for all changes instead of one per setProp / setExtendedProp
             this.calendar.batchRendering(() => {
                 if (data.title !== undefined) resource.setProp('title', data.title);
-                if (data.eventColor !== undefined) resource.setProp('eventColor', data.eventColor);
-                if (data.eventContrastColor !== undefined) resource.setProp('eventContrastColor', data.eventContrastColor);
-                if (data.eventConstraint !== undefined) resource.setProp('eventConstraint', data.eventConstraint);
-                if (data.eventOverlap !== undefined) resource.setProp('eventOverlap', evaluateCallbacks(data.eventOverlap));
-                if (data.eventAllow !== undefined) resource.setProp('eventAllow', evaluateCallbacks(data.eventAllow));
-                if (data.eventClass !== undefined) resource.setProp('eventClass', data.eventClass);
+
+                // FullCalendar derives the entry styles and rules of a resource (its internal ui) only when it
+                // parses the resource. setProp stores a raw field alone and nothing reads the raw event* fields,
+                // so the ui is built anew here and the ResourceApi getters read it as well. The sent
+                // JSON is the complete resource state, so an absent key means the server removed the value.
+                // The server does not send the editable flags, so they are kept.
+                // _resource, _context and createEventUi are FullCalendar internals. Check them on a FullCalendar update.
+                const internal = (resource as any)._resource;
+                resource.setProp('ui', createEventUi({
+                    startEditable: internal.ui.startEditable,
+                    durationEditable: internal.ui.durationEditable,
+                    constraint: data.eventConstraint,
+                    overlap: data.eventOverlap,
+                    allow: data.eventAllow !== undefined ? evaluateCallbacks(data.eventAllow) : undefined,
+                    className: data.eventClass,
+                    color: data.eventColor,
+                    contrastColor: data.eventContrastColor,
+                } as any, (resource as any)._context));
 
                 // Extended props: any top-level JSON key not covered above is treated as an extended prop.
                 // Resource.toJson() serializes extended props flat at the top level (the FC Resource

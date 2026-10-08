@@ -68,7 +68,7 @@ calendar.addRemoteEntrySourceFailureListener(event -> { ... });
 | BR-03 | Entry source entries fire `RemoteEntryDroppedEvent` / `RemoteEntryResizedEvent` (not server-managed counterparts). `getEntry().getId()` is the id the entry has in its source |
 | BR-04 | JSON feed receives `start`, `end`, `timeZone` query parameters (configurable) |
 | BR-05 | Google Calendar requires an API key (per-source or global) |
-| BR-06 | Source failures fire `RemoteEntrySourceFailureEvent` |
+| BR-06 | Source failures fire `RemoteEntrySourceFailureEvent`. A callback set with `withFailure` runs first |
 
 ---
 
@@ -80,7 +80,7 @@ calendar.addRemoteEntrySourceFailureListener(event -> { ... });
 - [ ] Entries of remote entry sources are read-only by default
 - [ ] `withEditable(true)` enables DnD for source entries
 - [ ] `RemoteEntryDroppedEvent` fires on DnD of entry source entries
-- [ ] `RemoteEntrySourceFailureEvent` fires on load failure
+- [x] `RemoteEntrySourceFailureEvent` fires on load failure, and the `withFailure` callback runs as well (#275)
 - [ ] Removing a source removes its entries from display
 
 ---
@@ -91,7 +91,7 @@ calendar.addRemoteEntrySourceFailureListener(event -> { ... });
 - [x] `EventSourcesTest`: source construction and properties, drop / resize events reach their listeners
 
 ### E2E Tests
-- [ ] `event-sources.spec.js` — event source loading
+- [x] `event-sources.spec.js` — load failure reaches the server listener and the `withFailure` callback
 
 ---
 

@@ -49,6 +49,16 @@ public class ResourceTest {
     }
 
     @Test
+    void toJsonSendsAnUnsetTitleAsEmpty() {
+        Assertions.assertEquals("", new Resource("a", null, null).toJson().get("title").asString());
+    }
+
+    @Test
+    void toJsonLeavesOutAnUnsetColor() {
+        Assertions.assertFalse(new Resource("a", "A", null).toJson().has("eventColor"));
+    }
+
+    @Test
     void testAddRemoveOneChildWithOneParent() {
         Resource parent = new Resource();
 
