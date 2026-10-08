@@ -17,9 +17,9 @@
 
 ## User-Facing Behavior
 
-- Each calendar renders with one FullCalendar theme. Default is the Vaadin FullCalendar theme (`FullCalendarTheme.VAADIN`, UC-023).
+- Each calendar renders with one FullCalendar theme. Default is the FullCalendar Vaadin theme (`FullCalendarTheme.VAADIN`, UC-023).
 - The five FullCalendar stock themes can be selected: classic, monarch, breezy, forma, pulse. Each comes with its default palette (monarch purple, breezy indigo, forma blue, pulse red, classic its only palette).
-- The browser loads monarch, breezy, forma and pulse only when a calendar on the page selects them. The Vaadin FullCalendar theme comes with the main module, and with it classic's plugin and stylesheet, on which it builds. Classic's palette loads when a calendar selects classic.
+- The browser loads monarch, breezy, forma and pulse only when a calendar on the page selects them. The FullCalendar Vaadin theme comes with the main module, and with it classic's plugin and stylesheet, on which it builds. Classic's palette loads when a calendar selects classic.
 - Calendars with different themes can share a page.
 - The theme can be changed while the calendar is shown. View, date and entries stay.
 - A developer can register an own FullCalendar theme in the browser under a name and select it from Java like a stock theme.
@@ -32,7 +32,7 @@
 ## Java API Usage
 
 ```java
-FullCalendar calendar = new FullCalendar();   // Vaadin FullCalendar theme
+FullCalendar calendar = new FullCalendar();   // FullCalendar Vaadin theme
 calendar.setTheme(FullCalendarTheme.MONARCH);
 calendar.getTheme();                          // "monarch"
 
@@ -71,7 +71,7 @@ FullCalendar.registerTheme('corporate', () => import('./corporate-theme'));
 ## Acceptance Criteria
 
 - [x] `setTheme(String)` / `getTheme()` on the calendar, constants `VAADIN`, `CLASSIC`, `MONARCH`, `BREEZY`, `FORMA`, `PULSE` in `FullCalendarTheme`.
-- [x] Monarch, breezy, forma and pulse are loaded on demand. The production build of the e2e test app has one chunk per theme plugin, theme stylesheet and palette for them, and no code of them in the main bundle. Classic's plugin and stylesheet are in the main bundle with the Vaadin FullCalendar theme, its palette has its own chunk (checked by hand in the build output on 2026-10-08, no automated test).
+- [x] Monarch, breezy, forma and pulse are loaded on demand. The production build of the e2e test app has one chunk per theme plugin, theme stylesheet and palette for them, and no code of them in the main bundle. Classic's plugin and stylesheet are in the main bundle with the FullCalendar Vaadin theme, its palette has its own chunk (checked by hand in the build output on 2026-10-08, no automated test).
 - [x] A theme registered with `FullCalendar.registerTheme` can be selected from Java. An unknown name logs a console error.
 - [x] Two calendars with different themes on one page render each with its own theme (E2E).
 - [x] `HasTheme` and `FullCalendarVariant` are removed.

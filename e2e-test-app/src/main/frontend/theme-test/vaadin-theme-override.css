@@ -1,4 +1,4 @@
-/* An application's colors for the Vaadin FullCalendar theme, unlayered, so they win over the theme's colors. The first
+/* An application's colors for the FullCalendar Vaadin theme, unlayered, so they win over the theme's colors. The first
    rule applies to every calendar, the second to the calendar with the class custom-entry-color and must win over the
    first, also on the entries, which carry the class fc-vaadin themselves. */
 .fc-vaadin {

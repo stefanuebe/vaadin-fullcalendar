@@ -1,6 +1,6 @@
-# UC-023: Vaadin FullCalendar Theme
+# UC-023: FullCalendar Vaadin Theme
 
-**As a** Vaadin application developer, **I want** the calendar to use the Vaadin FullCalendar theme by default **so that** the calendar visually matches other Vaadin components (Lumo/Aura styling), in light and dark color scheme.
+**As a** Vaadin application developer, **I want** the calendar to use the FullCalendar Vaadin theme by default **so that** the calendar visually matches other Vaadin components (Lumo/Aura styling), in light and dark color scheme.
 
 **Status:** Implemented
 **Date:** 2026-10-08
@@ -17,7 +17,7 @@
 
 ## User-Facing Behavior
 
-- By default, the calendar uses the Vaadin FullCalendar theme (`FullCalendarTheme.VAADIN`, name `vaadin`)
+- By default, the calendar uses the FullCalendar Vaadin theme (`FullCalendarTheme.VAADIN`, name `vaadin`)
 - The theme is FullCalendar's classic theme, colored and sized by the Vaadin application theme (Lumo or Aura)
 - The calendar inherits the application's font size and line height. Small text (day headers, day numbers, time slot labels, week numbers) uses the application theme's small font size
 - Entries take the accent color of the application theme. An own color of an entry or resource wins

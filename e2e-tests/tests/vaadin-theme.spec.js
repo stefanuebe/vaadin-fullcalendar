@@ -3,7 +3,7 @@ const { test } = require('@playwright/test');
 const { expect, waitForVaadin } = require('./fixtures');
 
 /**
- * The Vaadin FullCalendar theme (UC-023) against VaadinThemeTestView: the default theme takes its colors from Lumo or
+ * The FullCalendar Vaadin theme (UC-023) against VaadinThemeTestView: the default theme takes its colors from Lumo or
  * Aura, follows the application's color scheme, and the option colorScheme overrides it per calendar.
  *
  * Expected colors are resolved in the page, inside the element under test, from the application theme's own
@@ -59,7 +59,7 @@ const isDark = (page, color) => page.evaluate((c) => {
     return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.5;
 }, color);
 
-test.describe('Vaadin FullCalendar theme', () => {
+test.describe('FullCalendar Vaadin theme', () => {
 
     for (const appTheme of APP_THEMES) {
         for (const scheme of ['light', 'dark']) {

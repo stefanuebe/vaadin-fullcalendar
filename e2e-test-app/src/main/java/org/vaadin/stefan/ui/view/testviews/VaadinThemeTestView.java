@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 
 /**
- * Test view for the Vaadin FullCalendar theme (UC-023).
+ * Test view for the FullCalendar Vaadin theme (UC-023).
  * <p>
  * Calendars show today with two entries, of which one fits and one is behind the "+1 more" link. The first uses the
  * default theme, the second and third the default theme with the option colorScheme set to dark and to light, the
@@ -33,7 +33,7 @@ public class VaadinThemeTestView extends VerticalLayout {
     public VaadinThemeTestView() {
         setSizeFull();
 
-        add(new H2("Vaadin FullCalendar theme"));
+        add(new H2("FullCalendar Vaadin theme"));
 
         FullCalendar standard = createCalendar("cal-vaadin");
 

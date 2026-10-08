@@ -32,7 +32,7 @@ const schedulerClassNames = {
 };
 
 /**
- * The Vaadin FullCalendar theme, the default theme of the add-on. It builds on FullCalendar's classic theme and adds
+ * The FullCalendar Vaadin theme, the default theme of the add-on. It builds on FullCalendar's classic theme and adds
  * the class names that vaadin-theme.css styles. FullCalendar joins them with classic's class names.
  * <p>
  * Classic's stylesheet comes with this module. Its default palette is not needed, because vaadin-theme.css sets

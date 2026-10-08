@@ -14,7 +14,7 @@ The addon uses **light DOM** (no shadow DOM), so all FullCalendar CSS is directl
 | **FullCalendar theme** | Theme plugin plus `theme.css`, loaded on demand by the theme registry in `full-calendar.ts` (UC-027). Stock themes bring their default palette inside the cascade layer `fc-palette` (ADR 0002) | Look of the calendar (grid, entries, toolbar) |
 | **Stable class names** | `legacy-class-names.ts`, `legacy-class-names-scheduler.ts` (FullCalendar plugins) | Re-add the documented v6 class names, see UC-025 and ADR 0001 |
 | **Addon base styles** | `full-calendar-styles.css` | Sizing, layout fixes, integration with Vaadin |
-| **Vaadin FullCalendar theme** | `vaadin-theme.ts` and `vaadin-theme.css`, `FullCalendarTheme.VAADIN`, the default. Loaded with the main module (UC-023) | Aligns FullCalendar look with Vaadin Lumo/Aura theme |
+| **FullCalendar Vaadin theme** | `vaadin-theme.ts` and `vaadin-theme.css`, `FullCalendarTheme.VAADIN`, the default. Loaded with the main module (UC-023) | Aligns FullCalendar look with Vaadin Lumo/Aura theme |
 | **Scheduler styles** | `full-calendar-scheduler-styles.css` | Additional styles for scheduler views |
 
 Select a FullCalendar theme per calendar:
@@ -22,9 +22,9 @@ Select a FullCalendar theme per calendar:
 calendar.setTheme(FullCalendarTheme.MONARCH);
 ```
 
-### Vaadin FullCalendar Theme Variables
+### FullCalendar Vaadin Theme Variables
 
-The Vaadin FullCalendar theme is classic plus `vaadin-theme.css`. The plugin puts the class `fc-vaadin` on the calendar,
+The FullCalendar Vaadin theme is classic plus `vaadin-theme.css`. The plugin puts the class `fc-vaadin` on the calendar,
 its popover and its entries. The rules set classic's color variables `--fc-classic-*` on `.fc-vaadin`, inside the
 cascade layer `fc-palette` (ADR 0002), so unlayered application CSS overrides them:
 
