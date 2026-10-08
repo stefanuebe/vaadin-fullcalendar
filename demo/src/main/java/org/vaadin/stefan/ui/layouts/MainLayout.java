@@ -19,6 +19,7 @@ package org.vaadin.stefan.ui.layouts;
 import com.vaadin.flow.component.sidenav.SideNav;
 import org.vaadin.stefan.ui.view.demos.autorevert.AutoRevertView;
 import org.vaadin.stefan.ui.view.demos.basic.BasicDemo;
+import org.vaadin.stefan.ui.view.demos.customtheme.CustomThemeDemo;
 import org.vaadin.stefan.ui.view.demos.customtimeline.AnonymousCustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.customtimeline.CustomViewDemo;
 import org.vaadin.stefan.ui.view.demos.entryproviders.BackendEntryProviderDemo;
@@ -46,6 +47,7 @@ public class MainLayout extends AbstractLayout {
         addMenu(nav, ComponentColumnsDemo.class);
         addMenu(nav, ExternalDragDemo.class);
         addMenu(nav, AutoRevertView.class);
+        addMenu(nav, CustomThemeDemo.class);
 //        addMenu(nav, InlineCalendarDemo.class);
     }
 }

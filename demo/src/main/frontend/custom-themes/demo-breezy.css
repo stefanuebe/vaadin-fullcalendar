@@ -1,0 +1,102 @@
+/* Styles and colors of the demo-breezy theme. The colors are breezy's color variables. They are set on the theme
+   class instead of :root, so that the stock breezy theme in other views keeps its own palette. The neutral colors are
+   copied from breezy's indigo palette, each palette sets only the accent colors. Without a palette attribute the
+   colors are those of the ocean palette. The view sets the selected palette as the attribute data-demo-palette on the
+   body, so that the palette also applies to the popover and the dragged entry, which FullCalendar adds to the body. */
+
+.demo-breezy-entry {
+    border-radius: 999px;
+}
+
+.demo-breezy-today {
+    font-weight: 700;
+}
+
+.demo-breezy {
+    --fc-breezy-primary-foreground: #ffffff;
+    --fc-breezy-secondary: var(--fc-breezy-background);
+    --fc-breezy-secondary-over: var(--fc-breezy-faint);
+    --fc-breezy-secondary-border: var(--fc-breezy-strong-border);
+    --fc-breezy-secondary-foreground: var(--fc-breezy-strong-foreground);
+    --fc-breezy-secondary-icon: var(--fc-breezy-faint-foreground);
+    --fc-breezy-secondary-icon-over: var(--fc-breezy-muted-foreground);
+    --fc-breezy-event-contrast: #ffffff;
+    --fc-breezy-selected: var(--fc-breezy-strong);
+    --fc-breezy-popover: var(--fc-breezy-background);
+    --fc-breezy-popover-border: var(--fc-breezy-strong-border);
+    --fc-breezy-background: #ffffff;
+    --fc-breezy-faint: #00000005;
+    --fc-breezy-muted: #0000000D;
+    --fc-breezy-strong: #0000001A;
+    --fc-breezy-stronger: #00000024;
+    --fc-breezy-strongest: #0000002E;
+    --fc-breezy-foreground: #374151;
+    --fc-breezy-faint-foreground: #9ca3af;
+    --fc-breezy-muted-foreground: #6b7280;
+    --fc-breezy-strong-foreground: #111827;
+    --fc-breezy-border: #e5e7eb;
+    --fc-breezy-muted-border: #f3f4f6;
+    --fc-breezy-strong-border: #d1d5db;
+}
+
+.demo-breezy, [data-demo-palette=ocean] .demo-breezy {
+    --fc-breezy-primary: #0e7490;
+    --fc-breezy-primary-over: #0891b2;
+    --fc-breezy-event: #0891b2;
+    --fc-breezy-background-event: #14b8a6;
+    --fc-breezy-highlight: #22d3ee1f;
+    --fc-breezy-now: #0f766e;
+}
+
+[data-demo-palette=sunset] .demo-breezy {
+    --fc-breezy-primary: #c2410c;
+    --fc-breezy-primary-over: #ea580c;
+    --fc-breezy-event: #db2777;
+    --fc-breezy-background-event: #f59e0b;
+    --fc-breezy-highlight: #fb923c1f;
+    --fc-breezy-now: #b91c1c;
+}
+
+/* Dark color scheme: applies when the element or an ancestor has data-color-scheme=dark. The color scheme option of the
+   calendar sets this attribute on the calendar, on its popover and on the dragged entry. */
+@media not print {
+    .demo-breezy:is([data-color-scheme=dark], [data-color-scheme=dark] *) {
+        --fc-breezy-secondary: var(--fc-breezy-muted);
+        --fc-breezy-secondary-over: var(--fc-breezy-strong);
+        --fc-breezy-secondary-border: var(--fc-breezy-muted-border);
+        --fc-breezy-secondary-icon: var(--fc-breezy-muted-foreground);
+        --fc-breezy-secondary-icon-over: var(--fc-breezy-foreground);
+        --fc-breezy-event-contrast: #000000;
+        --fc-breezy-selected: var(--fc-breezy-muted);
+        --fc-breezy-popover: #1f2937;
+        --fc-breezy-popover-border: var(--fc-breezy-border);
+        --fc-breezy-background: #111827;
+        --fc-breezy-faint: #ffffff08;
+        --fc-breezy-muted: #ffffff12;
+        --fc-breezy-strong: #ffffff1F;
+        --fc-breezy-stronger: #ffffff29;
+        --fc-breezy-strongest: #ffffff33;
+        --fc-breezy-foreground: #d1d5db;
+        --fc-breezy-muted-foreground: #9ca3af;
+        --fc-breezy-faint-foreground: #6b7280;
+        --fc-breezy-strong-foreground: #ffffff;
+        --fc-breezy-border: #ffffff1A;
+        --fc-breezy-muted-border: #ffffff0D;
+        --fc-breezy-strong-border: #ffffff26;
+    }
+
+    .demo-breezy:is([data-color-scheme=dark], [data-color-scheme=dark] *),
+    [data-demo-palette=ocean] .demo-breezy:is([data-color-scheme=dark], [data-color-scheme=dark] *) {
+        --fc-breezy-primary: #06b6d4;
+        --fc-breezy-primary-over: #22d3ee;
+        --fc-breezy-event: #67e8f9;
+        --fc-breezy-now: #2dd4bf;
+    }
+
+    [data-demo-palette=sunset] .demo-breezy:is([data-color-scheme=dark], [data-color-scheme=dark] *) {
+        --fc-breezy-primary: #f97316;
+        --fc-breezy-primary-over: #fb923c;
+        --fc-breezy-event: #f9a8d4;
+        --fc-breezy-now: #f87171;
+    }
+}
