@@ -1,0 +1,11 @@
+/* An application's colors for the FullCalendar Vaadin theme, unlayered, so they win over the theme's colors. The first
+   rule applies to every calendar, the second to the calendar with the class custom-entry-color and must win over the
+   first, also on the entries, which carry the class fc-vaadin themselves. */
+.fc-vaadin {
+    --fc-classic-event-contrast: rgb(7, 8, 9);
+}
+
+.custom-entry-color, .custom-entry-color .fc-vaadin {
+    --fc-classic-event: rgb(4, 5, 6);
+    --fc-classic-event-contrast: rgb(250, 251, 252);
+}

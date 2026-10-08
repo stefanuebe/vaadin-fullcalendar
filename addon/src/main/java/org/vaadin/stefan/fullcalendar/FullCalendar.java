@@ -57,6 +57,10 @@ import static org.vaadin.stefan.fullcalendar.JsonUtils.toJsonNodeWithJackson;
 
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-styles.css")
+@CssImport("./vaadin-full-calendar/vaadin-theme.css")
+// imported by full-calendar.ts, named here so that a change to them triggers a frontend bundle rebuild
+@JsModule("./vaadin-full-calendar/legacy-class-names.ts")
+@JsModule("./vaadin-full-calendar/vaadin-theme.ts")
 @Tag("vaadin-full-calendar")
 public class FullCalendar extends Component implements HasStyle, HasSize, LocaleChangeObserver {
 

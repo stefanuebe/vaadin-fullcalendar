@@ -87,14 +87,14 @@ test.describe('FullCalendar themes', () => {
         await expect(themeStyle(page, 'forma')).toHaveCount(1);
     });
 
-    test('vaadin and classic share one stylesheet while vaadin renders as classic', async ({ page }) => {
+    test('vaadin builds on classic, classic still loads its own stylesheet and palette', async ({ page }) => {
         await page.click('#theme-vaadin');
+        await expect(firstEntry(page)).toHaveClass(/fc-vaadin/);
         await expect(firstEntry(page)).toHaveClass(/fc-classic-/);
-        await page.click('#theme-classic');
-        // the classic load has no visible effect, so wait for a later switch to finish before counting
-        await page.click('#theme-forma');
-        await expect(firstEntry(page)).toHaveClass(/fc-forma-/);
+        await expect(themeStyle(page, 'classic')).toHaveCount(0);
 
+        await page.click('#theme-classic');
+        await expect(firstEntry(page)).not.toHaveClass(/fc-vaadin/);
         await expect(themeStyle(page, 'classic')).toHaveCount(1);
     });
 

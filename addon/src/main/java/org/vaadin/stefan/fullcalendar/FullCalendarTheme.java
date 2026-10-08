@@ -21,22 +21,25 @@ package org.vaadin.stefan.fullcalendar;
  * <p>
  * FullCalendar has its own built-in theme mechanism to style its grid, its entries and its toolbar.
  * <p>
- * The default, {@link #VAADIN}, takes its look from the Vaadin
- * application theme (Lumo / Aura), so that the calendar matches the other Vaadin components.
- * Additional to the Vaadin theme, the add-on ships the five FullCalendar stock themes: classic, monarch, breezy, forma and pulse.
+ * The default, {@link #VAADIN}, is FullCalendar's classic theme, colored and sized by the Vaadin application theme
+ * (Lumo / Aura), so that the calendar matches the other Vaadin components. It follows the application's color scheme
+ * and needs no separate loading. To change its colors, set the {@code --fc-classic-*} variables on {@code .fc-vaadin},
+ * see <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#fullcalendar-vaadin-theme">FullCalendar
+ * Vaadin theme</a> in the wiki.
  * <p>
- * A stock theme takes its colors from a palette, a stylesheet that sets CSS color variables for the whole page, named
- * {@code --fc-<theme>-*}, e.g. {@code --fc-monarch-background}. Classic has one palette, the other stock themes have
- * several. The add-on loads the default palette of the theme.
+ * Besides the Vaadin theme, the add-on ships the five FullCalendar stock themes: classic, monarch, breezy, forma and
+ * pulse. A stock theme takes its colors from a palette, a stylesheet that sets the theme's color variables
+ * ({@code --fc-<theme>-*}, e.g. {@code --fc-monarch-background}) for the whole page. Classic has one palette and the
+ * other stock themes have several, see {@link FullCalendarPalette}. The add-on loads the default palette of the theme
+ * a calendar uses.
  * <p>
- *     <b>Note:</b> Because a palette applies to the whole page, all
- * calendars with the same theme share its colors.
+ * <b>Note:</b> Because a palette applies to the whole page, all calendars with the same stock theme share its colors.
  * <p>
- * To change colors, override the color variables or load another palette in a stylesheet of your application. See
- * <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#colors-and-palettes">Colors and
- * palettes</a> in the wiki for details and an example.
+ * To change the colors of a stock theme, override its color variables or load another palette in a stylesheet of
+ * your application. See <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#colors-and-palettes">
+ * Colors and palettes</a> in the wiki for details and an example.
  * <p>
- * You can register your own custom theme using javascript:
+ * You can register your own custom theme using JavaScript:
  * <pre>{@code
  * // your frontend js file, loaded with the @JsModule annotation in Java
  * import {FullCalendar} from 'Frontend/generated/jar-resources/vaadin-full-calendar/full-calendar';
@@ -46,7 +49,8 @@ package org.vaadin.stefan.fullcalendar;
  * calendar.setTheme("corporate");
  * }</pre>
  * <p>
- * The browser loads a theme only when a calendar on the page uses it, so themes that no calendar uses cost nothing.
+ * The browser loads a stock theme only when a calendar on the page uses it. The loader of a custom theme also runs
+ * only then.
  *
  * @see <a href="https://fullcalendar.io/docs/stock-themes">Stock themes</a>
  * @see <a href="https://fullcalendar.io/docs/color-palettes">Color palettes</a>

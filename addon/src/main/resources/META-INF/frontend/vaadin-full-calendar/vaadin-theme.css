@@ -1,0 +1,125 @@
+/*
+   Copyright 2026, Stefan Uebe
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+   documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+   rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all copies or substantial portions
+   of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+   WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+   COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+   Exception of this license is the separately licensed part of the styles.
+*/
+
+/*
+ * The FullCalendar Vaadin theme: FullCalendar's classic theme, colored and sized by the Vaadin application theme
+ * (Lumo or Aura). The theme plugin puts the class "fc-vaadin" on the calendar, its popover and its entries, which
+ * includes the entry a drag shows outside the calendar.
+ *
+ * The colors are derived from three base colors, taken from the Lumo or Aura variables. Those variables use
+ * light-dark() and are not registered, so they resolve where they are used and follow a color-scheme set on the
+ * calendar alone (the option colorScheme). An exception is Lumo's dark mode: theme="dark" on the page sets fixed dark
+ * values, so a calendar in a dark Lumo application cannot be made light. The registered --vaadin-* colors resolve
+ * once on the page root. They are only the fallback for an application without Lumo and Aura.
+ */
+
+@layer fc-palette {
+    /*
+     * Doubled to outrank classic's default palette, whose dark rule [data-color-scheme=dark] sits in the same layer
+     * when a classic calendar is on the page. Only on the outermost elements, which are the calendar, its popover and
+     * a dragged entry. The entries inside the calendar carry the class too and inherit the variables from the
+     * calendar, so a class of the application on the calendar can override them for one calendar.
+     */
+    .fc-vaadin.fc-vaadin:not(.fc-vaadin *) {
+        --_fc-vaadin-background: var(--lumo-base-color, var(--aura-surface-color-solid, var(--vaadin-background-color)));
+        --_fc-vaadin-text: var(--lumo-body-text-color, var(--aura-neutral, var(--vaadin-text-color)));
+        --_fc-vaadin-accent: var(--lumo-primary-color, var(--aura-accent-color, var(--vaadin-focus-ring-color)));
+        --_fc-vaadin-accent-text: var(--lumo-primary-text-color, var(--aura-accent-text-color, var(--_fc-vaadin-accent)));
+        --_fc-vaadin-accent-contrast: var(--lumo-primary-contrast-color, var(--aura-accent-contrast-color, #fff));
+
+        /* buttons, styled like Vaadin's secondary buttons */
+        --fc-classic-button: color-mix(in srgb, var(--_fc-vaadin-text) 6%, transparent);
+        --fc-classic-button-border: transparent;
+        --fc-classic-button-strong: color-mix(in srgb, var(--_fc-vaadin-text) 14%, transparent);
+        --fc-classic-button-strong-border: transparent;
+        --fc-classic-button-outline: color-mix(in srgb, var(--_fc-vaadin-accent) 50%, transparent);
+        --fc-classic-button-foreground: var(--_fc-vaadin-accent-text);
+
+        /* primary */
+        --fc-classic-primary: var(--_fc-vaadin-accent);
+        --fc-classic-primary-foreground: var(--_fc-vaadin-accent-contrast);
+
+        /* calendar content */
+        --fc-classic-event: var(--_fc-vaadin-accent);
+        --fc-classic-event-contrast: var(--_fc-vaadin-accent-contrast);
+        --fc-classic-background-event: var(--_fc-vaadin-accent);
+        --fc-classic-background-event-opacity: 15%;
+        --fc-classic-background-event-foreground-opacity: 50%;
+        --fc-classic-highlight: color-mix(in srgb, var(--_fc-vaadin-accent) 20%, transparent);
+        /* today is marked by a badge on its day number, see below */
+        --fc-classic-today: transparent;
+        --fc-classic-now: color-mix(in srgb, var(--_fc-vaadin-text) 50%, transparent);
+        --fc-classic-small-dot-width: 8px;
+        --fc-classic-large-dot-width: 10px;
+
+        /* neutral backgrounds */
+        --fc-classic-background: var(--_fc-vaadin-background);
+        --fc-classic-faint: color-mix(in srgb, var(--_fc-vaadin-text) 4%, transparent);
+        --fc-classic-muted: color-mix(in srgb, var(--_fc-vaadin-text) 8%, transparent);
+        --fc-classic-strong: color-mix(in srgb, var(--_fc-vaadin-text) 14%, transparent);
+
+        /* neutral foregrounds */
+        --fc-classic-foreground: var(--_fc-vaadin-text);
+        --fc-classic-faint-foreground: color-mix(in srgb, var(--_fc-vaadin-text) 40%, transparent);
+        --fc-classic-muted-foreground: color-mix(in srgb, var(--_fc-vaadin-text) 65%, transparent);
+
+        /* neutral borders */
+        --fc-classic-border: color-mix(in srgb, var(--_fc-vaadin-text) 12%, transparent);
+        --fc-classic-strong-border: color-mix(in srgb, var(--_fc-vaadin-text) 30%, transparent);
+    }
+}
+
+/*
+ * The option colorScheme sets data-color-scheme on the calendar, its popover and a dragged entry. Lumo and Aura switch
+ * their colors through color-scheme.
+ */
+@media not print {
+    .fc-vaadin[data-color-scheme=dark] {
+        color-scheme: dark;
+    }
+
+    .fc-vaadin[data-color-scheme=light] {
+        color-scheme: light;
+    }
+}
+
+/*
+ * The rules below change the look of classic's elements. Classic styles them with single classes, and its stylesheet
+ * may be added to the page after this one, when another calendar selects classic. The doubled class outranks classic
+ * whatever the order.
+ */
+
+/* the application's font, not classic's fixed 16px */
+.fc-vaadin.fc-vaadin {
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.fc-vaadin-small.fc-vaadin-small {
+    font-size: var(--lumo-font-size-s, var(--aura-font-size-s, 0.875rem));
+}
+
+/* today's day number or header, as a badge */
+.fc-vaadin-today.fc-vaadin-today {
+    color: var(--_fc-vaadin-accent-text);
+    background-color: color-mix(in srgb, var(--_fc-vaadin-accent) 10%, transparent);
+    border-radius: var(--vaadin-radius-s, 3px);
+    padding-inline: 0.25em;
+    font-weight: 800;
+}

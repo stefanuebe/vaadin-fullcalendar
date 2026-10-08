@@ -27,6 +27,7 @@ import rrulePlugin from '@fullcalendar/rrule';
 import googleCalendarPlugin from '@fullcalendar/google-calendar';
 import iCalendarPlugin from '@fullcalendar/icalendar';
 import legacyClassNamesPlugin from './legacy-class-names';
+import vaadinTheme from './vaadin-theme';
 
 // @ts-ignore TypeScript knows no type of a plain CSS import
 import 'fullcalendar/skeleton.css';
@@ -58,13 +59,16 @@ const stockThemes: Record<string, ThemeLoader> = {
         import('fullcalendar/themes/pulse/theme.css?inline'), import('fullcalendar/themes/pulse/palettes/red.css?inline')),
 };
 
-// The Vaadin FullCalendar theme is built in #266. Until then "vaadin" renders as classic.
-const themeLoaders = new Map<string, ThemeLoader>([...Object.entries(stockThemes), ['vaadin', stockThemes.classic]]);
+// The default theme comes with this module, so a calendar shows it without waiting for a load
+const themeLoaders = new Map<string, ThemeLoader>([...Object.entries(stockThemes), ['vaadin', async () => vaadinTheme]]);
 
 /** Loaded theme plugins by name. Each theme is loaded once per page, however many calendars use it. */
 const loadedThemes = new Map<string, Promise<PluginInput>>();
-/** Plugins of themes that finished loading, so a calendar created later gets its theme without a second render. */
-const resolvedThemes = new Map<string, PluginInput>();
+/**
+ * Plugins of themes that finished loading, so a calendar created later gets its theme without a second render. The
+ * default theme is there from the start.
+ */
+const resolvedThemes = new Map<string, PluginInput>([['vaadin', vaadinTheme]]);
 
 /**
  * Recursively walks a value and evaluates any JsCallback markers.
@@ -102,14 +106,11 @@ export function evaluateCallbacks(value: any): any {
 async function loadStockTheme(name: string, plugin: Promise<any>, themeCss: Promise<any>, paletteCss: Promise<any>) {
     const [pluginModule, theme, palette] = await Promise.all([plugin, themeCss, paletteCss]);
 
+    const style = document.createElement('style');
+    style.dataset.fcTheme = name;
     // Vaadin's build turns "?inline" CSS into a Lit CSSResult, not a string. String() gives the CSS text of either.
-    // "vaadin" loads classic too until #266, so the stylesheet may already be there
-    if (!document.head.querySelector(`style[data-fc-theme="${name}"]`)) {
-        const style = document.createElement('style');
-        style.dataset.fcTheme = name;
-        style.textContent = `${String(theme.default)}\n@layer fc-palette {\n${String(palette.default)}\n}`;
-        document.head.append(style);
-    }
+    style.textContent = `${String(theme.default)}\n@layer fc-palette {\n${String(palette.default)}\n}`;
+    document.head.append(style);
 
     return pluginModule.default;
 }

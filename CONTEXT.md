@@ -35,6 +35,10 @@ _Avoid_: Property, setting
 A complete visual design for the calendar provided by FullCalendar (classic, monarch, breezy, forma, pulse), or the addon's own Vaadin-aligned design built the same way. Chosen per calendar.
 _Avoid_: Theme (alone, ambiguous with the Vaadin application theme), FC theme
 
+**FullCalendar Vaadin theme**:
+The addon's own FullCalendar theme and the default (`FullCalendarTheme.VAADIN`). It builds on classic and takes its look from the Vaadin application theme.
+_Avoid_: Vaadin FullCalendar theme (reads as "the theme of the Vaadin add-on FullCalendar"), Vaadin theme
+
 **Palette**:
 A color set for a FullCalendar theme. One FullCalendar theme can offer several palettes.
 _Avoid_: Color theme, skin
@@ -44,7 +48,7 @@ Light or dark rendering of a calendar's palette.
 _Avoid_: Dark theme, mode
 
 **Vaadin application theme**:
-The Vaadin theme of the surrounding application (Lumo or Aura). Not part of the calendar, but the Vaadin FullCalendar theme takes its look from it.
+The Vaadin theme of the surrounding application (Lumo or Aura). Not part of the calendar, but the FullCalendar Vaadin theme takes its look from it.
 
 ### Plugins
 

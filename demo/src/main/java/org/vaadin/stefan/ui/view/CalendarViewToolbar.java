@@ -8,6 +8,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
@@ -38,6 +39,7 @@ import static org.vaadin.stefan.fullcalendar.Option.*;
 /**
  * @author Stefan Uebe
  */
+@JsModule("./palette-switcher.js")
 public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarLayout when V25 ready
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, new Timezone(ZoneId.of("Europe/Berlin")), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
 
@@ -262,20 +264,54 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         return calendarItems;
     }
 
+    /**
+     * Fills the palette menu with the palettes of the given theme and puts the page back on the theme's default
+     * palette. The menu is hidden for a theme with only one palette.
+     */
+    private void updatePaletteMenu(MenuItem paletteItem, String theme) {
+        List<String> palettes = FullCalendarPalette.availablePalettesFor(theme);
+        calendar.getElement().executeJs("window.demoSetPalette()");
+
+        SubMenu paletteMenu = paletteItem.getSubMenu();
+        paletteMenu.removeAll();
+        for (String palette : palettes) {
+            MenuItem item = paletteMenu.addItem(palette, event -> {
+                calendar.getElement().executeJs("window.demoSetPalette($0)", theme + "/" + palette);
+                paletteMenu.getItems().forEach(other -> other.setChecked(other == event.getSource()));
+            });
+            item.setCheckable(true);
+            item.setChecked(palette.equals(palettes.getFirst()));
+        }
+        paletteItem.setVisible(palettes.size() > 1);
+    }
+
     private SubMenu initGeneralSettings() {
         SubMenu subMenu = addDropDown("Settings").getSubMenu();
 
         MenuItem themeItem = subMenu.addItem("Calendar theme");
         SubMenu themeMenu = themeItem.getSubMenu();
+        MenuItem paletteItem = subMenu.addItem("Calendar palette");
+        // the Vaadin theme follows the application's color scheme, the switch is for the stock themes
+        MenuItem darkItem = subMenu.addItem("Calendar dark mode",
+                event -> calendar.setOption(COLOR_SCHEME, event.getSource().isChecked() ? "dark" : "light"));
+        darkItem.setCheckable(true);
+        darkItem.setVisible(!FullCalendarTheme.VAADIN.equals(calendar.getTheme()));
         for (String theme : List.of(FullCalendarTheme.VAADIN, FullCalendarTheme.CLASSIC, FullCalendarTheme.MONARCH,
                 FullCalendarTheme.BREEZY, FullCalendarTheme.FORMA, FullCalendarTheme.PULSE)) {
             MenuItem item = themeMenu.addItem(theme, event -> {
                 calendar.setTheme(theme);
                 themeMenu.getItems().forEach(other -> other.setChecked(other == event.getSource()));
+                updatePaletteMenu(paletteItem, theme);
+                darkItem.setVisible(!FullCalendarTheme.VAADIN.equals(theme));
+                if (FullCalendarTheme.VAADIN.equals(theme)) {
+                    darkItem.setChecked(false);
+                    calendar.setOption(COLOR_SCHEME, null);
+                }
             });
             item.setCheckable(true);
             item.setChecked(theme.equals(calendar.getTheme()));
         }
+        updatePaletteMenu(paletteItem, calendar.getTheme());
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> localeSelector = new ComboBox<>("Locale");
@@ -360,7 +396,6 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         );
         verticalLayout.setSpacing(false);
         verticalLayout.setPadding(false);
-        verticalLayout.setMargin(true);
         verticalLayout.setSizeUndefined();
         verticalLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
         subMenu.addItem(verticalLayout);
