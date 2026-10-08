@@ -1989,10 +1989,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * {@code FullCalendar.registerTheme(name, loader)}. The theme can be changed at any time, also while the calendar
      * is shown.
      * <p>
-     * The browser loads the theme when a calendar first uses it. Until its first theme has loaded, the calendar is
-     * invisible, so it never shows unstyled. On a later change it keeps the previous theme until the new one has
-     * loaded.
-     * <p>
      * A name that is not registered in the browser logs an error to the browser console. The calendar keeps the
      * theme it had before, or shows without a theme if it had none yet.
      * <p>
