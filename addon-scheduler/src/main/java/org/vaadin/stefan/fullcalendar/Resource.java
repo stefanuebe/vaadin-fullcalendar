@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
  * Represents a resource. ResourceEntries contain these resources (a resource itself does not know anything about
  * the assigned entries). A resource can have sub resources / child resources.
  * <p>
- * Resources can carry per-resource entry style overrides ({@link #setEntryBackgroundColor(String)},
- * {@link #setEntryBorderColor(String)}, {@link #setEntryTextColor(String)}, and
- * {@link #setEntryClassNames(java.util.Set)}) that apply to all entries associated with the resource.
+ * Resources can carry per-resource entry style overrides ({@link #setEntryTextColor(String)},
+ * {@link #setEntryClassNames(java.util.Set)}, and the deprecated {@link #setEntryBackgroundColor(String)} and
+ * {@link #setEntryBorderColor(String)}) that apply to all entries associated with the resource.
  */
 @Getter
 @EqualsAndHashCode(of = "id")
@@ -308,8 +308,8 @@ public class Resource implements Serializable {
      * events associated with this resource). If this resource has been added to a scheduler,
      * the change is propagated to the client immediately.
      * <p>
-     * To control background and border colors independently, use
-     * {@link #setEntryBackgroundColor(String)} and {@link #setEntryBorderColor(String)}.
+     * The deprecated {@link #setEntryBackgroundColor(String)} and {@link #setEntryBorderColor(String)} control
+     * background and border colors independently. 8.0 removes them, because FullCalendar 7 has one entry color.
      *
      * @param color CSS color string (e.g., {@code "#3788d8"}, {@code "blue"})
      */
@@ -327,7 +327,10 @@ public class Resource implements Serializable {
      * on the scheduler after modifying entry style properties.
      *
      * @param color CSS color string
+     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
+     *             {@link #setColor(String)}, which sets the background and the border color.
      */
+    @Deprecated(since = "7.2.5")
     public void setEntryBackgroundColor(String color) {
         this.eventBackgroundColor = color;
     }
@@ -336,7 +339,9 @@ public class Resource implements Serializable {
      * Returns the entry background color override for this resource, or {@code null} if not set.
      *
      * @return CSS color string or null
+     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use {@link #getColor()}.
      */
+    @Deprecated(since = "7.2.5")
     public String getEntryBackgroundColor() {
         return eventBackgroundColor;
     }
@@ -350,7 +355,11 @@ public class Resource implements Serializable {
      * on the scheduler after modifying entry style properties.
      *
      * @param color CSS color string
+     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
+     *             {@link #setColor(String)}, which sets the background and the border color, or style a separate
+     *             border color with CSS through {@link #setEntryClassNames(Set)}.
      */
+    @Deprecated(since = "7.2.5")
     public void setEntryBorderColor(String color) {
         this.eventBorderColor = color;
     }
@@ -359,7 +368,9 @@ public class Resource implements Serializable {
      * Returns the entry border color override for this resource, or {@code null} if not set.
      *
      * @return CSS color string or null
+     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use {@link #getColor()}.
      */
+    @Deprecated(since = "7.2.5")
     public String getEntryBorderColor() {
         return eventBorderColor;
     }

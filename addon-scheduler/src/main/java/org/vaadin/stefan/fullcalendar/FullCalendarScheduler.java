@@ -581,7 +581,17 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated since 7.2.5, removed in 8.0, because it sets the FullCalendar 3 options groupByResource and
+     *             groupByDateAndResource, which have no effect since FullCalendar 4. Use
+     *             {@link FullCalendarScheduler.SchedulerOption#DATES_ABOVE_RESOURCES}: {@code true} for
+     *             {@link GroupEntriesBy#DATE_RESOURCE}, {@code false} (the default) for
+     *             {@link GroupEntriesBy#RESOURCE_DATE}. {@link GroupEntriesBy#NONE} has no equivalent.
+     */
     @Override
+    @Deprecated(since = "7.2.5")
     public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
         switch (groupEntriesBy) {
             case NONE -> {
@@ -769,7 +779,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          * </dl>
          *
          * @see <a href="https://fullcalendar.io/docs/groupByDateAndResource">groupByDateAndResource</a>
+         * @deprecated since 7.2.5, removed in 8.0 without replacement, because this FullCalendar 3 option has no effect
+         *             since FullCalendar 4.
          */
+        @Deprecated(since = "7.2.5")
         GROUP_BY_DATE_AND_RESOURCE("groupByDateAndResource"),
 
         /**
@@ -780,7 +793,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          * </dl>
          *
          * @see <a href="https://fullcalendar.io/docs/groupByResource">groupByResource</a>
+         * @deprecated since 7.2.5, removed in 8.0 without replacement, because this FullCalendar 3 option has no effect
+         *             since FullCalendar 4.
          */
+        @Deprecated(since = "7.2.5")
         GROUP_BY_RESOURCE("groupByResource"),
 
         /**

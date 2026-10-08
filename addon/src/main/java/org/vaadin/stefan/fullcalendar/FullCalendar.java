@@ -2904,7 +2904,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * Can be overridden per-entry via {@link Entry#setBackgroundColor(String)}.
          *
          * @see <a href="https://fullcalendar.io/docs/eventBackgroundColor">eventBackgroundColor</a>
+         * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
+         *             {@link #ENTRY_COLOR}, which sets the background and the border color.
          */
+        @Deprecated(since = "7.2.5")
         ENTRY_BACKGROUND_COLOR,
 
         /**
@@ -2915,7 +2918,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
          * Can be overridden per-entry via {@link Entry#setBorderColor(String)}.
          *
          * @see <a href="https://fullcalendar.io/docs/eventBorderColor">eventBorderColor</a>
+         * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
+         *             {@link #ENTRY_COLOR}, which sets the background and the border color, or style a separate
+         *             border color with CSS.
          */
+        @Deprecated(since = "7.2.5")
         ENTRY_BORDER_COLOR,
 
         /**
