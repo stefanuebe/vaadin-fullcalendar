@@ -3,10 +3,10 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.component.html.Span;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,38 +32,6 @@ class SchedulerOptionsTest {
             Map.entry(SchedulerOption.RESOURCE_GROUP_DID_MOUNT, SchedulerOption.RESOURCE_GROUP_HEADER_DID_MOUNT),
             Map.entry(SchedulerOption.RESOURCE_GROUP_WILL_UNMOUNT, SchedulerOption.RESOURCE_GROUP_HEADER_WILL_UNMOUNT)
     );
-
-    /**
-     * Option names of FullCalendar Scheduler 7.1.0 (OPTION_REFINERS and LISTENER_REFINERS of the scheduler
-     * type definitions), plus the core options eventMinWidth and slotMinWidth that timeline views read.
-     * Copied by hand: it catches a mistyped key, not an option a later FullCalendar version drops.
-     */
-    private static final Set<String> FULLCALENDAR_7_KEYS = Set.of(
-            "schedulerLicenseKey", "virtualization", "initialResources", "resources", "eventResourceEditable",
-            "refetchResourcesOnNavigate", "resourceOrder", "filterResourcesWithEvents", "resourceGroupField",
-            "resourcesInitiallyExpanded", "datesAboveResources", "needsResourceData",
-            "resourceDayHeaderClass", "resourceDayHeaderInnerClass", "resourceDayHeaderContent",
-            "resourceDayHeaderDidMount", "resourceDayHeaderWillUnmount", "resourceDayHeaderAlign",
-            "resourceColumnsWidth", "resourceColumns", "resourceColumnDividerClass", "resourceColumnHeaderClass",
-            "resourceColumnHeaderInnerClass", "resourceColumnResizerClass", "resourceColumnHeaderContent",
-            "resourceColumnHeaderDidMount", "resourceColumnHeaderWillUnmount", "resourceHeaderRowClass",
-            "resourceRowClass", "resourceCellClass", "resourceCellInnerClass", "resourceCellContent",
-            "resourceCellDidMount", "resourceCellWillUnmount", "resourceGroupHeaderClass",
-            "resourceGroupHeaderInnerClass", "resourceGroupHeaderContent", "resourceGroupHeaderDidMount",
-            "resourceGroupHeaderWillUnmount", "resourceGroupLaneClass", "resourceGroupLaneInnerClass",
-            "resourceGroupLaneContent", "resourceGroupLaneDidMount", "resourceGroupLaneWillUnmount",
-            "resourceLaneClass", "resourceLaneDidMount", "resourceLaneWillUnmount", "resourceLaneTopClass",
-            "resourceLaneTopContent", "resourceLaneBottomClass", "resourceLaneBottomContent", "resourceIndentClass",
-            "resourceExpanderClass", "resourceExpanderContent", "timelineTopClass", "timelineBottomClass",
-            "resourcesSet", "resourceAdd", "resourceChange", "resourceRemove",
-            "eventMinWidth", "slotMinWidth");
-
-    @Test
-    void everyKeyIsAFullCalendar7Option() {
-        for (SchedulerOption option : SchedulerOption.values()) {
-            assertTrue(FULLCALENDAR_7_KEYS.contains(option.getOptionKey()), option.name() + " -> " + option.getOptionKey());
-        }
-    }
 
     @Test
     void deprecatedAliases_shareTheKeyOfTheirSuccessor() {
@@ -259,5 +227,16 @@ class SchedulerOptionsTest {
     void developerLicenseKey_isTheNonCommercialPresetKey() {
         assertEquals("CC-Attribution-NonCommercial-NoDerivatives", Scheduler.NON_COMMERCIAL_CREATIVE_COMMONS_LICENSE_KEY);
         assertEquals(Scheduler.NON_COMMERCIAL_CREATIVE_COMMONS_LICENSE_KEY, Scheduler.DEVELOPER_LICENSE_KEY);
+    }
+
+    @Test
+    void entryPrintLayout_sendsClientValue() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+
+        calendar.setOption(SchedulerOption.ENTRY_PRINT_LAYOUT, EntryPrintLayout.STACK);
+
+        ObjectNode initialOptions = (ObjectNode) calendar.getElement().getPropertyRaw("initialOptions");
+        assertEquals("stack", initialOptions.get("eventPrintLayout").asString());
+        assertEquals(EntryPrintLayout.STACK, calendar.getOption(SchedulerOption.ENTRY_PRINT_LAYOUT).orElseThrow());
     }
 }

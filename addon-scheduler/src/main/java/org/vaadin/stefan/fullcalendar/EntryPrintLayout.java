@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Stefan Uebe
+ * Copyright 2026, Stefan Uebe
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
  * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -14,30 +14,32 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.vaadin.stefan.fullcalendar.model;
-
-import lombok.Getter;
+package org.vaadin.stefan.fullcalendar;
 
 /**
- * Definition of header and footer positions.
+ * How time grid views lay out entries when printing.
+ * <p>
+ * Corresponds to the FullCalendar {@code eventPrintLayout} option, which FullCalendar's print plugin reads.
+ * {@link FullCalendarScheduler} loads that plugin.
  *
- * @deprecated set the toolbar with {@link org.vaadin.stefan.fullcalendar.Option#HEADER_TOOLBAR} or
- * {@link org.vaadin.stefan.fullcalendar.Option#FOOTER_TOOLBAR} and a {@code Map} of the positions
- * ({@code start}, {@code center}, {@code end}) to FullCalendar's button string, for example
- * {@code Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek")}.
- * {@link org.vaadin.stefan.fullcalendar.NativeToolbarParts} has constants for the positions and the built-in buttons.
- * This model knows only some of the buttons. View and custom buttons cannot be expressed with it, therefore it is deprecated.
+ * @see <a href="https://fullcalendar.io/docs/eventPrintLayout">eventPrintLayout</a>
  */
-@Deprecated(since = "8.0.0", forRemoval = true)
-@Getter
-public enum HeaderFooterPartPosition {
-	START("start"),
-	CENTER("center"),
-	END("end");
-	
-	private final String code;
-	
-	HeaderFooterPartPosition(String code) {
-		this.code = code;
-	}
+public enum EntryPrintLayout implements ClientSideValue {
+    /** FullCalendar picks the layout (default). */
+    AUTO("auto"),
+    /** Entries are stacked. */
+    STACK("stack"),
+    /** Entries keep their position in the time grid. */
+    GRID("grid");
+
+    private final String clientSideValue;
+
+    EntryPrintLayout(String clientSideValue) {
+        this.clientSideValue = clientSideValue;
+    }
+
+    @Override
+    public String getClientSideValue() {
+        return clientSideValue;
+    }
 }
