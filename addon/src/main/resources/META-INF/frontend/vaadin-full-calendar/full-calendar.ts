@@ -750,13 +750,18 @@ export class FullCalendar extends HTMLElement {
     addEventSource(sourceJson: any) {
         const srcId = sourceJson.id;
         const config = evaluateCallbacks({...sourceJson});
+        const userFailure = config.failure; // set by withFailure
         config.failure = (error: any) => {
-            this.dispatchEvent(new CustomEvent("eventSourceFailure", {
-                detail: {
-                    sourceId: srcId,
-                    message: (error && error.message) ? error.message : String(error)
-                }
-            }));
+            try {
+                if (typeof userFailure === 'function') userFailure(error);
+            } finally {
+                this.dispatchEvent(new CustomEvent("eventSourceFailure", {
+                    detail: {
+                        sourceId: srcId,
+                        message: (error && error.message) ? error.message : String(error)
+                    }
+                }));
+            }
         };
         this.calendar?.addEventSource(config);
     }

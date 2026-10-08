@@ -311,7 +311,8 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
     }
 
     /**
-     * Sets a per-source {@code failure} JS callback called when the source fails to fetch events.
+     * Sets a per-source {@code failure} JS callback called when the source fails to fetch events. It runs before
+     * the {@link RemoteEntrySourceFailureEvent} is sent to the server.
      * @param jsFunction JS function string
      * @return this
      */
@@ -321,7 +322,7 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
     }
 
     /**
-     * Sets a per-source {@code failure} JS callback.
+     * Sets a per-source {@code failure} JS callback, see {@link #withFailure(String)}.
      * @param callback JsCallback
      * @return this
      */
