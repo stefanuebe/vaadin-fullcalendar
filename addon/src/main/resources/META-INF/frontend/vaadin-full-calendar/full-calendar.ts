@@ -369,7 +369,11 @@ export class FullCalendar extends HTMLElement {
         if (end != null) {
             end = this.formatDate(end, allDay);
         } else if (event.allDay) { // when moved from time slotted to all day
-            end = this.formatDate(new Date(event.start.valueOf() + 86400000), allDay); // + 1 day
+            // start is the wall date (yyyy-MM-dd), so one calendar day is added to it. Adding 24 hours to the
+            // instant stays on the same date on a 25-hour day at the end of DST.
+            const day = new Date(start + 'T00:00:00Z');
+            day.setUTCDate(day.getUTCDate() + 1);
+            end = day.toISOString().substring(0, 10);
         } else { // when moved from all day to time slotted
             end = this.formatDate(new Date(event.start.valueOf() + 3600000), allDay); // + 1 hour
         }
