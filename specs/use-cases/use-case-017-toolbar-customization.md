@@ -87,7 +87,7 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 | ID | Rule |
 |----|------|
 | BR-01 | Toolbar maps accept keys `"start"`, `"center"`, `"end"` (FullCalendar also accepts `"left"` and `"right"`) |
-| BR-02 | Button names: `prev`, `next`, `today`, `prevYear`, `nextYear`, `title`, and any FC view name. `NativeToolbarParts` holds the positions and built-in names as constants |
+| BR-02 | Button names: `prev`, `next`, `today`, `prevYear`, `nextYear`, `title`, and any FullCalendar view name. `NativeToolbarParts` holds the positions and built-in names as constants |
 | BR-03 | Buttons separated by commas appear as a group; space-separated buttons have spacing between them |
 | BR-04 | Setting toolbar to `false` hides it entirely |
 | BR-05 | The toolbar model (`Header`, `Footer`, `HeaderFooterPart`, …) is deprecated in favour of the map |

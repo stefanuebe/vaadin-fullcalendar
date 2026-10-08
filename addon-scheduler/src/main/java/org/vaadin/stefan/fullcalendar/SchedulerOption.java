@@ -1137,7 +1137,6 @@ public enum SchedulerOption {
 
     ;
 
-
     private final String optionKey;
 
     private static final Map<SchedulerOption, List<JsonItemPropertyConverter<?, ?>>> CONVERTER_CACHE;

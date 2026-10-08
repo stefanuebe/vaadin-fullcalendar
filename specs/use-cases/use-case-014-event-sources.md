@@ -17,7 +17,7 @@
 
 ## User-Facing Behavior
 
-- JSON Feed: calendar fetches entries from a REST endpoint (FC adds start/end query params)
+- JSON Feed: calendar fetches entries from a REST endpoint (FullCalendar adds start/end query params)
 - Google Calendar: displays events from a Google Calendar (requires API key)
 - iCalendar: loads events from an .ics URL
 - Entries of remote entry sources are read-only by default; DnD/resize can be enabled per source

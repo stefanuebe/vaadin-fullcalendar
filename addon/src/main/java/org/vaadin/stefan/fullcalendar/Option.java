@@ -53,7 +53,7 @@ import java.util.*;
  * <p><b>Format objects</b> (used by {@link #DAY_HEADER_FORMAT}, {@link #SLOT_HEADER_FORMAT},
  * {@link #ENTRY_TIME_FORMAT}, {@link #LIST_DAY_FORMAT}, {@link #LIST_DAY_ALT_FORMAT},
  * {@link #WEEK_NUMBER_FORMAT}, {@link #POPOVER_FORMAT}, and similar):
- * pass a {@code Map<String, Object>} with FC formatter properties
+ * pass a {@code Map<String, Object>} with FullCalendar formatter properties
  * (e.g., {@code Map.of("hour", "numeric", "minute", "2-digit", "meridiem", "short")}).
  *
  * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
@@ -89,7 +89,6 @@ public enum Option {
      * @see <a href="https://fullcalendar.io/docs/all-day-header-render-hooks">allDayHeaderClass</a>
      */
     ALL_DAY_HEADER_CLASS("allDayHeaderClass"),
-
 
     /**
      * Custom content for the cell in the header area of time grid views that labels the all-day section. Accepts a
@@ -2388,7 +2387,6 @@ public enum Option {
      */
     FIXED_WEEK_COUNT,
 
-
     /**
      * Whether the view's horizontal scrollbar is fixed to the bottom of the viewport while the page is scrolled
      * vertically, if the calendar is in view but the scrollbar is below the fold.
@@ -2587,9 +2585,9 @@ public enum Option {
      * {@code CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue()}).
      * <p>
      * Set this before attach to skip the {@code changeView()}-after-attach workaround
-     * that was necessary in earlier FC versions.
+     * that was necessary in earlier FullCalendar versions.
      * <dl>
-     *   <dt>Type</dt>    <dd>String (FC view key, e.g. {@code "timeGridWeek"})</dd>
+     *   <dt>Type</dt>    <dd>String (FullCalendar view key, e.g. {@code "timeGridWeek"})</dd>
      *   <dt>Default</dt> <dd>{@code "dayGridMonth"}</dd>
      * </dl>
      *
@@ -2672,7 +2670,6 @@ public enum Option {
      * @see <a href="https://fullcalendar.io/docs/inline-week-number-render-hooks">inlineWeekNumberWillUnmount</a>
      */
     INLINE_WEEK_NUMBER_WILL_UNMOUNT("inlineWeekNumberWillUnmount"),
-
 
     /**
      * When entries are fetched.
@@ -2863,7 +2860,6 @@ public enum Option {
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderWillUnmount</a>
      */
     LIST_DAY_HEADER_WILL_UNMOUNT("listDayHeaderWillUnmount"),
-
 
     /**
      * Former name of {@link #LIST_DAY_ALT_FORMAT}: the format of the text on the right side of the day
@@ -3067,7 +3063,6 @@ public enum Option {
     @Deprecated(since = "8.0.0", forRemoval = true)
     MAX_ENTRIES_PER_DAY("dayMaxEvents"),
 
-
     /**
      * Format of the first cell of each month, when a day grid view spans several months.
      * <dl>
@@ -3268,7 +3263,6 @@ public enum Option {
      */
     MORE_LINK_WILL_UNMOUNT("moreLinkWillUnmount"),
 
-
     /**
      * Maximum number of month columns the multi-month grid tries to render. Fewer columns are shown if each
      * month would become smaller than {@link #SINGLE_MONTH_MIN_WIDTH}. Use {@code 1} for a single column.
@@ -3280,7 +3274,6 @@ public enum Option {
      * @see <a href="https://fullcalendar.io/docs/multiMonthMaxColumns">multiMonthMaxColumns</a>
      */
     MULTI_MONTH_MAX_COLUMNS,
-
 
     /**
      * Former name of {@link #SINGLE_MONTH_MIN_WIDTH}: the minimum pixel width of each month in the
@@ -3558,7 +3551,6 @@ public enum Option {
      * @see <a href="https://fullcalendar.io/docs/now-indicator-header-render-hooks">nowIndicatorHeaderContent</a>
      */
     NOW_INDICATOR_HEADER_CONTENT("nowIndicatorHeaderContent"),
-
 
     /**
      * Called after the now indicator arrow is added to the DOM. Accepts a {@link JsCallback}.

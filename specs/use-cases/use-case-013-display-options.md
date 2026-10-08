@@ -77,7 +77,7 @@ calendar.setOption(Option.SCROLL_TIME, LocalTime.of(8, 0));
 | BR-06 | `MoreLinkClickedEvent` fires when user clicks "+N more", whatever `MORE_LINK_CLICK` is set to, also with a `JsCallback` |
 | BR-07 | `NOW_INDICATOR` only works in timegrid views |
 | BR-08 | View-specific options can override these for particular views |
-| BR-09 | The "+N more" popover inherits `--fc-page-bg-color`. **Known gap**: FullCalendar's popover does not implement keyboard focus trapping or Escape-to-close-and-return-focus. This is a FC limitation. |
+| BR-09 | The "+N more" popover inherits `--fc-page-bg-color`. **Known gap**: FullCalendar's popover does not implement keyboard focus trapping or Escape-to-close-and-return-focus. This is a FullCalendar limitation. |
 | BR-10 | Format options (`DAY_CELL_FORMAT`, `TITLE_FORMAT`, …) take a format object, e.g. a `Map<String, Object>` |
 | BR-11 | `DURATION` takes a `Map` or a `String`, not a `java.time.Duration`, which is converted to hours, minutes and seconds and cannot express days or weeks. `DEFAULT_TIMED_ENTRY_DURATION` takes a `Duration` or a string, `DEFAULT_ALL_DAY_ENTRY_DURATION` a `Map` or a string |
 | BR-12 | `DAY_COUNT` sets the exact number of days, regardless of `WEEKENDS` and `HIDDEN_DAYS`. With `DURATION`, hidden days are omitted |
