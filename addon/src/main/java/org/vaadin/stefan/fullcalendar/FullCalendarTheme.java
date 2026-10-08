@@ -32,9 +32,9 @@ package org.vaadin.stefan.fullcalendar;
  *     <b>Note:</b> Because a palette applies to the whole page, all
  * calendars with the same theme share its colors.
  * <p>
- * To change colors, set the variables or load another palette in a stylesheet of the application. Keep that CSS out
- * of any CSS cascade layer ({@code @layer}). The add-on loads the default palette inside a cascade layer, so CSS
- * outside a layer always wins over it.
+ * To change colors, override the color variables or load another palette in a stylesheet of your application. See
+ * <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#colors-and-palettes">Colors and
+ * palettes</a> in the wiki for details and an example.
  * <p>
  * You can register your own custom theme using javascript:
  * <pre>{@code
