@@ -16,6 +16,19 @@ const firstEntry = (page) => page.locator('#cal-first .fc-event').first();
 const secondEntry = (page) => page.locator('#cal-second .fc-event').first();
 const themeStyle = (page, theme) => page.locator(`head style[data-fc-theme="${theme}"]`);
 
+/**
+ * The color a palette variable resolves to on the page. Resolved through an element, because the build may minify
+ * the declared value (e.g. to #010203).
+ */
+const resolvedColor = (page, variable) => page.evaluate((name) => {
+    const probe = document.createElement('div');
+    probe.style.color = `var(${name})`;
+    document.body.appendChild(probe);
+    const color = getComputedStyle(probe).color;
+    probe.remove();
+    return color;
+}, variable);
+
 test.describe('FullCalendar themes', () => {
 
     test.beforeEach(async ({ page }) => {
@@ -89,16 +102,17 @@ test.describe('FullCalendar themes', () => {
         await page.click('#theme-forma');
         await expect(themeStyle(page, 'forma')).toHaveCount(1);
 
-        // resolved through an element, because the build may minify the declared value (e.g. to #010203)
-        const background = await page.evaluate(() => {
-            const probe = document.createElement('div');
-            probe.style.color = 'var(--fc-forma-background)';
-            document.body.appendChild(probe);
-            const color = getComputedStyle(probe).color;
-            probe.remove();
-            return color;
-        });
-        expect(background).toBe('rgb(1, 2, 3)');
+        expect(await resolvedColor(page, '--fc-forma-background')).toBe('rgb(1, 2, 3)');
+    });
+
+    test('a stock palette imported by the application wins over the lazily loaded default palette', async ({ page }) => {
+        await page.click('#theme-breezy');
+        // the default palette has loaded, inside its layer
+        await expect(themeStyle(page, 'breezy')).toHaveCount(1);
+        expect(await themeStyle(page, 'breezy').textContent()).toMatch(/@layer fc-palette\s*\{[^}]*--fc-breezy-primary/);
+
+        // emerald's primary. The default palette indigo would give rgb(79, 70, 229).
+        expect(await resolvedColor(page, '--fc-breezy-primary')).toBe('rgb(5, 150, 105)');
     });
 
     test('a custom theme registered in the browser can be selected from Java', async ({ page }) => {

@@ -19,7 +19,8 @@ import java.time.LocalDate;
  * <p>
  * Two calendars with different themes on the same page. The buttons switch the theme of the first calendar to
  * each stock theme, to a custom theme registered in the browser ({@code test-custom}) and to a name nobody
- * registered ({@code unknown-theme}). The application stylesheet overrides one color of forma's default palette.
+ * registered ({@code unknown-theme}). The application stylesheet overrides one color of forma's default palette, and
+ * the application imports breezy's emerald palette in place of its default palette.
  * A third calendar uses {@code test-gated}, a custom theme that loads only once the test releases it. Two more use
  * {@code test-failing} (two calendars waiting on one load), whose load fails when the test says so, and
  * {@code test-swapped} / {@code test-swapped-failing}, whose loader the test replaces while it loads. A scheduler in
@@ -32,6 +33,8 @@ import java.time.LocalDate;
 @MenuItem(label = "Theme")
 @JsModule("./theme-test/register-custom-theme.ts")
 @CssImport("./theme-test/palette-override.css")
+// Imported the way the wiki documents it. It must win over breezy's default palette (indigo), which loads later.
+@CssImport("fullcalendar/themes/breezy/palettes/emerald.css")
 public class ThemeTestView extends VerticalLayout {
 
     public ThemeTestView() {
