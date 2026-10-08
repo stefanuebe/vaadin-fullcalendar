@@ -57,12 +57,10 @@ import static org.vaadin.stefan.fullcalendar.JsonUtils.toJsonNodeWithJackson;
 
 @JsModule("./vaadin-full-calendar/full-calendar.ts")
 @CssImport("./vaadin-full-calendar/full-calendar-styles.css")
-// full-calendar.ts imports these two modules. They are named here as well, because Vaadin checks only the files named
-// in these annotations to decide whether an application's frontend bundle needs a rebuild.
+@CssImport("./vaadin-full-calendar/vaadin-theme.css")
+// imported by full-calendar.ts, named here so that a change to them triggers a frontend bundle rebuild
 @JsModule("./vaadin-full-calendar/legacy-class-names.ts")
 @JsModule("./vaadin-full-calendar/vaadin-theme.ts")
-// the rules of the Vaadin FullCalendar theme, loaded only through this annotation
-@CssImport("./vaadin-full-calendar/vaadin-theme.css")
 @Tag("vaadin-full-calendar")
 public class FullCalendar extends Component implements HasStyle, HasSize, LocaleChangeObserver {
 

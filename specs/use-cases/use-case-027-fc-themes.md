@@ -64,6 +64,7 @@ FullCalendar.registerTheme('corporate', () => import('./corporate-theme'));
 | BR-07 | A load result is used only while its theme is still the selected one. A theme that finishes loading or fails after the calendar switched to another theme changes nothing. |
 | BR-08 | `FullCalendar.registerTheme(name, loader)` replaces a registration with the same name, also a stock theme's. Calendars that already show the replaced theme keep it until they select a theme again. A load of the replaced loader that is still running is discarded, and a calendar waiting for it loads with the new loader. |
 | BR-09 | Theme plugins and the stable class names plugin (UC-025) both set `*Class` options. FullCalendar joins them, so the stable classes stay with every theme. |
+| BR-10 | `FullCalendarPalette.availablePalettesFor(themeName)` lists the palettes of a stock theme of `FullCalendar.FC_CLIENT_VERSION`, the default first, unmodifiable. Empty for vaadin, classic (one palette) and any other name. `null` throws a NullPointerException. |
 
 ---
 
@@ -82,6 +83,7 @@ FullCalendar.registerTheme('corporate', () => import('./corporate-theme'));
 ### Unit Tests
 
 - [x] `ThemeTest` (browserless): default theme, `setTheme` reaches the element property, custom names, `null` and blank rejected.
+- [x] `FullCalendarPaletteTest`: palettes of a stock theme with the default first, empty for vaadin, classic and custom names, `null` rejected, list unmodifiable.
 
 ### E2E Tests
 

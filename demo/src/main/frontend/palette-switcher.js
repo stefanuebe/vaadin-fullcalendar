@@ -1,6 +1,6 @@
 // Switches the palette of a stock FullCalendar theme for the demo. The add-on loads the default palette inside the
-// cascade layer "fc-palette", so a palette added here without a layer wins over it. The keys match the palettes listed
-// in CalendarViewToolbar.
+// cascade layer "fc-palette", so a palette added here without a layer wins over it. The keys match the palettes of
+// FullCalendarPalette.
 const palettes = {
     'monarch/blue': () => import('fullcalendar/themes/monarch/palettes/blue.css?inline'),
     'monarch/green': () => import('fullcalendar/themes/monarch/palettes/green.css?inline'),

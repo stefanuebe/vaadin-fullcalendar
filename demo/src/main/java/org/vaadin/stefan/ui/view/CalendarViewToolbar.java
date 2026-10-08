@@ -41,16 +41,6 @@ import static org.vaadin.stefan.fullcalendar.Option.*;
  */
 @JsModule("./palette-switcher.js")
 public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarLayout when V25 ready
-    /**
-     * The palettes of each stock theme that has more than one, the default palette first. palette-switcher.js lists the
-     * same palettes.
-     */
-    private static final Map<String, List<String>> PALETTES = Map.of(
-            FullCalendarTheme.MONARCH, List.of("purple", "blue", "green", "red", "yellow"),
-            FullCalendarTheme.BREEZY, List.of("indigo", "amber", "emerald", "rose"),
-            FullCalendarTheme.FORMA, List.of("blue", "green", "purple", "red"),
-            FullCalendarTheme.PULSE, List.of("red", "blue", "green", "purple"));
-
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, new Timezone(ZoneId.of("Europe/Berlin")), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
 
     private final FullCalendar calendar;
@@ -279,7 +269,7 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
      * palette. The menu is hidden for a theme with only one palette.
      */
     private void updatePaletteMenu(MenuItem paletteItem, String theme) {
-        List<String> palettes = PALETTES.getOrDefault(theme, List.of());
+        List<String> palettes = FullCalendarPalette.availablePalettesFor(theme);
         calendar.getElement().executeJs("window.demoSetPalette()");
 
         SubMenu paletteMenu = paletteItem.getSubMenu();
