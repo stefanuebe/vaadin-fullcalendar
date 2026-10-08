@@ -340,8 +340,7 @@ public class Resource implements Serializable {
      * Sets the entry color for this resource ({@code eventColor}). Entries associated with this resource use it.
      * FullCalendar sets it on each entry's element as the CSS variable {@code --fc-event-color}, and the theme's
      * styles decide where it shows, see {@link Entry#setColor(String)}. If this resource has been added to a scheduler,
-     * the change is sent to the client immediately. Entries do not repaint from it, see
-     * {@link Scheduler#updateResource(Resource)}.
+     * the change is sent to the client immediately and the entries of this resource repaint.
      *
      * @param color CSS color string (e.g., {@code "#3788d8"}, {@code "blue"})
      */
@@ -559,8 +558,12 @@ public class Resource implements Serializable {
         ObjectNode jsonObject = JsonFactory.createObject();
 
         jsonObject.put("id", getId());
-        jsonObject.set("title", JsonUtils.toJsonNode(getTitle()));
-        jsonObject.set("eventColor", JsonUtils.toJsonNode(getColor()));
+        // empty instead of null, because FullCalendar shows null as the title "null"
+        jsonObject.put("title", getTitle() != null ? getTitle() : "");
+        // only when set, because FullCalendar turns null into the color "null" and the entries lose their color
+        if (getColor() != null) {
+            jsonObject.put("eventColor", getColor());
+        }
 
         BusinessHours[] businessHours = getBusinessHoursArray();
         if(businessHours != null && businessHours.length > 0) {

@@ -71,9 +71,36 @@ test.describe('Resource timeline view', () => {
         await expectRoomAColors(entry);
     });
 
+    test('updateResource repaints the entries of the resource and updates its entry rules', async ({ page }) => {
+        const entry = page.locator('.fc-timeline-event', { hasText: 'Room B Review' });
+        const colors = () => entry.evaluate(el => ({
+            background: getComputedStyle(el).backgroundColor,
+            text: getComputedStyle(el.querySelector('.fc-event-title') || el).color,
+        }));
+        // the ResourceApi getters read the same derived state FullCalendar validates drags and resizes with
+        const rules = () => page.evaluate(() => {
+            const resource = document.querySelector('vaadin-full-calendar-scheduler').calendar.getResourceById('b');
+            return { constraint: resource.eventConstraint, overlap: resource.eventOverlap };
+        });
+        await expect(entry).not.toHaveClass(/room-b-restyled/);
+        const initialColors = await colors();
+        // Room B has no color. Sent as null, FullCalendar used the color "null" and the entry was transparent
+        expect(initialColors.background).not.toBe('rgba(0, 0, 0, 0)');
+        expect(await rules()).toEqual({ constraint: null, overlap: null });
+
+        await page.click('#restyle-room-b');
+        await expect(entry).toHaveClass(/room-b-restyled/);
+        await expect.poll(colors).toEqual({ background: 'rgb(0, 0, 255)', text: 'rgb(255, 0, 0)' });
+        expect(await rules()).toEqual({ constraint: 'businessHours', overlap: false });
+
+        // values removed on the server are removed from the entries as well
+        await page.click('#unstyle-room-b');
+        await expect(entry).not.toHaveClass(/room-b-restyled/);
+        await expect.poll(colors).toEqual(initialColors);
+        expect(await rules()).toEqual({ constraint: null, overlap: null });
+    });
+
     test('updateResource sends eventClass and eventContrastColor under their FullCalendar 7 keys', async ({ page }) => {
-        // Checks the payload only: FullCalendar's Resource.setProp stores event style props without
-        // re-deriving the styles of the resource's entries, so they do not repaint.
         await page.evaluate(() => {
             const el = document.querySelector('vaadin-full-calendar-scheduler');
             const original = el.updateResource.bind(el);
