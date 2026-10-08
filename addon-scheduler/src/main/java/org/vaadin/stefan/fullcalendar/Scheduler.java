@@ -352,14 +352,13 @@ public interface Scheduler {
     <T> Optional<T> getOption(FullCalendarScheduler.SchedulerOption option);
     
     /**
-     * Set a grouping option for entries based on their assigned resource(s) and date.
+     * Was meant to group entries based on their assigned resource(s) and date. Has no effect, see the deprecation note.
      *
      * @param groupEntriesBy group entries by option
-     * @deprecated since 7.2.5, removed in 8.0, because it sets the options groupByResource and groupByDateAndResource
-     *             of an older FullCalendar library version, which have no effect anymore. Use
-     *             {@link FullCalendarScheduler.SchedulerOption#DATES_ABOVE_RESOURCES}: {@code true} for
-     *             {@link GroupEntriesBy#DATE_RESOURCE}, {@code false} (the default) for
-     *             {@link GroupEntriesBy#RESOURCE_DATE}. {@link GroupEntriesBy#NONE} has no equivalent.
+     * @deprecated since 7.2.5, removed in 8.0. This method already has no effect: it sets the options
+     *             groupByResource and groupByDateAndResource, which the used FullCalendar library version does not
+     *             support. To show dates above resources in a vertical resource view, use
+     *             {@link FullCalendarScheduler.SchedulerOption#DATES_ABOVE_RESOURCES}.
      */
     @Deprecated(since = "7.2.5")
     void setGroupEntriesBy(GroupEntriesBy groupEntriesBy);

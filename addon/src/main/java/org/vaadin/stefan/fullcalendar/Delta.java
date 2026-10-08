@@ -37,7 +37,9 @@ import java.util.concurrent.TimeUnit;
  * {@code months} fields on this class therefore remain zero for every real FC-originated delta
  * and are present only for historical / manually-constructed instances. The corresponding
  * getters are {@code @Deprecated(since = "7.2.0")}; downstream code that only needs to react
- * to drag/drop changes can rely on {@link #getDays()} alone.
+ * to drag/drop changes can rely on {@link #getDays()} alone. The constructor and the builder methods
+ * that take years and months are deprecated since 7.2.5. Build a delta with {@link #builder()} without
+ * them, and shift a date by years or months with {@link java.time.Period}.
  */
 @Getter
 @ToString
@@ -81,7 +83,12 @@ public class Delta {
      * @param hours hours delta
      * @param minutes minutes delta
      * @param seconds seconds delta
+     * @deprecated since 7.2.5, removed in 8.0, where the constructor takes only days, hours, minutes and seconds. Use
+     *             {@link #builder()} without {@code years} and {@code months}, which works the same way in 8.0. To
+     *             shift a date by years or months, use {@link java.time.Period} or {@code plusYears} and
+     *             {@code plusMonths} of {@link java.time.LocalDate}.
      */
+    @Deprecated(since = "7.2.5")
     @Builder
     public Delta(int years, int months, int days, int hours, int minutes, int seconds) {
         this.years = years;
@@ -101,8 +108,9 @@ public class Delta {
          *
          * @param years years delta
          * @return this
-         * @deprecated since 7.2.5, removed in 8.0, because in practice FullCalendar reports the date part of a delta in
-         *             days. Use {@link #days(int)}.
+         * @deprecated since 7.2.5, removed in 8.0, because in practice the deltas FullCalendar sends always have a
+         *             zero years part. To shift a date by years, use {@link java.time.Period} or {@code plusYears} of
+         *             {@link java.time.LocalDate}.
          */
         @Deprecated(since = "7.2.5")
         public DeltaBuilder years(int years) {
@@ -115,8 +123,9 @@ public class Delta {
          *
          * @param months months delta
          * @return this
-         * @deprecated since 7.2.5, removed in 8.0, because in practice FullCalendar reports the date part of a delta in
-         *             days. Use {@link #days(int)}.
+         * @deprecated since 7.2.5, removed in 8.0, because in practice the deltas FullCalendar sends always have a
+         *             zero months part. To shift a date by months, use {@link java.time.Period} or {@code plusMonths}
+         *             of {@link java.time.LocalDate}.
          */
         @Deprecated(since = "7.2.5")
         public DeltaBuilder months(int months) {
