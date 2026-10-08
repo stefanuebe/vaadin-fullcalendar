@@ -85,7 +85,7 @@ scheduler.addEntryDroppedSchedulerListener(event -> {
 |----|------|
 | BR-01 | `ResourceEntry` can only be added to `FullCalendarScheduler` (throws if plain `FullCalendar`) |
 | BR-02 | A `ResourceEntry` can be assigned to multiple resources (M:N relationship) |
-| BR-03 | `Resource.setTitle()` and `setColor()` auto-push to client; other style properties (`setEntryContrastColor`, `setEntryClassNames`, ...) need `updateResource()`. Entries do not repaint from the entry style props, a FullCalendar limitation (see #276) |
+| BR-03 | `Resource.setTitle()` and `setColor()` auto-push to client; other style properties (`setEntryContrastColor`, `setEntryClassNames`, ...) need `updateResource()`. Entries already shown repaint with the new entry style props |
 | BR-04 | `FILTER_RESOURCES_WITH_ENTRIES = true` hides resources with no entries |
 | BR-05 | `RESOURCES_INITIALLY_EXPANDED = false` collapses child resources on load |
 | BR-06 | `EntryDroppedSchedulerEvent` includes old and new resource as `Optional<Resource>` |
@@ -113,9 +113,9 @@ scheduler.addEntryDroppedSchedulerListener(event -> {
 - [x] Column header content, resource cell class, lane class and top content reach resource timeline views
 - [x] Resource day header class and content reach resource time grid and day grid views
 - [x] `updateResource` sends `eventColor`, `eventContrastColor` and `eventClass` under their FullCalendar 7 keys
+- [x] After `updateResource` the entries of the resource that are already shown repaint with the new color, contrast color and classes, and lose the ones removed on the server (#276)
+- [x] A resource without color keeps the default entry color (`eventColor` is sent only when set)
 - [x] A removed or replaced extended prop of a shown resource reaches the client. FullCalendar cannot delete an extended prop, so the key stays with the value `undefined`
-
-**Limitation (FullCalendar):** `Resource.setColor()` and `Scheduler.updateResource()` send `eventColor`, `eventContrastColor` and `eventClass` to the client, but FullCalendar does not re-derive the styles of entries that are already shown. Those entries keep their old colors and classes. Title and extended props update normally.
 
 ---
 
@@ -127,7 +127,7 @@ scheduler.addEntryDroppedSchedulerListener(event -> {
 
 ### E2E Tests
 - [ ] `scheduler-features.spec.js` — resource display and interaction
-- [x] `scheduler-views.spec.js` — resource timeline, resource time grid and resource day grid: column header content, resource cell class, lane class and top content, resource day header class and content, resource entry color / contrast color / class, `updateResource` payload
+- [x] `scheduler-views.spec.js` — resource timeline, resource time grid and resource day grid: column header content, resource cell class, lane class and top content, resource day header class and content, resource entry color / contrast color / class, `updateResource` payload and repaint
 
 ---
 

@@ -18,7 +18,8 @@ import java.util.Set;
  * <p>
  * Starts in resourceTimelineDay. The tests switch to resourceTimeGridDay and resourceDayGridDay on the client.
  * Resource "Room A" carries entry style overrides (eventColor, eventContrastColor, eventClass). The
- * "restyle-room-b" button gives "Room B" a class and colors afterwards, through {@code updateResource}.
+ * "restyle-room-b" button gives "Room B" a class, colors, a constraint and overlap afterwards, through
+ * {@code updateResource}. The "unstyle-room-b" button removes them again.
  * <p>
  * Route: /test/scheduler-views
  */
@@ -78,12 +79,23 @@ public class SchedulerViewsTestView extends VerticalLayout {
             // single updateResource call, which the spec checks by counting the calls.
             roomB.setEntryClassNames(Set.of("room-b-restyled"));
             roomB.setEntryContrastColor("#ff0000");
+            roomB.setEntryConstraint("businessHours");
+            roomB.setEntryOverlap(false);
             calendar.updateResource(roomB);
             roomB.setColor("#0000ff");
         });
         restyle.setId("restyle-room-b");
 
-        add(restyle);
+        Button unstyle = new Button("Unstyle Room B", e -> {
+            roomB.setEntryClassNames(null);
+            roomB.setEntryContrastColor(null);
+            roomB.setEntryConstraint(null);
+            roomB.setEntryOverlap(null);
+            roomB.setColor(null);
+        });
+        unstyle.setId("unstyle-room-b");
+
+        add(restyle, unstyle);
         addAndExpand(calendar);
     }
 }

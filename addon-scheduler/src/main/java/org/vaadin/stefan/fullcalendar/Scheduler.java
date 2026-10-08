@@ -256,9 +256,8 @@ public interface Scheduler {
      * Note: This is called automatically when using {@link Resource#setTitle(String)} or
      * {@link Resource#setColor(String)} on a resource that has been added to this scheduler.
      * <p>
-     * The title and extended props update on the client. The entry style props (color, contrast color,
-     * class names) reach the client too, but FullCalendar does not re-derive the resource's entry styles from
-     * them. Entries of this resource keep their old look, also those rendered later.
+     * The title, the extended props and the entry props (color, contrast color, class names, constraint,
+     * overlap, allow) update on the client. Entries of this resource that are already shown repaint.
      *
      * @param resource the resource to update on the client side; must not be null
      */

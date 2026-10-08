@@ -60,8 +60,7 @@ public class ResourceColumn implements Serializable {
     /**
      * Creates a new column definition for the given resource field name.
      * The field name must match a property in the resource's JSON representation
-     * (e.g., {@code "title"}, {@code "eventColor"}, or any key added via
-     * {@link Resource#setExtendedProp(String, Object)}).
+     * (e.g., {@code "title"} or any key added via {@link Resource#setExtendedProp(String, Object)}).
      *
      * @param field the resource property name to display in this column; must not be null
      */
