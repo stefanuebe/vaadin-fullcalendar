@@ -8,6 +8,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
@@ -38,7 +39,15 @@ import static org.vaadin.stefan.fullcalendar.Option.*;
 /**
  * @author Stefan Uebe
  */
+@JsModule("./palette-switcher.js")
 public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarLayout when V25 ready
+    /** The palettes of each stock theme that has more than one, the default palette first. */
+    private static final Map<String, List<String>> PALETTES = Map.of(
+            FullCalendarTheme.MONARCH, List.of("purple", "blue", "green", "red", "yellow"),
+            FullCalendarTheme.BREEZY, List.of("indigo", "amber", "emerald", "rose"),
+            FullCalendarTheme.FORMA, List.of("blue", "green", "purple", "red"),
+            FullCalendarTheme.PULSE, List.of("red", "blue", "green", "purple"));
+
     public static final List<Timezone> SOME_TIMEZONES = Arrays.asList(Timezone.UTC, new Timezone(ZoneId.of("Europe/Berlin")), new Timezone(ZoneId.of("America/Los_Angeles")), new Timezone(ZoneId.of("Japan")));
 
     private final FullCalendar calendar;
@@ -262,20 +271,51 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         return calendarItems;
     }
 
+    /** Fills the palette menu with the palettes of the theme, back on its default palette. Hidden for a theme with one. */
+    private void updatePaletteMenu(MenuItem paletteItem, String theme) {
+        List<String> palettes = PALETTES.getOrDefault(theme, List.of());
+        calendar.getElement().executeJs("window.demoSetPalette()");
+
+        SubMenu paletteMenu = paletteItem.getSubMenu();
+        paletteMenu.removeAll();
+        for (String palette : palettes) {
+            MenuItem item = paletteMenu.addItem(palette, event -> {
+                calendar.getElement().executeJs("window.demoSetPalette($0)", theme + "/" + palette);
+                paletteMenu.getItems().forEach(other -> other.setChecked(other == event.getSource()));
+            });
+            item.setCheckable(true);
+            item.setChecked(palette.equals(palettes.getFirst()));
+        }
+        paletteItem.setVisible(palettes.size() > 1);
+    }
+
     private SubMenu initGeneralSettings() {
         SubMenu subMenu = addDropDown("Settings").getSubMenu();
 
         MenuItem themeItem = subMenu.addItem("Calendar theme");
         SubMenu themeMenu = themeItem.getSubMenu();
+        MenuItem paletteItem = subMenu.addItem("Calendar palette");
+        // the Vaadin theme follows the application's color scheme, the switch is for the stock themes
+        MenuItem darkItem = subMenu.addItem("Calendar dark mode",
+                event -> calendar.setOption(COLOR_SCHEME, event.getSource().isChecked() ? "dark" : "light"));
+        darkItem.setCheckable(true);
+        darkItem.setVisible(!FullCalendarTheme.VAADIN.equals(calendar.getTheme()));
         for (String theme : List.of(FullCalendarTheme.VAADIN, FullCalendarTheme.CLASSIC, FullCalendarTheme.MONARCH,
                 FullCalendarTheme.BREEZY, FullCalendarTheme.FORMA, FullCalendarTheme.PULSE)) {
             MenuItem item = themeMenu.addItem(theme, event -> {
                 calendar.setTheme(theme);
                 themeMenu.getItems().forEach(other -> other.setChecked(other == event.getSource()));
+                updatePaletteMenu(paletteItem, theme);
+                darkItem.setVisible(!FullCalendarTheme.VAADIN.equals(theme));
+                if (FullCalendarTheme.VAADIN.equals(theme)) {
+                    darkItem.setChecked(false);
+                    calendar.setOption(COLOR_SCHEME, null);
+                }
             });
             item.setCheckable(true);
             item.setChecked(theme.equals(calendar.getTheme()));
         }
+        updatePaletteMenu(paletteItem, calendar.getTheme());
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> localeSelector = new ComboBox<>("Locale");
@@ -360,7 +400,6 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         );
         verticalLayout.setSpacing(false);
         verticalLayout.setPadding(false);
-        verticalLayout.setMargin(true);
         verticalLayout.setSizeUndefined();
         verticalLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
         subMenu.addItem(verticalLayout);
