@@ -101,8 +101,8 @@ public class Delta {
          *
          * @param years years delta
          * @return this
-         * @deprecated since 7.2.5, removed in 8.0, because in practice FullCalendar reports the date part of a delta
-         *             in days. Use {@link #days(int)}.
+         * @deprecated since 7.2.5, removed in 8.0, because in practice FullCalendar reports the date part of a delta in
+         *             days. Use {@link #days(int)}.
          */
         @Deprecated(since = "7.2.5")
         public DeltaBuilder years(int years) {
@@ -115,8 +115,8 @@ public class Delta {
          *
          * @param months months delta
          * @return this
-         * @deprecated since 7.2.5, removed in 8.0, because in practice FullCalendar reports the date part of a delta
-         *             in days. Use {@link #days(int)}.
+         * @deprecated since 7.2.5, removed in 8.0, because in practice FullCalendar reports the date part of a delta in
+         *             days. Use {@link #days(int)}.
          */
         @Deprecated(since = "7.2.5")
         public DeltaBuilder months(int months) {

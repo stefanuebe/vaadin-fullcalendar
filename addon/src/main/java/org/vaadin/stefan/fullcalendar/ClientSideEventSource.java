@@ -148,7 +148,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
      * Sets the background color for all entries from this source.
      * @param backgroundColor background color
      * @return this
-     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
+     * @deprecated since 7.2.5, removed in 8.0, because newer FullCalendar library versions have one entry color. Use
      *             {@link #withColor(String)}, which sets the background and the border color.
      */
     @Deprecated(since = "7.2.5")
@@ -161,7 +161,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
      * Sets the border color for all entries from this source.
      * @param borderColor border color
      * @return this
-     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
+     * @deprecated since 7.2.5, removed in 8.0, because newer FullCalendar library versions have one entry color. Use
      *             {@link #withColor(String)}, which sets the background and the border color, or style a separate
      *             border color with CSS.
      */
@@ -174,7 +174,8 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     /**
      * Returns the background color for all entries from this source.
      * @return background color or null
-     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use {@link #getColor()}.
+     * @deprecated since 7.2.5, removed in 8.0, because newer FullCalendar library versions have one entry color. Use
+     *             {@link #getColor()}.
      */
     @Deprecated(since = "7.2.5")
     public String getBackgroundColor() {
@@ -184,7 +185,8 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     /**
      * Returns the border color for all entries from this source.
      * @return border color or null
-     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use {@link #getColor()}.
+     * @deprecated since 7.2.5, removed in 8.0, because newer FullCalendar library versions have one entry color. Use
+     *             {@link #getColor()}.
      */
     @Deprecated(since = "7.2.5")
     public String getBorderColor() {

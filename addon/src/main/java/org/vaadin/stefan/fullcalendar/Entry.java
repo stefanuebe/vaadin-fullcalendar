@@ -1142,7 +1142,7 @@ public class Entry implements Serializable {
      * Returns the background color of this entry.
      *
      * @return background color or null
-     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
+     * @deprecated since 7.2.5, removed in 8.0, because newer FullCalendar library versions have one entry color. Use
      *             {@link #getColor()}.
      */
     @Deprecated(since = "7.2.5")
@@ -1154,7 +1154,7 @@ public class Entry implements Serializable {
      * Sets the background color for this entry. Null or empty string resets the color to the FC's default.
      *
      * @param backgroundColor background color
-     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
+     * @deprecated since 7.2.5, removed in 8.0, because newer FullCalendar library versions have one entry color. Use
      *             {@link #setColor(String)}, which sets the background and the border color.
      */
     @Deprecated(since = "7.2.5")
@@ -1175,7 +1175,7 @@ public class Entry implements Serializable {
      * Returns the border color of this entry.
      *
      * @return border color or null
-     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
+     * @deprecated since 7.2.5, removed in 8.0, because newer FullCalendar library versions have one entry color. Use
      *             {@link #getColor()}.
      */
     @Deprecated(since = "7.2.5")
@@ -1187,9 +1187,9 @@ public class Entry implements Serializable {
      * Sets the border color for this entry. Null or empty string resets the color to the FC's default.
      *
      * @param borderColor border color
-     * @deprecated since 7.2.5, removed in 8.0, because FullCalendar 7 has one entry color. Use
-     *             {@link #setColor(String)}, which sets the background and the border color, or style a separate
-     *             border color with CSS through {@link #addClassNames(String...)}.
+     * @deprecated since 7.2.5, removed in 8.0, because newer FullCalendar library versions have one entry color. Use
+     *             {@link #setColor(String)}, which sets the background and the border color, or style a separate border
+     *             color with CSS through {@link #addClassNames(String...)}.
      */
     @Deprecated(since = "7.2.5")
     public void setBorderColor(String borderColor) {

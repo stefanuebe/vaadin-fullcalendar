@@ -355,8 +355,8 @@ public interface Scheduler {
      * Set a grouping option for entries based on their assigned resource(s) and date.
      *
      * @param groupEntriesBy group entries by option
-     * @deprecated since 7.2.5, removed in 8.0, because it sets the FullCalendar 3 options groupByResource and
-     *             groupByDateAndResource, which have no effect since FullCalendar 4. Use
+     * @deprecated since 7.2.5, removed in 8.0, because it sets the options groupByResource and groupByDateAndResource
+     *             of an older FullCalendar library version, which have no effect anymore. Use
      *             {@link FullCalendarScheduler.SchedulerOption#DATES_ABOVE_RESOURCES}: {@code true} for
      *             {@link GroupEntriesBy#DATE_RESOURCE}, {@code false} (the default) for
      *             {@link GroupEntriesBy#RESOURCE_DATE}. {@link GroupEntriesBy#NONE} has no equivalent.
