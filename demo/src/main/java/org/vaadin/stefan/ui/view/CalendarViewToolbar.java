@@ -41,7 +41,10 @@ import static org.vaadin.stefan.fullcalendar.Option.*;
  */
 @JsModule("./palette-switcher.js")
 public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarLayout when V25 ready
-    /** The palettes of each stock theme that has more than one, the default palette first. */
+    /**
+     * The palettes of each stock theme that has more than one, the default palette first. palette-switcher.js lists the
+     * same palettes.
+     */
     private static final Map<String, List<String>> PALETTES = Map.of(
             FullCalendarTheme.MONARCH, List.of("purple", "blue", "green", "red", "yellow"),
             FullCalendarTheme.BREEZY, List.of("indigo", "amber", "emerald", "rose"),
@@ -271,7 +274,10 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         return calendarItems;
     }
 
-    /** Fills the palette menu with the palettes of the theme, back on its default palette. Hidden for a theme with one. */
+    /**
+     * Fills the palette menu with the palettes of the given theme and puts the page back on the theme's default
+     * palette. The menu is hidden for a theme with only one palette.
+     */
     private void updatePaletteMenu(MenuItem paletteItem, String theme) {
         List<String> palettes = PALETTES.getOrDefault(theme, List.of());
         calendar.getElement().executeJs("window.demoSetPalette()");
