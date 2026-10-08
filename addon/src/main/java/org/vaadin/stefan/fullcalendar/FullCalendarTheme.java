@@ -19,35 +19,34 @@ package org.vaadin.stefan.fullcalendar;
 /**
  * Names of the FullCalendar themes that come with the add-on, for {@link FullCalendar#setTheme(String)}.
  * <p>
- * FullCalendar has its own theme mechanism. A FullCalendar theme styles the calendar only: its grid, its entries and
- * its toolbar. It is separate from the Vaadin application theme (Lumo or Aura), which styles the page and the Vaadin
- * components. The calendar has no theme variants.
+ * FullCalendar has its own built-in theme mechanism to style its grid, its entries and its toolbar.
  * <p>
- * Each calendar shows exactly one FullCalendar theme. The default, {@link #VAADIN}, takes its look from the Vaadin
- * application theme, so the calendar matches the other Vaadin components.
- * <p>
- * The browser loads a theme only when a calendar on the page uses it, so themes that no calendar uses cost nothing.
- * <p>
- * FullCalendar ships five stock themes: classic, monarch, breezy, forma and pulse.
+ * The default, {@link #VAADIN}, takes its look from the Vaadin
+ * application theme (Lumo / Aura), so that the calendar matches the other Vaadin components.
+ * Additional to the Vaadin theme, the add-on ships the five FullCalendar stock themes: classic, monarch, breezy, forma and pulse.
  * <p>
  * A stock theme takes its colors from a palette, a stylesheet that sets CSS color variables for the whole page, named
  * {@code --fc-<theme>-*}, e.g. {@code --fc-monarch-background}. Classic has one palette, the other stock themes have
- * several. The add-on loads the default palette of the theme. Because a palette applies to the whole page, all
+ * several. The add-on loads the default palette of the theme.
+ * <p>
+ *     <b>Note:</b> Because a palette applies to the whole page, all
  * calendars with the same theme share its colors.
  * <p>
  * To change colors, set the variables or load another palette in a stylesheet of the application. Keep that CSS out
  * of any CSS cascade layer ({@code @layer}). The add-on loads the default palette inside a cascade layer, so CSS
  * outside a layer always wins over it.
  * <p>
- * Theme names are plain strings. A custom FullCalendar theme registered in the browser is selected the same way:
+ * You can register your own custom theme using javascript:
  * <pre>{@code
- * // in an own frontend module, loaded with @JsModule
+ * // your frontend js file, loaded with the @JsModule annotation in Java
  * import {FullCalendar} from 'Frontend/generated/jar-resources/vaadin-full-calendar/full-calendar';
  * FullCalendar.registerTheme('corporate', () => import('./corporate-theme'));
  *
  * // in Java
  * calendar.setTheme("corporate");
  * }</pre>
+ * <p>
+ * The browser loads a theme only when a calendar on the page uses it, so themes that no calendar uses cost nothing.
  *
  * @see <a href="https://fullcalendar.io/docs/stock-themes">Stock themes</a>
  * @see <a href="https://fullcalendar.io/docs/color-palettes">Color palettes</a>
