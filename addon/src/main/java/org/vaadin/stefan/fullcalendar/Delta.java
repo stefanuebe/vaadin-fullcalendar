@@ -24,6 +24,7 @@ import lombok.ToString;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -159,15 +160,21 @@ public class Delta {
         return new Delta(years, months, days, hours, minutes, seconds);
     }
 
+    /**
+     * Creates the delta that moves {@code deltaFrom} to {@code deltaTo}, so that {@code applyOn(deltaFrom)} returns
+     * {@code deltaTo}. The span is expressed in days and time, its years and months parts are zero. The span is
+     * truncated to whole seconds, so this holds exactly only when both date times have the same fraction of a second.
+     *
+     * @param deltaFrom date time the delta starts at
+     * @param deltaTo date time the delta ends at
+     * @return delta between both date times
+     * @throws NullPointerException when null is passed
+     * @throws ArithmeticException when the span has more days than an int holds
+     */
     public static Delta fromLocalDates(LocalDateTime deltaFrom, LocalDateTime deltaTo) {
-        return new Delta(
-                deltaTo.getYear() - deltaFrom.getYear(),
-                deltaTo.getMonthValue() - deltaFrom.getMonthValue(),
-                deltaTo.getDayOfMonth() - deltaFrom.getDayOfMonth(),
-                deltaTo.getHour() - deltaFrom.getHour(),
-                deltaTo.getMinute() - deltaFrom.getMinute(),
-                deltaTo.getSecond() - deltaFrom.getSecond()
-        );
+        Duration span = Duration.ofSeconds(ChronoUnit.SECONDS.between(deltaFrom, deltaTo));
+        return new Delta(0, 0, Math.toIntExact(span.toDays()), span.toHoursPart(), span.toMinutesPart(),
+                span.toSecondsPart());
     }
 
     /**

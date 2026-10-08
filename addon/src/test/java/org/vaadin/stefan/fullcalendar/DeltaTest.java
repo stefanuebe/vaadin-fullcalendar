@@ -91,4 +91,34 @@ public class DeltaTest {
         Assertions.assertEquals(5, delta.getMinutes());
         Assertions.assertEquals(6, delta.getSeconds());
     }
+
+    @Test
+    void fromLocalDates_acrossMonthEnd_isExpressedInDays() {
+        LocalDateTime from = LocalDateTime.of(2025, 1, 31, 10, 0);
+        LocalDateTime to = LocalDateTime.of(2025, 2, 1, 10, 0);
+
+        Delta delta = Delta.fromLocalDates(from, to);
+
+        Assertions.assertEquals(new Delta(0, 0, 1, 0, 0, 0), delta);
+        Assertions.assertEquals(to, delta.applyOn(from));
+    }
+
+    @Test
+    void fromLocalDates_backwardsAcrossYearEnd_isNegative() {
+        LocalDateTime from = LocalDateTime.of(2026, 1, 1, 0, 30);
+        LocalDateTime to = LocalDateTime.of(2025, 12, 30, 23, 0, 15);
+
+        Delta delta = Delta.fromLocalDates(from, to);
+
+        Assertions.assertEquals(new Delta(0, 0, -1, -1, -29, -45), delta);
+        Assertions.assertEquals(to, delta.applyOn(from));
+    }
+
+    @Test
+    void fromLocalDates_truncatesSpanToWholeSeconds() {
+        LocalDateTime from = LocalDateTime.of(2025, 1, 1, 10, 0, 0, 900_000_000);
+        LocalDateTime to = LocalDateTime.of(2025, 1, 1, 10, 0, 2, 100_000_000);
+
+        Assertions.assertEquals(new Delta(0, 0, 0, 0, 0, 1), Delta.fromLocalDates(from, to));
+    }
 }
