@@ -581,7 +581,16 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated since 7.2.5, removed in 8.0. This method already has no effect: it sets the options
+     *             groupByResource and groupByDateAndResource, which the used FullCalendar library version does not
+     *             support. To show dates above resources in a vertical resource view, use
+     *             {@link FullCalendarScheduler.SchedulerOption#DATES_ABOVE_RESOURCES}.
+     */
     @Override
+    @Deprecated(since = "7.2.5")
     public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
         switch (groupEntriesBy) {
             case NONE -> {
@@ -762,25 +771,32 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         FILTER_RESOURCES_WITH_ENTRIES("filterResourcesWithEvents"),
 
         /**
-         * Group the calendar view by date first, then by resource.
+         * Was meant to group the calendar view by date first, then by resource. Has no effect, see the deprecation
+         * note.
          * <dl>
          *   <dt>Type</dt>    <dd>{@code boolean}</dd>
          *   <dt>Default</dt> <dd>{@code false}</dd>
          * </dl>
          *
          * @see <a href="https://fullcalendar.io/docs/groupByDateAndResource">groupByDateAndResource</a>
+         * @deprecated since 7.2.5, removed in 8.0. This option already has no effect, because the used
+         *             FullCalendar library version does not support it. Remove it.
          */
+        @Deprecated(since = "7.2.5")
         GROUP_BY_DATE_AND_RESOURCE("groupByDateAndResource"),
 
         /**
-         * Group the calendar view by resource.
+         * Was meant to group the calendar view by resource. Has no effect, see the deprecation note.
          * <dl>
          *   <dt>Type</dt>    <dd>{@code boolean}</dd>
          *   <dt>Default</dt> <dd>{@code false}</dd>
          * </dl>
          *
          * @see <a href="https://fullcalendar.io/docs/groupByResource">groupByResource</a>
+         * @deprecated since 7.2.5, removed in 8.0. This option already has no effect, because the used
+         *             FullCalendar library version does not support it. Remove it.
          */
+        @Deprecated(since = "7.2.5")
         GROUP_BY_RESOURCE("groupByResource"),
 
         /**

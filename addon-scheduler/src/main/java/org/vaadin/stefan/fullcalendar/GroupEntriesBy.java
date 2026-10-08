@@ -17,8 +17,12 @@
 package org.vaadin.stefan.fullcalendar;
 
 /**
- * Enumeration of possible ways of how resource entries should be grouped.
+ * Enumeration of possible ways of how resource entries should be grouped. Has no effect, see the deprecation note.
+ *
+ * @deprecated since 7.2.5, removed in 8.0 together with {@link Scheduler#setGroupEntriesBy(GroupEntriesBy)}, which
+ *             already has no effect.
  */
+@Deprecated(since = "7.2.5")
 public enum GroupEntriesBy {
     /**
      * Do not group at all.
