@@ -53,7 +53,6 @@ public class EventSourcesTestView extends VerticalLayout {
         add(counters);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
         // Fix the date for reproducible tests

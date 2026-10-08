@@ -42,8 +42,9 @@ These are mechanical and non-negotiable:
   *unless* it is the method's only statement, or it sits immediately after the
   opening `{`.
 - **Multiline comments** are always preceded by one blank line.
+- **At most one blank line in a row**, in code and in comments.
 
-The three blank-line rules are easy to miss by reading: working through a long file
+The blank-line rules are easy to miss by reading: working through a long file
 by eye finds only a fraction of the real misses. *(Optional)* A small scanner script
 (e.g. `tools/scan-blank-lines.py <paths>`) that favours recall over precision does
 better; its output is adjudicated, not applied.
@@ -84,6 +85,15 @@ statement. Tightly related one-liners stay together.
 ## 6. Structure & visibility
 
 - **Nested types** (inner classes) belong at the **bottom** of the owning class.
+- **Member order in a TypeScript module:** types, then constants, then functions,
+  then the class. A type never stands between functions or methods.
+- **Member order in a class**, Java and TypeScript alike:
+  1. fields
+  2. constructors
+  3. static methods
+  4. lifecycle callbacks, such as `connectedCallback` and `disconnectedCallback`
+  5. the other methods. Here a method stands above the methods it calls. A getter
+     and setter pair stands right above the private methods it calls.
 - **Never widen production-API visibility** (package-private → public) just to
   make something testable. Test through the real public interface or restructure.
 - Prefer **deep modules**: a small, stable interface over a substantial

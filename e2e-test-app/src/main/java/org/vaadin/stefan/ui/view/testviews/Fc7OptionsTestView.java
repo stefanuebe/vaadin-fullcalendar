@@ -34,7 +34,6 @@ public class Fc7OptionsTestView extends VerticalLayout {
         add(new H2("FullCalendar 7 options"));
 
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));
         calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());
 

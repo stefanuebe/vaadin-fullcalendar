@@ -20,7 +20,7 @@
 - Recurring entries appear on every matching date within the visible range
 - Simple recurrence: entries repeat on specified days of the week
 - RRule recurrence: complex patterns (bi-weekly, monthly-by-weekday, yearly, etc.)
-- Individual occurrences cannot be edited separately (FC renders them as repeating instances)
+- Individual occurrences cannot be edited separately (FullCalendar renders them as repeating instances)
 
 ---
 

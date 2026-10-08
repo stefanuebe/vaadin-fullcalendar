@@ -66,7 +66,6 @@ public abstract class AbstractLayout extends AppLayout implements AfterNavigatio
         addDrawerContent();
     }
 
-
     protected void selectCurrentLocale() {
         Locale locale = (Locale) VaadinRequest.getCurrent().getWrappedSession().getAttribute("locale");
         if (locale == null) {

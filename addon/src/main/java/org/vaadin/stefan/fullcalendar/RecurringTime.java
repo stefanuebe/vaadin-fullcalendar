@@ -10,7 +10,7 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 /**
- * A simple time class, that allows times above 24 hours, since the FC allows recurring times to "bleed" into the
+ * A simple time class, that allows times above 24 hours, since FullCalendar allows recurring times to "bleed" into the
  * next day. Basically a simple variant of Duration with a specific purpose.
  */
 @Getter
@@ -49,7 +49,6 @@ public final class RecurringTime implements Serializable {
     public static RecurringTime of(int hours, int minutes) {
         return new RecurringTime(hours, minutes);
     }
-
 
     /**
      * Creates a new instance based on the given integer. The parameter must not be negative.

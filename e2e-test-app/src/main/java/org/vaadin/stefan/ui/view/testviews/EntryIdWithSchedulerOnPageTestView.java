@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Regression test view: plain {@link FullCalendar} with entries on the same page as a
- * {@link FullCalendarScheduler}. The scheduler's presence loads FC's Resource plugin,
+ * {@link FullCalendarScheduler}. The scheduler's presence loads FullCalendar's Resource plugin,
  * which patches {@code EventApi.prototype.getResources} onto every entry, including
  * the plain calendar's. If the default {@code eventDidMount} snippet (#202) calls
  * {@code event.getResources()} unguarded, the plain entry's {@code _def.resourceIds}

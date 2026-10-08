@@ -25,7 +25,7 @@ import java.util.Map;
  * Renders a scheduler with one resource carrying the extended props {@code department=Engineering} and
  * {@code floor=3}. A button triggers {@code setExtendedProp("department", "Marketing")} followed by
  * {@code updateResource(resource)}, a second removes {@code department}, a third replaces all extended props with
- * {@code building=B}. The Playwright spec reads the props from the FC client via
+ * {@code building=B}. The Playwright spec reads the props from the FullCalendar client via
  * {@code calendar.getResourceById('r1').extendedProps} before and after the click.
  * <p>
  * Route: /test/update-resource-extended-props

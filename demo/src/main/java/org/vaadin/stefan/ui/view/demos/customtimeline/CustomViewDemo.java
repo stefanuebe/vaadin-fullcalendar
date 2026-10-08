@@ -60,5 +60,4 @@ public class CustomViewDemo extends AbstractSchedulerView {
         return false;
     }
 
-
 }

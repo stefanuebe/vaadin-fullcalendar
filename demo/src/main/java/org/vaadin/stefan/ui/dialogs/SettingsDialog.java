@@ -35,7 +35,6 @@ public class SettingsDialog extends Dialog {
             Notification.show("Updated fixedWeekCount to " + !current);
         });
 
-
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> comboBoxLocales = new ComboBox<>("Locale");
         comboBoxLocales.setItems(items);

@@ -145,7 +145,6 @@ public class DemoDialog extends Dialog {
 
         fieldRecurring.addValueChangeListener(event -> onRecurringChanged(event.getValue()));
 
-
         // init binder
 
         binder = new Binder<>(Entry.class);
@@ -186,7 +185,6 @@ public class DemoDialog extends Dialog {
             LocalDateTime oldStart = event.getOldValue();
             LocalDateTime newStart = event.getValue();
             LocalDateTime end = fieldEnd.getValue();
-
 
             if (oldStart != null && newStart != null && end != null) {
                 Delta delta = Delta.fromLocalDates(oldStart, newStart);
@@ -312,7 +310,6 @@ public class DemoDialog extends Dialog {
             fieldEnd.setLabel("End");
             fieldRDays.getElement().removeFromParent();
         }
-
 
         fieldRDays.setVisible(recurring);
     }

@@ -75,7 +75,6 @@ public class AutoRevertTestView extends VerticalLayout {
         add(toggleBtn);
 
         FullCalendar calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
 
         // Fix date for reproducible tests
         calendar.setOption(Option.LOCALE, Locale.UK);

@@ -48,18 +48,18 @@ import java.util.stream.Stream;
  * <p>
  * The two modes are mutually exclusive. If a raw RRULE string is set, it takes precedence.
  * <p>
- * <b>Important:</b> RRule-based recurrence and FC's built-in recurrence ({@code daysOfWeek} etc.) are
+ * <b>Important:</b> RRule-based recurrence and FullCalendar's built-in recurrence ({@code daysOfWeek} etc.) are
  * <em>mutually exclusive</em> on a per-entry basis. Do not set both on the same entry.
  * <p>
  * Requires the {@code @fullcalendar/rrule} npm package and plugin to be loaded.
  *
- * @see <a href="https://fullcalendar.io/docs/rrule-plugin">FC rrule plugin documentation</a>
+ * @see <a href="https://fullcalendar.io/docs/rrule-plugin">FullCalendar rrule plugin documentation</a>
  */
 @Getter
 public class RRule implements Serializable {
 
     /**
-     * The recurrence frequency. Maps to FC's {@code freq} property.
+     * The recurrence frequency. Maps to FullCalendar's {@code freq} property.
      */
     public enum Frequency implements ClientSideValue {
         YEARLY("yearly"),
@@ -87,7 +87,7 @@ public class RRule implements Serializable {
 
     /**
      * The start date/time of the recurrence. ISO 8601 datetime string.
-     * If not set, FC uses the event's {@code start} date.
+     * If not set, FullCalendar uses the event's {@code start} date.
      */
     private String dtstart;
 
@@ -148,7 +148,7 @@ public class RRule implements Serializable {
 
     /**
      * Raw iCalendar RRULE string. When set, all structured fields are ignored and this string
-     * is sent directly to FC. Used for importing recurrence rules from external sources.
+     * is sent directly to FullCalendar. Used for importing recurrence rules from external sources.
      * Example: {@code "FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20231231T235959Z"}
      */
     private String rawRRule;
@@ -219,7 +219,7 @@ public class RRule implements Serializable {
     }
 
     /**
-     * Creates a new RRule from a raw iCalendar RRULE string. The string will be sent directly to FC
+     * Creates a new RRule from a raw iCalendar RRULE string. The string will be sent directly to FullCalendar
      * without any parsing. Useful for importing recurrence rules from external sources.
      * <p>
      * Example: {@code RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20231231T235959Z")}
@@ -470,7 +470,7 @@ public class RRule implements Serializable {
      * an {@link Entry} via {@link Entry#setRRule(RRule)}, these rules are transferred to the
      * entry's {@code exrule} property and serialized for FullCalendar's RRule plugin.
      * <p>
-     * The FC rrule plugin only accepts exrule as a structured object (or array of objects),
+     * The FullCalendar rrule plugin only accepts exrule as a structured object (or array of objects),
      * never as an iCalendar string. Passing a rule created via {@link #ofRaw(String)} therefore
      * throws an {@link IllegalArgumentException} — translate the raw string into a structured
      * RRule via the fluent API before excluding it.
@@ -508,7 +508,7 @@ public class RRule implements Serializable {
     }
 
     /**
-     * Converts a {@link DayOfWeek} to the 2-letter lowercase string expected by the FC rrule plugin
+     * Converts a {@link DayOfWeek} to the 2-letter lowercase string expected by the FullCalendar rrule plugin
      * (e.g. {@code MONDAY} → {@code "mo"}).
      */
     private static String toRRuleDay(DayOfWeek day) {
@@ -516,16 +516,16 @@ public class RRule implements Serializable {
     }
 
     /**
-     * Serializes this RRule to a JsonNode for sending to the FC client.
+     * Serializes this RRule to a JsonNode for sending to the client.
      * <ul>
-     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a StringNode so FC
+     *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a StringNode so FullCalendar
      *       parses it through the iCalendar string parser.</li>
      *   <li>If {@link #byweekday} contains a positional token such as {@code "-1fr"} or {@code "2mo"},
-     *       returns a StringNode. FC's object-form parser resolves weekday strings via
+     *       returns a StringNode. FullCalendar's object-form parser resolves weekday strings via
      *       {@code rrule.RRule[day.toUpperCase()]}, which only knows plain {@code MO..SU} — a
      *       positional token would resolve to {@code undefined} and crash the plugin. The string
      *       (iCal) parser handles positional BYDAY tokens natively.</li>
-     *   <li>Otherwise, returns an ObjectNode with the structured properties. FC's rrule plugin
+     *   <li>Otherwise, returns an ObjectNode with the structured properties. FullCalendar's rrule plugin
      *       requires the object form when the enclosing entry also carries {@code exdate} or
      *       {@code exrule} — sending the rrule as a string in those cases crashes the plugin.</li>
      * </ul>
@@ -610,7 +610,7 @@ public class RRule implements Serializable {
     }
 
     /**
-     * Converts this RRule to an iCalendar RRULE string that FC's rrule plugin can parse directly.
+     * Converts this RRule to an iCalendar RRULE string that FullCalendar's rrule plugin can parse directly.
      * If this was created via {@link #ofRaw(String)}, the raw string is returned as-is.
      *
      * @return RRULE string (e.g. {@code "FREQ=WEEKLY;BYDAY=MO,FR;DTSTART=20250303;UNTIL=20250331"})

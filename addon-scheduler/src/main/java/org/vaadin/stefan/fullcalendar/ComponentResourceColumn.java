@@ -89,7 +89,6 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
         this.componentFactory = componentFactory;
     }
 
-
     void bind(FullCalendarScheduler calendar) {
         if (this.boundCalendar != null && this.boundCalendar != calendar) {
             throw new IllegalStateException(
@@ -110,7 +109,6 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
     public boolean isBound() {
         return boundCalendar != null;
     }
-
 
     void createComponent(Resource resource) {
         Objects.requireNonNull(resource);
@@ -165,7 +163,6 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
         }
         components.clear();
     }
-
 
     /**
      * Returns the component for the given resource, or empty if none exists.
@@ -262,7 +259,6 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
                 }));
     }
 
-
     @Override
     public ComponentResourceColumn<T> withWidth(String width) {
         super.withWidth(width);
@@ -323,7 +319,6 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
         return this;
     }
 
-
     /**
      * @throws UnsupportedOperationException always — cell content is managed internally
      */
@@ -377,7 +372,6 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
         throw new UnsupportedOperationException(
                 "cellWillUnmount is managed internally by ComponentResourceColumn");
     }
-
 
     @Override
     public ObjectNode toJson() {

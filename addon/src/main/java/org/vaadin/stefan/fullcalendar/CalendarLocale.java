@@ -106,7 +106,6 @@ public enum CalendarLocale {
             .map(CalendarLocale::getLocale)
             .toArray(Locale[]::new);
 
-
     private static CalendarLocale defaultLocale = valueOf(Locale.getDefault()).orElse(ENGLISH);
 
     /**
@@ -114,7 +113,6 @@ public enum CalendarLocale {
      */
     @Getter
     private final Locale locale;
-
 
     CalendarLocale(String languageTag) {
         locale = Objects.requireNonNull(Locale.forLanguageTag(languageTag),
@@ -135,7 +133,6 @@ public enum CalendarLocale {
         }
         return Optional.empty();
     }
-
 
     /**
      * Get all available locales as an array of {@link Locale}.

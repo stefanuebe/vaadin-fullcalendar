@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @org.vaadin.stefan.ui.menu.MenuItem(label = "In Memory Entry Provider")
 public class InMemoryEntryProviderDemo extends AbstractEntryProviderDemo {
 
-
     @Override
     protected EntryProvider<Entry> createEntryProvider(EntryService<Entry> entryService) {
         List<Entry> entries = entryService.streamEntries().collect(Collectors.toList());

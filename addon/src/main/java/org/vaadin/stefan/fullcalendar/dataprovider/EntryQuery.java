@@ -94,7 +94,6 @@ public class EntryQuery {
             });
         }
 
-
         if (allDay != AllDay.BOTH) {
             Predicate<T> allDayFilter = Entry::isAllDay;
             if (allDay == AllDay.TIMED_ONLY) {

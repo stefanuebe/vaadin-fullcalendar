@@ -137,7 +137,6 @@ public class FullCalendarSchedulerTest {
         Assertions.assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(Option::getOptionKey).distinct().map(calendar::getOption).filter(Optional::isPresent).count());
     }
 
-
     @Test
     void testEmptyOptionalOnFetchingNonExistingResourceById() {
         Optional<Resource> optional = calendar.getResourceById("");

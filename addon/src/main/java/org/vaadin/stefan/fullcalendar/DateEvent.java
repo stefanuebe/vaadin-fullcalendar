@@ -34,7 +34,6 @@ public abstract class DateEvent extends ComponentEvent<FullCalendar> {
      */
     private final LocalDate date;
 
-
     /**
      * New instance. Awaits the date as iso string (e.g. "2018-10-23").
      *

@@ -362,7 +362,6 @@ public class ResourceTest {
         Assertions.assertEquals(PARENT + DEFAULT_TITLE, parentJson.get("title").asString(), "json title value");
         Assertions.assertEquals(PARENT + DEFAULT_COLOR, parentJson.get("eventColor").asString(), "json eventColor value");
 
-
         // check direct children
 
         Resource child1 = new Resource(CHILD1 + DEFAULT_ID, CHILD1 + DEFAULT_TITLE, CHILD1 + DEFAULT_COLOR);
@@ -466,7 +465,7 @@ public class ResourceTest {
 
     /**
      * Safety net for issue #230: the client-side {@code updateResource} fix relies on extended props
-     * being serialized as top-level JSON keys (that matches the FC Resource constructor shape).
+     * being serialized as top-level JSON keys (that matches the FullCalendar Resource constructor shape).
      * Without this invariant, the new {@code setExtendedProp} loop in
      * {@code full-calendar-scheduler.ts} would silently miss the props.
      */

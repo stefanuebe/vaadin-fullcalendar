@@ -29,8 +29,7 @@ import java.util.Objects;
  * or set a per-source key via {@link #withApiKey(String)}.
  * <br><br>
  * <strong>Note:</strong> Only public Google Calendars are supported. Private calendars require OAuth and cannot
- * use this source. FullCalendar fetches but never writes back to Google Calendar — it is read-only from FC's
- * perspective.
+ * use this source. FullCalendar fetches but never writes back to Google Calendar, so the source is read-only.
  * <br><br>
  * Example:
  * <pre>

@@ -64,5 +64,4 @@ public class TimeslotsSelectedSchedulerEvent extends TimeslotsSelectedEvent {
         return Optional.ofNullable(resource);
     }
 
-
 }

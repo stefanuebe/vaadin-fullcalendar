@@ -1,14 +1,12 @@
 package org.vaadin.stefan.ui.view.playground;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.vaadin.stefan.fullcalendar.*;
 
 import java.time.DayOfWeek;
@@ -164,21 +162,17 @@ public class PlaygroundToolbar extends HorizontalLayout {
         MenuItem settingsItem = settingsBar.addItem("Settings");
         SubMenu settingsSubMenu = settingsItem.getSubMenu();
 
-        // Wrap checkbox in a MenuItem — use component item
-        Checkbox lumoCheckbox = new Checkbox("Lumo");
-        lumoCheckbox.setValue(true); // Vaadin theme is on by default
-        lumoCheckbox.addValueChangeListener(e -> {
-            if (e.getValue()) {
-                calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-            } else {
-                calendar.removeThemeVariants(FullCalendarVariant.VAADIN);
-            }
-        });
-
-        VerticalLayout settingsLayout = new VerticalLayout(lumoCheckbox);
-        settingsLayout.setPadding(true);
-        settingsLayout.setSpacing(false);
-        settingsSubMenu.addItem(settingsLayout);
+        MenuItem themeItem = settingsSubMenu.addItem("Calendar theme");
+        SubMenu themeMenu = themeItem.getSubMenu();
+        for (String theme : List.of(FullCalendarTheme.VAADIN, FullCalendarTheme.CLASSIC, FullCalendarTheme.MONARCH,
+                FullCalendarTheme.BREEZY, FullCalendarTheme.FORMA, FullCalendarTheme.PULSE)) {
+            MenuItem item = themeMenu.addItem(theme, event -> {
+                calendar.setTheme(theme);
+                themeMenu.getItems().forEach(other -> other.setChecked(other == event.getSource()));
+            });
+            item.setCheckable(true);
+            item.setChecked(theme.equals(calendar.getTheme()));
+        }
 
         add(settingsBar);
     }

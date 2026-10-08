@@ -7,7 +7,7 @@ const { waitForVaadin } = require('./fixtures');
  * property changes to the client.
  *
  * Before the fix, updateResource only applied known built-in props (title, color, …)
- * via FC's setProp. Extended props were silently dropped, so the client state diverged
+ * via FullCalendar's setProp. Extended props were silently dropped, so the client state diverged
  * from the server after any update.
  */
 test.describe('Scheduler updateResource — extended props', () => {

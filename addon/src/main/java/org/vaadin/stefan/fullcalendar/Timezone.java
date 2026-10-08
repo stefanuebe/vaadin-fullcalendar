@@ -133,8 +133,6 @@ public class Timezone implements ClientSideValue {
         return localDateTime != null ? ZonedDateTime.of(localDateTime, getZoneId()).withZoneSameInstant(ZONE_ID_UTC) : null;
     }
 
-
-
     /**
      * Creates a local date time based by apply the zone offset of this timezone onto the given local date time.
      * Any offset modifies like daylight saving will be based on the given local date time.

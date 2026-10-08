@@ -156,7 +156,6 @@ public class InMemoryEntryProviderTest {
 
         assertNPE(provider, c -> c.removeEntries((Entry[]) null));
 
-
         provider.addEntries(entries);
         provider.removeEntries(entry1, entry2);
 
@@ -312,7 +311,6 @@ public class InMemoryEntryProviderTest {
 
         // matching only with exclusive start filter time so not matching at all
         entriesNotMatching.add(createEntry(null, "NM: Start of day to filter start", refStartOfDay, filterStart, false, true, null, null));
-
 
         // 0 timespan - matching only with exclusive start filter time so not matching at all
         entriesNotMatching.add(createEntry(null, "NM: Filter start to filter start", filterStart, filterStart, false, true, null, null));

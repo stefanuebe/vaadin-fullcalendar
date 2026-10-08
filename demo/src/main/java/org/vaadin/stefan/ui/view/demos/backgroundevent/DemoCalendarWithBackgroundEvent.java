@@ -37,7 +37,6 @@ public class DemoCalendarWithBackgroundEvent extends VerticalLayout {
         setDefaultHorizontalComponentAlignment(Alignment.STRETCH);
     }
 
-
     private void createCalendarInstance() {
         calendar = new FullCalendarScheduler();
         ((FullCalendarScheduler) calendar).setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);

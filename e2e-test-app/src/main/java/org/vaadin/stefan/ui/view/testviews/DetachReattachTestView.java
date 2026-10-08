@@ -84,7 +84,6 @@ public class DetachReattachTestView extends VerticalLayout {
 
         // --- Calendar ---
         calendar = new FullCalendar();
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
         calendar.setOption(Option.LOCALE, Locale.ENGLISH);
         calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));
         calendar.setOption(Option.INITIAL_VIEW, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue());

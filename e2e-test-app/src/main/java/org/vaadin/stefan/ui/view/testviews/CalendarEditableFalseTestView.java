@@ -23,7 +23,7 @@ import java.util.List;
  * calendar-level option.
  * <p>
  * The view renders two entries, neither of which calls {@code setEditable}. Playwright verifies
- * that FC does <b>not</b> add the {@code fc-event-draggable} class to their rendered elements.
+ * that FullCalendar does <b>not</b> add the {@code fc-event-draggable} class to their rendered elements.
  * <p>
  * Route: /test/calendar-editable-false
  */

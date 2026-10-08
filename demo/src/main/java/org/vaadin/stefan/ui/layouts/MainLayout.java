@@ -30,7 +30,6 @@ import org.vaadin.stefan.ui.view.demos.componentcolumns.ComponentColumnsDemo;
 import org.vaadin.stefan.ui.view.demos.multimonthselection.MultiMonthCrossMonthSelectionDemo;
 import org.vaadin.stefan.ui.view.demos.tooltip.DemoWithTooltip;
 
-
 public class MainLayout extends AbstractLayout {
     @Override
     protected void createMenuEntries(SideNav nav) {

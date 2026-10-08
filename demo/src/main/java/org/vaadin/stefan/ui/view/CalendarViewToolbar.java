@@ -265,18 +265,17 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
     private SubMenu initGeneralSettings() {
         SubMenu subMenu = addDropDown("Settings").getSubMenu();
 
-        // overhaul, when other themes are added
-        Checkbox themeSelector = new Checkbox("Use Lumo Theme");
-        themeSelector.setValue(calendar.hasThemeVariant(FullCalendarVariant.VAADIN));
-        themeSelector.addValueChangeListener(event -> {
-            boolean useLumo = event.getValue();
-            if (useLumo) {
-                calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-            } else {
-                calendar.removeThemeVariants(FullCalendarVariant.VAADIN);
-            }
-        });
-
+        MenuItem themeItem = subMenu.addItem("Calendar theme");
+        SubMenu themeMenu = themeItem.getSubMenu();
+        for (String theme : List.of(FullCalendarTheme.VAADIN, FullCalendarTheme.CLASSIC, FullCalendarTheme.MONARCH,
+                FullCalendarTheme.BREEZY, FullCalendarTheme.FORMA, FullCalendarTheme.PULSE)) {
+            MenuItem item = themeMenu.addItem(theme, event -> {
+                calendar.setTheme(theme);
+                themeMenu.getItems().forEach(other -> other.setChecked(other == event.getSource()));
+            });
+            item.setCheckable(true);
+            item.setChecked(theme.equals(calendar.getTheme()));
+        }
 
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> localeSelector = new ComboBox<>("Locale");
@@ -352,7 +351,6 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
         });
 
         VerticalLayout verticalLayout = new VerticalLayout(
-                themeSelector,
                 localeSelector,
                 timezoneSelector,
                 enablePrefetching,

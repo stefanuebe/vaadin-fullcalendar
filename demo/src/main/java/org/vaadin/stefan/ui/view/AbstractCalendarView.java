@@ -32,8 +32,6 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     public AbstractCalendarView() {
         calendar = createCalendar(createDefaultInitialOptions());
 
-        calendar.addThemeVariants(FullCalendarVariant.VAADIN);
-
         calendar.addEntryClickedListener(this::onEntryClick);
         calendar.addEntryDroppedListener(this::onEntryDropped);
         calendar.addEntryResizedListener(this::onEntryResized);
@@ -261,7 +259,6 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         return null;
     }
 
-
     protected Component createTitleElement() {
         String title = createTitle();
         if (title == null) {
@@ -366,6 +363,5 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected EntryProvider<Entry> getEntryProvider() {
         return getCalendar().getEntryProvider();
     }
-
 
 }

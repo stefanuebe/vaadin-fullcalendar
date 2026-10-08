@@ -37,5 +37,4 @@ public abstract class EntryChangedEvent extends EntryDataEvent {
         super(source, fromClient, jsonObject);
     }
 
-
 }

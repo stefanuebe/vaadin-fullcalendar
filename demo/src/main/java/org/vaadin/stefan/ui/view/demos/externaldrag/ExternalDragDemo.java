@@ -55,9 +55,6 @@ public class ExternalDragDemo extends AbstractCalendarView {
             provider.refreshAll();
         });
 
-
-
-
         return calendar;
     }
 
@@ -92,7 +89,6 @@ public class ExternalDragDemo extends AbstractCalendarView {
                 .withEventDataCallback(JsCallback.of(
                         "function(el) { console.info(el); return { title: el.innerText, duration: '01:00' }; }")));
         // Insert drag items and task list before the calendar
-
 
         // --- Draggable items ---
         HorizontalLayout dragItems = new HorizontalLayout();

@@ -16,28 +16,55 @@
 
    Exception of this license is the separately licensed part of the styles.
 */
-import {Calendar, CalendarOptions, DateInput, DateRangeInput, DurationInput} from 'fullcalendar';
+import {Calendar, CalendarOptions, DateInput, DateRangeInput, DurationInput, PluginInput} from 'fullcalendar';
 import interaction, {Draggable} from 'fullcalendar/interaction';
 import dayGridPlugin from 'fullcalendar/daygrid';
 import timeGridPlugin from 'fullcalendar/timegrid';
 import listPlugin from 'fullcalendar/list';
 import multiMonthPlugin from 'fullcalendar/multimonth';
 import allLocales from 'fullcalendar/locales-all';
-import classicThemePlugin from 'fullcalendar/themes/classic';
 import rrulePlugin from '@fullcalendar/rrule';
 import googleCalendarPlugin from '@fullcalendar/google-calendar';
 import iCalendarPlugin from '@fullcalendar/icalendar';
 import legacyClassNamesPlugin from './legacy-class-names';
 
+// @ts-ignore TypeScript knows no type of a plain CSS import
 import 'fullcalendar/skeleton.css';
-import 'fullcalendar/themes/classic/theme.css';
-import 'fullcalendar/themes/classic/palette.css';
 
 // Simple type, that allows JS object property access via ["xyz"]
 export type IterableObject = {
     [key: string]: any,
     hasOwnProperty: (key: string) => boolean;
 };
+
+/**
+ * Loads a FullCalendar theme and resolves to its theme plugin, or to a module whose default export is the plugin. The
+ * loader also loads the theme's CSS.
+ */
+export type ThemeLoader = () => Promise<PluginInput | { default: PluginInput }>;
+
+const stockThemes: Record<string, ThemeLoader> = {
+    classic: () => loadStockTheme('classic', import('fullcalendar/themes/classic'),
+        import('fullcalendar/themes/classic/theme.css?inline'), import('fullcalendar/themes/classic/palette.css?inline')),
+    monarch: () => loadStockTheme('monarch', import('fullcalendar/themes/monarch'),
+        import('fullcalendar/themes/monarch/theme.css?inline'),
+        import('fullcalendar/themes/monarch/palettes/purple.css?inline')),
+    breezy: () => loadStockTheme('breezy', import('fullcalendar/themes/breezy'),
+        import('fullcalendar/themes/breezy/theme.css?inline'),
+        import('fullcalendar/themes/breezy/palettes/indigo.css?inline')),
+    forma: () => loadStockTheme('forma', import('fullcalendar/themes/forma'),
+        import('fullcalendar/themes/forma/theme.css?inline'), import('fullcalendar/themes/forma/palettes/blue.css?inline')),
+    pulse: () => loadStockTheme('pulse', import('fullcalendar/themes/pulse'),
+        import('fullcalendar/themes/pulse/theme.css?inline'), import('fullcalendar/themes/pulse/palettes/red.css?inline')),
+};
+
+// The Vaadin FullCalendar theme is built in #266. Until then "vaadin" renders as classic.
+const themeLoaders = new Map<string, ThemeLoader>([...Object.entries(stockThemes), ['vaadin', stockThemes.classic]]);
+
+/** Loaded theme plugins by name. Each theme is loaded once per page, however many calendars use it. */
+const loadedThemes = new Map<string, Promise<PluginInput>>();
+/** Plugins of themes that finished loading, so a calendar created later gets its theme without a second render. */
+const resolvedThemes = new Map<string, PluginInput>();
 
 /**
  * Recursively walks a value and evaluates any JsCallback markers.
@@ -67,6 +94,26 @@ export function evaluateCallbacks(value: any): any {
     return result;
 }
 
+/**
+ * Loads a stock theme: its plugin, its stylesheet and its default palette. The palette goes into the cascade layer
+ * "fc-palette", so that any unlayered palette or color variable of the application wins, regardless of load order
+ * (ADR 0002). The CSS is imported as text and wrapped here, so the layer does not depend on the frontend build.
+ */
+async function loadStockTheme(name: string, plugin: Promise<any>, themeCss: Promise<any>, paletteCss: Promise<any>) {
+    const [pluginModule, theme, palette] = await Promise.all([plugin, themeCss, paletteCss]);
+
+    // Vaadin's build turns "?inline" CSS into a Lit CSSResult, not a string. String() gives the CSS text of either.
+    // "vaadin" loads classic too until #266, so the stylesheet may already be there
+    if (!document.head.querySelector(`style[data-fc-theme="${name}"]`)) {
+        const style = document.createElement('style');
+        style.dataset.fcTheme = name;
+        style.textContent = `${String(theme.default)}\n@layer fc-palette {\n${String(palette.default)}\n}`;
+        document.head.append(style);
+    }
+
+    return pluginModule.default;
+}
+
 export class FullCalendar extends HTMLElement {
 
     private _calendar!: Calendar;
@@ -92,6 +139,27 @@ export class FullCalendar extends HTMLElement {
     protected initialOptions = {};
     protected customViews: any = {};
 
+    /** Theme selected by the server, see {@link fcTheme}. */
+    private _fcTheme: string | undefined;
+    /** Plugins of the calendar without the theme plugin. */
+    private _basePlugins: PluginInput[] = [];
+
+    /**
+     * Registers a FullCalendar theme under the given name, so that the server can select it with
+     * {@code FullCalendar#setTheme(String)}. The loader runs when a calendar first uses the theme. Register before
+     * the calendar selects the theme, e.g. at the top level of a module loaded with {@code @JsModule}.
+     * <pre>
+     * FullCalendar.registerTheme('corporate', () => import('./corporate-theme'));
+     * </pre>
+     * A name that is already registered, also a stock theme name, is replaced. Calendars that already show the
+     * replaced theme keep it until they select a theme again.
+     */
+    static registerTheme(name: string, loader: ThemeLoader) {
+        themeLoaders.set(name, loader);
+        loadedThemes.delete(name);
+        resolvedThemes.delete(name);
+    }
+
     connectedCallback() {
         if (!this._calendar) {
             this.initCalendar();
@@ -100,20 +168,6 @@ export class FullCalendar extends HTMLElement {
             (this as any).$server.setBrowserTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
         } catch (e) {
             console.log("Could not obtain browsers time zone", e);
-        }
-    }
-
-    protected initCalendar() {
-        if (!this._calendar) {
-            let options = this.createInitOptions({...this.initialOptions, ...this.initialJsonOptions});
-
-            this._calendar = new Calendar(this, options);
-
-            this.initEventProviderCallbacks();
-
-            // needed for method calls, that somehow access the calendar's internals.
-            // FullCalendar resizes itself when the element changes size.
-            this._calendar.render();
         }
     }
 
@@ -127,6 +181,31 @@ export class FullCalendar extends HTMLElement {
 
         // Clean up pending revert functions
         this._pendingReverts.clear();
+    }
+
+    protected initCalendar() {
+        if (!this._calendar) {
+            let options = this.createInitOptions({...this.initialOptions, ...this.initialJsonOptions});
+            // the final list, including the plugins subclasses added in their createInitOptions
+            this._basePlugins = options.plugins;
+            const themePlugin = this._fcTheme ? resolvedThemes.get(this._fcTheme) : undefined;
+            if (themePlugin) {
+                options.plugins = [...this._basePlugins, themePlugin];
+            }
+
+            this._calendar = new Calendar(this, options);
+
+            this.initEventProviderCallbacks();
+
+            // needed for method calls, that somehow access the calendar's internals.
+            // FullCalendar resizes itself when the element changes size.
+            this._calendar.render();
+
+            // hidden, not unrendered, so the server's calls on the calendar work while the theme loads
+            if (!themePlugin && this._fcTheme && loadedThemes.has(this._fcTheme)) {
+                this.style.visibility = 'hidden';
+            }
+        }
     }
 
     protected createInitOptions(initialOptions = {}): any {
@@ -155,8 +234,9 @@ export class FullCalendar extends HTMLElement {
 
         // @ts-ignore
         options['locales'] = allLocales;
-        // @ts-ignore
-        options['plugins'] = [
+        // Subclasses push their own plugins into options.plugins. initCalendar keeps the final list for theme changes
+        // and adds the theme plugin.
+        options.plugins = [
             interaction,
             dayGridPlugin,
             timeGridPlugin,
@@ -164,12 +244,11 @@ export class FullCalendar extends HTMLElement {
             multiMonthPlugin,
             rrulePlugin,
             googleCalendarPlugin,
-            iCalendarPlugin,
-            classicThemePlugin,
+            iCalendarPlugin as PluginInput, // its typings do not match PluginInput
             legacyClassNamesPlugin
         ];
 
-        // Evaluate any JsCallback markers in initial options before passing to FC
+        // Evaluate any JsCallback markers in initial options before passing them to FullCalendar
         for (const key of Object.keys(options)) {
             (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key]);
         }
@@ -184,7 +263,7 @@ export class FullCalendar extends HTMLElement {
      * set of information as an object.
      * <br><br>
      * Does also include navLinkDayClick, navLinkWeekClick, but here the parameters are different (date for day
-     * and weekStart moment for week). See FC doc for details about these functions. Same for moreLinkClick.
+     * and weekStart moment for week). See FullCalendar doc for details about these functions. Same for moreLinkClick.
      * <br><br>
      * Example of the returned object.
      * <pre>
@@ -636,6 +715,90 @@ export class FullCalendar extends HTMLElement {
     getOption(key: string): unknown {
         // @ts-ignore
         return this.calendar ? this.calendar.getOption(key) : this.initialJsonOptions[key];
+    }
+
+    /**
+     * Name of the FullCalendar theme, set by the server. Until the initial theme is loaded, the calendar is rendered
+     * but kept invisible, so it never shows unstyled. A later theme change keeps the previous theme until the new one
+     * is loaded.
+     */
+    set fcTheme(name: string | undefined) {
+        this._fcTheme = name;
+        if (!name || resolvedThemes.has(name)) {
+            this.applyTheme();
+            return;
+        }
+
+        const loader = themeLoaders.get(name);
+        if (!loader) {
+            console.error(`FullCalendar: unknown theme "${name}". Registered themes: ${[...themeLoaders.keys()].join(', ')}`);
+            this.style.removeProperty('visibility');
+            return;
+        }
+
+        if (!loadedThemes.has(name)) {
+            const started: Promise<PluginInput> = loader().then(module => {
+                const plugin = (module as any).default ?? module;
+                // registerTheme may have replaced the loader while this one ran, then its result is outdated
+                if (loadedThemes.get(name) === started) {
+                    resolvedThemes.set(name, plugin);
+                }
+                return plugin;
+            });
+            loadedThemes.set(name, started);
+        }
+
+        const loading = loadedThemes.get(name)!;
+        // Only the theme still selected counts, a calendar switched to another theme meanwhile ignores this one.
+        // Errors of applyTheme are not caught here, so they are not reported as a failed load.
+        loading.then(() => {
+            if (this._fcTheme !== name) {
+                return;
+            }
+            if (resolvedThemes.has(name)) {
+                this.applyTheme();
+            } else {
+                this.fcTheme = name; // the loader was replaced while loading, load with the new one
+            }
+        }, error => {
+            if (themeLoaders.get(name) !== loader) {
+                // the loader was replaced while loading, its failure does not count. The new loader is a different
+                // function, so this re-run cannot end up here again for it.
+                if (this._fcTheme === name) {
+                    this.fcTheme = name;
+                }
+                return;
+            }
+            // the first of the calendars waiting for this load removes it, so the next selection tries again
+            if (loadedThemes.get(name) === loading) {
+                loadedThemes.delete(name);
+            }
+            console.error(`FullCalendar: could not load theme "${name}"`, error);
+            if (this._fcTheme === name) {
+                this.style.removeProperty('visibility');
+            }
+        });
+    }
+
+    get fcTheme(): string | undefined {
+        return this._fcTheme;
+    }
+
+    /**
+     * Gives the calendar the plugin of the current theme. Before the calendar exists, createInitOptions picks the
+     * theme up. A theme that finishes loading after another one was selected is not applied.
+     */
+    private applyTheme() {
+        const plugin = this._fcTheme ? resolvedThemes.get(this._fcTheme) : undefined;
+        if (!this._calendar || (this._fcTheme && !plugin)) {
+            return;
+        }
+
+        // plugins are read only at creation and by resetOptions, setOption ignores them
+        this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
+        this._calendar.resetOptions({plugins: plugin ? [...this._basePlugins, plugin] : this._basePlugins}, ['plugins']);
+        this.noDatesRenderEvent = false;
+        this.style.removeProperty('visibility');
     }
 
     next() {

@@ -62,5 +62,4 @@ public class TimeslotClickedSchedulerEvent extends TimeslotClickedEvent {
         return Optional.ofNullable(resource);
     }
 
-
 }

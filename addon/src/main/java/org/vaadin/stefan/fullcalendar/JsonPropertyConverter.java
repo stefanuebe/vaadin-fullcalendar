@@ -1,6 +1,5 @@
 package org.vaadin.stefan.fullcalendar;
 
-
 import tools.jackson.databind.JsonNode;
 
 /**

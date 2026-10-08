@@ -199,7 +199,7 @@ public interface Scheduler {
     
     /**
      * Configures the resource area as a multi-column data grid. Each column maps to a resource property.
-     * When set, FC renders a header row with column titles above the resource list.
+     * When set, FullCalendar renders a header row with column titles above the resource list.
      * <p>
      * Example:
      * <pre>{@code

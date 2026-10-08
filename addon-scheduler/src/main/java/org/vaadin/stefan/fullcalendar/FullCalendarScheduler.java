@@ -85,7 +85,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * initial options, that the calendar would normally receive. Theoretically you can set all options,
      * as long as they are not based on a client side variable (as for instance "plugins" or "locales").
      * Complex objects are possible, too, for instance for view-specific settings.
-     *  Please refer to the official FC documentation regarding potential options.
+     *  Please refer to the official FullCalendar documentation regarding potential options.
      * <br><br>
      * Client side event handlers, that are technically also a part of the options are still applied to
      * the options object. However you may set your own event handlers with the correct name. In that case
@@ -366,7 +366,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         ensureHiddenContainer();
         return hiddenContainer;
     }
-
 
     @Override
     public void updateResource(Resource resource) {
