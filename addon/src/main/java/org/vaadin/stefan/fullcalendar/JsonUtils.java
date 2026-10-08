@@ -66,6 +66,10 @@ public final class JsonUtils {
             value = clientSideValue.getClientSideValue();
         }
 
+        if (value instanceof JsCallback callback) {
+            return callback.toMarkerJson();
+        }
+
         if (value == null) {
             return JsonFactory.createNull();
         }

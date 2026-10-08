@@ -17,21 +17,28 @@
 package org.vaadin.stefan.fullcalendar;
 
 /**
- * Names of the toolbar positions and of FullCalendar's built-in toolbar items, for the map passed to
- * {@link Option#HEADER_TOOLBAR} and {@link Option#FOOTER_TOOLBAR}. The map goes from a position to a string of
- * items. Items separated by a comma are shown adjacent, items separated by a space with a small gap.
- * A view button is the view's name, see {@link CalendarView#getClientSideValue()}.
+ * Names of the positions and items of FullCalendar's built-in toolbar, for the map passed to
+ * {@link Option#HEADER_TOOLBAR} and {@link Option#FOOTER_TOOLBAR}.
+ * <p>
+ * The constants only affect FullCalendar's built-in header and footer toolbar, not a Vaadin component. The add-on hides
+ * the header toolbar by default, and FullCalendar shows no footer toolbar by default. Setting
+ * {@link Option#HEADER_TOOLBAR} or {@link Option#FOOTER_TOOLBAR} shows the respective toolbar.
+ * <p>
+ * The map goes from a position to a string of items. Items separated by a comma are shown adjacent, items
+ * separated by a space with a small gap. A view button is the view's name, see
+ * {@link CalendarView#getClientSideValue()}.
  * <pre>{@code
  * calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
- *         ToolbarParts.START, ToolbarParts.PREV + "," + ToolbarParts.NEXT + " " + ToolbarParts.TODAY,
- *         ToolbarParts.CENTER, ToolbarParts.TITLE,
- *         ToolbarParts.END, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue() + ","
+ *         NativeToolbarParts.START,
+ *                 NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + " " + NativeToolbarParts.TODAY,
+ *         NativeToolbarParts.CENTER, NativeToolbarParts.TITLE,
+ *         NativeToolbarParts.END, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue() + ","
  *                 + CalendarViewImpl.TIME_GRID_WEEK.getClientSideValue()));
  * }</pre>
  *
  * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
  */
-public final class ToolbarParts {
+public final class NativeToolbarParts {
 
     /** Position at the start of the toolbar, left in a left-to-right layout. */
     public static final String START = "start";
@@ -53,6 +60,6 @@ public final class ToolbarParts {
     /** Button that moves the calendar to the current month, week or day. */
     public static final String TODAY = "today";
 
-    private ToolbarParts() {
+    private NativeToolbarParts() {
     }
 }

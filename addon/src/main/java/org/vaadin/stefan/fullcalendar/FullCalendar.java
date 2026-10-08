@@ -40,6 +40,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static org.vaadin.stefan.fullcalendar.JsonUtils.toJsonNodeWithJackson;
+
 /**
  * Flow implementation for the FullCalendar.
  * <p>
@@ -260,7 +262,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
                     // since that is also cached as a property
                     ObjectNode optionsJson = JsonFactory.createObject();
                     if (!options.isEmpty()) {
-                        options.forEach((key, value) -> optionsJson.set(key, JsonUtils.toJsonNode(value)));
+                        options.forEach((key, value) -> optionsJson.set(key, toJsonNodeWithJackson(value)));
                     }
 
                     getElement().callJsFunction("restoreStateFromServer",
@@ -722,7 +724,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         }
 
         if (attached) {
-            Object[] parameters = Stream.concat(Stream.of(option, value), Stream.of(additionalParameters)).toArray(Object[]::new);
+            Object[] parameters = Stream.concat(Stream.of(option, toJsonNodeWithJackson(value)),
+                    Stream.of(additionalParameters)).toArray(Object[]::new);
             getElement().callJsFunction(method, parameters);
         } else {
             ObjectNode initialOptions = (ObjectNode) getElement().getPropertyRaw("initialOptions");
@@ -734,7 +737,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             if (value == null) {
                 initialOptions.remove(option);
             } else {
-                initialOptions.set(option, JsonUtils.toJsonNode(value));
+                initialOptions.set(option, toJsonNodeWithJackson(value));
             }
         }
     }
@@ -2057,7 +2060,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
                     break;
                 }
             }
-            viewNode.set(optionKey, JsonUtils.toJsonNode(clientValue));
+            viewNode.set(optionKey, toJsonNodeWithJackson(clientValue));
         }
         syncViewSpecificOptions();
     }
