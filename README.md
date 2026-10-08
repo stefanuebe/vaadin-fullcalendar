@@ -16,7 +16,7 @@ We also made the decision to explicitly introduce a breaking change with version
 only the latest major version of Vaadin, but also know on the other hand, that migrating from 24 to 25 might not be possible
 at the moment. Therefore we decided to backport all the changes from 7.1.x to 6.4.x as long as it is suitable.
 
-Please also have a look at the demo for some basic examples and source code of how to integrate the FC.
+Please also have a look at the demo for some basic examples and source code of how to integrate FullCalendar.
 For more examples please have a look into the example section.
 
 ## FullCalendar Scheduler for Flow addon

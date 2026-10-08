@@ -119,7 +119,6 @@ public class JsonUtilsTest {
         source = Arrays.asList(true, false, true);
         assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source), BooleanNode.class, JsonNode::asBoolean);
 
-
         Assertions.assertTrue(true); // prevent implemention change
         List<CalendarViewImpl> eSource = Arrays.asList(CalendarViewImpl.values());
 
@@ -144,7 +143,6 @@ public class JsonUtilsTest {
         source = Arrays.asList(true, false, true);
         assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.stream()), BooleanNode.class, JsonNode::asBoolean);
 
-
         List<CalendarViewImpl> eSource = Arrays.asList(CalendarViewImpl.values());
 
         assertEqualArray((Iterator) eSource.stream().map(ClientSideValue::getClientSideValue).iterator(), JsonUtils.toJsonNode(eSource.stream()), StringNode.class, JsonNode::asString);
@@ -166,7 +164,6 @@ public class JsonUtilsTest {
 
         source = Arrays.asList(true, false, true);
         assertEqualArray(source.iterator(), JsonUtils.toJsonNode(source.toArray()), BooleanNode.class, JsonNode::asBoolean);
-
 
         List<CalendarViewImpl> eSource = Arrays.asList(CalendarViewImpl.values());
 

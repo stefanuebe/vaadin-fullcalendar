@@ -63,7 +63,6 @@ public abstract class ViewRenderEvent extends ComponentEvent<FullCalendar> {
      */
     private final LocalDate end;
 
-
     private final CalendarView calendarView;
 
     /**

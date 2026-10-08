@@ -41,7 +41,7 @@ vaadin-full-calendar .fc-event.fc-event-past {
 
 | ID | Rule |
 |----|------|
-| BR-01 | The classes are delivered as `optionDefaults` / `views` of an FC plugin. FullCalendar joins `*Class` values of plugins, themes and user options, so the stable classes never replace theme or user classes. |
+| BR-01 | The classes are delivered as `optionDefaults` / `views` of a FullCalendar plugin. FullCalendar joins `*Class` values of plugins, themes and user options, so the stable classes never replace theme or user classes. |
 | BR-02 | Each class is mapped to the option and info flag that FullCalendar's CSS migration guide (`upgrading-from-v6-css`) names for it. Classes the guide lists as obsolete or without replacement are not offered. |
 | BR-03 | Scheduler classes (timeline, datagrid, resource) live in the scheduler module, core classes in the core module. |
 | BR-04 | `fc-event-mirror` marks rendered mirror entries (e.g. during a resize). The element that follows the pointer during a drag carries `fc-event-dragging`. |

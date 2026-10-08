@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * deltas as {@code {years, months, days, milliseconds}}, but in practice the client always
  * normalises the year/month portion into {@code days}. Dragging an entry across several months
  * produces, for example, {@code days: 31} rather than {@code months: 1}. The {@code years} and
- * {@code months} fields on this class therefore remain zero for every real FC-originated delta.
+ * {@code months} fields on this class therefore remain zero for every real FullCalendar-originated delta.
  * They have no getters and only take effect in {@code applyOn} and {@code subtractFrom}. Code
  * that reacts to drag/drop changes can rely on {@link #getDays()} alone.
  */
@@ -43,13 +43,13 @@ import java.util.concurrent.TimeUnit;
 public class Delta {
 
     /**
-     * The delta's years part. FC-originated deltas are normalised so this is always zero in
+     * The delta's years part. FullCalendar-originated deltas are normalised so this is always zero in
      * practice — see class-level Javadoc.
      */
     @Getter(lombok.AccessLevel.NONE)
     private final int years;
     /**
-     * The delta's months part. FC-originated deltas are normalised so this is always zero in
+     * The delta's months part. FullCalendar-originated deltas are normalised so this is always zero in
      * practice — see class-level Javadoc.
      */
     @Getter(lombok.AccessLevel.NONE)

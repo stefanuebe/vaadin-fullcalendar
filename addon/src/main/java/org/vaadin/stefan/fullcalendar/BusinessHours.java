@@ -95,7 +95,6 @@ public class BusinessHours implements Serializable {
         return of(ALL_DAYS);
     }
 
-
     /**
      * Creates a new instance for all days of a normal business week (Mo-Fr).
      * <br><br>
@@ -104,7 +103,6 @@ public class BusinessHours implements Serializable {
     public static BusinessHours businessWeek() {
         return of(DEFAULT_BUSINESS_WEEK);
     }
-
 
     /**
      * Creates a new instance. Defines the days of business plus start and end time for each of these days.

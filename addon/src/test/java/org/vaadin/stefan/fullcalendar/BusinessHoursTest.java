@@ -76,7 +76,6 @@ public class BusinessHoursTest {
         Assertions.assertEquals(BusinessHours.ALL_DAYS.stream().map(BusinessHours::convertToClientSideDow).collect(Collectors.toSet()), days);
     }
 
-
     @Test
     void testEmptyToJson() {
         BusinessHours hours = BusinessHours.allDays();

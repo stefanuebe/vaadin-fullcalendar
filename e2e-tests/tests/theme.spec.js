@@ -3,8 +3,8 @@ const { test } = require('@playwright/test');
 const { expect, waitForVaadin } = require('./fixtures');
 
 /**
- * FC theme selection (UC-027): stock themes loaded on demand, two themes on one page, a custom theme registered in
- * the browser, and the console error for a name nobody registered.
+ * FullCalendar theme selection (UC-027): stock themes loaded on demand, two themes on one page, a custom theme
+ * registered in the browser, and the console error for a name nobody registered.
  *
  * A stock theme's plugin puts classes named fc-<theme>-* on the elements, and its stylesheet lands in
  * style[data-fc-theme="<theme>"]. Both are what the tests look for.
@@ -16,7 +16,7 @@ const firstEntry = (page) => page.locator('#cal-first .fc-event').first();
 const secondEntry = (page) => page.locator('#cal-second .fc-event').first();
 const themeStyle = (page, theme) => page.locator(`head style[data-fc-theme="${theme}"]`);
 
-test.describe('FC themes', () => {
+test.describe('FullCalendar themes', () => {
 
     test.beforeEach(async ({ page }) => {
         await page.goto('/test/theme');

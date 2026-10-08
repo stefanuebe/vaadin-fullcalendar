@@ -15,7 +15,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import java.time.LocalDate;
 
 /**
- * Test view for FC theme selection (UC-027).
+ * Test view for FullCalendar theme selection (UC-027).
  * <p>
  * Two calendars with different themes on the same page. The buttons switch the theme of the first calendar to
  * each stock theme, to a custom theme registered in the browser ({@code test-custom}) and to a name nobody
@@ -37,7 +37,7 @@ public class ThemeTestView extends VerticalLayout {
     public ThemeTestView() {
         setSizeFull();
 
-        add(new H2("FC themes"));
+        add(new H2("FullCalendar themes"));
 
         FullCalendar first = createCalendar("cal-first", FullCalendarTheme.MONARCH);
         FullCalendar second = createCalendar("cal-second", FullCalendarTheme.PULSE);

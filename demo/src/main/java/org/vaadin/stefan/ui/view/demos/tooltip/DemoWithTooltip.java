@@ -29,12 +29,11 @@ import org.vaadin.stefan.ui.view.demos.entryproviders.EntryService;
 import tools.jackson.databind.node.ObjectNode;
 
 @Route(value = "tooltip", layout = MainLayout.class)
-@PageTitle("FC with Tooltips")
+@PageTitle("FullCalendar with Tooltips")
 @MenuItem(label = "Tooltips")
 public class DemoWithTooltip extends AbstractCalendarView {
     private static final long serialVersionUID = 1L;
     private InMemoryEntryProvider<Entry> entryProvider;
-
 
     @Override
     protected FullCalendar createCalendar(ObjectNode defaultInitialOptions) {

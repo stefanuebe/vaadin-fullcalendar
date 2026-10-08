@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Abstract base class for FC header and footer
+ * Abstract base class for FullCalendar header and footer
  *
  * @deprecated set the toolbar with {@link org.vaadin.stefan.fullcalendar.Option#HEADER_TOOLBAR} or
  * {@link org.vaadin.stefan.fullcalendar.Option#FOOTER_TOOLBAR} and a {@code Map} of the positions
@@ -90,8 +90,6 @@ public class AbstractHeaderFooter {
     public HeaderFooterPart getEnd() {
         return parts.computeIfAbsent(HeaderFooterPartPosition.END, HeaderFooterPart::new);
     }
-
-
 
     /**
      * Converts the given object into a json object.

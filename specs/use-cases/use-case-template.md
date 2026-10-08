@@ -72,4 +72,4 @@ calendar.setOption(Option.EXAMPLE, value);
 
 ## Related FullCalendar Docs
 
-- [FC option/feature name](https://fullcalendar.io/docs/[option-name])
+- [FullCalendar option/feature name](https://fullcalendar.io/docs/[option-name])

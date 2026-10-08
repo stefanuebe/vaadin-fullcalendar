@@ -643,5 +643,4 @@ public class Resource implements Serializable {
         return s + '}';
     }
 
-
 }

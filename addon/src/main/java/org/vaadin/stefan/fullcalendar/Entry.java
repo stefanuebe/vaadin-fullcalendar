@@ -124,9 +124,9 @@ public class Entry implements Serializable {
     private Boolean interactive;
 
     /**
-     * A URL that FC navigates to when the event is clicked. Null means no URL navigation.
+     * A URL that FullCalendar navigates to when the event is clicked. Null means no URL navigation.
      * <p>
-     * If a server-side click listener is also registered, FC will navigate to the url immediately on click
+     * If a server-side click listener is also registered, FullCalendar will navigate to the url immediately on click
      * and the listener will still fire — but the page may already be unloading. Use one mechanism or the other, not both.
      */
     private String url;
@@ -168,7 +168,7 @@ public class Entry implements Serializable {
     /**
      * RRule-based recurrence definition. Requires the {@code @fullcalendar/rrule} plugin.
      * <p>
-     * <b>Mutually exclusive</b> with FC's built-in recurrence ({@code recurringDaysOfWeek}, etc.).
+     * <b>Mutually exclusive</b> with FullCalendar's built-in recurrence ({@code recurringDaysOfWeek}, etc.).
      * Do not set both on the same entry.
      * <p>
      * Use {@link #setRRule(RRule)} and {@link #getRRule()} instead of the Lombok-generated accessors.
@@ -399,7 +399,6 @@ public class Entry implements Serializable {
             setter.accept(this, newValue);
         }
     }
-
 
     /**
      * Checks whether the given json object is a valid source to update this instance.
@@ -1050,7 +1049,7 @@ public class Entry implements Serializable {
 
     /**
      * Sets the entry constraint to a groupId or the literal {@code "businessHours"}.
-     * Null or empty string resets the constraint to FC's default.
+     * Null or empty string resets the constraint to FullCalendar's default.
      *
      * @param constraint constraint string
      */
@@ -1087,7 +1086,7 @@ public class Entry implements Serializable {
      * .fc-event.important { border-left: 4px solid var(--fc-event-color); }
      * }</pre>
      * The class {@code fc-event} marks foreground entries, background entries carry {@code fc-bg-event}.
-     * Null or empty string resets the color to the FC's default.
+     * Null or empty string resets the color to FullCalendar's default.
      *
      * @param color color
      * @see <a href="https://fullcalendar.io/docs/custom-themes">Custom themes: event colors</a>
@@ -1104,7 +1103,7 @@ public class Entry implements Serializable {
      * <pre>{@code
      * .fc-event.important { outline: 2px dashed var(--fc-event-contrast-color); }
      * }</pre>
-     * Null or empty string resets the color to the FC's default.
+     * Null or empty string resets the color to FullCalendar's default.
      *
      * @param contrastColor contrast color
      * @see #setColor(String)
@@ -1181,7 +1180,7 @@ public class Entry implements Serializable {
 
     /**
      * Returns the recurring start time as a recurring time instance. <br>
-     * Since the FC allows recurring times to be
+     * Since FullCalendar allows recurring times to be
      * above the normal 24h span of a day, this format is used to represent start and end "times".
      *
      * @return recurring start time
@@ -1192,7 +1191,7 @@ public class Entry implements Serializable {
 
     /**
      * Returns the recurring start time as a local time.<br>
-     * Since the FC allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
+     * Since FullCalendar allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
      * issues, as it does not support times of 24h or above.
      *
      * @return LocalTime instance
@@ -1228,7 +1227,7 @@ public class Entry implements Serializable {
 
     /**
      * Returns the recurring end time as a recurring time instance. <br>
-     * Since the FC allows recurring times to be
+     * Since FullCalendar allows recurring times to be
      * above the normal 24h span of a day, this format is used to represent end and end "times".
      *
      * @return recurring end time
@@ -1239,7 +1238,7 @@ public class Entry implements Serializable {
 
     /**
      * Returns the recurring end time as a local time.<br>
-     * Since the FC allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
+     * Since FullCalendar allows recurring times to be above the normal 24h span of a day, using a LocalTime can lead to
      * issues, as it does not support times of 24h or above.
      *
      * @return LocalTime instance
@@ -1492,6 +1491,5 @@ public class Entry implements Serializable {
     protected <T, R> R convertNullable(T value, SerializableFunction<T, R> converter) {
         return value != null ? converter.apply(value) : null;
     }
-
 
 }

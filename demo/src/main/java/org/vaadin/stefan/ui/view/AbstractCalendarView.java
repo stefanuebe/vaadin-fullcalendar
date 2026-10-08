@@ -259,7 +259,6 @@ public abstract class AbstractCalendarView extends VerticalLayout {
         return null;
     }
 
-
     protected Component createTitleElement() {
         String title = createTitle();
         if (title == null) {
@@ -364,6 +363,5 @@ public abstract class AbstractCalendarView extends VerticalLayout {
     protected EntryProvider<Entry> getEntryProvider() {
         return getCalendar().getEntryProvider();
     }
-
 
 }

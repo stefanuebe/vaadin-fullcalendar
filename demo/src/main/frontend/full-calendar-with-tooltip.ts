@@ -19,7 +19,6 @@
 import {FullCalendarScheduler} from 'Frontend/generated/jar-resources/vaadin-full-calendar/full-calendar-scheduler';
 import tippy from 'tippy.js';
 
-
 export class FullCalendarWithTooltip extends FullCalendarScheduler {
     initCalendar() {
         super.initCalendar();

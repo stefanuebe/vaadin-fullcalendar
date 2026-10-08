@@ -85,6 +85,5 @@ public class DemoExtendedProps extends VerticalLayout {
             calendar.getEntryProvider().asInMemory().addEntry(entry);
         }
     }
-    
 
 }

@@ -1,6 +1,6 @@
-# UC-027: FC Themes
+# UC-027: FullCalendar Themes
 
-**As a** Vaadin application developer, **I want to** choose an FC theme per calendar, from FullCalendar's stock themes or my own, **so that** the calendar has the design I need without loading designs nobody uses.
+**As a** Vaadin application developer, **I want to** choose a FullCalendar theme per calendar, from FullCalendar's stock themes or my own, **so that** the calendar has the design I need without loading designs nobody uses.
 
 **Status:** Implemented
 **Date:** 2026-10-07
@@ -17,12 +17,12 @@
 
 ## User-Facing Behavior
 
-- Each calendar renders with one FC theme. Default is the Vaadin FC theme (`FullCalendarTheme.VAADIN`, UC-023). Until #266 builds it, it renders as classic.
+- Each calendar renders with one FullCalendar theme. Default is the Vaadin FullCalendar theme (`FullCalendarTheme.VAADIN`, UC-023). Until #266 builds it, it renders as classic.
 - The five FullCalendar stock themes can be selected: classic, monarch, breezy, forma, pulse. Each comes with its default palette (monarch purple, breezy indigo, forma blue, pulse red, classic its only palette).
 - The browser loads a theme only when a calendar on the page selects it. An application that uses one theme does not download the others.
 - Calendars with different themes can share a page.
 - The theme can be changed while the calendar is shown. View, date and entries stay.
-- A developer can register an own FC theme in the browser under a name and select it from Java like a stock theme.
+- A developer can register an own FullCalendar theme in the browser under a name and select it from Java like a stock theme.
 - A name that is not registered logs an error to the browser console. The calendar keeps the theme it had, or shows without a theme if it had none yet.
 - A theme that fails to load logs an error to the browser console. A calendar that was waiting for it shows without a theme.
 - Until its initial theme has loaded, the calendar is rendered but invisible, so it never shows unstyled. On a theme change it keeps the previous theme until the new one has loaded.
@@ -32,7 +32,7 @@
 ## Java API Usage
 
 ```java
-FullCalendar calendar = new FullCalendar();   // Vaadin FC theme
+FullCalendar calendar = new FullCalendar();   // Vaadin FullCalendar theme
 calendar.setTheme(FullCalendarTheme.MONARCH);
 calendar.getTheme();                          // "monarch"
 

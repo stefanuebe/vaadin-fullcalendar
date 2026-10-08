@@ -115,5 +115,4 @@ public abstract class EntryDataEvent extends EntryEvent {
         }
     }
 
-
 }

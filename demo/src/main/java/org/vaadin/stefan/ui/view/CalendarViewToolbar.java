@@ -277,7 +277,6 @@ public class CalendarViewToolbar extends HorizontalLayout { // TODO use ToolbarL
             item.setChecked(theme.equals(calendar.getTheme()));
         }
 
-
         List<Locale> items = Arrays.asList(CalendarLocale.getAvailableLocales());
         ComboBox<Locale> localeSelector = new ComboBox<>("Locale");
         localeSelector.setClearButtonVisible(true);

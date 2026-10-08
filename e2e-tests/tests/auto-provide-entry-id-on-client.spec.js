@@ -14,7 +14,7 @@ const { waitForVaadin } = require('./fixtures');
  *    (the start segment; continuation segments remain id-free to preserve HTML uniqueness)
  *
  * Toggle behaviour is covered by unit tests (setter roundtrip + applyEntryDidMountMerge
- * side effect); DOM-level removal only takes effect on re-mount, which is FC's standard
+ * side effect); DOM-level removal only takes effect on re-mount, which is FullCalendar's standard
  * behaviour and not an API guarantee worth pinning down in an E2E.
  */
 test.describe('Auto-provide entry id on client (#202)', () => {

@@ -98,7 +98,6 @@ public class EntryTest {
         Entry entry = new Entry();
         ObjectNode jsonObject = entry.toJson();
 
-
         Set<String> defaultKeys = new HashSet<>(Arrays.asList(
                         Fields.ID,
                         // Fields.EDITABLE is intentionally omitted: since #212 the editable field
@@ -216,7 +215,6 @@ public class EntryTest {
         ObjectNode json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
 
-
         entry.setStart(nowInstant);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
@@ -227,7 +225,6 @@ public class EntryTest {
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
 
-
         entry.setStartWithTimezone(nowZoned);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
@@ -237,7 +234,6 @@ public class EntryTest {
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
-
 
         entry.setStartWithOffset(nowZoned.toLocalDateTime());
         assertEquals(now, entry.getStart());
@@ -258,7 +254,6 @@ public class EntryTest {
         assertEquals(nowPlusOffset, entry.getStartWithOffset(Timezone.UTC));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
-
 
         LocalDate nowDate = now.toLocalDate();
         entry.setStart(nowDate);
@@ -296,7 +291,6 @@ public class EntryTest {
         ObjectNode json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
 
-
         entry.setStart(nowInstant);
         assertEquals(now, entry.getStart());
         assertEquals(nowInstant, entry.getStartAsInstant());
@@ -306,7 +300,6 @@ public class EntryTest {
         assertEquals(nowPlusOffset, entry.getStartWithOffset(timezone));
         json = entry.toJson();
         assertEquals(JSON_UTC_TIMESTAMP, json.get(Fields.START).asString());
-
 
         entry.setStartWithTimezone(nowZoned);
         assertEquals(now, entry.getStart());

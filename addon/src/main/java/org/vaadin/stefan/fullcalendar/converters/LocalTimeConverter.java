@@ -22,7 +22,6 @@ public class LocalTimeConverter<T extends Entry> implements JsonItemPropertyConv
         return type == null || type instanceof LocalTime;
     }
 
-
     @Override
     public JsonNode toClientModel(LocalTime serverValue, T currentInstance) {
         return JsonUtils.toJsonNode(JsonUtils.formatClientSideTimeString(serverValue));

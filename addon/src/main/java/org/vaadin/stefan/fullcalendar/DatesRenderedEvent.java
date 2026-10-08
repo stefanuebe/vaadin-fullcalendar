@@ -34,7 +34,6 @@ import tools.jackson.databind.node.ObjectNode;
 @ToString(callSuper = true)
 public class DatesRenderedEvent extends ViewRenderEvent {
 
-
     /**
      * Creates a new event using the given source and indicator whether the
      * event originated from the client side or the server side.

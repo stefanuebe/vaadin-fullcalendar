@@ -61,7 +61,7 @@ calendar.setOption(Option.LONG_PRESS_DELAY, 500);
 
 - **No ARIA live regions**: When navigating to a new period, screen readers are not automatically notified of the content change (WCAG SC 4.1.3 Status Messages). This is a FullCalendar limitation.
 - **"+N more" popover focus management**: FullCalendar's popover does not implement focus trapping or Escape-to-close-and-return-focus. This is a FullCalendar limitation.
-- **No semantic landmark**: The calendar does not use `role="grid"` or ARIA landmarks — it relies on FC's internal ARIA implementation.
+- **No semantic landmark**: The calendar does not use `role="grid"` or ARIA landmarks — it relies on FullCalendar's internal ARIA implementation.
 
 ---
 

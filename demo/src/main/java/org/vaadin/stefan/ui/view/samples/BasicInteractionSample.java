@@ -30,5 +30,4 @@ public class BasicInteractionSample extends AbstractSample{
         });
     }
 
-
 }

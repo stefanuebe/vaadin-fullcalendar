@@ -73,5 +73,4 @@ public class TimezoneTests {
         Assertions.assertEquals(now, timezone.removeTimezone(nowZoned).toLocalDateTime());
     }
 
-
 }

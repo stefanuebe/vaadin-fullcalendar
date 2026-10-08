@@ -16,7 +16,6 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-
 import java.io.Serializable;
 import java.util.Optional;
 

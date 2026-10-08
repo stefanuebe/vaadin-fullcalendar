@@ -75,7 +75,7 @@ The addon uses Vaadin's built-in Element API for bidirectional communication:
 - **Java → JS**: `getElement().callJsFunction(name, args)` for imperative calls; `getElement().setPropertyJson(name, json)` for option/state sync
 - **JS → Java**: `@DomEvent` annotations on event classes trigger server-side `ComponentEvent` subclasses
 - **Entry sync**: Entries are serialized to JSON via `Entry.toJson()` using reflection-based `BeanProperties` + custom `@JsonConverter` annotations, then sent to the client as batched updates. **Important**: Setting entry properties (e.g., `entry.setTitle("new")`) does NOT auto-push to the client. You must call `provider.refreshItem(entry)` or `provider.refreshAll()` to sync changes. This is unlike `Resource`, where `setTitle()` and `setColor()` auto-push.
-- **Option system**: `setOption(Option, value)` stores the value server-side and pushes it to the client via `callJsFunction("setOption", key, value)`. Option enum constants map to FC option names via camelCase conversion or explicit `@JsonName`.
+- **Option system**: `setOption(Option, value)` stores the value server-side and pushes it to the client via `callJsFunction("setOption", key, value)`. Option enum constants map to FullCalendar option names via camelCase conversion or explicit `@JsonName`.
 
 ---
 
@@ -104,7 +104,7 @@ The addon uses Vaadin's built-in Element API for bidirectional communication:
 
 ## 5. Key Design Decisions
 
-1. **Light DOM** — FullCalendar manages its own DOM; shadow DOM would break FC's style injection and DOM queries. The component uses light DOM for full compatibility.
-2. **Option enums over typed setters** — Most FC options are exposed via `setOption(Option, value)` rather than individual setter methods. This keeps the API surface manageable and makes adding new options trivial.
+1. **Light DOM** — FullCalendar manages its own DOM; shadow DOM would break FullCalendar's style injection and DOM queries. The component uses light DOM for full compatibility.
+2. **Option enums over typed setters** — Most FullCalendar options are exposed via `setOption(Option, value)` rather than individual setter methods. This keeps the API surface manageable and makes adding new options trivial.
 3. **Reflection-based JSON** — `BeanProperties` uses reflection + annotation caching to serialize `Entry` fields to JSON. This allows subclasses (like `ResourceEntry`) to add fields without modifying serialization code.
 4. **Entry ≠ Event** — FullCalendar JS calls them "events"; this addon calls them **"entries"** to avoid collision with Vaadin's component event system. This applies to both class names (`Entry`, `ResourceEntry`) and enum constant prefixes (`ENTRY_*`). See also `README.md` Naming Convention section.

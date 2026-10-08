@@ -112,7 +112,8 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
     private JsCallback failure;
 
     /**
-     * Per-source {@code eventDataTransform} JS callback. Transforms each raw event record before FC parses it.
+     * Per-source {@code eventDataTransform} JS callback. Transforms each raw event record before FullCalendar parses
+     * it.
      */
     private JsCallback eventDataTransform;
 

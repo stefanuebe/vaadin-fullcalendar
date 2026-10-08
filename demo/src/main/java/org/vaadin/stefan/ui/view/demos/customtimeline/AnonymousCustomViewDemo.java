@@ -42,7 +42,6 @@ public class AnonymousCustomViewDemo extends AbstractSchedulerView {
         return "Anonymous Custom View Demo";
     }
 
-
     private static class SomeCalendarView implements CalendarView {
         private final int numberOfDays;
 

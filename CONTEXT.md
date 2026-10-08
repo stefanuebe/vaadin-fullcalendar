@@ -31,12 +31,12 @@ _Avoid_: Property, setting
 
 ### Styling
 
-**FC theme**:
+**FullCalendar theme**:
 A complete visual design for the calendar provided by FullCalendar (classic, monarch, breezy, forma, pulse), or the addon's own Vaadin-aligned design built the same way. Chosen per calendar.
-_Avoid_: Theme (alone; ambiguous with the Vaadin application theme)
+_Avoid_: Theme (alone, ambiguous with the Vaadin application theme), FC theme
 
 **Palette**:
-A color set for an FC theme. One FC theme can offer several palettes.
+A color set for a FullCalendar theme. One FullCalendar theme can offer several palettes.
 _Avoid_: Color theme, skin
 
 **Color scheme**:
@@ -44,7 +44,7 @@ Light or dark rendering of a calendar's palette.
 _Avoid_: Dark theme, mode
 
 **Vaadin application theme**:
-The Vaadin theme of the surrounding application (Lumo or Aura). Not part of the calendar, but the Vaadin FC theme takes its look from it.
+The Vaadin theme of the surrounding application (Lumo or Aura). Not part of the calendar, but the Vaadin FullCalendar theme takes its look from it.
 
 ### Plugins
 
@@ -68,7 +68,7 @@ _Avoid_: integration test, UI unit test
 
 ## Relationships
 
-- An **FC theme** may offer several **Palettes**.
+- A **FullCalendar theme** may offer several **Palettes**.
 - A **Color scheme** selects light or dark rendering of the active palette.
 - Browser tests drive **Test views**.
 - **Browserless** tests build the component directly.
@@ -77,4 +77,4 @@ _Avoid_: integration test, UI unit test
 ## Flagged ambiguities
 
 - "Event" meant both a FullCalendar calendar item and a Vaadin component event. A calendar item is now always an **Entry**, and "event" is reserved for component events.
-- "Theme" meant the Vaadin application theme, a FullCalendar theme and the addon's former theme variant. **FC theme** and **Vaadin application theme** are now always qualified, and theme variants no longer exist.
+- "Theme" meant the Vaadin application theme, a FullCalendar theme and the addon's former theme variant. **FullCalendar theme** and **Vaadin application theme** are now always qualified, and theme variants no longer exist.

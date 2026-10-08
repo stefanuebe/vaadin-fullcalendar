@@ -59,8 +59,8 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     }
 
     /**
-     * Connects this instance with the calendar. Not intended to be called manually, the FC will take care of this.
-     * NOOP when called for the same calendar instance multiple times.
+     * Connects this instance with the calendar. Not intended to be called manually, FullCalendar will take care of
+     * this. NOOP when called for the same calendar instance multiple times.
      *
      * @param calendar calendar to "connect" to.
      */
@@ -113,7 +113,6 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     protected void onEntryAdd(T entry) {
 
     }
-
 
     /**
      * Removes the given entries. Noop for not registered entries.
@@ -171,7 +170,6 @@ public class InMemoryEntryProvider<T extends Entry> extends AbstractEntryProvide
     protected void onEntryUpdate(T entry) {
 
     }
-
 
     /**
      * Returns a single entry identified by the given id or an empty optional.

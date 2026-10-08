@@ -43,7 +43,7 @@
 
 ### Custom Views
 
-`CustomCalendarView` allows defining arbitrary FC views with custom duration.
+`CustomCalendarView` allows defining arbitrary FullCalendar views with custom duration.
 
 ---
 
@@ -91,7 +91,7 @@ calendar.changeView(threeDayView);
 |----|------|
 | BR-01 | Scheduler views require `FullCalendarScheduler` (not plain `FullCalendar`) |
 | BR-02 | `DatesRenderedEvent` fires whenever the visible date range changes (view switch or navigation) |
-| BR-03 | Toolbar button names must match FC view names exactly |
+| BR-03 | Toolbar button names must match FullCalendar view names exactly |
 | BR-04 | View-specific options can override global options for particular views |
 
 ---

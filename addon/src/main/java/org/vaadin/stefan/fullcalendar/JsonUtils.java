@@ -150,7 +150,6 @@ public final class JsonUtils {
 
     }
 
-
     public static String formatClientSideDateString(Object value) {
         return switch (value) {
             case null -> null;

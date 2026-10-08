@@ -160,7 +160,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * initial options, that the calendar would normally receive. Theoretically you can set all options,
      * as long as they are not based on a client side variable (as for instance "plugins" or "locales").
      * Complex objects are possible, too, for instance for view-specific settings.
-     * Please refer to the official FC documentation regarding potential options.
+     * Please refer to the official FullCalendar documentation regarding potential options.
      * <br><br>
      * Client side event handlers, that are technically also a part of the options are still applied to
      * the options object. However you may set your own event handlers with the correct name. In that case
@@ -377,7 +377,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
                             lastFetchedEntries.put(refreshedEntry.getId(), refreshedEntry);
                             getElement().callJsFunction("refreshSingleEvent", refreshedEntry.getId());
                         });
-
 
                 // refreshAllRequested = false; // why was this here?
             });
@@ -746,12 +745,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         setOption(Option.HEIGHT, height);
     }
 
-
     protected String toClientSideLocale(Locale locale) {
         return locale.toLanguageTag().toLowerCase();
     }
-
-
 
     /**
      * Adds a native, client side / java script event listener, that will be added for all entries, when they
@@ -773,7 +769,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * Inside the native event callback you may access the entry DOM element via the event's
      * {@code currentTarget} or {@code target} property.  For the full set of available parameters
      * in the surrounding {@code eventDidMount} hook, see the
-     * <a href="https://fullcalendar.io/docs/event-render-hooks">official FC docs</a>.
+     * <a href="https://fullcalendar.io/docs/event-render-hooks">official FullCalendar docs</a>.
      * @param eventName javascript event name
      * @param eventCallback javascript event callback to be hooked to the event
      * @return registration to remove the native event listener
@@ -997,7 +993,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         setOption(Option.DAY_MAX_ENTRIES, false);
     }
 
-
     /**
      * Lets the calendar follow the time zone of the browser. The client reports it after attach, and the calendar
      * sets it as {@link Option#TIMEZONE}. If the browser time zone is already known, it is applied at once. A later
@@ -1040,8 +1035,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as the FC's timezone,
-     * unless {@link #withAutoBrowserTimezone()} is enabled.
+     * This method returns the timezone sent by the browser. It is <b>not</b> automatically set as FullCalendar's
+     * timezone, unless {@link #withAutoBrowserTimezone()} is enabled.
      * <p></p>
      * Is empty if there was no timezone obtainable or the instance has not been attached to the client side, yet.
      *
@@ -1378,7 +1373,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         return addListener(DatesRenderedEvent.class, listener);
     }
 
-
     /**
      * Registers a listener to be informed when a view skeleton rendered event occurred. This happens, when
      * the view has been rendered (intially or after a view change).
@@ -1402,7 +1396,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     public Registration addViewChangedListener(ComponentEventListener<ViewSkeletonRenderedEvent> listener) {
         return addViewSkeletonRenderedListener(listener);
     }
-
 
     /**
      * Registers a listener to be informed when the user selected a range of timeslots.
@@ -1767,10 +1760,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         getElement().executeJs("var s = this.calendar.getEventSourceById($0); if (s) s.refetch();", sourceId);
     }
 
-
-
-
-
     /**
      * Registers a listener for when a remote entry source fails to load.
      *
@@ -1829,7 +1818,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     public void setMoreLinkClickAction(MoreLinkClickAction moreLinkClickAction) {
         setOption(Option.MORE_LINK_CLICK, moreLinkClickAction);
     }
-
 
     /**
      * Enables prefetching of entries of adjacent time ranges (enabled by default).
@@ -1947,7 +1935,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * that contains a clickable button, that click will clear the selection naturally and this method is
      * not required.
      * <br><br>
-     * Maps to FC's {@code calendar.unselect()}.
+     * Maps to FullCalendar's {@code calendar.unselect()}.
      */
     public void clearSelection() {
         getElement().executeJs("this.calendar.unselect()");
@@ -1972,7 +1960,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * initial options will be overridden by the given ones.
      * This method may be called only once and only before the component
      * is attached, otherwise an exception will be thrown. Same goes for calendar instances, that have already
-     * registered custom views via the FC builder.
+     * registered custom views via the FullCalendar builder.
      * @param customCalendarViews custom calendar views
      */
     public void setCustomCalendarViews(CustomCalendarView... customCalendarViews) {
@@ -1994,12 +1982,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * Sets the FC theme of this calendar. Use a constant of {@link FullCalendarTheme} or the name of a custom theme
-     * registered in the browser with {@code FullCalendar.registerTheme(name, loader)}. The browser loads the theme
-     * when a calendar first uses it. The theme can be changed at any time, also while the calendar is attached.
+     * Sets the FullCalendar theme of this calendar. A FullCalendar theme is neither a Vaadin application theme nor a
+     * theme variant, see {@link FullCalendarTheme}.
      * <p>
-     * Until its first theme has loaded, the calendar is invisible, so it never shows unstyled. On a later change it
-     * keeps the previous theme until the new one has loaded.
+     * Use a constant of {@link FullCalendarTheme} or the name of a custom theme registered in the browser with
+     * {@code FullCalendar.registerTheme(name, loader)}. The theme can be changed at any time, also while the calendar
+     * is shown.
+     * <p>
+     * The browser loads the theme when a calendar first uses it. Until its first theme has loaded, the calendar is
+     * invisible, so it never shows unstyled. On a later change it keeps the previous theme until the new one has
+     * loaded.
      * <p>
      * A name that is not registered in the browser logs an error to the browser console. The calendar keeps the
      * theme it had before, or shows without a theme if it had none yet.
@@ -2020,7 +2012,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * Returns the name of the FC theme set for this calendar.
+     * Returns the name of the FullCalendar theme set for this calendar.
      *
      * @return theme name
      * @see #setTheme(String)
@@ -2028,15 +2020,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     public String getTheme() {
         return getElement().getProperty(THEME_PROPERTY);
     }
-
-
-
-
-
-
-
-
-
 
     /**
      * Sets a view-specific option override. The option applies only when the calendar is
@@ -2056,7 +2039,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * @see #setViewSpecificOption(String, Option, Object)
      * @see #setViewSpecificOption(CalendarView, Option, Object)
      * @see #setViewSpecificOptions(String, Map)
-     * @see <a href="https://fullcalendar.io/docs/view-specific-options">FC view-specific options</a>
+     * @see <a href="https://fullcalendar.io/docs/view-specific-options">FullCalendar view-specific options</a>
      */
     public void setViewSpecificOption(String viewType, String optionKey, Object value,
                                       @SuppressWarnings("rawtypes") JsonItemPropertyConverter... converters) {

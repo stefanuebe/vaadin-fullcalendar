@@ -64,7 +64,6 @@ public class RecurringTimeTest {
         assertTime(of(0, 120), 2, 0);
         assertTime(of(1, 60), 2, 0);
 
-
         assertTime(of("0: 60"), 1, 0);
         assertTime(of("0: 120"), 2, 0);
         assertTime(of("1: 60"), 2, 0);

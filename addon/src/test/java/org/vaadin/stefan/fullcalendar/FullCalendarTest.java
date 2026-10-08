@@ -183,7 +183,6 @@ public class FullCalendarTest {
         assertFalse(option.isPresent());
     }
 
-
     @Test
     void testEmptyOptionalOnFetchingNonExistingEntryById() {
         FullCalendar calendar = createTestCalendar();
@@ -319,11 +318,9 @@ public class FullCalendarTest {
         return entry;
     }
 
-
     @Test
     void testRemoveAll() {
         FullCalendar calendar = createTestCalendar();
-
 
         InMemoryEntryProvider entryProvider = calendar.getEntryProvider().asInMemory();
         entryProvider.addEntry(new Entry());
@@ -442,11 +439,9 @@ public class FullCalendarTest {
         subTestDateEventSubClass(WeekNumberClickedEvent.class);
     }
 
-
     @Test
     void testTimeslotsSelectedEvent() throws Exception {
         FullCalendar calendar = createTestCalendar();
-
 
         // client timezone may differ server timezone, so we have to simulate that for the event creation
         LocalDate refDateStart = LocalDate.of(2000, 1, 1);

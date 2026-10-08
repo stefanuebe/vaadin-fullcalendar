@@ -8,7 +8,7 @@
 
 ### Entry
 
-The primary data object representing a calendar entry (FC "event"). All entries have a unique ID.
+The primary data object representing a calendar entry (FullCalendar "event"). All entries have a unique ID.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -145,7 +145,7 @@ Load entries directly in the browser (bypassing Java backend):
 
 | Source | Class | Description |
 |--------|-------|-------------|
-| JSON Feed | `JsonFeedEntrySource` | FC fetches from a REST endpoint with `start`/`end` params |
+| JSON Feed | `JsonFeedEntrySource` | FullCalendar fetches from a REST endpoint with `start`/`end` params |
 | Google Calendar | `GoogleCalendarEntrySource` | Requires API key |
 | iCalendar | `ICalendarEntrySource` | Loads `.ics` feeds |
 

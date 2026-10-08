@@ -44,7 +44,6 @@ public class DeltaTest {
         applied = new Delta(0, 0, 0, 0, 0, 0).applyOn(reference);
         Assertions.assertEquals(reference, applied);
 
-
         applied = new Delta(1, 1, 1, 1, 1, 1).applyOn(reference);
         Assertions.assertTrue(reference.isBefore(applied));
 
