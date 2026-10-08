@@ -52,16 +52,16 @@ calendar.setOption("buttons", Map.of(
 // Built-in button text override and a custom button with a browser-side click handler.
 // A custom button shows up only when its name is part of a toolbar string.
 calendar.setOption(Option.BUTTONS, Map.of(
-    ToolbarParts.TODAY, Map.<String, Object>of("text", "Go to today", "display", ButtonDisplay.TEXT),
+    NativeToolbarParts.TODAY, Map.<String, Object>of("text", "Go to today", "display", NativeToolbarButtonDisplay.TEXT),
     "refresh", Map.<String, Object>of(
         "text", "Refresh",
         "click", JsCallback.of("function(ev) { console.log('refresh clicked'); }"))));
 calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-    ToolbarParts.START, ToolbarParts.PREV + "," + ToolbarParts.NEXT + " " + ToolbarParts.TODAY + " refresh",
-    ToolbarParts.CENTER, ToolbarParts.TITLE));
+    NativeToolbarParts.START, NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + " " + NativeToolbarParts.TODAY + " refresh",
+    NativeToolbarParts.CENTER, NativeToolbarParts.TITLE));
 
 // Icon, text or both for all buttons (a button's own "display" wins)
-calendar.setOption(Option.BUTTON_DISPLAY, ButtonDisplay.TEXT);
+calendar.setOption(Option.BUTTON_DISPLAY, NativeToolbarButtonDisplay.TEXT);
 
 // Custom (non-button) toolbar content, placed by its name
 calendar.setOption(Option.TOOLBAR_ELEMENTS, Map.of(
@@ -87,13 +87,13 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 | ID | Rule |
 |----|------|
 | BR-01 | Toolbar maps accept keys `"start"`, `"center"`, `"end"` (FullCalendar also accepts `"left"` and `"right"`) |
-| BR-02 | Button names: `prev`, `next`, `today`, `prevYear`, `nextYear`, `title`, and any FC view name. `ToolbarParts` holds the positions and built-in names as constants |
+| BR-02 | Button names: `prev`, `next`, `today`, `prevYear`, `nextYear`, `title`, and any FC view name. `NativeToolbarParts` holds the positions and built-in names as constants |
 | BR-03 | Buttons separated by commas appear as a group; space-separated buttons have spacing between them |
 | BR-04 | Setting toolbar to `false` hides it entirely |
 | BR-05 | The toolbar model (`Header`, `Footer`, `HeaderFooterPart`, …) is deprecated in favour of the map |
-| BR-06 | `BUTTONS` is a `Map` of button name to a `Map` of button properties (`text`, `hint`, `click`, `iconClass`, `iconContent`, `class` or `className`, `isPrimary`, `display`, `didMount`, `willUnmount`). The built-in names are the `ToolbarParts` constants. A custom button is shown only when its name is used in `HEADER_TOOLBAR` or `FOOTER_TOOLBAR` |
+| BR-06 | `BUTTONS` is a `Map` of button name to a `Map` of button properties (`text`, `hint`, `click`, `iconClass`, `iconContent`, `class` or `className`, `isPrimary`, `display`, `didMount`, `willUnmount`). The built-in names are the `NativeToolbarParts` constants. A custom button is shown only when its name is used in `HEADER_TOOLBAR` or `FOOTER_TOOLBAR` |
 | BR-07 | `JsCallback` values inside the `BUTTONS` map (and in any `Map` or `Collection` option value) are sent as callbacks, set before or after attach. They run in the browser only and cannot call server code by themselves. Before 8.0 such a value arrived as text |
-| BR-08 | `ButtonDisplay` is the value of `BUTTON_DISPLAY` and of a button's `display` property |
+| BR-08 | `NativeToolbarButtonDisplay` is the value of `BUTTON_DISPLAY` and of a button's `display` property |
 | BR-09 | `TOOLBAR_ELEMENTS` is a `Map` of name to content: text, or a `JsCallback` returning content (text, `{html}` or `{domNodes}`). The element is placed through its name in a toolbar string |
 
 ---
@@ -115,8 +115,8 @@ calendar.setOption(Option.TODAY_HINT, "Go to today");
 ## Tests
 
 ### Unit Tests
-- [x] `ToolbarOptionsTest`: toolbar maps, `false` and `null` reach the client, `ToolbarParts` builds the strings FullCalendar expects
-- `TypedOptionValuesTest`: `BUTTONS` with nested `JsCallback` values reaches the client as callbacks before and after attach, `ButtonDisplay` is sent as its client value
+- [x] `ToolbarOptionsTest`: toolbar maps, `false` and `null` reach the client, `NativeToolbarParts` builds the strings FullCalendar expects
+- `TypedOptionValuesTest`: `BUTTONS` with nested `JsCallback` values reaches the client as callbacks before and after attach, `NativeToolbarButtonDisplay` is sent as its client value
 - `OptionCompletenessTest` (addon-scheduler): every FullCalendar 7.1.0 option has a constant, or is listed with a reason
 
 ### E2E Tests

@@ -92,7 +92,8 @@ public enum Option {
 
 
     /**
-     * Custom content for the cell in the header area of time grid views that labels the all-day section. Accepts a {@link JsCallback}.
+     * Custom content for the cell in the header area of time grid views that labels the all-day section. Accepts a
+     * {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow}, {@code view}.</dd>
@@ -110,7 +111,8 @@ public enum Option {
     ALL_DAY_HEADER_CONTENT("allDayHeaderContent"),
 
     /**
-     * Called after the cell in the header area of time grid views that labels the all-day section is added to the DOM. Accepts a {@link JsCallback}.
+     * Called after the cell in the header area of time grid views that labels the all-day section is added to the DOM.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow}, {@code view},
      *                         and {@code el} (the all-day header cell, a {@code <div role="rowheader">}, only in
@@ -147,7 +149,8 @@ public enum Option {
     ALL_DAY_HEADER_INNER_CLASS("allDayHeaderInnerClass"),
 
     /**
-     * Called before the cell in the header area of time grid views that labels the all-day section is removed from the DOM. Accepts a {@link JsCallback}.
+     * Called before the cell in the header area of time grid views that labels the all-day section is removed from the
+     * DOM. Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text}, {@code isNarrow}, {@code view},
      *                         and {@code el} (the all-day header cell, a {@code <div role="rowheader">}, only in
@@ -165,8 +168,9 @@ public enum Option {
     ALL_DAY_HEADER_WILL_UNMOUNT("allDayHeaderWillUnmount"),
 
     /**
-     * How the duration of an entry changes when it is dragged between the timed and the all-day section. With
-     * {@code true}, the duration stays roughly the same (hourly durations are rounded down to whole days). With
+     * How the duration of an entry changes when it is dragged between the timed and the all-day section.
+     * <p>
+     * With {@code true}, the duration stays roughly the same (hourly durations are rounded down to whole days). With
      * {@code false}, the duration is reset to the default all-day or timed entry duration of the target section.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
@@ -190,9 +194,11 @@ public enum Option {
     ALL_DAY_SLOT,
 
     /**
-     * Text of the label for the all-day section in time grid views. Not described separately in the FullCalendar docs.
-     * A newline in the text is shown as a line break in time grid views. For full control of the cell's content
-     * use {@link #ALL_DAY_HEADER_CONTENT}.
+     * Text of the label for the all-day section in time grid views. FullCalendar documents this option only partly or
+     * not at all.
+     * <p>
+     * A newline in the text is shown as a line break in time grid views. For full control of the cell's content use
+     * {@link #ALL_DAY_HEADER_CONTENT}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -205,8 +211,10 @@ public enum Option {
     ALL_DAY_TEXT("allDayText"),
 
     /**
-     * Width-to-height ratio of the calendar. The calendar fills the available width, its height follows from
-     * this ratio (larger numbers make smaller heights). More precisely, it is the ratio of the calendar's content area.
+     * Width-to-height ratio of the calendar. The calendar fills the available width. Its height follows from this ratio
+     * (larger numbers make smaller heights).
+     * <p>
+     * More precisely, it is the ratio of the calendar's content area.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code number} (e.g., {@code 1.35})</dd>
      *   <dt>Default</dt> <dd>{@code 1.35}. Only used while neither {@link #HEIGHT} nor {@link #CONTENT_HEIGHT} is set,
@@ -218,7 +226,10 @@ public enum Option {
     ASPECT_RATIO,
 
     /**
-     * CSS classes for the outermost element of background entries. The general entry hooks do not apply to background entries. Accepts a {@link JsCallback}.
+     * CSS classes for the outermost element of background entries.
+     * <p>
+     * The general entry hooks do not apply to background entries.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -235,9 +246,11 @@ public enum Option {
     BACKGROUND_ENTRY_CLASS("backgroundEventClass"),
 
     /**
-     * Default color for all background entries. FullCalendar sets it on each background entry's outermost element as the
-     * CSS variable {@code --fc-event-color}, so own styles can read it. The color of an entry or of its entry source
-     * takes precedence, see {@link Entry#setColor(String)}. For foreground entries use {@link #ENTRY_COLOR}.
+     * Default color for all background entries. FullCalendar sets it on each background entry's outermost element as
+     * the CSS variable {@code --fc-event-color}, so own styles can read it.
+     * <p>
+     * The color of an entry or of its entry source takes precedence, see {@link Entry#setColor(String)}. For
+     * foreground entries use {@link #ENTRY_COLOR}.
      * <dl>
      *   <dt>Type</dt> <dd>CSS color string, e.g. {@code "#ff9f89"}</dd>
      * </dl>
@@ -254,7 +267,9 @@ public enum Option {
     BACKGROUND_ENTRY_COLOR("backgroundEventColor"),
 
     /**
-     * Custom content for background entries. The generated content is inserted inside the inner-most wrapper of the entry.
+     * Custom content for background entries. The generated content is inserted inside the inner-most wrapper of the
+     * entry.
+     * <p>
      * If given as callback, it is called every time the entry data changes.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
@@ -272,7 +287,9 @@ public enum Option {
     BACKGROUND_ENTRY_CONTENT("backgroundEventContent"),
 
     /**
-     * Called right after the element of a background entry has been added to the DOM. If the entry data changes, this is not called again. Accepts a {@link JsCallback}.
+     * Called right after the element of a background entry has been added to the DOM.
+     * If the entry data changes, this is not called again.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -288,7 +305,10 @@ public enum Option {
     BACKGROUND_ENTRY_DID_MOUNT("backgroundEventDidMount"),
 
     /**
-     * CSS classes for the "inner" wrapper element of background entries. The general entry hooks do not apply to background entries. Accepts a {@link JsCallback}.
+     * CSS classes for the "inner" wrapper element of background entries.
+     * <p>
+     * The general entry hooks do not apply to background entries.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -305,7 +325,10 @@ public enum Option {
     BACKGROUND_ENTRY_INNER_CLASS("backgroundEventInnerClass"),
 
     /**
-     * CSS classes for the title element within the "inner" wrapper of background entries. The general entry hooks do not apply to background entries. Accepts a {@link JsCallback}.
+     * CSS classes for the title element within the "inner" wrapper of background entries.
+     * <p>
+     * The general entry hooks do not apply to background entries.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code isNarrow} and {@code isShort}.</dd>
@@ -336,7 +359,11 @@ public enum Option {
     BACKGROUND_ENTRY_WILL_UNMOUNT("backgroundEventWillUnmount"),
 
     /**
-     * CSS classes for the element after the "inner" wrapper of block entries (rectangular, color-filled entries, essentially all entries except list entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the element after the "inner" wrapper of block entries (rectangular, color-filled entries,
+     * essentially all entries except list entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -353,7 +380,11 @@ public enum Option {
     BLOCK_ENTRY_AFTER_CLASS("blockEventAfterClass"),
 
     /**
-     * CSS classes for the element before the "inner" wrapper of block entries (rectangular, color-filled entries, essentially all entries except list entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the element before the "inner" wrapper of block entries (rectangular, color-filled entries,
+     * essentially all entries except list entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -370,7 +401,11 @@ public enum Option {
     BLOCK_ENTRY_BEFORE_CLASS("blockEventBeforeClass"),
 
     /**
-     * CSS classes for the outermost element of block entries (rectangular, color-filled entries, essentially all entries except list entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the outermost element of block entries (rectangular, color-filled entries, essentially all
+     * entries except list entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -387,7 +422,11 @@ public enum Option {
     BLOCK_ENTRY_CLASS("blockEventClass"),
 
     /**
-     * CSS classes for the "inner" wrapper element of block entries (rectangular, color-filled entries, essentially all entries except list entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the "inner" wrapper element of block entries (rectangular, color-filled entries, essentially all
+     * entries except list entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -404,7 +443,11 @@ public enum Option {
     BLOCK_ENTRY_INNER_CLASS("blockEventInnerClass"),
 
     /**
-     * CSS classes for the time element within the "inner" wrapper of block entries (rectangular, color-filled entries, essentially all entries except list entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the time element within the "inner" wrapper of block entries (rectangular, color-filled entries,
+     * essentially all entries except list entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code isNarrow} and {@code isShort}.</dd>
@@ -419,7 +462,11 @@ public enum Option {
     BLOCK_ENTRY_TIME_CLASS("blockEventTimeClass"),
 
     /**
-     * CSS classes for the title element within the "inner" wrapper of block entries (rectangular, color-filled entries, essentially all entries except list entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the title element within the "inner" wrapper of block entries (rectangular, color-filled entries,
+     * essentially all entries except list entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code isNarrow} and {@code isShort}.</dd>
@@ -477,7 +524,8 @@ public enum Option {
     BORDERLESS_TOP("borderlessTop"),
 
     /**
-     * Removes the left and right outer borders of the calendar. Also indents the toolbar to align with the calendar body.
+     * Removes the left and right outer borders of the calendar. Also indents FullCalendar's built-in toolbar to align
+     * with the calendar body.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
@@ -507,10 +555,12 @@ public enum Option {
     BUSINESS_HOURS,
 
     /**
-     * Defines custom buttons for the toolbars and overrides for the built-in ones. A custom button is only shown
-     * when its name is used in {@link #HEADER_TOOLBAR} or {@link #FOOTER_TOOLBAR}. The built-in names are the
-     * constants of {@link ToolbarParts}, e.g. {@link ToolbarParts#TODAY}. Per FullCalendar's types, also
-     * {@code year}, {@code month}, {@code week} and {@code day} can be overridden.
+     * Defines custom buttons for FullCalendar's built-in toolbars and overrides for its own buttons.
+     * <p>
+     * A custom button is only shown when its name is used in {@link #HEADER_TOOLBAR} or {@link #FOOTER_TOOLBAR}.
+     * <p>
+     * The built-in names are the constants of {@link NativeToolbarParts}, e.g. {@link NativeToolbarParts#TODAY}. Per
+     * FullCalendar's types, also {@code year}, {@code month}, {@code week} and {@code day} can be overridden.
      * <p>
      * Every callback ({@code click}, {@code didMount}, {@code willUnmount}, and a callback for {@code hint} or
      * {@code className}) is given as {@link JsCallback} and runs in the browser only. A click handler cannot call
@@ -530,20 +580,22 @@ public enum Option {
      *     {@code class} or {@code className} (class name String or {@link JsCallback}, same {@code info} as
      *     {@link #BUTTON_CLASS}),
      *     {@code isPrimary} (boolean, adds the styling of a primary action),
-     *     {@code display} ({@link ButtonDisplay}, overrides {@link #BUTTON_DISPLAY} for this button),
+     *     {@code display} ({@link NativeToolbarButtonDisplay}, overrides {@link #BUTTON_DISPLAY} for this button),
      *     {@code didMount} and {@code willUnmount} ({@link JsCallback}, called after the button was added to or before
      *     it is removed from the DOM)
      *   </dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.BUTTONS, Map.of(
-     *         ToolbarParts.TODAY, Map.<String, Object>of("text", "Go to today", "display", ButtonDisplay.TEXT),
+     *         NativeToolbarParts.TODAY, Map.<String, Object>of("text", "Go to today",
+     *                 "display", NativeToolbarButtonDisplay.TEXT),
      *         "refresh", Map.<String, Object>of(
      *                 "text", "Refresh",
      *                 "click", JsCallback.of("function(ev) { console.log('refresh clicked'); }"))));
      * calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-     *         ToolbarParts.START, ToolbarParts.PREV + "," + ToolbarParts.NEXT + " " + ToolbarParts.TODAY + " refresh",
-     *         ToolbarParts.CENTER, ToolbarParts.TITLE));
+     *         NativeToolbarParts.START,
+     *                 NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + " " + NativeToolbarParts.TODAY + " refresh",
+     *         NativeToolbarParts.CENTER, NativeToolbarParts.TITLE));
      * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/buttons">buttons</a>
@@ -551,7 +603,8 @@ public enum Option {
     BUTTONS("buttons"),
 
     /**
-     * CSS classes for each individual toolbar button (header and footer toolbar).
+     * CSS classes for each individual button of FullCalendar's built-in toolbars (header and footer toolbar, see
+     * {@link #HEADER_TOOLBAR}).
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code name} (the button's name, e.g. {@code prev},
@@ -572,14 +625,15 @@ public enum Option {
     BUTTON_CLASS("buttonClass"),
 
     /**
-     * Controls whether all toolbar buttons show an icon, text, or both. A single button can override it with the
-     * {@code display} key of its entry in {@link #BUTTONS}.
+     * Controls whether all buttons of FullCalendar's built-in toolbars show an icon, text, or both. A single button can
+     * override it with the {@code display} key of its entry in {@link #BUTTONS}.
      * <dl>
-     *   <dt>Type</dt>    <dd>{@link ButtonDisplay}</dd>
-     *   <dt>Default</dt> <dd>{@link ButtonDisplay#AUTO} (the icon if the theme defines one, otherwise the text)</dd>
+     *   <dt>Type</dt>    <dd>{@link NativeToolbarButtonDisplay}</dd>
+     *   <dt>Default</dt> <dd>{@link NativeToolbarButtonDisplay#AUTO} (the icon if the theme defines one, otherwise
+     *                        the text)</dd>
      * </dl>
      * <pre>{@code
-     * calendar.setOption(Option.BUTTON_DISPLAY, ButtonDisplay.TEXT);
+     * calendar.setOption(Option.BUTTON_DISPLAY, NativeToolbarButtonDisplay.TEXT);
      * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/buttonDisplay">buttonDisplay</a>
@@ -587,8 +641,8 @@ public enum Option {
     BUTTON_DISPLAY("buttonDisplay"),
 
     /**
-     * CSS classes for each group of buttons in a toolbar section. A group is a set of buttons separated by commas in
-     * {@link #HEADER_TOOLBAR} or {@link #FOOTER_TOOLBAR}.
+     * CSS classes for each group of buttons in a section of FullCalendar's built-in toolbars. A group is a set of
+     * buttons separated by commas in {@link #HEADER_TOOLBAR} or {@link #FOOTER_TOOLBAR}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code hasSelection}, which is {@code true} when
@@ -633,7 +687,10 @@ public enum Option {
     CLOSE_HINT,
 
     /**
-     * Sets the color scheme of this calendar only. The stock themes support light and dark.
+     * Sets the color scheme of this calendar only.
+     * <p>
+     * The stock themes support light and dark.
+     * <p>
      * Without it, the calendar follows what the page sets, e.g. a {@code data-color-scheme="dark"} attribute on the
      * body or another parent element.
      * <dl>
@@ -648,7 +705,11 @@ public enum Option {
     COLOR_SCHEME("colorScheme"),
 
     /**
-     * CSS classes for the element after the "inner" wrapper of column entries (rectangular, color-filled entries that render vertically: timed entries in time grid views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the element after the "inner" wrapper of column entries (rectangular, color-filled entries that
+     * render vertically: timed entries in time grid views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -665,7 +726,11 @@ public enum Option {
     COLUMN_ENTRY_AFTER_CLASS("columnEventAfterClass"),
 
     /**
-     * CSS classes for the element before the "inner" wrapper of column entries (rectangular, color-filled entries that render vertically: timed entries in time grid views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the element before the "inner" wrapper of column entries (rectangular, color-filled entries that
+     * render vertically: timed entries in time grid views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -682,7 +747,11 @@ public enum Option {
     COLUMN_ENTRY_BEFORE_CLASS("columnEventBeforeClass"),
 
     /**
-     * CSS classes for the outermost element of column entries (rectangular, color-filled entries that render vertically: timed entries in time grid views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the outermost element of column entries (rectangular, color-filled entries that render
+     * vertically: timed entries in time grid views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -699,7 +768,11 @@ public enum Option {
     COLUMN_ENTRY_CLASS("columnEventClass"),
 
     /**
-     * CSS classes for the "inner" wrapper element of column entries (rectangular, color-filled entries that render vertically: timed entries in time grid views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the "inner" wrapper element of column entries (rectangular, color-filled entries that render
+     * vertically: timed entries in time grid views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -716,7 +789,11 @@ public enum Option {
     COLUMN_ENTRY_INNER_CLASS("columnEventInnerClass"),
 
     /**
-     * CSS classes for the time element within the "inner" wrapper of column entries (rectangular, color-filled entries that render vertically: timed entries in time grid views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the time element within the "inner" wrapper of column entries (rectangular, color-filled entries
+     * that render vertically: timed entries in time grid views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code isNarrow} and {@code isShort}.</dd>
@@ -731,7 +808,11 @@ public enum Option {
     COLUMN_ENTRY_TIME_CLASS("columnEventTimeClass"),
 
     /**
-     * CSS classes for the title element within the "inner" wrapper of column entries (rectangular, color-filled entries that render vertically: timed entries in time grid views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the title element within the "inner" wrapper of column entries (rectangular, color-filled entries
+     * that render vertically: timed entries in time grid views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code isNarrow} and {@code isShort}.</dd>
@@ -746,9 +827,11 @@ public enum Option {
     COLUMN_ENTRY_TITLE_CLASS("columnEventTitleClass"),
 
     /**
-     * Whether the title of column entries sticks to the top edge of the visible area while the user scrolls vertically past a long timed entry,
-     * so the title stays readable. Not described separately in the FullCalendar docs. The behaviour is taken from the
-     * FullCalendar source. Themes can change the default.
+     * Whether the title of column entries sticks to the top edge of the visible area while the user scrolls vertically
+     * past a long timed entry, so the title stays readable. FullCalendar documents this option only partly or not at
+     * all.
+     * <p>
+     * Themes can change the default.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -762,7 +845,10 @@ public enum Option {
     COLUMN_ENTRY_TITLE_STICKY("columnEventTitleSticky"),
 
     /**
-     * CSS classes for the column more-link element. A column more-link appears in time grid views when too many timed entries overlap within a day column. Accepts a {@link JsCallback}.
+     * CSS classes for the column more-link element.
+     * <p>
+     * A column more-link appears in time grid views when too many timed entries overlap within a day column.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText}, {@code longText}, {@code isNarrow} and {@code view}.</dd>
@@ -777,7 +863,11 @@ public enum Option {
     COLUMN_MORE_LINK_CLASS("columnMoreLinkClass"),
 
     /**
-     * CSS classes for the inner wrapper of the column more-link. Useful for adjusting padding. A column more-link appears in time grid views when too many timed entries overlap within a day column. Accepts a {@link JsCallback}.
+     * CSS classes for the inner wrapper of the column more-link.
+     * Useful for adjusting padding.
+     * <p>
+     * A column more-link appears in time grid views when too many timed entries overlap within a day column.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText}, {@code longText}, {@code isNarrow} and {@code view}.</dd>
@@ -817,6 +907,7 @@ public enum Option {
 
     /**
      * How far the calendar navigates when prev/next is executed (toolbar buttons or the prev/next methods).
+     * <p>
      * Unnecessary for standard views. For a custom view with a {@code duration}, that duration is the default.
      * <dl>
      *   <dt>Type</dt> <dd>duration as FullCalendar accepts it: object with keys like {@code days} or {@code months},
@@ -855,7 +946,8 @@ public enum Option {
     /**
      * CSS classes for day cells in day grid views (including the all-day section of time grid views) and the
      * body of the "+N more" popover.
-     * Time grid day columns use {@link #DAY_LANE_CLASS}.
+     * <p>
+     * Time grid day columns use {@link #DAY_LANE_CLASS} instead.
      * <dl>
      *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text},
@@ -911,9 +1003,10 @@ public enum Option {
     DAY_CELL_DID_MOUNT("dayCellDidMount"),
 
     /**
-     * Format of the date text shown in each day cell of day grid views. It affects the {@code text} value given to
-     * the day cell render hooks. For the first-of-month cells in the year day grid view, {@code monthStartFormat}
-     * is used instead.
+     * Format of the date text shown in each day cell of day grid views. It affects the {@code text} value given to the
+     * day cell render hooks.
+     * <p>
+     * For the first-of-month cells in the year day grid view, {@code monthStartFormat} is used instead.
      * <dl>
      *   <dt>Type</dt> <dd>format object, e.g. a {@code Map<String, Object>} with {@code day}</dd>
      * </dl>
@@ -970,8 +1063,9 @@ public enum Option {
     DAY_CELL_TOP_CLASS("dayCellTopClass"),
 
     /**
-     * Custom content for the top area of day cells (where the day number appears). The generated content is
-     * inserted inside the inner-most wrapper of that area, it does not replace the cell.
+     * Custom content for the top area of day cells (where the day number appears).
+     * <p>
+     * The generated content is inserted inside the inner-most wrapper of that area. It does not replace the cell.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text},
@@ -1056,8 +1150,10 @@ public enum Option {
     DAY_HEADERS,
 
     /**
-     * Horizontal text alignment of the day header cells in day grid and time grid views, and in the header of the
-     * entry popover. In a left-to-right locale, start means left and end means right. The theme decides the default.
+     * Horizontal text alignment of the day header cells in day grid and time grid views, and in the header of the entry
+     * popover.
+     * <p>
+     * In a left-to-right locale, start means left and end means right. The theme decides the default.
      * <dl>
      *   <dt>Type</dt> <dd>{@link HeaderAlign} | {@link JsCallback} returning {@code 'start'}, {@code 'center'} or
      *                         {@code 'end'}</dd>
@@ -1105,8 +1201,9 @@ public enum Option {
     DAY_HEADER_CLASS_NAMES("dayHeaderClass"),
 
     /**
-     * Custom content for day header cells. The generated content is inserted inside the inner-most wrapper of
-     * the header cell, it does not replace the cell.
+     * Custom content for day header cells.
+     * <p>
+     * The generated content is inserted inside the inner-most wrapper of the header cell. It does not replace the cell.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code text}, {@code isPast},
@@ -1263,7 +1360,8 @@ public enum Option {
 
     /**
      * CSS classes for the inner wrapper of a day lane. In time grid views a day lane is the vertical column of time
-     * slots of one day. Useful for adjusting padding.
+     * slots of one day.
+     * Useful for adjusting padding.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code isPast},
@@ -1301,7 +1399,9 @@ public enum Option {
 
     /**
      * Maximum number of entries in a day cell of day grid views, not counting the "+N more" link. The rest is
-     * shown in a popover. For time grid and timeline views use {@link #ENTRY_MAX_STACK}.
+     * shown in a popover.
+     * <p>
+     * For time grid and timeline views use {@link #ENTRY_MAX_STACK}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code false} | {@code integer} | {@code true} (false = no limit, integer = fixed count, true = limit to cell height)</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
@@ -1317,7 +1417,9 @@ public enum Option {
 
     /**
      * Maximum number of stacked entry rows within a day in daygrid views, including the "+N more" link. The remaining
-     * entries are shown in a popover. For timegrid and timeline views, FullCalendar uses {@code eventMaxStack}.
+     * entries are shown in a popover.
+     * <p>
+     * For timegrid and timeline views, FullCalendar uses {@code eventMaxStack}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@code integer}. {@code true} limits the rows to the height of the day
      *                     cell, an integer to that number of rows, {@code false} shows all entries.</dd>
@@ -1338,8 +1440,10 @@ public enum Option {
 
     /**
      * Minimum pixel width of each day cell. When the calendar gets too narrow for it, horizontal scrollbars
-     * appear. Applies to vertical resource views, day grid views and time grid views. It needs FullCalendar's
-     * premium {@code scrollgrid} plugin, which only {@code FullCalendarScheduler} loads.
+     * appear. Applies to vertical resource views, day grid views and time grid views.
+     * <p>
+     * The option needs FullCalendar's premium {@code scrollgrid} plugin, which only {@code FullCalendarScheduler}
+     * loads.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code number} (pixels)</dd>
      *   <dt>Default</dt> <dd>unset</dd>
@@ -1350,9 +1454,10 @@ public enum Option {
     DAY_MIN_WIDTH,
 
     /**
-     * The pixel width of a day column below which FullCalendar switches to "narrow" date text and layouts. It affects
-     * views with day columns (day grid, time grid, multi-month) and shows up as {@code isNarrow} in the {@code info}
-     * of related render hooks.
+     * The pixel width of a day column below which FullCalendar switches to "narrow" date text and layouts. Affects
+     * views with day columns (day grid, time grid, multi-month).
+     * <p>
+     * The narrow state shows up as {@code isNarrow} in the {@code info} of related render hooks.
      * <dl>
      *   <dt>Type</dt>    <dd>number of pixels</dd>
      *   <dt>Default</dt> <dd>{@code 80} with the add-on's theme. Some FullCalendar themes set {@code 100}</dd>
@@ -1387,8 +1492,10 @@ public enum Option {
     DAY_ROW_CLASS("dayRowClass"),
 
     /**
-     * Text of the toolbar button for the day view. Not described separately in the FullCalendar docs. It belongs to
-     * the texts a locale defines, see the locale page.
+     * Text of the day view button of FullCalendar's built-in toolbar. FullCalendar documents this option only partly or
+     * not at all.
+     * <p>
+     * Each locale defines this text, see the locale page.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -1401,7 +1508,8 @@ public enum Option {
     DAY_TEXT("dayText"),
 
     /**
-     * Default value of the all-day flag for entries that do not specify one. If not set, FullCalendar guesses the flag from the entry data.
+     * Default value of the all-day flag for entries that do not specify one. If not set, FullCalendar guesses the flag
+     * from the entry data.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>not set</dd>
@@ -1412,9 +1520,10 @@ public enum Option {
     DEFAULT_ALL_DAY,
 
     /**
-     * Fallback duration for all-day entries without an end. The entry is rendered with this duration, its actual end
-     * stays unset (unless {@code forceEventDuration} is set). Only affects entries with {@code allDay} set to
-     * {@code true}, see {@link #DEFAULT_TIMED_ENTRY_DURATION} for timed ones.
+     * Fallback duration for all-day entries without an end. The entry is rendered with this duration. Its actual end
+     * stays unset (unless {@code forceEventDuration} is set).
+     * Only affects entries with {@code allDay} set to {@code true}, see {@link #DEFAULT_TIMED_ENTRY_DURATION} for timed
+     * ones.
      * <dl>
      *   <dt>Type</dt>    <dd>duration: a {@code Map<String, Object>} with keys like {@code days} | duration {@code String}</dd>
      *   <dt>Default</dt> <dd>{@code { days: 1 }}</dd>
@@ -1429,9 +1538,10 @@ public enum Option {
     DEFAULT_ALL_DAY_ENTRY_DURATION("defaultAllDayEventDuration"),
 
     /**
-     * Fallback duration for timed entries without an end. The entry is rendered with this duration, its actual end
-     * stays unset (unless {@code forceEventDuration} is set). Only affects entries with {@code allDay} set to
-     * {@code false}, see {@link #DEFAULT_ALL_DAY_ENTRY_DURATION} for all-day ones.
+     * Fallback duration for timed entries without an end. The entry is rendered with this duration. Its actual end
+     * stays unset (unless {@code forceEventDuration} is set).
+     * Only affects entries with {@code allDay} set to {@code false}, see {@link #DEFAULT_ALL_DAY_ENTRY_DURATION} for
+     * all-day ones.
      * <dl>
      *   <dt>Type</dt>    <dd>{@link java.time.Duration} | duration {@code String} like {@code "02:00"}</dd>
      *   <dt>Default</dt> <dd>{@code "01:00"} (one hour)</dd>
@@ -1458,7 +1568,8 @@ public enum Option {
     DIRECTION,
 
     /**
-     * Whether the end time of an entry is displayed. Entries without an end or with the entry time display turned off never show it.
+     * Whether the end time of an entry is displayed. Entries without an end or with the entry time display turned off
+     * never show it.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code false} in month and daygrid week views, {@code true} in timegrid views and daygrid day view</dd>
@@ -1542,11 +1653,12 @@ public enum Option {
     DROP_ACCEPT,
 
     /**
-     * Sets the exact duration of a view, for a custom view with one generic view type, e.g. four days. With a
-     * duration of {@code weeks}, the view is aligned to the start of the week by default, with the same time as
-     * {@code days} it is not.
+     * Sets the exact duration of a view, for a custom view with one generic view type, e.g. four days.
      * <p>
-     * Pass a {@code Map} or a {@code String}, not a {@link java.time.Duration}: a {@code Duration} is converted to
+     * With a duration of {@code weeks}, the view is aligned to the start of the week by default. With the same time as
+     * {@code days}, it is not.
+     * <p>
+     * Pass a {@code Map} or a {@code String}, not a {@link java.time.Duration}. A {@code Duration} is converted to
      * hours, minutes and seconds, so it cannot express whole days or weeks. A {@code Map} such as
      * {@code Map.of("days", 4)} keeps them.
      * <dl>
@@ -1562,9 +1674,10 @@ public enum Option {
     DURATION("duration"),
 
     /**
-     * Master switch for dragging and resizing entries. Enables or disables both at the same time, use
-     * {@link #ENTRY_START_EDITABLE} and {@link #ENTRY_DURATION_EDITABLE} for one of them only. Background entries can
-     * not be dragged or resized.
+     * Master switch for dragging and resizing entries. Enables or disables both at the same time. Background entries
+     * can not be dragged or resized.
+     * <p>
+     * Use {@link #ENTRY_START_EDITABLE} and {@link #ENTRY_DURATION_EDITABLE} to change only one of them.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}, set by the add-on (FullCalendar's own default is {@code false})</dd>
@@ -1576,9 +1689,10 @@ public enum Option {
     EDITABLE,
 
     /**
-     * Accessibility label of the list of entries under each day in list views, read by screen readers. The locale
-     * provides the default (English: "Events"), a value set here wins over it. Not described separately in the
-     * FullCalendar docs. The behaviour is taken from the FullCalendar source.
+     * Accessibility label of the list of entries under each day in list views, read by screen readers. FullCalendar
+     * documents this option only partly or not at all.
+     * <p>
+     * The locale provides the default (English: "Events"). A value set here wins over it.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -1613,9 +1727,10 @@ public enum Option {
     ENTRY_AFTER_CLASS("eventAfterClass"),
 
     /**
-     * Exact programmatic control over where an entry can be dropped. Called after {@link #ENTRY_OVERLAP} and
-     * {@link #ENTRY_CONSTRAINT} have allowed the position, for every new potential drop position while the user
-     * is dragging. Must return a boolean synchronously.
+     * Exact programmatic control over where an entry can be dropped. The callback must return a boolean synchronously.
+     * <p>
+     * The callback is called for every new potential drop position while the user is dragging, after
+     * {@link #ENTRY_OVERLAP} and {@link #ENTRY_CONSTRAINT} have allowed the position.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(dropInfo, draggedEvent)}. {@code dropInfo} has {@code start},
@@ -1684,6 +1799,7 @@ public enum Option {
 
     /**
      * Default color for all foreground entries (not background entries).
+     * <p>
      * FullCalendar sets the color on each entry's element as the CSS variable {@code --fc-event-color}. The theme's
      * styles read it, so where the color shows depends on the theme. Own styles can read the variable as well.
      * <dl>
@@ -1719,7 +1835,9 @@ public enum Option {
 
     /**
      * Custom content for entries. The generated content is inserted inside the inner-most wrapper of the entry.
+     * <p>
      * If given as callback, it is called every time the entry data changes.
+     * <p>
      * Background entries use their own {@code backgroundEvent*} hooks.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
@@ -1740,6 +1858,7 @@ public enum Option {
 
     /**
      * Default contrast color for all entries, used for text and other elements drawn on the entry color.
+     * <p>
      * FullCalendar sets it on each entry's element as the CSS variable {@code --fc-event-contrast-color}, which the
      * theme's styles and own styles can read, like {@code --fc-event-color} of {@link #ENTRY_COLOR}.
      * <dl>
@@ -1756,8 +1875,9 @@ public enum Option {
     ENTRY_CONTRAST_COLOR,
 
     /**
-     * Transforms the raw data of each received entry into a standard entry object before FullCalendar parses it. Called once per
-     * received entry, but not for entries added via the client side API. Accepts a {@link JsCallback}.
+     * Transforms the raw data of each received entry into a standard entry object before FullCalendar parses it.
+     * <p>
+     * Called once per received entry, but not for entries added via the client side API. Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(eventData)}. The argument is the received entry data, given directly, there is no {@code info} object.</dd>
@@ -1778,6 +1898,7 @@ public enum Option {
     /**
      * Called right after an entry's DOM element has been added to the DOM. Not called again when the entry data
      * changes.
+     * <p>
      * Background entries use their own {@code backgroundEvent*} hooks.
      * <dl>
      *   <dt>Type</dt>     <dd>{@link JsCallback}</dd>
@@ -1836,8 +1957,8 @@ public enum Option {
     ENTRY_DURATION_EDITABLE,
 
     /**
-     * CSS classes for the inner wrapper element of an entry. The time and title elements live inside it. Applies to
-     * foreground entries, not to background entries.
+     * CSS classes for the inner wrapper element of an entry. The time and title elements live inside it.
+     * Applies to foreground entries, not to background entries.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event} (the entry), {@code timeText},
@@ -1871,7 +1992,8 @@ public enum Option {
     ENTRY_INTERACTIVE,
 
     /**
-     * Time the user must hold down on a touch device before an entry becomes draggable. Has no effect on non-touch devices.
+     * Time the user must hold down on a touch device before an entry becomes draggable. Has no effect on non-touch
+     * devices.
      * <dl>
      *   <dt>Type</dt> <dd>{@code integer} (milliseconds)</dd>
      *   <dt>Default</dt> <dd>value of {@link #LONG_PRESS_DELAY} ({@code 1000})</dd>
@@ -1883,8 +2005,9 @@ public enum Option {
 
     /**
      * Maximum number of entries that stack next to each other. In time grid view they stack left-to-right,
-     * in timeline view top-to-bottom. Hidden entries are represented by a more-link, which by default opens a popover
-     * with them. For day grid view use {@link #DAY_MAX_ENTRIES} instead.
+     * in timeline view top-to-bottom. For day grid view use {@link #DAY_MAX_ENTRIES} instead.
+     * <p>
+     * Hidden entries are represented by a more-link, which by default opens a popover with them.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code integer} | {@code null} (no maximum, all entries are shown)</dd>
      *   <dt>Default</dt> <dd>{@code null}</dd>
@@ -1907,7 +2030,9 @@ public enum Option {
 
     /**
      * Order of entries within the same day. In most views it is the vertical order, in time grid views the
-     * horizontal order. The default puts earlier entries first, then longer ones, then all-day entries, then orders by
+     * horizontal order.
+     * <p>
+     * The default puts earlier entries first, then longer ones, then all-day entries, then orders by
      * title. Unless {@link #ENTRY_ORDER_STRICT} is set, FullCalendar may deviate from the order to be more compact.
      * <dl>
      *   <dt>Type</dt>     <dd>{@code String} (name of an entry property such as {@code "title"}, prefixed with {@code -}
@@ -1982,11 +2107,14 @@ public enum Option {
     ENTRY_SHORT_HEIGHT,
 
     /**
-     * Whether day grid views may visually split a multi-day entry around a "+more" link. When
-     * {@link #DAY_MAX_ENTRIES} (dayMaxEvents) is set and a day cell overflows, a "+more" link replaces the excess
-     * entries. With {@code true}, a multi-day entry that spans such a cell is split: the parts before and after the
-     * overflowing cell are still shown and the cell itself shows the link. With {@code false}, the multi-day entry is
-     * treated as a unit and is hidden completely, absorbed into the "+more" link, if any cell it occupies overflows.
+     * Whether day grid views may visually split a multi-day entry around a "+more" link.
+     * <p>
+     * When {@link #DAY_MAX_ENTRIES} (dayMaxEvents) is set and a day cell overflows, a "+more" link replaces the excess
+     * entries.
+     * <p>
+     * With {@code true}, a multi-day entry that spans such a cell is split. The parts before and after the overflowing
+     * cell are still shown and the cell itself shows the link. With {@code false}, the multi-day entry is treated as a
+     * unit and is hidden completely, absorbed into the "+more" link, if any cell it occupies overflows.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -2013,7 +2141,8 @@ public enum Option {
     ENTRY_SOURCE_END_PARAM("endParam"),
 
     /**
-     * Global Google Calendar API key used by all {@link GoogleCalendarEntrySource} instances that do not specify their own key.
+     * Global Google Calendar API key used by all {@link GoogleCalendarEntrySource} instances that do not specify their
+     * own key.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -2037,8 +2166,10 @@ public enum Option {
     ENTRY_SOURCE_START_PARAM("startParam"),
 
     /**
-     * Called when fetching from an entry source succeeds. It can transform the response, for example to unwrap a wrapper object
-     * into the entry array. Accepts a {@link JsCallback}. To transform each single entry, use {@link #ENTRY_DATA_TRANSFORM} instead.
+     * Called when fetching from an entry source succeeds. The callback can transform the response, for example to
+     * unwrap a wrapper object into the entry array. Accepts a {@link JsCallback}.
+     * <p>
+     * To transform each single entry, use {@link #ENTRY_DATA_TRANSFORM} instead.
      * <dl>
      *   <dt>Type</dt> <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(rawEvents, response)}. The arguments are given directly, there is no
@@ -2213,9 +2344,10 @@ public enum Option {
     EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM("timeZoneParam"),
 
     /**
-     * CSS classes for the filler elements that keep the calendar layout aligned. They fill space in the all-day
-     * section to offset the scrollbar width of the timed section, and in resource timeline views when the resource
-     * rows do not fill the full height.
+     * CSS classes for the filler elements that keep the calendar layout aligned.
+     * <p>
+     * The filler elements fill space in the all-day section to offset the scrollbar width of the timed section, and in
+     * resource timeline views when the resource rows do not fill the full height.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code inTableHeader} ({@code true} when the
@@ -2259,8 +2391,8 @@ public enum Option {
 
     /**
      * Whether the view's horizontal scrollbar is fixed to the bottom of the viewport while the page is scrolled
-     * vertically, if the calendar is in view but the scrollbar is below the fold. Relevant for views with a horizontal
-     * scrollbar, e.g. timeline views.
+     * vertically, if the calendar is in view but the scrollbar is below the fold.
+     * Relevant for views with a horizontal scrollbar, e.g. timeline views.
      * With {@code "auto"}, the scrollbar is sticky when the calendar height is {@code auto}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@code "auto"}</dd>
@@ -2272,10 +2404,14 @@ public enum Option {
     FOOTER_SCROLLBAR_STICKY,
 
     /**
-     * Footer toolbar: the buttons and title shown at the bottom of the calendar. Values are strings of comma or space separated items,
-     * comma separated items are shown adjacent, space separated items with a small gap. Items are {@code title},
-     * {@code prev}, {@code next}, {@code prevYear}, {@code nextYear}, {@code today} or a view name like
-     * {@code dayGridMonth}. {@link ToolbarParts} has constants for the positions and the built-in items.
+     * FullCalendar's built-in footer toolbar: the buttons and title shown at the bottom of the calendar. The toolbar
+     * is not a Vaadin component. FullCalendar shows no footer toolbar by default, and setting this option shows it.
+     * <p>
+     * The values are strings of comma or space separated items. Comma separated items are shown adjacent, space
+     * separated items with a small gap. Items are {@code title}, {@code prev}, {@code next}, {@code prevYear},
+     * {@code nextYear}, {@code today} or a view name like {@code dayGridMonth}.
+     * <p>
+     * {@link NativeToolbarParts} has constants for the positions and the built-in items.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code start}, {@code center} and {@code end}
      *                        properties (FullCalendar also accepts {@code left} and {@code right}) | {@code false} to hide
@@ -2293,7 +2429,8 @@ public enum Option {
     FOOTER_TOOLBAR,
 
     /**
-     * CSS classes for the footer toolbar only. Use {@link #TOOLBAR_CLASS} for both toolbars.
+     * CSS classes for FullCalendar's built-in footer toolbar only, see {@link #FOOTER_TOOLBAR}. Use
+     * {@link #TOOLBAR_CLASS} for both toolbars.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code borderlessX}, {@code borderlessTop}
@@ -2308,7 +2445,8 @@ public enum Option {
     FOOTER_TOOLBAR_CLASS("footerToolbarClass"),
 
     /**
-     * Whether an end is assigned to entries that have none. The end is calculated from the default timed or all-day entry duration.
+     * Whether an end is assigned to entries that have none. The end is calculated from the default timed or all-day
+     * entry duration.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
@@ -2327,10 +2465,14 @@ public enum Option {
     FORCE_EVENT_DURATION,
 
     /**
-     * Header toolbar: the buttons and title shown at the top of the calendar. Values are strings of comma or space separated items,
-     * comma separated items are shown adjacent, space separated items with a small gap. Items are {@code title},
-     * {@code prev}, {@code next}, {@code prevYear}, {@code nextYear}, {@code today} or a view name like
-     * {@code dayGridMonth}. {@link ToolbarParts} has constants for the positions and the built-in items.
+     * FullCalendar's built-in header toolbar: the buttons and title shown at the top of the calendar. The toolbar
+     * is not a Vaadin component. The add-on hides it by default, and setting this option shows it.
+     * <p>
+     * The values are strings of comma or space separated items. Comma separated items are shown adjacent, space
+     * separated items with a small gap. Items are {@code title}, {@code prev}, {@code next}, {@code prevYear},
+     * {@code nextYear}, {@code today} or a view name like {@code dayGridMonth}.
+     * <p>
+     * {@link NativeToolbarParts} has constants for the positions and the built-in items.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code Map<String, String>} or object with {@code start}, {@code center} and {@code end}
      *                        properties (FullCalendar also accepts {@code left} and {@code right}) | {@code false} to hide
@@ -2348,7 +2490,8 @@ public enum Option {
     HEADER_TOOLBAR,
 
     /**
-     * CSS classes for the header toolbar only. Use {@link #TOOLBAR_CLASS} for both toolbars.
+     * CSS classes for FullCalendar's built-in header toolbar only, see {@link #HEADER_TOOLBAR}. Use
+     * {@link #TOOLBAR_CLASS} for both toolbars.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code borderlessX}, {@code borderlessTop}
@@ -2363,9 +2506,12 @@ public enum Option {
     HEADER_TOOLBAR_CLASS("headerToolbarClass"),
 
     /**
-     * Heading level of the toolbar title in the document outline. The title is rendered as a {@code <div>} with an
-     * {@code aria-level} attribute, so the level does not change how it looks. Set it to match the page around the
-     * calendar so screen readers find the title at the right level.
+     * Heading level of the title of FullCalendar's built-in toolbar in the document outline.
+     * <p>
+     * The title is rendered as a {@code <div>} with an {@code aria-level} attribute, so the level does not change how
+     * it looks.
+     * <p>
+     * Set it to match the page around the calendar so screen readers find the title at the right level.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code int}</dd>
      *   <dt>Default</dt> <dd>{@code 2}</dd>
@@ -2380,8 +2526,9 @@ public enum Option {
 
     /**
      * Height of the entire calendar, including header and footer. If the contents do not fit, scrollbars appear.
-     * With {@code "auto"} the view takes its natural height and uses no scrollbars, with {@code "100%"} the calendar matches
-     * the height of its parent element.
+     * <p>
+     * With {@code "auto"} the view takes its natural height and uses no scrollbars. With {@code "100%"} the calendar
+     * matches the height of its parent element.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code integer} (pixels) | {@code "auto"} | any CSS value like {@code "100%"}</dd>
      *   <dt>Default</dt> <dd>{@code "100%"}, set by the add-on's constructor ({@code setHeightFull()}). Without a
@@ -2508,7 +2655,8 @@ public enum Option {
     INLINE_WEEK_NUMBER_DID_MOUNT("inlineWeekNumberDidMount"),
 
     /**
-     * Called before the week number shown inline in day grid cells is removed from the DOM. Accepts a {@link JsCallback}.
+     * Called before the week number shown inline in day grid cells is removed from the DOM. Accepts a
+     * {@link JsCallback}.
      * <dl>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
      *                         {@code date}, {@code isNarrow}, {@code hasNavLink}, and {@code el} (the element, only in
@@ -2527,7 +2675,9 @@ public enum Option {
 
 
     /**
-     * When entries are fetched. With {@code true}, the calendar fetches only when it needs to and reuses entries it
+     * When entries are fetched.
+     * <p>
+     * With {@code true}, the calendar fetches only when it needs to and reuses entries it
      * already has, e.g. when the user switches from month to week view within the same month. With {@code false}, it
      * fetches on every view switch and every date change.
      * <dl>
@@ -2633,8 +2783,10 @@ public enum Option {
     LIST_DAY_HEADER_CLASS("listDayHeaderClass"),
 
     /**
-     * Custom content for the texts of a list view day heading. Called once per text, {@code level} 0
-     * for {@link #LIST_DAY_FORMAT} and 1 for {@link #LIST_DAY_ALT_FORMAT}. Accepts a {@link JsCallback}.
+     * Custom content for the texts of a list view day heading.
+     * <p>
+     * Called once per text, {@code level} 0 for {@link #LIST_DAY_FORMAT} and 1 for {@link #LIST_DAY_ALT_FORMAT}.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}, {@code isPast}, {@code isFuture},
@@ -2723,7 +2875,11 @@ public enum Option {
     LIST_DAY_SIDE_FORMAT("listDayAltFormat"),
 
     /**
-     * CSS classes for the element after the "inner" wrapper of list item entries (bullet-point style entries: timed entries in day grid views and entries in list views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the element after the "inner" wrapper of list item entries (bullet-point style entries: timed
+     * entries in day grid views and entries in list views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -2740,7 +2896,11 @@ public enum Option {
     LIST_ITEM_ENTRY_AFTER_CLASS("listItemEventAfterClass"),
 
     /**
-     * CSS classes for the element before the "inner" wrapper of list item entries (bullet-point style entries: timed entries in day grid views and entries in list views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the element before the "inner" wrapper of list item entries (bullet-point style entries: timed
+     * entries in day grid views and entries in list views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -2757,7 +2917,11 @@ public enum Option {
     LIST_ITEM_ENTRY_BEFORE_CLASS("listItemEventBeforeClass"),
 
     /**
-     * CSS classes for the outermost element of list item entries (bullet-point style entries: timed entries in day grid views and entries in list views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the outermost element of list item entries (bullet-point style entries: timed entries in day grid
+     * views and entries in list views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -2774,7 +2938,11 @@ public enum Option {
     LIST_ITEM_ENTRY_CLASS("listItemEventClass"),
 
     /**
-     * CSS classes for the "inner" wrapper element of list item entries (bullet-point style entries: timed entries in day grid views and entries in list views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the "inner" wrapper element of list item entries (bullet-point style entries: timed entries in
+     * day grid views and entries in list views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -2791,7 +2959,11 @@ public enum Option {
     LIST_ITEM_ENTRY_INNER_CLASS("listItemEventInnerClass"),
 
     /**
-     * CSS classes for the time element within the "inner" wrapper of list item entries (bullet-point style entries: timed entries in day grid views and entries in list views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the time element within the "inner" wrapper of list item entries (bullet-point style entries:
+     * timed entries in day grid views and entries in list views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code isNarrow} and {@code isShort}.</dd>
@@ -2806,7 +2978,11 @@ public enum Option {
     LIST_ITEM_ENTRY_TIME_CLASS("listItemEventTimeClass"),
 
     /**
-     * CSS classes for the title element within the "inner" wrapper of list item entries (bullet-point style entries: timed entries in day grid views and entries in list views). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the title element within the "inner" wrapper of list item entries (bullet-point style entries:
+     * timed entries in day grid views and entries in list views).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code isNarrow}, {@code isShort} and {@code timeText}.</dd>
@@ -2821,8 +2997,8 @@ public enum Option {
     LIST_ITEM_ENTRY_TITLE_CLASS("listItemEventTitleClass"),
 
     /**
-     * Text of the toolbar button for list views, or {@code false} to show duration based buttons like "Week" or
-     * "Month" instead of a "List" button.
+     * Text of the list view button of FullCalendar's built-in toolbar, or {@code false} to show duration based buttons
+     * like "Week" or "Month" instead of a "List" button.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code String} | {@code false}</dd>
      *   <dt>Default</dt> <dd>the localized text "List"</dd>
@@ -2836,8 +3012,10 @@ public enum Option {
     LIST_TEXT("listText"),
 
     /**
-     * Called when fetching entries starts or stops. Accepts a {@link JsCallback}. Often used to show or hide a loading indicator.
-     * With the scheduler, it is also called when resources are fetched.
+     * Called when fetching entries starts or stops. Accepts a {@link JsCallback}.
+     * <p>
+     * Often used to show or hide a loading indicator. With the scheduler, the callback is also called when resources
+     * are fetched.
      * <dl>
      *   <dt>Type</dt> <dd>{@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(isLoading)}. The argument is given directly, there is no {@code info}
@@ -2905,8 +3083,10 @@ public enum Option {
     MONTH_START_FORMAT,
 
     /**
-     * Text of the toolbar button for the month view. Not described separately in the FullCalendar docs. It belongs
-     * to the texts a locale defines, see the locale page.
+     * Text of the month view button of FullCalendar's built-in toolbar. FullCalendar documents this option only partly
+     * or not at all.
+     * <p>
+     * Each locale defines this text, see the locale page.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -3048,10 +3228,14 @@ public enum Option {
     MORE_LINK_INNER_CLASS("moreLinkInnerClass"),
 
     /**
-     * Text of the "more" link that shows when too many entries do not fit in a day. A {@code String} is put after the
-     * number, so {@code "more"} shows "+3 more". A callback returns the whole text. Narrow cells and time grid columns
-     * show only the number. Not described separately in the FullCalendar docs. The behaviour is taken from the
-     * FullCalendar source. Use {@link #MORE_LINK_CONTENT} for full control of the link's content.
+     * Text of the "more" link that shows when too many entries do not fit in a day.
+     * <p>
+     * A {@code String} is put after the number, so {@code "more"} shows "+3 more". A callback returns the whole text.
+     * <p>
+     * Narrow cells and time grid columns show only the number. FullCalendar documents this option only partly or not at
+     * all.
+     * <p>
+     * Use {@link #MORE_LINK_CONTENT} for full control of the link's content.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String} | {@link JsCallback} returning a {@code String}</dd>
      *   <dt>Callback</dt> <dd>{@code function(num)}. {@code num} is the number of hidden entries.</dd>
@@ -3117,7 +3301,8 @@ public enum Option {
     MULTI_MONTH_TITLE_FORMAT("singleMonthTitleFormat"),
 
     /**
-     * Former name of {@link #VIEW_HINT}: accessible label for the view-switcher buttons in the native FC toolbar.
+     * Former name of {@link #VIEW_HINT}: accessible label for the view-switcher buttons in FullCalendar's built-in
+     * toolbar.
      *
      * @deprecated use {@link #VIEW_HINT}, which sets the same FullCalendar option
      */
@@ -3125,9 +3310,10 @@ public enum Option {
     NATIVE_TOOLBAR_VIEW_HINT("viewHint"),
 
     /**
-     * Make day headings and week numbers clickable. A click opens a view for that day or week. The target
-     * views are derived from the views in the header toolbar, or set explicitly by {@link Option#NAV_LINK_DAY_CLICK}
-     * and {@link Option#NAV_LINK_WEEK_CLICK}.
+     * Make day headings and week numbers clickable. A click opens a view for that day or week.
+     * <p>
+     * The target views are derived from the views in FullCalendar's built-in header toolbar, or set explicitly by
+     * {@link Option#NAV_LINK_DAY_CLICK} and {@link Option#NAV_LINK_WEEK_CLICK}.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
@@ -3152,10 +3338,13 @@ public enum Option {
     NAV_LINK_CLASS("navLinkClass"),
 
     /**
-     * Determines what happens upon a click on a day heading nav link (requires {@link #NAV_LINKS}). By default, the
-     * user is taken to the first day view in the header toolbar. A view name {@code String} navigates to that view
-     * instead.
-     * A custom function replaces the default, the user is not navigated automatically then. The {@code dateClick} handler is not fired for such a click.
+     * Determines what happens upon a click on a day heading nav link (requires {@link #NAV_LINKS}).
+     * <p>
+     * By default, the user is taken to the first day view in FullCalendar's built-in header toolbar. A view name
+     * {@code String} navigates to that view instead. A custom function replaces the default. The user is not navigated
+     * automatically then.
+     * <p>
+     * The {@code dateClick} handler is not fired for such a click.
      * <dl>
      *   <dt>Type</dt> <dd>view name {@code String} | {@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(date, jsEvent)}. The arguments are given directly, there is no
@@ -3191,10 +3380,11 @@ public enum Option {
     NAV_LINK_HINT,
 
     /**
-     * Determines what happens upon a click on a week number nav link (requires {@link #NAV_LINKS}). By default, the
-     * user is taken to the first week view in the header toolbar. A view name {@code String} navigates to that view
-     * instead.
-     * A custom function replaces the default, the user is not navigated automatically then.
+     * Determines what happens upon a click on a week number nav link (requires {@link #NAV_LINKS}).
+     * <p>
+     * By default, the user is taken to the first week view in FullCalendar's built-in header toolbar. A view name
+     * {@code String} navigates to that view instead. A custom function replaces the default. The user is not navigated
+     * automatically then.
      * <dl>
      *   <dt>Type</dt> <dd>view name {@code String} | {@link JsCallback}</dd>
      *   <dt>Callback</dt> <dd>{@code function(weekStart, jsEvent)}. The arguments are given directly, there is no
@@ -3211,9 +3401,10 @@ public enum Option {
     NAV_LINK_WEEK_CLICK("navLinkWeekClick"),
 
     /**
-     * How far a timed entry must run into the next day before it is rendered on that day. Affects only
-     * timed entries shown on whole days: in day grid, multi-month and list views, and in timeline views with day-sized
-     * slots. With a threshold of 9am, an entry from 8pm to 2am appears on one day only.
+     * How far a timed entry must run into the next day before it is rendered on that day.
+     * <p>
+     * Affects only timed entries shown on whole days: in day grid, multi-month and list views, and in timeline views
+     * with day-sized slots. With a threshold of 9am, an entry from 8pm to 2am appears on one day only.
      * <dl>
      *   <dt>Type</dt>    <dd>{@link Duration} | {@link LocalTime} | duration string (e.g. {@code "HH:MM:SS"})</dd>
      *   <dt>Default</dt> <dd>{@code "00:00:00"}</dd>
@@ -3228,7 +3419,7 @@ public enum Option {
     NEXT_DAY_THRESHOLD,
 
     /**
-     * Accessible label ({@code aria-label}) of the "next" button in the native FC toolbar.
+     * Accessible label ({@code aria-label}) of the "next" button in FullCalendar's built-in toolbar.
      * <dl>
      *   <dt>Type</dt>     <dd>{@code String} (use {@code $0} as placeholder for the unit text, e.g. "week") | {@link JsCallback}</dd>
      *   <dt>Default</dt>  <dd>locale-dependent</dd>
@@ -3245,7 +3436,7 @@ public enum Option {
     NEXT_HINT,
 
     /**
-     * Text of the "next" toolbar button. It belongs to the texts a locale defines, see the locale page.
+     * Text of the "next" button of FullCalendar's built-in toolbar. Each locale defines this text, see the locale page.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -3258,8 +3449,8 @@ public enum Option {
     NEXT_TEXT("nextText"),
 
     /**
-     * Text of the "next year" toolbar button, see {@link ToolbarParts#NEXT_YEAR}. Not described separately in the
-     * FullCalendar docs. The type definitions show a string, next to {@code nextText}.
+     * Text of the "next year" button of FullCalendar's built-in toolbar, see {@link NativeToolbarParts#NEXT_YEAR}.
+     * FullCalendar documents this option only partly or not at all.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -3285,9 +3476,10 @@ public enum Option {
     NON_BUSINESS_HOURS_CLASS("nonBusinessHoursClass"),
 
     /**
-     * Sets the "today" date of the calendar, the day that is highlighted as today. Without it, the current date of
-     * the browser is used. Useful together with a custom {@code timeZone}, where the current date can differ from
-     * the browser's.
+     * Sets the "today" date of the calendar, the day that is highlighted as today. Without it, the current date of the
+     * browser is used.
+     * <p>
+     * Useful together with a custom {@code timeZone}, where the current date can differ from the browser's.
      * <p>
      * A {@link LocalDate} is sent as a date string, a {@link LocalDateTime} as UTC, like the start and end of entries.
      * <dl>
@@ -3306,8 +3498,8 @@ public enum Option {
     NOW("now"),
 
     /**
-     * Show a marker for the current time. It repositions itself while the calendar is shown. Applies to time
-     * grid and timeline views.
+     * Show a marker for the current time. It repositions itself while the calendar is shown.
+     * Applies to time grid and timeline views.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
@@ -3349,7 +3541,8 @@ public enum Option {
     NOW_INDICATOR_HEADER_CLASS("nowIndicatorHeaderClass"),
 
     /**
-     * Custom content for the arrow of the now indicator in the time axis (time grid and timeline views). Accepts a {@link JsCallback}.
+     * Custom content for the arrow of the now indicator in the time axis (time grid and timeline views). Accepts a
+     * {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}.</dd>
@@ -3419,7 +3612,8 @@ public enum Option {
     NOW_INDICATOR_LINE_CLASS("nowIndicatorLineClass"),
 
     /**
-     * Custom content for the line of the now indicator over the day columns (time grid and timeline views). Accepts a {@link JsCallback}.
+     * Custom content for the line of the now indicator over the day columns (time grid and timeline views). Accepts a
+     * {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code date}.</dd>
@@ -3472,9 +3666,10 @@ public enum Option {
 
     /**
      * Whether the now indicator aligns with the start of its slot. Relevant for timeline views.
-     * With {@code "auto"}, it snaps when the slot unit is a year, month, week, day or hour. For smaller units, its
-     * position reflects the exact current time. With {@code false}, its position always reflects the exact current
-     * time.
+     * <p>
+     * With {@code "auto"}, the indicator snaps when the slot unit is a year, month, week, day or hour. For smaller
+     * units, its position reflects the exact current time. With {@code false}, its position always reflects the exact
+     * current time.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@code "auto"}</dd>
      *   <dt>Default</dt> <dd>{@code "auto"}</dd>
@@ -3579,7 +3774,8 @@ public enum Option {
     NO_ENTRIES_TEXT("noEventsText"),
 
     /**
-     * Called before the "No events to display" message of list views is removed from the DOM. Accepts a {@link JsCallback}.
+     * Called before the "No events to display" message of list views is removed from the DOM. Accepts a
+     * {@link JsCallback}.
      * <dl>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code text} (the message text, from the
      *                         {@code noEventsText} option), {@code view} (the current view object), and {@code el} (the
@@ -3626,8 +3822,11 @@ public enum Option {
 
     /**
      * Custom content for the close button of the popover that opens when the user clicks a more-link. The generated
-     * content is inserted inside the button, typically an icon. There is no default content, the bundled themes supply
-     * their own icon. The button's accessible label comes from the {@code closeHint} option.
+     * content is inserted inside the button, typically an icon.
+     * <p>
+     * There is no default content. The bundled themes supply their own icon.
+     * <p>
+     * The button's accessible label comes from the {@code closeHint} option.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. The type definitions declare no fields for {@code info}.</dd>
@@ -3656,7 +3855,7 @@ public enum Option {
     POPOVER_FORMAT,
 
     /**
-     * Accessible label ({@code aria-label}) of the "prev" button in the native FC toolbar.
+     * Accessible label ({@code aria-label}) of the "prev" button in FullCalendar's built-in toolbar.
      * <dl>
      *   <dt>Type</dt>     <dd>{@code String} (use {@code $0} as placeholder for the unit text, e.g. "week") | {@link JsCallback}</dd>
      *   <dt>Default</dt>  <dd>locale-dependent</dd>
@@ -3673,7 +3872,8 @@ public enum Option {
     PREV_HINT,
 
     /**
-     * Text of the "previous" toolbar button. It belongs to the texts a locale defines, see the locale page.
+     * Text of the "previous" button of FullCalendar's built-in toolbar. Each locale defines this text, see the locale
+     * page.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -3686,8 +3886,8 @@ public enum Option {
     PREV_TEXT("prevText"),
 
     /**
-     * Text of the "previous year" toolbar button, see {@link ToolbarParts#PREV_YEAR}. Not described separately in the
-     * FullCalendar docs. The type definitions show a string, next to {@code prevText}.
+     * Text of the "previous year" button of FullCalendar's built-in toolbar, see {@link NativeToolbarParts#PREV_YEAR}.
+     * FullCalendar documents this option only partly or not at all.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -3700,7 +3900,9 @@ public enum Option {
     PREV_YEAR_TEXT("prevYearText"),
 
     /**
-     * When entries of multiple asynchronous entry sources are rendered. With {@code true}, each source is rendered as
+     * When entries of multiple asynchronous entry sources are rendered.
+     * <p>
+     * With {@code true}, each source is rendered as
      * soon as it is received (more renders). With {@code false}, rendering waits until all sources are received (fewer
      * renders).
      * <dl>
@@ -3713,7 +3915,8 @@ public enum Option {
     PROGRESSIVE_ENTRY_RENDERING,
 
     /**
-     * Former name of {@link #PROGRESSIVE_ENTRY_RENDERING}: when entries of multiple asynchronous entry sources are rendered.
+     * Former name of {@link #PROGRESSIVE_ENTRY_RENDERING}: when entries of multiple asynchronous entry sources are
+     * rendered.
      *
      * @deprecated use {@link #PROGRESSIVE_ENTRY_RENDERING}, which sets the same FullCalendar option
      */
@@ -3734,7 +3937,11 @@ public enum Option {
     RERENDER_DELAY,
 
     /**
-     * CSS classes for the element after the "inner" wrapper of row entries (entries that render as horizontal bars: all-day entries in day grid and time grid views, and timeline entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the element after the "inner" wrapper of row entries (entries that render as horizontal bars:
+     * all-day entries in day grid and time grid views, and timeline entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -3752,8 +3959,8 @@ public enum Option {
 
     /**
      * Custom content for the element after the "inner" wrapper of row entries (entries that render as horizontal bars).
-     * The generated content is inserted inside that element and is hidden from assistive technology. Useful for
-     * decorations such as an arrow showing that the entry continues past a later date.
+     * The generated content is inserted inside that element and is hidden from assistive technology.
+     * Useful for decorations such as an arrow showing that the entry continues past a later date.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -3770,7 +3977,11 @@ public enum Option {
     ROW_ENTRY_AFTER_CONTENT("rowEventAfterContent"),
 
     /**
-     * CSS classes for the element before the "inner" wrapper of row entries (entries that render as horizontal bars: all-day entries in day grid and time grid views, and timeline entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the element before the "inner" wrapper of row entries (entries that render as horizontal bars:
+     * all-day entries in day grid and time grid views, and timeline entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -3787,9 +3998,9 @@ public enum Option {
     ROW_ENTRY_BEFORE_CLASS("rowEventBeforeClass"),
 
     /**
-     * Custom content for the element before the "inner" wrapper of row entries (entries that render as horizontal bars).
-     * The generated content is inserted inside that element and is hidden from assistive technology. Useful for
-     * decorations such as an arrow showing that the entry continues from an earlier date.
+     * Custom content for the element before the "inner" wrapper of row entries (entries that render as horizontal
+     * bars). The generated content is inserted inside that element and is hidden from assistive technology.
+     * Useful for decorations such as an arrow showing that the entry continues from an earlier date.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -3806,7 +4017,11 @@ public enum Option {
     ROW_ENTRY_BEFORE_CONTENT("rowEventBeforeContent"),
 
     /**
-     * CSS classes for the outermost element of row entries (entries that render as horizontal bars: all-day entries in day grid and time grid views, and timeline entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the outermost element of row entries (entries that render as horizontal bars: all-day entries in
+     * day grid and time grid views, and timeline entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -3823,7 +4038,11 @@ public enum Option {
     ROW_ENTRY_CLASS("rowEventClass"),
 
     /**
-     * CSS classes for the "inner" wrapper element of row entries (entries that render as horizontal bars: all-day entries in day grid and time grid views, and timeline entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the "inner" wrapper element of row entries (entries that render as horizontal bars: all-day
+     * entries in day grid and time grid views, and timeline entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code timeText}, {@code isStart}, {@code isEnd}, {@code isMirror}, {@code isPast}, {@code isFuture}, {@code isToday},
@@ -3840,7 +4059,11 @@ public enum Option {
     ROW_ENTRY_INNER_CLASS("rowEventInnerClass"),
 
     /**
-     * CSS classes for the time element within the "inner" wrapper of row entries (entries that render as horizontal bars: all-day entries in day grid and time grid views, and timeline entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the time element within the "inner" wrapper of row entries (entries that render as horizontal
+     * bars: all-day entries in day grid and time grid views, and timeline entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code isNarrow} and {@code isShort}.</dd>
@@ -3855,7 +4078,11 @@ public enum Option {
     ROW_ENTRY_TIME_CLASS("rowEventTimeClass"),
 
     /**
-     * CSS classes for the title element within the "inner" wrapper of row entries (entries that render as horizontal bars: all-day entries in day grid and time grid views, and timeline entries). FullCalendar applies it in addition to the general entry hook of the same part. Accepts a {@link JsCallback}.
+     * CSS classes for the title element within the "inner" wrapper of row entries (entries that render as horizontal
+     * bars: all-day entries in day grid and time grid views, and timeline entries).
+     * <p>
+     * FullCalendar applies this hook in addition to the general entry hook of the same part.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code event}, {@code isNarrow} and {@code isShort}.</dd>
@@ -3870,9 +4097,10 @@ public enum Option {
     ROW_ENTRY_TITLE_CLASS("rowEventTitleClass"),
 
     /**
-     * Whether the title of row entries sticks to the start edge of the visible area while the user scrolls horizontally past a long entry,
-     * so the title stays readable. Not described separately in the FullCalendar docs. The behaviour is taken from the
-     * FullCalendar source. Themes can change the default.
+     * Whether the title of row entries sticks to the start edge of the visible area while the user scrolls horizontally
+     * past a long entry, so the title stays readable. FullCalendar documents this option only partly or not at all.
+     * <p>
+     * Themes can change the default.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -3886,7 +4114,11 @@ public enum Option {
     ROW_ENTRY_TITLE_STICKY("rowEventTitleSticky"),
 
     /**
-     * CSS classes for the row more-link element. A row more-link appears in row-based layouts such as day grid and timeline rows when too many entries would otherwise be shown. Accepts a {@link JsCallback}.
+     * CSS classes for the row more-link element.
+     * <p>
+     * A row more-link appears in row-based layouts such as day grid and timeline rows when too many entries would
+     * otherwise be shown.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText}, {@code longText}, {@code isNarrow} and {@code view}.</dd>
@@ -3901,7 +4133,12 @@ public enum Option {
     ROW_MORE_LINK_CLASS("rowMoreLinkClass"),
 
     /**
-     * CSS classes for the inner wrapper of the row more-link. Useful for adjusting padding. A row more-link appears in row-based layouts such as day grid and timeline rows when too many entries would otherwise be shown. Accepts a {@link JsCallback}.
+     * CSS classes for the inner wrapper of the row more-link.
+     * Useful for adjusting padding.
+     * <p>
+     * A row more-link appears in row-based layouts such as day grid and timeline rows when too many entries would
+     * otherwise be shown.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code numericText}, {@code longText}, {@code isNarrow} and {@code view}.</dd>
@@ -3916,13 +4153,15 @@ public enum Option {
     ROW_MORE_LINK_INNER_CLASS("rowMoreLinkInnerClass"),
 
     /**
-     * Initial vertical scroll position of timegrid views, as time of day. The user can still scroll back to earlier
-     * times; use {@link #SLOT_MIN_TIME} to prevent that.
+     * Initial vertical scroll position of timegrid views, as time of day.
+     * <p>
+     * The user can still scroll back to earlier times. Use {@link #SLOT_MIN_TIME} to prevent that.
      * <dl>
      *   <dt>Type</dt> <dd>{@link Duration} | {@link LocalTime} | duration string (e.g. {@code "HH:MM:SS"})</dd>
      *   <dt>Default</dt> <dd>{@code "06:00:00"}</dd>
      * </dl>
-     * The position is applied again whenever the date range changes, unless {@link #SCROLL_TIME_RESET} is {@code false}.
+     * The position is applied again whenever the date range changes, unless {@link #SCROLL_TIME_RESET} is
+     * {@code false}.
      *
      * @see <a href="https://fullcalendar.io/docs/scrollTime">scrollTime</a>
      */
@@ -3930,7 +4169,8 @@ public enum Option {
     SCROLL_TIME,
 
     /**
-     * Whether the view scrolls to {@link #SCROLL_TIME} every time the date range changes, via the API or by the user navigating.
+     * Whether the view scrolls to {@link #SCROLL_TIME} every time the date range changes, via the API or by the user
+     * navigating.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -3973,7 +4213,8 @@ public enum Option {
 
     /**
      * Limits where the user can make selections to certain windows of time. Accepts the same values as
-     * {@code eventConstraint} does for entries. Only applies when {@link #SELECTABLE} is {@code true}.
+     * {@code eventConstraint} does for entries.
+     * Only applies when {@link #SELECTABLE} is {@code true}.
      * <dl>
      *   <dt>Type</dt> <dd>group id {@code String} | {@code "businessHours"} | object like {@link BusinessHours}</dd>
      * </dl>
@@ -4000,9 +4241,10 @@ public enum Option {
     SELECT_LONG_PRESS_DELAY,
 
     /**
-     * Minimum distance in pixels the mouse must travel after a mouse down before a selection starts. {@code 0} puts no
-     * restriction on the distance. A non-zero value helps to tell a selection from a date click. Applies to mouse
-     * interaction only.
+     * Minimum distance in pixels the mouse must travel after a mouse down before a selection starts.
+     * <p>
+     * {@code 0} puts no restriction on the distance. A non-zero value helps to tell a selection from a date click.
+     * Applies to mouse interaction only.
      * <dl>
      *   <dt>Type</dt> <dd>{@code integer}</dd>
      *   <dt>Default</dt> <dd>{@code 0}</dd>
@@ -4013,7 +4255,8 @@ public enum Option {
     SELECT_MIN_DISTANCE,
 
     /**
-     * Whether a placeholder entry is drawn while the user drags a selection, instead of the standard highlighting of each cell. Applies to timegrid views only.
+     * Whether a placeholder entry is drawn while the user drags a selection, instead of the standard highlighting of
+     * each cell. Applies to timegrid views only.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>
@@ -4024,8 +4267,10 @@ public enum Option {
     SELECT_MIRROR,
 
     /**
-     * Whether the user may select periods of time that are occupied by entries. With a function, it is called once for
-     * every entry the selection intersects. Only applies when {@link #SELECTABLE} is {@code true}.
+     * Whether the user may select periods of time that are occupied by entries.
+     * <p>
+     * With a function, it is called once for every entry the selection intersects.
+     * Only applies when {@link #SELECTABLE} is {@code true}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@link JsCallback} returning a boolean</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -4039,7 +4284,8 @@ public enum Option {
      *         JsCallback.of("function(event) { return event.display === 'background'; }"));
      * }</pre>
      *
-     * An all-day entry of a day counts as intersecting in timegrid views, although it does not visually overlap the time slots.
+     * An all-day entry of a day counts as intersecting in timegrid views, although it does not visually overlap the
+     * time slots.
      *
      * @see <a href="https://fullcalendar.io/docs/selectOverlap">selectOverlap</a>
      */
@@ -4195,7 +4441,7 @@ public enum Option {
 
     /**
      * Whether timed entries in timegrid views visually overlap. With {@code true}, at most half of each entry is
-     * obscured; with {@code false}, entries never overlap.
+     * obscured. With {@code false}, entries never overlap.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -4207,7 +4453,7 @@ public enum Option {
 
     /**
      * Horizontal text alignment of the slot headers, where time grid and timeline views display their date and time
-     * text. Not described separately in the FullCalendar docs. It accepts the same values as
+     * text. FullCalendar documents this option only partly or not at all. It accepts the same values as
      * {@link #DAY_HEADER_ALIGN}.
      * <dl>
      *   <dt>Type</dt> <dd>{@link HeaderAlign} | {@link JsCallback} returning {@code 'start'}, {@code 'center'} or
@@ -4372,9 +4618,11 @@ public enum Option {
     SLOT_HEADER_ROW_CLASS("slotHeaderRowClass"),
 
     /**
-     * Sticky positioning of the slot headers. Not described separately in the FullCalendar docs. Compare
-     * {@link #TABLE_HEADER_STICKY}, which fixes the date headers at the top of the calendar to the viewport. The
-     * accepted types are {@code boolean}, number or string. What a number or string value means is not documented.
+     * Sticky positioning of the slot headers. FullCalendar documents this option only partly or not at all.
+     * <p>
+     * Compare {@link #TABLE_HEADER_STICKY}, which fixes the date headers at the top of the calendar to the viewport.
+     * <p>
+     * The accepted types are {@code boolean}, number or string. What a number or string value means is not documented.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | number | {@code String}</dd>
      *   <dt>Default</dt> <dd>{@code true} (FullCalendar's own default)</dd>
@@ -4408,7 +4656,8 @@ public enum Option {
     SLOT_HEADER_WILL_UNMOUNT("slotHeaderWillUnmount"),
 
     /**
-     * Former name of {@link #SLOT_HEADER_CLASS}: CSS classes for time slot headers, where time grid and timeline views show the date or time text of a slot.
+     * Former name of {@link #SLOT_HEADER_CLASS}: CSS classes for time slot headers, where time grid and timeline views
+     * show the date or time text of a slot.
      * @deprecated use {@link #SLOT_HEADER_CLASS}, which sets the same FullCalendar option. Return a class name string. FullCalendar 7 drops arrays.
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -4422,7 +4671,8 @@ public enum Option {
     SLOT_LABEL_CONTENT("slotHeaderContent"),
 
     /**
-     * Former name of {@link #SLOT_HEADER_DID_MOUNT}: Called after a time slot header is added to the DOM. Accepts a {@link JsCallback}.
+     * Former name of {@link #SLOT_HEADER_DID_MOUNT}: Called after a time slot header is added to the DOM. Accepts a
+     * {@link JsCallback}.
      * @deprecated use {@link #SLOT_HEADER_DID_MOUNT}, which sets the same FullCalendar option
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -4446,7 +4696,8 @@ public enum Option {
     SLOT_LABEL_INTERVAL("slotHeaderInterval"),
 
     /**
-     * Former name of {@link #SLOT_HEADER_WILL_UNMOUNT}: Called before a time slot header is removed from the DOM. Accepts a {@link JsCallback}.
+     * Former name of {@link #SLOT_HEADER_WILL_UNMOUNT}: Called before a time slot header is removed from the DOM.
+     * Accepts a {@link JsCallback}.
      * @deprecated use {@link #SLOT_HEADER_WILL_UNMOUNT}, which sets the same FullCalendar option
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
@@ -4542,7 +4793,8 @@ public enum Option {
     SLOT_MIN_HEIGHT("slotMinHeight"),
 
     /**
-     * First time slot displayed for each day. {@code "00:00:00"} starts at midnight. The slot limit also applies when the view is scrolled back all the way.
+     * First time slot displayed for each day. {@code "00:00:00"} starts at midnight. The slot limit also applies when
+     * the view is scrolled back all the way.
      * <dl>
      *   <dt>Type</dt> <dd>{@link Duration} | {@link LocalTime} | duration string (e.g. {@code "HH:MM:SS"})</dd>
      *   <dt>Default</dt> <dd>{@code "00:00:00"}</dd>
@@ -4566,7 +4818,8 @@ public enum Option {
     SNAP_DURATION,
 
     /**
-     * Former name of {@link #FOOTER_SCROLLBAR_STICKY}: whether the view's horizontal scrollbar is fixed to the bottom of the viewport.
+     * Former name of {@link #FOOTER_SCROLLBAR_STICKY}: whether the view's horizontal scrollbar is fixed to the bottom
+     * of the viewport.
      *
      * @deprecated use {@link #FOOTER_SCROLLBAR_STICKY}, which sets the same FullCalendar option
      */
@@ -4639,8 +4892,10 @@ public enum Option {
 
     /**
      * Whether the date headers at the top of the calendar are fixed to the top of the viewport while the page is
-     * scrolled vertically. List view day headings are always sticky.
-     * With {@code "auto"}, the headers are sticky when the calendar height is {@code auto}.
+     * scrolled vertically.
+     * <p>
+     * List view day headings are always sticky. With {@code "auto"}, the headers are sticky when the calendar height is
+     * {@code auto}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@code "auto"}</dd>
      *   <dt>Default</dt> <dd>{@code true}, set by the add-on (FullCalendar's own default is {@code "auto"})</dd>
@@ -4651,9 +4906,10 @@ public enum Option {
     TABLE_HEADER_STICKY,
 
     /**
-     * Accessibility label of the time axis next to the timed section of time grid views, read by screen readers. The
-     * locale provides the default (English: "Timed"), a value set here wins over it. Not described separately in the
-     * FullCalendar docs. The behaviour is taken from the FullCalendar source.
+     * Accessibility label of the time axis next to the timed section of time grid views, read by screen readers.
+     * FullCalendar documents this option only partly or not at all.
+     * <p>
+     * The locale provides the default (English: "Timed"). A value set here wins over it.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -4687,7 +4943,7 @@ public enum Option {
     TIMEZONE("timeZone"),
 
     /**
-     * Format of the title text in the header toolbar.
+     * Format of the title text in FullCalendar's built-in header toolbar.
      * <dl>
      *   <dt>Type</dt>    <dd>format object, e.g. a {@code Map<String, Object>} with {@code year}, {@code month} and {@code day}</dd>
      *   <dt>Default</dt> <dd>depends on the view: year and long month in month views ({@code September 2009}), year,
@@ -4703,7 +4959,7 @@ public enum Option {
     TITLE_FORMAT("titleFormat"),
 
     /**
-     * Accessible label ({@code aria-label}) of the "today" button in the native FC toolbar.
+     * Accessible label ({@code aria-label}) of the "today" button in FullCalendar's built-in toolbar.
      * <dl>
      *   <dt>Type</dt>     <dd>{@code String} (use {@code $0} as placeholder for the unit text, e.g. "week") | {@link JsCallback}</dd>
      *   <dt>Default</dt>  <dd>locale-dependent</dd>
@@ -4720,7 +4976,8 @@ public enum Option {
     TODAY_HINT,
 
     /**
-     * Text of the "today" toolbar button. It belongs to the texts a locale defines, see the locale page.
+     * Text of the "today" button of FullCalendar's built-in toolbar. Each locale defines this text, see the locale
+     * page.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -4733,8 +4990,10 @@ public enum Option {
     TODAY_TEXT("todayText"),
 
     /**
-     * CSS classes for the toolbar container. Applies to the header and the footer toolbar. Use
-     * {@link #HEADER_TOOLBAR_CLASS} or {@link #FOOTER_TOOLBAR_CLASS} for one of them.
+     * CSS classes for the container of FullCalendar's built-in toolbar, see {@link #HEADER_TOOLBAR}.
+     * Applies to the header and the footer toolbar.
+     * <p>
+     * Use {@link #HEADER_TOOLBAR_CLASS} or {@link #FOOTER_TOOLBAR_CLASS} for one of them.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code borderlessX}, {@code borderlessTop}
@@ -4749,8 +5008,12 @@ public enum Option {
     TOOLBAR_CLASS("toolbarClass"),
 
     /**
-     * Defines your own content for use in {@link #HEADER_TOOLBAR} or {@link #FOOTER_TOOLBAR}. The map key is the
-     * name to put into the toolbar strings, like the name of a custom button. The callback runs in the browser only.
+     * Defines your own content for FullCalendar's built-in toolbars, for use in {@link #HEADER_TOOLBAR} or
+     * {@link #FOOTER_TOOLBAR}.
+     * <p>
+     * The map key is the name to put into the toolbar strings, like the name of a custom button.
+     * <p>
+     * The callback runs in the browser only.
      * <dl>
      *   <dt>Type</dt> <dd>{@code Map<String, Object>}, name to the element's content: text, or a {@link JsCallback}
      *                     returning content</dd>
@@ -4760,8 +5023,8 @@ public enum Option {
      * calendar.setOption(Option.TOOLBAR_ELEMENTS, Map.of(
      *         "hint", JsCallback.of("function() { return { html: '<i>Drag to move</i>' }; }")));
      * calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-     *         ToolbarParts.START, ToolbarParts.PREV + "," + ToolbarParts.NEXT + " hint",
-     *         ToolbarParts.CENTER, ToolbarParts.TITLE));
+     *         NativeToolbarParts.START, NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + " hint",
+     *         NativeToolbarParts.CENTER, NativeToolbarParts.TITLE));
      * }</pre>
      *
      * @see <a href="https://fullcalendar.io/docs/toolbarElements">toolbarElements</a>
@@ -4769,7 +5032,7 @@ public enum Option {
     TOOLBAR_ELEMENTS("toolbarElements"),
 
     /**
-     * CSS classes for each section (start, center, end) of a toolbar.
+     * CSS classes for each section (start, center, end) of FullCalendar's built-in toolbars.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code name}, the name of the section.</dd>
@@ -4786,8 +5049,8 @@ public enum Option {
     TOOLBAR_SECTION_CLASS("toolbarSectionClass"),
 
     /**
-     * CSS classes for the title text element of a toolbar. Unlike the other toolbar class options, it takes a class
-     * name only, no callback.
+     * CSS classes for the title text element of FullCalendar's built-in toolbars. Unlike the other toolbar class
+     * options, it takes a class name only, no callback.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated). No callback.</dd>
      * </dl>
@@ -4800,7 +5063,8 @@ public enum Option {
     TOOLBAR_TITLE_CLASS("toolbarTitleClass"),
 
     /**
-     * Whether clicking elsewhere on the page clears the current selection. Only applies when {@link #SELECTABLE} is {@code true}.
+     * Whether clicking elsewhere on the page clears the current selection. Only applies when {@link #SELECTABLE} is
+     * {@code true}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -4849,10 +5113,12 @@ public enum Option {
     VALID_RANGE,
 
     /**
-     * Accessibility label of the toolbar button group that switches the view, read by screen readers. FullCalendar
-     * sets it only when the group contains nothing but view buttons. The locale provides the default (English:
-     * "Change view"), a value set here wins over it. Not described separately in the FullCalendar docs. The behaviour is
-     * taken from the FullCalendar source.
+     * Accessibility label of the button group in FullCalendar's built-in toolbar that switches the view, read by screen
+     * readers.
+     * <p>
+     * FullCalendar sets it only when the group contains nothing but view buttons. The locale provides the default
+     * (English: "Change view"), and a value set here wins over it. FullCalendar documents this option only partly or
+     * not at all.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>
@@ -4905,7 +5171,7 @@ public enum Option {
     VIEW_DID_MOUNT("viewDidMount"),
 
     /**
-     * Accessible label for view-switcher buttons in the native FC toolbar, used for view buttons that have no
+     * Accessible label for view-switcher buttons in FullCalendar's built-in toolbar, used for view buttons that have no
      * own entry in the {@code buttonHints}.
      * <dl>
      *   <dt>Type</dt>     <dd>{@code String} (use {@code $0} as placeholder for the localized button text, e.g.
@@ -4986,7 +5252,8 @@ public enum Option {
     WEEKENDS,
 
     /**
-     * Whether week numbers are displayed: next to each row of days in month and daygrid views, and in the top-left corner of timegrid views.
+     * Whether week numbers are displayed: next to each row of days in month and daygrid views, and in the top-left
+     * corner of timegrid views.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}, set by the add-on (FullCalendar's own default is {@code false})</dd>
@@ -5048,7 +5315,8 @@ public enum Option {
     WEEK_NUMBER_HEADER_CLASS("weekNumberHeaderClass"),
 
     /**
-     * Custom content for the week number in the header above the time axis of time grid views. Accepts a {@link JsCallback}.
+     * Custom content for the week number in the header above the time axis of time grid views. Accepts a
+     * {@link JsCallback}.
      * <dl>
      *   <dt>Type</dt> <dd>text, or a {@link JsCallback} returning content</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
@@ -5068,7 +5336,8 @@ public enum Option {
     WEEK_NUMBER_HEADER_CONTENT("weekNumberHeaderContent"),
 
     /**
-     * Called after the week number in the header above the time axis of time grid views is added to the DOM. Accepts a {@link JsCallback}.
+     * Called after the week number in the header above the time axis of time grid views is added to the DOM. Accepts a
+     * {@link JsCallback}.
      * <dl>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
      *                         {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}, and {@code el} (the
@@ -5107,7 +5376,8 @@ public enum Option {
     WEEK_NUMBER_HEADER_INNER_CLASS("weekNumberHeaderInnerClass"),
 
     /**
-     * Called before the week number in the header above the time axis of time grid views is removed from the DOM. Accepts a {@link JsCallback}.
+     * Called before the week number in the header above the time axis of time grid views is removed from the DOM.
+     * Accepts a {@link JsCallback}.
      * <dl>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code num}, {@code text}, {@code textParts},
      *                         {@code date}, {@code isNarrow}, {@code hasNavLink}, {@code options}, and {@code el} (the
@@ -5157,8 +5427,10 @@ public enum Option {
     WEEK_TEXT_SHORT,
 
     /**
-     * Text of the toolbar button for the year view. Not described separately in the FullCalendar docs. It belongs
-     * to the texts a locale defines, see the locale page.
+     * Text of the year view button of FullCalendar's built-in toolbar. FullCalendar documents this option only partly
+     * or not at all.
+     * <p>
+     * Each locale defines this text, see the locale page.
      * <dl>
      *   <dt>Type</dt> <dd>{@code String}</dd>
      * </dl>

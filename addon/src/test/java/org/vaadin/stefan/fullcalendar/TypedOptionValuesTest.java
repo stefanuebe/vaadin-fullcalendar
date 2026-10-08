@@ -256,7 +256,7 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
     private static Map<String, Object> buttons() {
         return Map.of(
-                ToolbarParts.TODAY, Map.of("text", "Now", "display", ButtonDisplay.TEXT),
+                NativeToolbarParts.TODAY, Map.of("text", "Now", "display", NativeToolbarButtonDisplay.TEXT),
                 "hello", Map.of("text", "Hello", "click", JsCallback.of("function() { window.helloClicked = true; }")));
     }
 
@@ -350,10 +350,10 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
     @Test
     void buttonDisplay_sendsClientValue() {
-        calendar.setOption(Option.BUTTON_DISPLAY, ButtonDisplay.ICON_TEXT);
+        calendar.setOption(Option.BUTTON_DISPLAY, NativeToolbarButtonDisplay.ICON_TEXT);
 
         assertEquals("icon-text", initialClientValue(Option.BUTTON_DISPLAY).asString());
-        assertEquals(ButtonDisplay.ICON_TEXT, calendar.getOption(Option.BUTTON_DISPLAY).orElseThrow());
+        assertEquals(NativeToolbarButtonDisplay.ICON_TEXT, calendar.getOption(Option.BUTTON_DISPLAY).orElseThrow());
     }
 
     @Test

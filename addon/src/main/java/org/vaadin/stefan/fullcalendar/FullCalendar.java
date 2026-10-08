@@ -41,6 +41,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.vaadin.stefan.fullcalendar.JsonUtils.toJsonNodeWithJackson;
+
 /**
  * Flow implementation for the FullCalendar.
  * <p>
@@ -260,7 +262,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                     // since that is also cached as a property
                     ObjectNode optionsJson = JsonFactory.createObject();
                     if (!options.isEmpty()) {
-                        options.forEach((key, value) -> optionsJson.set(key, toClientJson(value)));
+                        options.forEach((key, value) -> optionsJson.set(key, toJsonNodeWithJackson(value)));
                     }
 
                     getElement().callJsFunction("restoreStateFromServer",
@@ -723,7 +725,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
         }
 
         if (attached) {
-            Object[] parameters = Stream.concat(Stream.of(option, toClientJson(value)),
+            Object[] parameters = Stream.concat(Stream.of(option, toJsonNodeWithJackson(value)),
                     Stream.of(additionalParameters)).toArray(Object[]::new);
             getElement().callJsFunction(method, parameters);
         } else {
@@ -736,18 +738,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
             if (value == null) {
                 initialOptions.remove(option);
             } else {
-                initialOptions.set(option, toClientJson(value));
+                initialOptions.set(option, toJsonNodeWithJackson(value));
             }
         }
-    }
-
-    /**
-     * Converts an option value for the client. Every path that sends options uses it, so a value reaches the client
-     * the same way before attach, after attach, on re-attach and inside view-specific options. A JsCallback nested
-     * in a map (e.g. a button's click) becomes a marker, other objects are serialized with Jackson.
-     */
-    private static JsonNode toClientJson(Object value) {
-        return JsonUtils.toJsonNodeWithJackson(value);
     }
 
     @Override
@@ -2086,7 +2079,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, HasThe
                     break;
                 }
             }
-            viewNode.set(optionKey, toClientJson(clientValue));
+            viewNode.set(optionKey, toJsonNodeWithJackson(clientValue));
         }
         syncViewSpecificOptions();
     }

@@ -40,10 +40,10 @@ public class ToolbarOptionsTest {
     @Test
     void toolbarParts_buildTheButtonStringsFullCalendarExpects() {
         calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-                ToolbarParts.START, ToolbarParts.PREV_YEAR + "," + ToolbarParts.PREV + "," + ToolbarParts.NEXT + ","
-                        + ToolbarParts.NEXT_YEAR + " " + ToolbarParts.TODAY,
-                ToolbarParts.CENTER, ToolbarParts.TITLE,
-                ToolbarParts.END, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue()));
+                NativeToolbarParts.START, NativeToolbarParts.PREV_YEAR + "," + NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + ","
+                        + NativeToolbarParts.NEXT_YEAR + " " + NativeToolbarParts.TODAY,
+                NativeToolbarParts.CENTER, NativeToolbarParts.TITLE,
+                NativeToolbarParts.END, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue()));
 
         ObjectNode json = (ObjectNode) sentToClient().get("headerToolbar");
         assertEquals("prevYear,prev,next,nextYear today", json.get("start").asString());

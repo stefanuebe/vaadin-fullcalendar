@@ -58,9 +58,11 @@ public enum SchedulerOption {
     ENTRY_MIN_WIDTH("eventMinWidth"),
 
     /**
-     * How time grid views lay out entries when printing. Browsers, especially Firefox, have difficulties printing
-     * absolutely positioned elements across pages, which affects time grid views most.
-     * Requires FullCalendar's adaptive premium plugin, which {@link FullCalendarScheduler} loads.
+     * How time grid views lay out entries when printing.
+     * <p>
+     * Browsers, especially Firefox, have difficulties printing absolutely positioned elements across pages, which
+     * affects time grid views most. Requires FullCalendar's adaptive premium plugin, which
+     * {@link FullCalendarScheduler} loads.
      * <dl>
      *   <dt>Type</dt>    <dd>{@link EntryPrintLayout}</dd>
      *   <dt>Default</dt> <dd>{@link EntryPrintLayout#AUTO} (FullCalendar stacks the entries in Firefox and keeps the
@@ -121,10 +123,14 @@ public enum SchedulerOption {
     LICENSE_KEY("schedulerLicenseKey"),
 
     /**
-     * Maximum number of rows rendered when printing. Printed output does not use virtual rendering, so a calendar
-     * with very many resources could overwhelm the browser. If there are more rows, the extra rows are left out and
-     * the client logs a warning to the browser console. Only takes effect with FullCalendar's adaptive plugin
-     * (loaded by {@link FullCalendarScheduler}) and currently only applies to timeline views.
+     * Maximum number of rows rendered when printing.
+     * <p>
+     * Printed output does not use virtual rendering, so a calendar with very many resources could overwhelm the
+     * browser. If there are more rows, the extra rows are left out and the client logs a warning to the browser
+     * console.
+     * <p>
+     * The option only takes effect with FullCalendar's adaptive plugin (loaded by {@link FullCalendarScheduler}) and
+     * currently only applies to timeline views.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code number}</dd>
      *   <dt>Default</dt> <dd>{@code 1000}</dd>
@@ -151,7 +157,8 @@ public enum SchedulerOption {
 
     /**
      * Whether child resources are expanded when the view loads. Set to {@code false} to start with them
-     * collapsed. Only supported in the timeline view.
+     * collapsed.
+     * Only supported in the timeline view.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code true}</dd>
@@ -248,8 +255,9 @@ public enum SchedulerOption {
 
     /**
      * Adds CSS classes to the cells of the resource area in the timeline view. Each cell shows one column field
-     * (the resource title or a column of {@link #RESOURCE_COLUMNS}). The hook also runs for the cells of group
-     * rows, which have no {@code resource}.
+     * (the resource title or a column of {@link #RESOURCE_COLUMNS}).
+     * <p>
+     * The hook also runs for the cells of group rows, which have no {@code resource}.
      * <dl>
      *   <dt>Type</dt>     <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource} (absent in group rows),
@@ -302,10 +310,14 @@ public enum SchedulerOption {
     RESOURCE_CELL_DID_MOUNT("resourceCellDidMount"),
 
     /**
-     * CSS classes for the inner wrapper of a resource cell in the timeline view. A resource cell is a cell in the
-     * resource area on the left side of the view, one per column field (such as the resource title or a custom
-     * column). The hook also applies to resource group cells. The inner wrapper holds the content and is useful for
-     * adjusting padding.
+     * CSS classes for the inner wrapper of a resource cell in the timeline view.
+     * <p>
+     * A resource cell is a cell in the resource area on the left side of the view, one per column field (such as the
+     * resource title or a custom column).
+     * <p>
+     * The hook also applies to resource group cells.
+     * <p>
+     * The inner wrapper holds the content and is useful for adjusting padding.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource} (absent for group cells),
@@ -361,8 +373,10 @@ public enum SchedulerOption {
     /**
      * Turns the resource area from a plain list of resource titles into a grid of data. Each column shows a
      * property of the resource and can be grouped, sized and customized.
+     * <p>
      * Prefer {@link Scheduler#setResourceColumns(List)}. Passing a list of {@link ResourceColumn}
      * to {@link FullCalendarScheduler#setOption(SchedulerOption, Object)} binds component columns the same way.
+     * <p>
      * Raw JSON is sent as it is, cannot carry component columns and unbinds the component columns set before.
      * <dl>
      *   <dt>Type</dt>    <dd>{@link List} of {@link ResourceColumn}</dd>
@@ -570,8 +584,11 @@ public enum SchedulerOption {
 
     /**
      * CSS classes for the inner wrapper of a resource day header in the vertical resource views
-     * ({@code resourceTimeGrid} and {@code resourceDayGrid}). A resource day header is the cell in the column header
-     * that shows a resource's name. The inner wrapper is useful for adjusting padding.
+     * ({@code resourceTimeGrid} and {@code resourceDayGrid}).
+     * <p>
+     * A resource day header is the cell in the column header that shows a resource's name.
+     * <p>
+     * The inner wrapper is useful for adjusting padding.
      * <dl>
      *   <dt>Type</dt> <dd>class name {@code String} (space separated) | {@link JsCallback} returning one</dd>
      *   <dt>Callback</dt> <dd>{@code function(info)}. {@code info} has {@code resource}, {@code date} (if the column
@@ -1102,9 +1119,10 @@ public enum SchedulerOption {
 
     /**
      * Renders only the rows and columns currently visible in the scroll viewport. This improves performance when a
-     * calendar has a large number of resources: rows and columns that leave the viewport are removed from the DOM
-     * and newly visible ones are rendered while the user scrolls. Currently only applies to timeline views that
-     * display resources.
+     * calendar has a large number of resources. Rows and columns that leave the viewport are removed from the DOM and
+     * newly visible ones are rendered while the user scrolls.
+     * <p>
+     * Currently only applies to timeline views that display resources.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
      *   <dt>Default</dt> <dd>{@code false}</dd>

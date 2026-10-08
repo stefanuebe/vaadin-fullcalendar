@@ -17,8 +17,10 @@
 package org.vaadin.stefan.fullcalendar;
 
 /**
- * How time grid views lay out entries when printing. Corresponds to the FullCalendar {@code eventPrintLayout} option,
- * which FullCalendar's print plugin reads. {@link FullCalendarScheduler} loads that plugin.
+ * How time grid views lay out entries when printing.
+ * <p>
+ * Corresponds to the FullCalendar {@code eventPrintLayout} option, which FullCalendar's print plugin reads.
+ * {@link FullCalendarScheduler} loads that plugin.
  *
  * @see <a href="https://fullcalendar.io/docs/eventPrintLayout">eventPrintLayout</a>
  */

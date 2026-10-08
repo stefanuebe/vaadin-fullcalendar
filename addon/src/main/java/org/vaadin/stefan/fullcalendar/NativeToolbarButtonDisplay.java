@@ -17,12 +17,16 @@
 package org.vaadin.stefan.fullcalendar;
 
 /**
- * Whether toolbar buttons show an icon, text or both. Corresponds to the FullCalendar {@code buttonDisplay} option
- * and to the {@code display} property of a single button in {@link Option#BUTTONS}.
+ * Whether the buttons of the built-in toolbar show an icon, text or both. Corresponds to the FullCalendar
+ * {@code buttonDisplay} option and to the {@code display} property of a single button in {@link Option#BUTTONS}.
+ * <p>
+ * The values only affect FullCalendar's built-in header and footer toolbar, not a Vaadin component. The add-on hides
+ * the header toolbar by default, and FullCalendar shows no footer toolbar by default. Setting
+ * {@link Option#HEADER_TOOLBAR} or {@link Option#FOOTER_TOOLBAR} shows the respective toolbar.
  *
  * @see <a href="https://fullcalendar.io/docs/buttonDisplay">buttonDisplay</a>
  */
-public enum ButtonDisplay implements ClientSideValue {
+public enum NativeToolbarButtonDisplay implements ClientSideValue {
     /** The icon, if the theme supplies one for the button, otherwise the text (default). */
     AUTO("auto"),
     /** Only the icon. */
@@ -36,7 +40,7 @@ public enum ButtonDisplay implements ClientSideValue {
 
     private final String clientSideValue;
 
-    ButtonDisplay(String clientSideValue) {
+    NativeToolbarButtonDisplay(String clientSideValue) {
         this.clientSideValue = clientSideValue;
     }
 
