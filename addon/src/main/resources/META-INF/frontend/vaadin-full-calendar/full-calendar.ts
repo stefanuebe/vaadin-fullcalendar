@@ -71,12 +71,16 @@ const loadedThemes = new Map<string, Promise<PluginInput>>();
 const resolvedThemes = new Map<string, PluginInput>([['vaadin', vaadinTheme]]);
 
 /**
- * Returns the value to pass to FullCalendar for the given option value. FullCalendar keeps every value passed to its
- * setOption, null included, and converts colorScheme with String(), so null would become the attribute
- * data-color-scheme="null". An empty colorScheme renders no attribute, so the calendar follows the page again.
+ * Merges view-specific options into views, per view, so that a view keeps the options the other side does not set.
+ * @param views options by view name
+ * @param overrides options by view name, these win
  */
-function replaceNullColorScheme(key: string, value: any): any {
-    return key === 'colorScheme' && value == null ? '' : value;
+function mergeViews(views: any, overrides: any): any {
+    const result = {...views};
+    for (const name in overrides) {
+        result[name] = {...views?.[name], ...overrides[name]};
+    }
+    return result;
 }
 
 /**
@@ -139,6 +143,8 @@ export class FullCalendar extends HTMLElement {
      * to FullCalendar, our own handler stays registered so the server keeps receiving the click.
      */
     protected moreLinkClickAction: any = "popover";
+    /** The moreLinkClick value of the initial JSON options, see {@link setMoreLinkClickAction}. */
+    private _moreLinkClickWithoutServer: any;
     protected prefetchEnabled = false;
 
     /** Pending revert functions from eventDrop/eventResize, keyed by entry ID. */
@@ -153,6 +159,15 @@ export class FullCalendar extends HTMLElement {
     private _fcTheme: string | undefined;
     /** Plugins of the calendar without the theme plugin. */
     private _basePlugins: PluginInput[] = [];
+    /** The options last passed to FullCalendar, see {@link applyOptions}. FullCalendar cannot return them. */
+    private _optionOverrides: Record<string, any> = {};
+    /**
+     * The options the calendar has when the server set none. These are the add-on's own options and event handlers
+     * plus the initial JSON options. A removed option falls back to them.
+     */
+    private _optionsWithoutServer: Record<string, any> = {};
+    /** The eventAdd function passed with the last removal of an option, see {@link applyOptions}. */
+    private _removalNudge: ((arg: any) => void) | undefined;
 
     /**
      * Registers a FullCalendar theme under the given name, so that the server can select it with
@@ -195,7 +210,17 @@ export class FullCalendar extends HTMLElement {
 
     protected initCalendar() {
         if (!this._calendar) {
-            let options = this.createInitOptions({...this.initialOptions, ...this.initialJsonOptions});
+            // evaluated once, so the code of a JsCallback runs once, although both createInitOptions calls get it
+            const jsonOptions = evaluateCallbacks(this.initialJsonOptions);
+            this._moreLinkClickWithoutServer = jsonOptions.moreLinkClick;
+            this.customViews = evaluateCallbacks(this.customViews);
+            const initialOptions: any = {...this.initialOptions, ...jsonOptions};
+            this._optionsWithoutServer = this.createInitOptions({...jsonOptions});
+            let options = this.createInitOptions({...initialOptions, views: jsonOptions.views});
+            // before createInitOptions replaced it with our own handler
+            this.setMoreLinkClickAction(initialOptions.moreLinkClick);
+            // the view-specific options the server set before attach, over those of the initial JSON options
+            options.views = mergeViews(options.views, evaluateCallbacks((this.initialOptions as any).views));
             // the final list, including the plugins subclasses added in their createInitOptions
             this._basePlugins = options.plugins;
             const themePlugin = this._fcTheme ? resolvedThemes.get(this._fcTheme) : undefined;
@@ -203,6 +228,7 @@ export class FullCalendar extends HTMLElement {
                 options.plugins = [...this._basePlugins, themePlugin];
             }
 
+            this._optionOverrides = options;
             this._calendar = new Calendar(this, options);
 
             this.initEventProviderCallbacks();
@@ -236,14 +262,8 @@ export class FullCalendar extends HTMLElement {
             options.views = {...options.views, ...this.customViews};
         }
 
-        if ("moreLinkClick" in options) {
-            this.setMoreLinkClickAction(options.moreLinkClick);
-        }
-
         this.addEventHandlersToOptions(options, events);
 
-        // @ts-ignore
-        options['locales'] = allLocales;
         // Subclasses push their own plugins into options.plugins. initCalendar keeps the final list for theme changes
         // and adds the theme plugin.
         options.plugins = [
@@ -262,6 +282,10 @@ export class FullCalendar extends HTMLElement {
         for (const key of Object.keys(options)) {
             (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key]);
         }
+
+        // after the evaluation, which would copy all locales, and contain no callbacks
+        // @ts-ignore
+        options['locales'] = allLocales;
 
         return options;
     }
@@ -652,54 +676,107 @@ export class FullCalendar extends HTMLElement {
      * @param options options to set
      */
     setOptions(options: any = {}) {
-        let calendar = this.calendar;
-        this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
-
+        const changes: Record<string, any> = {};
         for (let key in options) {
             if (key === "moreLinkClick") {
                 this.setMoreLinkClickAction(options[key]);
                 continue;
             }
-            let value: any = replaceNullColorScheme(key, evaluateCallbacks(options[key]));
-            this.handleTimeZoneChange(calendar, /*key, */value);
-            // @ts-ignore
-            calendar.setOption(key, value);
+            const value = this.resolveOptionValue(key, options[key]);
+            // compared with the passed options, not with getOption, because an explicit value equal to a default must
+            // be kept, so that it still applies when the default changes, for example with the locale
+            const changed = value === undefined
+                ? key in this._optionOverrides
+                : this._optionOverrides[key] !== value;
+            if (changed) {
+                changes[key] = value;
+            }
         }
-        this.noDatesRenderEvent = false;
-    }
-
-    setOption(key: string, value: any) {
-        if (key === "moreLinkClick") {
-            this.setMoreLinkClickAction(value);
+        if (Object.keys(changes).length === 0) {
             return;
         }
 
-        let calendar = this.calendar;
+        this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
+        this.applyOptions(changes);
+        this.noDatesRenderEvent = false;
 
-        value = replaceNullColorScheme(key, evaluateCallbacks(value));
-
-        // @ts-ignore
-        let oldValue = calendar.getOption(key);
-
-        if (oldValue !== value) {
-            this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
-
-            // @ts-ignore
-            calendar.setOption(key, value);
-            this.noDatesRenderEvent = false;
-
-            if (key === "timeZone") {
-                this.handleTimeZoneChange(calendar, value);
-            }
+        if ("timeZone" in changes) {
+            this.handleTimeZoneChange(this.calendar, changes.timeZone);
         }
     }
 
     /**
-     * Stores the value of the moreLinkClick option for our own handler. Null restores FullCalendar's default.
+     * Sets an option. Null removes it. The calendar then behaves as if the option had never been set.
+     * @param key option name
+     * @param value value
+     */
+    setOption(key: string, value: any) {
+        this.setOptions({[key]: value});
+    }
+
+    /**
+     * Returns the value to pass to FullCalendar for the given option value. Null stands for an option that was never
+     * set by the server. It becomes the value the calendar has without the server's options, else undefined, so
+     * FullCalendar's default applies.
+     * <p>
+     * View-specific options are merged per view over the views of the initial JSON options and the custom views, as at
+     * creation. Those were evaluated at creation, so the code of their callbacks does not run again.
+     * @param key option name
+     * @param value value, may contain JsCallback markers
+     */
+    private resolveOptionValue(key: string, value: any): any {
+        if (key === "views") {
+            return mergeViews(this._optionsWithoutServer.views, evaluateCallbacks(value));
+        }
+        if (value == null) {
+            return this._optionsWithoutServer[key];
+        }
+        return evaluateCallbacks(value);
+    }
+
+    /**
+     * Passes the given option values to FullCalendar, undefined removes the option. FullCalendar's setOption cannot
+     * remove an option. It keeps every value as an override that wins over the defaults. resetOptions replaces all
+     * options instead. All other options keep their object identity, so FullCalendar refines and handles only the
+     * changed ones, as with setOption, and does not refetch or re-render unchanged parts.
+     * <p>
+     * FullCalendar only notices a removed option when another option changed in the same call. It compares only the
+     * options it is given and keeps the old values when none of them changed, so a removed option without a default
+     * would keep its value. A removal therefore also passes a new eventAdd function, which calls the eventAdd option
+     * of the overrides, if any. The add-on itself never adds entries through FullCalendar, so it has no other effect.
+     * @param changes option values by name
+     */
+    private applyOptions(changes: Record<string, any>) {
+        const overrides = {...this._optionOverrides};
+        let removed = false;
+        for (const key in changes) {
+            if (changes[key] === undefined) {
+                removed ||= key in overrides;
+                delete overrides[key];
+            } else {
+                overrides[key] = changes[key];
+            }
+        }
+        this._optionOverrides = overrides;
+        if (removed) {
+            this._removalNudge = (arg: any) => this._optionOverrides.eventAdd?.(arg);
+        }
+        this.calendar.resetOptions(this._removalNudge ? {...overrides, eventAdd: this._removalNudge} : overrides);
+    }
+
+    // TODO when updating the FullCalendar library version, check whether moreLinkClick still combines the action and
+    //  the click callback. Only that makes this special handling necessary.
+    /**
+     * Stores the value of the moreLinkClick option for our own handler. Null restores the value of the initial JSON
+     * options, else FullCalendar's default.
+     * <p>
+     * FullCalendar has one option for both what the link does and the callback on a click. The add-on keeps its own
+     * handler in that option, so the server receives every click, and keeps the value here. A removal can therefore
+     * not fall back through resolveOptionValue, whose fallback for moreLinkClick is the add-on's handler.
      * @param value string, function or JsCallback marker
      */
     protected setMoreLinkClickAction(value: any) {
-        this.moreLinkClickAction = evaluateCallbacks(value) ?? "popover";
+        this.moreLinkClickAction = evaluateCallbacks(value) ?? this._moreLinkClickWithoutServer ?? "popover";
     }
 
     /**
@@ -723,6 +800,10 @@ export class FullCalendar extends HTMLElement {
      * @param key key
      */
     getOption(key: string): unknown {
+        if (key === "eventAdd" && this._calendar) {
+            // FullCalendar returns the nudge of applyOptions, the application's own value is in the overrides
+            return this._optionOverrides.eventAdd;
+        }
         // @ts-ignore
         return this.calendar ? this.calendar.getOption(key) : this.initialJsonOptions[key];
     }
@@ -805,8 +886,10 @@ export class FullCalendar extends HTMLElement {
         }
 
         // plugins are read only at creation and by resetOptions, setOption ignores them
+        const plugins = plugin ? [...this._basePlugins, plugin] : this._basePlugins;
+        this._optionOverrides = {...this._optionOverrides, plugins};
         this.noDatesRenderEvent = this.noDatesRenderEventOnOptionSetting;
-        this._calendar.resetOptions({plugins: plugin ? [...this._basePlugins, plugin] : this._basePlugins}, ['plugins']);
+        this._calendar.resetOptions({plugins}, ['plugins']);
         this.noDatesRenderEvent = false;
         this.style.removeProperty('visibility');
     }
