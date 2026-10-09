@@ -107,6 +107,24 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     private ObjectNode constructorInitialOptions;
     private final Map<String, Object> serverSideOptions = new HashMap<>();
 
+    /**
+     * The options this class sets in its constructor, for example {@link Option#EDITABLE}. A removed option gets its
+     * value from here again, see {@link #setOption(Option, Object)}. Options that a subclass sets in its own
+     * constructor are not included. {@link #setHeight(String)} updates the value of {@link Option#HEIGHT}.
+     */
+    private final Map<String, Object> addonDefaultOptions = new HashMap<>();
+    /** The server-side values of {@link #addonDefaultOptions}. */
+    private final Map<String, Object> addonDefaultServerSideOptions = new HashMap<>();
+
+    /**
+     * True once the component was detached after an attach. While the component is detached, the client keeps its
+     * calendar. The client only gets the options that the server sends on the next attach. This flag says nothing
+     * about an attached component, so check {@link #isAttached()} first.
+     */
+    private boolean detachedBefore;
+    /** Options removed while the component was detached. The client removes them on the next attach. */
+    private final Set<String> optionsRemovedWhileDetached = new HashSet<>();
+
     private EntryProvider<? extends Entry> entryProvider;
     private final List<Registration> entryProviderDataListeners = new LinkedList<>();
 
@@ -236,7 +254,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             currentView = event.getCalendarView().orElse(null);
         });
 
-        setHeightFull(); // default from previous versions
+        if (constructorInitialOptions == null
+                || !constructorInitialOptions.hasNonNull(Option.HEIGHT.getOptionKey())) {
+            setHeightFull(); // default from previous versions
+        }
 
         /* to allow class based styling for custom subclasses */
         addClassName("vaadin-full-calendar");
@@ -249,6 +270,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
                 || !constructorInitialOptions.hasNonNull(Option.EDITABLE.getOptionKey())) {
             setOption(Option.EDITABLE, true);
         }
+
+        addonDefaultOptions.putAll(initialOptions);
+        addonDefaultServerSideOptions.putAll(serverSideOptions);
     }
 
     @Override
@@ -268,6 +292,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
                     if (!options.isEmpty()) {
                         options.forEach((key, value) -> optionsJson.set(key, toJsonNodeWithJackson(value)));
                     }
+                    optionsRemovedWhileDetached.forEach(optionsJson::putNull);
+                    optionsRemovedWhileDetached.clear();
 
                     getElement().callJsFunction("restoreStateFromServer",
                             optionsJson,
@@ -295,7 +321,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             });
         }
 
-        applyEntryDidMountMerge(false);
+        // A callback removed while detached may still be on the client. Passing null tells the client to use its own
+        // callback again.
+        applyEntryDidMountMerge(!attachEvent.isInitialAttach());
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        detachedBefore = true;
     }
 
     /**
@@ -564,28 +598,66 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         getElement().callJsFunction("scrollToTime", duration.format(DateTimeFormatter.ISO_LOCAL_TIME));
     }
 
+    // FC-UPDATE: check again which options take effect on an attached calendar. The exceptions in the Javadoc below
+    //  depend on it.
     /**
-     * Sets a option for this instance. Passing a null value removes the option.
-     * <br><br>
-     * Please be aware that this method does not check the passed value. Use the typed
-     * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
+     * Sets an option for this instance. Null removes the option, as {@link #removeOption(Option)} does.
+     * <p>
+     * A removed option behaves as if it had never been set. The add-on sets some options itself, for example
+     * {@link Option#EDITABLE}. Such an option gets the add-on's value again.
+     * <p>
+     * When the calendar is attached, a change takes effect at once. These are the exceptions:
+     * <ul>
+     *   <li>{@link Option#NOW} has no effect, also not after a detach and attach. Set it before the first attach.
+     *   {@link Option#NOW} describes one case in which a date still applies.</li>
+     *   <li>{@link Option#INITIAL_DATE} and {@link Option#INITIAL_VIEW} have no effect. Use
+     *   {@link #gotoDate(LocalDate)} and {@link #changeView(CalendarView)} instead.</li>
+     *   <li>The {@code ..._DID_MOUNT} options, for example {@link Option#ENTRY_DID_MOUNT}, only apply to newly
+     *   rendered elements, for example after navigating to another view or period. Existing elements are not
+     *   updated.</li>
+     *   <li>A few options take effect later. Their documentation says when, for example
+     *   {@link Option#SCROLL_TIME}.</li>
+     * </ul>
      *
      * @param option option
-     * @param value  value
-     * @throws NullPointerException when null is passed
+     * @param value  value, or null to remove the option
+     * @throws NullPointerException when null is passed as option
      */
     public void setOption(Option option, Object value) {
         setOption(option.getOptionKey(), value, null, option.getConverters());
     }
 
     /**
-     * Sets an option for this instance. Passing a null value removes the option. The third parameter
-     * might be used to explicitly store a "more complex" variant of the option's value to be returned
-     * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
+     * Removes an option. The calendar then behaves as if the option had never been set. This is the same as
+     * {@code setOption(option, null)}, see {@link #setOption(Option, Object)}.
+     *
+     * @param option option
+     * @throws NullPointerException when the option is null
+     */
+    public void removeOption(Option option) {
+        setOption(option, null);
+    }
+
+    /**
+     * Removes an option. The calendar then behaves as if the option had never been set. This is the same as
+     * {@code setOption(option, null)}, see {@link #setOption(Option, Object)}.
+     *
+     * @param option option key
+     * @throws NullPointerException when the option is null
+     */
+    public void removeOption(String option) {
+        setOption(option, null, null, List.of());
+    }
+
+    /**
+     * Sets an option for this instance. Passing a null value removes the option. The calendar then
+     * behaves as if it had never been set.
+     * <p>
+     * Some options do not take effect at once on an attached calendar, see {@link #setOption(Option, Object)}.
+     * <p>
+     * The third parameter might be used to explicitly store a "more complex" variant of the option's value to be
+     * returned by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <br><br>
-     * Please be aware that this method does not check the passed value. Use the typed
-     * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
      *
      * @param option             option
      * @param value              value
@@ -600,8 +672,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * Sets an option for this instance. Passing a null value removes the option.
-     * <br><br>
+     * Sets an option for this instance. Passing a null value removes the option. The calendar then
+     * behaves as if it had never been set.
+     * <p>
+     * Some options do not take effect at once on an attached calendar, see {@link #setOption(Option, Object)}.
+     * <p>
      * Please be aware that this method does not check the passed value. Use the typed
      * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
      * <br><br>
@@ -617,9 +692,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * Sets an option for this instance. Passing a null value removes the option. The third parameter
-     * might be used to explicitly store a "more complex" variant of the option's value to be returned
-     * by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
+     * Sets an option for this instance. Passing a null value removes the option. The calendar then
+     * behaves as if it had never been set.
+     * <p>
+     * Some options do not take effect at once on an attached calendar, see {@link #setOption(Option, Object)}.
+     * <p>
+     * The third parameter might be used to explicitly store a "more complex" variant of the option's value to be
+     * returned by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
      * <br><br>
      * Optionally, one or more {@link JsonItemPropertyConverter converters} can be passed to automatically
@@ -646,8 +725,30 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         setOption(option, value, valueForServerSide, List.of(converters));
     }
 
+    /**
+     * Sets an option for this instance. All setOption and removeOption methods end here. A subclass can override
+     * this method to handle all option changes in one place.
+     * <p>
+     * Null removes the option. The add-on sets some options itself, for example {@link Option#EDITABLE}. Such an
+     * option gets the add-on's value again. The first converter that supports the value creates the client-side
+     * value.
+     *
+     * @param option             option key
+     * @param value              value, or null to remove the option
+     * @param valueForServerSide the value that {@link #getOption(String)} returns instead of the passed value, may be
+     *                           null
+     * @param converters         converters for the client-side value, may be empty
+     * @throws NullPointerException when null is passed as option
+     */
     protected void setOption(String option, Object value, Object valueForServerSide,
                              List<JsonItemPropertyConverter<?, ?>> converters) {
+        // a removed option that the add-on sets itself gets the add-on's value again
+        if (value == null && addonDefaultOptions.containsKey(option)) {
+            callOptionUpdate(option, addonDefaultOptions.get(option), addonDefaultServerSideOptions.get(option),
+                    "setOption");
+            return;
+        }
+
         if (value != null && !converters.isEmpty()) {
             for (JsonItemPropertyConverter<?, ?> c : converters) {
                 if (c.supports(value)) {
@@ -713,8 +814,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             initialOptions.remove(option);
             options.remove(option);
             serverSideOptions.remove(option);
+            if (!attached && detachedBefore) {
+                optionsRemovedWhileDetached.add(option);
+            }
         } else {
-            if (attached) {
+            optionsRemovedWhileDetached.remove(option);
+            // the client keeps its calendar while detached, so it reads only the options sent on the next attach
+            if (attached || detachedBefore) {
                 options.put(option, value);
             } else {
                 initialOptions.put(option, value);
@@ -731,23 +837,41 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             Object[] parameters = Stream.concat(Stream.of(option, toJsonNodeWithJackson(value)),
                     Stream.of(additionalParameters)).toArray(Object[]::new);
             getElement().callJsFunction(method, parameters);
-        } else {
-            ObjectNode initialOptions = (ObjectNode) getElement().getPropertyRaw("initialOptions");
+        }
+
+        // A new client element is created from this property, for example after a refresh with @PreserveOnRefresh.
+        // After that it gets the options of the server. These no longer contain a removed option.
+        ObjectNode initialOptions = (ObjectNode) getElement().getPropertyRaw("initialOptions");
+        if (value == null) {
+            if (initialOptions != null) {
+                initialOptions.remove(option);
+            }
+        } else if (!attached) {
             if (initialOptions == null) {
                 initialOptions = JsonFactory.createObject();
                 getElement().setPropertyJson("initialOptions", initialOptions);
             }
-
-            if (value == null) {
-                initialOptions.remove(option);
-            } else {
-                initialOptions.set(option, toJsonNodeWithJackson(value));
-            }
+            initialOptions.set(option, toJsonNodeWithJackson(value));
         }
     }
 
+    /**
+     * Sets the height of the calendar. Null removes the height, as {@link #setSizeUndefined()} does.
+     * <p>
+     * When {@link Option#HEIGHT} is removed later, the calendar gets this height again.
+     *
+     * @param height the height, for example {@code "100%"} or {@code "500px"}, or null
+     */
     @Override
     public void setHeight(String height) {
+        // a removed HEIGHT option gets this height again, so the Vaadin dimensions apply
+        String key = Option.HEIGHT.getOptionKey();
+        addonDefaultServerSideOptions.remove(key);
+        if (height == null) {
+            addonDefaultOptions.remove(key);
+        } else {
+            addonDefaultOptions.put(key, height);
+        }
         // we use the calendar option as it would otherwise override the plain style set by Vaadin
         setOption(Option.HEIGHT, height);
     }

@@ -83,6 +83,19 @@ class SchedulerOptionsTest {
     }
 
     @Test
+    void removeOption_clearsColumnsAndUnbindsComponentColumns() {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        var column = new ComponentResourceColumn<Span>("status", resource -> new Span());
+        calendar.setResourceColumns(column);
+        assertTrue(column.isBound());
+
+        calendar.removeOption(SchedulerOption.RESOURCE_COLUMNS);
+
+        assertFalse(column.isBound());
+        assertTrue(calendar.getOption(SchedulerOption.RESOURCE_COLUMNS).isEmpty());
+    }
+
+    @Test
     void setResourceColumns_sendsColumnsAndKeepsListServerSide() {
         FullCalendarScheduler calendar = new FullCalendarScheduler();
         List<ResourceColumn> columns = List.of(new ResourceColumn("title", "Resource"));

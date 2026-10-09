@@ -304,6 +304,9 @@ public enum SchedulerOption {
      * scheduler.setOption(SchedulerOption.RESOURCE_CELL_DID_MOUNT, JsCallback.of(
      *         "info => info.el.title = String(info.fieldValue)"));
      * }</pre>
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellDidMount</a>
      */
@@ -458,6 +461,9 @@ public enum SchedulerOption {
      * scheduler.setOption(SchedulerOption.RESOURCE_COLUMN_HEADER_DID_MOUNT, JsCallback.of(
      *         "info => info.el.title = 'Resources'"));
      * }</pre>
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderDidMount</a>
      */
@@ -577,6 +583,9 @@ public enum SchedulerOption {
      * scheduler.setOption(SchedulerOption.RESOURCE_DAY_HEADER_DID_MOUNT, JsCallback.of(
      *         "info => info.el.dataset.resourceId = info.resource.id"));
      * }</pre>
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderDidMount</a>
      */
@@ -746,6 +755,9 @@ public enum SchedulerOption {
      * scheduler.setOption(SchedulerOption.RESOURCE_GROUP_HEADER_DID_MOUNT, JsCallback.of(
      *         "info => info.el.dataset.group = info.fieldValue"));
      * }</pre>
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderDidMount</a>
      */
@@ -838,6 +850,9 @@ public enum SchedulerOption {
      * scheduler.setOption(SchedulerOption.RESOURCE_GROUP_LANE_DID_MOUNT, JsCallback.of(
      *         "info => info.el.dataset.group = info.fieldValue"));
      * }</pre>
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneDidMount</a>
      */
@@ -982,6 +997,9 @@ public enum SchedulerOption {
      * scheduler.setOption(SchedulerOption.RESOURCE_LANE_DID_MOUNT, JsCallback.of(
      *         "info => info.el.dataset.resourceId = info.resource.id"));
      * }</pre>
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneDidMount</a>
      */

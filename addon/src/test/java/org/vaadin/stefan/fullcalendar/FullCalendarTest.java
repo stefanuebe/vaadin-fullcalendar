@@ -357,11 +357,12 @@ public class FullCalendarTest {
         assertNPE(calendar, c -> c.setOption((Option) null, null));
         assertNPE(calendar, c -> c.setOption((Option) null, "someValue"));
 
-        calendar.setOption(Option.LOCALE, "someValue");
-        assertTrue(calendar.getOption(Option.LOCALE).isPresent());
+        // an option without an add-on default, which a removal would return to
+        calendar.setOption(Option.ALL_DAY_TEXT, "someValue");
+        assertTrue(calendar.getOption(Option.ALL_DAY_TEXT).isPresent());
 
-        calendar.setOption(Option.LOCALE, null);
-        assertFalse(calendar.getOption(Option.LOCALE).isPresent(),
+        calendar.setOption(Option.ALL_DAY_TEXT, null);
+        assertFalse(calendar.getOption(Option.ALL_DAY_TEXT).isPresent(),
                 "Option must be absent after setting null");
 
         // Also verify with a non-default option that isn't set in initialOptions
@@ -383,7 +384,8 @@ public class FullCalendarTest {
         assertNPE(calendar, c -> c.setOption((String) null, null));
         assertNPE(calendar, c -> c.setOption((String) null, "someValue"));
 
-        String optionKey = Option.LOCALE.getOptionKey();
+        // an option without an add-on default, which a removal would return to
+        String optionKey = Option.ALL_DAY_TEXT.getOptionKey();
 
         calendar.setOption(optionKey, "someValue");
         assertTrue(calendar.getOption(optionKey).isPresent());

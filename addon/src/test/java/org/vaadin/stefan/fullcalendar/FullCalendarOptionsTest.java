@@ -3,9 +3,12 @@ package org.vaadin.stefan.fullcalendar;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -133,5 +136,121 @@ public class FullCalendarOptionsTest {
         assertEquals(berlin, calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
         assertEquals(false, calendar.getOptionOrDefault(Option.EDITABLE, true));
         assertEquals(berlin, calendar.getOptionOrDefault(Option.TIMEZONE.getOptionKey(), Timezone.UTC));
+    }
+
+    @Test
+    void removedOptionReturnsToTheAddonDefault() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setOption(Option.EDITABLE, false);
+        calendar.setOption(Option.EDITABLE, null);
+        assertEquals(Optional.of(true), calendar.getOption(Option.EDITABLE));
+
+        calendar.setOption(Option.LOCALE, Locale.GERMAN);
+        calendar.setOption(Option.LOCALE, null);
+        assertEquals(Optional.of(CalendarLocale.getDefaultLocale()), calendar.getOption(Option.LOCALE));
+
+        calendar.setOption(Option.DAY_MAX_ENTRIES, 3);
+        calendar.setOption(Option.DAY_MAX_ENTRIES, null);
+        assertEquals(Optional.of(false), calendar.getOption(Option.DAY_MAX_ENTRIES));
+    }
+
+    @Test
+    void removeOptionRemovesTheOption() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setOption(Option.WEEKENDS, false);
+        calendar.removeOption(Option.WEEKENDS);
+        assertEquals(Optional.empty(), calendar.getOption(Option.WEEKENDS));
+
+        calendar.setOption(Option.EDITABLE, false);
+        calendar.removeOption(Option.EDITABLE);
+        assertEquals(Optional.of(true), calendar.getOption(Option.EDITABLE));
+    }
+
+    @Test
+    void removeOptionWithStringKeyRemovesTheOption() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setOption("weekends", false);
+        calendar.removeOption("weekends");
+        assertEquals(Optional.empty(), calendar.getOption("weekends"));
+
+        calendar.setOption(Option.EDITABLE, false);
+        calendar.removeOption("editable");
+        assertEquals(Optional.of(true), calendar.getOption(Option.EDITABLE));
+    }
+
+    @Test
+    void removedOptionWithoutAddonDefaultStaysRemoved() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setOption(Option.WEEKENDS, false);
+        calendar.setOption(Option.WEEKENDS, null);
+        assertEquals(Optional.empty(), calendar.getOption(Option.WEEKENDS));
+    }
+
+    @Test
+    void removedHeightReturnsToTheAddonDefault() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setOption(Option.HEIGHT, "500px");
+        calendar.setOption(Option.HEIGHT, null);
+        assertEquals(Optional.of("100%"), calendar.getOption(Option.HEIGHT));
+        ObjectNode clientOptions = (ObjectNode) calendar.getElement().getPropertyRaw("initialOptions");
+        assertEquals("100%", clientOptions.get("height").asString());
+    }
+
+    @Test
+    void removedHeightReturnsToTheLastVaadinHeight() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setSizeUndefined();
+        calendar.setHeightFull();
+        calendar.setOption(Option.HEIGHT, "500px");
+        calendar.setOption(Option.HEIGHT, null);
+        assertEquals(Optional.of("100%"), calendar.getOption(Option.HEIGHT));
+
+        calendar.setHeight("400px");
+        calendar.setOption(Option.HEIGHT, "500px");
+        calendar.setOption(Option.HEIGHT, null);
+        assertEquals(Optional.of("400px"), calendar.getOption(Option.HEIGHT));
+    }
+
+    @Test
+    void heightOfTheInitialJsonOptionsIsNoAddonDefault() {
+        ObjectNode initialOptions = JsonFactory.createObject();
+        initialOptions.put("height", 500);
+        FullCalendar calendar = new FullCalendar(initialOptions);
+        assertEquals(Optional.empty(), calendar.getOption(Option.HEIGHT));
+
+        calendar.setOption(Option.HEIGHT, "300px");
+        calendar.setOption(Option.HEIGHT, null);
+        // the client falls back to the initial JSON options
+        assertEquals(Optional.empty(), calendar.getOption(Option.HEIGHT));
+    }
+
+    @Test
+    void undefinedSizeRemovesTheHeight() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setSizeUndefined();
+        assertEquals(Optional.empty(), calendar.getOption(Option.HEIGHT));
+
+        calendar.setOption(Option.HEIGHT, "500px");
+        calendar.setOption(Option.HEIGHT, null);
+        assertEquals(Optional.empty(), calendar.getOption(Option.HEIGHT));
+    }
+
+    @Test
+    void optionOfTheInitialJsonOptionsIsNoAddonDefault() {
+        ObjectNode initialOptions = JsonFactory.createObject();
+        initialOptions.put("editable", false);
+        FullCalendar calendar = new FullCalendar(initialOptions);
+
+        calendar.setOption(Option.EDITABLE, true);
+        calendar.setOption(Option.EDITABLE, null);
+        // the client falls back to the initial JSON options
+        assertEquals(Optional.empty(), calendar.getOption(Option.EDITABLE));
     }
 }
