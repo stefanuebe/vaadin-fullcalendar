@@ -101,6 +101,35 @@ test.describe('Scheduler Resource Features', () => {
         ).toBeVisible();
     });
 
+    test('updateResource repaints the entries of the resource and updates its entry rules', async ({ page }) => {
+        const entry = page.locator('.fc-timeline-event', { hasText: 'Bob Task' });
+        const colors = () => entry.evaluate(el => ({
+            background: getComputedStyle(el).backgroundColor,
+            text: getComputedStyle(el.querySelector('.fc-event-title') || el).color,
+        }));
+        // the ResourceApi getters read the same derived state FullCalendar validates drags and resizes with
+        const rules = () => page.evaluate(() => {
+            // @ts-ignore — custom element exposes FC's internal Calendar instance
+            const resource = document.querySelector('[data-testid="calendar"]').calendar.getResourceById('r2');
+            return { constraint: resource.eventConstraint, overlap: resource.eventOverlap };
+        });
+        await expect(entry).not.toHaveClass(/bob-restyled/);
+        const initialColors = await colors();
+        expect(initialColors.background).not.toBe('rgba(0, 0, 0, 0)');
+        expect(await rules()).toEqual({ constraint: null, overlap: null });
+
+        await page.click('#restyle-bob');
+        await expect(entry).toHaveClass(/bob-restyled/);
+        await expect.poll(colors).toEqual({ background: 'rgb(0, 0, 255)', text: 'rgb(255, 0, 0)' });
+        expect(await rules()).toEqual({ constraint: 'businessHours', overlap: false });
+
+        // values removed on the server are removed from the entries as well
+        await page.click('#unstyle-bob');
+        await expect(entry).not.toHaveClass(/bob-restyled/);
+        await expect.poll(colors).toEqual(initialColors);
+        expect(await rules()).toEqual({ constraint: null, overlap: null });
+    });
+
     // -------------------------------------------------------------------------
     // Resource group CSS class names callback
     // -------------------------------------------------------------------------

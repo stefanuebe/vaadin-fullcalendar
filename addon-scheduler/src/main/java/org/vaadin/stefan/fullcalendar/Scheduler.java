@@ -397,6 +397,9 @@ public interface Scheduler {
      * <p>
      * Note: This is called automatically when using {@link Resource#setTitle(String)} or
      * {@link Resource#setColor(String)} on a resource that has been added to this scheduler.
+     * <p>
+     * The title, the extended props and the entry props (colors, class names, constraint, overlap, allow)
+     * update on the client. Entries of this resource that are already shown repaint.
      *
      * @param resource the resource to update on the client side; must not be null
      */
