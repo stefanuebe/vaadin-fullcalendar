@@ -18,7 +18,8 @@ import java.time.LocalDate;
  * Verifies:
  * <ul>
  *   <li>Calendar renders with a JSON feed event source configured</li>
- *   <li>Event source failure fires when the configured URL does not exist</li>
+ *   <li>Event source failure fires when the configured URL does not exist, and the source's own
+ *   {@code withFailure} callback runs as well (it counts its calls in {@code window.userFailureCalls})</li>
  *   <li>External entry drop counter badge is present for Playwright</li>
  * </ul>
  * <p>
@@ -61,7 +62,8 @@ public class EventSourcesTestView extends VerticalLayout {
 
         // Add a JSON feed source pointing to a non-existent URL to trigger the failure event
         JsonFeedEventSource failingSource = new JsonFeedEventSource("/test/api/event-sources/events")
-                .withId("failing-feed");
+                .withId("failing-feed")
+                .withFailure("function(error) { window.userFailureCalls = (window.userFailureCalls || 0) + 1; }");
         calendar.addClientSideEventSource(failingSource);
 
         // Listen for event source failures

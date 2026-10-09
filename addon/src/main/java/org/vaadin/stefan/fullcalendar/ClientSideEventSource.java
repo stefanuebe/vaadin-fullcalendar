@@ -312,7 +312,8 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
-     * Sets a per-source {@code failure} JS callback called when the source fails to fetch events.
+     * Sets a per-source {@code failure} JS callback called when the source fails to fetch events. It runs before
+     * the {@link EventSourceFailureEvent} is sent to the server.
      * @param jsFunction JS function string
      * @return this
      */
@@ -322,7 +323,7 @@ public abstract class ClientSideEventSource<S extends ClientSideEventSource<S>> 
     }
 
     /**
-     * Sets a per-source {@code failure} JS callback.
+     * Sets a per-source {@code failure} JS callback, see {@link #withFailure(String)}.
      * @param callback JsCallback
      * @return this
      */

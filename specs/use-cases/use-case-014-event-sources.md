@@ -68,7 +68,7 @@ calendar.addEventSourceFailureListener(event -> { ... });
 | BR-03 | External entries fire `ExternalEntryDroppedEvent` / `ExternalEntryResizedEvent` (not server-managed counterparts) |
 | BR-04 | JSON feed receives `start`, `end`, `timeZone` query parameters (configurable) |
 | BR-05 | Google Calendar requires an API key (per-source or global) |
-| BR-06 | Source failures fire `EventSourceFailureEvent` |
+| BR-06 | Source failures fire `EventSourceFailureEvent`. A callback set with `withFailure` runs first |
 
 ---
 
@@ -80,7 +80,7 @@ calendar.addEventSourceFailureListener(event -> { ... });
 - [ ] Client-side entries are read-only by default
 - [ ] `withEditable(true)` enables DnD for source entries
 - [ ] `ExternalEntryDroppedEvent` fires on DnD of external entries
-- [ ] `EventSourceFailureEvent` fires on load failure
+- [x] `EventSourceFailureEvent` fires on load failure, and the `withFailure` callback runs as well (#275)
 - [ ] Removing a source removes its entries from display
 
 ---
@@ -91,7 +91,7 @@ calendar.addEventSourceFailureListener(event -> { ... });
 - [ ] `EventSourcesTest` — source construction and properties
 
 ### E2E Tests
-- [ ] `event-sources.spec.js` — event source loading
+- [x] `event-sources.spec.js` — load failure reaches the server listener and the `withFailure` callback
 
 ---
 
