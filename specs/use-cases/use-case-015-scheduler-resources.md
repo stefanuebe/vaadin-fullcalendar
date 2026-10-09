@@ -80,7 +80,7 @@ scheduler.addEntryDroppedSchedulerListener(event -> {
 |----|------|
 | BR-01 | `ResourceEntry` can only be added to `FullCalendarScheduler` (throws if plain `FullCalendar`) |
 | BR-02 | A `ResourceEntry` can be assigned to multiple resources (M:N relationship) |
-| BR-03 | `Resource.setTitle()` and `setColor()` auto-push to client; other style properties need `updateResource()` |
+| BR-03 | `Resource.setTitle()` and `setColor()` auto-push to client; other style properties need `updateResource()`. Entries already shown repaint with the new entry style props |
 | BR-04 | `FILTER_RESOURCES_WITH_ENTRIES = true` hides resources with no entries |
 | BR-05 | `RESOURCES_INITIALLY_EXPANDED = false` collapses child resources on load |
 | BR-06 | `EntryDroppedSchedulerEvent` includes old and new resource as `Optional<Resource>` |
@@ -94,6 +94,7 @@ scheduler.addEntryDroppedSchedulerListener(event -> {
 - [ ] Entries appear in their assigned resource's row/column
 - [ ] Hierarchical resources display with expand/collapse
 - [ ] Per-resource colors apply to associated entries
+- [x] After `updateResource` the entries of the resource that are already shown repaint with the new colors, classes, constraint and overlap, and lose the ones removed on the server (#276)
 - [ ] Dragging between resources updates resource assignment
 - [ ] `EntryDroppedSchedulerEvent` fires with old/new resource
 - [ ] `FILTER_RESOURCES_WITH_ENTRIES` hides empty resources
@@ -108,7 +109,7 @@ scheduler.addEntryDroppedSchedulerListener(event -> {
 - [ ] Resource model tests — hierarchy, JSON serialization
 
 ### E2E Tests
-- [ ] `scheduler-features.spec.js` — resource display and interaction
+- [ ] `scheduler-features.spec.js` — resource display and interaction. Covers the repaint after `updateResource` (#276)
 
 ---
 

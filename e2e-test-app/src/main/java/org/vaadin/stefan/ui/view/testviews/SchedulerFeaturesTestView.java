@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
@@ -13,6 +14,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Test view for scheduler resource features.
@@ -24,6 +26,9 @@ import java.util.List;
  *   <li>Resources are listed in the resource area</li>
  *   <li>Resource grouping by department renders group headers</li>
  *   <li>ResourceEntry events are visible in the timeline</li>
+ *   <li>{@code updateResource} repaints the entries of a resource: the "restyle-bob" button gives Bob, who has no
+ *   color, a class, a text color, a constraint and overlap, then a color. The "unstyle-bob" button removes them
+ *   again.</li>
  * </ul>
  * <p>
  * Route: /test/scheduler-features
@@ -106,6 +111,26 @@ public class SchedulerFeaturesTestView extends VerticalLayout {
         provider.addEntries(aliceTask, bobTask);
         calendar.setEntryProvider(provider);
 
-        add(calendar);
+        // the entry props go out with updateResource, setColor sends the resource on its own
+        Button restyle = new Button("Restyle Bob", e -> {
+            r2.setEntryClassNames(Set.of("bob-restyled"));
+            r2.setEntryTextColor("#ff0000");
+            r2.setEntryConstraint("businessHours");
+            r2.setEntryOverlap(false);
+            calendar.updateResource(r2);
+            r2.setColor("#0000ff");
+        });
+        restyle.setId("restyle-bob");
+
+        Button unstyle = new Button("Unstyle Bob", e -> {
+            r2.setEntryClassNames(null);
+            r2.setEntryTextColor(null);
+            r2.setEntryConstraint(null);
+            r2.setEntryOverlap(null);
+            r2.setColor(null);
+        });
+        unstyle.setId("unstyle-bob");
+
+        add(restyle, unstyle, calendar);
     }
 }

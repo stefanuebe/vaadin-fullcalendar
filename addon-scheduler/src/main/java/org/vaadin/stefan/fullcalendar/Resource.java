@@ -558,8 +558,12 @@ public class Resource implements Serializable {
         ObjectNode jsonObject = JsonFactory.createObject();
 
         jsonObject.put("id", getId());
-        jsonObject.set("title", JsonUtils.toJsonNode(getTitle()));
-        jsonObject.set("eventColor", JsonUtils.toJsonNode(getColor()));
+        // empty instead of null, because FullCalendar shows null as the title "null"
+        jsonObject.put("title", getTitle() != null ? getTitle() : "");
+        // only when set, because FullCalendar turns null into the color "null"
+        if (getColor() != null) {
+            jsonObject.put("eventColor", getColor());
+        }
 
         BusinessHours[] businessHours = getBusinessHoursArray();
         if(businessHours != null && businessHours.length > 0) {
