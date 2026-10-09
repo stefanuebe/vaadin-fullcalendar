@@ -492,17 +492,26 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option.
-     * <br><br>
-     * Please be aware that this method does not check the passed value. Use the typed
-     * {@link SchedulerOption} constants for type safety.
+     * Sets an option for this instance. Null removes the option, as {@link #removeOption(SchedulerOption)} does.
+     * Some options do not take effect at once on an attached calendar, see {@link #setOption(Option, Object)}.
      *
      * @param option option
-     * @param value  value
-     * @throws NullPointerException when null is passed
+     * @param value  value, or null to remove the option
+     * @throws NullPointerException when null is passed as option
      */
     public void setOption(SchedulerOption option, Object value) {
         setOption(option.getOptionKey(), value, null, option.getConverters());
+    }
+
+    /**
+     * Removes an option. The calendar then behaves as if the option had never been set. This is the same as
+     * {@code setOption(option, null)}, see {@link #setOption(SchedulerOption, Object)}.
+     *
+     * @param option option
+     * @throws NullPointerException when the option is null
+     */
+    public void removeOption(SchedulerOption option) {
+        setOption(option, null);
     }
 
     /**
@@ -539,13 +548,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     /**
-     * Sets a option for this instance. Passing a null value removes the option. The third parameter
+     * Sets an option for this instance. Passing a null value removes the option. The third parameter
      * might be used to explicitly store a "more complex" variant of the option's value to be returned
      * by {@link #getOption(SchedulerOption)}. It is always stored when not equal to the value except for null.
      * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <br><br>
-     * Please be aware that this method does not check the passed value. Use the typed
-     * {@link SchedulerOption} constants for type safety.
      *
      * @param option             option
      * @param value              value

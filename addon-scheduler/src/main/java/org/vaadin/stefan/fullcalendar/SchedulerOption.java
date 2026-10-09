@@ -305,8 +305,8 @@ public enum SchedulerOption {
      *         "info => info.el.title = String(info.fieldValue)"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellDidMount</a>
      */
@@ -462,8 +462,8 @@ public enum SchedulerOption {
      *         "info => info.el.title = 'Resources'"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderDidMount</a>
      */
@@ -584,8 +584,8 @@ public enum SchedulerOption {
      *         "info => info.el.dataset.resourceId = info.resource.id"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderDidMount</a>
      */
@@ -756,8 +756,8 @@ public enum SchedulerOption {
      *         "info => info.el.dataset.group = info.fieldValue"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderDidMount</a>
      */
@@ -851,8 +851,8 @@ public enum SchedulerOption {
      *         "info => info.el.dataset.group = info.fieldValue"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneDidMount</a>
      */
@@ -998,8 +998,8 @@ public enum SchedulerOption {
      *         "info => info.el.dataset.resourceId = info.resource.id"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneDidMount</a>
      */

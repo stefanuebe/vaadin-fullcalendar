@@ -60,8 +60,8 @@ import java.util.*;
  */
 public enum Option {
 
-    // TODO when updating the FullCalendar library version, check again which options take effect on an attached
-    //  calendar (FullCalendar#setOption Javadoc and the options it links), so the listed exceptions stay correct.
+    // FC-UPDATE: check again which options take effect on an attached calendar. They are listed in the Javadoc of
+    //  FullCalendar#setOption and of the options it links.
 
     /**
      * CSS classes for the divider line beneath the all-day section in time grid views.
@@ -127,8 +127,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/all-day-header-render-hooks">allDayHeaderDidMount</a>
      */
@@ -305,8 +305,8 @@ public enum Option {
      * calendar.setOption(Option.BACKGROUND_ENTRY_DID_MOUNT, JsCallback.of("function(info) { info.el.title = info.event.title; }"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventDidMount</a>
      */
@@ -1010,8 +1010,8 @@ public enum Option {
      * calendar.setOption(Option.DAY_CELL_DID_MOUNT, JsCallback.of("function(info) { info.el.dataset.day = info.dayNumberText; }"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellDidMount</a>
      */
@@ -1248,8 +1248,8 @@ public enum Option {
      * calendar.setOption(Option.DAY_HEADER_DID_MOUNT, JsCallback.of("function(info) { info.el.title = info.date.toDateString(); }"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderDidMount</a>
      */
@@ -1372,8 +1372,8 @@ public enum Option {
      * calendar.setOption(Option.DAY_LANE_DID_MOUNT, JsCallback.of("function(info) { info.el.dataset.date = info.date.toISOString(); }"));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/day-lane-render-hooks">dayLaneDidMount</a>
      */
@@ -1536,8 +1536,8 @@ public enum Option {
      *   <dt>Default</dt> <dd>not set</dd>
      * </dl>
      * <p>
-     * Set or removed on an attached calendar, it applies to entries received afterwards, for example after navigating,
-     * not to the entries already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to entries received
+     * afterwards, for example after navigating to another view or period. Existing entries are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/defaultAllDay">defaultAllDay</a>
      */
@@ -1556,8 +1556,8 @@ public enum Option {
      * calendar.setOption(Option.DEFAULT_ALL_DAY_ENTRY_DURATION, Map.of("days", 2));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies to entries received afterwards, for example after navigating,
-     * not to the entries already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to entries received
+     * afterwards, for example after navigating to another view or period. Existing entries are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/defaultAllDayEventDuration">defaultAllDayEventDuration</a>
      * @see <a href="https://fullcalendar.io/docs/duration-object">Duration Object</a>
@@ -1577,8 +1577,8 @@ public enum Option {
      * calendar.setOption(Option.DEFAULT_TIMED_ENTRY_DURATION, Duration.ofHours(2));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies to entries received afterwards, for example after navigating,
-     * not to the entries already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to entries received
+     * afterwards, for example after navigating to another view or period. Existing entries are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/defaultTimedEventDuration">defaultTimedEventDuration</a>
      * @see <a href="https://fullcalendar.io/docs/duration-object">Duration Object</a>
@@ -1648,7 +1648,8 @@ public enum Option {
      *   <dt>Default</dt> <dd>{@code true}</dd>
      * </dl>
      * <p>
-     * Set on an attached calendar, it takes effect when the view is rendered again, for example after a view change.
+     * When this option is changed for an attached calendar, it takes effect when the view is rendered again, for
+     * example after a view change.
      *
      * @see <a href="https://fullcalendar.io/docs/dragScroll">dragScroll</a>
      */
@@ -1923,8 +1924,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies to entries received afterwards, for example after navigating,
-     * not to the entries already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to entries received
+     * afterwards, for example after navigating to another view or period. Existing entries are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/eventDataTransform">eventDataTransform</a>
      */
@@ -1952,8 +1953,8 @@ public enum Option {
      * {@link FullCalendar#addEntryNativeEventListener(String, String)} are automatically
      * merged into the callback.
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventDidMount</a>
      */
@@ -2489,8 +2490,8 @@ public enum Option {
      *   <dt>Default</dt> <dd>{@code false}</dd>
      * </dl>
      * <p>
-     * Set or removed on an attached calendar, it applies to entries received afterwards, for example after navigating,
-     * not to the entries already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to entries received
+     * afterwards, for example after navigating to another view or period. Existing entries are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/forceEventDuration">forceEventDuration</a>
      */
@@ -2571,15 +2572,18 @@ public enum Option {
      * matches the height of its parent element.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code integer} (pixels) | {@code "auto"} | any CSS value like {@code "100%"}</dd>
-     *   <dt>Default</dt> <dd>{@code "100%"}, set by the add-on's constructor ({@code setHeightFull()}) unless the
-     *                        initial JSON options set a height. Without a height, FullCalendar calculates it from
-     *                        {@link #ASPECT_RATIO}.</dd>
+     *   <dt>Default</dt> <dd>{@code "100%"}, set by the add-on's constructor ({@code setHeightFull()}). It is not
+     *                        set when the initial JSON options contain a height. Without a height, FullCalendar
+     *                        calculates it from {@link #ASPECT_RATIO}.</dd>
      * </dl>
      * <p>
-     * Removed with {@code null}, the option returns to the height last set with
-     * {@link FullCalendar#setHeight(String)}, {@code setHeightFull()} or {@code setSizeUndefined()}, so the Vaadin
-     * dimensions apply again. Without such a call it returns to the height of the initial JSON options, if any. After
-     * {@code setSizeUndefined()} FullCalendar calculates the height from {@link #ASPECT_RATIO}.
+     * When this option is removed, the calendar gets the height that was last set with
+     * {@link FullCalendar#setHeight(String)}, {@code setHeightFull()} or {@code setSizeUndefined()}. This way the
+     * Vaadin dimensions apply again. If none of these methods was called, the calendar gets the height of the initial
+     * JSON options.
+     * <p>
+     * {@code setSizeUndefined()} removes the height. FullCalendar then calculates it from {@link #ASPECT_RATIO}. If the
+     * initial JSON options contain a height, the calendar gets that height instead.
      *
      * @see FullCalendar#setHeight(String)
      * @see <a href="https://fullcalendar.io/docs/height">height</a>
@@ -2700,8 +2704,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/inline-week-number-render-hooks">inlineWeekNumberDidMount</a>
      */
@@ -2873,8 +2877,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderDidMount</a>
      */
@@ -3239,8 +3243,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkDidMount</a>
      */
@@ -3545,11 +3549,12 @@ public enum Option {
      * calendar.setOption(Option.NOW, LocalDate.of(2025, 3, 1));
      * }</pre>
      * <p>
-     * FullCalendar reads this option only when the calendar is created, so set it before the calendar is attached.
-     * Setting a date or removing the option on a calendar that was attached before has no effect, also not when it is
-     * attached again. Only a calendar the browser creates again, for example after a refresh of a view with
-     * {@code @PreserveOnRefresh}, starts with the date set before the first attach, or with none if the option was
-     * removed since.
+     * FullCalendar reads this option only when the calendar is created. So set it before the first attach.
+     * Changing or removing it later has no effect. This is also true when the calendar is detached and attached again.
+     * <p>
+     * There is one exception. The browser can create the calendar again, for example on a refresh of a view with
+     * {@code @PreserveOnRefresh}. The new calendar starts with the last date that was set while the calendar was not
+     * attached. If the option was removed later, it starts without a date.
      *
      * @see <a href="https://fullcalendar.io/docs/now">now</a>
      */
@@ -3632,8 +3637,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/now-indicator-header-render-hooks">nowIndicatorHeaderDidMount</a>
      */
@@ -3705,8 +3710,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/now-indicator-line-render-hooks">nowIndicatorLineDidMount</a>
      */
@@ -3802,8 +3807,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsDidMount</a>
      */
@@ -4231,7 +4236,8 @@ public enum Option {
      * The position is applied again whenever the date range changes, unless {@link #SCROLL_TIME_RESET} is
      * {@code false}.
      * <p>
-     * Set on an attached calendar, it does not scroll at once but applies from the next change of the date range.
+     * When this option is changed for an attached calendar, the calendar does not scroll at once. The new setting
+     * applies from the next change of the date range.
      *
      * @see <a href="https://fullcalendar.io/docs/scrollTime">scrollTime</a>
      */
@@ -4320,7 +4326,8 @@ public enum Option {
      *   <dt>Default</dt> <dd>{@code 0}</dd>
      * </dl>
      * <p>
-     * Set on an attached calendar, it takes effect when the view is rendered again, for example after a view change.
+     * When this option is changed for an attached calendar, it takes effect when the view is rendered again, for
+     * example after a view change.
      *
      * @see <a href="https://fullcalendar.io/docs/selectMinDistance">selectMinDistance</a>
      */
@@ -4409,8 +4416,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/single-month-render-hooks">singleMonthDidMount</a>
      */
@@ -4606,8 +4613,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderDidMount</a>
      */
@@ -4822,8 +4829,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/slot-lane-render-hooks">slotLaneDidMount</a>
      */
@@ -5247,7 +5254,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies from the next view change, not to the view already shown.
+     * When this option is changed for an attached calendar, the new setting applies from the next view change. The
+     * view already shown is not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewDidMount</a>
      */
@@ -5434,8 +5442,8 @@ public enum Option {
      *         }"""));
      * }</pre>
      * <p>
-     * Set or removed on an attached calendar, it applies only to elements rendered afterwards, for example after
-     * navigating, not to the elements already shown.
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
      *
      * @see <a href="https://fullcalendar.io/docs/week-number-header-render-hooks">weekNumberHeaderDidMount</a>
      */

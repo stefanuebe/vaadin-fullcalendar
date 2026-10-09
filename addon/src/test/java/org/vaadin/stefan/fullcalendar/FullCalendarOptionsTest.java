@@ -156,6 +156,32 @@ public class FullCalendarOptionsTest {
     }
 
     @Test
+    void removeOptionRemovesTheOption() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setOption(Option.WEEKENDS, false);
+        calendar.removeOption(Option.WEEKENDS);
+        assertEquals(Optional.empty(), calendar.getOption(Option.WEEKENDS));
+
+        calendar.setOption(Option.EDITABLE, false);
+        calendar.removeOption(Option.EDITABLE);
+        assertEquals(Optional.of(true), calendar.getOption(Option.EDITABLE));
+    }
+
+    @Test
+    void removeOptionWithStringKeyRemovesTheOption() {
+        FullCalendar calendar = new FullCalendar();
+
+        calendar.setOption("weekends", false);
+        calendar.removeOption("weekends");
+        assertEquals(Optional.empty(), calendar.getOption("weekends"));
+
+        calendar.setOption(Option.EDITABLE, false);
+        calendar.removeOption("editable");
+        assertEquals(Optional.of(true), calendar.getOption(Option.EDITABLE));
+    }
+
+    @Test
     void removedOptionWithoutAddonDefaultStaysRemoved() {
         FullCalendar calendar = new FullCalendar();
 
