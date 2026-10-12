@@ -918,6 +918,14 @@ export class FullCalendar extends HTMLElement {
                 }));
             }
         };
+        // allow(dropInfo, draggedEvent) — per-source counterpart of eventAllow, event is second arg
+        const userAllow = config.allow; // set by withAllow
+        if (typeof userAllow === 'function') {
+            config.allow = (dropInfo: any, draggedEvent: any) => {
+                this.addCustomAPI(draggedEvent);
+                return userAllow.call(this._calendar, dropInfo, draggedEvent);
+            };
+        }
         this.calendar?.addEventSource(config);
     }
 
