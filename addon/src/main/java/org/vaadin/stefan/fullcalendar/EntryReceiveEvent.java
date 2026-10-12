@@ -52,6 +52,9 @@ public class EntryReceiveEvent extends ComponentEvent<FullCalendar> {
     /**
      * The newly created entry, constructed from the data reported by the client.
      * This entry is not tracked by the calendar's entry provider.
+     * <p>
+     * <b>Please note</b> that the entry has no {@link RRule}, even when the draggable's entry data has one. Use
+     * {@link #getDraggable()} and {@link Draggable#getEntryData()} to get it.
      */
     private final Entry entry;
 

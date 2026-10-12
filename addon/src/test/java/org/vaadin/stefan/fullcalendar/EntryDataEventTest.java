@@ -10,6 +10,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,5 +39,22 @@ class EntryDataEventTest {
         assertTrue(changed.isAllDay());
         assertNotSame(original, changed);
         assertFalse(original.isAllDay(), "original entry must remain unchanged");
+    }
+
+    @Test
+    void getChangesAsEntry_keepsTheRRule() {
+        // getChangesAsEntry is shared by all entry data events, drop and resize included
+        FullCalendar calendar = mock(FullCalendar.class);
+        Entry original = new Entry("test-1");
+        original.setRRule(RRule.weekly());
+        when(calendar.getCachedEntryFromFetch("test-1")).thenReturn(Optional.of(original));
+
+        ObjectNode changes = JsonFactory.createObject();
+        changes.put("id", "test-1");
+        changes.put("allDay", true);
+
+        Entry changed = new EntryClickedEvent(calendar, false, changes).getChangesAsEntry();
+
+        assertSame(original.getRRule(), changed.getRRule());
     }
 }

@@ -111,6 +111,10 @@ public class DropEvent extends ComponentEvent<FullCalendar> {
      * <p>
      *     Please note, that this entry will NOT be automatically added to your entry provider in any case.
      * </p>
+     * <p>
+     *     <b>Please note</b> that the entry has no {@link RRule}, even when the draggable's entry data has one.
+     *     Use {@link #getDraggable()} and {@link Draggable#getEntryData()} to get it.
+     * </p>
      * @return created entry
      */
     public Entry getCreatedEntry() {
