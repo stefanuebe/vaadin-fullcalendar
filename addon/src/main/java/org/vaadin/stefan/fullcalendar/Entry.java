@@ -442,7 +442,8 @@ public class Entry implements Serializable {
      * Copies all values from source to target (except for the id). When the boolean is set to false,
      * both objects have to be of the <b>same</b> type. Otherwise it is up to the developer to guarantee,
      * that the target can take all properties of the source.<br>
-     * Properties without a setter are ignored.
+     * Properties without a setter are ignored.<br>
+     * The {@link RRule} instance is taken over as it is, together with its excluded dates and rules.
      * @param source source
      * @param target target
      * @param ignoreTypeDifference difference
@@ -484,6 +485,9 @@ public class Entry implements Serializable {
         if (target.getExtendedProp(CUSTOM_PROPERTIES) instanceof Map<?, ?> customProperties) {
             target.setExtendedProp(CUSTOM_PROPERTIES, new HashMap<>(customProperties));
         }
+
+        // The loop finds no setter for rrule, because it is named setRRule. That setter also fills exdate and exrule.
+        target.setRRule(source.getRRule());
     }
 
     @SuppressWarnings("unchecked")

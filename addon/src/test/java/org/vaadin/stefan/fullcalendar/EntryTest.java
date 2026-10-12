@@ -943,4 +943,86 @@ public class EntryTest {
         entry.updateAllFromJson(json, false);
         assertEquals("high", entry.getCustomProperty("priority"));
     }
+
+    @Test
+    void copy_keepsTheRRule() {
+        Entry source = new Entry();
+        source.setStart(LocalDateTime.of(2025, 3, 3, 9, 0));
+        source.setRRule(RRule.weekly()
+                .excludeDates(LocalDate.of(2025, 3, 10))
+                .excludeRules(RRule.monthly()));
+
+        Entry copiedFrom = new Entry(source.getId());
+        copiedFrom.copyFrom(source);
+        Entry copiedFromIgnoringId = new Entry();
+        copiedFromIgnoringId.copyFrom(source, true);
+        Entry staticCopy = new Entry();
+        Entry.copy(source, staticCopy, false);
+
+        for (Entry copy : List.of(source.copy(), source.copyAsType(Entry.class), copiedFrom, copiedFromIgnoringId,
+                staticCopy)) {
+            // RRule has no equals, and the copy takes the instance over as it is
+            assertSame(source.getRRule(), copy.getRRule());
+
+            // excluded dates and rules are sent as their own properties
+            ObjectNode json = copy.toJson();
+            assertTrue(json.has("exdate"));
+            assertTrue(json.has("exrule"));
+            assertEquals(source.toJson().get("exdate"), json.get("exdate"));
+            assertEquals(source.toJson().get("exrule"), json.get("exrule"));
+        }
+    }
+
+    @Test
+    void copy_keepsTheBuiltInRecurrence() {
+        Entry source = new Entry();
+        source.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
+        source.setRecurringStartDate(LocalDate.of(2025, 3, 1));
+        source.setRecurringEndDate(LocalDate.of(2025, 3, 31));
+        source.setRecurringStartTime(LocalTime.of(9, 0));
+        source.setRecurringEndTime(LocalTime.of(10, 0));
+
+        Entry copiedFrom = new Entry(source.getId());
+        copiedFrom.setRRule(RRule.weekly());
+        copiedFrom.copyFrom(source);
+        Entry staticCopy = new Entry();
+        staticCopy.setRRule(RRule.weekly());
+        Entry.copy(source, staticCopy, false);
+
+        for (Entry copy : List.of(source.copy(), source.copyAsType(Entry.class), copiedFrom, staticCopy)) {
+            assertNull(copy.getRRule());
+            assertEquals(Set.of(DayOfWeek.MONDAY), copy.getRecurringDaysOfWeek());
+            assertEquals(LocalDate.of(2025, 3, 1), copy.getRecurringStartDate());
+            assertEquals(LocalDate.of(2025, 3, 31), copy.getRecurringEndDate());
+            assertEquals(RecurringTime.of(9, 0), copy.getRecurringStartTime());
+            assertEquals(RecurringTime.of(10, 0), copy.getRecurringEndTime());
+        }
+    }
+
+    @Test
+    void copyFrom_aSourceWithoutRecurrenceRemovesTheTargetsRRule() {
+        Entry source = new Entry();
+
+        Entry target = new Entry(source.getId());
+        target.setRRule(RRule.weekly().excludeDates(LocalDate.of(2025, 3, 10)));
+        target.copyFrom(source);
+
+        assertNull(target.getRRule());
+        assertFalse(target.toJson().has("exdate"));
+    }
+
+    @Test
+    void copyFrom_anRRuleReplacesTheTargetsBuiltInRecurrence() {
+        Entry source = new Entry();
+        source.setRRule(RRule.weekly());
+
+        Entry target = new Entry(source.getId());
+        target.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
+        target.setRecurringStartDate(LocalDate.of(2025, 3, 1));
+        target.copyFrom(source);
+
+        assertSame(source.getRRule(), target.getRRule());
+        assertNull(target.getRecurringDaysOfWeek());
+        assertNull(target.getRecurringStartDate());
+    }
 }
