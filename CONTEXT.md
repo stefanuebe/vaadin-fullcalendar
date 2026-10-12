@@ -4,7 +4,19 @@ A Vaadin Flow integration of the FullCalendar JavaScript library: Java component
 
 The domain glossary for this project. Class names, method names, test names and conversation all use these words for these things.
 
+The terms a user of the add-on meets are also on the wiki page [Glossary](https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Glossary). Change both together.
+
 ## Language
+
+### Add-on and library
+
+**Add-on**:
+This project, FullCalendar for Flow, published to the Vaadin Directory. Written "add-on" in prose. A bare version number such as "8.0" or "7.x" always means a version of the add-on, written out as "the add-on 8.0" or "FullCalendar for Flow 8.0" where it needs a name.
+_Avoid_: addon (except in module, artifact and package names), FullCalendar alone or with a version, such as "FullCalendar 8.0" (ambiguous with the library)
+
+**FullCalendar library**:
+The FullCalendar JavaScript library the add-on wraps. Short "the library", or "the client" where it is set apart from the server side. Its versions always carry the word library: "the FullCalendar library 7.1" for a minor version, "the 7.x library" for a line.
+_Avoid_: FullCalendar 7, FC, a bare version number for the library
 
 ### Calendar content
 
@@ -15,6 +27,9 @@ _Avoid_: Event (reserved for Vaadin component events)
 **Entry source**:
 A provider of entries that the browser loads on its own, outside the server-side entry provider (for example a JSON feed or an iCalendar URL). Called a remote entry source where it is set apart from the entry provider. FullCalendar JS calls it an "event source".
 _Avoid_: Event source, external entries, client-side source
+
+**Entry provider**:
+The server-side source of a calendar's entries. The calendar asks it for the entries of the shown period.
 
 **Resource**:
 A thing entries can be assigned to in the scheduler views (a room, a person, a machine).
@@ -32,11 +47,11 @@ _Avoid_: Property, setting
 ### Styling
 
 **FullCalendar theme**:
-A complete visual design for the calendar provided by FullCalendar (classic, monarch, breezy, forma, pulse), or the addon's own Vaadin-aligned design built the same way. Chosen per calendar.
+A complete visual design for the calendar provided by FullCalendar (classic, monarch, breezy, forma, pulse), or the add-on's own Vaadin-aligned design built the same way. Chosen per calendar.
 _Avoid_: Theme (alone, ambiguous with the Vaadin application theme), FC theme
 
 **FullCalendar Vaadin theme**:
-The addon's own FullCalendar theme and the default (`FullCalendarTheme.VAADIN`). It builds on classic and takes its look from the Vaadin application theme.
+The add-on's own FullCalendar theme and the default (`FullCalendarTheme.VAADIN`). It builds on classic and takes its look from the Vaadin application theme.
 _Avoid_: Vaadin FullCalendar theme (reads as "the theme of the Vaadin add-on FullCalendar"), Vaadin theme
 
 **Palette**:
@@ -80,5 +95,6 @@ _Avoid_: integration test, UI unit test
 
 ## Flagged ambiguities
 
+- "FullCalendar 7" meant both the add-on 7.x and the FullCalendar library 7.x, whose version numbers overlap. A bare version number now always means the **Add-on**, and a library version always says **FullCalendar library**.
 - "Event" meant both a FullCalendar calendar item and a Vaadin component event. A calendar item is now always an **Entry**, and "event" is reserved for component events.
-- "Theme" meant the Vaadin application theme, a FullCalendar theme and the addon's former theme variant. **FullCalendar theme** and **Vaadin application theme** are now always qualified, and theme variants no longer exist.
+- "Theme" meant the Vaadin application theme, a FullCalendar theme and the add-on's former theme variant. **FullCalendar theme** and **Vaadin application theme** are now always qualified, and theme variants no longer exist.

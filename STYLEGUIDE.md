@@ -132,7 +132,7 @@ against the Vaadin MCP before rolling your own.
   `@JsModule`. FullCalendar packages are declared with `@NpmPackage`, and their
   version comes from the client version constant in `FullCalendar`, never a literal.
 - Server-defined JS callbacks are evaluated with `new Function()` on purpose.
-- The addon must stay Java-`Serializable`. Mark genuinely transient fields
+- The add-on must stay Java-`Serializable`. Mark genuinely transient fields
   `transient` (see `SerializationTest`).
 
 ### Testing standards
@@ -160,8 +160,8 @@ bug put back.
 
 ### Writing
 
-Applies to everything a person reads: the README, Javadoc, comments, commit
-messages and issues.
+Applies to everything a person reads: the README, the wiki, Javadoc, comments,
+commit messages and issues.
 
 - **No semicolons, colons or dashes joining two sentences**, and no comma splices
   either. Write two sentences, or join them with a word such as "because", "so" or
@@ -171,6 +171,27 @@ messages and issues.
   of information, such as what a value does, how it is shown, a limitation, or
   when it loads, start a new paragraph: a `<p>` in Javadoc, a blank line
   elsewhere. A summary sentence followed by one long block is hard to scan.
+- **No lists of constants or methods inside a sentence.** Up to three names fit
+  in a sentence. More go into a bullet list or a table, or are left out with a
+  pointer to the Javadoc when no reader needs the full list. Not "hooks for
+  `NOW_INDICATOR_HEADER_*`, `NOW_INDICATOR_LINE_*`, `INLINE_WEEK_NUMBER_*`,
+  `ALL_DAY_HEADER_*` and `DAY_LANE_*`", but "hooks for the parts of a view, such as
+  the now indicator and the week numbers. The Javadoc of `Option` lists them."
+- **A heading names its topic.** A reader scanning the headings must find where a
+  change is described. Not a catch-all such as "Behavior changes" or "Options"
+  beside more specific sections, but "Removing options" or "Entry providers".
+- **The add-on is written "add-on" in prose.** Not "the addon sends the option",
+  but "the add-on sends the option". Module, artifact and package names such as
+  `addon/` keep their spelling. Release notes and migration guides of released
+  versions stay as they were published.
+- **A version names what it belongs to.** A bare version number means the add-on.
+  A version of the wrapped library always says library. Not "FullCalendar 7 renders
+  different HTML", but "the FullCalendar library 7.1 renders different HTML". The
+  terms are defined in `CONTEXT.md`.
 - **The README and the wiki are written for developers who know Vaadin and
-  FullCalendar.** It documents what the add-on adds or changes, not how Vaadin works.
-  Where it states a rule or a failure case, a short example follows.
+  FullCalendar.** They document what the add-on adds or changes, not how Vaadin
+  works. Where they state a rule or a failure case, a short example follows.
+- **A narrowly scoped feature gets a short example where it is introduced**, also in
+  release notes, and a link to the page that covers it in detail. Not only "See
+  Features for an example", but two lines of code that set a custom toolbar button,
+  followed by the link.
