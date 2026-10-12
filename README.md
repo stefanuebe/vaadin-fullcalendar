@@ -34,11 +34,7 @@ then the basic FullCalendar. For details about the license, visit https://fullca
 the additional files of this addon, not the used original files.**
 
 ## Documentation and Samples
-Please visit out [github wiki](https://github.com/stefanuebe/vaadin-fullcalendar/wiki) for samples and other information about this addon.
-
-## Authors of this addon
-This addon is currently maintained by Carlo Zanocco and me. If you have any questions or issues, please
-use the GitHub repository issues page.
+Please visit our [github wiki](https://github.com/stefanuebe/vaadin-fullcalendar/wiki) for samples and other information about this addon.
 
 ## Vaadin directory
 * Fullcalendar: https://vaadin.com/directory/component/full-calendar-flow
