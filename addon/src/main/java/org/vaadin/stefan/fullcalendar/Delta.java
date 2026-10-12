@@ -83,10 +83,9 @@ public class Delta {
      * @param hours hours delta
      * @param minutes minutes delta
      * @param seconds seconds delta
-     * @deprecated since 7.3.0, removed in 8.0, where the constructor takes only days, hours, minutes and seconds. Use
-     *             {@link #builder()} without {@code years} and {@code months}, which works the same way in 8.0. To
-     *             shift a date by years or months, use {@link java.time.Period} or {@code plusYears} and
-     *             {@code plusMonths} of {@link java.time.LocalDate}.
+     * @deprecated since 7.3.0, removed in a future major version. Use {@link #builder()} without {@code years} and
+     *             {@code months}. To shift a date by years or months, use {@link java.time.Period} or {@code plusYears}
+     *             and {@code plusMonths} of {@link java.time.LocalDate}.
      */
     @Deprecated(since = "7.3.0")
     @Builder
@@ -108,9 +107,9 @@ public class Delta {
          *
          * @param years years delta
          * @return this
-         * @deprecated since 7.3.0, removed in 8.0, because in practice the deltas FullCalendar sends always have a
-         *             zero years part. To shift a date by years, use {@link java.time.Period} or {@code plusYears} of
-         *             {@link java.time.LocalDate}.
+         * @deprecated since 7.3.0, removed in a future major version, because in practice the deltas FullCalendar sends
+         *             always have a zero years part. To shift a date by years, use {@link java.time.Period} or
+         *             {@code plusYears} of {@link java.time.LocalDate}.
          */
         @Deprecated(since = "7.3.0")
         public DeltaBuilder years(int years) {
@@ -123,9 +122,9 @@ public class Delta {
          *
          * @param months months delta
          * @return this
-         * @deprecated since 7.3.0, removed in 8.0, because in practice the deltas FullCalendar sends always have a
-         *             zero months part. To shift a date by months, use {@link java.time.Period} or {@code plusMonths}
-         *             of {@link java.time.LocalDate}.
+         * @deprecated since 7.3.0, removed in a future major version, because in practice the deltas FullCalendar sends
+         *             always have a zero months part. To shift a date by months, use {@link java.time.Period} or
+         *             {@code plusMonths} of {@link java.time.LocalDate}.
          */
         @Deprecated(since = "7.3.0")
         public DeltaBuilder months(int months) {
