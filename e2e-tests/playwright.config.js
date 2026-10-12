@@ -17,8 +17,8 @@ module.exports = defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
 
-  /* Opt out of parallel tests on CI */
-  workers: process.env.CI ? 1 : undefined,
+  /* Half the CPU cores, also on CI. Each test gets its own browser context and so its own Vaadin session. */
+  workers: '50%',
 
   /* Reporter to use */
   reporter: [

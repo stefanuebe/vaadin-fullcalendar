@@ -1,6 +1,16 @@
 // @ts-check
 const { test, expect, closeDialog, waitForCalendarUpdate, clickEntriesMenuItem, openSettingsMenu } = require('./fixtures');
 
+/**
+ * Counts the entries of the month view, including those hidden behind a "+N more" link. A full day cell (e.g. today,
+ * where the playground puts its multi-day entries) hides a new entry behind the link.
+ */
+async function countEntries(page) {
+  const shown = await page.locator('.fc-event').count();
+  const moreTexts = await page.getByText(/^\+\d+ more$/).allTextContents();
+  return moreTexts.reduce((sum, text) => sum + parseInt(text.slice(1), 10), shown);
+}
+
 test.describe('Calendar Toolbar', () => {
 
   test.describe('Entries Menu', () => {
@@ -31,7 +41,7 @@ test.describe('Calendar Toolbar', () => {
 
     test('should create entry via Add single entry menu', async ({ page }) => {
       // Count entries before
-      const initialCount = await page.locator('.fc-event').count();
+      const initialCount = await countEntries(page);
 
       const result = await clickEntriesMenuItem(page, 'Add single entry');
       expect(result).toBe(true);
@@ -40,8 +50,7 @@ test.describe('Calendar Toolbar', () => {
 
       // "Add single entry" creates an entry directly (no dialog)
       // Verify a new entry was created
-      const newCount = await page.locator('.fc-event').count();
-      expect(newCount).toBeGreaterThan(initialCount);
+      await expect.poll(() => countEntries(page)).toBeGreaterThan(initialCount);
     });
 
     test('should have Add recurring entries option', async ({ page }) => {
