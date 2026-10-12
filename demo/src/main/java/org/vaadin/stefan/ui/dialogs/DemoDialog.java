@@ -24,6 +24,7 @@ import org.vaadin.stefan.fullcalendar.ResourceEntry;
 import org.vaadin.stefan.fullcalendar.Scheduler;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
@@ -61,8 +62,12 @@ public class DemoDialog extends Dialog {
         this.tmpEntry = entry.copyAsType(entry.getClass());
 
         this.recurring = entry.isRecurring();
-        tmpEntry.setStart(recurring ? entry.getRecurringStart() : entry.getStartWithOffset());
-        tmpEntry.setEnd(recurring ? entry.getRecurringEnd() : entry.getEndWithOffset());
+        tmpEntry.setStart(recurring
+                ? combine(entry.getRecurringStartDate(), entry.getRecurringStartTimeAsLocalTime())
+                : entry.getStartWithOffset());
+        tmpEntry.setEnd(recurring
+                ? combine(entry.getRecurringEndDate(), entry.getRecurringEndTimeAsLocalTime())
+                : entry.getEndWithOffset());
 
         setCloseOnEsc(true);
         setCloseOnOutsideClick(true);
@@ -275,19 +280,32 @@ public class DemoDialog extends Dialog {
             if (recurring) {
                 entry.clearStart();
                 entry.clearEnd();
-                entry.setRecurringStart(tmpEntry.getStart());
-                entry.setRecurringEnd(tmpEntry.getEnd());
+                LocalDateTime start = tmpEntry.getStart();
+                LocalDateTime end = tmpEntry.getEnd();
+                entry.setRecurringStartDate(start != null ? start.toLocalDate() : null);
+                entry.setRecurringStartTime(start != null ? start.toLocalTime() : null);
+                entry.setRecurringEndDate(end != null ? end.toLocalDate() : null);
+                entry.setRecurringEndTime(end != null ? end.toLocalTime() : null);
             } else {
                 entry.setStartWithOffset(tmpEntry.getStart());
                 entry.setEndWithOffset(tmpEntry.getEnd());
                 entry.setRecurringDaysOfWeek(); // remove the DoW
-                entry.clearRecurringStart();
-                entry.clearRecurringEnd();
+                entry.setRecurringStartDate(null);
+                entry.setRecurringStartTime((LocalTime) null);
+                entry.setRecurringEndDate(null);
+                entry.setRecurringEndTime((LocalTime) null);
             }
 
             onSaveConsumer.accept(this.entry);
             close();
         }
+    }
+
+    /**
+     * The dialog edits the recurring date and time in one picker, while the entry keeps them apart.
+     */
+    private static LocalDateTime combine(LocalDate date, LocalTime time) {
+        return date != null ? date.atTime(time != null ? time : LocalTime.MIDNIGHT) : null;
     }
 
     protected void onRemove() {

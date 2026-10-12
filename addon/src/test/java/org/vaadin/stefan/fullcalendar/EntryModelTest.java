@@ -1,15 +1,25 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -101,29 +111,156 @@ public class EntryModelTest {
     }
 
     @Test
-    void recurringDuration_setAndGet() {
+    void recurringDuration_serializedAsHoursMinutesSeconds() {
         Entry entry = new Entry();
-        entry.setRecurringDuration("P1D");
-        assertEquals("P1D", entry.getRecurringDuration());
+        entry.setRecurringDuration(Duration.ofDays(3).plusHours(12));
+        ObjectNode json = entry.toJson();
+        assertFalse(json.has("recurringDuration"), "Java field name must NOT appear in JSON");
+        assertEquals("84:00:00", json.get("duration").asString());
     }
 
     @Test
-    void recurringDuration_serializedAsDuration() {
-        Entry entry = new Entry();
-        entry.setRecurringDuration("PT2H");
-        ObjectNode json = entry.toJson();
-        assertFalse(json.has("recurringDuration"), "Java field name must NOT appear in JSON");
-        assertTrue(json.hasNonNull("duration"), "FC key 'duration' must appear in JSON");
-        assertEquals("PT2H", json.get("duration").asString());
+    void recurringDuration_readBackFromJson() {
+        // external drops rebuild the entry from its JSON with updateAllFromJson
+        Entry source = new Entry();
+        source.setRecurringDuration(Duration.ofMinutes(30));
+
+        Entry target = new Entry();
+        target.updateAllFromJson(source.toJson(), false);
+        assertEquals(Duration.ofMinutes(30), target.getRecurringDuration());
     }
 
     @Test
     void recurringDuration_null_notInJson() {
         Entry entry = new Entry();
-        entry.setRecurringDuration("P1D");
+        entry.setRecurringDuration(Duration.ofHours(2));
         entry.setRecurringDuration(null);
-        assertNull(entry.getRecurringDuration(), "recurringDuration getter should return null after clearing");
+        assertNull(entry.getRecurringDuration());
         assertFalse(entry.toJson().has("duration"), "duration should not be in JSON after clearing");
+    }
+
+    // -------------------------------------------------------------------------
+    // built-in recurrence and RRule exclude each other
+    // -------------------------------------------------------------------------
+
+    private static Entry builtInRecurringEntry() {
+        Entry entry = new Entry();
+        entry.setRecurringDaysOfWeek(DayOfWeek.MONDAY);
+        entry.setRecurringStartDate(LocalDate.of(2025, 3, 1));
+        entry.setRecurringEndDate(LocalDate.of(2025, 4, 1));
+        entry.setRecurringStartTime(LocalTime.of(9, 0));
+        entry.setRecurringEndTime(LocalTime.of(10, 0));
+        entry.setRecurringDuration(Duration.ofHours(48));
+        return entry;
+    }
+
+    private static Entry rruleEntry() {
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly()
+                .excludeDates(LocalDate.of(2025, 3, 10))
+                .excludeRules(RRule.monthly()));
+        entry.setRecurringDuration(Duration.ofHours(48));
+        return entry;
+    }
+
+    @Test
+    void setRRule_clearsBuiltInRecurrence_keepsDuration() {
+        Entry entry = builtInRecurringEntry();
+        entry.setRRule(RRule.weekly());
+
+        assertNull(entry.getRecurringDaysOfWeek());
+        assertNull(entry.getRecurringStartDate());
+        assertNull(entry.getRecurringEndDate());
+        assertNull(entry.getRecurringStartTime());
+        assertNull(entry.getRecurringEndTime());
+        assertEquals(Duration.ofHours(48), entry.getRecurringDuration());
+
+        ObjectNode json = entry.toJson();
+        for (String key : List.of("daysOfWeek", "startRecur", "endRecur", "startTime", "endTime")) {
+            assertFalse(json.has(key), key + " must not be sent next to an rrule");
+        }
+        assertTrue(json.has("rrule"));
+        assertEquals("48:00:00", json.get("duration").asString());
+    }
+
+    @Test
+    void setRRule_null_keepsBuiltInRecurrence() {
+        Entry entry = builtInRecurringEntry();
+        entry.setRRule(null);
+
+        assertEquals(Set.of(DayOfWeek.MONDAY), entry.getRecurringDaysOfWeek());
+        assertEquals(LocalDate.of(2025, 3, 1), entry.getRecurringStartDate());
+        assertEquals(LocalDate.of(2025, 4, 1), entry.getRecurringEndDate());
+        assertEquals(LocalTime.of(9, 0), entry.getRecurringStartTimeAsLocalTime());
+        assertEquals(LocalTime.of(10, 0), entry.getRecurringEndTimeAsLocalTime());
+    }
+
+    /** Each built-in setter with a non-null value, mapped to the getter that must return that value afterwards. */
+    private static Map<String, Map.Entry<Consumer<Entry>, Function<Entry, Object>>> builtInSetters() {
+        Map<String, Map.Entry<Consumer<Entry>, Function<Entry, Object>>> setters = new LinkedHashMap<>();
+        setters.put("setRecurringDaysOfWeek(DayOfWeek...)", Map.entry(
+                e -> e.setRecurringDaysOfWeek(DayOfWeek.MONDAY), Entry::getRecurringDaysOfWeek));
+        setters.put("setRecurringDaysOfWeek(Set)", Map.entry(
+                e -> e.setRecurringDaysOfWeek(Set.of(DayOfWeek.MONDAY)), Entry::getRecurringDaysOfWeek));
+        setters.put("setRecurringStartDate", Map.entry(
+                e -> e.setRecurringStartDate(LocalDate.of(2025, 3, 1)), Entry::getRecurringStartDate));
+        setters.put("setRecurringEndDate", Map.entry(
+                e -> e.setRecurringEndDate(LocalDate.of(2025, 4, 1)), Entry::getRecurringEndDate));
+        setters.put("setRecurringStartTime(LocalTime)", Map.entry(
+                e -> e.setRecurringStartTime(LocalTime.of(9, 0)), Entry::getRecurringStartTime));
+        setters.put("setRecurringStartTime(RecurringTime)", Map.entry(
+                e -> e.setRecurringStartTime(RecurringTime.of(25, 0)), Entry::getRecurringStartTime));
+        setters.put("setRecurringEndTime(LocalTime)", Map.entry(
+                e -> e.setRecurringEndTime(LocalTime.of(10, 0)), Entry::getRecurringEndTime));
+        setters.put("setRecurringEndTime(RecurringTime)", Map.entry(
+                e -> e.setRecurringEndTime(RecurringTime.of(26, 0)), Entry::getRecurringEndTime));
+        return setters;
+    }
+
+    @TestFactory
+    Stream<DynamicTest> builtInSetter_nonNull_clearsRRule_keepsDuration() {
+        return builtInSetters().entrySet().stream().map(setter -> DynamicTest.dynamicTest(setter.getKey(), () -> {
+            Entry entry = rruleEntry();
+            setter.getValue().getKey().accept(entry);
+
+            assertNotNull(setter.getValue().getValue().apply(entry), "the built-in value must be stored");
+            assertNull(entry.getRRule());
+            assertEquals(Duration.ofHours(48), entry.getRecurringDuration());
+
+            ObjectNode json = entry.toJson();
+            assertFalse(json.has("rrule"));
+            assertFalse(json.has("exdate"));
+            assertFalse(json.has("exrule"));
+            assertEquals("48:00:00", json.get("duration").asString());
+        }));
+    }
+
+    private static Map<String, Consumer<Entry>> builtInNullSetters() {
+        Map<String, Consumer<Entry>> setters = new LinkedHashMap<>();
+        setters.put("setRecurringDaysOfWeek(Set) null", e -> e.setRecurringDaysOfWeek((Set<DayOfWeek>) null));
+        setters.put("setRecurringDaysOfWeek(Set) empty", e -> e.setRecurringDaysOfWeek(Set.of()));
+        setters.put("setRecurringDaysOfWeek() empty", e -> e.setRecurringDaysOfWeek());
+        setters.put("setRecurringStartDate", e -> e.setRecurringStartDate(null));
+        setters.put("setRecurringEndDate", e -> e.setRecurringEndDate(null));
+        setters.put("setRecurringStartTime(LocalTime)", e -> e.setRecurringStartTime((LocalTime) null));
+        setters.put("setRecurringStartTime(RecurringTime)", e -> e.setRecurringStartTime((RecurringTime) null));
+        setters.put("setRecurringEndTime(LocalTime)", e -> e.setRecurringEndTime((LocalTime) null));
+        setters.put("setRecurringEndTime(RecurringTime)", e -> e.setRecurringEndTime((RecurringTime) null));
+        return setters;
+    }
+
+    @TestFactory
+    Stream<DynamicTest> builtInSetter_null_keepsRRule() {
+        return builtInNullSetters().entrySet().stream().map(setter -> DynamicTest.dynamicTest(setter.getKey(), () -> {
+            Entry entry = rruleEntry();
+            setter.getValue().accept(entry);
+
+            assertNotNull(entry.getRRule());
+            ObjectNode json = entry.toJson();
+            assertTrue(json.has("rrule"));
+            assertTrue(json.has("exdate"));
+            assertTrue(json.has("exrule"));
+        }));
     }
 
     // -------------------------------------------------------------------------
@@ -179,6 +316,14 @@ public class EntryModelTest {
         entry.setRRule(null);
         assertNull(entry.getRRule());
         assertFalse(entry.toJson().has("exdate"), "exdate should not be in JSON after setRRule(null)");
+    }
+
+    @Test
+    void excludeRules_clearedWhenSetRRuleNull() {
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly().excludeRules(RRule.monthly()));
+        entry.setRRule(null);
+        assertFalse(entry.toJson().has("exrule"), "exrule should not be in JSON after setRRule(null)");
     }
 
     // -------------------------------------------------------------------------

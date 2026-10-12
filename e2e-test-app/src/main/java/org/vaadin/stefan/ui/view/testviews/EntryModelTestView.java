@@ -13,6 +13,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.util.Locale;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -93,13 +94,12 @@ public class EntryModelTestView extends VerticalLayout {
         interactiveEntry.setInteractive(true);
         provider.addEntry(interactiveEntry);
 
-        // 3. Recurring entry visible on both Monday AND Tuesday in March 2025
-        // FC renders multi-day bars with title only in the first cell, so instead of
-        // using duration=P2D we recur on MONDAY+TUESDAY directly (independent occurrences)
+        // 3. Recurring entry on Mondays in March 2025, each occurrence lasting 48 hours (Monday + Tuesday)
         Entry recurringDuration = new Entry();
         recurringDuration.setTitle("Multi-Day Recurring");
         recurringDuration.setAllDay(true);
-        recurringDuration.setRecurringDaysOfWeek(Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY));
+        recurringDuration.setRecurringDaysOfWeek(Set.of(DayOfWeek.MONDAY));
+        recurringDuration.setRecurringDuration(Duration.ofHours(48));
         recurringDuration.setRecurringStartDate(LocalDate.of(2025, 3, 1));
         recurringDuration.setRecurringEndDate(LocalDate.of(2025, 3, 31));
         provider.addEntry(recurringDuration);

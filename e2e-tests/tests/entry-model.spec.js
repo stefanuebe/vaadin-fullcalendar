@@ -69,12 +69,22 @@ test.describe('Entry Model', () => {
     // -------------------------------------------------------------------------
 
     test('recurring duration entry renders as multi-day span', async ({ page }) => {
-        // Monday 2025-03-03 and Tuesday 2025-03-04 should both show the event
-        // (recurringDuration="P2D" = 2-day span starting on each Monday/Wednesday)
-        const monday = page.locator('.fc-daygrid-day[data-date="2025-03-03"] .fc-event:has-text("Multi-Day Recurring")');
-        const tuesday = page.locator('.fc-daygrid-day[data-date="2025-03-04"] .fc-event:has-text("Multi-Day Recurring")');
-        await expect(monday).toBeVisible();
-        await expect(tuesday).toBeVisible();
+        // The entry recurs on Mondays only, with a duration of 48 hours. The duration reaching the client is
+        // the only reason an occurrence also covers the Tuesday: one bar from Monday 2025-03-03 to Tuesday 2025-03-04.
+        const monday = await page.locator('.fc-daygrid-day[data-date="2025-03-03"]').boundingBox();
+        const tuesday = await page.locator('.fc-daygrid-day[data-date="2025-03-04"]').boundingBox();
+        const bars = page.locator('.fc-event:has-text("Multi-Day Recurring")');
+        await expect(bars.first()).toBeVisible();
+
+        const boxes = await bars.evaluateAll(els => els.map(el => {
+            const r = el.getBoundingClientRect();
+            return { left: r.left, right: r.right, top: r.top };
+        }));
+        const spansMondayAndTuesday = boxes.some(b =>
+            b.top >= monday.y && b.top < monday.y + monday.height
+            && Math.abs(b.left - monday.x) < 10
+            && Math.abs(b.right - (tuesday.x + tuesday.width)) < 10);
+        expect(spansMondayAndTuesday, JSON.stringify({ monday, tuesday, boxes })).toBe(true);
     });
 
     // -------------------------------------------------------------------------

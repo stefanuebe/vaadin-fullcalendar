@@ -106,8 +106,10 @@ public class PlaygroundDialog extends Dialog {
                 entry.setRecurringDaysOfWeek(days.toArray(new DayOfWeek[0]));
             } else {
                 // Non-recurring
-                entry.clearRecurringStart();
-                entry.clearRecurringEnd();
+                entry.setRecurringStartDate(null);
+                entry.setRecurringStartTime((LocalTime) null);
+                entry.setRecurringEndDate(null);
+                entry.setRecurringEndTime((LocalTime) null);
                 entry.setRecurringDaysOfWeek();
                 LocalDateTime startVal = fieldStart.getValue();
                 LocalDateTime endVal = fieldEnd.getValue();

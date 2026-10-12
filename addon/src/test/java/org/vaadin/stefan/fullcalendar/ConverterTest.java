@@ -5,6 +5,7 @@ import org.vaadin.stefan.fullcalendar.converters.*;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.NullNode;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -54,6 +55,58 @@ class ConverterTest {
         DurationConverter conv = new DurationConverter();
         JsonNode result = conv.toClientModel(Duration.ofMinutes(30), null);
         assertEquals("00:30:00", result.asString());
+    }
+
+    @Test
+    void duration_negative_hasOneLeadingSign() {
+        DurationConverter conv = new DurationConverter();
+        assertEquals("-00:30:00", conv.toClientModel(Duration.ofMinutes(-30), null).asString());
+        assertEquals("-01:30:00", conv.toClientModel(Duration.ofMinutes(-90), null).asString());
+    }
+
+    @Test
+    void duration_withMillis_appendsThreeDigits() {
+        DurationConverter conv = new DurationConverter();
+        assertEquals("00:00:01.500", conv.toClientModel(Duration.ofMillis(1500), null).asString());
+        assertEquals("00:00:00.005", conv.toClientModel(Duration.ofMillis(5), null).asString());
+        assertEquals("-00:00:01.500", conv.toClientModel(Duration.ofMillis(-1500), null).asString());
+        assertEquals("-00:00:00.005", conv.toClientModel(Duration.ofMillis(-5), null).asString());
+        assertEquals("25:00:00.007", conv.toClientModel(Duration.ofHours(25).plusMillis(7), null).asString());
+        assertEquals("00:00:01", conv.toClientModel(Duration.ofMillis(1000), null).asString());
+    }
+
+    @Test
+    void duration_fromClient_readsClientFormat() {
+        DurationConverter conv = new DurationConverter();
+        assertEquals(Duration.ofMinutes(30), conv.toServerModel(JsonUtils.toJsonNode("00:30"), null));
+        assertEquals(Duration.ofHours(84), conv.toServerModel(JsonUtils.toJsonNode("84:00:00"), null));
+        assertEquals(Duration.ofDays(3).plusHours(12), conv.toServerModel(JsonUtils.toJsonNode("3.12:00:00"), null));
+        assertEquals(Duration.ofMinutes(-90), conv.toServerModel(JsonUtils.toJsonNode("-01:30:00"), null));
+        assertEquals(Duration.ofMillis(1500), conv.toServerModel(JsonUtils.toJsonNode("00:00:01.500"), null));
+        assertEquals(Duration.ofHours(-26), conv.toServerModel(JsonUtils.toJsonNode("-1.02:00:00"), null));
+        // like the client, a match at the start is enough, the rest is ignored
+        assertEquals(Duration.ofHours(1), conv.toServerModel(JsonUtils.toJsonNode("01:00:00 extra"), null));
+    }
+
+    @Test
+    void duration_fromClient_otherFormatIsNull() {
+        DurationConverter conv = new DurationConverter();
+        assertNull(conv.toServerModel(JsonUtils.toJsonNode("P3D"), null));
+        assertNull(conv.toServerModel(NullNode.instance, null));
+    }
+
+    @Test
+    void duration_roundTrip() {
+        DurationConverter conv = new DurationConverter();
+        for (Duration d : List.of(Duration.ofMinutes(-30), Duration.ofHours(25).plusMillis(7), Duration.ofDays(3))) {
+            assertEquals(d, conv.toServerModel(conv.toClientModel(d, null), null));
+        }
+    }
+
+    @Test
+    void duration_belowMillis_isDropped() {
+        DurationConverter conv = new DurationConverter();
+        assertEquals("00:00:01", conv.toClientModel(Duration.ofSeconds(1).plusNanos(999), null).asString());
     }
 
     @Test
