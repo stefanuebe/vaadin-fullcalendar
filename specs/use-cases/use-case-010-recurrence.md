@@ -64,10 +64,10 @@ custom.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;INTERVAL=2"));
 
 | ID | Rule |
 |----|------|
-| BR-01 | Simple recurrence and RRule are mutually exclusive per entry |
-| BR-02 | Setting an RRule overrides `recurringDaysOfWeek` / `recurringStartTime` / `recurringEndTime` |
+| BR-01 | Simple recurrence and RRule are mutually exclusive per entry. Setting one (non-null) removes the other. `recurringDuration` is kept for both |
+| BR-02 | Setting an RRule clears `recurringDaysOfWeek`, `recurringStartDate`, `recurringEndDate`, `recurringStartTime` and `recurringEndTime`. Setting one of them clears the RRule with its excluded dates and rules |
 | BR-03 | `excludeDates` removes specific occurrences from the recurrence pattern |
-| BR-04 | `recurringDuration` sets duration for multi-day recurring all-day entries (ISO 8601, e.g., `"P2D"`) |
+| BR-04 | `recurringDuration` (`java.time.Duration`) sets the length of each occurrence, sent as `hh:mm:ss` (e.g. `Duration.ofHours(48)` → `"48:00:00"`). FullCalendar does not parse ISO 8601 strings |
 | BR-05 | Recurring entries expand client-side — the server sends the rule, not individual instances |
 | BR-06 | Dragging individual occurrences of a recurring entry is not supported — the entire rule would need to be changed |
 

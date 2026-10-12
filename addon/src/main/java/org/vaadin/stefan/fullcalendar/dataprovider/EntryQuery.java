@@ -2,6 +2,7 @@ package org.vaadin.stefan.fullcalendar.dataprovider;
 
 import lombok.*;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.RecurringTime;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
 import java.time.Instant;
@@ -63,7 +64,7 @@ public class EntryQuery {
         if (start != null) {
             stream = stream.filter(e -> {
                 if (e.isRecurring()) {
-                    LocalDateTime recurringEnd = e.getRecurringEnd();
+                    LocalDateTime recurringEnd = recurringEnd(e);
 
                     // recurring entries that have no end may go indefinitely into the future, so we return
                     // them always
@@ -83,7 +84,7 @@ public class EntryQuery {
         if (end != null) {
             stream = stream.filter(e -> {
                 if (e.isRecurring()) {
-                    LocalDateTime recurringStart = e.getRecurringStart();
+                    LocalDateTime recurringStart = recurringStart(e);
 
                     // recurring entries that have no start may go indefinitely into the past, so we return
                     // them always
@@ -104,6 +105,43 @@ public class EntryQuery {
         }
 
         return stream;
+    }
+
+    /**
+     * Combines the recurring start date and time. {@code null} when there is no start date, start of day when
+     * there is no start time.
+     */
+    private static LocalDateTime recurringStart(Entry e) {
+        LocalDate startDate = e.getRecurringStartDate();
+        if (startDate == null) {
+            return null;
+        }
+
+        RecurringTime startTime = e.getRecurringStartTime();
+        if (startTime == null) {
+            return startDate.atStartOfDay();
+        }
+
+        return startDate.atStartOfDay().plusHours(startTime.getHour()).plusMinutes(startTime.getMinute());
+    }
+
+    /**
+     * Combines the recurring end date and time. {@code null} when there is no end date, the last second of that
+     * day when there is no end time. The client treats the end date as exclusive, so the filter may let through
+     * a recurring entry that ends the day before the range. The client does not show it.
+     */
+    private static LocalDateTime recurringEnd(Entry e) {
+        LocalDate endDate = e.getRecurringEndDate();
+        if (endDate == null) {
+            return null;
+        }
+
+        RecurringTime endTime = e.getRecurringEndTime();
+        if (endTime == null) {
+            return endDate.plusDays(1).atStartOfDay().minusSeconds(1);
+        }
+
+        return endDate.atStartOfDay().plusHours(endTime.getHour()).plusMinutes(endTime.getMinute());
     }
 
     public enum AllDay {

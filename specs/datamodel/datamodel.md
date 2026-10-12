@@ -34,7 +34,7 @@ The primary data object representing a calendar entry (FullCalendar "event"). Al
 | `recurringEndTime` | `RecurringTime` | End time for recurring entries |
 | `recurringStartDate` | `LocalDate` | Start bound for recurrence range |
 | `recurringEndDate` | `LocalDate` | End bound for recurrence range |
-| `recurringDuration` | `String` | Duration for multi-day recurring all-day entries (ISO 8601 string, e.g., `"P2D"`) |
+| `recurringDuration` | `Duration` | Length of each occurrence, for built-in recurrence and RRule alike. Sent as `hh:mm:ss`, where the hours may exceed 24 (e.g. `"48:00:00"`) |
 | `rrule` | `RRule` | RFC 5545 recurrence rule |
 | `extendedProps` | `Map<String, Object>` | Arbitrary data, set with `setExtendedProp(key, value)`, sent as `extendedProps` and read in JS callbacks as `event.extendedProps.<key>`. The getter returns a read-only map, never null, that may not reflect later changes. `hasExtendedProp(key)` tells a key set to null apart from an absent one. Objects are serialized with Jackson |
 

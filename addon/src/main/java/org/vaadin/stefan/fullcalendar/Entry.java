@@ -157,19 +157,24 @@ public class Entry implements Serializable {
     private Set<DayOfWeek> recurringDaysOfWeek;
 
     /**
-     * The duration of each occurrence for recurring events (e.g. {@code "P3D"}, {@code "48:00:00"}).
-     * Only meaningful when recurrence fields ({@code recurringDaysOfWeek} etc.) are set.
-     * Without this, each occurrence spans one day (for all-day) or uses start/end times.
+     * The duration of each occurrence of a recurring entry, e.g. {@code Duration.ofHours(48)} for an occurrence
+     * spanning two days. Applies to both the built-in recurrence and an {@link RRule}, so neither of them clears it.
+     * Without it, an all-day occurrence spans one day and a timed occurrence uses the recurring start and end time.
+     * <p>
+     * Sent to the client as {@code hh:mm:ss}, where the hours may exceed 24. The client adds it in wall-clock time, so an
+     * occurrence ends at the same wall-clock time across a daylight saving change.
+     *
      * @see <a href="https://fullcalendar.io/docs/recurring-events">recurring events</a>
      */
     @JsonName("duration")
-    private String recurringDuration;
+    @JsonConverter(DurationConverter.class)
+    private Duration recurringDuration;
 
     /**
      * RRule-based recurrence definition. Requires the {@code @fullcalendar/rrule} plugin.
      * <p>
-     * <b>Mutually exclusive</b> with FullCalendar's built-in recurrence ({@code recurringDaysOfWeek}, etc.).
-     * Do not set both on the same entry.
+     * <b>Mutually exclusive</b> with the built-in recurrence ({@code recurringDaysOfWeek}, etc.), so setting one
+     * removes the other. See {@link #setRRule(RRule)}.
      * <p>
      * Use {@link #setRRule(RRule)} and {@link #getRRule()} instead of the Lombok-generated accessors.
      *
@@ -218,11 +223,23 @@ public class Entry implements Serializable {
      * to the entry's {@code exdate} property and serialized separately as required by
      * FullCalendar's RRule plugin.
      * <p>
-     * Pass {@code null} to remove the recurrence rule and any associated excluded dates.
+     * Pass {@code null} to remove the recurrence rule and any associated excluded dates and rules.
+     * <p>
+     * A non-null RRule removes the built-in recurrence (days of week, recurring start and end date, recurring
+     * start and end time), because the two must not be combined. The {@link #getRecurringDuration() recurring
+     * duration} is kept, as it applies to both.
      *
      * @param rrule the RRule to set, or {@code null} to clear
      */
     public void setRRule(RRule rrule) {
+        if (rrule != null) {
+            // fields, not setters: the built-in setters call setRRule(null)
+            recurringDaysOfWeek = null;
+            recurringStartDate = null;
+            recurringEndDate = null;
+            recurringStartTime = null;
+            recurringEndTime = null;
+        }
         this.rrule = rrule;
         this.exdate = rrule != null ? rrule.getExcludedDates() : null;
         this.exrule = rrule != null ? rrule.getExcludedRules() : null;
@@ -1161,7 +1178,8 @@ public class Entry implements Serializable {
 
     /**
      * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
-     * as recurring. Pass null or an empty set may remove the recurring.
+     * as recurring and removes the {@link RRule}. Passing null or an empty set removes the days of week and keeps
+     * the {@link RRule}.
      *
      * @param daysOfWeek day of week
      * @see #isRecurring()
@@ -1170,8 +1188,47 @@ public class Entry implements Serializable {
         setRecurringDaysOfWeek(daysOfWeek.length == 0 ? null : new HashSet<>(Arrays.asList(daysOfWeek)));
     }
 
+    /**
+     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
+     * as recurring and removes the {@link RRule}. Passing null or an empty set removes the days of week and keeps
+     * the {@link RRule}.
+     *
+     * @param daysOfWeek days of week
+     * @see #isRecurring()
+     */
     public void setRecurringDaysOfWeek(Set<DayOfWeek> daysOfWeek) {
+        if (daysOfWeek != null && !daysOfWeek.isEmpty()) {
+            setRRule(null);
+        }
         this.recurringDaysOfWeek = daysOfWeek;
+    }
+
+    /**
+     * Sets the first date of the recurrence. Passing a non null value automatically marks this entry as recurring
+     * and removes the {@link RRule}.
+     *
+     * @param recurringStartDate first date of the recurrence
+     * @see #isRecurring()
+     */
+    public void setRecurringStartDate(LocalDate recurringStartDate) {
+        if (recurringStartDate != null) {
+            setRRule(null);
+        }
+        this.recurringStartDate = recurringStartDate;
+    }
+
+    /**
+     * Sets the date the recurrence ends (exclusive). Passing a non null value automatically marks this entry as
+     * recurring and removes the {@link RRule}.
+     *
+     * @param recurringEndDate end date of the recurrence, exclusive
+     * @see #isRecurring()
+     */
+    public void setRecurringEndDate(LocalDate recurringEndDate) {
+        if (recurringEndDate != null) {
+            setRRule(null);
+        }
+        this.recurringEndDate = recurringEndDate;
     }
 
     public Set<DayOfWeek> getRecurringDaysOfWeek() {
@@ -1203,20 +1260,23 @@ public class Entry implements Serializable {
 
     /**
      * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * end of day.
+     * as recurring and removes the {@link RRule}. Passing null may remove the recurrence or let the recurring
+     * entry extend to the end of day.
      *
      * @param start start time
      * @see #isRecurring()
      */
     public void setRecurringStartTime(RecurringTime start) {
+        if (start != null) {
+            setRRule(null);
+        }
         this.recurringStartTime = start;
     }
 
     /**
      * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * end of day.
+     * as recurring and removes the {@link RRule}. Passing null may remove the recurrence or let the recurring
+     * entry extend to the end of day.
      *
      * @param start start time
      * @see #isRecurring()
@@ -1250,123 +1310,29 @@ public class Entry implements Serializable {
 
     /**
      * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * end of day.
+     * as recurring and removes the {@link RRule}. Passing null may remove the recurrence or let the recurring
+     * entry extend to the end of day.
      *
      * @param end end time
      * @see #isRecurring()
      */
     public void setRecurringEndTime(RecurringTime end) {
+        if (end != null) {
+            setRRule(null);
+        }
         this.recurringEndTime = end;
     }
 
     /**
      * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring. Passing null may remove the recurrence or let the recurring entry extend to the
-     * end of day.
+     * as recurring and removes the {@link RRule}. Passing null may remove the recurrence or let the recurring
+     * entry extend to the end of day.
      *
      * @param end end time
      * @see #isRecurring()
      */
     public void setRecurringEndTime(LocalTime end) {
         setRecurringEndTime(end != null ? RecurringTime.of(end) : null);
-    }
-
-    /**
-     * Returns the recurring start. This method is a shortcut for combining {@link #getRecurringStartDate()}
-     * and {@link #getRecurringStartTimeAsLocalTime()}. <br>
-     * Will return null, when no recurrence date is defined. When only
-     * a start date is defined, the returned date time will be at the start of that day.
-     * <br>
-     * In case that the recurring start time is 24h or greater, the date part will shift depending on the
-     * resulting additional days. See {@link LocalDateTime#plusHours(long)}.
-     *
-     * @return start date time of recurrence
-     * @see #isRecurring()
-     */
-    public LocalDateTime getRecurringStart() {
-        LocalDate startDate = getRecurringStartDate();
-        if (startDate == null) {
-            return null;
-        }
-
-        RecurringTime startTime = getRecurringStartTime();
-        if (startTime == null) {
-            return startDate.atStartOfDay();
-        }
-
-        return startDate.atStartOfDay().plusHours(startTime.getHour()).plusMinutes(startTime.getMinute());
-    }
-
-    /**
-     * Returns the recurring end. This method is a shortcut for combining {@link #getRecurringEndDate()}
-     * and {@link #getRecurringEndTime()}.<br>
-     * Will return null, when no recurrence date is defined. When only a
-     * end date is defined, the returned date time will be at the end of that day (23:59:99).<br>
-     * <br>
-     * In case that the recurring end time is 24h or greater, the date part will shift depending on the
-     * resulting additional days. See {@link LocalDateTime#plusHours(long)}.
-     *
-     * @return end date time of recurrence
-     * @see #isRecurring()
-     */
-    public LocalDateTime getRecurringEnd() {
-        LocalDate endDate = getRecurringEndDate();
-        if (endDate == null) {
-            return null;
-        }
-
-        RecurringTime endTime = getRecurringEndTime();
-
-        if (endTime == null) {
-            return endDate.plusDays(1).atStartOfDay().minusSeconds(1);
-        }
-
-        return endDate.atStartOfDay().plusHours(endTime.getHour()).plusMinutes(endTime.getMinute());
-    }
-
-    /**
-     * Sets the recurring start as local date time. Shortcut for calling {@link #setRecurringStartDate(LocalDate)}
-     * and {@link #setRecurringStartTime(LocalTime)}.
-     * <p></p>
-     * <b>Please note</b>, that despite being a LocalDateTime the date and time must not necessarily be related
-     * to each other due to the nature of a recurring entry. It is just a shortcut method.
-     *
-     * @param recurringStart recurring start
-     */
-    public void setRecurringStart(LocalDateTime recurringStart) {
-        setRecurringStartDate(recurringStart != null ? recurringStart.toLocalDate() : null);
-        setRecurringStartTime(recurringStart != null ? recurringStart.toLocalTime() : null);
-    }
-
-    /**
-     * Sets the recurring end as local date time. Shortcut for calling {@link #setRecurringEndDate(LocalDate)}
-     * and {@link #setRecurringEndTime(LocalTime)}.
-     * <p></p>
-     * <b>Please note</b>, that despite being a LocalDateTime the date and time must not necessarily be related
-     * to each other due to the nature of a recurring entry. It is just a shortcut method.
-     *
-     * @param recurringEnd recurring end
-     */
-    public void setRecurringEnd(LocalDateTime recurringEnd) {
-        setRecurringEndDate(recurringEnd != null ? recurringEnd.toLocalDate() : null);
-        setRecurringEndTime(recurringEnd != null ? recurringEnd.toLocalTime() : null);
-    }
-
-    /**
-     * Clears the current recurring start date and time.
-     */
-    public void clearRecurringStart() {
-        setRecurringStartDate(null);
-        setRecurringStartTime((RecurringTime) null);
-    }
-
-    /**
-     * Clears the current recurring end date and time.
-     */
-    public void clearRecurringEnd() {
-        setRecurringEndDate(null);
-        setRecurringEndTime((RecurringTime) null);
     }
 
     /**

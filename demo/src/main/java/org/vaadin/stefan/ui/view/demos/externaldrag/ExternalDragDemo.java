@@ -12,6 +12,7 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
@@ -107,7 +108,7 @@ public class ExternalDragDemo extends AbstractCalendarView {
         lunchEntry.setTitle("Lunch Break");
         lunchEntry.setColor("#FF9800");
         lunchEntry.setAllDay(false);
-        lunchEntry.setRecurringDuration("00:30");
+        lunchEntry.setRecurringDuration(Duration.ofMinutes(30));
         Div lunchItem = createDragItem("Lunch Break", "#FF9800");
 
         // Task — blue, no entry data
