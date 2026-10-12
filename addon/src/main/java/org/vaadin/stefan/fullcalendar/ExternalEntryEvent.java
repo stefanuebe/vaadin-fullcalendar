@@ -27,7 +27,10 @@ import tools.jackson.databind.node.ObjectNode;
  * The {@link #getEntry()} method returns a <em>transient</em> data carrier constructed from the entry's
  * JS data. This entry is NOT part of any {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider}.
  * Use {@link Entry#getId()} to locate and update the corresponding record in the external system.
+ *
+ * @deprecated Use {@link RemoteEntryEvent}, the new name of this class.
  */
+@Deprecated(since = "7.3.0")
 @Getter
 public abstract class ExternalEntryEvent extends ComponentEvent<FullCalendar> {
 

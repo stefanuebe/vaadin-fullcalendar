@@ -13,6 +13,7 @@ import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 /**
  * Regression test view for issue #230: {@code Scheduler.updateResource} must propagate
@@ -23,6 +24,10 @@ import java.time.LocalDate;
  * {@code updateResource(resource)}, a second removes {@code department}, a third replaces all extended props with
  * {@code building=B} through the map and calls {@code updateResource(resource)}. The Playwright spec reads the
  * props from the FC client via {@code calendar.getResourceById('r1').extendedProps} before and after the click.
+ * <p>
+ * A second resource {@code r2} uses only the extended prop methods of 8.0: {@code setExtendedProp},
+ * {@code removeExtendedProp} and {@code setExtendedProps}. Its extended prop {@code location} is a record, which is
+ * sent as a JSON object.
  * <p>
  * Route: /test/update-resource-extended-props
  */
@@ -66,6 +71,24 @@ public class UpdateResourceExtendedPropsTestView extends VerticalLayout {
         });
         replaceBtn.getElement().setAttribute("data-testid", "btn-replace-props");
 
-        add(updateBtn, removeBtn, replaceBtn, calendar);
+        Resource room2 = new Resource("r2", "Room 2", null);
+        room2.setExtendedProp("department", "Engineering");
+        room2.setExtendedProp("location", new Location("A", 2));
+        calendar.addResource(room2);
+
+        Button setBtn2 = new Button("Change department of room 2", e -> room2.setExtendedProp("department", "Marketing"));
+        setBtn2.getElement().setAttribute("data-testid", "btn-change-dept-r2");
+
+        Button removeBtn2 = new Button("Remove department of room 2", e -> room2.removeExtendedProp("department"));
+        removeBtn2.getElement().setAttribute("data-testid", "btn-remove-dept-r2");
+
+        Button replaceBtn2 = new Button("Replace extended props of room 2",
+                e -> room2.setExtendedProps(Map.of("building", "B")));
+        replaceBtn2.getElement().setAttribute("data-testid", "btn-replace-props-r2");
+
+        add(updateBtn, removeBtn, replaceBtn, setBtn2, removeBtn2, replaceBtn2, calendar);
+    }
+
+    record Location(String building, int floor) {
     }
 }

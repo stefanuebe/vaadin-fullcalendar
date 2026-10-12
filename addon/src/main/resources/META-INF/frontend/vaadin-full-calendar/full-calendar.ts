@@ -425,13 +425,8 @@ export class FullCalendar extends HTMLElement {
                     title: event.title || '',
                     color: event.backgroundColor || event.borderColor || '',
                     display: event.display || '',
+                    extendedProps: event.extendedProps,
                 };
-
-                // FullCalendar moves unknown props of the dragged entry data into extendedProps. The server
-                // expects customProperties on the top level, so copy it back.
-                if (event.extendedProps && event.extendedProps.customProperties) {
-                    data.customProperties = event.extendedProps.customProperties;
-                }
 
                 // Remove the client-side phantom entry — the server will manage persistence
                 event.remove();

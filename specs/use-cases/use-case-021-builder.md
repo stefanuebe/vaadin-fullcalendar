@@ -20,6 +20,9 @@
 - `FullCalendarBuilder` provides a fluent API to create and pre-configure a calendar
 - Supports creating both `FullCalendar` and `FullCalendarScheduler` instances
 - Entry limit, initial options, and scheduler license key can be set during construction
+- The builder is deprecated since 7.2.0. Each builder method names its replacement on a calendar constructed directly.
+  Since 7.3.0, `FullCalendar.withAutoBrowserTimezone()` and `FullCalendar.withAutoUiLocale()` replace the builder's
+  `withAutoBrowserTimezone()` and `withAutoBrowserLocale()`, as in 8.0
 
 ---
 
@@ -78,8 +81,8 @@ FullCalendar calendar = FullCalendarBuilder.create()
 | BR-02 | Without `withScheduler()`, a plain `FullCalendar` is created |
 | BR-03 | Initial options bypass server-side caching |
 | BR-04 | Entry limit is a constructor-time-only setting |
-| BR-05 | `withAutoBrowserTimezone()` listens for `BrowserTimezoneObtainedEvent` and auto-sets the calendar timezone |
-| BR-06 | `withAutoBrowserLocale()` auto-sets the locale from the browser |
+| BR-05 | `withAutoBrowserTimezone()` listens for `BrowserTimezoneObtainedEvent` and auto-sets the calendar timezone. `FullCalendar.withAutoBrowserTimezone()` does the same and applies an already reported time zone at once |
+| BR-06 | `withAutoBrowserLocale()` auto-sets the locale from the browser once, when the calendar is built. `FullCalendar.withAutoUiLocale()` sets the UI locale on attach and on every change of the UI locale |
 | BR-07 | `withInitialEntries()` adds entries to the InMemoryEntryProvider after build. Throws `ClassCastException` if provider is not InMemoryEntryProvider (see UC-009 BR-07). |
 | BR-08 | `withEntryContent(String)` is `@Deprecated` — use `setOption(Option.ENTRY_CONTENT, JsCallback.of(...))` after build instead |
 
@@ -104,6 +107,10 @@ FullCalendar calendar = FullCalendarBuilder.create()
 
 ### Unit Tests
 - [ ] `FullCalendarBuilderTest` — builder configuration
+- [x] `AutoBrowserSettingsTest` — `withAutoBrowserTimezone()` and `withAutoUiLocale()` on the calendar
+
+### E2E Tests
+- [x] `auto-browser-timezone.spec.js` — the time zone the browser reports becomes the calendar time zone on server and client
 
 ---
 

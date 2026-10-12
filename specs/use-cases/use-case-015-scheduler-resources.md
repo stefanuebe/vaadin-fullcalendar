@@ -110,6 +110,7 @@ scheduler.addEntryDroppedSchedulerListener(event -> {
 
 ### E2E Tests
 - [ ] `scheduler-features.spec.js` — resource display and interaction. Covers the repaint after `updateResource` (#276)
+- [x] `update-resource-extended-props.spec.js` — extended props reach the client, with the deprecated `addExtendedProps` and with `setExtendedProp`, `removeExtendedProp` and `setExtendedProps` (#295)
 
 ---
 

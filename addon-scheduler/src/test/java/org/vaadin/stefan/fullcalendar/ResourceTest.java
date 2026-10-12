@@ -8,7 +8,9 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -213,6 +215,92 @@ public class ResourceTest {
 
         Assertions.assertEquals(Set.of(e1), r1.getEntries());
         Assertions.assertEquals(Set.of(e2), r2.getEntries());
+    }
+
+    // -------------------------------------------------------------------------
+    // setExtendedProp / removeExtendedProp
+    // -------------------------------------------------------------------------
+
+    @Test
+    void setExtendedProp_storesValue() {
+        Resource resource = new Resource();
+        resource.setExtendedProp("dept", "Engineering");
+        Assertions.assertEquals("Engineering", resource.getExtendedProps().get("dept"));
+    }
+
+    @Test
+    void removeExtendedProp_removesValue() {
+        Resource resource = new Resource();
+        resource.setExtendedProp("dept", "Engineering");
+        resource.removeExtendedProp("dept");
+        Assertions.assertFalse(resource.getExtendedProps().containsKey("dept"));
+    }
+
+    @Test
+    void setExtendedProps_replacesAll() {
+        Resource resource = new Resource();
+        resource.setExtendedProp("dept", "Engineering");
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("floor", 3);
+        resource.setExtendedProps(props);
+        props.put("later", "ignored"); // the given map is copied
+        Assertions.assertEquals(Map.of("floor", 3), resource.getExtendedProps());
+
+        resource.setExtendedProps(null);
+        Assertions.assertTrue(resource.getExtendedProps().isEmpty());
+    }
+
+    @Test
+    void setExtendedProps_nullKey_throwsNPEAndKeepsProps() {
+        Resource resource = new Resource();
+        resource.setExtendedProp("dept", "Engineering");
+
+        Map<String, Object> props = new HashMap<>();
+        props.put(null, 1);
+        Assertions.assertThrows(NullPointerException.class, () -> resource.setExtendedProps(props));
+        Assertions.assertEquals(Map.of("dept", "Engineering"), resource.getExtendedProps());
+    }
+
+    @Test
+    void hasExtendedProp_alsoForNullValue() {
+        Resource resource = new Resource();
+        Assertions.assertFalse(resource.hasExtendedProp("dept"));
+
+        resource.setExtendedProp("dept", null);
+        Assertions.assertTrue(resource.hasExtendedProp("dept"));
+
+        resource.removeExtendedProp("dept");
+        Assertions.assertFalse(resource.hasExtendedProp("dept"));
+    }
+
+    @Test
+    void setExtendedProp_nullKey_throwsNPE() {
+        Resource resource = new Resource();
+        Assertions.assertThrows(NullPointerException.class, () -> resource.setExtendedProp(null, "x"));
+    }
+
+    @Test
+    void removeExtendedProp_nullKey_throwsNPE() {
+        Resource resource = new Resource();
+        Assertions.assertThrows(NullPointerException.class, () -> resource.removeExtendedProp(null));
+    }
+
+    record Room(String name, int floor) {
+    }
+
+    @Test
+    void toJson_sendsObjectsOfSetExtendedPropWithJacksonAndOfAddExtendedPropsWithToString() {
+        Resource resource = new Resource();
+        resource.setExtendedProp("room", new Room("Atlas", 3));
+        resource.addExtendedProps("legacyRoom", new Room("Atlas", 3));
+
+        ObjectNode json = resource.toJson();
+        Assertions.assertEquals("Atlas", json.get("room").get("name").asString());
+        Assertions.assertEquals(new Room("Atlas", 3).toString(), json.get("legacyRoom").asString());
+
+        resource.addExtendedProps("room", new Room("Atlas", 3));
+        Assertions.assertTrue(resource.toJson().get("room").isString(), "the method that set the value last decides");
     }
 
     // -------------------------------------------------------------------------

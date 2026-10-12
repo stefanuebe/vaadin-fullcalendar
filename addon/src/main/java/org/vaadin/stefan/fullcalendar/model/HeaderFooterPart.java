@@ -27,7 +27,16 @@ import java.util.*;
 
 /**
  * Definition of a part of the header and footer.
+ *
+ * @deprecated Set the toolbar with {@link org.vaadin.stefan.fullcalendar.FullCalendar.Option#HEADER_TOOLBAR} or
+ * {@link org.vaadin.stefan.fullcalendar.FullCalendar.Option#FOOTER_TOOLBAR} and a {@code Map} of the positions
+ * ({@code start}, {@code center}, {@code end}) to FullCalendar's button string, for example
+ * {@code Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek")}.
+ * {@link org.vaadin.stefan.fullcalendar.NativeToolbarParts} has constants for the positions and the built-in buttons.
+ * This model knows only some of the buttons. View and custom buttons cannot be expressed with it, therefore it is
+ * deprecated.
  */
+@Deprecated(since = "7.3.0")
 @EqualsAndHashCode
 @ToString
 public class HeaderFooterPart {

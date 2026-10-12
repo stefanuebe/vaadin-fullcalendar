@@ -143,7 +143,7 @@ public interface Scheduler {
      * The default value is inherited from the master editable flag, which is false by default.
      * @param eventResourceEditable
      * @deprecated Use {@link FullCalendarScheduler#setOption(FullCalendarScheduler.SchedulerOption, Object)}
-     *             with {@link FullCalendarScheduler.SchedulerOption#ENTRY_RESOURCES_EDITABLE} instead.
+     *             with {@link FullCalendarScheduler.SchedulerOption#ENTRY_RESOURCE_EDITABLE} instead.
      */
     @Deprecated
     void setEntryResourceEditable(boolean eventResourceEditable);
@@ -355,12 +355,12 @@ public interface Scheduler {
      * Was meant to group entries based on their assigned resource(s) and date. Has no effect, see the deprecation note.
      *
      * @param groupEntriesBy group entries by option
-     * @deprecated since 7.2.5, removed in 8.0. This method already has no effect: it sets the options
+     * @deprecated since 7.3.0, removed in 8.0. This method already has no effect: it sets the options
      *             groupByResource and groupByDateAndResource, which the used FullCalendar library version does not
      *             support. To show dates above resources in a vertical resource view, use
      *             {@link FullCalendarScheduler.SchedulerOption#DATES_ABOVE_RESOURCES}.
      */
-    @Deprecated(since = "7.2.5")
+    @Deprecated(since = "7.3.0")
     void setGroupEntriesBy(GroupEntriesBy groupEntriesBy);
 
     /**

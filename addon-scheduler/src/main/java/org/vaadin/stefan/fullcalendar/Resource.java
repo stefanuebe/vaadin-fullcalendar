@@ -74,7 +74,13 @@ public class Resource implements Serializable {
     /**
      * The custom property list
      */
+    @Getter(AccessLevel.NONE)
     private final HashMap<String, Object> extendedProps = new HashMap<>();
+
+    // keys set with setExtendedProp or setExtendedProps, their values are serialized with Jackson. Values put with
+    // the deprecated addExtendedProps are sent as their toString().
+    @Getter(AccessLevel.NONE)
+    private final Set<String> jacksonKeys = new HashSet<>();
 
     // Per-resource entry style overrides
     @Getter(AccessLevel.NONE)
@@ -260,9 +266,13 @@ public class Resource implements Serializable {
      *
      * @param key   property name
      * @param value property value
+     * @deprecated Use {@link #setExtendedProp(String, Object)}. It sends objects other than strings, numbers,
+     * booleans, maps, collections and arrays as JSON objects instead of their {@code toString()}.
      */
+    @Deprecated(since = "7.3.0")
     public void addExtendedProps(String key, Object value) {
         extendedProps.put(key, value);
+        jacksonKeys.remove(key);
         pushUpdateToClient();
     }
 
@@ -272,9 +282,12 @@ public class Resource implements Serializable {
      * extended prop of a shown resource, so the client keeps the key with the value {@code undefined}.
      *
      * @param key property name to remove
+     * @deprecated Use {@link #removeExtendedProp(String)}.
      */
+    @Deprecated(since = "7.3.0")
     public void removeExtendedProps(String key) {
         extendedProps.remove(key);
+        jacksonKeys.remove(key);
         pushUpdateToClient();
     }
 
@@ -286,10 +299,93 @@ public class Resource implements Serializable {
      *
      * @param key   property name to remove
      * @param value value that must match
+     * @deprecated Compare the value in {@link #getExtendedProps()} and call {@link #removeExtendedProp(String)}.
      */
+    @Deprecated(since = "7.3.0")
     public void removeExtendedProps(String key, Object value) {
-        extendedProps.remove(key, value);
+        if (extendedProps.remove(key, value)) {
+            jacksonKeys.remove(key);
+        }
         pushUpdateToClient();
+    }
+
+    /**
+     * Sets an extended prop. An extended prop is an additional value of your own, stored under a key of your
+     * choice. Extended props do not change the regular properties of the resource, such as its title or color, and
+     * FullCalendar does not use them itself. Setting a key again overwrites the extended prop stored under that key.
+     * <p>
+     * On the client, your own JavaScript callbacks can read it as {@code resource.extendedProps.<key>}. If this
+     * resource has been added to a scheduler, the change is propagated to the client immediately.
+     * Objects other than strings, numbers, booleans, maps, collections and arrays are serialized with Jackson.
+     * Numbers other than {@code Integer} and {@code Long} are sent as doubles.
+     *
+     * @param key   property name
+     * @param value property value, can be null
+     */
+    public void setExtendedProp(String key, Object value) {
+        extendedProps.put(Objects.requireNonNull(key), value);
+        jacksonKeys.add(key);
+        pushUpdateToClient();
+    }
+
+    /**
+     * Removes an extended prop from this resource. If this resource has been added to a scheduler, the change is
+     * propagated to the client immediately. FullCalendar cannot delete an extended prop of a shown resource, so
+     * the client keeps the key with the value {@code undefined}.
+     *
+     * @param key property name to remove
+     */
+    public void removeExtendedProp(String key) {
+        extendedProps.remove(Objects.requireNonNull(key));
+        jacksonKeys.remove(key);
+        pushUpdateToClient();
+    }
+
+    /**
+     * Replaces the extended props of this resource with the entries of the given map. {@code null} clears them.
+     * If this resource has been added to a scheduler, the change is propagated to the client immediately. Like
+     * {@link #removeExtendedProp(String)}, a key that is no longer set stays on the client with the value
+     * {@code undefined}.
+     *
+     * @param extendedProps extended props
+     * @throws NullPointerException when the map contains a null key
+     * @see #setExtendedProp(String, Object)
+     */
+    public void setExtendedProps(Map<String, Object> extendedProps) {
+        Map<String, Object> copy = extendedProps != null ? new HashMap<>(extendedProps) : new HashMap<>();
+        if (copy.containsKey(null)) {
+            throw new NullPointerException("Extended props must not contain a null key");
+        }
+
+        this.extendedProps.clear();
+        this.extendedProps.putAll(copy);
+        jacksonKeys.clear();
+        jacksonKeys.addAll(copy.keySet());
+        pushUpdateToClient();
+    }
+
+    /**
+     * Returns whether an extended prop is set under the given key, also when its value is null.
+     *
+     * @param key name of the extended prop
+     * @return true if the key is set
+     */
+    public boolean hasExtendedProp(String key) {
+        return extendedProps.containsKey(key);
+    }
+
+    /**
+     * Returns the extended props of this resource. Never null.
+     * <p>
+     * Unlike in newer versions of this add-on, where the map is read-only, this map is modifiable. Change the
+     * extended props with {@link #setExtendedProp(String, Object)}, {@link #removeExtendedProp(String)} or
+     * {@link #setExtendedProps(Map)} instead, so the code also works with the read-only map and the change is
+     * sent to the client.
+     *
+     * @return extended props
+     */
+    public HashMap<String, Object> getExtendedProps() {
+        return extendedProps;
     }
 
     /**
@@ -599,11 +695,10 @@ public class Resource implements Serializable {
         }
         if (eventAllow != null) jsonObject.set("eventAllow", eventAllow.toMarkerJson());
 
-        HashMap<String, Object> extendedProps = getExtendedProps();
-        if (!extendedProps.isEmpty()) {
-            for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
-            	jsonObject.set(prop.getKey(), JsonUtils.toJsonNode(prop.getValue()));
-            }
+        for (Map.Entry<String, Object> prop : extendedProps.entrySet()) {
+            jsonObject.set(prop.getKey(), jacksonKeys.contains(prop.getKey())
+                    ? JsonUtils.toJsonNodeWithJackson(prop.getValue())
+                    : JsonUtils.toJsonNode(prop.getValue()));
         }
 
         return jsonObject;

@@ -44,7 +44,10 @@ import java.time.LocalDateTime;
  * {@link ClientSideEventSource} to enable it.
  * <br><br>
  * Client side name: externalEntryDrop
+ *
+ * @deprecated Use {@link RemoteEntryDroppedEvent}, the new name of this class. It fires for the sources of both names.
  */
+@Deprecated(since = "7.3.0")
 @DomEvent("externalEntryDrop")
 @Getter
 @ToString

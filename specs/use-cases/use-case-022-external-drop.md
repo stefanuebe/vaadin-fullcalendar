@@ -91,7 +91,7 @@ calendar.addEntryLeaveListener(event -> {
 - [ ] No dedicated unit tests — external DnD requires browser interaction
 
 ### E2E Tests
-- [x] `external-drop.spec.js` — a registered `Draggable` dropped onto the calendar fires `DropEvent` with component and entry data, and the received entry carries the custom properties of the entry data
+- [x] `external-drop.spec.js` — a registered `Draggable` dropped onto the calendar fires `DropEvent` with component and entry data, and the dropped and received entries carry the custom properties and extended props of the entry data
 
 ---
 

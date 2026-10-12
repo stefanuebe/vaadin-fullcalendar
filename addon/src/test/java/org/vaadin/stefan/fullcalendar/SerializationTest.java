@@ -103,6 +103,22 @@ public class SerializationTest {
     }
 
     @Test
+    void calendarWithRemoteEntrySourcesIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        calendar.addRemoteEntrySource(new JsonFeedEntrySource("/api/events").withEditable(true));
+        calendar.addRemoteEntrySource(new ICalendarEntrySource("/feed.ics"));
+        calendar.addRemoteEntrySource(new GoogleCalendarEntrySource("cal-id").withApiKey("api-key"));
+        assertNotNull(roundtrip(calendar));
+    }
+
+    @Test
+    void entryWithExtendedPropsIsSerializable() throws Exception {
+        Entry entry = new Entry();
+        entry.setExtendedProp("foo", "bar");
+        assertNotNull(roundtrip(entry));
+    }
+
+    @Test
     void calendarWithDraggableIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
         calendar.addDraggable(new Draggable(new com.vaadin.flow.component.html.Span("drag me")));

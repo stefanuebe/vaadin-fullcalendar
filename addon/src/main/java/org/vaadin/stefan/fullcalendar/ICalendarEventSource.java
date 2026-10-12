@@ -37,7 +37,10 @@ import java.util.Objects;
  * </pre>
  *
  * @see <a href="https://fullcalendar.io/docs/icalendar">FullCalendar iCalendar documentation</a>
+ *
+ * @deprecated Use {@link ICalendarEntrySource}, the new name of this class. It has the same methods.
  */
+@Deprecated(since = "7.3.0")
 @Getter
 public class ICalendarEventSource extends ClientSideEventSource<ICalendarEventSource> {
 

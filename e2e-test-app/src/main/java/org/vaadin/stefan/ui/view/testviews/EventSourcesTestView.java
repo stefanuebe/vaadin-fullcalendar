@@ -11,6 +11,8 @@ import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Test view for event source improvements.
@@ -21,6 +23,8 @@ import java.time.LocalDate;
  *   <li>Event source failure fires when the configured URL does not exist, and the source's own
  *   {@code withFailure} callback runs as well (it counts its calls in {@code window.userFailureCalls})</li>
  *   <li>External entry drop counter badge is present for Playwright</li>
+ *   <li>A source added with the names of 8.0 ({@link JsonFeedEntrySource}) fails as well, and the
+ *   {@link RemoteEntrySourceFailureEvent} listener receives the failures of both sources</li>
  * </ul>
  * <p>
  * Route: /test/event-sources
@@ -46,9 +50,14 @@ public class EventSourcesTestView extends VerticalLayout {
         Span failureMessage = new Span("");
         failureMessage.setId("event-source-failure-message");
 
+        // Span for the source ids the RemoteEntrySourceFailureEvent listener received
+        Span remoteFailureSources = new Span("");
+        remoteFailureSources.setId("remote-failure-sources");
+
         Div counters = new Div(
                 label("externalDrop: "), externalDropCount,
-                label(" | failureMsg: "), failureMessage
+                label(" | failureMsg: "), failureMessage,
+                label(" | remoteFailureSources: "), remoteFailureSources
         );
         add(counters);
 
@@ -65,6 +74,17 @@ public class EventSourcesTestView extends VerticalLayout {
                 .withId("failing-feed")
                 .withFailure("function(error) { window.userFailureCalls = (window.userFailureCalls || 0) + 1; }");
         calendar.addClientSideEventSource(failingSource);
+
+        // A second failing source, added with the names of 8.0
+        calendar.addRemoteEntrySource(new JsonFeedEntrySource("/test/api/event-sources/remote-events")
+                .withId("failing-remote-feed"));
+
+        calendar.addRemoteEntrySourceFailureListener(e -> {
+            TreeSet<String> ids = new TreeSet<>(List.of(remoteFailureSources.getText().split(",")));
+            ids.remove("");
+            ids.add(e.getSourceId());
+            remoteFailureSources.setText(String.join(",", ids));
+        });
 
         // Listen for event source failures
         calendar.addEventSourceFailureListener(e -> {
