@@ -50,7 +50,6 @@ instead — it is and always was the single source of truth.
 
 ## Additional links and information
 * Homepage about the FullCalendar (functionality, features, license information, etc.) visit https://fullcalendar.io/
-* GitHub profile of Carlo: https://github.com/aetasoul
 
 ## Feedback and co.
 If there are bugs or you need more features (and I'm not fast enough) feel free to contribute on GitHub. :)
