@@ -634,6 +634,21 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         return addListener(TimeslotClickedSchedulerEvent.class, (ComponentEventListener) listener);
     }
 
+    /**
+     * Registers a listener to be informed when an entry has been dropped. On the scheduler the event is always an
+     * {@link EntryDroppedSchedulerEvent}, so the listener can be added here for both calendar types. One drop is
+     * handled once by the auto-revert, independent of the number and kind of the registered listeners.
+     *
+     * @param listener listener
+     * @return registration to remove the listener
+     * @throws NullPointerException when null is passed
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public Registration addEntryDroppedListener(ComponentEventListener<EntryDroppedEvent> listener) {
+        return addEntryDroppedSchedulerListener((ComponentEventListener) listener);
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Registration addEntryDroppedSchedulerListener(ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
