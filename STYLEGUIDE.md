@@ -170,7 +170,9 @@ commit messages and issues.
 - **One kind of information per paragraph.** When a text moves on to a new kind
   of information, such as what a value does, how it is shown, a limitation, or
   when it loads, start a new paragraph: a `<p>` in Javadoc, a blank line
-  elsewhere. A summary sentence followed by one long block is hard to scan.
+  elsewhere. A summary sentence followed by one long block is hard to scan. Not
+  one block on what `ENTRY_CLASS` does and when it is applied, but a `<p>` before
+  the part on when it is applied.
 - **No lists of constants or methods inside a sentence.** Up to three names fit
   in a sentence. More go into a bullet list or a table, or are left out with a
   pointer to the Javadoc when no reader needs the full list. Not "hooks for
@@ -178,7 +180,7 @@ commit messages and issues.
   `ALL_DAY_HEADER_*` and `DAY_LANE_*`", but "hooks for the parts of a view, such as
   the now indicator and the week numbers. The Javadoc of `Option` lists them."
 - **A heading names its topic.** A reader scanning the headings must find where a
-  change is described. Not a catch-all such as "Behavior changes" or "Options"
+  topic is described. Not a catch-all such as "Behavior changes" or "Options"
   beside more specific sections, but "Removing options" or "Entry providers".
 - **The add-on is written "add-on" in prose.** Not "the addon sends the option",
   but "the add-on sends the option". Module, artifact and package names such as
@@ -191,7 +193,7 @@ commit messages and issues.
 - **The README and the wiki are written for developers who know Vaadin and
   FullCalendar.** They document what the add-on adds or changes, not how Vaadin
   works. Where they state a rule or a failure case, a short example follows.
-- **A narrowly scoped feature gets a short example where it is introduced**, also in
-  release notes, and a link to the page that covers it in detail. Not only "See
-  Features for an example", but two lines of code that set a custom toolbar button,
-  followed by the link.
+- **A narrowly scoped feature gets a short example and a link to the page that
+  covers it in detail**, wherever it is introduced, release notes included. Not
+  only "See Features for an example", but two lines of code that set a custom
+  toolbar button, followed by the link.

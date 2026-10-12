@@ -11,11 +11,11 @@ The terms a user of the add-on meets are also on the wiki page [Glossary](https:
 ### Add-on and library
 
 **Add-on**:
-This project, FullCalendar for Flow, published to the Vaadin Directory. Written "add-on" in prose. A bare version number such as "8.0" or "7.x" always means a version of the add-on, written out as "the add-on 8.0" or "FullCalendar for Flow 8.0" where it needs a name.
+This project, FullCalendar for Flow, published to the Vaadin Directory. Written "add-on" in prose. A bare version number such as "8.0" or "7.x" always means a version of the add-on. Where it needs a name, write "the add-on 8.0" or "FullCalendar for Flow 8.0".
 _Avoid_: addon (except in module, artifact and package names), FullCalendar alone or with a version, such as "FullCalendar 8.0" (ambiguous with the library)
 
 **FullCalendar library**:
-The FullCalendar JavaScript library the add-on wraps. Short "the library", or "the client" where it is set apart from the server side. Its versions always carry the word library: "the FullCalendar library 7.1" for a minor version, "the 7.x library" for a line.
+The FullCalendar JavaScript library the add-on wraps. For short it is "the library", or "the client" where it is set apart from the server side. Its versions always carry the word library: "the FullCalendar library 7.1" for a minor version, "the 7.x library" for a line.
 _Avoid_: FullCalendar 7, FC, a bare version number for the library
 
 ### Calendar content
