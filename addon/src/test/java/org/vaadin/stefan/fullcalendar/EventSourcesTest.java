@@ -397,14 +397,16 @@ public class EventSourcesTest {
     @Test
     void eventSource_allow_defaultAbsent() {
         ObjectNode json = new JsonFeedEventSource("/api").toJson();
+        assertFalse(json.has("allow"));
         assertFalse(json.has("eventAllow"));
     }
 
     @Test
     void eventSource_allow_whenSet() {
         ObjectNode json = new JsonFeedEventSource("/api").withAllow("function() { return true; }").toJson();
-        assertTrue(json.get("eventAllow").isObject());
-        assertEquals("function() { return true; }", json.get("eventAllow").get("__jsCallback").asString());
+        assertTrue(json.get("allow").isObject());
+        assertEquals("function() { return true; }", json.get("allow").get("__jsCallback").asString());
+        assertFalse(json.has("eventAllow"), "FullCalendar reads the per-source callback from 'allow' only");
     }
 
     @Test

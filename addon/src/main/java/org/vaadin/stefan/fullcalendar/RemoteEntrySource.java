@@ -97,7 +97,7 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
     private Boolean defaultAllDay;
 
     /**
-     * Per-source {@code eventAllow} JS callback. Receives {@code (dropInfo, draggedEvent)} and returns a boolean.
+     * Per-source {@code allow} JS callback. Receives {@code (dropInfo, draggedEvent)} and returns a boolean.
      */
     private JsCallback allow;
 
@@ -272,7 +272,9 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
     }
 
     /**
-     * Sets a per-source {@code eventAllow} JS callback that controls where entries can be dropped.
+     * Sets a per-source {@code allow} JS callback that controls where entries of this source can be dropped.
+     * It receives {@code (dropInfo, draggedEvent)} and returns a boolean. Like in the calendar-wide
+     * {@code eventAllow} option, the dragged entry has {@code getCustomProperty}.
      * @param jsFunction JS function string
      * @return this
      */
@@ -282,7 +284,7 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
     }
 
     /**
-     * Sets a per-source {@code eventAllow} JS callback that controls where entries can be dropped.
+     * Sets a per-source {@code allow} JS callback, see {@link #withAllow(String)}.
      * @param callback JsCallback
      * @return this
      */
@@ -372,7 +374,7 @@ public abstract class RemoteEntrySource<S extends RemoteEntrySource<S>> implemen
         if (display != null) json.put("display", display);
         if (resourceEditable != null) json.put("resourceEditable", resourceEditable);
         if (defaultAllDay != null) json.put("defaultAllDay", defaultAllDay);
-        if (allow != null) json.set("eventAllow", allow.toMarkerJson());
+        if (allow != null) json.set("allow", allow.toMarkerJson());
         if (success != null) json.set("success", success.toMarkerJson());
         if (failure != null) json.set("failure", failure.toMarkerJson());
         if (eventDataTransform != null) json.set("eventDataTransform", eventDataTransform.toMarkerJson());

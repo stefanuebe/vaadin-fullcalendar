@@ -13,7 +13,27 @@ async function gotoEventSourcesView(page) {
     await waitForVaadin(page);
 }
 
-// =============================================================================
+/**
+ * Drag the entry with the given title one day column to the right.
+ * Returns the entry's box before the drag.
+ */
+async function dragToNextDay(page, title) {
+    const entry = page.locator(`.fc-event:has-text("${title}")`).first();
+    await expect(entry).toBeVisible({ timeout: 10000 });
+    await entry.scrollIntoViewIfNeeded();
+    const box = await entry.boundingBox();
+    if (!box) throw new Error(`Could not get bounding box for ${title}`);
+    const startX = box.x + box.width / 2;
+    const startY = box.y + box.height / 2;
+
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    // ~120px reaches the next day column in timeGridWeek
+    await page.mouse.move(startX + 120, startY, { steps: 10 });
+    await page.mouse.up();
+    await waitForVaadin(page);
+    return box;
+}
 
 // =============================================================================
 
@@ -69,6 +89,30 @@ test.describe('Event Source Improvements', () => {
 
     test('event-source-failure-message span is present', async ({ page }) => {
         await expect(page.locator('#event-source-failure-message')).toBeVisible();
+    });
+
+    // -------------------------------------------------------------------------
+    // Per-source allow callback (#303)
+    // -------------------------------------------------------------------------
+
+    test('an entry whose source allow callback returns true is dropped', async ({ page }) => {
+        await dragToNextDay(page, 'Allowed Drag');
+        await expect(page.locator('#remote-drop-count')).toHaveText('1');
+    });
+
+    test('an entry whose source allow callback returns false snaps back', async ({ page }) => {
+        const before = await dragToNextDay(page, 'Blocked Drag');
+
+        // FullCalendar asked the source's callback, with the custom API on the dragged entry
+        expect(await page.evaluate(() => window.blockedAllowCalls)).toBeGreaterThan(0);
+        expect(await page.evaluate(() => window.blockedAllowHasCustomApi)).toBe(true);
+
+        const blocked = page.locator('.fc-event:has-text("Blocked Drag")').first();
+        await expect.poll(async () => (await blocked.boundingBox())?.x).toBeCloseTo(before.x, 0);
+
+        // A drop that reaches the server afterwards proves the blocked one sent nothing
+        await dragToNextDay(page, 'Allowed Drag');
+        await expect(page.locator('#remote-drop-count')).toHaveText('1');
     });
 
 });
