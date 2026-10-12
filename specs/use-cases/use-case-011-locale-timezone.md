@@ -80,7 +80,8 @@ calendar.addBrowserTimezoneObtainedListener(event -> {
 - [ ] `TimezoneTests` — timezone conversion
 
 ### E2E Tests
-- [ ] No dedicated E2E tests for locale/timezone — coverage gap. Visual verification recommended.
+- [x] `all-day-dst.spec.js`: the end of an all-day entry without end is the next day on the 25-hour DST day (#274)
+- [ ] No other E2E tests for locale/timezone — coverage gap. Visual verification recommended.
 
 ---
 
