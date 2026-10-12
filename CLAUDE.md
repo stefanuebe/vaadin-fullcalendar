@@ -36,6 +36,7 @@ tracker, see `docs/agents/issue-tracker.md`. Decisions with their reasons are in
   | Multi-file integration / pattern matching | Sonnet |
   | Per-phase code-quality or spec-compliance review | Sonnet |
   | Final whole-branch / holistic / deep design review | Opus or better |
+  | Language review of wiki and other user docs (does it read well, does it follow *Writing*) | Opus or better |
 
 ## Working conventions
 
