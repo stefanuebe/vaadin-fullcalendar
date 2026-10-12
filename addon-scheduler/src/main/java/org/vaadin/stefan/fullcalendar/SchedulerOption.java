@@ -81,7 +81,7 @@ public enum SchedulerOption {
      *
      * @deprecated use {@link #ENTRY_RESOURCE_EDITABLE}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
 
     /**

@@ -12,7 +12,7 @@ import tools.jackson.databind.JsonNode;
  * @see org.vaadin.stefan.fullcalendar.Option#HEADER_TOOLBAR
  * @see org.vaadin.stefan.fullcalendar.Option#FOOTER_TOOLBAR
  */
-@Deprecated(since = "8.0.0", forRemoval = true)
+@Deprecated(since = "7.3.0", forRemoval = true)
 public class ToolbarConverter implements JsonItemPropertyConverter<AbstractHeaderFooter, Object> {
 
     @Override

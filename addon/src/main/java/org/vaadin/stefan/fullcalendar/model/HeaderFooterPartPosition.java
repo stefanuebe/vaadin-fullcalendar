@@ -28,7 +28,7 @@ import lombok.Getter;
  * {@link org.vaadin.stefan.fullcalendar.NativeToolbarParts} has constants for the positions and the built-in buttons.
  * This model knows only some of the buttons. View and custom buttons cannot be expressed with it, therefore it is deprecated.
  */
-@Deprecated(since = "8.0.0", forRemoval = true)
+@Deprecated(since = "7.3.0", forRemoval = true)
 @Getter
 public enum HeaderFooterPartPosition {
 	START("start"),
