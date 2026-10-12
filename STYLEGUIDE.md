@@ -197,3 +197,29 @@ commit messages and issues.
   covers it in detail**, wherever it is introduced, release notes included. Not
   only "See Features for an example", but two lines of code that set a custom
   toolbar button, followed by the link.
+
+### Release notes and migration guides
+
+Applies to the wiki pages `Release-notes-<version>` and `Migration-guide-<from>-to-<to>`.
+
+- **A version knows no later version.** The pages of a version read as if no later
+  version exists, and so does the Javadoc of its version line. A later version may
+  refer back to an earlier one, never the other way round. Deprecated API says
+  "removed in a future major version" at most. Not "removed in 8.0" or "works the
+  same way in 8.0" on a 7.x page.
+- **Release notes say what changed.** New features come first. Each gets a short
+  intro that says what it is and why a reader cares, then an example, then the
+  details. Deprecations and fixes follow. Where a reader has to act, the release
+  notes link to the migration guide instead of repeating the steps.
+- **Say honestly what is new.** A rename is presented as a rename, with the old
+  name beside the new one ("`JsonFeedEntrySource`, formerly
+  `JsonFeedEventSource`"), not as a new feature. API that existed before is not
+  presented as new. A deprecation gives its reason, also when the reason is that
+  the add-on does not want to maintain the old API.
+- **The migration guide says what to do.** It holds the complete table of
+  deprecated API and its replacement, which no other page repeats. Names are
+  written out in full, so a reader can search their code for them. Not
+  "`_END_PARAM`", but "`EXTERNAL_EVENT_SOURCE_END_PARAM`". Each area gets a
+  before-and-after example, with the old code in a `// was:` comment.
+- **A note that stands apart from the text is a quote with a label**, as in
+  `> **Note:** …`.
