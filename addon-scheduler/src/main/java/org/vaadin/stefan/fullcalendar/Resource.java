@@ -377,10 +377,10 @@ public class Resource implements Serializable {
     /**
      * Returns the extended props of this resource. Never null.
      * <p>
-     * Unlike in newer versions of this add-on, where the map is read-only, this map is modifiable. Change the
-     * extended props with {@link #setExtendedProp(String, Object)}, {@link #removeExtendedProp(String)} or
-     * {@link #setExtendedProps(Map)} instead, so the code also works with the read-only map and the change is
-     * sent to the client.
+     * The map is modifiable, but a change to it reaches the client only with
+     * {@link Scheduler#updateResource(Resource)}. Change the extended props with
+     * {@link #setExtendedProp(String, Object)}, {@link #removeExtendedProp(String)} or
+     * {@link #setExtendedProps(Map)} instead, which send the change to the client at once.
      *
      * @return extended props
      */
