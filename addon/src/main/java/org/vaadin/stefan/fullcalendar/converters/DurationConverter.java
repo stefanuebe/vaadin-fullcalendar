@@ -30,6 +30,9 @@ public class DurationConverter implements JsonItemPropertyConverter<Object, Obje
 
     private static final DateTimeFormatter LOCAL_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
 
+    // FC-UPDATE: check this pattern against the client's duration parsing, especially on a major update. If the
+    // client format changes, durations read back from the client, such as on an external drop, are read wrongly
+    // or become null.
     /** The client's duration string format, matched from the start like the client does. */
     private static final Pattern CLIENT_FORMAT = Pattern.compile("(-?)(?:(\\d+)\\.)?(\\d+):(\\d\\d)(?::(\\d\\d)(?:\\.(\\d\\d\\d))?)?");
 

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -101,5 +102,42 @@ class EntryQueryTest {
 
         assertTrue(matches(entry, null, LocalDateTime.of(2025, 3, 2, 1, 1)));
         assertFalse(matches(entry, null, LocalDateTime.of(2025, 3, 2, 1, 0)));
+    }
+
+    @Test
+    void recurringDuration_extendsTheEndBoundary() {
+        // #310: the last occurrence starts on Monday 2025-03-10 and lasts until Thursday 2025-03-13
+        Entry entry = recurring();
+        entry.setRecurringEndDate(LocalDate.of(2025, 3, 11));
+        entry.setRecurringDuration(Duration.ofHours(72));
+
+        assertTrue(matches(entry, LocalDateTime.of(2025, 3, 12, 0, 0), LocalDateTime.of(2025, 3, 13, 0, 0)));
+
+        // boundary: end of the end date plus the duration
+        assertTrue(matches(entry, LocalDateTime.of(2025, 3, 14, 23, 59, 58), null));
+        assertFalse(matches(entry, LocalDateTime.of(2025, 3, 14, 23, 59, 59), null));
+    }
+
+    @Test
+    void recurringDurationWithEndTime_extendsFromThatTime() {
+        Entry entry = recurring();
+        entry.setRecurringEndDate(LocalDate.of(2025, 3, 11));
+        entry.setRecurringEndTime(LocalTime.of(10, 30));
+        entry.setRecurringDuration(Duration.ofHours(2));
+
+        assertTrue(matches(entry, LocalDateTime.of(2025, 3, 11, 12, 29), null));
+        assertFalse(matches(entry, LocalDateTime.of(2025, 3, 11, 12, 30), null));
+    }
+
+    @Test
+    void recurringDurationZeroOrNegative_keepsTheEndBoundary() {
+        for (Duration duration : new Duration[]{Duration.ZERO, Duration.ofHours(-5)}) {
+            Entry entry = recurring();
+            entry.setRecurringEndDate(LocalDate.of(2025, 3, 31));
+            entry.setRecurringDuration(duration);
+
+            assertTrue(matches(entry, LocalDateTime.of(2025, 3, 31, 23, 59, 58), null), duration::toString);
+            assertFalse(matches(entry, LocalDateTime.of(2025, 3, 31, 23, 59, 59), null), duration::toString);
+        }
     }
 }

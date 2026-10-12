@@ -5,6 +5,7 @@ import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.RecurringTime;
 import org.vaadin.stefan.fullcalendar.Timezone;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -64,11 +65,11 @@ public class EntryQuery {
         if (start != null) {
             stream = stream.filter(e -> {
                 if (e.isRecurring()) {
-                    LocalDateTime recurringEnd = recurringEnd(e);
+                    LocalDateTime lastRecurrence = lastRecurrence(e);
 
                     // recurring entries that have no end may go indefinitely into the future, so we return
                     // them always
-                    return recurringEnd == null || recurringEnd.isAfter(start);
+                    return lastRecurrence == null || lastRecurrence.isAfter(start);
                 }
 
                 LocalDateTime entryEnd = e.getEnd();
@@ -84,11 +85,11 @@ public class EntryQuery {
         if (end != null) {
             stream = stream.filter(e -> {
                 if (e.isRecurring()) {
-                    LocalDateTime recurringStart = recurringStart(e);
+                    LocalDateTime firstRecurrence = firstRecurrence(e);
 
                     // recurring entries that have no start may go indefinitely into the past, so we return
                     // them always
-                    return recurringStart == null || recurringStart.isBefore(end);
+                    return firstRecurrence == null || firstRecurrence.isBefore(end);
                 }
 
                 return e.getStart() != null && e.getStart().isBefore(end);
@@ -108,10 +109,11 @@ public class EntryQuery {
     }
 
     /**
-     * Combines the recurring start date and time. {@code null} when there is no start date, start of day when
-     * there is no start time.
+     * The first point in time the recurrence of the entry may cover, used by the filter as its lower boundary. It is
+     * the recurring start date at the recurring start time, or at the start of that day when there is no start time.
+     * {@code null} when there is no start date, so the recurrence has no lower boundary.
      */
-    private static LocalDateTime recurringStart(Entry e) {
+    private static LocalDateTime firstRecurrence(Entry e) {
         LocalDate startDate = e.getRecurringStartDate();
         if (startDate == null) {
             return null;
@@ -126,22 +128,26 @@ public class EntryQuery {
     }
 
     /**
-     * Combines the recurring end date and time. {@code null} when there is no end date, the last second of that
-     * day when there is no end time. The client treats the end date as exclusive, so the filter may let through
-     * a recurring entry that ends the day before the range. The client does not show it.
+     * The last point in time the recurrence of the entry may cover, used by the filter as its upper boundary. It is
+     * the recurring end date at the recurring end time, or the last second of that day when there is no end time.
+     * A positive recurring duration is added, so an occurrence that lasts beyond the end date is found.
+     * {@code null} when there is no end date, so the recurrence has no upper boundary. The client treats the end date
+     * as exclusive, so the filter may let through a recurring entry that ends the day before the range. The client
+     * does not show it.
      */
-    private static LocalDateTime recurringEnd(Entry e) {
+    private static LocalDateTime lastRecurrence(Entry e) {
         LocalDate endDate = e.getRecurringEndDate();
         if (endDate == null) {
             return null;
         }
 
         RecurringTime endTime = e.getRecurringEndTime();
-        if (endTime == null) {
-            return endDate.plusDays(1).atStartOfDay().minusSeconds(1);
-        }
+        LocalDateTime last = endTime == null
+                ? endDate.plusDays(1).atStartOfDay().minusSeconds(1)
+                : endDate.atStartOfDay().plusHours(endTime.getHour()).plusMinutes(endTime.getMinute());
 
-        return endDate.atStartOfDay().plusHours(endTime.getHour()).plusMinutes(endTime.getMinute());
+        Duration duration = e.getRecurringDuration();
+        return duration != null && duration.isPositive() ? last.plus(duration) : last;
     }
 
     public enum AllDay {

@@ -1177,9 +1177,9 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
-     * as recurring and removes the {@link RRule}. Passing null or an empty set removes the days of week and keeps
-     * the {@link RRule}.
+     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry as
+     * recurring. An {@link RRule} set before is removed completely, including its excluded dates and rules. Passing
+     * null or an empty set removes only the days of week and leaves an {@link RRule} untouched.
      *
      * @param daysOfWeek day of week
      * @see #isRecurring()
@@ -1189,9 +1189,9 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry
-     * as recurring and removes the {@link RRule}. Passing null or an empty set removes the days of week and keeps
-     * the {@link RRule}.
+     * Sets days of week on which this entry shall recur. Setting a non empty set automatically marks this entry as
+     * recurring. An {@link RRule} set before is removed completely, including its excluded dates and rules. Passing
+     * null or an empty set removes only the days of week and leaves an {@link RRule} untouched.
      *
      * @param daysOfWeek days of week
      * @see #isRecurring()
@@ -1204,8 +1204,8 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the first date of the recurrence. Passing a non null value automatically marks this entry as recurring
-     * and removes the {@link RRule}.
+     * Sets the first date of the recurrence. Passing a non null value automatically marks this entry as recurring. An
+     * {@link RRule} set before is removed completely, including its excluded dates and rules.
      *
      * @param recurringStartDate first date of the recurrence
      * @see #isRecurring()
@@ -1219,7 +1219,7 @@ public class Entry implements Serializable {
 
     /**
      * Sets the date the recurrence ends (exclusive). Passing a non null value automatically marks this entry as
-     * recurring and removes the {@link RRule}.
+     * recurring. An {@link RRule} set before is removed completely, including its excluded dates and rules.
      *
      * @param recurringEndDate end date of the recurrence, exclusive
      * @see #isRecurring()
@@ -1259,9 +1259,9 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring and removes the {@link RRule}. Passing null may remove the recurrence or let the recurring
-     * entry extend to the end of day.
+     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry as recurring.
+     * An {@link RRule} set before is removed completely, including its excluded dates and rules. Passing null may
+     * remove the recurrence or let the recurring entry extend to the end of day.
      *
      * @param start start time
      * @see #isRecurring()
@@ -1274,9 +1274,9 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring and removes the {@link RRule}. Passing null may remove the recurrence or let the recurring
-     * entry extend to the end of day.
+     * Sets the start time for a recurring entry. Passing a non null value automatically marks this entry as recurring.
+     * An {@link RRule} set before is removed completely, including its excluded dates and rules. Passing null may
+     * remove the recurrence or let the recurring entry extend to the end of day.
      *
      * @param start start time
      * @see #isRecurring()
@@ -1309,9 +1309,9 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring and removes the {@link RRule}. Passing null may remove the recurrence or let the recurring
-     * entry extend to the end of day.
+     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry as recurring. An
+     * {@link RRule} set before is removed completely, including its excluded dates and rules. Passing null may remove
+     * the recurrence or let the recurring entry extend to the end of day.
      *
      * @param end end time
      * @see #isRecurring()
@@ -1324,9 +1324,9 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry
-     * as recurring and removes the {@link RRule}. Passing null may remove the recurrence or let the recurring
-     * entry extend to the end of day.
+     * Sets the end time for a recurring entry. Passing a non null value automatically marks this entry as recurring. An
+     * {@link RRule} set before is removed completely, including its excluded dates and rules. Passing null may remove
+     * the recurrence or let the recurring entry extend to the end of day.
      *
      * @param end end time
      * @see #isRecurring()

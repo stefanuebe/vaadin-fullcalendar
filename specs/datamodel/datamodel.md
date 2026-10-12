@@ -136,7 +136,7 @@ Provides entries to the calendar. Two implementations:
 
 | Provider | Description | When to use |
 |----------|-------------|-------------|
-| `InMemoryEntryProvider` | All entries sent to client; client handles filtering | Small datasets (< few thousand entries) |
+| `InMemoryEntryProvider` | Entries held in memory and filtered per visible date range on the server (`EntryQuery`) | Small datasets (< few thousand entries) |
 | `CallbackEntryProvider` | Entries fetched lazily per visible date range via callback | Large datasets or database-backed calendars |
 
 ### Remote Entry Sources
