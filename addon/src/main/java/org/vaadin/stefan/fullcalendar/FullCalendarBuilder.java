@@ -46,21 +46,28 @@ import java.util.*;
  *   <tr><td>{@code .withInitialOptions(obj).build()}</td>
  *       <td>{@code new FullCalendar(obj)} / {@code new FullCalendarScheduler(obj)}</td></tr>
  *   <tr><td>{@code .withEntryLimit(n).build()}</td>
- *       <td>{@code new FullCalendar()} + {@code setOption(Option.MAX_ENTRIES_PER_DAY, n)}</td></tr>
+ *       <td>{@code new FullCalendar()} + {@code setOption(Option.DAY_MAX_ENTRIES, n)}</td></tr>
  *   <tr><td>{@code .withEntryProvider(p).build()}</td>
  *       <td>{@code new FullCalendar()} + {@code setEntryProvider(p)}</td></tr>
  *   <tr><td>{@code .withInitialEntries(entries).build()}</td>
  *       <td>{@code new FullCalendar()} + {@code ((InMemoryEntryProvider<Entry>) calendar.getEntryProvider()).addEntries(entries)}</td></tr>
  *   <tr><td>{@code .withInitialView(view).build()}</td>
  *       <td>{@code new FullCalendar()} + {@code setOption(Option.INITIAL_VIEW, view.getClientSideValue())}</td></tr>
- *   <tr><td>{@code .withLocale(l)} / {@code .withTimezone(t)} / {@code .withBusinessHours(h)}</td>
- *       <td>{@code setLocale(l)} / {@code setTimezone(t)} / {@code setBusinessHours(h)} on the calendar</td></tr>
+ *   <tr><td>{@code .withLocale(l)}</td>
+ *       <td>{@code setOption(Option.LOCALE, l)}</td></tr>
+ *   <tr><td>{@code .withTimezone(t)}</td>
+ *       <td>{@code setTimezone(t)}</td></tr>
+ *   <tr><td>{@code .withBusinessHours(h)}</td>
+ *       <td>{@code setOption(Option.BUSINESS_HOURS, h)}</td></tr>
  *   <tr><td>{@code .withDirection(d).build()}</td>
  *       <td>{@code setOption(Option.DIRECTION, d.getClientSideValue())}</td></tr>
+ *   <tr><td>{@code .withEntryContent(js).build()}</td>
+ *       <td>{@code setOption(Option.ENTRY_CONTENT, JsCallback.of(js))}</td></tr>
  *   <tr><td>{@code .withAutoBrowserTimezone().build()}</td>
- *       <td>{@code addBrowserTimezoneObtainedListener(e -> calendar.setTimezone(e.getTimezone()))}</td></tr>
+ *       <td>{@code withAutoBrowserTimezone()} on the calendar</td></tr>
  *   <tr><td>{@code .withAutoBrowserLocale().build()}</td>
- *       <td>{@code setLocale(UI.getCurrent().getLocale())} (after UI is available)</td></tr>
+ *       <td>{@code withAutoUiLocale()} on the calendar. It sets the UI locale on attach and follows
+ *       {@code UI.setLocale}</td></tr>
  *   <tr><td>{@code .withCustomCalendarViews(views).build()}</td>
  *       <td>{@code setCustomCalendarViews(views)}</td></tr>
  *   <tr><td>{@code .withCustomType(Cls.class).build()}</td>
@@ -110,6 +117,8 @@ public class FullCalendarBuilder {
      *
      * @param initialEntries initial entries
      * @return this instance
+     * @deprecated Construct the calendar directly and call {@code ((InMemoryEntryProvider<Entry>)
+     * calendar.getEntryProvider()).addEntries(entries)}, as long as the default in-memory entry provider is in place.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withInitialEntries(Collection<Entry> initialEntries) {
@@ -124,6 +133,7 @@ public class FullCalendarBuilder {
      *
      * @param customType custom type to be used
      * @return this instance
+     * @deprecated Construct the custom type directly.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withCustomType(Class<? extends FullCalendar> customType) {
@@ -137,6 +147,7 @@ public class FullCalendarBuilder {
      *
      * @param entryProvider entry provider to be used
      * @return this instance
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#setEntryProvider(EntryProvider)}.
      */
     @SuppressWarnings("unchecked")
     @Deprecated(since = "7.2.0")
@@ -153,6 +164,7 @@ public class FullCalendarBuilder {
      * the build will fail.
      *
      * @return this instance
+     * @deprecated Construct a {@code FullCalendarScheduler} directly.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withScheduler() {
@@ -168,6 +180,8 @@ public class FullCalendarBuilder {
      *
      * @param licenseKey scheduler license key to be used
      * @return this instance
+     * @deprecated Construct a {@code FullCalendarScheduler} directly and call {@code
+     * setOption(SchedulerOption.LICENSE_KEY, licenseKey)}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withScheduler(String licenseKey) {
@@ -184,6 +198,8 @@ public class FullCalendarBuilder {
      *
      * @param entryLimit limit
      * @return this instance
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#setOption(FullCalendar.Option,
+     * Object)} with {@link FullCalendar.Option#DAY_MAX_ENTRIES}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withEntryLimit(int entryLimit) {
@@ -195,6 +211,7 @@ public class FullCalendarBuilder {
      * Sets automatically the browser timezone as timezone for this instance.
      *
      * @return this instance
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#withAutoBrowserTimezone()}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withAutoBrowserTimezone() {
@@ -207,6 +224,9 @@ public class FullCalendarBuilder {
      * {@link UI#getLocale()} to obtain the value. This might change in future, if necessary.
      *
      * @return this instance
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#withAutoUiLocale()}. Unlike this
+     * method, which takes the UI locale once when the calendar is built, it sets the UI locale on attach and follows
+     * later changes of the UI locale.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withAutoBrowserLocale() {
@@ -241,6 +261,8 @@ public class FullCalendarBuilder {
      * @return this instance
      * @throws NullPointerException when null is passed
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
+     * @deprecated Use the constructor that takes the initial options, {@link FullCalendar#FullCalendar(ObjectNode)}
+     * or the one of {@code FullCalendarScheduler}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withInitialOptions(ObjectNode initialOptions) {
@@ -297,6 +319,8 @@ public class FullCalendarBuilder {
      * If you register a custom view via this method, an anonymous custom view with the same name in the initial options will be ignored.
      * @param customCalendarViews custom calendar views
      * @return this instance
+     * @deprecated Construct the calendar directly and call {@link
+     * FullCalendar#setCustomCalendarViews(CustomCalendarView...)}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withCustomCalendarViews(CustomCalendarView... customCalendarViews) {
@@ -310,6 +334,8 @@ public class FullCalendarBuilder {
      * @param view initial calendar view
      * @return this instance
      * @throws NullPointerException when null is passed
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#setOption(FullCalendar.Option,
+     * Object)} with {@link FullCalendar.Option#INITIAL_VIEW} and {@code view.getClientSideValue()}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withInitialView(CalendarView view) {
@@ -323,6 +349,8 @@ public class FullCalendarBuilder {
      * @param locale locale
      * @return this instance
      * @throws NullPointerException when null is passed
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#setOption(FullCalendar.Option,
+     * Object)} with {@link FullCalendar.Option#LOCALE}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withLocale(Locale locale) {
@@ -336,6 +364,7 @@ public class FullCalendarBuilder {
      * @param timezone timezone
      * @return this instance
      * @throws NullPointerException when null is passed
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#setTimezone(Timezone)}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withTimezone(Timezone timezone) {
@@ -349,6 +378,8 @@ public class FullCalendarBuilder {
      * @param hours business hours
      * @return this instance
      * @throws NullPointerException when null is passed
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#setOption(FullCalendar.Option,
+     * Object)} with {@link FullCalendar.Option#BUSINESS_HOURS}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withBusinessHours(BusinessHours... hours) {
@@ -362,6 +393,8 @@ public class FullCalendarBuilder {
      * @param direction text direction
      * @return this instance
      * @throws NullPointerException when null is passed
+     * @deprecated Construct the calendar directly and call {@link FullCalendar#setOption(FullCalendar.Option,
+     * Object)} with {@link FullCalendar.Option#DIRECTION} and {@code direction.getClientSideValue()}.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarBuilder withDirection(Direction direction) {
@@ -374,6 +407,8 @@ public class FullCalendarBuilder {
      * instance might be a subclass of {@link FullCalendar}.
      *
      * @return FullCalendar instance
+     * @deprecated Construct {@link FullCalendar} or {@code FullCalendarScheduler} directly, see the class
+     * description.
      */
     @SuppressWarnings("unchecked")
     @Deprecated(since = "7.2.0")

@@ -67,3 +67,47 @@ test.describe('Scheduler updateResource — extended props', () => {
             .toEqual({ department: '<undefined>', floor: '<undefined>', building: 'B' });
     });
 });
+
+test.describe('Resource extended prop methods of 8.0', () => {
+    // undefined values are reported as a marker, see the describe block above
+    const readExtendedProps = (page) =>
+        page.evaluate(() => {
+            const calendarEl = document.querySelector('[data-testid="calendar"]');
+            // @ts-ignore — custom element exposes FC's internal Calendar instance
+            const props = calendarEl.calendar.getResourceById('r2').extendedProps;
+            return Object.fromEntries(Object.entries(props)
+                .map(([key, value]) => [key, value === undefined ? '<undefined>' : value]));
+        });
+
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/test/update-resource-extended-props');
+        await page.waitForSelector('.fc-timeline', { timeout: 15000 });
+        await waitForVaadin(page);
+    });
+
+    test('setExtendedProp sends an object as JSON object', async ({ page }) => {
+        expect(await readExtendedProps(page))
+            .toEqual({ department: 'Engineering', location: { building: 'A', floor: 2 } });
+    });
+
+    test('setExtendedProp reaches the client', async ({ page }) => {
+        await page.locator('[data-testid="btn-change-dept-r2"]').click();
+
+        await expect.poll(() => readExtendedProps(page))
+            .toEqual({ department: 'Marketing', location: { building: 'A', floor: 2 } });
+    });
+
+    test('removeExtendedProp leaves the key undefined on the client', async ({ page }) => {
+        await page.locator('[data-testid="btn-remove-dept-r2"]').click();
+
+        await expect.poll(() => readExtendedProps(page))
+            .toEqual({ department: '<undefined>', location: { building: 'A', floor: 2 } });
+    });
+
+    test('setExtendedProps replaces all extended props on the client', async ({ page }) => {
+        await page.locator('[data-testid="btn-replace-props-r2"]').click();
+
+        await expect.poll(() => readExtendedProps(page))
+            .toEqual({ department: '<undefined>', location: '<undefined>', building: 'B' });
+    });
+});

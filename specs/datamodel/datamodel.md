@@ -39,7 +39,7 @@ The primary data object representing a calendar entry (FC "event"). All entries 
 | `recurringEndDate` | `LocalDate` | End bound for recurrence range |
 | `recurringDuration` | `String` | Duration for multi-day recurring all-day entries (ISO 8601 string, e.g., `"P2D"`) |
 | `rrule` | `RRule` | RFC 5545 recurrence rule |
-| `customProperties` | `Map<String, Object>` | Arbitrary data accessible in JS callbacks via `setCustomProperty(key, value)` |
+| `extendedProps` | `Map<String, Object>` | Values of your own, sent as the entry's `extendedProps` (`setExtendedProp(key, value)`). The deprecated custom properties (`setCustomProperty(key, value)`) are the extended prop `customProperties` |
 
 **Serialization**: `Entry.toJson()` uses reflection-based `BeanProperties` with `@JsonName`, `@JsonConverter`, and `@JsonIgnore` annotations.
 
@@ -68,7 +68,7 @@ Represents a schedulable resource (room, person, equipment). Supports hierarchic
 | `children` | `Set<Resource>` | Child resources (hierarchical) |
 | `parent` | `Resource` | Parent resource (null for top-level) |
 | `businessHoursArray` | `BusinessHours[]` | Per-resource business hours |
-| `extendedProps` | `Map<String, Object>` | Custom properties |
+| `extendedProps` | `Map<String, Object>` | Values of your own (`setExtendedProp(key, value)`), sent as top-level keys of the resource |
 | `entryBackgroundColor` | `String` | Per-resource entry background color (Java setter: `setEntryBackgroundColor()`) |
 | `entryBorderColor` | `String` | Per-resource entry border color (Java setter: `setEntryBorderColor()`) |
 | `entryTextColor` | `String` | Per-resource entry text color (Java setter: `setEntryTextColor()`) |

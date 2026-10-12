@@ -52,7 +52,7 @@ public class ComponentColumnsDemo extends VerticalLayout {
         scheduler.setOption(FullCalendar.Option.ENTRY_DURATION_EDITABLE, true);
         scheduler.setOption(FullCalendar.Option.EDITABLE, true);
         // Disable cross-resource dragging
-        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCES_EDITABLE, false);
+        scheduler.setOption(FullCalendarScheduler.SchedulerOption.ENTRY_RESOURCE_EDITABLE, false);
         // Wider resource area to fit both date picker columns
         scheduler.setOption(FullCalendarScheduler.SchedulerOption.RESOURCE_AREA_WIDTH, "500px");
         // Taller rows for date pickers

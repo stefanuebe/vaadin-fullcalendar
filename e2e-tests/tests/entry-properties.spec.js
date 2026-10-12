@@ -210,4 +210,35 @@ base.describe('Entry Properties — Visual Effects', () => {
             await expect(propsEntry).toHaveAttribute('data-absent', 'missing');
         });
     });
+
+    base.describe('Extended props', () => {
+
+        base('custom properties arrive as the single extended prop customProperties', async ({ page }) => {
+            const propsEntry = page.locator('.fc-event:has-text("Has Props")').first();
+            await expect(propsEntry).toHaveAttribute('data-extended-keys', 'customProperties');
+        });
+
+        base('extended props are readable in entryDidMount under extendedProps', async ({ page }) => {
+            const extendedPropsEntry = page.locator('.fc-event:has-text("Extended Props")').first();
+            await expect(extendedPropsEntry).toHaveAttribute('data-extended-department', 'Engineering');
+            await expect(extendedPropsEntry).toHaveAttribute('data-extended-keys', 'department,priority');
+        });
+
+        base('no other entry field ends up in extendedProps', async ({ page }) => {
+            const allFields = page.locator('.fc-event:has-text("All Fields")').first();
+            await expect(allFields).toHaveAttribute('data-extended-keys', 'department');
+        });
+
+        base('a removed extended prop disappears on the client after refreshItem', async ({ page }) => {
+            await expect(page.locator('.fc-event:has-text("Extended Props")').first())
+                .toHaveAttribute('data-extended-keys', 'department,priority');
+
+            await page.locator('#remove-department').click();
+            await waitForVaadin(page);
+
+            const refreshed = page.locator('.fc-event:has-text("Extended Props")').first();
+            await expect(refreshed).toHaveAttribute('data-extended-keys', 'priority');
+            await expect(refreshed).not.toHaveAttribute('data-extended-department');
+        });
+    });
 });

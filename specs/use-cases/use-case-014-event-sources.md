@@ -29,33 +29,39 @@
 
 ```java
 // JSON feed
-JsonFeedEventSource json = new JsonFeedEventSource("https://api.example.com/events");
+JsonFeedEntrySource json = new JsonFeedEntrySource("https://api.example.com/events");
 json.withEditable(true); // allow DnD
-calendar.addClientSideEventSource(json);
+calendar.addRemoteEntrySource(json);
 
 // Google Calendar
-GoogleCalendarEventSource google = new GoogleCalendarEventSource("calId@gmail.com");
+GoogleCalendarEntrySource google = new GoogleCalendarEntrySource("calId@gmail.com");
 google.withApiKey("YOUR_KEY");
-calendar.addClientSideEventSource(google);
+calendar.addRemoteEntrySource(google);
 
 // iCalendar
-ICalendarEventSource ical = new ICalendarEventSource("https://example.com/cal.ics");
-calendar.addClientSideEventSource(ical);
+ICalendarEntrySource ical = new ICalendarEntrySource("https://example.com/cal.ics");
+calendar.addRemoteEntrySource(ical);
 
 // Remove source — two patterns:
 // 1. Via Registration (preferred when you have the reference)
-Registration reg = calendar.addClientSideEventSource(json);
+Registration reg = calendar.addRemoteEntrySource(json);
 reg.remove();
 // 2. Via source ID (when Registration reference is not available)
-calendar.removeClientSideEventSource(json.getId());
+calendar.removeRemoteEntrySource(json.getId());
 
 // Handle DnD of external entries
-calendar.addExternalEntryDroppedListener(event -> { ... });
-calendar.addExternalEntryResizedListener(event -> { ... });
+calendar.addRemoteEntryDroppedListener(event -> { ... });
+calendar.addRemoteEntryResizedListener(event -> { ... });
 
 // Handle source failures
-calendar.addEventSourceFailureListener(event -> { ... });
+calendar.addRemoteEntrySourceFailureListener(event -> { ... });
 ```
+
+Since 7.3.0 the sources carry the names of 8.0. The former names (`ClientSideEventSource`, `JsonFeedEventSource`,
+`GoogleCalendarEventSource`, `ICalendarEventSource`, `addClientSideEventSource` and the other `*ClientSideEventSource*`
+methods, `EventSourceFailureEvent`, `ExternalEntry*Event`) are deprecated and keep working. `ClientSideEventSource`
+extends `RemoteEntrySource`, so sources of both names share one list, and the listeners of both names receive the
+events of all sources.
 
 ---
 
@@ -65,10 +71,10 @@ calendar.addEventSourceFailureListener(event -> { ... });
 |----|------|
 | BR-01 | Client-side entries are read-only by default (`editable = false`) |
 | BR-02 | `withEditable(true)` enables DnD/resize for entries from that source |
-| BR-03 | External entries fire `ExternalEntryDroppedEvent` / `ExternalEntryResizedEvent` (not server-managed counterparts) |
+| BR-03 | External entries fire `RemoteEntryDroppedEvent` / `RemoteEntryResizedEvent` (not server-managed counterparts) |
 | BR-04 | JSON feed receives `start`, `end`, `timeZone` query parameters (configurable) |
 | BR-05 | Google Calendar requires an API key (per-source or global) |
-| BR-06 | Source failures fire `EventSourceFailureEvent`. A callback set with `withFailure` runs first |
+| BR-06 | Source failures fire `RemoteEntrySourceFailureEvent`. A callback set with `withFailure` runs first |
 
 ---
 
@@ -89,9 +95,10 @@ calendar.addEventSourceFailureListener(event -> { ... });
 
 ### Unit Tests
 - [ ] `EventSourcesTest` — source construction and properties
+- [x] `RemoteEntrySourcesTest` — the same for the names of 8.0, and old and new names side by side
 
 ### E2E Tests
-- [x] `event-sources.spec.js` — load failure reaches the server listener and the `withFailure` callback
+- [x] `event-sources.spec.js` — load failure reaches the server listener and the `withFailure` callback, and the listener of the new name receives the failures of sources of both names
 
 ---
 

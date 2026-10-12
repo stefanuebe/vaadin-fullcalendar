@@ -48,6 +48,10 @@ test.describe('Event Source Improvements', () => {
         await expect(page.locator('#event-source-failure-message')).not.toHaveText('', { timeout: 10000 });
     });
 
+    test('the failure listener of the new name receives the failures of sources of both names', async ({ page }) => {
+        await expect(page.locator('#remote-failure-sources')).toHaveText('failing-feed,failing-remote-feed', { timeout: 10000 });
+    });
+
     test('the withFailure callback runs besides the server listener', async ({ page }) => {
         await expect(page.locator('#event-source-failure-message')).not.toHaveText('', { timeout: 10000 });
         // the client calls the user's callback before it dispatches the event to the server

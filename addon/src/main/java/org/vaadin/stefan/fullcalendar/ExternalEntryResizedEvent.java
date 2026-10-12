@@ -36,7 +36,10 @@ import java.time.LocalDateTime;
  * {@code withDurationEditable(true)} on the {@link ClientSideEventSource} to enable it.
  * <br><br>
  * Client side name: externalEntryResize
+ *
+ * @deprecated Use {@link RemoteEntryResizedEvent}, the new name of this class. It fires for the sources of both names.
  */
+@Deprecated(since = "7.3.0")
 @DomEvent("externalEntryResize")
 @Getter
 @ToString

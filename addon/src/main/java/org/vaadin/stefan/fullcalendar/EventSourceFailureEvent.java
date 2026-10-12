@@ -30,7 +30,10 @@ import lombok.ToString;
  * {@link ClientSideEventSource} when it was added.
  * <br><br>
  * Client side name: eventSourceFailure
+ *
+ * @deprecated Use {@link RemoteEntrySourceFailureEvent}, the new name of this class. It fires for the sources of both names.
  */
+@Deprecated(since = "7.3.0")
 @DomEvent("eventSourceFailure")
 @Getter
 @ToString

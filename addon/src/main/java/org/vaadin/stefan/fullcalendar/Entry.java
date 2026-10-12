@@ -48,6 +48,8 @@ public class Entry implements Serializable {
 
     private static final Set<BeanProperties<Entry>> PROPERTIES = BeanProperties.read(Entry.class);
 
+    private static final String CUSTOM_PROPERTIES = "customProperties";
+
     private final String id;
     private String groupId;
     private String title;
@@ -200,7 +202,10 @@ public class Entry implements Serializable {
 
     private Set<String> classNames;
 
-    private Map<String, Object> customProperties;
+    // null until extended props are set, most entries have none. The custom properties are the extended prop
+    // CUSTOM_PROPERTIES, so the client keeps reading them as extendedProps.customProperties.
+    @JsonConverter(ExtendedPropsConverter.class)
+    private Map<String, Object> extendedProps;
 
     @JsonIgnore
     private boolean knownToTheClient; // not sure if still needed?
@@ -327,6 +332,11 @@ public class Entry implements Serializable {
                 .filter(def -> !def.isJsonIgnored())
                 .filter(def -> def.getSetter().isPresent())
                 .forEach(def -> writeJsonValueToEntry(jsonObject, def));
+
+        // custom properties on the top level, as they were sent before they became an extended prop
+        if (jsonObject.get(CUSTOM_PROPERTIES) instanceof ObjectNode customProperties) {
+            setCustomProperties(JsonUtils.ofJsonNode(customProperties));
+        }
     }
 
     private void checkForMatchingId(ObjectNode jsonObject, boolean requiresMatchingId) {
@@ -469,6 +479,11 @@ public class Entry implements Serializable {
                 }
             });
         });
+
+        // the custom properties are a map inside the extended props, copy it so that both entries do not share it
+        if (target.getExtendedProp(CUSTOM_PROPERTIES) instanceof Map<?, ?> customProperties) {
+            target.setExtendedProp(CUSTOM_PROPERTIES, new HashMap<>(customProperties));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -1169,7 +1184,11 @@ public class Entry implements Serializable {
      * Returns the description of this entry. Since the description is a <b>custom property</b>, it will
      * not automatically be shown on the entry.
      * @return description
+     * @deprecated Use {@code getExtendedProp("description")}, see {@link #getExtendedProp(String)}. Custom
+     * properties and extended props are stored separately, so switch {@link #setDescription(String)} and the
+     * JavaScript that reads the description at the same time.
      */
+    @Deprecated(since = "7.3.0")
     public String getDescription() {
         return getCustomProperty(EntryCustomProperties.DESCRIPTION);
     }
@@ -1178,7 +1197,13 @@ public class Entry implements Serializable {
      * Sets the description of this entry. Since the description is a <b>custom property</b>, it will
      * not automatically be shown on the entry.
      * @param description description
+     * @deprecated Use {@code setExtendedProp("description", description)}, see
+     * {@link #setExtendedProp(String, Object)}. Custom properties and extended props are stored separately, so
+     * {@link #getExtendedProp(String)} does not find a description set with this method. Change the JavaScript
+     * that reads it at the same time: {@code event.getCustomProperty('description')} becomes
+     * {@code event.extendedProps.description}.
      */
+    @Deprecated(since = "7.3.0")
     public void setDescription(String description) {
         setCustomProperty(EntryCustomProperties.DESCRIPTION, description);
     }
@@ -1419,6 +1444,131 @@ public class Entry implements Serializable {
     }
 
     /**
+     * Replaces the extended props of this entry with a copy of the given map. {@code null} clears them.
+     * <p>
+     * The custom properties are the extended prop {@code customProperties}, so this method replaces them, too.
+     *
+     * @param extendedProps extended props
+     * @throws NullPointerException when the map contains a null key
+     * @see #setExtendedProp(String, Object)
+     */
+    public void setExtendedProps(Map<String, Object> extendedProps) {
+        Map<String, Object> copy = extendedProps != null ? new HashMap<>(extendedProps) : new HashMap<>();
+        if (copy.containsKey(null)) {
+            throw new NullPointerException("Extended props must not contain a null key");
+        }
+
+        this.extendedProps = copy.isEmpty() ? null : copy;
+    }
+
+    /**
+     * Sets an extended prop. An extended prop is an additional value of your own, stored under a key of your
+     * choice. Extended props do not change the regular properties of the entry, such as its title or color, and FullCalendar does not
+     * use them itself. Setting a key again overwrites the extended prop stored under that key.
+     * <p>
+     * Extended props are sent to the client as the entry's {@code extendedProps}, where your own JavaScript
+     * callbacks can read them, for instance in {@link FullCalendar.Option#ENTRY_DID_MOUNT}:
+     * <pre>{@code
+     * entry.setExtendedProp("department", "Engineering");
+     *
+     * calendar.setOption(Option.ENTRY_DID_MOUNT, JsCallback.of(
+     *         "info => info.el.title = info.event.extendedProps.department"));
+     * }</pre>
+     * Strings, numbers, booleans, maps, collections, arrays and {@link tools.jackson.databind.JsonNode}s are sent
+     * as the matching JSON values. Numbers other than {@code Integer} and {@code Long} are sent as doubles, so a
+     * {@code BigDecimal} can lose precision. Any other object is serialized with Jackson.
+     * <p>
+     * Entries that come from the client ({@link EntryReceiveEvent}, {@link DropEvent}) carry their extended props
+     * as they were parsed from JSON, so an object you set arrives in those entries as a {@code Map}.
+     * <p>
+     * Call {@link org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider#refreshItem(Entry)} after changing the
+     * extended props of an entry that is already shown.
+     * <p>
+     * The custom properties are the extended prop {@code customProperties}, so setting that key replaces them.
+     *
+     * @param key   the name of the property to set
+     * @param value value to set, can be null
+     */
+    public void setExtendedProp(String key, Object value) {
+        Objects.requireNonNull(key);
+        if (extendedProps == null) {
+            extendedProps = new HashMap<>();
+        }
+
+        extendedProps.put(key, value);
+    }
+
+    /**
+     * Returns an extended prop, or null if the key is not set or set to null. Use
+     * {@link #hasExtendedProp(String)} to tell the two apart.
+     *
+     * @param key name of the extended prop
+     * @return value or null
+     * @see #setExtendedProp(String, Object)
+     */
+    public Object getExtendedProp(String key) {
+        return getExtendedProps().get(key);
+    }
+
+    /**
+     * Returns whether an extended prop is set under the given key, also when its value is null.
+     *
+     * @param key name of the extended prop
+     * @return true if the key is set
+     */
+    public boolean hasExtendedProp(String key) {
+        return getExtendedProps().containsKey(key);
+    }
+
+    /**
+     * Returns an extended prop, or the default value if the key is not set. A key set to {@code null} returns
+     * {@code null}, not the default value.
+     * <p>
+     * The value is cast to the type of the default value without a check, so a value of another type leads to a
+     * {@link ClassCastException} at the caller.
+     *
+     * @param key          name of the extended prop
+     * @param defaultValue value returned when the key is not set
+     * @param <T>          type of the value
+     * @return value or the default value
+     * @see #setExtendedProp(String, Object)
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getExtendedProp(String key, T defaultValue) {
+        Map<String, Object> props = getExtendedProps();
+        return props.containsKey(key) ? (T) props.get(key) : defaultValue;
+    }
+
+    /**
+     * Removes an extended prop.
+     *
+     * @param key the name of the extended prop to remove
+     */
+    public void removeExtendedProp(String key) {
+        Objects.requireNonNull(key);
+        if (extendedProps != null) {
+            extendedProps.remove(key);
+            if (extendedProps.isEmpty()) {
+                extendedProps = null;
+            }
+        }
+    }
+
+    /**
+     * Returns the extended props of this entry as a read-only map. Never null. Change them with
+     * {@link #setExtendedProp(String, Object)}, {@link #removeExtendedProp(String)} or
+     * {@link #setExtendedProps(Map)}, then call this method again, because an earlier result may not reflect
+     * the change.
+     * <p>
+     * The custom properties are included as the extended prop {@code customProperties}.
+     *
+     * @return extended props, not modifiable
+     */
+    public Map<String, Object> getExtendedProps() {
+        return extendedProps != null ? Collections.unmodifiableMap(extendedProps) : Collections.emptyMap();
+    }
+
+    /**
      * Sets custom properties.
      * <p></p>
      * You can access custom properties on the client side when customizing the event rendering via the property
@@ -1426,9 +1576,18 @@ public class Entry implements Serializable {
      *
      * @see FullCalendar.Option#ENTRY_CONTENT
      * @param customProperties custom properties
+     * @deprecated Use {@link #setExtendedProps(Map)}. Custom properties and extended props are stored separately,
+     * so {@link #getExtendedProp(String)} does not find a value set with this method. Change the JavaScript that
+     * reads the values at the same time: {@code event.getCustomProperty('key')} becomes
+     * {@code event.extendedProps.key}.
      */
+    @Deprecated(since = "7.3.0")
     public void setCustomProperties(Map<String, Object> customProperties) {
-        this.customProperties = customProperties;
+        if (customProperties == null) {
+            removeExtendedProp(CUSTOM_PROPERTIES);
+        } else {
+            setExtendedProp(CUSTOM_PROPERTIES, customProperties);
+        }
     }
 
     /**
@@ -1441,7 +1600,12 @@ public class Entry implements Serializable {
      *
      * @param key   the name of the property to set
      * @param value value to set
+     * @deprecated Use {@link #setExtendedProp(String, Object)}. Custom properties and extended props are stored
+     * separately, so {@link #getExtendedProp(String)} does not find a value set with this method. Change the
+     * JavaScript that reads the value at the same time: {@code event.getCustomProperty('key')} becomes
+     * {@code event.extendedProps.key}.
      */
+    @Deprecated(since = "7.3.0")
     public void setCustomProperty(String key, Object value) {
         Objects.requireNonNull(key);
         getOrCreateCustomProperties().put(key, value);
@@ -1458,7 +1622,10 @@ public class Entry implements Serializable {
      * @param key name of the custom property
      * @param <T> return type
      * @return custom property value or null
+     * @deprecated Use {@link #getExtendedProp(String)} or {@link #getExtendedProp(String, Object)}. They do not
+     * find a value set with {@link #setCustomProperty(String, Object)}, so switch the setter at the same time.
      */
+    @Deprecated(since = "7.3.0")
     @SuppressWarnings("unchecked")
     public <T> T getCustomProperty(String key) {
         return (T) getCustomPropertiesOrEmpty().get(key);
@@ -1468,7 +1635,10 @@ public class Entry implements Serializable {
      * Remove the custom property based on the name.
      *
      * @param key the name of the property to remove
+     * @deprecated Use {@link #removeExtendedProp(String)}. It does not remove a value set with
+     * {@link #setCustomProperty(String, Object)}, so switch the setter at the same time.
      */
+    @Deprecated(since = "7.3.0")
     public void removeCustomProperty(String key) {
         Map<String, Object> customProperties = getCustomProperties();
         if (customProperties != null) {
@@ -1482,7 +1652,11 @@ public class Entry implements Serializable {
      *
      * @param key   the name of the property to remove
      * @param value the object to remove
+     * @deprecated Compare {@link #getExtendedProp(String)} with the value and call
+     * {@link #removeExtendedProp(String)}. They do not find a value set with
+     * {@link #setCustomProperty(String, Object)}, so switch the setter at the same time.
      */
+    @Deprecated(since = "7.3.0")
     public void removeCustomProperty(String key, Object value) {
         Map<String, Object> customProperties = getCustomProperties();
         if (customProperties != null) {
@@ -1505,9 +1679,13 @@ public class Entry implements Serializable {
      * @return Map
      * @see #getCustomPropertiesOrEmpty()
      * @see #getOrCreateCustomProperties()
+     * @deprecated Use {@link #getExtendedProps()}. It contains the custom properties only as the single extended
+     * prop {@code customProperties}, so switch the setters at the same time.
      */
+    @Deprecated(since = "7.3.0")
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getCustomProperties() {
-        return customProperties;
+        return (Map<String, Object>) getExtendedProp(CUSTOM_PROPERTIES);
     }
 
     /**
@@ -1516,8 +1694,12 @@ public class Entry implements Serializable {
      * @return map
      * @see #getCustomProperties()
      * @see #getOrCreateCustomProperties()
+     * @deprecated Use {@link #getExtendedProps()}. It contains the custom properties only as the single extended
+     * prop {@code customProperties}, so switch the setters at the same time.
      */
+    @Deprecated(since = "7.3.0")
     public Map<String, Object> getCustomPropertiesOrEmpty() {
+        Map<String, Object> customProperties = getCustomProperties();
         return customProperties != null ? Collections.unmodifiableMap(customProperties) : Collections.emptyMap();
     }
 
@@ -1533,10 +1715,16 @@ public class Entry implements Serializable {
      * @return Map
      * @see #getCustomPropertiesOrEmpty()
      * @see #getCustomProperties()
+     * @deprecated Use {@link #getExtendedProps()} to read and {@link #setExtendedProp(String, Object)} to change
+     * the extended props. They do not contain the custom properties as single values, so switch the setters at
+     * the same time.
      */
+    @Deprecated(since = "7.3.0")
     public Map<String, Object> getOrCreateCustomProperties() {
+        Map<String, Object> customProperties = getCustomProperties();
         if (customProperties == null) {
             customProperties = new HashMap<>();
+            setExtendedProp(CUSTOM_PROPERTIES, customProperties);
         }
         return customProperties;
     }
@@ -1547,8 +1735,26 @@ public class Entry implements Serializable {
 
 
     /**
-     * Defines known custom properties, for instance since they are widely used.
+     * Names of the fields of this class. Lombok adds a constant for each field.
      */
+    public static final class Fields {
+        /**
+         * Name of the former field that held the custom properties.
+         *
+         * @deprecated The custom properties are the extended prop of this name now, see
+         * {@link Entry#getExtendedProps()}. Use {@link #EXTENDED_PROPS} for the field.
+         */
+        @Deprecated(since = "7.3.0")
+        public static final String CUSTOM_PROPERTIES = "customProperties";
+    }
+
+    /**
+     * Defines known custom properties, for instance since they are widely used.
+     *
+     * @deprecated Use the key {@code "description"} with the extended props, see
+     * {@link Entry#setExtendedProp(String, Object)}.
+     */
+    @Deprecated(since = "7.3.0")
     public static final class EntryCustomProperties {
         /**
          * Key for an entry's description.

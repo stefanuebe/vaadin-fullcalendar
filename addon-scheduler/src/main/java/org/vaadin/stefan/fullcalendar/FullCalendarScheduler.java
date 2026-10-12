@@ -98,7 +98,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      *
      *
      * @param entryLimit max entries to shown per day
-     * @deprecated since 7.2.0 — use the no-arg constructor and {@code setOption(Option.MAX_ENTRIES_PER_DAY, entryLimit)} instead.
+     * @deprecated since 7.2.0 — use the no-arg constructor and {@code setOption(Option.DAY_MAX_ENTRIES, entryLimit)} instead.
      */
     @Deprecated(since = "7.2.0")
     public FullCalendarScheduler(int entryLimit) {
@@ -223,7 +223,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     @Deprecated
     @Override
     public void setEntryResourceEditable(boolean eventResourceEditable) {
-    	setOption(SchedulerOption.ENTRY_RESOURCES_EDITABLE, eventResourceEditable);
+    	setOption(SchedulerOption.ENTRY_RESOURCE_EDITABLE, eventResourceEditable);
     }
 
     @Override
@@ -584,13 +584,13 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     /**
      * {@inheritDoc}
      *
-     * @deprecated since 7.2.5, removed in 8.0. This method already has no effect: it sets the options
+     * @deprecated since 7.3.0, removed in 8.0. This method already has no effect: it sets the options
      *             groupByResource and groupByDateAndResource, which the used FullCalendar library version does not
      *             support. To show dates above resources in a vertical resource view, use
      *             {@link FullCalendarScheduler.SchedulerOption#DATES_ABOVE_RESOURCES}.
      */
     @Override
-    @Deprecated(since = "7.2.5")
+    @Deprecated(since = "7.3.0")
     public void setGroupEntriesBy(GroupEntriesBy groupEntriesBy) {
         switch (groupEntriesBy) {
             case NONE -> {
@@ -706,6 +706,21 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         return getOption(option.getOptionKey(), forceClientSideValue);
     }
 
+    /**
+     * Returns the value of the given option like {@link #getOption(SchedulerOption)}, or the given default when the
+     * option is not set.
+     *
+     * @param option       option
+     * @param defaultValue value to return when the option is not set
+     * @param <T>          type of value
+     * @return the option's value or the default
+     * @throws NullPointerException when null is passed as option
+     * @see #getOptionOrDefault(Option, Object)
+     */
+    public <T> T getOptionOrDefault(SchedulerOption option, T defaultValue) {
+        return this.<T>getOption(option).orElse(defaultValue);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T extends CalendarView> Optional<T> lookupViewName(String clientSideValue) {
@@ -747,7 +762,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          *
          * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>
          */
-        ENTRY_RESOURCES_EDITABLE("eventResourceEditable"),
+        ENTRY_RESOURCE_EDITABLE("eventResourceEditable"),
 
         /**
          * Minimum pixel width of entries in timeline view.
@@ -779,10 +794,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          * </dl>
          *
          * @see <a href="https://fullcalendar.io/docs/groupByDateAndResource">groupByDateAndResource</a>
-         * @deprecated since 7.2.5, removed in 8.0. This option already has no effect, because the used
+         * @deprecated since 7.3.0, removed in 8.0. This option already has no effect, because the used
          *             FullCalendar library version does not support it. Remove it.
          */
-        @Deprecated(since = "7.2.5")
+        @Deprecated(since = "7.3.0")
         GROUP_BY_DATE_AND_RESOURCE("groupByDateAndResource"),
 
         /**
@@ -793,10 +808,10 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
          * </dl>
          *
          * @see <a href="https://fullcalendar.io/docs/groupByResource">groupByResource</a>
-         * @deprecated since 7.2.5, removed in 8.0. This option already has no effect, because the used
+         * @deprecated since 7.3.0, removed in 8.0. This option already has no effect, because the used
          *             FullCalendar library version does not support it. Remove it.
          */
-        @Deprecated(since = "7.2.5")
+        @Deprecated(since = "7.3.0")
         GROUP_BY_RESOURCE("groupByResource"),
 
         /**
@@ -1148,6 +1163,12 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         ;
 
+        /**
+         * @deprecated Use {@link #ENTRY_RESOURCE_EDITABLE}, it sets the same option.
+         */
+        @Deprecated(since = "7.3.0")
+        public static final SchedulerOption ENTRY_RESOURCES_EDITABLE = ENTRY_RESOURCE_EDITABLE;
+
 
         private final String optionKey;
 
@@ -1206,4 +1227,15 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     // SchedulerCallbackOption enum removed — all constants merged into SchedulerOption.
     // Use setOption(SchedulerOption.X, JsCallback.of("function...")) instead.
 
+    @Override
+    public FullCalendarScheduler withAutoBrowserTimezone() {
+        super.withAutoBrowserTimezone();
+        return this;
+    }
+
+    @Override
+    public FullCalendarScheduler withAutoUiLocale() {
+        super.withAutoUiLocale();
+        return this;
+    }
 }
