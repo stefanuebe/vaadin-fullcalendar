@@ -9,9 +9,14 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.Collections;
 import java.util.Optional;
 
+/**
+ * Scheduler version of {@link EntryDroppedEvent}. It additionally knows the resources the entry has been moved from
+ * and to. {@link FullCalendarScheduler} fires this event for every drop, also to listeners added with
+ * {@link FullCalendarScheduler#addEntryDroppedListener(com.vaadin.flow.component.ComponentEventListener)}.
+ */
 @DomEvent("eventDrop")
 @ToString(callSuper = true)
-public class EntryDroppedSchedulerEvent extends EntryTimeChangedEvent {
+public class EntryDroppedSchedulerEvent extends EntryDroppedEvent {
 
     private final Resource oldResource;
     private final Resource newResource;

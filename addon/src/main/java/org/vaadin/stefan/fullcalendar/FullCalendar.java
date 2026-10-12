@@ -1310,9 +1310,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotClickedListener(ComponentEventListener<? extends TimeslotClickedEvent> listener) {
+    public Registration addTimeslotClickedListener(ComponentEventListener<TimeslotClickedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(TimeslotClickedEvent.class, (ComponentEventListener<TimeslotClickedEvent>) listener);
+        return addListener(TimeslotClickedEvent.class, listener);
     }
 
     /**
@@ -1538,9 +1538,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * @return registration to remove the listener
      * @throws NullPointerException when null is passed
      */
-    public Registration addTimeslotsSelectedListener(ComponentEventListener<? extends TimeslotsSelectedEvent> listener) {
+    public Registration addTimeslotsSelectedListener(ComponentEventListener<TimeslotsSelectedEvent> listener) {
         Objects.requireNonNull(listener);
-        return addListener(TimeslotsSelectedEvent.class, (ComponentEventListener<TimeslotsSelectedEvent>) listener);
+        return addListener(TimeslotsSelectedEvent.class, listener);
     }
 
     /**
