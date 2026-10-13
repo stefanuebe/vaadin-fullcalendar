@@ -5014,10 +5014,11 @@ public enum Option {
      * their position on the calendar and the dates the client sends to the server.
      * <dl>
      *   <dt>Type</dt> <dd>{@link Timezone} | time zone id as {@code String} (e.g., {@code "UTC"},
-     *                     {@code "America/New_York"}), stored as {@link Timezone}. FullCalendar's {@code "local"} is
-     *                     rejected with an {@link IllegalArgumentException}, because the server needs the real zone to
-     *                     compute entry offsets. Use {@link FullCalendar#withAutoBrowserTimezone()} to follow the
-     *                     browser's time zone.</dd>
+     *                     {@code "America/New_York"}), stored as {@link Timezone}. {@code "local"} (any case) is the
+     *                     same as {@link FullCalendar#withAutoBrowserTimezone()}. The calendar then follows the
+     *                     browser's time zone, and the option keeps its current value, empty by default, until the
+     *                     browser has reported it. Any other string that is not a time zone id throws an
+     *                     {@link IllegalArgumentException}.</dd>
      *   <dt>Default</dt> <dd>not set. The client then uses {@code "UTC"}, set by the add-on (FullCalendar's own
      *                        default is {@code "local"}).</dd>
      * </dl>
