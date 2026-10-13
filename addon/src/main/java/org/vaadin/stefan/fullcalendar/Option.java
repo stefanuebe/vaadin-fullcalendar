@@ -5019,9 +5019,9 @@ public enum Option {
      *                     browser's time zone, and the option keeps its current value, empty by default, until the
      *                     server has learned it. Any other string that is not a time zone id throws an
      *                     {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt> <dd>not set. The calendar then shows UTC, the add-on's default. With
-     *                        {@link FullCalendar#withAutoBrowserTimezone()} it shows the browser's time zone from
-     *                        the start. FullCalendar's own default is {@code "local"}.</dd>
+     *   <dt>Default</dt> <dd>not set. The calendar then shows UTC, or the browser's time zone with
+     *                        {@link FullCalendar#withAutoBrowserTimezone()}. FullCalendar's own default is
+     *                        {@code "local"}.</dd>
      * </dl>
      * <pre>{@code
      * calendar.setOption(Option.TIMEZONE, "Europe/Berlin");

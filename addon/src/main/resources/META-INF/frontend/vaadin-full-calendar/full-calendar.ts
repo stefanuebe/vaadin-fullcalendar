@@ -172,7 +172,7 @@ export class FullCalendar extends HTMLElement {
     protected prefetchEnabled = false;
     /**
      * Set by withAutoBrowserTimezone(). Without a time zone option, the calendar starts with the browser's time
-     * zone instead of UTC, so entries do not move when the server later sets the time zone the browser reported.
+     * zone instead of UTC.
      */
     protected autoBrowserTimezone = false;
 
