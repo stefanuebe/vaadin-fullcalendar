@@ -209,6 +209,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendar(ObjectNode initialOptions) {
+        boolean localTimezone = initialOptions.path(Option.TIMEZONE.getOptionKey()).isString()
+                && isLocalTimezone(initialOptions.get(Option.TIMEZONE.getOptionKey()).asString());
+        if (localTimezone) {
+            // not sent, or the client would show the browser time zone while the server still computes in UTC
+            initialOptions = initialOptions.deepCopy();
+            initialOptions.remove(Option.TIMEZONE.getOptionKey());
+        }
+
         if (initialOptions.hasNonNull("views")) {
             ObjectNode views = (ObjectNode) initialOptions.get("views");
 
@@ -223,6 +231,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
 
         this.getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
         this.constructorInitialOptions = initialOptions;
+
+        if (localTimezone) {
+            withAutoBrowserTimezone();
+        }
 
         if (!initialOptions.hasNonNull(Option.LOCALE.getOptionKey())) {
             // fallback to prevent strange locale effects on the client side
@@ -769,6 +781,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
 
         // 0. A time zone given as id is kept as Timezone, so getOption() and the offset helpers can rely on it
         if (Option.TIMEZONE.getOptionKey().equals(option)) {
+            Object timezoneValue = valueForServerSide != null ? valueForServerSide : value;
+            if (timezoneValue instanceof String id && isLocalTimezone(id)) {
+                withAutoBrowserTimezone();
+                return;
+            }
+
             if (valueForServerSide instanceof String id) {
                 valueForServerSide = parseTimezone(id);
             } else if (valueForServerSide == null && value instanceof String id) {
@@ -1054,14 +1072,17 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * Turns a time zone id into a {@link Timezone}. FullCalendar's {@code "local"} is rejected, because the server
-     * needs the real zone to compute entry offsets.
+     * FullCalendar's {@code "local"} is the time zone of the browser. The server needs the real zone to compute entry
+     * offsets, so it is handled by {@link #withAutoBrowserTimezone()} instead of being stored.
+     */
+    private static boolean isLocalTimezone(String id) {
+        return "local".equalsIgnoreCase(id);
+    }
+
+    /**
+     * Turns a time zone id into a {@link Timezone}.
      */
     private static Timezone parseTimezone(String id) {
-        if ("local".equalsIgnoreCase(id)) {
-            throw new IllegalArgumentException("The time zone \"local\" is not supported, because the server needs the "
-                    + "real zone. Use withAutoBrowserTimezone() to follow the browser's time zone.");
-        }
         try {
             return new Timezone(ZoneId.of(id));
         } catch (DateTimeException e) {
@@ -1128,7 +1149,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * Lets the calendar follow the time zone of the browser. The client reports it after attach, and the calendar
      * sets it as {@link Option#TIMEZONE}. If the browser time zone is already known, it is applied at once. A later
      * {@code setOption(Option.TIMEZONE, …)} applies until the browser reports its time zone again, for instance
-     * after the calendar is attached anew.
+     * after the calendar is attached anew. Setting {@link Option#TIMEZONE} to {@code "local"} (any case) does the same.
      *
      * @return this instance
      */

@@ -88,13 +88,6 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     }
 
     @Test
-    void timezone_local_isRejected() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> calendar.setOption(Option.TIMEZONE, "local"));
-        assertTrue(e.getMessage().contains("withAutoBrowserTimezone"));
-    }
-
-    @Test
     void timezone_unknownId_isRejected() {
         assertThrows(IllegalArgumentException.class, () -> calendar.setOption(Option.TIMEZONE, "Not/AZone"));
     }
