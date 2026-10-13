@@ -6,6 +6,8 @@ import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,6 +53,18 @@ public class ResourceTest {
     @Test
     void toJsonSendsAnUnsetTitleAsEmpty() {
         Assertions.assertEquals("", new Resource("a", null, null).toJson().get("title").asString());
+    }
+
+    @Test
+    void toJsonSendsExtendedPropTimesWithoutZeroSeconds() {
+        Resource resource = new Resource("a", null, null);
+        resource.setExtendedProp("time", LocalTime.of(10, 0));
+        resource.setExtendedProp("at", LocalDateTime.of(2025, 3, 10, 10, 0));
+
+        ObjectNode json = resource.toJson();
+
+        Assertions.assertEquals("10:00", json.get("time").asString());
+        Assertions.assertEquals("2025-03-10T10:00", json.get("at").asString());
     }
 
     @Test
