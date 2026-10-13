@@ -155,9 +155,11 @@ The order is fixed:
    the change itself, picked so it can disagree with the other two: Vaadin API
    usage, the FullCalendar integration, or test quality (do the tests prove the
    behaviour, or pass around it?). For a document: claims against source, framing
-   and language. Without a spec `/code-review` skips Spec, so add a second axis of
-   that kind. The review loops. Fix every major and run the next round on the whole
-   scope under review. The agents judge what is major. Pass each round the
+   and language. In release notes and migration guides the technical claims weigh
+   most. Language counts as major only where it misleads or hinders understanding,
+   and polish does not justify another round. Without a spec `/code-review` skips
+   Spec, so add a second axis of that kind. The review loops. Fix every major and
+   run the next round on the whole scope under review. The agents judge what is major. Pass each round the
    findings already rejected, with the reason. Once a round finds no major, report
    the minors and ask whether to fix them and review again. Minors in test code
    and obvious minor errors (a stale name, a wrong doc row) are fixed without

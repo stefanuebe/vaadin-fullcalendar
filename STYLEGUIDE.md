@@ -221,5 +221,10 @@ Applies to the wiki pages `Release-notes-<version>` and `Migration-guide-<from>-
   written out in full, so a reader can search their code for them. Not
   "`_END_PARAM`", but "`EXTERNAL_EVENT_SOURCE_END_PARAM`". Each area gets a
   before-and-after example, with the old code in a `// was:` comment.
+- **Call the version before "the previous version", not by its line.** "7.x" in
+  prose confuses readers, even with the glossary. Each page says once which version
+  "the previous version" means, for example "it means 7.3". "Previously … now"
+  works as a variant. A version line keeps its name where it is the subject ("The
+  7.x line stays available"), and so do page names and specific versions.
 - **A note that stands apart from the text is a quote with a label**, as in
   `> **Note:** …`.
