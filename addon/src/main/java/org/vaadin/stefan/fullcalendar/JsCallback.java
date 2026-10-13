@@ -27,6 +27,16 @@ import java.util.Objects;
  * string via {@code new Function("return " + jsFunction)()} to produce a real
  * JS function object before passing it to FullCalendar.
  *
+ * <p>A callback that is a regular function is called with {@code this} set to the calendar object of the
+ * FullCalendar library, once the calendar exists. That includes callbacks nested in an option value, such as the
+ * {@code click} of a button in {@link Option#BUTTONS}. An arrow function keeps its lexical {@code this}, so it does
+ * not get the calendar.
+ *
+ * <p>A callback that the library calls while it creates the calendar keeps the {@code this} the library gives it.
+ * For a {@link Option#VALID_RANGE} function that is the calendar as well. For a {@link Option#NOW} function or a
+ * date format function, such as one for {@link Option#TITLE_FORMAT}, it is an internal object of the library in
+ * that call. Later calls get the calendar.
+ *
  * <p>Extended props you set on an entry with {@link Entry#setExtendedProp(String, Object)} can be read in entry
  * callbacks as {@code info.event.extendedProps}.
  *

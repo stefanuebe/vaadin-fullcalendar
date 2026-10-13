@@ -70,9 +70,9 @@ export class FullCalendarScheduler extends FullCalendar {
 
     addResources(array: any[], scrollToLast: boolean) {
         let calendar = this.calendar;
-        calendar.batchRendering(function () {
+        calendar.batchRendering(() => {
             for (let i = 0; i < array.length; i++) {
-                calendar.addResource(evaluateCallbacks(array[i]), scrollToLast);
+                calendar.addResource(evaluateCallbacks(array[i], this.createdCalendar), scrollToLast);
             }
         });
     }
@@ -116,7 +116,7 @@ export class FullCalendarScheduler extends FullCalendar {
                     durationEditable: internal.ui.durationEditable,
                     constraint: data.eventConstraint,
                     overlap: data.eventOverlap,
-                    allow: data.eventAllow !== undefined ? evaluateCallbacks(data.eventAllow) : undefined,
+                    allow: data.eventAllow !== undefined ? evaluateCallbacks(data.eventAllow, this.createdCalendar) : undefined,
                     className: data.eventClass,
                     color: data.eventColor,
                     contrastColor: data.eventContrastColor,

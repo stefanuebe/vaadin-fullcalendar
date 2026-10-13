@@ -87,26 +87,48 @@ function mergeViews(views: any, overrides: any): any {
  * Recursively walks a value and evaluates any JsCallback markers.
  * A JsCallback marker is an object with a {@code __jsCallback} string property.
  * <p>
+ * A callback that evaluates to a function is called with the calendar as "this". The calendar is looked up at
+ * call time, because it does not exist yet while the initial options are evaluated. The library already calls
+ * some callbacks while it creates the calendar, and those keep the "this" the library gives them. For a
+ * validRange function that is the calendar as well. For a now or date format function it is an
+ * internal object in that call, and later calls get the calendar.
+ * An arrow function keeps its lexical "this", and a value that is not a function stays as it is.
+ * <p>
  * IMPORTANT: This function must only be called on option/config objects, never on
  * entry/event data arrays, to prevent accidental code execution from user data.
+ * @param value value to evaluate
+ * @param getCalendar returns the calendar that becomes "this" of the callbacks, or undefined while it is created
  */
-export function evaluateCallbacks(value: any): any {
+export function evaluateCallbacks(value: any, getCalendar: () => Calendar | undefined): any {
     if (value == null || typeof value !== 'object') return value;
 
     // JsCallback marker object — evaluate the function string
     if (typeof value.__jsCallback === 'string') {
-        return new Function("return " + value.__jsCallback)();
+        const callback = new Function("return " + value.__jsCallback)();
+        if (typeof callback !== 'function') {
+            return callback;
+        }
+
+        // FullCalendar may read the number of parameters of a callback, so the wrapper keeps it
+        const bound = function (this: any, ...args: any[]) {
+            return callback.apply(getCalendar() ?? this, args);
+        };
+        Object.defineProperty(bound, 'length', {value: callback.length});
+        // getOption(...).toString() and debugging show the code of the application, not of the wrapper
+        bound.toString = () => callback.toString();
+
+        return bound;
     }
 
     // Array — recurse into elements
     if (Array.isArray(value)) {
-        return value.map((item) => evaluateCallbacks(item));
+        return value.map((item) => evaluateCallbacks(item, getCalendar));
     }
 
     // Plain object — recurse into properties
     const result: any = {};
     for (const key of Object.keys(value)) {
-        result[key] = evaluateCallbacks(value[key]);
+        result[key] = evaluateCallbacks(value[key], getCalendar);
     }
     return result;
 }
@@ -131,6 +153,8 @@ async function loadStockTheme(name: string, plugin: Promise<any>, themeCss: Prom
 export class FullCalendar extends HTMLElement {
 
     private _calendar!: Calendar;
+    /** The calendar, or undefined before it exists. Unlike the getter "calendar", it never creates one. */
+    protected createdCalendar = (): Calendar | undefined => this._calendar;
     private _draggables: Map<HTMLElement, Draggable> = new Map();
 
     /** IDs of entries fetched from the server-side EntryProvider. Used to distinguish external-source entries. */
@@ -211,16 +235,16 @@ export class FullCalendar extends HTMLElement {
     protected initCalendar() {
         if (!this._calendar) {
             // evaluated once, so the code of a JsCallback runs only once. Both createInitOptions calls get the result.
-            const jsonOptions = evaluateCallbacks(this.initialJsonOptions);
+            const jsonOptions = evaluateCallbacks(this.initialJsonOptions, this.createdCalendar);
             this._moreLinkClickWithoutServer = jsonOptions.moreLinkClick;
-            this.customViews = evaluateCallbacks(this.customViews);
+            this.customViews = evaluateCallbacks(this.customViews, this.createdCalendar);
             const initialOptions: any = {...this.initialOptions, ...jsonOptions};
             this._optionsWithoutServer = this.createInitOptions({...jsonOptions});
             let options = this.createInitOptions({...initialOptions, views: jsonOptions.views});
             // before createInitOptions replaced it with our own handler
             this.setMoreLinkClickAction(initialOptions.moreLinkClick);
             // the view-specific options the server set before attach, over those of the initial JSON options
-            options.views = mergeViews(options.views, evaluateCallbacks((this.initialOptions as any).views));
+            options.views = mergeViews(options.views, evaluateCallbacks((this.initialOptions as any).views, this.createdCalendar));
             // the final list, including the plugins subclasses added in their createInitOptions
             this._basePlugins = options.plugins;
             const themePlugin = this._fcTheme ? resolvedThemes.get(this._fcTheme) : undefined;
@@ -280,7 +304,7 @@ export class FullCalendar extends HTMLElement {
 
         // Evaluate any JsCallback markers in initial options before passing them to FullCalendar
         for (const key of Object.keys(options)) {
-            (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key]);
+            (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key], this.createdCalendar);
         }
 
         // after the evaluation, which would copy all locales, and contain no callbacks
@@ -727,12 +751,12 @@ export class FullCalendar extends HTMLElement {
      */
     private resolveOptionValue(key: string, value: any): any {
         if (key === "views") {
-            return mergeViews(this._optionsWithoutServer.views, evaluateCallbacks(value));
+            return mergeViews(this._optionsWithoutServer.views, evaluateCallbacks(value, this.createdCalendar));
         }
         if (value == null) {
             return this._optionsWithoutServer[key];
         }
-        return evaluateCallbacks(value);
+        return evaluateCallbacks(value, this.createdCalendar);
     }
 
     /**
@@ -780,7 +804,7 @@ export class FullCalendar extends HTMLElement {
      * @param value string, function or JsCallback marker
      */
     protected setMoreLinkClickAction(value: any) {
-        this.moreLinkClickAction = evaluateCallbacks(value) ?? this._moreLinkClickWithoutServer ?? "popover";
+        this.moreLinkClickAction = evaluateCallbacks(value, this.createdCalendar) ?? this._moreLinkClickWithoutServer ?? "popover";
     }
 
     /**
@@ -985,7 +1009,7 @@ export class FullCalendar extends HTMLElement {
 
         if (eventDataCallback) {
             // eventDataCallback is a JsCallback marker — evaluate it
-            options.eventData = evaluateCallbacks(eventDataCallback);
+            options.eventData = evaluateCallbacks(eventDataCallback, this.createdCalendar);
         } else {
             // Default: read data-event attribute from the dragged element
             options.eventData = function(dragEl: HTMLElement) {
@@ -1010,7 +1034,7 @@ export class FullCalendar extends HTMLElement {
 
     addEventSource(sourceJson: any) {
         const srcId = sourceJson.id;
-        const config = evaluateCallbacks({...sourceJson});
+        const config = evaluateCallbacks({...sourceJson}, this.createdCalendar);
         const userFailure = config.failure; // set by withFailure
         config.failure = (error: any) => {
             try {
