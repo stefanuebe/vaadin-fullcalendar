@@ -19,9 +19,11 @@ package org.vaadin.stefan.fullcalendar;
 import com.vaadin.flow.function.SerializableFunction;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeType;
 import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,6 +35,16 @@ import java.util.stream.Stream;
  * JsonUtils used for internally handling conversion of objects sent to or received from the client side.
  */
 public final class JsonUtils {
+
+    /**
+     * Writes a {@link LocalTime} and a {@link LocalDateTime} like their {@code toString()}, which leaves out zero
+     * seconds. Jackson alone would always write them, and the library reads both forms the same way.
+     */
+    private static final JsonMapper MAPPER = JsonMapper.builder()
+            .addModule(new SimpleModule()
+                    .addSerializer(LocalTime.class, ToStringSerializer.instance)
+                    .addSerializer(LocalDateTime.class, ToStringSerializer.instance))
+            .build();
 
     private JsonUtils() {
         // noop
@@ -126,7 +138,7 @@ public final class JsonUtils {
      * @return json value
      */
     public static JsonNode toJsonNodeWithJackson(Object value) {
-        return toJsonNode(value, object -> JsonMapper.shared().valueToTree(object));
+        return toJsonNode(value, MAPPER::valueToTree);
     }
 
     /**

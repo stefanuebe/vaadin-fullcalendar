@@ -22,11 +22,15 @@
  * (Lumo or Aura). The theme plugin puts the class "fc-vaadin" on the calendar, its popover and its entries, which
  * includes the entry a drag shows outside the calendar.
  *
- * The colors are derived from three base colors, taken from the Lumo or Aura variables. Those variables use
- * light-dark() and are not registered, so they resolve where they are used and follow a color-scheme set on the
- * calendar alone (the option colorScheme). An exception is Lumo's dark mode: theme="dark" on the page sets fixed dark
- * values, so a calendar in a dark Lumo application cannot be made light. The registered --vaadin-* colors resolve
- * once on the page root. They are only the fallback for an application without Lumo and Aura.
+ * An application restyles the calendar with the --vaadin-fc-* variables, on html or on a class of one calendar. The
+ * theme does not define them. It reads each with its default as the fallback, so a variable set by the application
+ * wins wherever it is set. Four of them are base colors, from which the defaults of the others are derived.
+ *
+ * The defaults of the base colors are the Lumo or Aura variables. Those use light-dark() and are not registered, so
+ * they resolve where they are used and follow a color-scheme set on the calendar alone (the option colorScheme). An
+ * exception is Lumo's dark mode: theme="dark" on the page sets fixed dark values, so a calendar in a dark Lumo
+ * application cannot be made light. The registered --vaadin-* colors resolve once on the page root. They are only the
+ * fallback for an application without Lumo and Aura.
  */
 
 @layer fc-palette {
@@ -37,10 +41,15 @@
      * calendar, so a class of the application on the calendar can override them for one calendar.
      */
     .fc-vaadin.fc-vaadin:not(.fc-vaadin *) {
-        --_fc-vaadin-background: var(--lumo-base-color, var(--aura-surface-color-solid, var(--vaadin-background-color)));
-        --_fc-vaadin-text: var(--lumo-body-text-color, var(--aura-neutral, var(--vaadin-text-color)));
-        --_fc-vaadin-accent: var(--lumo-primary-color, var(--aura-accent-color, var(--vaadin-focus-ring-color)));
-        --_fc-vaadin-accent-text: var(--lumo-primary-text-color, var(--aura-accent-text-color, var(--_fc-vaadin-accent)));
+        /* the base colors, resolved here, so that a base color set on one calendar reaches the derived colors */
+        --_fc-vaadin-background: var(--vaadin-fc-bg-color,
+            var(--lumo-base-color, var(--aura-surface-color-solid, var(--vaadin-background-color))));
+        --_fc-vaadin-text: var(--vaadin-fc-text-color,
+            var(--lumo-body-text-color, var(--aura-neutral, var(--vaadin-text-color))));
+        --_fc-vaadin-accent: var(--vaadin-fc-accent-color,
+            var(--lumo-primary-color, var(--aura-accent-color, var(--vaadin-focus-ring-color))));
+        --_fc-vaadin-accent-text: var(--vaadin-fc-accent-text-color,
+            var(--lumo-primary-text-color, var(--aura-accent-text-color, var(--_fc-vaadin-accent))));
         --_fc-vaadin-accent-contrast: var(--lumo-primary-contrast-color, var(--aura-accent-contrast-color, #fff));
 
         /* buttons, styled like Vaadin's secondary buttons */
@@ -56,15 +65,17 @@
         --fc-classic-primary-foreground: var(--_fc-vaadin-accent-contrast);
 
         /* calendar content */
-        --fc-classic-event: var(--_fc-vaadin-accent);
-        --fc-classic-event-contrast: var(--_fc-vaadin-accent-contrast);
-        --fc-classic-background-event: var(--_fc-vaadin-accent);
+        --fc-classic-event: var(--vaadin-fc-entry-color, var(--_fc-vaadin-accent));
+        --fc-classic-event-contrast: var(--vaadin-fc-entry-text-color, var(--_fc-vaadin-accent-contrast));
+        --fc-classic-background-event: var(--vaadin-fc-background-entry-color, var(--_fc-vaadin-accent));
         --fc-classic-background-event-opacity: 15%;
         --fc-classic-background-event-foreground-opacity: 50%;
-        --fc-classic-highlight: color-mix(in srgb, var(--_fc-vaadin-accent) 20%, transparent);
+        --fc-classic-highlight: var(--vaadin-fc-selection-color,
+            color-mix(in srgb, var(--_fc-vaadin-accent) 20%, transparent));
         /* today is marked by a badge on its day number, see below */
         --fc-classic-today: transparent;
-        --fc-classic-now: color-mix(in srgb, var(--_fc-vaadin-text) 50%, transparent);
+        --fc-classic-now: var(--vaadin-fc-now-indicator-color,
+            color-mix(in srgb, var(--_fc-vaadin-text) 50%, transparent));
         --fc-classic-small-dot-width: 8px;
         --fc-classic-large-dot-width: 10px;
 
@@ -80,7 +91,7 @@
         --fc-classic-muted-foreground: color-mix(in srgb, var(--_fc-vaadin-text) 65%, transparent);
 
         /* neutral borders */
-        --fc-classic-border: color-mix(in srgb, var(--_fc-vaadin-text) 12%, transparent);
+        --fc-classic-border: var(--vaadin-fc-border-color, color-mix(in srgb, var(--_fc-vaadin-text) 12%, transparent));
         --fc-classic-strong-border: color-mix(in srgb, var(--_fc-vaadin-text) 30%, transparent);
     }
 }
@@ -112,14 +123,50 @@
 }
 
 .fc-vaadin-small.fc-vaadin-small {
-    font-size: var(--lumo-font-size-s, var(--aura-font-size-s, 0.875rem));
+    font-size: var(--vaadin-fc-font-size-s, var(--lumo-font-size-s, var(--aura-font-size-s, 0.875rem)));
 }
 
 /* today's day number or header, as a badge */
 .fc-vaadin-today.fc-vaadin-today {
-    color: var(--_fc-vaadin-accent-text);
-    background-color: color-mix(in srgb, var(--_fc-vaadin-accent) 10%, transparent);
+    color: var(--vaadin-fc-today-text-color, var(--_fc-vaadin-accent-text));
+    background-color: var(--vaadin-fc-today-color, color-mix(in srgb, var(--_fc-vaadin-accent) 10%, transparent));
     border-radius: var(--vaadin-radius-s, 3px);
     padding-inline: 0.25em;
     font-weight: 800;
+}
+
+/*
+ * Non-business hours. Classic paints them with its faint tone, which it also uses for disabled days, so the theme
+ * gives them a rule of their own.
+ */
+.fc-vaadin-non-business.fc-vaadin-non-business {
+    background-color: var(--vaadin-fc-non-business-color, var(--fc-classic-faint));
+}
+
+/*
+ * The hover, focus and active states of list-item entries, more links and the entries of the list view. Classic
+ * colors them with its faint, muted and strong tones, which it also uses for surfaces, so the theme overrides the
+ * states instead of those tones. Hover is a light accent. Focus and active keep classic's tones, which are fainter
+ * in the list view. The order is classic's, so a focused or pressed element shows that state while it is hovered.
+ */
+@media (hover: hover) {
+    .fc-vaadin-hover.fc-vaadin-hover:hover {
+        background-color: var(--vaadin-fc-hover-color, color-mix(in srgb, var(--_fc-vaadin-accent) 10%, transparent));
+    }
+}
+
+.fc-vaadin-muted-pressable.fc-vaadin-muted-pressable:focus-visible {
+    background-color: var(--vaadin-fc-focus-color, var(--fc-classic-muted));
+}
+
+.fc-vaadin-faint-pressable.fc-vaadin-faint-pressable:focus-visible {
+    background-color: var(--vaadin-fc-focus-color, var(--fc-classic-faint));
+}
+
+.fc-vaadin-muted-pressable.fc-vaadin-muted-pressable:active {
+    background-color: var(--vaadin-fc-active-color, var(--fc-classic-strong));
+}
+
+.fc-vaadin-faint-pressable.fc-vaadin-faint-pressable:active {
+    background-color: var(--vaadin-fc-active-color, var(--fc-classic-muted));
 }

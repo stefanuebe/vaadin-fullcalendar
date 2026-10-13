@@ -9,3 +9,8 @@
     --fc-classic-event: rgb(4, 5, 6);
     --fc-classic-event-contrast: rgb(250, 251, 252);
 }
+
+/* The theme's own variable for the entry color, set by the application on one calendar only. */
+.custom-vaadin-entry-color {
+    --vaadin-fc-entry-color: rgb(10, 20, 30);
+}
