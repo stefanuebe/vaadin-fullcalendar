@@ -1456,7 +1456,7 @@ public enum Option {
      *
      * @deprecated use {@link #DAY_MAX_ENTRY_ROWS}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     DAY_MAX_EVENT_ROWS,
 
     /**
@@ -1626,7 +1626,7 @@ public enum Option {
      *
      * @deprecated use {@link #DISPLAY_ENTRY_END}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     DISPLAY_EVENT_END,
 
     /**
@@ -2352,7 +2352,7 @@ public enum Option {
      *
      * @deprecated use {@link #ENTRY_SOURCE_END_PARAM}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     EXTERNAL_EVENT_SOURCE_END_PARAM("endParam"),
 
     /**
@@ -2361,7 +2361,7 @@ public enum Option {
      *
      * @deprecated use {@link #ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     EXTERNAL_EVENT_SOURCE_GOOGLE_CALENDAR_API_KEY("googleCalendarApiKey"),
 
     /**
@@ -2370,7 +2370,7 @@ public enum Option {
      *
      * @deprecated use {@link #ENTRY_SOURCE_START_PARAM}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     EXTERNAL_EVENT_SOURCE_START_PARAM("startParam"),
 
     /**
@@ -2379,7 +2379,7 @@ public enum Option {
      *
      * @deprecated use {@link #ENTRY_SOURCE_TIME_ZONE_PARAM}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     EXTERNAL_EVENT_SOURCE_TIME_ZONE_PARAM("timeZoneParam"),
 
     /**
@@ -2502,7 +2502,7 @@ public enum Option {
      *
      * @deprecated use {@link #FORCE_ENTRY_DURATION}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     FORCE_EVENT_DURATION,
 
     /**
@@ -3122,7 +3122,7 @@ public enum Option {
      *
      * @deprecated use {@link #DAY_MAX_ENTRIES}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     MAX_ENTRIES_PER_DAY("dayMaxEvents"),
 
     /**
@@ -3364,7 +3364,7 @@ public enum Option {
      *
      * @deprecated use {@link #VIEW_HINT}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     NATIVE_TOOLBAR_VIEW_HINT("viewHint"),
 
     /**
@@ -3993,7 +3993,7 @@ public enum Option {
      *
      * @deprecated use {@link #PROGRESSIVE_ENTRY_RENDERING}, which sets the same FullCalendar option
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     PROGRESSIVE_EVENT_RENDERING,
 
     /**

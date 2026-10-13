@@ -2011,7 +2011,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and
      * {@code new DateRange(start, null)}
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     public void setValidRangeStart(LocalDate start) {
         setOption(Option.VALID_RANGE, new DateRange(start, null));
     }
@@ -2024,7 +2024,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and
      * {@code new DateRange(null, end)}
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     public void setValidRangeEnd(LocalDate end) {
         setOption(Option.VALID_RANGE, new DateRange(null, end));
     }
@@ -2039,7 +2039,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * @throws IllegalArgumentException if both are non-null and {@code start} is not before {@code end}
      * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and a {@link DateRange}
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     public void setValidRange(LocalDate start, LocalDate end) {
         setOption(Option.VALID_RANGE, start == null && end == null ? null : new DateRange(start, end));
     }
@@ -2051,7 +2051,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      *
      * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and {@code null}
      */
-    @Deprecated(since = "8.0.0", forRemoval = true)
+    @Deprecated(since = "7.3.0", forRemoval = true)
     public void clearValidRange() {
         setOption(Option.VALID_RANGE, null);
     }
