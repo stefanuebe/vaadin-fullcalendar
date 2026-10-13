@@ -5014,15 +5014,17 @@ public enum Option {
      * their position on the calendar and the dates the client sends to the server.
      * <dl>
      *   <dt>Type</dt> <dd>{@link Timezone} | time zone id as {@code String} (e.g., {@code "UTC"},
-     *                     {@code "America/New_York"}), stored as {@link Timezone}. {@code "local"} (any case) is the
-     *                     same as {@link FullCalendar#withAutoBrowserTimezone()}. The calendar then follows the
-     *                     browser's time zone, and the option keeps its current value, empty by default, until the
-     *                     server has learned it. Any other string that is not a time zone id throws an
+     *                     {@code "America/New_York"}), stored as {@link Timezone}. {@code "local"} (any case) is not
+     *                     stored. Setting it is the same as calling {@link FullCalendar#withAutoBrowserTimezone()}.
+     *                     Any other string that is not a time zone id throws an
      *                     {@link IllegalArgumentException}.</dd>
      *   <dt>Default</dt> <dd>not set. The calendar then shows UTC, or the browser's time zone with
      *                        {@link FullCalendar#withAutoBrowserTimezone()}. FullCalendar's own default is
      *                        {@code "local"}.</dd>
      * </dl>
+     * After {@link FullCalendar#withAutoBrowserTimezone()}, the calendar sets the browser's time zone as this option
+     * each time the browser reports it, which happens on every attach. A time zone set with {@code setOption} in
+     * between applies until the browser reports its time zone again.
      * <pre>{@code
      * calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
      * Optional<Timezone> timezone = calendar.getOption(Option.TIMEZONE); // Europe/Berlin

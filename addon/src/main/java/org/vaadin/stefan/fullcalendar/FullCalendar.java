@@ -134,7 +134,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     private int timeslotsSelectedListenerCount;
 
     private Timezone browserTimezone;
-    private boolean autoBrowserTimezone;
     private boolean autoUiLocale;
 
     private String currentViewName;
@@ -1146,17 +1145,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * Lets the calendar follow the time zone of the browser. The browser reports it after attach, and the calendar
-     * sets it as {@link Option#TIMEZONE}. If the browser time zone is already known, it is applied at once. A later
-     * {@code setOption(Option.TIMEZONE, …)} applies until the browser reports its time zone again, for instance
-     * after the calendar is attached anew. Setting {@link Option#TIMEZONE} to {@code "local"} (any case) does the same.
-     * <p>
-     * While {@link Option#TIMEZONE} is not set, the calendar shows the browser's time zone instead of UTC.
+     * Lets the calendar follow the time zone of the browser. The calendar sets the browser's time zone as
+     * {@link Option#TIMEZONE} each time the browser reports it, which happens on attach. If the browser's time zone
+     * is already known, the calendar sets it at once.
      *
      * @return this instance
+     * @see Option#TIMEZONE
      */
     public FullCalendar withAutoBrowserTimezone() {
-        autoBrowserTimezone = true;
         // read by the client when it creates the calendar, so it has no effect on a calendar that is already shown
         getElement().setProperty("autoBrowserTimezone", true);
         // Before attach the browser has not reported yet. setBrowserTimezone applies the time zone once it does.
@@ -1212,7 +1208,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     protected void setBrowserTimezone(String timezoneId) {
         if (timezoneId != null) {
             this.browserTimezone = new Timezone(ZoneId.of(timezoneId));
-            if (autoBrowserTimezone) {
+            if (getElement().getProperty("autoBrowserTimezone", false)) {
                 setOption(Option.TIMEZONE, browserTimezone);
             }
             getEventBus().fireEvent(new BrowserTimezoneObtainedEvent(this, false, browserTimezone));
