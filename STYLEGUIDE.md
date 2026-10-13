@@ -221,6 +221,15 @@ Applies to the wiki pages `Release-notes-<version>` and `Migration-guide-<from>-
   written out in full, so a reader can search their code for them. Not
   "`_END_PARAM`", but "`EXTERNAL_EVENT_SOURCE_END_PARAM`". Each area gets a
   before-and-after example, with the old code in a `// was:` comment.
+- **Every paragraph of a migration guide leads to an action.** The action is one the
+  reader has to take, or one we strongly advise. Check each paragraph with three
+  questions:
+  1. Does a reader have to act because of it? If not, it is a changelog item and
+     leaves the guide. It belongs in the release notes if it matters to readers.
+  2. Is the action clear? Say what to do and who is affected ("if you set an option
+     to your own object, …"), not only what changed.
+  3. Does a before-and-after example show it? Most actions need one. An action that
+     is a single obvious step, such as removing a call, may go without.
 - **Call the version before "the previous version", not by its line.** "7.x" in
   prose confuses readers, even with the glossary. Each page says once which version
   "the previous version" means, for example "it means 7.3". "Previously … now"
