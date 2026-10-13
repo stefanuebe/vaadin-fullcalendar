@@ -212,7 +212,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         boolean localTimezone = initialOptions.path(Option.TIMEZONE.getOptionKey()).isString()
                 && isLocalTimezone(initialOptions.get(Option.TIMEZONE.getOptionKey()).asString());
         if (localTimezone) {
-            // not sent, or the client would show the browser time zone while the server still computes in UTC
+            // not sent, so the option stays empty until the browser reports its zone, as with setOption
             initialOptions = initialOptions.deepCopy();
             initialOptions.remove(Option.TIMEZONE.getOptionKey());
         }
@@ -1150,11 +1150,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * sets it as {@link Option#TIMEZONE}. If the browser time zone is already known, it is applied at once. A later
      * {@code setOption(Option.TIMEZONE, …)} applies until the browser reports its time zone again, for instance
      * after the calendar is attached anew. Setting {@link Option#TIMEZONE} to {@code "local"} (any case) does the same.
+     * <p>
+     * Until the browser has reported its time zone, the client shows the local time of the browser instead of UTC,
+     * if no {@link Option#TIMEZONE} is set. A time zone that is already set stays until the report.
      *
      * @return this instance
      */
     public FullCalendar withAutoBrowserTimezone() {
         autoBrowserTimezone = true;
+        // read by the client when it creates the calendar, so it has no effect on a calendar that is already shown
+        getElement().setProperty("autoBrowserTimezone", true);
         // Before attach the browser has not reported yet. setBrowserTimezone applies the time zone once it does.
         getBrowserTimezone().ifPresent(timezone -> setOption(Option.TIMEZONE, timezone));
         return this;

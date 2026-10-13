@@ -49,6 +49,15 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
     }
 
     @Test
+    void autoBrowserTimezone_letsTheClientStartWithLocalTime() {
+        assertFalse(calendar.getElement().getProperty("autoBrowserTimezone", false));
+
+        calendar.withAutoBrowserTimezone();
+
+        assertTrue(calendar.getElement().getProperty("autoBrowserTimezone", false));
+    }
+
+    @Test
     void withoutAutoBrowserTimezone_reportedTimezone_isNotApplied() {
         calendar.setBrowserTimezone("Europe/Berlin");
 
@@ -61,6 +70,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
         calendar.setOption(Option.TIMEZONE, "Local");
 
         assertTrue(calendar.getOption(Option.TIMEZONE).isEmpty());
+        assertTrue(calendar.getElement().getProperty("autoBrowserTimezone", false));
 
         calendar.setBrowserTimezone("Europe/Berlin");
 
@@ -84,6 +94,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
 
         assertTrue(calendar.getOption(Option.TIMEZONE).isEmpty());
         assertFalse(((ObjectNode) calendar.getElement().getPropertyRaw("initialJsonOptions")).has("timeZone"));
+        assertTrue(calendar.getElement().getProperty("autoBrowserTimezone", false));
 
         calendar.setBrowserTimezone("Europe/Berlin");
 
