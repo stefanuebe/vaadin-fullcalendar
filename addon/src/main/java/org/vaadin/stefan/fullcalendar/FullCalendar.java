@@ -1155,6 +1155,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     public FullCalendar withAutoBrowserTimezone() {
         autoBrowserTimezone = true;
+        // Before attach the browser has not reported yet. setBrowserTimezone applies the time zone once it does.
         getBrowserTimezone().ifPresent(timezone -> setOption(Option.TIMEZONE, timezone));
         return this;
     }
