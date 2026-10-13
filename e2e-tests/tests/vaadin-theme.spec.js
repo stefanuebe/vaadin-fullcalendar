@@ -42,6 +42,10 @@ const colorIn = (page, selector, value) => page.locator(selector).first().evalua
  */
 const calendarBackground = (page, selector) => colorIn(page, selector, 'var(--fc-classic-background)');
 
+/** Sets a CSS variable on the page's root element, as an application's stylesheet would for html. */
+const setOnPage = (page, variable, value) => page.evaluate(([n, v]) => document.documentElement.style.setProperty(n, v),
+    [variable, value]);
+
 const backgroundOf = (locator) => locator.evaluate((el) => getComputedStyle(el).backgroundColor);
 
 /**
@@ -195,5 +199,38 @@ test.describe('FullCalendar Vaadin theme', () => {
         await expect(today).toHaveCount(1);
         expect(await today.evaluate((el) => getComputedStyle(el).color))
             .toBe(await colorIn(page, '#cal-vaadin', 'var(--lumo-primary-text-color)'));
+    });
+
+    test('the accent color set on the page colors the entries of every calendar', async ({ page }) => {
+        await gotoView(page, '');
+        await setOnPage(page, '--vaadin-fc-accent-color', 'rgb(1, 2, 3)');
+
+        expect(await backgroundOf(page.locator('#cal-vaadin .fc-event').first())).toBe('rgb(1, 2, 3)');
+        expect(await backgroundOf(page.locator('#cal-vaadin-dark .fc-event').first())).toBe('rgb(1, 2, 3)');
+        // the entry color set for one calendar wins over the accent
+        expect(await backgroundOf(page.locator('#cal-vaadin-custom-variable .fc-event').first()))
+            .toBe('rgb(10, 20, 30)');
+    });
+
+    test('the entry color set by a class on one calendar colors only that calendar', async ({ page }) => {
+        await gotoView(page, '');
+
+        // vaadin-theme-override.css sets --vaadin-fc-entry-color for the class custom-vaadin-entry-color
+        expect(await backgroundOf(page.locator('#cal-vaadin-custom-variable .fc-event').first()))
+            .toBe('rgb(10, 20, 30)');
+        expect(await backgroundOf(page.locator('#cal-vaadin .fc-event').first()))
+            .toBe(await colorIn(page, '#cal-vaadin', 'var(--lumo-primary-color)'));
+    });
+
+    test('a hovered more link takes the hover color, by default a light accent', async ({ page }) => {
+        await gotoView(page, '');
+        const moreLink = page.locator('#cal-vaadin .fc-more-link').first();
+        await moreLink.hover();
+
+        expect(await backgroundOf(moreLink)).toBe(
+            await colorIn(page, '#cal-vaadin', 'color-mix(in srgb, var(--lumo-primary-color) 10%, transparent)'));
+
+        await setOnPage(page, '--vaadin-fc-hover-color', 'rgb(11, 22, 33)');
+        expect(await backgroundOf(moreLink)).toBe('rgb(11, 22, 33)');
     });
 });

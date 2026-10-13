@@ -32,6 +32,20 @@ const schedulerClassNames = {
 };
 
 /**
+ * Class names for the hover, focus and active states of the list-item entries and more links in day rows, which
+ * classic colors with its muted tones. The list view below does the same for its entries, which classic colors with
+ * its faint tones. vaadin-theme.css colors these states by the theme's own variables, so the tones keep their meaning
+ * as surface colors. The conditions are classic's, so the states apply to the elements classic gives them to.
+ */
+// FC-UPDATE: compare the conditions with classic's listItemEventClass and rowMoreLinkClass.
+const dayRowClassNames: PluginInput['optionDefaults'] = {
+    listItemEventClass: (info) => info.isSelected
+        ? ''
+        : joinClassNames('fc-vaadin-hover', info.isInteractive && 'fc-vaadin-muted-pressable'),
+    rowMoreLinkClass: 'fc-vaadin-hover fc-vaadin-muted-pressable',
+};
+
+/**
  * The FullCalendar Vaadin theme, the default theme of the add-on. It builds on FullCalendar's classic theme and adds
  * the class names that vaadin-theme.css styles. FullCalendar joins them with classic's class names.
  * <p>
@@ -50,7 +64,17 @@ const vaadinTheme: PluginInput = {
         dayCellTopInnerClass: (info) => joinClassNames('fc-vaadin-small', info.isToday && 'fc-vaadin-today'),
         slotHeaderInnerClass: 'fc-vaadin-small',
         weekNumberHeaderInnerClass: 'fc-vaadin-small',
+        nonBusinessHoursClass: 'fc-vaadin-non-business',
         ...schedulerClassNames,
+    },
+    views: {
+        dayGrid: dayRowClassNames,
+        multiMonth: dayRowClassNames,
+        timeGrid: dayRowClassNames,
+        list: {
+            listItemEventClass: (info) => joinClassNames('fc-vaadin-hover',
+                info.isInteractive && 'fc-vaadin-faint-pressable'),
+        },
     },
 };
 
