@@ -1,4 +1,5 @@
 import {joinClassNames, PluginInput} from 'fullcalendar';
+// @ts-ignore TypeScript knows no type of a plain CSS import
 import './demo-plain.css';
 
 /**

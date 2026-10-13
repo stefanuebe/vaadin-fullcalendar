@@ -2,6 +2,7 @@ import {joinClassNames, PluginInput} from 'fullcalendar';
 import breezyTheme from 'fullcalendar/themes/breezy';
 // @ts-ignore TypeScript knows no type of a plain CSS import
 import 'fullcalendar/themes/breezy/theme.css';
+// @ts-ignore TypeScript knows no type of a plain CSS import
 import './demo-breezy.css';
 
 /**
