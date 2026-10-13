@@ -1146,13 +1146,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * Lets the calendar follow the time zone of the browser. The client reports it after attach, and the calendar
+     * Lets the calendar follow the time zone of the browser. The browser reports it after attach, and the calendar
      * sets it as {@link Option#TIMEZONE}. If the browser time zone is already known, it is applied at once. A later
      * {@code setOption(Option.TIMEZONE, …)} applies until the browser reports its time zone again, for instance
      * after the calendar is attached anew. Setting {@link Option#TIMEZONE} to {@code "local"} (any case) does the same.
      * <p>
-     * Until the browser has reported its time zone, the client shows the local time of the browser instead of UTC,
-     * if no {@link Option#TIMEZONE} is set. A time zone that is already set stays until the report.
+     * The server learns the browser's time zone only after the calendar is shown. If no {@link Option#TIMEZONE} is
+     * set, the calendar shows times in the browser's time zone from the start, not in UTC, so entries do not move
+     * once the server sets the time zone. If {@link Option#TIMEZONE} is set, the calendar shows that time zone until
+     * the server has learned the browser's time zone.
      *
      * @return this instance
      */
