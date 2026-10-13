@@ -806,6 +806,19 @@ public class EntryTest {
         assertTrue(extendedProps.get("cleared").isNull());
     }
 
+    @Test
+    void toJson_sendsExtendedPropTimesWithoutZeroSeconds() {
+        Entry entry = new Entry();
+        entry.setExtendedProp("time", LocalTime.of(10, 0));
+        entry.setExtendedProp("at", LocalDateTime.of(2025, 3, 10, 10, 0));
+        entry.setExtendedProp("withSeconds", LocalTime.of(10, 0, 30));
+
+        ObjectNode extendedProps = (ObjectNode) entry.toJson().get("extendedProps");
+        assertEquals("10:00", extendedProps.get("time").asString());
+        assertEquals("2025-03-10T10:00", extendedProps.get("at").asString());
+        assertEquals("10:00:30", extendedProps.get("withSeconds").asString());
+    }
+
     static class NoProperties {
     }
 

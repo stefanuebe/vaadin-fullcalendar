@@ -6,6 +6,8 @@ import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -301,6 +303,17 @@ public class ResourceTest {
 
         resource.addExtendedProps("room", new Room("Atlas", 3));
         Assertions.assertTrue(resource.toJson().get("room").isString(), "the method that set the value last decides");
+    }
+
+    @Test
+    void toJson_sendsExtendedPropTimesWithoutZeroSeconds() {
+        Resource resource = new Resource();
+        resource.setExtendedProp("time", LocalTime.of(10, 0));
+        resource.setExtendedProp("at", LocalDateTime.of(2025, 3, 10, 10, 0));
+
+        ObjectNode json = resource.toJson();
+        Assertions.assertEquals("10:00", json.get("time").asString());
+        Assertions.assertEquals("2025-03-10T10:00", json.get("at").asString());
     }
 
     // -------------------------------------------------------------------------
