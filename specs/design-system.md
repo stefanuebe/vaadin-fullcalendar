@@ -26,22 +26,47 @@ calendar.setTheme(FullCalendarTheme.MONARCH);
 
 The FullCalendar Vaadin theme is classic plus `vaadin-theme.css`. The plugin puts the class `fc-vaadin` on the calendar,
 its popover and its entries. The rules set classic's color variables `--fc-classic-*` on `.fc-vaadin`, inside the
-cascade layer `fc-palette` (ADR 0002), so unlayered application CSS overrides them:
+cascade layer `fc-palette` (ADR 0002), so unlayered application CSS overrides them.
+
+The `--vaadin-fc-*` variables, named by purpose, are the documented way to restyle the theme. The theme does not define
+them. It reads each with its default as the fallback, so an application sets them on `html`, `:root` or a class of one
+calendar:
 
 ```css
-.fc-vaadin { --fc-classic-event: #2e7d32; }
+html { --vaadin-fc-accent-color: #2e7d32; }
+.my-calendar { --vaadin-fc-entry-color: #c62828; }
 ```
 
-The colors derive from three base colors of the application theme:
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `--vaadin-fc-bg-color` | calendar background | `--lumo-base-color` / `--aura-surface-color-solid` |
+| `--vaadin-fc-text-color` | text, base of the neutral tones | `--lumo-body-text-color` / `--aura-neutral` |
+| `--vaadin-fc-accent-color` | accent | `--lumo-primary-color` / `--aura-accent-color` |
+| `--vaadin-fc-accent-text-color` | accent as a text color | `--lumo-primary-text-color` / `--aura-accent-text-color` |
+| `--vaadin-fc-entry-color` | entries | accent |
+| `--vaadin-fc-entry-text-color` | text on entries | `--lumo-primary-contrast-color` / `--aura-accent-contrast-color` |
+| `--vaadin-fc-background-entry-color` | background entries | accent |
+| `--vaadin-fc-selection-color` | selected dates and time slots | accent 20% |
+| `--vaadin-fc-today-color` | background of the today badge | accent 10% |
+| `--vaadin-fc-today-text-color` | text of the today badge | accent text |
+| `--vaadin-fc-now-indicator-color` | now indicator | text 50% |
+| `--vaadin-fc-hover-color` | hover of list-item entries, more links and list view entries | accent 10% |
+| `--vaadin-fc-focus-color` | `:focus-visible` of the same elements | classic's muted tone (faint in the list view) |
+| `--vaadin-fc-active-color` | `:active` of the same elements | classic's strong tone (muted in the list view) |
+| `--vaadin-fc-border-color` | grid lines | text 12% |
+| `--vaadin-fc-non-business-color` | non-business hours | classic's faint tone (text 4%) |
+| `--vaadin-fc-font-size-s` | small text | `--lumo-font-size-s` / `--aura-font-size-s` |
 
-| Base color | Lumo | Aura |
-|------------|------|------|
-| Background | `--lumo-base-color` | `--aura-surface-color-solid` |
-| Text | `--lumo-body-text-color` | `--aura-neutral` |
-| Accent | `--lumo-primary-color` | `--aura-accent-color` |
+The base colors are resolved on the outermost `.fc-vaadin` element, so a base color set on one calendar reaches the
+derived colors of that calendar. Neutral backgrounds, borders and secondary text are `color-mix()` of the text color.
+The base `--vaadin-*` colors are the fallback without Lumo and Aura. Buttons and the fine neutral tones have no
+`--vaadin-fc-*` variable. They keep the `--fc-classic-*` variables.
 
-Neutral backgrounds, borders and secondary text are `color-mix()` of the text color. The base `--vaadin-*` colors are the
-fallback without Lumo and Aura. There are no `--vaadin-fc-*` variables.
+Classic colors hover, focus and active with its faint, muted and strong tones, which it also uses for surfaces, and
+non-business hours with the faint tone it also uses for disabled days. The plugin adds the classes
+`fc-vaadin-hover`, `fc-vaadin-muted-pressable`, `fc-vaadin-faint-pressable` and `fc-vaadin-non-business` under
+classic's conditions, and `vaadin-theme.css` colors these states with the variables above instead of reassigning the
+tones.
 
 **Color scheme**: Lumo and Aura switch colors through `color-scheme`. `Option.COLOR_SCHEME` sets `data-color-scheme` on
 the calendar, its popover and a dragged entry, which switches `color-scheme` for them.

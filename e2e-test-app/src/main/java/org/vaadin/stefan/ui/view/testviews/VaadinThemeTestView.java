@@ -20,9 +20,10 @@ import java.time.ZoneOffset;
  * Calendars show today with two entries, of which one fits and one is behind the "+1 more" link. The first uses the
  * default theme, the second and third the default theme with the option colorScheme set to dark and to light, the
  * fourth classic. The entries of the dark one can be dragged. The fifth has the class "custom-entry-color", for which
- * the application stylesheet sets the entry colors, over its rule for all calendars. The sixth shows a day in March
- * 2025 with one entry of a JSON feed entry source. Open the view with {@code ?theme=aura} and {@code ?scheme=dark} for
- * Aura and a dark application, see {@link AppTheme}.
+ * the application stylesheet sets the entry colors, over its rule for all calendars. The sixth has the class
+ * "custom-vaadin-entry-color", for which the application stylesheet sets the theme's variable for the entry color. The
+ * seventh shows a day in March 2025 with one entry of a JSON feed entry source. Open the view with
+ * {@code ?theme=aura} and {@code ?scheme=dark} for Aura and a dark application, see {@link AppTheme}.
  * <p>
  * The button "Remove color scheme" sets the option colorScheme of the light calendar to null and disables itself.
  * <p>
@@ -59,13 +60,16 @@ public class VaadinThemeTestView extends VerticalLayout {
         FullCalendar custom = createCalendar("cal-vaadin-custom");
         custom.addClassName("custom-entry-color");
 
+        FullCalendar customVariable = createCalendar("cal-vaadin-custom-variable");
+        customVariable.addClassName("custom-vaadin-entry-color");
+
         FullCalendar source = new FullCalendar();
         source.setId("cal-vaadin-source");
         source.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 10));
         source.addRemoteEntrySource(new JsonFeedEntrySource("/test-data/vaadin-theme-entries.json"));
 
-        add(removeColorScheme, standard, dark, light, classic, custom, source);
-        setFlexGrow(1, standard, dark, light, classic, custom, source);
+        add(removeColorScheme, standard, dark, light, classic, custom, customVariable, source);
+        setFlexGrow(1, standard, dark, light, classic, custom, customVariable, source);
     }
 
     /** Its entries are on today in the calendar's time zone, UTC, which also decides the client's today. */
