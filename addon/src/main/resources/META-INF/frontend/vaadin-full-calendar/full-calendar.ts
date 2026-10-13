@@ -170,6 +170,11 @@ export class FullCalendar extends HTMLElement {
     /** The moreLinkClick value of the initial JSON options, see {@link setMoreLinkClickAction}. */
     private _moreLinkClickWithoutServer: any;
     protected prefetchEnabled = false;
+    /**
+     * Set by withAutoBrowserTimezone(). Without a time zone option, the calendar starts with the browser's time
+     * zone instead of UTC.
+     */
+    protected autoBrowserTimezone = false;
 
     /** Pending revert functions from eventDrop/eventResize, keyed by entry ID. */
     private _pendingReverts: Map<string, () => void> = new Map();
@@ -272,7 +277,7 @@ export class FullCalendar extends HTMLElement {
         let events = this.createEventHandlers();
 
         let options: CalendarOptions = {
-            timeZone: 'UTC',
+            timeZone: this.autoBrowserTimezone ? 'local' : 'UTC',
             // // no native control elements
             headerToolbar: false,
             weekNumbers: true,
