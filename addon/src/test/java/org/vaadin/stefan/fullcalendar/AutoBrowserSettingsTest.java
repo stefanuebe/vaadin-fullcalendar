@@ -4,6 +4,7 @@ import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.ZoneId;
 import java.util.Locale;
@@ -53,6 +54,40 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
 
         assertTrue(calendar.getOption(Option.TIMEZONE).isEmpty());
         assertEquals(BERLIN, calendar.getBrowserTimezone().orElseThrow());
+    }
+
+    @Test
+    void timezoneLocal_isEmptyUntilBrowserReports_thenHoldsReportedZone() {
+        calendar.setOption(Option.TIMEZONE, "Local");
+
+        assertTrue(calendar.getOption(Option.TIMEZONE).isEmpty());
+
+        calendar.setBrowserTimezone("Europe/Berlin");
+
+        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
+    }
+
+    @Test
+    void timezoneLocal_stringKey_behavesLikeOptionKey() {
+        calendar.setBrowserTimezone("Europe/Berlin");
+
+        calendar.setOption("timeZone", "local");
+
+        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
+    }
+
+    @Test
+    void timezoneLocal_inInitialOptions_behavesLikeSetOption() {
+        ObjectNode initialOptions = JsonFactory.createObject();
+        initialOptions.put("timeZone", "local");
+        calendar = new FullCalendar(initialOptions);
+
+        assertTrue(calendar.getOption(Option.TIMEZONE).isEmpty());
+        assertFalse(((ObjectNode) calendar.getElement().getPropertyRaw("initialJsonOptions")).has("timeZone"));
+
+        calendar.setBrowserTimezone("Europe/Berlin");
+
+        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
     }
 
     // -------------------------------------------------------------------------
