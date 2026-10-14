@@ -230,6 +230,9 @@ Applies to the wiki pages `Release-notes-<version>` and `Migration-guide-<from>-
      to your own object, …"), not only what changed.
   3. Does a before-and-after example show it? Most actions need one. An action that
      is a single obvious step, such as removing a call, may go without.
+  4. Is it unclear whether a reader is affected? Then say it both ways: who has
+     to act, and that everyone else needs no change ("Your code needs no change for
+     this.").
 - **Call the version before "the previous version", not by its line.** "7.x" in
   prose confuses readers, even with the glossary. Each page says once which version
   "the previous version" means, for example "it means 7.3". "Previously … now"
