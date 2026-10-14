@@ -26,6 +26,31 @@ public class CalendarLocaleTest {
     }
 
     @Test
+    void defaultLocaleMatchesSupportedLocaleExactly() {
+        Assertions.assertEquals(CalendarLocale.GERMAN_AUSTRIA, CalendarLocale.matchDefault(Locale.of("de", "AT")));
+        Assertions.assertEquals(CalendarLocale.PORTUGUESE_BRAZIL, CalendarLocale.matchDefault(Locale.of("pt", "BR")));
+    }
+
+    @Test
+    void defaultLocaleFallsBackToLanguageOfUnsupportedRegion() {
+        Assertions.assertEquals(CalendarLocale.FRENCH, CalendarLocale.matchDefault(Locale.FRANCE));
+        Assertions.assertEquals(CalendarLocale.ITALIAN, CalendarLocale.matchDefault(Locale.ITALY));
+        Assertions.assertEquals(CalendarLocale.SPANISH, CalendarLocale.matchDefault(Locale.of("es", "ES")));
+        Assertions.assertEquals(CalendarLocale.ENGLISH, CalendarLocale.matchDefault(Locale.US));
+    }
+
+    @Test
+    void defaultLocaleFallsBackToEnglishForUnsupportedLanguage() {
+        Assertions.assertEquals(CalendarLocale.ENGLISH, CalendarLocale.matchDefault(Locale.of("xx", "YY")));
+        Assertions.assertEquals(CalendarLocale.ENGLISH, CalendarLocale.matchDefault(Locale.ROOT));
+    }
+
+    @Test
+    void valueOfStaysExact() {
+        Assertions.assertTrue(CalendarLocale.valueOf(Locale.FRANCE).isEmpty());
+    }
+
+    @Test
     void testNonEmptyClientTags() {
         for (Locale locale : CalendarLocale.getAvailableLocales()) {
             String languageTag = locale.toLanguageTag();

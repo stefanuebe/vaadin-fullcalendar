@@ -106,7 +106,7 @@ public enum CalendarLocale {
             .map(CalendarLocale::getLocale)
             .toArray(Locale[]::new);
 
-    private static CalendarLocale defaultLocale = valueOf(Locale.getDefault()).orElse(ENGLISH);
+    private static CalendarLocale defaultLocale = matchDefault(Locale.getDefault());
 
     /**
      * The {@link Locale} instance representing this value
@@ -135,6 +135,16 @@ public enum CalendarLocale {
     }
 
     /**
+     * Finds the default calendar locale for the given locale: the exact match, else the match for its language
+     * (for example {@code fr_FR} gives {@link #FRENCH}), else {@link #ENGLISH}.
+     */
+    static CalendarLocale matchDefault(Locale locale) {
+        return valueOf(locale)
+                .or(() -> valueOf(Locale.of(locale.getLanguage())))
+                .orElse(ENGLISH);
+    }
+
+    /**
      * Get all available locales as an array of {@link Locale}.
      *
      * @return available locales
@@ -144,8 +154,9 @@ public enum CalendarLocale {
     }
 
     /**
-     * Returns the default locale. This is by default the system language. If the system language is not supported
-     * by the calender, english will be used instead.
+     * Returns the default locale. This is by default the system locale. If the calendar does not support the system
+     * locale, the language of the system locale is used (for example {@code fr} for {@code fr_FR}), and if that is
+     * not supported either, English.
      * <p>
      * This value is used as a fallback in different places, if no locale could be
      * determined from the browser (or that should not be used).
@@ -157,8 +168,8 @@ public enum CalendarLocale {
     }
 
     /**
-     * Sets the default locale. This is by default the system language. If the system language is not supported
-     * by the calender, english will be used instead.
+     * Sets the default locale, which replaces the one derived from the system locale
+     * (see {@link #getDefaultLocale()}).
      * <p>
      * This value is used as a fallback in different places, if no locale could be
      * determined from the browser (or that should not be used).
