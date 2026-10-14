@@ -27,22 +27,22 @@ public class CalendarLocaleTest {
 
     @Test
     void defaultLocaleMatchesSupportedLocaleExactly() {
-        Assertions.assertEquals(CalendarLocale.GERMAN_AUSTRIA, CalendarLocale.matchDefault(Locale.of("de", "AT")));
-        Assertions.assertEquals(CalendarLocale.PORTUGUESE_BRAZIL, CalendarLocale.matchDefault(Locale.of("pt", "BR")));
+        Assertions.assertEquals(CalendarLocale.GERMAN_AUSTRIA, CalendarLocale.findDefaultFor(Locale.of("de", "AT")));
+        Assertions.assertEquals(CalendarLocale.PORTUGUESE_BRAZIL, CalendarLocale.findDefaultFor(Locale.of("pt", "BR")));
     }
 
     @Test
     void defaultLocaleFallsBackToLanguageOfUnsupportedRegion() {
-        Assertions.assertEquals(CalendarLocale.FRENCH, CalendarLocale.matchDefault(Locale.FRANCE));
-        Assertions.assertEquals(CalendarLocale.ITALIAN, CalendarLocale.matchDefault(Locale.ITALY));
-        Assertions.assertEquals(CalendarLocale.SPANISH, CalendarLocale.matchDefault(Locale.of("es", "ES")));
-        Assertions.assertEquals(CalendarLocale.ENGLISH, CalendarLocale.matchDefault(Locale.US));
+        Assertions.assertEquals(CalendarLocale.FRENCH, CalendarLocale.findDefaultFor(Locale.FRANCE));
+        Assertions.assertEquals(CalendarLocale.ITALIAN, CalendarLocale.findDefaultFor(Locale.ITALY));
+        Assertions.assertEquals(CalendarLocale.SPANISH, CalendarLocale.findDefaultFor(Locale.of("es", "ES")));
+        Assertions.assertEquals(CalendarLocale.ENGLISH, CalendarLocale.findDefaultFor(Locale.US));
     }
 
     @Test
     void defaultLocaleFallsBackToEnglishForUnsupportedLanguage() {
-        Assertions.assertEquals(CalendarLocale.ENGLISH, CalendarLocale.matchDefault(Locale.of("xx", "YY")));
-        Assertions.assertEquals(CalendarLocale.ENGLISH, CalendarLocale.matchDefault(Locale.ROOT));
+        Assertions.assertEquals(CalendarLocale.ENGLISH, CalendarLocale.findDefaultFor(Locale.of("xx", "YY")));
+        Assertions.assertEquals(CalendarLocale.ENGLISH, CalendarLocale.findDefaultFor(Locale.ROOT));
     }
 
     @Test
