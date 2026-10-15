@@ -104,6 +104,14 @@ class JsCallbackTest {
     }
 
     @Test
+    void jsCallback_isMarker() {
+        assertTrue(JsCallback.isMarker(JsCallback.of("() => {}").toMarkerJson()));
+        assertFalse(JsCallback.isMarker(JsonFactory.createObject().put("month", "short")));
+        assertFalse(JsCallback.isMarker(JsonFactory.create("() => {}")));
+        assertFalse(JsCallback.isMarker(null));
+    }
+
+    @Test
     void jsCallback_fromMarkerJson_rejectsOtherValues() {
         for (JsonNode value : List.of(JsonFactory.createObject(), JsonFactory.createObject().put("__jsCallback", 1),
                 JsonFactory.createObject().putNull("__jsCallback"), JsonFactory.createObject().put("__jsCallback", " "),

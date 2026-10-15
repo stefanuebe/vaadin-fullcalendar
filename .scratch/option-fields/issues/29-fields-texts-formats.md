@@ -21,3 +21,5 @@
 - [ ] A browserless test sets one field per value form of this batch and finds it in the client state.
 
 **Note from 22 (2026-10-15):** an option that takes a text or a callback returning a text (`moreLinkText`, and the hints with a callback form such as `navLinkHint`, `nextHint`, `prevHint`, `todayHint`) uses `ContentValue` (`TextContent` or `JsCallback`), with one setter per form.
+
+**Note from 24 (2026-10-15):** the format options take `DateFormatValue` (`DateFormat` or `JsCallback`), except `listDayFormat` and `listDayAltFormat`, which take `ListDayFormatValue` (also `Hidden`). `listText` takes `ListTextValue` (`TextContent` or `Hidden`).

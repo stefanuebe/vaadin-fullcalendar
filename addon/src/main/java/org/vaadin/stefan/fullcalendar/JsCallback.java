@@ -57,8 +57,8 @@ import java.util.Objects;
  * date format function, such as one for {@link Option#TITLE_FORMAT}, it is an internal object of the library in
  * that call. Later calls get the calendar.
  */
-public final class JsCallback implements ClassNameValue, ContentValue, CssSelectorValue, HeaderAlignValue, OverlapValue,
-        ViewNameValue {
+public final class JsCallback implements ClassNameValue, ContentValue, CssSelectorValue, DateFormatValue,
+        HeaderAlignValue, ListDayFormatValue, NowValue, OverlapValue, ViewNameValue {
 
     private static final String MARKER_KEY = "__jsCallback";
 
@@ -99,6 +99,17 @@ public final class JsCallback implements ClassNameValue, ContentValue, CssSelect
      */
     public static JsCallback clearCallback() {
         return null;
+    }
+
+    /**
+     * Returns whether the value is a marker object as {@link #toMarkerJson()} produces it. A converter whose other forms
+     * are objects too tells them apart with it.
+     *
+     * @param value the value
+     * @return true for a marker object
+     */
+    public static boolean isMarker(JsonNode value) {
+        return value != null && value.isObject() && value.has(MARKER_KEY);
     }
 
     /**

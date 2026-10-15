@@ -19,12 +19,12 @@ package org.vaadin.stefan.fullcalendar;
 import java.util.Objects;
 
 /**
- * A text as the content or the text of an element, for an option that takes a {@link ContentValue}. The library shows
- * it as text, not as HTML.
+ * A text as the content or the text of an element, for an option that takes a {@link ContentValue} or a
+ * {@link ListTextValue}. The library shows it as text, not as HTML.
  *
  * @param text the text
  */
-public record TextContent(String text) implements ContentValue {
+public record TextContent(String text) implements ContentValue, ListTextValue {
 
     public TextContent {
         Objects.requireNonNull(text);

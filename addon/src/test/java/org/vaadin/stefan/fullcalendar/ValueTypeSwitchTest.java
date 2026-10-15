@@ -2,6 +2,9 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -11,6 +14,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ValueTypeSwitchTest {
 
     private static final JsCallback CALLBACK = JsCallback.of("() => {}");
+
+    private static String form(AutoBoolean value) {
+        return switch (value) {
+            case TRUE -> "true";
+            case FALSE -> "false";
+            case AUTO -> "auto";
+        };
+    }
 
     private static String form(BusinessHoursValue value) {
         return switch (value) {
@@ -25,6 +36,13 @@ class ValueTypeSwitchTest {
             case ConstraintValue.GroupId groupId -> groupId.groupId();
             case ConstraintValue.CalendarBusinessHours ignored -> "businessHours";
             case ConstraintValue.Windows windows -> "windows";
+        };
+    }
+
+    private static String form(DateFormatValue value) {
+        return switch (value) {
+            case DateFormat format -> "format";
+            case JsCallback callback -> "callback";
         };
     }
 
@@ -64,10 +82,49 @@ class ValueTypeSwitchTest {
         };
     }
 
+    private static String form(HeightValue value) {
+        return switch (value) {
+            case HeightValue.Auto ignored -> "auto";
+            case HeightValue.Pixels pixels -> String.valueOf(pixels.pixels());
+            case HeightValue.Css css -> css.length();
+        };
+    }
+
+    private static String form(ListDayFormatValue value) {
+        return switch (value) {
+            case DateFormat format -> "format";
+            case JsCallback callback -> "callback";
+            case Hidden hidden -> "hidden";
+        };
+    }
+
+    private static String form(ListTextValue value) {
+        return switch (value) {
+            case TextContent text -> text.text();
+            case Hidden hidden -> "hidden";
+        };
+    }
+
+    private static String form(NowValue value) {
+        return switch (value) {
+            case NowValue.Day day -> day.date().toString();
+            case NowValue.DateTime dateTime -> dateTime.dateTime().toString();
+            case JsCallback callback -> "callback";
+        };
+    }
+
     private static String form(OverlapValue value) {
         return switch (value) {
             case Overlap overlap -> overlap.name();
             case JsCallback callback -> "callback";
+        };
+    }
+
+    private static String form(StickyValue value) {
+        return switch (value) {
+            case StickyValue.NotSticky ignored -> "not sticky";
+            case StickyValue.Sticky ignored -> "sticky";
+            case StickyValue.Offset offset -> offset.offset();
         };
     }
 
@@ -88,6 +145,21 @@ class ValueTypeSwitchTest {
     @Test
     void everyFormIsNamed() {
         assertEquals("none", form(BusinessHoursValue.NONE));
+        assertEquals("auto", form(AutoBoolean.AUTO));
+        assertEquals("format", form((DateFormatValue) DateFormat.of(Map.of("day", "numeric"))));
+        assertEquals("callback", form((DateFormatValue) CALLBACK));
+        assertEquals("auto", form(HeightValue.AUTO));
+        assertEquals("650", form(HeightValue.ofPixels(650)));
+        assertEquals("50vh", form(HeightValue.ofCss("50vh")));
+        assertEquals("format", form((ListDayFormatValue) DateFormat.of(Map.of("day", "numeric"))));
+        assertEquals("callback", form((ListDayFormatValue) CALLBACK));
+        assertEquals("hidden", form((ListDayFormatValue) Hidden.INSTANCE));
+        assertEquals("Agenda", form((ListTextValue) TextContent.of("Agenda")));
+        assertEquals("hidden", form((ListTextValue) Hidden.INSTANCE));
+        assertEquals("2026-10-15", form(NowValue.of(LocalDate.of(2026, 10, 15))));
+        assertEquals("callback", form((NowValue) CALLBACK));
+        assertEquals("not sticky", form(StickyValue.NOT_STICKY));
+        assertEquals("2em", form(StickyValue.offset("2em")));
         assertEquals("default", form(BusinessHoursValue.DEFAULT));
         assertEquals("hours", form(BusinessHoursValue.of(BusinessHours.businessWeek())));
         assertEquals("meetings", form(ConstraintValue.groupId("meetings")));

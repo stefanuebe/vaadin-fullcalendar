@@ -13,6 +13,7 @@ import java.lang.reflect.Modifier;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +44,7 @@ class ConverterTest {
      * converter (spec), so the scan below finds the fields of value types by the converter.
      */
     static final Map<Class<?>, ValueType> VALUE_TYPES = Map.ofEntries(
+            Map.entry(AutoBoolean.class, new ValueType(AutoBooleanConverter.class, List.of(AutoBoolean.values()))),
             Map.entry(BusinessHoursValue.class, new ValueType(BusinessHoursValueConverter.class, List.of(
                     BusinessHoursValue.NONE, BusinessHoursValue.DEFAULT,
                     BusinessHoursValue.of(BusinessHours.businessWeek().start(9).end(17),
@@ -57,13 +59,28 @@ class ConverterTest {
                     List.of(TextContent.of("all day"), JsCallback.of("info => info.text")))),
             Map.entry(CssSelectorValue.class, new ValueType(CssSelectorValueConverter.class,
                     List.of(CssSelector.of(".item"), JsCallback.of("el => true")))),
+            Map.entry(DateFormatValue.class, new ValueType(DateFormatValueConverter.class, List.of(
+                    DateFormat.of(Map.of("month", "short", "day", "numeric", "omitCommas", true, "hour12", false)),
+                    JsCallback.of("arg => arg.date.year")))),
             Map.entry(EntryLimit.class, new ValueType(EntryLimitConverter.class,
                     List.of(EntryLimit.NONE, EntryLimit.CELL_HEIGHT, EntryLimit.of(0), EntryLimit.of(3)))),
+            Map.entry(HeightValue.class, new ValueType(HeightValueConverter.class,
+                    List.of(HeightValue.AUTO, HeightValue.ofPixels(0), HeightValue.ofPixels(650),
+                            HeightValue.ofCss("50vh")))),
             Map.entry(HeaderAlignValue.class, new ValueType(HeaderAlignValueConverter.class,
                     Stream.<Object>concat(Arrays.stream(HeaderAlign.values()), Stream.of(JsCallback.of("() => 'end'")))
                             .toList())),
+            Map.entry(ListDayFormatValue.class, new ValueType(ListDayFormatValueConverter.class, List.of(
+                    DateFormat.of(Map.of("weekday", "long")), JsCallback.of("arg => 'day'"), Hidden.INSTANCE))),
+            Map.entry(ListTextValue.class, new ValueType(ListTextValueConverter.class,
+                    List.of(TextContent.of("Agenda"), Hidden.INSTANCE))),
+            Map.entry(NowValue.class, new ValueType(NowValueConverter.class, List.of(
+                    NowValue.of(LocalDate.of(2026, 10, 15)), NowValue.of(LocalDateTime.of(2026, 10, 15, 9, 30)),
+                    JsCallback.of("() => new Date()")))),
             Map.entry(OverlapValue.class, new ValueType(OverlapValueConverter.class,
                     List.of(Overlap.ALLOWED, Overlap.FORBIDDEN, JsCallback.of("(still, moving) => false")))),
+            Map.entry(StickyValue.class, new ValueType(StickyValueConverter.class,
+                    List.of(StickyValue.NOT_STICKY, StickyValue.STICKY, StickyValue.offset("2em")))),
             Map.entry(ViewNameValue.class, new ValueType(ViewNameValueConverter.class,
                     List.of(ViewName.of("timeGridDay"), JsCallback.of("(date, jsEvent) => {}")))));
 
@@ -121,6 +138,37 @@ class ConverterTest {
         assertEquals(JsonFactory.createArray().add(BusinessHours.businessWeek().toJson()),
                 new ConstraintValueConverter()
                         .toClientModel(ConstraintValue.windows(BusinessHours.businessWeek()), null));
+        assertEquals(JsonUtils.toJsonNode("auto"), new AutoBooleanConverter().toClientModel(AutoBoolean.AUTO, null));
+        assertEquals(JsonUtils.toJsonNode(true), new AutoBooleanConverter().toClientModel(AutoBoolean.TRUE, null));
+        assertEquals(JsonUtils.toJsonNode("auto"), new HeightValueConverter().toClientModel(HeightValue.AUTO, null));
+        assertEquals(JsonUtils.toJsonNode(650),
+                new HeightValueConverter().toClientModel(HeightValue.ofPixels(650), null));
+        assertEquals(JsonUtils.toJsonNode(false),
+                new StickyValueConverter().toClientModel(StickyValue.NOT_STICKY, null));
+        assertEquals(StickyValue.offset("10px"),
+                new StickyValueConverter().toServerModel(JsonUtils.toJsonNode(10), null));
+        assertEquals(JsonUtils.toJsonNode("2em"),
+                new StickyValueConverter().toClientModel(StickyValue.offset("2em"), null));
+        assertEquals(JsonUtils.toJsonNode(false), new ListTextValueConverter().toClientModel(Hidden.INSTANCE, null));
+        assertEquals(JsonUtils.toJsonNode(false),
+                new ListDayFormatValueConverter().toClientModel(Hidden.INSTANCE, null));
+        assertEquals(JsonFactory.createObject().put("weekday", "long"),
+                new DateFormatValueConverter().toClientModel(DateFormat.of(Map.of("weekday", "long")), null));
+        assertEquals(JsonUtils.toJsonNode("50vh"),
+                new HeightValueConverter().toClientModel(HeightValue.ofCss("50vh"), null));
+        assertEquals(StickyValue.offset("10.5px"),
+                new StickyValueConverter().toServerModel(JsonUtils.toJsonNode(10.5), null));
+        assertEquals(JsonUtils.toJsonNode("Agenda"),
+                new ListTextValueConverter().toClientModel(TextContent.of("Agenda"), null));
+        assertEquals(JsonFactory.createObject().put("hour12", false).put("minute", 2),
+                new DateFormatValueConverter()
+                        .toClientModel(DateFormat.of(Map.of("hour12", false, "minute", 2)), null));
+        assertEquals(callback.toMarkerJson(), new NowValueConverter().toClientModel(callback, null));
+        assertEquals(callback.toMarkerJson(), new ListDayFormatValueConverter().toClientModel(callback, null));
+        assertEquals(JsonUtils.toJsonNode("2026-10-15"),
+                new NowValueConverter().toClientModel(NowValue.of(LocalDate.of(2026, 10, 15)), null));
+        assertEquals(JsonUtils.toJsonNode("2026-10-15T09:30Z"), new NowValueConverter()
+                .toClientModel(NowValue.of(LocalDateTime.of(2026, 10, 15, 9, 30)), null));
         JsonNode endOfDay = new BusinessHoursValueConverter().toClientModel(
                 BusinessHoursValue.of(BusinessHours.of(DayOfWeek.SUNDAY).start(LocalTime.of(10, 30)).end(24)), null);
         assertEquals("10:30", endOfDay.get(0).get("startTime").asString());
@@ -144,6 +192,9 @@ class ConverterTest {
         assertThrows(IllegalArgumentException.class, () -> EntryLimit.of(-1));
         assertThrows(IllegalArgumentException.class, ConstraintValue::windows);
         assertThrows(IllegalArgumentException.class, BusinessHoursValue::of);
+        assertThrows(IllegalArgumentException.class, () -> DateFormat.of(Map.of("month", List.of("short"))));
+        assertThrows(IllegalArgumentException.class, () -> HeightValue.ofPixels(-1));
+        assertThrows(IllegalArgumentException.class, () -> HeightValue.ofCss("auto"));
     }
 
     @Test
@@ -173,6 +224,22 @@ class ConverterTest {
                 () -> new EntryLimitConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new OverlapValueConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new AutoBooleanConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new HeightValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ListTextValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
+        assertThrows(IllegalArgumentException.class, () -> new DateFormatValueConverter()
+                .toServerModel(JsonFactory.createObject().set("month", JsonFactory.createArray()), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new NowValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new StickyValueConverter().toServerModel(JsonFactory.createArray(), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ListDayFormatValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ListDayFormatValueConverter().toServerModel(JsonUtils.toJsonNode("MMM d"), null));
     }
 
     @Test
@@ -222,7 +289,8 @@ class ConverterTest {
             Set<Object> forms = valueType.samples().stream()
                     .map(value -> value instanceof Enum<?> constant ? constant : value.getClass())
                     .collect(Collectors.toSet());
-            for (Class<?> form : type.getPermittedSubclasses()) {
+            Class<?>[] permitted = type.isEnum() ? new Class<?>[]{type} : type.getPermittedSubclasses();
+            for (Class<?> form : permitted) {
                 if (form.isEnum()) {
                     assertTrue(forms.containsAll(List.of(form.getEnumConstants())), type + ": " + form);
                 } else {
