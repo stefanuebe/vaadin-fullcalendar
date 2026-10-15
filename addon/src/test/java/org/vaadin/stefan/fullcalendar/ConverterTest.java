@@ -14,7 +14,9 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,27 +35,37 @@ class ConverterTest {
     // -------------------------------------------------------------------------
 
     /** A value type with the converter its fields use and values of each form. */
-    private record ValueType(Class<? extends JsonItemPropertyConverter<?, ?>> converter, List<Object> samples) {
+    record ValueType(Class<? extends JsonItemPropertyConverter<?, ?>> converter, List<Object> samples) {
     }
 
     /**
      * Every value type, with at least one value per form. A new value type adds itself here. Every value type has a
      * converter (spec), so the scan below finds the fields of value types by the converter.
      */
-    private static final Map<Class<?>, ValueType> VALUE_TYPES = Map.of(
-            ClassNameValue.class, new ValueType(ClassNameValueConverter.class,
-                    List.of(ClassName.of("a b"), JsCallback.of("info => 'a'"))),
-            ContentValue.class, new ValueType(ContentValueConverter.class,
-                    List.of(TextContent.of("all day"), JsCallback.of("info => info.text"))),
-            CssSelectorValue.class, new ValueType(CssSelectorValueConverter.class,
-                    List.of(CssSelector.of(".item"), JsCallback.of("el => true"))),
-            HeaderAlignValue.class, new ValueType(HeaderAlignValueConverter.class,
+    static final Map<Class<?>, ValueType> VALUE_TYPES = Map.ofEntries(
+            Map.entry(BusinessHoursValue.class, new ValueType(BusinessHoursValueConverter.class, List.of(
+                    BusinessHoursValue.NONE, BusinessHoursValue.DEFAULT,
+                    BusinessHoursValue.of(BusinessHours.businessWeek().start(9).end(17),
+                            BusinessHours.of(DayOfWeek.SATURDAY).start(LocalTime.of(10, 30)).end(24))))),
+            Map.entry(ClassNameValue.class, new ValueType(ClassNameValueConverter.class,
+                    List.of(ClassName.of("a b"), JsCallback.of("info => 'a'")))),
+            Map.entry(ConstraintValue.class, new ValueType(ConstraintValueConverter.class, List.of(
+                    ConstraintValue.groupId("meetings"), ConstraintValue.BUSINESS_HOURS,
+                    ConstraintValue.windows(BusinessHours.businessWeek().start(10).end(18)),
+                    ConstraintValue.windows(BusinessHours.of(DayOfWeek.MONDAY), BusinessHours.of(DayOfWeek.FRIDAY))))),
+            Map.entry(ContentValue.class, new ValueType(ContentValueConverter.class,
+                    List.of(TextContent.of("all day"), JsCallback.of("info => info.text")))),
+            Map.entry(CssSelectorValue.class, new ValueType(CssSelectorValueConverter.class,
+                    List.of(CssSelector.of(".item"), JsCallback.of("el => true")))),
+            Map.entry(EntryLimit.class, new ValueType(EntryLimitConverter.class,
+                    List.of(EntryLimit.NONE, EntryLimit.CELL_HEIGHT, EntryLimit.of(0), EntryLimit.of(3)))),
+            Map.entry(HeaderAlignValue.class, new ValueType(HeaderAlignValueConverter.class,
                     Stream.<Object>concat(Arrays.stream(HeaderAlign.values()), Stream.of(JsCallback.of("() => 'end'")))
-                            .toList()),
-            OverlapValue.class, new ValueType(OverlapValueConverter.class,
-                    List.of(Overlap.ALLOWED, Overlap.FORBIDDEN, JsCallback.of("(still, moving) => false"))),
-            ViewNameValue.class, new ValueType(ViewNameValueConverter.class,
-                    List.of(ViewName.of("timeGridDay"), JsCallback.of("(date, jsEvent) => {}"))));
+                            .toList())),
+            Map.entry(OverlapValue.class, new ValueType(OverlapValueConverter.class,
+                    List.of(Overlap.ALLOWED, Overlap.FORBIDDEN, JsCallback.of("(still, moving) => false")))),
+            Map.entry(ViewNameValue.class, new ValueType(ViewNameValueConverter.class,
+                    List.of(ViewName.of("timeGridDay"), JsCallback.of("(date, jsEvent) => {}")))));
 
     /** Field types with a converter that are no value type, since their options take one form only. */
     private static final Set<Class<?>> ONE_FORM_TYPES = Set.of(DayOfWeek.class, LocalDate.class);
@@ -95,13 +107,92 @@ class ConverterTest {
         assertEquals(callback.toMarkerJson(), new OverlapValueConverter().toClientModel(callback, null));
         assertEquals(callback.toMarkerJson(), new CssSelectorValueConverter().toClientModel(callback, null));
         assertEquals(callback.toMarkerJson(), new ViewNameValueConverter().toClientModel(callback, null));
+        assertEquals(JsonUtils.toJsonNode(false),
+                new BusinessHoursValueConverter().toClientModel(BusinessHoursValue.NONE, null));
+        assertEquals(JsonUtils.toJsonNode(true),
+                new BusinessHoursValueConverter().toClientModel(BusinessHoursValue.DEFAULT, null));
+        assertEquals(JsonFactory.createArray().add(BusinessHours.businessWeek().toJson()),
+                new BusinessHoursValueConverter()
+                        .toClientModel(BusinessHoursValue.of(BusinessHours.businessWeek()), null));
+        assertEquals(JsonUtils.toJsonNode("businessHours"),
+                new ConstraintValueConverter().toClientModel(ConstraintValue.BUSINESS_HOURS, null));
+        assertEquals(JsonUtils.toJsonNode("meetings"),
+                new ConstraintValueConverter().toClientModel(ConstraintValue.groupId("meetings"), null));
+        assertEquals(JsonFactory.createArray().add(BusinessHours.businessWeek().toJson()),
+                new ConstraintValueConverter()
+                        .toClientModel(ConstraintValue.windows(BusinessHours.businessWeek()), null));
+        JsonNode endOfDay = new BusinessHoursValueConverter().toClientModel(
+                BusinessHoursValue.of(BusinessHours.of(DayOfWeek.SUNDAY).start(LocalTime.of(10, 30)).end(24)), null);
+        assertEquals("10:30", endOfDay.get(0).get("startTime").asString());
+        assertEquals("24:00", endOfDay.get(0).get("endTime").asString());
+        assertEquals(0, endOfDay.get(0).get("daysOfWeek").get(0).asInt());
+        assertEquals(JsonUtils.toJsonNode(false), new EntryLimitConverter().toClientModel(EntryLimit.NONE, null));
+        assertEquals(JsonUtils.toJsonNode(true), new EntryLimitConverter().toClientModel(EntryLimit.CELL_HEIGHT, null));
+        assertEquals(JsonUtils.toJsonNode(3), new EntryLimitConverter().toClientModel(EntryLimit.of(3), null));
     }
 
     /** A value-or-callback type that JsCallback implements is a value type, with or without fields yet. */
     @Test
     void everyTypeJsCallbackImplements_isAValueType() {
-        assertEquals(Set.of(JsCallback.class.getInterfaces()), VALUE_TYPES.keySet(),
+        assertTrue(VALUE_TYPES.keySet().containsAll(Set.of(JsCallback.class.getInterfaces())),
                 "A value type JsCallback implements belongs into VALUE_TYPES");
+    }
+
+    @Test
+    void valueTypes_rejectValuesTheLibraryReadsDifferently() {
+        assertThrows(IllegalArgumentException.class, () -> ConstraintValue.groupId("businessHours"));
+        assertThrows(IllegalArgumentException.class, () -> EntryLimit.of(-1));
+        assertThrows(IllegalArgumentException.class, ConstraintValue::windows);
+        assertThrows(IllegalArgumentException.class, BusinessHoursValue::of);
+    }
+
+    @Test
+    void constraintValueConverter_readsASingleObjectAsOneWindow() {
+        assertEquals(ConstraintValue.windows(BusinessHours.businessWeek()),
+                new ConstraintValueConverter().toServerModel(BusinessHours.businessWeek().toJson(), null));
+    }
+
+    @Test
+    void valueTypeConverters_rejectOtherClientValues() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new BusinessHoursValueConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
+        JsonNode incomplete = JsonFactory.createArray().add(JsonFactory.createObject().put("startTime", "10:00"));
+        assertThrows(IllegalArgumentException.class,
+                () -> new BusinessHoursValueConverter().toServerModel(incomplete, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ConstraintValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ConstraintValueConverter().toServerModel(JsonFactory.createArray().add(1), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ConstraintValueConverter().toServerModel(JsonFactory.createArray(), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new EntryLimitConverter().toServerModel(JsonUtils.toJsonNode(-1), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new EntryLimitConverter().toServerModel(JsonUtils.toJsonNode(3.5), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new EntryLimitConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new OverlapValueConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
+    }
+
+    @Test
+    void valueTypes_withListsKeepTheirValueWhenThePassedListChanges() {
+        List<BusinessHours> hours = new ArrayList<>(List.of(BusinessHours.businessWeek()));
+        BusinessHoursValue value = new BusinessHoursValue.Hours(hours);
+        hours.add(BusinessHours.allDays());
+        assertEquals(List.of(BusinessHours.businessWeek()), ((BusinessHoursValue.Hours) value).hours());
+        assertThrows(UnsupportedOperationException.class,
+                () -> ((BusinessHoursValue.Hours) value).hours().add(BusinessHours.allDays()));
+
+        List<BusinessHours> windows = new ArrayList<>(List.of(BusinessHours.businessWeek()));
+        ConstraintValue constraint = new ConstraintValue.Windows(windows);
+        windows.add(BusinessHours.allDays());
+        assertEquals(ConstraintValue.windows(BusinessHours.businessWeek()), constraint);
+
+        Set<DayOfWeek> days = new HashSet<>(Set.of(DayOfWeek.MONDAY));
+        BusinessHours monday = BusinessHours.of(days);
+        days.add(DayOfWeek.TUESDAY);
+        assertEquals(Set.of(DayOfWeek.MONDAY), monday.getDayOfWeeks());
     }
 
     /**

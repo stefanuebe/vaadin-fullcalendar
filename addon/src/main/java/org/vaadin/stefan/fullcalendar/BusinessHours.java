@@ -126,7 +126,7 @@ public class BusinessHours implements Serializable {
             throw new IllegalArgumentException("End must not be before start");
         }
 
-        this.dayOfWeeks = dayOfWeeks;
+        this.dayOfWeeks = Collections.unmodifiableSet(EnumSet.copyOf(dayOfWeeks));
         this.start = start;
         this.end = end;
 
@@ -212,7 +212,7 @@ public class BusinessHours implements Serializable {
         jsonObject.set("daysOfWeek", JsonUtils.toJsonNode(dayOfWeeks.stream().map(BusinessHours::convertToClientSideDow)));
 
         jsonObject.set("startTime", JsonUtils.toJsonNode(start));
-        jsonObject.set("endTime", JsonUtils.toJsonNode(end == LocalTime.MAX ? "24:00" : end));
+        jsonObject.set("endTime", JsonUtils.toJsonNode(end.equals(LocalTime.MAX) ? "24:00" : end));
 
         return jsonObject;
     }

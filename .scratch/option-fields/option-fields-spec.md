@@ -125,7 +125,8 @@ For an option the add-on has no field for, `setRawOption(String, Object)` passes
 @Getter @Setter
 class ViewOptions implements Serializable {
     @JsonName("dayMaxEventRows")              // "event" in the library, "entry" in Java (as in the prototype)
-    private Integer dayMaxEntryRows;
+    @JsonConverter(EntryLimitConverter.class)
+    private EntryLimit dayMaxEntryRows;        // sealed: None | CellHeight | Count
 
     @JsonConverter(ClassNameValueConverter.class)
     private ClassNameValue dayCellClass;      // sealed: ClassName | JsCallback

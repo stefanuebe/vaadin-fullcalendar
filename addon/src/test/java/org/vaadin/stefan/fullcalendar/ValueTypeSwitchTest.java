@@ -12,6 +12,30 @@ class ValueTypeSwitchTest {
 
     private static final JsCallback CALLBACK = JsCallback.of("() => {}");
 
+    private static String form(BusinessHoursValue value) {
+        return switch (value) {
+            case BusinessHoursValue.None ignored -> "none";
+            case BusinessHoursValue.Default ignored -> "default";
+            case BusinessHoursValue.Hours hours -> "hours";
+        };
+    }
+
+    private static String form(ConstraintValue value) {
+        return switch (value) {
+            case ConstraintValue.GroupId groupId -> groupId.groupId();
+            case ConstraintValue.CalendarBusinessHours ignored -> "businessHours";
+            case ConstraintValue.Windows windows -> "windows";
+        };
+    }
+
+    private static String form(EntryLimit value) {
+        return switch (value) {
+            case EntryLimit.None ignored -> "none";
+            case EntryLimit.CellHeight ignored -> "cell height";
+            case EntryLimit.Count count -> String.valueOf(count.count());
+        };
+    }
+
     private static String form(ClassNameValue value) {
         return switch (value) {
             case ClassName className -> className.names();
@@ -56,13 +80,22 @@ class ValueTypeSwitchTest {
 
     @Test
     void everyValueTypeHasASwitch() throws NoSuchMethodException {
-        for (Class<?> valueType : JsCallback.class.getInterfaces()) {
+        for (Class<?> valueType : ConverterTest.VALUE_TYPES.keySet()) {
             ValueTypeSwitchTest.class.getDeclaredMethod("form", valueType);
         }
     }
 
     @Test
     void everyFormIsNamed() {
+        assertEquals("none", form(BusinessHoursValue.NONE));
+        assertEquals("default", form(BusinessHoursValue.DEFAULT));
+        assertEquals("hours", form(BusinessHoursValue.of(BusinessHours.businessWeek())));
+        assertEquals("meetings", form(ConstraintValue.groupId("meetings")));
+        assertEquals("businessHours", form(ConstraintValue.BUSINESS_HOURS));
+        assertEquals("windows", form(ConstraintValue.windows(BusinessHours.businessWeek())));
+        assertEquals("none", form(EntryLimit.NONE));
+        assertEquals("cell height", form(EntryLimit.CELL_HEIGHT));
+        assertEquals("3", form(EntryLimit.of(3)));
         assertEquals("a", form((ClassNameValue) ClassName.of("a")));
         assertEquals("callback", form((ClassNameValue) CALLBACK));
         assertEquals("text", form((ContentValue) TextContent.of("text")));
