@@ -20,4 +20,5 @@
 - [ ] The scheduler's `view(…)` sets a core and a scheduler field without a cast.
 - [ ] A core calendar's view object has no scheduler accessors (pinned API).
 - [ ] `SchedulerSerializationTest` covers scheduler options and view values.
+- [ ] The static checks of 11 in `addon-scheduler` check only the fields the scheduler classes declare. The core test covers the inherited ones, and the core resource is not on the scheduler's test classpath (see the note in 11).
 - [ ] The scheduler data classes carry an `FC-UPDATE` comment that points to the scheduler's option-name resource (from 10).
