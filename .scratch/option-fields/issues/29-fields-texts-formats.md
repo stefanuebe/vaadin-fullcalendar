@@ -19,3 +19,5 @@
 - [ ] Every field follows *Field batches* in `README.md` (Javadoc with `@see`, section, wrapper type, global or per view as the option-name resource says).
 - [ ] The static checks (11) pass with the new fields; the pinned method list and the converter round trip (12) include them.
 - [ ] A browserless test sets one field per value form of this batch and finds it in the client state.
+
+**Note from 22 (2026-10-15):** an option that takes a text or a callback returning a text (`moreLinkText`, and the hints with a callback form such as `navLinkHint`, `nextHint`, `prevHint`, `todayHint`) uses `ContentValue` (`TextContent` or `JsCallback`), with one setter per form.

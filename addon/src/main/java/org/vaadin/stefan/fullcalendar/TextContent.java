@@ -19,7 +19,8 @@ package org.vaadin.stefan.fullcalendar;
 import java.util.Objects;
 
 /**
- * A text as the content of an element, for an option that takes content. The library shows it as text, not as HTML.
+ * A text as the content or the text of an element, for an option that takes a {@link ContentValue}. The library shows
+ * it as text, not as HTML.
  *
  * @param text the text
  */

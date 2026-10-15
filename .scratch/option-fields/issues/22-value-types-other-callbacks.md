@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-15) |
 | Blocked by | `06-value-or-callback-day-cell-class` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,16 @@
 
 **Blocked by:** `06-value-or-callback-day-cell-class`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-15)
 
-- [ ] Each type round-trips through its converter.
-- [ ] A test switches over each type without `default`.
+- [x] Each type round-trips through its converter.
+- [x] A test switches over each type without `default`.
+
+**Notes from the implementation (2026-10-15):**
+
+- New types, each with a converter that converts both ways:
+  - `OverlapValue permits Overlap, JsCallback` for `eventOverlap` and `selectOverlap`. `Overlap` is an enum `ALLOWED`/`FORBIDDEN` with `Overlap.of(boolean)`.
+  - `CssSelectorValue permits CssSelector, JsCallback` for `dropAccept`. `CssSelector` is a record with `selector`.
+  - `ViewNameValue permits ViewName, JsCallback` for `navLinkDayClick` and `navLinkWeekClick`. `ViewName` is a record with `name`, created from a string or a `CalendarView`. A `CalendarView` itself cannot be the form: the converter could not tell a custom view back from its name.
+- `moreLinkText` reuses `ContentValue` (`TextContent` or `JsCallback`). The two kinds are the same, so a separate text type would duplicate it.
+- `ValueTypeSwitchTest` switches over every value type without `default`. `ConverterTest` keeps the value types with their converters in `VALUE_TYPES` and round-trips each, also before a field uses it.

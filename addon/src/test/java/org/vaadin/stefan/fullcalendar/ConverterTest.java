@@ -32,15 +32,28 @@ class ConverterTest {
     // Value-or-callback converters: client form and back
     // -------------------------------------------------------------------------
 
+    /** A value type with the converter its fields use and values of each form. */
+    private record ValueType(Class<? extends JsonItemPropertyConverter<?, ?>> converter, List<Object> samples) {
+    }
+
     /**
-     * Values of each value type, at least one per form. A new value type adds its forms here. Every value type has a
-     * converter (spec), so the scan below finds its fields by the converter.
+     * Every value type, with at least one value per form. A new value type adds itself here. Every value type has a
+     * converter (spec), so the scan below finds the fields of value types by the converter.
      */
-    private static final Map<Class<?>, List<Object>> VALUE_TYPE_SAMPLES = Map.of(
-            ClassNameValue.class, List.of(ClassName.of("a b"), JsCallback.of("info => 'a'")),
-            ContentValue.class, List.of(TextContent.of("all day"), JsCallback.of("info => info.text")),
-            HeaderAlignValue.class, Stream.<Object>concat(Arrays.stream(HeaderAlign.values()),
-                    Stream.of(JsCallback.of("() => 'end'"))).toList());
+    private static final Map<Class<?>, ValueType> VALUE_TYPES = Map.of(
+            ClassNameValue.class, new ValueType(ClassNameValueConverter.class,
+                    List.of(ClassName.of("a b"), JsCallback.of("info => 'a'"))),
+            ContentValue.class, new ValueType(ContentValueConverter.class,
+                    List.of(TextContent.of("all day"), JsCallback.of("info => info.text"))),
+            CssSelectorValue.class, new ValueType(CssSelectorValueConverter.class,
+                    List.of(CssSelector.of(".item"), JsCallback.of("el => true"))),
+            HeaderAlignValue.class, new ValueType(HeaderAlignValueConverter.class,
+                    Stream.<Object>concat(Arrays.stream(HeaderAlign.values()), Stream.of(JsCallback.of("() => 'end'")))
+                            .toList()),
+            OverlapValue.class, new ValueType(OverlapValueConverter.class,
+                    List.of(Overlap.ALLOWED, Overlap.FORBIDDEN, JsCallback.of("(still, moving) => false"))),
+            ViewNameValue.class, new ValueType(ViewNameValueConverter.class,
+                    List.of(ViewName.of("timeGridDay"), JsCallback.of("(date, jsEvent) => {}"))));
 
     /** Field types with a converter that are no value type, since their options take one form only. */
     private static final Set<Class<?>> ONE_FORM_TYPES = Set.of(DayOfWeek.class, LocalDate.class);
@@ -57,14 +70,46 @@ class ConverterTest {
                 .filter(field -> !Modifier.isStatic(field.getModifiers()));
     }
 
-    /**
-     * Runs every value type through the converter its option fields use and back. A field with a converter or of a
-     * sealed type fails without samples, and the samples must contain each permitted subtype of a sealed value type
-     * and each constant of an enum, so neither a new value type nor a new form can skip the round trip.
-     */
     @Test
     @SuppressWarnings({"rawtypes", "unchecked"})
-    void everyValueType_roundTripsThroughTheConverterOfItsFields() throws ReflectiveOperationException {
+    void everyValueType_roundTripsThroughItsConverter() throws ReflectiveOperationException {
+        for (var entry : VALUE_TYPES.entrySet()) {
+            JsonItemPropertyConverter converter = entry.getValue().converter().getConstructor().newInstance();
+            for (Object value : entry.getValue().samples()) {
+                assertTrue(entry.getKey().isInstance(value), entry.getKey() + ": " + value);
+                assertTrue(converter.supports(value), entry.getKey() + ": " + value);
+                assertEquals(value, converter.toServerModel(converter.toClientModel(value, null), null));
+            }
+        }
+    }
+
+    @Test
+    void valueTypes_haveTheClientFormOfTheLibrary() {
+        JsCallback callback = JsCallback.of("() => {}");
+        assertEquals(JsonUtils.toJsonNode(true), new OverlapValueConverter().toClientModel(Overlap.ALLOWED, null));
+        assertEquals(JsonUtils.toJsonNode(false), new OverlapValueConverter().toClientModel(Overlap.FORBIDDEN, null));
+        assertEquals(JsonUtils.toJsonNode(".item"),
+                new CssSelectorValueConverter().toClientModel(CssSelector.of(".item"), null));
+        assertEquals(JsonUtils.toJsonNode("timeGridDay"),
+                new ViewNameValueConverter().toClientModel(ViewName.of("timeGridDay"), null));
+        assertEquals(callback.toMarkerJson(), new OverlapValueConverter().toClientModel(callback, null));
+        assertEquals(callback.toMarkerJson(), new CssSelectorValueConverter().toClientModel(callback, null));
+        assertEquals(callback.toMarkerJson(), new ViewNameValueConverter().toClientModel(callback, null));
+    }
+
+    /** A value-or-callback type that JsCallback implements is a value type, with or without fields yet. */
+    @Test
+    void everyTypeJsCallbackImplements_isAValueType() {
+        assertEquals(Set.of(JsCallback.class.getInterfaces()), VALUE_TYPES.keySet(),
+                "A value type JsCallback implements belongs into VALUE_TYPES");
+    }
+
+    /**
+     * A field with a converter or of a sealed type is of a value type and uses its converter, unless its type is in
+     * {@link #ONE_FORM_TYPES}.
+     */
+    @Test
+    void everyValueTypeField_usesTheConverterOfItsType() {
         List<Field> valueTypeFields = optionFields()
                 .filter(field -> field.isAnnotationPresent(JsonConverter.class) || field.getType().isSealed())
                 .filter(field -> !ONE_FORM_TYPES.contains(field.getType()))
@@ -72,23 +117,18 @@ class ConverterTest {
 
         assertFalse(valueTypeFields.isEmpty());
         for (Field field : valueTypeFields) {
-            List<Object> samples = VALUE_TYPE_SAMPLES.get(field.getType());
-            assertNotNull(samples, "No samples for " + field.getType().getSimpleName() + " of " + field.getName());
+            ValueType valueType = VALUE_TYPES.get(field.getType());
+            assertNotNull(valueType, "Not in VALUE_TYPES: " + field.getType().getSimpleName() + " of " + field.getName());
             JsonConverter annotation = field.getAnnotation(JsonConverter.class);
             assertNotNull(annotation, "No converter on " + field.getName());
-            JsonItemPropertyConverter converter = annotation.value().getConstructor().newInstance();
-            for (Object value : samples) {
-                assertTrue(converter.supports(value), field.getName() + ": " + value);
-                assertEquals(value, converter.toServerModel(converter.toClientModel(value, null), null),
-                        field.getName());
-            }
+            assertEquals(valueType.converter(), annotation.value(), field.getName());
         }
     }
 
     @Test
     void valueTypeSamples_coverEveryForm() {
-        VALUE_TYPE_SAMPLES.forEach((type, samples) -> {
-            Set<Object> forms = samples.stream()
+        VALUE_TYPES.forEach((type, valueType) -> {
+            Set<Object> forms = valueType.samples().stream()
                     .map(value -> value instanceof Enum<?> constant ? constant : value.getClass())
                     .collect(Collectors.toSet());
             for (Class<?> form : type.getPermittedSubclasses()) {

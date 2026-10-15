@@ -57,7 +57,8 @@ import java.util.Objects;
  * date format function, such as one for {@link Option#TITLE_FORMAT}, it is an internal object of the library in
  * that call. Later calls get the calendar.
  */
-public final class JsCallback implements ClassNameValue, ContentValue, HeaderAlignValue {
+public final class JsCallback implements ClassNameValue, ContentValue, CssSelectorValue, HeaderAlignValue, OverlapValue,
+        ViewNameValue {
 
     private static final String MARKER_KEY = "__jsCallback";
 

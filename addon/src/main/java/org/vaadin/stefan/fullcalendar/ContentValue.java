@@ -19,8 +19,9 @@ package org.vaadin.stefan.fullcalendar;
 import java.io.Serializable;
 
 /**
- * The value of a render hook option that sets the content of an element: a text or a {@link JsCallback} that returns
- * the content. A {@code switch} over it needs no {@code default} branch.
+ * The value of an option that sets the content or the text of an element: a text or a {@link JsCallback} that
+ * returns it. Render hooks such as {@code allDayHeaderContent} take it, and text options with a callback form, such
+ * as {@code moreLinkText}. A {@code switch} over it needs no {@code default} branch.
  */
 public sealed interface ContentValue extends Serializable permits TextContent, JsCallback {
 }
