@@ -277,8 +277,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         // Addon default: editable=true. FC's native default is false; since #212 the per-entry
         // editable flag is no longer force-pushed, so without this the out-of-the-box UX would
         // flip to "nothing draggable". Don't override an explicit value in the initialOptions ctor.
-        if (constructorInitialOptions == null
-                || !constructorInitialOptions.hasNonNull(Option.EDITABLE.getOptionKey())) {
+        // PROTOTYPE option-fields: the prototype calendar holds editable=true as a field initial value
+        if (!(this instanceof org.vaadin.stefan.fullcalendar.prototype.OptionFieldsPrototypeCalendar)
+                && (constructorInitialOptions == null
+                || !constructorInitialOptions.hasNonNull(Option.EDITABLE.getOptionKey()))) {
             setOption(Option.EDITABLE, true);
         }
 
