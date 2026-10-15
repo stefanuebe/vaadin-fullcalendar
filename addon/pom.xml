@@ -117,7 +117,6 @@
                  Free since Vaadin 25.1, needs no commercial key. -->
             <groupId>com.vaadin</groupId>
             <artifactId>browserless-test-junit6</artifactId>
-            <version>${vaadin.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
