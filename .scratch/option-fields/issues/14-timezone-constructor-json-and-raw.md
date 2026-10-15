@@ -18,3 +18,5 @@
 
 - [ ] Constructor JSON `"local"` gives `LOCAL`, `"Europe/Berlin"` gives that zone in the getter and the offset helpers.
 - [ ] `setRawOption("timeZone", …)` throws and names `options().setTimeZone`.
+
+**Note from 13 (2026-10-15):** until 14, a raw `timeZone` (constructor JSON with a concrete id, or `setRawOption`) wins on the client over the `local` the sync sends, while the server converts with the field. The rejection in `setRawOption` and the constructor's move into the field close that gap.

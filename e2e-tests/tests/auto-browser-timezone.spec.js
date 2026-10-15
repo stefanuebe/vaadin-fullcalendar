@@ -3,22 +3,25 @@ const { test, expect } = require('@playwright/test');
 const { waitForVaadin } = require('./fixtures');
 
 /**
- * FullCalendar.withAutoBrowserTimezone(): the time zone the browser reports becomes the calendar's time zone (#273).
+ * FullCalendar.withAutoBrowserTimezone(): the time zone the browser reports becomes the server's time zone (#273).
  */
 test.describe('Auto browser time zone', () => {
     test.use({ timezoneId: 'America/New_York' });
 
-    test('browser time zone becomes the calendar time zone on server and client', async ({ page }) => {
+    test('browser time zone becomes the server\'s time zone, the client keeps showing local time', async ({ page }) => {
         await page.goto('/test/auto-browser-timezone');
         await page.waitForSelector('.fc', { timeout: 15000 });
         await waitForVaadin(page);
 
         await expect(page.locator('#calendar-timezone')).toHaveText('America/New_York');
-        await expect.poll(() => page.evaluate(() => {
+        // the report changes nothing on the client, which already shows the browser's zone. A call that changed it
+        // would come with the same response, so the calls of that response must have run.
+        await waitForVaadin(page);
+        expect(await page.evaluate(() => {
             const calendarEl = document.querySelector('[data-testid="calendar"]');
             // @ts-ignore — custom element exposes FC's internal Calendar instance
             return calendarEl.calendar.getOption('timeZone');
-        })).toBe('America/New_York');
+        })).toBe('local');
     });
 
     test('calendar shows the local time of the browser before the browser has reported its time zone', async ({ page }) => {

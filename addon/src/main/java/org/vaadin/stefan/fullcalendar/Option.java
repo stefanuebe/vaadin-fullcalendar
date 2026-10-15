@@ -5014,17 +5014,14 @@ public enum Option {
      * their position on the calendar and the dates the client sends to the server.
      * <dl>
      *   <dt>Type</dt> <dd>{@link Timezone} | time zone id as {@code String} (e.g., {@code "UTC"},
-     *                     {@code "America/New_York"}), stored as {@link Timezone}. {@code "local"} (any case) is not
-     *                     stored. Setting it is the same as calling {@link FullCalendar#withAutoBrowserTimezone()}.
-     *                     Any other string that is not a time zone id throws an
-     *                     {@link IllegalArgumentException}.</dd>
-     *   <dt>Default</dt> <dd>not set. The calendar then shows UTC, or the browser's time zone with
-     *                        {@link FullCalendar#withAutoBrowserTimezone()}. FullCalendar's own default is
-     *                        {@code "local"}.</dd>
+     *                     {@code "America/New_York"}), stored as {@link Timezone}. {@code "local"} (any case) is
+     *                     {@link Timezone#LOCAL}. Any other string that is not a time zone id throws an
+     *                     {@link IllegalArgumentException}. Null sets {@link Timezone#LOCAL}.</dd>
+     *   <dt>Default</dt> <dd>{@link Timezone#LOCAL}, the browser's time zone.</dd>
      * </dl>
-     * After {@link FullCalendar#withAutoBrowserTimezone()}, the calendar sets the browser's time zone as this option
-     * each time the browser reports it, which happens on every attach. A time zone set with {@code setOption} in
-     * between applies until the browser reports its time zone again.
+     * Setting it is the same as {@link FullCalendarOptions#setTimeZone(Timezone)}, and {@code getOption} returns
+     * {@link FullCalendarOptions#getTimeZone()}: with {@link Timezone#LOCAL}, the zone the browser reported, or
+     * {@code LOCAL} before the report.
      * <pre>{@code
      * calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
      * Optional<Timezone> timezone = calendar.getOption(Option.TIMEZONE); // Europe/Berlin

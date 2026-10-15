@@ -43,6 +43,10 @@ module.exports = defineConfig({
 
     /* A click or fill on a missing element fails after this, not after the whole test timeout */
     actionTimeout: 5000,
+
+    /* The calendar shows the browser's time zone by default, so the tests do not depend on the machine's zone. A
+       test about time zones sets its own. */
+    timezoneId: 'UTC',
   },
 
   /* Configure projects for major browsers */

@@ -881,8 +881,8 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-     * to the client side timezone. By default UTC.
+     * Returns the time zone the offset helpers convert the internal UTC timestamp with: the calendar's time zone, see
+     * {@link FullCalendarOptions#getTimeZone()}. UTC while the entry belongs to no calendar.
      *
      * @return timezone
      */
@@ -891,8 +891,8 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the timezone which is used on the client side. It is used to convert the internal utc timestamp
-     * to the client side timezone. By default UTC.
+     * Returns the time zone the offset helpers convert the internal UTC timestamp with: the calendar's time zone, see
+     * {@link FullCalendarOptions#getTimeZone()}. UTC while the entry belongs to no calendar.
      *
      * @return timezone
      */

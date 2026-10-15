@@ -104,9 +104,9 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     }
 
     @Test
-    void timezone_deprecatedGetter_returnsUtcWhileNotSet() {
-        assertEquals(Timezone.UTC, calendar.getTimezone());
-        assertTrue(calendar.getOption(Option.TIMEZONE).isEmpty());
+    void timezone_deprecatedGetter_returnsLocalBeforeTheBrowserReports() {
+        assertEquals(Timezone.LOCAL, calendar.getTimezone());
+        assertEquals(Timezone.LOCAL, calendar.getOption(Option.TIMEZONE).orElseThrow());
     }
 
     @Test

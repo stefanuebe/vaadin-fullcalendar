@@ -52,6 +52,20 @@ public class FullCalendarOptions implements Serializable {
     }
 
     /**
+     * Sets the time zone the calendar shows the entries in, see {@link #getTimeZone()}.
+     * <p>
+     * {@link Timezone#LOCAL} lets the calendar follow the browser: each report of the browser's zone sets the zone the
+     * server converts with, while the browser keeps showing its own zone. If the browser has reported already, its
+     * zone applies at once. Any other zone is shown as it is and ends following the browser.
+     *
+     * @param timeZone the time zone
+     * @throws NullPointerException when null is passed
+     */
+    public void setTimeZone(Timezone timeZone) {
+        calendar.applyTimeZone(timeZone);
+    }
+
+    /**
      * Returns the options of one view type. A value set there overrides the calendar-wide value while that view is
      * shown. The returned object is live, like this one.
      * <p>

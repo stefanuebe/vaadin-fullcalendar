@@ -34,6 +34,15 @@ public class Timezone implements ClientSideValue {
      */
     public static final Timezone UTC = new Timezone(ZONE_ID_UTC, "UTC");
 
+    /**
+     * The time zone of the browser, FullCalendar's {@code "local"}. A calendar set to it takes the zone the browser
+     * reports, which happens on every attach, and keeps showing the browser's zone.
+     * <p>
+     * The conversion methods of this constant use UTC. Server code that runs before the browser's first report, for
+     * example in the constructor of a view, converts with UTC.
+     */
+    public static final Timezone LOCAL = new Timezone(ZONE_ID_UTC, "local");
+
     private static final Timezone[] AVAILABLE_ZONES;
 
     static {

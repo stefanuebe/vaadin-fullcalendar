@@ -22,3 +22,5 @@
 - [ ] `auto-browser-timezone.spec.js` passes or is adjusted.
 
 **Note from 04 (2026-10-15):** `e2e-tests/tests/option-reset.spec.js` now has "removing the time zone gives FullCalendar's default, the browser's zone", run with the browser zone `Asia/Tokyo`. It still expects the calendar to start in UTC (10:00). With `LOCAL` as the initial value the calendar starts in the browser's zone (19:00); adjust the start expectation here.
+
+**Note from 13 (2026-10-15):** the start expectation in `option-reset.spec.js` is adjusted already (19:00), and `auto-browser-timezone.spec.js` expects the client to keep `local` after the report. The Java side no longer sets the element property `autoBrowserTimezone`. Playwright now runs all specs with the browser zone UTC unless a spec sets its own.

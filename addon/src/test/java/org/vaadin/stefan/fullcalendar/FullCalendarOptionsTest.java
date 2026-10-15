@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Map;
@@ -127,7 +128,7 @@ public class FullCalendarOptionsTest {
         FullCalendar calendar = new FullCalendar();
         Timezone berlin = new Timezone(java.time.ZoneId.of("Europe/Berlin"));
 
-        assertEquals(Timezone.UTC, calendar.getOptionOrDefault(Option.TIMEZONE, Timezone.UTC));
+        assertEquals(DayOfWeek.SUNDAY, calendar.getOptionOrDefault(Option.FIRST_DAY, DayOfWeek.SUNDAY));
         assertEquals("fallback", calendar.getOptionOrDefault("someUnsetOption", "fallback"));
 
         calendar.setOption(Option.TIMEZONE, berlin);

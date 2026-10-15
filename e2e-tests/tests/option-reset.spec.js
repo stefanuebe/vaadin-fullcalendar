@@ -302,9 +302,9 @@ test.describe('Removing the time zone of an attached calendar', () => {
 
     test('removing the time zone gives FullCalendar\'s default, the browser\'s zone', async ({ page }) => {
         await gotoView(page);
-        // the timed entry starts at 10:00 UTC, the add-on starts the calendar in UTC
+        // the timed entry starts at 10:00 UTC, the calendar starts in the browser's zone
         const time = timedEntry(page).locator('.fc-event-time');
-        await expect(time).toContainText('10:00');
+        await expect(time).toContainText('19:00');
 
         await click(page, 'Set time zone');
         await expect(time).toContainText('05:00');

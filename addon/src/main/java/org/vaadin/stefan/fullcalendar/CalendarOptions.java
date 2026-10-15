@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
@@ -55,4 +56,22 @@ class CalendarOptions implements Serializable {
      */
     @JsonConverter(LocalDateConverter.class)
     private LocalDate initialDate;
+
+    /**
+     * The time zone the calendar shows the entries in. The server converts entry times with it. The default is
+     * {@link Timezone#LOCAL}, the browser's zone. While the calendar follows the browser, this returns the zone the
+     * browser reported, and {@code LOCAL}, which converts with UTC, before the first report.
+     * <p>
+     * The public setter is {@link FullCalendarOptions#setTimeZone(Timezone)}. Besides the field, it sets whether the
+     * calendar follows the browser.
+     *
+     * @see <a href="https://fullcalendar.io/docs/timeZone">timeZone</a>
+     */
+    @Setter(AccessLevel.NONE)
+    private Timezone timeZone = Timezone.LOCAL;
+
+    /** Sets the field only. The rules for {@link Timezone#LOCAL} are in {@link FullCalendar}. */
+    void setTimeZone(Timezone timeZone) {
+        this.timeZone = timeZone;
+    }
 }
