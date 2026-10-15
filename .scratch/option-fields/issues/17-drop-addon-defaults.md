@@ -18,3 +18,5 @@
 
 - [ ] The initial state contains none of the dropped options.
 - [ ] Playwright: a calendar with no options set has no week numbers, no draggable entries, non-sticky headers at full height and the browser's time zone.
+
+**Note from 05 (2026-10-15):** the `editable` default is now the field (`viewOptions.setEditable(true)` in `postConstruct`, still skipped when the constructor JSON sets `editable`), so a raw `editable` from the old API lies over it and removing that raw value brings `true` back. Dropping the default removes that line.

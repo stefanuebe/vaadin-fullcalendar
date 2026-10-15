@@ -58,9 +58,10 @@ public class FullCalendarTest {
     void testNonArgsConstructor() {
         FullCalendar calendar = new FullCalendar();
 
-        // locale + dayMaxEvents + height + editable (addon default)
-        assertExistingOptionCount(calendar, 4);
-        assertEquals(Boolean.TRUE, calendar.getOption(Option.EDITABLE).orElse(null));
+        // locale + dayMaxEvents + height
+        assertExistingOptionCount(calendar, 3);
+        // add-on default, a typed field
+        assertEquals(Boolean.TRUE, calendar.options().getEditable());
     }
 
     @Test
@@ -84,8 +85,8 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar();
         calendar.setMaxEntriesPerDay(entryLimit);
 
-        // locale + dayMaxEvents + height + editable (addon default)
-        assertExistingOptionCount(calendar, 4);
+        // locale + dayMaxEvents + height
+        assertExistingOptionCount(calendar, 3);
 
         assertEquals(entryLimit, calendar.getOption(Option.DAY_MAX_ENTRIES).orElse(-1));
     }
@@ -97,8 +98,8 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar(options);
         Element element = calendar.getElement();
 
-        // locale + dayMaxEvents + editable (addon default)
-        assertExistingOptionCount(calendar, 3);
+        // locale + dayMaxEvents
+        assertExistingOptionCount(calendar, 2);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
         assertTrue(returnedOptions instanceof ObjectNode, "Returned initial options not instanceof JsonObject");

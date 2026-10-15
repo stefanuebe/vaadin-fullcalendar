@@ -92,6 +92,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     private final Map<String, JsonNode> rawOptions = new LinkedHashMap<>();
 
+    /** The typed options, see {@link #options()}. Their values lie under the raw options. */
+    final CalendarOptions calendarOptions = new CalendarOptions();
+    final ViewOptions viewOptions = new ViewOptions();
+    private final FullCalendarOptions fullCalendarOptions = new FullCalendarOptions(this);
+
     /** The options the client got last, see {@link #syncOptions()}. */
     private final Map<String, JsonNode> lastSentOptions = new HashMap<>();
     private boolean optionSyncScheduled;
@@ -280,7 +285,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         // flip to "nothing draggable". Don't override an explicit value in the initialOptions ctor.
         if (constructorInitialOptions == null
                 || !constructorInitialOptions.hasNonNull(Option.EDITABLE.getOptionKey())) {
-            setOption(Option.EDITABLE, true);
+            viewOptions.setEditable(true);
         }
 
         optionsChanged(); // the option state reaches the client on the first attach, even if no option is set
@@ -852,11 +857,27 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
+     * Returns the options of this calendar as typed fields. The returned object is live: its setters change the
+     * calendar, also through a reference kept for a later request.
+     * <p>
+     * Like any access to a component, the options need the lock of the Vaadin session. Outside a request, for example
+     * in a background thread, change them inside {@code UI.access(…)}.
+     *
+     * @return the options of this calendar
+     */
+    public FullCalendarOptions options() {
+        return fullCalendarOptions;
+    }
+
+    /**
      * Sets an option by its name in the FullCalendar library, bypassing the add-on's types. Null removes it.
      * <p>
      * This is an expert feature for options the add-on has no typed way for. The value is passed to the client as
      * it is, converted to JSON: a {@link JsCallback} becomes a function, a {@link ClientSideValue} its client-side
      * value. The caller is responsible for a value FullCalendar understands.
+     * <p>
+     * A raw option wins over the field of {@link #options()} with the same name. Removing it brings the field's
+     * current value back.
      *
      * @param option the option's name in the FullCalendar library
      * @param value  value, or null (also a JSON null) to remove the option
@@ -900,13 +921,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     /**
      * Schedules {@link #syncOptions()} for the next response. Until the client got the initial state, the element
      * property {@code initialOptions} is also updated at once.
+     * <p>
+     * {@link FullCalendarOptions} calls this before the accessor runs, so the property misses that one change until
+     * the sync. The browser gets the property only with a response, and the sync before it writes the current state.
      */
-    private void optionsChanged() {
+    void optionsChanged() {
         if (!initialStateSent) {
-            // ponytail: rewrites the whole property on each change before the first sync, so it is current also
-            // without a response. This is quadratic in the options set before attach, which is fine for the few
-            // hundred options there are.
-            writeInitialOptions(rawOptions);
+            // ponytail: rewrites the whole property on each change before the first sync, so a raw option change is
+            // in it also without a response. This is quadratic in the options set before attach, which is fine for
+            // the few hundred options there are.
+            writeInitialOptions(currentOptions());
         }
         if (!optionSyncScheduled) {
             optionSyncScheduled = true;
@@ -921,7 +945,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     private void syncOptions() {
         optionSyncScheduled = false;
-        Map<String, JsonNode> current = new LinkedHashMap<>(rawOptions);
+        Map<String, JsonNode> current = currentOptions();
 
         ObjectNode changes = JsonFactory.createObject();
         current.forEach((key, value) -> {
@@ -944,7 +968,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
 
     /**
      * Sends pending option changes at once, so a direct client call that follows runs under them. Before the client
-     * got the initial state, the property is already current and nothing is sent.
+     * got the initial state, nothing is sent, because the sync before the response writes the property.
      * <p>
      * While detached nothing is sent either. The call would wait for the attach and could then reach a new client
      * element, which the property already created with the options. The attach resends the options anyway.
@@ -953,6 +977,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         if (initialStateSent && isAttached()) {
             syncOptions();
         }
+    }
+
+    /** The option state as the client gets it: the typed fields, with the raw options over them. */
+    private Map<String, JsonNode> currentOptions() {
+        Map<String, JsonNode> current = FullCalendarOptions.toJson(viewOptions);
+        current.putAll(FullCalendarOptions.toJson(calendarOptions));
+        current.putAll(rawOptions);
+        return current;
     }
 
     private void writeInitialOptions(Map<String, JsonNode> options) {

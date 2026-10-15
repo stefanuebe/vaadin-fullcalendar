@@ -8,11 +8,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -50,6 +52,22 @@ public class SerializationTest {
 
         FullCalendar copy = roundtrip(calendar);
         assertTrue(copy.getRawOption("dayCellClass").isPresent());
+    }
+
+    @Test
+    void calendarWithTypedOptionsIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setFirstDay(DayOfWeek.MONDAY);
+        calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+
+        FullCalendar copy = roundtrip(calendar);
+        assertEquals(DayOfWeek.MONDAY, copy.options().getFirstDay());
+        assertEquals(Boolean.TRUE, copy.options().getEditable());
+
+        // the options object of the copy changes the copy, not the original
+        copy.options().setFirstDay(DayOfWeek.TUESDAY);
+        assertEquals(DayOfWeek.TUESDAY, copy.options().getFirstDay());
+        assertEquals(DayOfWeek.MONDAY, calendar.options().getFirstDay());
     }
 
     @Test
