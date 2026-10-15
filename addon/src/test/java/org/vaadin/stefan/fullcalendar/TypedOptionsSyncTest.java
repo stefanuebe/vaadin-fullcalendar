@@ -150,6 +150,126 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     }
 
     @Test
+    void viewValue_isSentOnlyUnderViews() {
+        attach();
+
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setEditable(false);
+        JsonNode changes = respond().getFirst();
+
+        assertFalse(changes.get("views").get("timeGridWeek").get("editable").asBoolean());
+        assertFalse(changes.has("editable"));
+    }
+
+    @Test
+    void viewGetter_isNull_whenOnlyACalendarWideValueExists() {
+        calendar.options().setDayCellClass("calendar-wide");
+
+        assertNull(calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).getDayCellClass());
+    }
+
+    @Test
+    void viewGetterAlone_sendsNothing() {
+        attach();
+
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).getEditable();
+
+        assertEquals(List.of(), respond());
+        assertFalse(initialOptions().has("views"));
+    }
+
+    @Test
+    void viewValue_beforeAttach_isInTheInitialOptionsOnlyUnderViews() {
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setDayCellClass("week-day");
+        attach();
+
+        assertEquals("week-day", initialOptions().get("views").get("timeGridWeek").get("dayCellClass").asString());
+        assertFalse(initialOptions().has("dayCellClass"));
+    }
+
+    @Test
+    void viewValue_null_removesOnlyThatValue() {
+        FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
+        week.setEditable(false);
+        week.setDayCellClass("week-day");
+        attach();
+
+        week.setEditable(null);
+        JsonNode weekValues = respond().getFirst().get("views").get("timeGridWeek");
+
+        assertFalse(weekValues.has("editable"));
+        assertEquals("week-day", weekValues.get("dayCellClass").asString());
+    }
+
+    @Test
+    void viewClear_removesAllValuesOfThatView_andLeavesTheOthers() {
+        calendar.options().setDayCellClass("calendar-wide");
+        FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
+        week.setEditable(false);
+        week.setDayCellClass("week-day");
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayCellClass("month-day");
+        attach();
+
+        week.clear();
+        JsonNode changes = respond().getFirst();
+
+        assertFalse(changes.get("views").has("timeGridWeek"));
+        assertEquals("month-day", changes.get("views").get("dayGridMonth").get("dayCellClass").asString());
+        assertFalse(changes.has("dayCellClass"));
+        assertNull(week.getDayCellClass());
+        assertEquals(ClassName.of("calendar-wide"), calendar.options().getDayCellClass());
+    }
+
+    @Test
+    void viewClear_ofTheOnlyView_removesViews() {
+        FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
+        week.setEditable(false);
+        attach();
+
+        week.clear();
+
+        assertTrue(respond().getFirst().get("views").isNull());
+    }
+
+    @Test
+    void keptViewReference_worksAfterClear() {
+        FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
+        week.setEditable(false);
+        attach();
+        week.clear();
+        respond();
+
+        week.setDayCellClass("week-day");
+
+        assertEquals("week-day",
+                respond().getFirst().get("views").get("timeGridWeek").get("dayCellClass").asString());
+    }
+
+    @Test
+    void viewValuesClearedWhileDetached_areGoneAfterTheReattach() {
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setEditable(false);
+        attach();
+
+        ui.remove(calendar);
+        respond();
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).clear();
+        ui.add(calendar);
+        respond();
+
+        assertFalse(initialOptions().has("views"));
+    }
+
+    @Test
+    void keptViewReference_changesTheClientInALaterRequest() {
+        FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
+        attach();
+
+        week.setDayCellClass("week-day");
+
+        assertEquals("week-day",
+                respond().getFirst().get("views").get("timeGridWeek").get("dayCellClass").asString());
+    }
+
+    @Test
     void unsetField_isNull() {
         assertNull(calendar.options().getFirstDay());
         assertNull(calendar.options().getInitialDate());

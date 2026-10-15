@@ -21,6 +21,7 @@ import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -30,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -47,6 +49,22 @@ public class FullCalendarOptions implements Serializable {
 
     FullCalendarOptions(FullCalendar calendar) {
         this.calendar = Objects.requireNonNull(calendar);
+    }
+
+    /**
+     * Returns the options of one view type. A value set there overrides the calendar-wide value while that view is
+     * shown. The returned object is live, like this one.
+     * <p>
+     * The values of all views reach the client as the library option {@code views}. A raw option {@code views}
+     * replaces them all.
+     *
+     * @param view the view type, a built-in or a custom one
+     * @return the options of the view
+     * @throws NullPointerException when null is passed
+     */
+    public FullCalendarViewOptions view(CalendarView view) {
+        Objects.requireNonNull(view);
+        return new FullCalendarViewOptions(calendar, view.getClientSideValue());
     }
 
     /** The fields of one data class with a value, in their client form, by library name. */
@@ -76,6 +94,19 @@ public class FullCalendarOptions implements Serializable {
     private ViewOptions viewOptions() {
         calendar.optionsChanged();
         return calendar.viewOptions;
+    }
+
+    /** The values of the single view types as the library's {@code views} object, or empty when none is set. */
+    static Optional<ObjectNode> toViewsJson(Map<String, ViewOptions> perViewOptions) {
+        ObjectNode views = JsonFactory.createObject();
+        perViewOptions.forEach((view, options) -> {
+            Map<String, JsonNode> json = toJson(options);
+            if (!json.isEmpty()) {
+                views.set(view, JsonFactory.createObject().setAll(json));
+            }
+        });
+
+        return views.isEmpty() ? Optional.empty() : Optional.of(views);
     }
 
     /** A field of a data class with its library name and converter, read once per class. */

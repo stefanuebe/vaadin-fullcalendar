@@ -95,6 +95,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     /** The typed options, see {@link #options()}. Their values lie under the raw options. */
     final CalendarOptions calendarOptions = new CalendarOptions();
     final ViewOptions viewOptions = new ViewOptions();
+    /**
+     * The options of single view types, by client-side view name, see {@link FullCalendarOptions#view(CalendarView)}.
+     */
+    final Map<String, ViewOptions> perViewOptions = new LinkedHashMap<>();
     private final FullCalendarOptions fullCalendarOptions = new FullCalendarOptions(this);
 
     /** The options the client got last, see {@link #syncOptions()}. */
@@ -983,6 +987,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     private Map<String, JsonNode> currentOptions() {
         Map<String, JsonNode> current = FullCalendarOptions.toJson(viewOptions);
         current.putAll(FullCalendarOptions.toJson(calendarOptions));
+        FullCalendarOptions.toViewsJson(perViewOptions).ifPresent(views -> current.put("views", views));
         current.putAll(rawOptions);
         return current;
     }
