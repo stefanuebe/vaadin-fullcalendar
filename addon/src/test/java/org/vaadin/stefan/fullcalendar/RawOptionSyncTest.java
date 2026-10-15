@@ -240,7 +240,7 @@ public class RawOptionSyncTest extends BrowserlessTest {
     }
 
     @Test
-    void constructorJson_reachesTheInitialOptions_viewsAsCustomViews() {
+    void constructorJson_reachesTheInitialOptions_viewsAsCustomViewsInTheGeneratedViews() {
         ObjectNode json = JsonFactory.createObject();
         json.put("weekends", false);
         json.put("timeZone", "Europe/Berlin");
@@ -250,9 +250,8 @@ public class RawOptionSyncTest extends BrowserlessTest {
 
         assertFalse(initialOptions().get("weekends").asBoolean());
         assertEquals("Europe/Berlin", initialOptions().get("timeZone").asString());
-        assertFalse(initialOptions().has("views"));
-        ObjectNode customViews = (ObjectNode) calendar.getElement().getPropertyRaw("customViews");
-        assertEquals("dayGrid", customViews.get("myView").get("type").asString());
+        assertEquals("dayGrid", initialOptions().get("views").get("myView").get("type").asString());
+        assertTrue(calendar.getCustomCalendarViews().containsKey("myView"));
     }
 
     @Test
@@ -264,9 +263,10 @@ public class RawOptionSyncTest extends BrowserlessTest {
         calendar.setCustomCalendarViews(new CustomCalendarView.AnonymousCustomCalendarView("other",
                 JsonFactory.createObject().put("type", "timeGrid")));
 
-        ObjectNode customViews = (ObjectNode) calendar.getElement().getPropertyRaw("customViews");
-        assertTrue(customViews.has("myView"));
-        assertTrue(customViews.has("other"));
+        attach();
+
+        assertTrue(initialOptions().get("views").has("myView"));
+        assertTrue(initialOptions().get("views").has("other"));
         assertThrows(UnsupportedOperationException.class, () -> calendar.setCustomCalendarViews());
     }
 

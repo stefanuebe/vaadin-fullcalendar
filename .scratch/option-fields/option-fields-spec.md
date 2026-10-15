@@ -163,7 +163,7 @@ class ViewOptions implements Serializable {
 - `flushOptions()` runs the sync at once. Every method that calls the client directly (`gotoDate`, `changeView`, `next`, `previous`, `today`, `scrollToTime`, `render`, entry sources, the reattach restore, the scheduler's resource re-add) calls it first (R4).
 - A protected hook lets the calendar contribute computed values to the sync, for options the add-on handles specially (R5). It is called in every sync after the fields and before the raw options and may add or replace keys. Users: `entryDidMount` (`@JsonName("eventDidMount")`, merged with native entry listeners and the auto entry id), `resourceColumns` (component columns keep their binding; the setter stays hand-written on the scheduler's options object), `height` from `HasSize`, and `moreLinkClick` (value type: a `MoreLinkClickAction` or a `JsCallback`; the client's special handling, today `_moreLinkClickWithoutServer`, is checked against the dropped fallback).
 - This replaces the existing option bookkeeping in the calendar (`options`, `initialOptions`, `optionsRemovedWhileDetached`, the resend in `onAttach`, `addonDefaultOptions`).
-- Changing one view's options resends the whole `views` object; accepted.
+- Changing one view's options resends the whole `views` object; accepted. The client keeps the evaluated value of every view option whose JSON did not change, so the code of a callback in an unchanged view runs once.
 
 ### View options
 

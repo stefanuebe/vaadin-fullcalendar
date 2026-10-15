@@ -71,19 +71,6 @@ const loadedThemes = new Map<string, Promise<PluginInput>>();
 const resolvedThemes = new Map<string, PluginInput>([['vaadin', vaadinTheme]]);
 
 /**
- * Merges view-specific options into views, per view. A view keeps the options that the server does not set.
- * @param views options by view name
- * @param overrides options by view name, these win
- */
-function mergeViews(views: any, overrides: any): any {
-    const result = {...views};
-    for (const name in overrides) {
-        result[name] = {...views?.[name], ...overrides[name]};
-    }
-    return result;
-}
-
-/**
  * Recursively walks a value and evaluates any JsCallback markers.
  * A JsCallback marker is an object with a {@code __jsCallback} string property.
  * <p>
@@ -179,7 +166,6 @@ export class FullCalendar extends HTMLElement {
 
     /** The options the server set, from which the calendar is created. Later changes come with setOptions. */
     protected initialOptions = {};
-    protected customViews: any = {};
 
     /** Theme selected by the server, see {@link fcTheme}. */
     private _fcTheme: string | undefined;
@@ -192,6 +178,8 @@ export class FullCalendar extends HTMLElement {
      * receiving the event. Any other removed option gets FullCalendar's default.
      */
     private _addonHandlers: Record<string, any> = {};
+    /** The last evaluated values of the views option, by view and option name, see {@link evaluateViews}. */
+    private _evaluatedViews: Map<string, { json: string, value: any }> = new Map();
     /** The eventAdd function passed with the last removal of an option, see {@link applyOptions}. */
     private _optionRemovalMarker: ((arg: any) => void) | undefined;
 
@@ -237,14 +225,13 @@ export class FullCalendar extends HTMLElement {
     protected initCalendar() {
         if (!this._calendar) {
             const initialOptions: any = this.initialOptions;
-            this.customViews = evaluateCallbacks(this.customViews, this.createdCalendar);
             this._addonHandlers = {};
             this.addEventHandlersToOptions(this._addonHandlers, this.createEventHandlers());
-            // createInitOptions puts the custom views into views, the view-specific options are merged over them
+            // views are evaluated on their own, so a later change keeps the evaluated values that did not change
             let options = this.createInitOptions({...initialOptions, views: undefined});
             // the raw value, createInitOptions replaced it with our own handler before evaluating the callbacks
             this.setMoreLinkClickAction(initialOptions.moreLinkClick);
-            options.views = mergeViews(options.views, evaluateCallbacks(initialOptions.views, this.createdCalendar));
+            options.views = this.evaluateViews(initialOptions.views);
             // the final list, including the plugins subclasses added in their createInitOptions
             this._basePlugins = options.plugins;
             const themePlugin = this._fcTheme ? resolvedThemes.get(this._fcTheme) : undefined;
@@ -280,11 +267,6 @@ export class FullCalendar extends HTMLElement {
             footerScrollbarSticky: true,
             ...initialOptions,
         };
-
-        if(this.customViews) {
-            // extend the options with the custom views and override any "anonymous" views
-            options.views = {...options.views, ...this.customViews};
-        }
 
         this.addEventHandlersToOptions(options, events);
 
@@ -740,19 +722,48 @@ export class FullCalendar extends HTMLElement {
      * Null means that the server removed the option. Then the add-on's own handler for it applies. If there is none, the
      * result is undefined and FullCalendar's default applies.
      * <p>
-     * View-specific options are merged per view over the custom views, as at creation. The custom views were evaluated
-     * at creation, so the code of their callbacks does not run again.
+     * The server sends the views option complete, custom views included. See {@link evaluateViews}.
      * @param key option name
      * @param value value, may contain JsCallback markers
      */
     private resolveOptionValue(key: string, value: any): any {
         if (key === "views") {
-            return mergeViews(this.customViews, evaluateCallbacks(value, this.createdCalendar));
+            if (value == null) {
+                this._evaluatedViews.clear();
+                return undefined;
+            }
+            return this.evaluateViews(value);
         }
         if (value == null) {
             return this._addonHandlers[key];
         }
         return evaluateCallbacks(value, this.createdCalendar);
+    }
+
+    /**
+     * Evaluates the callbacks of the views option. The server sends the whole object on every change of one view, so a
+     * value whose JSON is the same as last time keeps its evaluated form. The code of its callback then runs only once,
+     * and FullCalendar sees the same function.
+     * @param views options by view name, may contain JsCallback markers
+     */
+    private evaluateViews(views: any): any {
+        const previous = this._evaluatedViews;
+        this._evaluatedViews = new Map();
+        const result: any = {};
+        for (const name in views) {
+            result[name] = {};
+            for (const key in views[name]) {
+                const cacheKey = JSON.stringify([name, key]);
+                const json = JSON.stringify(views[name][key]);
+                const cached = previous.get(cacheKey);
+                const value = cached?.json === json
+                    ? cached.value
+                    : evaluateCallbacks(views[name][key], this.createdCalendar);
+                this._evaluatedViews.set(cacheKey, {json, value});
+                result[name][key] = value;
+            }
+        }
+        return result;
     }
 
     /**

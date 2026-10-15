@@ -232,7 +232,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             }
         }
 
-        writeCustomViews();
         this.constructorInitialOptions = initialOptions;
         initialOptions.properties().forEach(property -> {
             // views become custom views
@@ -987,9 +986,34 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     private Map<String, JsonNode> currentOptions() {
         Map<String, JsonNode> current = FullCalendarOptions.toJson(viewOptions);
         current.putAll(FullCalendarOptions.toJson(calendarOptions));
-        FullCalendarOptions.toViewsJson(perViewOptions).ifPresent(views -> current.put("views", views));
+        viewsJson().ifPresent(views -> current.put("views", views));
         current.putAll(rawOptions);
         return current;
+    }
+
+    /**
+     * The library's {@code views} object: the definitions of the custom views first, then the values of
+     * {@link FullCalendarOptions#view(CalendarView)} over them per view and key, then the values of
+     * {@link #setViewSpecificOption(String, String, Object, JsonItemPropertyConverter...)}.
+     */
+    private Optional<ObjectNode> viewsJson() {
+        ObjectNode views = JsonFactory.createObject();
+        customCalendarViews.forEach((name, view) -> {
+            if (view.getViewSettings() != null) {
+                views.set(name, view.getViewSettings().deepCopy());
+            }
+        });
+        FullCalendarOptions.toViewsJson(perViewOptions).ifPresent(values -> values.properties()
+                .forEach(entry -> mergeView(views, entry.getKey(), (ObjectNode) entry.getValue())));
+        viewSpecificOptionsMap.forEach((name, values) -> mergeView(views, name, values));
+
+        return views.isEmpty() ? Optional.empty() : Optional.of(views);
+    }
+
+    private static void mergeView(ObjectNode views, String name, ObjectNode values) {
+        ObjectNode merged = views.get(name) instanceof ObjectNode existing ? existing : JsonFactory.createObject();
+        merged.setAll(values.deepCopy());
+        views.set(name, merged);
     }
 
     private void writeInitialOptions(Map<String, JsonNode> options) {
@@ -2246,13 +2270,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         for (CustomCalendarView customCalendarView : customCalendarViews) {
             this.customCalendarViews.put(customCalendarView.getClientSideValue(), customCalendarView);
         }
-        writeCustomViews();
-    }
-
-    private void writeCustomViews() {
-        ObjectNode json = JsonFactory.createObject();
-        customCalendarViews.forEach((name, view) -> json.set(name, view.getViewSettings()));
-        getElement().setPropertyJson("customViews", json);
+        optionsChanged();
     }
 
     /**
@@ -2383,13 +2401,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     private void syncViewSpecificOptions() {
+        // The values go into the generated views object, see viewsJson(). This copy only keeps getOption("views")
+        // returning them.
         if (viewSpecificOptionsMap.isEmpty()) {
-            setOption("views", null);
+            options.remove("views");
         } else {
             ObjectNode viewsNode = JsonFactory.createObject();
-            viewSpecificOptionsMap.forEach(viewsNode::set);
-            setOption("views", viewsNode);
+            viewSpecificOptionsMap.forEach((name, values) -> viewsNode.set(name, values.deepCopy()));
+            options.put("views", viewsNode);
         }
+        optionsChanged();
     }
 
     /**
