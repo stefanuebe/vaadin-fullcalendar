@@ -34,11 +34,9 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.io.Serializable;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static org.vaadin.stefan.fullcalendar.JsonUtils.toJsonNodeWithJackson;
 
@@ -89,15 +87,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * on every {@link #fetchEntriesFromServer(ObjectNode)}, so it only ever holds one viewport worth.
      */
     private final Map<String, Entry> lastFetchedEntries = new HashMap<>();
-    private final Map<String, Object> options = new HashMap<>();
 
     /**
-     * A map for options, that have been set before the attachment. They are mapped here instead of the options
-     * map to allow a correct init of the client on reattachment plus have something to return in getOption.
-     * The main reason are options, that have to be set before attachment, but must not "bleed" into the option
-     * map, like eventContent
+     * The raw options in their client form, by library name. {@link #syncOptions()} sends them to the client.
      */
-    private final Map<String, Object> initialOptions = new HashMap<>();
+    private final Map<String, JsonNode> rawOptions = new LinkedHashMap<>();
+
+    /** The options the client got last, see {@link #syncOptions()}. */
+    private final Map<String, JsonNode> lastSentOptions = new HashMap<>();
+    private boolean optionSyncScheduled;
+
+    /**
+     * True once the client got the option state through the element property {@code initialOptions}. From then on
+     * the client gets the changes as calls.
+     */
+    private boolean initialStateSent;
+
+    /**
+     * The values passed to {@code setOption}, as {@link #getOption(String, boolean)} returns them. Part of the bridge
+     * from the old option API to {@link #rawOptions}, which goes away with that API.
+     */
+    private final Map<String, Object> options = new HashMap<>();
+    private final Map<String, Object> serverSideOptions = new HashMap<>();
 
     /**
      * The ObjectNode passed to {@link #FullCalendar(ObjectNode)}, kept so the addon-default
@@ -105,25 +116,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * particular option. {@code null} for the no-arg / int-limit constructors.
      */
     private ObjectNode constructorInitialOptions;
-    private final Map<String, Object> serverSideOptions = new HashMap<>();
-
-    /**
-     * The options this class sets in its constructor, for example {@link Option#EDITABLE}. A removed option gets its
-     * value from here again, see {@link #setOption(Option, Object)}. Options that a subclass sets in its own
-     * constructor are not included. {@link #setHeight(String)} updates the value of {@link Option#HEIGHT}.
-     */
-    private final Map<String, Object> addonDefaultOptions = new HashMap<>();
-    /** The server-side values of {@link #addonDefaultOptions}. */
-    private final Map<String, Object> addonDefaultServerSideOptions = new HashMap<>();
-
-    /**
-     * True once the component was detached after an attach. While the component is detached, the client keeps its
-     * calendar. The client only gets the options that the server sends on the next attach. This flag says nothing
-     * about an attached component, so check {@link #isAttached()} first.
-     */
-    private boolean detachedBefore;
-    /** Options removed while the component was detached. The client removes them on the next attach. */
-    private final Set<String> optionsRemovedWhileDetached = new HashSet<>();
 
     private EntryProvider<? extends Entry> entryProvider;
     private final List<Registration> entryProviderDataListeners = new LinkedList<>();
@@ -230,6 +222,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
 
         this.getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
         this.constructorInitialOptions = initialOptions;
+        initialOptions.properties().forEach(property -> {
+            String key = property.getKey();
+            // views become custom views and the time zone is handled by withAutoBrowserTimezone or the client
+            if (!key.equals("views") && !key.equals(Option.TIMEZONE.getOptionKey())) {
+                rawOptions.put(key, property.getValue().deepCopy());
+            }
+        });
 
         if (localTimezone) {
             withAutoBrowserTimezone();
@@ -282,32 +281,32 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             setOption(Option.EDITABLE, true);
         }
 
-        addonDefaultOptions.putAll(initialOptions);
-        addonDefaultServerSideOptions.putAll(serverSideOptions);
+        optionsChanged(); // the option state reaches the client on the first attach, even if no option is set
     }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
 
+        if (initialStateSent) {
+            // The client element may be a new one, created from the property. It may also be the old one, which lost
+            // the calls queued while detached. So the whole state goes to both. Not tied to isInitialAttach(), because a view
+            // kept with @PreserveOnRefresh is attached to a new UI as an initial attach.
+            // ponytail: resends everything on every reattach, also when the client element is kept and has it all.
+            initialStateSent = false;
+            // a non-empty lastSentOptions makes syncOptions send the calls too
+            lastSentOptions.replaceAll((key, value) -> JsonFactory.createNull());
+            // a sync scheduled in another UI is dropped by Flow when the component moves, so schedule it again
+            optionSyncScheduled = false;
+            optionsChanged();
+        }
+
         if(!attachEvent.isInitialAttach()) {
             getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(this, executionContext -> {
-                    // We do not need to set the initial options again as that is handled by Flow automatically.
-                    // All other options, set by setOption have to be reset, as they are transported to the client
-                    // via function at the moment and thus not stored in the server side state.
-
-                    // options. dont use the initialOptions map here, the component takes care of initialOptions itself
-                    // since that is also cached as a property
-                    ObjectNode optionsJson = JsonFactory.createObject();
-                    if (!options.isEmpty()) {
-                        options.forEach((key, value) -> optionsJson.set(key, toJsonNodeWithJackson(value)));
-                    }
-                    optionsRemovedWhileDetached.forEach(optionsJson::putNull);
-                    optionsRemovedWhileDetached.clear();
-
+                    syncOptions();
                     getElement().callJsFunction("restoreStateFromServer",
-                            optionsJson,
+                            JsonFactory.createObject(),
                             JsonUtils.toJsonNode(currentViewName),
                             JsonUtils.toJsonNode(currentIntervalStart));
 
@@ -335,12 +334,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         // A callback removed while detached may still be on the client. Passing null tells the client to use its own
         // callback again.
         applyEntryDidMountMerge(!attachEvent.isInitialAttach());
-    }
-
-    @Override
-    protected void onDetach(DetachEvent detachEvent) {
-        super.onDetach(detachEvent);
-        detachedBefore = true;
     }
 
     /**
@@ -614,8 +607,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     /**
      * Sets an option for this instance. Null removes the option, as {@link #removeOption(Option)} does.
      * <p>
-     * A removed option behaves as if it had never been set. The add-on sets some options itself, for example
-     * {@link Option#EDITABLE}. Such an option gets the add-on's value again.
+     * A removed option behaves as if it had never been set.
      * <p>
      * When the calendar is attached, a change takes effect at once. These are the exceptions:
      * <ul>
@@ -740,8 +732,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * Sets an option for this instance. All setOption and removeOption methods end here. A subclass can override
      * this method to handle all option changes in one place.
      * <p>
-     * Null removes the option. The add-on sets some options itself, for example {@link Option#EDITABLE}. Such an
-     * option gets the add-on's value again. The first converter that supports the value creates the client-side
+     * Null removes the option. The first converter that supports the value creates the client-side
      * value.
      *
      * @param option             option key
@@ -753,29 +744,21 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     protected void setOption(String option, Object value, Object valueForServerSide,
                              List<JsonItemPropertyConverter<?, ?>> converters) {
-        // a removed option that the add-on sets itself gets the add-on's value again
-        if (value == null && addonDefaultOptions.containsKey(option)) {
-            callOptionUpdate(option, addonDefaultOptions.get(option), addonDefaultServerSideOptions.get(option),
-                    "setOption");
-            return;
-        }
-
         if (value != null && !converters.isEmpty()) {
             for (JsonItemPropertyConverter<?, ?> c : converters) {
                 if (c.supports(value)) {
                     @SuppressWarnings("unchecked")
                     JsonNode converted = ((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null);
-                    callOptionUpdate(option, converted,
-                            valueForServerSide != null ? valueForServerSide : value,
-                            "setOption");
+                    updateOption(option, converted,
+                            valueForServerSide != null ? valueForServerSide : value);
                     return;
                 }
             }
         }
-        callOptionUpdate(option, value, valueForServerSide, "setOption");
+        updateOption(option, value, valueForServerSide);
     }
 
-    private void callOptionUpdate(String option, Object value, Object valueForServerSide, String method, Serializable... additionalParameters) {
+    private void updateOption(String option, Object value, Object valueForServerSide) {
         Objects.requireNonNull(option);
 
         // 0. A time zone given as id is kept as Timezone, so getOption() and the offset helpers can rely on it
@@ -825,70 +808,129 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             value = csv.getClientSideValue();
         }
 
-        boolean attached = isAttached();
-
         if (value == null) {
-            initialOptions.remove(option);
             options.remove(option);
             serverSideOptions.remove(option);
-            if (!attached && detachedBefore) {
-                optionsRemovedWhileDetached.add(option);
-            }
+            rawOptions.remove(option);
         } else {
-            optionsRemovedWhileDetached.remove(option);
-            // the client keeps its calendar while detached, so it reads only the options sent on the next attach
-            if (attached || detachedBefore) {
-                options.put(option, value);
-            } else {
-                initialOptions.put(option, value);
-            }
-
+            JsonNode json = toRawJson(value);
+            options.put(option, value);
             if (valueForServerSide == null || valueForServerSide.equals(value)) {
                 serverSideOptions.remove(option);
             } else {
                 serverSideOptions.put(option, valueForServerSide);
             }
+            rawOptions.put(option, json);
         }
+        optionsChanged();
+    }
 
-        if (attached) {
-            Object[] parameters = Stream.concat(Stream.of(option, toJsonNodeWithJackson(value)),
-                    Stream.of(additionalParameters)).toArray(Object[]::new);
-            getElement().callJsFunction(method, parameters);
+    /**
+     * Sets an option by its name in the FullCalendar library, bypassing the add-on's types. Null removes it.
+     * <p>
+     * This is an expert feature for options the add-on has no typed way for. The value is passed to the client as
+     * it is, converted to JSON: a {@link JsCallback} becomes a function, a {@link ClientSideValue} its client-side
+     * value. The caller is responsible for a value FullCalendar understands.
+     *
+     * @param option the option's name in the FullCalendar library
+     * @param value  value, or null (also a JSON null) to remove the option
+     * @throws NullPointerException     when the option is null
+     * @throws IllegalArgumentException when the value cannot be converted to JSON
+     * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
+     */
+    public void setRawOption(String option, Object value) {
+        Objects.requireNonNull(option);
+        JsonNode json = value == null ? null : toRawJson(value);
+        if (json == null || json.isNull()) {
+            rawOptions.remove(option);
+        } else {
+            rawOptions.put(option, json);
         }
+        optionsChanged();
+    }
 
-        // A new client element is created from this property, for example after a refresh with @PreserveOnRefresh.
-        // After that it gets the options of the server. These no longer contain a removed option.
-        ObjectNode initialOptions = (ObjectNode) getElement().getPropertyRaw("initialOptions");
-        if (value == null) {
-            if (initialOptions != null) {
-                initialOptions.remove(option);
-            }
-        } else if (!attached) {
-            if (initialOptions == null) {
-                initialOptions = JsonFactory.createObject();
-                getElement().setPropertyJson("initialOptions", initialOptions);
-            }
-            initialOptions.set(option, toJsonNodeWithJackson(value));
+    /**
+     * Returns the raw option with the given name, in the JSON form the client gets.
+     *
+     * @param option the option's name in the FullCalendar library
+     * @return a copy of the option's JSON, or empty when it is not set
+     * @throws NullPointerException when the option is null
+     * @see #setRawOption(String, Object)
+     */
+    public Optional<JsonNode> getRawOption(String option) {
+        Objects.requireNonNull(option);
+        return Optional.ofNullable(rawOptions.get(option)).map(JsonNode::deepCopy);
+    }
+
+    /** Converts the value to JSON and copies it, so changing the caller's JSON later does not change the option. */
+    private static JsonNode toRawJson(Object value) {
+        try {
+            return toJsonNodeWithJackson(value).deepCopy();
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException("Cannot convert the value to JSON: " + value, e);
         }
     }
 
     /**
+     * Schedules {@link #syncOptions()} for the next response. Until the client got the initial state, the element
+     * property {@code initialOptions} is also updated at once.
+     */
+    private void optionsChanged() {
+        if (!initialStateSent) {
+            // ponytail: rewrites the whole property on each change before the first sync, so it is current also
+            // without a response. This is quadratic in the options set before attach, which is fine for the few
+            // hundred options there are.
+            writeInitialOptions(rawOptions);
+        }
+        if (!optionSyncScheduled) {
+            optionSyncScheduled = true;
+            getElement().getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, context -> syncOptions()));
+        }
+    }
+
+    /**
+     * Brings the client in line with the option state. Until the client got the initial state, it is written to the
+     * element property {@code initialOptions}, from which the client creates its calendar. Afterwards the changed
+     * options are sent in one call, a removed option as null.
+     */
+    private void syncOptions() {
+        optionSyncScheduled = false;
+        Map<String, JsonNode> current = new LinkedHashMap<>(rawOptions);
+
+        ObjectNode changes = JsonFactory.createObject();
+        current.forEach((key, value) -> {
+            if (!value.equals(lastSentOptions.get(key))) {
+                changes.set(key, value);
+            }
+        });
+        lastSentOptions.keySet().stream().filter(key -> !current.containsKey(key)).forEach(changes::putNull);
+
+        // On the first sync the property carries everything. After a reattach (lastSentOptions is not empty then)
+        // the client element may also be the old one, which needs the calls.
+        boolean sendCalls = initialStateSent || !lastSentOptions.isEmpty();
+        if (!initialStateSent) {
+            writeInitialOptions(current);
+            initialStateSent = true;
+        }
+        if (sendCalls && !changes.isEmpty()) {
+            getElement().callJsFunction("setOptions", changes);
+        }
+
+        lastSentOptions.clear();
+        lastSentOptions.putAll(current);
+    }
+
+    private void writeInitialOptions(Map<String, JsonNode> options) {
+        getElement().setPropertyJson(INITIAL_OPTIONS, JsonFactory.createObject().setAll(options));
+    }
+
+    /**
      * Sets the height of the calendar. Null removes the height, as {@link #setSizeUndefined()} does.
-     * <p>
-     * When {@link Option#HEIGHT} is removed later, the calendar gets this height again.
      *
      * @param height the height, for example {@code "100%"} or {@code "500px"}, or null
      */
     @Override
     public void setHeight(String height) {
-        // a removed HEIGHT option gets this height again, so the Vaadin dimensions apply
-        String key = Option.HEIGHT.getOptionKey();
-        addonDefaultServerSideOptions.remove(key);
-        if (height == null) {
-            addonDefaultOptions.remove(key);
-        } else {
-            addonDefaultOptions.put(key, height);
-        }
         // we use the calendar option as it would otherwise override the plain style set by Vaadin
         setOption(Option.HEIGHT, height);
     }
@@ -1311,11 +1353,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             return Optional.ofNullable((T) serverSideOptions.get(option));
         }
 
-        Object value = options.get(option);
-        if(value == null) {
-            value = initialOptions.get(option);
-        }
-        return Optional.ofNullable((T) value);
+        return Optional.ofNullable((T) options.get(option));
     }
 
     /**

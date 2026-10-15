@@ -43,6 +43,16 @@ public class SerializationTest {
     }
 
     @Test
+    void calendarWithRawOptionsIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        calendar.setRawOption("weekends", false);
+        calendar.setRawOption("dayCellClass", JsCallback.of("() => 'x'"));
+
+        FullCalendar copy = roundtrip(calendar);
+        assertTrue(copy.getRawOption("dayCellClass").isPresent());
+    }
+
+    @Test
     void calendarWithInMemoryEntriesIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
         calendar.setOption(Option.TIMEZONE, Timezone.getSystem());

@@ -35,7 +35,7 @@ public class ShortTimeValuesTest extends BrowserlessTest {
         return ((JsonNode) calendar.getElement().getPropertyRaw("initialOptions")).get(KEY);
     }
 
-    /** Attaches the calendar and returns the client value sent by the next setOption call. */
+    /** Attaches the calendar and returns the client value sent by the next option sync. */
     private JsonNode valueAfterAttach(Object value) {
         UI ui = UI.getCurrent();
         ui.add(calendar);
@@ -48,13 +48,13 @@ public class ShortTimeValuesTest extends BrowserlessTest {
         List<PendingJavaScriptInvocation> invocations = ui.getInternals().dumpPendingJavaScriptInvocations();
         for (PendingJavaScriptInvocation invocation : invocations) {
             List<Object> parameters = invocation.getInvocation().getParameters();
-            int keyIndex = parameters.indexOf(KEY);
-            if (invocation.getInvocation().getExpression().contains("setOption") && keyIndex >= 0) {
-                return (JsonNode) parameters.get(keyIndex + 1);
+            if (invocation.getInvocation().getExpression().contains("setOptions")
+                    && parameters.getLast() instanceof JsonNode changes && changes.has(KEY)) {
+                return changes.get(KEY);
             }
         }
 
-        return fail("no setOption call for " + KEY);
+        return fail("no setOptions call for " + KEY);
     }
 
     @Test
@@ -82,6 +82,7 @@ public class ShortTimeValuesTest extends BrowserlessTest {
 
         calendar.setOption(KEY, value);
         assertEquals("2025-03-10T10:00", initialValue().asString());
+        calendar.setOption(KEY, null); // only a change reaches an attached calendar
         assertEquals("2025-03-10T10:00", valueAfterAttach(value).asString());
     }
 
@@ -123,9 +124,9 @@ public class ShortTimeValuesTest extends BrowserlessTest {
 
         JsonNode restored = ui.getInternals().dumpPendingJavaScriptInvocations().stream()
                 .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("restoreStateFromServer"))
-                .map(invocation -> (JsonNode) invocation.getParameters().get(1))
-                .findFirst().orElseGet(() -> fail("no restoreStateFromServer call"));
+                .filter(invocation -> invocation.getExpression().contains("setOptions"))
+                .map(invocation -> (JsonNode) invocation.getParameters().getLast())
+                .findFirst().orElseGet(() -> fail("no setOptions call"));
         assertEquals("10:00", restored.get(KEY).asString());
     }
 

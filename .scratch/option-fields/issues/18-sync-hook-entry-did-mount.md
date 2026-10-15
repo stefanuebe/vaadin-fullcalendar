@@ -19,3 +19,5 @@
 - [ ] Browserless: the hook output for `entryDidMount` contains the user callback and the auto entry id.
 - [ ] A minimal subclass adds and replaces a key through the hook.
 - [ ] Playwright: `entryDidMount` and a native entry listener both run.
+
+**Note from the review of 01 (2026-10-15):** `setRawOption("eventDidMount", …)` bypasses the merge with native entry listeners; the next `addEntryNativeEventListener` or reattach overwrites it with a direct client call. Decide which wins once the hook exists.

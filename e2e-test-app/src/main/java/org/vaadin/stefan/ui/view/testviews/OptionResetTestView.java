@@ -40,11 +40,9 @@ import java.util.Locale;
  * <ul>
  *   <li>the entry color, also while the calendar is detached,</li>
  *   <li>the entry text color, which the initial JSON options do not set,</li>
- *   <li>editable, which the add-on sets to true itself,</li>
  *   <li>the all-day text,</li>
  *   <li>the display of the entry time, which has no default in FullCalendar,</li>
  *   <li>the time zone, also while the calendar is detached,</li>
- *   <li>the height, which the add-on sets to 100% itself,</li>
  *   <li>a viewDidMount callback,</li>
  *   <li>an eventDidMount callback, removed while the calendar is detached together with the add-on's own
  *   eventDidMount code for entry ids, so no callback remains.</li>
@@ -137,8 +135,6 @@ public class OptionResetTestView extends VerticalLayout {
                         e -> attachAgain(calendar, () -> calendar.setOption(Option.ENTRY_COLOR, null))),
                 new Button("Set entry text color", e -> calendar.setOption(Option.ENTRY_TEXT_COLOR, "yellow")),
                 new Button("Remove entry text color", e -> calendar.setOption(Option.ENTRY_TEXT_COLOR, null)),
-                new Button("Set not editable", e -> calendar.setOption(Option.EDITABLE, false)),
-                new Button("Remove editable", e -> calendar.setOption(Option.EDITABLE, null)),
                 new Button("Set all-day text", e -> calendar.setOption(Option.ALL_DAY_TEXT, "Custom")),
                 new Button("Remove all-day text", e -> calendar.setOption(Option.ALL_DAY_TEXT, null)),
                 new Button("Set locale all-day text", e -> calendar.setOption(Option.ALL_DAY_TEXT, "Ganztägig")),
@@ -152,8 +148,6 @@ public class OptionResetTestView extends VerticalLayout {
                 new Button("Remove time zone", e -> calendar.setOption(Option.TIMEZONE, null)),
                 new Button("Set time zone while detached",
                         e -> attachAgain(calendar, () -> calendar.setOption(Option.TIMEZONE, "America/New_York"))),
-                new Button("Set height", e -> calendar.setOption(Option.HEIGHT, "300px")),
-                new Button("Remove height", e -> calendar.setOption(Option.HEIGHT, null)),
                 new Button("Set week entry color", e -> calendar.setViewSpecificOption(
                         CalendarViewImpl.TIME_GRID_WEEK, Option.ENTRY_COLOR, "blue")),
                 new Button("Set week all-day text", e -> calendar.setViewSpecificOption(

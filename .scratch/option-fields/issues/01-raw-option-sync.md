@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-15) |
 | Blocked by | None (can start immediately) |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,11 +14,11 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-15)
 
-- [ ] Only changed keys reach the client; a removed key is sent as removal.
-- [ ] Several changes in one request arrive in one client call.
-- [ ] `setRawOption` with a value that cannot be converted throws at the call.
-- [ ] Constructor JSON options are raw options (`views` and `timeZone` stay as on master until 08 and 14).
-- [ ] The existing tests that use the old API still pass, apart from tests of the removed bookkeeping, which are deleted with it.
-- [ ] `SerializationTest` covers a calendar with raw options.
+- [x] Only changed keys reach the client; a removed key is sent as removal.
+- [x] Several changes in one request arrive in one client call.
+- [x] `setRawOption` with a value that cannot be converted throws at the call.
+- [x] Constructor JSON options are raw options (`views` and `timeZone` stay as on master until 08 and 14).
+- [x] The existing tests that use the old API still pass, apart from tests of the removed bookkeeping, which are deleted with it.
+- [x] `SerializationTest` covers a calendar with raw options.

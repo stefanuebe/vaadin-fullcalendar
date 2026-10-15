@@ -139,33 +139,12 @@ public class FullCalendarOptionsTest {
     }
 
     @Test
-    void removedOptionReturnsToTheAddonDefault() {
-        FullCalendar calendar = new FullCalendar();
-
-        calendar.setOption(Option.EDITABLE, false);
-        calendar.setOption(Option.EDITABLE, null);
-        assertEquals(Optional.of(true), calendar.getOption(Option.EDITABLE));
-
-        calendar.setOption(Option.LOCALE, Locale.GERMAN);
-        calendar.setOption(Option.LOCALE, null);
-        assertEquals(Optional.of(CalendarLocale.getDefaultLocale()), calendar.getOption(Option.LOCALE));
-
-        calendar.setOption(Option.DAY_MAX_ENTRIES, 3);
-        calendar.setOption(Option.DAY_MAX_ENTRIES, null);
-        assertEquals(Optional.of(false), calendar.getOption(Option.DAY_MAX_ENTRIES));
-    }
-
-    @Test
     void removeOptionRemovesTheOption() {
         FullCalendar calendar = new FullCalendar();
 
         calendar.setOption(Option.WEEKENDS, false);
         calendar.removeOption(Option.WEEKENDS);
         assertEquals(Optional.empty(), calendar.getOption(Option.WEEKENDS));
-
-        calendar.setOption(Option.EDITABLE, false);
-        calendar.removeOption(Option.EDITABLE);
-        assertEquals(Optional.of(true), calendar.getOption(Option.EDITABLE));
     }
 
     @Test
@@ -175,10 +154,6 @@ public class FullCalendarOptionsTest {
         calendar.setOption("weekends", false);
         calendar.removeOption("weekends");
         assertEquals(Optional.empty(), calendar.getOption("weekends"));
-
-        calendar.setOption(Option.EDITABLE, false);
-        calendar.removeOption("editable");
-        assertEquals(Optional.of(true), calendar.getOption(Option.EDITABLE));
     }
 
     @Test
@@ -188,33 +163,6 @@ public class FullCalendarOptionsTest {
         calendar.setOption(Option.WEEKENDS, false);
         calendar.setOption(Option.WEEKENDS, null);
         assertEquals(Optional.empty(), calendar.getOption(Option.WEEKENDS));
-    }
-
-    @Test
-    void removedHeightReturnsToTheAddonDefault() {
-        FullCalendar calendar = new FullCalendar();
-
-        calendar.setOption(Option.HEIGHT, "500px");
-        calendar.setOption(Option.HEIGHT, null);
-        assertEquals(Optional.of("100%"), calendar.getOption(Option.HEIGHT));
-        ObjectNode clientOptions = (ObjectNode) calendar.getElement().getPropertyRaw("initialOptions");
-        assertEquals("100%", clientOptions.get("height").asString());
-    }
-
-    @Test
-    void removedHeightReturnsToTheLastVaadinHeight() {
-        FullCalendar calendar = new FullCalendar();
-
-        calendar.setSizeUndefined();
-        calendar.setHeightFull();
-        calendar.setOption(Option.HEIGHT, "500px");
-        calendar.setOption(Option.HEIGHT, null);
-        assertEquals(Optional.of("100%"), calendar.getOption(Option.HEIGHT));
-
-        calendar.setHeight("400px");
-        calendar.setOption(Option.HEIGHT, "500px");
-        calendar.setOption(Option.HEIGHT, null);
-        assertEquals(Optional.of("400px"), calendar.getOption(Option.HEIGHT));
     }
 
     @Test

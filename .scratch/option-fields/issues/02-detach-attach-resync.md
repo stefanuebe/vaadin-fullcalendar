@@ -20,3 +20,7 @@
 - [ ] A reattach with no change still writes the current state.
 - [ ] A detach and reattach within one round trip keeps the client element and still resyncs.
 - [ ] Playwright: `detach-reattach.spec.js` passes; a new case reloads a `@PreserveOnRefresh` Test view and the options are still applied.
+
+**Notes from the review of 01 (2026-10-15):**
+
+- On a reattach, 01 sends `setOptions` as its own call before `restoreStateFromServer`, which now gets an empty options object. The options render outside `batchRendering`, and a new client element created from the property sees every non-primitive value as changed (`_optionOverrides` compares by identity), so callback markers are evaluated twice. Send the options inside the restore again, or drop its options parameter.

@@ -104,18 +104,6 @@ test.describe('Removing options of an attached calendar', () => {
             await expect.poll(() => fetches(page)).toBeGreaterThan(0);
         });
 
-    test('removing the height restores the add-on\'s full height', async ({ page }) => {
-        // FullCalendar writes the height on the element, the layout of the view stretches it anyway
-        const height = () => calendarOf(page).evaluate((el) => el.style.height);
-        await expect.poll(height).toBe('100%');
-
-        await click(page, 'Set height');
-        await expect.poll(height).toBe('300px');
-
-        await click(page, 'Remove height');
-        await expect.poll(height).toBe('100%');
-    });
-
     test('an option removed between a detach and an attach in separate requests applies', async ({ page }) => {
         const initial = await entryColor(page);
 
@@ -144,18 +132,6 @@ test.describe('Removing options of an attached calendar', () => {
         await click(page, 'Show week');
         await expect(timedEntry(page)).toBeVisible();
         await expect.poll(mounted).toBe('');
-    });
-
-    test('removing editable restores the add-on\'s own value', async ({ page }) => {
-        // the add-on sets editable to true, FullCalendar's default is false
-        const draggable = calendarOf(page).locator('.fc-event.fc-event-draggable');
-        await expect(draggable.first()).toBeVisible();
-
-        await click(page, 'Set not editable');
-        await expect(draggable).toHaveCount(0);
-
-        await click(page, 'Remove editable');
-        await expect(draggable.first()).toBeVisible();
     });
 
     test('removing the all-day text restores the text of the locale', async ({ page }) => {

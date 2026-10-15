@@ -20,3 +20,5 @@
 - [ ] Playwright: a browser report while following the browser causes no entry fetch.
 - [ ] Playwright: an explicit zone change fetches the entries exactly once.
 - [ ] `auto-browser-timezone.spec.js` passes or is adjusted.
+
+**Note from the review of 01 (2026-10-15):** `e2e-tests/tests/option-reset.spec.js` has "removing the time zone restores the time zone of the add-on" (UTC). With `LOCAL` as the initial value this test changes; adjust its name and expectation here.

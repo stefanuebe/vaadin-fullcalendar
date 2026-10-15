@@ -51,12 +51,12 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         List<PendingJavaScriptInvocation> invocations = ui.getInternals().dumpPendingJavaScriptInvocations();
         for (PendingJavaScriptInvocation invocation : invocations) {
             List<Object> parameters = invocation.getInvocation().getParameters();
-            int keyIndex = parameters.indexOf(option.getOptionKey());
-            if (invocation.getInvocation().getExpression().contains("setOption") && keyIndex >= 0) {
-                return (JsonNode) parameters.get(keyIndex + 1);
+            if (invocation.getInvocation().getExpression().contains("setOptions")
+                    && parameters.getLast() instanceof JsonNode changes && changes.has(option.getOptionKey())) {
+                return changes.get(option.getOptionKey());
             }
         }
-        return fail("no setOption call for " + option.getOptionKey());
+        return fail("no setOptions call for " + option.getOptionKey());
     }
 
     // -------------------------------------------------------------------------
@@ -286,6 +286,7 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
         calendar.setOption(Option.BUTTONS, buttons);
         JsonNode before = initialClientValue(Option.BUTTONS).get("inbox").get("badge");
+        calendar.setOption(Option.BUTTONS, null); // only a change reaches an attached calendar
         JsonNode after = clientValueAfterAttach(Option.BUTTONS, () -> calendar.setOption(Option.BUTTONS, buttons))
                 .get("inbox").get("badge");
 
@@ -300,6 +301,7 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
         calendar.setOption(Option.TOOLBAR_ELEMENTS, elements);
         JsonNode before = initialClientValue(Option.TOOLBAR_ELEMENTS);
+        calendar.setOption(Option.TOOLBAR_ELEMENTS, null); // only a change reaches an attached calendar
         JsonNode after = clientValueAfterAttach(Option.TOOLBAR_ELEMENTS,
                 () -> calendar.setOption(Option.TOOLBAR_ELEMENTS, elements));
 
@@ -321,9 +323,9 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
         JsonNode restored = ui.getInternals().dumpPendingJavaScriptInvocations().stream()
                 .map(PendingJavaScriptInvocation::getInvocation)
-                .filter(invocation -> invocation.getExpression().contains("restoreStateFromServer"))
-                .map(invocation -> (JsonNode) invocation.getParameters().get(1))
-                .findFirst().orElseGet(() -> fail("no restoreStateFromServer call"));
+                .filter(invocation -> invocation.getExpression().contains("setOptions"))
+                .map(invocation -> (JsonNode) invocation.getParameters().getLast())
+                .findFirst().orElseGet(() -> fail("no setOptions call"));
         assertEquals("new", restored.get("buttons").get("inbox").get("badge").get("label").asString());
     }
 
