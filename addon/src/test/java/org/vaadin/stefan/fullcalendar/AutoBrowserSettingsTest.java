@@ -93,7 +93,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
         calendar = new FullCalendar(initialOptions);
 
         assertTrue(calendar.getOption(Option.TIMEZONE).isEmpty());
-        assertFalse(((ObjectNode) calendar.getElement().getPropertyRaw("initialJsonOptions")).has("timeZone"));
+        assertTrue(calendar.getRawOption("timeZone").isEmpty());
         assertTrue(calendar.getElement().getProperty("autoBrowserTimezone", false));
 
         calendar.setBrowserTimezone("Europe/Berlin");

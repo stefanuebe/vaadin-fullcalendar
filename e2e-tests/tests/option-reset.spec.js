@@ -3,13 +3,12 @@ const { test, expect } = require('@playwright/test');
 const { waitForVaadin } = require('./fixtures');
 
 /**
- * Removing options of an attached calendar with setOption(option, null) (#294): the calendar behaves as if the
- * option had never been set, and changing an option neither refetches the entries nor re-mounts unaffected ones.
- * View: /test/option-reset, a German week view with an all-day and a timed entry from a callback entry provider. Its
- * initial JSON options set the entry color green, one entry row per day with "day" as the action of the "+N more"
- * link, an eventDataTransform callback, at top level and for the listDay view, that counts its evaluations, and long
- * weekday names in the day headers of the week view. Before attach the server sets 20:00 as the end of the time slots
- * of the week view.
+ * Removing options of an attached calendar with setOption(option, null) (#294): the calendar behaves as if the option
+ * had never been set, and changing an option neither refetches the entries nor re-mounts unaffected ones. View:
+ * /test/option-reset, a German week view with an all-day and a timed entry from a callback entry provider. Its initial
+ * JSON options set one entry row per day with "day" as the action of the "+N more" link, an eventDataTransform
+ * callback, at top level and for the listDay view, that counts its evaluations, and long weekday names in the day
+ * headers of the week view. Before attach the server sets 20:00 as the end of the time slots of the week view.
  */
 
 const ALL_DAY_TEXT = 'Ganztägig'; // allDayText of the German locale
@@ -57,17 +56,6 @@ test.describe('Removing options of an attached calendar', () => {
 
     test.beforeEach(async ({ page }) => {
         await gotoView(page);
-    });
-
-    test('removing the entry color restores the color of the initial JSON options', async ({ page }) => {
-        const initial = await entryColor(page);
-        expect(initial.variable).toBe('green');
-
-        await click(page, 'Set entry color');
-        await expect.poll(async () => (await entryColor(page)).variable).toBe('red');
-
-        await click(page, 'Remove entry color');
-        await expect.poll(() => entryColor(page)).toEqual(initial);
     });
 
     test('removing an option the initial JSON options do not set restores FullCalendar\'s default', async ({ page }) => {
@@ -199,18 +187,6 @@ test.describe('Removing options of an attached calendar', () => {
             .toContain('optionResetEventAdds');
     });
 
-    test('removing the time zone restores the time zone of the add-on', async ({ page }) => {
-        // the timed entry starts at 10:00 UTC, the add-on shows UTC unless a time zone is set
-        const time = timedEntry(page).locator('.fc-event-time');
-        await expect(time).toContainText('10:00');
-
-        await click(page, 'Set time zone');
-        await expect(time).toContainText('05:00');
-
-        await click(page, 'Remove time zone');
-        await expect(time).toContainText('10:00');
-    });
-
     test('view-specific options of the initial JSON options and of the server apply together', async ({ page }) => {
         const calendar = calendarOf(page);
         const lastSlot = () => calendar.locator('.fc-timegrid-slot-label[data-time]').last().getAttribute('data-time');
@@ -266,15 +242,16 @@ test.describe('Removing options of an attached calendar', () => {
         expect(await evaluations()).toBe(2);
     });
 
-    test('removing the more link action restores the action of the initial JSON options', async ({ page }) => {
-        await click(page, 'Set more link popover');
-        await click(page, 'Remove more link action');
-        await click(page, 'Show month');
+    test('removing the more link action gives FullCalendar\'s default, not the action of the initial JSON options',
+        async ({ page }) => {
+            await click(page, 'Set more link popover');
+            await click(page, 'Remove more link action');
+            await click(page, 'Show month');
 
-        await page.locator('.fc-daygrid-more-link').first().click();
-        await expect(page.locator('.fc-dayGridDay-view, .fc-timeGridDay-view')).toHaveCount(1);
-        await expect(page.locator('.fc-popover')).toHaveCount(0);
-    });
+            await page.locator('.fc-daygrid-more-link').first().click();
+            await expect(page.locator('.fc-popover')).toHaveCount(1);
+            await expect(page.locator('.fc-dayGridDay-view, .fc-timeGridDay-view')).toHaveCount(0);
+        });
 
     test('removing the view did mount callback restores the add-on\'s own one', async ({ page }) => {
         // the add-on reports a rendered view to the server through its own viewDidMount handler
@@ -315,6 +292,25 @@ test.describe('Removing options of an attached calendar', () => {
 
         expect(await fetches(page)).toBe(0);
         expect(await timedEntry(page).evaluate((el) => el === window.optionResetEntry && el.isConnected)).toBe(true);
+    });
+});
+
+test.describe('Removing the time zone of an attached calendar', () => {
+
+    // a zone without daylight saving time, so the expected time is fixed
+    test.use({ timezoneId: 'Asia/Tokyo' });
+
+    test('removing the time zone gives FullCalendar\'s default, the browser\'s zone', async ({ page }) => {
+        await gotoView(page);
+        // the timed entry starts at 10:00 UTC, the add-on starts the calendar in UTC
+        const time = timedEntry(page).locator('.fc-event-time');
+        await expect(time).toContainText('10:00');
+
+        await click(page, 'Set time zone');
+        await expect(time).toContainText('05:00');
+
+        await click(page, 'Remove time zone');
+        await expect(time).toContainText('19:00');
     });
 });
 

@@ -240,7 +240,7 @@ public class RawOptionSyncTest extends BrowserlessTest {
     }
 
     @Test
-    void constructorJson_reachesTheInitialOptions_withoutViewsAndTimeZone() {
+    void constructorJson_reachesTheInitialOptions_viewsAsCustomViews() {
         ObjectNode json = JsonFactory.createObject();
         json.put("weekends", false);
         json.put("timeZone", "Europe/Berlin");
@@ -249,8 +249,25 @@ public class RawOptionSyncTest extends BrowserlessTest {
         attach();
 
         assertFalse(initialOptions().get("weekends").asBoolean());
-        assertTrue(calendar.getRawOption("timeZone").isEmpty());
-        assertTrue(calendar.getRawOption("views").isEmpty());
+        assertEquals("Europe/Berlin", initialOptions().get("timeZone").asString());
+        assertFalse(initialOptions().has("views"));
+        ObjectNode customViews = (ObjectNode) calendar.getElement().getPropertyRaw("customViews");
+        assertEquals("dayGrid", customViews.get("myView").get("type").asString());
+    }
+
+    @Test
+    void constructorJsonViews_customViewsCanStillBeSetOnce() {
+        ObjectNode json = JsonFactory.createObject();
+        json.set("views", JsonFactory.createObject().set("myView", JsonFactory.createObject().put("type", "dayGrid")));
+        calendar = new FullCalendar(json);
+
+        calendar.setCustomCalendarViews(new CustomCalendarView.AnonymousCustomCalendarView("other",
+                JsonFactory.createObject().put("type", "timeGrid")));
+
+        ObjectNode customViews = (ObjectNode) calendar.getElement().getPropertyRaw("customViews");
+        assertTrue(customViews.has("myView"));
+        assertTrue(customViews.has("other"));
+        assertThrows(UnsupportedOperationException.class, () -> calendar.setCustomCalendarViews());
     }
 
     @Test

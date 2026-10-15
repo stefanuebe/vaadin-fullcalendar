@@ -167,8 +167,6 @@ export class FullCalendar extends HTMLElement {
      * to FullCalendar, our own handler stays registered so the server keeps receiving the click.
      */
     protected moreLinkClickAction: any = "popover";
-    /** The moreLinkClick value of the initial JSON options, see {@link setMoreLinkClickAction}. */
-    private _moreLinkClickWithoutServer: any;
     protected prefetchEnabled = false;
     /**
      * Set by withAutoBrowserTimezone(). Without a time zone option, the calendar starts with the browser's time
@@ -179,8 +177,7 @@ export class FullCalendar extends HTMLElement {
     /** Pending revert functions from eventDrop/eventResize, keyed by entry ID. */
     private _pendingReverts: Map<string, () => void> = new Map();
 
-    // contains any json based initial options (not the ones set via setOption). might be empty in most cases
-    protected initialJsonOptions = {};
+    /** The options the server set, from which the calendar is created. Later changes come with setOptions. */
     protected initialOptions = {};
     protected customViews: any = {};
 
@@ -191,10 +188,10 @@ export class FullCalendar extends HTMLElement {
     /** The options last passed to FullCalendar, see {@link applyOptions}. FullCalendar cannot return them. */
     private _optionOverrides: Record<string, any> = {};
     /**
-     * The options the calendar uses when the server has set nothing. These are the add-on's own options and event
-     * handlers, plus the initial JSON options. A removed option gets its value from here.
+     * The add-on's own event handlers, by option name. A removed option that has one gets it back, so the server keeps
+     * receiving the event. Any other removed option gets FullCalendar's default.
      */
-    private _optionsWithoutServer: Record<string, any> = {};
+    private _addonHandlers: Record<string, any> = {};
     /** The eventAdd function passed with the last removal of an option, see {@link applyOptions}. */
     private _optionRemovalMarker: ((arg: any) => void) | undefined;
 
@@ -239,17 +236,15 @@ export class FullCalendar extends HTMLElement {
 
     protected initCalendar() {
         if (!this._calendar) {
-            // evaluated once, so the code of a JsCallback runs only once. Both createInitOptions calls get the result.
-            const jsonOptions = evaluateCallbacks(this.initialJsonOptions, this.createdCalendar);
-            this._moreLinkClickWithoutServer = jsonOptions.moreLinkClick;
+            const initialOptions: any = this.initialOptions;
             this.customViews = evaluateCallbacks(this.customViews, this.createdCalendar);
-            const initialOptions: any = {...this.initialOptions, ...jsonOptions};
-            this._optionsWithoutServer = this.createInitOptions({...jsonOptions});
-            let options = this.createInitOptions({...initialOptions, views: jsonOptions.views});
-            // before createInitOptions replaced it with our own handler
+            this._addonHandlers = {};
+            this.addEventHandlersToOptions(this._addonHandlers, this.createEventHandlers());
+            // createInitOptions puts the custom views into views, the view-specific options are merged over them
+            let options = this.createInitOptions({...initialOptions, views: undefined});
+            // the raw value, createInitOptions replaced it with our own handler before evaluating the callbacks
             this.setMoreLinkClickAction(initialOptions.moreLinkClick);
-            // the view-specific options the server set before attach, over those of the initial JSON options
-            options.views = mergeViews(options.views, evaluateCallbacks((this.initialOptions as any).views, this.createdCalendar));
+            options.views = mergeViews(options.views, evaluateCallbacks(initialOptions.views, this.createdCalendar));
             // the final list, including the plugins subclasses added in their createInitOptions
             this._basePlugins = options.plugins;
             const themePlugin = this._fcTheme ? resolvedThemes.get(this._fcTheme) : undefined;
@@ -742,20 +737,20 @@ export class FullCalendar extends HTMLElement {
     /**
      * Returns the value to pass to FullCalendar for the given option value.
      * <p>
-     * Null means that the server removed the option. Then the value from _optionsWithoutServer applies. If there is no
-     * such value, the result is undefined and FullCalendar's default applies.
+     * Null means that the server removed the option. Then the add-on's own handler for it applies. If there is none, the
+     * result is undefined and FullCalendar's default applies.
      * <p>
-     * View-specific options are merged per view over the views of the initial JSON options and the custom views, as at
-     * creation. Those views were evaluated at creation, so the code of their callbacks does not run again.
+     * View-specific options are merged per view over the custom views, as at creation. The custom views were evaluated
+     * at creation, so the code of their callbacks does not run again.
      * @param key option name
      * @param value value, may contain JsCallback markers
      */
     private resolveOptionValue(key: string, value: any): any {
         if (key === "views") {
-            return mergeViews(this._optionsWithoutServer.views, evaluateCallbacks(value, this.createdCalendar));
+            return mergeViews(this.customViews, evaluateCallbacks(value, this.createdCalendar));
         }
         if (value == null) {
-            return this._optionsWithoutServer[key];
+            return this._addonHandlers[key];
         }
         return evaluateCallbacks(value, this.createdCalendar);
     }
@@ -796,8 +791,7 @@ export class FullCalendar extends HTMLElement {
     // FC-UPDATE: check whether moreLinkClick still combines the action and the click callback. The special handling
     //  below is needed only while it does.
     /**
-     * Stores the value of the moreLinkClick option for our own handler. Null restores the value of the initial JSON
-     * options. If there is none, FullCalendar's default applies.
+     * Stores the value of the moreLinkClick option for our own handler. Null restores FullCalendar's default.
      * <p>
      * In FullCalendar, moreLinkClick is both the action of the link and the click callback. The add-on puts its own
      * handler into this option, so the server gets every click. The application's value is stored here instead.
@@ -805,7 +799,7 @@ export class FullCalendar extends HTMLElement {
      * @param value string, function or JsCallback marker
      */
     protected setMoreLinkClickAction(value: any) {
-        this.moreLinkClickAction = evaluateCallbacks(value, this.createdCalendar) ?? this._moreLinkClickWithoutServer ?? "popover";
+        this.moreLinkClickAction = evaluateCallbacks(value, this.createdCalendar) ?? "popover";
     }
 
     /**
@@ -835,7 +829,7 @@ export class FullCalendar extends HTMLElement {
             return this._optionOverrides.eventAdd;
         }
         // @ts-ignore
-        return this.calendar ? this.calendar.getOption(key) : this.initialJsonOptions[key];
+        return this.calendar ? this.calendar.getOption(key) : (this.initialOptions as any)[key];
     }
 
     /**

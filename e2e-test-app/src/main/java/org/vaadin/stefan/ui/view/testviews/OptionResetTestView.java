@@ -28,8 +28,8 @@ import java.util.Locale;
  * The calendar shows the week of 2025-03-03 in German, with an all-day entry and a timed entry. Its entries come from
  * a callback entry provider. The span "fetch-count" shows how often it was asked for entries.
  * <p>
- * Its initial JSON options set the entry color green, at most one entry row per day, so the month view shows a "+N
- * more" link on 2025-03-06, and "day" as the action of that link. They also set an eventDataTransform callback, at
+ * Its initial JSON options set at most one entry row per day, so the month view shows a "+N more" link on 2025-03-06,
+ * and "day" as the action of that link. They also set an eventDataTransform callback, at
  * top level and for the listDay view. The code of both callbacks counts how often it is evaluated in
  * {@code window.optionResetJsonEvaluations}. For the week view they set long weekday names in the day headers.
  * <p>
@@ -96,7 +96,6 @@ public class OptionResetTestView extends VerticalLayout {
         viewRenderedCountSpan.setId("view-rendered-count");
 
         ObjectNode initialOptions = JsonFactory.createObject();
-        initialOptions.put("eventColor", "green");
         initialOptions.put("dayMaxEventRows", 1);
         initialOptions.put("moreLinkClick", "day");
         initialOptions.set("eventDataTransform", JsCallback.of("""

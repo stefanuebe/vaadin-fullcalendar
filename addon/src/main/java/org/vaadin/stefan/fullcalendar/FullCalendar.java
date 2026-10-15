@@ -78,7 +78,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     public static final int DEFAULT_DAY_EVENT_DURATION = 1;
 
-    private static final String JSON_INITIAL_OPTIONS = "initialJsonOptions";
     private static final String INITIAL_OPTIONS = "initialOptions";
     private static final String THEME_PROPERTY = "fcTheme";
 
@@ -124,6 +123,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     private final List<Registration> entryProviderDataListeners = new LinkedList<>();
 
     private final Map<String, CustomCalendarView> customCalendarViews = new LinkedHashMap<>();
+    private boolean customViewsSetExplicitly;
 
     // used to keep the amount of timeslot selected listeners. when 0, then selectable option is auto removed
     private int timeslotsSelectedListenerCount;
@@ -223,13 +223,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             }
         }
 
-        this.getElement().setPropertyJson(JSON_INITIAL_OPTIONS, Objects.requireNonNull(initialOptions));
+        writeCustomViews();
         this.constructorInitialOptions = initialOptions;
         initialOptions.properties().forEach(property -> {
-            String key = property.getKey();
-            // views become custom views and the time zone is handled by withAutoBrowserTimezone or the client
-            if (!key.equals("views") && !key.equals(Option.TIMEZONE.getOptionKey())) {
-                rawOptions.put(key, property.getValue().deepCopy());
+            // views become custom views
+            if (!property.getKey().equals("views")) {
+                rawOptions.put(property.getKey(), property.getValue().deepCopy());
             }
         });
 
@@ -2201,17 +2200,22 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             throw new UnsupportedOperationException("Views can only be set before the component is attached");
         }
 
-        if (getElement().hasProperty("customViews")) {
+        // a flag, because the anonymous views of the constructor JSON are in the same map
+        if (customViewsSetExplicitly) {
             throw new UnsupportedOperationException("Custom views can only be set once");
         }
+        customViewsSetExplicitly = true;
 
-        ObjectNode json = JsonFactory.createObject();
         for (CustomCalendarView customCalendarView : customCalendarViews) {
             this.customCalendarViews.put(customCalendarView.getClientSideValue(), customCalendarView);
-            json.set(customCalendarView.getClientSideValue(), customCalendarView.getViewSettings());
         }
+        writeCustomViews();
+    }
 
-        this.getElement().setPropertyJson("customViews", json);
+    private void writeCustomViews() {
+        ObjectNode json = JsonFactory.createObject();
+        customCalendarViews.forEach((name, view) -> json.set(name, view.getViewSettings()));
+        getElement().setPropertyJson("customViews", json);
     }
 
     /**

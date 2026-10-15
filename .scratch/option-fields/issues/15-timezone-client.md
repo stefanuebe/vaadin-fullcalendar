@@ -21,4 +21,4 @@
 - [ ] Playwright: an explicit zone change fetches the entries exactly once.
 - [ ] `auto-browser-timezone.spec.js` passes or is adjusted.
 
-**Note from the review of 01 (2026-10-15):** `e2e-tests/tests/option-reset.spec.js` has "removing the time zone restores the time zone of the add-on" (UTC). With `LOCAL` as the initial value this test changes; adjust its name and expectation here.
+**Note from 04 (2026-10-15):** `e2e-tests/tests/option-reset.spec.js` now has "removing the time zone gives FullCalendar's default, the browser's zone", run with the browser zone `Asia/Tokyo`. It still expects the calendar to start in UTC (10:00). With `LOCAL` as the initial value the calendar starts in the browser's zone (19:00); adjust the start expectation here.
