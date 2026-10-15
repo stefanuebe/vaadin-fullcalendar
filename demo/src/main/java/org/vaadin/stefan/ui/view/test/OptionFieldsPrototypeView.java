@@ -84,6 +84,12 @@ public class OptionFieldsPrototypeView extends VerticalLayout {
                     calendarHolder.remove(calendar);
                     calendarHolder.add(calendar);
                 }),
+                button("detach", () -> calendarHolder.remove(calendar)),
+                button("while detached: firstDay = Friday, remove allDayText", () -> {
+                    calendar.setFirstDay(DayOfWeek.FRIDAY);
+                    calendar.setAllDayText(null);
+                }),
+                button("attach", () -> calendarHolder.add(calendar)),
                 button("setRawOption(\"editable\", false)", () -> calendar.setRawOption("editable", false)),
                 button("setRawOption(\"editable\", null)", () -> calendar.setRawOption("editable", null)),
                 button("setRawOption(\"firstDay\", 5)", () -> calendar.setRawOption("firstDay", 5)),
