@@ -18,6 +18,8 @@ package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 
 import java.io.Serializable;
 
@@ -39,4 +41,34 @@ class ViewOptions implements Serializable {
      * @see <a href="https://fullcalendar.io/docs/editable">editable</a>
      */
     private Boolean editable;
+
+    /**
+     * CSS classes for day cells in day grid views (including the all-day section of time grid views) and the body of
+     * the "+N more" popover. Time grid day columns use {@code dayLaneClass} instead.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast}, {@code isFuture},
+     * {@code isToday}, {@code isOther} and more, see the library docs. It returns the class names as a string.
+     *
+     * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue dayCellClass;
+
+    /**
+     * Sets fixed CSS classes for day cells, see {@link #getDayCellClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setDayCellClass(String classNames) {
+        this.dayCellClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets a callback that returns the CSS classes for day cells, see {@link #getDayCellClass()}.
+     *
+     * @param callback the callback, or null to remove the option
+     */
+    public void setDayCellClass(JsCallback callback) {
+        this.dayCellClass = callback;
+    }
 }

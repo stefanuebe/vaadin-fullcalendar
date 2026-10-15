@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-15) |
 | Blocked by | `05-options-object-first-fields` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,9 +14,9 @@
 
 **Blocked by:** `05-options-object-first-fields`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-15)
 
-- [ ] Both setters reach the client in their form; `null` removes the option.
-- [ ] A test switches over the getter's value without a `default` branch (compile-time exhaustiveness).
-- [ ] Playwright: a class set as string and one returned by a callback both appear on day cells.
-- [ ] `SerializationTest` covers a `JsCallback` value.
+- [x] Both setters reach the client in their form; `null` removes the option.
+- [x] A test switches over the getter's value without a `default` branch (compile-time exhaustiveness).
+- [x] Playwright: a class set as string and one returned by a callback both appear on day cells.
+- [x] `SerializationTest` covers a `JsCallback` value.

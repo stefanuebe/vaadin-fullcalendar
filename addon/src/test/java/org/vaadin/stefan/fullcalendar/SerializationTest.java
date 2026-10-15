@@ -59,10 +59,12 @@ public class SerializationTest {
         FullCalendar calendar = new FullCalendar();
         calendar.options().setFirstDay(DayOfWeek.MONDAY);
         calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
+        calendar.options().setDayCellClass(JsCallback.of("() => 'x'"));
 
         FullCalendar copy = roundtrip(calendar);
         assertEquals(DayOfWeek.MONDAY, copy.options().getFirstDay());
         assertEquals(Boolean.TRUE, copy.options().getEditable());
+        assertEquals(JsCallback.of("() => 'x'"), copy.options().getDayCellClass());
 
         // the options object of the copy changes the copy, not the original
         copy.options().setFirstDay(DayOfWeek.TUESDAY);

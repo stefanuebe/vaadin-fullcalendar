@@ -119,6 +119,37 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     }
 
     @Test
+    void valueOrCallback_bothFormsReachTheClient_nullRemovesTheOption() {
+        attach();
+
+        calendar.options().setDayCellClass("typed-day");
+        assertEquals("typed-day", respond().getFirst().get("dayCellClass").asString());
+
+        calendar.options().setDayCellClass(JsCallback.of("() => 'callback-day'"));
+        assertEquals("() => 'callback-day'", respond().getFirst().get("dayCellClass").get("__jsCallback").asString());
+
+        calendar.options().setDayCellClass((String) null);
+        assertTrue(respond().getFirst().get("dayCellClass").isNull());
+    }
+
+    @Test
+    void valueOrCallback_getterCoversBothFormsWithoutDefaultBranch() {
+        calendar.options().setDayCellClass("typed-day");
+        assertEquals("names typed-day", dayCellClassForm());
+
+        calendar.options().setDayCellClass(JsCallback.of("() => 'x'"));
+        assertEquals("callback", dayCellClassForm());
+    }
+
+    private String dayCellClassForm() {
+        // compiles only while the switch covers every permitted type
+        return switch (calendar.options().getDayCellClass()) {
+            case ClassName className -> "names " + className.names();
+            case JsCallback callback -> "callback";
+        };
+    }
+
+    @Test
     void unsetField_isNull() {
         assertNull(calendar.options().getFirstDay());
         assertNull(calendar.options().getInitialDate());
