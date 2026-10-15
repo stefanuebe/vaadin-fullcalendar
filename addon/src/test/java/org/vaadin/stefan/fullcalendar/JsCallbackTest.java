@@ -1,8 +1,10 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,6 +95,22 @@ class JsCallbackTest {
         JsCallback cb = JsCallback.of("function() { return true; }");
         var marker = cb.toMarkerJson();
         assertEquals("function() { return true; }", marker.get("__jsCallback").asString());
+    }
+
+    @Test
+    void jsCallback_fromMarkerJson_readsToMarkerJson() {
+        JsCallback cb = JsCallback.of("function() { return true; }");
+        assertEquals(cb, JsCallback.fromMarkerJson(cb.toMarkerJson()));
+    }
+
+    @Test
+    void jsCallback_fromMarkerJson_rejectsOtherValues() {
+        for (JsonNode value : List.of(JsonFactory.createObject(), JsonFactory.createObject().put("__jsCallback", 1),
+                JsonFactory.createObject().putNull("__jsCallback"), JsonFactory.createObject().put("__jsCallback", " "),
+                JsonFactory.create("function() {}"))) {
+            assertThrows(IllegalArgumentException.class, () -> JsCallback.fromMarkerJson(value), value.toString());
+        }
+        assertThrows(NullPointerException.class, () -> JsCallback.fromMarkerJson(null));
     }
 
     @Test

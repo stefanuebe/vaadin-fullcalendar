@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Objects;
@@ -58,6 +59,8 @@ import java.util.Objects;
  */
 public final class JsCallback implements ClassNameValue, ContentValue, HeaderAlignValue {
 
+    private static final String MARKER_KEY = "__jsCallback";
+
     private final String jsFunction;
 
     private JsCallback(String jsFunction) {
@@ -98,6 +101,22 @@ public final class JsCallback implements ClassNameValue, ContentValue, HeaderAli
     }
 
     /**
+     * Reads a JsCallback back from the marker object {@link #toMarkerJson()} produces.
+     *
+     * @param marker the marker object
+     * @return the JsCallback
+     * @throws IllegalArgumentException when the value is no marker object
+     * @throws NullPointerException when null is passed
+     */
+    public static JsCallback fromMarkerJson(JsonNode marker) {
+        JsonNode function = Objects.requireNonNull(marker).get(MARKER_KEY);
+        if (function == null || !function.isString() || function.asString().isBlank()) {
+            throw new IllegalArgumentException("Not a JsCallback marker: " + marker);
+        }
+        return new JsCallback(function.asString());
+    }
+
+    /**
      * Returns the JavaScript function string.
      * @return JS function string
      */
@@ -113,7 +132,7 @@ public final class JsCallback implements ClassNameValue, ContentValue, HeaderAli
      */
     public ObjectNode toMarkerJson() {
         ObjectNode marker = JsonFactory.createObject();
-        marker.put("__jsCallback", jsFunction);
+        marker.put(MARKER_KEY, jsFunction);
         return marker;
     }
 

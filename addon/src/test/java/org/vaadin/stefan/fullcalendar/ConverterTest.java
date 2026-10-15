@@ -2,17 +2,24 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.converters.*;
+import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.model.Header;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.NullNode;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,23 +32,73 @@ class ConverterTest {
     // Value-or-callback converters: client form and back
     // -------------------------------------------------------------------------
 
+    /**
+     * Values of each value type, at least one per form. A new value type adds its forms here. Every value type has a
+     * converter (spec), so the scan below finds its fields by the converter.
+     */
+    private static final Map<Class<?>, List<Object>> VALUE_TYPE_SAMPLES = Map.of(
+            ClassNameValue.class, List.of(ClassName.of("a b"), JsCallback.of("info => 'a'")),
+            ContentValue.class, List.of(TextContent.of("all day"), JsCallback.of("info => info.text")),
+            HeaderAlignValue.class, Stream.<Object>concat(Arrays.stream(HeaderAlign.values()),
+                    Stream.of(JsCallback.of("() => 'end'"))).toList());
+
+    /** Field types with a converter that are no value type, since their options take one form only. */
+    private static final Set<Class<?>> ONE_FORM_TYPES = Set.of(DayOfWeek.class, LocalDate.class);
+
+    /** The fields of the option data classes and their superclasses. */
+    private static Stream<Field> optionFields() {
+        return Stream.of(CalendarOptions.class, ViewOptions.class)
+                .<Class<?>>mapMulti((type, downstream) -> {
+                    for (Class<?> c = type; c != Object.class; c = c.getSuperclass()) {
+                        downstream.accept(c);
+                    }
+                })
+                .flatMap(type -> Arrays.stream(type.getDeclaredFields()))
+                .filter(field -> !Modifier.isStatic(field.getModifiers()));
+    }
+
+    /**
+     * Runs every value type through the converter its option fields use and back. A field with a converter or of a
+     * sealed type fails without samples, and the samples must contain each permitted subtype of a sealed value type
+     * and each constant of an enum, so neither a new value type nor a new form can skip the round trip.
+     */
     @Test
-    void contentValue_roundTrip() {
-        ContentValueConverter conv = new ContentValueConverter();
-        for (ContentValue value : List.of(TextContent.of("all day"), JsCallback.of("info => info.text"))) {
-            assertTrue(conv.supports(value));
-            assertEquals(value, conv.toServerModel(conv.toClientModel(value, null), null));
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    void everyValueType_roundTripsThroughTheConverterOfItsFields() throws ReflectiveOperationException {
+        List<Field> valueTypeFields = optionFields()
+                .filter(field -> field.isAnnotationPresent(JsonConverter.class) || field.getType().isSealed())
+                .filter(field -> !ONE_FORM_TYPES.contains(field.getType()))
+                .toList();
+
+        assertFalse(valueTypeFields.isEmpty());
+        for (Field field : valueTypeFields) {
+            List<Object> samples = VALUE_TYPE_SAMPLES.get(field.getType());
+            assertNotNull(samples, "No samples for " + field.getType().getSimpleName() + " of " + field.getName());
+            JsonConverter annotation = field.getAnnotation(JsonConverter.class);
+            assertNotNull(annotation, "No converter on " + field.getName());
+            JsonItemPropertyConverter converter = annotation.value().getConstructor().newInstance();
+            for (Object value : samples) {
+                assertTrue(converter.supports(value), field.getName() + ": " + value);
+                assertEquals(value, converter.toServerModel(converter.toClientModel(value, null), null),
+                        field.getName());
+            }
         }
     }
 
     @Test
-    void headerAlignValue_roundTrip() {
-        HeaderAlignValueConverter conv = new HeaderAlignValueConverter();
-        for (HeaderAlignValue value : List.of(HeaderAlign.START, HeaderAlign.CENTER, HeaderAlign.END,
-                JsCallback.of("() => 'end'"))) {
-            assertTrue(conv.supports(value));
-            assertEquals(value, conv.toServerModel(conv.toClientModel(value, null), null));
-        }
+    void valueTypeSamples_coverEveryForm() {
+        VALUE_TYPE_SAMPLES.forEach((type, samples) -> {
+            Set<Object> forms = samples.stream()
+                    .map(value -> value instanceof Enum<?> constant ? constant : value.getClass())
+                    .collect(Collectors.toSet());
+            for (Class<?> form : type.getPermittedSubclasses()) {
+                if (form.isEnum()) {
+                    assertTrue(forms.containsAll(List.of(form.getEnumConstants())), type + ": " + form);
+                } else {
+                    assertTrue(forms.contains(form), type + ": " + form);
+                }
+            }
+        });
     }
 
     // -------------------------------------------------------------------------

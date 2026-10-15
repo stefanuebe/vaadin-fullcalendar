@@ -46,7 +46,7 @@ public class HeaderAlignValueConverter implements JsonItemPropertyConverter<Head
     @Override
     public HeaderAlignValue toServerModel(JsonNode clientValue, Object currentInstance) {
         if (clientValue.isObject()) {
-            return JsCallback.of(clientValue.get("__jsCallback").asString());
+            return JsCallback.fromMarkerJson(clientValue);
         }
         return Arrays.stream(HeaderAlign.values())
                 .filter(align -> align.getClientSideValue().equals(clientValue.asString()))

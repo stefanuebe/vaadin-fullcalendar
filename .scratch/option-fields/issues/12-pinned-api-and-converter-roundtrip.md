@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-15) |
 | Blocked by | `06-value-or-callback-day-cell-class`, `07-view-options` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,14 @@
 
 **Blocked by:** `06-value-or-callback-day-cell-class`, `07-view-options`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-15)
 
-- [ ] Adding a public method to an options object without updating the pinned list fails the test.
-- [ ] The round trip covers `ClassNameValue`.
+- [x] Adding a public method to an options object without updating the pinned list fails the test.
+- [x] The round trip covers `ClassNameValue`.
+
+**Notes (2026-10-15):**
+
+- `OptionsApiTest` compares the public declared methods of each options class, as `name(ParameterTypes): ReturnType` sorted, with the test resource `<class name>-api.txt`. The failure message names the file to update.
+- `ConverterTest.everyValueType_roundTripsThroughTheConverterOfItsFields` takes every field of the data classes (superclasses included) that has a `@JsonConverter` or a sealed type. Each needs samples in `VALUE_TYPE_SAMPLES`, unless its type is in `ONE_FORM_TYPES` (a converter for an option with one form, such as `DayOfWeek`). `valueTypeSamples_coverEveryForm` checks that the samples contain each permitted subtype and each enum constant.
+- The `__jsCallback` marker is read by `JsCallback.fromMarkerJson`, next to `toMarkerJson`. All three value-type converters use it.
+- Scheduler: the core test classes and resources are not on the scheduler's test classpath, so 37 adds its own pinned lists and round trip over the fields the scheduler data classes declare.

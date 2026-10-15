@@ -23,7 +23,7 @@ import org.vaadin.stefan.fullcalendar.JsonUtils;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Converts a {@link ClassNameValue} to its client form: the class names as a string, or the callback marker.
+ * Converts a {@link ClassNameValue} to its client form and back: the class names as a string, or the callback marker.
  */
 public class ClassNameValueConverter implements JsonItemPropertyConverter<ClassNameValue, Object> {
 
@@ -38,5 +38,10 @@ public class ClassNameValueConverter implements JsonItemPropertyConverter<ClassN
             case ClassName className -> JsonUtils.toJsonNode(className.names());
             case JsCallback callback -> callback.toMarkerJson();
         };
+    }
+
+    @Override
+    public ClassNameValue toServerModel(JsonNode clientValue, Object currentInstance) {
+        return clientValue.isObject() ? JsCallback.fromMarkerJson(clientValue) : ClassName.of(clientValue.asString());
     }
 }

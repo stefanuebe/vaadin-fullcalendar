@@ -36,6 +36,7 @@ Every field:
 - sits in `CalendarOptions` if the option-name resource flags it as global, otherwise in `ViewOptions`;
 - sits in the topic section of its batch in the source;
 - has Javadoc with a short description and an `@see` link to its library docs page. The old Javadoc of the `Option` constant is the source for this text. Its `<dt>Type</dt>` blocks and its `setOption` examples are not carried over;
+- has its getter and setters in the pinned method lists `FullCalendarOptions-api.txt` or `FullCalendarViewOptions-api.txt` (test resources, see 12). A field of a new value type adds samples of each form to `VALUE_TYPE_SAMPLES` in `ConverterTest`; a field with a converter for a one-form type adds the type to `ONE_FORM_TYPES` there;
 - has one hand-written setter per value form if it takes more than one form. Each setter has Javadoc that links to the getter (`{@link}`). There is no public setter that takes the value type itself.
 
 A value form the value-type tickets (21–24) do not cover is a finding. Report it, do not invent a type in the batch.
