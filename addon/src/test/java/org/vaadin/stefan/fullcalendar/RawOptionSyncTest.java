@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -269,6 +270,85 @@ public class RawOptionSyncTest extends BrowserlessTest {
 
         assertFalse(calendar.getRawOption("weekends").orElseThrow().asBoolean());
         assertEquals(Boolean.FALSE, calendar.getOption(Option.WEEKENDS).orElseThrow());
+    }
+
+    /**
+     * Runs what the server does before its response and returns the client functions called, in order. Flow writes a
+     * function call as {@code return $0.name(...)}; other scripts are returned as they are.
+     */
+    private List<String> respondWithCalledFunctions() {
+        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
+        return ui.getInternals().dumpPendingJavaScriptInvocations().stream()
+                .map(invocation -> invocation.getInvocation().getExpression())
+                .map(expression -> expression.replaceFirst("(?s)^.*?\\$0\\.(\\w+)\\(.*$", "$1"))
+                .toList();
+    }
+
+    private static void assertCalledBefore(List<String> functions, String first, String second) {
+        assertTrue(functions.contains(first) && functions.contains(second), functions.toString());
+        assertTrue(functions.indexOf(first) < functions.indexOf(second), functions.toString());
+    }
+
+    @Test
+    void optionSetBeforeGotoDate_reachesTheClientBeforeTheCall() {
+        attach();
+
+        calendar.setRawOption("validRange", JsonFactory.createObject().put("start", "2025-03-01"));
+        calendar.gotoDate(LocalDate.of(2025, 2, 1));
+        List<String> functions = respondWithCalledFunctions();
+
+        assertCalledBefore(functions, "setOptions", "gotoDate");
+    }
+
+    @Test
+    void optionSetBeforeGotoDate_inTheRequestOfTheFirstAttach_isInTheProperty() {
+        ui.add(calendar);
+        calendar.setRawOption("validRange", JsonFactory.createObject().put("start", "2025-03-01"));
+        calendar.gotoDate(LocalDate.of(2025, 2, 1));
+        List<String> functions = respondWithCalledFunctions();
+
+        assertEquals("2025-03-01", initialOptions().get("validRange").get("start").asString());
+        assertFalse(functions.contains("setOptions"), functions.toString());
+        assertTrue(functions.contains("gotoDate"), functions.toString());
+    }
+
+    @Test
+    void optionSetBeforeGotoDate_whileDetached_isNotSentToTheNewClientElement() {
+        attach();
+        ui.remove(calendar);
+
+        calendar.setRawOption("validRange", JsonFactory.createObject().put("start", "2025-03-01"));
+        calendar.gotoDate(LocalDate.of(2025, 2, 1));
+        respond();
+        ui.add(calendar);
+        List<String> functions = respondWithCalledFunctions();
+
+        assertEquals("2025-03-01", initialOptions().get("validRange").get("start").asString());
+        assertFalse(functions.contains("setOptions"), functions.toString());
+        assertTrue(functions.contains("gotoDate"), functions.toString());
+    }
+
+    @Test
+    void optionSetBeforeRender_reachesTheClientBeforeTheCall() {
+        attach();
+
+        calendar.setRawOption("weekends", false);
+        calendar.render();
+        List<String> functions = respondWithCalledFunctions();
+
+        assertCalledBefore(functions, "setOptions", "renderCalendar");
+    }
+
+    @Test
+    void optionSetWhileDetached_reachesTheKeptClientElementBeforeTheRestore() {
+        attach();
+
+        ui.remove(calendar);
+        calendar.setRawOption("weekends", false);
+        ui.add(calendar);
+        List<String> functions = respondWithCalledFunctions();
+
+        assertCalledBefore(functions, "setOptions", "restoreStateFromServer");
     }
 
     /** A bean Jackson cannot convert, because its getter throws. */

@@ -310,7 +310,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         if(!attachEvent.isInitialAttach()) {
             getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(this, executionContext -> {
-                    syncOptions();
+                    flushOptions();
                     getElement().callJsFunction("restoreStateFromServer",
                             JsonUtils.toJsonNode(currentViewName),
                             JsonUtils.toJsonNode(currentIntervalStart));
@@ -371,6 +371,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * Moves to the next interval (e. g. next month if current view is monthly based).
      */
     public void next() {
+        flushOptions();
         getElement().callJsFunction("next");
     }
 
@@ -378,6 +379,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * Moves to the previous interval (e. g. previous month if current view is monthly based).
      */
     public void previous() {
+        flushOptions();
         getElement().callJsFunction("previous");
     }
 
@@ -385,6 +387,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * Moves to the current interval (e. g. current month if current view is monthly based).
      */
     public void today() {
+        flushOptions();
         getElement().callJsFunction("today");
     }
 
@@ -541,6 +544,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         currentView = view;
         currentViewName = view.getClientSideValue();
 
+        flushOptions();
         getElement().callJsFunction("changeView", currentViewName);
     }
 
@@ -568,6 +572,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     public void gotoDate(LocalDate date) {
         Objects.requireNonNull(date);
+        flushOptions();
         getElement().callJsFunction("gotoDate", date.toString());
     }
 
@@ -608,6 +613,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     public void scrollToTime(String duration) {
         Objects.requireNonNull(duration);	// No format check, it is already done in the calendar code
+        flushOptions();
         getElement().callJsFunction("scrollToTime", duration);
     }
     
@@ -619,6 +625,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     public void scrollToTime(LocalTime duration) {
         Objects.requireNonNull(duration);
+        flushOptions();
         getElement().callJsFunction("scrollToTime", duration.format(DateTimeFormatter.ISO_LOCAL_TIME));
     }
 
@@ -934,6 +941,19 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
 
         lastSentOptions.clear();
         lastSentOptions.putAll(current);
+    }
+
+    /**
+     * Sends pending option changes at once, so a direct client call that follows runs under them. Before the client
+     * got the initial state, the property is already current and nothing is sent.
+     * <p>
+     * While detached nothing is sent either. The call would wait for the attach and could then reach a new client
+     * element, which the property already created with the options. The attach resends the options anyway.
+     */
+    private void flushOptions() {
+        if (initialStateSent && isAttached()) {
+            syncOptions();
+        }
     }
 
     private void writeInitialOptions(Map<String, JsonNode> options) {
@@ -1376,6 +1396,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * Force the client side instance to re-render its content.
      */
     public void render() {
+        flushOptions();
         getElement().callJsFunction("renderCalendar");
     }
 
@@ -1879,6 +1900,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     public Registration addRemoteEntrySource(RemoteEntrySource<?> source) {
         Objects.requireNonNull(source, "source must not be null");
         remoteEntrySourceRegistry.put(source.getId(), source);
+        flushOptions();
         getElement().callJsFunction("addEventSource", source.toJson());
         return () -> removeRemoteEntrySource(source.getId());
     }
@@ -1893,6 +1915,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     public void removeRemoteEntrySource(String id) {
         Objects.requireNonNull(id, "id must not be null");
         remoteEntrySourceRegistry.remove(id);
+        flushOptions();
         getElement().callJsFunction("removeEventSource", id);
     }
 
@@ -1913,6 +1936,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         sources.forEach(s -> remoteEntrySourceRegistry.put(s.getId(), s));
         ArrayNode array = JsonFactory.createArray();
         sources.stream().map(RemoteEntrySource::toJson).forEach(array::add);
+        flushOptions();
         getElement().callJsFunction("setEventSources", array);
         return () -> setRemoteEntrySources(java.util.Collections.emptyList());
     }
@@ -1945,6 +1969,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * To refresh only a single remote entry source, use {@link #refetchRemoteEntrySource(String)}.
      */
     public void refetchEvents() {
+        flushOptions();
         getElement().callJsFunction("refetchEvents");
     }
 
@@ -1964,6 +1989,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     public void refetchRemoteEntrySource(String sourceId) {
         Objects.requireNonNull(sourceId);
+        flushOptions();
         getElement().executeJs("var s = this.calendar.getEventSourceById($0); if (s) s.refetch();", sourceId);
     }
 
