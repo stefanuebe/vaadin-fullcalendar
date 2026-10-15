@@ -41,6 +41,7 @@ public class OptionFieldsSchedulerPrototypeView extends VerticalLayout {
         // PROTOTYPE check: does an option that only works at creation take effect when the sync sends it?
         calendar.setRawOption("initialDate", "2025-06-01");
         calendar.setHeight("400px");
+
         sent.getElement().setAttribute("data-testid", "sent");
 
         FlexLayout buttons = new FlexLayout(
