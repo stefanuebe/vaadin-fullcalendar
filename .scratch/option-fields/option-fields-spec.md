@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – (not created, GitHub account flagged; publish when the bot account is back) |
 | Labels | enhancement, ready-for-agent |
-| Status | reviewed 2026-10-15 (5 full rounds + 1 targeted round); then changed to `options().view(…)` + `clear()` (maintainer) and reviewed in a targeted round, no major left; next: `/to-tickets` into `issues/` |
+| Status | reviewed 2026-10-15 (5 full rounds + 1 targeted round); then changed to `options().view(…)` + `clear()` (maintainer) and reviewed in a targeted round, no major left; broken down into 56 tickets in `issues/` (2026-10-15) |
 | Blocked by | – |
 | Sources | `option-fields-design.md` (design, prototype, review R1–R8), `option-fields-timezone.md`, `option-fields-timezone-client.md`, `option-fields-defaults.md`. Prototype: local branch `prototype/option-fields` (kept until this is implemented) |
 
