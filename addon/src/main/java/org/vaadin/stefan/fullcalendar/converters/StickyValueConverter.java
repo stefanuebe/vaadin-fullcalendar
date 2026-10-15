@@ -46,11 +46,11 @@ public class StickyValueConverter implements JsonItemPropertyConverter<StickyVal
             return clientValue.asBoolean() ? StickyValue.STICKY : StickyValue.NOT_STICKY;
         }
         if (clientValue.isNumber()) {
-            return StickyValue.offset(clientValue.asString() + "px");
+            return StickyValue.of(clientValue.asString() + "px");
         }
         if (!clientValue.isString()) {
             throw new IllegalArgumentException("Not a sticky value: " + clientValue);
         }
-        return StickyValue.offset(clientValue.asString());
+        return StickyValue.of(clientValue.asString());
     }
 }

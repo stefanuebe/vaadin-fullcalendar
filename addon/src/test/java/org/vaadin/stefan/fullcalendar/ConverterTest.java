@@ -8,6 +8,11 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.NullNode;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.time.DayOfWeek;
@@ -18,6 +23,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,57 +41,103 @@ class ConverterTest {
     // Value-or-callback converters: client form and back
     // -------------------------------------------------------------------------
 
-    /** A value type with the converter its fields use and values of each form. */
-    record ValueType(Class<? extends JsonItemPropertyConverter<?, ?>> converter, List<Object> samples) {
+    /**
+     * A value type with the converter its fields use, and values of each form with the JSON the library reads for them.
+     */
+    record ValueType(Class<? extends JsonItemPropertyConverter<?, ?>> converter, Map<Object, JsonNode> samples) {
+    }
+
+    private static final JsCallback CALLBACK = JsCallback.of("() => {}");
+
+    /** Pairs of a value and its client form; a client form that is no {@link JsonNode} is converted to one. */
+    private static Map<Object, JsonNode> forms(Object... valuesAndClientForms) {
+        Map<Object, JsonNode> forms = new LinkedHashMap<>();
+        for (int i = 0; i < valuesAndClientForms.length; i += 2) {
+            Object clientForm = valuesAndClientForms[i + 1];
+            forms.put(valuesAndClientForms[i],
+                    clientForm instanceof JsonNode node ? node : JsonUtils.toJsonNode(clientForm));
+        }
+        return forms;
+    }
+
+    private static JsonNode array(BusinessHours... hours) {
+        ArrayNode array = JsonFactory.createArray();
+        Arrays.stream(hours).forEach(h -> array.add(h.toJson()));
+        return array;
     }
 
     /**
-     * Every value type, with at least one value per form. A new value type adds itself here. Every value type has a
-     * converter (spec), so the scan below finds the fields of value types by the converter.
+     * Every value type, with at least one value per form and the client form of each. A new value type adds itself
+     * here. Every value type has a converter (spec), so the scan below finds the fields of value types by the
+     * converter.
      */
     static final Map<Class<?>, ValueType> VALUE_TYPES = Map.ofEntries(
-            Map.entry(AutoBoolean.class, new ValueType(AutoBooleanConverter.class, List.of(AutoBoolean.values()))),
-            Map.entry(BusinessHoursValue.class, new ValueType(BusinessHoursValueConverter.class, List.of(
-                    BusinessHoursValue.NONE, BusinessHoursValue.DEFAULT,
+            Map.entry(AutoBoolean.class, new ValueType(AutoBooleanConverter.class, forms(
+                    AutoBoolean.TRUE, true, AutoBoolean.FALSE, false, AutoBoolean.AUTO, "auto"))),
+            Map.entry(BusinessHoursValue.class, new ValueType(BusinessHoursValueConverter.class, forms(
+                    BusinessHoursValue.NONE, false, BusinessHoursValue.DEFAULT, true,
                     BusinessHoursValue.of(BusinessHours.businessWeek().start(9).end(17),
+                            BusinessHours.of(DayOfWeek.SATURDAY).start(LocalTime.of(10, 30)).end(24)),
+                    array(BusinessHours.businessWeek().start(9).end(17),
                             BusinessHours.of(DayOfWeek.SATURDAY).start(LocalTime.of(10, 30)).end(24))))),
-            Map.entry(ClassNameValue.class, new ValueType(ClassNameValueConverter.class,
-                    List.of(ClassName.of("a b"), JsCallback.of("info => 'a'")))),
-            Map.entry(ConstraintValue.class, new ValueType(ConstraintValueConverter.class, List.of(
-                    ConstraintValue.groupId("meetings"), ConstraintValue.BUSINESS_HOURS,
-                    ConstraintValue.windows(BusinessHours.businessWeek().start(10).end(18)),
-                    ConstraintValue.windows(BusinessHours.of(DayOfWeek.MONDAY), BusinessHours.of(DayOfWeek.FRIDAY))))),
-            Map.entry(ContentValue.class, new ValueType(ContentValueConverter.class,
-                    List.of(TextContent.of("all day"), JsCallback.of("info => info.text")))),
-            Map.entry(CssSelectorValue.class, new ValueType(CssSelectorValueConverter.class,
-                    List.of(CssSelector.of(".item"), JsCallback.of("el => true")))),
-            Map.entry(DateFormatValue.class, new ValueType(DateFormatValueConverter.class, List.of(
+            Map.entry(ClassNameValue.class, new ValueType(ClassNameValueConverter.class, forms(
+                    ClassName.of("a b"), "a b", CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(ConstraintValue.class, new ValueType(ConstraintValueConverter.class, forms(
+                    ConstraintValue.ofGroupId("meetings"), "meetings",
+                    ConstraintValue.BUSINESS_HOURS, "businessHours",
+                    ConstraintValue.ofWindows(BusinessHours.businessWeek().start(10).end(18)),
+                    array(BusinessHours.businessWeek().start(10).end(18)),
+                    ConstraintValue.ofWindows(BusinessHours.of(DayOfWeek.MONDAY), BusinessHours.of(DayOfWeek.FRIDAY)),
+                    array(BusinessHours.of(DayOfWeek.MONDAY), BusinessHours.of(DayOfWeek.FRIDAY))))),
+            Map.entry(ContentValue.class, new ValueType(ContentValueConverter.class, forms(
+                    TextContent.of("all day"), "all day", CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(CssSelectorValue.class, new ValueType(CssSelectorValueConverter.class, forms(
+                    CssSelector.of(".item"), ".item", CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(DateFormatValue.class, new ValueType(DateFormatValueConverter.class, forms(
                     DateFormat.of(Map.of("month", "short", "day", "numeric", "omitCommas", true, "hour12", false)),
-                    JsCallback.of("arg => arg.date.year")))),
-            Map.entry(EntryLimit.class, new ValueType(EntryLimitConverter.class,
-                    List.of(EntryLimit.NONE, EntryLimit.CELL_HEIGHT, EntryLimit.of(0), EntryLimit.of(3)))),
-            Map.entry(HeightValue.class, new ValueType(HeightValueConverter.class,
-                    List.of(HeightValue.AUTO, HeightValue.ofPixels(0), HeightValue.ofPixels(650),
-                            HeightValue.ofCss("50vh")))),
-            Map.entry(HeaderAlignValue.class, new ValueType(HeaderAlignValueConverter.class,
-                    Stream.<Object>concat(Arrays.stream(HeaderAlign.values()), Stream.of(JsCallback.of("() => 'end'")))
-                            .toList())),
-            Map.entry(ListDayFormatValue.class, new ValueType(ListDayFormatValueConverter.class, List.of(
-                    DateFormat.of(Map.of("weekday", "long")), JsCallback.of("arg => 'day'"), Hidden.INSTANCE))),
-            Map.entry(ListTextValue.class, new ValueType(ListTextValueConverter.class,
-                    List.of(TextContent.of("Agenda"), Hidden.INSTANCE))),
-            Map.entry(NowValue.class, new ValueType(NowValueConverter.class, List.of(
-                    NowValue.of(LocalDate.of(2026, 10, 15)), NowValue.of(LocalDateTime.of(2026, 10, 15, 9, 30)),
-                    JsCallback.of("() => new Date()")))),
-            Map.entry(OverlapValue.class, new ValueType(OverlapValueConverter.class,
-                    List.of(Overlap.ALLOWED, Overlap.FORBIDDEN, JsCallback.of("(still, moving) => false")))),
-            Map.entry(StickyValue.class, new ValueType(StickyValueConverter.class,
-                    List.of(StickyValue.NOT_STICKY, StickyValue.STICKY, StickyValue.offset("2em")))),
-            Map.entry(ViewNameValue.class, new ValueType(ViewNameValueConverter.class,
-                    List.of(ViewName.of("timeGridDay"), JsCallback.of("(date, jsEvent) => {}")))));
+                    JsonFactory.createObject().put("month", "short").put("day", "numeric").put("omitCommas", true)
+                            .put("hour12", false),
+                    CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(EntryLimitValue.class, new ValueType(EntryLimitValueConverter.class, forms(
+                    EntryLimitValue.NONE, false, EntryLimitValue.CELL_HEIGHT, true,
+                    EntryLimitValue.of(0), 0, EntryLimitValue.of(3), 3))),
+            Map.entry(HeightValue.class, new ValueType(HeightValueConverter.class, forms(
+                    HeightValue.AUTO, "auto", HeightValue.ofPixels(0), 0, HeightValue.ofPixels(650), 650,
+                    HeightValue.ofCss("50vh"), "50vh"))),
+            Map.entry(HeaderAlignValue.class, new ValueType(HeaderAlignValueConverter.class, forms(
+                    HeaderAlign.START, "start", HeaderAlign.CENTER, "center", HeaderAlign.END, "end",
+                    CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(ListDayFormatValue.class, new ValueType(ListDayFormatValueConverter.class, forms(
+                    DateFormat.of(Map.of("weekday", "long")), JsonFactory.createObject().put("weekday", "long"),
+                    CALLBACK, CALLBACK.toMarkerJson(), ListDayFormatValue.NONE, false))),
+            Map.entry(ListTextValue.class, new ValueType(ListTextValueConverter.class, forms(
+                    TextContent.of("Agenda"), "Agenda", ListTextValue.NONE, false))),
+            Map.entry(NowValue.class, new ValueType(NowValueConverter.class, forms(
+                    NowValue.ofDay(LocalDate.of(2026, 10, 15)), "2026-10-15",
+                    NowValue.ofDateTime(LocalDateTime.of(2026, 10, 15, 9, 30)), "2026-10-15T09:30Z",
+                    CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(OverlapValue.class, new ValueType(OverlapValueConverter.class, forms(
+                    Overlap.ALLOWED, true, Overlap.FORBIDDEN, false, CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(StickyValue.class, new ValueType(StickyValueConverter.class, forms(
+                    StickyValue.NOT_STICKY, false, StickyValue.STICKY, true, StickyValue.of("2em"), "2em"))),
+            Map.entry(ViewNameValue.class, new ValueType(ViewNameValueConverter.class, forms(
+                    ViewName.of("timeGridDay"), "timeGridDay", CALLBACK, CALLBACK.toMarkerJson()))));
 
-    /** Field types with a converter that are no value type, since their options take one form only. */
-    private static final Set<Class<?>> ONE_FORM_TYPES = Set.of(DayOfWeek.class, LocalDate.class);
+    /**
+     * Field types with a converter that are no value type, since their options take one form only, with the converter
+     * their fields use.
+     */
+    static final Map<Class<?>, Class<?>> ONE_FORM_TYPES = Map.of(
+            DayOfWeek.class, DayOfWeekConverter.class,
+            LocalDate.class, LocalDateConverter.class);
+
+    /**
+     * Field types the sync writes without a converter: JSON scalars, a callback, and types with a client value
+     * ({@link ClientSideValue}). Every other field type needs a converter. Add a type here only when the library
+     * reads what {@link JsonUtils#toJsonNode(Object)} writes for it.
+     */
+    private static final Set<Class<?>> WRITTEN_AS_THEY_ARE =
+            Set.of(Boolean.class, Integer.class, Double.class, String.class, JsCallback.class);
 
     /** The fields of the option data classes and their superclasses. */
     private static Stream<Field> optionFields() {
@@ -101,82 +153,46 @@ class ConverterTest {
 
     @Test
     @SuppressWarnings({"rawtypes", "unchecked"})
-    void everyValueType_roundTripsThroughItsConverter() throws ReflectiveOperationException {
+    void everyValueType_hasTheClientFormOfTheLibrary_andRoundTrips() throws Exception {
         for (var entry : VALUE_TYPES.entrySet()) {
             JsonItemPropertyConverter converter = entry.getValue().converter().getConstructor().newInstance();
-            for (Object value : entry.getValue().samples()) {
-                assertTrue(entry.getKey().isInstance(value), entry.getKey() + ": " + value);
-                assertTrue(converter.supports(value), entry.getKey() + ": " + value);
-                assertEquals(value, converter.toServerModel(converter.toClientModel(value, null), null));
+            for (var sample : entry.getValue().samples().entrySet()) {
+                Object value = sample.getKey();
+                String label = entry.getKey().getSimpleName() + ": " + value;
+                assertTrue(entry.getKey().isInstance(value), label);
+                assertTrue(converter.supports(value), label);
+                assertEquals(sample.getValue(), converter.toClientModel(value, null), label);
+                assertEquals(value, converter.toServerModel(sample.getValue(), null), label);
+                assertEquals(value, serializedAndBack(value), label);
             }
         }
     }
 
+    private static Object serializedAndBack(Object value) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
+            out.writeObject(value);
+        }
+        try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+            return in.readObject();
+        }
+    }
+
     @Test
-    void valueTypes_haveTheClientFormOfTheLibrary() {
-        JsCallback callback = JsCallback.of("() => {}");
-        assertEquals(JsonUtils.toJsonNode(true), new OverlapValueConverter().toClientModel(Overlap.ALLOWED, null));
-        assertEquals(JsonUtils.toJsonNode(false), new OverlapValueConverter().toClientModel(Overlap.FORBIDDEN, null));
-        assertEquals(JsonUtils.toJsonNode(".item"),
-                new CssSelectorValueConverter().toClientModel(CssSelector.of(".item"), null));
-        assertEquals(JsonUtils.toJsonNode("timeGridDay"),
-                new ViewNameValueConverter().toClientModel(ViewName.of("timeGridDay"), null));
-        assertEquals(callback.toMarkerJson(), new OverlapValueConverter().toClientModel(callback, null));
-        assertEquals(callback.toMarkerJson(), new CssSelectorValueConverter().toClientModel(callback, null));
-        assertEquals(callback.toMarkerJson(), new ViewNameValueConverter().toClientModel(callback, null));
-        assertEquals(JsonUtils.toJsonNode(false),
-                new BusinessHoursValueConverter().toClientModel(BusinessHoursValue.NONE, null));
-        assertEquals(JsonUtils.toJsonNode(true),
-                new BusinessHoursValueConverter().toClientModel(BusinessHoursValue.DEFAULT, null));
-        assertEquals(JsonFactory.createArray().add(BusinessHours.businessWeek().toJson()),
-                new BusinessHoursValueConverter()
-                        .toClientModel(BusinessHoursValue.of(BusinessHours.businessWeek()), null));
-        assertEquals(JsonUtils.toJsonNode("businessHours"),
-                new ConstraintValueConverter().toClientModel(ConstraintValue.BUSINESS_HOURS, null));
-        assertEquals(JsonUtils.toJsonNode("meetings"),
-                new ConstraintValueConverter().toClientModel(ConstraintValue.groupId("meetings"), null));
-        assertEquals(JsonFactory.createArray().add(BusinessHours.businessWeek().toJson()),
-                new ConstraintValueConverter()
-                        .toClientModel(ConstraintValue.windows(BusinessHours.businessWeek()), null));
-        assertEquals(JsonUtils.toJsonNode("auto"), new AutoBooleanConverter().toClientModel(AutoBoolean.AUTO, null));
-        assertEquals(JsonUtils.toJsonNode(true), new AutoBooleanConverter().toClientModel(AutoBoolean.TRUE, null));
-        assertEquals(JsonUtils.toJsonNode("auto"), new HeightValueConverter().toClientModel(HeightValue.AUTO, null));
-        assertEquals(JsonUtils.toJsonNode(650),
-                new HeightValueConverter().toClientModel(HeightValue.ofPixels(650), null));
-        assertEquals(JsonUtils.toJsonNode(false),
-                new StickyValueConverter().toClientModel(StickyValue.NOT_STICKY, null));
-        assertEquals(StickyValue.offset("10px"),
+    void valueTypeConverters_readFurtherClientForms() {
+        assertEquals(StickyValue.of("10px"),
                 new StickyValueConverter().toServerModel(JsonUtils.toJsonNode(10), null));
-        assertEquals(JsonUtils.toJsonNode("2em"),
-                new StickyValueConverter().toClientModel(StickyValue.offset("2em"), null));
-        assertEquals(JsonUtils.toJsonNode(false), new ListTextValueConverter().toClientModel(Hidden.INSTANCE, null));
-        assertEquals(JsonUtils.toJsonNode(false),
-                new ListDayFormatValueConverter().toClientModel(Hidden.INSTANCE, null));
-        assertEquals(JsonFactory.createObject().put("weekday", "long"),
-                new DateFormatValueConverter().toClientModel(DateFormat.of(Map.of("weekday", "long")), null));
-        assertEquals(JsonUtils.toJsonNode("50vh"),
-                new HeightValueConverter().toClientModel(HeightValue.ofCss("50vh"), null));
-        assertEquals(StickyValue.offset("10.5px"),
+        assertEquals(StickyValue.of("10.5px"),
                 new StickyValueConverter().toServerModel(JsonUtils.toJsonNode(10.5), null));
-        assertEquals(JsonUtils.toJsonNode("Agenda"),
-                new ListTextValueConverter().toClientModel(TextContent.of("Agenda"), null));
-        assertEquals(JsonFactory.createObject().put("hour12", false).put("minute", 2),
-                new DateFormatValueConverter()
-                        .toClientModel(DateFormat.of(Map.of("hour12", false, "minute", 2)), null));
-        assertEquals(callback.toMarkerJson(), new NowValueConverter().toClientModel(callback, null));
-        assertEquals(callback.toMarkerJson(), new ListDayFormatValueConverter().toClientModel(callback, null));
-        assertEquals(JsonUtils.toJsonNode("2026-10-15"),
-                new NowValueConverter().toClientModel(NowValue.of(LocalDate.of(2026, 10, 15)), null));
-        assertEquals(JsonUtils.toJsonNode("2026-10-15T09:30Z"), new NowValueConverter()
-                .toClientModel(NowValue.of(LocalDateTime.of(2026, 10, 15, 9, 30)), null));
+    }
+
+    @Test
+    void businessHoursValue_writesTheEndOfTheDayAs24() {
         JsonNode endOfDay = new BusinessHoursValueConverter().toClientModel(
                 BusinessHoursValue.of(BusinessHours.of(DayOfWeek.SUNDAY).start(LocalTime.of(10, 30)).end(24)), null);
         assertEquals("10:30", endOfDay.get(0).get("startTime").asString());
         assertEquals("24:00", endOfDay.get(0).get("endTime").asString());
         assertEquals(0, endOfDay.get(0).get("daysOfWeek").get(0).asInt());
-        assertEquals(JsonUtils.toJsonNode(false), new EntryLimitConverter().toClientModel(EntryLimit.NONE, null));
-        assertEquals(JsonUtils.toJsonNode(true), new EntryLimitConverter().toClientModel(EntryLimit.CELL_HEIGHT, null));
-        assertEquals(JsonUtils.toJsonNode(3), new EntryLimitConverter().toClientModel(EntryLimit.of(3), null));
     }
 
     /** A value-or-callback type that JsCallback implements is a value type, with or without fields yet. */
@@ -188,9 +204,9 @@ class ConverterTest {
 
     @Test
     void valueTypes_rejectValuesTheLibraryReadsDifferently() {
-        assertThrows(IllegalArgumentException.class, () -> ConstraintValue.groupId("businessHours"));
-        assertThrows(IllegalArgumentException.class, () -> EntryLimit.of(-1));
-        assertThrows(IllegalArgumentException.class, ConstraintValue::windows);
+        assertThrows(IllegalArgumentException.class, () -> ConstraintValue.ofGroupId("businessHours"));
+        assertThrows(IllegalArgumentException.class, () -> EntryLimitValue.of(-1));
+        assertThrows(IllegalArgumentException.class, ConstraintValue::ofWindows);
         assertThrows(IllegalArgumentException.class, BusinessHoursValue::of);
         assertThrows(IllegalArgumentException.class, () -> DateFormat.of(Map.of("month", List.of("short"))));
         assertThrows(IllegalArgumentException.class, () -> HeightValue.ofPixels(-1));
@@ -199,7 +215,7 @@ class ConverterTest {
 
     @Test
     void constraintValueConverter_readsASingleObjectAsOneWindow() {
-        assertEquals(ConstraintValue.windows(BusinessHours.businessWeek()),
+        assertEquals(ConstraintValue.ofWindows(BusinessHours.businessWeek()),
                 new ConstraintValueConverter().toServerModel(BusinessHours.businessWeek().toJson(), null));
     }
 
@@ -217,11 +233,11 @@ class ConverterTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new ConstraintValueConverter().toServerModel(JsonFactory.createArray(), null));
         assertThrows(IllegalArgumentException.class,
-                () -> new EntryLimitConverter().toServerModel(JsonUtils.toJsonNode(-1), null));
+                () -> new EntryLimitValueConverter().toServerModel(JsonUtils.toJsonNode(-1), null));
         assertThrows(IllegalArgumentException.class,
-                () -> new EntryLimitConverter().toServerModel(JsonUtils.toJsonNode(3.5), null));
+                () -> new EntryLimitValueConverter().toServerModel(JsonUtils.toJsonNode(3.5), null));
         assertThrows(IllegalArgumentException.class,
-                () -> new EntryLimitConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
+                () -> new EntryLimitValueConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new OverlapValueConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
         assertThrows(IllegalArgumentException.class,
@@ -254,7 +270,7 @@ class ConverterTest {
         List<BusinessHours> windows = new ArrayList<>(List.of(BusinessHours.businessWeek()));
         ConstraintValue constraint = new ConstraintValue.Windows(windows);
         windows.add(BusinessHours.allDays());
-        assertEquals(ConstraintValue.windows(BusinessHours.businessWeek()), constraint);
+        assertEquals(ConstraintValue.ofWindows(BusinessHours.businessWeek()), constraint);
 
         Set<DayOfWeek> days = new HashSet<>(Set.of(DayOfWeek.MONDAY));
         BusinessHours monday = BusinessHours.of(days);
@@ -263,38 +279,42 @@ class ConverterTest {
     }
 
     /**
-     * A field with a converter or of a sealed type is of a value type and uses its converter, unless its type is in
-     * {@link #ONE_FORM_TYPES}.
+     * Every field whose type the sync cannot write as it is uses the converter of its type from {@link #VALUE_TYPES}
+     * or {@link #ONE_FORM_TYPES}.
      */
     @Test
     void everyValueTypeField_usesTheConverterOfItsType() {
-        List<Field> valueTypeFields = optionFields()
-                .filter(field -> field.isAnnotationPresent(JsonConverter.class) || field.getType().isSealed())
-                .filter(field -> !ONE_FORM_TYPES.contains(field.getType()))
+        List<Field> convertedFields = optionFields()
+                .filter(field -> !WRITTEN_AS_THEY_ARE.contains(field.getType())
+                        && !ClientSideValue.class.isAssignableFrom(field.getType()))
                 .toList();
 
-        assertFalse(valueTypeFields.isEmpty());
-        for (Field field : valueTypeFields) {
-            ValueType valueType = VALUE_TYPES.get(field.getType());
-            assertNotNull(valueType, "Not in VALUE_TYPES: " + field.getType().getSimpleName() + " of " + field.getName());
+        assertFalse(convertedFields.isEmpty());
+        for (Field field : convertedFields) {
+            Class<?> type = field.getType();
+            Class<?> expected = VALUE_TYPES.containsKey(type) ? VALUE_TYPES.get(type).converter() : ONE_FORM_TYPES.get(type);
+            assertNotNull(expected, "Add " + type.getSimpleName() + " of " + field.getName()
+                    + " to VALUE_TYPES, or to ONE_FORM_TYPES when its option takes one form only");
             JsonConverter annotation = field.getAnnotation(JsonConverter.class);
             assertNotNull(annotation, "No converter on " + field.getName());
-            assertEquals(valueType.converter(), annotation.value(), field.getName());
+            assertEquals(expected, annotation.value(), field.getName());
         }
     }
 
     @Test
     void valueTypeSamples_coverEveryForm() {
         VALUE_TYPES.forEach((type, valueType) -> {
-            Set<Object> forms = valueType.samples().stream()
+            Set<Object> forms = valueType.samples().keySet().stream()
                     .map(value -> value instanceof Enum<?> constant ? constant : value.getClass())
                     .collect(Collectors.toSet());
             Class<?>[] permitted = type.isEnum() ? new Class<?>[]{type} : type.getPermittedSubclasses();
             for (Class<?> form : permitted) {
                 if (form.isEnum()) {
-                    assertTrue(forms.containsAll(List.of(form.getEnumConstants())), type + ": " + form);
+                    assertTrue(forms.containsAll(List.of(form.getEnumConstants())),
+                            "Add a sample of each constant of " + form.getSimpleName() + " to " + type.getSimpleName());
                 } else {
-                    assertTrue(forms.contains(form), type + ": " + form);
+                    assertTrue(forms.contains(form),
+                            "Add a sample of " + form.getSimpleName() + " to " + type.getSimpleName());
                 }
             }
         });

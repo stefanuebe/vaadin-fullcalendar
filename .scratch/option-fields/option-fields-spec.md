@@ -125,14 +125,15 @@ For an option the add-on has no field for, `setRawOption(String, Object)` passes
 @Getter @Setter
 class ViewOptions implements Serializable {
     @JsonName("dayMaxEventRows")              // "event" in the library, "entry" in Java (as in the prototype)
-    @JsonConverter(EntryLimitConverter.class)
-    private EntryLimit dayMaxEntryRows;        // sealed: None | CellHeight | Count
+    @JsonConverter(EntryLimitValueConverter.class)
+    private EntryLimitValue dayMaxEntryRows;        // sealed: NONE | CELL_HEIGHT | of(int)
 
     @JsonConverter(ClassNameValueConverter.class)
     private ClassNameValue dayCellClass;      // sealed: ClassName | JsCallback
 
-    public void setDayCellClass(String classNames) { ... }   // hand-written overloads,
-    public void setDayCellClass(JsCallback callback) { ... } // no setter taking ClassNameValue
+    public void setDayCellClass(String classNames) { ... }      // hand-written overloads per form
+    public void setDayCellClass(JsCallback callback) { ... }
+    public void setDayCellClass(ClassNameValue value) { ... }   // and one taking the value type
 }
 ```
 
@@ -150,8 +151,8 @@ class ViewOptions implements Serializable {
 - Value or callback: one sealed interface per kind of value, which `JsCallback` implements (for example `ClassNameValue permits ClassName, JsCallback`, `OverlapValue permits Overlap, JsCallback`). A handful of kinds, not one per option. `JsCallback` becomes `final`.
 - Other unions get their own types (library names; `businessHours`: `true` vs a list of hours; `dayMaxEvents`: boolean or number; `selectConstraint`: string or object; `headerToolbar`: `false` vs a toolbar).
 - Every value type has a converter.
-- Setters are hand-written overloads for each form (`setDayCellClass(String)`, `setDayCellClass(JsCallback)`, `setBusinessHours(BusinessHours...)`). There is no public setter taking the value type. `setDayCellClass(null)` is ambiguous between overloads; accepted.
-- Size: about 140 options with more than one form, about 280 hand-written overloads with their own Javadoc (a `{@link}` to the getter avoids repeating the description). About 210 options with one form stay pure Lombok.
+- Setters are hand-written overloads per form, as the setter rules and table in `issues/README.md` fix them (`setDayCellClass(String)`, `setDayCellClass(JsCallback)`, `setBusinessHours(BusinessHours...)`). Besides them, every such field has a hand-written setter taking the value type (`setDayCellClass(ClassNameValue)`), the only way to set a form without data such as `HeightValue.AUTO` (maintainer, 2026-10-15; the prototype had no such setter, which left those forms without one). `setDayCellClass(null)` is ambiguous between overloads; accepted.
+- Size: about 140 options with more than one form, each with its hand-written overloads per form and one taking the value type, with their own Javadoc (a `{@link}` to the getter avoids repeating the description). About 210 options with one form stay pure Lombok.
 - Collections are immutable (`List.copyOf`), no arrays.
 
 ### Sync
@@ -162,7 +163,7 @@ class ViewOptions implements Serializable {
 - The client keeps no fallback of its own: `_optionsWithoutServer` (built from the constructor JSON and the client defaults) and the separate `initialJsonOptions` property go away; plugins and client-side handlers stay in `createInitOptions`. The line `timeZone: autoBrowserTimezone ? 'local' : 'UTC'`, the `autoBrowserTimezone` property, the `customViews` property and its merge in `createInitOptions` go away with them; `setCustomCalendarViews` only fills `customCalendarViews` on the server; its "only once" guard becomes a boolean flag (not a non-empty map check, because the anonymous views from the constructor JSON go into the same map). A removed option gets the library default, a removed raw option the field value. An option the add-on handles with its own event handler (for example `viewDidMount`) gets that handler back, so the server keeps receiving the event. `headerToolbar: false` lives only on the server, as an initial value.
 - A key that is no longer present is sent as a removal.
 - `flushOptions()` runs the sync at once. Every method that calls the client directly (`gotoDate`, `changeView`, `next`, `previous`, `today`, `scrollToTime`, `render`, entry sources, the reattach restore, the scheduler's resource re-add) calls it first (R4).
-- A protected hook lets the calendar contribute computed values to the sync, for options the add-on handles specially (R5). It is called in every sync after the fields and before the raw options and may add or replace keys. Users: `entryDidMount` (`@JsonName("eventDidMount")`, merged with native entry listeners and the auto entry id), `resourceColumns` (component columns keep their binding; the setter stays hand-written on the scheduler's options object), `height` from `HasSize`, and `moreLinkClick` (value type: a `MoreLinkClickAction` or a `JsCallback`; the client's special handling, today `_moreLinkClickWithoutServer`, is checked against the dropped fallback).
+- A protected hook lets the calendar contribute computed values to the sync, for options the add-on handles specially (R5). It is called in every sync after the fields and before the raw options and may add or replace keys. Users: `entryDidMount` (`@JsonName("eventDidMount")`, merged with native entry listeners and the auto entry id), `resourceColumns` (component columns keep their binding; the setter stays hand-written on the scheduler's options object), `height` from `HasSize`, and `moreLinkClick` (value type: a `MoreLinkClickAction`, a view name (`ViewName`) or a `JsCallback`; the client's special handling, today `_moreLinkClickWithoutServer`, is checked against the dropped fallback).
 - This replaces the existing option bookkeeping in the calendar (`options`, `initialOptions`, `optionsRemovedWhileDetached`, the resend in `onAttach`, `addonDefaultOptions`).
 - Changing one view's options resends the whole `views` object; accepted. The client keeps the evaluated value of every view option whose JSON did not change, so the code of a callback in an unchanged view runs once.
 

@@ -21,6 +21,8 @@ import java.io.Serializable;
 /**
  * The value of an option that matches elements: a {@link CssSelector} or a {@link JsCallback} that decides per element.
  * A {@code switch} over it needs no {@code default} branch.
+ * <p>
+ * A sealed type rather than one Java type, because the library takes a value or a function.
  */
 public sealed interface CssSelectorValue extends Serializable permits CssSelector, JsCallback {
 }

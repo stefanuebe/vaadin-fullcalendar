@@ -21,6 +21,8 @@ import java.io.Serializable;
 /**
  * The value of an option that names a view to go to: a {@link ViewName} or a {@link JsCallback} that runs instead. A
  * {@code switch} over it needs no {@code default} branch.
+ * <p>
+ * A sealed type rather than one Java type, because the library takes a value or a function.
  */
 public sealed interface ViewNameValue extends Serializable permits ViewName, JsCallback {
 }

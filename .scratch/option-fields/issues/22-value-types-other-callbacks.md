@@ -10,6 +10,8 @@
 
 ---
 
+**Later change (2026-10-15):** the review of 21–24 together moved the text and hint options (`moreLinkText`, the hints) from `ContentValue` to their own `TextValue` from 57, and added a setter taking the value type to every value-type field; see the README section "Value types (21–24, 57)".
+
 **What to build:** Sealed value types for: boolean or callback (`eventOverlap`, `selectOverlap`), CSS selector or callback (`dropAccept`), view name or callback (`navLinkDayClick`, `navLinkWeekClick`), text or callback (`moreLinkText`). Reuse one type where two options take the same kinds. The fields themselves come in the batches.
 
 **Blocked by:** `06-value-or-callback-day-cell-class`

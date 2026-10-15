@@ -22,17 +22,19 @@ import java.io.Serializable;
  * The value of an option that limits the entries shown in a day cell: no limit, as many as fit into the cell's
  * height, or a number. A {@code switch} over it needs no {@code default} branch.
  * <p>
+ * A sealed type rather than an {@code Integer}, because the library takes a boolean as well as a number.
+ * <p>
  * {@code dayMaxEvents} and {@code dayMaxEventRows} both take it, and the library combines them: {@link #CELL_HEIGHT}
  * on either wins, then a number on {@code dayMaxEvents}, then a number on {@code dayMaxEventRows}. So {@link #NONE} on
  * one of them still leaves the limit of the other.
  */
-public sealed interface EntryLimit extends Serializable {
+public sealed interface EntryLimitValue extends Serializable {
 
     /** No limit, the library's {@code false}. */
-    EntryLimit NONE = new None();
+    EntryLimitValue NONE = new None();
 
     /** As many as fit into the height of the cell, the library's {@code true}. */
-    EntryLimit CELL_HEIGHT = new CellHeight();
+    EntryLimitValue CELL_HEIGHT = new CellHeight();
 
     /**
      * Creates a limit of the given number.
@@ -41,16 +43,16 @@ public sealed interface EntryLimit extends Serializable {
      * @return the limit
      * @throws IllegalArgumentException when the number is negative
      */
-    static EntryLimit of(int count) {
+    static EntryLimitValue of(int count) {
         return new Count(count);
     }
 
     /** No limit. Use {@link #NONE}. */
-    record None() implements EntryLimit {
+    record None() implements EntryLimitValue {
     }
 
     /** As many as fit into the height of the cell. Use {@link #CELL_HEIGHT}. */
-    record CellHeight() implements EntryLimit {
+    record CellHeight() implements EntryLimitValue {
     }
 
     /**
@@ -58,7 +60,7 @@ public sealed interface EntryLimit extends Serializable {
      *
      * @param count the number, not negative
      */
-    record Count(int count) implements EntryLimit {
+    record Count(int count) implements EntryLimitValue {
 
         public Count {
             if (count < 0) {

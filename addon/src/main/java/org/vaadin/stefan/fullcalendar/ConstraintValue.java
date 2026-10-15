@@ -23,6 +23,9 @@ import java.util.Objects;
 /**
  * The value of an option that limits where entries can be dragged, resized or selected: the entries of a group, the
  * business hours of the calendar, or windows of time. A {@code switch} over it needs no {@code default} branch.
+ * <p>
+ * A sealed type rather than one Java type, because the library takes a string, which is a group id or the keyword
+ * {@code "businessHours"}, as well as objects.
  */
 public sealed interface ConstraintValue extends Serializable {
 
@@ -37,7 +40,7 @@ public sealed interface ConstraintValue extends Serializable {
      * @throws NullPointerException when null is passed
      * @throws IllegalArgumentException when {@code "businessHours"} is passed, use {@link #BUSINESS_HOURS}
      */
-    static ConstraintValue groupId(String groupId) {
+    static ConstraintValue ofGroupId(String groupId) {
         return new GroupId(groupId);
     }
 
@@ -49,7 +52,7 @@ public sealed interface ConstraintValue extends Serializable {
      * @throws NullPointerException when null is passed or contained
      * @throws IllegalArgumentException when no window is passed
      */
-    static ConstraintValue windows(BusinessHours... windows) {
+    static ConstraintValue ofWindows(BusinessHours... windows) {
         return new Windows(List.of(windows));
     }
 

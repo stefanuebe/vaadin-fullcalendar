@@ -21,6 +21,8 @@ import java.io.Serializable;
 /**
  * The value of an option that takes CSS class names: fixed class names or a {@link JsCallback} that returns them. A
  * {@code switch} over it needs no {@code default} branch.
+ * <p>
+ * A sealed type rather than one Java type, because the library takes a value or a function.
  */
 public sealed interface ClassNameValue extends Serializable permits ClassName, JsCallback {
 }

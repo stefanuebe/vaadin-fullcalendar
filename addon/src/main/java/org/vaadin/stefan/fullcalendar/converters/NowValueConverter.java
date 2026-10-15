@@ -53,7 +53,7 @@ public class NowValueConverter implements JsonItemPropertyConverter<NowValue, Ob
         String text = clientValue.asString();
         // a date alone is "yyyy-MM-dd", 10 characters
         return text.length() <= 10
-                ? NowValue.of(JsonUtils.parseClientSideDate(text))
-                : NowValue.of(JsonUtils.parseClientSideDateTime(text));
+                ? NowValue.ofDay(JsonUtils.parseClientSideDate(text))
+                : NowValue.ofDateTime(JsonUtils.parseClientSideDateTime(text));
     }
 }

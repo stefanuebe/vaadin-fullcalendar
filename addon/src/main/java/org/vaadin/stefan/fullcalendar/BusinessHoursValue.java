@@ -23,6 +23,8 @@ import java.util.Objects;
 /**
  * The value of the business hours option: none, the library's default business hours (Monday to Friday, 9am to 5pm)
  * or own {@link BusinessHours}. A {@code switch} over it needs no {@code default} branch.
+ * <p>
+ * A sealed type rather than a list of {@link BusinessHours}, because the library takes a boolean as well as objects.
  */
 public sealed interface BusinessHoursValue extends Serializable {
 

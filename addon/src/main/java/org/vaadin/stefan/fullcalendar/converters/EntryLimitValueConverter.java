@@ -16,37 +16,37 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.EntryLimit;
+import org.vaadin.stefan.fullcalendar.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Converts an {@link EntryLimit} to its client form and back: {@code false}, {@code true} or the number.
+ * Converts an {@link EntryLimitValue} to its client form and back: {@code false}, {@code true} or the number.
  */
-public class EntryLimitConverter implements JsonItemPropertyConverter<EntryLimit, Object> {
+public class EntryLimitValueConverter implements JsonItemPropertyConverter<EntryLimitValue, Object> {
 
     @Override
     public boolean supports(Object type) {
-        return type instanceof EntryLimit;
+        return type instanceof EntryLimitValue;
     }
 
     @Override
-    public JsonNode toClientModel(EntryLimit serverValue, Object currentInstance) {
+    public JsonNode toClientModel(EntryLimitValue serverValue, Object currentInstance) {
         return switch (serverValue) {
-            case EntryLimit.None ignored -> JsonUtils.toJsonNode(false);
-            case EntryLimit.CellHeight ignored -> JsonUtils.toJsonNode(true);
-            case EntryLimit.Count count -> JsonUtils.toJsonNode(count.count());
+            case EntryLimitValue.None ignored -> JsonUtils.toJsonNode(false);
+            case EntryLimitValue.CellHeight ignored -> JsonUtils.toJsonNode(true);
+            case EntryLimitValue.Count count -> JsonUtils.toJsonNode(count.count());
         };
     }
 
     @Override
-    public EntryLimit toServerModel(JsonNode clientValue, Object currentInstance) {
+    public EntryLimitValue toServerModel(JsonNode clientValue, Object currentInstance) {
         if (clientValue.isBoolean()) {
-            return clientValue.asBoolean() ? EntryLimit.CELL_HEIGHT : EntryLimit.NONE;
+            return clientValue.asBoolean() ? EntryLimitValue.CELL_HEIGHT : EntryLimitValue.NONE;
         }
         if (!clientValue.isInt()) {
             throw new IllegalArgumentException("Not an entry limit: " + clientValue);
         }
-        return EntryLimit.of(clientValue.asInt());
+        return EntryLimitValue.of(clientValue.asInt());
     }
 }

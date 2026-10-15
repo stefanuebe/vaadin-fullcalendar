@@ -32,7 +32,8 @@ class OptionsApiTest {
                 .collect(Collectors.joining("\n"));
 
         assertEquals(expected(type), actual, "The public methods of " + type.getSimpleName()
-                + " changed. If that is intended, put the actual list into " + type.getSimpleName() + "-api.txt.");
+                + " changed. If that is intended, check that each new field has a getter, a setter per form and one taking"
+                + " its value type, then put the actual list into " + type.getSimpleName() + "-api.txt.");
     }
 
     @ParameterizedTest

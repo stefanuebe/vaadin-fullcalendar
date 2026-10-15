@@ -42,8 +42,12 @@ public class ContentValueConverter implements JsonItemPropertyConverter<ContentV
 
     @Override
     public ContentValue toServerModel(JsonNode clientValue, Object currentInstance) {
-        return clientValue.isObject()
-                ? JsCallback.fromMarkerJson(clientValue)
-                : TextContent.of(clientValue.asString());
+        if (clientValue.isObject()) {
+            return JsCallback.fromMarkerJson(clientValue);
+        }
+        if (!clientValue.isString()) {
+            throw new IllegalArgumentException("Not a content value: " + clientValue);
+        }
+        return TextContent.of(clientValue.asString());
     }
 }

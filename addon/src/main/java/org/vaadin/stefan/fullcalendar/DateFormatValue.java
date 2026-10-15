@@ -24,6 +24,8 @@ import java.io.Serializable;
  * <p>
  * The library also takes a format string, but only with a formatting plugin, which the add-on does not load. So there
  * is no string form.
+ * <p>
+ * A sealed type rather than one Java type, because the library takes a value or a function.
  */
 public sealed interface DateFormatValue extends Serializable permits DateFormat, JsCallback {
 }

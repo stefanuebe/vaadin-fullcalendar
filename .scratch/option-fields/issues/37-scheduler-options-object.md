@@ -22,4 +22,5 @@
 - [ ] `SchedulerSerializationTest` covers scheduler options and view values.
 - [ ] The static checks of 11 in `addon-scheduler` check only the fields the scheduler classes declare. The core test covers the inherited ones, and the core resource is not on the scheduler's test classpath (see the note in 11).
 - [ ] The scheduler module pins the public methods of its options classes as `OptionsApiTest` in the core does (`getDeclaredMethods`, so the `@Delegate` overrides are listed), and runs the value-type round trip of the core `ConverterTest` over the fields the scheduler data classes declare. The core test classes are not on the scheduler's test classpath (see the note in 12).
+- [ ] The scheduler module also runs the field checks of the core `TypedOptionsSyncTest` (every field set through each of its setters, its JSON at the client) and of `ConverterTest` (converter of each field) over the fields the scheduler data classes declare, so 38–41 get the same guards as the core batches.
 - [ ] The scheduler data classes carry an `FC-UPDATE` comment that points to the scheduler's option-name resource (from 10).

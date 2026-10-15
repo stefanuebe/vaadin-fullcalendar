@@ -17,7 +17,6 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
 import org.vaadin.stefan.fullcalendar.DateFormat;
-import org.vaadin.stefan.fullcalendar.Hidden;
 import org.vaadin.stefan.fullcalendar.JsCallback;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
 import org.vaadin.stefan.fullcalendar.ListDayFormatValue;
@@ -39,14 +38,14 @@ public class ListDayFormatValueConverter implements JsonItemPropertyConverter<Li
         return switch (serverValue) {
             case DateFormat format -> JsonUtils.toJsonNode(format.properties());
             case JsCallback callback -> callback.toMarkerJson();
-            case Hidden ignored -> JsonUtils.toJsonNode(false);
+            case ListDayFormatValue.None ignored -> JsonUtils.toJsonNode(false);
         };
     }
 
     @Override
     public ListDayFormatValue toServerModel(JsonNode clientValue, Object currentInstance) {
         if (clientValue.isBoolean() && !clientValue.asBoolean()) {
-            return Hidden.INSTANCE;
+            return ListDayFormatValue.NONE;
         }
         return JsCallback.isMarker(clientValue)
                 ? JsCallback.fromMarkerJson(clientValue)

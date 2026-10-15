@@ -10,6 +10,8 @@
 
 ---
 
+**Later change (2026-10-15):** the review of 21–24 together added a setter taking the value type to every value-type field, renamed `EntryLimit` to `EntryLimitValue` and the factories to the `of`/`of<Form>` rule; see the README section "Value types (21–24, 57)".
+
 **What to build:** Value types for `businessHours` (`true` or a list of hours), `eventConstraint`/`selectConstraint` (group id, `"businessHours"` or an object), `dayMaxEvents` (`false`, `true` or a number), `dayMaxEventRows` (boolean or a number). List values are immutable (`List.copyOf`), no arrays. Spec: *Options with more than one value form*, user stories 26, 27.
 
 **Blocked by:** `06-value-or-callback-day-cell-class`

@@ -24,7 +24,9 @@ import java.util.Objects;
  * edge. A {@code switch} over it needs no {@code default} branch.
  * <p>
  * The library takes the offset as a number or a string and uses it as a CSS length, where a number means pixels. So
- * one string form covers both: {@code offset("10px")} for a number of pixels.
+ * one string form covers both: {@code of("10px")} for a number of pixels.
+ * <p>
+ * A sealed type rather than one Java type, because the library takes a boolean as well as an offset.
  */
 public sealed interface StickyValue extends Serializable {
 
@@ -41,7 +43,7 @@ public sealed interface StickyValue extends Serializable {
      * @return the value
      * @throws NullPointerException when null is passed
      */
-    static StickyValue offset(String offset) {
+    static StickyValue of(String offset) {
         return new Offset(offset);
     }
 

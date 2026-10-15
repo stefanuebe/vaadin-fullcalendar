@@ -5,14 +5,28 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonName;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -393,6 +407,220 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         JsonNode threeDays = initialOptions().get("views").get("threeDays");
         assertEquals("dayGrid", threeDays.get("type").asString());
         assertFalse(threeDays.get("weekends").asBoolean());
+    }
+
+    /**
+     * Fields the sync handles apart, each with tests of its own. Adding a field here needs those tests, never only a
+     * red test of this class turned green.
+     */
+    private static final Map<String, String> SYNCED_APART = Map.of(
+            "entryDidMount", "OptionSyncHookTest",
+            "timeZone", "AutoBrowserSettingsTest");
+
+    /**
+     * A value for the fields of a type that is no value type, with the JSON the library reads for it. A field of a new
+     * one-form type adds its type here; a type with several forms is a value type and goes to ConverterTest.VALUE_TYPES.
+     */
+    private static final Map<Class<?>, Map.Entry<Object, JsonNode>> ONE_FORM_SAMPLES = Map.ofEntries(
+            sample(Boolean.class, false, JsonUtils.toJsonNode(false)),
+            sample(Integer.class, 2, JsonUtils.toJsonNode(2)),
+            sample(String.class, "x", JsonUtils.toJsonNode("x")),
+            sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
+            sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
+            sample(JsCallback.class, JsCallback.of("() => {}"), JsCallback.of("() => {}").toMarkerJson()));
+
+    /**
+     * A value for each parameter type of the setters per form, with the client JSON the field must have after the
+     * setter took it. An enum parameter with client values ({@link ClientSideValue}) needs no entry: each constant is
+     * tried, with its client value expected.
+     */
+    private static final Map<Class<?>, Map.Entry<Object, JsonNode>> PARAMETER_SAMPLES = Map.ofEntries(
+            sample(String.class, "x", JsonUtils.toJsonNode("x")),
+            sample(int.class, 1, JsonUtils.toJsonNode(1)),
+            sample(Integer.class, 1, JsonUtils.toJsonNode(1)),
+            sample(boolean.class, true, JsonUtils.toJsonNode(true)),
+            sample(Boolean.class, true, JsonUtils.toJsonNode(true)),
+            sample(JsCallback.class, JsCallback.of("() => {}"), JsCallback.of("() => {}").toMarkerJson()),
+            sample(BusinessHours.class, BusinessHours.businessWeek(), BusinessHours.businessWeek().toJson()),
+            sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
+            sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
+            sample(Overlap.class, Overlap.FORBIDDEN, JsonUtils.toJsonNode(false)),
+            sample(Map.class, Map.of("weekday", "long"), JsonFactory.createObject().put("weekday", "long")));
+
+    /**
+     * The parameter types of the setters per form of each value type, the setter table of the README section
+     * "Value types". A new value type adds its row there and here.
+     */
+    private static final Map<Class<?>, Set<Class<?>>> PER_FORM_PARAMETERS = Map.ofEntries(
+            Map.entry(AutoBoolean.class, Set.of()),
+            Map.entry(ClassNameValue.class, Set.of(String.class, JsCallback.class)),
+            Map.entry(ContentValue.class, Set.of(String.class, JsCallback.class)),
+            Map.entry(CssSelectorValue.class, Set.of(String.class, JsCallback.class)),
+            Map.entry(HeaderAlignValue.class, Set.of(HeaderAlign.class, JsCallback.class)),
+            Map.entry(ViewNameValue.class, Set.of(String.class, CalendarView.class, JsCallback.class)),
+            Map.entry(OverlapValue.class, Set.of(Overlap.class, boolean.class, JsCallback.class)),
+            Map.entry(DateFormatValue.class, Set.of(Map.class, JsCallback.class)),
+            Map.entry(ListDayFormatValue.class, Set.of(Map.class, JsCallback.class)),
+            Map.entry(ListTextValue.class, Set.of(String.class)),
+            Map.entry(HeightValue.class, Set.of(int.class, String.class)),
+            Map.entry(StickyValue.class, Set.of(String.class)),
+            Map.entry(EntryLimitValue.class, Set.of(int.class)),
+            Map.entry(BusinessHoursValue.class, Set.of(BusinessHours[].class)),
+            Map.entry(ConstraintValue.class, Set.of(String.class, BusinessHours[].class)),
+            Map.entry(NowValue.class, Set.of(LocalDate.class, LocalDateTime.class, JsCallback.class)));
+
+    /**
+     * A value and client JSON for one setter whose parameter type has a different sample, keyed by the setter name and
+     * parameter type, such as {@code "setSlotDuration(String)"}. A setter not listed here uses PARAMETER_SAMPLES.
+     */
+    private static final Map<String, Map.Entry<Object, JsonNode>> SETTER_SAMPLES = Map.of();
+
+    /**
+     * A second value for the parameter types with two values only, so a setter that ignores its argument and writes
+     * one fixed value fails.
+     */
+    private static final Map<Class<?>, Map.Entry<Object, JsonNode>> SECOND_PARAMETER_SAMPLES = Map.ofEntries(
+            sample(boolean.class, false, JsonUtils.toJsonNode(false)),
+            sample(Boolean.class, false, JsonUtils.toJsonNode(false)),
+            sample(Overlap.class, Overlap.ALLOWED, JsonUtils.toJsonNode(true)));
+
+    private static Map.Entry<Class<?>, Map.Entry<Object, JsonNode>> sample(Class<?> type, Object value, JsonNode json) {
+        return Map.entry(type, Map.entry(value, json));
+    }
+
+    @Test
+    void syncedApart_namesFieldsWithTheirOwnTests() {
+        SYNCED_APART.forEach((name, test) -> {
+            assertTrue(Stream.of(CalendarOptions.class, ViewOptions.class)
+                    .anyMatch(type -> Arrays.stream(type.getDeclaredFields()).anyMatch(f -> f.getName().equals(name))),
+                    "No field " + name);
+            Path source = Path.of("src/test/java", getClass().getPackageName().replace('.', '/'), test + ".java");
+            assertTrue(assertDoesNotThrow(() -> Files.readString(source)).contains(name),
+                    test + " does not test " + name);
+        });
+    }
+
+    /**
+     * Every field has a getter, a setter of its type and its setters per form on the options objects, and its value
+     * reaches the client under its library name: calendar-wide, and for a view under {@code views}.
+     */
+    @Test
+    void everyField_isSetAndReadThroughTheOptionsObjects_andReachesTheClient() throws Exception {
+        FullCalendarViewOptions weekOptions = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
+        Map<String, JsonNode> expectedGlobal = new LinkedHashMap<>();
+        Map<String, JsonNode> expectedWeek = new LinkedHashMap<>();
+        for (Class<?> dataClass : List.of(CalendarOptions.class, ViewOptions.class)) {
+            for (Field field : dataClass.getDeclaredFields()) {
+                if (Modifier.isStatic(field.getModifiers()) || SYNCED_APART.containsKey(field.getName())) {
+                    continue;
+                }
+                Map.Entry<Object, JsonNode> sample = sampleOf(field);
+                String name = field.isAnnotationPresent(JsonName.class)
+                        ? field.getAnnotation(JsonName.class).value() : field.getName();
+                setAndGet(calendar.options(), field, sample.getKey());
+                expectedGlobal.put(name, sample.getValue());
+                if (dataClass == ViewOptions.class) {
+                    setAndGet(weekOptions, field, sample.getKey());
+                    expectedWeek.put(name, sample.getValue());
+                }
+            }
+        }
+        attach();
+
+        expectedGlobal.forEach((name, json) -> assertEquals(json, initialOptions().get(name), name));
+        JsonNode week = initialOptions().get("views").get("timeGridWeek");
+        expectedWeek.forEach((name, json) -> assertEquals(json, week.get(name), "views.timeGridWeek." + name));
+    }
+
+    /** A value for the field and its client form. */
+    private static Map.Entry<Object, JsonNode> sampleOf(Field field) {
+        Class<?> type = field.getType();
+        if (ConverterTest.VALUE_TYPES.containsKey(type)) {
+            return ConverterTest.VALUE_TYPES.get(type).samples().entrySet().iterator().next();
+        }
+        if (type.isEnum() && ClientSideValue.class.isAssignableFrom(type) && !ONE_FORM_SAMPLES.containsKey(type)) {
+            Object constant = type.getEnumConstants()[0];
+            return Map.entry(constant, JsonUtils.toJsonNode(constant));
+        }
+        Map.Entry<Object, JsonNode> sample = ONE_FORM_SAMPLES.get(type);
+        assertNotNull(sample, "Add a sample of " + type.getSimpleName() + " to ONE_FORM_SAMPLES, for " + field.getName()
+                + ", or to ConverterTest.VALUE_TYPES when its option takes several forms");
+        return sample;
+    }
+
+    /**
+     * Sets the field through each of its setters: a setter per form must write the client form of its argument, the
+     * setter of its type must set the given value, which the getter returns.
+     */
+    private static void setAndGet(Object options, Field field, Object value) throws ReflectiveOperationException {
+        String suffix = Character.toUpperCase(field.getName().charAt(0)) + field.getName().substring(1);
+        Method setter, getter;
+        try {
+            setter = options.getClass().getMethod("set" + suffix, field.getType());
+            getter = options.getClass().getMethod("get" + suffix);
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError(options.getClass().getSimpleName() + " has no set" + suffix + "("
+                    + field.getType().getSimpleName() + ") or get" + suffix + "()", e);
+        }
+        List<Method> perFormSetters = Arrays.stream(options.getClass().getMethods())
+                .filter(m -> m.getName().equals(setter.getName()) && !m.equals(setter) && !m.isBridge()
+                        && m.getParameterCount() == 1)
+                .toList();
+        if (ConverterTest.VALUE_TYPES.containsKey(field.getType())) {
+            Set<Class<?>> expected = PER_FORM_PARAMETERS.get(field.getType());
+            assertNotNull(expected, "Add a row for " + field.getType().getSimpleName() + " to PER_FORM_PARAMETERS");
+            assertEquals(expected, perFormSetters.stream().map(m -> m.getParameterTypes()[0]).collect(Collectors.toSet()),
+                    "The setters per form of " + field.getName() + " differ from the setter table");
+        }
+        for (Method perForm : perFormSetters) {
+            for (Map.Entry<Object, JsonNode> argument : parameterSamples(perForm.getParameterTypes()[0], perForm)) {
+                setter.invoke(options, (Object) null);
+                perForm.invoke(options, argument.getKey());
+                Object result = getter.invoke(options);
+                assertNotNull(result, perForm + " sets no value");
+                assertEquals(argument.getValue(), clientForm(field, result), perForm.toString());
+            }
+        }
+        setter.invoke(options, value);
+        assertEquals(value, getter.invoke(options), field.getName());
+    }
+
+    /**
+     * Values for the parameter, each with the client JSON the field must have after the setter took it. An enum with
+     * client values and no sample is tried with each constant.
+     */
+    private static List<Map.Entry<Object, JsonNode>> parameterSamples(Class<?> type, Method setter) {
+        Map.Entry<Object, JsonNode> override = SETTER_SAMPLES.get(setter.getName() + "(" + type.getSimpleName() + ")");
+        if (override != null) {
+            return List.of(override);
+        }
+        if (type.isEnum() && ClientSideValue.class.isAssignableFrom(type) && !PARAMETER_SAMPLES.containsKey(type)) {
+            return Arrays.stream(type.getEnumConstants())
+                    .map(constant -> Map.entry(constant, JsonUtils.toJsonNode(constant)))
+                    .toList();
+        }
+        Map.Entry<Object, JsonNode> second = SECOND_PARAMETER_SAMPLES.get(type);
+        return second == null ? List.of(parameterSample(type, setter)) : List.of(parameterSample(type, setter), second);
+    }
+
+    private static Map.Entry<Object, JsonNode> parameterSample(Class<?> type, Method setter) {
+        if (type.isArray()) {
+            Map.Entry<Object, JsonNode> element = parameterSamples(type.getComponentType(), setter).getFirst();
+            Object array = Array.newInstance(type.getComponentType(), 1);
+            Array.set(array, 0, element.getKey());
+            return Map.entry(array, JsonFactory.createArray().add(element.getValue()));
+        }
+        Map.Entry<Object, JsonNode> sample = PARAMETER_SAMPLES.get(type);
+        assertNotNull(sample, "Add a sample of " + type.getSimpleName() + " to PARAMETER_SAMPLES, for " + setter);
+        return sample;
+    }
+
+    /** The JSON the sync sends for the value of the field. */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static JsonNode clientForm(Field field, Object value) throws ReflectiveOperationException {
+        JsonConverter converter = field.getAnnotation(JsonConverter.class);
+        return converter == null ? JsonUtils.toJsonNode(value)
+                : ((JsonItemPropertyConverter) converter.value().getConstructor().newInstance()).toClientModel(value, null);
     }
 
     @Test

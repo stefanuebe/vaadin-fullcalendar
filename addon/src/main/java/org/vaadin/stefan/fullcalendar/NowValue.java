@@ -25,6 +25,8 @@ import java.util.Objects;
  * The value of the option that sets the current date of the calendar: a date, a date and time, or a {@link JsCallback}
  * that returns a date. A {@code switch} over it needs no {@code default} branch.
  * <p>
+ * A sealed type rather than one Java type, because the library takes a date, a date and time, or a function.
+ * <p>
  * The library also takes a date string, a {@code Date} or milliseconds. The typed forms replace them: the converter
  * writes the date strings the library reads.
  */
@@ -37,7 +39,7 @@ public sealed interface NowValue extends Serializable permits NowValue.Day, NowV
      * @return the value
      * @throws NullPointerException when null is passed
      */
-    static NowValue of(LocalDate date) {
+    static NowValue ofDay(LocalDate date) {
         return new Day(date);
     }
 
@@ -50,7 +52,7 @@ public sealed interface NowValue extends Serializable permits NowValue.Day, NowV
      * @return the value
      * @throws NullPointerException when null is passed
      */
-    static NowValue of(LocalDateTime dateTime) {
+    static NowValue ofDateTime(LocalDateTime dateTime) {
         return new DateTime(dateTime);
     }
 

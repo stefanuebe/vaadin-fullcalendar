@@ -18,3 +18,4 @@
 
 - [ ] No `setOption` left on the page.
 - [ ] Every example compiles against the branch.
+- [ ] The page explains why an option with several forms has two ways to set a form: the setter taking the value type (`setEntryOverlap(Overlap.FORBIDDEN)`, `setDayHeaderFormat(DateFormat.of(…))`) and the short setter per form (`setEntryOverlap(false)`, `setDayHeaderFormat(Map.of(…))`). The short one saves a conversion when the app already holds the plain value, the value type names the meaning (maintainer, 2026-10-15).

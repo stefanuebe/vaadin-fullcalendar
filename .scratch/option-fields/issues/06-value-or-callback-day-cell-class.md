@@ -10,6 +10,8 @@
 
 ---
 
+**Later change (2026-10-15):** the review of 21–24 together added a setter taking the value type to every value-type field, renamed `EntryLimit` to `EntryLimitValue` and the factories to the `of`/`of<Form>` rule; see the README section "Value types (21–24, 57)".
+
 **What to build:** The first option with two value forms. `ClassNameValue` is a sealed interface permitting `ClassName` and `JsCallback`; `JsCallback` becomes `final`. The field has a converter and two hand-written setters (`String`, `JsCallback`), no setter taking `ClassNameValue`; the getter returns `ClassNameValue`. Shape as in the prototype (spec, *Types*). Spec: *Options with more than one value form*, user stories 24, 25.
 
 **Blocked by:** `05-options-object-first-fields`

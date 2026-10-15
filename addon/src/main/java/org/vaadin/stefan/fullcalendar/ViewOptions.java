@@ -83,6 +83,15 @@ class ViewOptions implements Serializable {
     }
 
     /**
+     * Sets the CSS classes for day cells in any form, see {@link #getDayCellClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setDayCellClass(ClassNameValue value) {
+        this.dayCellClass = value;
+    }
+
+    /**
      * Content for the cell in the header area of time grid views that labels the all-day section. Without a value, the
      * locale's text shows ("all-day" in English).
      * <p>
@@ -93,18 +102,6 @@ class ViewOptions implements Serializable {
      */
     @JsonConverter(ContentValueConverter.class)
     private ContentValue allDayHeaderContent;
-
-    /**
-     * Horizontal text alignment of the day header cells in day grid and time grid views, and in the header of the entry
-     * popover. In a left-to-right locale, start means left and end means right. Without a value, the theme decides.
-     * <p>
-     * A callback gets an {@code info} object with {@code level}, {@code inPopover} and {@code isNarrow}. It returns
-     * {@code "start"}, {@code "center"} or {@code "end"}.
-     *
-     * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderAlign</a>
-     */
-    @JsonConverter(HeaderAlignValueConverter.class)
-    private HeaderAlignValue dayHeaderAlign;
 
     /**
      * Sets a text as the content of the all-day header cell, see {@link #getAllDayHeaderContent()}.
@@ -125,6 +122,27 @@ class ViewOptions implements Serializable {
     }
 
     /**
+     * Sets the content of the all-day header cell in any form, see {@link #getAllDayHeaderContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setAllDayHeaderContent(ContentValue value) {
+        this.allDayHeaderContent = value;
+    }
+
+    /**
+     * Horizontal text alignment of the day header cells in day grid and time grid views, and in the header of the entry
+     * popover. In a left-to-right locale, start means left and end means right. Without a value, the theme decides.
+     * <p>
+     * A callback gets an {@code info} object with {@code level}, {@code inPopover} and {@code isNarrow}. It returns
+     * {@code "start"}, {@code "center"} or {@code "end"}.
+     *
+     * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderAlign</a>
+     */
+    @JsonConverter(HeaderAlignValueConverter.class)
+    private HeaderAlignValue dayHeaderAlign;
+
+    /**
      * Sets the alignment of the day header cells, see {@link #getDayHeaderAlign()}.
      *
      * @param align the alignment, or null to remove the option
@@ -140,5 +158,14 @@ class ViewOptions implements Serializable {
      */
     public void setDayHeaderAlign(JsCallback callback) {
         this.dayHeaderAlign = callback;
+    }
+
+    /**
+     * Sets the alignment of the day header cells in any form, see {@link #getDayHeaderAlign()}.
+     *
+     * @param value the alignment or callback, or null to remove the option
+     */
+    public void setDayHeaderAlign(HeaderAlignValue value) {
+        this.dayHeaderAlign = value;
     }
 }

@@ -42,6 +42,12 @@ public class CssSelectorValueConverter implements JsonItemPropertyConverter<CssS
 
     @Override
     public CssSelectorValue toServerModel(JsonNode clientValue, Object currentInstance) {
-        return clientValue.isObject() ? JsCallback.fromMarkerJson(clientValue) : CssSelector.of(clientValue.asString());
+        if (clientValue.isObject()) {
+            return JsCallback.fromMarkerJson(clientValue);
+        }
+        if (!clientValue.isString()) {
+            throw new IllegalArgumentException("Not a CSS selector value: " + clientValue);
+        }
+        return CssSelector.of(clientValue.asString());
     }
 }

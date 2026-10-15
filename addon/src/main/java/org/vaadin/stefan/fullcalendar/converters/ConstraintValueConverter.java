@@ -51,7 +51,7 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
     @Override
     public ConstraintValue toServerModel(JsonNode clientValue, Object currentInstance) {
         if (clientValue.isObject()) {
-            return ConstraintValue.windows(BusinessHoursValueConverter.toBusinessHours(clientValue));
+            return ConstraintValue.ofWindows(BusinessHoursValueConverter.toBusinessHours(clientValue));
         }
         if (clientValue.isArray()) {
             return new ConstraintValue.Windows(
@@ -61,6 +61,6 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
             throw new IllegalArgumentException("Not a constraint value: " + clientValue);
         }
         String text = clientValue.asString();
-        return text.equals(BUSINESS_HOURS) ? ConstraintValue.BUSINESS_HOURS : ConstraintValue.groupId(text);
+        return text.equals(BUSINESS_HOURS) ? ConstraintValue.BUSINESS_HOURS : ConstraintValue.ofGroupId(text);
     }
 }

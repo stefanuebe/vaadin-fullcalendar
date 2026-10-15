@@ -42,6 +42,12 @@ public class ClassNameValueConverter implements JsonItemPropertyConverter<ClassN
 
     @Override
     public ClassNameValue toServerModel(JsonNode clientValue, Object currentInstance) {
-        return clientValue.isObject() ? JsCallback.fromMarkerJson(clientValue) : ClassName.of(clientValue.asString());
+        if (clientValue.isObject()) {
+            return JsCallback.fromMarkerJson(clientValue);
+        }
+        if (!clientValue.isString()) {
+            throw new IllegalArgumentException("Not a class name value: " + clientValue);
+        }
+        return ClassName.of(clientValue.asString());
     }
 }

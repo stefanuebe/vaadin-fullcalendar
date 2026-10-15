@@ -21,6 +21,8 @@ import java.io.Serializable;
 /**
  * The value of an option that aligns header text: a {@link HeaderAlign} or a {@link JsCallback} that returns
  * {@code "start"}, {@code "center"} or {@code "end"}. A {@code switch} over it needs no {@code default} branch.
+ * <p>
+ * A sealed type rather than one Java type, because the library takes a value or a function.
  */
 public sealed interface HeaderAlignValue extends Serializable permits HeaderAlign, JsCallback {
 }

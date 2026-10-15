@@ -21,6 +21,8 @@ import java.io.Serializable;
 /**
  * The value of an option that says whether entries may overlap: an {@link Overlap} or a {@link JsCallback} that
  * decides per entry and returns a boolean. A {@code switch} over it needs no {@code default} branch.
+ * <p>
+ * A sealed type rather than one Java type, because the library takes a value or a function.
  */
 public sealed interface OverlapValue extends Serializable permits Overlap, JsCallback {
 }
