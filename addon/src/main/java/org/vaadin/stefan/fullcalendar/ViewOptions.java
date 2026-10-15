@@ -19,6 +19,8 @@ package org.vaadin.stefan.fullcalendar;
 import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 
 import java.io.Serializable;
@@ -78,5 +80,65 @@ class ViewOptions implements Serializable {
      */
     public void setDayCellClass(JsCallback callback) {
         this.dayCellClass = callback;
+    }
+
+    /**
+     * Content for the cell in the header area of time grid views that labels the all-day section. Without a value, the
+     * locale's text shows ("all-day" in English).
+     * <p>
+     * A callback gets an {@code info} object with {@code text}, {@code isNarrow} and {@code view}. It returns a text,
+     * or {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     *
+     * @see <a href="https://fullcalendar.io/docs/all-day-header-render-hooks">allDayHeaderContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue allDayHeaderContent;
+
+    /**
+     * Horizontal text alignment of the day header cells in day grid and time grid views, and in the header of the entry
+     * popover. In a left-to-right locale, start means left and end means right. Without a value, the theme decides.
+     * <p>
+     * A callback gets an {@code info} object with {@code level}, {@code inPopover} and {@code isNarrow}. It returns
+     * {@code "start"}, {@code "center"} or {@code "end"}.
+     *
+     * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderAlign</a>
+     */
+    @JsonConverter(HeaderAlignValueConverter.class)
+    private HeaderAlignValue dayHeaderAlign;
+
+    /**
+     * Sets a text as the content of the all-day header cell, see {@link #getAllDayHeaderContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setAllDayHeaderContent(String text) {
+        this.allDayHeaderContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets a callback that returns the content of the all-day header cell, see {@link #getAllDayHeaderContent()}.
+     *
+     * @param callback the callback, or null to remove the option
+     */
+    public void setAllDayHeaderContent(JsCallback callback) {
+        this.allDayHeaderContent = callback;
+    }
+
+    /**
+     * Sets the alignment of the day header cells, see {@link #getDayHeaderAlign()}.
+     *
+     * @param align the alignment, or null to remove the option
+     */
+    public void setDayHeaderAlign(HeaderAlign align) {
+        this.dayHeaderAlign = align;
+    }
+
+    /**
+     * Sets a callback that returns the alignment of the day header cells, see {@link #getDayHeaderAlign()}.
+     *
+     * @param callback the callback, or null to remove the option
+     */
+    public void setDayHeaderAlign(JsCallback callback) {
+        this.dayHeaderAlign = callback;
     }
 }

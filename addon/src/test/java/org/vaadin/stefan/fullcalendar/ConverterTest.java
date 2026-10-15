@@ -22,6 +22,29 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConverterTest {
 
     // -------------------------------------------------------------------------
+    // Value-or-callback converters: client form and back
+    // -------------------------------------------------------------------------
+
+    @Test
+    void contentValue_roundTrip() {
+        ContentValueConverter conv = new ContentValueConverter();
+        for (ContentValue value : List.of(TextContent.of("all day"), JsCallback.of("info => info.text"))) {
+            assertTrue(conv.supports(value));
+            assertEquals(value, conv.toServerModel(conv.toClientModel(value, null), null));
+        }
+    }
+
+    @Test
+    void headerAlignValue_roundTrip() {
+        HeaderAlignValueConverter conv = new HeaderAlignValueConverter();
+        for (HeaderAlignValue value : List.of(HeaderAlign.START, HeaderAlign.CENTER, HeaderAlign.END,
+                JsCallback.of("() => 'end'"))) {
+            assertTrue(conv.supports(value));
+            assertEquals(value, conv.toServerModel(conv.toClientModel(value, null), null));
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // ClassNameConverter
     // -------------------------------------------------------------------------
 

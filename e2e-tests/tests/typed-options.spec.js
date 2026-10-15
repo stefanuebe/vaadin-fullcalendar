@@ -32,4 +32,29 @@ test.describe('Typed options of calendar.options()', () => {
         await expect(cell).toHaveClass(/\bcallback-day\b/);
         await expect(cell).not.toHaveClass(/\btyped-day\b/);
     });
+
+    test('content and header alignment apply in both forms', async ({ page }) => {
+        await page.goto('/test/typed-options');
+        const calendar = page.locator('#cal-header-hooks');
+        await expect(calendar.locator('.fc-timegrid')).toBeVisible({ timeout: 10000 });
+        // the value FullCalendar holds proves our wiring. The alignment classes it renders are internal to the library.
+        const dayHeaderAlign = () => calendar.evaluate((el) => {
+            // @ts-ignore — custom element exposes FC's internal Calendar instance
+            const align = el.calendar.getOption('dayHeaderAlign');
+            return typeof align === 'function' ? 'function returning ' + align({}) : align;
+        });
+
+        await page.getByRole('button', { name: 'All-day header as text' }).click();
+        await expect(calendar.getByText('Text all-day', { exact: true })).toBeVisible();
+
+        await page.getByRole('button', { name: 'All-day header from callback' }).click();
+        await expect(calendar.getByText('Callback all-day', { exact: true })).toBeVisible();
+        await expect(calendar.getByText('Text all-day', { exact: true })).toHaveCount(0);
+
+        await page.getByRole('button', { name: 'Header align center' }).click();
+        await expect.poll(dayHeaderAlign).toBe('center');
+
+        await page.getByRole('button', { name: 'Header align from callback' }).click();
+        await expect.poll(dayHeaderAlign).toBe('function returning end');
+    });
 });

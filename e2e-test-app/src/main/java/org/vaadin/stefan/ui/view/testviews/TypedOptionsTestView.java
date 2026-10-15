@@ -7,6 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.JsCallback;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.ui.layouts.TestLayout;
@@ -23,6 +24,10 @@ import java.time.LocalDate;
  * <p>
  * The second calendar "cal-custom-view" shows the custom view "threeDays", a day grid of three days from 2025-03-15.
  * Its view options set the class {@code three-day} for day cells.
+ * <p>
+ * The third calendar "cal-header-hooks" shows the week of 2025-03-15 in the time grid. Its buttons set the all-day
+ * header content as text ("Text all-day") or from a callback ("Callback all-day"), and the day header alignment as
+ * {@code center} or from a callback that returns {@code end}.
  * <p>
  * Route: /test/typed-options
  */
@@ -55,5 +60,20 @@ public class TypedOptionsTestView extends VerticalLayout {
         customViewCalendar.options().view(threeDays).setDayCellClass("three-day");
         customViewCalendar.setHeight("300px");
         add(customViewCalendar);
+
+        FullCalendar headerHooksCalendar = new FullCalendar();
+        headerHooksCalendar.setId("cal-header-hooks");
+        headerHooksCalendar.setRawOption("initialView", "timeGridWeek");
+        headerHooksCalendar.options().setInitialDate(LocalDate.of(2025, 3, 15));
+        headerHooksCalendar.setHeight("300px");
+        add(new HorizontalLayout(
+                new Button("All-day header as text",
+                        e -> headerHooksCalendar.options().setAllDayHeaderContent("Text all-day")),
+                new Button("All-day header from callback", e -> headerHooksCalendar.options().setAllDayHeaderContent(
+                        JsCallback.of("function() { return 'Callback all-day'; }"))),
+                new Button("Header align center",
+                        e -> headerHooksCalendar.options().setDayHeaderAlign(HeaderAlign.CENTER)),
+                new Button("Header align from callback", e -> headerHooksCalendar.options().setDayHeaderAlign(
+                        JsCallback.of("function() { return 'end'; }")))), headerHooksCalendar);
     }
 }

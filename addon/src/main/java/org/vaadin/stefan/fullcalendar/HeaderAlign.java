@@ -26,7 +26,7 @@ package org.vaadin.stefan.fullcalendar;
  * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderAlign</a>
  * @see Option#SLOT_HEADER_ALIGN
  */
-public enum HeaderAlign implements ClientSideValue {
+public enum HeaderAlign implements ClientSideValue, HeaderAlignValue {
     /** Aligned to the start (left in left-to-right calendars). */
     START("start"),
     /** Centered. */

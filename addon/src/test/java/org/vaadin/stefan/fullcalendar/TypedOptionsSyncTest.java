@@ -153,6 +153,59 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     }
 
     @Test
+    void contentValue_bothFormsReachTheClient() {
+        attach();
+
+        calendar.options().setAllDayHeaderContent("Ganztags");
+        assertEquals("Ganztags", respond().getFirst().get("allDayHeaderContent").asString());
+
+        calendar.options().setAllDayHeaderContent(JsCallback.of("info => info.text"));
+        assertEquals("info => info.text",
+                respond().getFirst().get("allDayHeaderContent").get("__jsCallback").asString());
+
+        calendar.options().setAllDayHeaderContent((String) null);
+        assertTrue(respond().getFirst().get("allDayHeaderContent").isNull());
+    }
+
+    @Test
+    void headerAlignValue_bothFormsReachTheClient() {
+        attach();
+
+        calendar.options().setDayHeaderAlign(HeaderAlign.CENTER);
+        assertEquals("center", respond().getFirst().get("dayHeaderAlign").asString());
+
+        calendar.options().setDayHeaderAlign(JsCallback.of("() => 'end'"));
+        assertEquals("() => 'end'", respond().getFirst().get("dayHeaderAlign").get("__jsCallback").asString());
+
+        calendar.options().setDayHeaderAlign((HeaderAlign) null);
+        assertTrue(respond().getFirst().get("dayHeaderAlign").isNull());
+    }
+
+    @Test
+    void contentAndHeaderAlign_gettersCoverBothFormsWithoutDefaultBranch() {
+        calendar.options().setAllDayHeaderContent("Ganztags");
+        calendar.options().setDayHeaderAlign(HeaderAlign.END);
+        assertEquals("text Ganztags, align END", contentAndAlignForms());
+
+        calendar.options().setAllDayHeaderContent(JsCallback.of("info => info.text"));
+        calendar.options().setDayHeaderAlign(JsCallback.of("() => 'end'"));
+        assertEquals("callback, callback", contentAndAlignForms());
+    }
+
+    private String contentAndAlignForms() {
+        // compiles only while the switches cover every permitted type
+        String content = switch (calendar.options().getAllDayHeaderContent()) {
+            case TextContent text -> "text " + text.text();
+            case JsCallback callback -> "callback";
+        };
+        String align = switch (calendar.options().getDayHeaderAlign()) {
+            case HeaderAlign headerAlign -> "align " + headerAlign;
+            case JsCallback callback -> "callback";
+        };
+        return content + ", " + align;
+    }
+
+    @Test
     void viewValue_isSentOnlyUnderViews() {
         attach();
 
