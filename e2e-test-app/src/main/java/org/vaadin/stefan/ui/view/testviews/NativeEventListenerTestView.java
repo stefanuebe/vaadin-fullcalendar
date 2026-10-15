@@ -13,15 +13,15 @@ import org.vaadin.stefan.ui.menu.MenuItem;
 import java.time.LocalDate;
 
 /**
- * Test view for native entry event listeners combined with an ENTRY_DID_MOUNT callback.
+ * Test view for native entry event listeners combined with an entryDidMount callback.
  * <p>
  * Verifies:
  * <ul>
- *   <li>The ENTRY_DID_MOUNT callback fires and sets {@code data-did-mount="true"} on the entry element</li>
+ *   <li>The entryDidMount callback fires and sets {@code data-did-mount="true"} on the entry element</li>
  *   <li>A native click listener registered via {@code addEntryNativeEventListener} fires on click
  *       and increments a visible counter</li>
- *   <li>Both the user callback and the native listener work when set via
- *       {@link FullCalendar#setOption(Option, Object)} with {@link JsCallback}</li>
+ *   <li>Both the user callback and the native listener work when the callback is set via
+ *       {@code options().setEntryDidMount(…)}, which the calendar merges with the native listener</li>
  * </ul>
  * <p>
  * Route: /test/native-event-listener
@@ -55,8 +55,8 @@ public class NativeEventListenerTestView extends VerticalLayout {
         entry.setAllDay(true);
         calendar.setEntryProvider(EntryProvider.inMemoryFrom(entry));
 
-        // ENTRY_DID_MOUNT via JsCallback — must end with closing brace for merge to work
-        calendar.setOption(Option.ENTRY_DID_MOUNT,
+        // a function with a body in braces, so the calendar can merge the native listener into it
+        calendar.options().setEntryDidMount(
                 JsCallback.of("function(info) { info.el.setAttribute('data-did-mount', 'true'); }"));
 
         // Native click listener — increments the visible counter element

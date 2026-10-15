@@ -36,14 +36,14 @@ class JsCallbackTest {
                 JsCallback.of("function(arg) { return []; }")));
     }
 
-    // --- ENTRY_DID_MOUNT merge / userEntryDidMountCallback field ---
+    // --- ENTRY_DID_MOUNT through the old option API into the entryDidMount field ---
 
     @Test
     void setOption_entryDidMount_storesCallback() {
         FullCalendar calendar = new FullCalendar();
         calendar.setOption(Option.ENTRY_DID_MOUNT,
             JsCallback.of("function(info) { info.el.title = 'test'; }"));
-        JsCallback cb = getUserEntryDidMountCallback(calendar);
+        JsCallback cb = calendar.options().getEntryDidMount();
         assertNotNull(cb);
         assertEquals("function(info) { info.el.title = 'test'; }", cb.getJsFunction());
     }
@@ -54,7 +54,7 @@ class JsCallbackTest {
         calendar.setOption(Option.ENTRY_DID_MOUNT,
             JsCallback.of("function(info) {}"));
         calendar.setOption(Option.ENTRY_DID_MOUNT, null);
-        assertNull(getUserEntryDidMountCallback(calendar));
+        assertNull(calendar.options().getEntryDidMount());
     }
 
     // --- JsCallback unit tests ---
@@ -336,15 +336,6 @@ class JsCallbackTest {
 
     // --- Helpers ---
 
-    private static JsCallback getUserEntryDidMountCallback(FullCalendar calendar) {
-        try {
-            Field field = FullCalendar.class.getDeclaredField("userEntryDidMountCallback");
-            field.setAccessible(true);
-            return (JsCallback) field.get(calendar);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @SuppressWarnings("unchecked")
     private static java.util.Map<String, String> getNativeEventsMap(FullCalendar calendar) {

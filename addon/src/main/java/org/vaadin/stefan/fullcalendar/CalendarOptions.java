@@ -22,6 +22,7 @@ import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonName;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
@@ -56,6 +57,21 @@ class CalendarOptions implements Serializable {
      */
     @JsonConverter(LocalDateConverter.class)
     private LocalDate initialDate;
+
+    /**
+     * A callback that runs when the element of an entry has been added to the DOM. It gets an {@code info} object with
+     * {@code event}, {@code el}, {@code view} and more, see the library docs.
+     * <p>
+     * The calendar merges it with its native entry listeners and the automatic entry id into one callback, see
+     * {@link FullCalendar#addEntryNativeEventListener(String, String)} and
+     * {@link FullCalendar#setAutoProvideEntryIdOnClient(boolean)}. The merge needs a function with a body in braces.
+     * A callback without one, such as {@code info => info.el.title = 'x'}, is sent as it is, without the native
+     * listeners and the entry id.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventDidMount</a>
+     */
+    @JsonName("eventDidMount")
+    private JsCallback entryDidMount;
 
     /**
      * The time zone the calendar shows the entries in. The server converts entry times with it. The default is

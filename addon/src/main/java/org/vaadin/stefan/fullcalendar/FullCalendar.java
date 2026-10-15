@@ -151,7 +151,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     private boolean refreshAllEntriesRequested;
 
     private final Map<String, String> customNativeEventsMap = new LinkedHashMap<>();
-    private JsCallback userEntryDidMountCallback;
     private boolean autoProvideEntryIdOnClient = true;
 
     /**
@@ -344,10 +343,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
                 });
             });
         }
-
-        // A callback removed while detached may still be on the client. Passing null tells the client to use its own
-        // callback again.
-        applyEntryDidMountMerge(!attachEvent.isInitialAttach());
     }
 
     @Override
@@ -812,17 +807,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             return;
         }
 
-        // 1. ENTRY_DID_MOUNT intercept: detect this key and route to merge logic
+        // 1. The entry did mount callback goes into its field, which contributeOptions merges
         if (Option.ENTRY_DID_MOUNT.getOptionKey().equals(option)) {
-            boolean removed;
-            if (value instanceof JsCallback cb) {
-                userEntryDidMountCallback = cb;
-                removed = false;
-            } else {
-                removed = userEntryDidMountCallback != null; // was set before, now being cleared
-                userEntryDidMountCallback = null;
-            }
-            applyEntryDidMountMerge(removed);
+            options().setEntryDidMount(value instanceof JsCallback cb ? cb : null);
             return;
         }
 
@@ -924,13 +911,14 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * Schedules {@link #syncOptions()} for the next response. Until the client got the initial state, the element
-     * property {@code initialOptions} is also updated at once.
+     * Schedules the option sync for the next response. A subclass calls it when a value it puts in with
+     * {@link #contributeOptions(Map)} changes.
      * <p>
+     * Until the client got the initial state, the element property {@code initialOptions} is also updated at once.
      * {@link FullCalendarOptions} calls this before the accessor runs, so the property misses that one change until
      * the sync. The browser gets the property only with a response, and the sync before it writes the current state.
      */
-    void optionsChanged() {
+    protected void optionsChanged() {
         if (!initialStateSent) {
             // ponytail: rewrites the whole property on each change before the first sync, so a raw option change is
             // in it also without a response. This is quadratic in the options set before attach, which is fine for
@@ -994,8 +982,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             current.put("timeZone", JsonUtils.toJsonNode(Timezone.LOCAL));
         }
         viewsJson().ifPresent(views -> current.put("views", views));
+        contributeOptions(current);
         current.putAll(rawOptions);
         return current;
+    }
+
+    /**
+     * Adds or replaces option values the calendar computes, in their client form by library name. The sync calls it
+     * each time after it has put in the typed fields and the {@code views} object, and lays the raw options over the
+     * result, so a raw option still wins. A change that affects the computed values has to call {@link #optionsChanged()}.
+     * <p>
+     * This calendar puts in {@code eventDidMount}: the callback of {@link FullCalendarOptions#getEntryDidMount()}
+     * merged with the native entry listeners and the automatic entry id, see
+     * {@link #addEntryNativeEventListener(String, String)} and {@link #setAutoProvideEntryIdOnClient(boolean)}. An
+     * override calls this method to keep it.
+     *
+     * @param options the option values the client gets, to add to or replace in
+     */
+    protected void contributeOptions(Map<String, JsonNode> options) {
+        String merged = buildEntryDidMountMerged();
+        if (merged != null) {
+            options.put(Option.ENTRY_DID_MOUNT.getOptionKey(), JsCallback.of(merged).toMarkerJson());
+        }
     }
 
     /**
@@ -1069,29 +1077,12 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     public Registration addEntryNativeEventListener(String eventName, String eventCallback) {
         customNativeEventsMap.put(eventName, eventCallback);
-        applyEntryDidMountMerge(false);
+        optionsChanged();
 
         return Registration.once(() -> {
             customNativeEventsMap.remove(eventName);
-            applyEntryDidMountMerge(false);
+            optionsChanged();
         });
-    }
-
-    /**
-     * Applies the merged eventDidMount callback to the client.
-     * @param clearIfNull if true and the merged result is null, actively sends null to clear the client-side callback.
-     *                    If false and merged is null, does nothing (preserves any callback set directly in TypeScript subclasses).
-     */
-    private void applyEntryDidMountMerge(boolean clearIfNull) {
-        if (!isAttached()) {
-            return;
-        }
-        String merged = buildEntryDidMountMerged();
-        if (merged != null) {
-            getElement().callJsFunction("setOption", "eventDidMount", JsCallback.of(merged).toMarkerJson());
-        } else if (clearIfNull) {
-            getElement().callJsFunction("setOption", "eventDidMount", (JsonNode) null);
-        }
     }
 
     /**
@@ -1137,7 +1128,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * Package-private for testing.
      */
     String buildEntryDidMountMerged() {
-        String userCallback = userEntryDidMountCallback != null ? userEntryDidMountCallback.getJsFunction() : null;
+        JsCallback entryDidMount = calendarOptions.getEntryDidMount();
+        String userCallback = entryDidMount != null ? entryDidMount.getJsFunction() : null;
         String defaultSnippet = autoProvideEntryIdOnClient ? DEFAULT_ENTRY_ID_ASSIGNMENT_SNIPPET : null;
 
         StringBuilder events = null;
@@ -1630,7 +1622,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             return;
         }
         this.autoProvideEntryIdOnClient = autoProvide;
-        applyEntryDidMountMerge(true);
+        optionsChanged();
     }
 
     /**
