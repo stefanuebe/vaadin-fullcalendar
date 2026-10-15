@@ -1,0 +1,90 @@
+# The library option names the scheduler add-on supports beyond the core module, one per line: the name, then
+# "global" or "view". The core names are in the option-names.txt of the core module's test resources.
+#
+# A global option has its field in the scheduler's global options, a per-view option in its view options. Every name
+# not shown as global below is per view. Generated once from the non-deprecated constants of
+# org.vaadin.stefan.fullcalendar.SchedulerOption.
+#
+# The rule is the one of the core resource: a name is global when the library reads it only from the calendar options,
+# so a per-view value has no visible effect, or when the add-on chooses so. To check a name, search the scheduler
+# source in e2e-test-app/node_modules/fullcalendar-scheduler for its readers. If only the calendar options or the
+# calendar context read it, it is global. If a view reads it too, so a per-view value changes behaviour or display, it
+# is per view.
+#
+# Global by the library source:
+# - refetchResourcesOnNavigate, read only by reduceResourceSource. Plugin reducers get the calendar context, whose
+#   options are the calendar options.
+#
+# Global by the add-on's choice:
+# - resourceColumns, because the add-on handles it itself: it binds the component columns of the list to the calendar.
+#
+# Per view, because a view reads them: the render hooks, class names and layout options, which read the view context.
+# schedulerLicenseKey is read by buildLicenseWarning from the calendar data, whose options are the options of the
+# current view. The listeners resourcesSet, resourceAdd, resourceChange and resourceRemove are triggered through the
+# emitter, which takes its handlers from the options of the current view, and the add-on does not register them
+# itself. eventResourceEditable is read by computeResourceEditable from the context it gets, which for a drag is the
+# context of the view that receives the entry.
+#
+# FC-UPDATE: re-derive the global names from the new library source as above. Add new option names of the library
+#  that the add-on supports, rename changed ones and remove dropped ones.
+datesAboveResources view
+eventMinWidth view
+eventPrintLayout view
+eventResourceEditable view
+filterResourcesWithEvents view
+printMaxRows view
+refetchResourcesOnNavigate global
+resourceAdd view
+resourceCellClass view
+resourceCellContent view
+resourceCellDidMount view
+resourceCellInnerClass view
+resourceCellWillUnmount view
+resourceChange view
+resourceColumnDividerClass view
+resourceColumnHeaderClass view
+resourceColumnHeaderContent view
+resourceColumnHeaderDidMount view
+resourceColumnHeaderInnerClass view
+resourceColumnHeaderWillUnmount view
+resourceColumnResizerClass view
+resourceColumns global
+resourceColumnsWidth view
+resourceDayHeaderAlign view
+resourceDayHeaderClass view
+resourceDayHeaderContent view
+resourceDayHeaderDidMount view
+resourceDayHeaderInnerClass view
+resourceDayHeaderWillUnmount view
+resourceExpanderClass view
+resourceExpanderContent view
+resourceGroupField view
+resourceGroupHeaderClass view
+resourceGroupHeaderContent view
+resourceGroupHeaderDidMount view
+resourceGroupHeaderInnerClass view
+resourceGroupHeaderWillUnmount view
+resourceGroupLaneClass view
+resourceGroupLaneContent view
+resourceGroupLaneDidMount view
+resourceGroupLaneInnerClass view
+resourceGroupLaneWillUnmount view
+resourceHeaderRowClass view
+resourceIndentClass view
+resourceLaneBottomClass view
+resourceLaneBottomContent view
+resourceLaneClass view
+resourceLaneDidMount view
+resourceLaneTopClass view
+resourceLaneTopContent view
+resourceLaneWillUnmount view
+resourceOrder view
+resourceRemove view
+resourceRowClass view
+resourcesInitiallyExpanded view
+resourcesSet view
+schedulerLicenseKey view
+slotMinWidth view
+timelineBottomClass view
+timelineTopClass view
+virtualization view

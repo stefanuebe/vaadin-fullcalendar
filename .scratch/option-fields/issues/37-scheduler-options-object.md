@@ -20,3 +20,4 @@
 - [ ] The scheduler's `view(…)` sets a core and a scheduler field without a cast.
 - [ ] A core calendar's view object has no scheduler accessors (pinned API).
 - [ ] `SchedulerSerializationTest` covers scheduler options and view values.
+- [ ] The scheduler data classes carry an `FC-UPDATE` comment that points to the scheduler's option-name resource (from 10).
