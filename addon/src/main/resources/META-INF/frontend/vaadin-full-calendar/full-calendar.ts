@@ -679,18 +679,14 @@ export class FullCalendar extends HTMLElement {
     }
 
     /**
-     * Restores the state from the server. All values are optional and might be undefined.
-     * @param options options to set
+     * Restores view and date from the server after a reattach. The options come with the server's option sync. Both
+     * values are optional and might be undefined.
      * @param view view name to set
      * @param date date to go to
      * @private
      */
-    protected restoreStateFromServer(options: {} = {}, view: any, date: any) {
+    protected restoreStateFromServer(view: any, date: any) {
         this.calendar?.batchRendering(() => {
-            this.setOptions(options);
-
-            // TODO necessary to restore the data fetching?
-
             if (view) {
                 this.changeView(view, date);
             }

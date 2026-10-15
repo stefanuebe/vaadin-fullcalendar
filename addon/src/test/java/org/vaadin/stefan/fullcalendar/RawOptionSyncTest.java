@@ -134,23 +134,65 @@ public class RawOptionSyncTest extends BrowserlessTest {
     }
 
     @Test
-    void detachedBeforeTheResponse_optionArrivesAfterTheReattach() {
+    void detachedOverAResponse_newClientElementGetsTheStateInTheProperty() {
+        calendar.setRawOption("eventColor", "red");
         attach();
 
         calendar.setRawOption("weekends", false);
         ui.remove(calendar);
         respond();
         calendar.setRawOption("dayCount", 3);
+        calendar.setRawOption("eventColor", null);
         ui.add(calendar);
         List<JsonNode> calls = respond();
 
         assertFalse(initialOptions().get("weekends").asBoolean());
         assertEquals(3, initialOptions().get("dayCount").asInt());
-        assertFalse(calls.getLast().get("weekends").asBoolean());
-        assertEquals(3, calls.getLast().get("dayCount").asInt());
+        assertFalse(initialOptions().has("eventColor"));
+        // the new client element is created from the property, a call would apply the options a second time
+        assertEquals(List.of(), calls);
 
         calendar.setRawOption("weekends", true);
         assertTrue(respond().getFirst().get("weekends").asBoolean());
+    }
+
+    @Test
+    void detachedOverAResponse_reattachWithoutChange_writesTheCurrentState() {
+        calendar.setRawOption("eventColor", "red");
+        attach();
+        calendar.setRawOption("weekends", false);
+        respond();
+
+        ui.remove(calendar);
+        respond();
+        // stands in for the browser, which creates the new element from whatever the property holds
+        calendar.getElement().setPropertyJson("initialOptions", JsonFactory.createObject());
+        ui.add(calendar);
+        respond();
+
+        assertEquals("red", initialOptions().get("eventColor").asString());
+        assertFalse(initialOptions().get("weekends").asBoolean());
+    }
+
+    @Test
+    void detachAndAttachInOneRoundTrip_keptClientElementGetsEveryOptionAsCall() {
+        calendar.setRawOption("eventColor", "red");
+        calendar.setRawOption("weekends", false);
+        attach();
+
+        ui.remove(calendar);
+        calendar.setRawOption("weekends", null);
+        calendar.setRawOption("dayCount", 3);
+        ui.add(calendar);
+        List<JsonNode> calls = respond();
+
+        // Flow discards the calls queued before the detach, so the unchanged option goes out too
+        assertEquals(1, calls.size());
+        assertEquals("red", calls.getFirst().get("eventColor").asString());
+        assertTrue(calls.getFirst().get("weekends").isNull());
+        assertEquals(3, calls.getFirst().get("dayCount").asInt());
+        // the kept element ignores the property, so it is not rewritten
+        assertFalse(initialOptions().has("dayCount"));
     }
 
     @Test
@@ -168,6 +210,8 @@ public class RawOptionSyncTest extends BrowserlessTest {
         newUi.getInternals().getStateTree().runExecutionsBeforeClientResponse();
 
         assertFalse(initialOptions().has("eventColor"));
+        assertTrue(newUi.getInternals().dumpPendingJavaScriptInvocations().stream()
+                .noneMatch(call -> call.getInvocation().getExpression().contains("setOptions")));
     }
 
     @Test

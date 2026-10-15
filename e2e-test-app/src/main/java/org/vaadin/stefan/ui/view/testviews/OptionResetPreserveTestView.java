@@ -7,6 +7,7 @@ import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
+import org.vaadin.stefan.fullcalendar.JsCallback;
 import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -15,11 +16,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Test view for removing an option of an attached calendar that the browser creates again. The view keeps its
+ * Test view for changing an option of an attached calendar that the browser creates again. The view keeps its
  * components on a refresh, the browser then creates a new calendar element.
  * <p>
  * The calendar shows the week of 2025-03-03 with a timed entry. Before attach, the server sets the entry color red.
- * The button "Remove entry color" removes it.
+ * The button "Set entry color" sets it blue, the button "Remove entry color" removes it. The server also sets an
+ * eventDataTransform callback, whose code counts how often it is evaluated in {@code window.preserveEvaluations}.
  * <p>
  * Route: /test/option-reset-preserve
  */
@@ -41,9 +43,15 @@ public class OptionResetPreserveTestView extends VerticalLayout {
         calendar.setId("cal-option-reset-preserve");
         calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
         calendar.setOption(Option.ENTRY_COLOR, "red");
+        calendar.setRawOption("eventDataTransform", JsCallback.of("""
+                (() => {
+                    window.preserveEvaluations = (window.preserveEvaluations || 0) + 1;
+                    return function(data) { return data; };
+                })()"""));
         calendar.getEntryProvider().asInMemory().addEntry(timed);
 
-        add(new Button("Remove entry color", e -> calendar.setOption(Option.ENTRY_COLOR, null)), calendar);
+        add(new Button("Set entry color", e -> calendar.setOption(Option.ENTRY_COLOR, "blue")),
+                new Button("Remove entry color", e -> calendar.setOption(Option.ENTRY_COLOR, null)), calendar);
         setFlexGrow(1, calendar);
     }
 }

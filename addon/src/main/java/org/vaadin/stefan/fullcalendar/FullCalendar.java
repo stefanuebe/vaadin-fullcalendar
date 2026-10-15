@@ -103,6 +103,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     private boolean initialStateSent;
 
+    /** The id of the UI the calendar was last attached to, -1 before the first attach. */
+    private int attachedUiId = -1;
+
     /**
      * The values passed to {@code setOption}, as {@link #getOption(String, boolean)} returns them. Part of the bridge
      * from the old option API to {@link #rawOptions}, which goes away with that API.
@@ -288,25 +291,27 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
 
-        if (initialStateSent) {
-            // The client element may be a new one, created from the property. It may also be the old one, which lost
-            // the calls queued while detached. So the whole state goes to both. Not tied to isInitialAttach(), because a view
-            // kept with @PreserveOnRefresh is attached to a new UI as an initial attach.
-            // ponytail: resends everything on every reattach, also when the client element is kept and has it all.
+        // A new UI always creates a new client element. Not tied to isInitialAttach(), because a view kept with
+        // @PreserveOnRefresh is attached to a new UI as an initial attach.
+        int uiId = attachEvent.getUI().getUIId();
+        if (uiId != attachedUiId) {
+            attachedUiId = uiId;
             initialStateSent = false;
-            // a non-empty lastSentOptions makes syncOptions send the calls too
-            lastSentOptions.replaceAll((key, value) -> JsonFactory.createNull());
-            // a sync scheduled in another UI is dropped by Flow when the component moves, so schedule it again
-            optionSyncScheduled = false;
-            optionsChanged();
         }
+        if (initialStateSent) {
+            // Flow kept the client element (detach and attach in one round trip), but discarded the calls queued for
+            // it. So every option goes out again, and every key that is no longer present goes out as a removal.
+            lastSentOptions.replaceAll((key, value) -> JsonFactory.createNull());
+        }
+        // a sync scheduled in another UI is dropped by Flow when the component moves, so schedule it again
+        optionSyncScheduled = false;
+        optionsChanged();
 
         if(!attachEvent.isInitialAttach()) {
             getElement().getNode().runWhenAttached(ui -> {
                 ui.beforeClientResponse(this, executionContext -> {
                     syncOptions();
                     getElement().callJsFunction("restoreStateFromServer",
-                            JsonFactory.createObject(),
                             JsonUtils.toJsonNode(currentViewName),
                             JsonUtils.toJsonNode(currentIntervalStart));
 
@@ -334,6 +339,21 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         // A callback removed while detached may still be on the client. Passing null tells the client to use its own
         // callback again.
         applyEntryDidMountMerge(!attachEvent.isInitialAttach());
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+
+        // If the calendar is still detached when the response goes out, the browser removes the client element. An
+        // attach then creates a new one from the property. Registered on the UI, because a task of the detached
+        // calendar waits for the attach.
+        UI ui = detachEvent.getUI();
+        ui.beforeClientResponse(ui, context -> {
+            if (!isAttached()) {
+                initialStateSent = false;
+            }
+        });
     }
 
     /**
@@ -905,14 +925,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         });
         lastSentOptions.keySet().stream().filter(key -> !current.containsKey(key)).forEach(changes::putNull);
 
-        // On the first sync the property carries everything. After a reattach (lastSentOptions is not empty then)
-        // the client element may also be the old one, which needs the calls.
-        boolean sendCalls = initialStateSent || !lastSentOptions.isEmpty();
         if (!initialStateSent) {
             writeInitialOptions(current);
             initialStateSent = true;
-        }
-        if (sendCalls && !changes.isEmpty()) {
+        } else if (!changes.isEmpty()) {
             getElement().callJsFunction("setOptions", changes);
         }
 

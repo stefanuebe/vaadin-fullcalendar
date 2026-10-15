@@ -318,27 +318,56 @@ test.describe('Removing options of an attached calendar', () => {
     });
 });
 
-test.describe('Removing an option of a calendar the browser creates again', () => {
+test.describe('Options of a calendar the browser creates again', () => {
 
-    test('a removed option stays removed after a refresh', async ({ page }) => {
-        const color = () => page.locator('#cal-option-reset-preserve .fc-event').first()
-            .evaluate((el) => el.style.getPropertyValue('--fc-event-color'));
+    const color = (page) => page.locator('#cal-option-reset-preserve .fc-event').first()
+        .evaluate((el) => el.style.getPropertyValue('--fc-event-color'));
 
+    const open = async (page) => {
         await page.goto('/test/option-reset-preserve');
         await page.waitForSelector('#cal-option-reset-preserve .fc-event', { timeout: 10000 });
         await waitForVaadin(page);
-        expect(await color()).toBe('red');
+    };
 
-        await page.getByRole('button', { name: 'Remove entry color', exact: true }).click();
-        await waitForVaadin(page);
-        await expect.poll(color).not.toBe('red');
-        const removed = await color();
-        expect(removed).not.toBe('null');
-
+    const reload = async (page) => {
         // the view keeps its components, the browser creates a new calendar element
         await page.reload();
         await page.waitForSelector('#cal-option-reset-preserve .fc-event', { timeout: 10000 });
         await waitForVaadin(page);
-        expect(await color()).toBe(removed);
+    };
+
+    test('options set before and after attach are applied after a refresh', async ({ page }) => {
+        await open(page);
+        expect(await color(page)).toBe('red');
+
+        await reload(page);
+        await expect.poll(() => color(page)).toBe('red');
+
+        await page.getByRole('button', { name: 'Set entry color', exact: true }).click();
+        await waitForVaadin(page);
+        await expect.poll(() => color(page)).toBe('blue');
+
+        await reload(page);
+        await expect.poll(() => color(page)).toBe('blue');
+
+        // the new element is created from the initial options alone, a second setOptions call would evaluate the
+        // callback code again. One more round trip (the value is already blue) so a late call has arrived.
+        await page.getByRole('button', { name: 'Set entry color', exact: true }).click();
+        await waitForVaadin(page);
+        expect(await page.evaluate(() => window.preserveEvaluations)).toBe(1);
+    });
+
+    test('a removed option stays removed after a refresh', async ({ page }) => {
+        await open(page);
+        expect(await color(page)).toBe('red');
+
+        await page.getByRole('button', { name: 'Remove entry color', exact: true }).click();
+        await waitForVaadin(page);
+        await expect.poll(() => color(page)).not.toBe('red');
+        const removed = await color(page);
+        expect(removed).not.toBe('null');
+
+        await reload(page);
+        await expect.poll(() => color(page)).toBe(removed);
     });
 });

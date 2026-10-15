@@ -40,6 +40,8 @@ Every field:
 
 A value form the value-type tickets (21–24) do not cover is a finding. Report it, do not invent a type in the batch.
 
+**Parallel run (maintainer, 2026-10-15):** once 11, 12 and 21–24 are done, the batches can run as parallel Sonnet subagents, each in its own worktree. Before that, one small commit creates the empty topic sections in `CalendarOptions` and `ViewOptions`, so each agent only adds to its own section and the merges stay free of conflicts. Each agent gets its own `~/.m2` copy and its own ports (see the memory on parallel agent isolation). The main agent reviews each batch. The full gate runs once per merged wave, not per agent. Propose the concrete waves to the maintainer before 25 starts.
+
 ## Index
 
 | File | Ticket | Blocked by |
