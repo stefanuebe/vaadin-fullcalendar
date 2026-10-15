@@ -18,4 +18,4 @@
 
 - [ ] The test passes; every exception is listed with its reason.
 - [ ] The option-name resources and the fields agree.
-- [ ] Every form in the `<dt>Type</dt>` block of a non-deprecated `Option` or `SchedulerOption` constant has a setter on its field, or the batch ticket gives the reason it is left out. The old Javadoc is still there until 51, so this is checked against it here.
+- [ ] Every form the library takes for an option (its `.d.ts` type and refiner, and its docs page) has a setter on its field, or the batch ticket gives a concrete technical reason it is left out. The `<dt>Type</dt>` blocks of the old Javadoc (there until 51) are checked too, as a second source.

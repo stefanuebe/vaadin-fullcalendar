@@ -37,7 +37,7 @@ Every field:
 - sits in the topic section of its batch in the source;
 - has Javadoc with a short description and an `@see` link to its library docs page. The old Javadoc of the `Option` constant is the source for this text. Its `<dt>Type</dt>` blocks and its `setOption` examples are not carried over;
 - has its getter and setters in the pinned method lists `FullCalendarOptions-api.txt` or `FullCalendarViewOptions-api.txt` (test resources, see 12). A new value type goes into `VALUE_TYPES` in `ConverterTest`, with its converter and a value of each form, and gets a case in `ValueTypeSwitchTest`; a field with a converter for a one-form type adds the type to `ONE_FORM_TYPES` there;
-- has one hand-written setter per value form if it takes more than one form. The forms are those of the `<dt>Type</dt>` block in the old Javadoc of its `Option` or `SchedulerOption` constant; a form left out gets its reason in the batch ticket (as the format strings in 24); Each setter has Javadoc that links to the getter (`{@link}`). There is no public setter that takes the value type itself.
+- has one hand-written setter per value form if it takes more than one form. The forms are every form the library takes for the option (its `.d.ts` type and refiner in `e2e-test-app/node_modules`, and its docs page), not only those of the old `Option` Javadoc. The goal is full coverage of the library: a form is left out only for a concrete technical reason, recorded in the batch ticket (as the format strings in 24, which need a plugin the add-on does not load). "Nobody asked for it" or "the old API did not have it" is no reason; Each setter has Javadoc that links to the getter (`{@link}`). There is no public setter that takes the value type itself.
 
 A value form the value-type tickets (21–24, 57) do not cover is a finding. Report it, do not invent a type in the batch.
 
@@ -74,7 +74,7 @@ A value form the value-type tickets (21–24, 57) do not cover is a finding. Rep
 | `57-value-types-order-ranges-lengths-durations.md` | Value types: entry order, ranges, week number calculation, lengths, durations | 24 |
 | `25-fields-dates.md` | Fields: dates, ranges and durations | 11, 12, 24, 57 |
 | `26-fields-time-grid.md` | Fields: time grid and slots | 11, 12, 21, 24, 57 |
-| `27-fields-interaction.md` | Fields: interaction | 11, 12, 22, 23 |
+| `27-fields-interaction.md` | Fields: interaction | 11, 12, 22, 23, 57 |
 | `28-fields-entry-display.md` | Fields: entry display and layout | 11, 12, 21, 23, 24, 57 |
 | `29-fields-texts-formats.md` | Fields: texts, hints and formats | 11, 12, 22, 24 |
 | `30-fields-toolbar-sources.md` | Fields: toolbar parts and entry sources | 11, 12, 16, 57 |
