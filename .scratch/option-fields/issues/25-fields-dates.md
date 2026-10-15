@@ -20,3 +20,5 @@
 - [ ] The static checks (11) pass with the new fields; the pinned method list and the converter round trip (12) include them.
 - [ ] A browserless test sets one field per value form of this batch and finds it in the client state.
 - [ ] Playwright: `initialView` and `now` take effect.
+
+**Note from 09 (2026-10-15):** `weekends` already exists in `ViewOptions` (the view tests of 07 and 08 use it as their simple per-view field). Do not add it again.

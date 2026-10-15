@@ -78,14 +78,14 @@ public class SerializationTest {
     void calendarWithViewOptionsAndAKeptViewReferenceIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
         FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
-        week.setEditable(false);
+        week.setWeekends(false);
 
         // serialized together, as in a session, so the copied reference points to the copied calendar
         List<?> copy = roundtrip(new ArrayList<>(List.of(calendar, week)));
         FullCalendar calendarCopy = (FullCalendar) copy.get(0);
         FullCalendarViewOptions weekCopy = (FullCalendarViewOptions) copy.get(1);
 
-        assertEquals(Boolean.FALSE, calendarCopy.options().view(CalendarViewImpl.TIME_GRID_WEEK).getEditable());
+        assertEquals(Boolean.FALSE, calendarCopy.options().view(CalendarViewImpl.TIME_GRID_WEEK).getWeekends());
         weekCopy.setDayCellClass("week-day");
         assertEquals(ClassName.of("week-day"),
                 calendarCopy.options().view(CalendarViewImpl.TIME_GRID_WEEK).getDayCellClass());

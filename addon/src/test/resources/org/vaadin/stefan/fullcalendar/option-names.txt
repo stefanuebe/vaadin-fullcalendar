@@ -1,0 +1,333 @@
+# The library option names the core add-on supports, one per line: the name, then "global" or "view".
+#
+# A global option has its field in CalendarOptions, a per-view option in ViewOptions. Every name not shown as global
+# below is per view. Generated once from the non-deprecated constants of org.vaadin.stefan.fullcalendar.Option, with
+# "class" written as "className".
+#
+# A name is global when the library reads it only from the calendar options, so a per-view value has no visible
+# effect, or when the add-on chooses so. To check a name, search the library source in e2e-test-app/node_modules for
+# its readers. If only the calendar options or the calendar context read it, it is global. If a view reads it too,
+# so a per-view value changes behaviour or display, it is per view. One exception: direction stays global, although
+# a view reads it, because that read only sets the text direction of an entry while it is dragged.
+#
+# Global by the library source:
+# - the inputs of buildDateEnv: timeZone, locale, weekNumberCalculation, firstDay, weekTextLong, weekTextShort
+# - the toolbar. parseToolbars reads headerToolbar, footerToolbar, direction and toolbarElements. getButtonState reads
+#   buttons and the button texts and hints. The view buttons read listText through the view's buttonTextKey, and
+#   dayText and monthText through getSingleUnitText. The calendar root also sets its text direction from direction.
+# - CALENDAR_ONLY_OPTION_REFINERS: className, viewClass, viewDidMount, viewWillUnmount
+# - initialView and initialDate, read when the calendar is created, and rerenderDelay
+# - buildViewUiProps, which gets the calendar context: eventDisplay, eventStartEditable, eventDurationEditable,
+#   eventConstraint, eventAllow, selectConstraint, selectAllow
+# - fetching entries, which uses the calendar context: eventDataTransform, lazyFetching, eventSourceSuccess,
+#   startParam, endParam, timeZoneParam, and googleCalendarApiKey in @fullcalendar/google-calendar
+#
+# Global by the add-on's choice:
+# - the calendar listeners of CALENDAR_LISTENER_REFINERS, because the add-on registers them itself. Of these only
+#   loading has an Option constant.
+# - the options the add-on handles itself: eventDidMount, moreLinkClick
+#
+# Per view, because a view reads them as well as the calendar options: editable (whether
+# a view takes entries dropped from another calendar), selectOverlap (its function form), eventOverlap and
+# businessHours (also for the display), visibleRange, the toolbar class options and buttonDisplay (the toolbar renders
+# in the view context). defaultAllDay is read only by computeIsDefaultAllDay, through parseEvent. The contexts its
+# callers pass (the event sources, addEvent, normalizeConstraint) were not all traced, so it stays per view. If they
+# all pass the calendar context, defaultAllDay is global.
+#
+# FC-UPDATE: re-derive the global names from the new library source as above. Add new option names of the library
+#  that the add-on supports, rename changed ones and remove dropped ones.
+allDayDividerClass view
+allDayHeaderClass view
+allDayHeaderContent view
+allDayHeaderDidMount view
+allDayHeaderInnerClass view
+allDayHeaderWillUnmount view
+allDayMaintainDuration view
+allDaySlot view
+allDayText view
+aspectRatio view
+backgroundEventClass view
+backgroundEventColor view
+backgroundEventContent view
+backgroundEventDidMount view
+backgroundEventInnerClass view
+backgroundEventTitleClass view
+backgroundEventWillUnmount view
+blockEventAfterClass view
+blockEventBeforeClass view
+blockEventClass view
+blockEventInnerClass view
+blockEventTimeClass view
+blockEventTitleClass view
+borderless view
+borderlessBottom view
+borderlessTop view
+borderlessX view
+businessHours view
+buttonClass view
+buttonDisplay view
+buttonGroupClass view
+buttons global
+className global
+closeHint view
+colorScheme view
+columnEventAfterClass view
+columnEventBeforeClass view
+columnEventClass view
+columnEventInnerClass view
+columnEventTimeClass view
+columnEventTitleClass view
+columnEventTitleSticky view
+columnMoreLinkClass view
+columnMoreLinkInnerClass view
+contentHeight view
+dateAlignment view
+dateIncrement view
+dayCellBottomClass view
+dayCellClass view
+dayCellDidMount view
+dayCellFormat view
+dayCellInnerClass view
+dayCellTopClass view
+dayCellTopContent view
+dayCellTopInnerClass view
+dayCellWillUnmount view
+dayCount view
+dayHeaderAlign view
+dayHeaderClass view
+dayHeaderContent view
+dayHeaderDidMount view
+dayHeaderDividerClass view
+dayHeaderFormat view
+dayHeaderInnerClass view
+dayHeaderRowClass view
+dayHeaderWillUnmount view
+dayHeaders view
+dayLaneClass view
+dayLaneDidMount view
+dayLaneInnerClass view
+dayLaneWillUnmount view
+dayMaxEventRows view
+dayMaxEvents view
+dayMinWidth view
+dayNarrowWidth view
+dayRowClass view
+dayText global
+defaultAllDay view
+defaultAllDayEventDuration view
+defaultTimedEventDuration view
+direction global
+displayEventEnd view
+displayEventTime view
+dragRevertDuration view
+dragScroll view
+dropAccept view
+droppable view
+duration view
+editable view
+endParam global
+eventAfterClass view
+eventAllow global
+eventBeforeClass view
+eventClass view
+eventColor view
+eventConstraint global
+eventContent view
+eventContrastColor view
+eventDataTransform global
+eventDidMount global
+eventDisplay global
+eventDragMinDistance view
+eventDurationEditable global
+eventInnerClass view
+eventInteractive view
+eventLongPressDelay view
+eventMaxStack view
+eventMinHeight view
+eventOrder view
+eventOrderStrict view
+eventOverlap view
+eventResizableFromStart view
+eventShortHeight view
+eventSlicing view
+eventSourceSuccess global
+eventStartEditable global
+eventTimeClass view
+eventTimeFormat view
+eventTitleClass view
+eventWillUnmount view
+eventsHint view
+expandRows view
+fillerClass view
+firstDay global
+fixedWeekCount view
+footerScrollbarSticky view
+footerToolbar global
+footerToolbarClass view
+forceEventDuration view
+googleCalendarApiKey global
+headerToolbar global
+headerToolbarClass view
+headingLevel view
+height view
+hiddenDays view
+highlightClass view
+initialDate global
+initialView global
+inlineWeekNumberClass view
+inlineWeekNumberContent view
+inlineWeekNumberDidMount view
+inlineWeekNumberWillUnmount view
+lazyFetching global
+listDayAltFormat view
+listDayBodyClass view
+listDayClass view
+listDayFormat view
+listDayHeaderClass view
+listDayHeaderContent view
+listDayHeaderDidMount view
+listDayHeaderInnerClass view
+listDayHeaderWillUnmount view
+listDaysClass view
+listItemEventAfterClass view
+listItemEventBeforeClass view
+listItemEventClass view
+listItemEventInnerClass view
+listItemEventTimeClass view
+listItemEventTitleClass view
+listText global
+loading global
+locale global
+longPressDelay view
+monthStartFormat view
+monthText global
+moreLinkClass view
+moreLinkClick global
+moreLinkContent view
+moreLinkDidMount view
+moreLinkHint view
+moreLinkInnerClass view
+moreLinkText view
+moreLinkWillUnmount view
+multiMonthMaxColumns view
+navLinkClass view
+navLinkDayClick view
+navLinkHint view
+navLinkWeekClick view
+navLinks view
+nextDayThreshold view
+nextHint global
+nextText global
+nextYearText global
+noEventsClass view
+noEventsContent view
+noEventsDidMount view
+noEventsInnerClass view
+noEventsText view
+noEventsWillUnmount view
+nonBusinessHoursClass view
+now view
+nowIndicator view
+nowIndicatorDotClass view
+nowIndicatorHeaderClass view
+nowIndicatorHeaderContent view
+nowIndicatorHeaderDidMount view
+nowIndicatorHeaderWillUnmount view
+nowIndicatorLineClass view
+nowIndicatorLineContent view
+nowIndicatorLineDidMount view
+nowIndicatorLineWillUnmount view
+nowIndicatorSnap view
+popoverClass view
+popoverCloseClass view
+popoverCloseContent view
+popoverFormat view
+prevHint global
+prevText global
+prevYearText global
+progressiveEventRendering view
+rerenderDelay global
+rowEventAfterClass view
+rowEventAfterContent view
+rowEventBeforeClass view
+rowEventBeforeContent view
+rowEventClass view
+rowEventInnerClass view
+rowEventTimeClass view
+rowEventTitleClass view
+rowEventTitleSticky view
+rowMoreLinkClass view
+rowMoreLinkInnerClass view
+scrollTime view
+scrollTimeReset view
+selectAllow global
+selectConstraint global
+selectLongPressDelay view
+selectMinDistance view
+selectMirror view
+selectOverlap view
+selectable view
+showNonCurrentDates view
+singleMonthClass view
+singleMonthDidMount view
+singleMonthHeaderClass view
+singleMonthHeaderInnerClass view
+singleMonthMinWidth view
+singleMonthTitleFormat view
+singleMonthWillUnmount view
+slotDuration view
+slotEventOverlap view
+slotHeaderAlign view
+slotHeaderClass view
+slotHeaderContent view
+slotHeaderDidMount view
+slotHeaderDividerClass view
+slotHeaderFormat view
+slotHeaderInnerClass view
+slotHeaderInterval view
+slotHeaderRowClass view
+slotHeaderSticky view
+slotHeaderWillUnmount view
+slotLaneClass view
+slotLaneDidMount view
+slotLaneWillUnmount view
+slotMaxTime view
+slotMinHeight view
+slotMinTime view
+snapDuration view
+startParam global
+tableBodyClass view
+tableClass view
+tableHeaderClass view
+tableHeaderSticky view
+timeZone global
+timeZoneParam global
+timedText view
+titleFormat view
+todayHint global
+todayText global
+toolbarClass view
+toolbarElements global
+toolbarSectionClass view
+toolbarTitleClass view
+unselectAuto view
+unselectCancel view
+validRange view
+viewChangeHint view
+viewClass global
+viewDidMount global
+viewHint global
+viewWillUnmount global
+visibleRange view
+weekNumberCalculation global
+weekNumberFormat view
+weekNumberHeaderClass view
+weekNumberHeaderContent view
+weekNumberHeaderDidMount view
+weekNumberHeaderInnerClass view
+weekNumberHeaderWillUnmount view
+weekNumbers view
+weekTextLong global
+weekTextShort global
+weekends view
+yearText global

@@ -32,7 +32,8 @@ import java.io.Serializable;
 class ViewOptions implements Serializable {
 
     // FC-UPDATE: check the options of the new library version against these fields: new, renamed, removed or retyped
-    //  options, and options that became view-specific or global. A renamed option changes only @JsonName.
+    //  options, and options that became view-specific or global. A renamed option changes only @JsonName. The test
+    //  resource option-names.txt lists the supported names as global or per view.
 
     /**
      * Master switch for dragging and resizing entries. Enables or disables both at the same time. Background entries
@@ -41,6 +42,13 @@ class ViewOptions implements Serializable {
      * @see <a href="https://fullcalendar.io/docs/editable">editable</a>
      */
     private Boolean editable;
+
+    /**
+     * Whether Saturday and Sunday columns are included in the calendar views.
+     *
+     * @see <a href="https://fullcalendar.io/docs/weekends">weekends</a>
+     */
+    private Boolean weekends;
 
     /**
      * CSS classes for day cells in day grid views (including the all-day section of time grid views) and the body of

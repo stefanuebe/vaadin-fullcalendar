@@ -34,7 +34,8 @@ import java.time.LocalDate;
 @Setter
 class CalendarOptions implements Serializable {
 
-    // FC-UPDATE: check the global options of the new library version against these fields, see ViewOptions.
+    // FC-UPDATE: check the global options of the new library version against these fields. The test resource
+    //  option-names.txt lists the supported names as global or per view and says how to re-derive them.
 
     /**
      * First day of the week. Without a value, the locale decides.

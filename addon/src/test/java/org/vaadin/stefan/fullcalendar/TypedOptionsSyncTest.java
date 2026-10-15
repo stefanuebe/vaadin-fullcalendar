@@ -156,11 +156,11 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     void viewValue_isSentOnlyUnderViews() {
         attach();
 
-        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setEditable(false);
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setWeekends(false);
         JsonNode changes = respond().getFirst();
 
-        assertFalse(changes.get("views").get("timeGridWeek").get("editable").asBoolean());
-        assertFalse(changes.has("editable"));
+        assertFalse(changes.get("views").get("timeGridWeek").get("weekends").asBoolean());
+        assertFalse(changes.has("weekends"));
     }
 
     @Test
@@ -174,7 +174,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     void viewGetterAlone_sendsNothing() {
         attach();
 
-        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).getEditable();
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).getWeekends();
 
         assertEquals(List.of(), respond());
         assertFalse(initialOptions().has("views"));
@@ -192,14 +192,14 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     @Test
     void viewValue_null_removesOnlyThatValue() {
         FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
-        week.setEditable(false);
+        week.setWeekends(false);
         week.setDayCellClass("week-day");
         attach();
 
-        week.setEditable(null);
+        week.setWeekends(null);
         JsonNode weekValues = respond().getFirst().get("views").get("timeGridWeek");
 
-        assertFalse(weekValues.has("editable"));
+        assertFalse(weekValues.has("weekends"));
         assertEquals("week-day", weekValues.get("dayCellClass").asString());
     }
 
@@ -207,7 +207,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     void viewClear_removesAllValuesOfThatView_andLeavesTheOthers() {
         calendar.options().setDayCellClass("calendar-wide");
         FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
-        week.setEditable(false);
+        week.setWeekends(false);
         week.setDayCellClass("week-day");
         calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayCellClass("month-day");
         attach();
@@ -225,7 +225,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     @Test
     void viewClear_ofTheOnlyView_removesViews() {
         FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
-        week.setEditable(false);
+        week.setWeekends(false);
         attach();
 
         week.clear();
@@ -236,7 +236,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     @Test
     void keptViewReference_worksAfterClear() {
         FullCalendarViewOptions week = calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK);
-        week.setEditable(false);
+        week.setWeekends(false);
         attach();
         week.clear();
         respond();
@@ -249,7 +249,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
 
     @Test
     void viewValuesClearedWhileDetached_areGoneAfterTheReattach() {
-        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setEditable(false);
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setWeekends(false);
         attach();
 
         ui.remove(calendar);
@@ -311,7 +311,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     @Test
     void rawViews_replaceTheGeneratedViews() {
         calendar.setCustomCalendarViews(THREE_DAYS);
-        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setEditable(false);
+        calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setWeekends(false);
         calendar.setViewSpecificOption("listWeek", "weekends", false);
         calendar.setRawOption("views", JsonFactory.createObject()
                 .set("dayGridMonth", JsonFactory.createObject().put("weekends", false)));
