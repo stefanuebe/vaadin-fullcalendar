@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.vaadin.stefan.fullcalendar.BusinessHours;
+import org.vaadin.stefan.fullcalendar.ClassName;
+import org.vaadin.stefan.fullcalendar.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.JsCallback;
 import org.vaadin.stefan.fullcalendar.converters.BusinessHoursConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
@@ -56,15 +58,26 @@ public class ViewOptions implements Serializable {
     private BusinessHours[] businessHours;
 
     /**
-     * CSS classes for day cells.
+     * CSS classes for day cells: fixed class names or a {@link JsCallback} that returns them.
+     *
+     * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellClass</a>
      */
-    private String dayCellClass;
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue dayCellClass;
 
     /**
-     * CSS classes for day cells, as a callback. Wins over {@link #dayCellClass} while set.
+     * Sets fixed CSS classes for day cells, separated by spaces. Null removes the option.
      */
-    @JsonName("dayCellClass")
-    private JsCallback dayCellClassCallback;
+    public void setDayCellClass(String classNames) {
+        this.dayCellClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets a callback that returns the CSS classes for day cells. Null removes the option.
+     */
+    public void setDayCellClass(JsCallback callback) {
+        this.dayCellClass = callback;
+    }
 
     // ponytail: hand-written, Lombok skips its own setter when one with this name exists
     public void setBusinessHours(BusinessHours... businessHours) {

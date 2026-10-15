@@ -57,7 +57,7 @@ import java.util.Objects;
  * date format function, such as one for {@link Option#TITLE_FORMAT}, it is an internal object of the library in
  * that call. Later calls get the calendar.
  */
-public class JsCallback implements Serializable {
+public final class JsCallback implements Serializable, ClassNameValue {
 
     private final String jsFunction;
 

@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.BusinessHours;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
+import org.vaadin.stefan.fullcalendar.ClassName;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.JsCallback;
 import org.vaadin.stefan.fullcalendar.Option;
@@ -74,9 +75,11 @@ public class OptionFieldsPrototypeView extends VerticalLayout {
                         BusinessHours.of(DayOfWeek.SATURDAY).start(10).end(14))),
                 button("remove businessHours", () -> calendar.setBusinessHours()),
                 button("dayCellClass = 'proto-cell'", () -> calendar.setDayCellClass("proto-cell")),
-                button("dayCellClass callback: today-cell", () -> calendar.setDayCellClassCallback(
-                        JsCallback.of("function(info) { return info.isToday ? 'proto-today' : ''; }"))),
-                button("remove dayCellClass callback", () -> calendar.setDayCellClassCallback(null)),
+                button("dayCellClass callback: proto-today", () -> calendar.setDayCellClass(
+                        JsCallback.of("function(info) { return info.isToday ? 'proto-today' : 'proto-other'; }"))),
+                button("remove dayCellClass", () -> calendar.setDayCellClass((String) null)),
+                button("month view: dayCellClass 'month-cell' via builder", () -> calendar.setViewOptions(CalendarViewImpl.DAY_GRID_MONTH,
+                        calendar.getViewOptions(CalendarViewImpl.DAY_GRID_MONTH).toBuilder().dayCellClass(ClassName.of("month-cell")).build())),
                 button("locale = German", () -> calendar.setCalendarLocale(Locale.GERMAN)),
                 button("week view", () -> calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK)),
                 button("month view", () -> calendar.changeView(CalendarViewImpl.DAY_GRID_MONTH)),
@@ -156,8 +159,11 @@ public class OptionFieldsPrototypeView extends VerticalLayout {
                 "editable             = " + calendar.getEditable(),
                 "firstDay             = " + calendar.getFirstDay(),
                 "businessHours        = " + (calendar.getBusinessHours() == null ? null : Arrays.toString(calendar.getBusinessHours())),
-                "dayCellClass         = " + calendar.getDayCellClass(),
-                "dayCellClassCallback = " + calendar.getDayCellClassCallback(),
+                "dayCellClass         = " + switch (calendar.getDayCellClass()) {
+                    case ClassName c -> "class names '" + c.names() + "'";
+                    case JsCallback j -> "callback";
+                    case null -> "not set";
+                },
                 "calendarLocale       = " + calendar.getCalendarLocale(),
                 "raw editable         = " + calendar.getRawOption("editable").orElse(null),
                 "raw firstDay         = " + calendar.getRawOption("firstDay").orElse(null)));
