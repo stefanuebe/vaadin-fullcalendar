@@ -2,9 +2,17 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.converter.ResourceColumnsConverter;
+import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
+import org.vaadin.stefan.fullcalendar.converters.OrderValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.WidthValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.Order;
+import org.vaadin.stefan.fullcalendar.option.OrderValue;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import tools.jackson.databind.JsonNode;
 
 import java.io.ByteArrayInputStream;
@@ -15,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,11 +45,35 @@ class SchedulerConverterTest {
     record ValueType(Class<? extends JsonItemPropertyConverter<?, ?>> converter, Map<Object, JsonNode> samples) {
     }
 
+    private static final JsCallback CALLBACK = JsCallback.of("() => {}");
+
     /**
      * The value type of each field of the scheduler data classes whose option takes several forms, with at least one
      * value per form and the client form of each. A field of a value type adds the type here, also a core value type.
      */
-    static final Map<Class<?>, ValueType> VALUE_TYPES = Map.of();
+    static final Map<Class<?>, ValueType> VALUE_TYPES = Map.of(
+            HeaderAlignValue.class, new ValueType(HeaderAlignValueConverter.class, forms(
+                    HeaderAlign.START, "start", HeaderAlign.CENTER, "center", HeaderAlign.END, "end",
+                    CALLBACK, CALLBACK.toMarkerJson())),
+            WidthValue.class, new ValueType(WidthValueConverter.class, forms(
+                    WidthValue.ofPixels(0), 0, WidthValue.ofPixels(250), 250, WidthValue.ofPercent(25), "25%",
+                    WidthValue.ofPercent(33.5), "33.5%")),
+            OrderValue.class, new ValueType(OrderValueConverter.class, forms(
+                    Order.of("title", "-id"), JsonFactory.createArray().add("title").add("-id"),
+                    Order.of(Order.descending("title"), CALLBACK),
+                    JsonFactory.createArray().add("-title").add(CALLBACK.toMarkerJson()),
+                    CALLBACK, CALLBACK.toMarkerJson())));
+
+    /** Pairs of a value and its client form; a client form that is no {@link JsonNode} is converted to one. */
+    private static Map<Object, JsonNode> forms(Object... valuesAndClientForms) {
+        Map<Object, JsonNode> forms = new LinkedHashMap<>();
+        for (int i = 0; i < valuesAndClientForms.length; i += 2) {
+            Object clientForm = valuesAndClientForms[i + 1];
+            forms.put(valuesAndClientForms[i],
+                    clientForm instanceof JsonNode node ? node : JsonUtils.toJsonNode(clientForm));
+        }
+        return forms;
+    }
 
     /**
      * Field types with a converter that are no value type, since their options take one form only, with the converter

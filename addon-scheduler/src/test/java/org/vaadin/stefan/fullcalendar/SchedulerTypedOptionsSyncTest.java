@@ -8,7 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.Order;
+import org.vaadin.stefan.fullcalendar.option.OrderValue;
 import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -169,6 +174,7 @@ class SchedulerTypedOptionsSyncTest extends BrowserlessTest {
             sample(Boolean.class, false, JsonUtils.toJsonNode(false)),
             sample(Integer.class, 2, JsonUtils.toJsonNode(2)),
             sample(String.class, "x", JsonUtils.toJsonNode("x")),
+            sample(JsCallback.class, JsCallback.of("() => {}"), JsCallback.of("() => {}").toMarkerJson()),
             sample(List.class, List.of(new ResourceColumn("title")),
                     JsonFactory.createArray().add(JsonFactory.createObject().put("field", "title"))));
 
@@ -180,13 +186,18 @@ class SchedulerTypedOptionsSyncTest extends BrowserlessTest {
     private static final Map<Class<?>, Map.Entry<Object, JsonNode>> PARAMETER_SAMPLES = Map.ofEntries(
             sample(String.class, "x", JsonUtils.toJsonNode("x")),
             sample(int.class, 1, JsonUtils.toJsonNode(1)),
-            sample(boolean.class, true, JsonUtils.toJsonNode(true)));
+            sample(boolean.class, true, JsonUtils.toJsonNode(true)),
+            // the client form of one key; the varargs setter gets an array of it, see parameterSample
+            sample(Order.Key.class, Order.ascending("x"), JsonUtils.toJsonNode("x")));
 
     /**
      * The parameter types of the setters per form of each value type a scheduler field has, the setter table of the
      * README section "Value types" of the option-field tickets.
      */
-    private static final Map<Class<?>, Set<Class<?>>> PER_FORM_PARAMETERS = Map.of();
+    private static final Map<Class<?>, Set<Class<?>>> PER_FORM_PARAMETERS = Map.of(
+            HeaderAlignValue.class, Set.of(),
+            WidthValue.class, Set.of(int.class),
+            OrderValue.class, Set.of(String[].class, Order.Key[].class));
 
     /**
      * A second value for the parameter types with two values only, so a setter that ignores its argument and writes
@@ -227,6 +238,27 @@ class SchedulerTypedOptionsSyncTest extends BrowserlessTest {
         JsonNode week = initialOptions().get("views").get("resourceTimelineWeek");
         expectedGlobal.forEach((name, json) -> assertEquals(expectedWeek.get(name), week.get(name),
                 "views.resourceTimelineWeek." + name));
+    }
+
+    /** Every form of the value type of a scheduler field reaches the client state in the library's form. */
+    @Test
+    void everyFormOfAValueTypeField_reachesTheClient() throws Exception {
+        attach();
+        List<Field> fields = SchedulerConverterTest.optionFields()
+                .filter(field -> SchedulerConverterTest.VALUE_TYPES.containsKey(field.getType())).toList();
+        assertFalse(fields.isEmpty());
+        for (Field field : fields) {
+            String name = field.isAnnotationPresent(JsonName.class)
+                    ? field.getAnnotation(JsonName.class).value() : field.getName();
+            Method setter = calendar.options().getClass().getMethod("set" + suffix(field), field.getType());
+            for (Map.Entry<Object, JsonNode> form
+                    : SchedulerConverterTest.VALUE_TYPES.get(field.getType()).samples().entrySet()) {
+                setter.invoke(calendar.options(), form.getKey());
+                List<JsonNode> sent = respond();
+                assertEquals(1, sent.size(), name + " = " + form.getKey());
+                assertEquals(form.getValue(), sent.getFirst().get(name), name + " = " + form.getKey());
+            }
+        }
     }
 
     private static String suffix(Field field) {

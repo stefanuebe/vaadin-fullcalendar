@@ -18,31 +18,31 @@ package org.vaadin.stefan.fullcalendar.converters;
 
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import org.vaadin.stefan.fullcalendar.option.EntryOrder;
-import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.Order;
+import org.vaadin.stefan.fullcalendar.option.OrderValue;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 
 /**
- * Converts an {@link EntryOrderValue} to its client form and back: an order as an array of property names, with a
+ * Converts an {@link OrderValue} to its client form and back: an order as an array of property names, with a
  * leading {@code -} for descending, and callback markers; a single callback as its marker. Reading back also takes the
  * library's comma-separated string.
  */
-public class EntryOrderValueConverter implements JsonItemPropertyConverter<EntryOrderValue, Object> {
+public class OrderValueConverter implements JsonItemPropertyConverter<OrderValue, Object> {
 
     @Override
     public boolean supports(Object type) {
-        return type instanceof EntryOrderValue;
+        return type instanceof OrderValue;
     }
 
     @Override
-    public JsonNode toClientModel(EntryOrderValue serverValue, Object currentInstance) {
+    public JsonNode toClientModel(OrderValue serverValue, Object currentInstance) {
         return switch (serverValue) {
-            case EntryOrder order -> {
+            case Order order -> {
                 ArrayNode array = JsonFactory.createArray();
                 order.keys().forEach(key -> array.add(switch (key) {
-                    case EntryOrder.Property property ->
+                    case Order.Property property ->
                             JsonUtils.toJsonNode((property.descending() ? "-" : "") + property.name());
                     case JsCallback callback -> callback.toMarkerJson();
                 }));
@@ -53,22 +53,22 @@ public class EntryOrderValueConverter implements JsonItemPropertyConverter<Entry
     }
 
     @Override
-    public EntryOrderValue toServerModel(JsonNode clientValue, Object currentInstance) {
+    public OrderValue toServerModel(JsonNode clientValue, Object currentInstance) {
         if (clientValue.isString()) {
-            return EntryOrder.of(clientValue.asString().split("\\s*,\\s*"));
+            return Order.of(clientValue.asString().split("\\s*,\\s*"));
         }
         if (clientValue.isArray()) {
-            return EntryOrder.of(clientValue.valueStream().map(EntryOrderValueConverter::toKey).toArray(EntryOrder.Key[]::new));
+            return Order.of(clientValue.valueStream().map(OrderValueConverter::toKey).toArray(Order.Key[]::new));
         }
         if (JsCallback.isMarker(clientValue)) {
             return JsCallback.fromMarkerJson(clientValue);
         }
-        throw new IllegalArgumentException("Not an entry order value: " + clientValue);
+        throw new IllegalArgumentException("Not an order value: " + clientValue);
     }
 
-    private static EntryOrder.Key toKey(JsonNode key) {
+    private static Order.Key toKey(JsonNode key) {
         if (key.isString()) {
-            return EntryOrder.of(key.asString()).keys().getFirst();
+            return Order.of(key.asString()).keys().getFirst();
         }
         if (JsCallback.isMarker(key)) {
             return JsCallback.fromMarkerJson(key);

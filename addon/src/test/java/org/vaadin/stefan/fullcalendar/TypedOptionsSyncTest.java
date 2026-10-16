@@ -2,14 +2,14 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
+import org.vaadin.stefan.fullcalendar.option.Order;
+import org.vaadin.stefan.fullcalendar.option.OrderValue;
 import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import org.vaadin.stefan.fullcalendar.option.DurationValue;
-import org.vaadin.stefan.fullcalendar.option.EntryOrder;
-import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -570,7 +570,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(boolean.class, true, JsonUtils.toJsonNode(true)),
             sample(Boolean.class, true, JsonUtils.toJsonNode(true)),
             sample(BusinessHours.class, BusinessHours.businessWeek(), BusinessHours.businessWeek().toJson()),
-            sample(EntryOrder.Key.class, EntryOrder.ascending("x"), JsonUtils.toJsonNode("x")),
+            sample(Order.Key.class, Order.ascending("x"), JsonUtils.toJsonNode("x")),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
             sample(LocalDateTime.class, LocalDateTime.of(2026, 1, 2, 3, 4), JsonUtils.toJsonNode("2026-01-02T03:04Z")),
             sample(CalendarView.class, CalendarViewImpl.TIME_GRID_DAY, JsonUtils.toJsonNode("timeGridDay")),
@@ -606,7 +606,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(ConstraintValue.class, Set.of(String.class, BusinessHours[].class, ConstraintValue.Window[].class)),
             Map.entry(NowValue.class, Set.of(LocalDate.class, LocalDateTime.class)),
             Map.entry(TextValue.class, Set.of(String.class)),
-            Map.entry(EntryOrderValue.class, Set.of(String[].class, EntryOrder.Key[].class)),
+            Map.entry(OrderValue.class, Set.of(String[].class, Order.Key[].class)),
             Map.entry(DurationValue.class, Set.of(Duration.class, Period.class, String.class)),
             Map.entry(WidthValue.class, Set.of(int.class)),
             Map.entry(DateRangeValue.class, Set.of()),

@@ -22,16 +22,17 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The order of entries that share a time, for an option that takes an {@link EntryOrderValue}: a list of sort keys,
- * each an entry property or a compare function. The library compares by the first key and goes to the next on a tie.
+ * The order of items, for an option that takes an {@link OrderValue}: a list of sort keys, each a property of the
+ * items (an entry or a resource, depending on the option) or a compare function. The library compares by the first key
+ * and goes to the next on a tie.
  * <pre>{@code
- * EntryOrder.of("title", "-start");   // by title, then by start, latest first
- * EntryOrder.of(EntryOrder.ascending("title"), JsCallback.of("(a, b) => a.extendedProps.rank - b.extendedProps.rank"));
+ * Order.of("title", "-start");   // by title, then by start, latest first
+ * Order.of(Order.ascending("title"), JsCallback.of("(a, b) => a.extendedProps.rank - b.extendedProps.rank"));
  * }</pre>
  *
  * @param keys the sort keys, at least one
  */
-public record EntryOrder(List<Key> keys) implements EntryOrderValue {
+public record Order(List<Key> keys) implements OrderValue {
 
     /**
      * Creates the order. The list is copied, so a later change to the passed list does not change the order.
@@ -39,7 +40,7 @@ public record EntryOrder(List<Key> keys) implements EntryOrderValue {
      * @throws NullPointerException     when null is passed or contained
      * @throws IllegalArgumentException when no key is passed
      */
-    public EntryOrder {
+    public Order {
         keys = List.copyOf(Objects.requireNonNull(keys));
         if (keys.isEmpty()) {
             throw new IllegalArgumentException("At least one sort key is needed");
@@ -54,8 +55,8 @@ public record EntryOrder(List<Key> keys) implements EntryOrderValue {
      * @throws NullPointerException     when null is passed or contained
      * @throws IllegalArgumentException when no name is passed or a name is empty
      */
-    public static EntryOrder of(String... properties) {
-        return new EntryOrder(Arrays.stream(properties)
+    public static Order of(String... properties) {
+        return new Order(Arrays.stream(properties)
                 .<Key>map(name -> name.startsWith("-") ? descending(name.substring(1)) : ascending(name))
                 .toList());
     }
@@ -68,8 +69,8 @@ public record EntryOrder(List<Key> keys) implements EntryOrderValue {
      * @throws NullPointerException     when null is passed or contained
      * @throws IllegalArgumentException when no key is passed
      */
-    public static EntryOrder of(Key... keys) {
-        return new EntryOrder(List.of(keys));
+    public static Order of(Key... keys) {
+        return new Order(List.of(keys));
     }
 
     /**
@@ -97,14 +98,14 @@ public record EntryOrder(List<Key> keys) implements EntryOrderValue {
     }
 
     /**
-     * A sort key: an entry property or a {@link JsCallback} that compares two entries and returns a negative number,
-     * zero or a positive number. A {@code switch} over it needs no {@code default} branch.
+     * A sort key: a property or a {@link JsCallback} that compares two items and returns a negative number, zero or a
+     * positive number. A {@code switch} over it needs no {@code default} branch.
      */
     public sealed interface Key extends Serializable permits Property, JsCallback {
     }
 
     /**
-     * A sort key that sorts by an entry property.
+     * A sort key that sorts by a property of the items.
      *
      * @param name       the property name, such as {@code "title"}
      * @param descending whether it sorts descending
@@ -114,7 +115,7 @@ public record EntryOrder(List<Key> keys) implements EntryOrderValue {
         public Property {
             Objects.requireNonNull(name);
             if (name.isEmpty() || name.startsWith("-")) {
-                throw new IllegalArgumentException("Not a property name: \"" + name + "\". Use EntryOrder.descending "
+                throw new IllegalArgumentException("Not a property name: \"" + name + "\". Use Order.descending "
                         + "to sort descending.");
             }
         }

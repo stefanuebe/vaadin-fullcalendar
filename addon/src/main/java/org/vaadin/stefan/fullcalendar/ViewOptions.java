@@ -28,11 +28,11 @@ import org.vaadin.stefan.fullcalendar.converters.DateRangeValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekArrayConverter;
 import org.vaadin.stefan.fullcalendar.converters.DurationValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.EntryLimitValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.EntryOrderValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeightValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ListDayFormatValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.NowValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.OrderValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.OverlapValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.SlotHeaderFormatValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.StickyValueConverter;
@@ -53,14 +53,14 @@ import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
 import org.vaadin.stefan.fullcalendar.option.DurationValue;
 import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
-import org.vaadin.stefan.fullcalendar.option.EntryOrder;
-import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
+import org.vaadin.stefan.fullcalendar.option.Order;
+import org.vaadin.stefan.fullcalendar.option.OrderValue;
 import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
 import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
@@ -5219,7 +5219,7 @@ class ViewOptions implements Serializable {
      * then all-day ones, then by title.
      * <p>
      * It takes a list of entry property names, where a leading {@code -} sorts descending, a mix with compare functions
-     * ({@link EntryOrder}), or a single {@link JsCallback} that compares two entries. If a lower ranked entry fits into
+     * ({@link Order}), or a single {@link JsCallback} that compares two entries. If a lower ranked entry fits into
      * the layout more compactly, the library places it earlier, unless {@link #getEntryOrderStrict() entryOrderStrict}
      * is set.
      * <p>
@@ -5227,9 +5227,9 @@ class ViewOptions implements Serializable {
      *
      * @see <a href="https://fullcalendar.io/docs/eventOrder">entryOrder</a>
      */
-    @JsonConverter(EntryOrderValueConverter.class)
+    @JsonConverter(OrderValueConverter.class)
     @JsonName("eventOrder")
-    private EntryOrderValue entryOrder;
+    private OrderValue entryOrder;
 
     /**
      * Sets the order from entry property names, see {@link #getEntryOrder()}.
@@ -5238,7 +5238,7 @@ class ViewOptions implements Serializable {
      *        option
      */
     public void setEntryOrder(String... properties) {
-        this.entryOrder = properties == null ? null : EntryOrder.of(properties);
+        this.entryOrder = properties == null ? null : Order.of(properties);
     }
 
     /**
@@ -5246,8 +5246,8 @@ class ViewOptions implements Serializable {
      *
      * @param keys the sort keys, at least one, or null to remove the option
      */
-    public void setEntryOrder(EntryOrder.Key... keys) {
-        this.entryOrder = keys == null ? null : EntryOrder.of(keys);
+    public void setEntryOrder(Order.Key... keys) {
+        this.entryOrder = keys == null ? null : Order.of(keys);
     }
 
     /**
@@ -5255,7 +5255,7 @@ class ViewOptions implements Serializable {
      *
      * @param value the order or a compare callback, or null to remove the option
      */
-    public void setEntryOrder(EntryOrderValue value) {
+    public void setEntryOrder(OrderValue value) {
         this.entryOrder = value;
     }
 
