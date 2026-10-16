@@ -166,5 +166,47 @@ class CalendarOptions implements Serializable {
 
     // Entry display and layout
 
+    /**
+     * CSS classes for the root element of the calendar. FullCalendar adds them to the classes the add-on sets there.
+     * <p>
+     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
+     * {@code borderlessBottom}. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/className">className</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue className;
+
+    /**
+     * Sets fixed CSS classes for the root element, see {@link #getClassName()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setClassName(String classNames) {
+        this.className = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes for the root element in any form, see {@link #getClassName()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setClassName(ClassNameValue value) {
+        this.className = value;
+    }
+
+    /**
+     * The milliseconds the calendar waits after an operation that may rerender it, such as changing the view or adding
+     * an entry, before it rerenders everything at once. This can reduce the number of rerenders. Without a value, the
+     * calendar rerenders at once.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/rerenderDelay">rerenderDelay</a>
+     */
+    private Integer rerenderDelay;
+
     // Texts, hints and formats
 }

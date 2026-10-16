@@ -22,11 +22,23 @@ import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
+import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
+import org.vaadin.stefan.fullcalendar.option.EntryOrder;
+import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
+import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.AutoBooleanConverter;
+import org.vaadin.stefan.fullcalendar.converters.BusinessHoursValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.EntryLimitValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.EntryOrderValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.HeightValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 
@@ -3048,6 +3060,450 @@ class ViewOptions implements Serializable {
     // Interaction
 
     // Entry display and layout
+
+    /**
+     * The width-to-height ratio of the calendar. The calendar fills its available width, and this ratio sets its
+     * height, so a larger number makes a smaller height. It applies to the content area. The library default is 1.35.
+     * <p>
+     * It is used only while neither {@code height} nor a {@link #getContentHeight() content height} is set. The
+     * add-on sets the calendar to full height by default.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/aspectRatio">aspectRatio</a>
+     */
+    private Double aspectRatio;
+
+    /**
+     * Default color for all background entries, a CSS color such as {@code "#ff9f89"}. FullCalendar sets it on each
+     * background entry's outermost element as the CSS variable {@code --fc-event-color}, so own styles can read it.
+     * <p>
+     * The color of an entry or of its entry source takes precedence, see {@link Entry#setColor(String)}. For foreground
+     * entries use {@link #getEntryColor() entryColor}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/backgroundEventColor">backgroundEventColor</a>
+     */
+    @JsonName("backgroundEventColor")
+    private String backgroundEntryColor;
+
+    /**
+     * Whether the calendar removes all its outer borders. Use {@code borderlessTop}, {@code borderlessBottom} or
+     * {@code borderlessX} to remove only some of them.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/borderless">borderless</a>
+     */
+    private Boolean borderless;
+
+    /**
+     * Whether the calendar removes only its bottom outer border.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/borderless">borderlessBottom</a>
+     */
+    private Boolean borderlessBottom;
+
+    /**
+     * Whether the calendar removes only its top outer border.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/borderless">borderlessTop</a>
+     */
+    private Boolean borderlessTop;
+
+    /**
+     * Whether the calendar removes its left and right outer borders. It also indents the built-in toolbar to align with
+     * the calendar body.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/borderless">borderlessX</a>
+     */
+    private Boolean borderlessX;
+
+    /**
+     * The time slots the calendar emphasizes as business hours. {@link BusinessHoursValue#DEFAULT} uses the library's
+     * default, Monday to Friday from 9am to 5pm. Own hours come from {@link BusinessHoursValue#of(BusinessHours...)}.
+     * {@link BusinessHoursValue#NONE} switches the emphasis off, which is also the library's default.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/businessHours">businessHours</a>
+     */
+    @JsonConverter(BusinessHoursValueConverter.class)
+    private BusinessHoursValue businessHours;
+
+    /**
+     * Sets own business hours, see {@link #getBusinessHours()}.
+     *
+     * @param hours the business hours, at least one, or null to remove the option
+     */
+    public void setBusinessHours(BusinessHours... hours) {
+        this.businessHours = hours == null ? null : BusinessHoursValue.of(hours);
+    }
+
+    /**
+     * Sets the business hours in any form, see {@link #getBusinessHours()}.
+     *
+     * @param value the business hours, {@link BusinessHoursValue#DEFAULT} or {@link BusinessHoursValue#NONE}, or null
+     *        to remove the option
+     */
+    public void setBusinessHours(BusinessHoursValue value) {
+        this.businessHours = value;
+    }
+
+    /**
+     * Sets the color scheme of this calendar only, {@code "light"}, {@code "dark"} or another value a theme
+     * understands.
+     * <p>
+     * Without this option, the FullCalendar Vaadin theme follows the CSS color-scheme of the page, which
+     * {@code Page#setColorScheme} sets. A stock theme follows only a {@code data-color-scheme="dark"} attribute on
+     * {@code <html>}, the body or another ancestor of the calendar, not {@code Page#setColorScheme}.
+     * <p>
+     * With Lumo, the option cannot make a calendar light while the application is dark. Lumo's dark mode sets fixed
+     * dark colors on the page, and the calendar inherits them. A dark calendar in a light Lumo application works.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://github.com/stefanuebe/vaadin-fullcalendar/wiki/Themes#color-scheme">
+     *     Themes: Color scheme</a>
+     * @see <a href="https://fullcalendar.io/docs/color-palettes">colorScheme</a>
+     */
+    private String colorScheme;
+
+    /**
+     * Whether the title of column entries sticks to the top edge of the visible area while the user scrolls vertically
+     * past a long timed entry, so the title stays readable. Themes can change the default.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/column-event-render-hooks">columnEventTitleSticky</a>
+     */
+    @JsonName("columnEventTitleSticky")
+    private Boolean columnEntryTitleSticky;
+
+    /**
+     * The height of the view area of the calendar. Without a value, the calendar height follows the
+     * {@link #getAspectRatio() aspect ratio}, as long as no {@code height} is set.
+     * <p>
+     * A pixel height is exact, and the view scrolls when its content does not fit. {@link HeightValue#AUTO} gives the
+     * view the natural height of its content, without scrollbars. A CSS length such as {@code "50vh"} sets the height
+     * in that unit.
+     * <p>
+     * A pixel or CSS value has no effect while {@code height} is set, which the add-on does by default (full
+     * height). {@link HeightValue#AUTO} still works.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/contentHeight">contentHeight</a>
+     */
+    @JsonConverter(HeightValueConverter.class)
+    private HeightValue contentHeight;
+
+    /**
+     * Sets the height in pixels, see {@link #getContentHeight()}.
+     *
+     * @param pixels the height in pixels, not negative
+     */
+    public void setContentHeight(int pixels) {
+        this.contentHeight = HeightValue.ofPixels(pixels);
+    }
+
+    /**
+     * Sets the height as a CSS length, see {@link #getContentHeight()}.
+     *
+     * @param length a CSS length such as {@code "50vh"}, or null to remove the option
+     */
+    public void setContentHeight(String length) {
+        this.contentHeight = length == null ? null : HeightValue.ofCss(length);
+    }
+
+    /**
+     * Sets the height in any form, see {@link #getContentHeight()}.
+     *
+     * @param value the height, {@link HeightValue#AUTO} for the natural height of the content, or null to remove the
+     *        option
+     */
+    public void setContentHeight(HeightValue value) {
+        this.contentHeight = value;
+    }
+
+    /**
+     * The maximum number of entries in a day cell of day grid views, not counting the "+N more" link. The rest is shown
+     * in a popover. For time grid and timeline views use {@link #getEntryMaxStack() entryMaxStack}.
+     * <p>
+     * A number limits it to that many. {@link EntryLimitValue#CELL_HEIGHT} limits it to what fits into the height of
+     * the cell. {@link EntryLimitValue#NONE} shows all entries, which is the library's default.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">dayMaxEvents</a>
+     */
+    @JsonConverter(EntryLimitValueConverter.class)
+    @JsonName("dayMaxEvents")
+    private EntryLimitValue dayMaxEntries;
+
+    /**
+     * Sets a fixed limit, see {@link #getDayMaxEntries()}.
+     *
+     * @param count the number, not negative
+     */
+    public void setDayMaxEntries(int count) {
+        this.dayMaxEntries = EntryLimitValue.of(count);
+    }
+
+    /**
+     * Sets the limit in any form, see {@link #getDayMaxEntries()}.
+     *
+     * @param value the limit, or null to remove the option
+     */
+    public void setDayMaxEntries(EntryLimitValue value) {
+        this.dayMaxEntries = value;
+    }
+
+    /**
+     * The maximum number of stacked entry levels in a day cell of day grid views, including the "+N more" link. The
+     * rest is shown in a popover. For time grid and timeline views use {@link #getEntryMaxStack() entryMaxStack}.
+     * <p>
+     * A number limits it to that many. {@link EntryLimitValue#CELL_HEIGHT} limits it to what fits into the height of
+     * the cell. {@link EntryLimitValue#NONE} shows all entries, which is the library's default.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dayMaxEventRows">dayMaxEventRows</a>
+     */
+    @JsonConverter(EntryLimitValueConverter.class)
+    @JsonName("dayMaxEventRows")
+    private EntryLimitValue dayMaxEntryRows;
+
+    /**
+     * Sets a fixed limit, see {@link #getDayMaxEntryRows()}.
+     *
+     * @param count the number, not negative
+     */
+    public void setDayMaxEntryRows(int count) {
+        this.dayMaxEntryRows = EntryLimitValue.of(count);
+    }
+
+    /**
+     * Sets the limit in any form, see {@link #getDayMaxEntryRows()}.
+     *
+     * @param value the limit, or null to remove the option
+     */
+    public void setDayMaxEntryRows(EntryLimitValue value) {
+        this.dayMaxEntryRows = value;
+    }
+
+    /**
+     * Whether the calendar shows the end time of an entry. An entry without an end, or a calendar that does not show
+     * the time ({@link #getDisplayEntryTime() displayEntryTime}), shows no end time regardless. Without a value, the
+     * view decides. It shows no end time in the month and week day grid views, and an end time in the time grid
+     * views and the day grid day view.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/displayEventEnd">displayEventEnd</a>
+     */
+    @JsonName("displayEventEnd")
+    private Boolean displayEntryEnd;
+
+    /**
+     * Whether the calendar shows the time text of an entry. It applies to entries that have times only. All-day entries
+     * show no time text anyway. Without a value, the view decides.
+     * The time shows in all day grid and time grid views. In timeline views it depends on the duration.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/displayEventTime">displayEventTime</a>
+     */
+    @JsonName("displayEventTime")
+    private Boolean displayEntryTime;
+
+    /**
+     * The color for all foreground entries, any CSS color such as {@code "#378006"}. It does not apply to background
+     * entries, use {@link #getBackgroundEntryColor() backgroundEntryColor} for them. FullCalendar sets the color on
+     * each entry's element as the CSS variable {@code --fc-event-color}. The theme's styles read it, so where the
+     * color shows depends on the theme. Own styles can read the variable as well.
+     * <p>
+     * The color of an entry or of its entry source takes precedence, see {@link Entry#setColor(String)}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventColor">eventColor</a>
+     */
+    @JsonName("eventColor")
+    private String entryColor;
+
+    /**
+     * The contrast color for all foreground entries, any CSS color. It colors the text and other elements that have to
+     * be visible against the background of the entry. FullCalendar sets it on each entry's element as the CSS variable
+     * {@code --fc-event-contrast-color}, which the theme's styles and own styles can read.
+     * <p>
+     * The color of an entry or of its entry source takes precedence, see {@link Entry#setContrastColor(String)}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventContrastColor">eventContrastColor</a>
+     */
+    @JsonName("eventContrastColor")
+    private String entryContrastColor;
+
+    /**
+     * The maximum number of entries that stack top to bottom in timeline views, and left to right in time grid views.
+     * When more entries overlap, a more link stands for the hidden ones and opens a popover with them by default.
+     * Without a value, all entries show. For day grid views use
+     * {@link #getDayMaxEntryRows() dayMaxEntryRows} or {@link #getDayMaxEntries() dayMaxEntries}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventMaxStack">eventMaxStack</a>
+     */
+    @JsonName("eventMaxStack")
+    private Integer entryMaxStack;
+
+    /**
+     * The minimum height in pixels an entry may have in time grid views. The library default is 15.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventMinHeight">eventMinHeight</a>
+     */
+    @JsonName("eventMinHeight")
+    private Integer entryMinHeight;
+
+    /**
+     * The order of entries within the same day. In time grid views it is the horizontal order, otherwise the vertical
+     * order. The library default is {@code "start,-duration,allDay,title"}: earlier entries first, then longer ones,
+     * then all-day ones, then by title.
+     * <p>
+     * It takes a list of entry property names, where a leading {@code -} sorts descending, a mix with compare functions
+     * ({@link EntryOrder}), or a single {@link JsCallback} that compares two entries. If a lower ranked entry fits into
+     * the layout more compactly, the library places it earlier, unless {@link #getEntryOrderStrict() entryOrderStrict}
+     * is set.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventOrder">entryOrder</a>
+     */
+    @JsonConverter(EntryOrderValueConverter.class)
+    @JsonName("eventOrder")
+    private EntryOrderValue entryOrder;
+
+    /**
+     * Sets the order from entry property names, see {@link #getEntryOrder()}.
+     *
+     * @param properties the names, such as {@code "title"} or {@code "-start"} for descending, or null to remove the
+     *        option
+     */
+    public void setEntryOrder(String... properties) {
+        this.entryOrder = properties == null ? null : EntryOrder.of(properties);
+    }
+
+    /**
+     * Sets the order from sort keys, which may mix properties and compare functions, see {@link #getEntryOrder()}.
+     *
+     * @param keys the sort keys, at least one, or null to remove the option
+     */
+    public void setEntryOrder(EntryOrder.Key... keys) {
+        this.entryOrder = keys == null ? null : EntryOrder.of(keys);
+    }
+
+    /**
+     * Sets the order in any form, see {@link #getEntryOrder()}.
+     *
+     * @param value the order or a compare callback, or null to remove the option
+     */
+    public void setEntryOrder(EntryOrderValue value) {
+        this.entryOrder = value;
+    }
+
+    /**
+     * Whether the calendar follows {@link #getEntryOrder() entryOrder} strictly. Without it, the calendar prefers
+     * compactness over the exact order.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventOrderStrict">eventOrderStrict</a>
+     */
+    @JsonName("eventOrderStrict")
+    private Boolean entryOrderStrict;
+
+    /**
+     * The height threshold in pixels for the "short" style of an entry in time grid views. The library default is 30.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventShortHeight">eventShortHeight</a>
+     */
+    @JsonName("eventShortHeight")
+    private Integer entryShortHeight;
+
+    /**
+     * Whether day grid views may visually split a multi-day entry around a "+more" link. When a day cell overflows (see
+     * {@link #getDayMaxEntries() dayMaxEntries}), a "+more" link replaces the excess entries.
+     * <p>
+     * With {@code true}, a multi-day entry that spans such a cell is split. The parts before and after the overflowing
+     * cell are still shown and the cell itself shows the link. With {@code false}, the multi-day entry is treated as a
+     * unit and is hidden completely, absorbed into the "+more" link, if any cell it occupies overflows. The library
+     * default is {@code true}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventSlicing">eventSlicing</a>
+     */
+    @JsonName("eventSlicing")
+    private Boolean entrySlicing;
+
+    /**
+     * Whether the horizontal scrollbar of the view sticks to the bottom of the viewport while the user scrolls, for
+     * views that have one, such as timeline views. {@link AutoBoolean#AUTO}, the library default, activates it when the
+     * calendar height is automatic and so can be very tall.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/footerScrollbarSticky">footerScrollbarSticky</a>
+     */
+    @JsonConverter(AutoBooleanConverter.class)
+    private AutoBoolean footerScrollbarSticky;
+
+    /**
+     * Whether the calendar renders each asynchronous entry source as soon as it has been received ({@code true}, more
+     * renders) or waits until all sources have been received and renders them at once ({@code false}, the library
+     * default).
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/progressiveEventRendering">progressiveEventRendering</a>
+     */
+    @JsonName("progressiveEventRendering")
+    private Boolean progressiveEntryRendering;
+
+    /**
+     * Whether the title of row entries sticks to the start edge of the visible area while the user scrolls horizontally
+     * past a long entry, so the title stays readable. Themes can change the default.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/row-event-render-hooks">rowEventTitleSticky</a>
+     */
+    @JsonName("rowEventTitleSticky")
+    private Boolean rowEntryTitleSticky;
+
+    /**
+     * Whether the date headers stick to the top of the viewport while the user scrolls. {@link AutoBoolean#AUTO}, the
+     * library default, activates it when the calendar height is automatic and so can be very tall.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/tableHeaderSticky">tableHeaderSticky</a>
+     */
+    @JsonConverter(AutoBooleanConverter.class)
+    private AutoBoolean tableHeaderSticky;
 
     // Texts, hints and formats
 }
