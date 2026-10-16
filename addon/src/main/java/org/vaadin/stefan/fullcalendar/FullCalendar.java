@@ -214,19 +214,28 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <p></p>
      * Any "set some option" calls will override the given initial options, when they use the same key.
      * <p></p>
+     * The time zone ({@code timeZone}) is not kept as an option of its own but goes into
+     * {@link FullCalendarOptions#getTimeZone()}, because the server converts the entry times with it. {@code "local"}
+     * becomes {@link Timezone#LOCAL}.
+     * <p></p>
      * Uses {@link InMemoryEntryProvider} by default.
      *
      * @param initialOptions initial options
      * @throws NullPointerException when null is passed
+     * @throws IllegalArgumentException when the time zone is not a valid time zone id
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public FullCalendar(ObjectNode initialOptions) {
-        boolean localTimezone = initialOptions.path(Option.TIMEZONE.getOptionKey()).isString()
-                && isLocalTimezone(initialOptions.get(Option.TIMEZONE.getOptionKey()).asString());
-        if (localTimezone) {
-            // the field already starts as Timezone.LOCAL, so the key is not kept as a raw option
+        // the time zone goes into its field, because the server converts entry times with it. It cannot be a raw option.
+        String timeZoneKey = Option.TIMEZONE.getOptionKey();
+        Timezone timeZone = null;
+        if (initialOptions.has(timeZoneKey)) {
+            if (initialOptions.hasNonNull(timeZoneKey)) {
+                String id = initialOptions.get(timeZoneKey).asString();
+                timeZone = isLocalTimezone(id) ? Timezone.LOCAL : parseTimezone(id);
+            }
             initialOptions = initialOptions.deepCopy();
-            initialOptions.remove(Option.TIMEZONE.getOptionKey());
+            initialOptions.remove(timeZoneKey);
         }
 
         if (initialOptions.hasNonNull("views")) {
@@ -249,8 +258,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             }
         });
 
-        if (localTimezone) {
-            options().setTimeZone(Timezone.LOCAL);
+        if (timeZone != null) {
+            options().setTimeZone(timeZone);
         }
 
         if (!initialOptions.hasNonNull(Option.LOCALE.getOptionKey())) {

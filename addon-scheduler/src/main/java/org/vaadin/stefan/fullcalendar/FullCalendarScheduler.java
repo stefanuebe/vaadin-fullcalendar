@@ -105,11 +105,15 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * <br><br>
      * Also, options set this way are not cached in the server side state. Calling any of the
      * {@code getOption(...)} methods will result in {@code null} (or the respective native default).
+     * <br><br>
+     * The time zone ({@code timeZone}) goes into {@link FullCalendarOptions#getTimeZone()}, see
+     * {@link FullCalendar#FullCalendar(ObjectNode)}.
      *
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      *
      * @param initialOptions initial options
      * @throws NullPointerException when null is passed
+     * @throws IllegalArgumentException when the time zone is not a valid time zone id
      */
     public FullCalendarScheduler(ObjectNode initialOptions) {
         super(initialOptions);

@@ -305,7 +305,8 @@ public class RawOptionSyncTest extends BrowserlessTest {
         attach();
 
         assertFalse(initialOptions().get("weekends").asBoolean());
-        assertEquals("Europe/Berlin", initialOptions().get("timeZone").asString());
+        assertEquals("Europe/Berlin", initialOptions().get("timeZone").asString(),
+                "the time zone comes from the field, not from the raw JSON");
         assertEquals("dayGrid", initialOptions().get("views").get("myView").get("type").asString());
         assertTrue(calendar.getCustomCalendarViews().containsKey("myView"));
     }
