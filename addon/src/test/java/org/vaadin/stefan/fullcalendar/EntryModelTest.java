@@ -693,4 +693,57 @@ public class EntryModelTest {
             assertEquals("auto", json.get("display").asString());
         }
     }
+
+    // exrule — always the object form, positional weekdays as {weekday, n}
+
+    @Test
+    void exruleJson_positionalWeekday_isObject() {
+        JsonNode json = RRule.monthly().byWeekday("-1fr", "2su", "mo").toExruleJson();
+        assertTrue(json.isObject());
+        JsonNode days = json.get("byweekday");
+        assertEquals(4, days.get(0).get("weekday").asInt());
+        assertEquals(-1, days.get(0).get("n").asInt());
+        assertEquals(6, days.get(1).get("weekday").asInt());
+        assertEquals(2, days.get(1).get("n").asInt());
+        assertTrue(days.get(2).isString());
+        assertEquals("mo", days.get(2).asString());
+    }
+
+    @Test
+    void exruleJson_plainWeekday_staysString() {
+        JsonNode days = RRule.weekly().byWeekday(DayOfWeek.MONDAY).toExruleJson().get("byweekday");
+        assertTrue(days.get(0).isString());
+    }
+
+    @Test
+    void exruleJson_rawRule_throws() {
+        assertThrows(IllegalArgumentException.class, () -> RRule.ofRaw("FREQ=WEEKLY").toExruleJson());
+    }
+
+    @Test
+    void exruleOfEntry_positionalWeekday_isObjectWhileMainRuleStaysString() {
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.FRIDAY)
+                .excludeRules(RRule.monthly().byWeekday("-1fr")));
+        ObjectNode json = entry.toJson();
+        assertTrue(json.get("exrule").isObject());
+        assertEquals(-1, json.get("exrule").get("byweekday").get(0).get("n").asInt());
+
+        Entry positionalMain = new Entry();
+        positionalMain.setRRule(RRule.monthly().byWeekday("-1fr"));
+        assertTrue(positionalMain.toJson().get("rrule").isString());
+    }
+
+    @Test
+    void exruleOfEntry_severalRules_eachInObjectForm() {
+        Entry entry = new Entry();
+        entry.setRRule(RRule.weekly().byWeekday(DayOfWeek.FRIDAY)
+                .excludeRules(RRule.monthly().byWeekday("-1fr"), RRule.weekly().byWeekday("sa")));
+        JsonNode exrule = entry.toJson().get("exrule");
+        assertTrue(exrule.isArray());
+        assertEquals(2, exrule.size());
+        assertTrue(exrule.get(0).isObject());
+        assertEquals(-1, exrule.get(0).get("byweekday").get(0).get("n").asInt());
+        assertTrue(exrule.get(1).isObject());
+    }
 }

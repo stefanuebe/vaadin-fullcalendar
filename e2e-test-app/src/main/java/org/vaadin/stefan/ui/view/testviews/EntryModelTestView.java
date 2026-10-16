@@ -201,6 +201,25 @@ public class EntryModelTestView extends VerticalLayout {
         );
         provider.addEntry(exruleEntry);
 
+        // 11. Exrule with a positional weekday — weekly Fridays in March 2025 (7, 14, 21, 28),
+        //     exrule: the last Friday of the month (28). Expected: 3 occurrences (7, 14, 21).
+        Entry exruleLastFriday = new Entry();
+        exruleLastFriday.setTitle("Exrule Positional");
+        exruleLastFriday.setAllDay(true);
+        exruleLastFriday.setRRule(
+                RRule.weekly()
+                        .dtstart(LocalDate.of(2025, 3, 1))
+                        .until(LocalDate.of(2025, 3, 31))
+                        .byWeekday(DayOfWeek.FRIDAY)
+                        .excludeRules(
+                                RRule.monthly()
+                                        .dtstart(LocalDate.of(2025, 3, 1))
+                                        .until(LocalDate.of(2025, 3, 31))
+                                        .byWeekday("-1fr")
+                        )
+        );
+        provider.addEntry(exruleLastFriday);
+
         calendar.setEntryProvider(provider);
 
         // --- Click listener updates counter and title ---
