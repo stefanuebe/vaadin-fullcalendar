@@ -300,14 +300,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         addClassName("vaadin-full-calendar");
         setTheme(FullCalendarTheme.VAADIN);
 
-        // Addon default: editable=true. FC's native default is false; since #212 the per-entry
-        // editable flag is no longer force-pushed, so without this the out-of-the-box UX would
-        // flip to "nothing draggable". Don't override an explicit value in the initialOptions ctor.
-        if (constructorInitialOptions == null
-                || !constructorInitialOptions.hasNonNull(Option.EDITABLE.getOptionKey())) {
-            viewOptions.setEditable(true);
-        }
-
         optionsChanged(); // the option state reaches the client on the first attach, even if no option is set
     }
 

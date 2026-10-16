@@ -63,8 +63,8 @@ public class FullCalendarTest {
 
         // dayMaxEvents + height + timeZone. The locale is a typed field.
         assertExistingOptionCount(calendar, 3);
-        // add-on default, a typed field
-        assertEquals(Boolean.TRUE, calendar.options().getEditable());
+        // no add-on default, the library's default applies
+        assertNull(calendar.options().getEditable());
     }
 
     @Test
@@ -109,22 +109,6 @@ public class FullCalendarTest {
 
         // TODO integrate Testbench test
 
-    }
-
-    @Test
-    void testInitialOptions_explicitEditableFalse_notOverriddenByAddonDefault() {
-        ObjectNode options = JsonFactory.createObject();
-        options.put(Option.EDITABLE.getOptionKey(), false);
-
-        FullCalendar calendar = new FullCalendar(options);
-
-        // The addon-default branch in postConstruct is skipped because the ctor's
-        // initialOptions already carry editable. Since the user set it via setPropertyJson
-        // (not setOption), the Java-side getOption(EDITABLE) stays empty — the user's value
-        // lives only in the element's initialOptions JSON payload delivered to the client.
-        // The critical assertion: addon default did NOT sneak in a true value.
-        assertTrue(calendar.getOption(Option.EDITABLE).isEmpty(),
-                "addon must not set EDITABLE when the ctor's initialOptions already declares it");
     }
 
     private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {

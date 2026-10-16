@@ -1017,8 +1017,10 @@ public class Entry implements Serializable {
 
     /**
      * Checks whether this entry is editable (draggable + resizable). Returns {@code true}
-     * by default — if {@code editable} has not been explicitly set, the entry inherits the
-     * calendar-level {@code editable} option at render time.
+     * when no explicit value is set. The effective state then comes from the calendar-level
+     * {@code editable} option at render time. The library's default for that option is
+     * {@code false}, so an entry without its own value is only draggable when the calendar
+     * sets {@code editable}.
      * <p>
      * Semantically equivalent to the pre-7.2 getter. Internally, the field is now nullable
      * so that {@code null} can be skipped during JSON serialization, which is what makes

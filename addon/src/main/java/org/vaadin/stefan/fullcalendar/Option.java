@@ -1723,7 +1723,7 @@ public enum Option {
      * Use {@link #ENTRY_START_EDITABLE} and {@link #ENTRY_DURATION_EDITABLE} to change only one of them.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
-     *   <dt>Default</dt> <dd>{@code true}, set by the add-on (FullCalendar's own default is {@code false})</dd>
+     *   <dt>Default</dt> <dd>{@code false}</dd>
      * </dl>
      * Individual entries can override via {@link Entry#setEditable(boolean)}.
      *
@@ -2444,7 +2444,7 @@ public enum Option {
      * With {@code "auto"}, the scrollbar is sticky when the calendar height is {@code auto}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@code "auto"}</dd>
-     *   <dt>Default</dt> <dd>{@code true}, set by the add-on (FullCalendar's own default is {@code "auto"})</dd>
+     *   <dt>Default</dt> <dd>{@code "auto"}</dd>
      * </dl>
      *
      * @see <a href="https://fullcalendar.io/docs/footerScrollbarSticky">footerScrollbarSticky</a>
@@ -4995,7 +4995,7 @@ public enum Option {
      * {@code auto}.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean} | {@code "auto"}</dd>
-     *   <dt>Default</dt> <dd>{@code true}, set by the add-on (FullCalendar's own default is {@code "auto"})</dd>
+     *   <dt>Default</dt> <dd>{@code "auto"}</dd>
      * </dl>
      *
      * @see <a href="https://fullcalendar.io/docs/tableHeaderSticky">tableHeaderSticky</a>
@@ -5357,7 +5357,7 @@ public enum Option {
      * corner of timegrid views.
      * <dl>
      *   <dt>Type</dt> <dd>{@code boolean}</dd>
-     *   <dt>Default</dt> <dd>{@code true}, set by the add-on (FullCalendar's own default is {@code false})</dd>
+     *   <dt>Default</dt> <dd>{@code false}</dd>
      * </dl>
      *
      * @see <a href="https://fullcalendar.io/docs/weekNumbers">weekNumbers</a>
