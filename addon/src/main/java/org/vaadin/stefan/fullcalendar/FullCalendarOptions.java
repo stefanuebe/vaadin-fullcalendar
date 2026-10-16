@@ -97,15 +97,16 @@ public class FullCalendarOptions extends AbstractOptions {
     }
 
     // Every call, getters included, schedules the option sync. A getter costs one sync that finds no change.
+    // Package-private, so the scheduler's options object delegates to the same instances.
 
     @Delegate
-    private CalendarOptions calendarOptions() {
+    CalendarOptions calendarOptions() {
         calendar.optionsChanged();
         return calendar.calendarOptions;
     }
 
     @Delegate
-    private ViewOptions viewOptions() {
+    ViewOptions viewOptions() {
         calendar.optionsChanged();
         return calendar.viewOptions;
     }

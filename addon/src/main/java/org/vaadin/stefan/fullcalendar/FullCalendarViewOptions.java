@@ -63,9 +63,10 @@ public class FullCalendarViewOptions extends AbstractOptions {
 
     // Every call, getters included, schedules the option sync. A getter creates an empty instance, which adds no
     // entry to views.
+    // Package-private, so the scheduler's view options object delegates to the same instance.
     @Delegate
-    private ViewOptions viewOptions() {
+    ViewOptions viewOptions() {
         calendar.optionsChanged();
-        return calendar.perViewOptions.computeIfAbsent(view, key -> new ViewOptions());
+        return calendar.perViewOptions.computeIfAbsent(view, key -> calendar.createViewOptions());
     }
 }

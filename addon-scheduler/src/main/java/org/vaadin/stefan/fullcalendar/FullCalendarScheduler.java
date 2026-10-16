@@ -119,6 +119,34 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         super(initialOptions);
     }
 
+    /**
+     * Returns the options of this scheduler as typed fields, the core and the scheduler options, see
+     * {@link FullCalendar#options()}.
+     *
+     * @return the options of this scheduler
+     */
+    @Override
+    public FullCalendarSchedulerOptions options() {
+        return (FullCalendarSchedulerOptions) super.options();
+    }
+
+    // The factories run before the fields of this class are initialized, so they use none of them.
+
+    @Override
+    protected SchedulerCalendarOptions createCalendarOptions() {
+        return new SchedulerCalendarOptions();
+    }
+
+    @Override
+    protected SchedulerViewOptions createViewOptions() {
+        return new SchedulerViewOptions();
+    }
+
+    @Override
+    protected FullCalendarSchedulerOptions createOptions() {
+        return new FullCalendarSchedulerOptions(this);
+    }
+
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent); // Step 1: restoreStateFromServer (registers beforeClientResponse)
