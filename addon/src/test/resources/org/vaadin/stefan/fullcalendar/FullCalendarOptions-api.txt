@@ -27,7 +27,9 @@ getBorderlessTop(): Boolean
 getBorderlessX(): Boolean
 getBusinessHours(): BusinessHoursValue
 getButtonClass(): ClassNameValue
+getButtonDisplay(): NativeToolbarButtonDisplay
 getButtonGroupClass(): ClassNameValue
+getButtons(): Map
 getClassName(): ClassNameValue
 getCloseHint(): String
 getColorScheme(): String
@@ -83,6 +85,7 @@ getDropAccept(): CssSelectorValue
 getDroppable(): Boolean
 getDuration(): DurationValue
 getEditable(): Boolean
+getEndParam(): String
 getEntriesHint(): String
 getEntryAfterClass(): ClassNameValue
 getEntryAllow(): JsCallback
@@ -92,6 +95,7 @@ getEntryColor(): String
 getEntryConstraint(): ConstraintValue
 getEntryContent(): ContentValue
 getEntryContrastColor(): String
+getEntryDataTransform(): JsCallback
 getEntryDidMount(): JsCallback
 getEntryDisplay(): DisplayMode
 getEntryDragMinDistance(): Integer
@@ -107,6 +111,7 @@ getEntryOverlap(): OverlapValue
 getEntryResizableFromStart(): Boolean
 getEntryShortHeight(): Integer
 getEntrySlicing(): Boolean
+getEntrySourceSuccess(): JsCallback
 getEntryStartEditable(): Boolean
 getEntryTimeClass(): ClassNameValue
 getEntryTimeFormat(): DateFormatValue
@@ -118,8 +123,11 @@ getFirstDay(): DayOfWeek
 getFixedWeekCount(): Boolean
 getFooterScrollbarSticky(): AutoBoolean
 getFooterToolbar(): ToolbarValue
+getFooterToolbarClass(): ClassNameValue
 getForceEntryDuration(): Boolean
+getGoogleCalendarApiKey(): String
 getHeaderToolbar(): ToolbarValue
+getHeaderToolbarClass(): ClassNameValue
 getHeadingLevel(): Integer
 getHiddenDays(): Set
 getHighlightClass(): String
@@ -129,6 +137,7 @@ getInlineWeekNumberClass(): ClassNameValue
 getInlineWeekNumberContent(): ContentValue
 getInlineWeekNumberDidMount(): JsCallback
 getInlineWeekNumberWillUnmount(): JsCallback
+getLazyFetching(): Boolean
 getListDayAltFormat(): ListDayFormatValue
 getListDayFormat(): ListDayFormatValue
 getListItemEntryAfterClass(): ClassNameValue
@@ -138,6 +147,7 @@ getListItemEntryInnerClass(): ClassNameValue
 getListItemEntryTimeClass(): ClassNameValue
 getListItemEntryTitleClass(): ClassNameValue
 getListText(): ListTextValue
+getLoading(): JsCallback
 getLocale(): Locale
 getLongPressDelay(): Integer
 getMonthStartFormat(): DateFormatValue
@@ -220,16 +230,19 @@ getSlotMaxTime(): DurationValue
 getSlotMinHeight(): Integer
 getSlotMinTime(): DurationValue
 getSnapDuration(): DurationValue
+getStartParam(): String
 getTableBodyClass(): ClassNameValue
 getTableClass(): ClassNameValue
 getTableHeaderClass(): ClassNameValue
 getTableHeaderSticky(): AutoBoolean
 getTimeZone(): Timezone
+getTimeZoneParam(): String
 getTimedText(): String
 getTitleFormat(): DateFormatValue
 getTodayHint(): TextValue
 getTodayText(): String
 getToolbarClass(): ClassNameValue
+getToolbarElements(): Map
 getToolbarSectionClass(): ClassNameValue
 getToolbarTitleClass(): String
 getUnselectAuto(): Boolean
@@ -297,8 +310,10 @@ setBusinessHours(BusinessHoursValue): void
 setBusinessHours(BusinessHours[]): void
 setButtonClass(ClassNameValue): void
 setButtonClass(String): void
+setButtonDisplay(NativeToolbarButtonDisplay): void
 setButtonGroupClass(ClassNameValue): void
 setButtonGroupClass(String): void
+setButtons(Map): void
 setClassName(ClassNameValue): void
 setClassName(String): void
 setCloseHint(String): void
@@ -392,6 +407,7 @@ setDuration(DurationValue): void
 setDuration(Period): void
 setDuration(String): void
 setEditable(Boolean): void
+setEndParam(String): void
 setEntriesHint(String): void
 setEntryAfterClass(ClassNameValue): void
 setEntryAfterClass(String): void
@@ -408,6 +424,7 @@ setEntryConstraint(Window[]): void
 setEntryContent(ContentValue): void
 setEntryContent(String): void
 setEntryContrastColor(String): void
+setEntryDataTransform(JsCallback): void
 setEntryDidMount(JsCallback): void
 setEntryDisplay(DisplayMode): void
 setEntryDragMinDistance(Integer): void
@@ -427,6 +444,7 @@ setEntryOverlap(boolean): void
 setEntryResizableFromStart(Boolean): void
 setEntryShortHeight(Integer): void
 setEntrySlicing(Boolean): void
+setEntrySourceSuccess(JsCallback): void
 setEntryStartEditable(Boolean): void
 setEntryTimeClass(ClassNameValue): void
 setEntryTimeClass(String): void
@@ -442,8 +460,13 @@ setFirstDay(DayOfWeek): void
 setFixedWeekCount(Boolean): void
 setFooterScrollbarSticky(AutoBoolean): void
 setFooterToolbar(ToolbarValue): void
+setFooterToolbarClass(ClassNameValue): void
+setFooterToolbarClass(String): void
 setForceEntryDuration(Boolean): void
+setGoogleCalendarApiKey(String): void
 setHeaderToolbar(ToolbarValue): void
+setHeaderToolbarClass(ClassNameValue): void
+setHeaderToolbarClass(String): void
 setHeadingLevel(Integer): void
 setHiddenDays(Set): void
 setHighlightClass(String): void
@@ -457,6 +480,7 @@ setInlineWeekNumberContent(ContentValue): void
 setInlineWeekNumberContent(String): void
 setInlineWeekNumberDidMount(JsCallback): void
 setInlineWeekNumberWillUnmount(JsCallback): void
+setLazyFetching(Boolean): void
 setListDayAltFormat(ListDayFormatValue): void
 setListDayAltFormat(Map): void
 setListDayFormat(ListDayFormatValue): void
@@ -475,6 +499,7 @@ setListItemEntryTitleClass(ClassNameValue): void
 setListItemEntryTitleClass(String): void
 setListText(ListTextValue): void
 setListText(String): void
+setLoading(JsCallback): void
 setLocale(Locale): void
 setLongPressDelay(Integer): void
 setMonthStartFormat(DateFormatValue): void
@@ -614,6 +639,7 @@ setSnapDuration(Duration): void
 setSnapDuration(DurationValue): void
 setSnapDuration(Period): void
 setSnapDuration(String): void
+setStartParam(String): void
 setTableBodyClass(ClassNameValue): void
 setTableBodyClass(String): void
 setTableClass(ClassNameValue): void
@@ -622,6 +648,7 @@ setTableHeaderClass(ClassNameValue): void
 setTableHeaderClass(String): void
 setTableHeaderSticky(AutoBoolean): void
 setTimeZone(Timezone): void
+setTimeZoneParam(String): void
 setTimedText(String): void
 setTitleFormat(DateFormatValue): void
 setTitleFormat(Map): void
@@ -630,6 +657,7 @@ setTodayHint(TextValue): void
 setTodayText(String): void
 setToolbarClass(ClassNameValue): void
 setToolbarClass(String): void
+setToolbarElements(Map): void
 setToolbarSectionClass(ClassNameValue): void
 setToolbarSectionClass(String): void
 setToolbarTitleClass(String): void

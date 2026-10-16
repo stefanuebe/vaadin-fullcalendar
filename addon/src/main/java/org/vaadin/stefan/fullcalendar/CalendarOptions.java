@@ -26,6 +26,7 @@ import org.vaadin.stefan.fullcalendar.converters.ListTextValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocaleConverter;
 import org.vaadin.stefan.fullcalendar.converters.TextValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ToolbarElementsConverter;
 import org.vaadin.stefan.fullcalendar.converters.ToolbarValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ViewNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.WeekNumberCalculationValueConverter;
@@ -36,10 +37,12 @@ import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.Direction;
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
@@ -52,7 +55,9 @@ import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * The options that apply to the whole calendar only, never per view. Null means not set. This class is not public
@@ -806,4 +811,169 @@ class CalendarOptions implements Serializable {
      * @see <a href="https://fullcalendar.io/docs/locale">yearText (locale object)</a>
      */
     private String yearText;
+
+    // Toolbar and entry sources
+
+    /**
+     * Custom buttons for the built-in toolbars, and settings that override those of the library's own buttons. The
+     * key is the button name, which a toolbar section lists, see {@link #getHeaderToolbar()}. The built-in names are
+     * the constants of {@link NativeToolbarParts}, such as {@link NativeToolbarParts#TODAY}. The value holds the
+     * settings of the button by their library names, such as {@code text}, {@code hint}, {@code click},
+     * {@code iconContent}, {@code isPrimary} and {@code display}, see the library docs.
+     * <p>
+     * A setting value is a {@code String}, a {@code Boolean}, a number, a {@link NativeToolbarButtonDisplay} or a
+     * {@link JsCallback}. Content and class name types such as {@link TextContent} are not converted here, so
+     * {@code iconContent} and {@code className} take a string or a callback.
+     * <p>
+     * A callback setting, such as {@code click}, is a {@link JsCallback} and runs in the browser only. A click handler
+     * cannot call server code by itself. On a built-in button it runs before the button's own action, which
+     * {@code ev.preventDefault()} cancels.
+     * <p>
+     * When set, the getter returns an unmodifiable map.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/buttons">buttons</a>
+     */
+    @Setter(AccessLevel.NONE)
+    private Map<String, Map<String, Object>> buttons;
+
+    /**
+     * Sets the buttons, see {@link #getButtons()}. The add-on keeps an unmodifiable copy of the map and of the settings
+     * of each button, so a later change of the passed maps has no effect.
+     *
+     * @param buttons the buttons by name, or null to remove the option
+     * @throws NullPointerException when a name, settings or setting value is null
+     */
+    public void setButtons(Map<String, Map<String, Object>> buttons) {
+        this.buttons = buttons == null ? null : buttons.entrySet().stream()
+                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> Map.copyOf(entry.getValue())));
+    }
+
+    /**
+     * Content of your own for the built-in toolbars. The key is the name a toolbar section lists, see
+     * {@link #getHeaderToolbar()}, and the value is the content shown there.
+     * <p>
+     * A callback runs in the browser only.
+     * <p>
+     * When set, the getter returns an unmodifiable map.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/toolbarElements">toolbarElements</a>
+     */
+    @Setter(AccessLevel.NONE)
+    @JsonConverter(ToolbarElementsConverter.class)
+    private Map<String, ContentValue> toolbarElements;
+
+    /**
+     * Sets the toolbar elements, see {@link #getToolbarElements()}. The add-on keeps an unmodifiable copy of the map,
+     * so a later change of the passed map has no effect.
+     *
+     * @param toolbarElements the content by name, or null to remove the option
+     * @throws NullPointerException when a name or content is null
+     */
+    public void setToolbarElements(Map<String, ContentValue> toolbarElements) {
+        this.toolbarElements = toolbarElements == null ? null : Map.copyOf(toolbarElements);
+    }
+
+    /**
+     * A callback that transforms the raw data of each received entry into an entry object the library can parse. It
+     * runs once per received entry, but not for entries added through the client-side API.
+     * <p>
+     * It gets the received entry data directly, there is no {@code info} object. It returns an entry object, or
+     * {@code false} to discard the entry.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to entries received
+     * afterwards, for example after navigating to another view or period. Existing entries are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventDataTransform">eventDataTransform</a>
+     */
+    @JsonName("eventDataTransform")
+    private JsCallback entryDataTransform;
+
+    /**
+     * A callback that runs when fetching from an entry source succeeds. It can transform the response, for example
+     * unwrap a wrapper object into the entry array. To transform each single entry, use
+     * {@link #getEntryDataTransform() entryDataTransform}.
+     * <p>
+     * It gets the raw response content and, for a JSON feed, a {@code Response} object directly, there is no
+     * {@code info} object. It returns a new array of entry objects, which is used instead of the response.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventSourceSuccess">eventSourceSuccess</a>
+     */
+    @JsonName("eventSourceSuccess")
+    private JsCallback entrySourceSuccess;
+
+    /**
+     * Name of the query parameter that each JSON feed entry source gets for the start of the fetched range, an ISO
+     * 8601 date string. A source overrides it with {@link JsonFeedEntrySource#withStartParam(String)}. The library
+     * default is {@code "start"}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/startParam">startParam</a>
+     */
+    private String startParam;
+
+    /**
+     * Name of the query parameter that each JSON feed entry source gets for the exclusive end of the fetched range, an
+     * ISO 8601 date string. A source overrides it with {@link JsonFeedEntrySource#withEndParam(String)}. The library
+     * default is {@code "end"}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/endParam">endParam</a>
+     */
+    private String endParam;
+
+    /**
+     * Name of the query parameter that each JSON feed entry source gets for the time zone of the start and end values
+     * and of the entries it should return, such as {@code "America/Chicago"} or {@code "UTC"}. It is not sent for the
+     * local time zone. A source overrides it with {@link JsonFeedEntrySource#withTimeZoneParam(String)}. The library
+     * default is {@code "timeZone"}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/timeZoneParam">timeZoneParam</a>
+     */
+    private String timeZoneParam;
+
+    /**
+     * The Google Calendar API key for every {@link GoogleCalendarEntrySource} that has no key of its own, see
+     * {@link GoogleCalendarEntrySource#withApiKey(String)}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/google-calendar">googleCalendarApiKey</a>
+     */
+    private String googleCalendarApiKey;
+
+    /**
+     * Whether the calendar fetches entries only when it needs to. With {@code true}, it reuses the entries it already
+     * has, for example when the user switches from the month view to a week view within the same month. With
+     * {@code false}, it fetches on every view switch and every date change. The library default is {@code true}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/lazyFetching">lazyFetching</a>
+     */
+    private Boolean lazyFetching;
+
+    /**
+     * A callback that runs when fetching entries starts or stops, often to show or hide a loading indicator. With the
+     * scheduler, it also runs when resources are fetched.
+     * <p>
+     * It gets {@code isLoading} directly, there is no {@code info} object: {@code true} when fetching begins and
+     * {@code false} when it is done.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/loading">loading</a>
+     */
+    private JsCallback loading;
 }

@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -69,10 +70,12 @@ public class SerializationTest {
         calendar.options().setFirstDay(DayOfWeek.MONDAY);
         calendar.options().setInitialDate(LocalDate.of(2025, 3, 3));
         calendar.options().setDayCellClass(JsCallback.of("() => 'x'"));
+        calendar.options().setButtons(Map.of("refresh", Map.of("click", JsCallback.of("() => {}"))));
 
         FullCalendar copy = roundtrip(calendar);
         assertEquals(DayOfWeek.MONDAY, copy.options().getFirstDay());
         assertEquals(JsCallback.of("() => 'x'"), copy.options().getDayCellClass());
+        assertEquals(Map.of("refresh", Map.of("click", JsCallback.of("() => {}"))), copy.options().getButtons());
 
         // the options object of the copy changes the copy, not the original
         copy.options().setFirstDay(DayOfWeek.TUESDAY);

@@ -1,6 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
@@ -55,6 +56,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -138,6 +140,36 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         assertNull(calendar.options().getHiddenDays());
         calendar.options().setHiddenDays(new HashSet<>());
         assertEquals(Set.of(), calendar.options().getHiddenDays());
+    }
+
+    @Test
+    void buttons_laterChangeOfThePassedMaps_doesNotChangeTheOption() {
+        Map<String, Object> settings = new HashMap<>(Map.of("text", "Refresh"));
+        Map<String, Map<String, Object>> buttons = new HashMap<>(Map.of("refresh", settings));
+        calendar.options().setButtons(buttons);
+        settings.put("text", "Changed");
+        buttons.put("other", Map.of());
+
+        assertEquals(Map.of("refresh", Map.of("text", "Refresh")), calendar.options().getButtons());
+        assertThrows(UnsupportedOperationException.class, () -> calendar.options().getButtons().clear());
+        assertThrows(UnsupportedOperationException.class,
+                () -> calendar.options().getButtons().get("refresh").clear());
+
+        calendar.options().setButtons(null);
+        assertNull(calendar.options().getButtons());
+    }
+
+    @Test
+    void toolbarElements_laterChangeOfThePassedMap_doesNotChangeTheOption() {
+        Map<String, ContentValue> elements = new HashMap<>(Map.of("info", TextContent.of("Info")));
+        calendar.options().setToolbarElements(elements);
+        elements.put("other", TextContent.of("Other"));
+
+        assertEquals(Map.of("info", TextContent.of("Info")), calendar.options().getToolbarElements());
+        assertThrows(UnsupportedOperationException.class, () -> calendar.options().getToolbarElements().clear());
+
+        calendar.options().setToolbarElements(null);
+        assertNull(calendar.options().getToolbarElements());
     }
 
     @Test
@@ -512,6 +544,20 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(JsCallback.class, JsCallback.of("() => {}"), JsCallback.of("() => {}").toMarkerJson()));
 
     /**
+     * A value for each map field, by field name, with the JSON the library reads for it. Maps with different values
+     * write different JSON, so they cannot share a sample by type.
+     */
+    private static final Map<String, Map.Entry<Object, JsonNode>> MAP_SAMPLES = Map.of(
+            "buttons", Map.entry(
+                    Map.of("refresh", Map.<String, Object>of("text", "Refresh", "click", JsCallback.of("() => {}"),
+                            "display", NativeToolbarButtonDisplay.TEXT)),
+                    JsonFactory.createObject().set("refresh", JsonFactory.createObject().put("text", "Refresh")
+                            .<ObjectNode>set("click", JsCallback.of("() => {}").toMarkerJson())
+                            .put("display", "text"))),
+            "toolbarElements", Map.entry(Map.of("info", TextContent.of("Info")),
+                    JsonFactory.createObject().put("info", "Info")));
+
+    /**
      * A value for each parameter type of the setters per form, with the client JSON the field must have after the
      * setter took it. An enum parameter with client values ({@link ClientSideValue}) needs no entry: each constant is
      * tried, with its client value expected.
@@ -677,6 +723,11 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         if (type.isEnum() && ClientSideValue.class.isAssignableFrom(type) && !ONE_FORM_SAMPLES.containsKey(type)) {
             Object constant = type.getEnumConstants()[0];
             return Map.entry(constant, JsonUtils.toJsonNode(constant));
+        }
+        if (type == Map.class) {
+            Map.Entry<Object, JsonNode> sample = MAP_SAMPLES.get(field.getName());
+            assertNotNull(sample, "Add a sample of " + field.getName() + " to MAP_SAMPLES");
+            return sample;
         }
         Map.Entry<Object, JsonNode> sample = ONE_FORM_SAMPLES.get(type);
         assertNotNull(sample, "Add a sample of " + type.getSimpleName() + " to ONE_FORM_SAMPLES, for " + field.getName()

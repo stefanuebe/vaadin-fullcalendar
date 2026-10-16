@@ -28,6 +28,7 @@ getBorderlessTop(): Boolean
 getBorderlessX(): Boolean
 getBusinessHours(): BusinessHoursValue
 getButtonClass(): ClassNameValue
+getButtonDisplay(): NativeToolbarButtonDisplay
 getButtonGroupClass(): ClassNameValue
 getCloseHint(): String
 getColorScheme(): String
@@ -108,7 +109,9 @@ getExpandRows(): Boolean
 getFillerClass(): ClassNameValue
 getFixedWeekCount(): Boolean
 getFooterScrollbarSticky(): AutoBoolean
+getFooterToolbarClass(): ClassNameValue
 getForceEntryDuration(): Boolean
+getHeaderToolbarClass(): ClassNameValue
 getHeadingLevel(): Integer
 getHiddenDays(): Set
 getHighlightClass(): String
@@ -259,6 +262,7 @@ setBusinessHours(BusinessHoursValue): void
 setBusinessHours(BusinessHours[]): void
 setButtonClass(ClassNameValue): void
 setButtonClass(String): void
+setButtonDisplay(NativeToolbarButtonDisplay): void
 setButtonGroupClass(ClassNameValue): void
 setButtonGroupClass(String): void
 setCloseHint(String): void
@@ -389,7 +393,11 @@ setFillerClass(ClassNameValue): void
 setFillerClass(String): void
 setFixedWeekCount(Boolean): void
 setFooterScrollbarSticky(AutoBoolean): void
+setFooterToolbarClass(ClassNameValue): void
+setFooterToolbarClass(String): void
 setForceEntryDuration(Boolean): void
+setHeaderToolbarClass(ClassNameValue): void
+setHeaderToolbarClass(String): void
 setHeadingLevel(Integer): void
 setHiddenDays(Set): void
 setHighlightClass(String): void
