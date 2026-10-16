@@ -1,5 +1,27 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
+import org.vaadin.stefan.fullcalendar.option.CssSelectorValue;
+import org.vaadin.stefan.fullcalendar.option.DateFormatValue;
+import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
+import org.vaadin.stefan.fullcalendar.option.HeightValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
+import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.NowValue;
+import org.vaadin.stefan.fullcalendar.option.Overlap;
+import org.vaadin.stefan.fullcalendar.option.OverlapValue;
+import org.vaadin.stefan.fullcalendar.option.StickyValue;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.ViewNameValue;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;
@@ -104,13 +126,13 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         calendar.options().setFirstDay(DayOfWeek.MONDAY);
         attach();
 
-        calendar.setRawOption("firstDay", 3);
+        calendar.options().setRawOption("firstDay", 3);
         assertEquals(3, respond().getFirst().get("firstDay").asInt());
 
         calendar.options().setFirstDay(DayOfWeek.TUESDAY);
         assertEquals(List.of(), respond());
 
-        calendar.setRawOption("firstDay", null);
+        calendar.options().setRawOption("firstDay", null);
         assertEquals(2, respond().getFirst().get("firstDay").asInt());
         assertEquals(DayOfWeek.TUESDAY, calendar.options().getFirstDay());
     }
@@ -118,7 +140,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     @Test
     void beforeAttach_rawOptionLiesOverTheField() {
         calendar.options().setFirstDay(DayOfWeek.MONDAY);
-        calendar.setRawOption("firstDay", 3);
+        calendar.options().setRawOption("firstDay", 3);
         attach();
 
         assertEquals(3, initialOptions().get("firstDay").asInt());
@@ -380,7 +402,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         calendar.setCustomCalendarViews(THREE_DAYS);
         calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setWeekends(false);
         calendar.setViewSpecificOption("listWeek", "weekends", false);
-        calendar.setRawOption("views", JsonFactory.createObject()
+        calendar.options().setRawOption("views", JsonFactory.createObject()
                 .set("dayGridMonth", JsonFactory.createObject().put("weekends", false)));
         attach();
 

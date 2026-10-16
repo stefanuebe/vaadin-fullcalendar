@@ -7,8 +7,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.HeaderAlign;
-import org.vaadin.stefan.fullcalendar.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -55,7 +55,7 @@ public class TypedOptionsTestView extends VerticalLayout {
         FullCalendar customViewCalendar = new FullCalendar();
         customViewCalendar.setId("cal-custom-view");
         customViewCalendar.setCustomCalendarViews(threeDays);
-        customViewCalendar.setRawOption("initialView", "threeDays");
+        customViewCalendar.options().setRawOption("initialView", "threeDays");
         customViewCalendar.options().setInitialDate(LocalDate.of(2025, 3, 15));
         customViewCalendar.options().view(threeDays).setDayCellClass("three-day");
         customViewCalendar.setHeight("300px");
@@ -63,7 +63,7 @@ public class TypedOptionsTestView extends VerticalLayout {
 
         FullCalendar headerHooksCalendar = new FullCalendar();
         headerHooksCalendar.setId("cal-header-hooks");
-        headerHooksCalendar.setRawOption("initialView", "timeGridWeek");
+        headerHooksCalendar.options().setRawOption("initialView", "timeGridWeek");
         headerHooksCalendar.options().setInitialDate(LocalDate.of(2025, 3, 15));
         headerHooksCalendar.setHeight("300px");
         add(new HorizontalLayout(

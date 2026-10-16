@@ -53,8 +53,11 @@ calendar.addBrowserTimezoneObtainedListener(event -> {
     Timezone browserTz = event.getTimezone();
 });
 
-// Follow the browser time zone and the UI locale (set on attach, follows UI.setLocale)
-FullCalendar calendar = new FullCalendar().withAutoBrowserTimezone().withAutoUiLocale();
+// Follow the browser time zone again after a fixed zone was set (LOCAL is the default)
+calendar.options().setTimeZone(Timezone.LOCAL);
+
+// Follow the UI locale: the calendar does not observe it, the application does
+// (a LocaleChangeObserver that calls calendar.options().setLocale(event.getLocale()))
 ```
 
 ---
@@ -69,8 +72,8 @@ FullCalendar calendar = new FullCalendar().withAutoBrowserTimezone().withAutoUiL
 | BR-04 | `BrowserTimezoneObtainedEvent` fires once on initial load |
 | BR-05 | `WEEK_NUMBER_CALCULATION` can be `"locale"` or `"ISO"` |
 | BR-06 | A calendar created without a locale gets `CalendarLocale.getDefaultLocale()`, so `getOption(Option.LOCALE)` is never empty unless the locale is removed explicitly |
-| BR-07 | `Option.TIMEZONE` stores a zone id as `Timezone`, so `getOption(Option.TIMEZONE)` always returns a `Timezone`. `getTimezone()` is deprecated. `"local"` is rejected with an `IllegalArgumentException` |
-| BR-08 | `withAutoBrowserTimezone()` sets the time zone the browser reports, also when it is already known. `withAutoUiLocale()` sets the UI locale on attach and on every `UI.setLocale`. A later explicit `setOption` applies until the next report or locale change |
+| BR-07 | `Option.TIMEZONE` stores a zone id as `Timezone`, so `getOption(Option.TIMEZONE)` always returns a `Timezone`. `getTimezone()` is deprecated. `"local"` gives `Timezone.LOCAL` |
+| BR-08 | `Timezone.LOCAL` sets the time zone the browser reports, also when it is already known, and follows each later report until another zone is set. The calendar does not follow the UI locale (`withAutoUiLocale()` was removed in 8.0) |
 
 ---
 
@@ -91,7 +94,7 @@ FullCalendar calendar = new FullCalendar().withAutoBrowserTimezone().withAutoUiL
 - [ ] `CalendarLocaleTest` — locale handling
 - [ ] `TimezoneTests` — timezone conversion
 - [x] `TypedOptionValuesTest`: zone id stored as `Timezone`, `"local"` rejected
-- [x] `AutoBrowserSettingsTest`: `withAutoBrowserTimezone()`, `withAutoUiLocale()`
+- [x] `AutoBrowserSettingsTest`: `Timezone.LOCAL` follows the browser, a UI locale change is ignored
 
 ### E2E Tests
 - [x] `auto-browser-timezone.spec.js`: the browser time zone becomes the calendar time zone on server and client

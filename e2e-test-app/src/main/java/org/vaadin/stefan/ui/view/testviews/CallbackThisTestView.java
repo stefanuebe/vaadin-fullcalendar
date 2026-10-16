@@ -1,5 +1,7 @@
 package org.vaadin.stefan.ui.view.testviews;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

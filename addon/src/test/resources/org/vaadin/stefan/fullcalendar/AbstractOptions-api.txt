@@ -1,0 +1,2 @@
+getRawOption(String): Optional
+setRawOption(String, Object): void

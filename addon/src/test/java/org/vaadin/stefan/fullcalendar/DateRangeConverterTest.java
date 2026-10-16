@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.converters.DateRangeConverter;
 import tools.jackson.databind.JsonNode;

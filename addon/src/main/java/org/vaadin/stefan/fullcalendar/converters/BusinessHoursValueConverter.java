@@ -16,10 +16,11 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.BusinessHours;
-import org.vaadin.stefan.fullcalendar.BusinessHoursValue;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
+import org.vaadin.stefan.fullcalendar.option.NoneValue;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 
@@ -42,7 +43,7 @@ public class BusinessHoursValueConverter implements JsonItemPropertyConverter<Bu
     @Override
     public JsonNode toClientModel(BusinessHoursValue serverValue, Object currentInstance) {
         return switch (serverValue) {
-            case BusinessHoursValue.None ignored -> JsonUtils.toJsonNode(false);
+            case NoneValue.None ignored -> JsonUtils.toJsonNode(false);
             case BusinessHoursValue.Default ignored -> JsonUtils.toJsonNode(true);
             case BusinessHoursValue.Hours hours -> {
                 ArrayNode array = JsonFactory.createArray();

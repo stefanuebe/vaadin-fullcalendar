@@ -1,6 +1,6 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;

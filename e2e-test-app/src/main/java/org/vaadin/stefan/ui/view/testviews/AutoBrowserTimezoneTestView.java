@@ -6,12 +6,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Option;
-import org.vaadin.stefan.fullcalendar.Timezone;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 /**
- * Test view for {@link FullCalendar#withAutoBrowserTimezone()}: the time zone the browser reports becomes the
+ * Test view for {@link Timezone#LOCAL}: the time zone the browser reports becomes the
  * calendar's time zone option. {@code #calendar-timezone} shows that option once the browser reported.
  * <p>
  * Route: /test/auto-browser-timezone
@@ -26,7 +26,8 @@ public class AutoBrowserTimezoneTestView extends VerticalLayout {
 
         add(new H2("Auto Browser Timezone"));
 
-        FullCalendar calendar = new FullCalendar().withAutoBrowserTimezone();
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setTimeZone(Timezone.LOCAL);
         calendar.getElement().setAttribute("data-testid", "calendar");
 
         Span timezone = new Span("-");

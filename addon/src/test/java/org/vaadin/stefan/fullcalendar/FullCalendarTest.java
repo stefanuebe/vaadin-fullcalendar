@@ -1,5 +1,8 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.ComponentEventBusUtil;
 import com.vaadin.flow.dom.Element;
 import org.junit.jupiter.api.BeforeAll;

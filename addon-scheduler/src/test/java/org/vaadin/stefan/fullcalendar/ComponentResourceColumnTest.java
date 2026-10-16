@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.TextField;
 import org.junit.jupiter.api.Assertions;

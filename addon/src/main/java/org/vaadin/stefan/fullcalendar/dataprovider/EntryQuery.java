@@ -3,7 +3,7 @@ package org.vaadin.stefan.fullcalendar.dataprovider;
 import lombok.*;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.RecurringTime;
-import org.vaadin.stefan.fullcalendar.Timezone;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.Duration;
 import java.time.Instant;

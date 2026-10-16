@@ -3,7 +3,7 @@ package org.vaadin.stefan.ui.view.samples;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Option;
-import org.vaadin.stefan.fullcalendar.Timezone;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -33,7 +33,7 @@ public class TimezonesSample extends AbstractSample {
         calendar.addBrowserTimezoneObtainedListener(event -> calendar.setOption(Option.TIMEZONE, event.getTimezone()));
 
         // Or let the calendar follow the browser's time zone in one line.
-        calendar.withAutoBrowserTimezone();
+        calendar.options().setTimeZone(Timezone.LOCAL);
 
         // Entries use internally utc to define times. The LocalDateTime and Instant methods setStart/End have the same effect.
         entry.setStart(Instant.now()); // UTC

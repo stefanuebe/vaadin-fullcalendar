@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import lombok.Getter;
 import tools.jackson.databind.node.ObjectNode;
 

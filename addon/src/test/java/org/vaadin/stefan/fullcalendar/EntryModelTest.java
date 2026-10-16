@@ -1,5 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;

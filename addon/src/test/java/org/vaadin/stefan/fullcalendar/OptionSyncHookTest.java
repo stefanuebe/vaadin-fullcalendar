@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;
@@ -112,7 +113,7 @@ public class OptionSyncHookTest extends BrowserlessTest {
     void rawEventDidMount_winsOverTheMerge() {
         FullCalendar calendar = new FullCalendar();
         attach(calendar);
-        calendar.setRawOption("eventDidMount", JsCallback.of(USER_CALLBACK));
+        calendar.options().setRawOption("eventDidMount", JsCallback.of(USER_CALLBACK));
         respond();
 
         calendar.addEntryNativeEventListener("click", "e => console.log(e)");
@@ -120,7 +121,7 @@ public class OptionSyncHookTest extends BrowserlessTest {
         // the merged value changed under the raw option, which the client keeps
         assertEquals(List.of(), optionChanges(respond()));
 
-        calendar.setRawOption("eventDidMount", null);
+        calendar.options().setRawOption("eventDidMount", null);
 
         List<ObjectNode> changes = optionChanges(respond());
         assertEquals(1, changes.size());
@@ -155,7 +156,7 @@ public class OptionSyncHookTest extends BrowserlessTest {
                 options.put("weekends", BooleanNode.FALSE);
             }
         };
-        calendar.setRawOption("weekends", true);
+        calendar.options().setRawOption("weekends", true);
 
         assertTrue(initialOptions(calendar).get("weekends").asBoolean());
     }

@@ -16,6 +16,9 @@
  */
 package org.vaadin.stefan.ui.view.demos.full;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -59,7 +62,7 @@ public class FullDemo extends AbstractSchedulerView {
         FullCalendarScheduler scheduler = new FullCalendarScheduler(initialOptions);
         scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
         scheduler.setOption(Option.DAY_MAX_ENTRIES, 3);
-        scheduler.withAutoBrowserTimezone();
+        scheduler.options().setTimeZone(Timezone.LOCAL);
         scheduler.setOption(Option.LOCALE, UI.getCurrent().getLocale());
         FullCalendar calendar = scheduler;
         scheduler.setOption(SchedulerOption.RESOURCE_COLUMNS_WIDTH, "15%");

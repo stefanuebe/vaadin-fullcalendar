@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.Timezone;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.Instant;
 import java.time.LocalDate;

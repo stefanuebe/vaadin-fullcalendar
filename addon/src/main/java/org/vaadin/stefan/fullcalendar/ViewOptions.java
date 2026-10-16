@@ -16,6 +16,13 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
 import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
@@ -40,6 +47,8 @@ class ViewOptions implements Serializable {
     /**
      * Master switch for dragging and resizing entries. Enables or disables both at the same time. Background entries
      * can not be dragged or resized. Individual entries can override it with {@link Entry#setEditable(boolean)}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/editable">editable</a>
      */
@@ -47,6 +56,8 @@ class ViewOptions implements Serializable {
 
     /**
      * Whether Saturday and Sunday columns are included in the calendar views.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/weekends">weekends</a>
      */
@@ -58,6 +69,8 @@ class ViewOptions implements Serializable {
      * <p>
      * A callback gets an {@code info} object with {@code date}, {@code text}, {@code isPast}, {@code isFuture},
      * {@code isToday}, {@code isOther} and more, see the library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/day-cell-render-hooks">dayCellClass</a>
      */
@@ -97,6 +110,8 @@ class ViewOptions implements Serializable {
      * <p>
      * A callback gets an {@code info} object with {@code text}, {@code isNarrow} and {@code view}. It returns a text,
      * or {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/all-day-header-render-hooks">allDayHeaderContent</a>
      */
@@ -136,6 +151,8 @@ class ViewOptions implements Serializable {
      * <p>
      * A callback gets an {@code info} object with {@code level}, {@code inPopover} and {@code isNarrow}. It returns
      * {@code "start"}, {@code "center"} or {@code "end"}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/day-header-render-hooks">dayHeaderAlign</a>
      */

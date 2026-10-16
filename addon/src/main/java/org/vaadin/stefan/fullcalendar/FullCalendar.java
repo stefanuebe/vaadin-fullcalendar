@@ -16,12 +16,14 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
+import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
-import com.vaadin.flow.i18n.LocaleChangeEvent;
-import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.shared.Registration;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
@@ -60,7 +62,7 @@ import static org.vaadin.stefan.fullcalendar.JsonUtils.toJsonNodeWithJackson;
 @JsModule("./vaadin-full-calendar/legacy-class-names.ts")
 @JsModule("./vaadin-full-calendar/vaadin-theme.ts")
 @Tag("vaadin-full-calendar")
-public class FullCalendar extends Component implements HasStyle, HasSize, LocaleChangeObserver {
+public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * The FullCalendar version used in this addon, for the core package and its plugins. Third-party libraries such as
@@ -90,7 +92,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     /**
      * The raw options in their client form, by library name. {@link #syncOptions()} sends them to the client.
      */
-    private final Map<String, JsonNode> rawOptions = new LinkedHashMap<>();
+    final Map<String, JsonNode> rawOptions = new HashMap<>();
 
     /** The typed options, see {@link #options()}. Their values lie under the raw options. */
     final CalendarOptions calendarOptions = new CalendarOptions();
@@ -98,7 +100,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     /**
      * The options of single view types, by client-side view name, see {@link FullCalendarOptions#view(CalendarView)}.
      */
-    final Map<String, ViewOptions> perViewOptions = new LinkedHashMap<>();
+    final Map<String, ViewOptions> perViewOptions = new HashMap<>();
+    /** The raw options of single view types, by client-side view name, see {@link FullCalendarViewOptions}. */
+    final Map<String, Map<String, JsonNode>> perViewRawOptions = new HashMap<>();
     private final FullCalendarOptions fullCalendarOptions = new FullCalendarOptions(this);
 
     /** The options the client got last, see {@link #syncOptions()}. */
@@ -110,9 +114,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * the client gets the changes as calls.
      */
     private boolean initialStateSent;
-
-    /** The id of the UI the calendar was last attached to, -1 before the first attach. */
-    private int attachedUiId = -1;
 
     /**
      * The values passed to {@code setOption}, as {@link #getOption(String, boolean)} returns them. Part of the bridge
@@ -140,7 +141,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     private Timezone browserTimezone;
     /** Set while the time zone is {@link Timezone#LOCAL}, see {@link #applyTimeZone(Timezone)}. */
     private boolean followBrowserTimezone = true;
-    private boolean autoUiLocale;
 
     private String currentViewName;
     private LocalDate currentIntervalStart;
@@ -242,7 +242,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         });
 
         if (localTimezone) {
-            withAutoBrowserTimezone();
+            options().setTimeZone(Timezone.LOCAL);
         }
 
         if (!initialOptions.hasNonNull(Option.LOCALE.getOptionKey())) {
@@ -299,11 +299,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
 
-        // A new UI always creates a new client element. Not tied to isInitialAttach(), because a view kept with
-        // @PreserveOnRefresh is attached to a new UI as an initial attach.
-        int uiId = attachEvent.getUI().getUIId();
-        if (uiId != attachedUiId) {
-            attachedUiId = uiId;
+        // An initial attach always gets a new client element. Flow also reports the move of a view kept with
+        // @PreserveOnRefresh to a new UI and a client resync as initial attach, and the detach check in onDetach
+        // misses both: the old UI sends no further response, and on a resync the calendar is attached again at once.
+        if (attachEvent.isInitialAttach()) {
             initialStateSent = false;
         }
         if (initialStateSent) {
@@ -831,19 +830,18 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
             value = csv.getClientSideValue();
         }
 
-        if (value == null) {
+        if (value == null || value instanceof JsonNode json && json.isNull()) {
             options.remove(option);
             serverSideOptions.remove(option);
             rawOptions.remove(option);
         } else {
-            JsonNode json = toRawJson(value);
+            options().setRawOption(option, value);
             options.put(option, value);
             if (valueForServerSide == null || valueForServerSide.equals(value)) {
                 serverSideOptions.remove(option);
             } else {
                 serverSideOptions.put(option, valueForServerSide);
             }
-            rawOptions.put(option, json);
         }
         optionsChanged();
     }
@@ -859,55 +857,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      */
     public FullCalendarOptions options() {
         return fullCalendarOptions;
-    }
-
-    /**
-     * Sets an option by its name in the FullCalendar library, bypassing the add-on's types. Null removes it.
-     * <p>
-     * This is an expert feature for options the add-on has no typed way for. The value is passed to the client as
-     * it is, converted to JSON: a {@link JsCallback} becomes a function, a {@link ClientSideValue} its client-side
-     * value. The caller is responsible for a value FullCalendar understands.
-     * <p>
-     * A raw option wins over the field of {@link #options()} with the same name. Removing it brings the field's
-     * current value back.
-     *
-     * @param option the option's name in the FullCalendar library
-     * @param value  value, or null (also a JSON null) to remove the option
-     * @throws NullPointerException     when the option is null
-     * @throws IllegalArgumentException when the value cannot be converted to JSON
-     * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
-     */
-    public void setRawOption(String option, Object value) {
-        Objects.requireNonNull(option);
-        JsonNode json = value == null ? null : toRawJson(value);
-        if (json == null || json.isNull()) {
-            rawOptions.remove(option);
-        } else {
-            rawOptions.put(option, json);
-        }
-        optionsChanged();
-    }
-
-    /**
-     * Returns the raw option with the given name, in the JSON form the client gets.
-     *
-     * @param option the option's name in the FullCalendar library
-     * @return a copy of the option's JSON, or empty when it is not set
-     * @throws NullPointerException when the option is null
-     * @see #setRawOption(String, Object)
-     */
-    public Optional<JsonNode> getRawOption(String option) {
-        Objects.requireNonNull(option);
-        return Optional.ofNullable(rawOptions.get(option)).map(JsonNode::deepCopy);
-    }
-
-    /** Converts the value to JSON and copies it, so changing the caller's JSON later does not change the option. */
-    private static JsonNode toRawJson(Object value) {
-        try {
-            return toJsonNodeWithJackson(value).deepCopy();
-        } catch (RuntimeException e) {
-            throw new IllegalArgumentException("Cannot convert the value to JSON: " + value, e);
-        }
     }
 
     /**
@@ -1008,8 +957,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
 
     /**
      * The library's {@code views} object: the definitions of the custom views first, then the values of
-     * {@link FullCalendarOptions#view(CalendarView)} over them per view and key, then the values of
-     * {@link #setViewSpecificOption(String, String, Object, JsonItemPropertyConverter...)}.
+     * {@link FullCalendarOptions#view(CalendarView)} over them per view and key, then the raw options of the views, then
+     * the values of {@link #setViewSpecificOption(String, String, Object, JsonItemPropertyConverter...)}.
      */
     private Optional<ObjectNode> viewsJson() {
         ObjectNode views = JsonFactory.createObject();
@@ -1020,6 +969,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
         });
         FullCalendarOptions.toViewsJson(perViewOptions).ifPresent(values -> values.properties()
                 .forEach(entry -> mergeView(views, entry.getKey(), (ObjectNode) entry.getValue())));
+        perViewRawOptions.forEach((name, values) -> {
+            if (!values.isEmpty()) {
+                mergeView(views, name, JsonFactory.createObject().setAll(values));
+            }
+        });
         viewSpecificOptionsMap.forEach((name, values) -> mergeView(views, name, values));
 
         return views.isEmpty() ? Optional.empty() : Optional.of(views);
@@ -1290,44 +1244,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
     }
 
     /**
-     * Lets the calendar follow the time zone of the browser. The same as
-     * {@code options().setTimeZone(Timezone.LOCAL)}, see {@link FullCalendarOptions#setTimeZone(Timezone)}.
-     *
-     * @return this instance
-     */
-    public FullCalendar withAutoBrowserTimezone() {
-        options().setTimeZone(Timezone.LOCAL);
-        return this;
-    }
-
-    /**
-     * Lets the calendar follow the locale of the UI. The calendar sets the UI locale as {@link Option#LOCALE} on
-     * attach and whenever the UI locale changes ({@link UI#setLocale(Locale)}). Vaadin
-     * derives the initial UI locale from the browser, unless the application sets it. A later
-     * {@code setOption(Option.LOCALE, …)} applies until the next locale change.
-     *
-     * @return this instance
-     */
-    public FullCalendar withAutoUiLocale() {
-        autoUiLocale = true;
-        getUI().ifPresent(ui -> setOption(Option.LOCALE, ui.getLocale()));
-        return this;
-    }
-
-    /**
-     * Sets the UI locale as {@link Option#LOCALE}, if {@link #withAutoUiLocale()} is enabled. Called by Vaadin on
-     * attach and when the UI locale changes. Does nothing otherwise.
-     *
-     * @param event locale change event
-     */
-    @Override
-    public void localeChange(LocaleChangeEvent event) {
-        if (autoUiLocale) {
-            setOption(Option.LOCALE, event.getLocale());
-        }
-    }
-
-    /**
      * This method returns the timezone sent by the browser. The calendar takes it as its time zone while that is
      * {@link Timezone#LOCAL}, see {@link FullCalendarOptions#setTimeZone(Timezone)}.
      * <p></p>
@@ -1438,7 +1354,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize, Locale
      * If the second parameter is false and a server side version of the
      * value has been set via {@link #setOption(Option, Object, Object)}, that will be returned instead.
      * <br><br>
-     * Returns {@code null} for initial options. Please use #getRawOption(String)
+     * Returns {@code null} for initial options. Please use {@code options().getRawOption(String)}
      *
      * @param option               option
      * @param forceClientSideValue explicitly return the value that has been sent to client

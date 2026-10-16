@@ -16,10 +16,10 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import org.vaadin.stefan.fullcalendar.Overlap;
-import org.vaadin.stefan.fullcalendar.OverlapValue;
+import org.vaadin.stefan.fullcalendar.option.Overlap;
+import org.vaadin.stefan.fullcalendar.option.OverlapValue;
 import tools.jackson.databind.JsonNode;
 
 /**

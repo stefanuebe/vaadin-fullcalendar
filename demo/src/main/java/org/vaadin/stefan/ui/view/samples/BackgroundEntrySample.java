@@ -1,6 +1,6 @@
 package org.vaadin.stefan.ui.view.samples;
 
-import org.vaadin.stefan.fullcalendar.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 

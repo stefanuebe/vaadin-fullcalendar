@@ -1,5 +1,8 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.CallbackEntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
@@ -49,11 +52,13 @@ public class SerializationTest {
     @Test
     void calendarWithRawOptionsIsSerializable() throws Exception {
         FullCalendar calendar = new FullCalendar();
-        calendar.setRawOption("weekends", false);
-        calendar.setRawOption("dayCellClass", JsCallback.of("() => 'x'"));
+        calendar.options().setRawOption("weekends", false);
+        calendar.options().setRawOption("dayCellClass", JsCallback.of("() => 'x'"));
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setRawOption("dayCount", 3);
 
         FullCalendar copy = roundtrip(calendar);
-        assertTrue(copy.getRawOption("dayCellClass").isPresent());
+        assertTrue(copy.options().getRawOption("dayCellClass").isPresent());
+        assertEquals(3, copy.options().view(CalendarViewImpl.DAY_GRID_MONTH).getRawOption("dayCount").orElseThrow().asInt());
     }
 
     @Test

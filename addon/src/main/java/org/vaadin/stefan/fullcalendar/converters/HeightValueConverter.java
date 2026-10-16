@@ -16,7 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.HeightValue;
+import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
 import tools.jackson.databind.JsonNode;
 

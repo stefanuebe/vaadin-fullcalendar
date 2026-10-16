@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.multimonthselection;
 
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.StyleSheet;

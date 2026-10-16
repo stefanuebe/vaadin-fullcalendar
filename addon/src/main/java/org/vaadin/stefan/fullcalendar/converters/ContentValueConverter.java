@@ -16,10 +16,10 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.ContentValue;
-import org.vaadin.stefan.fullcalendar.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import org.vaadin.stefan.fullcalendar.TextContent;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
 import tools.jackson.databind.JsonNode;
 
 /**

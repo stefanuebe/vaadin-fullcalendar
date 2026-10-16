@@ -16,7 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
 import tools.jackson.databind.JsonNode;

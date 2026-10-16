@@ -1,5 +1,30 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
+import org.vaadin.stefan.fullcalendar.option.CssSelector;
+import org.vaadin.stefan.fullcalendar.option.CssSelectorValue;
+import org.vaadin.stefan.fullcalendar.option.DateFormat;
+import org.vaadin.stefan.fullcalendar.option.DateFormatValue;
+import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
+import org.vaadin.stefan.fullcalendar.option.HeightValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
+import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.NowValue;
+import org.vaadin.stefan.fullcalendar.option.Overlap;
+import org.vaadin.stefan.fullcalendar.option.OverlapValue;
+import org.vaadin.stefan.fullcalendar.option.StickyValue;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.ViewName;
+import org.vaadin.stefan.fullcalendar.option.ViewNameValue;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.converters.*;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
@@ -193,6 +218,18 @@ class ConverterTest {
         assertEquals("10:30", endOfDay.get(0).get("startTime").asString());
         assertEquals("24:00", endOfDay.get(0).get("endTime").asString());
         assertEquals(0, endOfDay.get(0).get("daysOfWeek").get(0).asInt());
+    }
+
+    /** Every type a user passes as an option value lives in the package {@code option}, the forms of a value type too. */
+    @Test
+    void everyOptionValueType_andItsForms_liveInTheOptionPackage() {
+        String optionPackage = AutoBoolean.class.getPackageName();
+        Stream.concat(optionFields().map(Field::getType),
+                        VALUE_TYPES.values().stream().flatMap(type -> type.samples().keySet().stream()).map(Object::getClass))
+                .filter(type -> !type.getPackageName().startsWith("java."))
+                .map(type -> type.isMemberClass() ? type.getEnclosingClass() : type)
+                .distinct()
+                .forEach(type -> assertEquals(optionPackage, type.getPackageName(), type.getName()));
     }
 
     /** A value-or-callback type that JsCallback implements is a value type, with or without fields yet. */

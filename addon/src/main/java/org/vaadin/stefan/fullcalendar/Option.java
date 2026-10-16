@@ -16,6 +16,16 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
+import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
+import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculation;
 import org.apache.commons.text.CaseUtils;
 import org.vaadin.stefan.fullcalendar.converters.BusinessHoursConverter;
 import org.vaadin.stefan.fullcalendar.converters.DateRangeConverter;
@@ -3097,7 +3107,6 @@ public enum Option {
      *   <dt>Type</dt>    <dd>language code {@code string} (e.g., {@code "en"}, {@code "de"}, {@code "fr"}) | {@link Locale}</dd>
      *   <dt>Default</dt> <dd>{@link CalendarLocale#getDefaultLocale()}, set by the constructor</dd>
      * </dl>
-     * {@link FullCalendar#withAutoUiLocale()} sets the UI locale and follows its changes.
      *
      * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
      */

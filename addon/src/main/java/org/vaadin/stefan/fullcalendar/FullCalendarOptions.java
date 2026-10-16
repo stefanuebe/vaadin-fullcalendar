@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import lombok.experimental.Delegate;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
@@ -23,7 +24,6 @@ import org.vaadin.stefan.fullcalendar.json.JsonName;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * The object is live, not a copy. A reference kept for later works in a later request too.
  */
-public class FullCalendarOptions implements Serializable {
+public class FullCalendarOptions extends AbstractOptions {
 
     private static final Map<Class<?>, List<OptionField>> FIELDS = new ConcurrentHashMap<>();
 
@@ -108,6 +108,16 @@ public class FullCalendarOptions implements Serializable {
     private ViewOptions viewOptions() {
         calendar.optionsChanged();
         return calendar.viewOptions;
+    }
+
+    @Override
+    Map<String, JsonNode> rawOptions() {
+        return calendar.rawOptions;
+    }
+
+    @Override
+    void rawOptionsChanged() {
+        calendar.optionsChanged();
     }
 
     /** The values of the single view types as the library's {@code views} object, or empty when none is set. */

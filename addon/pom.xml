@@ -183,8 +183,8 @@
                             <targetClasses>
                                 <param>org.vaadin.stefan.fullcalendar.Entry</param>
                                 <param>org.vaadin.stefan.fullcalendar.RRule</param>
-                                <param>org.vaadin.stefan.fullcalendar.BusinessHours</param>
-                                <param>org.vaadin.stefan.fullcalendar.DisplayMode</param>
+                                <param>org.vaadin.stefan.fullcalendar.option.BusinessHours</param>
+                                <param>org.vaadin.stefan.fullcalendar.option.DisplayMode</param>
                                 <param>org.vaadin.stefan.fullcalendar.Delta</param>
                                 <param>org.vaadin.stefan.fullcalendar.FullCalendar</param>
                                 <param>org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider</param>

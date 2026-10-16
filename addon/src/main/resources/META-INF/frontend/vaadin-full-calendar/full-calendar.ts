@@ -156,8 +156,8 @@ export class FullCalendar extends HTMLElement {
     protected moreLinkClickAction: any = "popover";
     protected prefetchEnabled = false;
     /**
-     * Set by withAutoBrowserTimezone(). Without a time zone option, the calendar starts with the browser's time
-     * zone instead of UTC.
+     * Without a time zone option, the calendar starts with the browser's time zone instead of UTC. The server always
+     * sends a time zone, so nothing sets this any more.
      */
     protected autoBrowserTimezone = false;
 

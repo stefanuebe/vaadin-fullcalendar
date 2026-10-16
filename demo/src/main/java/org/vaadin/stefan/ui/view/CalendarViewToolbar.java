@@ -1,5 +1,8 @@
 package org.vaadin.stefan.ui.view;
 
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
+import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

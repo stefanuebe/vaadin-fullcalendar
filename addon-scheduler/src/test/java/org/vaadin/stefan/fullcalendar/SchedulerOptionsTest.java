@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.EntryPrintLayout;
 import com.vaadin.flow.component.html.Span;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.node.ArrayNode;

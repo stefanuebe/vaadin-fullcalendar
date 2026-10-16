@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;

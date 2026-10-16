@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;

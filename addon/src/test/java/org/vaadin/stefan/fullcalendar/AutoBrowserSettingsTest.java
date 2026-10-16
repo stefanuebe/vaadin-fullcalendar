@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;
@@ -16,14 +17,12 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * The time zone field with {@link Timezone#LOCAL}, {@link FullCalendar#withAutoBrowserTimezone()} and
- * {@link FullCalendar#withAutoUiLocale()} (#273).
+ * The time zone field with {@link Timezone#LOCAL} (#273), and the UI locale, which the calendar does not follow.
  */
 public class AutoBrowserSettingsTest extends BrowserlessTest {
 
     private static final Timezone BERLIN = new Timezone(ZoneId.of("Europe/Berlin"));
     private static final Timezone TOKYO = new Timezone(ZoneId.of("Asia/Tokyo"));
-    private static final Timezone NEW_YORK = new Timezone(ZoneId.of("America/New_York"));
 
     private FullCalendar calendar;
 
@@ -122,26 +121,6 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
     }
 
     @Test
-    void withAutoBrowserTimezone_isSetTimeZoneLocal() {
-        FullCalendar viaOptions = new FullCalendar();
-        for (FullCalendar c : List.of(calendar, viaOptions)) {
-            c.options().setTimeZone(TOKYO);
-            c.setBrowserTimezone("Europe/Berlin");
-        }
-
-        calendar.withAutoBrowserTimezone();
-        viaOptions.options().setTimeZone(Timezone.LOCAL);
-
-        // both take the known zone at once and follow the next report
-        assertEquals(BERLIN, calendar.options().getTimeZone());
-        assertEquals(BERLIN, viaOptions.options().getTimeZone());
-        calendar.setBrowserTimezone("America/New_York");
-        viaOptions.setBrowserTimezone("America/New_York");
-        assertEquals(NEW_YORK, calendar.options().getTimeZone());
-        assertEquals(NEW_YORK, viaOptions.options().getTimeZone());
-    }
-
-    @Test
     void timezoneNull_viaSetOption_isLocal() {
         calendar.options().setTimeZone(TOKYO);
 
@@ -187,7 +166,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
         calendar = new FullCalendar(initialOptions);
 
         assertEquals(Timezone.LOCAL, calendar.getOption(Option.TIMEZONE).orElseThrow());
-        assertTrue(calendar.getRawOption("timeZone").isEmpty());
+        assertTrue(calendar.options().getRawOption("timeZone").isEmpty());
 
         calendar.setBrowserTimezone("Europe/Berlin");
 
@@ -199,37 +178,7 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void autoUiLocale_onAttach_takesUiLocale() {
-        UI.getCurrent().setLocale(Locale.GERMAN);
-        calendar.withAutoUiLocale();
-
-        UI.getCurrent().add(calendar);
-
-        assertEquals(Locale.GERMAN, calendar.getOption(Option.LOCALE).orElseThrow());
-    }
-
-    @Test
-    void autoUiLocale_followsLocaleChange() {
-        calendar.withAutoUiLocale();
-        UI.getCurrent().add(calendar);
-
-        UI.getCurrent().setLocale(Locale.FRENCH);
-
-        assertEquals(Locale.FRENCH, calendar.getOption(Option.LOCALE).orElseThrow());
-    }
-
-    @Test
-    void autoUiLocale_enabledAfterAttach_isAppliedAtOnce() {
-        UI.getCurrent().setLocale(Locale.GERMAN);
-        UI.getCurrent().add(calendar);
-
-        calendar.withAutoUiLocale();
-
-        assertEquals(Locale.GERMAN, calendar.getOption(Option.LOCALE).orElseThrow());
-    }
-
-    @Test
-    void withoutAutoUiLocale_localeChange_isIgnored() {
+    void uiLocaleChange_isIgnored() {
         Locale before = calendar.<Locale>getOption(Option.LOCALE).orElseThrow();
         UI.getCurrent().add(calendar);
 

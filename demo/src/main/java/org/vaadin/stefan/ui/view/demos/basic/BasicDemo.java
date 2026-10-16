@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.basic;
 
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.ui.dialogs.DemoDialog;
 import org.vaadin.stefan.ui.view.AbstractCalendarView;

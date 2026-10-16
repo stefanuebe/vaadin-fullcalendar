@@ -17,8 +17,9 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import org.vaadin.stefan.fullcalendar.ListTextValue;
-import org.vaadin.stefan.fullcalendar.TextContent;
+import org.vaadin.stefan.fullcalendar.option.NoneValue;
+import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
 import tools.jackson.databind.JsonNode;
 
 /**
@@ -35,7 +36,7 @@ public class ListTextValueConverter implements JsonItemPropertyConverter<ListTex
     public JsonNode toClientModel(ListTextValue serverValue, Object currentInstance) {
         return switch (serverValue) {
             case TextContent text -> JsonUtils.toJsonNode(text.text());
-            case ListTextValue.None ignored -> JsonUtils.toJsonNode(false);
+            case NoneValue.None ignored -> JsonUtils.toJsonNode(false);
         };
     }
 

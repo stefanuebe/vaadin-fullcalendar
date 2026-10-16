@@ -1,5 +1,30 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
+import org.vaadin.stefan.fullcalendar.option.CssSelector;
+import org.vaadin.stefan.fullcalendar.option.CssSelectorValue;
+import org.vaadin.stefan.fullcalendar.option.DateFormat;
+import org.vaadin.stefan.fullcalendar.option.DateFormatValue;
+import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
+import org.vaadin.stefan.fullcalendar.option.HeightValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
+import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.NoneValue;
+import org.vaadin.stefan.fullcalendar.option.NowValue;
+import org.vaadin.stefan.fullcalendar.option.Overlap;
+import org.vaadin.stefan.fullcalendar.option.OverlapValue;
+import org.vaadin.stefan.fullcalendar.option.StickyValue;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.ViewName;
+import org.vaadin.stefan.fullcalendar.option.ViewNameValue;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -22,7 +47,7 @@ class ValueTypeSwitchTest {
 
     private static String form(BusinessHoursValue value) {
         return switch (value) {
-            case BusinessHoursValue.None ignored -> "none";
+            case NoneValue.None ignored -> "none";
             case BusinessHoursValue.Default ignored -> "default";
             case BusinessHoursValue.Hours hours -> "hours";
         };
@@ -45,7 +70,7 @@ class ValueTypeSwitchTest {
 
     private static String form(EntryLimitValue value) {
         return switch (value) {
-            case EntryLimitValue.None ignored -> "none";
+            case NoneValue.None ignored -> "none";
             case EntryLimitValue.CellHeight ignored -> "cell height";
             case EntryLimitValue.Count count -> String.valueOf(count.count());
         };
@@ -91,14 +116,14 @@ class ValueTypeSwitchTest {
         return switch (value) {
             case DateFormat format -> "format";
             case JsCallback callback -> "callback";
-            case ListDayFormatValue.None ignored -> "hidden";
+            case NoneValue.None ignored -> "none";
         };
     }
 
     private static String form(ListTextValue value) {
         return switch (value) {
             case TextContent text -> text.text();
-            case ListTextValue.None ignored -> "hidden";
+            case NoneValue.None ignored -> "none";
         };
     }
 

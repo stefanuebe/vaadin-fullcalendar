@@ -16,8 +16,9 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.EntryLimitValue;
+import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
+import org.vaadin.stefan.fullcalendar.option.NoneValue;
 import tools.jackson.databind.JsonNode;
 
 /**
@@ -33,7 +34,7 @@ public class EntryLimitValueConverter implements JsonItemPropertyConverter<Entry
     @Override
     public JsonNode toClientModel(EntryLimitValue serverValue, Object currentInstance) {
         return switch (serverValue) {
-            case EntryLimitValue.None ignored -> JsonUtils.toJsonNode(false);
+            case NoneValue.None ignored -> JsonUtils.toJsonNode(false);
             case EntryLimitValue.CellHeight ignored -> JsonUtils.toJsonNode(true);
             case EntryLimitValue.Count count -> JsonUtils.toJsonNode(count.count());
         };

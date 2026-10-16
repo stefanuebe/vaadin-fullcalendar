@@ -1,5 +1,11 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;

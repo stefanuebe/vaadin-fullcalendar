@@ -2,7 +2,7 @@ package org.vaadin.stefan.ui.view.samples;
 
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 
 import static org.vaadin.stefan.fullcalendar.Option.*;
 

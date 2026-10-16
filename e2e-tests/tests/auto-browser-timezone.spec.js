@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 const { waitForVaadin } = require('./fixtures');
 
 /**
- * FullCalendar.withAutoBrowserTimezone(): the time zone the browser reports becomes the server's time zone (#273).
+ * Timezone.LOCAL: the time zone the browser reports becomes the server's time zone (#273).
  */
 test.describe('Auto browser time zone', () => {
     test.use({ timezoneId: 'America/New_York' });

@@ -17,7 +17,7 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import org.vaadin.stefan.fullcalendar.StickyValue;
+import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import tools.jackson.databind.JsonNode;
 
 /**

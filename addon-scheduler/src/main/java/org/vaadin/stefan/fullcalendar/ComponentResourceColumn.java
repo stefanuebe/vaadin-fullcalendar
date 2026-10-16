@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.function.SerializableFunction;
 import lombok.NonNull;

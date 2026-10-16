@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.DetachEvent;
@@ -548,18 +549,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             }
         }
         super.setOption(option, value, valueForServerSide, converters);
-    }
-
-    @Override
-    public FullCalendarScheduler withAutoBrowserTimezone() {
-        super.withAutoBrowserTimezone();
-        return this;
-    }
-
-    @Override
-    public FullCalendarScheduler withAutoUiLocale() {
-        super.withAutoUiLocale();
-        return this;
     }
 
     /**

@@ -33,7 +33,7 @@ public class FlushOptionsTestView extends VerticalLayout {
         calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 15));
 
         add(new Button("Step a year and go next", e -> {
-            calendar.setRawOption("dateIncrement", JsonFactory.createObject().put("years", 1));
+            calendar.options().setRawOption("dateIncrement", JsonFactory.createObject().put("years", 1));
             calendar.next();
             e.getSource().setEnabled(false);
         }), calendar);

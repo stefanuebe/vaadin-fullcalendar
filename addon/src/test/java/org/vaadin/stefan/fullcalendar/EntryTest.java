@@ -1,5 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.function.ValueProvider;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Assertions;

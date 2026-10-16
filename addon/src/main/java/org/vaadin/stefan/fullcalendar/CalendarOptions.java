@@ -16,6 +16,8 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +43,8 @@ class CalendarOptions implements Serializable {
 
     /**
      * First day of the week. Without a value, the locale decides.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/firstDay">firstDay</a>
      */
@@ -51,6 +55,8 @@ class CalendarOptions implements Serializable {
      * The date the calendar shows when it is created. The default is the current date.
      * <p>
      * It has no effect on a calendar the browser already shows. Use {@link FullCalendar#gotoDate(LocalDate)} instead.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
      *
      * @see FullCalendar#gotoDate(LocalDate)
      * @see <a href="https://fullcalendar.io/docs/initialDate">initialDate</a>
@@ -67,6 +73,8 @@ class CalendarOptions implements Serializable {
      * {@link FullCalendar#setAutoProvideEntryIdOnClient(boolean)}. The merge needs a function with a body in braces.
      * A callback without one, such as {@code info => info.el.title = 'x'}, is sent as it is, without the native
      * listeners and the entry id.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
      *
      * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventDidMount</a>
      */

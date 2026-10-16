@@ -20,5 +20,5 @@
 
 - [ ] The initial state has `headerToolbar: false` and the default locale.
 - [ ] `calendar.getLocale()` still returns the UI locale.
-- [ ] `withAutoUiLocale()` sets the `locale` field.
+- [ ] ~~`withAutoUiLocale()` sets the `locale` field.~~ Dropped: `withAutoUiLocale()` is removed (PR #363 review, 2026-10-16, see the spec, *Removed API*).
 - [ ] Playwright: no FullCalendar toolbar on a calendar with nothing set.

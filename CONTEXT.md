@@ -44,6 +44,10 @@ _Avoid_: Custom property
 A named FullCalendar setting, set on a calendar via the option API. Options are the primary way developers configure a calendar; option names follow the current FullCalendar JS names.
 _Avoid_: Property, setting
 
+**Raw option**:
+An option set by its library name with a JSON-convertible value, bypassing the add-on's types (`setRawOption`). It wins over the typed value of the same option. An expert escape hatch, not the normal way to configure a calendar.
+_Avoid_: Custom option, untyped option
+
 ### Styling
 
 **FullCalendar theme**:

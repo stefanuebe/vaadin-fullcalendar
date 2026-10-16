@@ -5,7 +5,7 @@
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
 | Status | ready-for-agent |
-| Blocked by | `24-value-types-auto-false-now` |
+| Blocked by | `24-value-types-auto-false-now`, `58-pr-363-review-round-1` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
 ---
@@ -28,7 +28,7 @@ The list below comes from a sweep of every non-deprecated `Type` block in `Optio
 
 Decide per option whether a value type is needed or one Java type covers all forms, and record the decision in the type's Javadoc, as in 24.
 
-**Blocked by:** `24-value-types-auto-false-now`
+**Blocked by:** `24-value-types-auto-false-now`, `58-pr-363-review-round-1`
 
 **Status:** ready-for-agent
 

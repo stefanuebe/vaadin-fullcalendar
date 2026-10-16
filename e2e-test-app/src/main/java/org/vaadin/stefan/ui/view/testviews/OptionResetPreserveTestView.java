@@ -7,7 +7,7 @@ import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
@@ -43,7 +43,7 @@ public class OptionResetPreserveTestView extends VerticalLayout {
         calendar.setId("cal-option-reset-preserve");
         calendar.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 3));
         calendar.setOption(Option.ENTRY_COLOR, "red");
-        calendar.setRawOption("eventDataTransform", JsCallback.of("""
+        calendar.options().setRawOption("eventDataTransform", JsCallback.of("""
                 (() => {
                     window.preserveEvaluations = (window.preserveEvaluations || 0) + 1;
                     return function(data) { return data; };

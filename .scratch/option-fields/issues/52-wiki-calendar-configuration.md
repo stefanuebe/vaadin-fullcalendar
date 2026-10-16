@@ -10,7 +10,7 @@
 
 ---
 
-**What to build:** Rewrite the page around `options()`, `options().view(…)`, value-or-callback setters, `setRawOption` as an expert feature and the time zone default `LOCAL`. On the local wiki branch `8.0`, written as the final state, reviewed per section with three agents, language by Opus. Spec: *Documentation*.
+**What to build:** Rewrite the page around `options()`, `options().view(…)`, value-or-callback setters, `setRawOption` as an expert feature (on `options()` and per view on `options().view(…)`, 58) and the time zone default `LOCAL`. The wiki page *Glossary* gets the term *Raw option* that `CONTEXT.md` defines (58). On the local wiki branch `8.0`, written as the final state, reviewed per section with three agents, language by Opus. Spec: *Documentation*.
 
 **Blocked by:** `51-remove-old-option-api`
 

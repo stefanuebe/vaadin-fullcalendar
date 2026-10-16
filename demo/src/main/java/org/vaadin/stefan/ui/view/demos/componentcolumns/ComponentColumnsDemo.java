@@ -1,5 +1,8 @@
 package org.vaadin.stefan.ui.view.demos.componentcolumns;
 
+import org.vaadin.stefan.fullcalendar.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.ResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -44,7 +47,7 @@ public class ComponentColumnsDemo extends VerticalLayout {
         // Build scheduler
         scheduler = new FullCalendarScheduler();
         scheduler.setOption(SchedulerOption.LICENSE_KEY, Scheduler.AGPL_V3_LICENSE_KEY);
-        scheduler.withAutoBrowserTimezone();
+        scheduler.options().setTimeZone(Timezone.LOCAL);
 
         scheduler.setOption(Option.INITIAL_VIEW, SchedulerView.RESOURCE_TIMELINE_MONTH.getClientSideValue());
         scheduler.setOption(Option.INITIAL_DATE, LocalDate.of(2025, 3, 1));

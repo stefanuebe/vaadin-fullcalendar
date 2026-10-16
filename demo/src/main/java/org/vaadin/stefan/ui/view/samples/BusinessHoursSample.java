@@ -1,6 +1,6 @@
 package org.vaadin.stefan.ui.view.samples;
 
-import org.vaadin.stefan.fullcalendar.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 
 import java.time.DayOfWeek;

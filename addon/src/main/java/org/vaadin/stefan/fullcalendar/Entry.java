@@ -16,6 +16,9 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.ValueProvider;

@@ -1,5 +1,6 @@
 package org.vaadin.stefan.util;
 
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

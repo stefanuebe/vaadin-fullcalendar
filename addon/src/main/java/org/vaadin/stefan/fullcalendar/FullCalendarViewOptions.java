@@ -18,7 +18,10 @@ package org.vaadin.stefan.fullcalendar;
 
 import lombok.experimental.Delegate;
 
-import java.io.Serializable;
+import tools.jackson.databind.JsonNode;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -29,7 +32,7 @@ import java.util.Objects;
  * this view, so it is null when only a calendar-wide value exists. Null removes the view's value, so the view falls
  * back to the calendar-wide value.
  */
-public class FullCalendarViewOptions implements Serializable {
+public class FullCalendarViewOptions extends AbstractOptions {
 
     private final FullCalendar calendar;
     private final String view;
@@ -40,10 +43,21 @@ public class FullCalendarViewOptions implements Serializable {
     }
 
     /**
-     * Removes all values set for this view, so the view falls back to the calendar-wide values.
+     * Removes all values set for this view, raw options included, so the view falls back to the calendar-wide values.
      */
     public void clear() {
         calendar.perViewOptions.remove(view);
+        calendar.perViewRawOptions.remove(view);
+        calendar.optionsChanged();
+    }
+
+    @Override
+    Map<String, JsonNode> rawOptions() {
+        return calendar.perViewRawOptions.computeIfAbsent(view, key -> new HashMap<>());
+    }
+
+    @Override
+    void rawOptionsChanged() {
         calendar.optionsChanged();
     }
 

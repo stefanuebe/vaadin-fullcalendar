@@ -9,7 +9,7 @@ import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.Option;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;

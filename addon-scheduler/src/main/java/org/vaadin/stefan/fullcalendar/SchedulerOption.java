@@ -16,6 +16,9 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.EntryPrintLayout;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.converter.ResourceColumnsConverter;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;

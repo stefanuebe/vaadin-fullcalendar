@@ -16,9 +16,9 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
-import org.vaadin.stefan.fullcalendar.NowValue;
+import org.vaadin.stefan.fullcalendar.option.NowValue;
 import tools.jackson.databind.JsonNode;
 
 /**

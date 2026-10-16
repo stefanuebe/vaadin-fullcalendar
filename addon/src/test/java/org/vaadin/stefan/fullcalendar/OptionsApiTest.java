@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class OptionsApiTest {
 
     @ParameterizedTest
-    @ValueSource(classes = {FullCalendarOptions.class, FullCalendarViewOptions.class})
+    @ValueSource(classes = {AbstractOptions.class, FullCalendarOptions.class, FullCalendarViewOptions.class})
     void publicMethodsArePinned(Class<?> type) throws IOException {
         String actual = Arrays.stream(type.getDeclaredMethods())
                 .filter(method -> Modifier.isPublic(method.getModifiers()))
@@ -37,7 +37,7 @@ class OptionsApiTest {
     }
 
     @ParameterizedTest
-    @ValueSource(classes = {FullCalendarOptions.class, FullCalendarViewOptions.class})
+    @ValueSource(classes = {AbstractOptions.class, FullCalendarOptions.class, FullCalendarViewOptions.class})
     void hasNoPublicConstructor(Class<?> type) {
         assertEquals(List.of(), List.of(type.getConstructors()));
     }

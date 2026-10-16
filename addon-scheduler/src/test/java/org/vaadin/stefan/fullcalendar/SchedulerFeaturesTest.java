@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.html.Span;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

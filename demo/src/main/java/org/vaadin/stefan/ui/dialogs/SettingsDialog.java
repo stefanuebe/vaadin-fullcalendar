@@ -6,10 +6,10 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import org.vaadin.stefan.fullcalendar.CalendarLocale;
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.Option;
-import org.vaadin.stefan.fullcalendar.Timezone;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.ZoneId;
 import java.util.Arrays;

@@ -1,5 +1,6 @@
 package org.vaadin.stefan.ui.view.demos.externaldrag;
 
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;

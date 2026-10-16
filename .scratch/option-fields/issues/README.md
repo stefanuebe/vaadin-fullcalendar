@@ -35,7 +35,7 @@ Every field:
 - is a wrapper type (`Boolean`, `Integer`), not a primitive, and starts as `null`;
 - sits in `CalendarOptions` if the option-name resource flags it as global, otherwise in `ViewOptions`;
 - sits in the topic section of its batch in the source;
-- has Javadoc with a short description and an `@see` link to its library docs page. The old Javadoc of the `Option` constant is the source for this text. Its `<dt>Type</dt>` blocks and its `setOption` examples are not carried over;
+- has Javadoc with a short description and an `@see` link to its library docs page. A field without an initial value says that the getter returns null while the option is not set (58: "The getter returns null while the option is not set; then the library default applies."). The old Javadoc of the `Option` constant is the source for this text. Its `<dt>Type</dt>` blocks and its `setOption` examples are not carried over;
 - has its getter and setters in the pinned method lists `FullCalendarOptions-api.txt` or `FullCalendarViewOptions-api.txt` (test resources, see 12). A new value type goes into `VALUE_TYPES` in `ConverterTest`, with its converter and a value of each form with the JSON the library reads for it, and gets a `form(…)` switch in `ValueTypeSwitchTest`; a field with a converter for a one-form type adds the type and its converter to `ONE_FORM_TYPES` in `ConverterTest`. A field of a new one-form type adds a value of it with its client JSON to `ONE_FORM_SAMPLES` in `TypedOptionsSyncTest`, which sets every field through each of its setters and checks what reaches the client; a new setter parameter type goes into `PARAMETER_SAMPLES` there, and a setter whose field writes that type differently gets its own entry in `SETTER_SAMPLES`. A field goes into `SYNCED_APART` only when the sync handles it apart and tests of its own cover it, never to turn that test green; the test checks that the named test class mentions the field. A `form(…)` switch in `ValueTypeSwitchTest` has no `default` branch;
 - takes every form the library takes for the option, if it takes more than one: its `.d.ts` type and refiner in `e2e-test-app/node_modules`, and its docs page, not only the forms of the old `Option` Javadoc. The goal is full coverage of the library: a form is left out only for a concrete technical reason, recorded in the batch ticket (as the format strings in 24, which need a plugin the add-on does not load). "Nobody asked for it" or "the old API did not have it" is no reason. Its setters, each with Javadoc that links to the getter (`{@link}`), are hand-written:
   - one taking the value type itself, which also sets the forms without data such as `HeightValue.AUTO` (maintainer, 2026-10-15);
@@ -47,11 +47,13 @@ A value form the value-type tickets (21–24, 57) do not cover is a finding. Rep
 
 ## Value types (21–24, 57)
 
+- **Packages (58):** every type a user passes as an option value lives in `…fullcalendar.option` (also in the scheduler module). New value types and forms go there. The options classes stay in the root package.
+
 Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The rules apply to every ticket that adds a value type, also 16 (toolbar) and 19 (`moreLinkClick`):
 
 - A value type is a sealed interface named `<Kind>Value` (`HeightValue`, `EntryLimitValue`), also when one of its forms is a `JsCallback`. A form is named for what it is (`ClassName`, `TextContent`, `HeightValue.Pixels`).
 - A form shared by several value types, and the value form of a value-or-callback type with a single value form, is a top-level type that implements each value type it belongs to (for example `JsCallback`, `TextContent`, `DateFormat`, `ClassName`, `HeaderAlign`, `Overlap`). Any other form is a record nested in its value type (`HeightValue.Pixels`).
-- A form without data is a constant on its value type (`HeightValue.AUTO`, `EntryLimitValue.NONE`, `ListTextValue.NONE`). The library's `true` and `false` get constants named for their meaning in that option (`NONE`, `CELL_HEIGHT`, `NOT_STICKY`); an enum form carries its own (`Overlap.FORBIDDEN`). There is no shared type for `false`.
+- A form without data is a constant on its value type (`HeightValue.AUTO`, `EntryLimitValue.NONE`, `ListTextValue.NONE`). The library's `true` and `false` get constants named for their meaning in that option (`NONE`, `CELL_HEIGHT`, `NOT_STICKY`); an enum form carries its own (`Overlap.FORBIDDEN`). Where switching the option off is the library's `false`, the value type extends `NoneValue` and takes the shared `NONE` (58); its Javadoc says what `NONE` means for that option. Other names stay where `NONE` would read wrong (`StickyValue.NOT_STICKY` next to `STICKY`).
 - A form with data gets a factory: `of(…)` when the value type has one form with data, otherwise `of<Form>(…)` (`ofPixels`, `ofCss`, `ofGroupId`, `ofDay`). A top-level form has its own `of(…)` (`TextContent.of`, `JsCallback.of`), which its value types do not repeat.
 - The Javadoc of the value type lists its forms and says in one sentence why one Java type does not cover them.
 - A converter writes each form as the library reads it and, reading back, throws `IllegalArgumentException` for a JSON kind no form has.
@@ -78,10 +80,6 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
   | `AutoBoolean` | none: one enum covers every form, its field keeps the Lombok setter |
 
 **Parallel run (maintainer, 2026-10-15):** once 11, 12, 21–24 and 57 are done (57 only for the batches it blocks), the batches can run as parallel Sonnet subagents, each in its own worktree. Before that, one small commit creates the empty topic sections in `CalendarOptions` and `ViewOptions`, so each agent only adds to its own section and the merges stay free of conflicts. Each agent gets its own `~/.m2` copy and its own ports (see the memory on parallel agent isolation). The main agent reviews each batch. The full gate runs once per merged wave, not per agent. Propose the concrete waves to the maintainer before 25 starts. The first wave starts after 24 and a compact, not earlier, so the value types are fixed and the main agent has room for the reviews (decided 2026-10-15). On a merge, the pinned method lists (`*-api.txt`) are not merged by hand: run `OptionsApiTest` and take the actual list it prints.
-
-## Review of 21–24 together (2026-10-15)
-
-A holistic review of everything 01–24 built ran before 57 and was committed as "Align the value types and their guards after a review of 21–24". The short setters `setEntryOverlap(boolean)` and `setXFormat(Map<String, Object>)` were decided by the maintainer; the wiki explains both ways in 52.
 
 ## Index
 
@@ -111,7 +109,8 @@ A holistic review of everything 01–24 built ran before 57 and was committed as
 | `22-value-types-other-callbacks.md` | Value types for the other value-or-callback options | 06 |
 | `23-value-types-constraints-business-hours-day-max.md` | Value types: constraints, business hours, entry limits | 06 |
 | `24-value-types-auto-false-now.md` | Value types: `"auto"`, `false` and date-or-date-time variants | 06 |
-| `57-value-types-order-ranges-lengths-durations.md` | Value types: entry order, ranges, week number calculation, lengths, durations | 24 |
+| `58-pr-363-review-round-1.md` | Packages, shared `NONE`, raw options on the options objects (PR #363 review) | 24 |
+| `57-value-types-order-ranges-lengths-durations.md` | Value types: entry order, ranges, week number calculation, lengths, durations | 24, 58 |
 | `25-fields-dates.md` | Fields: dates, ranges and durations | 11, 12, 24, 57 |
 | `26-fields-time-grid.md` | Fields: time grid and slots | 11, 12, 21, 24, 57 |
 | `27-fields-interaction.md` | Fields: interaction | 11, 12, 22, 23, 57 |

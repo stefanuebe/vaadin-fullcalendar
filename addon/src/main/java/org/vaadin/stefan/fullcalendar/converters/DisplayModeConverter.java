@@ -1,6 +1,6 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import tools.jackson.databind.JsonNode;
 
 /**

@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.DomEvent;
 import com.vaadin.flow.component.EventData;
