@@ -29,8 +29,8 @@ public class FullCalendarSchedulerViewOptions extends FullCalendarViewOptions {
         super(calendar, view);
     }
 
-    // The same instance as the core accessor, so this delegate also generates the core accessors again, as overrides.
-    @Delegate
+    // The same instance as the core accessor. The core methods are inherited, so the delegate excludes them.
+    @Delegate(excludes = ViewOptions.class)
     private SchedulerViewOptions schedulerViewOptions() {
         return (SchedulerViewOptions) viewOptions();
     }
