@@ -110,14 +110,10 @@ base.describe('Entry Properties — Visual Effects', () => {
             expect(count).toBeGreaterThanOrEqual(1);
         });
 
-        base('displayMode NONE with clientSideValue=null renders as auto (entry still visible)', async ({ page }) => {
-            // DisplayMode.NONE has clientSideValue=null, which FC treats as "auto" (not "none").
-            // This is a known behavior: to truly hide an entry, FC needs display="none" as a string.
-            // Our NONE enum sends null → FC falls back to auto rendering.
-            // This test documents and verifies that behavior.
-            const hiddenEntry = page.locator('.fc-event:has-text("Hidden Entry")').first();
-            // Entry IS rendered because null → auto
-            await expect(hiddenEntry).toBeVisible();
+        base('displayMode NONE hides the entry', async ({ page }) => {
+            // the calendar has rendered its other entries, so a missing hidden entry is not a render still pending
+            await expect(page.locator('.fc-event:has-text("Red Entry")').first()).toBeVisible();
+            await expect(page.locator('.fc-event:has-text("Hidden Entry")')).toHaveCount(0);
         });
     });
 

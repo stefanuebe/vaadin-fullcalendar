@@ -589,7 +589,7 @@ public class EntryTest {
         assertNull(entry.getColor());
         assertNull(entry.getContrastColor());
         assertFalse(entry.hasExtendedProp("description"));
-        assertEquals(DisplayMode.AUTO, entry.getDisplayMode());
+        assertNull(entry.getDisplayMode());
     }
 
     // Issue #212: disable DnD via calendar-level editable:false must no longer be overridden

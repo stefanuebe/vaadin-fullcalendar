@@ -57,5 +57,7 @@ base.describe('External Drop — Draggable API', () => {
         // the dropped and the received entry carry the extended props of the dragged entry data
         await expect(page.locator('#drop-extended-prop')).toHaveText('high', { timeout: 5000 });
         await expect(page.locator('#receive-extended-prop')).toHaveText('high', { timeout: 5000 });
+        // the dragged entry data has no display mode, so the received entry has none either and follows the calendar
+        await expect(page.locator('#receive-display-mode')).toHaveText('null', { timeout: 5000 });
     });
 });

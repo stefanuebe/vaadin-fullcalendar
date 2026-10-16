@@ -2,6 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.converters.DisplayModeConverter;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
@@ -831,13 +832,42 @@ public class EntryModelTest {
     }
 
     @Test
-    void displayMode_default_auto_notInJson() {
-        // Default displayMode is AUTO — should not appear in JSON (FC default)
+    void displayMode_notSet_notInJson() {
+        // an entry without its own display mode follows the calendar's eventDisplay, so it must not send one
+        ObjectNode json = new Entry().toJson();
+        assertFalse(json.has("display"));
+    }
+
+    @Test
+    void displayModeConverter_readsAMissingOrUnknownValueAsNotSet() {
+        DisplayModeConverter converter = new DisplayModeConverter();
+        assertNull(converter.toServerModel(null, null));
+        assertNull(converter.toServerModel(JsonFactory.createNull(), null));
+        assertNull(converter.toServerModel(JsonFactory.create(""), null));
+        assertNull(converter.toServerModel(JsonFactory.create("unknown"), null));
+        assertEquals(DisplayMode.AUTO, converter.toServerModel(JsonFactory.create("auto"), null));
+        assertEquals(DisplayMode.NONE, converter.toServerModel(JsonFactory.create("none"), null));
+    }
+
+    @Test
+    void displayMode_setToNull_isNotSentAnymore() {
         Entry entry = new Entry();
-        ObjectNode json = entry.toJson();
-        // AUTO is the default, it should either be absent or equal "auto"
-        if (json.has("display")) {
-            assertEquals("auto", json.get("display").asString());
-        }
+        entry.setDisplayMode(DisplayMode.BACKGROUND);
+        entry.setDisplayMode(null);
+        assertFalse(entry.toJson().has("display"));
+    }
+
+    @Test
+    void displayMode_auto_isSentAsAnExplicitValue() {
+        Entry entry = new Entry();
+        entry.setDisplayMode(DisplayMode.AUTO);
+        assertEquals("auto", entry.toJson().get("display").asString());
+    }
+
+    @Test
+    void displayMode_none_isSentAsNone() {
+        Entry entry = new Entry();
+        entry.setDisplayMode(DisplayMode.NONE);
+        assertEquals("none", entry.toJson().get("display").asString());
     }
 }
