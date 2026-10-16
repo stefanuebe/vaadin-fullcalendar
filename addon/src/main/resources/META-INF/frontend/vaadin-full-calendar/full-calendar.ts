@@ -155,11 +155,6 @@ export class FullCalendar extends HTMLElement {
      */
     protected moreLinkClickAction: any = "popover";
     protected prefetchEnabled = false;
-    /**
-     * Without a time zone option, the calendar starts with the browser's time zone instead of UTC. The server always
-     * sends a time zone, so nothing sets this any more.
-     */
-    protected autoBrowserTimezone = false;
 
     /** Pending revert functions from eventDrop/eventResize, keyed by entry ID. */
     private _pendingReverts: Map<string, () => void> = new Map();
@@ -259,7 +254,6 @@ export class FullCalendar extends HTMLElement {
         let events = this.createEventHandlers();
 
         let options: CalendarOptions = {
-            timeZone: this.autoBrowserTimezone ? 'local' : 'UTC',
             // // no native control elements
             headerToolbar: false,
             weekNumbers: true,
@@ -844,15 +838,15 @@ export class FullCalendar extends HTMLElement {
         this.moreLinkClickAction = evaluateCallbacks(value, this.createdCalendar) ?? "popover";
     }
 
+    // FC-UPDATE: check that FullCalendar still refetches the entries when the timeZone option changes
+    //  (reduceEventSourcesNewTimeZone). If not, call calendar.refetchEvents() here.
     /**
-     * Special executions for the case that the timezone had changed.
+     * Tells listeners on the element that the time zone changed. FullCalendar refetches the entries for a new time
+     * zone itself.
      * @param calendar calendar
      * @param value value
-     * @private
      */
     protected handleTimeZoneChange(calendar: Calendar, value: string) {
-        calendar.refetchEvents();
-
         this.dispatchEvent(new CustomEvent("timezone-changed", {
             detail: {
                 timezone: value

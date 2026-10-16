@@ -312,6 +312,17 @@ test.describe('Removing the time zone of an attached calendar', () => {
         await click(page, 'Remove time zone');
         await expect(time).toContainText('19:00');
     });
+
+    test('changing the time zone fetches the entries once', async ({ page }) => {
+        await gotoView(page);
+        await countFetches(page);
+
+        await click(page, 'Set time zone');
+        await expect(timedEntry(page).locator('.fc-event-time')).toContainText('05:00');
+        await waitForVaadin(page);
+
+        expect(await fetches(page)).toBe(1);
+    });
 });
 
 test.describe('Options of a calendar the browser creates again', () => {
