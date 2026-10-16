@@ -5,6 +5,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
@@ -28,6 +29,9 @@ import java.time.LocalDate;
  * The third calendar "cal-header-hooks" shows the week of 2025-03-15 in the time grid. Its buttons set the all-day
  * header content as text ("Text all-day") or from a callback ("Callback all-day"), and the day header alignment as
  * {@code center} or from a callback that returns {@code end}.
+ * <p>
+ * The fourth calendar "cal-initial-view-now" starts in the time grid week through the typed {@code initialView}, shows
+ * the week of 2025-03-15 and takes 2025-03-12 as the current date ({@code now}).
  * <p>
  * Route: /test/typed-options
  */
@@ -75,5 +79,13 @@ public class TypedOptionsTestView extends VerticalLayout {
                         e -> headerHooksCalendar.options().setDayHeaderAlign(HeaderAlign.CENTER)),
                 new Button("Header align from callback", e -> headerHooksCalendar.options().setDayHeaderAlign(
                         JsCallback.of("function() { return 'end'; }")))), headerHooksCalendar);
+
+        FullCalendar initialViewCalendar = new FullCalendar();
+        initialViewCalendar.setId("cal-initial-view-now");
+        initialViewCalendar.options().setInitialView(CalendarViewImpl.TIME_GRID_WEEK);
+        initialViewCalendar.options().setInitialDate(LocalDate.of(2025, 3, 15));
+        initialViewCalendar.options().setNow(LocalDate.of(2025, 3, 12));
+        initialViewCalendar.setHeight("300px");
+        add(initialViewCalendar);
     }
 }

@@ -22,6 +22,14 @@ import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
+import org.vaadin.stefan.fullcalendar.option.DurationValue;
+import org.vaadin.stefan.fullcalendar.option.NowValue;
+import org.vaadin.stefan.fullcalendar.converters.DateRangeValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.DayOfWeekArrayConverter;
+import org.vaadin.stefan.fullcalendar.converters.DurationValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.NowValueConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
@@ -31,6 +39,14 @@ import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+import java.time.Period;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.Duration;
+import java.time.DayOfWeek;
 
 /**
  * The options that can apply per view. Null means not set. This class is not public API. Users reach the fields through
@@ -3042,6 +3058,463 @@ class ViewOptions implements Serializable {
     private String toolbarTitleClass;
 
     // Dates, ranges and durations
+
+    /**
+     * How the duration of an entry changes when it is dragged between the timed and the all-day section.
+     * <p>
+     * With {@code true}, the duration stays roughly the same (hourly durations are rounded down to whole days).
+     * With {@code false}, the duration is reset to the default all-day or timed entry duration of the target
+     * section.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/allDayMaintainDuration">allDayMaintainDuration</a>
+     */
+    private Boolean allDayMaintainDuration;
+
+    /**
+     * Determines the first visible day of a custom view, such as {@code "week"} or {@code "month"}, so the view
+     * starts at the start of that interval. Without a value, the library generates it from the duration of the
+     * view. The library ignores it when {@code visibleRange} defines the range of the view.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dateAlignment">dateAlignment</a>
+     */
+    private String dateAlignment;
+
+    /**
+     * How far the calendar navigates when the user presses prev or next, or when the calendar's prev or next
+     * method runs. For a custom view with a {@code duration}, that duration is the default.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dateIncrement">dateIncrement</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    private DurationValue dateIncrement;
+
+    /**
+     * Sets a time-based duration, see {@link #getDateIncrement()}.
+     *
+     * @param duration the duration, days count as 24 hours, or null to remove the option
+     */
+    public void setDateIncrement(Duration duration) {
+        this.dateIncrement = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration, see {@link #getDateIncrement()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setDateIncrement(Period period) {
+        this.dateIncrement = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]}, see {@link #getDateIncrement()}.
+     *
+     * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
+     */
+    public void setDateIncrement(String text) {
+        this.dateIncrement = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getDateIncrement()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setDateIncrement(DurationValue value) {
+        this.dateIncrement = value;
+    }
+
+    /**
+     * The exact number of days a custom view shows, regardless of {@code weekends} and {@code hiddenDays}. With a
+     * {@code duration} instead, hidden days are omitted and the view stretches to fill the space.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dayCount">dayCount</a>
+     */
+    private Integer dayCount;
+
+    /**
+     * Whether the day headers appear in the month, day grid and time grid views. Set it to {@code false} to hide
+     * them, for example in a single-day view.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dayHeaders">dayHeaders</a>
+     */
+    private Boolean dayHeaders;
+
+    /**
+     * The default value of the all-day flag for entries that do not specify one. Without a value, the library
+     * guesses the flag from the entry data.
+     * <p>
+     * It applies to entries received after the change, for example after navigating to another view or period.
+     * Existing entries are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/defaultAllDay">defaultAllDay</a>
+     */
+    private Boolean defaultAllDay;
+
+    /**
+     * A fallback duration for all-day entries without an end. The end of the entry stays unset unless
+     * {@link #getForceEntryDuration()} is {@code true}. For timed entries, see
+     * {@link #getDefaultTimedEntryDuration()}.
+     * <p>
+     * It applies to entries received after the change, for example after navigating to another view or period.
+     * Single entries already shown are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/defaultAllDayEventDuration">defaultAllDayEventDuration</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    @JsonName("defaultAllDayEventDuration")
+    private DurationValue defaultAllDayEntryDuration;
+
+    /**
+     * Sets a time-based duration, see {@link #getDefaultAllDayEntryDuration()}.
+     *
+     * @param duration the duration, days count as 24 hours, or null to remove the option
+     */
+    public void setDefaultAllDayEntryDuration(Duration duration) {
+        this.defaultAllDayEntryDuration = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration, see {@link #getDefaultAllDayEntryDuration()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setDefaultAllDayEntryDuration(Period period) {
+        this.defaultAllDayEntryDuration = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]},
+     * see {@link #getDefaultAllDayEntryDuration()}.
+     *
+     * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
+     */
+    public void setDefaultAllDayEntryDuration(String text) {
+        this.defaultAllDayEntryDuration = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getDefaultAllDayEntryDuration()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setDefaultAllDayEntryDuration(DurationValue value) {
+        this.defaultAllDayEntryDuration = value;
+    }
+
+    /**
+     * A fallback duration for timed entries without an end. The end of the entry stays unset unless
+     * {@link #getForceEntryDuration()} is {@code true}. For all-day entries, see
+     * {@link #getDefaultAllDayEntryDuration()}.
+     * <p>
+     * It applies to entries received after the change, for example after navigating to another view or period.
+     * Single entries already shown are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/defaultTimedEventDuration">defaultTimedEventDuration</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    @JsonName("defaultTimedEventDuration")
+    private DurationValue defaultTimedEntryDuration;
+
+    /**
+     * Sets a time-based duration, see {@link #getDefaultTimedEntryDuration()}.
+     *
+     * @param duration the duration, days count as 24 hours, or null to remove the option
+     */
+    public void setDefaultTimedEntryDuration(Duration duration) {
+        this.defaultTimedEntryDuration = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration, see {@link #getDefaultTimedEntryDuration()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setDefaultTimedEntryDuration(Period period) {
+        this.defaultTimedEntryDuration = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]},
+     * see {@link #getDefaultTimedEntryDuration()}.
+     *
+     * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
+     */
+    public void setDefaultTimedEntryDuration(String text) {
+        this.defaultTimedEntryDuration = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getDefaultTimedEntryDuration()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setDefaultTimedEntryDuration(DurationValue value) {
+        this.defaultTimedEntryDuration = value;
+    }
+
+    /**
+     * The exact duration of a custom view. A duration in weeks, such as one week, aligns the view to the start of
+     * the week, a duration of seven days does not.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/duration">duration</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    private DurationValue duration;
+
+    /**
+     * Sets a time-based duration, see {@link #getDuration()}.
+     *
+     * @param duration the duration, days count as 24 hours, or null to remove the option
+     */
+    public void setDuration(Duration duration) {
+        this.duration = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration, see {@link #getDuration()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setDuration(Period period) {
+        this.duration = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]}, see {@link #getDuration()}.
+     *
+     * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
+     */
+    public void setDuration(String text) {
+        this.duration = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getDuration()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setDuration(DurationValue value) {
+        this.duration = value;
+    }
+
+    /**
+     * Whether a month view always shows six weeks. With {@code false}, it shows four, five or six weeks, depending
+     * on the month.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/fixedWeekCount">fixedWeekCount</a>
+     */
+    private Boolean fixedWeekCount;
+
+    /**
+     * Whether the library assigns an end to entries without one, using {@link #getDefaultTimedEntryDuration()} or
+     * {@link #getDefaultAllDayEntryDuration()}. With {@code false}, the end of such an entry stays unset.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/forceEventDuration">forceEventDuration</a>
+     */
+    @JsonName("forceEventDuration")
+    private Boolean forceEntryDuration;
+
+    /**
+     * The heading level of the title of the library's toolbar in the document outline. The title is rendered as a
+     * {@code div} with an {@code aria-level} attribute, so the level does not change how it looks. Set it to match
+     * the page around the calendar, so screen readers find the title at the right level.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/headingLevel">headingLevel</a>
+     */
+    private Integer headingLevel;
+
+    /**
+     * The days of the week to hide. Without a value, no day is hidden, unless {@code weekends} is {@code false}.
+     * <p>
+     * When set, the getter returns an unmodifiable set.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/hiddenDays">hiddenDays</a>
+     */
+    @JsonConverter(DayOfWeekArrayConverter.class)
+    private Set<DayOfWeek> hiddenDays;
+
+    /**
+     * Sets the days to hide, see {@link #getHiddenDays()}. The add-on keeps an unmodifiable copy in the order of the
+     * week, so a later change of the passed set has no effect.
+     *
+     * @param hiddenDays the days to hide, or null to remove the option
+     */
+    public void setHiddenDays(Set<DayOfWeek> hiddenDays) {
+        this.hiddenDays = hiddenDays == null ? null
+                : hiddenDays.isEmpty() ? Set.of() : Collections.unmodifiableSet(EnumSet.copyOf(hiddenDays));
+    }
+
+    /**
+     * How far a timed entry must run into the next day before it renders on that day. It applies only to timed
+     * entries shown on whole days, such as in day grid, multi-month and list views, and in timeline views with
+     * day-sized slots. With a threshold of 9am, an entry from 8pm to 2am appears on one day only.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/nextDayThreshold">nextDayThreshold</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    private DurationValue nextDayThreshold;
+
+    /**
+     * Sets a time-based duration, see {@link #getNextDayThreshold()}.
+     *
+     * @param duration the duration, days count as 24 hours, or null to remove the option
+     */
+    public void setNextDayThreshold(Duration duration) {
+        this.nextDayThreshold = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration, see {@link #getNextDayThreshold()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setNextDayThreshold(Period period) {
+        this.nextDayThreshold = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets a duration in the string format {@code [-][d.]hh:mm[:ss[.sss]]}, see {@link #getNextDayThreshold()}.
+     *
+     * @param text the duration, such as {@code "08:30"} or {@code "1.12:00"}, or null to remove the option
+     */
+    public void setNextDayThreshold(String text) {
+        this.nextDayThreshold = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getNextDayThreshold()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setNextDayThreshold(DurationValue value) {
+        this.nextDayThreshold = value;
+    }
+
+    /**
+     * The current date of the calendar, the day it highlights as today. Without a value, the date of the
+     * browser is used. It is useful with a time zone other than the one of the browser.
+     * <p>
+     * A callback runs on the client and returns the date.
+     * <p>
+     * The library reads a date value only when the browser creates the calendar. So a change on a calendar the
+     * browser shows has no effect. A calendar that is detached and attached again (not within one round trip) starts
+     * with the current value, or without one if the option was removed. The same applies when the browser creates
+     * the calendar again, for example on a refresh with {@code @PreserveOnRefresh}. A callback is read again when
+     * the time zone or locale changes.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/now">now</a>
+     */
+    @JsonConverter(NowValueConverter.class)
+    private NowValue now;
+
+    /**
+     * Sets a date as the current date, see {@link #getNow()}.
+     *
+     * @param date the date, or null to remove the option
+     */
+    public void setNow(LocalDate date) {
+        this.now = date == null ? null : NowValue.ofDay(date);
+    }
+
+    /**
+     * Sets a date and time as the current date, see {@link #getNow()}.
+     *
+     * @param dateTime the date and time, read as UTC like the start and end of entries, or null to remove the option
+     */
+    public void setNow(LocalDateTime dateTime) {
+        this.now = dateTime == null ? null : NowValue.ofDateTime(dateTime);
+    }
+
+    /**
+     * Sets the current date in any form, see {@link #getNow()}.
+     *
+     * @param value the date or callback, or null to remove the option
+     */
+    public void setNow(NowValue value) {
+        this.now = value;
+    }
+
+    /**
+     * Whether a month view renders the dates of the previous and the next month. Dates that are disabled do not
+     * render entries.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/showNonCurrentDates">showNonCurrentDates</a>
+     */
+    private Boolean showNonCurrentDates;
+
+    /**
+     * The date range the user can navigate to and where entries can go. Dates outside of the range are grayed
+     * out, entries cannot be dragged or resized into them, and the prev and next buttons are disabled when they
+     * would leave the range. One bound may stay open (a {@link DateRange} with a null start or end).
+     * <p>
+     * A callback gets the start of the current day and returns the range. The library calls it several times per
+     * view render, so keep it cheap.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/validRange">validRange</a>
+     */
+    @JsonConverter(DateRangeValueConverter.class)
+    private DateRangeValue validRange;
+
+    /**
+     * The exact date range a view shows. The end is exclusive. The library ignores a range with an open bound.
+     * It applies only to views that define neither a duration nor a day count.
+     * <p>
+     * A callback gets the date the view is currently at and returns the range. The library calls it several times
+     * per view render, so keep it cheap.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/visibleRange">visibleRange</a>
+     */
+    @JsonConverter(DateRangeValueConverter.class)
+    private DateRangeValue visibleRange;
+
+    /**
+     * Whether week numbers are displayed next to each row of days in month and day grid views, and in the top-left
+     * corner of time grid views. The week number calculation follows the locale, see {@code weekNumberCalculation}.
+     * <p>
+     * The library default is {@code false}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/weekNumbers">weekNumbers</a>
+     */
+    private Boolean weekNumbers;
 
     // Time grid and slots
 

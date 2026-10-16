@@ -27,6 +27,7 @@ import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
 import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.ViewName;
 import org.vaadin.stefan.fullcalendar.option.ViewNameValue;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
@@ -51,6 +52,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +119,21 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
 
         calendar.options().setEditable(null);
         assertTrue(respond().getFirst().get("editable").isNull());
+    }
+
+    @Test
+    void hiddenDays_laterChangeOfThePassedSet_doesNotChangeTheOption() {
+        Set<DayOfWeek> days = new HashSet<>(Set.of(DayOfWeek.SUNDAY, DayOfWeek.MONDAY));
+        calendar.options().setHiddenDays(days);
+        days.add(DayOfWeek.FRIDAY);
+
+        assertEquals(Set.of(DayOfWeek.SUNDAY, DayOfWeek.MONDAY), calendar.options().getHiddenDays());
+        assertThrows(UnsupportedOperationException.class, () -> calendar.options().getHiddenDays().clear());
+
+        calendar.options().setHiddenDays(null);
+        assertNull(calendar.options().getHiddenDays());
+        calendar.options().setHiddenDays(new HashSet<>());
+        assertEquals(Set.of(), calendar.options().getHiddenDays());
     }
 
     @Test
@@ -461,6 +478,8 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(String.class, "x", JsonUtils.toJsonNode("x")),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
+            sample(ViewName.class, ViewName.of("timeGridDay"), JsonUtils.toJsonNode("timeGridDay")),
+            sample(Set.class, Set.of(DayOfWeek.WEDNESDAY), JsonFactory.createArray().add(3)),
             sample(JsCallback.class, JsCallback.of("() => {}"), JsCallback.of("() => {}").toMarkerJson()));
 
     /**
@@ -476,6 +495,10 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(Boolean.class, true, JsonUtils.toJsonNode(true)),
             sample(BusinessHours.class, BusinessHours.businessWeek(), BusinessHours.businessWeek().toJson()),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
+            sample(LocalDateTime.class, LocalDateTime.of(2026, 1, 2, 3, 4), JsonUtils.toJsonNode("2026-01-02T03:04Z")),
+            sample(CalendarView.class, CalendarViewImpl.TIME_GRID_DAY, JsonUtils.toJsonNode("timeGridDay")),
+            sample(Duration.class, Duration.ofMinutes(90), JsonUtils.toJsonNode("01:30:00")),
+            sample(Period.class, Period.ofMonths(1), JsonFactory.createObject().put("months", 1)),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
             sample(Map.class, Map.of("weekday", "long"), JsonFactory.createObject().put("weekday", "long")));
 
@@ -511,7 +534,12 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
      * A value and client JSON for one setter whose parameter type has a different sample, keyed by the setter name and
      * parameter type, such as {@code "setSlotDuration(String)"}. A setter not listed here uses PARAMETER_SAMPLES.
      */
-    private static final Map<String, Map.Entry<Object, JsonNode>> SETTER_SAMPLES = Map.of();
+    private static final Map<String, Map.Entry<Object, JsonNode>> SETTER_SAMPLES = Map.ofEntries(
+            Map.entry("setDateIncrement(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
+            Map.entry("setDefaultAllDayEntryDuration(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
+            Map.entry("setDefaultTimedEntryDuration(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
+            Map.entry("setDuration(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
+            Map.entry("setNextDayThreshold(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))));
 
     /**
      * A second value for the parameter types with two values only, so a setter that ignores its argument and writes
