@@ -19,13 +19,19 @@ package org.vaadin.stefan.fullcalendar;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
+import org.vaadin.stefan.fullcalendar.converters.ListTextValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
+import org.vaadin.stefan.fullcalendar.converters.TextValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 
@@ -167,4 +173,257 @@ class CalendarOptions implements Serializable {
     // Entry display and layout
 
     // Texts, hints and formats
+
+    /**
+     * Text of the day view button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">dayText (locale object)</a>
+     */
+    private String dayText;
+
+    /**
+     * Text of the list view button of the built-in toolbar, or {@link ListTextValue#NONE} to show buttons named by
+     * duration, such as "Week" or "Month", instead of a "List" button. Without a value, the locale's text shows.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-view">listText (List view: Toolbar Buttons)</a>
+     */
+    @JsonConverter(ListTextValueConverter.class)
+    private ListTextValue listText;
+
+    /**
+     * Sets a fixed text, see {@link #getListText()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setListText(String text) {
+        this.listText = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getListText()}.
+     *
+     * @param value the text or {@link ListTextValue#NONE}, or null to remove the option
+     */
+    public void setListText(ListTextValue value) {
+        this.listText = value;
+    }
+
+    /**
+     * Text of the month view button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">monthText (locale object)</a>
+     */
+    private String monthText;
+
+    /**
+     * Accessible label ({@code aria-label}) of the "next" button in the built-in toolbar. Without a value, the locale's
+     * text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
+     * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
+     * the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">nextHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue nextHint;
+
+    /**
+     * Sets a fixed text, see {@link #getNextHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setNextHint(String text) {
+        this.nextHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getNextHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setNextHint(TextValue value) {
+        this.nextHint = value;
+    }
+
+    /**
+     * Text of the "next" button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">nextText (locale object)</a>
+     */
+    private String nextText;
+
+    /**
+     * Text of the "next year" button of the built-in toolbar, see {@link NativeToolbarParts#NEXT_YEAR}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
+     */
+    private String nextYearText;
+
+    /**
+     * Accessible label ({@code aria-label}) of the "prev" button in the built-in toolbar. Without a value, the locale's
+     * text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
+     * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
+     * the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">prevHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue prevHint;
+
+    /**
+     * Sets a fixed text, see {@link #getPrevHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setPrevHint(String text) {
+        this.prevHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getPrevHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setPrevHint(TextValue value) {
+        this.prevHint = value;
+    }
+
+    /**
+     * Text of the "previous" button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">prevText (locale object)</a>
+     */
+    private String prevText;
+
+    /**
+     * Text of the "previous year" button of the built-in toolbar, see {@link NativeToolbarParts#PREV_YEAR}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
+     */
+    private String prevYearText;
+
+    /**
+     * Accessible label ({@code aria-label}) of the "today" button in the built-in toolbar. Without a value, the
+     * locale's text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
+     * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
+     * the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">todayHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue todayHint;
+
+    /**
+     * Sets a fixed text, see {@link #getTodayHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setTodayHint(String text) {
+        this.todayHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getTodayHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setTodayHint(TextValue value) {
+        this.todayHint = value;
+    }
+
+    /**
+     * Text of the "today" button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">todayText (locale object)</a>
+     */
+    private String todayText;
+
+    /**
+     * Accessible label ({@code aria-label}) for the view buttons of the built-in toolbar that have no hint of their
+     * own. Without a value, the locale's text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the localized button text, such as "$0 view". A callback gets the
+     * localized button text and the button name from the toolbar, such as {@code 'listWeek'}, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/hints">viewHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue viewHint;
+
+    /**
+     * Sets a fixed text, see {@link #getViewHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setViewHint(String text) {
+        this.viewHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getViewHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setViewHint(TextValue value) {
+        this.viewHint = value;
+    }
+
+    /**
+     * Like {@link #getWeekTextShort() weekTextShort}, but only used when the {@code week} setting of a date format is
+     * {@code "long"}. Without a value, the locale's text shows (English: "Week").
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/weekTextLong">weekTextLong</a>
+     */
+    private String weekTextLong;
+
+    /**
+     * Short heading text for week numbers, such as "W" in "W1". It shows above the week number column in day grid views
+     * and next to the week number in the top-left cell of time grid views. It is also used for weeks in date
+     * formatting. Without a value, the locale's text shows (English: "W").
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/weekTextShort">weekTextShort</a>
+     */
+    private String weekTextShort;
+
+    /**
+     * Text of the year view button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">yearText (locale object)</a>
+     */
+    private String yearText;
 }
