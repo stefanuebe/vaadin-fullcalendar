@@ -21,3 +21,5 @@ Found by batch 27 (2026-10-16), which left both options out.
 - [ ] The user's callback runs, and the click event still reaches the server, set initially and later, and after the option is cleared.
 - [ ] Both fields are in `SYNCED_APART` in `TypedOptionsSyncTest`, with tests of their own.
 - [ ] Playwright: a Test view sets a callback for a day link and sees both the callback's effect and the server event.
+
+**Notes from 63 (2026-10-16):** 63 built the mechanism. Add both names to `FullCalendar.CALLBACKS_AFTER_CLIENT_HANDLER`; the guard test in `TypedOptionsSyncTest` fails until then. A raw option replaces the handler (maintainer decision, see 63). Both names are per view in `option-names.txt`. A per-view value goes through `views`, which the hook does not mark and the client does not chain, so it would replace the handler for that view. Decide between global placement (the spec makes calendar listeners global by the add-on's choice) and marking in `views`.

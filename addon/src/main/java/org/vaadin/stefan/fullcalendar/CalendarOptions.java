@@ -159,6 +159,25 @@ class CalendarOptions implements Serializable {
     }
 
     /**
+     * A callback that runs right after the root element of the view has been added to the DOM.
+     * <p>
+     * It gets an {@code info} object with {@code view}, {@code el} (the root element) and more, see the library
+     * docs.
+     * <p>
+     * The calendar has its own callback for this option, which sends the {@link ViewSkeletonRenderedEvent}. This
+     * callback runs after it, so the server still gets the event. A raw option with this name replaces both, and the
+     * server then no longer gets the event.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered
+     * elements, for example after navigating to another view. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then only the calendar's own callback runs.
+     *
+     * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewDidMount</a>
+     */
+    private JsCallback viewDidMount;
+
+    /**
      * A callback that runs right before the root element of the view is removed from the DOM.
      * <p>
      * It gets an {@code info} object with {@code view}, {@code el} (the root element) and more, see the library

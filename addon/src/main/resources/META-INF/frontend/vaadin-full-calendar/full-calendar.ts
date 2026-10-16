@@ -265,10 +265,15 @@ export class FullCalendar extends HTMLElement {
             weekNumbers: true,
             tableHeaderSticky: true,
             footerScrollbarSticky: true,
-            ...initialOptions,
         };
 
-        this.addEventHandlersToOptions(options, events);
+        // before the server's options, so a raw option replaces the add-on's handler, as it does in a later setOptions
+        const handlers: Record<string, any> = {};
+        this.addEventHandlersToOptions(handlers, events);
+        // moreLinkClick keeps the add-on's handler, which runs the server's value as the link's action, see
+        // setMoreLinkClickAction. initCalendar passes that value on.
+        const {moreLinkClick, ...serverOptions} = initialOptions as any;
+        Object.assign(options, handlers, serverOptions);
 
         // Subclasses push their own plugins into options.plugins. initCalendar keeps the final list for theme changes
         // and adds the theme plugin.
@@ -286,7 +291,7 @@ export class FullCalendar extends HTMLElement {
 
         // Evaluate any JsCallback markers in initial options before passing them to FullCalendar
         for (const key of Object.keys(options)) {
-            (options as Record<string, any>)[key] = evaluateCallbacks((options as Record<string, any>)[key], this.createdCalendar);
+            (options as Record<string, any>)[key] = this.evaluateOption(key, (options as Record<string, any>)[key], handlers);
         }
 
         // after the evaluation, which would copy all locales, and contain no callbacks
@@ -740,7 +745,30 @@ export class FullCalendar extends HTMLElement {
         if (value == null) {
             return this._addonHandlers[key];
         }
-        return evaluateCallbacks(value, this.createdCalendar);
+        return this.evaluateOption(key, value, this._addonHandlers);
+    }
+
+    /**
+     * Evaluates the JsCallback markers in an option value. The server marks the callback of a typed field for an option
+     * the add-on has its own handler for (__afterClientHandler, see FullCalendar#contributeOptions). That callback runs
+     * after the handler, so the server keeps receiving the event. An unmarked callback, from a raw option, replaces
+     * the handler.
+     * @param key option name
+     * @param value value, may contain JsCallback markers
+     * @param handlers the add-on's handlers by option name, as registered in the options
+     */
+    private evaluateOption(key: string, value: any, handlers: Record<string, any>): any {
+        const callback = evaluateCallbacks(value, this.createdCalendar);
+        const handler = handlers[key];
+        if (value?.__afterClientHandler !== true || typeof handler !== 'function' || typeof callback !== 'function') {
+            return callback;
+        }
+        const chained = function (this: any, ...args: any[]) {
+            handler.apply(this, args);
+            return callback.apply(this, args);
+        };
+        Object.defineProperty(chained, 'length', {value: callback.length});
+        return chained;
     }
 
     /**
