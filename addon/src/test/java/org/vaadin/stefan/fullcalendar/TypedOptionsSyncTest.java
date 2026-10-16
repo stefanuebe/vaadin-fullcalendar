@@ -476,6 +476,9 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(Boolean.class, true, JsonUtils.toJsonNode(true)),
             sample(BusinessHours.class, BusinessHours.businessWeek(), BusinessHours.businessWeek().toJson()),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
+            sample(ConstraintValue.Window.class,
+                    ConstraintValue.Window.span(LocalDate.of(2026, 1, 2), LocalDate.of(2026, 1, 5)),
+                    JsonFactory.createObject().put("start", "2026-01-02").put("end", "2026-01-05")),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
             sample(Map.class, Map.of("weekday", "long"), JsonFactory.createObject().put("weekday", "long")));
 
