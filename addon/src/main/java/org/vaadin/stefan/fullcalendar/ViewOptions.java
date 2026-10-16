@@ -20,6 +20,7 @@ import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +28,7 @@ import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonName;
 
 import java.io.Serializable;
 
@@ -146,6 +148,604 @@ class ViewOptions implements Serializable {
     // Render hooks: entry layouts (block, column, row)
 
     // Render hooks: entries
+
+    /**
+     * CSS classes for the outermost element of a background entry.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventClass</a>
+     */
+    @JsonName("backgroundEventClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue backgroundEntryClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getBackgroundEntryClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setBackgroundEntryClass(String classNames) {
+        this.backgroundEntryClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getBackgroundEntryClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setBackgroundEntryClass(ClassNameValue value) {
+        this.backgroundEntryClass = value;
+    }
+
+    /**
+     * Custom content for background entries. The generated content is inserted inside the inner-most wrapper of
+     * the entry element.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}. It is called every time
+     * the entry data changes.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventContent</a>
+     */
+    @JsonName("backgroundEventContent")
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue backgroundEntryContent;
+
+    /**
+     * Sets a text as the content, see {@link #getBackgroundEntryContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setBackgroundEntryContent(String text) {
+        this.backgroundEntryContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getBackgroundEntryContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setBackgroundEntryContent(ContentValue value) {
+        this.backgroundEntryContent = value;
+    }
+
+    /**
+     * A callback that runs right after the element of a background entry has been added to the DOM. It is not called
+     * again when the entry data changes. It gets an {@code info} object with {@code event}, {@code timeText},
+     * {@code isStart} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventDidMount</a>
+     */
+    @JsonName("backgroundEventDidMount")
+    private JsCallback backgroundEntryDidMount;
+
+    /**
+     * CSS classes for the inner wrapper of a background entry.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventInnerClass</a>
+     */
+    @JsonName("backgroundEventInnerClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue backgroundEntryInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getBackgroundEntryInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setBackgroundEntryInnerClass(String classNames) {
+        this.backgroundEntryInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getBackgroundEntryInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setBackgroundEntryInnerClass(ClassNameValue value) {
+        this.backgroundEntryInnerClass = value;
+    }
+
+    /**
+     * CSS classes for the title element inside the inner wrapper of a background entry.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventTitleClass</a>
+     */
+    @JsonName("backgroundEventTitleClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue backgroundEntryTitleClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getBackgroundEntryTitleClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setBackgroundEntryTitleClass(String classNames) {
+        this.backgroundEntryTitleClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getBackgroundEntryTitleClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setBackgroundEntryTitleClass(ClassNameValue value) {
+        this.backgroundEntryTitleClass = value;
+    }
+
+    /**
+     * A callback that runs right before the element of a background entry is removed from the DOM. It gets an
+     * {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/background-event-render-hooks">backgroundEventWillUnmount</a>
+     */
+    @JsonName("backgroundEventWillUnmount")
+    private JsCallback backgroundEntryWillUnmount;
+
+    /**
+     * CSS classes for the element after the inner wrapper of an entry. Background entries are not affected.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventAfterClass</a>
+     */
+    @JsonName("eventAfterClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue entryAfterClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getEntryAfterClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setEntryAfterClass(String classNames) {
+        this.entryAfterClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getEntryAfterClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setEntryAfterClass(ClassNameValue value) {
+        this.entryAfterClass = value;
+    }
+
+    /**
+     * CSS classes for the element before the inner wrapper of an entry. Background entries are not affected.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventBeforeClass</a>
+     */
+    @JsonName("eventBeforeClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue entryBeforeClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getEntryBeforeClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setEntryBeforeClass(String classNames) {
+        this.entryBeforeClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getEntryBeforeClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setEntryBeforeClass(ClassNameValue value) {
+        this.entryBeforeClass = value;
+    }
+
+    /**
+     * CSS classes for the outermost element of an entry. Background entries are not affected.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventClass</a>
+     */
+    @JsonName("eventClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue entryClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getEntryClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setEntryClass(String classNames) {
+        this.entryClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getEntryClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setEntryClass(ClassNameValue value) {
+        this.entryClass = value;
+    }
+
+    /**
+     * Custom content for entries. Background entries are not affected. The generated content is inserted inside
+     * the inner-most wrapper of the entry element.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}. It is called every time
+     * the entry data changes.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventContent</a>
+     */
+    @JsonName("eventContent")
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue entryContent;
+
+    /**
+     * Sets a text as the content, see {@link #getEntryContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setEntryContent(String text) {
+        this.entryContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getEntryContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setEntryContent(ContentValue value) {
+        this.entryContent = value;
+    }
+
+    /**
+     * CSS classes for the inner wrapper of an entry. Background entries are not affected.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventInnerClass</a>
+     */
+    @JsonName("eventInnerClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue entryInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getEntryInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setEntryInnerClass(String classNames) {
+        this.entryInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getEntryInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setEntryInnerClass(ClassNameValue value) {
+        this.entryInnerClass = value;
+    }
+
+    /**
+     * CSS classes for the time element inside the inner wrapper of an entry. Background entries are not affected.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventTimeClass</a>
+     */
+    @JsonName("eventTimeClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue entryTimeClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getEntryTimeClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setEntryTimeClass(String classNames) {
+        this.entryTimeClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getEntryTimeClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setEntryTimeClass(ClassNameValue value) {
+        this.entryTimeClass = value;
+    }
+
+    /**
+     * CSS classes for the title element inside the inner wrapper of an entry. Background entries are not affected.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventTitleClass</a>
+     */
+    @JsonName("eventTitleClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue entryTitleClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getEntryTitleClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setEntryTitleClass(String classNames) {
+        this.entryTitleClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getEntryTitleClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setEntryTitleClass(ClassNameValue value) {
+        this.entryTitleClass = value;
+    }
+
+    /**
+     * A callback that runs right before the element of an entry is removed from the DOM. Background entries are not
+     * affected. It gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventWillUnmount</a>
+     */
+    @JsonName("eventWillUnmount")
+    private JsCallback entryWillUnmount;
+
+    /**
+     * CSS classes for the element after the inner wrapper of a list item entry, that is a timed entry in day
+     * grid views and an entry in list views. They apply in addition to the general entry classes.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventAfterClass</a>
+     */
+    @JsonName("listItemEventAfterClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listItemEntryAfterClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListItemEntryAfterClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListItemEntryAfterClass(String classNames) {
+        this.listItemEntryAfterClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListItemEntryAfterClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListItemEntryAfterClass(ClassNameValue value) {
+        this.listItemEntryAfterClass = value;
+    }
+
+    /**
+     * CSS classes for the element before the inner wrapper of a list item entry, that is a timed entry in day
+     * grid views and an entry in list views. They apply in addition to the general entry classes.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventBeforeClass</a>
+     */
+    @JsonName("listItemEventBeforeClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listItemEntryBeforeClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListItemEntryBeforeClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListItemEntryBeforeClass(String classNames) {
+        this.listItemEntryBeforeClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListItemEntryBeforeClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListItemEntryBeforeClass(ClassNameValue value) {
+        this.listItemEntryBeforeClass = value;
+    }
+
+    /**
+     * CSS classes for the outermost element of a list item entry, that is a timed entry in day grid views and an
+     * entry in list views. They apply in addition to the general entry classes.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventClass</a>
+     */
+    @JsonName("listItemEventClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listItemEntryClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListItemEntryClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListItemEntryClass(String classNames) {
+        this.listItemEntryClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListItemEntryClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListItemEntryClass(ClassNameValue value) {
+        this.listItemEntryClass = value;
+    }
+
+    /**
+     * CSS classes for the inner wrapper of a list item entry, that is a timed entry in day grid views and an
+     * entry in list views. They apply in addition to the general entry classes.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isStart} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventInnerClass</a>
+     */
+    @JsonName("listItemEventInnerClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listItemEntryInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListItemEntryInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListItemEntryInnerClass(String classNames) {
+        this.listItemEntryInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListItemEntryInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListItemEntryInnerClass(ClassNameValue value) {
+        this.listItemEntryInnerClass = value;
+    }
+
+    /**
+     * CSS classes for the time element inside the inner wrapper of a list item entry, that is a timed entry in
+     * day grid views and an entry in list views. They apply in addition to the general entry classes.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code isNarrow} and {@code isShort}, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventTimeClass</a>
+     */
+    @JsonName("listItemEventTimeClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listItemEntryTimeClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListItemEntryTimeClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListItemEntryTimeClass(String classNames) {
+        this.listItemEntryTimeClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListItemEntryTimeClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListItemEntryTimeClass(ClassNameValue value) {
+        this.listItemEntryTimeClass = value;
+    }
+
+    /**
+     * CSS classes for the title element inside the inner wrapper of a list item entry, that is a timed entry in
+     * day grid views and an entry in list views. They apply in addition to the general entry classes.
+     * <p>
+     * A callback gets an {@code info} object with {@code event}, {@code timeText}, {@code isNarrow} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-item-event-render-hooks">listItemEventTitleClass</a>
+     */
+    @JsonName("listItemEventTitleClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listItemEntryTitleClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListItemEntryTitleClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListItemEntryTitleClass(String classNames) {
+        this.listItemEntryTitleClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListItemEntryTitleClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListItemEntryTitleClass(ClassNameValue value) {
+        this.listItemEntryTitleClass = value;
+    }
 
     // Render hooks: view, toolbar, buttons, single month
 }
