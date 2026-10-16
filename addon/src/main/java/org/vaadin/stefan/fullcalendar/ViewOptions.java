@@ -20,6 +20,7 @@ import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import lombok.Getter;
 import lombok.Setter;
@@ -148,4 +149,268 @@ class ViewOptions implements Serializable {
     // Render hooks: entries
 
     // Render hooks: view, toolbar, buttons, single month
+
+    /**
+     * CSS classes for each button of the built-in toolbars (header and footer).
+     * <p>
+     * A callback gets an {@code info} object with {@code name}, {@code text}, {@code isPrimary} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">buttonClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue buttonClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getButtonClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setButtonClass(String classNames) {
+        this.buttonClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getButtonClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setButtonClass(ClassNameValue value) {
+        this.buttonClass = value;
+    }
+
+    /**
+     * CSS classes for each group of buttons in a toolbar section. A group is a set of buttons separated by
+     * commas in the toolbar layout.
+     * <p>
+     * A callback gets an {@code info} object with {@code hasSelection}, which is true when only one button of
+     * the group can be active at a time, like view buttons. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">buttonGroupClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue buttonGroupClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getButtonGroupClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setButtonGroupClass(String classNames) {
+        this.buttonGroupClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getButtonGroupClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setButtonGroupClass(ClassNameValue value) {
+        this.buttonGroupClass = value;
+    }
+
+    /**
+     * CSS classes for each nav link, the clickable day numbers and weekday names that navigate to another view.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/navLinkClass">navLinkClass</a>
+     */
+    private String navLinkClass;
+
+    /**
+     * CSS classes for each single month of multi-month views.
+     * <p>
+     * A callback gets an {@code info} object with {@code multiMonthColumns} (0 until the layout is measured),
+     * {@code isFirst} and {@code isLast}. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/single-month-render-hooks">singleMonthClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue singleMonthClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getSingleMonthClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setSingleMonthClass(String classNames) {
+        this.singleMonthClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getSingleMonthClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setSingleMonthClass(ClassNameValue value) {
+        this.singleMonthClass = value;
+    }
+
+    /**
+     * A callback that runs right after the element of a single month of multi-month views has been added to the
+     * DOM. It has no effect in the used library version, because the library never calls it.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/single-month-render-hooks">singleMonthDidMount</a>
+     */
+    private JsCallback singleMonthDidMount;
+
+    /**
+     * CSS classes for the month header (the title above each month grid) of multi-month views.
+     * <p>
+     * A callback gets an {@code info} object with {@code hasNavLink}, {@code isSticky}, {@code isNarrow} and more, see
+     * the library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/single-month-header-render-hooks">singleMonthHeaderClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue singleMonthHeaderClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getSingleMonthHeaderClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setSingleMonthHeaderClass(String classNames) {
+        this.singleMonthHeaderClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getSingleMonthHeaderClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setSingleMonthHeaderClass(ClassNameValue value) {
+        this.singleMonthHeaderClass = value;
+    }
+
+    /**
+     * CSS classes for the inner element of the month header of multi-month views. This element may be a nav link.
+     * <p>
+     * A callback gets an {@code info} object with {@code hasNavLink}, {@code isSticky}, {@code isNarrow} and more, see
+     * the library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/single-month-header-render-hooks">singleMonthHeaderInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue singleMonthHeaderInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getSingleMonthHeaderInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setSingleMonthHeaderInnerClass(String classNames) {
+        this.singleMonthHeaderInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getSingleMonthHeaderInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setSingleMonthHeaderInnerClass(ClassNameValue value) {
+        this.singleMonthHeaderInnerClass = value;
+    }
+
+    /**
+     * A callback that runs right before the element of a single month of multi-month views is removed from the
+     * DOM. In the used library version it gets an {@code info} object without data (its {@code el} is undefined),
+     * so it cannot reach the element.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered
+     * elements, for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/single-month-render-hooks">singleMonthWillUnmount</a>
+     */
+    private JsCallback singleMonthWillUnmount;
+
+    /**
+     * CSS classes for the container of the built-in toolbars (header and footer).
+     * <p>
+     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
+     * {@code borderlessBottom}. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">toolbarClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue toolbarClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getToolbarClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setToolbarClass(String classNames) {
+        this.toolbarClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getToolbarClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setToolbarClass(ClassNameValue value) {
+        this.toolbarClass = value;
+    }
+
+    /**
+     * CSS classes for each section (start, center, end) of the built-in toolbars.
+     * <p>
+     * A callback gets an {@code info} object with {@code name}, the name of the section. It returns the class
+     * names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">toolbarSectionClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue toolbarSectionClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getToolbarSectionClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setToolbarSectionClass(String classNames) {
+        this.toolbarSectionClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getToolbarSectionClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setToolbarSectionClass(ClassNameValue value) {
+        this.toolbarSectionClass = value;
+    }
+
+    /**
+     * CSS classes for the title text element of the built-in toolbars.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">toolbarTitleClass</a>
+     */
+    private String toolbarTitleClass;
 }

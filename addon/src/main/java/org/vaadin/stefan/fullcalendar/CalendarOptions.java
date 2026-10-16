@@ -16,11 +16,14 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
@@ -108,4 +111,50 @@ class CalendarOptions implements Serializable {
     private JsCallback entryDidMount;
 
     // Render hooks: view, toolbar, buttons, single month
+
+    /**
+     * CSS classes for the root element of the view. A callback runs whenever the view changes.
+     * <p>
+     * It gets an {@code info} object with {@code view} and more, see the library docs. It returns the class names
+     * as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue viewClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getViewClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setViewClass(String classNames) {
+        this.viewClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getViewClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setViewClass(ClassNameValue value) {
+        this.viewClass = value;
+    }
+
+    /**
+     * A callback that runs right before the root element of the view is removed from the DOM.
+     * <p>
+     * It gets an {@code info} object with {@code view}, {@code el} (the root element) and more, see the library
+     * docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered
+     * elements, for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewWillUnmount</a>
+     */
+    private JsCallback viewWillUnmount;
 }
