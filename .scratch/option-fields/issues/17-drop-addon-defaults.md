@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #388 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, d58efa1a) |
 | Blocked by | `15-timezone-client`, `16-header-toolbar-and-locale-initial-values` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `15-timezone-client`, `16-header-toolbar-and-locale-initial-values`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, d58efa1a)
 
 - [x] The initial state contains none of the dropped options.
 - [x] Playwright: a calendar with no options set has no week numbers, no draggable entries, non-sticky headers at full height and the browser's time zone.
