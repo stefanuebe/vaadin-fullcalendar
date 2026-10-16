@@ -143,7 +143,9 @@ getMoreLinkHint(): TextValue
 getMoreLinkText(): TextValue
 getMultiMonthMaxColumns(): Integer
 getNavLinkClass(): String
+getNavLinkDayClick(): JsCallback
 getNavLinkHint(): TextValue
+getNavLinkWeekClick(): JsCallback
 getNavLinks(): Boolean
 getNextDayThreshold(): DurationValue
 getNextHint(): TextValue
@@ -478,8 +480,10 @@ setMoreLinkText(String): void
 setMoreLinkText(TextValue): void
 setMultiMonthMaxColumns(Integer): void
 setNavLinkClass(String): void
+setNavLinkDayClick(JsCallback): void
 setNavLinkHint(String): void
 setNavLinkHint(TextValue): void
+setNavLinkWeekClick(JsCallback): void
 setNavLinks(Boolean): void
 setNextDayThreshold(Duration): void
 setNextDayThreshold(DurationValue): void

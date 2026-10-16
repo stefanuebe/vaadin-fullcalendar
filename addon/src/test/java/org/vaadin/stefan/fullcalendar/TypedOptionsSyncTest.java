@@ -491,6 +491,8 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     private static final Map<String, String> SYNCED_APART = Map.of(
             "entryDidMount", "OptionSyncHookTest",
             "viewDidMount", "OptionSyncHookTest",
+            "navLinkDayClick", "OptionSyncHookTest",
+            "navLinkWeekClick", "OptionSyncHookTest",
             "timeZone", "AutoBrowserSettingsTest");
 
     /**

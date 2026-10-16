@@ -86,7 +86,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * The options the client has its own handler for and the typed fields of which run after it, see
      * {@link #contributeOptions(Map)}. The client registers the handlers in {@code createEventHandlers}.
      */
-    static final Set<String> CALLBACKS_AFTER_CLIENT_HANDLER = Set.of("viewDidMount");
+    static final Set<String> CALLBACKS_AFTER_CLIENT_HANDLER = Set.of(
+            "viewDidMount", "navLinkDayClick", "navLinkWeekClick");
     /** The key in a JsCallback marker that makes the client run the callback after its own handler. */
     static final String AFTER_CLIENT_HANDLER_KEY = "__afterClientHandler";
 
