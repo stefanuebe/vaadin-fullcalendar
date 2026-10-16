@@ -104,15 +104,15 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     final Map<String, JsonNode> rawOptions = new HashMap<>();
 
     /** The typed options, see {@link #options()}. Their values lie under the raw options. */
-    final CalendarOptions calendarOptions = new CalendarOptions();
-    final ViewOptions viewOptions = new ViewOptions();
+    final CalendarOptions calendarOptions = createCalendarOptions();
+    final ViewOptions viewOptions = createViewOptions();
     /**
      * The options of single view types, by client-side view name, see {@link FullCalendarOptions#view(CalendarView)}.
      */
     final Map<String, ViewOptions> perViewOptions = new HashMap<>();
     /** The raw options of single view types, by client-side view name, see {@link FullCalendarViewOptions}. */
     final Map<String, Map<String, JsonNode>> perViewRawOptions = new HashMap<>();
-    private final FullCalendarOptions fullCalendarOptions = new FullCalendarOptions(this);
+    private final FullCalendarOptions fullCalendarOptions = createOptions();
 
     /** The options the client got last, see {@link #syncOptions()}. */
     private final Map<String, JsonNode> lastSentOptions = new HashMap<>();
@@ -869,6 +869,37 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public FullCalendarOptions options() {
         return fullCalendarOptions;
+    }
+
+    // The factories run while the fields of this class are initialized, before a subclass constructor. An override
+    // must not use fields of the subclass.
+
+    /**
+     * Creates the data object of the calendar-wide options. The scheduler overrides it to add its options.
+     *
+     * @return a new, empty data object
+     */
+    protected CalendarOptions createCalendarOptions() {
+        return new CalendarOptions();
+    }
+
+    /**
+     * Creates a data object of the options that can apply per view, for the calendar-wide values and for each view
+     * type. The scheduler overrides it to add its options.
+     *
+     * @return a new, empty data object
+     */
+    protected ViewOptions createViewOptions() {
+        return new ViewOptions();
+    }
+
+    /**
+     * Creates the object {@link #options()} returns. The scheduler overrides it to return its own options object.
+     *
+     * @return the options object of this calendar
+     */
+    protected FullCalendarOptions createOptions() {
+        return new FullCalendarOptions(this);
     }
 
     /**

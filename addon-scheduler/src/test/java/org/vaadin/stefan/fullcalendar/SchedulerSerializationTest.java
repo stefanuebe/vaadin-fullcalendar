@@ -2,6 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -10,8 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Verifies that the scheduler component and its resources survive Java serialization
@@ -84,5 +84,27 @@ public class SchedulerSerializationTest {
         FullCalendarScheduler calendar = new FullCalendarScheduler();
         calendar.changeView(SchedulerView.RESOURCE_TIMELINE_DAY);
         assertNotNull(roundtrip(calendar));
+    }
+
+    @Test
+    void schedulerWithOptionsAndViewOptionsIsSerializable() throws Exception {
+        FullCalendarScheduler calendar = new FullCalendarScheduler();
+        calendar.options().setResourceGroupField("building");
+        calendar.options().setWeekends(false);
+        FullCalendarSchedulerViewOptions week = calendar.options().view(SchedulerView.RESOURCE_TIMELINE_WEEK);
+        week.setResourcesInitiallyExpanded(false);
+        week.setWeekends(true);
+        week.setDayCellDidMount(JsCallback.of("info => {}"));
+
+        FullCalendarScheduler restored = roundtrip(calendar);
+        assertEquals("building", restored.options().getResourceGroupField());
+        assertFalse(restored.options().getWeekends());
+        assertFalse(restored.options().view(SchedulerView.RESOURCE_TIMELINE_WEEK).getResourcesInitiallyExpanded());
+        assertTrue(restored.options().view(SchedulerView.RESOURCE_TIMELINE_WEEK).getWeekends());
+        assertEquals(JsCallback.of("info => {}"),
+                restored.options().view(SchedulerView.RESOURCE_TIMELINE_WEEK).getDayCellDidMount());
+
+        FullCalendarSchedulerViewOptions restoredWeek = roundtrip(week);
+        assertFalse(restoredWeek.getResourcesInitiallyExpanded());
     }
 }
