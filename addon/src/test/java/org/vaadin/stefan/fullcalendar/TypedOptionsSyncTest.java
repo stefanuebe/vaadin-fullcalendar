@@ -477,7 +477,9 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(BusinessHours.class, BusinessHours.businessWeek(), BusinessHours.businessWeek().toJson()),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
-            sample(Map.class, Map.of("weekday", "long"), JsonFactory.createObject().put("weekday", "long")));
+            sample(Map.class, Map.of("weekday", "long"), JsonFactory.createObject().put("weekday", "long")),
+            sample(Duration.class, Duration.ofHours(1), JsonUtils.toJsonNode("01:00:00")),
+            sample(Period.class, Period.ofMonths(1), JsonFactory.createObject().put("months", 1)));
 
     /**
      * The parameter types of the setters per form of each value type, the setter table of the README section
@@ -511,7 +513,13 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
      * A value and client JSON for one setter whose parameter type has a different sample, keyed by the setter name and
      * parameter type, such as {@code "setSlotDuration(String)"}. A setter not listed here uses PARAMETER_SAMPLES.
      */
-    private static final Map<String, Map.Entry<Object, JsonNode>> SETTER_SAMPLES = Map.of();
+    private static final Map<String, Map.Entry<Object, JsonNode>> SETTER_SAMPLES = Map.ofEntries(
+            Map.entry("setScrollTime(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSlotDuration(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSlotHeaderInterval(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSlotMaxTime(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSlotMinTime(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSnapDuration(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))));
 
     /**
      * A second value for the parameter types with two values only, so a setter that ignores its argument and writes
