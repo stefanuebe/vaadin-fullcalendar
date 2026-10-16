@@ -91,7 +91,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
   | `TextValue` | `String` |
   | `DateRangeValue` | none |
   | `WeekNumberCalculationValue` | none |
-  | `EntryOrderValue` | `String...` (property names), `EntryOrder.Key...` (mixed keys) |
+  | `OrderValue` | `String...` (property names), `Order.Key...` (mixed keys) |
   | `DurationValue` | `Duration`, `Period`, `String` (library format) |
   | `ToolbarValue` | none: a form has three sections, which a one-argument setter cannot take |
   | `AutoBoolean` | none: one enum covers every form, its field keeps the Lombok setter |

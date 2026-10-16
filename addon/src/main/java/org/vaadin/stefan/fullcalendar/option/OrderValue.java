@@ -19,11 +19,11 @@ package org.vaadin.stefan.fullcalendar.option;
 import java.io.Serializable;
 
 /**
- * The value of the option that sorts entries that share a time: an {@link EntryOrder}, which lists entry properties
- * and compare functions, or one {@link JsCallback} that compares two entries. A {@code switch} over it needs no
- * {@code default} branch.
+ * The value of an option that sorts items, such as the entries that share a time or the resources: an {@link Order},
+ * which lists properties and compare functions, or one {@link JsCallback} that compares two items. A {@code switch}
+ * over it needs no {@code default} branch.
  * <p>
  * A sealed type rather than one Java type, because the library takes a value or a function.
  */
-public sealed interface EntryOrderValue extends Serializable permits EntryOrder, JsCallback {
+public sealed interface OrderValue extends Serializable permits Order, JsCallback {
 }

@@ -56,6 +56,16 @@ class SchedulerCalendarOptions extends CalendarOptions {
         this.resourceColumns = resourceColumns;
     }
 
+    /**
+     * Refetches and rerenders the resources when the user changes the date or the view. The resources function or
+     * JSON feed then receives {@code start}, {@code end} and {@code timezone}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/refetchResourcesOnNavigate">refetchResourcesOnNavigate</a>
+     */
+    private Boolean refetchResourcesOnNavigate;
+
     // FC-UPDATE: check the global scheduler options of the new library version against these fields. The test
     //  resource option-names.txt of this module lists the supported scheduler names as global or per view and says
     //  how to re-derive them.

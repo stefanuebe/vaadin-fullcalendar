@@ -30,7 +30,7 @@ Decide per option whether a value type is needed or one Java type covers all for
 
 **Decisions (2026-10-16):**
 
-- `EntryOrderValue` = `EntryOrder` (a list of `EntryOrder.Key`: `EntryOrder.Property` or `JsCallback`, mixed as the library allows) or one `JsCallback`. `JsCallback` implements `EntryOrder.Key`, which is part of a form, not a value type.
+- `OrderValue` = `Order` (a list of `Order.Key`: `Order.Property` or `JsCallback`, mixed as the library allows) or one `JsCallback`. `JsCallback` implements `Order.Key`, which is part of a form, not a value type. (Named `EntryOrder*` until 39 renamed them for the shared use with `resourceOrder`.)
 - `DateRangeValue` = `DateRange` or `JsCallback`; `WeekNumberCalculationValue` = `WeekNumberCalculation` or `JsCallback`. `WeekNumberCalculation.ISO8601` is removed: an alias of `ISO` cannot round-trip (maintainer, spec *Removed API*, migration guide 56).
 - `WidthValue` (pixels, percentage) is its own type: the library reads `resourceColumnsWidth` with `parseDimConfig`, which takes only a number or a string ending in `px` or `%` and drops any other CSS, while `HeightValue` takes any CSS length and `"auto"`. The percentage gets no short setter (`setX(25)` and `setX(25.0)` would differ only by the literal).
 - `toolbarElements`: a `Map<String, ContentValue>` with `ToolbarElementsConverter`, no value type.

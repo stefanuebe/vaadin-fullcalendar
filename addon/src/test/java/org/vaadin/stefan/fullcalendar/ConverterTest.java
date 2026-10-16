@@ -1,8 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.DurationValue;
-import org.vaadin.stefan.fullcalendar.option.EntryOrder;
-import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -25,6 +23,8 @@ import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
+import org.vaadin.stefan.fullcalendar.option.Order;
+import org.vaadin.stefan.fullcalendar.option.OrderValue;
 import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
 import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
@@ -206,9 +206,9 @@ class ConverterTest {
                     DurationValue.ofCalendar(Period.of(1, 2, 3), Duration.ofHours(12)),
                     JsonFactory.createObject().put("years", 1).put("months", 2).put("days", 3)
                             .put("milliseconds", 43_200_000L)))),
-            Map.entry(EntryOrderValue.class, new ValueType(EntryOrderValueConverter.class, forms(
-                    EntryOrder.of("title", "-start"), JsonFactory.createArray().add("title").add("-start"),
-                    EntryOrder.of(EntryOrder.descending("duration"), CALLBACK),
+            Map.entry(OrderValue.class, new ValueType(OrderValueConverter.class, forms(
+                    Order.of("title", "-start"), JsonFactory.createArray().add("title").add("-start"),
+                    Order.of(Order.descending("duration"), CALLBACK),
                     JsonFactory.createArray().add("-duration").add(CALLBACK.toMarkerJson()),
                     CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(EntryLimitValue.class, new ValueType(EntryLimitValueConverter.class, forms(
@@ -377,9 +377,9 @@ class ConverterTest {
     }
 
     @Test
-    void entryOrderValue_readsTheLibraryString() {
-        assertEquals(EntryOrder.of("title", "-start"),
-                new EntryOrderValueConverter().toServerModel(JsonUtils.toJsonNode("title, -start"), null));
+    void orderValue_readsTheLibraryString() {
+        assertEquals(Order.of("title", "-start"),
+                new OrderValueConverter().toServerModel(JsonUtils.toJsonNode("title, -start"), null));
     }
 
     @Test
@@ -425,12 +425,12 @@ class ConverterTest {
 
     /**
      * A value-or-callback type that JsCallback implements is a value type, with or without fields yet. The sort key of
-     * an entry order is a part of a form, no option value.
+     * an order is a part of a form, no option value.
      */
     @Test
     void everyTypeJsCallbackImplements_isAValueType() {
         Set<Class<?>> interfaces = new HashSet<>(Set.of(JsCallback.class.getInterfaces()));
-        interfaces.remove(EntryOrder.Key.class);
+        interfaces.remove(Order.Key.class);
         assertTrue(VALUE_TYPES.keySet().containsAll(interfaces),
                 "A value type JsCallback implements belongs into VALUE_TYPES");
     }
@@ -450,9 +450,9 @@ class ConverterTest {
         assertThrows(IllegalArgumentException.class, () -> WidthValue.ofPercent(-1));
         assertThrows(IllegalArgumentException.class, () -> WidthValue.ofPercent(Double.NaN));
         assertThrows(IllegalArgumentException.class, () -> WidthValue.ofPercent(Double.POSITIVE_INFINITY));
-        assertThrows(IllegalArgumentException.class, () -> EntryOrder.ascending("-start"));
-        assertThrows(IllegalArgumentException.class, () -> EntryOrder.of("title", ""));
-        assertThrows(IllegalArgumentException.class, () -> EntryOrder.of(new String[0]));
+        assertThrows(IllegalArgumentException.class, () -> Order.ascending("-start"));
+        assertThrows(IllegalArgumentException.class, () -> Order.of("title", ""));
+        assertThrows(IllegalArgumentException.class, () -> Order.of(new String[0]));
         assertThrows(IllegalArgumentException.class, () -> DurationValue.ofCalendar(Period.ZERO));
         assertThrows(IllegalArgumentException.class, () -> ConstraintValue.Window.span((LocalDate) null, null));
         assertThrows(IllegalArgumentException.class,
@@ -586,9 +586,9 @@ class ConverterTest {
         assertThrows(IllegalArgumentException.class, () -> new DurationValueConverter()
                 .toServerModel(JsonFactory.createObject().put("weeks", 1), null));
         assertThrows(IllegalArgumentException.class,
-                () -> new EntryOrderValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
+                () -> new OrderValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
         assertThrows(IllegalArgumentException.class,
-                () -> new EntryOrderValueConverter().toServerModel(JsonFactory.createArray().add(1), null));
+                () -> new OrderValueConverter().toServerModel(JsonFactory.createArray().add(1), null));
         assertThrows(IllegalArgumentException.class, () -> new ToolbarElementsConverter()
                 .toServerModel(JsonUtils.toJsonNode("x"), null));
     }

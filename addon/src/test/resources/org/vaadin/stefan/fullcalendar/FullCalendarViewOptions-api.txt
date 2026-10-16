@@ -97,7 +97,7 @@ getEntryInteractive(): Boolean
 getEntryLongPressDelay(): Integer
 getEntryMaxStack(): Integer
 getEntryMinHeight(): Integer
-getEntryOrder(): EntryOrderValue
+getEntryOrder(): OrderValue
 getEntryOrderStrict(): Boolean
 getEntryOverlap(): OverlapValue
 getEntryResizableFromStart(): Boolean
@@ -401,8 +401,8 @@ setEntryInteractive(Boolean): void
 setEntryLongPressDelay(Integer): void
 setEntryMaxStack(Integer): void
 setEntryMinHeight(Integer): void
-setEntryOrder(EntryOrderValue): void
 setEntryOrder(Key[]): void
+setEntryOrder(OrderValue): void
 setEntryOrder(String[]): void
 setEntryOrderStrict(Boolean): void
 setEntryOverlap(OverlapValue): void

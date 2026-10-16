@@ -2,14 +2,14 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
+import org.vaadin.stefan.fullcalendar.option.Order;
+import org.vaadin.stefan.fullcalendar.option.OrderValue;
 import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculation;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import org.vaadin.stefan.fullcalendar.option.DurationValue;
-import org.vaadin.stefan.fullcalendar.option.EntryOrder;
-import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -100,10 +100,10 @@ class ValueTypeSwitchTest {
         };
     }
 
-    private static String form(EntryOrderValue value) {
+    private static String form(OrderValue value) {
         return switch (value) {
-            case EntryOrder order -> order.keys().stream().map(key -> switch (key) {
-                case EntryOrder.Property property -> property.name();
+            case Order order -> order.keys().stream().map(key -> switch (key) {
+                case Order.Property property -> property.name();
                 case JsCallback callback -> "callback";
             }).toList().toString();
             case JsCallback callback -> "callback";
