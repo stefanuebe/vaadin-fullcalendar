@@ -16,51 +16,54 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.vaadin.stefan.fullcalendar.converters.AutoBooleanConverter;
+import org.vaadin.stefan.fullcalendar.converters.BusinessHoursValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.CssSelectorValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.DateFormatValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.DateRangeValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.DayOfWeekArrayConverter;
+import org.vaadin.stefan.fullcalendar.converters.DurationValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.EntryLimitValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.EntryOrderValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.HeightValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ListDayFormatValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.NowValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.OverlapValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.StickyValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.TextValueConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonConverter;
+import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.CssSelector;
 import org.vaadin.stefan.fullcalendar.option.CssSelectorValue;
-import org.vaadin.stefan.fullcalendar.option.DurationValue;
-import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
-import org.vaadin.stefan.fullcalendar.option.JsCallback;
-import org.vaadin.stefan.fullcalendar.option.Overlap;
-import org.vaadin.stefan.fullcalendar.option.OverlapValue;
-import org.vaadin.stefan.fullcalendar.option.StickyValue;
-import org.vaadin.stefan.fullcalendar.option.TextContent;
-import org.vaadin.stefan.fullcalendar.converters.DateRangeValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.DayOfWeekArrayConverter;
-import org.vaadin.stefan.fullcalendar.converters.DurationValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.NowValueConverter;
-import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
-import org.vaadin.stefan.fullcalendar.option.BusinessHours;
-import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
+import org.vaadin.stefan.fullcalendar.option.DateFormat;
+import org.vaadin.stefan.fullcalendar.option.DateFormatValue;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
 import org.vaadin.stefan.fullcalendar.option.DurationValue;
 import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.option.EntryOrder;
 import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
+import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
-import lombok.Getter;
-import lombok.Setter;
-import org.vaadin.stefan.fullcalendar.converters.AutoBooleanConverter;
-import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.CssSelectorValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.DurationValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.AutoBooleanConverter;
-import org.vaadin.stefan.fullcalendar.converters.BusinessHoursValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.EntryLimitValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.EntryOrderValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.HeightValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.OverlapValueConverter;
-import org.vaadin.stefan.fullcalendar.converters.StickyValueConverter;
-import org.vaadin.stefan.fullcalendar.json.JsonConverter;
-import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.option.Overlap;
+import org.vaadin.stefan.fullcalendar.option.OverlapValue;
+import org.vaadin.stefan.fullcalendar.option.StickyValue;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.TextValue;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
@@ -70,6 +73,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -4706,4 +4710,493 @@ class ViewOptions implements Serializable {
     private AutoBoolean tableHeaderSticky;
 
     // Texts, hints and formats
+
+    /**
+     * Text of the label for the all-day section in time grid views. Without a value, the locale's text shows.
+     * <p>
+     * List views also show it as the time text of all-day entries. For full control of the cell's content use
+     * {@link #getAllDayHeaderContent() allDayHeaderContent}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/allDaySlot">allDayText</a>
+     */
+    private String allDayText;
+
+    /**
+     * Accessible hint ({@code aria-label}) for the close button of the entry popover. Without a value, the locale's
+     * text shows (English: "Close").
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/hints">closeHint</a>
+     */
+    private String closeHint;
+
+    /**
+     * Accessible label of the list of entries under each day in list views, read by screen readers. The locale provides
+     * the default (English: "Events"). A value set here wins over it.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/hints">eventsHint</a>
+     */
+    @JsonName("eventsHint")
+    private String entriesHint;
+
+    /**
+     * Accessible hint (the {@code title} attribute) for the "+N more" link. It describes what happens when the link
+     * opens the entry popover. Without a value, the locale's text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the number of hidden entries, such as "Click to see $0 more
+     * entries". A callback gets that number and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/hints">moreLinkHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue moreLinkHint;
+
+    /**
+     * Sets a fixed text, see {@link #getMoreLinkHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setMoreLinkHint(String text) {
+        this.moreLinkHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getMoreLinkHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setMoreLinkHint(TextValue value) {
+        this.moreLinkHint = value;
+    }
+
+    /**
+     * Text of the "+N more" link that shows when too many entries do not fit in a day.
+     * <p>
+     * A text is put after the number, so "more" shows "+3 more". A callback gets the number of hidden entries and
+     * returns the whole text. Very small cells and the more links of time grid columns show only
+     * the number.
+     * <p>
+     * For full control of the link's content use {@code moreLinkContent}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">more-link render hooks</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue moreLinkText;
+
+    /**
+     * Sets a fixed text, see {@link #getMoreLinkText()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setMoreLinkText(String text) {
+        this.moreLinkText = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getMoreLinkText()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setMoreLinkText(TextValue value) {
+        this.moreLinkText = value;
+    }
+
+    /**
+     * Accessible hint ({@code aria-label}) for clickable day and week numbers (nav links). It describes what happens
+     * after the nav link is clicked. Without a value, the locale's text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the localized date text, such as "Go to $0". A callback gets that
+     * date text and the JavaScript {@code Date} of the link, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/hints">navLinkHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue navLinkHint;
+
+    /**
+     * Sets a fixed text, see {@link #getNavLinkHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setNavLinkHint(String text) {
+        this.navLinkHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getNavLinkHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setNavLinkHint(TextValue value) {
+        this.navLinkHint = value;
+    }
+
+    /**
+     * Message shown in list views when no entries are in the shown range. It is the {@code text} of the {@code info} of
+     * the no-entries render hooks.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsText</a>
+     */
+    @JsonName("noEventsText")
+    private String noEntriesText;
+
+    /**
+     * Accessibility label of the time axis next to the timed section of time grid views, read by screen readers. The
+     * locale provides the default (English: "Timed"). A value set here wins over it.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/timegrid-view">timedText</a>
+     */
+    private String timedText;
+
+    /**
+     * Accessibility label of the button group in the built-in toolbar that switches the view, read by screen readers.
+     * The library sets it only when the group contains nothing but view buttons. The locale provides the default
+     * (English: "Change view"), and a value set here wins over it.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/hints">viewChangeHint</a>
+     */
+    private String viewChangeHint;
+
+    /**
+     * Format of the date text shown in each day cell of day grid views. It affects the {@code text} given to the day
+     * cell render hooks.
+     * <p>
+     * For the first-of-month cells in day grid views that span several months and for the first cell of the view,
+     * {@link #getMonthStartFormat() monthStartFormat} is used instead.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dayCellFormat">dayCellFormat</a>
+     */
+    @JsonConverter(DateFormatValueConverter.class)
+    private DateFormatValue dayCellFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getDayCellFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setDayCellFormat(Map<String, Object> properties) {
+        this.dayCellFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getDayCellFormat()}.
+     *
+     * @param value the format or callback, or null to remove the option
+     */
+    public void setDayCellFormat(DateFormatValue value) {
+        this.dayCellFormat = value;
+    }
+
+    /**
+     * Format of the text in the day headers (column headings). Without a value, the format depends on the view.
+     * It is the short weekday in month views, the short weekday and day number in views with several day columns,
+     * and the long weekday and day number in views with one column.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dayHeaderFormat">dayHeaderFormat</a>
+     */
+    @JsonConverter(DateFormatValueConverter.class)
+    private DateFormatValue dayHeaderFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getDayHeaderFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setDayHeaderFormat(Map<String, Object> properties) {
+        this.dayHeaderFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getDayHeaderFormat()}.
+     *
+     * @param value the format or callback, or null to remove the option
+     */
+    public void setDayHeaderFormat(DateFormatValue value) {
+        this.dayHeaderFormat = value;
+    }
+
+    /**
+     * Format of the time text shown on entries. It is shown for timed entries only. Without a value, the format depends
+     * on the view, such as {@code 7:00} in time grid views and {@code 7p} in day grid views.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventTimeFormat">eventTimeFormat</a>
+     */
+    @JsonConverter(DateFormatValueConverter.class)
+    @JsonName("eventTimeFormat")
+    private DateFormatValue entryTimeFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getEntryTimeFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setEntryTimeFormat(Map<String, Object> properties) {
+        this.entryTimeFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getEntryTimeFormat()}.
+     *
+     * @param value the format or callback, or null to remove the option
+     */
+    public void setEntryTimeFormat(DateFormatValue value) {
+        this.entryTimeFormat = value;
+    }
+
+    /**
+     * Format of the text on the right side of the day headings in list views, or {@link ListDayFormatValue#NONE} to
+     * hide the text.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/listDayAltFormat">listDayAltFormat</a>
+     */
+    @JsonConverter(ListDayFormatValueConverter.class)
+    private ListDayFormatValue listDayAltFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getListDayAltFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setListDayAltFormat(Map<String, Object> properties) {
+        this.listDayAltFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getListDayAltFormat()}.
+     *
+     * @param value the format, callback or {@link ListDayFormatValue#NONE}, or null to remove the option
+     */
+    public void setListDayAltFormat(ListDayFormatValue value) {
+        this.listDayAltFormat = value;
+    }
+
+    /**
+     * Format of the text on the left side of the day headings in list views, or {@link ListDayFormatValue#NONE} to hide
+     * the text.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/listDayFormat">listDayFormat</a>
+     */
+    @JsonConverter(ListDayFormatValueConverter.class)
+    private ListDayFormatValue listDayFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getListDayFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setListDayFormat(Map<String, Object> properties) {
+        this.listDayFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getListDayFormat()}.
+     *
+     * @param value the format, callback or {@link ListDayFormatValue#NONE}, or null to remove the option
+     */
+    public void setListDayFormat(ListDayFormatValue value) {
+        this.listDayFormat = value;
+    }
+
+    /**
+     * Format of the first cell of each month and of the first cell of the view, when a day grid view spans several
+     * months. Without a value, the format is the long month and the day, such as "January 1".
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/monthStartFormat">monthStartFormat</a>
+     */
+    @JsonConverter(DateFormatValueConverter.class)
+    private DateFormatValue monthStartFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getMonthStartFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setMonthStartFormat(Map<String, Object> properties) {
+        this.monthStartFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getMonthStartFormat()}.
+     *
+     * @param value the format or callback, or null to remove the option
+     */
+    public void setMonthStartFormat(DateFormatValue value) {
+        this.monthStartFormat = value;
+    }
+
+    /**
+     * Format of the date in the title of the "+N more" popover. Without a value, the format is the long month, the day
+     * and the year.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/popoverFormat">popoverFormat</a>
+     */
+    @JsonConverter(DateFormatValueConverter.class)
+    private DateFormatValue popoverFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getPopoverFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setPopoverFormat(Map<String, Object> properties) {
+        this.popoverFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getPopoverFormat()}.
+     *
+     * @param value the format or callback, or null to remove the option
+     */
+    public void setPopoverFormat(DateFormatValue value) {
+        this.popoverFormat = value;
+    }
+
+    /**
+     * Format of the text above each month in multi-month views. Without a value, the format is the long month if the
+     * calendar spans a single year, otherwise the long month and the year.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/singleMonthTitleFormat">singleMonthTitleFormat</a>
+     */
+    @JsonConverter(DateFormatValueConverter.class)
+    private DateFormatValue singleMonthTitleFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getSingleMonthTitleFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setSingleMonthTitleFormat(Map<String, Object> properties) {
+        this.singleMonthTitleFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getSingleMonthTitleFormat()}.
+     *
+     * @param value the format or callback, or null to remove the option
+     */
+    public void setSingleMonthTitleFormat(DateFormatValue value) {
+        this.singleMonthTitleFormat = value;
+    }
+
+    /**
+     * Format of the title text in the built-in header toolbar. Without a value, the default depends on the view.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/titleFormat">titleFormat</a>
+     */
+    @JsonConverter(DateFormatValueConverter.class)
+    private DateFormatValue titleFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getTitleFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setTitleFormat(Map<String, Object> properties) {
+        this.titleFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getTitleFormat()}.
+     *
+     * @param value the format or callback, or null to remove the option
+     */
+    public void setTitleFormat(DateFormatValue value) {
+        this.titleFormat = value;
+    }
+
+    /**
+     * Text format of the week numbers. The text depends on {@code weekTextShort}: with {@code "W"},
+     * {@code narrow} gives {@code "W6"}, {@code short} gives {@code "W 6"} and {@code numeric} gives {@code "6"}.
+     * Without a value, the format is {@code week: 'narrow'} in day grid views and
+     * {@code week: 'short'} in time grid views.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, see the library
+     * docs, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/weekNumberFormat">weekNumberFormat</a>
+     */
+    @JsonConverter(DateFormatValueConverter.class)
+    private DateFormatValue weekNumberFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getWeekNumberFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setWeekNumberFormat(Map<String, Object> properties) {
+        this.weekNumberFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getWeekNumberFormat()}.
+     *
+     * @param value the format or callback, or null to remove the option
+     */
+    public void setWeekNumberFormat(DateFormatValue value) {
+        this.weekNumberFormat = value;
+    }
 }

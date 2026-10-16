@@ -7,6 +7,7 @@ getAllDayHeaderInnerClass(): ClassNameValue
 getAllDayHeaderWillUnmount(): JsCallback
 getAllDayMaintainDuration(): Boolean
 getAllDaySlot(): Boolean
+getAllDayText(): String
 getAspectRatio(): Double
 getBackgroundEntryClass(): ClassNameValue
 getBackgroundEntryColor(): String
@@ -28,6 +29,7 @@ getBorderlessX(): Boolean
 getBusinessHours(): BusinessHoursValue
 getButtonClass(): ClassNameValue
 getButtonGroupClass(): ClassNameValue
+getCloseHint(): String
 getColorScheme(): String
 getColumnEntryAfterClass(): ClassNameValue
 getColumnEntryBeforeClass(): ClassNameValue
@@ -42,6 +44,7 @@ getDateIncrement(): DurationValue
 getDayCellBottomClass(): ClassNameValue
 getDayCellClass(): ClassNameValue
 getDayCellDidMount(): JsCallback
+getDayCellFormat(): DateFormatValue
 getDayCellInnerClass(): ClassNameValue
 getDayCellTopClass(): ClassNameValue
 getDayCellTopContent(): ContentValue
@@ -53,6 +56,7 @@ getDayHeaderClass(): ClassNameValue
 getDayHeaderContent(): ContentValue
 getDayHeaderDidMount(): JsCallback
 getDayHeaderDividerClass(): ClassNameValue
+getDayHeaderFormat(): DateFormatValue
 getDayHeaderInnerClass(): ClassNameValue
 getDayHeaderRowClass(): String
 getDayHeaderWillUnmount(): JsCallback
@@ -77,6 +81,7 @@ getDropAccept(): CssSelectorValue
 getDroppable(): Boolean
 getDuration(): DurationValue
 getEditable(): Boolean
+getEntriesHint(): String
 getEntryAfterClass(): ClassNameValue
 getEntryBeforeClass(): ClassNameValue
 getEntryClass(): ClassNameValue
@@ -96,6 +101,7 @@ getEntryResizableFromStart(): Boolean
 getEntryShortHeight(): Integer
 getEntrySlicing(): Boolean
 getEntryTimeClass(): ClassNameValue
+getEntryTimeFormat(): DateFormatValue
 getEntryTitleClass(): ClassNameValue
 getEntryWillUnmount(): JsCallback
 getExpandRows(): Boolean
@@ -110,6 +116,8 @@ getInlineWeekNumberClass(): ClassNameValue
 getInlineWeekNumberContent(): ContentValue
 getInlineWeekNumberDidMount(): JsCallback
 getInlineWeekNumberWillUnmount(): JsCallback
+getListDayAltFormat(): ListDayFormatValue
+getListDayFormat(): ListDayFormatValue
 getListItemEntryAfterClass(): ClassNameValue
 getListItemEntryBeforeClass(): ClassNameValue
 getListItemEntryClass(): ClassNameValue
@@ -117,10 +125,15 @@ getListItemEntryInnerClass(): ClassNameValue
 getListItemEntryTimeClass(): ClassNameValue
 getListItemEntryTitleClass(): ClassNameValue
 getLongPressDelay(): Integer
+getMonthStartFormat(): DateFormatValue
+getMoreLinkHint(): TextValue
+getMoreLinkText(): TextValue
 getMultiMonthMaxColumns(): Integer
 getNavLinkClass(): String
+getNavLinkHint(): TextValue
 getNavLinks(): Boolean
 getNextDayThreshold(): DurationValue
+getNoEntriesText(): String
 getNonBusinessHoursClass(): String
 getNow(): NowValue
 getNowIndicator(): Boolean
@@ -134,6 +147,7 @@ getNowIndicatorLineContent(): ContentValue
 getNowIndicatorLineDidMount(): JsCallback
 getNowIndicatorLineWillUnmount(): JsCallback
 getNowIndicatorSnap(): AutoBoolean
+getPopoverFormat(): DateFormatValue
 getProgressiveEntryRendering(): Boolean
 getRowEntryAfterClass(): ClassNameValue
 getRowEntryAfterContent(): ContentValue
@@ -157,6 +171,7 @@ getSingleMonthDidMount(): JsCallback
 getSingleMonthHeaderClass(): ClassNameValue
 getSingleMonthHeaderInnerClass(): ClassNameValue
 getSingleMonthMinWidth(): Integer
+getSingleMonthTitleFormat(): DateFormatValue
 getSingleMonthWillUnmount(): JsCallback
 getSlotDuration(): DurationValue
 getSlotEntryOverlap(): Boolean
@@ -181,13 +196,17 @@ getTableBodyClass(): ClassNameValue
 getTableClass(): ClassNameValue
 getTableHeaderClass(): ClassNameValue
 getTableHeaderSticky(): AutoBoolean
+getTimedText(): String
+getTitleFormat(): DateFormatValue
 getToolbarClass(): ClassNameValue
 getToolbarSectionClass(): ClassNameValue
 getToolbarTitleClass(): String
 getUnselectAuto(): Boolean
 getUnselectCancel(): String
 getValidRange(): DateRangeValue
+getViewChangeHint(): String
 getVisibleRange(): DateRangeValue
+getWeekNumberFormat(): DateFormatValue
 getWeekNumberHeaderClass(): ClassNameValue
 getWeekNumberHeaderContent(): ContentValue
 getWeekNumberHeaderDidMount(): JsCallback
@@ -206,6 +225,7 @@ setAllDayHeaderInnerClass(String): void
 setAllDayHeaderWillUnmount(JsCallback): void
 setAllDayMaintainDuration(Boolean): void
 setAllDaySlot(Boolean): void
+setAllDayText(String): void
 setAspectRatio(Double): void
 setBackgroundEntryClass(ClassNameValue): void
 setBackgroundEntryClass(String): void
@@ -240,6 +260,7 @@ setButtonClass(ClassNameValue): void
 setButtonClass(String): void
 setButtonGroupClass(ClassNameValue): void
 setButtonGroupClass(String): void
+setCloseHint(String): void
 setColorScheme(String): void
 setColumnEntryAfterClass(ClassNameValue): void
 setColumnEntryAfterClass(String): void
@@ -267,6 +288,8 @@ setDayCellBottomClass(String): void
 setDayCellClass(ClassNameValue): void
 setDayCellClass(String): void
 setDayCellDidMount(JsCallback): void
+setDayCellFormat(DateFormatValue): void
+setDayCellFormat(Map): void
 setDayCellInnerClass(ClassNameValue): void
 setDayCellInnerClass(String): void
 setDayCellTopClass(ClassNameValue): void
@@ -285,6 +308,8 @@ setDayHeaderContent(String): void
 setDayHeaderDidMount(JsCallback): void
 setDayHeaderDividerClass(ClassNameValue): void
 setDayHeaderDividerClass(String): void
+setDayHeaderFormat(DateFormatValue): void
+setDayHeaderFormat(Map): void
 setDayHeaderInnerClass(ClassNameValue): void
 setDayHeaderInnerClass(String): void
 setDayHeaderRowClass(String): void
@@ -324,6 +349,7 @@ setDuration(DurationValue): void
 setDuration(Period): void
 setDuration(String): void
 setEditable(Boolean): void
+setEntriesHint(String): void
 setEntryAfterClass(ClassNameValue): void
 setEntryAfterClass(String): void
 setEntryBeforeClass(ClassNameValue): void
@@ -352,6 +378,8 @@ setEntryShortHeight(Integer): void
 setEntrySlicing(Boolean): void
 setEntryTimeClass(ClassNameValue): void
 setEntryTimeClass(String): void
+setEntryTimeFormat(DateFormatValue): void
+setEntryTimeFormat(Map): void
 setEntryTitleClass(ClassNameValue): void
 setEntryTitleClass(String): void
 setEntryWillUnmount(JsCallback): void
@@ -370,6 +398,10 @@ setInlineWeekNumberContent(ContentValue): void
 setInlineWeekNumberContent(String): void
 setInlineWeekNumberDidMount(JsCallback): void
 setInlineWeekNumberWillUnmount(JsCallback): void
+setListDayAltFormat(ListDayFormatValue): void
+setListDayAltFormat(Map): void
+setListDayFormat(ListDayFormatValue): void
+setListDayFormat(Map): void
 setListItemEntryAfterClass(ClassNameValue): void
 setListItemEntryAfterClass(String): void
 setListItemEntryBeforeClass(ClassNameValue): void
@@ -383,13 +415,22 @@ setListItemEntryTimeClass(String): void
 setListItemEntryTitleClass(ClassNameValue): void
 setListItemEntryTitleClass(String): void
 setLongPressDelay(Integer): void
+setMonthStartFormat(DateFormatValue): void
+setMonthStartFormat(Map): void
+setMoreLinkHint(String): void
+setMoreLinkHint(TextValue): void
+setMoreLinkText(String): void
+setMoreLinkText(TextValue): void
 setMultiMonthMaxColumns(Integer): void
 setNavLinkClass(String): void
+setNavLinkHint(String): void
+setNavLinkHint(TextValue): void
 setNavLinks(Boolean): void
 setNextDayThreshold(Duration): void
 setNextDayThreshold(DurationValue): void
 setNextDayThreshold(Period): void
 setNextDayThreshold(String): void
+setNoEntriesText(String): void
 setNonBusinessHoursClass(String): void
 setNow(LocalDate): void
 setNow(LocalDateTime): void
@@ -409,6 +450,8 @@ setNowIndicatorLineContent(String): void
 setNowIndicatorLineDidMount(JsCallback): void
 setNowIndicatorLineWillUnmount(JsCallback): void
 setNowIndicatorSnap(AutoBoolean): void
+setPopoverFormat(DateFormatValue): void
+setPopoverFormat(Map): void
 setProgressiveEntryRendering(Boolean): void
 setRowEntryAfterClass(ClassNameValue): void
 setRowEntryAfterClass(String): void
@@ -447,6 +490,8 @@ setSingleMonthHeaderClass(String): void
 setSingleMonthHeaderInnerClass(ClassNameValue): void
 setSingleMonthHeaderInnerClass(String): void
 setSingleMonthMinWidth(Integer): void
+setSingleMonthTitleFormat(DateFormatValue): void
+setSingleMonthTitleFormat(Map): void
 setSingleMonthWillUnmount(JsCallback): void
 setSlotDuration(Duration): void
 setSlotDuration(DurationValue): void
@@ -495,6 +540,9 @@ setTableClass(String): void
 setTableHeaderClass(ClassNameValue): void
 setTableHeaderClass(String): void
 setTableHeaderSticky(AutoBoolean): void
+setTimedText(String): void
+setTitleFormat(DateFormatValue): void
+setTitleFormat(Map): void
 setToolbarClass(ClassNameValue): void
 setToolbarClass(String): void
 setToolbarSectionClass(ClassNameValue): void
@@ -503,7 +551,10 @@ setToolbarTitleClass(String): void
 setUnselectAuto(Boolean): void
 setUnselectCancel(String): void
 setValidRange(DateRangeValue): void
+setViewChangeHint(String): void
 setVisibleRange(DateRangeValue): void
+setWeekNumberFormat(DateFormatValue): void
+setWeekNumberFormat(Map): void
 setWeekNumberHeaderClass(ClassNameValue): void
 setWeekNumberHeaderClass(String): void
 setWeekNumberHeaderContent(ContentValue): void
