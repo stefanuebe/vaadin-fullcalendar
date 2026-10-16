@@ -117,7 +117,9 @@ getFillerClass(): ClassNameValue
 getFirstDay(): DayOfWeek
 getFixedWeekCount(): Boolean
 getFooterScrollbarSticky(): AutoBoolean
+getFooterToolbar(): ToolbarValue
 getForceEntryDuration(): Boolean
+getHeaderToolbar(): ToolbarValue
 getHeadingLevel(): Integer
 getHiddenDays(): Set
 getHighlightClass(): String
@@ -136,6 +138,7 @@ getListItemEntryInnerClass(): ClassNameValue
 getListItemEntryTimeClass(): ClassNameValue
 getListItemEntryTitleClass(): ClassNameValue
 getListText(): ListTextValue
+getLocale(): Locale
 getLongPressDelay(): Integer
 getMonthStartFormat(): DateFormatValue
 getMonthText(): String
@@ -438,7 +441,9 @@ setFillerClass(String): void
 setFirstDay(DayOfWeek): void
 setFixedWeekCount(Boolean): void
 setFooterScrollbarSticky(AutoBoolean): void
+setFooterToolbar(ToolbarValue): void
 setForceEntryDuration(Boolean): void
+setHeaderToolbar(ToolbarValue): void
 setHeadingLevel(Integer): void
 setHiddenDays(Set): void
 setHighlightClass(String): void
@@ -470,6 +475,7 @@ setListItemEntryTitleClass(ClassNameValue): void
 setListItemEntryTitleClass(String): void
 setListText(ListTextValue): void
 setListText(String): void
+setLocale(Locale): void
 setLongPressDelay(Integer): void
 setMonthStartFormat(DateFormatValue): void
 setMonthStartFormat(Map): void

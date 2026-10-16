@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
@@ -7,6 +8,7 @@ import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.BooleanNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDateTime;
@@ -224,12 +226,79 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
     // -------------------------------------------------------------------------
 
     @Test
+    void initialState_hasNoToolbar_andTheDefaultLocale() {
+        attach();
+
+        assertEquals(BooleanNode.FALSE, initialOptions().get("headerToolbar"));
+        assertFalse(initialOptions().has("footerToolbar"));
+        assertEquals(CalendarLocale.getDefaultLocale().toLanguageTag().toLowerCase(),
+                initialOptions().get("locale").asString());
+    }
+
+    @Test
+    void headerToolbar_setToNull_isRemovedOnTheClient() {
+        attach();
+
+        calendar.options().setHeaderToolbar(null);
+
+        assertEquals(List.of(JsonFactory.createObject().putNull("headerToolbar")), respond());
+    }
+
+    @Test
+    void locale_null_throws() {
+        assertThrows(NullPointerException.class, () -> calendar.options().setLocale(null));
+    }
+
+    @Test
+    void nullLocale_inInitialOptions_keepsTheDefault() {
+        calendar = new FullCalendar(JsonFactory.createObject().putNull("locale"));
+        attach();
+
+        assertTrue(calendar.options().getRawOption("locale").isEmpty());
+        assertEquals(CalendarLocale.getDefaultLocale().toLanguageTag().toLowerCase(),
+                initialOptions().get("locale").asString());
+    }
+
+    @Test
+    void localeOption_isNotTheComponentLocale() {
+        var subclass = new FullCalendar() {
+            Locale componentLocale() {
+                return getLocale();
+            }
+        };
+        calendar = subclass;
+        UI.getCurrent().setLocale(Locale.FRENCH);
+        calendar.options().setLocale(Locale.GERMAN);
+        attach();
+
+        assertEquals(Locale.FRENCH, subclass.componentLocale());
+        assertEquals("de", initialOptions().get("locale").asString());
+    }
+
+    @Test
+    void headerToolbarInInitialOptions_winsOverTheField() {
+        calendar = new FullCalendar(JsonFactory.createObject().set("headerToolbar",
+                JsonFactory.createObject().put("center", "title")));
+        attach();
+
+        assertEquals("title", initialOptions().get("headerToolbar").get("center").asString());
+    }
+
+    @Test
+    void localeInInitialOptions_winsOverTheField() {
+        calendar = new FullCalendar(JsonFactory.createObject().put("locale", "de"));
+        attach();
+
+        assertEquals("de", initialOptions().get("locale").asString());
+    }
+
+    @Test
     void uiLocaleChange_isIgnored() {
-        Locale before = calendar.<Locale>getOption(Option.LOCALE).orElseThrow();
+        Locale before = calendar.options().getLocale();
         UI.getCurrent().add(calendar);
 
         UI.getCurrent().setLocale(Locale.FRENCH);
 
-        assertEquals(before, calendar.getOption(Option.LOCALE).orElseThrow());
+        assertEquals(before, calendar.options().getLocale());
     }
 }

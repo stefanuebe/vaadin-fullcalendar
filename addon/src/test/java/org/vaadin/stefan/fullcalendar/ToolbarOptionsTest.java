@@ -3,6 +3,7 @@ package org.vaadin.stefan.fullcalendar;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.BooleanNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Map;
@@ -67,13 +68,15 @@ public class ToolbarOptionsTest {
         assertFalse(sentToClient().get("headerToolbar").booleanValue());
     }
 
+    // setOption(…, null) drops the raw value, so the field's value applies again. The typed setter with null removes
+    // the option instead, see AutoBrowserSettingsTest.headerToolbar_setToNull_isRemovedOnTheClient.
     @Test
-    void headerToolbar_null_removesOption() {
+    void headerToolbar_null_bringsTheFieldBack() {
         calendar.setOption(Option.HEADER_TOOLBAR, Map.of("center", "title"));
 
         calendar.setOption(Option.HEADER_TOOLBAR, null);
 
-        assertFalse(sentToClient().has("headerToolbar"));
+        assertEquals(BooleanNode.FALSE, sentToClient().get("headerToolbar"), "the field's initial value, no toolbar");
         assertTrue(calendar.getOption(Option.HEADER_TOOLBAR).isEmpty());
     }
 }

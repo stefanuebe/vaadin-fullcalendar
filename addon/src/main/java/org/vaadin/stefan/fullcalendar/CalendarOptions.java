@@ -24,12 +24,15 @@ import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.ListTextValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
+import org.vaadin.stefan.fullcalendar.converters.LocaleConverter;
 import org.vaadin.stefan.fullcalendar.converters.TextValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ToolbarValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ViewNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.WeekNumberCalculationValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
@@ -41,12 +44,15 @@ import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.ViewName;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Locale;
+import java.util.Objects;
 
 /**
  * The options that apply to the whole calendar only, never per view. Null means not set. This class is not public
@@ -70,6 +76,28 @@ class CalendarOptions implements Serializable {
     private DayOfWeek firstDay;
 
     /**
+     * The library's built-in toolbar below the calendar, see {@link ToolbarValue} for its sections.
+     * <p>
+     * The getter returns null while the option is not set; then the library default, no toolbar, applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/footerToolbar">footerToolbar</a>
+     */
+    @JsonConverter(ToolbarValueConverter.class)
+    private ToolbarValue footerToolbar;
+
+    /**
+     * The library's built-in toolbar above the calendar, see {@link ToolbarValue} for its sections.
+     * <p>
+     * The initial value is {@link ToolbarValue#NONE}, because navigation belongs to Vaadin components. The library's
+     * toolbar navigates on the client, and the server learns of it only through events such as the
+     * {@link DatesRenderedEvent}. Null removes the option. The library's default, no toolbar, then applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
+     */
+    @JsonConverter(ToolbarValueConverter.class)
+    private ToolbarValue headerToolbar = ToolbarValue.NONE;
+
+    /**
      * The date the calendar shows when it is created. The default is the current date.
      * <p>
      * It has no effect on a calendar the browser already shows. Use {@link FullCalendar#gotoDate(LocalDate)} instead.
@@ -81,6 +109,29 @@ class CalendarOptions implements Serializable {
      */
     @JsonConverter(LocalDateConverter.class)
     private LocalDate initialDate;
+
+    /**
+     * The language and the regional formats of the calendar, such as the texts, the first day of the week and the date
+     * formats.
+     * <p>
+     * The initial value is {@link CalendarLocale#getDefaultLocale()}. The calendar always has a locale, so it cannot be
+     * removed. This option is not the Vaadin locale of the component, which {@code calendar.getLocale()} still returns.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">locale</a>
+     */
+    @JsonConverter(LocaleConverter.class)
+    @Setter(AccessLevel.NONE)
+    private Locale locale = CalendarLocale.getDefaultLocale();
+
+    /**
+     * Sets the locale, see {@link #getLocale()}.
+     *
+     * @param locale the locale
+     * @throws NullPointerException when null is passed
+     */
+    public void setLocale(Locale locale) {
+        this.locale = Objects.requireNonNull(locale);
+    }
 
     /**
      * The time zone the calendar shows the entries in. The server converts entry times with it. The default is

@@ -3,6 +3,7 @@ package org.vaadin.stefan.fullcalendar;
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
 import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import org.vaadin.stefan.fullcalendar.option.DurationValue;
@@ -57,6 +58,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -506,6 +508,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(String.class, "x", JsonUtils.toJsonNode("x")),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
+            sample(Locale.class, Locale.GERMANY, JsonUtils.toJsonNode("de-de")),
             sample(ViewName.class, ViewName.of("timeGridDay"), JsonUtils.toJsonNode("timeGridDay")),
             sample(Set.class, Set.of(DayOfWeek.WEDNESDAY), JsonFactory.createArray().add(3)),
             sample(JsCallback.class, JsCallback.of("() => {}"), JsCallback.of("() => {}").toMarkerJson()));
@@ -561,7 +564,8 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(DurationValue.class, Set.of(Duration.class, Period.class, String.class)),
             Map.entry(WidthValue.class, Set.of(int.class)),
             Map.entry(DateRangeValue.class, Set.of()),
-            Map.entry(WeekNumberCalculationValue.class, Set.of()));
+            Map.entry(WeekNumberCalculationValue.class, Set.of()),
+            Map.entry(ToolbarValue.class, Set.of()));
 
     /**
      * A value and client JSON for one setter whose parameter type has a different sample, keyed by the setter name and

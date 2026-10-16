@@ -186,7 +186,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * Uses {@link InMemoryEntryProvider} by default.
      */
     public FullCalendar() {
-        setOption(Option.LOCALE, CalendarLocale.getDefaultLocale());
         setOption(Option.DAY_MAX_ENTRIES, false);
         postConstruct();
     }
@@ -237,6 +236,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             initialOptions = initialOptions.deepCopy();
             initialOptions.remove(timeZoneKey);
         }
+        // the calendar always has a locale, a null leaves the field's initial value
+        if (initialOptions.path(Option.LOCALE.getOptionKey()).isNull()) {
+            initialOptions = initialOptions.deepCopy();
+            initialOptions.remove(Option.LOCALE.getOptionKey());
+        }
 
         if (initialOptions.hasNonNull("views")) {
             ObjectNode views = (ObjectNode) initialOptions.get("views");
@@ -260,11 +264,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
         if (timeZone != null) {
             options().setTimeZone(timeZone);
-        }
-
-        if (!initialOptions.hasNonNull(Option.LOCALE.getOptionKey())) {
-            // fallback to prevent strange locale effects on the client side
-            setOption(Option.LOCALE, CalendarLocale.getDefaultLocale());
         }
 
         postConstruct();

@@ -92,7 +92,7 @@ public class FullCalendarSchedulerTest {
     @Test
     void testNonArgsConstructor() {
         // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 4); // locale + dayMaxEvents + height + timeZone
+        assertExistingOptionCount(calendar, 3); // dayMaxEvents + height + timeZone. The locale is a typed field.
     }
 
     @Test
@@ -102,14 +102,14 @@ public class FullCalendarSchedulerTest {
         calendar.setMaxEntriesPerDay(entryLimit);
 
         // this shall assure that all init options are handled
-        assertExistingOptionCount(calendar, 4); // locale + dayMaxEvents + height + timeZone
+        assertExistingOptionCount(calendar, 3); // dayMaxEvents + height + timeZone. The locale is a typed field.
 
         Assertions.assertEquals(entryLimit, calendar.getOption(Option.DAY_MAX_ENTRIES).orElse(-1));
     }
 
     @Test
     void noArgConstructor_setsDefaultLocale() {
-        Assertions.assertSame(CalendarLocale.getDefaultLocale(), new FullCalendarScheduler().getOption(Option.LOCALE).orElse(null));
+        Assertions.assertSame(CalendarLocale.getDefaultLocale(), new FullCalendarScheduler().options().getLocale());
     }
 
     @Test

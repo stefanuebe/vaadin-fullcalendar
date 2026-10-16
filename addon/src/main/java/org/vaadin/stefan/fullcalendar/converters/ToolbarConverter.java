@@ -8,9 +8,8 @@ import tools.jackson.databind.JsonNode;
  * for the FullCalendar client side.
  *
  * @deprecated goes together with the deprecated toolbar model ({@link org.vaadin.stefan.fullcalendar.model.Header},
- * {@link org.vaadin.stefan.fullcalendar.model.Footer}). Set the toolbar options with a {@code Map} instead.
- * @see org.vaadin.stefan.fullcalendar.Option#HEADER_TOOLBAR
- * @see org.vaadin.stefan.fullcalendar.Option#FOOTER_TOOLBAR
+ * {@link org.vaadin.stefan.fullcalendar.model.Footer}). Set the toolbar options with a
+ * {@link org.vaadin.stefan.fullcalendar.option.ToolbarValue} instead, see {@link ToolbarValueConverter}.
  */
 @Deprecated(since = "7.3.0", forRemoval = true)
 public class ToolbarConverter implements JsonItemPropertyConverter<AbstractHeaderFooter, Object> {

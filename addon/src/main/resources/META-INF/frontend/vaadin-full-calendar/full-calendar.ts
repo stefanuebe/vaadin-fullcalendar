@@ -254,8 +254,6 @@ export class FullCalendar extends HTMLElement {
         let events = this.createEventHandlers();
 
         let options: CalendarOptions = {
-            // // no native control elements
-            headerToolbar: false,
             weekNumbers: true,
             tableHeaderSticky: true,
             footerScrollbarSticky: true,
