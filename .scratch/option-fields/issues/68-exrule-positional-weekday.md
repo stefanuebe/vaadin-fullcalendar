@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #382 |
 | Labels | bug |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, 47082cc5) |
 | Blocked by | `61-constraint-rrule-window` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `61-constraint-rrule-window`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, 47082cc5)
 
 - [x] Playwright: a recurring entry with an excluded rule "last Friday of the month" does not show on those Fridays (shows whether the bug exists).
 - [x] If it exists: the excluded rule reaches the plugin in a form it reads (for example the object form with the weekday written as the plugin expects), and the Playwright test passes.
