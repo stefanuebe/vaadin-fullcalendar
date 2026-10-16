@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #391 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, 81181580) |
 | Blocked by | `04-client-without-option-fallback`, `18-sync-hook-entry-did-mount`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,7 +16,7 @@
 
 **Blocked by:** `04-client-without-option-fallback`, `18-sync-hook-entry-did-mount`, `60-setters-without-form-overloads`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, 81181580)
 
 - [x] Both value forms reach the client; the server still receives the more-link click.
 - [x] Playwright: `MoreLinkClickTestView` behaviour unchanged.
