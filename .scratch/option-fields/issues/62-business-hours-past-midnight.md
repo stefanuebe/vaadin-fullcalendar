@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #380 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, edc70ff9) |
 | Blocked by | `57-value-types-order-ranges-lengths-durations` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -20,7 +20,7 @@ The library reads `endTime` as a duration, not as a time of day, and takes the l
 
 **Blocked by:** `57-value-types-order-ranges-lengths-durations`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, edc70ff9)
 
 - [x] A window from 22:00 to 02:00 reaches the client as `startTime: "22:00"`, `endTime: "26:00"` and round-trips through `BusinessHoursValueConverter` and `ConstraintValueConverter`.
 
