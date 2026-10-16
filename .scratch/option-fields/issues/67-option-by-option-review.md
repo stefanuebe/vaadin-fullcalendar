@@ -12,7 +12,7 @@
 
 **What to build:** A review after all options, the scheduler's included, have their fields. Several agents compare EVERY `Option` and `SchedulerOption` constant in detail with its successor field:
 
-- **Javadoc:** is every statement of the old Javadoc that is still true for the used library version carried over? Is every statement of the new Javadoc true, checked against the library code (`.d.ts`, chunks), the library docs and the add-on (`full-calendar.ts`, `FullCalendar`)? The old Javadoc is not trusted blindly, because parts of it were written for an older library version.
+- **Javadoc:** the main focus. The old Javadoc is the language frame, the facts come from the library docs (maintainer, 2026-10-16). Every factual statement of the new Javadoc is checked against the library docs, and a statement about the add-on against the add-on (`full-calendar.ts`, `FullCalendar`). Where the docs and the library code (`.d.ts`, chunks) disagree, the code wins, because it is what runs, and the case is recorded (wave 2 found two: the default header formats of `dayHeaderFormat`, and the argument of a format callback, which is an info object and not a date). Parts of the old Javadoc were written for an older library version and were wrong for the used one (wave 2: `moreLinkHint` sets `title`, not `aria-label`; a newline in `allDayText` is no line break; `now` takes effect again after a detach and attach).
 - **Values:** does the field take every value and form the library takes for the option, and nothing it rejects? Does the client receive the value as the library reads it?
 - **Mapping:** where the library form cannot be mapped 1:1, is the reason concrete and written down (ticket and Javadoc)?
 
