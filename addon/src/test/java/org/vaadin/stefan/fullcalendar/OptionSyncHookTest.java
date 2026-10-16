@@ -17,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The protected sync hook {@link FullCalendar#contributeOptions(Map)} and its first user, {@code entryDidMount}: the
- * callback merged with the native entry listeners and the automatic entry id.
+ * callback merged with the native entry listeners and the automatic entry id. Also the fields of options the client has
+ * its own handler for, such as {@code viewDidMount}, which the hook marks to run after that handler.
  */
 public class OptionSyncHookTest extends BrowserlessTest {
 
@@ -159,5 +160,62 @@ public class OptionSyncHookTest extends BrowserlessTest {
         calendar.options().setRawOption("weekends", true);
 
         assertTrue(initialOptions(calendar).get("weekends").asBoolean());
+    }
+
+    @Test
+    void viewDidMountField_isMarkedToRunAfterTheClientHandler() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setViewDidMount(JsCallback.of(USER_CALLBACK));
+        attach(calendar);
+
+        JsonNode value = initialOptions(calendar).get("viewDidMount");
+
+        assertEquals(USER_CALLBACK, value.get("__jsCallback").asString());
+        assertTrue(value.get(FullCalendar.AFTER_CLIENT_HANDLER_KEY).asBoolean());
+    }
+
+    @Test
+    void viewDidMountField_setAfterAttach_isSentMarked_andClearingRemovesIt() {
+        FullCalendar calendar = new FullCalendar();
+        attach(calendar);
+
+        calendar.options().setViewDidMount(JsCallback.of(USER_CALLBACK));
+        List<ObjectNode> changes = optionChanges(respond());
+
+        assertEquals(1, changes.size());
+        assertTrue(changes.getFirst().get("viewDidMount").get(FullCalendar.AFTER_CLIENT_HANDLER_KEY).asBoolean());
+
+        calendar.options().setViewDidMount(null);
+
+        assertEquals(List.of(JsonFactory.createObject().putNull("viewDidMount")), optionChanges(respond()),
+                "the removal gives the client its own handler back");
+    }
+
+    @Test
+    void rawViewDidMount_isNotMarked_andWinsOverTheField() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setViewDidMount(JsCallback.of(USER_CALLBACK));
+        calendar.options().setRawOption("viewDidMount", JsCallback.of("function(info) {}"));
+
+        JsonNode value = initialOptions(calendar).get("viewDidMount");
+
+        assertEquals("function(info) {}", value.get("__jsCallback").asString());
+        assertFalse(value.has(FullCalendar.AFTER_CLIENT_HANDLER_KEY), "a raw option replaces the client's handler");
+    }
+
+    @Test
+    void removingRawViewDidMount_bringsTheMarkedFieldBack() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setViewDidMount(JsCallback.of(USER_CALLBACK));
+        calendar.options().setRawOption("viewDidMount", JsCallback.of("function(info) {}"));
+        attach(calendar);
+
+        calendar.options().setRawOption("viewDidMount", null);
+        List<ObjectNode> changes = optionChanges(respond());
+
+        assertEquals(1, changes.size());
+        JsonNode value = changes.getFirst().get("viewDidMount");
+        assertEquals(USER_CALLBACK, value.get("__jsCallback").asString());
+        assertTrue(value.get(FullCalendar.AFTER_CLIENT_HANDLER_KEY).asBoolean());
     }
 }

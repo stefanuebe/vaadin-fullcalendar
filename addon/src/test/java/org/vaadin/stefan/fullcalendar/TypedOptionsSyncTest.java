@@ -59,6 +59,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -489,6 +490,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
      */
     private static final Map<String, String> SYNCED_APART = Map.of(
             "entryDidMount", "OptionSyncHookTest",
+            "viewDidMount", "OptionSyncHookTest",
             "timeZone", "AutoBrowserSettingsTest");
 
     /**
@@ -586,6 +588,36 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
 
     private static Map.Entry<Class<?>, Map.Entry<Object, JsonNode>> sample(Class<?> type, Object value, JsonNode json) {
         return Map.entry(type, Map.entry(value, json));
+    }
+
+    /**
+     * A field for an option the client has its own handler for runs after that handler, so the server keeps getting
+     * the event. Without this, the field's callback would replace the handler. The client's handlers are the keys of
+     * {@code createEventHandlers} in full-calendar.ts. moreLinkClick has its own handling. The scheduler client adds no
+     * handlers, so it is not read. A scheduler handler added later needs a check here too.
+     */
+    @Test
+    void everyFieldForAnOptionWithAClientHandler_runsAfterIt() throws Exception {
+        String client = Files.readString(Path.of(
+                "src/main/resources/META-INF/frontend/vaadin-full-calendar/full-calendar.ts"));
+        int start = client.indexOf("protected createEventHandlers() {");
+        String handlers = client.substring(start, client.indexOf("\n    }\n", start));
+        Set<String> handled = Pattern.compile("(?m)^ {12}(\\w+):").matcher(handlers).results()
+                .map(match -> match.group(1))
+                .collect(Collectors.toSet());
+        assertTrue(handled.containsAll(List.of("dateClick", "eventClick", "datesSet", "navLinkDayClick", "viewDidMount")),
+                "handlers not found in " + handlers);
+        handled.remove("moreLinkClick");
+
+        for (Class<?> type : List.of(CalendarOptions.class, ViewOptions.class)) {
+            for (Field field : type.getDeclaredFields()) {
+                String name = field.isAnnotationPresent(JsonName.class)
+                        ? field.getAnnotation(JsonName.class).value() : field.getName();
+                if (handled.contains(name)) {
+                    assertTrue(FullCalendar.CALLBACKS_AFTER_CLIENT_HANDLER.contains(name), name);
+                }
+            }
+        }
     }
 
     @Test

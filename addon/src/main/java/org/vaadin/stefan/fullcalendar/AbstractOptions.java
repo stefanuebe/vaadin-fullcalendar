@@ -42,6 +42,12 @@ public abstract class AbstractOptions implements Serializable {
      * <p>
      * A raw option wins over the field with the same name. Removing it brings the field's current value back. On the
      * options of a view, the raw option applies while that view is shown, like the view's fields.
+     * <p>
+     * For an option the add-on has its own handler for, such as {@code eventClick} or {@code viewDidMount}, a raw
+     * callback replaces that handler, also when set before the calendar is shown. The server then no longer gets the
+     * matching event, for example the {@link EntryClickedEvent}. The typed field
+     * {@link FullCalendarOptions#setViewDidMount(org.vaadin.stefan.fullcalendar.option.JsCallback)} runs after the
+     * handler instead.
      *
      * @param option the option's name in the FullCalendar library
      * @param value  value, or null (also a JSON null) to remove the option

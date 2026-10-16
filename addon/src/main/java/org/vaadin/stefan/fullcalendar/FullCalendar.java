@@ -82,6 +82,13 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     private static final String INITIAL_OPTIONS = "initialOptions";
     private static final String THEME_PROPERTY = "fcTheme";
+    /**
+     * The options the client has its own handler for and the typed fields of which run after it, see
+     * {@link #contributeOptions(Map)}. The client registers the handlers in {@code createEventHandlers}.
+     */
+    static final Set<String> CALLBACKS_AFTER_CLIENT_HANDLER = Set.of("viewDidMount");
+    /** The key in a JsCallback marker that makes the client run the callback after its own handler. */
+    static final String AFTER_CLIENT_HANDLER_KEY = "__afterClientHandler";
 
     /**
      * Caches the entries of the last client fetch for entry based events. Cleared and repopulated
@@ -943,8 +950,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <p>
      * This calendar puts in {@code eventDidMount}: the callback of {@link FullCalendarOptions#getEntryDidMount()}
      * merged with the native entry listeners and the automatic entry id, see
-     * {@link #addEntryNativeEventListener(String, String)} and {@link #setAutoProvideEntryIdOnClient(boolean)}. An
-     * override calls this method to keep it.
+     * {@link #addEntryNativeEventListener(String, String)} and {@link #setAutoProvideEntryIdOnClient(boolean)}. It
+     * also marks the field callbacks of the options the client has its own handler for, such as {@code viewDidMount},
+     * so the client runs them after its handler. A raw option is not marked and replaces the client's handler. An
+     * override calls this method to keep both.
      *
      * @param options the option values the client gets, to add to or replace in
      */
@@ -953,6 +962,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         if (merged != null) {
             options.put(Option.ENTRY_DID_MOUNT.getOptionKey(), JsCallback.of(merged).toMarkerJson());
         }
+        CALLBACKS_AFTER_CLIENT_HANDLER.forEach(key -> {
+            if (options.get(key) instanceof ObjectNode marker && JsCallback.isMarker(marker)) {
+                options.put(key, marker.deepCopy().put(AFTER_CLIENT_HANDLER_KEY, true));
+            }
+        });
     }
 
     /**

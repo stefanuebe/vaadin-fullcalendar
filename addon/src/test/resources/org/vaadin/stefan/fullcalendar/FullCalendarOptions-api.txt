@@ -232,6 +232,7 @@ getUnselectCancel(): String
 getValidRange(): DateRangeValue
 getViewChangeHint(): String
 getViewClass(): ClassNameValue
+getViewDidMount(): JsCallback
 getViewHint(): TextValue
 getViewWillUnmount(): JsCallback
 getVisibleRange(): DateRangeValue
@@ -628,6 +629,7 @@ setValidRange(DateRangeValue): void
 setViewChangeHint(String): void
 setViewClass(ClassNameValue): void
 setViewClass(String): void
+setViewDidMount(JsCallback): void
 setViewHint(String): void
 setViewHint(TextValue): void
 setViewWillUnmount(JsCallback): void
