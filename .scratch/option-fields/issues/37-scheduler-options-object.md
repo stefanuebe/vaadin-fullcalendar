@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #393 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16, a1bda347) |
+| Status | done (2026-10-16, a1bda347; follow-up 104fc86a) |
 | Blocked by | `07-view-options`, `10-option-names-scheduler`, `12-pinned-api-and-converter-roundtrip` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `07-view-options`, `10-option-names-scheduler`, `12-pinned-api-and-converter-roundtrip`
 
-**Status:** done (2026-10-16, a1bda347)
+**Status:** done (2026-10-16, a1bda347; follow-up 104fc86a)
 
 - [x] Core and scheduler options set through one scheduler `options()` object both arrive.
 - [x] The scheduler's `view(…)` sets a core and a scheduler field without a cast.
@@ -31,4 +31,5 @@
 - The core accessors `calendarOptions()` and `viewOptions()` of the options objects are package-private, so the scheduler's options objects delegate to the same instances, cast to the scheduler types. Per-view instances are created through `createViewOptions()` too.
 - The scheduler's `@Delegate` excludes the core data classes (`excludes = CalendarOptions.class` / `ViewOptions.class`), so the core accessors are inherited and not generated again (maintainer, 2026-10-16: avoid the duplicates). The pinned lists of the scheduler show only the scheduler accessors and the covariant `view(…)` with its bridge method, so a new core field changes only the core lists.
 - Scheduler tests: `SchedulerOptionFieldsStaticTest` (the name clash check includes the core fields, which are on the classpath), `SchedulerOptionsApiTest` with `FullCalendarSchedulerOptions-api.txt` and `FullCalendarSchedulerViewOptions-api.txt`, `SchedulerConverterTest`, `SchedulerTypedOptionsSyncTest` (also ports the client-handler guard; it reads the core `full-calendar.ts`). `VALUE_TYPES`, `ONE_FORM_TYPES` and `PER_FORM_PARAMETERS` start empty. `SchedulerCalendarOptions` has no field yet, so the global branches of these tests run over nothing until 39 adds `refetchResourcesOnNavigate`; the value-type and handler guards bite once a field needs them (`assertNotNull`).
+- Maintainer review, 2026-10-16: the factory methods stay `protected`. Third-party subclasses do not get typed options of their own; they use the raw options. Opening the data classes for that (public data classes, protected constructors on the options objects) was rejected as out of scope for a FullCalendar wrapper.
 
