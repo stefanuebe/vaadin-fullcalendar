@@ -131,9 +131,8 @@ class ViewOptions implements Serializable {
     @JsonConverter(ClassNameValueConverter.class)
     private ClassNameValue dayCellClass;      // sealed: ClassName | JsCallback
 
-    public void setDayCellClass(String classNames) { ... }      // hand-written overloads per form
-    public void setDayCellClass(JsCallback callback) { ... }
-    public void setDayCellClass(ClassNameValue value) { ... }   // and one taking the value type
+    public void setDayCellClass(String classNames) { ... }      // hand-written, one per form with plain data
+    public void setDayCellClass(ClassNameValue value) { ... }   // and one taking the value type, also for a callback
 }
 ```
 
@@ -151,7 +150,7 @@ class ViewOptions implements Serializable {
 - Value or callback: one sealed interface per kind of value, which `JsCallback` implements (for example `ClassNameValue permits ClassName, JsCallback`, `OverlapValue permits Overlap, JsCallback`). A handful of kinds, not one per option. `JsCallback` becomes `final`.
 - Other unions get their own types (library names; `businessHours`: `true` vs a list of hours; `dayMaxEvents`: boolean or number; `selectConstraint`: string or object; `headerToolbar`: `false` vs a toolbar).
 - Every value type has a converter.
-- Setters are hand-written overloads per form, as the setter rules and table in `issues/README.md` fix them (`setDayCellClass(String)`, `setDayCellClass(JsCallback)`, `setBusinessHours(BusinessHours...)`). Besides them, every such field has a hand-written setter taking the value type (`setDayCellClass(ClassNameValue)`), the only way to set a form without data such as `HeightValue.AUTO` (maintainer, 2026-10-15; the prototype had no such setter, which left those forms without one). `setDayCellClass(null)` is ambiguous between overloads; accepted.
+- Setters are hand-written overloads, one per form that takes plain data, as the setter rules and table in `issues/README.md` fix them (`setDayCellClass(String)`, `setBusinessHours(BusinessHours...)`). No setter takes a form itself, such as `JsCallback` or `HeaderAlign`, because the setter taking the value type takes it already (maintainer, 2026-10-16). Every such field also has the setter taking the value type (`setDayCellClass(ClassNameValue)`), the only way to set a callback or a form without data such as `HeightValue.AUTO` (maintainer, 2026-10-15; the prototype had no such setter, which left those forms without one). Beside overloads it is hand-written, because Lombok generates no setter once a method of that name exists; a field without overloads keeps the Lombok setter (`setDayHeaderAlign(HeaderAlignValue)`). `setDayCellClass(null)` is ambiguous between overloads; accepted.
 - Size: about 140 options with more than one form, each with its hand-written overloads per form and one taking the value type, with their own Javadoc (a `{@link}` to the getter avoids repeating the description). About 210 options with one form stay pure Lombok.
 - Collections are immutable (`List.copyOf`), no arrays.
 

@@ -19,9 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
-import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
-import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import lombok.Getter;
 import lombok.Setter;
@@ -87,15 +85,6 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Sets a callback that returns the CSS classes for day cells, see {@link #getDayCellClass()}.
-     *
-     * @param callback the callback, or null to remove the option
-     */
-    public void setDayCellClass(JsCallback callback) {
-        this.dayCellClass = callback;
-    }
-
-    /**
      * Sets the CSS classes for day cells in any form, see {@link #getDayCellClass()}.
      *
      * @param value the classes or callback, or null to remove the option
@@ -128,15 +117,6 @@ class ViewOptions implements Serializable {
     }
 
     /**
-     * Sets a callback that returns the content of the all-day header cell, see {@link #getAllDayHeaderContent()}.
-     *
-     * @param callback the callback, or null to remove the option
-     */
-    public void setAllDayHeaderContent(JsCallback callback) {
-        this.allDayHeaderContent = callback;
-    }
-
-    /**
      * Sets the content of the all-day header cell in any form, see {@link #getAllDayHeaderContent()}.
      *
      * @param value the content or callback, or null to remove the option
@@ -158,31 +138,4 @@ class ViewOptions implements Serializable {
      */
     @JsonConverter(HeaderAlignValueConverter.class)
     private HeaderAlignValue dayHeaderAlign;
-
-    /**
-     * Sets the alignment of the day header cells, see {@link #getDayHeaderAlign()}.
-     *
-     * @param align the alignment, or null to remove the option
-     */
-    public void setDayHeaderAlign(HeaderAlign align) {
-        this.dayHeaderAlign = align;
-    }
-
-    /**
-     * Sets a callback that returns the alignment of the day header cells, see {@link #getDayHeaderAlign()}.
-     *
-     * @param callback the callback, or null to remove the option
-     */
-    public void setDayHeaderAlign(JsCallback callback) {
-        this.dayHeaderAlign = callback;
-    }
-
-    /**
-     * Sets the alignment of the day header cells in any form, see {@link #getDayHeaderAlign()}.
-     *
-     * @param value the alignment or callback, or null to remove the option
-     */
-    public void setDayHeaderAlign(HeaderAlignValue value) {
-        this.dayHeaderAlign = value;
-    }
 }

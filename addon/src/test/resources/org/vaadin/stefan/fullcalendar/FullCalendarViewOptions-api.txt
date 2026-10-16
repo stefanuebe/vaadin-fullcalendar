@@ -5,13 +5,9 @@ getDayHeaderAlign(): HeaderAlignValue
 getEditable(): Boolean
 getWeekends(): Boolean
 setAllDayHeaderContent(ContentValue): void
-setAllDayHeaderContent(JsCallback): void
 setAllDayHeaderContent(String): void
 setDayCellClass(ClassNameValue): void
-setDayCellClass(JsCallback): void
 setDayCellClass(String): void
-setDayHeaderAlign(HeaderAlign): void
 setDayHeaderAlign(HeaderAlignValue): void
-setDayHeaderAlign(JsCallback): void
 setEditable(Boolean): void
 setWeekends(Boolean): void
