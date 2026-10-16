@@ -65,23 +65,6 @@ class CalendarOptions implements Serializable {
     private LocalDate initialDate;
 
     /**
-     * A callback that runs when the element of an entry has been added to the DOM. It gets an {@code info} object with
-     * {@code event}, {@code el}, {@code view} and more, see the library docs.
-     * <p>
-     * The calendar merges it with its native entry listeners and the automatic entry id into one callback, see
-     * {@link FullCalendar#addEntryNativeEventListener(String, String)} and
-     * {@link FullCalendar#setAutoProvideEntryIdOnClient(boolean)}. The merge needs a function with a body in braces.
-     * A callback without one, such as {@code info => info.el.title = 'x'}, is sent as it is, without the native
-     * listeners and the entry id.
-     * <p>
-     * The getter returns null while the option is not set; then the library default applies.
-     *
-     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventDidMount</a>
-     */
-    @JsonName("eventDidMount")
-    private JsCallback entryDidMount;
-
-    /**
      * The time zone the calendar shows the entries in. The server converts entry times with it. The default is
      * {@link Timezone#LOCAL}, the browser's zone. While the calendar follows the browser, this returns the zone the
      * browser reported, and {@code LOCAL}, which converts with UTC, before the first report.
@@ -98,4 +81,31 @@ class CalendarOptions implements Serializable {
     void setTimeZone(Timezone timeZone) {
         this.timeZone = timeZone;
     }
+
+    // Render hooks: day cells, day headers, day lanes, all-day
+
+    // Render hooks: time slots, now indicator, week numbers, tables
+
+    // Render hooks: entry layouts (block, column, row)
+
+    // Render hooks: entries
+
+    /**
+     * A callback that runs when the element of an entry has been added to the DOM. It gets an {@code info} object with
+     * {@code event}, {@code el}, {@code view} and more, see the library docs.
+     * <p>
+     * The calendar merges it with its native entry listeners and the automatic entry id into one callback, see
+     * {@link FullCalendar#addEntryNativeEventListener(String, String)} and
+     * {@link FullCalendar#setAutoProvideEntryIdOnClient(boolean)}. The merge needs a function with a body in braces.
+     * A callback without one, such as {@code info => info.el.title = 'x'}, is sent as it is, without the native
+     * listeners and the entry id.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/event-render-hooks">eventDidMount</a>
+     */
+    @JsonName("eventDidMount")
+    private JsCallback entryDidMount;
+
+    // Render hooks: view, toolbar, buttons, single month
 }

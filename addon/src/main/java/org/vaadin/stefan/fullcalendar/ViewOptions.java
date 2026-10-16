@@ -61,6 +61,8 @@ class ViewOptions implements Serializable {
      */
     private Boolean weekends;
 
+    // Render hooks: day cells, day headers, day lanes, all-day
+
     /**
      * CSS classes for day cells in day grid views (including the all-day section of time grid views) and the body of
      * the "+N more" popover. Time grid day columns use {@code dayLaneClass} instead.
@@ -138,4 +140,12 @@ class ViewOptions implements Serializable {
      */
     @JsonConverter(HeaderAlignValueConverter.class)
     private HeaderAlignValue dayHeaderAlign;
+
+    // Render hooks: time slots, now indicator, week numbers, tables
+
+    // Render hooks: entry layouts (block, column, row)
+
+    // Render hooks: entries
+
+    // Render hooks: view, toolbar, buttons, single month
 }
