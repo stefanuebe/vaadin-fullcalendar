@@ -48,15 +48,14 @@ public class FullCalendarSchedulerOptions extends FullCalendarOptions {
         return new FullCalendarSchedulerViewOptions(scheduler, view.getClientSideValue());
     }
 
-    // The same instances as the core accessors, so these delegates also generate the core accessors again, as
-    // overrides.
+    // The same instances as the core accessors. The core methods are inherited, so the delegates exclude them.
 
-    @Delegate
+    @Delegate(excludes = CalendarOptions.class)
     private SchedulerCalendarOptions schedulerCalendarOptions() {
         return (SchedulerCalendarOptions) calendarOptions();
     }
 
-    @Delegate
+    @Delegate(excludes = ViewOptions.class)
     private SchedulerViewOptions schedulerViewOptions() {
         return (SchedulerViewOptions) viewOptions();
     }
