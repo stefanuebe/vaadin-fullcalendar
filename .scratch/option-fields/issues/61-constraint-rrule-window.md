@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – (local tracker) |
+| GitHub | #379 |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-16, fabe75ec) |
 | Blocked by | `57-value-types-order-ranges-lengths-durations` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -20,7 +20,11 @@ The library reads each constraint object with its entry parser (`normalizeConstr
 
 **Blocked by:** `57-value-types-order-ranges-lengths-durations`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-16, fabe75ec)
 
-- [ ] The RRule window round-trips through `ConstraintValueConverter` (`VALUE_TYPES` in `ConverterTest`) and has its case in the switch of `ValueTypeSwitchTest`.
-- [ ] `RRule` round-trips through its JSON in both forms.
+- [x] The RRule window round-trips through `ConstraintValueConverter` (`VALUE_TYPES` in `ConverterTest`) and has its case in the switch of `ValueTypeSwitchTest`.
+- [x] `RRule` round-trips through its JSON in both forms.
+
+**Found by the review (2026-10-16):** an excluded rule with a positional weekday (such as `-1fr`) is written as a string, and the rrule plugin runs `parseRRuleObject` on every `exrule`, which probably mis-reads a string. This holds for entries too and is not specific to the window. Read from the library code, not run. Follows in 68.
+
+**Done (2026-10-16):** `ConstraintValue.RRuleWindow` with `Window.ofRRule(RRule)` and `ofRRule(RRule, Duration)` (named per *of<Form>*; `Window.span` predates the rule). The window copies its rule (`RRule.copy()`, field by field), `RRule` compares by what the client gets (`toJson()` plus excluded dates and rules) and reads back with `RRule.fromJson`. Javadoc says what the library does without `dtstart` (starts now), without a time (whole-day windows) and without a duration (default entry duration). 3 review rounds, gate green (665+175 unit, 446 E2E).

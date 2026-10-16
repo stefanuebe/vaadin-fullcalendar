@@ -70,6 +70,7 @@ class ValueTypeSwitchTest {
             case ConstraintValue.CalendarBusinessHours ignored -> "businessHours";
             case ConstraintValue.Windows windows -> windows.windows().stream().map(window -> switch (window) {
                 case BusinessHours hours -> "hours";
+                case ConstraintValue.RRuleWindow rule -> "rule";
                 case ConstraintValue.DateSpan span -> "dates";
                 case ConstraintValue.DateTimeSpan span -> "date times";
             }).toList().toString();

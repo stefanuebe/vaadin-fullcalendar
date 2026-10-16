@@ -42,6 +42,7 @@ import org.vaadin.stefan.fullcalendar.model.Header;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -137,7 +138,30 @@ class ConverterTest {
                             .add(JsonFactory.createObject().put("start", "2026-11-02").put("end", "2026-11-07"))
                             .add(JsonFactory.createObject().put("start", "2026-12-01"))
                             .add(JsonFactory.createObject().put("start", "2026-11-09T08:00Z").put("end", "2026-11-09T17:00Z"))
-                            .add(JsonFactory.createObject().put("end", "2026-01-01T12:00Z"))))),
+                            .add(JsonFactory.createObject().put("end", "2026-01-01T12:00Z")),
+                    ConstraintValue.ofWindows(
+                            ConstraintValue.Window.ofRRule(RRule.weekly().byWeekday(DayOfWeek.MONDAY)
+                                    .dtstart(LocalDate.of(2026, 1, 5))),
+                            ConstraintValue.Window.ofRRule(RRule.ofRaw("FREQ=DAILY;DTSTART=20260105"),
+                                    Duration.ofHours(8)),
+                            ConstraintValue.Window.ofRRule(RRule.daily().dtstart(LocalDate.of(2026, 1, 5))
+                                    .excludeDates(LocalDate.of(2026, 1, 7))
+                                    .excludeRules(RRule.weekly().byWeekday("sa", "su")),
+                                    Duration.ofMinutes(90)),
+                            ConstraintValue.Window.ofRRule(RRule.ofRaw("FREQ=DAILY;DTSTART=20260105")
+                                    .excludeDates(LocalDate.of(2026, 1, 7)))),
+                    JsonFactory.createArray()
+                            .add(JsonFactory.createObject().set("rrule",
+                                    RRule.weekly().byWeekday(DayOfWeek.MONDAY).dtstart(LocalDate.of(2026, 1, 5)).toJson()))
+                            .add(JsonFactory.createObject().put("rrule", "FREQ=DAILY;DTSTART=20260105")
+                                    .put("duration", "08:00:00"))
+                            .add(JsonFactory.createObject()
+                                    .set("rrule", RRule.daily().dtstart(LocalDate.of(2026, 1, 5)).toJson())
+                                    .put("duration", "01:30:00")
+                                    .set("exdate", JsonFactory.createArray().add("2026-01-07"))
+                                    .set("exrule", RRule.weekly().byWeekday("sa", "su").toJson()))
+                            .add(JsonFactory.createObject().put("rrule", "FREQ=DAILY;DTSTART=20260105")
+                                    .set("exdate", JsonFactory.createArray().add("2026-01-07")))))),
             Map.entry(ContentValue.class, new ValueType(ContentValueConverter.class, forms(
                     TextContent.of("all day"), "all day", ContentValue.ofHtml("<b>all</b> day"),
                     JsonFactory.createObject().put("html", "<b>all</b> day"), CALLBACK, CALLBACK.toMarkerJson()))),
@@ -376,6 +400,51 @@ class ConverterTest {
                 .recurringStartDate(LocalDate.of(2026, 3, 1)).recurringEndDate(LocalDate.of(2026, 3, 1)));
         assertThrows(IllegalArgumentException.class, () -> DurationValue.ofTimeString("PT1H"));
         assertThrows(IllegalArgumentException.class, () -> DurationValue.ofTimeString("8"));
+    }
+
+    @Test
+    void constraintValueConverter_rejectsABadRuleWindow() {
+        ConstraintValueConverter converter = new ConstraintValueConverter();
+        ObjectNode rrule = JsonFactory.createObject().put("freq", "daily");
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().set("rrule", JsonUtils.toJsonNode(1)), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().set("rrule", rrule).put("start", "2026-01-01"), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().set("rrule", rrule).put("duration", "PT1H"), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().set("rrule", rrule).put("exdate", "2026-01-01"), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().set("rrule", rrule).set("exdate", JsonFactory.createArray().add("x")),
+                null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().set("rrule", rrule).set("exrule", JsonFactory.createObject().put("x", 1)),
+                null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().set("rrule", rrule).set("exrule", JsonFactory.createArray().add(1)),
+                null));
+        assertThrows(NullPointerException.class, () -> ConstraintValue.Window.ofRRule(null));
+    }
+
+    @Test
+    void ruleWindow_isNotChangedByALaterChangeToTheRule() {
+        RRule rule = RRule.daily().dtstart(LocalDate.of(2026, 1, 5)).excludeDates(new ArrayList<>(
+                        List.of(LocalDate.of(2026, 1, 7))))
+                .excludeRules(new ArrayList<>(List.of(RRule.weekly().byWeekday("sa"))));
+        ConstraintValue.Window window = ConstraintValue.Window.ofRRule(rule);
+        ConstraintValueConverter converter = new ConstraintValueConverter();
+        JsonNode before = converter.toClientModel(ConstraintValue.ofWindows(window), null);
+
+        rule.interval(5);
+        rule.getExcludedDates().add(LocalDate.of(2026, 1, 8));
+        rule.getExcludedRules().get(0).interval(2);
+        rule.getExcludedRules().add(RRule.weekly());
+        assertEquals(before, converter.toClientModel(ConstraintValue.ofWindows(window), null));
+
+        RRule returned = ((ConstraintValue.RRuleWindow) window).rrule();
+        returned.interval(9).excludeDates(LocalDate.of(2026, 2, 1));
+        assertEquals(before, converter.toClientModel(ConstraintValue.ofWindows(window), null));
+        assertNotSame(returned, ((ConstraintValue.RRuleWindow) window).rrule());
     }
 
     @Test

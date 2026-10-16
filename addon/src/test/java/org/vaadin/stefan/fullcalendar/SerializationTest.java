@@ -1,6 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -138,6 +140,16 @@ public class SerializationTest {
         calendar.setMaxEntriesPerDay(5);
         calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
         assertNotNull(roundtrip(calendar));
+    }
+
+    @Test
+    void calendarWithARuleWindowConstraintIsSerializable() throws Exception {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setEntryConstraint(ConstraintValue.Window.ofRRule(
+                RRule.weekly().dtstart(LocalDateTime.of(2026, 1, 5, 9, 0)).excludeDates(LocalDate.of(2026, 1, 12)),
+                Duration.ofHours(8)));
+        FullCalendar restored = roundtrip(calendar);
+        assertEquals(calendar.options().getEntryConstraint(), restored.options().getEntryConstraint());
     }
 
     @Test
