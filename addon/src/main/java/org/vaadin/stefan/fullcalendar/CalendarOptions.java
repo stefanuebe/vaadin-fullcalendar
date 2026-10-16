@@ -347,6 +347,42 @@ class CalendarOptions implements Serializable {
     private Boolean entryStartEditable;
 
     /**
+     * A callback that runs when the user clicks a day link, see {@link ViewOptions#getNavLinks()}.
+     * <p>
+     * It gets the {@code date} and the {@code jsEvent}, see the library docs.
+     * <p>
+     * The calendar has its own callback for this option, which sends the {@link DayNumberClickedEvent}. This callback
+     * runs after it, so the server still gets the event. A raw option with this name replaces both, also one with a
+     * view name, which the library accepts too. The server then no longer gets the event.
+     * <p>
+     * The calendar does not change the view on such a click. To show another view, call
+     * {@link FullCalendar#changeView(CalendarView)} in a listener of the server event.
+     * <p>
+     * The getter returns null while the option is not set; then only the calendar's own callback runs.
+     *
+     * @see <a href="https://fullcalendar.io/docs/navLinkDayClick">navLinkDayClick</a>
+     */
+    private JsCallback navLinkDayClick;
+
+    /**
+     * A callback that runs when the user clicks a week link, see {@link ViewOptions#getNavLinks()}.
+     * <p>
+     * It gets the {@code weekStart} and the {@code jsEvent}, see the library docs.
+     * <p>
+     * The calendar has its own callback for this option, which sends the {@link WeekNumberClickedEvent}. This callback
+     * runs after it, so the server still gets the event. A raw option with this name replaces both, also one with a
+     * view name, which the library accepts too. The server then no longer gets the event.
+     * <p>
+     * The calendar does not change the view on such a click. To show another view, call
+     * {@link FullCalendar#changeView(CalendarView)} in a listener of the server event.
+     * <p>
+     * The getter returns null while the option is not set; then only the calendar's own callback runs.
+     *
+     * @see <a href="https://fullcalendar.io/docs/navLinkWeekClick">navLinkWeekClick</a>
+     */
+    private JsCallback navLinkWeekClick;
+
+    /**
      * Exact programmatic control over where the user can select. The callback must return a boolean synchronously.
      * <p>
      * The callback runs for every new potential selection while the user is dragging. It gets a {@code selectInfo}

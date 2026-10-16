@@ -18,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * The protected sync hook {@link FullCalendar#contributeOptions(Map)} and its first user, {@code entryDidMount}: the
  * callback merged with the native entry listeners and the automatic entry id. Also the fields of options the client has
- * its own handler for, such as {@code viewDidMount}, which the hook marks to run after that handler.
+ * its own handler for, such as {@code viewDidMount} and {@code navLinkDayClick}, which the hook marks to run after
+ * that handler.
  */
 public class OptionSyncHookTest extends BrowserlessTest {
 
@@ -217,5 +218,53 @@ public class OptionSyncHookTest extends BrowserlessTest {
         JsonNode value = changes.getFirst().get("viewDidMount");
         assertEquals(USER_CALLBACK, value.get("__jsCallback").asString());
         assertTrue(value.get(FullCalendar.AFTER_CLIENT_HANDLER_KEY).asBoolean());
+    }
+
+    @Test
+    void navLinkClickFields_areMarkedToRunAfterTheClientHandler() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setNavLinkDayClick(JsCallback.of(USER_CALLBACK));
+        calendar.options().setNavLinkWeekClick(JsCallback.of(USER_CALLBACK));
+        attach(calendar);
+
+        for (String key : List.of("navLinkDayClick", "navLinkWeekClick")) {
+            JsonNode value = initialOptions(calendar).get(key);
+            assertEquals(USER_CALLBACK, value.get("__jsCallback").asString(), key);
+            assertTrue(value.get(FullCalendar.AFTER_CLIENT_HANDLER_KEY).asBoolean(), key);
+        }
+    }
+
+    @Test
+    void navLinkClickFields_setAfterAttach_areSentMarked_andClearingRemovesThem() {
+        FullCalendar calendar = new FullCalendar();
+        attach(calendar);
+
+        calendar.options().setNavLinkDayClick(JsCallback.of(USER_CALLBACK));
+        calendar.options().setNavLinkWeekClick(JsCallback.of(USER_CALLBACK));
+        List<ObjectNode> changes = optionChanges(respond());
+
+        assertEquals(1, changes.size());
+        for (String key : List.of("navLinkDayClick", "navLinkWeekClick")) {
+            assertTrue(changes.getFirst().get(key).get(FullCalendar.AFTER_CLIENT_HANDLER_KEY).asBoolean(), key);
+        }
+
+        calendar.options().setNavLinkDayClick(null);
+        calendar.options().setNavLinkWeekClick(null);
+
+        assertEquals(List.of(JsonFactory.createObject().putNull("navLinkDayClick").putNull("navLinkWeekClick")),
+                optionChanges(respond()), "the removal gives the client its own handler back");
+    }
+
+    @Test
+    void rawNavLinkDayClick_isNotMarked() {
+        FullCalendar calendar = new FullCalendar();
+        calendar.options().setNavLinkDayClick(JsCallback.of(USER_CALLBACK));
+        calendar.options().setRawOption("navLinkDayClick", JsCallback.of("function(date) {}"));
+        attach(calendar);
+
+        JsonNode value = initialOptions(calendar).get("navLinkDayClick");
+
+        assertEquals("function(date) {}", value.get("__jsCallback").asString());
+        assertFalse(value.has(FullCalendar.AFTER_CLIENT_HANDLER_KEY), "a raw option replaces the client's handler");
     }
 }

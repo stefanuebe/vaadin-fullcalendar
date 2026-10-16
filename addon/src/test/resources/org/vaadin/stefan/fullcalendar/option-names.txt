@@ -26,6 +26,8 @@
 # - the calendar listeners of CALENDAR_LISTENER_REFINERS, because the add-on registers them itself. Of these only
 #   loading has an Option constant.
 # - the options the add-on handles itself: eventDidMount, moreLinkClick
+# - navLinkDayClick and navLinkWeekClick, which have a handler of the add-on. A per-view value would replace it, so
+#   the server would no longer get the click in that view.
 #
 # Per view, because a view reads them as well as the calendar options: editable (whether
 # a view takes entries dropped from another calendar), selectOverlap (its function form), eventOverlap and
@@ -211,9 +213,9 @@ moreLinkText view
 moreLinkWillUnmount view
 multiMonthMaxColumns view
 navLinkClass view
-navLinkDayClick view
+navLinkDayClick global
 navLinkHint view
-navLinkWeekClick view
+navLinkWeekClick global
 navLinks view
 nextDayThreshold view
 nextHint global
