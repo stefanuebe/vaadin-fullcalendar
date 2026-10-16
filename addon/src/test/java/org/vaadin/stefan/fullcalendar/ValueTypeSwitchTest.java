@@ -37,6 +37,7 @@ import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.ViewName;
 import org.vaadin.stefan.fullcalendar.option.ViewNameValue;
+import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -226,6 +227,14 @@ class ValueTypeSwitchTest {
         return switch (value) {
             case WidthValue.Pixels pixels -> String.valueOf(pixels.pixels());
             case WidthValue.Percent percent -> percent.percent() + "%";
+        };
+    }
+
+    private static String form(MoreLinkClickValue value) {
+        return switch (value) {
+            case MoreLinkClickValue.Action action -> action.name();
+            case ViewName name -> name.name();
+            case JsCallback callback -> "callback";
         };
     }
 

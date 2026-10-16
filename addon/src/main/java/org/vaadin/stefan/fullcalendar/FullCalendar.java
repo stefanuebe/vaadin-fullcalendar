@@ -19,6 +19,7 @@ package org.vaadin.stefan.fullcalendar;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -2054,8 +2055,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param moreLinkClickAction action to set
      * @see MoreLinkClickAction
      * @see Option#MORE_LINK_CLICK
-     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#MORE_LINK_CLICK}, which takes the
-     * {@link MoreLinkClickAction}
+     * @deprecated use {@link FullCalendarOptions#setMoreLinkClick(MoreLinkClickValue)} with
+     * {@link MoreLinkClickValue.Action}
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
     public void setMoreLinkClickAction(MoreLinkClickAction moreLinkClickAction) {
@@ -2365,7 +2366,11 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * Possible actions, that shall happen on the client side.
+     *
+     * @deprecated use {@link FullCalendarOptions#setMoreLinkClick(MoreLinkClickValue)} with
+     * {@link MoreLinkClickValue.Action}, which has the same actions
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public enum MoreLinkClickAction implements ClientSideValue {
         /**
          * Shows a popup on the client side. This popup is purely client side rendered. Entries shown in that

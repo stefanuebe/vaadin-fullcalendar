@@ -61,8 +61,8 @@ import java.util.Objects;
  * that call. Later calls get the calendar.
  */
 public final class JsCallback implements ClassNameValue, ContentValue, CssSelectorValue, DateFormatValue,
-        DateRangeValue, EntryOrderValue, EntryOrder.Key, HeaderAlignValue, ListDayFormatValue, NowValue, OverlapValue,
-        SlotHeaderFormatValue, TextValue, ViewNameValue, WeekNumberCalculationValue {
+        DateRangeValue, EntryOrderValue, EntryOrder.Key, HeaderAlignValue, ListDayFormatValue, MoreLinkClickValue,
+        NowValue, OverlapValue, SlotHeaderFormatValue, TextValue, ViewNameValue, WeekNumberCalculationValue {
 
     private static final String MARKER_KEY = "__jsCallback";
 
