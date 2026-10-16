@@ -1,6 +1,5 @@
-package org.vaadin.stefan.fullcalendar;
+package org.vaadin.stefan.fullcalendar.option;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -10,22 +9,23 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 /**
- * A simple time class, that allows times above 24 hours, since FullCalendar allows recurring times to "bleed" into the
- * next day. Basically a simple variant of Duration with a specific purpose.
+ * A time of day without a time zone, like {@link LocalTime}, that may run past midnight: 26:00 is 2am of the next
+ * day. The library reads such times as the time since the start of the day, so a recurring entry or a business hours
+ * window can end after midnight. Hours and minutes only.
  */
 @Getter
-public final class RecurringTime implements Serializable {
+public final class ExtendedLocalTime implements Serializable {
     private final int hour;
     private final int minute;
 
     /**
-     * New instance. Both parameters must not be negative. Hours has no limit (except for the technical one).
+     * New instance. Both parameters must not be negative.
      * Passing 60 minutes or more will automatically increase the given hours value.
      *
      * @param hour   hours
      * @param minute minutes
      */
-    private RecurringTime(int hour, int minute) {
+    private ExtendedLocalTime(int hour, int minute) {
         if (hour < 0) {
             throw new IllegalArgumentException("Hours must not be negative");
         }
@@ -39,47 +39,45 @@ public final class RecurringTime implements Serializable {
 
     /**
      * Creates a new instance based on the given integers. Both parameters must not be negative.
-     * Hours has no limit (except for Integer.MAX). Passing 60 minutes or more will automatically increase the given
-     * hours value.
+     * Passing 60 minutes or more will automatically increase the given hours value.
      * @param hours hours
      * @param minutes minutes (values 60+ will be merged into hours)
      * @return new instance
      * @throws IllegalArgumentException when negative values are passed
      */
-    public static RecurringTime of(int hours, int minutes) {
-        return new RecurringTime(hours, minutes);
+    public static ExtendedLocalTime of(int hours, int minutes) {
+        return new ExtendedLocalTime(hours, minutes);
     }
 
     /**
      * Creates a new instance based on the given integer. The parameter must not be negative.
-     * Hours has no limit (except for Integer.MAX).
      * @param hours hours
      * @return new instance
      * @throws IllegalArgumentException when negative values are passed
      */
-    public static RecurringTime of(int hours) {
-        return new RecurringTime(hours, 0);
+    public static ExtendedLocalTime of(int hours) {
+        return new ExtendedLocalTime(hours, 0);
     }
 
     /**
-     * Creates an instance based on the given local time.
+     * Creates an instance based on the given local time. Seconds and nanos are dropped.
      * @param time local time
      * @return new instance
      */
-    public static RecurringTime of(LocalTime time) {
+    public static ExtendedLocalTime of(LocalTime time) {
         return of(time.getHour(), time.getMinute());
     }
 
     /**
-     * Creates a new instance of the given string. The string must follow the same rules as the integer based constructor.
-     * Expects hours and minutes in "HH:mm" format. Minutes can be left out (e.g. "1" for 1 hour), leading zeros are also
-     * optional. Passing 60 minutes or more will automatically increase the given hours value.
+     * Creates a new instance of the given string. The string must follow the same rules as the integer based
+     * factory methods. Expects hours and minutes in "HH:mm" format. Minutes can be left out (e.g. "1" for 1 hour),
+     * leading zeros are optional. A seconds part is ignored. Passing 60 minutes or more will automatically increase the given hours value.
      * @param string hours:minutes string
      * @return new instance
      * @throws NumberFormatException when the string cannot be parsed to integer(s)
      * @throws IllegalArgumentException when a blank string or negative values are passed
      */
-    public static RecurringTime of(String string) {
+    public static ExtendedLocalTime of(String string) {
         if (string.trim().isEmpty()) {
             throw new IllegalArgumentException("String must not be blank");
         }
@@ -96,7 +94,7 @@ public final class RecurringTime implements Serializable {
     }
 
     /**
-     * Converts this recurring time to a local time. Be careful, as LocalTime does not support times of 24h or
+     * Converts this time to a local time. Be careful, as LocalTime does not support times of 24h or
      * above and thus such an instance will lead to an exception.
      *
      * @return LocalTime instance
@@ -125,58 +123,93 @@ public final class RecurringTime implements Serializable {
     }
 
     /**
-     * Returns a new instance with the given hours added on top. Negative values are allowd, but may lead
+     * Returns a new instance with the given hours added on top. Negative values are allowed, but may lead
      * to an exception, if the resulting amount of hours is negative.
      *
      * @param hours hours
-     * @return new instace with changed hours
+     * @return new instance with changed hours
      */
-    public RecurringTime plusHours(int hours) {
+    public ExtendedLocalTime plusHours(int hours) {
         int totalMinutes = this.toTotalMinutes();
         totalMinutes += hours * 60;
         int[] times = fromTotalMinutes(totalMinutes);
 
-        return new RecurringTime(times[0], times[1]);
+        return new ExtendedLocalTime(times[0], times[1]);
     }
 
     /**
-     * Returns a new instance with the given minutes added on top. Negative values are allowd, but may lead
+     * Returns a new instance with the given minutes added on top. Negative values are allowed, but may lead
      * to an exception, if the resulting amount of minutes is negative. If the resulting amount of minutes
      * is 60 or greater, it will also increase the hours.
      *
      * @param minutes minutes
-     * @return new instace with changed minutes
+     * @return new instance with changed minutes
      */
-    public RecurringTime plusMinutes(int minutes) {
+    public ExtendedLocalTime plusMinutes(int minutes) {
         int totalMinutes = this.toTotalMinutes();
         totalMinutes += minutes;
         int[] times = fromTotalMinutes(totalMinutes);
 
-        return new RecurringTime(times[0], times[1]);
+        return new ExtendedLocalTime(times[0], times[1]);
     }
 
+    /**
+     * Returns whether this time can be converted to a {@link LocalTime}, so it is before 24:00.
+     *
+     * @return true if it is before 24:00
+     */
     public boolean isValidLocalTime() {
         return hour < 24;
     }
 
+    /**
+     * Returns whether this time equals the given local time.
+     *
+     * @param localTime local time to compare with
+     * @return true if both are the same time of day
+     */
     public boolean equals(LocalTime localTime) {
-        return equals(RecurringTime.of(localTime));
+        return equals(ExtendedLocalTime.of(localTime));
     }
 
-    public boolean isAfter(RecurringTime recurringTime) {
-        return toTotalMinutes() > recurringTime.toTotalMinutes();
+    /**
+     * Returns whether this time is after the given one.
+     *
+     * @param other time to compare with
+     * @return true if this time is later
+     */
+    public boolean isAfter(ExtendedLocalTime other) {
+        return toTotalMinutes() > other.toTotalMinutes();
     }
 
-    public boolean isBefore(RecurringTime recurringTime) {
-        return toTotalMinutes() < recurringTime.toTotalMinutes();
+    /**
+     * Returns whether this time is before the given one.
+     *
+     * @param other time to compare with
+     * @return true if this time is earlier
+     */
+    public boolean isBefore(ExtendedLocalTime other) {
+        return toTotalMinutes() < other.toTotalMinutes();
     }
 
-    public boolean isAfter(LocalTime recurringTime) {
-        return isAfter(RecurringTime.of(recurringTime));
+    /**
+     * Returns whether this time is after the given local time.
+     *
+     * @param other local time to compare with
+     * @return true if this time is later
+     */
+    public boolean isAfter(LocalTime other) {
+        return isAfter(ExtendedLocalTime.of(other));
     }
 
-    public boolean isBefore(LocalTime recurringTime) {
-        return isBefore(RecurringTime.of(recurringTime));
+    /**
+     * Returns whether this time is before the given local time.
+     *
+     * @param other local time to compare with
+     * @return true if this time is earlier
+     */
+    public boolean isBefore(LocalTime other) {
+        return isBefore(ExtendedLocalTime.of(other));
     }
 
     private int toTotalMinutes() {
@@ -190,7 +223,7 @@ public final class RecurringTime implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        RecurringTime that = (RecurringTime) o;
+        ExtendedLocalTime that = (ExtendedLocalTime) o;
         return hour == that.hour && minute == that.minute;
     }
 

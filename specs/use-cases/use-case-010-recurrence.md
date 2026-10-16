@@ -32,8 +32,8 @@ Entry standup = new Entry();
 standup.setTitle("Daily Standup");
 standup.setRecurringDaysOfWeek(Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY,
     DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
-standup.setRecurringStartTime(RecurringTime.of(9, 0));
-standup.setRecurringEndTime(RecurringTime.of(9, 15));
+standup.setRecurringStartTime(ExtendedLocalTime.of(9, 0));
+standup.setRecurringEndTime(ExtendedLocalTime.of(9, 15));
 
 // RRule: bi-weekly on Monday
 Entry biWeekly = new Entry();
@@ -88,7 +88,7 @@ custom.setRRule(RRule.ofRaw("FREQ=WEEKLY;BYDAY=MO,WE;INTERVAL=2"));
 ## Tests
 
 ### Unit Tests
-- [ ] `RecurringTimeTest` — RecurringTime conversion
+- [ ] `ExtendedLocalTimeTest` — ExtendedLocalTime conversion
 - [ ] `EntryTest` — RRule serialization
 
 ### E2E Tests

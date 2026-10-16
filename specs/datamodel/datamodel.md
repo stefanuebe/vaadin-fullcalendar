@@ -30,8 +30,8 @@ The primary data object representing a calendar entry (FullCalendar "event"). Al
 | `interactive` | `Boolean` | Keyboard focusability (`null` = inherit global `eventInteractive`) |
 | `classNames` | `Set<String>` | CSS classes applied to the entry element (sent as one space-separated `className` string) |
 | `recurringDaysOfWeek` | `Set<DayOfWeek>` | Simple weekly recurrence |
-| `recurringStartTime` | `RecurringTime` | Start time for recurring entries |
-| `recurringEndTime` | `RecurringTime` | End time for recurring entries |
+| `recurringStartTime` | `ExtendedLocalTime` | Start time for recurring entries |
+| `recurringEndTime` | `ExtendedLocalTime` | End time for recurring entries |
 | `recurringStartDate` | `LocalDate` | Start bound for recurrence range |
 | `recurringEndDate` | `LocalDate` | End bound for recurrence range |
 | `recurringDuration` | `Duration` | Length of each occurrence, for built-in recurrence and RRule alike. Sent as `hh:mm:ss`, where the hours may exceed 24 (e.g. `"48:00:00"`) |

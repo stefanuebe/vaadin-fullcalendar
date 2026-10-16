@@ -35,6 +35,7 @@ import java.util.stream.Stream;
  * <p>
  *     Use one of the static methods to define the days of week. You can define the range per day using the {@link #start}
  *     and {@link #end} methods or leave them, to let the business hours range from the start of the day to its end.
+ *     The end may run past midnight, as an {@link ExtendedLocalTime} such as 26:00.
  *     {@link #recurringStartDate} and {@link #recurringEndDate} limit the dates on which they recur.
  * </p>
  */
@@ -52,9 +53,12 @@ public non-sealed class BusinessHours implements ConstraintValue.Window {
     public static final Set<DayOfWeek> DEFAULT_BUSINESS_WEEK = Set.of(
             DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY);
 
+    private static final ExtendedLocalTime START_OF_DAY = ExtendedLocalTime.of(0);
+    private static final ExtendedLocalTime END_OF_DAY = ExtendedLocalTime.of(24);
+
     private final Set<DayOfWeek> dayOfWeeks;
-    private final LocalTime start;
-    private final LocalTime end;
+    private final ExtendedLocalTime start;
+    private final ExtendedLocalTime end;
     private final LocalDate recurringStartDate;
     private final LocalDate recurringEndDate;
 
@@ -90,7 +94,7 @@ public non-sealed class BusinessHours implements ConstraintValue.Window {
      * @throws IllegalArgumentException if the set is empty
      */
     public static BusinessHours of(Set<DayOfWeek> dayOfWeeks) {
-        return new BusinessHours(LocalTime.MIN, LocalTime.MAX, dayOfWeeks, null, null);
+        return new BusinessHours(START_OF_DAY, END_OF_DAY, dayOfWeeks, null, null);
     }
 
     /**
@@ -112,8 +116,6 @@ public non-sealed class BusinessHours implements ConstraintValue.Window {
 
     /**
      * Creates a new instance. Defines the days of business plus start and end time for each of these days.
-     * Passing null for times
-     * means start / end of day.
      *
      * @param start      start time
      * @param end        end time
@@ -121,7 +123,8 @@ public non-sealed class BusinessHours implements ConstraintValue.Window {
      * @param recurringStartDate first date on which they recur, or null for no limit
      * @param recurringEndDate date after the last one on which they recur, or null for no limit
      */
-    private BusinessHours(LocalTime start, LocalTime end, Set<DayOfWeek> dayOfWeeks, LocalDate recurringStartDate,
+    private BusinessHours(ExtendedLocalTime start, ExtendedLocalTime end, Set<DayOfWeek> dayOfWeeks,
+                          LocalDate recurringStartDate,
                           LocalDate recurringEndDate) {
         if (dayOfWeeks == null || dayOfWeeks.isEmpty()) {
             throw new IllegalArgumentException("Days of week must not be null nor empty");
@@ -148,22 +151,48 @@ public non-sealed class BusinessHours implements ConstraintValue.Window {
     }
 
     /**
-     * Creates a copy of this instance with the given time as its new starting time.
+     * Creates a copy of this instance with the given time as its new starting time. Seconds are dropped.
      * @param start new start time
      * @return new instance
      * @throws IllegalArgumentException if the end is before the start
+     * @throws NullPointerException when null is passed
      */
     public BusinessHours start(LocalTime start) {
+        return start(ExtendedLocalTime.of(start));
+    }
+
+    /**
+     * Creates a copy of this instance with the given time as its new starting time. For a start after 24:00, set the
+     * end first, because the end of the day is the default end.
+     * @param start new start time
+     * @return new instance
+     * @throws IllegalArgumentException if the end is before the start or null is passed
+     */
+    public BusinessHours start(ExtendedLocalTime start) {
         return new BusinessHours(start, end, dayOfWeeks, recurringStartDate, recurringEndDate);
     }
 
     /**
-     * Creates a copy of thist instance with the given time as its new ending time.
+     * Creates a copy of this instance with the given time as its new ending time. {@link LocalTime#MAX} means the end
+     * of the day, 24:00. Seconds are dropped.
+     * For an end after midnight use {@link #end(ExtendedLocalTime)}.
      * @param end new end time
      * @return new instance
      * @throws IllegalArgumentException if the end is before the start
+     * @throws NullPointerException when null is passed
      */
     public BusinessHours end(LocalTime end) {
+        return end(end.equals(LocalTime.MAX) ? END_OF_DAY : ExtendedLocalTime.of(end));
+    }
+
+    /**
+     * Creates a copy of this instance with the given time as its new ending time. It may run past midnight, such as
+     * 26:00 for 2am of the next day.
+     * @param end new end time
+     * @return new instance
+     * @throws IllegalArgumentException if the end is before the start or null is passed
+     */
+    public BusinessHours end(ExtendedLocalTime end) {
         return new BusinessHours(start, end, dayOfWeeks, recurringStartDate, recurringEndDate);
     }
 
@@ -207,43 +236,41 @@ public non-sealed class BusinessHours implements ConstraintValue.Window {
     }
 
     /**
-     * Creates a copy of thist instance with the given int as its new starting hour. Must be a value between 0 and 24,
-     * where 24 is converted to {@link java.time.LocalDate#MAX}.
-     * @param startingHour new starting hour
+     * Creates a copy of this instance with the given full hour as its new starting time.
+     * @param startingHour new starting hour, not negative
      * @return new instance
-     * @throws IllegalArgumentException if the end is before the start or the given hour exceeds 24
+     * @throws IllegalArgumentException if the end is before the start or the hour is negative
      */
     public BusinessHours start(int startingHour) {
-        return start(startingHour == 24 ? LocalTime.MAX : LocalTime.of(startingHour, 0));
+        return start(ExtendedLocalTime.of(startingHour));
     }
 
     /**
-     * Creates a copy of thist instance with the given time as its new ending hour. Must be a value between 0 and 24,
-     * where 24 is converted to {@link java.time.LocalDate#MAX}.
-     * @param endingHour new ending hour
+     * Creates a copy of this instance with the given full hour as its new ending time. 24 is the end of the day, a
+     * larger hour runs past midnight, such as 26 for 2am of the next day.
+     * @param endingHour new ending hour, not negative
      * @return new instance
-     * @throws IllegalArgumentException if the end is before the start or the given hour exceeds 24
+     * @throws IllegalArgumentException if the end is before the start or the hour is negative
      */
     public BusinessHours end(int endingHour) {
-        return end(endingHour == 24 ? LocalTime.MAX : LocalTime.of(endingHour, 0));
+        return end(ExtendedLocalTime.of(endingHour));
     }
 
     /**
-     * Returns the end time. If none has been set, the returned time will be {@link LocalTime#MAX}.
+     * Returns the end time. If none has been set, it is 24:00, the end of the day. It may run past midnight.
      *
-     * @return end time or empty
+     * @return end time
      */
-    public LocalTime getEnd() {
+    public ExtendedLocalTime getEnd() {
         return end;
     }
 
     /**
-     * Returns the start time. If none has been set, the returned time will be {@link LocalTime#MIN}.
+     * Returns the start time. If none has been set, it is 00:00.
      *
-     * @return start time or empty
+     * @return start time
      */
-
-    public LocalTime getStart() {
+    public ExtendedLocalTime getStart() {
         return start;
     }
 
@@ -265,8 +292,8 @@ public non-sealed class BusinessHours implements ConstraintValue.Window {
 
         jsonObject.set("daysOfWeek", JsonUtils.toJsonNode(dayOfWeeks.stream().map(BusinessHours::convertToClientSideDow)));
 
-        jsonObject.set("startTime", JsonUtils.toJsonNode(start));
-        jsonObject.set("endTime", JsonUtils.toJsonNode(end.equals(LocalTime.MAX) ? "24:00" : end));
+        jsonObject.put("startTime", start.toFormattedString());
+        jsonObject.put("endTime", end.toFormattedString());
         if (recurringStartDate != null) {
             jsonObject.put("startRecur", JsonUtils.formatClientSideDateString(recurringStartDate));
         }

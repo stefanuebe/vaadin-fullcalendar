@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.function.ValueProvider;
@@ -962,8 +963,8 @@ public class EntryTest {
             assertEquals(Set.of(DayOfWeek.MONDAY), copy.getRecurringDaysOfWeek());
             assertEquals(LocalDate.of(2025, 3, 1), copy.getRecurringStartDate());
             assertEquals(LocalDate.of(2025, 3, 31), copy.getRecurringEndDate());
-            assertEquals(RecurringTime.of(9, 0), copy.getRecurringStartTime());
-            assertEquals(RecurringTime.of(10, 0), copy.getRecurringEndTime());
+            assertEquals(ExtendedLocalTime.of(9, 0), copy.getRecurringStartTime());
+            assertEquals(ExtendedLocalTime.of(10, 0), copy.getRecurringEndTime());
         }
     }
 

@@ -17,6 +17,7 @@ import org.vaadin.stefan.fullcalendar.option.DateFormatValue;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
 import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
@@ -116,7 +117,11 @@ class ConverterTest {
                     BusinessHoursValue.of(BusinessHours.businessWeek().start(9).end(17),
                             BusinessHours.of(DayOfWeek.SATURDAY).start(LocalTime.of(10, 30)).end(24)),
                     array(BusinessHours.businessWeek().start(9).end(17),
-                            BusinessHours.of(DayOfWeek.SATURDAY).start(LocalTime.of(10, 30)).end(24))))),
+                            BusinessHours.of(DayOfWeek.SATURDAY).start(LocalTime.of(10, 30)).end(24)),
+                    BusinessHoursValue.of(BusinessHours.of(DayOfWeek.FRIDAY)
+                            .start(ExtendedLocalTime.of(22, 30)).end(ExtendedLocalTime.of(26, 15))),
+                    array(BusinessHours.of(DayOfWeek.FRIDAY)
+                            .start(ExtendedLocalTime.of(22, 30)).end(ExtendedLocalTime.of(26, 15)))))),
             Map.entry(ClassNameValue.class, new ValueType(ClassNameValueConverter.class, forms(
                     ClassName.of("a b"), "a b", CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(ConstraintValue.class, new ValueType(ConstraintValueConverter.class, forms(
