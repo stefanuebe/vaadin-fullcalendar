@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #394 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16), commit `46b9c4f5` |
 | Blocked by | `03-flush-before-client-calls`, `18-sync-hook-entry-did-mount`, `37-scheduler-options-object` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
