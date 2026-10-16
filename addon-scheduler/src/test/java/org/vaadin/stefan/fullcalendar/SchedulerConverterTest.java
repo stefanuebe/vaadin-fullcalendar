@@ -2,16 +2,22 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.converter.ResourceColumnsConverter;
+import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.converters.OrderValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.WidthValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.Order;
 import org.vaadin.stefan.fullcalendar.option.OrderValue;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import tools.jackson.databind.JsonNode;
 
@@ -62,7 +68,12 @@ class SchedulerConverterTest {
                     Order.of("title", "-id"), JsonFactory.createArray().add("title").add("-id"),
                     Order.of(Order.descending("title"), CALLBACK),
                     JsonFactory.createArray().add("-title").add(CALLBACK.toMarkerJson()),
-                    CALLBACK, CALLBACK.toMarkerJson())));
+                    CALLBACK, CALLBACK.toMarkerJson())),
+            ClassNameValue.class, new ValueType(ClassNameValueConverter.class, forms(
+                    ClassName.of("a b"), "a b", CALLBACK, CALLBACK.toMarkerJson())),
+            ContentValue.class, new ValueType(ContentValueConverter.class, forms(
+                    TextContent.of("all day"), "all day", ContentValue.ofHtml("<b>all</b> day"),
+                    JsonFactory.createObject().put("html", "<b>all</b> day"), CALLBACK, CALLBACK.toMarkerJson())));
 
     /** Pairs of a value and its client form; a client form that is no {@link JsonNode} is converted to one. */
     private static Map<Object, JsonNode> forms(Object... valuesAndClientForms) {

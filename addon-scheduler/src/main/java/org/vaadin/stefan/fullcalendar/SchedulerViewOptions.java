@@ -18,16 +18,22 @@ package org.vaadin.stefan.fullcalendar;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.OrderValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.WidthValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.EntryPrintLayout;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.Order;
 import org.vaadin.stefan.fullcalendar.option.OrderValue;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
 
 /**
@@ -304,4 +310,490 @@ class SchedulerViewOptions extends ViewOptions {
      * @see <a href="https://fullcalendar.io/docs/resourceRemove">resourceRemove</a>
      */
     private JsCallback resourceRemove;
+
+    /**
+     * CSS classes for the cells of the resource area in the timeline view. Each cell shows one column field, the
+     * resource title or a column of {@code resourceColumns}.
+     * <p>
+     * The hook also runs for the cells of group rows, which have no resource.
+     * <p>
+     * A callback gets an {@code info} object with {@code resource} (absent in group rows), {@code field},
+     * {@code fieldValue} and more, see the library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceCellClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceCellClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceCellClass(String classNames) {
+        this.resourceCellClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceCellClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceCellClass(ClassNameValue value) {
+        this.resourceCellClass = value;
+    }
+
+    /**
+     * Custom content for the cells of the resource area in the timeline view. Branch on {@code info.field} to change
+     * the title cell only.
+     * <p>
+     * A callback gets an {@code info} object with {@code resource} (absent in group rows), {@code field},
+     * {@code fieldValue} and more, see the library docs. It returns a text, or {@code {html: '...'}} or
+     * {@code {domNodes: [...]}}.
+     * <p>
+     * The cell content of a resource column replaces it in that column. A callback of the column falls back to this
+     * one by returning {@code true}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue resourceCellContent;
+
+    /**
+     * Sets a text as the content, see {@link #getResourceCellContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setResourceCellContent(String text) {
+        this.resourceCellContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getResourceCellContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setResourceCellContent(ContentValue value) {
+        this.resourceCellContent = value;
+    }
+
+    /**
+     * A callback that runs right after a cell of the resource area has been added to the DOM. It gets an {@code info}
+     * object with {@code resource} (absent in group rows), {@code field}, {@code fieldValue} and more, see the library
+     * docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellDidMount</a>
+     */
+    private JsCallback resourceCellDidMount;
+
+    /**
+     * CSS classes for the inner wrapper of a cell of the resource area in the timeline view. The inner wrapper holds
+     * the content and is useful for adjusting padding.
+     * <p>
+     * The hook also runs for the cells of group rows, which have no resource.
+     * <p>
+     * A callback gets an {@code info} object with {@code resource} (absent in group rows), {@code field},
+     * {@code fieldValue} and more, see the library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceCellInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceCellInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceCellInnerClass(String classNames) {
+        this.resourceCellInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceCellInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceCellInnerClass(ClassNameValue value) {
+        this.resourceCellInnerClass = value;
+    }
+
+    /**
+     * A callback that runs right before a cell of the resource area is removed from the DOM. It gets an {@code info}
+     * object with {@code resource} (absent in group rows), {@code field}, {@code fieldValue} and more, see the library
+     * docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-cell-render-hooks">resourceCellWillUnmount</a>
+     */
+    private JsCallback resourceCellWillUnmount;
+
+    /**
+     * CSS classes for the divider line between the resource area and the timeline area in the timeline view.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-divider-render-hooks">resourceColumnDividerClass</a>
+     */
+    private String resourceColumnDividerClass;
+
+    /**
+     * CSS classes for the resource column header, shown above the resource data in the timeline view.
+     * <p>
+     * A callback gets an {@code info} object with {@code view}, see the library docs. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceColumnHeaderClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceColumnHeaderClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceColumnHeaderClass(String classNames) {
+        this.resourceColumnHeaderClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceColumnHeaderClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceColumnHeaderClass(ClassNameValue value) {
+        this.resourceColumnHeaderClass = value;
+    }
+
+    /**
+     * Custom content for the resource column header, shown above the resource data in the timeline view. The library
+     * shows the text "Resources" by default.
+     * <p>
+     * With {@code resourceColumns} set, it is shown as a header above all columns, and it is the content of a column
+     * header whose column has no header content of its own.
+     * <p>
+     * A callback gets an {@code info} object with {@code view}, see the library docs. It returns a text, or
+     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue resourceColumnHeaderContent;
+
+    /**
+     * Sets a text as the content, see {@link #getResourceColumnHeaderContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setResourceColumnHeaderContent(String text) {
+        this.resourceColumnHeaderContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getResourceColumnHeaderContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setResourceColumnHeaderContent(ContentValue value) {
+        this.resourceColumnHeaderContent = value;
+    }
+
+    /**
+     * A callback that runs right after the resource column header has been added to the DOM. It gets an {@code info}
+     * object with {@code view}, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnHeaderDidMount</a>
+     */
+    private JsCallback resourceColumnHeaderDidMount;
+
+    /**
+     * CSS classes for the inner wrapper of the resource column header in the timeline view. The resource column header
+     * is the header above the resource data.
+     * <p>
+     * A callback gets an {@code info} object with {@code view}, see the library docs. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">
+     *     resourceColumnHeaderInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceColumnHeaderInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceColumnHeaderInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceColumnHeaderInnerClass(String classNames) {
+        this.resourceColumnHeaderInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceColumnHeaderInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceColumnHeaderInnerClass(ClassNameValue value) {
+        this.resourceColumnHeaderInnerClass = value;
+    }
+
+    /**
+     * A callback that runs right before the resource column header is removed from the DOM. It gets an {@code info}
+     * object with {@code view}, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">
+     *     resourceColumnHeaderWillUnmount</a>
+     */
+    private JsCallback resourceColumnHeaderWillUnmount;
+
+    /**
+     * CSS classes for the handle the user drags to resize a resource column in the timeline view. The handle sits at
+     * the end edge of every column header except the last one and is not rendered when printing.
+     * <p>
+     * A callback gets an {@code info} object with {@code view}, see the library docs. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-column-header-render-hooks">resourceColumnResizerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceColumnResizerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceColumnResizerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceColumnResizerClass(String classNames) {
+        this.resourceColumnResizerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceColumnResizerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceColumnResizerClass(ClassNameValue value) {
+        this.resourceColumnResizerClass = value;
+    }
+
+    /**
+     * CSS classes for the column header cells that show the resource names in the vertical resource views
+     * ({@code resourceTimeGrid} and {@code resourceDayGrid}).
+     * <p>
+     * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceDayHeaderClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceDayHeaderClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceDayHeaderClass(String classNames) {
+        this.resourceDayHeaderClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceDayHeaderClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceDayHeaderClass(ClassNameValue value) {
+        this.resourceDayHeaderClass = value;
+    }
+
+    /**
+     * Custom content for the column header cells that show the resource names in the vertical resource views
+     * ({@code resourceTimeGrid} and {@code resourceDayGrid}).
+     * <p>
+     * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
+     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue resourceDayHeaderContent;
+
+    /**
+     * Sets a text as the content, see {@link #getResourceDayHeaderContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setResourceDayHeaderContent(String text) {
+        this.resourceDayHeaderContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getResourceDayHeaderContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setResourceDayHeaderContent(ContentValue value) {
+        this.resourceDayHeaderContent = value;
+    }
+
+    /**
+     * A callback that runs right after a resource day header cell has been added to the DOM. It gets an {@code info}
+     * object with {@code resource}, {@code text}, {@code level} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderDidMount</a>
+     */
+    private JsCallback resourceDayHeaderDidMount;
+
+    /**
+     * CSS classes for the inner wrapper of the resource day header cells in the vertical resource views
+     * ({@code resourceTimeGrid} and {@code resourceDayGrid}). The inner wrapper is useful for adjusting padding.
+     * <p>
+     * A callback gets an {@code info} object with {@code resource}, {@code text}, {@code level} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceDayHeaderInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceDayHeaderInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceDayHeaderInnerClass(String classNames) {
+        this.resourceDayHeaderInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceDayHeaderInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceDayHeaderInnerClass(ClassNameValue value) {
+        this.resourceDayHeaderInnerClass = value;
+    }
+
+    /**
+     * A callback that runs right before a resource day header cell is removed from the DOM. It gets an {@code info}
+     * object with {@code resource}, {@code text}, {@code level} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-day-header-render-hooks">resourceDayHeaderWillUnmount</a>
+     */
+    private JsCallback resourceDayHeaderWillUnmount;
+
+    /**
+     * CSS classes for the expand/collapse toggle in front of expandable resource rows in the hierarchical timeline
+     * view.
+     * <p>
+     * A callback gets an {@code info} object with {@code isExpanded}. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-expander-render-hooks">resourceExpanderClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceExpanderClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceExpanderClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceExpanderClass(String classNames) {
+        this.resourceExpanderClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceExpanderClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceExpanderClass(ClassNameValue value) {
+        this.resourceExpanderClass = value;
+    }
+
+    /**
+     * Custom content for the expand/collapse toggle in front of expandable resource rows in the hierarchical timeline
+     * view. The content is inserted inside the toggle, typically as an icon, and is hidden from assistive technology.
+     * <p>
+     * A callback gets an {@code info} object with {@code isExpanded}. It returns a text, or {@code {html: '...'}} or
+     * {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-expander-render-hooks">resourceExpanderContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue resourceExpanderContent;
+
+    /**
+     * Sets a text as the content, see {@link #getResourceExpanderContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setResourceExpanderContent(String text) {
+        this.resourceExpanderContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getResourceExpanderContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setResourceExpanderContent(ContentValue value) {
+        this.resourceExpanderContent = value;
+    }
 }
