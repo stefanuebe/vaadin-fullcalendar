@@ -2587,13 +2587,12 @@ public enum Option {
      *                        calculates it from {@link #ASPECT_RATIO}.</dd>
      * </dl>
      * <p>
-     * When this option is removed, the calendar gets the height that was last set with
-     * {@link FullCalendar#setHeight(String)}, {@code setHeightFull()} or {@code setSizeUndefined()}. This way the
-     * Vaadin dimensions apply again. If none of these methods was called, the calendar gets the height of the initial
-     * JSON options.
+     * This option wins over the height of {@link FullCalendar#setHeight(String)}, {@code setHeightFull()} and
+     * {@code setSizeUndefined()}. When it is removed, the height of the last of these calls applies again. A height in
+     * the initial JSON options is set like this option, so removing it leaves no height when none of these methods was
+     * called.
      * <p>
-     * {@code setSizeUndefined()} removes the height. FullCalendar then calculates it from {@link #ASPECT_RATIO}. If the
-     * initial JSON options contain a height, the calendar gets that height instead.
+     * {@code setSizeUndefined()} removes the height. FullCalendar then calculates it from {@link #ASPECT_RATIO}.
      *
      * @see FullCalendar#setHeight(String)
      * @see <a href="https://fullcalendar.io/docs/height">height</a>

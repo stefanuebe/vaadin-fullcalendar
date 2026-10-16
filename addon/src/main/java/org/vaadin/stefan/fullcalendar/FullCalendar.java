@@ -137,6 +137,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     private ObjectNode constructorInitialOptions;
 
+    /** The height of {@link #setHeight(String)}, which {@link #contributeOptions(Map)} puts in as the option. */
+    private String height;
+
     private EntryProvider<? extends Entry> entryProvider;
     private final List<Registration> entryProviderDataListeners = new LinkedList<>();
 
@@ -949,8 +952,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * each time after it has put in the typed fields and the {@code views} object, and lays the raw options over the
      * result, so a raw option still wins. A change that affects the computed values has to call {@link #optionsChanged()}.
      * <p>
-     * This calendar puts in {@code eventDidMount}: the callback of {@link FullCalendarOptions#getEntryDidMount()}
-     * merged with the native entry listeners and the automatic entry id, see
+     * This calendar puts in {@code height} from {@link #setHeight(String)} and {@code eventDidMount}: the callback of
+     * {@link FullCalendarOptions#getEntryDidMount()} merged with the native entry listeners and the automatic entry id, see
      * {@link #addEntryNativeEventListener(String, String)} and {@link #setAutoProvideEntryIdOnClient(boolean)}. It
      * also marks the field callbacks of the options the client has its own handler for, such as {@code viewDidMount},
      * so the client runs them after its handler. A raw option is not marked and replaces the client's handler. An
@@ -959,6 +962,9 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * @param options the option values the client gets, to add to or replace in
      */
     protected void contributeOptions(Map<String, JsonNode> options) {
+        if (height != null) {
+            options.put(Option.HEIGHT.getOptionKey(), JsonUtils.toJsonNode(height));
+        }
         String merged = buildEntryDidMountMerged();
         if (merged != null) {
             options.put(Option.ENTRY_DID_MOUNT.getOptionKey(), JsCallback.of(merged).toMarkerJson());
@@ -1005,14 +1011,16 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Sets the height of the calendar. Null removes the height, as {@link #setSizeUndefined()} does.
+     * Sets the height of the calendar. Null removes the height, as {@link #setSizeUndefined()} does. A raw {@code height}
+     * option wins over it, see {@link Option#HEIGHT}.
      *
      * @param height the height, for example {@code "100%"} or {@code "500px"}, or null
      */
     @Override
     public void setHeight(String height) {
-        // we use the calendar option as it would otherwise override the plain style set by Vaadin
-        setOption(Option.HEIGHT, height);
+        // the library option, not the style Vaadin sets, because the library sizes the calendar by its option
+        this.height = height;
+        optionsChanged();
     }
 
     protected String toClientSideLocale(Locale locale) {
