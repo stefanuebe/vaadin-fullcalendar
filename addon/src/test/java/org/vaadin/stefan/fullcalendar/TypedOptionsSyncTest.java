@@ -1,6 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
+import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
@@ -15,6 +16,7 @@ import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.CssSelectorValue;
+import org.vaadin.stefan.fullcalendar.option.DateFormat;
 import org.vaadin.stefan.fullcalendar.option.DateFormatValue;
 import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
@@ -194,6 +196,27 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
 
         calendar.options().setDayCellClass((String) null);
         assertTrue(respond().getFirst().get("dayCellClass").isNull());
+    }
+
+    @Test
+    void slotHeaderFormat_everyFormReachesTheClient_nullRemovesTheOption() {
+        attach();
+
+        calendar.options().setSlotHeaderFormat(Map.of("hour", "numeric"));
+        assertEquals("numeric", respond().getFirst().get("slotHeaderFormat").get("hour").asString());
+
+        calendar.options().setSlotHeaderFormat(JsCallback.of("info => 'slot'"));
+        assertEquals("info => 'slot'", respond().getFirst().get("slotHeaderFormat").get("__jsCallback").asString());
+
+        calendar.options().setSlotHeaderFormat(SlotHeaderFormatValue.of(
+                DateFormat.of(Map.of("month", "long")), JsCallback.of("info => 'day'")));
+        JsonNode tiers = respond().getFirst().get("slotHeaderFormat");
+        assertEquals(2, tiers.size());
+        assertEquals("long", tiers.get(0).get("month").asString());
+        assertEquals("info => 'day'", tiers.get(1).get("__jsCallback").asString());
+
+        calendar.options().setSlotHeaderFormat((SlotHeaderFormatValue) null);
+        assertTrue(respond().getFirst().get("slotHeaderFormat").isNull());
     }
 
     @Test
@@ -521,6 +544,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(OverlapValue.class, Set.of(boolean.class)),
             Map.entry(DateFormatValue.class, Set.of(Map.class)),
             Map.entry(ListDayFormatValue.class, Set.of(Map.class)),
+            Map.entry(SlotHeaderFormatValue.class, Set.of(Map.class)),
             Map.entry(ListTextValue.class, Set.of(String.class)),
             Map.entry(HeightValue.class, Set.of(int.class, String.class)),
             Map.entry(StickyValue.class, Set.of(String.class)),

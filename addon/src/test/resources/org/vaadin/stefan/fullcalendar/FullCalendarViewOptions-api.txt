@@ -180,6 +180,7 @@ getSlotHeaderClass(): ClassNameValue
 getSlotHeaderContent(): ContentValue
 getSlotHeaderDidMount(): JsCallback
 getSlotHeaderDividerClass(): ClassNameValue
+getSlotHeaderFormat(): SlotHeaderFormatValue
 getSlotHeaderInnerClass(): ClassNameValue
 getSlotHeaderInterval(): DurationValue
 getSlotHeaderRowClass(): String
@@ -506,6 +507,8 @@ setSlotHeaderContent(String): void
 setSlotHeaderDidMount(JsCallback): void
 setSlotHeaderDividerClass(ClassNameValue): void
 setSlotHeaderDividerClass(String): void
+setSlotHeaderFormat(Map): void
+setSlotHeaderFormat(SlotHeaderFormatValue): void
 setSlotHeaderInnerClass(ClassNameValue): void
 setSlotHeaderInnerClass(String): void
 setSlotHeaderInterval(Duration): void

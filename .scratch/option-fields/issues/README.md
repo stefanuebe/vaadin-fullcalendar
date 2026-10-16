@@ -78,6 +78,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
   | `OverlapValue` | `boolean` |
   | `DateFormatValue` | `Map<String, Object>` |
   | `ListDayFormatValue` | `Map<String, Object>` |
+  | `SlotHeaderFormatValue` | `Map<String, Object>`. The formats per header row come from `SlotHeaderFormatValue.of(DateFormatValue...)` and have no setter, because each row is itself a value type |
   | `ListTextValue` | `String` |
   | `HeightValue` | `int`, `String` |
   | `WidthValue` | `int` (pixels); no `double` setter for the percentage, because `setX(25)` and `setX(25.0)` would differ only by the literal |
