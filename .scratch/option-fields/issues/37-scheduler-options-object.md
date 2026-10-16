@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #393 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, a1bda347) |
 | Blocked by | `07-view-options`, `10-option-names-scheduler`, `12-pinned-api-and-converter-roundtrip` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `07-view-options`, `10-option-names-scheduler`, `12-pinned-api-and-converter-roundtrip`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, a1bda347)
 
 - [x] Core and scheduler options set through one scheduler `options()` object both arrive.
 - [x] The scheduler's `view(…)` sets a core and a scheduler field without a cast.
