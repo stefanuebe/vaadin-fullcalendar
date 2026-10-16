@@ -61,8 +61,8 @@ public class FullCalendarTest {
     void testNonArgsConstructor() {
         FullCalendar calendar = new FullCalendar();
 
-        // locale + dayMaxEvents + height + timeZone
-        assertExistingOptionCount(calendar, 4);
+        // dayMaxEvents + height + timeZone. The locale is a typed field.
+        assertExistingOptionCount(calendar, 3);
         // add-on default, a typed field
         assertEquals(Boolean.TRUE, calendar.options().getEditable());
     }
@@ -71,14 +71,14 @@ public class FullCalendarTest {
     void noArgConstructor_setsDefaultLocale() {
         FullCalendar calendar = new FullCalendar();
 
-        assertSame(CalendarLocale.getDefaultLocale(), calendar.getOption(Option.LOCALE).orElse(null));
+        assertSame(CalendarLocale.getDefaultLocale(), calendar.options().getLocale());
     }
 
     @Test
     void initialOptionsConstructor_setsDefaultLocaleWhenNoneGiven() {
         FullCalendar calendar = new FullCalendar(JsonFactory.createObject());
 
-        assertSame(CalendarLocale.getDefaultLocale(), calendar.getOption(Option.LOCALE).orElse(null));
+        assertSame(CalendarLocale.getDefaultLocale(), calendar.options().getLocale());
     }
 
     @Test
@@ -88,8 +88,8 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar();
         calendar.setMaxEntriesPerDay(entryLimit);
 
-        // locale + dayMaxEvents + height + timeZone
-        assertExistingOptionCount(calendar, 4);
+        // dayMaxEvents + height + timeZone
+        assertExistingOptionCount(calendar, 3);
 
         assertEquals(entryLimit, calendar.getOption(Option.DAY_MAX_ENTRIES).orElse(-1));
     }
@@ -101,8 +101,8 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar(options);
         Element element = calendar.getElement();
 
-        // locale + dayMaxEvents + timeZone
-        assertExistingOptionCount(calendar, 3);
+        // dayMaxEvents + timeZone
+        assertExistingOptionCount(calendar, 2);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
         assertTrue(returnedOptions instanceof ObjectNode, "Returned initial options not instanceof JsonObject");

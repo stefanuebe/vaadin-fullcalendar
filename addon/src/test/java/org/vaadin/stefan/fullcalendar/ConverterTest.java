@@ -31,6 +31,7 @@ import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
 import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.ViewName;
 import org.vaadin.stefan.fullcalendar.option.ViewNameValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculation;
@@ -63,6 +64,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -122,6 +124,12 @@ class ConverterTest {
                             .start(ExtendedLocalTime.of(22, 30)).end(ExtendedLocalTime.of(26, 15))),
                     array(BusinessHours.of(DayOfWeek.FRIDAY)
                             .start(ExtendedLocalTime.of(22, 30)).end(ExtendedLocalTime.of(26, 15)))))),
+            Map.entry(ToolbarValue.class, new ValueType(ToolbarValueConverter.class, forms(
+                    ToolbarValue.NONE, false,
+                    ToolbarValue.ofStartEnd("prev,next today", "title", ""),
+                    JsonFactory.createObject().put("start", "prev,next today").put("center", "title").put("end", ""),
+                    ToolbarValue.ofLeftRight("prev", "", "dayGridMonth"),
+                    JsonFactory.createObject().put("left", "prev").put("center", "").put("right", "dayGridMonth")))),
             Map.entry(ClassNameValue.class, new ValueType(ClassNameValueConverter.class, forms(
                     ClassName.of("a b"), "a b", CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(ConstraintValue.class, new ValueType(ConstraintValueConverter.class, forms(
@@ -248,6 +256,7 @@ class ConverterTest {
     static final Map<Class<?>, Class<?>> ONE_FORM_TYPES = Map.of(
             DayOfWeek.class, DayOfWeekConverter.class,
             LocalDate.class, LocalDateConverter.class,
+            Locale.class, LocaleConverter.class,
             Set.class, DayOfWeekArrayConverter.class,
             ViewName.class, ViewNameValueConverter.class);
 
@@ -304,6 +313,22 @@ class ConverterTest {
                 new StickyValueConverter().toServerModel(JsonUtils.toJsonNode(10), null));
         assertEquals(StickyValue.of("10.5px"),
                 new StickyValueConverter().toServerModel(JsonUtils.toJsonNode(10.5), null));
+    }
+
+    @Test
+    void toolbarValue_unknownClientForms_throw() {
+        ToolbarValueConverter converter = new ToolbarValueConverter();
+
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(JsonUtils.toJsonNode(true), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(JsonUtils.toJsonNode("title"), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().put("left", "prev").put("end", "next"), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().put("start", "prev").put("right", "next"), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().put("middle", "title"), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(
+                JsonFactory.createObject().put("start", 5), null));
     }
 
     @Test

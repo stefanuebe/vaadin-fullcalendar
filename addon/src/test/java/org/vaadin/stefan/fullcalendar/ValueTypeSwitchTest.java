@@ -28,6 +28,7 @@ import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.NoneValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Overlap;
@@ -172,6 +173,14 @@ class ValueTypeSwitchTest {
     private static String form(ListTextValue value) {
         return switch (value) {
             case TextContent text -> text.text();
+            case NoneValue.None ignored -> "none";
+        };
+    }
+
+    private static String form(ToolbarValue value) {
+        return switch (value) {
+            case ToolbarValue.StartEnd sections -> sections.start() + "|" + sections.center() + "|" + sections.end();
+            case ToolbarValue.LeftRight sections -> sections.left() + "|" + sections.center() + "|" + sections.right();
             case NoneValue.None ignored -> "none";
         };
     }

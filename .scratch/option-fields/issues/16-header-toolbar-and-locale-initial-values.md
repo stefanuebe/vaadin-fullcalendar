@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – (not created, GitHub account flagged) |
+| GitHub | #387 |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-16) |
 | Blocked by | `04-client-without-option-fallback`, `05-options-object-first-fields`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,16 +16,18 @@
 
 **Blocked by:** `04-client-without-option-fallback`, `05-options-object-first-fields`, `60-setters-without-form-overloads`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-16)
 
-- [ ] The initial state has `headerToolbar: false` and the default locale.
-- [ ] `calendar.getLocale()` still returns the UI locale.
+- [x] The initial state has `headerToolbar: false` and the default locale.
+- [x] `calendar.getLocale()` still returns the UI locale.
 - [ ] ~~`withAutoUiLocale()` sets the `locale` field.~~ Dropped: `withAutoUiLocale()` is removed (PR #363 review, 2026-10-16, see the spec, *Removed API*).
 - [ ] ~~Playwright: no FullCalendar toolbar on a calendar with nothing set.~~ Dropped: the library shows no toolbar by default either, so the test would pass without the add-on's initial value. The browserless test checks that `false` is sent.
 
-**In progress (2026-10-16), branch `option-fields-16`, not committed yet:**
+**Notes from the implementation (2026-10-16):**
 
-- Decisions (maintainer): `ToolbarValue` with forms `StartEnd`, `LeftRight` (purpose documented: screen sides that do not swap in RTL, checked in `parseToolbar`) and `NONE`; no per-form setter with three Strings; `headerToolbar` keeps the initial value `NONE` (consistent with other initial values, although the library default is also no toolbar); `locale` behaves as in 7.x: initial `CalendarLocale.getDefaultLocale()`, `setLocale(null)` throws, a JSON `"locale": null` in the constructor is dropped. Rejected: falling back to English or the UI locale on the client. Reason: without a locale the library takes the first of the passed `locales`, which is Afrikaans, and 7.x already rules that out.
-- Done: `ToolbarValue`, `ToolbarValueConverter` (throws for unknown keys, non-string sections, mixed start/end with left/right), fields in `CalendarOptions`, constructor fallbacks and client `headerToolbar: false` removed, tests adapted and added, README setter-table row, pinned API list. All addon tests green.
-- Review round 1: standards and tests/spec without major (minors fixed). FC axis found a major (the Afrikaans fallback), now fixed by the 7.x behaviour above.
-- Next: review round 2 on the whole scope (three agents), then the extra round, then the gate, issue, commit, record, merge as for 14/15.
+- Gate green: full build, E2E 459 passed. Mutation check: removing the null guard in `setLocale` or the null-locale drop in the constructor fails `AutoBrowserSettingsTest`.
+- Decisions (maintainer): `ToolbarValue` with forms `StartEnd`, `LeftRight` (purpose documented: screen sides that do not swap in RTL, checked in `parseToolbar`) and `NONE`; no per-form setter with three Strings; `headerToolbar` keeps the initial value `NONE` (consistent with other initial values, although the library default is also no toolbar); `locale` behaves as in 7.x: initial `CalendarLocale.getDefaultLocale()`, `setLocale(null)` throws, a JSON `"locale": null` in the constructor is dropped. Rejected: falling back to English or the UI locale on the client. Reason: without a locale the library takes the first of the passed `locales` (`organizeRawLocales`), which is Afrikaans, and 7.x already rules that out.
+- `ToolbarValueConverter` throws for unknown keys, non-string sections and a mix of start/end with left/right. The library tolerates the mix; the add-on rejects it because the server could not say which form it holds.
+- The client line `headerToolbar: false` is gone; the server sends the field's `NONE` as `false`.
+- `setOption(Option.HEADER_TOOLBAR, null)` drops the raw value, so the field's `false` applies again; the typed setter with null removes the option. A comment in `ToolbarOptionsTest` names the difference.
+- The `@deprecated` notes of the toolbar model (`Header`, `Footer`, `AbstractHeaderFooter`, `HeaderFooterPartPosition`, `ToolbarConverter`) point to the typed setters and `ToolbarValue`.
