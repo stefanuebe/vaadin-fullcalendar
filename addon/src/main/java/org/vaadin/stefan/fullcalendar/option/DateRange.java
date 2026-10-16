@@ -17,7 +17,6 @@
 package org.vaadin.stefan.fullcalendar.option;
 
 import org.vaadin.stefan.fullcalendar.Option;
-import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -31,7 +30,7 @@ import java.time.LocalDate;
  * @param start first date of the range, or {@code null} for an open start
  * @param end   date after the range, or {@code null} for an open end
  */
-public record DateRange(LocalDate start, LocalDate end) implements Serializable {
+public record DateRange(LocalDate start, LocalDate end) implements DateRangeValue {
 
     /**
      * Creates a new range.

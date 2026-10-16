@@ -24,21 +24,23 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Definition of business hours for a calendar instance.
+ * Definition of business hours for a calendar instance, also a recurring window of a {@link ConstraintValue}.
  * <p>
  *     Use one of the static methods to define the days of week. You can define the range per day using the {@link #start}
  *     and {@link #end} methods or leave them, to let the business hours range from the start of the day to its end.
+ *     {@link #recurringStartDate} and {@link #recurringEndDate} limit the dates on which they recur.
  * </p>
  */
 @EqualsAndHashCode
 @ToString
-public class BusinessHours implements Serializable {
+public non-sealed class BusinessHours implements ConstraintValue.Window {
     /**
      * Represents all days of week.
      */
@@ -53,6 +55,8 @@ public class BusinessHours implements Serializable {
     private final Set<DayOfWeek> dayOfWeeks;
     private final LocalTime start;
     private final LocalTime end;
+    private final LocalDate recurringStartDate;
+    private final LocalDate recurringEndDate;
 
     /**
      * Creates a new instance for the given days of week.
@@ -86,7 +90,7 @@ public class BusinessHours implements Serializable {
      * @throws IllegalArgumentException if the set is empty
      */
     public static BusinessHours of(Set<DayOfWeek> dayOfWeeks) {
-        return new BusinessHours(LocalTime.MIN, LocalTime.MAX, dayOfWeeks);
+        return new BusinessHours(LocalTime.MIN, LocalTime.MAX, dayOfWeeks, null, null);
     }
 
     /**
@@ -114,8 +118,11 @@ public class BusinessHours implements Serializable {
      * @param start      start time
      * @param end        end time
      * @param dayOfWeeks days of business
+     * @param recurringStartDate first date on which they recur, or null for no limit
+     * @param recurringEndDate date after the last one on which they recur, or null for no limit
      */
-    private BusinessHours(LocalTime start, LocalTime end, Set<DayOfWeek> dayOfWeeks) {
+    private BusinessHours(LocalTime start, LocalTime end, Set<DayOfWeek> dayOfWeeks, LocalDate recurringStartDate,
+                          LocalDate recurringEndDate) {
         if (dayOfWeeks == null || dayOfWeeks.isEmpty()) {
             throw new IllegalArgumentException("Days of week must not be null nor empty");
         }
@@ -128,9 +135,15 @@ public class BusinessHours implements Serializable {
             throw new IllegalArgumentException("End must not be before start");
         }
 
+        if (recurringStartDate != null && recurringEndDate != null && !recurringStartDate.isBefore(recurringEndDate)) {
+            throw new IllegalArgumentException("The recurring start date must be before the recurring end date");
+        }
+
         this.dayOfWeeks = Collections.unmodifiableSet(EnumSet.copyOf(dayOfWeeks));
         this.start = start;
         this.end = end;
+        this.recurringStartDate = recurringStartDate;
+        this.recurringEndDate = recurringEndDate;
 
     }
 
@@ -141,7 +154,7 @@ public class BusinessHours implements Serializable {
      * @throws IllegalArgumentException if the end is before the start
      */
     public BusinessHours start(LocalTime start) {
-        return new BusinessHours(start, end, dayOfWeeks);
+        return new BusinessHours(start, end, dayOfWeeks, recurringStartDate, recurringEndDate);
     }
 
     /**
@@ -151,7 +164,46 @@ public class BusinessHours implements Serializable {
      * @throws IllegalArgumentException if the end is before the start
      */
     public BusinessHours end(LocalTime end) {
-        return new BusinessHours(start, end, dayOfWeeks);
+        return new BusinessHours(start, end, dayOfWeeks, recurringStartDate, recurringEndDate);
+    }
+
+    /**
+     * Creates a copy of this instance that recurs from the given date on, the library's {@code startRecur}.
+     * @param recurringStartDate first date on which they recur, or null for no limit
+     * @return new instance
+     * @throws IllegalArgumentException if the date is not before the recurring end date
+     */
+    public BusinessHours recurringStartDate(LocalDate recurringStartDate) {
+        return new BusinessHours(start, end, dayOfWeeks, recurringStartDate, recurringEndDate);
+    }
+
+    /**
+     * Creates a copy of this instance that recurs until the day before the given date, the library's
+     * {@code endRecur}. The date is exclusive, as the end of entries.
+     * @param recurringEndDate date after the last one on which they recur, or null for no limit
+     * @return new instance
+     * @throws IllegalArgumentException if the date is not after the recurring start date
+     */
+    public BusinessHours recurringEndDate(LocalDate recurringEndDate) {
+        return new BusinessHours(start, end, dayOfWeeks, recurringStartDate, recurringEndDate);
+    }
+
+    /**
+     * Returns the first date on which they recur.
+     *
+     * @return the date, or null for no limit
+     */
+    public LocalDate getRecurringStartDate() {
+        return recurringStartDate;
+    }
+
+    /**
+     * Returns the date after the last one on which they recur.
+     *
+     * @return the date, or null for no limit
+     */
+    public LocalDate getRecurringEndDate() {
+        return recurringEndDate;
     }
 
     /**
@@ -215,6 +267,12 @@ public class BusinessHours implements Serializable {
 
         jsonObject.set("startTime", JsonUtils.toJsonNode(start));
         jsonObject.set("endTime", JsonUtils.toJsonNode(end.equals(LocalTime.MAX) ? "24:00" : end));
+        if (recurringStartDate != null) {
+            jsonObject.put("startRecur", JsonUtils.formatClientSideDateString(recurringStartDate));
+        }
+        if (recurringEndDate != null) {
+            jsonObject.put("endRecur", JsonUtils.formatClientSideDateString(recurringEndDate));
+        }
 
         return jsonObject;
     }

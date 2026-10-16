@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
+import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
@@ -23,9 +24,12 @@ import org.vaadin.stefan.fullcalendar.option.TextContent;
 import tools.jackson.databind.JsonNode;
 
 /**
- * Converts a {@link ContentValue} to its client form and back: the text as a string, or the callback marker.
+ * Converts a {@link ContentValue} to its client form and back: the text as a string, the HTML as
+ * {@code {html: '...'}}, or the callback marker.
  */
 public class ContentValueConverter implements JsonItemPropertyConverter<ContentValue, Object> {
+
+    private static final String HTML = "html";
 
     @Override
     public boolean supports(Object type) {
@@ -36,14 +40,18 @@ public class ContentValueConverter implements JsonItemPropertyConverter<ContentV
     public JsonNode toClientModel(ContentValue serverValue, Object currentInstance) {
         return switch (serverValue) {
             case TextContent content -> JsonUtils.toJsonNode(content.text());
+            case ContentValue.Html html -> JsonFactory.createObject().put(HTML, html.html());
             case JsCallback callback -> callback.toMarkerJson();
         };
     }
 
     @Override
     public ContentValue toServerModel(JsonNode clientValue, Object currentInstance) {
-        if (clientValue.isObject()) {
+        if (JsCallback.isMarker(clientValue)) {
             return JsCallback.fromMarkerJson(clientValue);
+        }
+        if (clientValue.isObject() && clientValue.path(HTML).isString()) {
+            return ContentValue.ofHtml(clientValue.get(HTML).asString());
         }
         if (!clientValue.isString()) {
             throw new IllegalArgumentException("Not a content value: " + clientValue);

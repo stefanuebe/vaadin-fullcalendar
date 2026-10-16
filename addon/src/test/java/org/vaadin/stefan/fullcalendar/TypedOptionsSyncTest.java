@@ -1,5 +1,12 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
+import org.vaadin.stefan.fullcalendar.option.TextValue;
+import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
+import org.vaadin.stefan.fullcalendar.option.DurationValue;
+import org.vaadin.stefan.fullcalendar.option.EntryOrder;
+import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -40,8 +47,10 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -223,6 +232,9 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         calendar.options().setDayHeaderAlign(HeaderAlign.END);
         assertEquals("text Ganztags, align END", contentAndAlignForms());
 
+        calendar.options().setAllDayHeaderContent(ContentValue.ofHtml("<b>Ganztags</b>"));
+        assertEquals("html <b>Ganztags</b>, align END", contentAndAlignForms());
+
         calendar.options().setAllDayHeaderContent(JsCallback.of("info => info.text"));
         calendar.options().setDayHeaderAlign(JsCallback.of("() => 'end'"));
         assertEquals("callback, callback", contentAndAlignForms());
@@ -232,6 +244,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         // compiles only while the switches cover every permitted type
         String content = switch (calendar.options().getAllDayHeaderContent()) {
             case TextContent text -> "text " + text.text();
+            case ContentValue.Html html -> "html " + html.html();
             case JsCallback callback -> "callback";
         };
         String align = switch (calendar.options().getDayHeaderAlign()) {
@@ -488,8 +501,14 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(StickyValue.class, Set.of(String.class)),
             Map.entry(EntryLimitValue.class, Set.of(int.class)),
             Map.entry(BusinessHoursValue.class, Set.of(BusinessHours[].class)),
-            Map.entry(ConstraintValue.class, Set.of(String.class, BusinessHours[].class)),
-            Map.entry(NowValue.class, Set.of(LocalDate.class, LocalDateTime.class, JsCallback.class)));
+            Map.entry(ConstraintValue.class, Set.of(String.class, BusinessHours[].class, ConstraintValue.Window[].class)),
+            Map.entry(NowValue.class, Set.of(LocalDate.class, LocalDateTime.class, JsCallback.class)),
+            Map.entry(TextValue.class, Set.of(String.class)),
+            Map.entry(EntryOrderValue.class, Set.of(String[].class, EntryOrder.Key[].class)),
+            Map.entry(DurationValue.class, Set.of(Duration.class, Period.class, String.class)),
+            Map.entry(WidthValue.class, Set.of(int.class)),
+            Map.entry(DateRangeValue.class, Set.of()),
+            Map.entry(WeekNumberCalculationValue.class, Set.of()));
 
     /**
      * A value and client JSON for one setter whose parameter type has a different sample, keyed by the setter name and

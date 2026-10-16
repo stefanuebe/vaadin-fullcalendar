@@ -17,13 +17,42 @@
 package org.vaadin.stefan.fullcalendar.option;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
- * The value of a render hook that sets the content of an element: a text or a {@link JsCallback} that
- * returns it. Render hooks such as {@code allDayHeaderContent} take it. A {@code switch} over it needs no
- * {@code default} branch.
+ * The value of a render hook that sets the content of an element: a text, HTML, or a {@link JsCallback} that returns
+ * it. Render hooks such as {@code allDayHeaderContent} take it. A {@code switch} over it needs no {@code default}
+ * branch.
  * <p>
- * A sealed type rather than one Java type, because the library takes a value or a function.
+ * A sealed type rather than one Java type, because the library takes a value or a function, and a text as well as
+ * HTML.
+ * <p>
+ * The library also takes {@code {domNodes: [...]}}. DOM nodes cannot come from the server, so that form is left out;
+ * a {@link JsCallback} can return them.
  */
-public sealed interface ContentValue extends Serializable permits TextContent, JsCallback {
+public sealed interface ContentValue extends Serializable permits TextContent, ContentValue.Html, JsCallback {
+
+    /**
+     * Creates the content from HTML. The library sets it as the inner HTML of the element without escaping it, so it
+     * must not contain unchecked user input. For a text, use {@link TextContent#of(String)}.
+     *
+     * @param html the HTML
+     * @return the content
+     * @throws NullPointerException when null is passed
+     */
+    static ContentValue ofHtml(String html) {
+        return new Html(html);
+    }
+
+    /**
+     * HTML as the content of an element, the library's {@code {html: '...'}}. It is not escaped.
+     *
+     * @param html the HTML
+     */
+    record Html(String html) implements ContentValue {
+
+        public Html {
+            Objects.requireNonNull(html);
+        }
+    }
 }

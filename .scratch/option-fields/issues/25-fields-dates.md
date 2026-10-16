@@ -5,14 +5,16 @@
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
 | Status | ready-for-agent |
-| Blocked by | `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `24-value-types-auto-false-now`, `57-value-types-order-ranges-lengths-durations` |
+| Blocked by | `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `24-value-types-auto-false-now`, `57-value-types-order-ranges-lengths-durations`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
 ---
 
 **What to build:** Add the typed fields for these library options (23), named as in *Names* of the spec ("event" becomes "entry" in Java, `@JsonName` keeps the library name): `allDayMaintainDuration`, `dateAlignment`, `dateIncrement`, `dayCount`, `dayHeaders`, `defaultAllDay`, `defaultAllDayEventDuration`, `defaultTimedEventDuration`, `direction`, `duration`, `fixedWeekCount`, `forceEventDuration`, `headingLevel`, `hiddenDays`, `initialView`, `nextDayThreshold`, `now`, `showNonCurrentDates`, `validRange`, `visibleRange`, `weekends`, `weekNumbers`, `weekNumberCalculation`. `initialView` takes a `CalendarView`.
 
-**Blocked by:** `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `24-value-types-auto-false-now`, `57-value-types-order-ranges-lengths-durations`
+**Value types from 57 (2026-10-16):** `validRange` and `visibleRange` take `DateRangeValue` (`DateRange` or `JsCallback`; `visibleRange` needs both bounds, the library ignores an open one, which the setter Javadoc says). `weekNumberCalculation` takes `WeekNumberCalculationValue` (`LOCAL`, `ISO` or `JsCallback`). `dateIncrement`, `duration`, `nextDayThreshold`, `defaultTimedEventDuration` and `defaultAllDayEventDuration` take `DurationValue`.
+
+**Blocked by:** `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `24-value-types-auto-false-now`, `57-value-types-order-ranges-lengths-durations`, `60-setters-without-form-overloads`
 
 **Status:** ready-for-agent
 

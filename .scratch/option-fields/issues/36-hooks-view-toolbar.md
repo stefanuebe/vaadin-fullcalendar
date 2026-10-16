@@ -5,14 +5,14 @@
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
 | Status | ready-for-agent |
-| Blocked by | `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks` |
+| Blocked by | `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
 ---
 
 **What to build:** Add the typed fields for these library options (14), named as in *Names* of the spec ("event" becomes "entry" in Java, `@JsonName` keeps the library name): `buttonClass`, `buttonGroupClass`, `navLinkClass`, `singleMonthClass`, `singleMonthDidMount`, `singleMonthHeaderClass`, `singleMonthHeaderInnerClass`, `singleMonthWillUnmount`, `toolbarClass`, `toolbarSectionClass`, `toolbarTitleClass`, `viewClass`, `viewDidMount`, `viewWillUnmount`.
 
-**Blocked by:** `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`
+**Blocked by:** `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `60-setters-without-form-overloads`
 
 **Status:** ready-for-agent
 

@@ -25,6 +25,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,6 +77,8 @@ public class BusinessHoursValueConverter implements JsonItemPropertyConverter<Bu
         String end = json.get("endTime").asString();
         return BusinessHours.of(days)
                 .start(LocalTime.parse(json.get("startTime").asString()))
-                .end(end.equals("24:00") ? LocalTime.MAX : LocalTime.parse(end));
+                .end(end.equals("24:00") ? LocalTime.MAX : LocalTime.parse(end))
+                .recurringStartDate(json.has("startRecur") ? LocalDate.parse(json.get("startRecur").asString()) : null)
+                .recurringEndDate(json.has("endRecur") ? LocalDate.parse(json.get("endRecur").asString()) : null);
     }
 }

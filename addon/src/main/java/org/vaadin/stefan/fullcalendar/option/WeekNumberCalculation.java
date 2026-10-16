@@ -20,22 +20,15 @@ import org.vaadin.stefan.fullcalendar.ClientSideValue;
 
 /**
  * Determines how week numbers are calculated. Corresponds to the FullCalendar {@code weekNumberCalculation} option.
+ * A {@link JsCallback} that returns the week number of a date is the other form of {@link WeekNumberCalculationValue}.
  *
  * @see <a href="https://fullcalendar.io/docs/weekNumberCalculation">weekNumberCalculation</a>
  */
-public enum WeekNumberCalculation implements ClientSideValue {
+public enum WeekNumberCalculation implements ClientSideValue, WeekNumberCalculationValue {
     /** Uses the locale's default week number calculation. */
     LOCAL("local"),
-    /**
-     * ISO 8601 week numbers (week starts on Monday, first week contains Jan 4th).
-     * @see #ISO8601
-     */
-    ISO("ISO"),
-    /**
-     * Alias for {@link #ISO}. Both values are equivalent.
-     * @see #ISO
-     */
-    ISO8601("ISO");
+    /** ISO 8601 week numbers (week starts on Monday, first week contains Jan 4th). */
+    ISO("ISO");
 
     private final String clientSideValue;
 

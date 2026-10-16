@@ -5,14 +5,16 @@
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
 | Status | ready-for-agent |
-| Blocked by | `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object`, `57-value-types-order-ranges-lengths-durations` |
+| Blocked by | `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object`, `57-value-types-order-ranges-lengths-durations`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
 ---
 
 **What to build:** Add the typed fields for these library options (19), named as in *Names* of the spec ("event" becomes "entry" in Java, `@JsonName` keeps the library name): `datesAboveResources`, `eventMinWidth`, `eventPrintLayout`, `eventResourceEditable`, `filterResourcesWithEvents`, `schedulerLicenseKey`, `printMaxRows`, `refetchResourcesOnNavigate`, `resourcesInitiallyExpanded`, `resourcesSet`, `resourceAdd`, `resourceChange`, `resourceColumnsWidth`, `resourceDayHeaderAlign`, `resourceGroupField`, `resourceOrder`, `resourceRemove`, `slotMinWidth`, `virtualization`. `resourceGroupField` and `resourcesInitiallyExpanded` exist since 37.
 
-**Blocked by:** `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object`, `57-value-types-order-ranges-lengths-durations`
+**Value types from 57 (2026-10-16):** `resourceColumnsWidth` takes `WidthValue` (pixels or percentage, the only forms the library reads; setter `int` for pixels).
+
+**Blocked by:** `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object`, `57-value-types-order-ranges-lengths-durations`, `60-setters-without-form-overloads`
 
 **Status:** ready-for-agent
 

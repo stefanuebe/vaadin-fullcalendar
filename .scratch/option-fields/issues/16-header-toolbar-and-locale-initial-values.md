@@ -5,7 +5,7 @@
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
 | Status | ready-for-agent |
-| Blocked by | `04-client-without-option-fallback`, `05-options-object-first-fields` |
+| Blocked by | `04-client-without-option-fallback`, `05-options-object-first-fields`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
 ---
@@ -14,7 +14,7 @@
 
 **Note from the review of 21–24 (2026-10-15):** the toolbar value type follows the README section *Value types (21–24, 57)*: name, constant for `false`, factory, a setter taking the value type, and its row in the setter table.
 
-**Blocked by:** `04-client-without-option-fallback`, `05-options-object-first-fields`
+**Blocked by:** `04-client-without-option-fallback`, `05-options-object-first-fields`, `60-setters-without-form-overloads`
 
 **Status:** ready-for-agent
 

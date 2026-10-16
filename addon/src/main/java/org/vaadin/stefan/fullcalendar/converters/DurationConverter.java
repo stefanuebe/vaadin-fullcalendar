@@ -1,14 +1,13 @@
 package org.vaadin.stefan.fullcalendar.converters;
 
 import org.vaadin.stefan.fullcalendar.JsonUtils;
+import org.vaadin.stefan.fullcalendar.option.DurationValue;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.NullNode;
 
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Converts a {@link Duration} or {@link LocalTime} to a FullCalendar duration string in {@code "HH:mm:ss"} format
@@ -23,18 +22,12 @@ import java.util.regex.Pattern;
  * ({@code "00:00:01.500"}). Anything below a millisecond is dropped.
  * <p>
  * A string from the client is read back as {@link Duration} with the client's own duration format
- * ({@code [-][d.]hh:mm[:ss[.sss]]}). A string in another format, such as ISO 8601, gives {@code null}, as it does
- * on the client.
+ * ({@code [-][d.]hh:mm[:ss[.sss]]}, read by {@link DurationValue#ofTimeString(String)}). A string in another format,
+ * such as ISO 8601, gives {@code null}, as it does on the client.
  */
 public class DurationConverter implements JsonItemPropertyConverter<Object, Object> {
 
     private static final DateTimeFormatter LOCAL_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
-
-    // FC-UPDATE: check this pattern against the client's duration parsing, especially on a major update. If the
-    // client format changes, durations read back from the client, such as on an external drop, are read wrongly
-    // or become null.
-    /** The client's duration string format, matched from the start like the client does. */
-    private static final Pattern CLIENT_FORMAT = Pattern.compile("(-?)(?:(\\d+)\\.)?(\\d+):(\\d\\d)(?::(\\d\\d)(?:\\.(\\d\\d\\d))?)?");
 
     @Override
     public boolean supports(Object value) {
@@ -68,16 +61,16 @@ public class DurationConverter implements JsonItemPropertyConverter<Object, Obje
             return null;
         }
 
-        Matcher m = CLIENT_FORMAT.matcher(clientValue.asString());
-        if (!m.lookingAt()) {
+        DurationValue value;
+        try {
+            value = DurationValue.ofTimeString(clientValue.asString());
+        } catch (IllegalArgumentException e) {
             return null;
         }
-
-        Duration duration = Duration.ofDays(m.group(2) != null ? Long.parseLong(m.group(2)) : 0)
-                .plusHours(Long.parseLong(m.group(3)))
-                .plusMinutes(Long.parseLong(m.group(4)))
-                .plusSeconds(m.group(5) != null ? Long.parseLong(m.group(5)) : 0)
-                .plusMillis(m.group(6) != null ? Long.parseLong(m.group(6)) : 0);
-        return m.group(1).isEmpty() ? duration : duration.negated();
+        // a Duration has no calendar days, so days in front of the string count as 24 hours each
+        return switch (value) {
+            case DurationValue.Time time -> time.time();
+            case DurationValue.Calendar calendar -> Duration.ofDays(calendar.period().getDays()).plus(calendar.time());
+        };
     }
 }

@@ -5,14 +5,14 @@
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
 | Status | ready-for-agent |
-| Blocked by | `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object` |
+| Blocked by | `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
 ---
 
 **What to build:** Add the typed fields for these library options (19), named as in *Names* of the spec ("event" becomes "entry" in Java, `@JsonName` keeps the library name): `resourceCellClass`, `resourceCellContent`, `resourceCellDidMount`, `resourceCellInnerClass`, `resourceCellWillUnmount`, `resourceColumnDividerClass`, `resourceColumnHeaderClass`, `resourceColumnHeaderContent`, `resourceColumnHeaderDidMount`, `resourceColumnHeaderInnerClass`, `resourceColumnHeaderWillUnmount`, `resourceColumnResizerClass`, `resourceDayHeaderClass`, `resourceDayHeaderContent`, `resourceDayHeaderDidMount`, `resourceDayHeaderInnerClass`, `resourceDayHeaderWillUnmount`, `resourceExpanderClass`, `resourceExpanderContent`.
 
-**Blocked by:** `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object`
+**Blocked by:** `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object`, `60-setters-without-form-overloads`
 
 **Status:** ready-for-agent
 

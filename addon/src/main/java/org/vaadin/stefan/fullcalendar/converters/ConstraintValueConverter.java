@@ -16,19 +16,29 @@
  */
 package org.vaadin.stefan.fullcalendar.converters;
 
-import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.util.Set;
 
 /**
  * Converts a {@link ConstraintValue} to its client form and back: the group id, {@code "businessHours"}, or an array
- * of business hours objects. A single business hours object, which the library takes as well, is read as one window.
+ * of windows: business hours objects, and objects with {@code start} and/or {@code end} for fixed spans. A single
+ * window object, which the library takes as well, is read as one window.
  */
 public class ConstraintValueConverter implements JsonItemPropertyConverter<ConstraintValue, Object> {
 
     private static final String BUSINESS_HOURS = "businessHours";
+    private static final String START = "start";
+    private static final String END = "end";
+    private static final int DATE_LENGTH = "2026-01-01".length();
 
     @Override
     public boolean supports(Object type) {
@@ -42,7 +52,7 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
             case ConstraintValue.CalendarBusinessHours ignored -> JsonUtils.toJsonNode(BUSINESS_HOURS);
             case ConstraintValue.Windows windows -> {
                 ArrayNode array = JsonFactory.createArray();
-                windows.windows().forEach(window -> array.add(window.toJson()));
+                windows.windows().forEach(window -> array.add(toJson(window)));
                 yield array;
             }
         };
@@ -51,16 +61,56 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
     @Override
     public ConstraintValue toServerModel(JsonNode clientValue, Object currentInstance) {
         if (clientValue.isObject()) {
-            return ConstraintValue.ofWindows(BusinessHoursValueConverter.toBusinessHours(clientValue));
+            return ConstraintValue.ofWindows(toWindow(clientValue));
         }
         if (clientValue.isArray()) {
-            return new ConstraintValue.Windows(
-                    clientValue.valueStream().map(BusinessHoursValueConverter::toBusinessHours).toList());
+            return new ConstraintValue.Windows(clientValue.valueStream().map(ConstraintValueConverter::toWindow).toList());
         }
         if (!clientValue.isString()) {
             throw new IllegalArgumentException("Not a constraint value: " + clientValue);
         }
         String text = clientValue.asString();
         return text.equals(BUSINESS_HOURS) ? ConstraintValue.BUSINESS_HOURS : ConstraintValue.ofGroupId(text);
+    }
+
+    private static JsonNode toJson(ConstraintValue.Window window) {
+        return switch (window) {
+            case BusinessHours hours -> hours.toJson();
+            case ConstraintValue.DateSpan span -> span(JsonUtils.formatClientSideDateString(span.start()),
+                    JsonUtils.formatClientSideDateString(span.end()));
+            case ConstraintValue.DateTimeSpan span -> span(JsonUtils.formatClientSideDateTimeString(span.start()),
+                    JsonUtils.formatClientSideDateTimeString(span.end()));
+        };
+    }
+
+    private static ObjectNode span(String start, String end) {
+        ObjectNode json = JsonFactory.createObject();
+        if (start != null) {
+            json.put(START, start);
+        }
+        if (end != null) {
+            json.put(END, end);
+        }
+        return json;
+    }
+
+    /** Reads a window: an object with only a start and an end is a fixed span, any other one business hours. */
+    private static ConstraintValue.Window toWindow(JsonNode json) {
+        boolean span = json.isObject() && !json.isEmpty() && Set.of(START, END).containsAll(json.propertyNames());
+        if (!span) {
+            return BusinessHoursValueConverter.toBusinessHours(json);
+        }
+        String start = json.path(START).asString(null);
+        String end = json.path(END).asString(null);
+        try {
+            if ((start == null || start.length() == DATE_LENGTH) && (end == null || end.length() == DATE_LENGTH)) {
+                return ConstraintValue.Window.span(start == null ? null : LocalDate.parse(start),
+                        end == null ? null : LocalDate.parse(end));
+            }
+            return ConstraintValue.Window.span(start == null ? null : JsonUtils.parseClientSideDateTime(start),
+                    end == null ? null : JsonUtils.parseClientSideDateTime(end));
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException("Not a span: " + json, e);
+        }
     }
 }

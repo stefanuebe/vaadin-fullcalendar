@@ -1,5 +1,8 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.DurationValue;
+import org.vaadin.stefan.fullcalendar.option.EntryOrder;
+import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
@@ -11,6 +14,8 @@ import org.vaadin.stefan.fullcalendar.option.CssSelector;
 import org.vaadin.stefan.fullcalendar.option.CssSelectorValue;
 import org.vaadin.stefan.fullcalendar.option.DateFormat;
 import org.vaadin.stefan.fullcalendar.option.DateFormatValue;
+import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
 import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
@@ -23,8 +28,12 @@ import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
 import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.ViewName;
 import org.vaadin.stefan.fullcalendar.option.ViewNameValue;
+import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculation;
+import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.converters.*;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
@@ -45,6 +54,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -113,15 +123,47 @@ class ConverterTest {
                     ConstraintValue.ofWindows(BusinessHours.businessWeek().start(10).end(18)),
                     array(BusinessHours.businessWeek().start(10).end(18)),
                     ConstraintValue.ofWindows(BusinessHours.of(DayOfWeek.MONDAY), BusinessHours.of(DayOfWeek.FRIDAY)),
-                    array(BusinessHours.of(DayOfWeek.MONDAY), BusinessHours.of(DayOfWeek.FRIDAY))))),
+                    array(BusinessHours.of(DayOfWeek.MONDAY), BusinessHours.of(DayOfWeek.FRIDAY)),
+                    ConstraintValue.ofWindows(
+                            BusinessHours.businessWeek().recurringStartDate(LocalDate.of(2026, 3, 1))
+                                    .recurringEndDate(LocalDate.of(2026, 7, 1)),
+                            ConstraintValue.Window.span(LocalDate.of(2026, 11, 2), LocalDate.of(2026, 11, 7)),
+                            ConstraintValue.Window.span(LocalDate.of(2026, 12, 1), null),
+                            ConstraintValue.Window.span(LocalDateTime.of(2026, 11, 9, 8, 0), LocalDateTime.of(2026, 11, 9, 17, 0)),
+                            ConstraintValue.Window.span(null, LocalDateTime.of(2026, 1, 1, 12, 0))),
+                    JsonFactory.createArray()
+                            .add(BusinessHours.businessWeek().toJson().put("startRecur", "2026-03-01").put("endRecur", "2026-07-01"))
+                            .add(JsonFactory.createObject().put("start", "2026-11-02").put("end", "2026-11-07"))
+                            .add(JsonFactory.createObject().put("start", "2026-12-01"))
+                            .add(JsonFactory.createObject().put("start", "2026-11-09T08:00Z").put("end", "2026-11-09T17:00Z"))
+                            .add(JsonFactory.createObject().put("end", "2026-01-01T12:00Z"))))),
             Map.entry(ContentValue.class, new ValueType(ContentValueConverter.class, forms(
-                    TextContent.of("all day"), "all day", CALLBACK, CALLBACK.toMarkerJson()))),
+                    TextContent.of("all day"), "all day", ContentValue.ofHtml("<b>all</b> day"),
+                    JsonFactory.createObject().put("html", "<b>all</b> day"), CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(CssSelectorValue.class, new ValueType(CssSelectorValueConverter.class, forms(
                     CssSelector.of(".item"), ".item", CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(DateFormatValue.class, new ValueType(DateFormatValueConverter.class, forms(
                     DateFormat.of(Map.of("month", "short", "day", "numeric", "omitCommas", true, "hour12", false)),
                     JsonFactory.createObject().put("month", "short").put("day", "numeric").put("omitCommas", true)
                             .put("hour12", false),
+                    CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(DateRangeValue.class, new ValueType(DateRangeValueConverter.class, forms(
+                    new DateRange(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 7, 1)),
+                    JsonFactory.createObject().put("start", "2026-01-01").put("end", "2026-07-01"),
+                    new DateRange(LocalDate.of(2026, 1, 1), null), JsonFactory.createObject().put("start", "2026-01-01"),
+                    new DateRange(null, LocalDate.of(2026, 7, 1)), JsonFactory.createObject().put("end", "2026-07-01"),
+                    CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(DurationValue.class, new ValueType(DurationValueConverter.class, forms(
+                    DurationValue.ofTime(Duration.ofMinutes(90)), "01:30:00",
+                    DurationValue.ofTime(Duration.ofMillis(-1500)), "-00:00:01.500",
+                    DurationValue.ofCalendar(Period.ofMonths(1)), JsonFactory.createObject().put("months", 1),
+                    DurationValue.ofCalendar(Period.of(1, 2, 3), Duration.ofHours(12)),
+                    JsonFactory.createObject().put("years", 1).put("months", 2).put("days", 3)
+                            .put("milliseconds", 43_200_000L)))),
+            Map.entry(EntryOrderValue.class, new ValueType(EntryOrderValueConverter.class, forms(
+                    EntryOrder.of("title", "-start"), JsonFactory.createArray().add("title").add("-start"),
+                    EntryOrder.of(EntryOrder.descending("duration"), CALLBACK),
+                    JsonFactory.createArray().add("-duration").add(CALLBACK.toMarkerJson()),
                     CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(EntryLimitValue.class, new ValueType(EntryLimitValueConverter.class, forms(
                     EntryLimitValue.NONE, false, EntryLimitValue.CELL_HEIGHT, true,
@@ -143,10 +185,18 @@ class ConverterTest {
                     CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(OverlapValue.class, new ValueType(OverlapValueConverter.class, forms(
                     Overlap.ALLOWED, true, Overlap.FORBIDDEN, false, CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(TextValue.class, new ValueType(TextValueConverter.class, forms(
+                    TextContent.of("+2 more"), "+2 more", CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(StickyValue.class, new ValueType(StickyValueConverter.class, forms(
                     StickyValue.NOT_STICKY, false, StickyValue.STICKY, true, StickyValue.of("2em"), "2em"))),
             Map.entry(ViewNameValue.class, new ValueType(ViewNameValueConverter.class, forms(
-                    ViewName.of("timeGridDay"), "timeGridDay", CALLBACK, CALLBACK.toMarkerJson()))));
+                    ViewName.of("timeGridDay"), "timeGridDay", CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(WeekNumberCalculationValue.class, new ValueType(WeekNumberCalculationValueConverter.class, forms(
+                    WeekNumberCalculation.LOCAL, "local", WeekNumberCalculation.ISO, "ISO",
+                    CALLBACK, CALLBACK.toMarkerJson()))),
+            Map.entry(WidthValue.class, new ValueType(WidthValueConverter.class, forms(
+                    WidthValue.ofPixels(0), 0, WidthValue.ofPixels(250), 250, WidthValue.ofPercent(25), "25%",
+                    WidthValue.ofPercent(33.5), "33.5%"))));
 
     /**
      * Field types with a converter that are no value type, since their options take one form only, with the converter
@@ -212,6 +262,51 @@ class ConverterTest {
     }
 
     @Test
+    void toolbarElements_writeEachContentInItsClientForm_andRoundTrip() {
+        Map<String, ContentValue> elements = Map.of("info", TextContent.of("Info"),
+                "logo", ContentValue.ofHtml("<img src='logo.svg'>"), "clock", CALLBACK);
+        JsonNode expected = JsonFactory.createObject().put("info", "Info")
+                .<JsonNode>set("logo", JsonFactory.createObject().put("html", "<img src='logo.svg'>"))
+                .set("clock", CALLBACK.toMarkerJson());
+        ToolbarElementsConverter converter = new ToolbarElementsConverter();
+
+        assertTrue(converter.supports(elements));
+        assertEquals(expected, converter.toClientModel(elements, null));
+        assertEquals(elements, converter.toServerModel(expected, null));
+    }
+
+    @Test
+    void widthValue_readsPixelsAsString() {
+        assertEquals(WidthValue.ofPixels(250), new WidthValueConverter().toServerModel(JsonUtils.toJsonNode("250px"), null));
+    }
+
+    @Test
+    void entryOrderValue_readsTheLibraryString() {
+        assertEquals(EntryOrder.of("title", "-start"),
+                new EntryOrderValueConverter().toServerModel(JsonUtils.toJsonNode("title, -start"), null));
+    }
+
+    @Test
+    void durationValue_readsTheLibraryStringsAndMilliseconds() {
+        assertEquals(DurationValue.ofTime(Duration.ofMinutes(510)), DurationValue.ofTimeString("08:30"));
+        assertEquals(DurationValue.ofCalendar(Period.ofDays(1), Duration.ofHours(12)),
+                DurationValue.ofTimeString("1.12:00:00"));
+        assertEquals(DurationValue.ofCalendar(Period.ofDays(-1), Duration.ofHours(-2)),
+                DurationValue.ofTimeString("-1.02:00:00"));
+        assertEquals(DurationValue.ofTime(Duration.ZERO), DurationValue.ofTimeString("0.00:00"));
+        // like the library, a match at the start is enough
+        assertEquals(DurationValue.ofTime(Duration.ofHours(1)), DurationValue.ofTimeString("01:00:00 extra"));
+
+        DurationValueConverter converter = new DurationValueConverter();
+        assertEquals(DurationValue.ofTime(Duration.ofMillis(1500)),
+                converter.toServerModel(JsonUtils.toJsonNode(1500), null));
+        assertEquals(DurationValue.ofCalendar(Period.ofDays(2)),
+                converter.toServerModel(JsonUtils.toJsonNode("2.00:00"), null));
+        assertEquals(DurationValue.ofTime(Duration.ofSeconds(5)),
+                converter.toServerModel(JsonFactory.createObject().put("milliseconds", 5000), null));
+    }
+
+    @Test
     void businessHoursValue_writesTheEndOfTheDayAs24() {
         JsonNode endOfDay = new BusinessHoursValueConverter().toClientModel(
                 BusinessHoursValue.of(BusinessHours.of(DayOfWeek.SUNDAY).start(LocalTime.of(10, 30)).end(24)), null);
@@ -232,10 +327,15 @@ class ConverterTest {
                 .forEach(type -> assertEquals(optionPackage, type.getPackageName(), type.getName()));
     }
 
-    /** A value-or-callback type that JsCallback implements is a value type, with or without fields yet. */
+    /**
+     * A value-or-callback type that JsCallback implements is a value type, with or without fields yet. The sort key of
+     * an entry order is a part of a form, no option value.
+     */
     @Test
     void everyTypeJsCallbackImplements_isAValueType() {
-        assertTrue(VALUE_TYPES.keySet().containsAll(Set.of(JsCallback.class.getInterfaces())),
+        Set<Class<?>> interfaces = new HashSet<>(Set.of(JsCallback.class.getInterfaces()));
+        interfaces.remove(EntryOrder.Key.class);
+        assertTrue(VALUE_TYPES.keySet().containsAll(interfaces),
                 "A value type JsCallback implements belongs into VALUE_TYPES");
     }
 
@@ -248,6 +348,23 @@ class ConverterTest {
         assertThrows(IllegalArgumentException.class, () -> DateFormat.of(Map.of("month", List.of("short"))));
         assertThrows(IllegalArgumentException.class, () -> HeightValue.ofPixels(-1));
         assertThrows(IllegalArgumentException.class, () -> HeightValue.ofCss("auto"));
+        assertThrows(IllegalArgumentException.class, () -> WidthValue.ofPixels(-1));
+        assertThrows(IllegalArgumentException.class, () -> WidthValue.ofPercent(-1));
+        assertThrows(IllegalArgumentException.class, () -> WidthValue.ofPercent(Double.NaN));
+        assertThrows(IllegalArgumentException.class, () -> WidthValue.ofPercent(Double.POSITIVE_INFINITY));
+        assertThrows(IllegalArgumentException.class, () -> EntryOrder.ascending("-start"));
+        assertThrows(IllegalArgumentException.class, () -> EntryOrder.of("title", ""));
+        assertThrows(IllegalArgumentException.class, () -> EntryOrder.of(new String[0]));
+        assertThrows(IllegalArgumentException.class, () -> DurationValue.ofCalendar(Period.ZERO));
+        assertThrows(IllegalArgumentException.class, () -> ConstraintValue.Window.span((LocalDate) null, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> ConstraintValue.Window.span(LocalDate.of(2026, 1, 2), LocalDate.of(2026, 1, 2)));
+        assertThrows(IllegalArgumentException.class, () -> ConstraintValue.Window.span(
+                LocalDateTime.of(2026, 1, 2, 10, 0), LocalDateTime.of(2026, 1, 2, 9, 0)));
+        assertThrows(IllegalArgumentException.class, () -> BusinessHours.allDays()
+                .recurringStartDate(LocalDate.of(2026, 3, 1)).recurringEndDate(LocalDate.of(2026, 3, 1)));
+        assertThrows(IllegalArgumentException.class, () -> DurationValue.ofTimeString("PT1H"));
+        assertThrows(IllegalArgumentException.class, () -> DurationValue.ofTimeString("8"));
     }
 
     @Test
@@ -269,6 +386,8 @@ class ConverterTest {
                 () -> new ConstraintValueConverter().toServerModel(JsonFactory.createArray().add(1), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new ConstraintValueConverter().toServerModel(JsonFactory.createArray(), null));
+        assertThrows(IllegalArgumentException.class, () -> new ConstraintValueConverter()
+                .toServerModel(JsonFactory.createObject().put("start", "2026-11-09T08:00"), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new EntryLimitValueConverter().toServerModel(JsonUtils.toJsonNode(-1), null));
         assertThrows(IllegalArgumentException.class,
@@ -293,6 +412,32 @@ class ConverterTest {
                 () -> new ListDayFormatValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new ListDayFormatValueConverter().toServerModel(JsonUtils.toJsonNode("MMM d"), null));
+        assertThrows(IllegalArgumentException.class, () -> new ContentValueConverter()
+                .toServerModel(JsonFactory.createObject().put("domNodes", "x"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new TextValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new WidthValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new WidthValueConverter().toServerModel(JsonUtils.toJsonNode("20em"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new WidthValueConverter().toServerModel(JsonUtils.toJsonNode("x%"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new DateRangeValueConverter().toServerModel(JsonUtils.toJsonNode("2026-01-01"), null));
+        assertThrows(IllegalArgumentException.class, () -> new DateRangeValueConverter()
+                .toServerModel(JsonFactory.createObject().put("start", "2026-01-01T10:00"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new WeekNumberCalculationValueConverter().toServerModel(JsonUtils.toJsonNode("x"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new DurationValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
+        assertThrows(IllegalArgumentException.class, () -> new DurationValueConverter()
+                .toServerModel(JsonFactory.createObject().put("weeks", 1), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new EntryOrderValueConverter().toServerModel(JsonUtils.toJsonNode(1), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new EntryOrderValueConverter().toServerModel(JsonFactory.createArray().add(1), null));
+        assertThrows(IllegalArgumentException.class, () -> new ToolbarElementsConverter()
+                .toServerModel(JsonUtils.toJsonNode("x"), null));
     }
 
     @Test
@@ -304,7 +449,7 @@ class ConverterTest {
         assertThrows(UnsupportedOperationException.class,
                 () -> ((BusinessHoursValue.Hours) value).hours().add(BusinessHours.allDays()));
 
-        List<BusinessHours> windows = new ArrayList<>(List.of(BusinessHours.businessWeek()));
+        List<ConstraintValue.Window> windows = new ArrayList<>(List.of(BusinessHours.businessWeek()));
         ConstraintValue constraint = new ConstraintValue.Windows(windows);
         windows.add(BusinessHours.allDays());
         assertEquals(ConstraintValue.ofWindows(BusinessHours.businessWeek()), constraint);

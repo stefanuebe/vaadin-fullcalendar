@@ -38,10 +38,11 @@ Every field:
 - has Javadoc with a short description and an `@see` link to its library docs page. A field without an initial value says that the getter returns null while the option is not set (58: "The getter returns null while the option is not set; then the library default applies."). The old Javadoc of the `Option` constant is the source for this text. Its `<dt>Type</dt>` blocks and its `setOption` examples are not carried over;
 - has its getter and setters in the pinned method lists `FullCalendarOptions-api.txt` or `FullCalendarViewOptions-api.txt` (test resources, see 12). A new value type goes into `VALUE_TYPES` in `ConverterTest`, with its converter and a value of each form with the JSON the library reads for it, and gets a `form(…)` switch in `ValueTypeSwitchTest`; a field with a converter for a one-form type adds the type and its converter to `ONE_FORM_TYPES` in `ConverterTest`. A field of a new one-form type adds a value of it with its client JSON to `ONE_FORM_SAMPLES` in `TypedOptionsSyncTest`, which sets every field through each of its setters and checks what reaches the client; a new setter parameter type goes into `PARAMETER_SAMPLES` there, and a setter whose field writes that type differently gets its own entry in `SETTER_SAMPLES`. A field goes into `SYNCED_APART` only when the sync handles it apart and tests of its own cover it, never to turn that test green; the test checks that the named test class mentions the field. A `form(…)` switch in `ValueTypeSwitchTest` has no `default` branch;
 - takes every form the library takes for the option, if it takes more than one: its `.d.ts` type and refiner in `e2e-test-app/node_modules`, and its docs page, not only the forms of the old `Option` Javadoc. The goal is full coverage of the library: a form is left out only for a concrete technical reason, recorded in the batch ticket (as the format strings in 24, which need a plugin the add-on does not load). "Nobody asked for it" or "the old API did not have it" is no reason. Its setters, each with Javadoc that links to the getter (`{@link}`), are hand-written:
-  - one taking the value type itself, which also sets the forms without data such as `HeightValue.AUTO` (maintainer, 2026-10-15);
-  - one per form whose data is not itself a value type or a form (JDK types and add-on data classes such as `String`, `int`, `LocalDate`, `BusinessHours`), taking that data: the type of the form's record component or factory parameter, a primitive staying primitive (`setContentHeight(int)`; a field with one form keeps its Lombok setter, which takes the wrapper type of the field), a `List<X>` becoming `X...` (`setBusinessHours(BusinessHours...)`). A form with several factories gets one setter per factory parameter type (`ViewName.of(String)` and `ViewName.of(CalendarView)`);
-  - one per `JsCallback` form and enum form, taking the form (`setDayCellClass(JsCallback)`, `setDayHeaderAlign(HeaderAlign)`); an enum form with a factory also gets one per factory parameter type (`setEntryOverlap(boolean)`);
-  - none for any other form. When two forms have the same data type, the one that shows the value as text keeps the data setter (`TextContent` beside the `{html}` content), and the ticket that adds the value type adds its row to the setter table in *Value types* below. That table is binding. Every factory parameter type of a form gets its short setter, also for an enum form with a factory (`Overlap.of(boolean)` gives `setEntryOverlap(boolean)`) and for a map (`DateFormat.of(Map)` gives `setDayHeaderFormat(Map<String, Object>)`), so an app that holds the plain value needs no conversion (maintainer, 2026-10-15). The wiki explains why both ways exist (52).
+  - one taking the value type itself, which also sets every form, those without data such as `HeightValue.AUTO` included (maintainer, 2026-10-15);
+  - one per form whose data is not itself a value type or a form (JDK types and add-on data classes such as `String`, `int`, `LocalDate`, `BusinessHours`), taking that data: the type of the form's record component or factory parameter, a primitive staying primitive (`setContentHeight(int)`; a field with one form keeps its Lombok setter, which takes the wrapper type of the field), a `List<X>` becoming `X...` (`setBusinessHours(BusinessHours...)`). A form with several factories gets one setter per factory parameter type (`ViewName.of(String)` and `ViewName.of(CalendarView)`); this includes an enum form with a factory (`Overlap.of(boolean)` gives `setEntryOverlap(boolean)`) and a map (`DateFormat.of(Map)` gives `setDayHeaderFormat(Map<String, Object>)`), so an app that holds the plain value needs no conversion (maintainer, 2026-10-15). A factory with more than one parameter gets no setter;
+  - none taking a form itself, such as `JsCallback`, an enum form (`HeaderAlign`) or a record form (`DateRange`). The form implements the value type, so the setter taking the value type takes it already, and a second setter would only repeat it (maintainer, 2026-10-16). When two forms have the same data type, the one that shows the value as text keeps the data setter (`TextContent` beside the `{html}` content).
+
+  The ticket that adds a value type adds its row to the setter table in *Value types* below. That table is binding. The wiki explains why both ways exist, the value type and the plain data (52).
 
 A value form the value-type tickets (21–24, 57) do not cover is a finding. Report it, do not invent a type in the batch.
 
@@ -62,21 +63,27 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
 
   | Value type | Setters per form take |
   |---|---|
-  | `ClassNameValue` | `String`, `JsCallback` |
-  | `ContentValue` | `String` (text), `JsCallback` |
-  | `CssSelectorValue` | `String`, `JsCallback` |
-  | `HeaderAlignValue` | `HeaderAlign`, `JsCallback` |
-  | `ViewNameValue` | `String`, `CalendarView`, `JsCallback` |
-  | `OverlapValue` | `Overlap`, `boolean`, `JsCallback` |
-  | `DateFormatValue` | `Map<String, Object>`, `JsCallback` |
-  | `ListDayFormatValue` | `Map<String, Object>`, `JsCallback` |
+  | `ClassNameValue` | `String` |
+  | `ContentValue` | `String` (text) |
+  | `CssSelectorValue` | `String` |
+  | `HeaderAlignValue` | none |
+  | `ViewNameValue` | `String`, `CalendarView` |
+  | `OverlapValue` | `boolean` |
+  | `DateFormatValue` | `Map<String, Object>` |
+  | `ListDayFormatValue` | `Map<String, Object>` |
   | `ListTextValue` | `String` |
   | `HeightValue` | `int`, `String` |
+  | `WidthValue` | `int` (pixels); no `double` setter for the percentage, because `setX(25)` and `setX(25.0)` would differ only by the literal |
   | `StickyValue` | `String` (offset) |
   | `EntryLimitValue` | `int` |
   | `BusinessHoursValue` | `BusinessHours...` |
-  | `ConstraintValue` | `String` (group id), `BusinessHours...` (windows) |
-  | `NowValue` | `LocalDate`, `LocalDateTime`, `JsCallback` |
+  | `ConstraintValue` | `String` (group id), `BusinessHours...` (recurring windows), `ConstraintValue.Window...` (mixed windows) |
+  | `NowValue` | `LocalDate`, `LocalDateTime` |
+  | `TextValue` | `String` |
+  | `DateRangeValue` | none |
+  | `WeekNumberCalculationValue` | none |
+  | `EntryOrderValue` | `String...` (property names), `EntryOrder.Key...` (mixed keys) |
+  | `DurationValue` | `Duration`, `Period`, `String` (library format) |
   | `AutoBoolean` | none: one enum covers every form, its field keeps the Lombok setter |
 
 **Parallel run (maintainer, 2026-10-15):** once 11, 12, 21–24 and 57 are done (57 only for the batches it blocks), the batches can run as parallel Sonnet subagents, each in its own worktree. Before that, one small commit creates the empty topic sections in `CalendarOptions` and `ViewOptions`, so each agent only adds to its own section and the merges stay free of conflicts. Each agent gets its own `~/.m2` copy and its own ports (see the memory on parallel agent isolation). The main agent reviews each batch. The full gate runs once per merged wave, not per agent. Propose the concrete waves to the maintainer before 25 starts. The first wave starts after 24 and a compact, not earlier, so the value types are fixed and the main agent has room for the reviews (decided 2026-10-15). On a merge, the pinned method lists (`*-api.txt`) are not merged by hand: run `OptionsApiTest` and take the actual list it prints.
@@ -100,11 +107,11 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
 | `13-timezone-local-server.md` | Time zone field with `Timezone.LOCAL` (server) | 05 |
 | `14-timezone-constructor-json-and-raw.md` | Time zone from constructor JSON, raw time zone rejected | 13 |
 | `15-timezone-client.md` | Client time zone: no own default, no extra refetch | 04, 13 |
-| `16-header-toolbar-and-locale-initial-values.md` | `headerToolbar` and `locale` as server initial values | 04, 05 |
+| `16-header-toolbar-and-locale-initial-values.md` | `headerToolbar` and `locale` as server initial values | 04, 05, 60 |
 | `17-drop-addon-defaults.md` | Drop the add-on defaults `editable`, `weekNumbers` and the sticky options | 15, 16 |
 | `18-sync-hook-entry-did-mount.md` | Protected sync hook, with `entryDidMount` as first user | 05 |
-| `19-more-link-click.md` | `moreLinkClick` as a field through the sync hook | 04, 18 |
-| `20-height-from-hassize.md` | `height` from `HasSize` through the sync hook | 18 |
+| `19-more-link-click.md` | `moreLinkClick` as a field through the sync hook | 04, 18, 60 |
+| `20-height-from-hassize.md` | `height` from `HasSize` through the sync hook | 18, 60 |
 | `21-value-types-render-hooks.md` | Value types for render hooks: content and header alignment | 06 |
 | `22-value-types-other-callbacks.md` | Value types for the other value-or-callback options | 06 |
 | `23-value-types-constraints-business-hours-day-max.md` | Value types: constraints, business hours, entry limits | 06 |
@@ -112,23 +119,26 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
 | `58-pr-363-review-round-1.md` | Packages, shared `NONE`, raw options on the options objects (PR #363 review) | 24 |
 | `59-resource-columns-option-package.md` | Resource column classes in `option`, with internals for the scheduler | 58 |
 | `57-value-types-order-ranges-lengths-durations.md` | Value types: entry order, ranges, week number calculation, lengths, durations | 24, 58 |
-| `25-fields-dates.md` | Fields: dates, ranges and durations | 11, 12, 24, 57 |
-| `26-fields-time-grid.md` | Fields: time grid and slots | 11, 12, 21, 24, 57 |
-| `27-fields-interaction.md` | Fields: interaction | 11, 12, 22, 23, 57 |
-| `28-fields-entry-display.md` | Fields: entry display and layout | 11, 12, 21, 23, 24, 57 |
-| `29-fields-texts-formats.md` | Fields: texts, hints and formats | 11, 12, 22, 24, 57 |
-| `30-fields-toolbar-sources.md` | Fields: toolbar parts and entry sources | 11, 12, 16, 57 |
-| `31-hooks-days.md` | Render hooks: day cells, day headers, day lanes, all-day | 11, 12, 21 |
-| `32-hooks-slots.md` | Render hooks: slots, now indicator, week numbers, tables | 11, 12, 21 |
-| `33-hooks-entry-layouts.md` | Render hooks: block, column and row entries | 11, 12, 21 |
-| `34-hooks-entries.md` | Render hooks: entries, background entries, list items | 11, 12, 18, 21 |
-| `35-hooks-list-more-popover.md` | Render hooks: list view, more link, no entries, popover | 11, 12, 19, 21 |
-| `36-hooks-view-toolbar.md` | Render hooks: view, toolbar, buttons, single month, nav links | 11, 12, 21 |
+| `60-setters-without-form-overloads.md` | Remove the setters that take a form itself | 57 |
+| `61-constraint-rrule-window.md` | RRule windows in constraints | 57 |
+| `62-business-hours-past-midnight.md` | Business hours past midnight | 57 |
+| `25-fields-dates.md` | Fields: dates, ranges and durations | 11, 12, 24, 57, 60 |
+| `26-fields-time-grid.md` | Fields: time grid and slots | 11, 12, 21, 24, 57, 60 |
+| `27-fields-interaction.md` | Fields: interaction | 11, 12, 22, 23, 57, 60 |
+| `28-fields-entry-display.md` | Fields: entry display and layout | 11, 12, 21, 23, 24, 57, 60 |
+| `29-fields-texts-formats.md` | Fields: texts, hints and formats | 11, 12, 22, 24, 57, 60 |
+| `30-fields-toolbar-sources.md` | Fields: toolbar parts and entry sources | 11, 12, 16, 57, 60 |
+| `31-hooks-days.md` | Render hooks: day cells, day headers, day lanes, all-day | 11, 12, 21, 60 |
+| `32-hooks-slots.md` | Render hooks: slots, now indicator, week numbers, tables | 11, 12, 21, 60 |
+| `33-hooks-entry-layouts.md` | Render hooks: block, column and row entries | 11, 12, 21, 60 |
+| `34-hooks-entries.md` | Render hooks: entries, background entries, list items | 11, 12, 18, 21, 60 |
+| `35-hooks-list-more-popover.md` | Render hooks: list view, more link, no entries, popover | 11, 12, 19, 21, 60 |
+| `36-hooks-view-toolbar.md` | Render hooks: view, toolbar, buttons, single month, nav links | 11, 12, 21, 60 |
 | `37-scheduler-options-object.md` | Scheduler options object and scheduler view options | 07, 10, 12 |
 | `38-scheduler-resource-columns.md` | `resourceColumns` through the sync hook, resource re-add flush | 03, 18, 37 |
-| `39-scheduler-fields.md` | Scheduler fields | 12, 21, 37, 57 |
-| `40-scheduler-hooks-cells-columns.md` | Scheduler render hooks: resource cells, columns, day headers, expander | 12, 21, 37 |
-| `41-scheduler-hooks-groups-lanes.md` | Scheduler render hooks: groups, lanes, rows, timeline | 12, 21, 37 |
+| `39-scheduler-fields.md` | Scheduler fields | 12, 21, 37, 57, 60 |
+| `40-scheduler-hooks-cells-columns.md` | Scheduler render hooks: resource cells, columns, day headers, expander | 12, 21, 37, 60 |
+| `41-scheduler-hooks-groups-lanes.md` | Scheduler render hooks: groups, lanes, rows, timeline | 12, 21, 37, 60 |
 | `42-coverage-check.md` | Every supported option has a field | 13, 14, 17, 19, 20, 25–36, 38–41 |
 | `43-migrate-addon-internals.md` | Migrate the add-on internals | 42 |
 | `44-migrate-tests-calendar.md` | Migrate tests: `FullCalendarOptionsTest`, `FullCalendarTest` | 42 |

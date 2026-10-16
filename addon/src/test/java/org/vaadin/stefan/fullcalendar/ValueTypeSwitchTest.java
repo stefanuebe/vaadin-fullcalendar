@@ -1,6 +1,16 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
+import org.vaadin.stefan.fullcalendar.option.TextValue;
+import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculation;
+import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
+import org.vaadin.stefan.fullcalendar.option.WidthValue;
+import org.vaadin.stefan.fullcalendar.option.DurationValue;
+import org.vaadin.stefan.fullcalendar.option.EntryOrder;
+import org.vaadin.stefan.fullcalendar.option.EntryOrderValue;
 import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
@@ -57,13 +67,41 @@ class ValueTypeSwitchTest {
         return switch (value) {
             case ConstraintValue.GroupId groupId -> groupId.groupId();
             case ConstraintValue.CalendarBusinessHours ignored -> "businessHours";
-            case ConstraintValue.Windows windows -> "windows";
+            case ConstraintValue.Windows windows -> windows.windows().stream().map(window -> switch (window) {
+                case BusinessHours hours -> "hours";
+                case ConstraintValue.DateSpan span -> "dates";
+                case ConstraintValue.DateTimeSpan span -> "date times";
+            }).toList().toString();
         };
     }
 
     private static String form(DateFormatValue value) {
         return switch (value) {
             case DateFormat format -> "format";
+            case JsCallback callback -> "callback";
+        };
+    }
+
+    private static String form(DateRangeValue value) {
+        return switch (value) {
+            case DateRange range -> "range";
+            case JsCallback callback -> "callback";
+        };
+    }
+
+    private static String form(DurationValue value) {
+        return switch (value) {
+            case DurationValue.Time time -> time.time().toString();
+            case DurationValue.Calendar calendar -> calendar.period() + " " + calendar.time();
+        };
+    }
+
+    private static String form(EntryOrderValue value) {
+        return switch (value) {
+            case EntryOrder order -> order.keys().stream().map(key -> switch (key) {
+                case EntryOrder.Property property -> property.name();
+                case JsCallback callback -> "callback";
+            }).toList().toString();
             case JsCallback callback -> "callback";
         };
     }
@@ -86,6 +124,7 @@ class ValueTypeSwitchTest {
     private static String form(ContentValue value) {
         return switch (value) {
             case TextContent content -> content.text();
+            case ContentValue.Html html -> html.html();
             case JsCallback callback -> "callback";
         };
     }
@@ -147,6 +186,27 @@ class ValueTypeSwitchTest {
             case StickyValue.NotSticky ignored -> "not sticky";
             case StickyValue.Sticky ignored -> "sticky";
             case StickyValue.Offset offset -> offset.offset();
+        };
+    }
+
+    private static String form(TextValue value) {
+        return switch (value) {
+            case TextContent text -> text.text();
+            case JsCallback callback -> "callback";
+        };
+    }
+
+    private static String form(WeekNumberCalculationValue value) {
+        return switch (value) {
+            case WeekNumberCalculation calculation -> calculation.name();
+            case JsCallback callback -> "callback";
+        };
+    }
+
+    private static String form(WidthValue value) {
+        return switch (value) {
+            case WidthValue.Pixels pixels -> String.valueOf(pixels.pixels());
+            case WidthValue.Percent percent -> percent.percent() + "%";
         };
     }
 
