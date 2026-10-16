@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – (not created, GitHub account flagged) |
+| GitHub | #371 |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-16) |
 | Blocked by | `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `24-value-types-auto-false-now`, `57-value-types-order-ranges-lengths-durations`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,11 +16,13 @@
 
 **Blocked by:** `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `24-value-types-auto-false-now`, `57-value-types-order-ranges-lengths-durations`, `60-setters-without-form-overloads`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-16)
 
-- [ ] Every field follows *Field batches* in `README.md` (Javadoc with `@see`, section, wrapper type, global or per view as the option-name resource says).
-- [ ] The static checks (11) pass with the new fields; the pinned method list and the converter round trip (12) include them.
-- [ ] A browserless test sets one field per value form of this batch and finds it in the client state.
-- [ ] Playwright: `initialView` and `now` take effect.
+- [x] Every field follows *Field batches* in `README.md` (Javadoc with `@see`, section, wrapper type, global or per view as the option-name resource says).
+- [x] The static checks (11) pass with the new fields; the pinned method list and the converter round trip (12) include them.
+- [x] A browserless test sets one field per value form of this batch and finds it in the client state.
+- [x] Playwright: `initialView` and `now` take effect.
 
 **Note from 09 (2026-10-15):** `weekends` already exists in `ViewOptions` (the view tests of 07 and 08 use it as their simple per-view field). Do not add it again.
+
+**Note from the work (2026-10-16):** `initialView` is a `ViewName` field, not a `CalendarView` field, because every option field type lives in package `option` (`ConverterTest`). `setInitialView(CalendarView)` and `setInitialView(String)` take the plain values. `hiddenDays` is a `Set<DayOfWeek>` with a hand-written setter that stores an unmodifiable copy.

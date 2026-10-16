@@ -20,12 +20,17 @@ import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
+import org.vaadin.stefan.fullcalendar.option.ViewName;
 import lombok.AccessLevel;
+import org.vaadin.stefan.fullcalendar.option.Direction;
+import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
+import org.vaadin.stefan.fullcalendar.converters.WeekNumberCalculationValueConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
+import org.vaadin.stefan.fullcalendar.converters.ViewNameValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 
@@ -159,6 +164,66 @@ class CalendarOptions implements Serializable {
     private JsCallback viewWillUnmount;
 
     // Dates, ranges and durations
+
+    /**
+     * The direction in which the calendar renders its elements, left-to-right or right-to-left. It is useful for
+     * right-to-left languages such as Arabic and Hebrew.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/direction">direction</a>
+     */
+    private Direction direction;
+
+    /**
+     * The view the calendar renders when it loads, a built-in or a custom one. The library reads it when the
+     * calendar is created. Use {@link FullCalendar#changeView(CalendarView)} to change the view of a calendar that
+     * is already shown.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
+     */
+    @JsonConverter(ViewNameValueConverter.class)
+    private ViewName initialView;
+
+    /**
+     * Sets the view the calendar renders when it loads, by the name of a view, see {@link #getInitialView()}.
+     *
+     * @param name the view name, such as {@code "timeGridDay"}, or null to remove the option
+     */
+    public void setInitialView(String name) {
+        this.initialView = name == null ? null : ViewName.of(name);
+    }
+
+    /**
+     * Sets the view the calendar renders when it loads, see {@link #getInitialView()}.
+     *
+     * @param view the view, a built-in or a custom one, or null to remove the option
+     */
+    public void setInitialView(CalendarView view) {
+        this.initialView = view == null ? null : ViewName.of(view);
+    }
+
+    /**
+     * Sets the view the calendar renders when it loads, see {@link #getInitialView()}.
+     *
+     * @param value the view name, or null to remove the option
+     */
+    public void setInitialView(ViewName value) {
+        this.initialView = value;
+    }
+
+    /**
+     * How the week numbers are calculated: by the locale, by ISO 8601 (which also makes Monday the default first
+     * day of the week), or by a callback that gets a date and returns its week number.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/weekNumberCalculation">weekNumberCalculation</a>
+     */
+    @JsonConverter(WeekNumberCalculationValueConverter.class)
+    private WeekNumberCalculationValue weekNumberCalculation;
 
     // Time grid and slots
 

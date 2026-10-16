@@ -204,7 +204,9 @@ class ConverterTest {
      */
     static final Map<Class<?>, Class<?>> ONE_FORM_TYPES = Map.of(
             DayOfWeek.class, DayOfWeekConverter.class,
-            LocalDate.class, LocalDateConverter.class);
+            LocalDate.class, LocalDateConverter.class,
+            Set.class, DayOfWeekArrayConverter.class,
+            ViewName.class, ViewNameValueConverter.class);
 
     /**
      * Field types the sync writes without a converter: JSON scalars, a callback, and types with a client value
