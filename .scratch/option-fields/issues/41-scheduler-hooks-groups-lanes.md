@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – (not created, GitHub account flagged) |
+| GitHub | #397 |
 | Labels | enhancement, ready-for-agent |
-| Status | in progress (2026-10-16), branch `option-fields-41` |
+| Status | done (2026-10-16) |
 | Blocked by | `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,12 +14,15 @@
 
 **Blocked by:** `12-pinned-api-and-converter-roundtrip`, `21-value-types-render-hooks`, `37-scheduler-options-object`, `60-setters-without-form-overloads`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-16)
 
-- [ ] Every field follows *Field batches* in `README.md` (Javadoc with `@see`, section, wrapper type, global or per view as the option-name resource says).
-- [ ] The static checks (11) pass with the new fields; the pinned method list and the converter round trip (12) include them.
-- [ ] A browserless test sets one field per value form of this batch and finds it in the client state.
+- [x] Every field follows *Field batches* in `README.md` (Javadoc with `@see`, section, wrapper type, global or per view as the option-name resource says).
+- [x] The static checks (11) pass with the new fields; the pinned method list and the converter round trip (12) include them.
+- [x] A browserless test sets one field per value form of this batch and finds it in the client state.
 
-**Progress (2026-10-16):** a Sonnet implementer agent writes the 22 fields on branch `option-fields-41` (uncommitted; it touches `SchedulerViewOptions`/`SchedulerCalendarOptions`, the two scheduler `*-api.txt` lists and, if needed, the scheduler test registrations). Pattern: ticket 40. Next steps: check its report (Javadoc info properties only from the `.d.ts`, lines ≤120, wrapped `@see` as in 40), targeted scheduler tests, a mutation check, the three-agent review (one extra round after the first without a major), gate, issue, commit, merge into local master, then 42.
+**Notes from the implementation (2026-10-16):**
 
-**Implementer report (2026-10-16):** all 22 fields in `SchedulerViewOptions` (all per view), uncommitted in the working tree with the two `*-api.txt` lists; 208 scheduler tests green. 7 `ClassNameValue`, 4 `ContentValue`, 6 `JsCallback`, 5 plain `String` class fields (`resourceHeaderRowClass`, `resourceIndentClass`, `resourceRowClass`, `timelineBottomClass`, `timelineTopClass`). `fc-docs/_docs-v7` has no pages for these options, so the `.d.ts` is the source of the `info` properties; check the `@see` targets and the Javadoc claims in the review. Next: verify (lines ≤120, info properties, `@see` links), mutation check, review.
+- All 22 fields per view in `SchedulerViewOptions`: 7 class hooks as `ClassNameValue` (setter `String`), 4 content hooks as `ContentValue` (setter `String` for text), 6 DidMount/WillUnmount hooks as `JsCallback`, and `resourceHeaderRowClass`, `resourceIndentClass`, `resourceRowClass`, `timelineBottomClass`, `timelineTopClass` as plain `String` (`typeof refineClassName`, no callback).
+- The `info` properties in the Javadoc come from the `.d.ts` types (`ResourceGroupHeaderInfo`, `ResourceGroupLaneInfo`, `ResourceLaneInfo`); the docs pages under `fc-docs/_docs-v7/views/` give the descriptions and the `@see` targets.
+- Tests: no new test code; the reflection-based `SchedulerTypedOptionsSyncTest` and `SchedulerConverterTest` (value types registered in 40) cover every field and form. Mutation check: a `setResourceLaneClass(String)` that stores null fails `SchedulerTypedOptionsSyncTest`.
+- Review: two rounds, no major. Round 1 minor fixed: "resource timeline view" where the docs say Resource Timeline view.
