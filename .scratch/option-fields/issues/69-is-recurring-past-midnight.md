@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #381 |
 | Labels | bug, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, c26e480b) |
 | Blocked by | `62-business-hours-past-midnight` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `62-business-hours-past-midnight`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, c26e480b)
 
 - [x] A unit test: an entry with only a recurring end time of 26:00 is recurring, and `isRecurring()` does not throw.
 
