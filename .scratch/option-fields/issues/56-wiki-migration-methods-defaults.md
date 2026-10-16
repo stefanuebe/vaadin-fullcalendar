@@ -17,3 +17,5 @@
 **Status:** ready-for-agent
 
 - [ ] Every method in *Removed API* and every dropped default appears with its replacement.
+
+**Note from 66 (2026-10-16):** `Entry.getDisplayMode()` returns null while no display mode is set (was `AUTO`), and such an entry no longer sends `display`, so it follows the calendar's `entryDisplay`. `setDisplayMode(null)` removes the value (was: reset to `AUTO`). `DisplayMode.NONE` now really hides the entry (it sent null before, so the entry stayed visible).

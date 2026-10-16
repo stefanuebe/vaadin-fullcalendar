@@ -23,3 +23,5 @@ Found by batch 29 (2026-10-16), which left the option out because no value type 
 - [ ] The field takes every form the library takes, a single format, a callback and a list.
 - [ ] The static checks, the pinned lists and the converter round trip include it.
 - [ ] A browserless test sets one value per form and finds it in the client state.
+
+**Maintainer (2026-10-16):** "was genau spricht gegen eigenen Wertetyp?" Not answered yet. Answer: nothing speaks against it, the README rule prefers it (a value type per option kind, forms only where the library takes them). Recommendation to give: own value type. Then set the ticket ready-for-agent.
