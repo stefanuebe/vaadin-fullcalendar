@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #377 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, 83e1c8f6) |
 | Blocked by | `28-fields-entry-display` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -18,7 +18,7 @@ Found by batch 28 (2026-10-16), which left the option out.
 
 **Blocked by:** `28-fields-entry-display`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, 83e1c8f6)
 
 - [x] Playwright: an entry with `DisplayMode.NONE` is hidden (shows whether the entry has the bug).
 - [x] The field `entryDisplay` sends every library value, `none` included.
