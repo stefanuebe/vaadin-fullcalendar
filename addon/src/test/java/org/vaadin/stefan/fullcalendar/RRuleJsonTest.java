@@ -5,6 +5,7 @@ import org.vaadin.stefan.fullcalendar.converters.ExdateConverter;
 import org.vaadin.stefan.fullcalendar.converters.ExruleConverter;
 import tools.jackson.databind.JsonNode;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,6 +57,82 @@ class RRuleJsonTest {
         assertEquals(rule, RRule.fromJson(rule.toJson(), exdate, exrule));
         assertNotEquals(rule, RRule.fromJson(rule.toJson(), null, exrule));
         assertNotEquals(rule, RRule.fromJson(rule.toJson(), exdate, null));
+    }
+
+    @Test
+    void excludedRule_withPositionalWeekday_isWrittenAsObject() {
+        RRule rule = RRule.weekly().byWeekday(DayOfWeek.FRIDAY).dtstart(LocalDate.of(2026, 1, 2))
+                .excludeRules(RRule.monthly().byWeekday("-1fr", "mo").dtstart(LocalDate.of(2026, 1, 1)));
+        JsonNode exrule = new ExruleConverter<Entry>().toClientModel(rule.getExcludedRules(), null);
+
+        assertTrue(exrule.isObject());
+        JsonNode byweekday = exrule.get("byweekday");
+        assertEquals(2, byweekday.size());
+        assertEquals(4, byweekday.get(0).get("weekday").asInt());
+        assertEquals(-1, byweekday.get(0).get("n").asInt());
+        assertEquals("mo", byweekday.get(1).asString());
+        // the main rule keeps its form
+        assertTrue(rule.toJson().isObject());
+        // read back to an equal rule
+        assertEquals(rule, RRule.fromJson(rule.toJson(), null, exrule));
+    }
+
+    @Test
+    void excludedRule_positionalWeekdays_mondaySundayAndPositivePosition() {
+        assertEquals("{\"weekday\":6,\"n\":2}", weekdayOf("2su"));
+        assertEquals("{\"weekday\":0,\"n\":1}", weekdayOf("1mo"));
+    }
+
+    private static String weekdayOf(String token) {
+        RRule rule = RRule.weekly().excludeRules(RRule.monthly().byWeekday(token));
+        JsonNode exrule = new ExruleConverter<Entry>().toClientModel(rule.getExcludedRules(), null);
+        assertEquals(rule, RRule.fromJson(RRule.weekly().toJson(), null, exrule));
+        return exrule.get("byweekday").get(0).toString();
+    }
+
+    @Test
+    void excludedRule_malformedWeekdayObject_isRejected() {
+        for (var weekday : List.of(JsonFactory.createObject().put("weekday", 7).put("n", 1),
+                JsonFactory.createObject().put("weekday", 0),
+                JsonFactory.createObject().put("weekday", 0).put("n", 1).put("x", 1),
+                JsonFactory.createObject().put("weekday", -1).put("n", 1),
+                JsonFactory.createObject().put("weekday", 0).put("n", "x"),
+                JsonUtils.toJsonNode(3))) {
+            JsonNode exrule = JsonFactory.createObject().put("freq", "monthly")
+                    .set("byweekday", JsonFactory.createArray().add(weekday));
+            assertThrows(IllegalArgumentException.class, () -> RRule.fromJson(RRule.weekly().toJson(), null, exrule),
+                    weekday.toString());
+        }
+    }
+
+    @Test
+    void severalExcludedRules_eachInObjectForm_roundTrip() {
+        RRule rule = RRule.weekly().byWeekday("fr").dtstart(LocalDate.of(2025, 3, 1))
+                .excludeRules(RRule.monthly().byWeekday("-1fr"), RRule.weekly().byWeekday("sa"));
+        JsonNode exrule = new ExruleConverter<Entry>().toClientModel(rule.getExcludedRules(), null);
+
+        assertTrue(exrule.isArray());
+        assertEquals(2, exrule.size());
+        assertTrue(exrule.get(0).isObject());
+        assertTrue(exrule.get(1).isObject());
+        assertEquals(-1, exrule.get(0).get("byweekday").get(0).get("n").asInt());
+        assertEquals(rule, RRule.fromJson(rule.toJson(), null, exrule));
+    }
+
+    @Test
+    void excludedRule_asString_isRejected() {
+        assertThrows(IllegalArgumentException.class,
+                () -> RRule.fromJson(RRule.weekly().toJson(), null, JsonUtils.toJsonNode("FREQ=MONTHLY")));
+    }
+
+    @Test
+    void toExruleJson_ofRawRule_throws() {
+        assertThrows(IllegalArgumentException.class, () -> RRule.ofRaw("FREQ=DAILY").toExruleJson());
+    }
+
+    @Test
+    void mainRule_withPositionalWeekday_staysAString() {
+        assertTrue(RRule.monthly().byWeekday("-1fr").toJson().isString());
     }
 
     @Test

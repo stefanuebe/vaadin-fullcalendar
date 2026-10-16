@@ -30,6 +30,7 @@ import java.util.Set;
  *   <li>Exdate: excluded Monday is absent; remaining Mondays render (4 of 5)</li>
  *   <li>Monthly last-Friday: renders on March 28, not on March 21</li>
  *   <li>ofRaw: raw RRULE string produces correct occurrences (4 Wednesdays)</li>
+ *   <li>Exrule with a positional weekday: the last Friday is absent, the other Fridays render (3 of 4)</li>
  *   <li>Entry click listener updates counter badge</li>
  * </ul>
  * <p>
@@ -199,6 +200,25 @@ public class EntryModelTestView extends VerticalLayout {
                         )
         );
         provider.addEntry(exruleEntry);
+
+        // 11. Exrule with a positional weekday — weekly Fridays in March 2025 (7, 14, 21, 28),
+        //     exrule: the last Friday of the month (28). Expected: 3 occurrences (7, 14, 21).
+        Entry exruleLastFriday = new Entry();
+        exruleLastFriday.setTitle("Exrule Positional");
+        exruleLastFriday.setAllDay(true);
+        exruleLastFriday.setRRule(
+                RRule.weekly()
+                        .dtstart(LocalDate.of(2025, 3, 7))
+                        .until(LocalDate.of(2025, 3, 31))
+                        .byWeekday(DayOfWeek.FRIDAY)
+                        .excludeRules(
+                                RRule.monthly()
+                                        .dtstart(LocalDate.of(2025, 3, 1))
+                                        .until(LocalDate.of(2025, 3, 31))
+                                        .byWeekday("-1fr")
+                        )
+        );
+        provider.addEntry(exruleLastFriday);
 
         calendar.setEntryProvider(provider);
 

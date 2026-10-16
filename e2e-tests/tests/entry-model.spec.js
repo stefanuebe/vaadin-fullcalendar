@@ -182,6 +182,25 @@ test.describe('Entry Model', () => {
     });
 
     // -------------------------------------------------------------------------
+    // Exrule with a positional weekday — weekly Fridays, exrule "last Friday of the month".
+    // Expected: 3 occurrences (7, 14, 21), March 28 is excluded.
+    // -------------------------------------------------------------------------
+
+    // Meaningful together with the next test: absence alone cannot tell "excluded" from "not rendered",
+    // the other Fridays rendering shows the entry itself works.
+    test('exrule with positional weekday: last Friday (March 28) is absent', async ({ page }) => {
+        const march28Cell = page.locator('.fc-daygrid-day[data-date="2025-03-28"]');
+        await expect(march28Cell.locator('.fc-event:has-text("Exrule Positional")')).toHaveCount(0);
+    });
+
+    test('exrule with positional weekday: the other Fridays still render', async ({ page }) => {
+        for (const date of ['2025-03-07', '2025-03-14', '2025-03-21']) {
+            const cell = page.locator(`.fc-daygrid-day[data-date="${date}"]`);
+            await expect(cell.locator('.fc-event:has-text("Exrule Positional")')).toHaveCount(1);
+        }
+    });
+
+    // -------------------------------------------------------------------------
     // Monthly last-Friday
     // -------------------------------------------------------------------------
 
