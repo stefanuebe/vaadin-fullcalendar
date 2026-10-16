@@ -24,7 +24,6 @@ import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
-import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
 import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
@@ -222,7 +221,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         calendar.options().setDayHeaderAlign(JsCallback.of("() => 'end'"));
         assertEquals("() => 'end'", respond().getFirst().get("dayHeaderAlign").get("__jsCallback").asString());
 
-        calendar.options().setDayHeaderAlign((HeaderAlign) null);
+        calendar.options().setDayHeaderAlign(null);
         assertTrue(respond().getFirst().get("dayHeaderAlign").isNull());
     }
 
@@ -475,11 +474,9 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(Integer.class, 1, JsonUtils.toJsonNode(1)),
             sample(boolean.class, true, JsonUtils.toJsonNode(true)),
             sample(Boolean.class, true, JsonUtils.toJsonNode(true)),
-            sample(JsCallback.class, JsCallback.of("() => {}"), JsCallback.of("() => {}").toMarkerJson()),
             sample(BusinessHours.class, BusinessHours.businessWeek(), BusinessHours.businessWeek().toJson()),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
-            sample(Overlap.class, Overlap.FORBIDDEN, JsonUtils.toJsonNode(false)),
             sample(Map.class, Map.of("weekday", "long"), JsonFactory.createObject().put("weekday", "long")));
 
     /**
@@ -488,21 +485,21 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
      */
     private static final Map<Class<?>, Set<Class<?>>> PER_FORM_PARAMETERS = Map.ofEntries(
             Map.entry(AutoBoolean.class, Set.of()),
-            Map.entry(ClassNameValue.class, Set.of(String.class, JsCallback.class)),
-            Map.entry(ContentValue.class, Set.of(String.class, JsCallback.class)),
-            Map.entry(CssSelectorValue.class, Set.of(String.class, JsCallback.class)),
-            Map.entry(HeaderAlignValue.class, Set.of(HeaderAlign.class, JsCallback.class)),
-            Map.entry(ViewNameValue.class, Set.of(String.class, CalendarView.class, JsCallback.class)),
-            Map.entry(OverlapValue.class, Set.of(Overlap.class, boolean.class, JsCallback.class)),
-            Map.entry(DateFormatValue.class, Set.of(Map.class, JsCallback.class)),
-            Map.entry(ListDayFormatValue.class, Set.of(Map.class, JsCallback.class)),
+            Map.entry(ClassNameValue.class, Set.of(String.class)),
+            Map.entry(ContentValue.class, Set.of(String.class)),
+            Map.entry(CssSelectorValue.class, Set.of(String.class)),
+            Map.entry(HeaderAlignValue.class, Set.of()),
+            Map.entry(ViewNameValue.class, Set.of(String.class, CalendarView.class)),
+            Map.entry(OverlapValue.class, Set.of(boolean.class)),
+            Map.entry(DateFormatValue.class, Set.of(Map.class)),
+            Map.entry(ListDayFormatValue.class, Set.of(Map.class)),
             Map.entry(ListTextValue.class, Set.of(String.class)),
             Map.entry(HeightValue.class, Set.of(int.class, String.class)),
             Map.entry(StickyValue.class, Set.of(String.class)),
             Map.entry(EntryLimitValue.class, Set.of(int.class)),
             Map.entry(BusinessHoursValue.class, Set.of(BusinessHours[].class)),
             Map.entry(ConstraintValue.class, Set.of(String.class, BusinessHours[].class, ConstraintValue.Window[].class)),
-            Map.entry(NowValue.class, Set.of(LocalDate.class, LocalDateTime.class, JsCallback.class)),
+            Map.entry(NowValue.class, Set.of(LocalDate.class, LocalDateTime.class)),
             Map.entry(TextValue.class, Set.of(String.class)),
             Map.entry(EntryOrderValue.class, Set.of(String[].class, EntryOrder.Key[].class)),
             Map.entry(DurationValue.class, Set.of(Duration.class, Period.class, String.class)),
@@ -522,8 +519,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
      */
     private static final Map<Class<?>, Map.Entry<Object, JsonNode>> SECOND_PARAMETER_SAMPLES = Map.ofEntries(
             sample(boolean.class, false, JsonUtils.toJsonNode(false)),
-            sample(Boolean.class, false, JsonUtils.toJsonNode(false)),
-            sample(Overlap.class, Overlap.ALLOWED, JsonUtils.toJsonNode(true)));
+            sample(Boolean.class, false, JsonUtils.toJsonNode(false)));
 
     private static Map.Entry<Class<?>, Map.Entry<Object, JsonNode>> sample(Class<?> type, Object value, JsonNode json) {
         return Map.entry(type, Map.entry(value, json));
