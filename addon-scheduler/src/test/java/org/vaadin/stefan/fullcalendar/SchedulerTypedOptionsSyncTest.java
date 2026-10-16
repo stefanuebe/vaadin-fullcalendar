@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -167,7 +168,9 @@ class SchedulerTypedOptionsSyncTest extends BrowserlessTest {
     private static final Map<Class<?>, Map.Entry<Object, JsonNode>> ONE_FORM_SAMPLES = Map.ofEntries(
             sample(Boolean.class, false, JsonUtils.toJsonNode(false)),
             sample(Integer.class, 2, JsonUtils.toJsonNode(2)),
-            sample(String.class, "x", JsonUtils.toJsonNode("x")));
+            sample(String.class, "x", JsonUtils.toJsonNode("x")),
+            sample(List.class, List.of(new ResourceColumn("title")),
+                    JsonFactory.createArray().add(JsonFactory.createObject().put("field", "title"))));
 
     /**
      * A value for each parameter type of the setters per form, with the client JSON the field must have after the

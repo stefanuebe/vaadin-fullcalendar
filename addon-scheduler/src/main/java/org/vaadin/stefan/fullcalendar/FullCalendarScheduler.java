@@ -340,9 +340,18 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     @Override
+    @Deprecated(since = "8.0.0", forRemoval = true)
     public void setResourceColumns(List<? extends ResourceColumn> columns) {
         Objects.requireNonNull(columns);
-        setOption(SchedulerOption.RESOURCE_COLUMNS, columns);
+        options().setResourceColumns(columns);
+    }
+
+    /** Binds the component columns and sets the field, see {@link FullCalendarSchedulerOptions#setResourceColumns(List)}. */
+    void applyResourceColumns(List<? extends ResourceColumn> columns) {
+        List<ResourceColumn> copy = columns == null ? List.of() : List.copyOf(columns);
+        bindResourceColumns(copy);
+        ((SchedulerCalendarOptions) calendarOptions).setResourceColumns(copy.isEmpty() ? null : copy);
+        optionsChanged();
     }
 
     /**
@@ -465,6 +474,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      * update.
      */
     protected void flushResourceOps() {
+        flushOptions(); // the resources reach the client under the current options, the columns among them
         if (pendingRemoveAll) {
             getElement().callJsFunction("removeAllResources");
         } else if (!pendingRemoves.isEmpty()) {
@@ -565,21 +575,19 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     }
 
     /**
-     * Every way of setting an option ends here, so the resource columns are handled once. A column list
-     * binds its component columns and goes through {@link ResourceColumnsConverter}, an empty list removes
-     * the option. Any other value (raw JSON, null) unbinds the component columns set before.
-     * A column list always uses the column converter, also when the caller passed other converters.
+     * Every way of setting an option ends here, so the resource columns are handled once. A column list goes into
+     * the field, as {@link FullCalendarSchedulerOptions#setResourceColumns(List)} does, and replaces a raw value. Any
+     * other value (raw JSON, null) clears the field, which unbinds the component columns set before.
      */
     @Override
     protected void setOption(String option, Object value, Object valueForServerSide,
                              List<JsonItemPropertyConverter<?, ?>> converters) {
         if (SchedulerOption.RESOURCE_COLUMNS.getOptionKey().equals(option)) {
             if (value instanceof List<?> list && list.stream().allMatch(ResourceColumn.class::isInstance)) {
-                bindResourceColumns(list.stream().map(ResourceColumn.class::cast).toList());
-                value = list.isEmpty() ? null : list;
-                converters = SchedulerOption.RESOURCE_COLUMNS.getConverters();
+                applyResourceColumns(list.stream().map(ResourceColumn.class::cast).toList());
+                value = null; // removes a raw value set before, which would win over the field
             } else {
-                bindResourceColumns(List.of());
+                applyResourceColumns(null);
             }
         }
         super.setOption(option, value, valueForServerSide, converters);
@@ -645,6 +653,22 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
      */
     public <T> T getOptionOrDefault(SchedulerOption option, T defaultValue) {
         return this.<T>getOption(option).orElse(defaultValue);
+    }
+
+    /**
+     * Reads the resource columns from their field, all other options as the core does, so
+     * {@link #getOption(SchedulerOption)} still returns the columns.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> Optional<T> getOption(String option, boolean forceClientSideValue) {
+        List<ResourceColumn> columns = ((SchedulerCalendarOptions) calendarOptions).getResourceColumns();
+        if (columns != null && SchedulerOption.RESOURCE_COLUMNS.getOptionKey().equals(option)) {
+            return Optional.of((T) (forceClientSideValue
+                    ? new ResourceColumnsConverter().toClientModel(columns, null)
+                    : columns));
+        }
+        return super.getOption(option, forceClientSideValue);
     }
 
     @SuppressWarnings("unchecked")

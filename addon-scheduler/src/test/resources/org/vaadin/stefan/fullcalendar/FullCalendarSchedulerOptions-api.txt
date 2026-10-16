@@ -1,5 +1,7 @@
+getResourceColumns(): List
 getResourceGroupField(): String
 getResourcesInitiallyExpanded(): Boolean
+setResourceColumns(List): void
 setResourceGroupField(String): void
 setResourcesInitiallyExpanded(Boolean): void
 view(CalendarView): FullCalendarSchedulerViewOptions

@@ -957,8 +957,10 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * <p>
      * While detached nothing is sent either. The call would wait for the attach and could then reach a new client
      * element, which the property already created with the options. The attach resends the options anyway.
+     * <p>
+     * A subclass calls it before it calls the client directly, as the scheduler does before it sends resources.
      */
-    private void flushOptions() {
+    protected void flushOptions() {
         if (initialStateSent && isAttached()) {
             syncOptions();
         }

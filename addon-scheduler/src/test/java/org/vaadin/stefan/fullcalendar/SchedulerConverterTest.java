@@ -1,6 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.junit.jupiter.api.Test;
+import org.vaadin.stefan.fullcalendar.converter.ResourceColumnsConverter;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
@@ -45,7 +46,8 @@ class SchedulerConverterTest {
      * Field types with a converter that are no value type, since their options take one form only, with the converter
      * their fields use.
      */
-    static final Map<Class<?>, Class<?>> ONE_FORM_TYPES = Map.of();
+    static final Map<Class<?>, Class<?>> ONE_FORM_TYPES = Map.of(
+            List.class, ResourceColumnsConverter.class);
 
     /**
      * Field types the sync writes without a converter: JSON scalars, a callback, and types with a client value

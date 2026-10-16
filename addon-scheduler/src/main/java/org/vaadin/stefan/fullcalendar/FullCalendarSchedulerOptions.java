@@ -17,7 +17,10 @@
 package org.vaadin.stefan.fullcalendar;
 
 import lombok.experimental.Delegate;
+import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -46,6 +49,18 @@ public class FullCalendarSchedulerOptions extends FullCalendarOptions {
     public FullCalendarSchedulerViewOptions view(CalendarView view) {
         Objects.requireNonNull(view);
         return new FullCalendarSchedulerViewOptions(scheduler, view.getClientSideValue());
+    }
+
+    /**
+     * Sets the columns of the resource area, see {@link #getResourceColumns()}. The component columns are bound to
+     * this calendar, and the columns set before are unbound. An empty list removes the option, as null does.
+     *
+     * @param resourceColumns the columns, or null to remove the option
+     * @throws IllegalArgumentException when two columns have the same field
+     * @throws IllegalStateException when a {@link ComponentResourceColumn} is bound to another calendar
+     */
+    public void setResourceColumns(List<? extends ResourceColumn> resourceColumns) {
+        scheduler.applyResourceColumns(resourceColumns);
     }
 
     // The same instances as the core accessors. The core methods are inherited, so the delegates exclude them.

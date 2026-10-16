@@ -18,7 +18,7 @@ package org.vaadin.stefan.fullcalendar.option;
 
 import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
 import org.vaadin.stefan.fullcalendar.Resource;
-import org.vaadin.stefan.fullcalendar.Scheduler;
+import org.vaadin.stefan.fullcalendar.FullCalendarSchedulerOptions;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.function.SerializableFunction;
 import lombok.NonNull;
@@ -48,10 +48,10 @@ import java.util.*;
  *         picker.setWidth("130px");
  *         return picker;
  *     });
- * scheduler.setResourceColumns(
+ * scheduler.options().setResourceColumns(List.of(
  *     new ResourceColumn("title", "Name").withWidth("200px"),
  *     dateColumn.withWidth("160px")
- * );
+ * ));
  *
  * // Type-safe access at runtime
  * dateColumn.getComponent(resource).ifPresent(picker -> picker.setValue(LocalDate.now()));
@@ -59,7 +59,7 @@ import java.util.*;
  *
  * @param <T> the component type returned by the factory callback
  * @see ResourceColumn
- * @see Scheduler#setResourceColumns(java.util.List)
+ * @see FullCalendarSchedulerOptions#setResourceColumns(java.util.List)
  */
 public class ComponentResourceColumn<T extends Component> extends ResourceColumn {
 
