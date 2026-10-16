@@ -3088,6 +3088,636 @@ class ViewOptions implements Serializable {
      */
     private String toolbarTitleClass;
 
+    // Render hooks: list view, more link, no entries, popover
+
+    /**
+     * CSS classes for the column more-link element. A column more-link appears in time grid views when too many timed
+     * entries overlap within a day column.
+     * <p>
+     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/column-more-link-render-hooks">columnMoreLinkClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue columnMoreLinkClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getColumnMoreLinkClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setColumnMoreLinkClass(String classNames) {
+        this.columnMoreLinkClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getColumnMoreLinkClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setColumnMoreLinkClass(ClassNameValue value) {
+        this.columnMoreLinkClass = value;
+    }
+
+    /**
+     * CSS classes for the inner wrapper of the column more-link. Useful for adjusting padding. A column more-link
+     * appears in time grid views when too many timed entries overlap within a day column.
+     * <p>
+     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/column-more-link-render-hooks">columnMoreLinkInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue columnMoreLinkInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getColumnMoreLinkInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setColumnMoreLinkInnerClass(String classNames) {
+        this.columnMoreLinkInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getColumnMoreLinkInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setColumnMoreLinkInnerClass(ClassNameValue value) {
+        this.columnMoreLinkInnerClass = value;
+    }
+
+    /**
+     * CSS classes for the element that wraps the day sections of list views.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-day-render-hooks">listDaysClass</a>
+     */
+    private String listDaysClass;
+
+    /**
+     * CSS classes for the element that wraps the entries of a single day in list views.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code isToday}, {@code view} and more, see the library
+     * docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-day-render-hooks">listDayBodyClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listDayBodyClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListDayBodyClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListDayBodyClass(String classNames) {
+        this.listDayBodyClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListDayBodyClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListDayBodyClass(ClassNameValue value) {
+        this.listDayBodyClass = value;
+    }
+
+    /**
+     * CSS classes for the element that wraps a day section in list views: the day header row and the entries.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code isToday}, {@code isFirst} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-day-render-hooks">listDayClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listDayClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListDayClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListDayClass(String classNames) {
+        this.listDayClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListDayClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListDayClass(ClassNameValue value) {
+        this.listDayClass = value;
+    }
+
+    /**
+     * CSS classes for list view day headings (the row that shows the date above a group of entries).
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code isPast}, {@code isToday} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listDayHeaderClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListDayHeaderClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListDayHeaderClass(String classNames) {
+        this.listDayHeaderClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListDayHeaderClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListDayHeaderClass(ClassNameValue value) {
+        this.listDayHeaderClass = value;
+    }
+
+    /**
+     * Content for the texts of a list view day heading. The library calls it once per text, with {@code level} 0 for
+     * the primary day format and 1 for the alternative day format.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code level} and more, see the library
+     * docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue listDayHeaderContent;
+
+    /**
+     * Sets a text as the content of the texts of a list view day heading, see {@link #getListDayHeaderContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setListDayHeaderContent(String text) {
+        this.listDayHeaderContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content of the texts of a list view day heading in any form, see {@link #getListDayHeaderContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setListDayHeaderContent(ContentValue value) {
+        this.listDayHeaderContent = value;
+    }
+
+    /**
+     * A callback that runs right after a list view day heading (the row that shows the date above a group of entries)
+     * has been added to the DOM. It gets an {@code info} object with {@code el} (the element), {@code date},
+     * {@code isToday} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderDidMount</a>
+     */
+    private JsCallback listDayHeaderDidMount;
+
+    /**
+     * CSS classes for each side of the day header in list views: the left and the right half.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code text}, {@code level} and more. {@code level} is
+     * 0 for the primary day format side and 1 for the alternative format side, see the library docs. It returns the
+     * class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue listDayHeaderInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getListDayHeaderInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setListDayHeaderInnerClass(String classNames) {
+        this.listDayHeaderInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getListDayHeaderInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setListDayHeaderInnerClass(ClassNameValue value) {
+        this.listDayHeaderInnerClass = value;
+    }
+
+    /**
+     * A callback that runs right before a list view day heading (the row that shows the date above a group of entries)
+     * is removed from the DOM. It gets an {@code info} object with {@code el} (the element), {@code date},
+     * {@code isToday} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-day-header-render-hooks">listDayHeaderWillUnmount</a>
+     */
+    private JsCallback listDayHeaderWillUnmount;
+
+    /**
+     * CSS classes for the "+N more" link in every view. {@link #getColumnMoreLinkClass() columnMoreLinkClass} and
+     * {@link #getRowMoreLinkClass() rowMoreLinkClass} add classes for the links of one layout only.
+     * <p>
+     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue moreLinkClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getMoreLinkClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setMoreLinkClass(String classNames) {
+        this.moreLinkClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getMoreLinkClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setMoreLinkClass(ClassNameValue value) {
+        this.moreLinkClass = value;
+    }
+
+    /**
+     * Content for the "+N more" link.
+     * <p>
+     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
+     * library docs. It returns a text, or {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue moreLinkContent;
+
+    /**
+     * Sets a text as the content of the "+N more" link, see {@link #getMoreLinkContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setMoreLinkContent(String text) {
+        this.moreLinkContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content of the "+N more" link in any form, see {@link #getMoreLinkContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setMoreLinkContent(ContentValue value) {
+        this.moreLinkContent = value;
+    }
+
+    /**
+     * A callback that runs right after a "+N more" link has been added to the DOM. It gets an {@code info} object with
+     * {@code el} (the element), {@code num}, {@code text}, {@code numericText} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkDidMount</a>
+     */
+    private JsCallback moreLinkDidMount;
+
+    /**
+     * CSS classes for the inner wrapper of the "+N more" link. Useful for adjusting padding.
+     * <p>
+     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue moreLinkInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getMoreLinkInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setMoreLinkInnerClass(String classNames) {
+        this.moreLinkInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getMoreLinkInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setMoreLinkInnerClass(ClassNameValue value) {
+        this.moreLinkInnerClass = value;
+    }
+
+    /**
+     * A callback that runs right before a "+N more" link is removed from the DOM. It gets an {@code info} object with
+     * {@code el} (the element), {@code num}, {@code text}, {@code numericText} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/more-link-render-hooks">moreLinkWillUnmount</a>
+     */
+    private JsCallback moreLinkWillUnmount;
+
+    /**
+     * CSS classes for the "No events to display" message of list views.
+     * <p>
+     * A callback gets an {@code info} object with {@code text} (the message text, from
+     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs. It returns the class
+     * names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsClass</a>
+     */
+    @JsonName("noEventsClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue noEntriesClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getNoEntriesClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setNoEntriesClass(String classNames) {
+        this.noEntriesClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getNoEntriesClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setNoEntriesClass(ClassNameValue value) {
+        this.noEntriesClass = value;
+    }
+
+    /**
+     * Content for the "No events to display" message of list views.
+     * <p>
+     * A callback gets an {@code info} object with {@code text} (the message text, from
+     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs. It returns a text, or
+     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsContent</a>
+     */
+    @JsonName("noEventsContent")
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue noEntriesContent;
+
+    /**
+     * Sets a text as the content of the "No events to display" message, see {@link #getNoEntriesContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setNoEntriesContent(String text) {
+        this.noEntriesContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content of the "No events to display" message in any form, see {@link #getNoEntriesContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setNoEntriesContent(ContentValue value) {
+        this.noEntriesContent = value;
+    }
+
+    /**
+     * A callback that runs right after the "No events to display" message of list views has been added to the DOM. It
+     * gets an {@code info} object with {@code el} (the element), {@code text} (the message text, from
+     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsDidMount</a>
+     */
+    @JsonName("noEventsDidMount")
+    private JsCallback noEntriesDidMount;
+
+    /**
+     * CSS classes for the inner padding element of the "No events to display" message of list views.
+     * <p>
+     * A callback gets an {@code info} object with {@code text} (the message text, from
+     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs. It returns the class
+     * names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsInnerClass</a>
+     */
+    @JsonName("noEventsInnerClass")
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue noEntriesInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getNoEntriesInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setNoEntriesInnerClass(String classNames) {
+        this.noEntriesInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getNoEntriesInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setNoEntriesInnerClass(ClassNameValue value) {
+        this.noEntriesInnerClass = value;
+    }
+
+    /**
+     * A callback that runs right before the "No events to display" message of list views is removed from the DOM. It
+     * gets an {@code info} object with {@code el} (the element), {@code text} (the message text, from
+     * {@link #getNoEntriesText() noEntriesText}), {@code view} and more, see the library docs.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/no-events-render-hooks">noEventsWillUnmount</a>
+     */
+    @JsonName("noEventsWillUnmount")
+    private JsCallback noEntriesWillUnmount;
+
+    /**
+     * CSS classes for the outermost element of the popover that opens when the user clicks a more-link.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/popover-render-hooks">popoverClass</a>
+     */
+    private String popoverClass;
+
+    /**
+     * CSS classes for the close button of the popover that opens when the user clicks a more-link.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/popover-render-hooks">popoverCloseClass</a>
+     */
+    private String popoverCloseClass;
+
+    /**
+     * Content for the close button of the popover that opens when the user clicks a more-link. The generated content is
+     * inserted inside the button, typically an icon. There is no default content. The themes of the library supply
+     * their own icon. The accessible label of the button comes from {@link #getCloseHint() closeHint}.
+     * <p>
+     * A callback gets an {@code info} object without properties, because the library declares none. It returns a text,
+     * or {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/popover-render-hooks">popoverCloseContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue popoverCloseContent;
+
+    /**
+     * Sets a text as the content of the close button of the popover, see {@link #getPopoverCloseContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setPopoverCloseContent(String text) {
+        this.popoverCloseContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content of the close button of the popover in any form, see {@link #getPopoverCloseContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setPopoverCloseContent(ContentValue value) {
+        this.popoverCloseContent = value;
+    }
+
+    /**
+     * CSS classes for the row more-link element. A row more-link appears in row-based layouts such as day grid and
+     * timeline rows when too many entries would otherwise be shown.
+     * <p>
+     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/row-more-link-render-hooks">rowMoreLinkClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue rowMoreLinkClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getRowMoreLinkClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setRowMoreLinkClass(String classNames) {
+        this.rowMoreLinkClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getRowMoreLinkClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setRowMoreLinkClass(ClassNameValue value) {
+        this.rowMoreLinkClass = value;
+    }
+
+    /**
+     * CSS classes for the inner wrapper of the row more-link. Useful for adjusting padding. A row more-link appears in
+     * row-based layouts such as day grid and timeline rows when too many entries would otherwise be shown.
+     * <p>
+     * A callback gets an {@code info} object with {@code num}, {@code text}, {@code numericText} and more, see the
+     * library docs. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/row-more-link-render-hooks">rowMoreLinkInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue rowMoreLinkInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getRowMoreLinkInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setRowMoreLinkInnerClass(String classNames) {
+        this.rowMoreLinkInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getRowMoreLinkInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setRowMoreLinkInnerClass(ClassNameValue value) {
+        this.rowMoreLinkInnerClass = value;
+    }
+
     // Dates, ranges and durations
 
     /**
