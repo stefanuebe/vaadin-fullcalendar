@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #387 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, efca10a1) |
 | Blocked by | `04-client-without-option-fallback`, `05-options-object-first-fields`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,7 +16,7 @@
 
 **Blocked by:** `04-client-without-option-fallback`, `05-options-object-first-fields`, `60-setters-without-form-overloads`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, efca10a1)
 
 - [x] The initial state has `headerToolbar: false` and the default locale.
 - [x] `calendar.getLocale()` still returns the UI locale.
