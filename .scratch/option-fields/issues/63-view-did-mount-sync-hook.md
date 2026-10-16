@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #383 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, 518fadce) |
 | Blocked by | `18-sync-hook-entry-did-mount`, `36-hooks-view-toolbar` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,7 +16,7 @@ Found by the review of 36 (2026-10-16), which took `viewDidMount` out of that ba
 
 **Blocked by:** `18-sync-hook-entry-did-mount`, `36-hooks-view-toolbar`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, 518fadce)
 
 - [x] The user's callback runs, and `ViewSkeletonRenderedEvent` still reaches the server, set initially and later, and after the option is cleared.
 - [x] The field is in `SYNCED_APART` in `TypedOptionsSyncTest`, with tests of its own.
