@@ -796,4 +796,486 @@ class SchedulerViewOptions extends ViewOptions {
     public void setResourceExpanderContent(ContentValue value) {
         this.resourceExpanderContent = value;
     }
+
+    /**
+     * CSS classes for the resource group header, the cell that shows the group name at the top of each row group in the
+     * resource timeline view.
+     * <p>
+     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceGroupHeaderClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceGroupHeaderClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceGroupHeaderClass(String classNames) {
+        this.resourceGroupHeaderClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceGroupHeaderClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceGroupHeaderClass(ClassNameValue value) {
+        this.resourceGroupHeaderClass = value;
+    }
+
+    /**
+     * Custom content for the resource group header, the cell that shows the group name at the top of each row group in
+     * the resource timeline view. The groups come from {@code resourceGroupField}.
+     * <p>
+     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns a text, or
+     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue resourceGroupHeaderContent;
+
+    /**
+     * Sets a text as the content, see {@link #getResourceGroupHeaderContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setResourceGroupHeaderContent(String text) {
+        this.resourceGroupHeaderContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getResourceGroupHeaderContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setResourceGroupHeaderContent(ContentValue value) {
+        this.resourceGroupHeaderContent = value;
+    }
+
+    /**
+     * A callback that runs right after a resource group header has been added to the DOM. It gets an {@code info}
+     * object with {@code fieldValue} and {@code view}.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderDidMount</a>
+     */
+    private JsCallback resourceGroupHeaderDidMount;
+
+    /**
+     * CSS classes for the inner wrapper of a resource group header cell in the resource timeline view. A group's header
+     * is where its name is displayed, at the top of each row group.
+     * <p>
+     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceGroupHeaderInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceGroupHeaderInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceGroupHeaderInnerClass(String classNames) {
+        this.resourceGroupHeaderInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceGroupHeaderInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceGroupHeaderInnerClass(ClassNameValue value) {
+        this.resourceGroupHeaderInnerClass = value;
+    }
+
+    /**
+     * A callback that runs right before a resource group header is removed from the DOM. It gets an {@code info} object
+     * with {@code fieldValue} and {@code view}.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-header-render-hooks">resourceGroupHeaderWillUnmount</a>
+     */
+    private JsCallback resourceGroupHeaderWillUnmount;
+
+    /**
+     * CSS classes for the resource group lane, the horizontal area of a group along the time slots in the
+     * resource timeline view.
+     * <p>
+     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceGroupLaneClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceGroupLaneClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceGroupLaneClass(String classNames) {
+        this.resourceGroupLaneClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceGroupLaneClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceGroupLaneClass(ClassNameValue value) {
+        this.resourceGroupLaneClass = value;
+    }
+
+    /**
+     * Custom content for the resource group lane, the horizontal area of a group along the time slots in the
+     * resource timeline view.
+     * <p>
+     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns a text, or
+     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue resourceGroupLaneContent;
+
+    /**
+     * Sets a text as the content, see {@link #getResourceGroupLaneContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setResourceGroupLaneContent(String text) {
+        this.resourceGroupLaneContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getResourceGroupLaneContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setResourceGroupLaneContent(ContentValue value) {
+        this.resourceGroupLaneContent = value;
+    }
+
+    /**
+     * A callback that runs right after a resource group lane has been added to the DOM. It gets an {@code info} object
+     * with {@code fieldValue} and {@code view}.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneDidMount</a>
+     */
+    private JsCallback resourceGroupLaneDidMount;
+
+    /**
+     * CSS classes for the inner wrapper of a resource group lane cell in the resource timeline view. A group's lane is
+     * the horizontal area running along the time slots.
+     * <p>
+     * A callback gets an {@code info} object with {@code fieldValue} and {@code view}. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneInnerClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceGroupLaneInnerClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceGroupLaneInnerClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceGroupLaneInnerClass(String classNames) {
+        this.resourceGroupLaneInnerClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceGroupLaneInnerClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceGroupLaneInnerClass(ClassNameValue value) {
+        this.resourceGroupLaneInnerClass = value;
+    }
+
+    /**
+     * A callback that runs right before a resource group lane is removed from the DOM. It gets an {@code info} object
+     * with {@code fieldValue} and {@code view}.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-group-lane-render-hooks">resourceGroupLaneWillUnmount</a>
+     */
+    private JsCallback resourceGroupLaneWillUnmount;
+
+    /**
+     * CSS classes for the header rows of the resource area in the timeline view.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-header-row-render-hooks">resourceHeaderRowClass</a>
+     */
+    private String resourceHeaderRowClass;
+
+    /**
+     * CSS classes for the indentation space in front of each resource row in the hierarchical resource timeline view.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-expander-render-hooks">resourceIndentClass</a>
+     */
+    private String resourceIndentClass;
+
+    /**
+     * CSS classes for the element below the entries of a resource lane.
+     * <p>
+     * A callback gets an {@code info} object with {@code resource} and {@code options}. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneBottomClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceLaneBottomClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceLaneBottomClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceLaneBottomClass(String classNames) {
+        this.resourceLaneBottomClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceLaneBottomClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceLaneBottomClass(ClassNameValue value) {
+        this.resourceLaneBottomClass = value;
+    }
+
+    /**
+     * Content inserted at the bottom of a resource lane, below its entries.
+     * <p>
+     * A callback gets an {@code info} object with {@code resource} and {@code options}. It returns a text, or
+     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneBottomContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue resourceLaneBottomContent;
+
+    /**
+     * Sets a text as the content, see {@link #getResourceLaneBottomContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setResourceLaneBottomContent(String text) {
+        this.resourceLaneBottomContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getResourceLaneBottomContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setResourceLaneBottomContent(ContentValue value) {
+        this.resourceLaneBottomContent = value;
+    }
+
+    /**
+     * CSS classes for a resource lane. A resource lane runs horizontally across the timeline slots of a resource in the
+     * resource timeline view.
+     * <p>
+     * A callback gets an {@code info} object with {@code resource} and {@code options}. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceLaneClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceLaneClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceLaneClass(String classNames) {
+        this.resourceLaneClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceLaneClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceLaneClass(ClassNameValue value) {
+        this.resourceLaneClass = value;
+    }
+
+    /**
+     * A callback that runs right after a resource lane element has been added to the DOM. It gets an {@code info}
+     * object with {@code resource} and {@code options}.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneDidMount</a>
+     */
+    private JsCallback resourceLaneDidMount;
+
+    /**
+     * CSS classes for the element above the entries of a resource lane.
+     * <p>
+     * A callback gets an {@code info} object with {@code resource} and {@code options}. It returns the class names as a
+     * string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneTopClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue resourceLaneTopClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getResourceLaneTopClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setResourceLaneTopClass(String classNames) {
+        this.resourceLaneTopClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getResourceLaneTopClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setResourceLaneTopClass(ClassNameValue value) {
+        this.resourceLaneTopClass = value;
+    }
+
+    /**
+     * Content inserted at the top of a resource lane, above its entries.
+     * <p>
+     * A callback gets an {@code info} object with {@code resource} and {@code options}. It returns a text, or
+     * {@code {html: '...'}} or {@code {domNodes: [...]}}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneTopContent</a>
+     */
+    @JsonConverter(ContentValueConverter.class)
+    private ContentValue resourceLaneTopContent;
+
+    /**
+     * Sets a text as the content, see {@link #getResourceLaneTopContent()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setResourceLaneTopContent(String text) {
+        this.resourceLaneTopContent = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the content in any form, see {@link #getResourceLaneTopContent()}.
+     *
+     * @param value the content or callback, or null to remove the option
+     */
+    public void setResourceLaneTopContent(ContentValue value) {
+        this.resourceLaneTopContent = value;
+    }
+
+    /**
+     * A callback that runs right before a resource lane element is removed from the DOM. It gets an {@code info} object
+     * with {@code resource} and {@code options}.
+     * <p>
+     * When this option is changed for an attached calendar, the new setting only applies to newly rendered elements,
+     * for example after navigating to another view or period. Existing elements are not updated.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-lane-render-hooks">resourceLaneWillUnmount</a>
+     */
+    private JsCallback resourceLaneWillUnmount;
+
+    /**
+     * CSS classes for the body rows of the resource area in the timeline view. Does not apply to the resource group
+     * header rows within the body.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/resource-row-render-hooks">resourceRowClass</a>
+     */
+    private String resourceRowClass;
+
+    /**
+     * CSS classes for the element below the entries in the timeline view without resources.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/timeline-render-hooks">timelineBottomClass</a>
+     */
+    private String timelineBottomClass;
+
+    /**
+     * CSS classes for the element above the entries in the timeline view without resources.
+     * <p>
+     * It takes class names only, because the library accepts no callback for this option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/timeline-render-hooks">timelineTopClass</a>
+     */
+    private String timelineTopClass;
 }
