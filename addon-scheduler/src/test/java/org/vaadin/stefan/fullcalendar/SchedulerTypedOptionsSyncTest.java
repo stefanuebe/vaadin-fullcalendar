@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.Order;
@@ -197,7 +199,9 @@ class SchedulerTypedOptionsSyncTest extends BrowserlessTest {
     private static final Map<Class<?>, Set<Class<?>>> PER_FORM_PARAMETERS = Map.of(
             HeaderAlignValue.class, Set.of(),
             WidthValue.class, Set.of(int.class),
-            OrderValue.class, Set.of(String[].class, Order.Key[].class));
+            OrderValue.class, Set.of(String[].class, Order.Key[].class),
+            ClassNameValue.class, Set.of(String.class),
+            ContentValue.class, Set.of(String.class));
 
     /**
      * A second value for the parameter types with two values only, so a setter that ignores its argument and writes
