@@ -3,6 +3,22 @@ const { test, expect } = require('@playwright/test');
 const { waitForVaadin } = require('./fixtures');
 
 /**
+ * Holds the time zone report of the browser, so the server cannot answer it yet. Vaadin names the called server method
+ * in clear text in the request body. Returns the held requests.
+ */
+async function holdBrowserReport(page) {
+    const held = [];
+    await page.route(/v-r=uidl/, route => {
+        if ((route.request().postData() || '').includes('setBrowserTimezone')) {
+            held.push(route);
+        } else {
+            route.continue();
+        }
+    });
+    return held;
+}
+
+/**
  * Timezone.LOCAL: the time zone the browser reports becomes the server's time zone (#273).
  */
 test.describe('Auto browser time zone', () => {
@@ -25,16 +41,7 @@ test.describe('Auto browser time zone', () => {
     });
 
     test('calendar shows the local time of the browser before the browser has reported its time zone', async ({ page }) => {
-        // holds the time zone report of the browser, so the server cannot answer it yet. Vaadin names the called
-        // server method in clear text in the request body.
-        const held = [];
-        await page.route(/v-r=uidl/, route => {
-            if ((route.request().postData() || '').includes('setBrowserTimezone')) {
-                held.push(route);
-            } else {
-                route.continue();
-            }
-        });
+        const held = await holdBrowserReport(page);
 
         await page.goto('/test/auto-browser-timezone');
         await page.waitForSelector('.fc', { timeout: 15000 });
@@ -50,5 +57,35 @@ test.describe('Auto browser time zone', () => {
         await Promise.all(held.map(route => route.continue()));
         await page.unroute(/v-r=uidl/);
         await expect(page.locator('#calendar-timezone')).toHaveText('America/New_York');
+    });
+
+    test('the browser\'s report fetches no entries', async ({ page }) => {
+        // the fetch counter is in place before the server answers the report
+        const held = await holdBrowserReport(page);
+        await page.goto('/test/auto-browser-timezone');
+        await page.waitForSelector('.fc', { timeout: 15000 });
+        await expect.poll(() => held.length, { message: 'the time zone report is held' }).toBeGreaterThan(0);
+        await page.evaluate(() => {
+            const calendarEl = document.querySelector('[data-testid="calendar"]');
+            // counts the fetches where the client makes them
+            // @ts-ignore
+            const fetch = calendarEl.$server.fetchEntriesFromServer;
+            window.reportFetches = 0;
+            // @ts-ignore
+            calendarEl.$server.fetchEntriesFromServer = (...args) => {
+                window.reportFetches++;
+                // @ts-ignore
+                return fetch.apply(calendarEl.$server, args);
+            };
+        });
+
+        await Promise.all(held.map(route => route.continue()));
+        await page.unroute(/v-r=uidl/);
+        await expect(page.locator('#calendar-timezone')).toHaveText('America/New_York');
+        // a change the report caused would come with the response that shows the zone. waitForVaadin waits until the
+        // client calls of that response have run.
+        await waitForVaadin(page);
+
+        expect(await page.evaluate(() => window.reportFetches)).toBe(0);
     });
 });
