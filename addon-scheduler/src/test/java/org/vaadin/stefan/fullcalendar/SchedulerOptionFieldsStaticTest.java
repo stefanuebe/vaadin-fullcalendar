@@ -31,9 +31,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * The rules of the core OptionFieldsStaticTest for the fields the scheduler data classes declare: each is a scheduler
  * option of the right scope with its own JSON name, no field name says "event", no library name needs a keyword as
- * field name, no options method overrides an Object method, and each field has an @see tag. The scheduler option names
- * come from the test resource option-names.txt of this module. The core test covers the inherited fields, because the
- * core resource is not on this module's test classpath.
+ * field name, no options method overrides an Object method, and each field has an @see tag. In the other direction,
+ * every SchedulerOption key and every scheduler option name has a field. The scheduler option names come from the
+ * test resource option-names.txt of this module. The core test covers the inherited fields, because the core resource
+ * is not on this module's test classpath.
  */
 class SchedulerOptionFieldsStaticTest {
 
@@ -75,6 +76,10 @@ class SchedulerOptionFieldsStaticTest {
 
     private static List<Field> dataFields() {
         return DATA_CLASSES.stream().flatMap(type -> declaredFields(type).stream()).toList();
+    }
+
+    private static Set<String> fieldJsonNames() {
+        return dataFields().stream().map(SchedulerOptionFieldsStaticTest::jsonName).collect(Collectors.toSet());
     }
 
     private static String jsonName(Field field) {
@@ -126,6 +131,31 @@ class SchedulerOptionFieldsStaticTest {
                 }
             }
         }
+        assertEquals(List.of(), problems);
+    }
+
+    /**
+     * Every SchedulerOption constant has a field with its key as JSON name. The deprecated constants are checked too:
+     * each is an add-on alias of the same library option as a current constant, so it needs no field of its own, but
+     * its key has one.
+     */
+    @Test
+    void everySchedulerOptionKeyHasAField() {
+        Set<String> fieldNames = fieldJsonNames();
+        List<String> problems = Arrays.stream(SchedulerOption.values())
+                .filter(option -> !fieldNames.contains(option.getOptionKey()))
+                .map(option -> option.name() + " (" + option.getOptionKey() + ")")
+                .toList();
+        assertEquals(List.of(), problems);
+    }
+
+    /** The other direction of everyFieldIsASchedulerOptionWithTheMatchingScope. */
+    @Test
+    void everyResourceNameHasAField() throws IOException {
+        Set<String> fieldNames = fieldJsonNames();
+        List<String> problems = readOptionNames().keySet().stream()
+                .filter(name -> !fieldNames.contains(name))
+                .toList();
         assertEquals(List.of(), problems);
     }
 
