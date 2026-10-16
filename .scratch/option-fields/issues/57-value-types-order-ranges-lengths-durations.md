@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, `bc41bab0`) |
 | Blocked by | `24-value-types-auto-false-now`, `58-pr-363-review-round-1` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -43,7 +43,7 @@ Check of the value types of 21–24 against the library types (2026-10-16): a fu
 
 **Blocked by:** `24-value-types-auto-false-now`, `58-pr-363-review-round-1`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, `bc41bab0`)
 
 - [x] Each type round-trips through its converter (`VALUE_TYPES` in `ConverterTest`) and has a switch in `ValueTypeSwitchTest`.
 - [x] Each option above has a decided Java type, recorded in the ticket of its batch.
