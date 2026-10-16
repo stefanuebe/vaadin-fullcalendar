@@ -17,6 +17,10 @@ A ticket can start once every ticket in its *Blocked by* row is done.
 
 One integration branch `option-fields` for all 57 tickets, branched from `master` (maintainer, 2026-10-15). It reaches `master` through one pull request at the end. Each ticket is one or more commits on this branch. Do not branch from `prototype/option-fields`. That branch is reference only.
 
+## GitHub
+
+The tickets live here, not on GitHub (maintainer, 2026-10-16). A ticket moves to GitHub only when its work starts: rewritten for the public (no review rounds, commit hashes or internal test names), created as one issue, one at a time, never several in a row. Its file then names the issue (`**GitHub:** #N`) and its status stays here. Done tickets stay here.
+
 ## For every ticket
 
 - Read the spec sections the ticket names, and `STYLEGUIDE.md` before writing a browser test.
