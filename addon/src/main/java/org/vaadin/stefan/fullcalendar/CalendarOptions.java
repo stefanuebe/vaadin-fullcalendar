@@ -16,8 +16,10 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import org.vaadin.stefan.fullcalendar.option.ViewName;
@@ -28,6 +30,7 @@ import org.vaadin.stefan.fullcalendar.converters.WeekNumberCalculationValueConve
 import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
 import org.vaadin.stefan.fullcalendar.converters.ViewNameValueConverter;
@@ -228,6 +231,153 @@ class CalendarOptions implements Serializable {
     // Time grid and slots
 
     // Interaction
+
+    /**
+     * Exact programmatic control over where an entry can be dropped. The callback must return a boolean synchronously.
+     * <p>
+     * The callback runs for every new potential drop position while the user is dragging, after
+     * the overlap and constraint settings of entries have allowed the position. It gets a
+     * {@code dropInfo} with {@code start}, {@code end}, {@code allDay} and more, and the dragged entry. See the library
+     * docs.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
+     */
+    @JsonName("eventAllow")
+    private JsCallback entryAllow;
+
+    /**
+     * Limits entry dragging and resizing to certain windows of time.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
+     */
+    @JsonName("eventConstraint")
+    @JsonConverter(ConstraintValueConverter.class)
+    private ConstraintValue entryConstraint;
+
+    /**
+     * Limits entry dragging and resizing to the entries of a group, see {@link #getEntryConstraint()}. A dragged
+     * entry must be fully contained by at least one entry of that group.
+     *
+     * @param groupId the group id, or null to remove the option
+     */
+    public void setEntryConstraint(String groupId) {
+        this.entryConstraint = groupId == null ? null : ConstraintValue.ofGroupId(groupId);
+    }
+
+    /**
+     * Limits entry dragging and resizing to recurring windows of time, see {@link #getEntryConstraint()}.
+     *
+     * @param windows the windows, at least one, or null to remove the option
+     */
+    public void setEntryConstraint(BusinessHours... windows) {
+        this.entryConstraint = windows == null ? null : ConstraintValue.ofWindows(windows);
+    }
+
+    /**
+     * Limits entry dragging and resizing to windows of time, recurring ones and fixed spans mixed, see
+     * {@link #getEntryConstraint()}.
+     *
+     * @param windows the windows, at least one, or null to remove the option
+     */
+    public void setEntryConstraint(ConstraintValue.Window... windows) {
+        this.entryConstraint = windows == null ? null : ConstraintValue.ofWindows(windows);
+    }
+
+    /**
+     * Limits entry dragging and resizing in any form, see {@link #getEntryConstraint()}. This is the way to pass
+     * {@link ConstraintValue#BUSINESS_HOURS}.
+     *
+     * @param value the constraint, or null to remove the option
+     */
+    public void setEntryConstraint(ConstraintValue value) {
+        this.entryConstraint = value;
+    }
+
+    /**
+     * Whether entries can be resized to change their duration. It decides resizing on its own and takes precedence
+     * over {@code editable}. A single entry can override it.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventDurationEditable">eventDurationEditable</a>
+     */
+    @JsonName("eventDurationEditable")
+    private Boolean entryDurationEditable;
+
+    /**
+     * Whether entries can be dragged to change their start. It decides dragging on its own and takes precedence
+     * over {@code editable}. A single entry can override it.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventStartEditable">eventStartEditable</a>
+     */
+    @JsonName("eventStartEditable")
+    private Boolean entryStartEditable;
+
+    /**
+     * Exact programmatic control over where the user can select. The callback must return a boolean synchronously.
+     * <p>
+     * The callback runs for every new potential selection while the user is dragging. It gets a {@code selectInfo}
+     * with {@code start}, {@code end}, {@code allDay} and more. See the library docs.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/selectAllow">selectAllow</a>
+     */
+    private JsCallback selectAllow;
+
+    /**
+     * Limits where the user can select to certain windows of time. It takes the same values as
+     * {@link #getEntryConstraint()} and applies when selecting is enabled.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/selectConstraint">selectConstraint</a>
+     */
+    @JsonConverter(ConstraintValueConverter.class)
+    private ConstraintValue selectConstraint;
+
+    /**
+     * Limits selections to the entries of a group, see {@link #getSelectConstraint()}.
+     *
+     * @param groupId the group id, or null to remove the option
+     */
+    public void setSelectConstraint(String groupId) {
+        this.selectConstraint = groupId == null ? null : ConstraintValue.ofGroupId(groupId);
+    }
+
+    /**
+     * Limits selections to recurring windows of time, see {@link #getSelectConstraint()}.
+     *
+     * @param windows the windows, at least one, or null to remove the option
+     */
+    public void setSelectConstraint(BusinessHours... windows) {
+        this.selectConstraint = windows == null ? null : ConstraintValue.ofWindows(windows);
+    }
+
+    /**
+     * Limits selections to windows of time, recurring ones and fixed spans mixed, see {@link #getSelectConstraint()}.
+     *
+     * @param windows the windows, at least one, or null to remove the option
+     */
+    public void setSelectConstraint(ConstraintValue.Window... windows) {
+        this.selectConstraint = windows == null ? null : ConstraintValue.ofWindows(windows);
+    }
+
+    /**
+     * Limits selections in any form, see {@link #getSelectConstraint()}. This is the way to pass
+     * {@link ConstraintValue#BUSINESS_HOURS}.
+     *
+     * @param value the constraint, or null to remove the option
+     */
+    public void setSelectConstraint(ConstraintValue value) {
+        this.selectConstraint = value;
+    }
 
     // Entry display and layout
 

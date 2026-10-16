@@ -499,6 +499,9 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(CalendarView.class, CalendarViewImpl.TIME_GRID_DAY, JsonUtils.toJsonNode("timeGridDay")),
             sample(Duration.class, Duration.ofMinutes(90), JsonUtils.toJsonNode("01:30:00")),
             sample(Period.class, Period.ofMonths(1), JsonFactory.createObject().put("months", 1)),
+            sample(ConstraintValue.Window.class,
+                    ConstraintValue.Window.span(LocalDate.of(2026, 1, 2), LocalDate.of(2026, 1, 5)),
+                    JsonFactory.createObject().put("start", "2026-01-02").put("end", "2026-01-05")),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
             sample(Map.class, Map.of("weekday", "long"), JsonFactory.createObject().put("weekday", "long")));
 

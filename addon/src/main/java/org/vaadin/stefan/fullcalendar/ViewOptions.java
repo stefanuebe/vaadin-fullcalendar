@@ -20,9 +20,13 @@ import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
+import org.vaadin.stefan.fullcalendar.option.CssSelector;
+import org.vaadin.stefan.fullcalendar.option.CssSelectorValue;
 import org.vaadin.stefan.fullcalendar.option.DurationValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.Overlap;
+import org.vaadin.stefan.fullcalendar.option.OverlapValue;
 import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
@@ -38,8 +42,10 @@ import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.AutoBooleanConverter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.CssSelectorValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DurationValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.OverlapValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.StickyValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
@@ -3981,6 +3987,265 @@ class ViewOptions implements Serializable {
     }
 
     // Interaction
+
+    /**
+     * Time in milliseconds an entry takes to move back to its original position after an unsuccessful drag.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dragRevertDuration">dragRevertDuration</a>
+     */
+    private Integer dragRevertDuration;
+
+    /**
+     * Whether the scroll containers scroll automatically while the user drags entries or selects dates,
+     * once the mouse gets close to the edge.
+     * <p>
+     * A change on an attached calendar takes effect when the view is rendered again, for example after a view
+     * change.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dragScroll">dragScroll</a>
+     */
+    private Boolean dragScroll;
+
+    /**
+     * Determines whether external elements or entries from other calendars can be dropped onto the calendar.
+     * It has to be enabled to receive drops from external elements.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/droppable">droppable</a>
+     */
+    private Boolean droppable;
+
+    /**
+     * Filters which external elements can be dropped onto the calendar. It takes effect when {@link #getDroppable()}
+     * is true.
+     * <p>
+     * A callback gets the dragged item as its argument and returns true if the item can be dropped.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dropAccept">dropAccept</a>
+     */
+    @JsonConverter(CssSelectorValueConverter.class)
+    private CssSelectorValue dropAccept;
+
+    /**
+     * Accepts the external elements that match a CSS selector, see {@link #getDropAccept()}.
+     *
+     * @param selector the CSS selector, such as {@code ".cool-entry"}, or null to remove the option
+     */
+    public void setDropAccept(String selector) {
+        this.dropAccept = selector == null ? null : CssSelector.of(selector);
+    }
+
+    /**
+     * Sets the filter for external elements in any form, see {@link #getDropAccept()}.
+     *
+     * @param value the selector or callback, or null to remove the option
+     */
+    public void setDropAccept(CssSelectorValue value) {
+        this.dropAccept = value;
+    }
+
+    /**
+     * Number of pixels the pointer must move before an entry drag or resize starts. It applies to dragging with the
+     * mouse and to resizing. Dragging on touch ignores it. There, {@link #getEntryLongPressDelay()} applies.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventDragMinDistance">eventDragMinDistance</a>
+     */
+    @JsonName("eventDragMinDistance")
+    private Integer entryDragMinDistance;
+
+    /**
+     * Whether all entries are focusable and tabbable for keyboard access. Without a value, every entry is focusable,
+     * because the add-on registers an entry click handler. {@code false} turns that off for all entries.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventInteractive">eventInteractive</a>
+     */
+    @JsonName("eventInteractive")
+    private Boolean entryInteractive;
+
+    /**
+     * Time in milliseconds the user must hold down on a touch device before an entry becomes draggable.
+     * Without it, {@link #getLongPressDelay()} applies. It has no effect on non-touch devices.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventLongPressDelay">eventLongPressDelay</a>
+     */
+    @JsonName("eventLongPressDelay")
+    private Integer entryLongPressDelay;
+
+    /**
+     * Whether entries that are dragged or resized may overlap other entries. Background entries count like normal
+     * entries.
+     * <p>
+     * A callback runs for every pair of intersecting entries and returns true if the overlap is allowed. It gets the
+     * entry underneath and the entry being moved, which still has its original start and end.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventOverlap">eventOverlap</a>
+     */
+    @JsonName("eventOverlap")
+    @JsonConverter(OverlapValueConverter.class)
+    private OverlapValue entryOverlap;
+
+    /**
+     * Sets whether dragged or resized entries may overlap entries, see {@link #getEntryOverlap()}.
+     *
+     * @param allowed true to allow the overlap, false to forbid it
+     */
+    public void setEntryOverlap(boolean allowed) {
+        this.entryOverlap = Overlap.of(allowed);
+    }
+
+    /**
+     * Sets whether dragged or resized entries may overlap entries in any form, see {@link #getEntryOverlap()}.
+     *
+     * @param value the overlap setting or callback, or null to remove the option
+     */
+    public void setEntryOverlap(OverlapValue value) {
+        this.entryOverlap = value;
+    }
+
+    /**
+     * Whether the user can resize entries from their start edge.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventResizableFromStart">eventResizableFromStart</a>
+     */
+    @JsonName("eventResizableFromStart")
+    private Boolean entryResizableFromStart;
+
+    /**
+     * Time in milliseconds a touch user must hold down before an entry can be dragged or a date selected.
+     * {@link #getEntryLongPressDelay()} and {@link #getSelectLongPressDelay()} override it for one of the two.
+     * It has no effect on non-touch devices.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/longPressDelay">longPressDelay</a>
+     */
+    private Integer longPressDelay;
+
+    /**
+     * Whether day and week labels (day numbers, day headers, week numbers) are links. The add-on handles a click
+     * itself and sends it to the server as a {@link DayNumberClickedEvent} or a {@link WeekNumberClickedEvent}.
+     * The calendar does not change the view on its own.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/navLinks">navLinks</a>
+     */
+    private Boolean navLinks;
+
+    /**
+     * Whether the user can select days or time slots by clicking and dragging. A selection fires a
+     * {@link TimeslotsSelectedEvent} on the server.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/selectable">selectable</a>
+     */
+    private Boolean selectable;
+
+    /**
+     * Time in milliseconds a touch user must hold down before a date becomes selectable.
+     * Without it, {@link #getLongPressDelay()} applies. It has no effect on non-touch devices.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/selectLongPressDelay">selectLongPressDelay</a>
+     */
+    private Integer selectLongPressDelay;
+
+    /**
+     * Number of pixels the mouse must travel after a mouse down before a selection starts. 0 puts no
+     * restriction on the distance. A higher value tells a selection from a date click. It applies to the mouse only.
+     * <p>
+     * A change on an attached calendar takes effect when the view is rendered again, for example after a view
+     * change.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/selectMinDistance">selectMinDistance</a>
+     */
+    private Integer selectMinDistance;
+
+    /**
+     * Whether a placeholder entry is drawn while the user drags a selection, instead of the standard highlighting
+     * of each cell. It applies to time grid views only.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/selectMirror">selectMirror</a>
+     */
+    private Boolean selectMirror;
+
+    /**
+     * Whether the user can select periods of time that are occupied by entries. It applies when
+     * {@link #getSelectable()} is true.
+     * <p>
+     * A callback runs for every entry the selection intersects and returns true to allow the selection. It gets the
+     * intersected entry itself, not wrapped in an info object.
+     * <p>
+     * An all-day entry counts as intersecting in time grid views, although it does not visually overlap the time
+     * slots.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/selectOverlap">selectOverlap</a>
+     */
+    @JsonConverter(OverlapValueConverter.class)
+    private OverlapValue selectOverlap;
+
+    /**
+     * Sets whether a selection may overlap entries, see {@link #getSelectOverlap()}.
+     *
+     * @param allowed true to allow the overlap, false to forbid it
+     */
+    public void setSelectOverlap(boolean allowed) {
+        this.selectOverlap = Overlap.of(allowed);
+    }
+
+    /**
+     * Sets whether a selection may overlap entries in any form, see {@link #getSelectOverlap()}.
+     *
+     * @param value the overlap setting or callback, or null to remove the option
+     */
+    public void setSelectOverlap(OverlapValue value) {
+        this.selectOverlap = value;
+    }
+
+    /**
+     * Whether clicking elsewhere on the page clears the current selection. It applies when
+     * {@link #getSelectable()} is true.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/unselectAuto">unselectAuto</a>
+     */
+    private Boolean unselectAuto;
+
+    /**
+     * CSS selector for elements that do not clear the current selection when clicked, see
+     * {@link #getUnselectAuto()}. Useful for a form that opens after a selection.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/unselectCancel">unselectCancel</a>
+     */
+    private String unselectCancel;
 
     // Entry display and layout
 
