@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #378 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, 3ef5605e) |
 | Blocked by | `29-fields-texts-formats` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -18,7 +18,7 @@ Found by batch 29 (2026-10-16), which left the option out because no value type 
 
 **Blocked by:** `29-fields-texts-formats`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, 3ef5605e)
 
 - [x] The field takes every form the library takes, a single format, a callback and a list.
 - [x] The static checks, the pinned lists and the converter round trip include it.
