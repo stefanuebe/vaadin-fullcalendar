@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #379 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, fabe75ec) |
 | Blocked by | `57-value-types-order-ranges-lengths-durations` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -20,7 +20,7 @@ The library reads each constraint object with its entry parser (`normalizeConstr
 
 **Blocked by:** `57-value-types-order-ranges-lengths-durations`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, fabe75ec)
 
 - [x] The RRule window round-trips through `ConstraintValueConverter` (`VALUE_TYPES` in `ConverterTest`) and has its case in the switch of `ValueTypeSwitchTest`.
 - [x] `RRule` round-trips through its JSON in both forms.
