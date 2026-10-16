@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #389 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, 9f94986e) |
 | Blocked by | `18-sync-hook-entry-did-mount`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `18-sync-hook-entry-did-mount`, `60-setters-without-form-overloads`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, 9f94986e)
 
 - [x] `setHeight` and the constructor's `setHeightFull()` reach the client.
 - [x] `setHeightFull()` is skipped when the constructor JSON has `height`.
