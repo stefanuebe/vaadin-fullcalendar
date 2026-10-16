@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #385 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, 55884638) |
 | Blocked by | `13-timezone-local-server` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `13-timezone-local-server`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, 55884638)
 
 - [x] Constructor JSON `"local"` gives `LOCAL`, `"Europe/Berlin"` gives that zone in the getter and the offset helpers.
 - [x] `setRawOption("timeZone", …)` throws and names `options().setTimeZone`.
