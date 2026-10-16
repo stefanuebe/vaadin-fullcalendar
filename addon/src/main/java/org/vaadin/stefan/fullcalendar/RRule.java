@@ -521,7 +521,8 @@ public class RRule implements Serializable {
     }
 
     /**
-     * Serializes this RRule to a JsonNode for sending to the client.
+     * Serializes this RRule to a JsonNode for sending to the client. An excluded rule is written by
+     * {@link #toExruleJson()} instead.
      * <ul>
      *   <li>If a raw RRULE string was set (via {@link #ofRaw(String)}), returns a StringNode so FullCalendar
      *       parses it through the iCalendar string parser.</li>
@@ -536,12 +537,55 @@ public class RRule implements Serializable {
      * </ul>
      *
      * @return JsonNode representing this RRule
+     * @see #toExruleJson()
      */
     public JsonNode toJson() {
         if (rawRRule != null || hasPositionalByWeekday()) {
             return JsonUtils.toJsonNode(toRRuleString());
         }
         return toJsonObject();
+    }
+
+    /**
+     * Serializes this RRule as an excluded rule ({@code exrule}). FullCalendar's rrule plugin reads every excluded
+     * rule as an object, never as a string. A positional weekday, such as {@code "-1fr"}, is therefore written as
+     * {@code {"weekday": 4, "n": -1}}, with Monday as 0, the way the rrule library reads it. A plain weekday stays
+     * a string.
+     *
+     * @return JsonNode representing this RRule as an excluded rule
+     */
+    public JsonNode toExruleJson() {
+        if (rawRRule != null) {
+            throw new IllegalArgumentException("A raw RRule cannot be an excluded rule, because FullCalendar's "
+                    + "rrule plugin reads an excluded rule only as an object, not as a string.");
+        }
+        ObjectNode obj = toJsonObject();
+        if (hasPositionalByWeekday()) {
+            ArrayNode arr = JsonFactory.createArray();
+            for (String day : byweekday) {
+                arr.add(day.length() > 2 ? toExruleWeekday(day) : JsonUtils.toJsonNode(day));
+            }
+            obj.set("byweekday", arr);
+        }
+        return obj;
+    }
+
+    /** Writes a positional weekday token such as {@code "-1fr"} as {@code {"weekday": 4, "n": -1}}. */
+    private static JsonNode toExruleWeekday(String day) {
+        if (day == null || day.length() < 3) {
+            throw new IllegalArgumentException("Not a positional weekday: " + day);
+        }
+        int weekday = WEEKDAYS.indexOf(day.substring(day.length() - 2).toLowerCase());
+        int n;
+        try {
+            n = Integer.parseInt(day.substring(0, day.length() - 2));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Not a positional weekday: " + day, e);
+        }
+        if (weekday < 0) {
+            throw new IllegalArgumentException("Not a positional weekday: " + day);
+        }
+        return JsonFactory.createObject().put("weekday", weekday).put("n", n);
     }
 
     /**
@@ -714,6 +758,9 @@ public class RRule implements Serializable {
         return list == null ? null : new ArrayList<>(list);
     }
 
+    /** The weekday abbreviations, Monday first, as the rrule library numbers weekdays. */
+    private static final List<String> WEEKDAYS = List.of("mo", "tu", "we", "th", "fr", "sa", "su");
+
     private static final Set<String> JSON_KEYS = Set.of("freq", "dtstart", "until", "count", "interval", "byweekday",
             "byyearday", "bymonth", "bymonthday", "byhour", "byminute", "wkst");
 
@@ -733,8 +780,8 @@ public class RRule implements Serializable {
 
     /**
      * Reads a rule like {@link #fromJson(JsonNode)} together with its excluded dates and rules, as an entry writes
-     * them in {@code exdate} and {@code exrule}. An excluded rule given as a string is kept as it is, because
-     * {@link #toJson()} writes a rule with a positional weekday, such as {@code "-1fr"}, as a string.
+     * them in {@code exdate} and {@code exrule}. An excluded rule must be an object, as
+     * {@link #toExruleJson()} writes it, a string is rejected.
      *
      * @param json    the JSON of the rule
      * @param exdate  an array of dates like {@code "2026-01-02"}, or null or a null node for none
@@ -765,9 +812,12 @@ public class RRule implements Serializable {
             }
         }
         if (exrule != null && !exrule.isNull()) {
-            // set directly: excludeRules rejects raw rules, but a positional weekday is written as a string
-            rule.excludedRules = (exrule.isArray() ? exrule.valueStream() : Stream.of(exrule))
-                    .map(RRule::fromJson).toList();
+            rule.excludedRules = (exrule.isArray() ? exrule.valueStream() : Stream.of(exrule)).map(node -> {
+                if (!node.isObject()) {
+                    throw new IllegalArgumentException("Not an excluded rule: " + node);
+                }
+                return fromJsonObject(node);
+            }).toList();
         }
         return rule;
     }
@@ -786,7 +836,7 @@ public class RRule implements Serializable {
         rule.until = json.has("until") ? asString(json.get("until")) : null;
         rule.count = json.has("count") ? asInt(json.get("count")) : null;
         rule.interval = json.has("interval") ? asInt(json.get("interval")) : null;
-        rule.byweekday = strings(json.get("byweekday"));
+        rule.byweekday = list(json.get("byweekday"), RRule::asWeekdayToken);
         rule.byyearday = ints(json.get("byyearday"));
         rule.bymonth = ints(json.get("bymonth"));
         rule.bymonthday = ints(json.get("bymonthday"));
@@ -810,8 +860,19 @@ public class RRule implements Serializable {
         return node.asInt();
     }
 
-    private static List<String> strings(JsonNode node) {
-        return list(node, RRule::asString);
+    /** Reads a weekday written as a string, or as {@code {"weekday", "n"}} of an excluded rule, as a token. */
+    private static String asWeekdayToken(JsonNode node) {
+        if (!node.isObject()) {
+            return asString(node);
+        }
+        if (!node.has("weekday") || !node.has("n") || node.size() != 2) {
+            throw new IllegalArgumentException("Not a weekday: " + node);
+        }
+        int weekday = asInt(node.get("weekday"));
+        if (weekday < 0 || weekday >= WEEKDAYS.size()) {
+            throw new IllegalArgumentException("Not a weekday: " + node);
+        }
+        return asInt(node.get("n")) + WEEKDAYS.get(weekday);
     }
 
     private static List<Integer> ints(JsonNode node) {

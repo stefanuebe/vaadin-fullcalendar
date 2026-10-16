@@ -154,7 +154,9 @@ class ConverterTest {
                                     .excludeRules(RRule.weekly().byWeekday("sa", "su")),
                                     Duration.ofMinutes(90)),
                             ConstraintValue.Window.ofRRule(RRule.ofRaw("FREQ=DAILY;DTSTART=20260105")
-                                    .excludeDates(LocalDate.of(2026, 1, 7)))),
+                                    .excludeDates(LocalDate.of(2026, 1, 7))),
+                            ConstraintValue.Window.ofRRule(RRule.daily().dtstart(LocalDate.of(2026, 1, 5))
+                                    .excludeRules(RRule.monthly().byWeekday("-1fr")))),
                     JsonFactory.createArray()
                             .add(JsonFactory.createObject().set("rrule",
                                     RRule.weekly().byWeekday(DayOfWeek.MONDAY).dtstart(LocalDate.of(2026, 1, 5)).toJson()))
@@ -166,7 +168,12 @@ class ConverterTest {
                                     .set("exdate", JsonFactory.createArray().add("2026-01-07"))
                                     .set("exrule", RRule.weekly().byWeekday("sa", "su").toJson()))
                             .add(JsonFactory.createObject().put("rrule", "FREQ=DAILY;DTSTART=20260105")
-                                    .set("exdate", JsonFactory.createArray().add("2026-01-07")))))),
+                                    .set("exdate", JsonFactory.createArray().add("2026-01-07")))
+                            .add(JsonFactory.createObject()
+                                    .set("rrule", RRule.daily().dtstart(LocalDate.of(2026, 1, 5)).toJson())
+                                    .set("exrule", JsonFactory.createObject().put("freq", "monthly")
+                                            .set("byweekday", JsonFactory.createArray().add(
+                                                    JsonFactory.createObject().put("weekday", 4).put("n", -1)))))))),
             Map.entry(ContentValue.class, new ValueType(ContentValueConverter.class, forms(
                     TextContent.of("all day"), "all day", ContentValue.ofHtml("<b>all</b> day"),
                     JsonFactory.createObject().put("html", "<b>all</b> day"), CALLBACK, CALLBACK.toMarkerJson()))),
