@@ -172,23 +172,7 @@ public class FullCalendarOptionsTest {
         ObjectNode initialOptions = JsonFactory.createObject();
         initialOptions.put("height", 500);
         FullCalendar calendar = new FullCalendar(initialOptions);
-        assertEquals(Optional.empty(), calendar.getOption(Option.HEIGHT));
-
-        calendar.setOption(Option.HEIGHT, "300px");
-        calendar.setOption(Option.HEIGHT, null);
-        // the client falls back to the initial JSON options
-        assertEquals(Optional.empty(), calendar.getOption(Option.HEIGHT));
-    }
-
-    @Test
-    void undefinedSizeRemovesTheHeight() {
-        FullCalendar calendar = new FullCalendar();
-
-        calendar.setSizeUndefined();
-        assertEquals(Optional.empty(), calendar.getOption(Option.HEIGHT));
-
-        calendar.setOption(Option.HEIGHT, "500px");
-        calendar.setOption(Option.HEIGHT, null);
+        // getOption shows only values passed to setOption, see HeightSyncTest for what the client gets
         assertEquals(Optional.empty(), calendar.getOption(Option.HEIGHT));
     }
 
