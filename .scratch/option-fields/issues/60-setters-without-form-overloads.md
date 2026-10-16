@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #364 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, eb1c4692) |
 | Blocked by | `57-value-types-order-ranges-lengths-durations` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -26,7 +26,7 @@ The batch tickets 16, 19, 20, 25–36 and 39–41 wait for this ticket, so no ba
 
 **Blocked by:** `57-value-types-order-ranges-lengths-durations`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, eb1c4692)
 
 - [x] No options class has a setter that takes a `JsCallback`, an enum form or a record form of a multi-form value type.
 - [x] `PER_FORM_PARAMETERS` matches the setter table in `README.md` row for row.
