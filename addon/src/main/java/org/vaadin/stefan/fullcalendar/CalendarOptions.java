@@ -16,18 +16,32 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
-import org.vaadin.stefan.fullcalendar.option.ClassName;
-import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
-import org.vaadin.stefan.fullcalendar.option.JsCallback;
-import org.vaadin.stefan.fullcalendar.option.Timezone;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ConstraintValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
+import org.vaadin.stefan.fullcalendar.converters.ListTextValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
+import org.vaadin.stefan.fullcalendar.converters.TextValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.ViewNameValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.WeekNumberCalculationValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
+import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.ClassName;
+import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
+import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
+import org.vaadin.stefan.fullcalendar.option.Direction;
+import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
+import org.vaadin.stefan.fullcalendar.option.TextContent;
+import org.vaadin.stefan.fullcalendar.option.TextValue;
+import org.vaadin.stefan.fullcalendar.option.Timezone;
+import org.vaadin.stefan.fullcalendar.option.ViewName;
+import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
@@ -157,4 +171,516 @@ class CalendarOptions implements Serializable {
      * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewWillUnmount</a>
      */
     private JsCallback viewWillUnmount;
+
+    // Dates, ranges and durations
+
+    /**
+     * The direction in which the calendar renders its elements, left-to-right or right-to-left. It is useful for
+     * right-to-left languages such as Arabic and Hebrew.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/direction">direction</a>
+     */
+    private Direction direction;
+
+    /**
+     * The view the calendar renders when it loads, a built-in or a custom one. The library reads it when the
+     * calendar is created. Use {@link FullCalendar#changeView(CalendarView)} to change the view of a calendar that
+     * is already shown.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/initialView">initialView</a>
+     */
+    @JsonConverter(ViewNameValueConverter.class)
+    private ViewName initialView;
+
+    /**
+     * Sets the view the calendar renders when it loads, by the name of a view, see {@link #getInitialView()}.
+     *
+     * @param name the view name, such as {@code "timeGridDay"}, or null to remove the option
+     */
+    public void setInitialView(String name) {
+        this.initialView = name == null ? null : ViewName.of(name);
+    }
+
+    /**
+     * Sets the view the calendar renders when it loads, see {@link #getInitialView()}.
+     *
+     * @param view the view, a built-in or a custom one, or null to remove the option
+     */
+    public void setInitialView(CalendarView view) {
+        this.initialView = view == null ? null : ViewName.of(view);
+    }
+
+    /**
+     * Sets the view the calendar renders when it loads, see {@link #getInitialView()}.
+     *
+     * @param value the view name, or null to remove the option
+     */
+    public void setInitialView(ViewName value) {
+        this.initialView = value;
+    }
+
+    /**
+     * How the week numbers are calculated: by the locale, by ISO 8601 (which also makes Monday the default first
+     * day of the week), or by a callback that gets a date and returns its week number.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/weekNumberCalculation">weekNumberCalculation</a>
+     */
+    @JsonConverter(WeekNumberCalculationValueConverter.class)
+    private WeekNumberCalculationValue weekNumberCalculation;
+
+    // Time grid and slots
+
+    // Interaction
+
+    /**
+     * Exact programmatic control over where an entry can be dropped. The callback must return a boolean synchronously.
+     * <p>
+     * The callback runs for every new potential drop position while the user is dragging, after
+     * the overlap and constraint settings of entries have allowed the position. It gets a
+     * {@code dropInfo} with {@code start}, {@code end}, {@code allDay} and more, and the dragged entry. See the library
+     * docs.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventAllow">eventAllow</a>
+     */
+    @JsonName("eventAllow")
+    private JsCallback entryAllow;
+
+    /**
+     * Limits entry dragging and resizing to certain windows of time.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventConstraint">eventConstraint</a>
+     */
+    @JsonName("eventConstraint")
+    @JsonConverter(ConstraintValueConverter.class)
+    private ConstraintValue entryConstraint;
+
+    /**
+     * Limits entry dragging and resizing to the entries of a group, see {@link #getEntryConstraint()}. A dragged
+     * entry must be fully contained by at least one entry of that group.
+     *
+     * @param groupId the group id, or null to remove the option
+     */
+    public void setEntryConstraint(String groupId) {
+        this.entryConstraint = groupId == null ? null : ConstraintValue.ofGroupId(groupId);
+    }
+
+    /**
+     * Limits entry dragging and resizing to recurring windows of time, see {@link #getEntryConstraint()}.
+     *
+     * @param windows the windows, at least one, or null to remove the option
+     */
+    public void setEntryConstraint(BusinessHours... windows) {
+        this.entryConstraint = windows == null ? null : ConstraintValue.ofWindows(windows);
+    }
+
+    /**
+     * Limits entry dragging and resizing to windows of time, recurring ones and fixed spans mixed, see
+     * {@link #getEntryConstraint()}.
+     *
+     * @param windows the windows, at least one, or null to remove the option
+     */
+    public void setEntryConstraint(ConstraintValue.Window... windows) {
+        this.entryConstraint = windows == null ? null : ConstraintValue.ofWindows(windows);
+    }
+
+    /**
+     * Limits entry dragging and resizing in any form, see {@link #getEntryConstraint()}. This is the way to pass
+     * {@link ConstraintValue#BUSINESS_HOURS}.
+     *
+     * @param value the constraint, or null to remove the option
+     */
+    public void setEntryConstraint(ConstraintValue value) {
+        this.entryConstraint = value;
+    }
+
+    /**
+     * Whether entries can be resized to change their duration. It decides resizing on its own and takes precedence
+     * over {@code editable}. A single entry can override it.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventDurationEditable">eventDurationEditable</a>
+     */
+    @JsonName("eventDurationEditable")
+    private Boolean entryDurationEditable;
+
+    /**
+     * Whether entries can be dragged to change their start. It decides dragging on its own and takes precedence
+     * over {@code editable}. A single entry can override it.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventStartEditable">eventStartEditable</a>
+     */
+    @JsonName("eventStartEditable")
+    private Boolean entryStartEditable;
+
+    /**
+     * Exact programmatic control over where the user can select. The callback must return a boolean synchronously.
+     * <p>
+     * The callback runs for every new potential selection while the user is dragging. It gets a {@code selectInfo}
+     * with {@code start}, {@code end}, {@code allDay} and more. See the library docs.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/selectAllow">selectAllow</a>
+     */
+    private JsCallback selectAllow;
+
+    /**
+     * Limits where the user can select to certain windows of time. It takes the same values as
+     * {@link #getEntryConstraint()} and applies when selecting is enabled.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/selectConstraint">selectConstraint</a>
+     */
+    @JsonConverter(ConstraintValueConverter.class)
+    private ConstraintValue selectConstraint;
+
+    /**
+     * Limits selections to the entries of a group, see {@link #getSelectConstraint()}.
+     *
+     * @param groupId the group id, or null to remove the option
+     */
+    public void setSelectConstraint(String groupId) {
+        this.selectConstraint = groupId == null ? null : ConstraintValue.ofGroupId(groupId);
+    }
+
+    /**
+     * Limits selections to recurring windows of time, see {@link #getSelectConstraint()}.
+     *
+     * @param windows the windows, at least one, or null to remove the option
+     */
+    public void setSelectConstraint(BusinessHours... windows) {
+        this.selectConstraint = windows == null ? null : ConstraintValue.ofWindows(windows);
+    }
+
+    /**
+     * Limits selections to windows of time, recurring ones and fixed spans mixed, see {@link #getSelectConstraint()}.
+     *
+     * @param windows the windows, at least one, or null to remove the option
+     */
+    public void setSelectConstraint(ConstraintValue.Window... windows) {
+        this.selectConstraint = windows == null ? null : ConstraintValue.ofWindows(windows);
+    }
+
+    /**
+     * Limits selections in any form, see {@link #getSelectConstraint()}. This is the way to pass
+     * {@link ConstraintValue#BUSINESS_HOURS}.
+     *
+     * @param value the constraint, or null to remove the option
+     */
+    public void setSelectConstraint(ConstraintValue value) {
+        this.selectConstraint = value;
+    }
+
+    // Entry display and layout
+
+    /**
+     * CSS classes for the root element of the calendar. FullCalendar adds them to the classes the add-on sets there.
+     * <p>
+     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
+     * {@code borderlessBottom}. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/className">className</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue className;
+
+    /**
+     * Sets fixed CSS classes for the root element, see {@link #getClassName()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setClassName(String classNames) {
+        this.className = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes for the root element in any form, see {@link #getClassName()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setClassName(ClassNameValue value) {
+        this.className = value;
+    }
+
+    /**
+     * The milliseconds the calendar waits after an operation that may rerender it, such as changing the view or adding
+     * an entry, before it rerenders everything at once. This can reduce the number of rerenders. Without a value, the
+     * calendar rerenders at once.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/rerenderDelay">rerenderDelay</a>
+     */
+    private Integer rerenderDelay;
+
+    // Texts, hints and formats
+
+    /**
+     * Text of the day view button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">dayText (locale object)</a>
+     */
+    private String dayText;
+
+    /**
+     * Text of the list view button of the built-in toolbar, or {@link ListTextValue#NONE} to show buttons named by
+     * duration, such as "Week" or "Month", instead of a "List" button. Without a value, the locale's text shows.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/list-view">listText (List view: Toolbar Buttons)</a>
+     */
+    @JsonConverter(ListTextValueConverter.class)
+    private ListTextValue listText;
+
+    /**
+     * Sets a fixed text, see {@link #getListText()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setListText(String text) {
+        this.listText = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getListText()}.
+     *
+     * @param value the text or {@link ListTextValue#NONE}, or null to remove the option
+     */
+    public void setListText(ListTextValue value) {
+        this.listText = value;
+    }
+
+    /**
+     * Text of the month view button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">monthText (locale object)</a>
+     */
+    private String monthText;
+
+    /**
+     * Accessible label ({@code aria-label}) of the "next" button in the built-in toolbar. Without a value, the locale's
+     * text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
+     * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
+     * the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">nextHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue nextHint;
+
+    /**
+     * Sets a fixed text, see {@link #getNextHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setNextHint(String text) {
+        this.nextHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getNextHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setNextHint(TextValue value) {
+        this.nextHint = value;
+    }
+
+    /**
+     * Text of the "next" button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">nextText (locale object)</a>
+     */
+    private String nextText;
+
+    /**
+     * Text of the "next year" button of the built-in toolbar, see {@link NativeToolbarParts#NEXT_YEAR}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
+     */
+    private String nextYearText;
+
+    /**
+     * Accessible label ({@code aria-label}) of the "prev" button in the built-in toolbar. Without a value, the locale's
+     * text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
+     * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
+     * the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">prevHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue prevHint;
+
+    /**
+     * Sets a fixed text, see {@link #getPrevHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setPrevHint(String text) {
+        this.prevHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getPrevHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setPrevHint(TextValue value) {
+        this.prevHint = value;
+    }
+
+    /**
+     * Text of the "previous" button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">prevText (locale object)</a>
+     */
+    private String prevText;
+
+    /**
+     * Text of the "previous year" button of the built-in toolbar, see {@link NativeToolbarParts#PREV_YEAR}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/headerToolbar">headerToolbar</a>
+     */
+    private String prevYearText;
+
+    /**
+     * Accessible label ({@code aria-label}) of the "today" button in the built-in toolbar. Without a value, the
+     * locale's text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the localized unit text, such as "week". A callback gets the
+     * localized unit text and a canonical unit id such as {@code 'day'}, {@code 'week'} or {@code 'month'}. It returns
+     * the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">todayHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue todayHint;
+
+    /**
+     * Sets a fixed text, see {@link #getTodayHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setTodayHint(String text) {
+        this.todayHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getTodayHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setTodayHint(TextValue value) {
+        this.todayHint = value;
+    }
+
+    /**
+     * Text of the "today" button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">todayText (locale object)</a>
+     */
+    private String todayText;
+
+    /**
+     * Accessible label ({@code aria-label}) for the view buttons of the built-in toolbar that have no hint of their
+     * own. Without a value, the locale's text is used.
+     * <p>
+     * A text may use {@code $0} as placeholder for the localized button text, such as "$0 view". A callback gets the
+     * localized button text and the button name from the toolbar, such as {@code 'listWeek'}, and returns the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/hints">viewHint</a>
+     */
+    @JsonConverter(TextValueConverter.class)
+    private TextValue viewHint;
+
+    /**
+     * Sets a fixed text, see {@link #getViewHint()}.
+     *
+     * @param text the text, shown as text, or null to remove the option
+     */
+    public void setViewHint(String text) {
+        this.viewHint = text == null ? null : TextContent.of(text);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getViewHint()}.
+     *
+     * @param value the text or callback, or null to remove the option
+     */
+    public void setViewHint(TextValue value) {
+        this.viewHint = value;
+    }
+
+    /**
+     * Like {@link #getWeekTextShort() weekTextShort}, but only used when the {@code week} setting of a date format is
+     * {@code "long"}. Without a value, the locale's text shows (English: "Week").
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/weekTextLong">weekTextLong</a>
+     */
+    private String weekTextLong;
+
+    /**
+     * Short heading text for week numbers, such as "W" in "W1". It shows above the week number column in day grid views
+     * and next to the week number in the top-left cell of time grid views. It is also used for weeks in date
+     * formatting. Without a value, the locale's text shows (English: "W").
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/weekTextShort">weekTextShort</a>
+     */
+    private String weekTextShort;
+
+    /**
+     * Text of the year view button of the built-in toolbar. Each locale defines this text, see the locale page.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/locale">yearText (locale object)</a>
+     */
+    private String yearText;
 }

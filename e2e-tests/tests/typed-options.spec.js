@@ -57,4 +57,14 @@ test.describe('Typed options of calendar.options()', () => {
         await page.getByRole('button', { name: 'Header align from callback' }).click();
         await expect.poll(dayHeaderAlign).toBe('function returning end');
     });
+
+    test('the initial view and the current date take effect', async ({ page }) => {
+        await page.goto('/test/typed-options');
+        const calendar = page.locator('#cal-initial-view-now');
+
+        // the initial view: the time grid instead of the default month grid
+        await expect(calendar.locator('.fc-timegrid')).toBeVisible({ timeout: 10000 });
+        // now: the library marks 2025-03-12 as today, not the real current date
+        await expect(calendar.locator('.fc-day-today[data-date="2025-03-12"]').first()).toBeVisible();
+    });
 });
