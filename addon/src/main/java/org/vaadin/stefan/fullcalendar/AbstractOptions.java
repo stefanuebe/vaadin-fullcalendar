@@ -48,15 +48,23 @@ public abstract class AbstractOptions implements Serializable {
      * matching event, for example the {@link EntryClickedEvent}. The typed field
      * {@link FullCalendarOptions#setViewDidMount(org.vaadin.stefan.fullcalendar.option.JsCallback)} runs after the
      * handler instead.
+     * <p>
+     * The time zone cannot be a raw option, because the server converts the entry times with the zone of the field.
+     * Set it with {@link FullCalendarOptions#setTimeZone(Timezone)}.
      *
      * @param option the option's name in the FullCalendar library
      * @param value  value, or null (also a JSON null) to remove the option
      * @throws NullPointerException            when the option is null
+     * @throws IllegalArgumentException        when the option is {@code timeZone}
      * @throws OptionValueConversionException when the value cannot be converted to JSON
      * @see <a href="https://fullcalendar.io/docs">FullCalendar documentation</a>
      */
     public void setRawOption(String option, Object value) {
         Objects.requireNonNull(option);
+        if (option.equals("timeZone")) {
+            // the server converts entry times with the field, so the client must not show another zone
+            throw new IllegalArgumentException("Set the time zone with options().setTimeZone(Timezone), not as a raw option");
+        }
         JsonNode json = value == null ? null : toJson(value);
         if (json == null || json.isNull()) {
             rawOptions().remove(option);

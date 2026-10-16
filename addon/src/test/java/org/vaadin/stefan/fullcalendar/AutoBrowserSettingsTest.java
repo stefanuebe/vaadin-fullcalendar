@@ -173,6 +173,52 @@ public class AutoBrowserSettingsTest extends BrowserlessTest {
         assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
     }
 
+    @Test
+    void concreteTimezone_inInitialOptions_isTheField_andIgnoresTheBrowser() {
+        ObjectNode initialOptions = JsonFactory.createObject();
+        initialOptions.put("timeZone", "Europe/Berlin");
+        calendar = new FullCalendar(initialOptions);
+
+        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
+        assertEquals(BERLIN, calendar.getTimezoneForOffsets());
+        assertTrue(calendar.options().getRawOption("timeZone").isEmpty());
+
+        calendar.setBrowserTimezone("Asia/Tokyo");
+
+        assertEquals(BERLIN, calendar.getOption(Option.TIMEZONE).orElseThrow());
+    }
+
+    @Test
+    void nullTimezone_inInitialOptions_isDropped() {
+        ObjectNode initialOptions = JsonFactory.createObject();
+        initialOptions.putNull("timeZone");
+        calendar = new FullCalendar(initialOptions);
+
+        assertEquals(Timezone.LOCAL, calendar.getOption(Option.TIMEZONE).orElseThrow());
+        assertTrue(calendar.options().getRawOption("timeZone").isEmpty());
+    }
+
+    @Test
+    void unknownTimezone_inInitialOptions_throws() {
+        ObjectNode initialOptions = JsonFactory.createObject();
+        initialOptions.put("timeZone", "Nowhere/Nothing");
+
+        assertThrows(IllegalArgumentException.class, () -> new FullCalendar(initialOptions));
+    }
+
+    @Test
+    void rawTimezone_throws_andNamesTheField() {
+        calendar = new FullCalendar();
+
+        for (AbstractOptions options : List.of(calendar.options(),
+                calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH))) {
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                    () -> options.setRawOption("timeZone", "Europe/Berlin"));
+            assertTrue(e.getMessage().contains("options().setTimeZone"), e.getMessage());
+            assertThrows(IllegalArgumentException.class, () -> options.setRawOption("timeZone", null));
+        }
+    }
+
     // -------------------------------------------------------------------------
     // UI locale
     // -------------------------------------------------------------------------
