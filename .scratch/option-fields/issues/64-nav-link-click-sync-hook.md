@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #384 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, b21193d3) |
 | Blocked by | `18-sync-hook-entry-did-mount`, `27-fields-interaction` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -16,7 +16,7 @@ Found by batch 27 (2026-10-16), which left both options out.
 
 **Blocked by:** `18-sync-hook-entry-did-mount`, `27-fields-interaction`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, b21193d3)
 
 - [x] The user's callback runs, and the click event still reaches the server, set initially and later, and after the option is cleared.
 - [x] Both fields are in `SYNCED_APART` in `TypedOptionsSyncTest`, with tests of their own.
