@@ -475,6 +475,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     private static final Map<Class<?>, Map.Entry<Object, JsonNode>> ONE_FORM_SAMPLES = Map.ofEntries(
             sample(Boolean.class, false, JsonUtils.toJsonNode(false)),
             sample(Integer.class, 2, JsonUtils.toJsonNode(2)),
+            sample(Double.class, 1.5, JsonUtils.toJsonNode(1.5)),
             sample(String.class, "x", JsonUtils.toJsonNode("x")),
             sample(DayOfWeek.class, DayOfWeek.WEDNESDAY, JsonUtils.toJsonNode(3)),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
@@ -494,6 +495,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             sample(boolean.class, true, JsonUtils.toJsonNode(true)),
             sample(Boolean.class, true, JsonUtils.toJsonNode(true)),
             sample(BusinessHours.class, BusinessHours.businessWeek(), BusinessHours.businessWeek().toJson()),
+            sample(EntryOrder.Key.class, EntryOrder.ascending("x"), JsonUtils.toJsonNode("x")),
             sample(LocalDate.class, LocalDate.of(2026, 1, 2), JsonUtils.toJsonNode("2026-01-02")),
             sample(LocalDateTime.class, LocalDateTime.of(2026, 1, 2, 3, 4), JsonUtils.toJsonNode("2026-01-02T03:04Z")),
             sample(CalendarView.class, CalendarViewImpl.TIME_GRID_DAY, JsonUtils.toJsonNode("timeGridDay")),
