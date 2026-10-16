@@ -134,10 +134,14 @@ public class Entry implements Serializable {
      */
     private String url;
 
-    @NonNull
+    /**
+     * How the calendar renders this entry. Null means not set, then the calendar's
+     * {@link FullCalendarOptions#setEntryDisplay(DisplayMode) entry display} applies, which is {@link DisplayMode#AUTO}
+     * by default. An entry set to {@link DisplayMode#AUTO} keeps it, also when the calendar sets another display.
+     */
     @JsonName("display")
     @JsonConverter(DisplayModeConverter.class)
-    private DisplayMode displayMode = DisplayMode.AUTO;
+    private DisplayMode displayMode;
 
     @JsonName("startRecur")
     @JsonConverter(LocalDateConverter.class)
@@ -1159,11 +1163,11 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Sets the display mode for this entry. Passing null will reset it to the default.
-     * @param displayMode how to display the entry
+     * Sets how the calendar renders this entry, see {@link #getDisplayMode()}.
+     * @param displayMode how to display the entry, or null to follow the calendar's entry display
      */
     public void setDisplayMode(DisplayMode displayMode) {
-        this.displayMode = displayMode != null ? displayMode : DisplayMode.AUTO;
+        this.displayMode = displayMode;
     }
 
     /**

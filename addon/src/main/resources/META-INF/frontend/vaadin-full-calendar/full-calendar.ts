@@ -459,7 +459,10 @@ export class FullCalendar extends HTMLElement {
                     ...this.convertToEventData(event),
                     title: event.title || '',
                     color: event.color || '',
-                    display: event.display || '',
+                    // FC-UPDATE: event.display returns 'auto' also for an event without a display of its own, which would turn
+                    //  into an explicit AUTO on the server and override the calendar's eventDisplay. The raw value is only
+                    //  on the internal _def. Check whether a new library version offers it publicly.
+                    display: event._def?.ui?.display || '',
                     extendedProps: event.extendedProps,
                 };
 

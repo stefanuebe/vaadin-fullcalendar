@@ -43,6 +43,7 @@ public class ExternalDropTestView extends VerticalLayout {
         Span dropEntry = badge("drop-entry", "");
         Span dropExtendedProp = badge("drop-extended-prop", "");
         Span receiveExtendedProp = badge("receive-extended-prop", "");
+        Span receiveDisplayMode = badge("receive-display-mode", "");
 
         Div badges = new Div(
                 label("dropCount: "), dropCount,
@@ -52,7 +53,8 @@ public class ExternalDropTestView extends VerticalLayout {
                 label(" | dropComponent: "), dropComponent,
                 label(" | dropEntry: "), dropEntry,
                 label(" | dropExtendedProp: "), dropExtendedProp,
-                label(" | receiveExtendedProp: "), receiveExtendedProp
+                label(" | receiveExtendedProp: "), receiveExtendedProp,
+                label(" | receiveDisplayMode: "), receiveDisplayMode
         );
         badges.getStyle().set("font-size", "12px");
         add(badges);
@@ -101,8 +103,10 @@ public class ExternalDropTestView extends VerticalLayout {
             dropExtendedProp.setText(String.valueOf(e.getCreatedEntry().getExtendedProp("priority")));
         });
 
-        calendar.addEntryReceiveListener(e ->
-                receiveExtendedProp.setText(String.valueOf(e.getEntry().getExtendedProp("priority"))));
+        calendar.addEntryReceiveListener(e -> {
+            receiveExtendedProp.setText(String.valueOf(e.getEntry().getExtendedProp("priority")));
+            receiveDisplayMode.setText(String.valueOf(e.getEntry().getDisplayMode()));
+        });
 
         add(calendar);
         setFlexGrow(1, calendar);

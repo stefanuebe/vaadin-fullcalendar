@@ -93,6 +93,7 @@ getEntryConstraint(): ConstraintValue
 getEntryContent(): ContentValue
 getEntryContrastColor(): String
 getEntryDidMount(): JsCallback
+getEntryDisplay(): DisplayMode
 getEntryDragMinDistance(): Integer
 getEntryDurationEditable(): Boolean
 getEntryInnerClass(): ClassNameValue
@@ -401,6 +402,7 @@ setEntryContent(ContentValue): void
 setEntryContent(String): void
 setEntryContrastColor(String): void
 setEntryDidMount(JsCallback): void
+setEntryDisplay(DisplayMode): void
 setEntryDragMinDistance(Integer): void
 setEntryDurationEditable(Boolean): void
 setEntryInnerClass(ClassNameValue): void

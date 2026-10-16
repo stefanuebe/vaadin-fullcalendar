@@ -34,6 +34,7 @@ import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import org.vaadin.stefan.fullcalendar.option.Direction;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
@@ -428,6 +429,20 @@ class CalendarOptions implements Serializable {
      * @see <a href="https://fullcalendar.io/docs/rerenderDelay">rerenderDelay</a>
      */
     private Integer rerenderDelay;
+
+    /**
+     * How the calendar renders all entries, for example as a block, as a list item with a dot, or as a background
+     * entry. An entry with its own {@link Entry#setDisplayMode(DisplayMode) display mode} keeps it.
+     * <p>
+     * {@link DisplayMode#NONE} hides the entries in the browser only. They are still sent to the client with all their
+     * data.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/eventDisplay">eventDisplay</a>
+     */
+    @JsonName("eventDisplay")
+    private DisplayMode entryDisplay;
 
     // Texts, hints and formats
 

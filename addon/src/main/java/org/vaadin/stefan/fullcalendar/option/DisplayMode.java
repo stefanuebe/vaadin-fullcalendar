@@ -7,9 +7,11 @@ import org.vaadin.stefan.fullcalendar.ClientSideValue;
  */
 public enum DisplayMode implements ClientSideValue {
     /**
-     * Does not render the entry.
+     * Does not render the entry. The entry is still sent to the client, with all its data, and only the browser
+     * leaves it out. So this does not keep an entry from a user who must not see it. Leave such an entry out on the
+     * server, for example in the entry provider.
      */
-    NONE(null),
+    NONE("none"),
 
     /**
      * Renders as a solid rectangle in day grid

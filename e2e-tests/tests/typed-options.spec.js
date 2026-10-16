@@ -67,4 +67,14 @@ test.describe('Typed options of calendar.options()', () => {
         // now: the library marks 2025-03-12 as today, not the real current date
         await expect(calendar.locator('.fc-day-today[data-date="2025-03-12"]').first()).toBeVisible();
     });
+
+    test('the calendar entry display applies to entries without one of their own', async ({ page }) => {
+        await page.goto('/test/typed-options');
+        const calendar = page.locator('#cal-entry-display');
+
+        // an entry with its own display mode keeps it, also an explicit AUTO
+        await expect(calendar.locator('.fc-event:not(.fc-bg-event)', { hasText: 'Own auto' })).toBeVisible({ timeout: 10000 });
+        // the entry without one follows the calendar and is the only background entry
+        await expect(calendar.locator('.fc-bg-event')).toHaveCount(1);
+    });
 });

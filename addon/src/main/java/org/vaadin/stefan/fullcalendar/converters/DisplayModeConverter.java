@@ -17,17 +17,17 @@ public class DisplayModeConverter extends ClientSideValueConverter {
     @Override
     public DisplayMode toServerModel(JsonNode clientValue, Object currentInstance) {
         if (clientValue == null || clientValue.isNull()) {
-            return DisplayMode.AUTO;
+            return null;
         }
         String value = clientValue.asString();
         if (value == null || value.isEmpty()) {
-            return DisplayMode.AUTO;
+            return null;
         }
         for (DisplayMode mode : DisplayMode.values()) {
             if (value.equals(mode.getClientSideValue())) {
                 return mode;
             }
         }
-        return DisplayMode.AUTO;
+        return null;
     }
 }

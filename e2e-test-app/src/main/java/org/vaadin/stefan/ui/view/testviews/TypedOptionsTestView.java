@@ -7,14 +7,18 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.vaadin.stefan.fullcalendar.CalendarViewImpl;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView;
+import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
+import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
+import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.ui.layouts.TestLayout;
 import org.vaadin.stefan.ui.menu.MenuItem;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Test view for the typed options of {@code calendar.options()}. Before attach the server sets the initial date
@@ -32,6 +36,9 @@ import java.time.LocalDate;
  * <p>
  * The fourth calendar "cal-initial-view-now" starts in the time grid week through the typed {@code initialView}, shows
  * the week of 2025-03-15 and takes 2025-03-12 as the current date ({@code now}).
+ * <p>
+ * The fifth calendar "cal-entry-display" renders all entries as background entries ({@code entryDisplay}). It shows
+ * "Follows calendar" without a display mode of its own and "Own auto" with {@link DisplayMode#AUTO} set explicitly.
  * <p>
  * Route: /test/typed-options
  */
@@ -87,5 +94,22 @@ public class TypedOptionsTestView extends VerticalLayout {
         initialViewCalendar.options().setNow(LocalDate.of(2025, 3, 12));
         initialViewCalendar.setHeight("300px");
         add(initialViewCalendar);
+
+        Entry followsCalendar = new Entry();
+        followsCalendar.setTitle("Follows calendar");
+        followsCalendar.setStart(LocalDate.of(2025, 3, 10).atStartOfDay());
+        followsCalendar.setAllDay(true);
+        Entry ownAuto = new Entry();
+        ownAuto.setTitle("Own auto");
+        ownAuto.setStart(LocalDate.of(2025, 3, 12).atStartOfDay());
+        ownAuto.setAllDay(true);
+        ownAuto.setDisplayMode(DisplayMode.AUTO);
+        FullCalendar entryDisplayCalendar = new FullCalendar();
+        entryDisplayCalendar.setId("cal-entry-display");
+        entryDisplayCalendar.options().setInitialDate(LocalDate.of(2025, 3, 15));
+        entryDisplayCalendar.options().setEntryDisplay(DisplayMode.BACKGROUND);
+        entryDisplayCalendar.setEntryProvider(new InMemoryEntryProvider<>(List.of(followsCalendar, ownAuto)));
+        entryDisplayCalendar.setHeight("300px");
+        add(entryDisplayCalendar);
     }
 }
