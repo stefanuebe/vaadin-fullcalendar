@@ -92,7 +92,7 @@ public enum SchedulerOption {
      * Allows the user to drag entries between resources.
      * <dl>
      *   <dt>Type</dt>    <dd>{@code boolean}</dd>
-     *   <dt>Default</dt> <dd>inherited from {@link Option#EDITABLE}, which the add-on sets to {@code true}</dd>
+     *   <dt>Default</dt> <dd>inherited from {@link Option#EDITABLE}</dd>
      * </dl>
      *
      * @see <a href="https://fullcalendar.io/docs/eventResourceEditable">eventResourceEditable</a>

@@ -112,7 +112,6 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
 
         assertEquals(1, initialOptions().get("firstDay").asInt());
         assertEquals("2025-03-03", initialOptions().get("initialDate").asString());
-        assertTrue(initialOptions().get("editable").asBoolean());
     }
 
     @Test
@@ -177,14 +176,13 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     }
 
     @Test
-    void constructorJsonEditable_keepsTheAddonDefaultOut() {
-        ObjectNode json = JsonFactory.createObject();
-        json.put("editable", false);
-        calendar = new FullCalendar(json);
+    void initialState_hasNoAddonDefaults_soTheLibraryDefaultsApply() {
         attach();
 
-        assertFalse(initialOptions().get("editable").asBoolean());
-        assertNull(calendar.options().getEditable());
+        // only editable was set by the server, the others by the client, see library-defaults.spec.js
+        for (String name : List.of("editable", "weekNumbers", "tableHeaderSticky", "footerScrollbarSticky")) {
+            assertFalse(initialOptions().has(name), name);
+        }
     }
 
     @Test

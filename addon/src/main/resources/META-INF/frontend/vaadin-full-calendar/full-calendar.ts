@@ -253,11 +253,7 @@ export class FullCalendar extends HTMLElement {
     protected createInitOptions(initialOptions = {}): any {
         let events = this.createEventHandlers();
 
-        let options: CalendarOptions = {
-            weekNumbers: true,
-            tableHeaderSticky: true,
-            footerScrollbarSticky: true,
-        };
+        let options: CalendarOptions = {};
 
         // before the server's options, so a raw option replaces the add-on's handler, as it does in a later setOptions
         const handlers: Record<string, any> = {};

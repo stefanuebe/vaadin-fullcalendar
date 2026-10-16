@@ -72,7 +72,6 @@ public class SerializationTest {
 
         FullCalendar copy = roundtrip(calendar);
         assertEquals(DayOfWeek.MONDAY, copy.options().getFirstDay());
-        assertEquals(Boolean.TRUE, copy.options().getEditable());
         assertEquals(JsCallback.of("() => 'x'"), copy.options().getDayCellClass());
 
         // the options object of the copy changes the copy, not the original
