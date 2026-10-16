@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – (local tracker) |
+| GitHub | #378 |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-16) |
 | Blocked by | `29-fields-texts-formats` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -18,10 +18,12 @@ Found by batch 29 (2026-10-16), which left the option out because no value type 
 
 **Blocked by:** `29-fields-texts-formats`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-16)
 
-- [ ] The field takes every form the library takes, a single format, a callback and a list.
-- [ ] The static checks, the pinned lists and the converter round trip include it.
-- [ ] A browserless test sets one value per form and finds it in the client state.
+- [x] The field takes every form the library takes, a single format, a callback and a list.
+- [x] The static checks, the pinned lists and the converter round trip include it.
+- [x] A browserless test sets one value per form and finds it in the client state.
 
 **Decided (maintainer, 2026-10-16):** an own value type for `slotHeaderFormat`, with the single format, the callback and the list as its forms, named and built per *Value types* in `README.md`, with its row in the setter table. Rejected: the list as a form of `DateFormatValue`, which every other format option would then accept although the library rejects a list there.
+
+**Done (2026-10-16):** `SlotHeaderFormatValue` with `DateFormat`, `JsCallback` and `Tiers` (`of(DateFormatValue...)`), its converter, the field in `ViewOptions` with a `Map` setter and the value-type setter. The time grid uses the first format of a list only, and a timeline without a value picks its formats from its slot duration (library code). 3 review rounds (the third the extra one after a round without major), gate green (656+175 unit, 446 E2E).

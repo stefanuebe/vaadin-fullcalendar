@@ -26,6 +26,7 @@ import org.vaadin.stefan.fullcalendar.option.ListTextValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
+import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
 import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
@@ -177,6 +178,12 @@ class ConverterTest {
             Map.entry(ListDayFormatValue.class, new ValueType(ListDayFormatValueConverter.class, forms(
                     DateFormat.of(Map.of("weekday", "long")), JsonFactory.createObject().put("weekday", "long"),
                     CALLBACK, CALLBACK.toMarkerJson(), ListDayFormatValue.NONE, false))),
+            Map.entry(SlotHeaderFormatValue.class, new ValueType(SlotHeaderFormatValueConverter.class, forms(
+                    DateFormat.of(Map.of("hour", "numeric")), JsonFactory.createObject().put("hour", "numeric"),
+                    CALLBACK, CALLBACK.toMarkerJson(),
+                    SlotHeaderFormatValue.of(DateFormat.of(Map.of("month", "long")), CALLBACK),
+                    JsonFactory.createArray().add(JsonFactory.createObject().put("month", "long"))
+                            .add(CALLBACK.toMarkerJson())))),
             Map.entry(ListTextValue.class, new ValueType(ListTextValueConverter.class, forms(
                     TextContent.of("Agenda"), "Agenda", ListTextValue.NONE, false))),
             Map.entry(NowValue.class, new ValueType(NowValueConverter.class, forms(
@@ -347,6 +354,8 @@ class ConverterTest {
         assertThrows(IllegalArgumentException.class, () -> EntryLimitValue.of(-1));
         assertThrows(IllegalArgumentException.class, ConstraintValue::ofWindows);
         assertThrows(IllegalArgumentException.class, BusinessHoursValue::of);
+        assertThrows(IllegalArgumentException.class, SlotHeaderFormatValue::of);
+        assertThrows(NullPointerException.class, () -> SlotHeaderFormatValue.of((DateFormatValue) null));
         assertThrows(IllegalArgumentException.class, () -> DateFormat.of(Map.of("month", List.of("short"))));
         assertThrows(IllegalArgumentException.class, () -> HeightValue.ofPixels(-1));
         assertThrows(IllegalArgumentException.class, () -> HeightValue.ofCss("auto"));
@@ -414,6 +423,16 @@ class ConverterTest {
                 () -> new ListDayFormatValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
         assertThrows(IllegalArgumentException.class,
                 () -> new ListDayFormatValueConverter().toServerModel(JsonUtils.toJsonNode("MMM d"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new SlotHeaderFormatValueConverter().toServerModel(JsonUtils.toJsonNode(true), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new SlotHeaderFormatValueConverter().toServerModel(JsonUtils.toJsonNode("MMM d"), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new SlotHeaderFormatValueConverter().toServerModel(JsonFactory.createArray(), null));
+        assertThrows(IllegalArgumentException.class, () -> new SlotHeaderFormatValueConverter()
+                .toServerModel(JsonFactory.createArray().add(true), null));
+        assertThrows(IllegalArgumentException.class, () -> new SlotHeaderFormatValueConverter()
+                .toServerModel(JsonFactory.createArray().add(JsonFactory.createArray()), null));
         assertThrows(IllegalArgumentException.class, () -> new ContentValueConverter()
                 .toServerModel(JsonFactory.createObject().put("domNodes", "x"), null));
         assertThrows(IllegalArgumentException.class,
@@ -455,6 +474,13 @@ class ConverterTest {
         ConstraintValue constraint = new ConstraintValue.Windows(windows);
         windows.add(BusinessHours.allDays());
         assertEquals(ConstraintValue.ofWindows(BusinessHours.businessWeek()), constraint);
+
+        DateFormat month = DateFormat.of(Map.of("month", "long"));
+        List<DateFormatValue> tiers = new ArrayList<>(List.of(month));
+        SlotHeaderFormatValue.Tiers slotHeaderFormat = new SlotHeaderFormatValue.Tiers(tiers);
+        tiers.add(DateFormat.of(Map.of("weekday", "short")));
+        assertEquals(List.of(month), slotHeaderFormat.tiers());
+        assertThrows(UnsupportedOperationException.class, () -> slotHeaderFormat.tiers().add(month));
 
         Set<DayOfWeek> days = new HashSet<>(Set.of(DayOfWeek.MONDAY));
         BusinessHours monday = BusinessHours.of(days);

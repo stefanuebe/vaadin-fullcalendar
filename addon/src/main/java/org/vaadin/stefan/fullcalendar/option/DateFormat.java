@@ -30,7 +30,8 @@ import java.util.Objects;
  * @param properties the properties of the format object, with strings, booleans or numbers as values
  * @see <a href="https://fullcalendar.io/docs/date-formatting">Date formatting</a>
  */
-public record DateFormat(Map<String, Object> properties) implements DateFormatValue, ListDayFormatValue {
+public record DateFormat(Map<String, Object> properties)
+        implements DateFormatValue, ListDayFormatValue, SlotHeaderFormatValue {
 
     public DateFormat {
         properties = Map.copyOf(Objects.requireNonNull(properties));

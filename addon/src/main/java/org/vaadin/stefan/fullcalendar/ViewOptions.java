@@ -34,6 +34,7 @@ import org.vaadin.stefan.fullcalendar.converters.HeightValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ListDayFormatValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.NowValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.OverlapValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.SlotHeaderFormatValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.StickyValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.TextValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
@@ -61,6 +62,7 @@ import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
+import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
 import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
@@ -5133,6 +5135,43 @@ class ViewOptions implements Serializable {
      */
     public void setSingleMonthTitleFormat(DateFormatValue value) {
         this.singleMonthTitleFormat = value;
+    }
+
+    /**
+     * Format of the time slot headers. Without a value, the time grid shows times like "5pm" and "5:30pm" in English,
+     * and a timeline view picks its header formats from its slot duration.
+     * <p>
+     * A timeline view also takes one format per header row, with {@link SlotHeaderFormatValue#of(DateFormatValue...)},
+     * the top row first, for example the month above the weekday. Timeline views come with the Scheduler. The time
+     * grid uses the first format only.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code start}, {@code end} and more, and returns the
+     * text. The library docs speak of a date instead of the info object, but the used library version passes the
+     * info object.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/slotHeaderFormat">slotHeaderFormat</a>
+     */
+    @JsonConverter(SlotHeaderFormatValueConverter.class)
+    private SlotHeaderFormatValue slotHeaderFormat;
+
+    /**
+     * Sets a format from its properties, see {@link #getSlotHeaderFormat()}.
+     *
+     * @param properties the properties of the format object, or null to remove the option
+     */
+    public void setSlotHeaderFormat(Map<String, Object> properties) {
+        this.slotHeaderFormat = properties == null ? null : DateFormat.of(properties);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getSlotHeaderFormat()}.
+     *
+     * @param value the format, callback or formats per header row, or null to remove the option
+     */
+    public void setSlotHeaderFormat(SlotHeaderFormatValue value) {
+        this.slotHeaderFormat = value;
     }
 
     /**

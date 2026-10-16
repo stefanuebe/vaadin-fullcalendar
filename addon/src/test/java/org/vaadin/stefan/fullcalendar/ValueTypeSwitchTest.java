@@ -2,6 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
+import org.vaadin.stefan.fullcalendar.option.SlotHeaderFormatValue;
 import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculation;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
@@ -156,6 +157,14 @@ class ValueTypeSwitchTest {
             case DateFormat format -> "format";
             case JsCallback callback -> "callback";
             case NoneValue.None ignored -> "none";
+        };
+    }
+
+    private static String form(SlotHeaderFormatValue value) {
+        return switch (value) {
+            case DateFormat format -> "format";
+            case JsCallback callback -> "callback";
+            case SlotHeaderFormatValue.Tiers tiers -> "tiers";
         };
     }
 

@@ -62,7 +62,7 @@ import java.util.Objects;
  */
 public final class JsCallback implements ClassNameValue, ContentValue, CssSelectorValue, DateFormatValue,
         DateRangeValue, EntryOrderValue, EntryOrder.Key, HeaderAlignValue, ListDayFormatValue, NowValue, OverlapValue,
-        TextValue, ViewNameValue, WeekNumberCalculationValue {
+        SlotHeaderFormatValue, TextValue, ViewNameValue, WeekNumberCalculationValue {
 
     private static final String MARKER_KEY = "__jsCallback";
 
