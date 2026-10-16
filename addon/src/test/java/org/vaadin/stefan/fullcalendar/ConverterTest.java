@@ -261,6 +261,19 @@ class ConverterTest {
             ViewName.class, ViewNameValueConverter.class);
 
     /**
+     * The converters of the map fields, by field name, because maps with different values need different converters.
+     * A map field not listed here is in {@link #MAPS_WRITTEN_AS_THEY_ARE}.
+     */
+    private static final Map<String, Class<?>> MAP_CONVERTERS = Map.of(
+            "toolbarElements", ToolbarElementsConverter.class);
+
+    /**
+     * Map fields, by name, whose values {@link JsonUtils#toJsonNode(Object)} writes as the library reads them: plain
+     * data, callbacks and types with a client value.
+     */
+    private static final Set<String> MAPS_WRITTEN_AS_THEY_ARE = Set.of("buttons");
+
+    /**
      * Field types the sync writes without a converter: JSON scalars, a callback, and types with a client value
      * ({@link ClientSideValue}). Every other field type needs a converter. Add a type here only when the library
      * reads what {@link JsonUtils#toJsonNode(Object)} writes for it.
@@ -596,21 +609,28 @@ class ConverterTest {
 
     /**
      * Every field whose type the sync cannot write as it is uses the converter of its type from {@link #VALUE_TYPES}
-     * or {@link #ONE_FORM_TYPES}.
+     * or {@link #ONE_FORM_TYPES}, a map field the one of {@link #MAP_CONVERTERS}.
      */
     @Test
     void everyValueTypeField_usesTheConverterOfItsType() {
         List<Field> convertedFields = optionFields()
                 .filter(field -> !WRITTEN_AS_THEY_ARE.contains(field.getType())
-                        && !ClientSideValue.class.isAssignableFrom(field.getType()))
+                        && !ClientSideValue.class.isAssignableFrom(field.getType())
+                        && !MAPS_WRITTEN_AS_THEY_ARE.contains(field.getName()))
                 .toList();
 
         assertFalse(convertedFields.isEmpty());
+        Set<String> mapFields = optionFields().filter(field -> field.getType() == Map.class).map(Field::getName)
+                .collect(Collectors.toSet());
+        Set<String> listedMaps = new HashSet<>(MAP_CONVERTERS.keySet());
+        listedMaps.addAll(MAPS_WRITTEN_AS_THEY_ARE);
+        assertEquals(mapFields, listedMaps, "MAP_CONVERTERS and MAPS_WRITTEN_AS_THEY_ARE list the map fields");
         for (Field field : convertedFields) {
             Class<?> type = field.getType();
-            Class<?> expected = VALUE_TYPES.containsKey(type) ? VALUE_TYPES.get(type).converter() : ONE_FORM_TYPES.get(type);
+            Class<?> expected = VALUE_TYPES.containsKey(type) ? VALUE_TYPES.get(type).converter()
+                    : type == Map.class ? MAP_CONVERTERS.get(field.getName()) : ONE_FORM_TYPES.get(type);
             assertNotNull(expected, "Add " + type.getSimpleName() + " of " + field.getName()
-                    + " to VALUE_TYPES, or to ONE_FORM_TYPES when its option takes one form only");
+                    + " to VALUE_TYPES, to ONE_FORM_TYPES when its option takes one form only, or to MAP_CONVERTERS");
             JsonConverter annotation = field.getAnnotation(JsonConverter.class);
             assertNotNull(annotation, "No converter on " + field.getName());
             assertEquals(expected, annotation.value(), field.getName());

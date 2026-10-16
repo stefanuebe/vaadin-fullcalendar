@@ -59,6 +59,7 @@ import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.HeightValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListDayFormatValue;
+import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Overlap;
 import org.vaadin.stefan.fullcalendar.option.OverlapValue;
@@ -5237,5 +5238,82 @@ class ViewOptions implements Serializable {
      */
     public void setWeekNumberFormat(DateFormatValue value) {
         this.weekNumberFormat = value;
+    }
+
+    // Toolbar and entry sources
+
+    /**
+     * Whether the buttons of the built-in toolbars show an icon, text, or both. A single button overrides it with the
+     * {@code display} setting of its entry in {@link FullCalendarOptions#getButtons() buttons}. The library default is
+     * {@link NativeToolbarButtonDisplay#AUTO}, the icon if the theme defines one, otherwise the text.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/buttonDisplay">buttonDisplay</a>
+     */
+    private NativeToolbarButtonDisplay buttonDisplay;
+
+    /**
+     * CSS classes for the built-in header toolbar only. {@link #getToolbarClass() toolbarClass} applies to both
+     * toolbars.
+     * <p>
+     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
+     * {@code borderlessBottom}. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">headerToolbarClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue headerToolbarClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getHeaderToolbarClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setHeaderToolbarClass(String classNames) {
+        this.headerToolbarClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getHeaderToolbarClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setHeaderToolbarClass(ClassNameValue value) {
+        this.headerToolbarClass = value;
+    }
+
+    /**
+     * CSS classes for the built-in footer toolbar only. {@link #getToolbarClass() toolbarClass} applies to both
+     * toolbars.
+     * <p>
+     * A callback gets an {@code info} object with {@code borderlessX}, {@code borderlessTop} and
+     * {@code borderlessBottom}. It returns the class names as a string.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">footerToolbarClass</a>
+     */
+    @JsonConverter(ClassNameValueConverter.class)
+    private ClassNameValue footerToolbarClass;
+
+    /**
+     * Sets fixed CSS classes, see {@link #getFooterToolbarClass()}.
+     *
+     * @param classNames the class names, separated by spaces, or null to remove the option
+     */
+    public void setFooterToolbarClass(String classNames) {
+        this.footerToolbarClass = classNames == null ? null : ClassName.of(classNames);
+    }
+
+    /**
+     * Sets the CSS classes in any form, see {@link #getFooterToolbarClass()}.
+     *
+     * @param value the classes or callback, or null to remove the option
+     */
+    public void setFooterToolbarClass(ClassNameValue value) {
+        this.footerToolbarClass = value;
     }
 }
