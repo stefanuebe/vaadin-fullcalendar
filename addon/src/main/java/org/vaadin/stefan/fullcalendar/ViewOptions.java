@@ -16,11 +16,14 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.AutoBoolean;
 import org.vaadin.stefan.fullcalendar.option.ClassName;
 import org.vaadin.stefan.fullcalendar.option.ClassNameValue;
 import org.vaadin.stefan.fullcalendar.option.ContentValue;
+import org.vaadin.stefan.fullcalendar.option.DurationValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlignValue;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.DateRangeValue;
@@ -32,21 +35,24 @@ import org.vaadin.stefan.fullcalendar.converters.DurationValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.NowValueConverter;
 import lombok.Getter;
 import lombok.Setter;
+import org.vaadin.stefan.fullcalendar.converters.AutoBooleanConverter;
 import org.vaadin.stefan.fullcalendar.converters.ClassNameValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ContentValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.DurationValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.HeaderAlignValueConverter;
+import org.vaadin.stefan.fullcalendar.converters.StickyValueConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import org.vaadin.stefan.fullcalendar.json.JsonName;
 
 import java.io.Serializable;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
-import java.time.Period;
-import java.time.LocalDateTime;
-import java.time.LocalDate;
-import java.time.Duration;
-import java.time.DayOfWeek;
 
 /**
  * The options that can apply per view. Null means not set. This class is not public API. Users reach the fields through
@@ -3517,6 +3523,462 @@ class ViewOptions implements Serializable {
     private Boolean weekNumbers;
 
     // Time grid and slots
+
+    /**
+     * Show or hide the all-day row at the top of the calendar. When hidden, all-day entries are not displayed
+     * in time grid views.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/allDaySlot">allDaySlot</a>
+     */
+    private Boolean allDaySlot;
+
+    /**
+     * Minimum pixel width of each day cell. When the calendar gets too narrow for it, horizontal scrollbars
+     * appear. Applies to vertical resource views, day grid views and time grid views.
+     * <p>
+     * The option needs the premium {@code scrollgrid} plugin of the library, which only {@code FullCalendarScheduler}
+     * loads.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dayMinWidth">dayMinWidth</a>
+     */
+    private Integer dayMinWidth;
+
+    /**
+     * The pixel width of a day column below which the library switches to "narrow" date text and layouts.
+     * Affects views with day columns (day grid, time grid, multi-month). The narrow state shows up as {@code isNarrow}
+     * in the {@code info} of related render hooks.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/dayNarrowWidth">dayNarrowWidth</a>
+     */
+    private Integer dayNarrowWidth;
+
+    /**
+     * Expand the rows of a view to fill its height, if they do not take up the entire height by themselves.
+     * Applies to time grid and timeline views.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/expandRows">expandRows</a>
+     */
+    private Boolean expandRows;
+
+    /**
+     * Maximum number of month columns the multi-month grid tries to render. Fewer columns are shown if each
+     * month would become smaller than {@link #getSingleMonthMinWidth()}. Use {@code 1} for a single column.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/multiMonthMaxColumns">multiMonthMaxColumns</a>
+     */
+    private Integer multiMonthMaxColumns;
+
+    /**
+     * Show a marker for the current time. It repositions itself while the calendar is shown.
+     * Applies to time grid and timeline views.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/nowIndicator">nowIndicator</a>
+     */
+    private Boolean nowIndicator;
+
+    /**
+     * Whether the now indicator aligns with the start of its slot.
+     * <p>
+     * With {@link AutoBoolean#AUTO}, the indicator snaps to the slot when the slot unit is a day or larger or its
+     * value is 1. Otherwise it shows the exact current time. With {@link AutoBoolean#TRUE}, it always snaps to the
+     * slot. With {@link AutoBoolean#FALSE}, it always shows the exact current time.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/nowIndicatorSnap">nowIndicatorSnap</a>
+     */
+    @JsonConverter(AutoBooleanConverter.class)
+    private AutoBoolean nowIndicatorSnap;
+
+    /**
+     * Initial scroll position of the view, as time of day. The user can still scroll back to
+     * earlier times. Use {@link #getSlotMinTime()} to prevent that.
+     * <p>
+     * The position is applied again whenever the date range changes, unless {@link #getScrollTimeReset()} is
+     * {@code false}.
+     * <p>
+     * A change on an attached calendar does not scroll it at once. The new value applies from the next change of the
+     * date range.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/scrollTime">scrollTime</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    private DurationValue scrollTime;
+
+    /**
+     * Sets a time-based duration, see {@link #getScrollTime()}.
+     *
+     * @param duration the duration, or null to remove the option
+     */
+    public void setScrollTime(Duration duration) {
+        this.scrollTime = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration in years, months and days, see {@link #getScrollTime()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setScrollTime(Period period) {
+        this.scrollTime = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets the duration from the library's string format, such as {@code "01:00"}.
+     * See {@link #getScrollTime()}.
+     *
+     * @param text the duration, or null to remove the option
+     */
+    public void setScrollTime(String text) {
+        this.scrollTime = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getScrollTime()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setScrollTime(DurationValue value) {
+        this.scrollTime = value;
+    }
+
+    /**
+     * Whether the view scrolls to {@link #getScrollTime()} every time the date range changes, via the API or by the
+     * user navigating.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/scrollTimeReset">scrollTimeReset</a>
+     */
+    private Boolean scrollTimeReset;
+
+    /**
+     * Minimum pixel width of each mini-month in the multi-month grid, padding included. If the available
+     * width would make a month smaller, the months wrap to the next row.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/singleMonthMinWidth">singleMonthMinWidth</a>
+     */
+    private Integer singleMonthMinWidth;
+
+    /**
+     * Duration of each time slot in time grid and timeline views.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/slotDuration">slotDuration</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    private DurationValue slotDuration;
+
+    /**
+     * Sets a time-based duration, see {@link #getSlotDuration()}.
+     *
+     * @param duration the duration, or null to remove the option
+     */
+    public void setSlotDuration(Duration duration) {
+        this.slotDuration = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration in years, months and days, see {@link #getSlotDuration()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setSlotDuration(Period period) {
+        this.slotDuration = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets the duration from the library's string format, such as {@code "01:00"}.
+     * See {@link #getSlotDuration()}.
+     *
+     * @param text the duration, or null to remove the option
+     */
+    public void setSlotDuration(String text) {
+        this.slotDuration = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getSlotDuration()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setSlotDuration(DurationValue value) {
+        this.slotDuration = value;
+    }
+
+    /**
+     * Whether timed entries in time grid views visually overlap. With {@code true}, at most half of each entry
+     * is obscured. With {@code false}, entries never overlap.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/slotEventOverlap">slotEventOverlap</a>
+     */
+    @JsonName("slotEventOverlap")
+    private Boolean slotEntryOverlap;
+
+    /**
+     * Horizontal text alignment of the slot headers of timeline views, which the Scheduler provides. It accepts the
+     * same values as {@link #getDayHeaderAlign()}.
+     * <p>
+     * A callback gets an {@code info} object with {@code level} and {@code isTime}. It returns {@code "start"},
+     * {@code "center"} or {@code "end"}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderAlign</a>
+     */
+    @JsonConverter(HeaderAlignValueConverter.class)
+    private HeaderAlignValue slotHeaderAlign;
+
+    /**
+     * Interval at which time slots are labeled with a header text, such as one hour to show headers on the hour
+     * marks even if {@link #getSlotDuration()} is 15 or 30 minutes.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/slotHeaderInterval">slotHeaderInterval</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    private DurationValue slotHeaderInterval;
+
+    /**
+     * Sets a time-based duration, see {@link #getSlotHeaderInterval()}.
+     *
+     * @param duration the duration, or null to remove the option
+     */
+    public void setSlotHeaderInterval(Duration duration) {
+        this.slotHeaderInterval = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration in years, months and days, see {@link #getSlotHeaderInterval()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setSlotHeaderInterval(Period period) {
+        this.slotHeaderInterval = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets the duration from the library's string format, such as {@code "01:00"}.
+     * See {@link #getSlotHeaderInterval()}.
+     *
+     * @param text the duration, or null to remove the option
+     */
+    public void setSlotHeaderInterval(String text) {
+        this.slotHeaderInterval = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getSlotHeaderInterval()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setSlotHeaderInterval(DurationValue value) {
+        this.slotHeaderInterval = value;
+    }
+
+    /**
+     * Sticky positioning of the header rows above the lowest one in the slot headers of timeline views, which the
+     * Scheduler provides. With {@link StickyValue#STICKY} their text stays visible at the start and end edge of the
+     * horizontal scroll area, with {@link StickyValue#NOT_STICKY} it scrolls away. With an offset, a number or a CSS
+     * length, that edge moves inward by the offset.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/slot-header-render-hooks">slotHeaderSticky</a>
+     */
+    @JsonConverter(StickyValueConverter.class)
+    private StickyValue slotHeaderSticky;
+
+    /**
+     * Sets the slot headers sticky at an offset from the edge, see {@link #getSlotHeaderSticky()}.
+     *
+     * @param offset a CSS length, such as {@code "2em"} or {@code "10px"}, or null to remove the option
+     */
+    public void setSlotHeaderSticky(String offset) {
+        this.slotHeaderSticky = offset == null ? null : StickyValue.of(offset);
+    }
+
+    /**
+     * Sets the sticky positioning of the slot headers in any form, see {@link #getSlotHeaderSticky()}.
+     *
+     * @param value the positioning, or null to remove the option
+     */
+    public void setSlotHeaderSticky(StickyValue value) {
+        this.slotHeaderSticky = value;
+    }
+
+    /**
+     * Last time slot displayed for each day, as an exclusive end time. {@code "24:00:00"} ends at midnight. The slot
+     * limit also applies when the view is scrolled back all the way.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/slotMaxTime">slotMaxTime</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    private DurationValue slotMaxTime;
+
+    /**
+     * Sets a time-based duration, see {@link #getSlotMaxTime()}.
+     *
+     * @param duration the duration, or null to remove the option
+     */
+    public void setSlotMaxTime(Duration duration) {
+        this.slotMaxTime = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration in years, months and days, see {@link #getSlotMaxTime()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setSlotMaxTime(Period period) {
+        this.slotMaxTime = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets the duration from the library's string format, such as {@code "01:00"}.
+     * See {@link #getSlotMaxTime()}.
+     *
+     * @param text the duration, or null to remove the option
+     */
+    public void setSlotMaxTime(String text) {
+        this.slotMaxTime = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getSlotMaxTime()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setSlotMaxTime(DurationValue value) {
+        this.slotMaxTime = value;
+    }
+
+    /**
+     * Height of each slot of the time axis, in pixels. Without it, a value is computed.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/slotMinHeight">slotMinHeight</a>
+     */
+    private Integer slotMinHeight;
+
+    /**
+     * First time slot displayed for each day. {@code "00:00:00"} starts at midnight. The slot limit also applies when
+     * the view is scrolled back all the way.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/slotMinTime">slotMinTime</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    private DurationValue slotMinTime;
+
+    /**
+     * Sets a time-based duration, see {@link #getSlotMinTime()}.
+     *
+     * @param duration the duration, or null to remove the option
+     */
+    public void setSlotMinTime(Duration duration) {
+        this.slotMinTime = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration in years, months and days, see {@link #getSlotMinTime()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setSlotMinTime(Period period) {
+        this.slotMinTime = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets the duration from the library's string format, such as {@code "01:00"}.
+     * See {@link #getSlotMinTime()}.
+     *
+     * @param text the duration, or null to remove the option
+     */
+    public void setSlotMinTime(String text) {
+        this.slotMinTime = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getSlotMinTime()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setSlotMinTime(DurationValue value) {
+        this.slotMinTime = value;
+    }
+
+    /**
+     * Time interval to which a dragged entry snaps on the time axis. Also sets the granularity of selections.
+     * Without a value, it is the same as {@link #getSlotDuration()}.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/snapDuration">snapDuration</a>
+     */
+    @JsonConverter(DurationValueConverter.class)
+    private DurationValue snapDuration;
+
+    /**
+     * Sets a time-based duration, see {@link #getSnapDuration()}.
+     *
+     * @param duration the duration, or null to remove the option
+     */
+    public void setSnapDuration(Duration duration) {
+        this.snapDuration = duration == null ? null : DurationValue.ofTime(duration);
+    }
+
+    /**
+     * Sets a calendar-based duration in years, months and days, see {@link #getSnapDuration()}.
+     *
+     * @param period the years, months and days, not zero, or null to remove the option
+     */
+    public void setSnapDuration(Period period) {
+        this.snapDuration = period == null ? null : DurationValue.ofCalendar(period);
+    }
+
+    /**
+     * Sets the duration from the library's string format, such as {@code "01:00"}.
+     * See {@link #getSnapDuration()}.
+     *
+     * @param text the duration, or null to remove the option
+     */
+    public void setSnapDuration(String text) {
+        this.snapDuration = text == null ? null : DurationValue.ofTimeString(text);
+    }
+
+    /**
+     * Sets the duration in any form, see {@link #getSnapDuration()}.
+     *
+     * @param value the duration, or null to remove the option
+     */
+    public void setSnapDuration(DurationValue value) {
+        this.snapDuration = value;
+    }
 
     // Interaction
 

@@ -539,7 +539,13 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry("setDefaultAllDayEntryDuration(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
             Map.entry("setDefaultTimedEntryDuration(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
             Map.entry("setDuration(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
-            Map.entry("setNextDayThreshold(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))));
+            Map.entry("setNextDayThreshold(String)", Map.entry("08:30", JsonUtils.toJsonNode("08:30:00"))),
+            Map.entry("setScrollTime(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSlotDuration(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSlotHeaderInterval(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSlotMaxTime(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSlotMinTime(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))),
+            Map.entry("setSnapDuration(String)", Map.entry("01:00", JsonUtils.toJsonNode("01:00:00"))));
 
     /**
      * A second value for the parameter types with two values only, so a setter that ignores its argument and writes
