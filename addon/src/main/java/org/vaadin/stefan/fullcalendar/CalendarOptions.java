@@ -157,4 +157,14 @@ class CalendarOptions implements Serializable {
      * @see <a href="https://fullcalendar.io/docs/view-render-hooks">viewWillUnmount</a>
      */
     private JsCallback viewWillUnmount;
+
+    // Dates, ranges and durations
+
+    // Time grid and slots
+
+    // Interaction
+
+    // Entry display and layout
+
+    // Texts, hints and formats
 }

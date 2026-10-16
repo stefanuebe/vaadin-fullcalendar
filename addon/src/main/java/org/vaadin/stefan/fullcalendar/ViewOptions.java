@@ -3040,4 +3040,14 @@ class ViewOptions implements Serializable {
      * @see <a href="https://fullcalendar.io/docs/toolbar-render-hooks">toolbarTitleClass</a>
      */
     private String toolbarTitleClass;
+
+    // Dates, ranges and durations
+
+    // Time grid and slots
+
+    // Interaction
+
+    // Entry display and layout
+
+    // Texts, hints and formats
 }
