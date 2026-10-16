@@ -1184,8 +1184,8 @@ public class Entry implements Serializable {
         return (daysOfWeek != null && !daysOfWeek.isEmpty())
                 || getRecurringEndDate() != null
                 || getRecurringStartDate() != null
-                || getRecurringStartTimeAsLocalTime() != null
-                || getRecurringEndTimeAsLocalTime() != null;
+                || recurringStartTime != null
+                || recurringEndTime != null;
     }
 
     /**

@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – (local tracker) |
+| GitHub | #381 |
 | Labels | bug, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-16, c26e480b) |
 | Blocked by | `62-business-hours-past-midnight` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,6 +14,8 @@
 
 **Blocked by:** `62-business-hours-past-midnight`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-16, c26e480b)
 
-- [ ] A unit test: an entry with only a recurring end time of 26:00 is recurring, and `isRecurring()` does not throw.
+- [x] A unit test: an entry with only a recurring end time of 26:00 is recurring, and `isRecurring()` does not throw.
+
+**Done (2026-10-16):** `isRecurring()` checks the two fields for null. Not changed, by decision of the review: `DemoDialog` and `PlaygroundDialog` call the throwing getters too, but their pickers cannot hold a time from 24:00 on and neither app creates such entries. 2 review rounds, gate green (670+175 unit, 446 E2E).
