@@ -47,6 +47,9 @@ tracker, see `docs/agents/issue-tracker.md`. Decisions with their reasons are in
   *Documentation*.
 - **Never push.** Pushing, opening pull requests and anything else that leaves this
   machine is the maintainer's step, always. This includes the wiki repo.
+- **GitHub API:** `gh` runs under API time limits. No polling loops against the
+  GitHub API (for example, do not query the CI status repeatedly). Create issues,
+  comments and pull requests one at a time and only when needed, never in series.
 - **Branches and pull requests:** ticket work happens on a branch, one per ticket,
   or one integration branch for tickets that only turn green together. It is not
   merged into `master` locally. It reaches `master` through a GitHub pull request,
