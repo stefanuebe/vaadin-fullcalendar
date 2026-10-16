@@ -152,6 +152,7 @@ getLocale(): Locale
 getLongPressDelay(): Integer
 getMonthStartFormat(): DateFormatValue
 getMonthText(): String
+getMoreLinkClick(): MoreLinkClickValue
 getMoreLinkHint(): TextValue
 getMoreLinkText(): TextValue
 getMultiMonthMaxColumns(): Integer
@@ -505,6 +506,9 @@ setLongPressDelay(Integer): void
 setMonthStartFormat(DateFormatValue): void
 setMonthStartFormat(Map): void
 setMonthText(String): void
+setMoreLinkClick(CalendarView): void
+setMoreLinkClick(MoreLinkClickValue): void
+setMoreLinkClick(String): void
 setMoreLinkHint(String): void
 setMoreLinkHint(TextValue): void
 setMoreLinkText(String): void

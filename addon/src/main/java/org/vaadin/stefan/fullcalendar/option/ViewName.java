@@ -20,12 +20,13 @@ import org.vaadin.stefan.fullcalendar.CalendarView;
 import java.util.Objects;
 
 /**
- * The client-side name of a view, for an option that takes a view name or a callback.
+ * The client-side name of a view, for an option that takes a view name, see {@link ViewNameValue} and
+ * {@link MoreLinkClickValue}.
  *
  * @param name the view name, such as {@code "timeGridDay"}
  * @see CalendarView#getClientSideValue()
  */
-public record ViewName(String name) implements ViewNameValue {
+public record ViewName(String name) implements ViewNameValue, MoreLinkClickValue {
 
     public ViewName {
         Objects.requireNonNull(name);

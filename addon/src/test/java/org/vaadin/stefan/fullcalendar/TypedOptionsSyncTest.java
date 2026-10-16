@@ -33,6 +33,7 @@ import org.vaadin.stefan.fullcalendar.option.StickyValue;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
 import org.vaadin.stefan.fullcalendar.option.ViewName;
 import org.vaadin.stefan.fullcalendar.option.ViewNameValue;
+import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.internal.PendingJavaScriptInvocation;
@@ -592,6 +593,7 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
             Map.entry(CssSelectorValue.class, Set.of(String.class)),
             Map.entry(HeaderAlignValue.class, Set.of()),
             Map.entry(ViewNameValue.class, Set.of(String.class, CalendarView.class)),
+            Map.entry(MoreLinkClickValue.class, Set.of(String.class, CalendarView.class)),
             Map.entry(OverlapValue.class, Set.of(boolean.class)),
             Map.entry(DateFormatValue.class, Set.of(Map.class)),
             Map.entry(ListDayFormatValue.class, Set.of(Map.class)),

@@ -25,6 +25,7 @@ import org.vaadin.stefan.fullcalendar.converters.DayOfWeekConverter;
 import org.vaadin.stefan.fullcalendar.converters.ListTextValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocalDateConverter;
 import org.vaadin.stefan.fullcalendar.converters.LocaleConverter;
+import org.vaadin.stefan.fullcalendar.converters.MoreLinkClickValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.TextValueConverter;
 import org.vaadin.stefan.fullcalendar.converters.ToolbarElementsConverter;
 import org.vaadin.stefan.fullcalendar.converters.ToolbarValueConverter;
@@ -42,6 +43,7 @@ import org.vaadin.stefan.fullcalendar.option.Direction;
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import org.vaadin.stefan.fullcalendar.option.ListTextValue;
+import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
 import org.vaadin.stefan.fullcalendar.option.TextContent;
@@ -437,6 +439,51 @@ class CalendarOptions implements Serializable {
      * @see <a href="https://fullcalendar.io/docs/navLinkWeekClick">navLinkWeekClick</a>
      */
     private JsCallback navLinkWeekClick;
+
+    /**
+     * What happens when the user clicks a "+N more" link, which the entry limits create: an action such as
+     * {@link MoreLinkClickValue.Action#POPUP}, a view to go to, or a callback. The library default is the popover.
+     * <p>
+     * A callback gets an {@code info} object with {@code date}, {@code allSegs}, {@code jsEvent} and more, see the
+     * library docs. It can return an action or a view name, which then applies.
+     * <p>
+     * The calendar has its own callback for this option, which sends the {@link MoreLinkClickedEvent}, and applies this
+     * value after it. The server gets the event with every value, also with a raw option.
+     * <p>
+     * The getter returns null while the option is not set; then the library default applies.
+     *
+     * @see <a href="https://fullcalendar.io/docs/moreLinkClick">moreLinkClick</a>
+     */
+    @Setter(AccessLevel.NONE)
+    @JsonConverter(MoreLinkClickValueConverter.class)
+    private MoreLinkClickValue moreLinkClick;
+
+    /**
+     * Sets the view to go to, see {@link #getMoreLinkClick()}.
+     *
+     * @param viewName the client-side view name, such as {@code "timeGridDay"}, or null to remove the option
+     */
+    public void setMoreLinkClick(String viewName) {
+        this.moreLinkClick = viewName == null ? null : ViewName.of(viewName);
+    }
+
+    /**
+     * Sets the view to go to, see {@link #getMoreLinkClick()}.
+     *
+     * @param view the view, or null to remove the option
+     */
+    public void setMoreLinkClick(CalendarView view) {
+        this.moreLinkClick = view == null ? null : ViewName.of(view);
+    }
+
+    /**
+     * Sets the value in any form, see {@link #getMoreLinkClick()}.
+     *
+     * @param value the action, view name or callback, or null to remove the option
+     */
+    public void setMoreLinkClick(MoreLinkClickValue value) {
+        this.moreLinkClick = value;
+    }
 
     /**
      * Exact programmatic control over where the user can select. The callback must return a boolean synchronously.

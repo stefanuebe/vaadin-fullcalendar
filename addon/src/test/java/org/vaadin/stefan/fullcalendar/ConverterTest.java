@@ -34,6 +34,7 @@ import org.vaadin.stefan.fullcalendar.option.TextValue;
 import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.vaadin.stefan.fullcalendar.option.ViewName;
 import org.vaadin.stefan.fullcalendar.option.ViewNameValue;
+import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculation;
 import org.vaadin.stefan.fullcalendar.option.WeekNumberCalculationValue;
 import org.vaadin.stefan.fullcalendar.option.WidthValue;
@@ -240,6 +241,10 @@ class ConverterTest {
                     TextContent.of("+2 more"), "+2 more", CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(StickyValue.class, new ValueType(StickyValueConverter.class, forms(
                     StickyValue.NOT_STICKY, false, StickyValue.STICKY, true, StickyValue.of("2em"), "2em"))),
+            Map.entry(MoreLinkClickValue.class, new ValueType(MoreLinkClickValueConverter.class, forms(
+                    MoreLinkClickValue.Action.POPUP, "popover", MoreLinkClickValue.Action.DAY, "day",
+                    MoreLinkClickValue.Action.WEEK, "week", MoreLinkClickValue.Action.NOTHING, "function",
+                    ViewName.of("timeGridDay"), "timeGridDay", CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(ViewNameValue.class, new ValueType(ViewNameValueConverter.class, forms(
                     ViewName.of("timeGridDay"), "timeGridDay", CALLBACK, CALLBACK.toMarkerJson()))),
             Map.entry(WeekNumberCalculationValue.class, new ValueType(WeekNumberCalculationValueConverter.class, forms(
@@ -326,6 +331,14 @@ class ConverterTest {
                 new StickyValueConverter().toServerModel(JsonUtils.toJsonNode(10), null));
         assertEquals(StickyValue.of("10.5px"),
                 new StickyValueConverter().toServerModel(JsonUtils.toJsonNode(10.5), null));
+    }
+
+    @Test
+    void moreLinkClickValue_otherJsonKinds_throw() {
+        MoreLinkClickValueConverter converter = new MoreLinkClickValueConverter();
+
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(JsonUtils.toJsonNode(5), null));
+        assertThrows(IllegalArgumentException.class, () -> converter.toServerModel(JsonUtils.toJsonNode(false), null));
     }
 
     @Test

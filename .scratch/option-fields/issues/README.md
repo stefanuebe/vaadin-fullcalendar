@@ -75,6 +75,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
   | `CssSelectorValue` | `String` |
   | `HeaderAlignValue` | none |
   | `ViewNameValue` | `String`, `CalendarView` |
+  | `MoreLinkClickValue` | `String` (view name), `CalendarView`; the actions are constants of `MoreLinkClickValue.Action` |
   | `OverlapValue` | `boolean` |
   | `DateFormatValue` | `Map<String, Object>` |
   | `ListDayFormatValue` | `Map<String, Object>` |
