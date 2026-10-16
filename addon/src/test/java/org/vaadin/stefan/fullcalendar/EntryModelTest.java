@@ -871,4 +871,22 @@ public class EntryModelTest {
         entry.setDisplayMode(DisplayMode.NONE);
         assertEquals("none", entry.toJson().get("display").asString());
     }
+
+    @Test
+    void isRecurring_withAnEndTimePastMidnight() {
+        Entry entry = new Entry();
+        entry.setRecurringEndTime(ExtendedLocalTime.of(26, 0));
+        assertTrue(entry.isRecurring());
+
+        Entry startOnly = new Entry();
+        startOnly.setRecurringStartTime(ExtendedLocalTime.of(24, 30));
+        assertTrue(startOnly.isRecurring());
+
+        startOnly.setRecurringStartTime((ExtendedLocalTime) null);
+        assertFalse(startOnly.isRecurring());
+
+        Entry endOfDay = new Entry();
+        endOfDay.setRecurringEndTime(ExtendedLocalTime.of(24));
+        assertTrue(endOfDay.isRecurring());
+    }
 }
