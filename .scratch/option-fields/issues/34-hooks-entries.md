@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #367 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16, 65ad5385) |
 | Blocked by | `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `18-sync-hook-entry-did-mount`, `21-value-types-render-hooks`, `60-setters-without-form-overloads` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,7 +14,7 @@
 
 **Blocked by:** `11-static-checks-core`, `12-pinned-api-and-converter-roundtrip`, `18-sync-hook-entry-did-mount`, `21-value-types-render-hooks`, `60-setters-without-form-overloads`
 
-**Status:** done (2026-10-16)
+**Status:** done (2026-10-16, 65ad5385)
 
 - [x] Every field follows *Field batches* in `README.md` (Javadoc with `@see`, section, wrapper type, global or per view as the option-name resource says).
 - [x] The static checks (11) pass with the new fields; the pinned method list and the converter round trip (12) include them.
