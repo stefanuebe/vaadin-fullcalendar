@@ -18,7 +18,7 @@ package org.vaadin.stefan.fullcalendar.option;
 
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.Resource;
-import org.vaadin.stefan.fullcalendar.Scheduler;
+import org.vaadin.stefan.fullcalendar.FullCalendarSchedulerOptions;
 import lombok.NonNull;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -26,7 +26,7 @@ import java.io.Serializable;
 
 /**
  * Represents a column definition for the resource area sidebar in timeline views.
- * When {@link Scheduler#setResourceColumns(java.util.List) resourceColumns} is configured,
+ * When {@link FullCalendarSchedulerOptions#setResourceColumns(java.util.List) resourceColumns} is configured,
  * the resource area becomes a multi-column data grid with a header row.
  * <p>
  * Each column maps to a resource property name (from the resource's built-in fields or
@@ -40,10 +40,10 @@ import java.io.Serializable;
  * ResourceColumn capCol = new ResourceColumn("capacity", "Capacity")
  *     .withWidth("80px")
  *     .withCellDidMount(JsCallback.of("function(info) { info.el.title = 'Tooltip'; }"));
- * scheduler.setResourceColumns(List.of(deptCol, capCol));
+ * scheduler.options().setResourceColumns(List.of(deptCol, capCol));
  * }</pre>
  *
- * @see Scheduler#setResourceColumns(java.util.List)
+ * @see FullCalendarSchedulerOptions#setResourceColumns(java.util.List)
  * @see <a href="https://fullcalendar.io/docs/resourceColumns">FullCalendar resourceColumns</a>
  */
 public class ResourceColumn implements Serializable {

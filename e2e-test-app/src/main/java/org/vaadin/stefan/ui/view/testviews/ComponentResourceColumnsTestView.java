@@ -84,7 +84,7 @@ public class ComponentResourceColumnsTestView extends VerticalLayout {
                     return field;
                 });
 
-        calendar.setResourceColumns(List.of(
+        calendar.options().setResourceColumns(List.of(
                 new ResourceColumn("title", "Name").withWidth("150px"),
                 dateColumn.withWidth("160px"),
                 notesColumn.withWidth("150px")

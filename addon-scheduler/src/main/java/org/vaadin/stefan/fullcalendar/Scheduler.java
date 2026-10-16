@@ -215,14 +215,18 @@ public interface Scheduler {
      * @see ResourceColumn
      * @see ComponentResourceColumn
      * @see <a href="https://fullcalendar.io/docs/resourceColumns">FullCalendar resourceColumns</a>
+     * @deprecated use {@link FullCalendarSchedulerOptions#setResourceColumns(List)}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     void setResourceColumns(List<? extends ResourceColumn> columns);
 
     /**
      * Convenience overload for {@link #setResourceColumns(List)}.
      *
      * @param columns column definitions
+     * @deprecated use {@link FullCalendarSchedulerOptions#setResourceColumns(List)}
      */
+    @Deprecated(since = "8.0.0", forRemoval = true)
     default void setResourceColumns(ResourceColumn... columns) {
         setResourceColumns(Arrays.asList(columns));
     }
@@ -232,7 +236,8 @@ public interface Scheduler {
      * grid. Delegates to it.
      *
      * @param columns list of column definitions; must not be null
-     * @deprecated use {@link #setResourceColumns(List)}. FullCalendar 7 calls them resource columns
+     * @deprecated use {@link FullCalendarSchedulerOptions#setResourceColumns(List)}. FullCalendar 7 calls them
+     * resource columns
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
     default void setResourceAreaColumns(List<? extends ResourceColumn> columns) {
@@ -244,7 +249,8 @@ public interface Scheduler {
      * {@link #setResourceAreaColumns(List)}. Delegates to {@link #setResourceColumns(ResourceColumn...)}.
      *
      * @param columns column definitions
-     * @deprecated use {@link #setResourceColumns(ResourceColumn...)}. FullCalendar 7 calls them resource columns
+     * @deprecated use {@link FullCalendarSchedulerOptions#setResourceColumns(List)}. FullCalendar 7 calls them
+     * resource columns
      */
     @Deprecated(since = "8.0.0", forRemoval = true)
     default void setResourceAreaColumns(ResourceColumn... columns) {

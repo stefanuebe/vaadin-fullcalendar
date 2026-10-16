@@ -30,6 +30,20 @@ base.describe('Component Resource Columns', () => {
             await expect(page.locator('[data-testid="datepicker-res-b"]')).toBeVisible();
         });
 
+        base('the scheduler starts with an empty resource list and gets the resources the server added', async ({ page }) => {
+            // The server sends no resources option, the client sets an empty list. The resources added on the server
+            // arrive.
+            const state = await page.evaluate(() => {
+                const calendar = document.querySelector('vaadin-full-calendar-scheduler').calendar;
+                return {
+                    option: calendar.getOption('resources'),
+                    ids: calendar.getTopLevelResources().map(resource => resource.id).sort(),
+                };
+            });
+            expect(state.option).toEqual([]);
+            expect(state.ids).toEqual(['res-a', 'res-b', 'res-parent']);
+        });
+
         base('Child resource has components', async ({ page }) => {
             await expect(page.locator('[data-testid="datepicker-res-child"]')).toBeVisible();
         });
