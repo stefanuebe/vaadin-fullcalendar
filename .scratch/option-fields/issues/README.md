@@ -136,6 +136,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
 | `66-entry-display-none.md` | `eventDisplay` and the client value of `DisplayMode.NONE` | 28 |
 | `67-option-by-option-review.md` | Compare every option with its field (Javadoc, values, mapping) | 42 |
 | `68-exrule-positional-weekday.md` | Excluded rules with a positional weekday (check, then fix) | 61 |
+| `69-is-recurring-past-midnight.md` | `Entry.isRecurring()` with a recurring time past midnight | 62 |
 | `25-fields-dates.md` | Fields: dates, ranges and durations | 11, 12, 24, 57, 60 |
 | `26-fields-time-grid.md` | Fields: time grid and slots | 11, 12, 21, 24, 57, 60 |
 | `27-fields-interaction.md` | Fields: interaction | 11, 12, 22, 23, 57, 60 |

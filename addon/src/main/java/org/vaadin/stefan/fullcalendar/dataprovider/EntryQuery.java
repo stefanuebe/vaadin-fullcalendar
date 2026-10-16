@@ -2,7 +2,7 @@ package org.vaadin.stefan.fullcalendar.dataprovider;
 
 import lombok.*;
 import org.vaadin.stefan.fullcalendar.Entry;
-import org.vaadin.stefan.fullcalendar.RecurringTime;
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 
 import java.time.Duration;
@@ -119,7 +119,7 @@ public class EntryQuery {
             return null;
         }
 
-        RecurringTime startTime = e.getRecurringStartTime();
+        ExtendedLocalTime startTime = e.getRecurringStartTime();
         if (startTime == null) {
             return startDate.atStartOfDay();
         }
@@ -141,7 +141,7 @@ public class EntryQuery {
             return null;
         }
 
-        RecurringTime endTime = e.getRecurringEndTime();
+        ExtendedLocalTime endTime = e.getRecurringEndTime();
         LocalDateTime last = endTime == null
                 ? endDate.plusDays(1).atStartOfDay().minusSeconds(1)
                 : endDate.atStartOfDay().plusHours(endTime.getHour()).plusMinutes(endTime.getMinute());

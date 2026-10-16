@@ -1,5 +1,6 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import org.junit.jupiter.api.Test;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 
@@ -77,7 +78,7 @@ class EntryQueryTest {
     void recurringEndTimeBeyond24h_shiftsToNextDay() {
         Entry entry = recurring();
         entry.setRecurringEndDate(LocalDate.of(2025, 3, 31));
-        entry.setRecurringEndTime(RecurringTime.of(26, 0));
+        entry.setRecurringEndTime(ExtendedLocalTime.of(26, 0));
 
         assertTrue(matches(entry, LocalDateTime.of(2025, 4, 1, 1, 59), null));
         assertFalse(matches(entry, LocalDateTime.of(2025, 4, 1, 2, 0), null));
@@ -98,7 +99,7 @@ class EntryQueryTest {
     void recurringStartTimeBeyond24h_shiftsToNextDay() {
         Entry entry = recurring();
         entry.setRecurringStartDate(LocalDate.of(2025, 3, 1));
-        entry.setRecurringStartTime(RecurringTime.of(25, 0));
+        entry.setRecurringStartTime(ExtendedLocalTime.of(25, 0));
 
         assertTrue(matches(entry, null, LocalDateTime.of(2025, 3, 2, 1, 1)));
         assertFalse(matches(entry, null, LocalDateTime.of(2025, 3, 2, 1, 0)));

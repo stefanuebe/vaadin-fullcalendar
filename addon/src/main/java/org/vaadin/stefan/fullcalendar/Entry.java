@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.SerializableFunction;
@@ -152,12 +153,12 @@ public class Entry implements Serializable {
     private LocalDate recurringEndDate;
 
     @JsonName("startTime")
-    @JsonConverter(RecurringTimeConverter.class)
-    private RecurringTime recurringStartTime; // see #139
+    @JsonConverter(ExtendedLocalTimeConverter.class)
+    private ExtendedLocalTime recurringStartTime; // see #139
 
     @JsonName("endTime")
-    @JsonConverter(RecurringTimeConverter.class)
-    private RecurringTime recurringEndTime; // see #139
+    @JsonConverter(ExtendedLocalTimeConverter.class)
+    private ExtendedLocalTime recurringEndTime; // see #139
 
     @JsonName("daysOfWeek")
     @JsonConverter(DayOfWeekItemConverter.class)
@@ -1247,13 +1248,13 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Returns the recurring start time as a recurring time instance. <br>
+     * Returns the recurring start time as an {@link ExtendedLocalTime}. <br>
      * Since FullCalendar allows recurring times to be
      * above the normal 24h span of a day, this format is used to represent start and end "times".
      *
      * @return recurring start time
      */
-    public RecurringTime getRecurringStartTime() {
+    public ExtendedLocalTime getRecurringStartTime() {
         return recurringStartTime;
     }
 
@@ -1277,7 +1278,7 @@ public class Entry implements Serializable {
      * @param start start time
      * @see #isRecurring()
      */
-    public void setRecurringStartTime(RecurringTime start) {
+    public void setRecurringStartTime(ExtendedLocalTime start) {
         if (start != null) {
             setRRule(null);
         }
@@ -1293,17 +1294,17 @@ public class Entry implements Serializable {
      * @see #isRecurring()
      */
     public void setRecurringStartTime(LocalTime start) {
-        setRecurringStartTime(start != null ? RecurringTime.of(start) : null);
+        setRecurringStartTime(start != null ? ExtendedLocalTime.of(start) : null);
     }
 
     /**
-     * Returns the recurring end time as a recurring time instance. <br>
+     * Returns the recurring end time as an {@link ExtendedLocalTime}. <br>
      * Since FullCalendar allows recurring times to be
-     * above the normal 24h span of a day, this format is used to represent end and end "times".
+     * above the normal 24h span of a day, this format is used to represent start and end "times".
      *
      * @return recurring end time
      */
-    public RecurringTime getRecurringEndTime() {
+    public ExtendedLocalTime getRecurringEndTime() {
         return recurringEndTime;
     }
 
@@ -1327,7 +1328,7 @@ public class Entry implements Serializable {
      * @param end end time
      * @see #isRecurring()
      */
-    public void setRecurringEndTime(RecurringTime end) {
+    public void setRecurringEndTime(ExtendedLocalTime end) {
         if (end != null) {
             setRRule(null);
         }
@@ -1343,7 +1344,7 @@ public class Entry implements Serializable {
      * @see #isRecurring()
      */
     public void setRecurringEndTime(LocalTime end) {
-        setRecurringEndTime(end != null ? RecurringTime.of(end) : null);
+        setRecurringEndTime(end != null ? ExtendedLocalTime.of(end) : null);
     }
 
     /**

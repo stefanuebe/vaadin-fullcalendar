@@ -20,13 +20,13 @@ import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import org.vaadin.stefan.fullcalendar.option.NoneValue;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,10 +74,9 @@ public class BusinessHoursValueConverter implements JsonItemPropertyConverter<Bu
         Set<DayOfWeek> days = json.get("daysOfWeek").valueStream()
                 .map(day -> day.asInt() == 0 ? DayOfWeek.SUNDAY : DayOfWeek.of(day.asInt()))
                 .collect(Collectors.toSet());
-        String end = json.get("endTime").asString();
         return BusinessHours.of(days)
-                .start(LocalTime.parse(json.get("startTime").asString()))
-                .end(end.equals("24:00") ? LocalTime.MAX : LocalTime.parse(end))
+                .start(ExtendedLocalTime.of(json.get("startTime").asString()))
+                .end(ExtendedLocalTime.of(json.get("endTime").asString()))
                 .recurringStartDate(json.has("startRecur") ? LocalDate.parse(json.get("startRecur").asString()) : null)
                 .recurringEndDate(json.has("endRecur") ? LocalDate.parse(json.get("endRecur").asString()) : null);
     }

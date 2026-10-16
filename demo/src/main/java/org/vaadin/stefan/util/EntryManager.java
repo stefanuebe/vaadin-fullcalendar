@@ -1,6 +1,7 @@
 package org.vaadin.stefan.util;
 
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,8 +26,8 @@ public class EntryManager {
 
         recurring.setRecurringStartDate(now.with(TemporalAdjusters.firstDayOfYear()));
         recurring.setRecurringEndDate(now.with(TemporalAdjusters.lastDayOfYear()));
-        recurring.setRecurringStartTime(RecurringTime.of(14, 0));
-        recurring.setRecurringEndTime(RecurringTime.of(17, 0));
+        recurring.setRecurringStartTime(ExtendedLocalTime.of(14, 0));
+        recurring.setRecurringEndTime(ExtendedLocalTime.of(17, 0));
         recurring.setResourceEditable(true);
 
         if (calendar != null && calendar.getEntryProvider().isInMemory()) {

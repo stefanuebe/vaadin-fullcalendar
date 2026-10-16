@@ -2,6 +2,7 @@ package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.DisplayMode;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import org.vaadin.stefan.fullcalendar.converters.DisplayModeConverter;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
@@ -211,12 +212,12 @@ public class EntryModelTest {
                 e -> e.setRecurringEndDate(LocalDate.of(2025, 4, 1)), Entry::getRecurringEndDate));
         setters.put("setRecurringStartTime(LocalTime)", Map.entry(
                 e -> e.setRecurringStartTime(LocalTime.of(9, 0)), Entry::getRecurringStartTime));
-        setters.put("setRecurringStartTime(RecurringTime)", Map.entry(
-                e -> e.setRecurringStartTime(RecurringTime.of(25, 0)), Entry::getRecurringStartTime));
+        setters.put("setRecurringStartTime(ExtendedLocalTime)", Map.entry(
+                e -> e.setRecurringStartTime(ExtendedLocalTime.of(25, 0)), Entry::getRecurringStartTime));
         setters.put("setRecurringEndTime(LocalTime)", Map.entry(
                 e -> e.setRecurringEndTime(LocalTime.of(10, 0)), Entry::getRecurringEndTime));
-        setters.put("setRecurringEndTime(RecurringTime)", Map.entry(
-                e -> e.setRecurringEndTime(RecurringTime.of(26, 0)), Entry::getRecurringEndTime));
+        setters.put("setRecurringEndTime(ExtendedLocalTime)", Map.entry(
+                e -> e.setRecurringEndTime(ExtendedLocalTime.of(26, 0)), Entry::getRecurringEndTime));
         return setters;
     }
 
@@ -246,9 +247,9 @@ public class EntryModelTest {
         setters.put("setRecurringStartDate", e -> e.setRecurringStartDate(null));
         setters.put("setRecurringEndDate", e -> e.setRecurringEndDate(null));
         setters.put("setRecurringStartTime(LocalTime)", e -> e.setRecurringStartTime((LocalTime) null));
-        setters.put("setRecurringStartTime(RecurringTime)", e -> e.setRecurringStartTime((RecurringTime) null));
+        setters.put("setRecurringStartTime(ExtendedLocalTime)", e -> e.setRecurringStartTime((ExtendedLocalTime) null));
         setters.put("setRecurringEndTime(LocalTime)", e -> e.setRecurringEndTime((LocalTime) null));
-        setters.put("setRecurringEndTime(RecurringTime)", e -> e.setRecurringEndTime((RecurringTime) null));
+        setters.put("setRecurringEndTime(ExtendedLocalTime)", e -> e.setRecurringEndTime((ExtendedLocalTime) null));
         return setters;
     }
 

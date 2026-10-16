@@ -1,17 +1,18 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.vaadin.stefan.fullcalendar.RecurringTime.of;
+import static org.vaadin.stefan.fullcalendar.option.ExtendedLocalTime.of;
 
 /**
  * @author Stefan Uebe
  */
-public class RecurringTimeTest {
+public class ExtendedLocalTimeTest {
 
     @Test
     public void test_creation() {
@@ -30,6 +31,9 @@ public class RecurringTimeTest {
 
         assertTime(of(LocalTime.MIN), 0, 0, true);
         assertTime(of(LocalTime.MAX), 23, 59, true);
+        // seconds are dropped
+        assertTime(of(LocalTime.of(8, 30, 45)), 8, 30, true);
+        assertTime(of("08:30:45"), 8, 30, true);
 
         assertTime(of(0, 0), 0, 0, true);
         assertTime(of(23, 59), 23, 59, true);
@@ -74,7 +78,7 @@ public class RecurringTimeTest {
 
     @Test
     public void test_plus_minus() {
-        RecurringTime zeroHourTime = of(0, 0);
+        ExtendedLocalTime zeroHourTime = of(0, 0);
         assertTime(zeroHourTime.plusHours(1), 1, 0);
         assertTime(zeroHourTime.plusMinutes(1), 0, 1);
         assertTime(zeroHourTime.plusMinutes(60), 1, 0);
@@ -85,7 +89,7 @@ public class RecurringTimeTest {
         assertThrows(IllegalArgumentException.class, () -> zeroHourTime.plusHours(-1));
         assertThrows(IllegalArgumentException.class, () -> zeroHourTime.plusHours(-60));
 
-        RecurringTime nonZeroHourTime = of(2, 0);
+        ExtendedLocalTime nonZeroHourTime = of(2, 0);
         assertTime(nonZeroHourTime.plusHours(-1), 1, 0);
         assertTime(nonZeroHourTime.plusHours(-2), 0, 0);
         assertTime(nonZeroHourTime.plusMinutes(-1), 1, 59);
@@ -99,32 +103,32 @@ public class RecurringTimeTest {
 
     @Test
     public void test_before_after() {
-        assertFalse(RecurringTime.of(1).isBefore(RecurringTime.of(1)));
-        assertFalse(RecurringTime.of(1).isAfter(RecurringTime.of(1)));
+        assertFalse(ExtendedLocalTime.of(1).isBefore(ExtendedLocalTime.of(1)));
+        assertFalse(ExtendedLocalTime.of(1).isAfter(ExtendedLocalTime.of(1)));
 
-        assertFalse(RecurringTime.of(1).isBefore(RecurringTime.of(0, 59)));
-        assertTrue(RecurringTime.of(1).isAfter(RecurringTime.of(0, 59)));
+        assertFalse(ExtendedLocalTime.of(1).isBefore(ExtendedLocalTime.of(0, 59)));
+        assertTrue(ExtendedLocalTime.of(1).isAfter(ExtendedLocalTime.of(0, 59)));
 
-        assertTrue(RecurringTime.of(0,59).isBefore(RecurringTime.of(1)));
-        assertFalse(RecurringTime.of(0,59).isAfter(RecurringTime.of(1)));
+        assertTrue(ExtendedLocalTime.of(0,59).isBefore(ExtendedLocalTime.of(1)));
+        assertFalse(ExtendedLocalTime.of(0,59).isAfter(ExtendedLocalTime.of(1)));
 
-        assertFalse(RecurringTime.of(1).isBefore(LocalTime.of(1, 0)));
-        assertFalse(RecurringTime.of(1).isAfter(LocalTime.of(1, 0)));
+        assertFalse(ExtendedLocalTime.of(1).isBefore(LocalTime.of(1, 0)));
+        assertFalse(ExtendedLocalTime.of(1).isAfter(LocalTime.of(1, 0)));
 
-        assertFalse(RecurringTime.of(1).isBefore(LocalTime.of(0, 59)));
-        assertTrue(RecurringTime.of(1).isAfter(LocalTime.of(0, 59)));
+        assertFalse(ExtendedLocalTime.of(1).isBefore(LocalTime.of(0, 59)));
+        assertTrue(ExtendedLocalTime.of(1).isAfter(LocalTime.of(0, 59)));
 
-        assertTrue(RecurringTime.of(0,59).isBefore(LocalTime.of(1, 0)));
-        assertFalse(RecurringTime.of(0,59).isAfter(LocalTime.of(1, 0)));
+        assertTrue(ExtendedLocalTime.of(0,59).isBefore(LocalTime.of(1, 0)));
+        assertFalse(ExtendedLocalTime.of(0,59).isAfter(LocalTime.of(1, 0)));
 
     }
 
-    private void assertTime(RecurringTime time, int expectedHour, int expectedMinute) {
+    private void assertTime(ExtendedLocalTime time, int expectedHour, int expectedMinute) {
         assertEquals(expectedHour, time.getHour());
         assertEquals(expectedMinute, time.getMinute());
     }
 
-    private void assertTime(RecurringTime time, int expectedHour, int expectedMinute, boolean expectedValidLocalTime) {
+    private void assertTime(ExtendedLocalTime time, int expectedHour, int expectedMinute, boolean expectedValidLocalTime) {
         assertTime(time, expectedHour, expectedMinute);
         assertEquals(expectedValidLocalTime, time.isValidLocalTime());
     }

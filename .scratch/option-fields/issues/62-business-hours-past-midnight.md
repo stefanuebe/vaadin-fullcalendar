@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – (local tracker) |
+| GitHub | #380 |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-16, edc70ff9) |
 | Blocked by | `57-value-types-order-ranges-lengths-durations` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -20,6 +20,8 @@ The library reads `endTime` as a duration, not as a time of day, and takes the l
 
 **Blocked by:** `57-value-types-order-ranges-lengths-durations`
 
-**Status:** ready-for-agent
+**Status:** done (2026-10-16, edc70ff9)
 
-- [ ] A window from 22:00 to 02:00 reaches the client as `startTime: "22:00"`, `endTime: "26:00"` and round-trips through `BusinessHoursValueConverter` and `ConstraintValueConverter`.
+- [x] A window from 22:00 to 02:00 reaches the client as `startTime: "22:00"`, `endTime: "26:00"` and round-trips through `BusinessHoursValueConverter` and `ConstraintValueConverter`.
+
+**Done (2026-10-16):** decided by the maintainer: `BusinessHours.getStart()`/`getEnd()` return `ExtendedLocalTime` (option A; rejected: keep `LocalTime` plus a second getter). Setters take `LocalTime` (seconds dropped, `LocalTime.MAX` = 24:00), `int` and `ExtendedLocalTime`. For a start after 24:00 set the end first. Found by the review: `Entry.isRecurring()` throws for a recurring time from 24:00 on, older than this ticket, follows in 69. 3 review rounds, gate green (669+175 unit, 446 E2E).
