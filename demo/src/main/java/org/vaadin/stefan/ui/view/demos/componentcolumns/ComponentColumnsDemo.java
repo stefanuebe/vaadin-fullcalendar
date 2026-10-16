@@ -1,7 +1,7 @@
 package org.vaadin.stefan.ui.view.demos.componentcolumns;
 
-import org.vaadin.stefan.fullcalendar.ComponentResourceColumn;
-import org.vaadin.stefan.fullcalendar.ResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Span;

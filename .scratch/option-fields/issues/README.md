@@ -47,7 +47,7 @@ A value form the value-type tickets (21–24, 57) do not cover is a finding. Rep
 
 ## Value types (21–24, 57)
 
-- **Packages (58):** every type a user passes as an option value lives in `…fullcalendar.option` (also in the scheduler module). New value types and forms go there. The options classes stay in the root package.
+- **Packages (58):** every type a user passes as an option value lives in `…fullcalendar.option` (also in the scheduler module, resource columns included, 59). New value types and forms go there. The options classes stay in the root package.
 
 Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The rules apply to every ticket that adds a value type, also 16 (toolbar) and 19 (`moreLinkClick`):
 
@@ -110,6 +110,7 @@ Decided by the maintainer on 2026-10-15, after a review of 21–24 together. The
 | `23-value-types-constraints-business-hours-day-max.md` | Value types: constraints, business hours, entry limits | 06 |
 | `24-value-types-auto-false-now.md` | Value types: `"auto"`, `false` and date-or-date-time variants | 06 |
 | `58-pr-363-review-round-1.md` | Packages, shared `NONE`, raw options on the options objects (PR #363 review) | 24 |
+| `59-resource-columns-option-package.md` | Resource column classes in `option`, with internals for the scheduler | 58 |
 | `57-value-types-order-ranges-lengths-durations.md` | Value types: entry order, ranges, week number calculation, lengths, durations | 24, 58 |
 | `25-fields-dates.md` | Fields: dates, ranges and durations | 11, 12, 24, 57 |
 | `26-fields-time-grid.md` | Fields: time grid and slots | 11, 12, 21, 24, 57 |

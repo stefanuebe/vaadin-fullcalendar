@@ -153,11 +153,11 @@ The hidden container `Element` is created **lazily** on the first `setResourceCo
 
 `ComponentResourceColumn<T>` holds a `private FullCalendarScheduler boundCalendar` field (initially `null`).
 
-- **`bind(FullCalendarScheduler)`** (package-private): Sets `boundCalendar`. Throws `IllegalStateException` if already bound to a different calendar.
-- **`unbind()`** (package-private): Clears `boundCalendar` to `null`. Called by `setResourceColumns()` when a column is removed from the active set.
+- **`bind(FullCalendarScheduler)`** (private, through `getInternals()`): Sets `boundCalendar`. Throws `IllegalStateException` if already bound to a different calendar.
+- **`unbind()`** (private, through `getInternals()`): Clears `boundCalendar` to `null`. Called by `setResourceColumns()` when a column is removed from the active set.
 - **`isBound()`**: Returns `boundCalendar != null`.
 - **`refresh()` / `refreshAll()`**: Check `boundCalendar != null && boundCalendar.isAttached()`. If not attached, silently return (no `beforeClientResponse` registered, no JS call, complete no-op — BR-25).
-- **`createComponent(resource)`** / **`destroyComponent(resource)`** / **`destroyAllComponents()`**: Package-private methods called by `FullCalendarScheduler`. These manage the `Map<String, T> components` field and the hidden container DOM.
+- **`createComponent(resource)`** / **`destroyComponent(resource)`** / **`destroyAllComponents()`**: Private methods that `FullCalendarScheduler` calls through `getInternals()`, which returns the public, internal-only `ComponentResourceColumn.Internals` (like Vaadin's `UI.getInternals()`); the column classes live in `org.vaadin.stefan.fullcalendar.option`. These manage the `Map<String, T> components` field and the hidden container DOM.
 
 ### Multiple Calendar Instances
 

@@ -14,14 +14,17 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.vaadin.stefan.fullcalendar;
+package org.vaadin.stefan.fullcalendar.option;
 
-import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.FullCalendarScheduler;
+import org.vaadin.stefan.fullcalendar.Resource;
+import org.vaadin.stefan.fullcalendar.Scheduler;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.function.SerializableFunction;
 import lombok.NonNull;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -90,7 +93,65 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
         this.componentFactory = componentFactory;
     }
 
-    void bind(FullCalendarScheduler calendar) {
+    /**
+     * Internal: the methods the scheduler uses to manage the components of this column. They are not part of the
+     * public API and may change without notice, like Vaadin's {@code UI.getInternals()}.
+     *
+     * @return the internals of this column
+     */
+    public Internals getInternals() {
+        return new Internals();
+    }
+
+    /**
+     * Internal: the component lifecycle of a {@link ComponentResourceColumn}, driven by {@link FullCalendarScheduler}.
+     * See {@link ComponentResourceColumn#getInternals()}.
+     */
+    public final class Internals implements Serializable {
+
+        private Internals() {
+        }
+
+        /**
+         * Binds the column to the calendar its components are added to.
+         *
+         * @param calendar the calendar
+         * @throws IllegalStateException when the column is bound to another calendar
+         */
+        public void bind(FullCalendarScheduler calendar) {
+            ComponentResourceColumn.this.bind(calendar);
+        }
+
+        /** Releases the calendar binding. */
+        public void unbind() {
+            ComponentResourceColumn.this.unbind();
+        }
+
+        /**
+         * Creates the component of the resource, if it has none yet.
+         *
+         * @param resource the resource
+         */
+        public void createComponent(Resource resource) {
+            ComponentResourceColumn.this.createComponent(resource);
+        }
+
+        /**
+         * Removes the component of the resource.
+         *
+         * @param resource the resource
+         */
+        public void destroyComponent(Resource resource) {
+            ComponentResourceColumn.this.destroyComponent(resource);
+        }
+
+        /** Removes the components of all resources. */
+        public void destroyAllComponents() {
+            ComponentResourceColumn.this.destroyAllComponents();
+        }
+    }
+
+    private void bind(FullCalendarScheduler calendar) {
         if (this.boundCalendar != null && this.boundCalendar != calendar) {
             throw new IllegalStateException(
                     "ComponentResourceColumn '" + getField() + "' is already bound to a different calendar");
@@ -98,7 +159,7 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
         this.boundCalendar = calendar;
     }
 
-    void unbind() {
+    private void unbind() {
         this.boundCalendar = null;
     }
 
@@ -111,7 +172,7 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
         return boundCalendar != null;
     }
 
-    void createComponent(Resource resource) {
+    private void createComponent(Resource resource) {
         Objects.requireNonNull(resource);
         String id = resource.getId();
         if (components.containsKey(id)) {
@@ -150,7 +211,7 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
         components.put(id, component);
     }
 
-    void destroyComponent(Resource resource) {
+    private void destroyComponent(Resource resource) {
         Objects.requireNonNull(resource);
         T component = components.remove(resource.getId());
         if (component != null) {
@@ -158,7 +219,7 @@ public class ComponentResourceColumn<T extends Component> extends ResourceColumn
         }
     }
 
-    void destroyAllComponents() {
+    private void destroyAllComponents() {
         for (T component : components.values()) {
             component.getElement().removeFromParent();
         }

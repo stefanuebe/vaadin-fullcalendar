@@ -16,6 +16,8 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.shared.Registration;
 

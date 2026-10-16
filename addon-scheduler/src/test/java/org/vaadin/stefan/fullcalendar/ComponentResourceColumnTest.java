@@ -1,5 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.TextField;
@@ -56,7 +58,7 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", "Col", resource -> null);
 
         Assertions.assertThrows(IllegalStateException.class,
-                () -> col.createComponent(new Resource(null, "Test", null)));
+                () -> col.getInternals().createComponent(new Resource(null, "Test", null)));
     }
 
     @Test
@@ -67,21 +69,21 @@ public class ComponentResourceColumnTest {
         parent.add(shared);
 
         var col = new ComponentResourceColumn<Span>("col", "Col", resource -> shared);
-        col.bind(calendar);
+        col.getInternals().bind(calendar);
 
         Assertions.assertThrows(IllegalStateException.class,
-                () -> col.createComponent(new Resource(null, "Test", null)));
+                () -> col.getInternals().createComponent(new Resource(null, "Test", null)));
     }
 
     @Test
     void testCallbackThrowsExceptionResourceHasNoComponent() {
         var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> { throw new RuntimeException("factory error"); });
-        col.bind(calendar);
+        col.getInternals().bind(calendar);
 
         Resource res = new Resource(null, "Test", null);
         // should not throw — exception is caught internally
-        col.createComponent(res);
+        col.getInternals().createComponent(res);
 
         Assertions.assertTrue(col.getComponent(res).isEmpty(),
                 "resource should have no component when callback throws");
@@ -94,15 +96,15 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         var calendar2 = new FullCalendarScheduler();
 
-        col.bind(calendar);
-        Assertions.assertThrows(IllegalStateException.class, () -> col.bind(calendar2));
+        col.getInternals().bind(calendar);
+        Assertions.assertThrows(IllegalStateException.class, () -> col.getInternals().bind(calendar2));
     }
 
     @Test
     void testDoubleBind_SameCalendar_OK() {
         var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        col.bind(calendar);
-        Assertions.assertDoesNotThrow(() -> col.bind(calendar));
+        col.getInternals().bind(calendar);
+        Assertions.assertDoesNotThrow(() -> col.getInternals().bind(calendar));
     }
 
     @Test
@@ -110,11 +112,11 @@ public class ComponentResourceColumnTest {
         var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
         var calendar2 = new FullCalendarScheduler();
 
-        col.bind(calendar);
-        col.unbind();
+        col.getInternals().bind(calendar);
+        col.getInternals().unbind();
         Assertions.assertFalse(col.isBound());
 
-        Assertions.assertDoesNotThrow(() -> col.bind(calendar2));
+        Assertions.assertDoesNotThrow(() -> col.getInternals().bind(calendar2));
         Assertions.assertTrue(col.isBound());
     }
 
@@ -123,7 +125,7 @@ public class ComponentResourceColumnTest {
     @Test
     void testGetComponentsReturnsUnmodifiableMap() {
         var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        col.bind(calendar);
+        col.getInternals().bind(calendar);
 
         Map<String, Span> components = col.getComponents();
         Assertions.assertThrows(UnsupportedOperationException.class,
@@ -134,10 +136,10 @@ public class ComponentResourceColumnTest {
     void testGetComponentReturnsTypedOptional() {
         var col = new ComponentResourceColumn<Span>("col", "Col",
                 resource -> new Span("test"));
-        col.bind(calendar);
+        col.getInternals().bind(calendar);
 
         Resource res = new Resource(null, "Room", null);
-        col.createComponent(res);
+        col.getInternals().createComponent(res);
 
         Optional<Span> result = col.getComponent(res);
         Assertions.assertTrue(result.isPresent());
@@ -155,7 +157,7 @@ public class ComponentResourceColumnTest {
     @Test
     void testRefreshUnregisteredResourceIsNoop() {
         var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        col.bind(calendar);
+        col.getInternals().bind(calendar);
 
         Resource unregistered = new Resource(null, "Ghost", null);
         // should not throw
@@ -171,7 +173,7 @@ public class ComponentResourceColumnTest {
     @Test
     void testRefreshAllWithNoResourcesIsNoop() {
         var col = new ComponentResourceColumn<Span>("col", resource -> new Span());
-        col.bind(calendar);
+        col.getInternals().bind(calendar);
         // should not throw
         col.refreshAll();
     }

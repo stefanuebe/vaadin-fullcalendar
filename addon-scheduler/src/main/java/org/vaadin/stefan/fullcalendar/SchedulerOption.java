@@ -16,6 +16,7 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.EntryPrintLayout;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;

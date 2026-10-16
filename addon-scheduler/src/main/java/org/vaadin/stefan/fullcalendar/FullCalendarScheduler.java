@@ -16,6 +16,8 @@
  */
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ComponentResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -179,7 +181,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
                 // create components for active component columns
                 for (var col : activeComponentColumns) {
-                    col.createComponent(resource);
+                    col.getInternals().createComponent(resource);
                 }
             }
 
@@ -202,7 +204,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             resource.attachScheduler(this);
 
             for (var col : activeComponentColumns) {
-                col.createComponent(resource);
+                col.getInternals().createComponent(resource);
             }
 
             registerResourcesInternally(resource.getChildren());
@@ -223,7 +225,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
                 // destroy component for this resource
                 for (var col : activeComponentColumns) {
-                    col.destroyComponent(resource);
+                    col.getInternals().destroyComponent(resource);
                 }
 
                 this.resources.remove(id);
@@ -249,7 +251,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         for (Resource child : children) {
             unregisterResourcesInternally(child.getChildren());
             for (var col : activeComponentColumns) {
-                col.destroyComponent(child);
+                col.getInternals().destroyComponent(child);
             }
             this.resources.remove(child.getId());
             child.detachScheduler();
@@ -289,7 +291,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         removeFromEntries(resources.values());
 
         for (var col : activeComponentColumns) {
-            col.destroyAllComponents();
+            col.getInternals().destroyAllComponents();
         }
 
         resources.values().forEach(Resource::detachScheduler);
@@ -326,15 +328,15 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
 
         // unbind + destroy old component columns
         for (var col : activeComponentColumns) {
-            col.destroyAllComponents();
-            col.unbind();
+            col.getInternals().destroyAllComponents();
+            col.getInternals().unbind();
         }
         activeComponentColumns.clear();
 
         // bind new component columns
         for (ResourceColumn col : columns) {
             if (col instanceof ComponentResourceColumn<?> compCol) {
-                compCol.bind(this);
+                compCol.getInternals().bind(this);
                 activeComponentColumns.add(compCol);
             }
         }
@@ -346,7 +348,7 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
             // create components for all existing resources
             for (Resource resource : resources.values()) {
                 for (var col : activeComponentColumns) {
-                    col.createComponent(resource);
+                    col.getInternals().createComponent(resource);
                 }
             }
         }

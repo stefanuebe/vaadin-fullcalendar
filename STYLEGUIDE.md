@@ -114,7 +114,8 @@ Anything written here becomes a rule a reviewer can cite.
 - Public API lives in `org.vaadin.stefan.fullcalendar` (core and scheduler share the
   package). Sub-packages: `dataprovider` (entry providers), `converters` (option and
   property converters), `json` (annotations for entry serialization), `model`
-  (toolbar model).
+  (toolbar model), `option` (every type passed as an option value, in core and
+  scheduler; the options classes themselves stay in the root package).
 - Entries are extensible by subclassing. The `json` annotations together with the
   converters are the supported way to send own properties to the client, so they
   stay public and stable.

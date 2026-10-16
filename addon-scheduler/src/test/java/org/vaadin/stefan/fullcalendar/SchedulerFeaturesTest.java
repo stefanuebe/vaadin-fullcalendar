@@ -1,5 +1,8 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ComponentResourceAreaColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceAreaColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import com.vaadin.flow.component.html.Span;
 import org.junit.jupiter.api.Assertions;

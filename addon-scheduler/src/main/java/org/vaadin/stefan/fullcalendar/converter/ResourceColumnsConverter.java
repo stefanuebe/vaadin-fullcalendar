@@ -1,7 +1,7 @@
 package org.vaadin.stefan.fullcalendar.converter;
 
 import org.vaadin.stefan.fullcalendar.JsonFactory;
-import org.vaadin.stefan.fullcalendar.ResourceColumn;
+import org.vaadin.stefan.fullcalendar.option.ResourceColumn;
 import org.vaadin.stefan.fullcalendar.SchedulerOption;
 import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import tools.jackson.databind.JsonNode;

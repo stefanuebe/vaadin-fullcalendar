@@ -14,9 +14,8 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.vaadin.stefan.fullcalendar;
+package org.vaadin.stefan.fullcalendar.option;
 
-import org.vaadin.stefan.fullcalendar.option.JsCallback;
 import lombok.NonNull;
 
 /**
