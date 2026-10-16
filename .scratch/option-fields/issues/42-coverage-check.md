@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | #398 |
 | Labels | enhancement, ready-for-agent |
-| Status | done (2026-10-16) |
+| Status | done (2026-10-16), commit `0f1c1b43` |
 | Blocked by | `13-timezone-local-server`, `14-timezone-constructor-json-and-raw`, `17-drop-addon-defaults`, `19-more-link-click`, `20-height-from-hassize`, `25-fields-dates`, `26-fields-time-grid`, `27-fields-interaction`, `28-fields-entry-display`, `29-fields-texts-formats`, `30-fields-toolbar-sources`, `31-hooks-days`, `32-hooks-slots`, `33-hooks-entry-layouts`, `34-hooks-entries`, `35-hooks-list-more-popover`, `36-hooks-view-toolbar`, `38-scheduler-resource-columns`, `39-scheduler-fields`, `40-scheduler-hooks-cells-columns`, `41-scheduler-hooks-groups-lanes` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
