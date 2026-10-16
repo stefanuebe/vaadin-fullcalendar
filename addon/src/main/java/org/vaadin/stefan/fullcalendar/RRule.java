@@ -23,13 +23,18 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serializable;
+import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -649,27 +654,27 @@ public class RRule implements Serializable {
         if (byyearday != null && !byyearday.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYYEARDAY=").append(byyearday.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (bymonth != null && !bymonth.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYMONTH=").append(bymonth.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (bymonthday != null && !bymonthday.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYMONTHDAY=").append(bymonthday.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (byhour != null && !byhour.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYHOUR=").append(byhour.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (byminute != null && !byminute.isEmpty()) {
             if (!sb.isEmpty()) sb.append(";");
             sb.append("BYMINUTE=").append(byminute.stream()
-                    .map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+                    .map(String::valueOf).collect(Collectors.joining(",")));
         }
         if (wkst != null) {
             if (!sb.isEmpty()) sb.append(";");
@@ -677,5 +682,176 @@ public class RRule implements Serializable {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Creates a deep copy of this rule, including its excluded dates and rules.
+     *
+     * @return the copy
+     */
+    public RRule copy() {
+        RRule copy = new RRule();
+        copy.freq = freq;
+        copy.dtstart = dtstart;
+        copy.until = until;
+        copy.count = count;
+        copy.interval = interval;
+        copy.byweekday = copyOf(byweekday);
+        copy.byyearday = copyOf(byyearday);
+        copy.bymonth = copyOf(bymonth);
+        copy.bymonthday = copyOf(bymonthday);
+        copy.byhour = copyOf(byhour);
+        copy.byminute = copyOf(byminute);
+        copy.wkst = wkst;
+        copy.rawRRule = rawRRule;
+        copy.excludedDates = copyOf(excludedDates);
+        copy.excludedRules = excludedRules == null ? null
+                : new ArrayList<>(excludedRules.stream().map(rule -> rule == null ? null : rule.copy()).toList());
+        return copy;
+    }
+
+    private static <T> List<T> copyOf(List<T> list) {
+        return list == null ? null : new ArrayList<>(list);
+    }
+
+    private static final Set<String> JSON_KEYS = Set.of("freq", "dtstart", "until", "count", "interval", "byweekday",
+            "byyearday", "bymonth", "bymonthday", "byhour", "byminute", "wkst");
+
+    /**
+     * Reads a rule from the JSON {@link #toJson()} writes: a string is read as {@link #ofRaw(String) raw rule}, an
+     * object as the structured form. The excluded dates and rules are not part of that JSON, see
+     * {@link #fromJson(JsonNode, JsonNode, JsonNode)}.
+     *
+     * @param json the JSON of the rule
+     * @return the rule
+     * @throws IllegalArgumentException when the JSON is neither a string nor an object, or the object has a key or
+     *                                  a value this class does not write
+     */
+    public static RRule fromJson(JsonNode json) {
+        return fromJson(json, null, null);
+    }
+
+    /**
+     * Reads a rule like {@link #fromJson(JsonNode)} together with its excluded dates and rules, as an entry writes
+     * them in {@code exdate} and {@code exrule}. An excluded rule given as a string is kept as it is, because
+     * {@link #toJson()} writes a rule with a positional weekday, such as {@code "-1fr"}, as a string.
+     *
+     * @param json    the JSON of the rule
+     * @param exdate  an array of dates like {@code "2026-01-02"}, or null or a null node for none
+     * @param exrule  one rule or an array of rules, or null or a null node for none
+     * @return the rule
+     * @throws IllegalArgumentException when one of the JSON values is not one this class writes
+     */
+    public static RRule fromJson(JsonNode json, JsonNode exdate, JsonNode exrule) {
+        if (json == null || json.isNull()) {
+            throw new IllegalArgumentException("Not a rule: " + json);
+        }
+        RRule rule;
+        if (json.isString()) {
+            rule = ofRaw(json.asString());
+        } else if (json.isObject()) {
+            rule = fromJsonObject(json);
+        } else {
+            throw new IllegalArgumentException("Not a rule: " + json);
+        }
+        if (exdate != null && !exdate.isNull()) {
+            if (!exdate.isArray()) {
+                throw new IllegalArgumentException("Not a list of dates: " + exdate);
+            }
+            try {
+                rule.excludedDates = exdate.valueStream().map(date -> LocalDate.parse(asString(date))).toList();
+            } catch (DateTimeException e) {
+                throw new IllegalArgumentException("Not a list of dates: " + exdate, e);
+            }
+        }
+        if (exrule != null && !exrule.isNull()) {
+            // set directly: excludeRules rejects raw rules, but a positional weekday is written as a string
+            rule.excludedRules = (exrule.isArray() ? exrule.valueStream() : Stream.of(exrule))
+                    .map(RRule::fromJson).toList();
+        }
+        return rule;
+    }
+
+    private static RRule fromJsonObject(JsonNode json) {
+        if (!JSON_KEYS.containsAll(json.propertyNames())) {
+            throw new IllegalArgumentException("Not a rule: " + json);
+        }
+        RRule rule = new RRule();
+        if (json.has("freq")) {
+            String freq = asString(json.get("freq"));
+            rule.freq = Arrays.stream(Frequency.values()).filter(f -> f.getClientSideValue().equals(freq))
+                    .findFirst().orElseThrow(() -> new IllegalArgumentException("Not a frequency: " + freq));
+        }
+        rule.dtstart = json.has("dtstart") ? asString(json.get("dtstart")) : null;
+        rule.until = json.has("until") ? asString(json.get("until")) : null;
+        rule.count = json.has("count") ? asInt(json.get("count")) : null;
+        rule.interval = json.has("interval") ? asInt(json.get("interval")) : null;
+        rule.byweekday = strings(json.get("byweekday"));
+        rule.byyearday = ints(json.get("byyearday"));
+        rule.bymonth = ints(json.get("bymonth"));
+        rule.bymonthday = ints(json.get("bymonthday"));
+        rule.byhour = ints(json.get("byhour"));
+        rule.byminute = ints(json.get("byminute"));
+        rule.wkst = json.has("wkst") ? asString(json.get("wkst")) : null;
+        return rule;
+    }
+
+    private static String asString(JsonNode node) {
+        if (!node.isString()) {
+            throw new IllegalArgumentException("Not a string: " + node);
+        }
+        return node.asString();
+    }
+
+    private static int asInt(JsonNode node) {
+        if (!node.isIntegralNumber() || !node.canConvertToInt()) {
+            throw new IllegalArgumentException("Not an integer: " + node);
+        }
+        return node.asInt();
+    }
+
+    private static List<String> strings(JsonNode node) {
+        return list(node, RRule::asString);
+    }
+
+    private static List<Integer> ints(JsonNode node) {
+        return list(node, RRule::asInt);
+    }
+
+    private static <T> List<T> list(JsonNode node, Function<JsonNode, T> reader) {
+        if (node == null) {
+            return null;
+        }
+        if (!node.isArray()) {
+            throw new IllegalArgumentException("Not a list: " + node);
+        }
+        return new ArrayList<>(node.valueStream().map(reader).toList());
+    }
+
+    /**
+     * Two rules are equal when the client gets the same from them: the same {@link #toJson()} and the same
+     * excluded dates and rules in the same order. A rule from {@link #ofRaw(String)} equals a structured rule only if
+     * {@link #toJson()} gives the same string, which it does for a structured rule with a positional weekday. An
+     * empty list of excluded dates or rules equals none, as nothing is sent for it. The rule is mutable, so do not
+     * change one that is used as a key.
+     *
+     * @param other the other object
+     * @return true when the client gets the same
+     */
+    @Override
+    public boolean equals(Object other) {
+        return this == other || other instanceof RRule rule
+                && toJson().equals(rule.toJson())
+                && Objects.equals(emptyToNull(excludedDates), emptyToNull(rule.excludedDates))
+                && Objects.equals(emptyToNull(excludedRules), emptyToNull(rule.excludedRules));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(toJson(), emptyToNull(excludedDates), emptyToNull(excludedRules));
+    }
+
+    private static <T> List<T> emptyToNull(List<T> list) {
+        return list == null || list.isEmpty() ? null : list;
     }
 }

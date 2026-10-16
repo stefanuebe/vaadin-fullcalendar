@@ -255,7 +255,8 @@ class CalendarOptions implements Serializable {
     private JsCallback entryAllow;
 
     /**
-     * Limits entry dragging and resizing to certain windows of time.
+     * Limits entry dragging and resizing to certain windows of time: recurring business hours, windows defined by an
+     * {@link RRule} and fixed spans.
      * <p>
      * The getter returns null while the option is not set; then the library default applies.
      *
@@ -285,7 +286,7 @@ class CalendarOptions implements Serializable {
     }
 
     /**
-     * Limits entry dragging and resizing to windows of time, recurring ones and fixed spans mixed, see
+     * Limits entry dragging and resizing to windows of time, business hours, RRule windows and fixed spans mixed, see
      * {@link #getEntryConstraint()}.
      *
      * @param windows the windows, at least one, or null to remove the option
@@ -368,7 +369,8 @@ class CalendarOptions implements Serializable {
     }
 
     /**
-     * Limits selections to windows of time, recurring ones and fixed spans mixed, see {@link #getSelectConstraint()}.
+     * Limits selections to windows of time, business hours, RRule windows and fixed spans mixed, see
+     * {@link #getSelectConstraint()}.
      *
      * @param windows the windows, at least one, or null to remove the option
      */

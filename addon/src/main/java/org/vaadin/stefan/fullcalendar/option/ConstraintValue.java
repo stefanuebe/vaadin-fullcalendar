@@ -17,8 +17,11 @@
 package org.vaadin.stefan.fullcalendar.option;
 
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.FullCalendarOptions;
+import org.vaadin.stefan.fullcalendar.RRule;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,8 +29,8 @@ import java.util.Objects;
 
 /**
  * The value of an option that limits where entries can be dragged, resized or selected: the entries of a group, the
- * business hours of the calendar, or windows of time, recurring ones and fixed spans. A {@code switch} over it needs no
- * {@code default} branch.
+ * business hours of the calendar, or windows of time: recurring business hours, windows defined by an {@link RRule}
+ * and fixed spans. A {@code switch} over it needs no {@code default} branch.
  * <p>
  * A sealed type rather than one Java type, because the library takes a string, which is a group id or the keyword
  * {@code "businessHours"}, as well as objects.
@@ -119,10 +122,44 @@ public sealed interface ConstraintValue extends Serializable {
     }
 
     /**
-     * A window of time of a constraint: recurring {@link BusinessHours}, or a fixed span of dates or of dates and
-     * times. The library reads each window like an entry. A {@code switch} over it needs no {@code default} branch.
+     * A window of time of a constraint: recurring {@link BusinessHours}, an {@link RRule} with an optional duration,
+     * or a fixed span of dates or of dates and times. The library reads each window like an entry. A {@code switch}
+     * over it needs no {@code default} branch.
      */
-    sealed interface Window extends Serializable permits BusinessHours, DateSpan, DateTimeSpan {
+    sealed interface Window extends Serializable permits BusinessHours, RRuleWindow, DateSpan, DateTimeSpan {
+
+        /**
+         * Creates a window from an RRule, written like the recurrence of an entry, including its excluded dates and
+         * rules. The rule needs its own {@code dtstart}, because no entry start is there to take it from. Without
+         * one, the rrule library starts the rule at the current time. For a raw rule, put {@code DTSTART} into its
+         * string. A rule without a time anywhere (start, end or excluded dates) gives whole-day windows, also when the
+         * start defaults to the current time. A time in any of them gives timed windows.
+         * Each window lasts the default entry duration of the calendar, see
+         * {@link FullCalendarOptions#setDefaultTimedEntryDuration(Duration)} and
+         * {@link FullCalendarOptions#setDefaultAllDayEntryDuration(Duration)}. For a timed window this is one hour
+         * by default.
+         * The rule is copied, so a later change to the passed rule does not change the window.
+         *
+         * @param rrule the rule
+         * @return the window
+         * @throws NullPointerException when null is passed
+         */
+        static Window ofRRule(RRule rrule) {
+            return new RRuleWindow(rrule, null);
+        }
+
+        /**
+         * Creates a window from an RRule and the duration of each occurrence, see {@link #ofRRule(RRule)}.
+         * A null duration gives the default entry duration of the calendar.
+         *
+         * @param rrule    the rule
+         * @param duration the duration of each occurrence, or null to leave it to the library
+         * @return the window
+         * @throws NullPointerException when the rule is null
+         */
+        static Window ofRRule(RRule rrule, Duration duration) {
+            return new RRuleWindow(rrule, duration);
+        }
 
         /**
          * Creates a fixed span of whole days.
@@ -147,6 +184,30 @@ public sealed interface ConstraintValue extends Serializable {
          */
         static Window span(LocalDateTime start, LocalDateTime end) {
             return new DateTimeSpan(start, end);
+        }
+    }
+
+    /**
+     * A window defined by an {@link RRule}, with the duration of each occurrence. The rule is copied, so a later
+     * change to the passed rule does not change the window.
+     *
+     * @param rrule    the rule with its excluded dates and rules
+     * @param duration the duration of each occurrence, or null
+     */
+    record RRuleWindow(RRule rrule, Duration duration) implements Window {
+
+        public RRuleWindow {
+            rrule = Objects.requireNonNull(rrule).copy();
+        }
+
+        /**
+         * Returns a copy of the rule, so a change to it does not change the window.
+         *
+         * @return a copy of the rule
+         */
+        @Override
+        public RRule rrule() {
+            return rrule.copy();
         }
     }
 

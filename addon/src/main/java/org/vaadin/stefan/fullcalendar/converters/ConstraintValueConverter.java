@@ -18,6 +18,7 @@ package org.vaadin.stefan.fullcalendar.converters;
 
 import org.vaadin.stefan.fullcalendar.JsonFactory;
 import org.vaadin.stefan.fullcalendar.JsonUtils;
+import org.vaadin.stefan.fullcalendar.RRule;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.ConstraintValue;
 import tools.jackson.databind.JsonNode;
@@ -25,12 +26,14 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.DateTimeException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Set;
 
 /**
  * Converts a {@link ConstraintValue} to its client form and back: the group id, {@code "businessHours"}, or an array
- * of windows: business hours objects, and objects with {@code start} and/or {@code end} for fixed spans. A single
+ * of windows: business hours objects, objects with {@code start} and/or {@code end} for fixed spans, and objects with
+ * {@code rrule}, {@code duration}, {@code exdate} and {@code exrule} as an entry has them. A single
  * window object, which the library takes as well, is read as one window.
  */
 public class ConstraintValueConverter implements JsonItemPropertyConverter<ConstraintValue, Object> {
@@ -38,6 +41,12 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
     private static final String BUSINESS_HOURS = "businessHours";
     private static final String START = "start";
     private static final String END = "end";
+    private static final String RRULE = "rrule";
+    private static final String DURATION = "duration";
+    private static final String EXDATE = "exdate";
+    private static final String EXRULE = "exrule";
+    private static final Set<String> RRULE_KEYS = Set.of(RRULE, DURATION, EXDATE, EXRULE);
+    private static final DurationConverter DURATION_CONVERTER = new DurationConverter();
     private static final int DATE_LENGTH = "2026-01-01".length();
 
     @Override
@@ -76,11 +85,31 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
     private static JsonNode toJson(ConstraintValue.Window window) {
         return switch (window) {
             case BusinessHours hours -> hours.toJson();
+            case ConstraintValue.RRuleWindow rule -> rruleWindow(rule);
             case ConstraintValue.DateSpan span -> span(JsonUtils.formatClientSideDateString(span.start()),
                     JsonUtils.formatClientSideDateString(span.end()));
             case ConstraintValue.DateTimeSpan span -> span(JsonUtils.formatClientSideDateTimeString(span.start()),
                     JsonUtils.formatClientSideDateTimeString(span.end()));
         };
+    }
+
+    private static ObjectNode rruleWindow(ConstraintValue.RRuleWindow window) {
+        RRule rrule = window.rrule();
+        ObjectNode json = JsonFactory.createObject();
+        json.set(RRULE, rrule.toJson());
+        if (window.duration() != null) {
+            json.set(DURATION, DURATION_CONVERTER.toClientModel(window.duration(), null));
+        }
+        // the same JSON as an entry writes for these keys
+        JsonNode exdate = new ExdateConverter<>().toClientModel(rrule.getExcludedDates(), null);
+        if (exdate != null) {
+            json.set(EXDATE, exdate);
+        }
+        JsonNode exrule = new ExruleConverter<>().toClientModel(rrule.getExcludedRules(), null);
+        if (exrule != null) {
+            json.set(EXRULE, exrule);
+        }
+        return json;
     }
 
     private static ObjectNode span(String start, String end) {
@@ -94,8 +123,29 @@ public class ConstraintValueConverter implements JsonItemPropertyConverter<Const
         return json;
     }
 
-    /** Reads a window: an object with only a start and an end is a fixed span, any other one business hours. */
+    private static ConstraintValue.Window toRRuleWindow(JsonNode json) {
+        if (!RRULE_KEYS.containsAll(json.propertyNames())) {
+            throw new IllegalArgumentException("Not a window with a rule: " + json);
+        }
+        Duration duration = null;
+        if (json.has(DURATION)) {
+            duration = (Duration) DURATION_CONVERTER.toServerModel(json.get(DURATION), null);
+            if (duration == null) {
+                throw new IllegalArgumentException("Not a duration: " + json.get(DURATION));
+            }
+        }
+        return ConstraintValue.Window.ofRRule(RRule.fromJson(json.get(RRULE), json.get(EXDATE), json.get(EXRULE)),
+                duration);
+    }
+
+    /**
+     * Reads a window: an object with an rrule is a rule window, one with only a start and an end a fixed span, any
+     * other one business hours.
+     */
     private static ConstraintValue.Window toWindow(JsonNode json) {
+        if (json.isObject() && json.has(RRULE)) {
+            return toRRuleWindow(json);
+        }
         boolean span = json.isObject() && !json.isEmpty() && Set.of(START, END).containsAll(json.propertyNames());
         if (!span) {
             return BusinessHoursValueConverter.toBusinessHours(json);
