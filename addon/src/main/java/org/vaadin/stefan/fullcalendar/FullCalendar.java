@@ -17,9 +17,7 @@
 package org.vaadin.stefan.fullcalendar;
 
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
-import org.vaadin.stefan.fullcalendar.option.DateRange;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
-import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -28,11 +26,9 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.shared.Registration;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.stefan.fullcalendar.CustomCalendarView.AnonymousCustomCalendarView;
-import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryQuery;
 import org.vaadin.stefan.fullcalendar.dataprovider.InMemoryEntryProvider;
-import org.vaadin.stefan.fullcalendar.json.JsonConverter;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -40,8 +36,6 @@ import tools.jackson.databind.node.ObjectNode;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
-import static org.vaadin.stefan.fullcalendar.JsonUtils.toJsonNodeWithJackson;
 
 /**
  * Flow implementation for the FullCalendar.
@@ -125,13 +119,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     private boolean initialStateSent;
 
     /**
-     * The values passed to {@code setOption}, as {@link #getOption(String, boolean)} returns them. Part of the bridge
-     * from the old option API to {@link #rawOptions}, which goes away with that API.
-     */
-    private final Map<String, Object> options = new HashMap<>();
-    private final Map<String, Object> serverSideOptions = new HashMap<>();
-
-    /**
      * The ObjectNode passed to {@link #FullCalendar(ObjectNode)}, kept so the addon-default
      * logic in {@link #postConstruct()} can tell whether the caller already provided a
      * particular option. {@code null} for the no-arg / int-limit constructors.
@@ -182,8 +169,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     private boolean autoRevertUnappliedEntryChanges = true;
 
-    private final Map<String, ObjectNode> viewSpecificOptionsMap = new LinkedHashMap<>();
-
     /**
      * Creates a new instance without any settings beside the default locale ({@link CalendarLocale#getDefaultLocale()}).
      * <p></p>
@@ -215,7 +200,8 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      * {@link FullCalendarOptions#getRawOption(String)} returns them, but the field getters of {@link #options()}
      * do not.
      * <p></p>
-     * Any "set some option" calls will override the given initial options, when they use the same key.
+     * Like every raw option, an initial option wins over the field with the same key. Replace or remove it with
+     * {@link FullCalendarOptions#setRawOption(String, Object)}.
      * <p></p>
      * The time zone ({@code timeZone}) is not kept as an option of its own but goes into
      * {@link FullCalendarOptions#getTimeZone()}, because the server converts the entry times with it. {@code "local"}
@@ -644,220 +630,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
         getElement().callJsFunction("scrollToTime", duration.format(DateTimeFormatter.ISO_LOCAL_TIME));
     }
 
-    // FC-UPDATE: check again which options take effect on an attached calendar. The exceptions in the Javadoc below
-    //  depend on it.
-    /**
-     * Sets an option for this instance. Null removes the option, as {@link #removeOption(Option)} does.
-     * <p>
-     * A removed option behaves as if it had never been set.
-     * <p>
-     * When the calendar is attached, a change takes effect at once. These are the exceptions:
-     * <ul>
-     *   <li>{@link Option#NOW} has no effect, also not after a detach and attach. Set it before the first attach.
-     *   {@link Option#NOW} describes one case in which a date still applies.</li>
-     *   <li>{@link Option#INITIAL_DATE} and {@link Option#INITIAL_VIEW} have no effect. Use
-     *   {@link #gotoDate(LocalDate)} and {@link #changeView(CalendarView)} instead.</li>
-     *   <li>The {@code ..._DID_MOUNT} options, for example {@link Option#ENTRY_DID_MOUNT}, only apply to newly
-     *   rendered elements, for example after navigating to another view or period. Existing elements are not
-     *   updated.</li>
-     *   <li>A few options take effect later. Their documentation says when, for example
-     *   {@link Option#SCROLL_TIME}.</li>
-     * </ul>
-     *
-     * @param option option
-     * @param value  value, or null to remove the option
-     * @throws NullPointerException when null is passed as option
-     */
-    public void setOption(Option option, Object value) {
-        setOption(option.getOptionKey(), value, null, option.getConverters());
-    }
-
-    /**
-     * Removes an option. The calendar then behaves as if the option had never been set. This is the same as
-     * {@code setOption(option, null)}, see {@link #setOption(Option, Object)}.
-     *
-     * @param option option
-     * @throws NullPointerException when the option is null
-     */
-    public void removeOption(Option option) {
-        setOption(option, null);
-    }
-
-    /**
-     * Removes an option. The calendar then behaves as if the option had never been set. This is the same as
-     * {@code setOption(option, null)}, see {@link #setOption(Option, Object)}.
-     *
-     * @param option option key
-     * @throws NullPointerException when the option is null
-     */
-    public void removeOption(String option) {
-        setOption(option, null, null, List.of());
-    }
-
-    /**
-     * Sets an option for this instance. Passing a null value removes the option. The calendar then
-     * behaves as if it had never been set.
-     * <p>
-     * Some options do not take effect at once on an attached calendar, see {@link #setOption(Option, Object)}.
-     * <p>
-     * The third parameter might be used to explicitly store a "more complex" variant of the option's value to be
-     * returned by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
-     * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     *
-     * @param option             option
-     * @param value              value
-     * @param valueForServerSide value to be stored on server side
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #setOption(Option, Object)} with the typed value. The option's converter creates the
-     * client-side value from it, so the client and {@link #getOption(Option)} cannot get out of step.
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setOption(Option option, Object value, Object valueForServerSide) {
-        setOption(option.getOptionKey(), value, valueForServerSide, option.getConverters());
-    }
-
-    /**
-     * Sets an option for this instance. Passing a null value removes the option. The calendar then
-     * behaves as if it had never been set.
-     * <p>
-     * Some options do not take effect at once on an attached calendar, see {@link #setOption(Option, Object)}.
-     * <p>
-     * Please be aware that this method does not check the passed value. Use the typed
-     * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
-     * <br><br>
-     * For a full overview of possible options have a look at the FullCalendar documentation
-     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
-     *
-     * @param option option
-     * @param value  value
-     * @throws NullPointerException when null is passed
-     */
-    public void setOption(String option, Object value, @SuppressWarnings("rawtypes") JsonItemPropertyConverter... converters) {
-        setOption(option, value, null, converters == null ? List.of() : List.of(converters));
-    }
-
-    /**
-     * Sets an option for this instance. Passing a null value removes the option. The calendar then
-     * behaves as if it had never been set.
-     * <p>
-     * Some options do not take effect at once on an attached calendar, see {@link #setOption(Option, Object)}.
-     * <p>
-     * The third parameter might be used to explicitly store a "more complex" variant of the option's value to be
-     * returned by {@link #getOption(Option)}. It is always stored when not equal to the value except for null.
-     * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     * <br><br>
-     * Optionally, one or more {@link JsonItemPropertyConverter converters} can be passed to automatically
-     * convert the value to a client-side representation. The first converter whose
-     * {@link JsonItemPropertyConverter#supports(Object)} returns {@code true} for the value will be used.
-     * The original value is stored as the server-side value.
-     * <br><br>
-     * Please be aware that this method does not check the passed value. Use the typed
-     * {@link Option} constants for type safety (e.g. {@code setOption(Option.LOCALE, myLocale)}).
-     * <p>
-     * For a full overview of possible options have a look at the FullCalendar documentation
-     * (<a href='https://fullcalendar.io/docs'>https://fullcalendar.io/docs</a>).
-     *
-     * @param option             option
-     * @param value              value
-     * @param valueForServerSide value to be stored on server side
-     * @param converters         optional converters to apply to the value
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #setOption(String, Object, JsonItemPropertyConverter...)}. A converter creates the
-     * client-side value and the passed value is stored on the server side, so the two cannot get out of step.
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setOption(String option, Object value, Object valueForServerSide, @SuppressWarnings("rawtypes") JsonItemPropertyConverter... converters) {
-        setOption(option, value, valueForServerSide, List.of(converters));
-    }
-
-    /**
-     * Sets an option for this instance. All setOption and removeOption methods end here. A subclass can override
-     * this method to handle all option changes in one place.
-     * <p>
-     * Null removes the option. The first converter that supports the value creates the client-side
-     * value.
-     *
-     * @param option             option key
-     * @param value              value, or null to remove the option
-     * @param valueForServerSide the value that {@link #getOption(String)} returns instead of the passed value, may be
-     *                           null
-     * @param converters         converters for the client-side value, may be empty
-     * @throws NullPointerException when null is passed as option
-     */
-    protected void setOption(String option, Object value, Object valueForServerSide,
-                             List<JsonItemPropertyConverter<?, ?>> converters) {
-        if (value != null && !converters.isEmpty()) {
-            for (JsonItemPropertyConverter<?, ?> c : converters) {
-                if (c.supports(value)) {
-                    @SuppressWarnings("unchecked")
-                    JsonNode converted = ((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null);
-                    updateOption(option, converted,
-                            valueForServerSide != null ? valueForServerSide : value);
-                    return;
-                }
-            }
-        }
-        updateOption(option, value, valueForServerSide);
-    }
-
-    private void updateOption(String option, Object value, Object valueForServerSide) {
-        Objects.requireNonNull(option);
-
-        // 0. The time zone goes into its field, which the offset helpers read. Removing it gives the library default.
-        if (Option.TIMEZONE.getOptionKey().equals(option)) {
-            Object timezoneValue = valueForServerSide != null ? valueForServerSide : value;
-            Timezone timeZone;
-            if (timezoneValue == null || timezoneValue instanceof String id && isLocalTimezone(id)) {
-                timeZone = Timezone.LOCAL;
-            } else if (timezoneValue instanceof String id) {
-                timeZone = parseTimezone(id);
-            } else {
-                timeZone = (Timezone) timezoneValue;
-            }
-            options().setTimeZone(timeZone);
-            return;
-        }
-
-        // 1. The entry did mount callback goes into its field, which contributeOptions merges
-        if (Option.ENTRY_DID_MOUNT.getOptionKey().equals(option)) {
-            options().setEntryDidMount(value instanceof JsCallback cb ? cb : null);
-            return;
-        }
-
-        // 2. Convert JsCallback to marker JSON before the attached/not-attached split.
-        //    Preserve original JsCallback for getOption() round-trip via serverSideOptions.
-        if (value instanceof JsCallback cb) {
-            if (valueForServerSide == null) {
-                valueForServerSide = cb;
-            }
-            value = cb.toMarkerJson();
-        }
-
-        // Auto-convert ClientSideValue implementations to their client-side string,
-        // keeping the original typed object for server-side getOption() retrieval.
-        if (value instanceof ClientSideValue csv) {
-            if (valueForServerSide == null) {
-                valueForServerSide = value;
-            }
-            value = csv.getClientSideValue();
-        }
-
-        if (value == null || value instanceof JsonNode json && json.isNull()) {
-            options.remove(option);
-            serverSideOptions.remove(option);
-            rawOptions.remove(option);
-        } else {
-            options().setRawOption(option, value);
-            options.put(option, value);
-            if (valueForServerSide == null || valueForServerSide.equals(value)) {
-                serverSideOptions.remove(option);
-            } else {
-                serverSideOptions.put(option, valueForServerSide);
-            }
-        }
-        optionsChanged();
-    }
-
     /**
      * Returns the options of this calendar as typed fields. The returned object is live: its setters change the
      * calendar, also through a reference kept for a later request.
@@ -1012,8 +784,7 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
 
     /**
      * The library's {@code views} object: the definitions of the custom views first, then the values of
-     * {@link FullCalendarOptions#view(CalendarView)} over them per view and key, then the raw options of the views, then
-     * the values of {@link #setViewSpecificOption(String, String, Object, JsonItemPropertyConverter...)}.
+     * {@link FullCalendarOptions#view(CalendarView)} over them per view and key, then the raw options of the views.
      */
     private Optional<ObjectNode> viewsJson() {
         ObjectNode views = JsonFactory.createObject();
@@ -1029,7 +800,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
                 mergeView(views, name, JsonFactory.createObject().setAll(values));
             }
         });
-        viewSpecificOptionsMap.forEach((name, values) -> mergeView(views, name, values));
 
         return views.isEmpty() ? Optional.empty() : Optional.of(views);
     }
@@ -1197,18 +967,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Returns the current timezone of this calendar. Entries will be displayed related to this timezone.
-     * Does not affect the server side times of entries, only their client side displayment.
-     *
-     * @return time zone
-     * @deprecated use {@link FullCalendarOptions#getTimeZone()}, which returns the same
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public Timezone getTimezone() {
-        return getTimezoneForOffsets();
-    }
-
-    /**
      * Returns the time zone the offset helpers of entries and events convert with, the value of the time zone field.
      * {@link Timezone#LOCAL} converts with UTC.
      */
@@ -1246,61 +1004,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Sets the timezone the calendar shall show. Does not affect the entries directly but only their client side displayment.
-     *
-     * @param timezone time zone to show the entries in
-     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#TIMEZONE}, which takes a {@link Timezone}
-     * or a time zone id
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setTimezone(Timezone timezone) {
-        Objects.requireNonNull(timezone);
-        setOption(Option.TIMEZONE, timezone);
-    }
-
-    /**
-     * This method will limit the maximal entries shown per day to the given number (not including
-     * the "+ x more entries" link). Must be a number > 0.
-     *
-     * @see #setMaxEntriesPerDayFitToCell()
-     * @see #setMaxEntriesPerDayUnlimited()
-     * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
-     *
-     * @param maxEntriesPerDay maximal entries per day
-     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#DAY_MAX_ENTRIES} and the number
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setMaxEntriesPerDay(int maxEntriesPerDay) {
-        setOption(Option.DAY_MAX_ENTRIES, maxEntriesPerDay);
-    }
-
-    /**
-     * When calling this method, the entries shown per day will be limited to fit the cell height.
-     *
-     * @see #setMaxEntriesPerDay(int)
-     * @see #setMaxEntriesPerDayUnlimited()
-     * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
-     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#DAY_MAX_ENTRIES} and {@code true}
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setMaxEntriesPerDayFitToCell() {
-        setOption(Option.DAY_MAX_ENTRIES, true);
-    }
-
-    /**
-     * When calling this method, the entries shown per day will be unlimited and take all the space needed.
-     *
-     * @see #setMaxEntriesPerDay(int)
-     * @see #setMaxEntriesPerDayFitToCell()
-     * @see <a href="https://fullcalendar.io/docs/dayMaxEvents">https://fullcalendar.io/docs/dayMaxEvents</a>
-     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#DAY_MAX_ENTRIES} and {@code false}
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setMaxEntriesPerDayUnlimited() {
-        setOption(Option.DAY_MAX_ENTRIES, false);
-    }
-
-    /**
      * This method returns the timezone sent by the browser. The calendar takes it as its time zone while that is
      * {@link Timezone#LOCAL}, see {@link FullCalendarOptions#setTimeZone(Timezone)}.
      * <p></p>
@@ -1327,113 +1030,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             }
             getEventBus().fireEvent(new BrowserTimezoneObtainedEvent(this, false, browserTimezone));
         }
-    }
-
-    /**
-     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
-     * If a server side version of the value has been set
-     * via {@link #setOption(Option, Object, Object)}, that will be returned instead.
-     *
-     * @param option option
-     * @param <T>    type of value
-     * @return optional value or empty
-     * @throws NullPointerException when null is passed
-     */
-    public <T> Optional<T> getOption(Option option) {
-        return getOption(option, false);
-    }
-
-    /**
-     * Returns the value of the given option like {@link #getOption(Option)}, or the given default when the option
-     * is not set. Named like {@link Map#getOrDefault(Object, Object)}, because a {@code getOption} overload with a
-     * {@code Boolean} default would clash with {@link #getOption(Option, boolean)}.
-     * <pre>{@code
-     * DayOfWeek firstDay = calendar.getOptionOrDefault(Option.FIRST_DAY, DayOfWeek.SUNDAY);
-     * }</pre>
-     *
-     * @param option       option
-     * @param defaultValue value to return when the option is not set
-     * @param <T>          type of value
-     * @return the option's value or the default
-     * @throws NullPointerException when null is passed as option
-     * @throws ClassCastException at the call site when the option's value is not of the default's type
-     */
-    public <T> T getOptionOrDefault(Option option, T defaultValue) {
-        return this.<T>getOption(option).orElse(defaultValue);
-    }
-
-    /**
-     * Returns the value of the given option like {@link #getOption(String)}, or the given default when the option
-     * is not set.
-     *
-     * @param option       option
-     * @param defaultValue value to return when the option is not set
-     * @param <T>          type of value
-     * @return the option's value or the default
-     * @throws NullPointerException when null is passed as option
-     * @see #getOptionOrDefault(Option, Object)
-     */
-    public <T> T getOptionOrDefault(String option, T defaultValue) {
-        return this.<T>getOption(option).orElse(defaultValue);
-    }
-
-    /**
-     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
-     * If the second parameter is false and a server side version of the
-     * value has been set via {@link #setOption(Option, Object, Object)}, that will be returned instead.
-     *
-     * @param option               option
-     * @param forceClientSideValue explicitly return the value that has been sent to client
-     * @param <T>                  type of value
-     * @return optional value or empty
-     * @throws NullPointerException when null is passed
-     */
-    public <T> Optional<T> getOption(Option option, boolean forceClientSideValue) {
-        return getOption(option.getOptionKey(), forceClientSideValue);
-    }
-
-    /**
-     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
-     * If a server side version of the value has been set
-     * via {@link #setOption(Option, Object, Object)}, that will be returned instead.
-     *
-     * @param option option
-     * @param <T>    type of value
-     * @return optional value or empty
-     * @throws NullPointerException when null is passed
-     */
-    public <T> Optional<T> getOption(String option) {
-        return getOption(option, false);
-    }
-
-    /**
-     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
-     * If the second parameter is false and a server side version of the
-     * value has been set via {@link #setOption(Option, Object, Object)}, that will be returned instead.
-     * <br><br>
-     * Returns {@code null} for initial options. Please use {@code options().getRawOption(String)}
-     *
-     * @param option               option
-     * @param forceClientSideValue explicitly return the value that has been sent to client
-     * @param <T>                  type of value
-     * @return optional value or empty
-     * @throws NullPointerException when null is passed
-     */
-    public <T> Optional<T> getOption(String option, boolean forceClientSideValue) {
-        Objects.requireNonNull(option);
-        if (Option.TIMEZONE.getOptionKey().equals(option)) {
-            Timezone timeZone = calendarOptions.getTimeZone();
-            if (forceClientSideValue) {
-                // what currentOptions() sends
-                return Optional.of((T) (followBrowserTimezone ? Timezone.LOCAL : timeZone).getClientSideValue());
-            }
-            return Optional.of((T) timeZone);
-        }
-        if (!forceClientSideValue && serverSideOptions.containsKey(option)) {
-            return Optional.ofNullable((T) serverSideOptions.get(option));
-        }
-
-        return Optional.ofNullable((T) options.get(option));
     }
 
     /**
@@ -2080,23 +1676,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
     }
 
     /**
-     * Sets an action, that shall happen, when a user clicks the "+x more" link in the calendar (which occurs when the max
-     * entries per day are exceeded). Default value is {@code POPUP}. Passing {@code null} will reset the default.
-     * <p>For a custom JS function callback, use {@link #setOption(Option, Object)} with
-     * {@link Option#MORE_LINK_CLICK} and {@link JsCallback} instead.
-     *
-     * @param moreLinkClickAction action to set
-     * @see MoreLinkClickAction
-     * @see Option#MORE_LINK_CLICK
-     * @deprecated use {@link FullCalendarOptions#setMoreLinkClick(MoreLinkClickValue)} with
-     * {@link MoreLinkClickValue.Action}
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setMoreLinkClickAction(MoreLinkClickAction moreLinkClickAction) {
-        setOption(Option.MORE_LINK_CLICK, moreLinkClickAction);
-    }
-
-    /**
      * Enables prefetching of entries of adjacent time ranges (enabled by default).
      * <p></p>
      * Prefetching means, that entries of adjacent periods are also fetched. For instance, when the current view is
@@ -2147,59 +1726,6 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
             return optional;
         }
         return Optional.ofNullable((T) customCalendarViews.get(clientSideValue));
-    }
-
-    /**
-     * Restricts the calendar so the user cannot navigate before {@code start}. Dates before this date are grayed
-     * out and the previous-navigation buttons stop at this boundary. The end of the valid range remains open.
-     *
-     * @param start earliest date the user can navigate to; must not be null
-     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and
-     * {@code new DateRange(start, null)}
-     */
-    @Deprecated(since = "7.3.0", forRemoval = true)
-    public void setValidRangeStart(LocalDate start) {
-        setOption(Option.VALID_RANGE, new DateRange(start, null));
-    }
-
-    /**
-     * Restricts the calendar so the user cannot navigate past {@code end}. Dates after this date are grayed
-     * out and the next-navigation buttons stop at this boundary. The start of the valid range remains open.
-     *
-     * @param end latest date the user can navigate to; must not be null
-     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and
-     * {@code new DateRange(null, end)}
-     */
-    @Deprecated(since = "7.3.0", forRemoval = true)
-    public void setValidRangeEnd(LocalDate end) {
-        setOption(Option.VALID_RANGE, new DateRange(null, end));
-    }
-
-    /**
-     * Restricts navigation to the given date range. Dates outside the range are grayed out and navigation
-     * buttons stop at the boundaries. Pass {@code null} for either boundary to leave it open-ended.
-     * Pass {@code null} for both to remove all restrictions (same as {@link #clearValidRange()}).
-     *
-     * @param start earliest navigable date, or {@code null} for open start
-     * @param end   latest navigable date, or {@code null} for open end
-     * @throws IllegalArgumentException if both are non-null and {@code start} is not before {@code end}
-     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and a {@link DateRange}
-     */
-    @Deprecated(since = "7.3.0", forRemoval = true)
-    public void setValidRange(LocalDate start, LocalDate end) {
-        setOption(Option.VALID_RANGE, start == null && end == null ? null : new DateRange(start, end));
-    }
-
-    /**
-     * Removes any navigation restriction previously set by {@link #setValidRange}, {@link #setValidRangeStart},
-     * or {@link #setValidRangeEnd}. Also removes a dynamic valid range callback ({@link Option#VALID_RANGE})
-     * if one had been set before. The user can navigate freely again.
-     *
-     * @deprecated use {@link #setOption(Option, Object)} with {@link Option#VALID_RANGE} and {@code null}
-     */
-    @Deprecated(since = "7.3.0", forRemoval = true)
-    public void clearValidRange() {
-        setOption(Option.VALID_RANGE, null);
     }
 
     /**
@@ -2292,151 +1818,5 @@ public class FullCalendar extends Component implements HasStyle, HasSize {
      */
     public String getTheme() {
         return getElement().getProperty(THEME_PROPERTY);
-    }
-
-    /**
-     * Sets a view-specific option override. The option applies only when the calendar is
-     * showing the specified view type. Multiple calls for the same view type accumulate;
-     * each key is set independently.
-     * <p>
-     * Example — limit event rows only in month view:
-     * <pre>{@code
-     * calendar.setViewSpecificOption("dayGridMonth", Option.DAY_MAX_ENTRY_ROWS, 3);
-     * }</pre>
-     *
-     * @param viewType  FullCalendar view type name (e.g., {@code "dayGrid"}, {@code "timeGrid"},
-     *                  {@code "dayGridMonth"}, {@code "listWeek"})
-     * @param optionKey option key string
-     * @param value     option value; pass {@code null} to remove this key from the view override
-     * @throws NullPointerException if viewType or optionKey is null
-     * @see #setViewSpecificOption(String, Option, Object)
-     * @see #setViewSpecificOption(CalendarView, Option, Object)
-     * @see #setViewSpecificOptions(String, Map)
-     * @see <a href="https://fullcalendar.io/docs/view-specific-options">FullCalendar view-specific options</a>
-     */
-    public void setViewSpecificOption(String viewType, String optionKey, Object value,
-                                      @SuppressWarnings("rawtypes") JsonItemPropertyConverter... converters) {
-        Objects.requireNonNull(viewType, "viewType must not be null");
-        Objects.requireNonNull(optionKey, "optionKey must not be null");
-        ObjectNode viewNode = viewSpecificOptionsMap.computeIfAbsent(viewType, k -> JsonFactory.createObject());
-        if (value == null) {
-            viewNode.remove(optionKey);
-            if (viewNode.isEmpty()) {
-                viewSpecificOptionsMap.remove(viewType);
-            }
-        } else {
-            Object clientValue = value;
-            for (JsonItemPropertyConverter<?, ?> c : converters) {
-                if (c.supports(value)) {
-                    @SuppressWarnings("unchecked")
-                    JsonNode converted = ((JsonItemPropertyConverter<Object, Object>) c).toClientModel(value, null);
-                    clientValue = converted;
-                    break;
-                }
-            }
-            viewNode.set(optionKey, toJsonNodeWithJackson(clientValue));
-        }
-        syncViewSpecificOptions();
-    }
-
-    /**
-     * Sets a view-specific option using the typed {@link Option} enum.
-     * Converters registered on the option via {@link org.vaadin.stefan.fullcalendar.json.JsonConverter}
-     * are applied automatically.
-     *
-     * @param viewType FullCalendar view type name
-     * @param option   option enum constant
-     * @param value    option value; pass {@code null} to remove
-     * @see #setViewSpecificOption(String, String, Object, JsonItemPropertyConverter...)
-     */
-    public void setViewSpecificOption(String viewType, Option option, Object value) {
-        Objects.requireNonNull(option, "option must not be null");
-        setViewSpecificOption(viewType, option.getOptionKey(), value,
-                option.getConverters().toArray(JsonItemPropertyConverter[]::new));
-    }
-
-    /**
-     * Sets a view-specific option using the typed {@link CalendarView} enum to identify the view.
-     * Converters registered on the option via {@link org.vaadin.stefan.fullcalendar.json.JsonConverter}
-     * are applied automatically.
-     *
-     * @param view   calendar view
-     * @param option option enum constant
-     * @param value  option value; pass {@code null} to remove
-     * @see #setViewSpecificOption(String, Option, Object)
-     */
-    public void setViewSpecificOption(CalendarView view, Option option, Object value) {
-        Objects.requireNonNull(view, "view must not be null");
-        setViewSpecificOption(view.getClientSideValue(), option, value);
-    }
-
-    /**
-     * Sets multiple view-specific options at once for the given view type. Merges with any
-     * existing overrides for that view type; entries in the provided map override existing keys.
-     *
-     * @param viewType FullCalendar view type name
-     * @param options  map of option key → value; null values remove the corresponding key
-     * @throws NullPointerException if viewType or options is null
-     * @see #setViewSpecificOption(String, String, Object)
-     */
-    public void setViewSpecificOptions(String viewType, Map<String, Object> options) {
-        Objects.requireNonNull(viewType, "viewType must not be null");
-        Objects.requireNonNull(options, "options must not be null");
-        options.forEach((key, value) -> setViewSpecificOption(viewType, key, value));
-    }
-
-    private void syncViewSpecificOptions() {
-        // The values go into the generated views object, see viewsJson(). This copy only keeps getOption("views")
-        // returning them.
-        if (viewSpecificOptionsMap.isEmpty()) {
-            options.remove("views");
-        } else {
-            ObjectNode viewsNode = JsonFactory.createObject();
-            viewSpecificOptionsMap.forEach((name, values) -> viewsNode.set(name, values.deepCopy()));
-            options.put("views", viewsNode);
-        }
-        optionsChanged();
-    }
-
-    /**
-     * Possible actions, that shall happen on the client side.
-     *
-     * @deprecated use {@link FullCalendarOptions#setMoreLinkClick(MoreLinkClickValue)} with
-     * {@link MoreLinkClickValue.Action}, which has the same actions
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public enum MoreLinkClickAction implements ClientSideValue {
-        /**
-         * Shows a popup on the client side. This popup is purely client side rendered. Entries shown in that
-         * popup will fire the same click event as "normal" entries do.
-         */
-        POPUP("popover"),
-        /**
-         * Goes to a "day" view based on the current one.
-         */
-        DAY("day"),
-
-        /**
-         * Goes to a "week" view based on the current one.
-         */
-        WEEK("week"),
-
-        /**
-         * Nothing will happen automatically. You should use this action if you want to handle
-         * the action manually (e.g. showing your own dialog / popup for the given events).
-         */
-        NOTHING("function");
-
-        private final String clientSideValue;
-
-        MoreLinkClickAction(String clientSideValue) {
-            this.clientSideValue = clientSideValue;
-        }
-
-        @Override
-        public String getClientSideValue() {
-            return this.clientSideValue;
-        }
-
     }
 }

@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.BUSINESS_HOURS`, `Option.ENTRY_CONSTRAINT`, `Option.SELECT_CONSTRAINT`
+**Related Options:** `businessHours`, `entryConstraint`, `selectConstraint`
 **Related Events:** —
 
 ---
@@ -29,23 +29,22 @@
 
 ```java
 // Default business hours (Mo-Fr 9-17)
-calendar.setOption(Option.BUSINESS_HOURS, true);
+calendar.options().setBusinessHours(BusinessHoursValue.DEFAULT);
 
 // Custom business hours
-calendar.setOption(Option.BUSINESS_HOURS,
+calendar.options().setBusinessHours(
     BusinessHours.businessWeek().start(8).end(18));
 
 // Multiple ranges
-calendar.setOption(Option.BUSINESS_HOURS, new BusinessHours[]{
+calendar.options().setBusinessHours(
     BusinessHours.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
         .start(8).end(12),
     BusinessHours.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY)
-        .start(10).end(16)
-});
+        .start(10).end(16));
 
 // Use as constraint
-calendar.setOption(Option.ENTRY_CONSTRAINT, "businessHours");
-calendar.setOption(Option.SELECT_CONSTRAINT, "businessHours");
+calendar.options().setEntryConstraint(ConstraintValue.BUSINESS_HOURS);
+calendar.options().setSelectConstraint(ConstraintValue.BUSINESS_HOURS);
 ```
 
 ---
@@ -54,9 +53,9 @@ calendar.setOption(Option.SELECT_CONSTRAINT, "businessHours");
 
 | ID | Rule |
 |----|------|
-| BR-01 | `true` activates default 9am-5pm Mon-Fri |
+| BR-01 | `BusinessHoursValue.DEFAULT` (the library's `true`) activates default 9am-5pm Mon-Fri |
 | BR-02 | Multiple `BusinessHours` arrays allow different ranges per day |
-| BR-03 | `"businessHours"` as constraint value restricts DnD and selection to business hours |
+| BR-03 | `ConstraintValue.BUSINESS_HOURS` as constraint value restricts DnD and selection to business hours |
 | BR-04 | Resources can have per-resource business hours (scheduler) |
 
 ---
@@ -66,8 +65,8 @@ calendar.setOption(Option.SELECT_CONSTRAINT, "businessHours");
 - [ ] Non-business times are visually shaded in timegrid views
 - [ ] Custom hours display correctly
 - [ ] Multiple time ranges per week render correctly
-- [ ] `ENTRY_CONSTRAINT = "businessHours"` prevents DnD outside business hours
-- [ ] `SELECT_CONSTRAINT = "businessHours"` prevents selection outside business hours
+- [ ] `entryConstraint = ConstraintValue.BUSINESS_HOURS` prevents DnD outside business hours
+- [ ] `selectConstraint = ConstraintValue.BUSINESS_HOURS` prevents selection outside business hours
 
 ---
 

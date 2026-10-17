@@ -125,14 +125,14 @@
 //
 //    private FullCalendarScheduler createTestCalendar() {
 //        FullCalendarScheduler scheduler = new FullCalendarScheduler();
-//        scheduler.setTimezone(Timezone.getSystem());
+//        scheduler.options().setTimeZone(Timezone.getSystem());
 //        return scheduler;
 //    }
 //
 //    @Test
 //    void testUpdateResourceEntryBasicsFromJson() {
 //        FullCalendarScheduler calendar = createTestCalendar();
-//        Timezone timezoneClient = calendar.getTimezone();
+//        Timezone timezoneClient = calendar.options().getTimeZone();
 //
 //        Resource resource1 = new Resource("1", "1", null);
 //        Resource resource2 = new Resource("2", "2", null);

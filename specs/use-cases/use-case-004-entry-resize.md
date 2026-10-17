@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.EDITABLE`, `Option.ENTRY_DURATION_EDITABLE`, `Option.ENTRY_RESIZABLE_FROM_START`, `Option.ENTRY_ALLOW`, `Option.ENTRY_OVERLAP`, `Option.ENTRY_CONSTRAINT`
+**Related Options:** `editable`, `entryDurationEditable`, `entryResizableFromStart`, `entryAllow`, `entryOverlap`, `entryConstraint`
 **Related Events:** `EntryResizedEvent`, `EntryResizeStartEvent`, `EntryResizeStopEvent`
 
 ---
@@ -19,7 +19,7 @@
 
 - When editable, entries in timegrid views have a resize handle at the bottom edge (8px wide dot; Vaadin theme sets `--fc-event-resizer-thickness: 8px`). Note: 8px does not meet the 44px WCAG touch target recommendation — on touch devices, long press delay compensates partially.
 - Dragging the handle changes the entry's end time
-- With `ENTRY_RESIZABLE_FROM_START = true`, a handle appears at the top edge too
+- With `entryResizableFromStart = true`, a handle appears at the top edge too
 - The server receives an `EntryResizedEvent` with the new start/end and delta
 - Constraint and overlap rules apply during resize (same as DnD)
 
@@ -28,10 +28,10 @@
 ## Java API Usage
 
 ```java
-calendar.setOption(Option.EDITABLE, true);
+calendar.options().setEditable(true);
 
 // Allow resize from start edge
-calendar.setOption(Option.ENTRY_RESIZABLE_FROM_START, true);
+calendar.options().setEntryResizableFromStart(true);
 
 // Handle resize
 calendar.addEntryResizedListener(event -> {
@@ -51,9 +51,9 @@ calendar.addEntryResizeStopListener(event -> { /* resize ended */ });
 
 | ID | Rule |
 |----|------|
-| BR-01 | Requires `EDITABLE = true` (or per-entry `editable = true`) |
-| BR-02 | `ENTRY_DURATION_EDITABLE = false` disables resize while keeping drag enabled |
-| BR-03 | `ENTRY_RESIZABLE_FROM_START` adds top-edge handle (default: `false`) |
+| BR-01 | Requires calendar `editable = true` (or per-entry `editable = true`) |
+| BR-02 | `entryDurationEditable = false` disables resize while keeping drag enabled |
+| BR-03 | `entryResizableFromStart` adds top-edge handle (default: `false`) |
 | BR-04 | Constraint and overlap rules apply during resize |
 | BR-05 | Entry start/end are updated in the Java model when the event fires |
 
@@ -63,9 +63,9 @@ calendar.addEntryResizeStopListener(event -> { /* resize ended */ });
 
 - [ ] Entry in timegrid view shows resize handle at bottom edge when editable
 - [ ] Dragging resize handle changes entry end time
-- [ ] `ENTRY_RESIZABLE_FROM_START` adds top-edge resize handle
+- [ ] `entryResizableFromStart` adds top-edge resize handle
 - [ ] `EntryResizedEvent` fires with correct new start, end, and delta
-- [ ] `ENTRY_DURATION_EDITABLE = false` disables resize even with `EDITABLE = true`
+- [ ] `entryDurationEditable = false` disables resize even with calendar `editable = true`
 - [ ] Constraint and overlap rules are respected during resize
 - [ ] `EntryResizeStartEvent` fires when resize begins
 - [ ] `EntryResizeStopEvent` fires when resize ends (regardless of valid resize)

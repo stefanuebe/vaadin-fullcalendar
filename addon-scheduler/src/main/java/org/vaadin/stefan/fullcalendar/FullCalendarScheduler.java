@@ -28,8 +28,6 @@ import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.shared.Registration;
-import org.vaadin.stefan.fullcalendar.converter.ResourceColumnsConverter;
-import org.vaadin.stefan.fullcalendar.converters.JsonItemPropertyConverter;
 import org.vaadin.stefan.fullcalendar.dataprovider.EntryProvider;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -340,13 +338,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
         scheduleResourceFlush();
     }
 
-    @Override
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setResourceColumns(List<? extends AbstractResourceColumn<?>> columns) {
-        Objects.requireNonNull(columns);
-        options().setResourceColumns(columns);
-    }
-
     /** Binds the component columns and sets the field, see {@link FullCalendarSchedulerOptions#setResourceColumns(List)}. */
     void applyResourceColumns(List<? extends AbstractResourceColumn<?>> columns) {
         List<AbstractResourceColumn<?>> copy = columns == null ? List.of() : List.copyOf(columns);
@@ -550,126 +541,6 @@ public class FullCalendarScheduler extends FullCalendar implements Scheduler {
     public Registration addEntryDroppedSchedulerListener(ComponentEventListener<? extends EntryDroppedSchedulerEvent> listener) {
         Objects.requireNonNull(listener);
         return addAutoRevertAwareListener(EntryDroppedSchedulerEvent.class, (ComponentEventListener) listener);
-    }
-
-    /**
-     * Sets an option for this instance. Null removes the option, as {@link #removeOption(SchedulerOption)} does.
-     * Some options do not take effect at once on an attached calendar, see {@link #setOption(Option, Object)}.
-     *
-     * @param option option
-     * @param value  value, or null to remove the option
-     * @throws NullPointerException when null is passed as option
-     */
-    public void setOption(SchedulerOption option, Object value) {
-        setOption(option.getOptionKey(), value, null, option.getConverters());
-    }
-
-    /**
-     * Removes an option. The calendar then behaves as if the option had never been set. This is the same as
-     * {@code setOption(option, null)}, see {@link #setOption(SchedulerOption, Object)}.
-     *
-     * @param option option
-     * @throws NullPointerException when the option is null
-     */
-    public void removeOption(SchedulerOption option) {
-        setOption(option, null);
-    }
-
-    /**
-     * Every way of setting an option ends here, so the resource columns are handled once. A column list goes into
-     * the field, as {@link FullCalendarSchedulerOptions#setResourceColumns(List)} does, and replaces a raw value. Any
-     * other value (raw JSON, null) clears the field, which unbinds the component columns set before.
-     */
-    @Override
-    protected void setOption(String option, Object value, Object valueForServerSide,
-                             List<JsonItemPropertyConverter<?, ?>> converters) {
-        if (SchedulerOption.RESOURCE_COLUMNS.getOptionKey().equals(option)) {
-            if (value instanceof List<?> list && list.stream().allMatch(AbstractResourceColumn.class::isInstance)) {
-                applyResourceColumns(list.stream().map(column -> (AbstractResourceColumn<?>) column).toList());
-                value = null; // removes a raw value set before, which would win over the field
-            } else {
-                applyResourceColumns(null);
-            }
-        }
-        super.setOption(option, value, valueForServerSide, converters);
-    }
-
-    /**
-     * Sets an option for this instance. Passing a null value removes the option. The third parameter
-     * might be used to explicitly store a "more complex" variant of the option's value to be returned
-     * by {@link #getOption(SchedulerOption)}. It is always stored when not equal to the value except for null.
-     * If it is equal to the value or null it will not be stored (old version will be removed from internal cache).
-     *
-     * @param option             option
-     * @param value              value
-     * @param valueForServerSide value to be stored on server side
-     * @throws NullPointerException when null is passed
-     * @deprecated use {@link #setOption(SchedulerOption, Object)} with the typed value. The option's converter creates
-     * the client-side value from it, so the client and {@link #getOption(SchedulerOption)} cannot get out of step.
-     */
-    @Deprecated(since = "8.0.0", forRemoval = true)
-    public void setOption(SchedulerOption option, Object value, Object valueForServerSide) {
-        setOption(option.getOptionKey(), value, valueForServerSide, option.getConverters());
-    }
-
-    /**
-     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
-     * If a server side version of the value has been set
-     * via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
-     *
-     * @param option option
-     * @param <T>    type of value
-     * @return optional value or empty
-     * @throws NullPointerException when null is passed
-     */
-    public <T> Optional<T> getOption(SchedulerOption option) {
-        return getOption(option, false);
-    }
-
-    /**
-     * Returns an optional option value or empty, that has been set for that key via one of the setOptions methods.
-     * If the second parameter is false and a server side version of the
-     * value has been set via {@link #setOption(SchedulerOption, Serializable, Object)}, that will be returned instead.
-     *
-     * @param option               option
-     * @param forceClientSideValue explicitly return the value that has been sent to client
-     * @param <T>                  type of value
-     * @return optional value or empty
-     * @throws NullPointerException when null is passed
-     */
-    public <T> Optional<T> getOption(SchedulerOption option, boolean forceClientSideValue) {
-        return getOption(option.getOptionKey(), forceClientSideValue);
-    }
-
-    /**
-     * Returns the value of the given option like {@link #getOption(SchedulerOption)}, or the given default when the
-     * option is not set.
-     *
-     * @param option       option
-     * @param defaultValue value to return when the option is not set
-     * @param <T>          type of value
-     * @return the option's value or the default
-     * @throws NullPointerException when null is passed as option
-     * @see #getOptionOrDefault(Option, Object)
-     */
-    public <T> T getOptionOrDefault(SchedulerOption option, T defaultValue) {
-        return this.<T>getOption(option).orElse(defaultValue);
-    }
-
-    /**
-     * Reads the resource columns from their field, all other options as the core does, so
-     * {@link #getOption(SchedulerOption)} still returns the columns.
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> Optional<T> getOption(String option, boolean forceClientSideValue) {
-        List<AbstractResourceColumn<?>> columns = ((SchedulerCalendarOptions) calendarOptions).getResourceColumns();
-        if (columns != null && SchedulerOption.RESOURCE_COLUMNS.getOptionKey().equals(option)) {
-            return Optional.of((T) (forceClientSideValue
-                    ? new ResourceColumnsConverter().toClientModel(columns, null)
-                    : columns));
-        }
-        return super.getOption(option, forceClientSideValue);
     }
 
     @SuppressWarnings("unchecked")

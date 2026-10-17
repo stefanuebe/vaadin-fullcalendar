@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – (not created, GitHub account flagged) |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-17, 1b611f22) |
 | Blocked by | `43-migrate-addon-internals`, `44-migrate-tests-calendar`, `45-migrate-tests-advanced-typed`, `46-migrate-tests-remaining-core`, `47-migrate-tests-scheduler`, `48-migrate-e2e-views-a`, `49-migrate-e2e-views-b`, `50-migrate-demo`, `67-option-by-option-review` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -14,10 +14,10 @@
 
 **Blocked by:** `43-migrate-addon-internals`, `44-migrate-tests-calendar`, `45-migrate-tests-advanced-typed`, `46-migrate-tests-remaining-core`, `47-migrate-tests-scheduler`, `48-migrate-e2e-views-a`, `49-migrate-e2e-views-b`, `50-migrate-demo`, `67-option-by-option-review`
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Nothing in the repository references the removed API.
-- [ ] Full gate green: `mvn clean install`, then the E2E run in `e2e-test-app`.
+- [x] Nothing in the repository references the removed API.
+- [x] Full gate green: `mvn clean install`, then the E2E run in `e2e-test-app`.
 
 **Notes from the review of the migration (43–50, 2026-10-17):**
 

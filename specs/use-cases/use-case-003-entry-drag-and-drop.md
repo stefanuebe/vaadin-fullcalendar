@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.EDITABLE`, `Option.ENTRY_START_EDITABLE`, `Option.SNAP_DURATION`, `Option.DRAG_SCROLL`, `Option.ALL_DAY_MAINTAIN_DURATION`, `Option.ENTRY_ALLOW`, `Option.ENTRY_OVERLAP`, `Option.ENTRY_CONSTRAINT`, `Option.ENTRY_DRAG_MIN_DISTANCE`, `Option.DRAG_REVERT_DURATION`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.LONG_PRESS_DELAY`
+**Related Options:** `editable`, `entryStartEditable`, `snapDuration`, `dragScroll`, `allDayMaintainDuration`, `entryAllow`, `entryOverlap`, `entryConstraint`, `entryDragMinDistance`, `dragRevertDuration`, `entryLongPressDelay`, `longPressDelay`
 **Related Events:** `EntryDroppedEvent`, `EntryDragStartEvent`, `EntryDragStopEvent`
 
 ---
@@ -19,7 +19,7 @@
 
 - When `editable` is enabled, the user can click and drag an entry to a new time slot or day
 - A clone of the entry, inheriting its color, follows the cursor during drag. It carries `fc-event-dragging` (see UC-025 BR-04).
-- When dropped, the entry snaps to the nearest slot (configurable via `SNAP_DURATION`)
+- When dropped, the entry snaps to the nearest slot (configurable via `snapDuration`)
 - The server receives an `EntryDroppedEvent` with the new start/end and the delta
 - If the drop is invalid (constraint/overlap violation), the entry reverts to its original position
 - On touch devices, a long press initiates the drag (configurable delay)
@@ -30,13 +30,13 @@
 
 ```java
 // Enable globally
-calendar.setOption(Option.EDITABLE, true);
+calendar.options().setEditable(true);
 
 // Disable for specific entry
 entry.setEditable(false);
 
 // Constrain to business hours
-calendar.setOption(Option.ENTRY_CONSTRAINT, "businessHours");
+calendar.options().setEntryConstraint(ConstraintValue.BUSINESS_HOURS);
 
 // Handle drop
 calendar.addEntryDroppedListener(event -> {
@@ -55,7 +55,7 @@ calendar.addEntryDragStopListener(event -> {
 });
 
 // Custom snap duration
-calendar.setOption(Option.SNAP_DURATION, Duration.ofMinutes(15));
+calendar.options().setSnapDuration(Duration.ofMinutes(15));
 ```
 
 ---
@@ -64,12 +64,12 @@ calendar.setOption(Option.SNAP_DURATION, Duration.ofMinutes(15));
 
 | ID | Rule |
 |----|------|
-| BR-01 | `Option.EDITABLE = false` (default) disables all DnD globally |
+| BR-01 | `editable = false` (default) disables all DnD globally |
 | BR-02 | `Entry.setEditable(false)` overrides global editable for that entry |
-| BR-03 | `ENTRY_START_EDITABLE = false` prevents time changes but allows other edits |
-| BR-04 | `ENTRY_CONSTRAINT = "businessHours"` restricts drops to business hour slots |
-| BR-05 | `ENTRY_OVERLAP = false` prevents dropping onto occupied slots |
-| BR-06 | `ENTRY_ALLOW` JS callback can programmatically accept/reject each drop |
+| BR-03 | `entryStartEditable = false` prevents time changes but allows other edits |
+| BR-04 | `entryConstraint = ConstraintValue.BUSINESS_HOURS` restricts drops to business hour slots |
+| BR-05 | `entryOverlap = false` prevents dropping onto occupied slots |
+| BR-06 | `entryAllow` JS callback can programmatically accept/reject each drop |
 | BR-07 | Entry start/end are already updated in the Java model when the event fires |
 | BR-08 | Dragging from all-day to timed slot (or vice versa) changes the entry's `allDay` state |
 
@@ -77,14 +77,14 @@ calendar.setOption(Option.SNAP_DURATION, Duration.ofMinutes(15));
 
 ## Acceptance Criteria
 
-- [ ] Entry can be dragged to a new time slot when `EDITABLE = true`
-- [ ] Entry cannot be dragged when `EDITABLE = false`
-- [ ] Per-entry `editable = false` prevents drag even with global `EDITABLE = true`
+- [ ] Entry can be dragged to a new time slot when `editable = true`
+- [ ] Entry cannot be dragged when `editable = false`
+- [ ] Per-entry `editable = false` prevents drag even with calendar `editable = true`
 - [ ] `EntryDroppedEvent` fires with correct new start, end, and delta
-- [ ] Constraint `"businessHours"` prevents drops outside business hours
-- [ ] `ENTRY_OVERLAP = false` prevents drops on occupied slots
+- [ ] Constraint `ConstraintValue.BUSINESS_HOURS` prevents drops outside business hours
+- [ ] `entryOverlap = false` prevents drops on occupied slots
 - [ ] Mirror (semi-transparent clone) follows cursor during drag *(manual verification)*
-- [ ] `SNAP_DURATION` controls snap granularity
+- [ ] `snapDuration` controls snap granularity
 - [ ] Touch devices: long press initiates drag *(manual verification — not automatable in headless Playwright)*
 - [ ] Dragging between all-day row and time grid works correctly
 - [ ] `EntryDragStartEvent` fires when drag begins

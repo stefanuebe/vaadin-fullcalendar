@@ -37,7 +37,7 @@ public class NativeEventListenerTestView extends VerticalLayout {
 
         add(new H2("Native Entry Event Listener"));
         add(new Paragraph(
-                "The entry below has data-did-mount='true' set by an ENTRY_DID_MOUNT callback. " +
+                "The entry below has data-did-mount='true' set by an entryDidMount callback. " +
                 "Clicking it increments the counter via a native click listener."));
 
         Span clickCounter = new Span("0");

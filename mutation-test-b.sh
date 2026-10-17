@@ -103,11 +103,8 @@ run_mutation "B4.1" "$DM" 's/BACKGROUND("background")/BACKGROUND("foreground")/'
 
 echo ""
 echo "--- B5: FullCalendar.java mutations ---"
-run_mutation "B5.1" "$FC" 's/options.remove(option);/\/\/ options.remove(option);/' \
-    "FullCalendarTest#testGetAndSetOption" "don't remove option on null"
-
-run_mutation "B5.2" "$FC" 's/serverSideOptions.remove(option);/\/\/ serverSideOptions.remove(option);/' \
-    "FullCalendarTest#testGetAndSetOptionWithServerSideValues" "don't remove serverSide option on null"
+run_mutation "B5.1" "$FC" 's/\.forEach(changes::putNull);/.count();/' \
+    "TypedOptionsSyncTest#afterAttach_setEditable_reachesTheClient_nullSendsARemoval" "don't send a removed option as null"
 
 echo ""
 echo "--- B6: InMemoryEntryProvider.java mutations ---"

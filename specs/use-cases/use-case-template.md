@@ -15,7 +15,7 @@
 ## Scope
 
 **Addon module:** [addon / addon-scheduler / both]
-**Related Options:** [`Option.X`, `Option.Y`]
+**Related Options:** [`x`, `y`]
 **Related Events:** [`SomeEvent`, `OtherEvent`]
 
 ---
@@ -36,7 +36,7 @@
 
 ```java
 // Example configuration
-calendar.setOption(Option.EXAMPLE, value);
+calendar.options().setExample(value);
 ```
 
 ---

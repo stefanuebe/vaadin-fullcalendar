@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.VALID_RANGE`, `Option.NAV_LINKS`, `Option.DATE_INCREMENT`, `Option.DATE_ALIGNMENT`
+**Related Options:** `validRange`, `navLinks`, `dateIncrement`, `dateAlignment`
 **Related Events:** `DatesRenderedEvent`, `DayNumberClickedEvent`, `WeekNumberClickedEvent`
 
 ---
@@ -19,7 +19,7 @@
 
 - Prev/Next buttons move forward/backward by one view interval
 - "Today" button jumps to today's date
-- Day and week numbers can be clickable links (`NAV_LINKS = true`)
+- Day and week numbers can be clickable links (`navLinks = true`)
 - Navigation can be restricted to a valid date range
 
 ---
@@ -34,10 +34,10 @@ calendar.today();
 calendar.gotoDate(LocalDate.of(2025, 6, 15));
 
 // Enable nav links
-calendar.setOption(Option.NAV_LINKS, true);
+calendar.options().setNavLinks(true);
 
 // Restrict navigable range
-calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)));
+calendar.options().setValidRange(new DateRange(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)));
 
 // Listen to navigation
 calendar.addDatesRenderedListener(event -> {
@@ -55,10 +55,10 @@ calendar.addDayNumberClickedListener(event -> {
 
 | ID | Rule |
 |----|------|
-| BR-01 | `VALID_RANGE` prevents navigating outside the specified date range |
+| BR-01 | `validRange` prevents navigating outside the specified date range |
 | BR-02 | `DatesRenderedEvent` fires after every navigation |
-| BR-03 | `NAV_LINKS` makes day/week numbers clickable; fires `DayNumberClickedEvent` / `WeekNumberClickedEvent` |
-| BR-04 | `DATE_INCREMENT` controls how far prev/next advance |
+| BR-03 | `navLinks` makes day/week numbers clickable; fires `DayNumberClickedEvent` / `WeekNumberClickedEvent` |
+| BR-04 | `dateIncrement` controls how far prev/next advance |
 
 ---
 
@@ -67,8 +67,8 @@ calendar.addDayNumberClickedListener(event -> {
 - [ ] `next()` and `previous()` navigate by one interval
 - [ ] `today()` jumps to current date
 - [ ] `gotoDate()` navigates to specific date
-- [ ] `VALID_RANGE` prevents navigation outside bounds
-- [ ] `NAV_LINKS` makes day numbers clickable
+- [ ] `validRange` prevents navigation outside bounds
+- [ ] `navLinks` makes day numbers clickable
 - [ ] `DatesRenderedEvent` fires after navigation
 
 ---

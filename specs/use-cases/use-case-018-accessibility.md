@@ -10,14 +10,14 @@
 ## Scope
 
 **Addon module:** addon
-**Related Options:** `Option.ENTRY_INTERACTIVE`, `Option.TODAY_HINT`, `Option.PREV_HINT`, `Option.NEXT_HINT`, `Option.NAV_LINK_HINT`, `Option.MORE_LINK_HINT`, `Option.VIEW_HINT`, `Option.CLOSE_HINT`, `Option.LONG_PRESS_DELAY`, `Option.ENTRY_LONG_PRESS_DELAY`, `Option.SELECT_LONG_PRESS_DELAY`
+**Related Options:** `entryInteractive`, `todayHint`, `prevHint`, `nextHint`, `navLinkHint`, `moreLinkHint`, `viewHint`, `closeHint`, `longPressDelay`, `entryLongPressDelay`, `selectLongPressDelay`
 **Related Events:** —
 
 ---
 
 ## User-Facing Behavior
 
-- With `ENTRY_INTERACTIVE = true`, all entries receive `tabindex="0"` for keyboard focus
+- With `entryInteractive = true`, all entries receive `tabindex="0"` for keyboard focus
 - Focused entries can be activated with Enter or Space
 - Screen reader labels can be customized for toolbar buttons, nav links, more links, and entries
 - Touch devices support long press for drag and selection (configurable delay)
@@ -28,16 +28,16 @@
 
 ```java
 // Keyboard accessibility for entries
-calendar.setOption(Option.ENTRY_INTERACTIVE, true);
+calendar.options().setEntryInteractive(true);
 
 // Screen reader labels
-calendar.setOption(Option.PREV_HINT, "Go to previous $0");
-calendar.setOption(Option.NEXT_HINT, "Go to next $0");
-calendar.setOption(Option.NAV_LINK_HINT, "Navigate to $0");
-calendar.setOption(Option.MORE_LINK_HINT, "$0 more events");
+calendar.options().setPrevHint("Go to previous $0");
+calendar.options().setNextHint("Go to next $0");
+calendar.options().setNavLinkHint("Navigate to $0");
+calendar.options().setMoreLinkHint("$0 more events");
 
 // Touch device settings
-calendar.setOption(Option.LONG_PRESS_DELAY, 500);
+calendar.options().setLongPressDelay(500);
 ```
 
 ---
@@ -46,7 +46,7 @@ calendar.setOption(Option.LONG_PRESS_DELAY, 500);
 
 | ID | Rule |
 |----|------|
-| BR-01 | `ENTRY_INTERACTIVE = true` is recommended for WCAG 2.1 AA (SC 2.1.1 Keyboard) |
+| BR-01 | `entryInteractive = true` is recommended for WCAG 2.1 AA (SC 2.1.1 Keyboard) |
 | BR-02 | Per-entry `interactive` overrides global setting |
 | BR-03 | Hint strings use `$0` as placeholder for dynamic values |
 | BR-04 | By default, only entries with a `url` are keyboard-focusable |
@@ -67,7 +67,7 @@ calendar.setOption(Option.LONG_PRESS_DELAY, 500);
 
 ## Acceptance Criteria
 
-- [ ] Entries are keyboard-focusable with `ENTRY_INTERACTIVE = true`
+- [ ] Entries are keyboard-focusable with `entryInteractive = true`
 - [ ] Enter/Space activates focused entries
 - [ ] Tab order follows logical reading order
 - [ ] ARIA labels appear on toolbar buttons

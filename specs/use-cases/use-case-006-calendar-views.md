@@ -10,7 +10,7 @@
 ## Scope
 
 **Addon module:** addon (+ addon-scheduler for scheduler views)
-**Related Options:** `Option.HEADER_TOOLBAR`, `Option.FOOTER_TOOLBAR`
+**Related Options:** `headerToolbar`, `footerToolbar`
 **Related Events:** `DatesRenderedEvent`
 
 ---
@@ -54,10 +54,9 @@
 calendar.changeView(CalendarViewImpl.TIME_GRID_WEEK);
 
 // Configure toolbar with view buttons
-calendar.setOption(Option.HEADER_TOOLBAR,
-    Map.of("left", "prev,next,today",
-           "center", "title",
-           "right", "dayGridMonth,timeGridWeek,timeGridDay,listWeek"));
+calendar.options().setHeaderToolbar(
+    ToolbarValue.ofLeftRight("prev,next,today", "title",
+                             "dayGridMonth,timeGridWeek,timeGridDay,listWeek"));
 
 // Listen for view changes
 calendar.addDatesRenderedListener(event -> {
@@ -104,7 +103,7 @@ calendar.changeView(threeDayView);
 - [ ] `DatesRenderedEvent` fires on view change with correct date range
 - [ ] Custom views with arbitrary durations work
 - [ ] Scheduler views show resource columns/rows
-- [ ] `setViewSpecificOption()` overrides options for specific views
+- [ ] `calendar.options().view(view)` sets options for one view type, which override the calendar-wide values while that view is shown
 
 ---
 

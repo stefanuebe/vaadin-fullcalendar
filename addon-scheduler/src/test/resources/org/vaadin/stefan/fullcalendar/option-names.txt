@@ -2,8 +2,8 @@
 # "global" or "view". The core names are in the option-names.txt of the core module's test resources.
 #
 # A global option has its field in the scheduler's global options, a per-view option in its view options. Every name
-# not shown as global below is per view. Generated once from the non-deprecated constants of
-# org.vaadin.stefan.fullcalendar.SchedulerOption.
+# not shown as global below is per view. Generated once from the scheduler option constants the add-on had
+# before the option fields.
 #
 # The rule is the one of the core resource: a name is global when the library reads it only from the calendar options,
 # so a per-view value has no visible effect, or when the add-on chooses so. To check a name, search the scheduler

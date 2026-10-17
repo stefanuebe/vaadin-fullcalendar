@@ -23,7 +23,7 @@
 
 ### Tooltip Pattern
 
-The native HTML `title` attribute (set via `ENTRY_DID_MOUNT`) provides basic tooltips but is **not accessible** on touch or keyboard-only devices. For accessible tooltips, use a Vaadin `Tooltip` component or a custom overlay positioned relative to the entry element. See UC-016 for the `ENTRY_DID_MOUNT` callback pattern.
+The native HTML `title` attribute (set via `entryDidMount`) provides basic tooltips but is **not accessible** on touch or keyboard-only devices. For accessible tooltips, use a Vaadin `Tooltip` component or a custom overlay positioned relative to the entry element. See UC-016 for the `entryDidMount` callback pattern.
 
 ---
 

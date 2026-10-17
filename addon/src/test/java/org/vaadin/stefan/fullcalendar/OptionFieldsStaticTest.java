@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Rules for the fields of the option data classes, checked without a calendar instance: each field is a library option
  * of the right scope with its own JSON name, no field name says "event", no library name needs a keyword as field
  * name, no options method overrides an Object method, and each field has an @see tag. In the other direction, every
- * Option key and every library option name has a field, apart from a short list of exceptions. The library option
+ * library option name has a field, apart from a short list of exceptions. The library option
  * names come from the test resource option-names.txt.
  */
 class OptionFieldsStaticTest {
@@ -46,18 +46,12 @@ class OptionFieldsStaticTest {
             .map(OptionFieldsStaticTest::signature)
             .collect(Collectors.toSet());
     /**
-     * The Option keys that have no field, mapped to the reason. The resource lists the same names. The reasons are
-     * for the reader; the tests use the keys only.
+     * The library option names that have no field, mapped to the reason. The resource lists the same names. The
+     * reasons are for the reader; the tests use the keys only.
      */
     private static final Map<String, String> KEYS_WITHOUT_A_FIELD = Map.of(
             "height", "HasSize sets it (setHeight, setHeightFull), so the options have no height field; a raw "
                     + "height through setRawOption wins over it");
-    /**
-     * Option keys that the library reads as a second name of another option, mapped to the name the field and the
-     * resource use: the library takes the calendar's class names as class and as className.
-     */
-    private static final Map<String, String> LIBRARY_ALIASES = Map.of("class", "className");
-
     /** The library option names of the resource, mapped to "global" or "view". */
     private static Map<String, String> readOptionNames() throws IOException {
         Map<String, String> names = new LinkedHashMap<>();
@@ -147,25 +141,6 @@ class OptionFieldsStaticTest {
         assertEquals(List.of(), problems);
     }
 
-    /**
-     * Every Option constant has a field with its key as JSON name, or with the name of LIBRARY_ALIASES, apart from
-     * KEYS_WITHOUT_A_FIELD. The deprecated constants are checked too: each is an add-on alias of the same library
-     * option as a current constant, so it needs no field of its own, but its key has one.
-     */
-    @Test
-    void everyOptionKeyHasAField() {
-        Set<String> fieldNames = fieldJsonNames();
-        List<String> problems = Arrays.stream(Option.values())
-                .filter(option -> {
-                    String key = option.getOptionKey();
-                    return !fieldNames.contains(LIBRARY_ALIASES.getOrDefault(key, key))
-                            && !KEYS_WITHOUT_A_FIELD.containsKey(key);
-                })
-                .map(option -> option.name() + " (" + option.getOptionKey() + ")")
-                .toList();
-        assertEquals(List.of(), problems);
-    }
-
     /** The other direction of everyFieldIsALibraryOptionWithTheMatchingScope. */
     @Test
     void everyResourceNameHasAField() throws IOException {
@@ -178,23 +153,16 @@ class OptionFieldsStaticTest {
     }
 
     /**
-     * Each entry of KEYS_WITHOUT_A_FIELD is an Option key without a field, and each entry of LIBRARY_ALIASES is an
-     * Option key without a field whose second name is a field. An entry that no longer applies fails here, so the
-     * lists cannot hide a later gap.
+     * Each entry of KEYS_WITHOUT_A_FIELD is a library option name of the resource without a field. An entry that no
+     * longer applies fails here, so the list cannot hide a later gap.
      */
     @Test
-    void everyExceptionAndAlias_stillApplies() {
+    void everyExceptionStillApplies() throws IOException {
         Set<String> fieldNames = fieldJsonNames();
-        Set<String> optionKeys = Arrays.stream(Option.values()).map(Option::getOptionKey).collect(Collectors.toSet());
-        List<String> problems = new ArrayList<>();
-        KEYS_WITHOUT_A_FIELD.keySet().stream()
-                .filter(key -> !optionKeys.contains(key) || fieldNames.contains(key))
-                .forEach(problems::add);
-        LIBRARY_ALIASES.forEach((key, name) -> {
-            if (!optionKeys.contains(key) || fieldNames.contains(key) || !fieldNames.contains(name)) {
-                problems.add(key + " -> " + name);
-            }
-        });
+        Set<String> resourceNames = readOptionNames().keySet();
+        List<String> problems = KEYS_WITHOUT_A_FIELD.keySet().stream()
+                .filter(key -> !resourceNames.contains(key) || fieldNames.contains(key))
+                .toList();
         assertEquals(List.of(), problems);
     }
 
