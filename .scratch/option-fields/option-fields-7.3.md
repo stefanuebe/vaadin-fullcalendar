@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| GitHub | – (not created, GitHub account flagged) |
+| GitHub | #405 |
 | Labels | enhancement |
-| Status | direction decided 2026-10-18, the list below waits for the maintainer |
+| Status | moved to GitHub #405 (2026-10-18), continues there |
 | Blocked by | `option-fields-spec.md` |
 
 ---
