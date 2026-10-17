@@ -59,4 +59,6 @@ The kinds of findings (details and sources in the reports and the verify files):
 - D8: `allDayText`: browser check, then correct either this ticket's wave-2 example or restore the old sentence (A, B, C).
 - D9: make `el` part of every DidMount/WillUnmount info list as a convention (B)?
 
-**Next step:** the maintainer decides D1–D9; then the fixes go on a branch `option-fields-67`, with the usual review and gate. D7 is a bug fix and may become its own ticket.
+**Decided (2026-10-17):** the standing rules answer D1–D9, the maintainer agreed. D1, D2, D3: yes. D4: keep rejecting, as 7.x does. D5: check in the browser; if `false` shows the default format, remove `NONE` and say in the Javadoc that the library docs name `false` but the used version ignores it. D6: the library throws (`54e239b5.js:265-275`), so the setter rejects seven hidden days. D7: ticket 77. D8: check in the browser, then correct the wrong side. D9: no convention; each info list names what the library passes, `el` included where it does.
+
+**Next step:** the fixes go on a branch `option-fields-67`, with the usual review and gate.
