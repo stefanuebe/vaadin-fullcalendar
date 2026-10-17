@@ -1,10 +1,15 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.ContentValue;
 import org.vaadin.stefan.fullcalendar.option.DateRange;
+import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.option.HeaderAlign;
 import org.vaadin.stefan.fullcalendar.option.JsCallback;
+import org.vaadin.stefan.fullcalendar.option.MoreLinkClickValue;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarButtonDisplay;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
+import org.vaadin.stefan.fullcalendar.option.NoneValue;
+import org.vaadin.stefan.fullcalendar.option.NowValue;
 import org.vaadin.stefan.fullcalendar.option.Timezone;
 import com.vaadin.browserless.BrowserlessTest;
 import com.vaadin.flow.component.UI;
@@ -24,10 +29,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Typed option values (time zone, valid range, more-link click action, day max entries) reach the client the same
- * way before and after attach, and the deprecated setters store the same value as the option (#259). The same holds
- * for the typed values of the FullCalendar 7 options (#264), including callbacks nested in a map like the buttons.
+ * way before and after attach (#259). The same holds for the typed values of the FullCalendar 7 options (#264),
+ * including callbacks nested in a map like the buttons.
  */
-@SuppressWarnings("removal")
 public class TypedOptionValuesTest extends BrowserlessTest {
 
     private FullCalendar calendar;
@@ -37,14 +41,25 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         calendar = new FullCalendar();
     }
 
-    /** Client value of the option in the initial options, which the client reads on attach. */
-    private JsonNode initialClientValue(Option option) {
-        JsonNode initialOptions = (JsonNode) calendar.getElement().getPropertyRaw("initialOptions");
-        return initialOptions.get(option.getOptionKey());
+    /**
+     * Client value of the option in the initial options, which the client reads on attach. The options reach the
+     * property with the response, so this attaches the calendar. Later changes do not update the property, a test
+     * with several steps takes a new calendar for each.
+     */
+    private JsonNode initialClientValue(String key) {
+        return initialClientValue(calendar, key);
     }
 
-    /** Attaches the calendar and returns the client value of the option sent by the next setOption call. */
-    private JsonNode clientValueAfterAttach(Option option, Runnable setter) {
+    private static JsonNode initialClientValue(FullCalendar calendar, String key) {
+        UI ui = UI.getCurrent();
+        ui.add(calendar);
+        ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
+        JsonNode initialOptions = (JsonNode) calendar.getElement().getPropertyRaw("initialOptions");
+        return initialOptions.get(key);
+    }
+
+    /** Attaches the calendar and returns the client value of the option sent by the setter. */
+    private JsonNode clientValueAfterAttach(String key, Runnable setter) {
         UI ui = UI.getCurrent();
         ui.add(calendar);
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
@@ -58,11 +73,11 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         for (PendingJavaScriptInvocation invocation : invocations) {
             List<Object> parameters = invocation.getInvocation().getParameters();
             if (invocation.getInvocation().getExpression().contains("setOptions")
-                    && parameters.getLast() instanceof JsonNode changes && changes.has(option.getOptionKey())) {
-                return changes.get(option.getOptionKey());
+                    && parameters.getLast() instanceof JsonNode changes && changes.has(key)) {
+                return changes.get(key);
             }
         }
-        return fail("no setOptions call for " + option.getOptionKey());
+        return fail("no setOptions call for " + key);
     }
 
     // -------------------------------------------------------------------------
@@ -70,61 +85,30 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void timezone_asId_isStoredAsTimezone() {
-        calendar.setOption(Option.TIMEZONE, "Europe/Berlin");
-
+    void timezone_isStoredAndSent() {
         Timezone expected = new Timezone(ZoneId.of("Europe/Berlin"));
-        assertEquals(expected, calendar.getTimezone());
-        assertEquals(expected, calendar.getOption(Option.TIMEZONE).orElseThrow());
-        assertEquals("Europe/Berlin", initialClientValue(Option.TIMEZONE).asString());
+        calendar.options().setTimeZone(expected);
+
+        assertEquals(expected, calendar.options().getTimeZone());
+        assertEquals("Europe/Berlin", initialClientValue("timeZone").asString());
     }
 
     @Test
-    void timezone_idAsDeprecatedServerSideValue_isStoredAsTimezone() {
-        calendar.setOption(Option.TIMEZONE, "Europe/Berlin", "Europe/Berlin");
+    void timezone_utcId_sendsUtc() {
+        calendar.options().setTimeZone(new Timezone(ZoneId.of("UTC")));
 
-        assertEquals(new Timezone(ZoneId.of("Europe/Berlin")), calendar.getOption(Option.TIMEZONE).orElseThrow());
+        assertEquals(Timezone.UTC.getClientSideValue(), calendar.options().getTimeZone().getClientSideValue());
     }
 
     @Test
-    void timezone_utcId_equalsUtcConstant() {
-        calendar.setOption(Option.TIMEZONE, "UTC");
-
-        assertEquals(Timezone.UTC, calendar.getTimezone());
-    }
-
-    @Test
-    void timezone_unknownId_isRejected() {
-        assertThrows(IllegalArgumentException.class, () -> calendar.setOption(Option.TIMEZONE, "Not/AZone"));
-    }
-
-    @Test
-    void timezone_setterAndOption_storeSameValue() {
-        Timezone berlin = new Timezone(ZoneId.of("Europe/Berlin"));
-        FullCalendar viaOption = new FullCalendar();
-
-        calendar.setTimezone(berlin);
-        viaOption.setOption(Option.TIMEZONE, berlin);
-
-        assertEquals(viaOption.getOption(Option.TIMEZONE), calendar.getOption(Option.TIMEZONE));
-    }
-
-    @Test
-    void timezone_deprecatedGetter_returnsLocalBeforeTheBrowserReports() {
-        assertEquals(Timezone.LOCAL, calendar.getTimezone());
-        assertEquals(Timezone.LOCAL, calendar.getOption(Option.TIMEZONE).orElseThrow());
-    }
-
-    @Test
-    void timezone_setterWithDefaultUtc_storesOptionLikeTheOption() {
-        calendar.setTimezone(Timezone.UTC);
-
-        assertEquals(Timezone.UTC, calendar.getOption(Option.TIMEZONE).orElseThrow());
+    void timezone_getter_returnsLocalBeforeTheBrowserReports() {
+        assertEquals(Timezone.LOCAL, calendar.options().getTimeZone());
     }
 
     @Test
     void timezone_afterAttach_sendsId() {
-        JsonNode sent = clientValueAfterAttach(Option.TIMEZONE, () -> calendar.setOption(Option.TIMEZONE, "Europe/Berlin"));
+        JsonNode sent = clientValueAfterAttach("timeZone",
+                () -> calendar.options().setTimeZone(new Timezone(ZoneId.of("Europe/Berlin"))));
 
         assertEquals("Europe/Berlin", sent.asString());
     }
@@ -135,57 +119,39 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
     @Test
     void validRange_beforeAttach_sendsStartAndEnd() {
-        calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1)));
+        calendar.options().setValidRange(new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1)));
 
-        JsonNode json = initialClientValue(Option.VALID_RANGE);
+        JsonNode json = initialClientValue("validRange");
         assertEquals("2025-03-01", json.get("start").asString());
         assertEquals("2025-05-01", json.get("end").asString());
     }
 
     @Test
     void validRange_openEnd_leavesEndOut() {
-        calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 3, 1), null));
+        calendar.options().setValidRange(new DateRange(LocalDate.of(2025, 3, 1), null));
 
-        JsonNode json = initialClientValue(Option.VALID_RANGE);
+        JsonNode json = initialClientValue("validRange");
         assertEquals("2025-03-01", json.get("start").asString());
         assertFalse(json.has("end"));
     }
 
     @Test
     void validRange_afterAttach_sendsStartAndEnd() {
-        JsonNode json = clientValueAfterAttach(Option.VALID_RANGE,
-                () -> calendar.setOption(Option.VALID_RANGE, new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1))));
+        JsonNode json = clientValueAfterAttach("validRange", () -> calendar.options()
+                .setValidRange(new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1))));
 
         assertEquals("2025-03-01", json.get("start").asString());
         assertEquals("2025-05-01", json.get("end").asString());
     }
 
     @Test
-    void validRange_setterAndOption_storeSameValue() {
-        calendar.setValidRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1));
+    void validRange_null_removesOption() {
+        calendar.options().setValidRange(new DateRange(LocalDate.of(2025, 3, 1), null));
 
-        assertEquals(new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1)),
-                calendar.getOption(Option.VALID_RANGE).orElseThrow());
-    }
+        calendar.options().setValidRange(null);
 
-    @Test
-    void validRange_startAndEndSetters_setOpenRanges() {
-        calendar.setValidRangeStart(LocalDate.of(2025, 3, 1));
-        assertEquals(new DateRange(LocalDate.of(2025, 3, 1), null), calendar.getOption(Option.VALID_RANGE).orElseThrow());
-
-        calendar.setValidRangeEnd(LocalDate.of(2025, 5, 1));
-        assertEquals(new DateRange(null, LocalDate.of(2025, 5, 1)), calendar.getOption(Option.VALID_RANGE).orElseThrow());
-        assertFalse(initialClientValue(Option.VALID_RANGE).has("start"));
-    }
-
-    @Test
-    void validRange_clear_removesOption() {
-        calendar.setValidRangeStart(LocalDate.of(2025, 3, 1));
-
-        calendar.clearValidRange();
-
-        assertTrue(calendar.getOption(Option.VALID_RANGE).isEmpty());
-        assertNull(initialClientValue(Option.VALID_RANGE));
+        assertNull(calendar.options().getValidRange());
+        assertNull(initialClientValue("validRange"));
     }
 
     @Test
@@ -200,30 +166,29 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
     @Test
     void moreLinkClick_action_sendsClientValue() {
-        calendar.setOption(Option.MORE_LINK_CLICK, FullCalendar.MoreLinkClickAction.DAY);
+        calendar.options().setMoreLinkClick(MoreLinkClickValue.Action.DAY);
 
-        assertEquals("day", initialClientValue(Option.MORE_LINK_CLICK).asString());
-        assertEquals(FullCalendar.MoreLinkClickAction.DAY, calendar.getOption(Option.MORE_LINK_CLICK).orElseThrow());
+        assertEquals("day", initialClientValue("moreLinkClick").asString());
+        assertEquals(MoreLinkClickValue.Action.DAY, calendar.options().getMoreLinkClick());
     }
 
     @Test
-    void moreLinkClick_setterAndOption_storeSameValue_withoutElementProperty() {
-        calendar.setMoreLinkClickAction(FullCalendar.MoreLinkClickAction.WEEK);
-
-        assertEquals(FullCalendar.MoreLinkClickAction.WEEK, calendar.getOption(Option.MORE_LINK_CLICK).orElseThrow());
-        assertEquals("week", initialClientValue(Option.MORE_LINK_CLICK).asString());
-        assertFalse(calendar.getElement().hasProperty("moreLinkClickAction"));
+    void moreLinkClick_null_removesOption() {
+        FullCalendar week = new FullCalendar();
+        week.options().setMoreLinkClick(MoreLinkClickValue.Action.WEEK);
+        assertEquals("week", initialClientValue(week, "moreLinkClick").asString());
 
         // null removes the option, the client then falls back to FullCalendar's "popover"
-        calendar.setMoreLinkClickAction(null);
-        assertTrue(calendar.getOption(Option.MORE_LINK_CLICK).isEmpty());
-        assertNull(initialClientValue(Option.MORE_LINK_CLICK));
+        calendar.options().setMoreLinkClick(MoreLinkClickValue.Action.WEEK);
+        calendar.options().setMoreLinkClick((MoreLinkClickValue) null);
+        assertNull(calendar.options().getMoreLinkClick());
+        assertNull(initialClientValue("moreLinkClick"));
     }
 
     @Test
     void moreLinkClick_afterAttach_sendsClientValue() {
-        JsonNode sent = clientValueAfterAttach(Option.MORE_LINK_CLICK,
-                () -> calendar.setOption(Option.MORE_LINK_CLICK, FullCalendar.MoreLinkClickAction.DAY));
+        JsonNode sent = clientValueAfterAttach("moreLinkClick",
+                () -> calendar.options().setMoreLinkClick(MoreLinkClickValue.Action.DAY));
 
         assertEquals("day", sent.asString());
     }
@@ -232,28 +197,34 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     // Day max entries
     // -------------------------------------------------------------------------
 
+    /** Set on a view, because the calendar sets the calendar-wide value itself until the old option API is removed. */
+    private JsonNode dayMaxEntriesOfView(FullCalendar calendar) {
+        return initialClientValue(calendar, "views").get("dayGridMonth").get("dayMaxEvents");
+    }
+
     @Test
-    void dayMaxEntries_setterAndOption_storeSameValue() {
-        calendar.setMaxEntriesPerDay(3);
-        assertEquals(3, calendar.getOption(Option.DAY_MAX_ENTRIES).orElseThrow());
-        assertEquals(3, initialClientValue(Option.DAY_MAX_ENTRIES).asInt());
+    void dayMaxEntries_values_reachTheClient() {
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(3);
+        assertEquals(EntryLimitValue.of(3),
+                calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).getDayMaxEntries());
+        assertEquals(3, dayMaxEntriesOfView(calendar).asInt());
 
-        calendar.setMaxEntriesPerDayFitToCell();
-        assertEquals(true, calendar.getOption(Option.DAY_MAX_ENTRIES).orElseThrow());
-        assertTrue(initialClientValue(Option.DAY_MAX_ENTRIES).isBoolean());
-        assertTrue(initialClientValue(Option.DAY_MAX_ENTRIES).booleanValue());
+        FullCalendar cellHeight = new FullCalendar();
+        cellHeight.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(EntryLimitValue.CELL_HEIGHT);
+        assertTrue(dayMaxEntriesOfView(cellHeight).isBoolean());
+        assertTrue(dayMaxEntriesOfView(cellHeight).booleanValue());
 
-        calendar.setMaxEntriesPerDayUnlimited();
-        assertEquals(false, calendar.getOption(Option.DAY_MAX_ENTRIES).orElseThrow());
-        assertTrue(initialClientValue(Option.DAY_MAX_ENTRIES).isBoolean());
-        assertFalse(initialClientValue(Option.DAY_MAX_ENTRIES).booleanValue());
+        FullCalendar none = new FullCalendar();
+        none.options().view(CalendarViewImpl.DAY_GRID_MONTH).setDayMaxEntries(NoneValue.NONE);
+        assertTrue(dayMaxEntriesOfView(none).isBoolean());
+        assertFalse(dayMaxEntriesOfView(none).booleanValue());
     }
 
     // -------------------------------------------------------------------------
     // Buttons: callbacks nested in the map
     // -------------------------------------------------------------------------
 
-    private static Map<String, Object> buttons() {
+    private static Map<String, Map<String, Object>> buttons() {
         return Map.of(
                 NativeToolbarParts.TODAY, Map.of("text", "Now", "display", NativeToolbarButtonDisplay.TEXT),
                 "hello", Map.of("text", "Hello", "click", JsCallback.of("function() { window.helloClicked = true; }")));
@@ -268,18 +239,18 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
     @Test
     void buttons_beforeAttach_sendsNestedCallbacksAsMarkers() {
-        calendar.setOption(Option.BUTTONS, buttons());
+        calendar.options().setButtons(buttons());
 
-        assertButtonsJson(initialClientValue(Option.BUTTONS));
-        assertEquals(buttons(), calendar.getOption(Option.BUTTONS).orElseThrow());
+        assertButtonsJson(initialClientValue("buttons"));
+        assertEquals(buttons(), calendar.options().getButtons());
     }
 
     @Test
     void buttons_afterAttach_sendsNestedCallbacksAsMarkers() {
-        JsonNode sent = clientValueAfterAttach(Option.BUTTONS, () -> calendar.setOption(Option.BUTTONS, buttons()));
+        JsonNode sent = clientValueAfterAttach("buttons", () -> calendar.options().setButtons(buttons()));
 
         assertButtonsJson(sent);
-        assertEquals(buttons(), calendar.getOption(Option.BUTTONS).orElseThrow());
+        assertEquals(buttons(), calendar.options().getButtons());
     }
 
     /** A value type without own conversion, Jackson serializes it as an object. */
@@ -288,12 +259,13 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
     @Test
     void objectInAMap_isSentAsJsonObject_beforeAndAfterAttach() {
-        Map<String, Object> buttons = Map.of("inbox", Map.of("text", "Inbox", "badge", new Badge("new", 3)));
+        Map<String, Map<String, Object>> buttons = Map.of("inbox", Map.of("text", "Inbox", "badge", new Badge("new", 3)));
 
-        calendar.setOption(Option.BUTTONS, buttons);
-        JsonNode before = initialClientValue(Option.BUTTONS).get("inbox").get("badge");
-        calendar.setOption(Option.BUTTONS, null); // only a change reaches an attached calendar
-        JsonNode after = clientValueAfterAttach(Option.BUTTONS, () -> calendar.setOption(Option.BUTTONS, buttons))
+        // the typed field has no conversion for such a value, so the raw option carries it
+        calendar.options().setRawOption("buttons", buttons);
+        JsonNode before = initialClientValue("buttons").get("inbox").get("badge");
+        calendar.options().setRawOption("buttons", null); // only a change reaches an attached calendar
+        JsonNode after = clientValueAfterAttach("buttons", () -> calendar.options().setRawOption("buttons", buttons))
                 .get("inbox").get("badge");
 
         assertEquals("new", before.get("label").asString());
@@ -302,16 +274,16 @@ public class TypedOptionValuesTest extends BrowserlessTest {
     }
 
     @Test
-    void callbackInACollection_isSentAsMarker_beforeAndAfterAttach() {
-        List<Object> elements = List.of(JsCallback.of("function() { return 'x'; }"));
+    void callbackInAMap_isSentAsMarker_beforeAndAfterAttach() {
+        Map<String, ContentValue> elements = Map.of("x", JsCallback.of("function() { return 'x'; }"));
 
-        calendar.setOption(Option.TOOLBAR_ELEMENTS, elements);
-        JsonNode before = initialClientValue(Option.TOOLBAR_ELEMENTS);
-        calendar.setOption(Option.TOOLBAR_ELEMENTS, null); // only a change reaches an attached calendar
-        JsonNode after = clientValueAfterAttach(Option.TOOLBAR_ELEMENTS,
-                () -> calendar.setOption(Option.TOOLBAR_ELEMENTS, elements));
+        calendar.options().setToolbarElements(elements);
+        JsonNode before = initialClientValue("toolbarElements");
+        calendar.options().setToolbarElements(null); // only a change reaches an attached calendar
+        JsonNode after = clientValueAfterAttach("toolbarElements",
+                () -> calendar.options().setToolbarElements(elements));
 
-        assertEquals("function() { return 'x'; }", before.get(0).get("__jsCallback").asString());
+        assertEquals("function() { return 'x'; }", before.get("x").get("__jsCallback").asString());
         assertEquals(before, after);
     }
 
@@ -320,7 +292,7 @@ public class TypedOptionValuesTest extends BrowserlessTest {
         UI ui = UI.getCurrent();
         ui.add(calendar);
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        calendar.setOption(Option.BUTTONS, Map.of("inbox", Map.of("badge", new Badge("new", 3))));
+        calendar.options().setRawOption("buttons", Map.of("inbox", Map.of("badge", new Badge("new", 3))));
         ui.remove(calendar);
         ui.getInternals().dumpPendingJavaScriptInvocations();
 
@@ -337,7 +309,7 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
     @Test
     void objectInAMap_isSentAsJsonObject_inViewSpecificOptions() {
-        calendar.setViewSpecificOption(CalendarViewImpl.DAY_GRID_MONTH, Option.BUTTONS,
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setRawOption("buttons",
                 Map.of("inbox", Map.of("badge", new Badge("new", 3))));
 
         JsonNode views = ((JsonNode) calendar.getElement().getPropertyRaw("initialOptions")).get("views");
@@ -351,19 +323,19 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
     @Test
     void buttonDisplay_sendsClientValue() {
-        calendar.setOption(Option.BUTTON_DISPLAY, NativeToolbarButtonDisplay.ICON_TEXT);
+        calendar.options().setButtonDisplay(NativeToolbarButtonDisplay.ICON_TEXT);
 
-        assertEquals("icon-text", initialClientValue(Option.BUTTON_DISPLAY).asString());
-        assertEquals(NativeToolbarButtonDisplay.ICON_TEXT, calendar.getOption(Option.BUTTON_DISPLAY).orElseThrow());
+        assertEquals("icon-text", initialClientValue("buttonDisplay").asString());
+        assertEquals(NativeToolbarButtonDisplay.ICON_TEXT, calendar.options().getButtonDisplay());
     }
 
     @Test
     void headerAlign_afterAttach_sendsClientValue() {
-        JsonNode sent = clientValueAfterAttach(Option.DAY_HEADER_ALIGN,
-                () -> calendar.setOption(Option.DAY_HEADER_ALIGN, HeaderAlign.CENTER));
+        JsonNode sent = clientValueAfterAttach("dayHeaderAlign",
+                () -> calendar.options().setDayHeaderAlign(HeaderAlign.CENTER));
 
         assertEquals("center", sent.asString());
-        assertEquals(HeaderAlign.CENTER, calendar.getOption(Option.DAY_HEADER_ALIGN).orElseThrow());
+        assertEquals(HeaderAlign.CENTER, calendar.options().getDayHeaderAlign());
     }
 
     // -------------------------------------------------------------------------
@@ -372,28 +344,31 @@ public class TypedOptionValuesTest extends BrowserlessTest {
 
     @Test
     void visibleRange_sendsStartAndEnd() {
-        calendar.setOption(Option.VISIBLE_RANGE, new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 3, 15)));
+        calendar.options().setVisibleRange(new DateRange(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 3, 15)));
 
-        JsonNode json = initialClientValue(Option.VISIBLE_RANGE);
+        JsonNode json = initialClientValue("visibleRange");
         assertEquals("2025-03-01", json.get("start").asString());
         assertEquals("2025-03-15", json.get("end").asString());
     }
 
     @Test
     void now_sendsIsoDateOrUtcDateTime() {
-        calendar.setOption(Option.NOW, LocalDate.of(2025, 3, 10));
-        assertEquals("2025-03-10", initialClientValue(Option.NOW).asString());
+        calendar.options().setNow(LocalDate.of(2025, 3, 10));
+        assertEquals("2025-03-10", initialClientValue("now").asString());
 
         LocalDateTime now = LocalDateTime.of(2025, 3, 10, 9, 30);
-        calendar.setOption(Option.NOW, now);
-        assertEquals("2025-03-10T09:30Z", initialClientValue(Option.NOW).asString());
-        assertEquals(now, calendar.getOption(Option.NOW).orElseThrow());
+        FullCalendar withTime = new FullCalendar();
+        withTime.options().setNow(now);
+        assertEquals("2025-03-10T09:30Z", initialClientValue(withTime, "now").asString());
+        assertEquals(NowValue.ofDateTime(now), withTime.options().getNow());
     }
 
     @Test
     void defaultTimedEntryDuration_sendsDurationString() {
-        calendar.setOption(Option.DEFAULT_TIMED_ENTRY_DURATION, Duration.ofMinutes(90));
+        calendar.options().setDefaultTimedEntryDuration(Duration.ofMinutes(90));
 
-        assertEquals("01:30:00", initialClientValue(Option.DEFAULT_TIMED_ENTRY_DURATION).asString());
+        JsonNode json = initialClientValue("defaultTimedEventDuration");
+        assertEquals(1, json.get("hours").asInt());
+        assertEquals(30, json.get("minutes").asInt());
     }
 }
