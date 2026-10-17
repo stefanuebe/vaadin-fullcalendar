@@ -36,5 +36,12 @@ Goes out, because only 7.3 has it:
 - `getOptionOrDefault(…)`: 8.0 has no option API.
 - The renamed option constants (`DAY_MAX_ENTRIES`, `VIEW_HINT`, `ENTRY_SOURCE_*`, …) and the deprecation of the old names: 8.0 has no option constants.
 - `DateRange` as value of `Option.VALID_RANGE`, its converter, and the deprecation of `setValidRange*`: 8.0 has `options().setValidRange(option.DateRange)`, another package and another call.
-- The `Map` toolbar via `setOption(HEADER_TOOLBAR, …)` with `NativeToolbarParts`, and the deprecation of `Header` / `Footer`: 8.0 has `options().setHeaderToolbar(ToolbarValue)` and `option.NativeToolbarParts`.
+- `NativeToolbarParts` and the deprecation of the `Header` / `Footer` classes: 8.0 has `options().setHeaderToolbar(ToolbarValue)` and `option.NativeToolbarParts`. The `Map` form of `setOption(HEADER_TOOLBAR, …)` stays, 7.2.4 already had it, and so does the deprecation of `setHeaderToolbar(Header)` from 7.2.
 - The `FullCalendarBuilder` deprecation texts go back to their 7.2.4 wording where they name API only 7.3 has.
+
+Corrections inside the parts that go out, checked 2026-10-18 against `git diff 7.2.4 v7_master`:
+- The renamed option constants change no client key (the key is derived with `ENTRY` → `EVENT`, or given explicitly), so they fix nothing.
+- `setValidRange*` has the same code as in 7.2.4. `DateRange` only adds a second way to set it.
+- `getOptionOrDefault` and `withAuto*` are new API, no fix. The time zone error message goes back to naming `FullCalendarBuilder.withAutoBrowserTimezone()`.
+- Stays as a correction: the `HEADER_TOOLBAR` / `FOOTER_TOOLBAR` Javadoc now says that the add-on hides the header toolbar by default and that `false` hides a toolbar. 7.2.4 did not say so. Kept without the `NativeToolbarParts` references.
+- Not part of the cut and staying: the time zone set as zone id (#271) and the `entryDidMount` merge (ticket 77), both bug fixes in the option area.
