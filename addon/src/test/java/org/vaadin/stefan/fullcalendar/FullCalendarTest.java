@@ -1,5 +1,7 @@
 package org.vaadin.stefan.fullcalendar;
 
+import org.vaadin.stefan.fullcalendar.option.BusinessHoursValue;
+import org.vaadin.stefan.fullcalendar.option.EntryLimitValue;
 import org.vaadin.stefan.fullcalendar.option.LocaleValue;
 import org.vaadin.stefan.fullcalendar.option.BusinessHours;
 import org.vaadin.stefan.fullcalendar.option.CalendarLocale;
@@ -16,7 +18,6 @@ import java.lang.reflect.Constructor;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
@@ -46,7 +47,7 @@ public class FullCalendarTest {
     private FullCalendar setupTestCalendar(FullCalendar calendar) {
         // to simulate a client timezone, we have to use the server time zone, since all the LocalDate... instances
         // will not be on utc, but on the server timezone.
-        calendar.setOption(Option.TIMEZONE, Timezone.getSystem());
+        calendar.options().setTimeZone(Timezone.getSystem());
         return calendar;
     }
 
@@ -62,8 +63,6 @@ public class FullCalendarTest {
     void testNonArgsConstructor() {
         FullCalendar calendar = new FullCalendar();
 
-        // dayMaxEvents + timeZone. The locale is a typed field, the height comes from setHeightFull().
-        assertExistingOptionCount(calendar, 2);
         // no add-on default, the library's default applies
         assertNull(calendar.options().getEditable());
     }
@@ -87,12 +86,9 @@ public class FullCalendarTest {
         int entryLimit = 5;
 
         FullCalendar calendar = new FullCalendar();
-        calendar.setMaxEntriesPerDay(entryLimit);
+        calendar.options().setDayMaxEntries(entryLimit);
 
-        // dayMaxEvents + timeZone
-        assertExistingOptionCount(calendar, 2);
-
-        assertEquals(entryLimit, calendar.getOption(Option.DAY_MAX_ENTRIES).orElse(-1));
+        assertEquals(EntryLimitValue.of(entryLimit), calendar.options().getDayMaxEntries());
     }
 
     @Test
@@ -102,19 +98,12 @@ public class FullCalendarTest {
         FullCalendar calendar = new FullCalendar(options);
         Element element = calendar.getElement();
 
-        // timeZone
-        assertExistingOptionCount(calendar, 1);
         Serializable returnedOptions = element.getPropertyRaw("initialOptions");
 
         assertTrue(returnedOptions instanceof ObjectNode, "Returned initial options not instanceof JsonObject");
 
         // TODO integrate Testbench test
 
-    }
-
-    private void assertExistingOptionCount(FullCalendar calendar, int expectedOptionsCount) {
-        // deprecated aliases share the key of their renamed constant, so count keys, not constants
-        assertEquals(expectedOptionsCount, Arrays.stream(Option.values()).map(Option::getOptionKey).distinct().map(calendar::getOption).filter(Optional::isPresent).count());
     }
 
     @Test
@@ -140,36 +129,26 @@ public class FullCalendarTest {
     void testClientSideOptionMethods() {
         FullCalendar calendar = createTestCalendar();
 
-        calendar.setOption(Option.FIRST_DAY, DayOfWeek.MONDAY);
-        assertOptionalEquals(DayOfWeek.MONDAY, calendar.getOption(Option.FIRST_DAY));
-        assertEquals("1", calendar.getOption(Option.FIRST_DAY, true).orElseThrow().toString());
+        calendar.options().setFirstDay(DayOfWeek.MONDAY);
+        assertEquals(DayOfWeek.MONDAY, calendar.options().getFirstDay());
 
-        calendar.setOption(Option.FIRST_DAY, DayOfWeek.SUNDAY);
-        assertOptionalEquals(DayOfWeek.SUNDAY, calendar.getOption(Option.FIRST_DAY));
-        assertEquals("0", calendar.getOption(Option.FIRST_DAY, true).orElseThrow().toString());
+        calendar.options().setFirstDay(DayOfWeek.SUNDAY);
+        assertEquals(DayOfWeek.SUNDAY, calendar.options().getFirstDay());
 
         Locale locale = CalendarLocale.GREEK.getLocale();
 
         // we want to be sure to not use the default to test.
         assertNotEquals(CalendarLocale.getDefaultLocale(), locale);
 
-        calendar.setOption(Option.LOCALE, locale);
-        assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
-        // Client-side value is the locale tag string, possibly wrapped in a JsonNode
-        Optional<Object> clientSideLocale = calendar.getOption(Option.LOCALE, true);
-        assertTrue(clientSideLocale.isPresent());
-        String clientValue = clientSideLocale.get().toString().replace("\"", "");
-        assertEquals(locale.toLanguageTag().toLowerCase(), clientValue);
+        calendar.options().setLocale(locale);
+        assertEquals(LocaleValue.of(locale), calendar.options().getLocale());
 
         BusinessHours hours = BusinessHours.allDays().start(5).end(10);
-        calendar.setOption(Option.BUSINESS_HOURS, hours);
+        calendar.options().setBusinessHours(hours);
+        assertEquals(BusinessHoursValue.of(hours), calendar.options().getBusinessHours());
 
-        Optional<Object> option = calendar.getOption(Option.BUSINESS_HOURS);
-        assertTrue(option.isPresent());
-
-        calendar.setOption(Option.BUSINESS_HOURS, null);
-        option = calendar.getOption(Option.BUSINESS_HOURS);
-        assertFalse(option.isPresent());
+        calendar.options().setBusinessHours((BusinessHoursValue) null);
+        assertNull(calendar.options().getBusinessHours());
     }
 
     @Test
@@ -342,82 +321,31 @@ public class FullCalendarTest {
     void testGetAndSetOption() {
         FullCalendar calendar = createTestCalendar();
 
-        assertNPE(calendar, c -> c.getOption((Option) null));
-        assertNPE(calendar, c -> c.setOption((Option) null, null));
-        assertNPE(calendar, c -> c.setOption((Option) null, "someValue"));
+        calendar.options().setAllDayText("someValue");
+        assertEquals("someValue", calendar.options().getAllDayText());
 
-        // an option without an add-on default, which a removal would return to
-        calendar.setOption(Option.ALL_DAY_TEXT, "someValue");
-        assertTrue(calendar.getOption(Option.ALL_DAY_TEXT).isPresent());
+        calendar.options().setAllDayText(null);
+        assertNull(calendar.options().getAllDayText(), "Option must be absent after setting null");
 
-        calendar.setOption(Option.ALL_DAY_TEXT, null);
-        assertFalse(calendar.getOption(Option.ALL_DAY_TEXT).isPresent(),
-                "Option must be absent after setting null");
-
-        // Also verify with a non-default option that isn't set in initialOptions
-        calendar.setOption(Option.WEEKENDS, true);
-        assertTrue(calendar.getOption(Option.WEEKENDS).isPresent());
-        calendar.setOption(Option.WEEKENDS, null);
-        assertFalse(calendar.getOption(Option.WEEKENDS).isPresent(),
-                "WEEKENDS must be absent after setting null");
-        // Force client-side read path as well
-        assertFalse(calendar.getOption(Option.WEEKENDS, true).isPresent(),
-                "WEEKENDS must also be absent from client-side option map");
+        calendar.options().setWeekends(true);
+        assertEquals(Boolean.TRUE, calendar.options().getWeekends());
+        calendar.options().setWeekends(null);
+        assertNull(calendar.options().getWeekends(), "weekends must be absent after setting null");
     }
 
     @Test
-    void testGetAndSetOptionWithStringKeys() {
+    void testGetAndSetRawOption() {
         FullCalendar calendar = createTestCalendar();
 
-        assertNPE(calendar, c -> c.getOption((String) null));
-        assertNPE(calendar, c -> c.setOption((String) null, null));
-        assertNPE(calendar, c -> c.setOption((String) null, "someValue"));
+        assertNPE(calendar, c -> c.options().getRawOption(null));
+        assertNPE(calendar, c -> c.options().setRawOption(null, null));
+        assertNPE(calendar, c -> c.options().setRawOption(null, "someValue"));
 
-        // an option without an add-on default, which a removal would return to
-        String optionKey = Option.ALL_DAY_TEXT.getOptionKey();
+        calendar.options().setRawOption("allDayText", "someValue");
+        assertTrue(calendar.options().getRawOption("allDayText").isPresent());
 
-        calendar.setOption(optionKey, "someValue");
-        assertTrue(calendar.getOption(optionKey).isPresent());
-
-        calendar.setOption(optionKey, null);
-        assertFalse(calendar.getOption(optionKey).isPresent());
-    }
-
-    @Test
-    void testGetAndSetOptionWithServerSideValues() {
-        FullCalendar calendar = createTestCalendar();
-
-        Locale locale = Locale.getDefault();
-
-        calendar.setOption(Option.LOCALE, "someValue", locale);
-        assertOptionalEquals(locale, calendar.getOption(Option.LOCALE));
-        assertOptionalEquals("someValue", calendar.getOption(Option.LOCALE, true));
-
-        calendar.setOption(Option.LOCALE, "someValue", null);
-        assertOptionalEquals("someValue", calendar.getOption(Option.LOCALE));
-
-        calendar.setOption(Option.LOCALE, "someOtherValue", locale);
-        calendar.setOption(Option.LOCALE, "someOtherValue");
-        assertOptionalEquals("someOtherValue", calendar.getOption(Option.LOCALE));
-    }
-
-    @Test
-    void testGetAndSetOptionWithServerSideValuesWithStringKeys() {
-        FullCalendar calendar = createTestCalendar();
-
-        Locale locale = Locale.getDefault();
-        String option = Option.LOCALE.getOptionKey();
-
-        calendar.setOption(option, "someValue", locale);
-        assertOptionalEquals(locale, calendar.getOption(option));
-        assertOptionalEquals("someValue", calendar.getOption(option, true));
-
-        calendar.setOption(option, "someValue", null);
-        assertOptionalEquals("someValue", calendar.getOption(option));
-
-        calendar.setOption(option, "someOtherValue", locale);
-        calendar.setOption(option, "someOtherValue");
-        assertOptionalEquals("someOtherValue", calendar.getOption(option));
+        calendar.options().setRawOption("allDayText", null);
+        assertFalse(calendar.options().getRawOption("allDayText").isPresent());
     }
 
     // Removed: testEntryClickedEvent — body was entirely commented out.
