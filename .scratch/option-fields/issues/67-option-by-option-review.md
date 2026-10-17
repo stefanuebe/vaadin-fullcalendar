@@ -4,7 +4,7 @@
 |---|---|
 | GitHub | – (local tracker) |
 | Labels | enhancement, ready-for-agent |
-| Status | ready-for-agent |
+| Status | done (2026-10-17, 45b683a3) |
 | Blocked by | `42-coverage-check` |
 | Spec | `../option-fields-spec.md`; shared rules in `README.md` |
 
@@ -22,7 +22,7 @@ Asked for by the maintainer (2026-10-16), after the review of wave 1: a human ca
 
 **Blocked by:** `42-coverage-check`
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [x] Every option constant is checked on all three points, the result is recorded per option (in this ticket or a file beside it).
 - [x] Every finding is fixed, or recorded with its reason as a deliberate gap.
