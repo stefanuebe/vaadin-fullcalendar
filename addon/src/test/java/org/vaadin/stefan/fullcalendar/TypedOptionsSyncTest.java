@@ -510,7 +510,6 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
     void rawViews_replaceTheGeneratedViews() {
         calendar.setCustomCalendarViews(THREE_DAYS);
         calendar.options().view(CalendarViewImpl.TIME_GRID_WEEK).setWeekends(false);
-        calendar.setViewSpecificOption("listWeek", "weekends", false);
         calendar.options().setRawOption("views", JsonFactory.createObject()
                 .set("dayGridMonth", JsonFactory.createObject().put("weekends", false)));
         attach();
@@ -518,26 +517,6 @@ public class TypedOptionsSyncTest extends BrowserlessTest {
         JsonNode views = initialOptions().get("views");
         assertEquals(1, views.size());
         assertFalse(views.get("dayGridMonth").get("weekends").asBoolean());
-    }
-
-    @Test
-    void oldViewSpecificOption_winsOverTheViewValueOfTheSameKey() {
-        calendar.options().view(THREE_DAYS).setDayCellClass("view-value");
-        calendar.setViewSpecificOption("threeDays", "dayCellClass", "old-api");
-        attach();
-
-        assertEquals("old-api", initialOptions().get("views").get("threeDays").get("dayCellClass").asString());
-    }
-
-    @Test
-    void oldViewSpecificOption_isMergedIntoTheGeneratedViews() {
-        calendar.setCustomCalendarViews(THREE_DAYS);
-        calendar.setViewSpecificOption("threeDays", "weekends", false);
-        attach();
-
-        JsonNode threeDays = initialOptions().get("views").get("threeDays");
-        assertEquals("dayGrid", threeDays.get("type").asString());
-        assertFalse(threeDays.get("weekends").asBoolean());
     }
 
     /**

@@ -13,11 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.vaadin.stefan.fullcalendar.TestUtils.assertOptionalEquals;
 
 /**
  * Tests for remote entry sources.
- * Covers RemoteEntrySource subclasses, toJson() output, Option enum keys, FullCalendar API,
+ * Covers RemoteEntrySource subclasses, toJson() output, FullCalendar API,
  * and the new server-side event classes.
  */
 public class EventSourcesTest {
@@ -30,55 +29,31 @@ public class EventSourcesTest {
     }
 
     // -------------------------------------------------------------------------
-    // Option enum keys
-    // -------------------------------------------------------------------------
-
-    @Test
-    void option_startParam_key() {
-        assertEquals("startParam", Option.ENTRY_SOURCE_START_PARAM.getOptionKey());
-    }
-
-    @Test
-    void option_endParam_key() {
-        assertEquals("endParam", Option.ENTRY_SOURCE_END_PARAM.getOptionKey());
-    }
-
-    @Test
-    void option_timeZoneParam_key() {
-        assertEquals("timeZoneParam", Option.ENTRY_SOURCE_TIME_ZONE_PARAM.getOptionKey());
-    }
-
-    @Test
-    void option_googleCalendarApiKey_key() {
-        assertEquals("googleCalendarApiKey", Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY.getOptionKey());
-    }
-
-    // -------------------------------------------------------------------------
     // Option setters
     // -------------------------------------------------------------------------
 
     @Test
     void setStartParam_storesOption() {
-        calendar.setOption(Option.ENTRY_SOURCE_START_PARAM, "from");
-        assertOptionalEquals("from", calendar.getOption(Option.ENTRY_SOURCE_START_PARAM));
+        calendar.options().setStartParam("from");
+        assertEquals("from", calendar.options().getStartParam());
     }
 
     @Test
     void setEndParam_storesOption() {
-        calendar.setOption(Option.ENTRY_SOURCE_END_PARAM, "to");
-        assertOptionalEquals("to", calendar.getOption(Option.ENTRY_SOURCE_END_PARAM));
+        calendar.options().setEndParam("to");
+        assertEquals("to", calendar.options().getEndParam());
     }
 
     @Test
     void setTimeZoneParam_storesOption() {
-        calendar.setOption(Option.ENTRY_SOURCE_TIME_ZONE_PARAM, "tz");
-        assertOptionalEquals("tz", calendar.getOption(Option.ENTRY_SOURCE_TIME_ZONE_PARAM));
+        calendar.options().setTimeZoneParam("tz");
+        assertEquals("tz", calendar.options().getTimeZoneParam());
     }
 
     @Test
     void setGoogleCalendarApiKey_storesOption() {
-        calendar.setOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY, "AIzaSy-test");
-        assertOptionalEquals("AIzaSy-test", calendar.getOption(Option.ENTRY_SOURCE_GOOGLE_CALENDAR_API_KEY));
+        calendar.options().setGoogleCalendarApiKey("AIzaSy-test");
+        assertEquals("AIzaSy-test", calendar.options().getGoogleCalendarApiKey());
     }
 
     // -------------------------------------------------------------------------

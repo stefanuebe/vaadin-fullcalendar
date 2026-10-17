@@ -1,6 +1,9 @@
 package org.vaadin.stefan.fullcalendar;
 
+import com.vaadin.browserless.BrowserlessTest;
+import com.vaadin.flow.component.UI;
 import org.vaadin.stefan.fullcalendar.option.NativeToolbarParts;
+import org.vaadin.stefan.fullcalendar.option.ToolbarValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.node.BooleanNode;
@@ -11,9 +14,9 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * The header and footer toolbar options take a map of positions to FullCalendar's button string.
+ * The header and footer toolbar options take positions with FullCalendar's button string.
  */
-public class ToolbarOptionsTest {
+public class ToolbarOptionsTest extends BrowserlessTest {
 
     private FullCalendar calendar;
 
@@ -22,30 +25,33 @@ public class ToolbarOptionsTest {
         calendar = new FullCalendar();
     }
 
+    /** The initial options the client reads on attach, written when the calendar is attached. */
     private ObjectNode sentToClient() {
+        UI.getCurrent().add(calendar);
+        UI.getCurrent().getInternals().getStateTree().runExecutionsBeforeClientResponse();
         return (ObjectNode) calendar.getElement().getPropertyRaw("initialOptions");
     }
 
     @Test
     void headerToolbar_map_reachesClientAsObject() {
-        Map<String, String> toolbar = Map.of("start", "prev,next today", "center", "title", "end", "dayGridMonth,timeGridWeek");
+        ToolbarValue toolbar = ToolbarValue.ofStartEnd("prev,next today", "title", "dayGridMonth,timeGridWeek");
 
-        calendar.setOption(Option.HEADER_TOOLBAR, toolbar);
+        calendar.options().setHeaderToolbar(toolbar);
 
         ObjectNode json = (ObjectNode) sentToClient().get("headerToolbar");
         assertEquals("prev,next today", json.get("start").asString());
         assertEquals("title", json.get("center").asString());
         assertEquals("dayGridMonth,timeGridWeek", json.get("end").asString());
-        assertEquals(toolbar, calendar.getOption(Option.HEADER_TOOLBAR).orElseThrow());
+        assertEquals(toolbar, calendar.options().getHeaderToolbar());
     }
 
     @Test
     void toolbarParts_buildTheButtonStringsFullCalendarExpects() {
-        calendar.setOption(Option.HEADER_TOOLBAR, Map.of(
-                NativeToolbarParts.START, NativeToolbarParts.PREV_YEAR + "," + NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + ","
+        calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd(
+                NativeToolbarParts.PREV_YEAR + "," + NativeToolbarParts.PREV + "," + NativeToolbarParts.NEXT + ","
                         + NativeToolbarParts.NEXT_YEAR + " " + NativeToolbarParts.TODAY,
-                NativeToolbarParts.CENTER, NativeToolbarParts.TITLE,
-                NativeToolbarParts.END, CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue()));
+                NativeToolbarParts.TITLE,
+                CalendarViewImpl.DAY_GRID_MONTH.getClientSideValue()));
 
         ObjectNode json = (ObjectNode) sentToClient().get("headerToolbar");
         assertEquals("prevYear,prev,next,nextYear today", json.get("start").asString());
@@ -55,28 +61,29 @@ public class ToolbarOptionsTest {
 
     @Test
     void footerToolbar_map_reachesClientAsObject() {
-        calendar.setOption(Option.FOOTER_TOOLBAR, Map.of("center", "prev,next"));
+        calendar.options().setFooterToolbar(ToolbarValue.ofStartEnd("", "prev,next", ""));
 
         assertEquals("prev,next", sentToClient().get("footerToolbar").get("center").asString());
     }
 
     @Test
-    void headerToolbar_false_hidesToolbar() {
-        calendar.setOption(Option.HEADER_TOOLBAR, false);
+    void headerToolbar_none_hidesToolbar() {
+        calendar.options().setHeaderToolbar(ToolbarValue.ofStartEnd("prev", "title", "next"));
+        calendar.options().setHeaderToolbar(ToolbarValue.NONE);
 
         assertTrue(sentToClient().get("headerToolbar").isBoolean());
         assertFalse(sentToClient().get("headerToolbar").booleanValue());
     }
 
-    // setOption(…, null) drops the raw value, so the field's value applies again. The typed setter with null removes
-    // the option instead, see AutoBrowserSettingsTest.headerToolbar_setToNull_isRemovedOnTheClient.
+    // Removing the raw option brings the field's value back. The field set to null removes the option instead, see
+    // AutoBrowserSettingsTest.headerToolbar_setToNull_isRemovedOnTheClient.
     @Test
-    void headerToolbar_null_bringsTheFieldBack() {
-        calendar.setOption(Option.HEADER_TOOLBAR, Map.of("center", "title"));
-
-        calendar.setOption(Option.HEADER_TOOLBAR, null);
+    void headerToolbar_rawRemoved_bringsTheFieldBack() {
+        calendar.options().setRawOption("headerToolbar", Map.of("center", "title"));
+        assertEquals(1, calendar.options().getRawOption("headerToolbar").orElseThrow().size());
+        calendar.options().setRawOption("headerToolbar", null);
 
         assertEquals(BooleanNode.FALSE, sentToClient().get("headerToolbar"), "the field's initial value, no toolbar");
-        assertTrue(calendar.getOption(Option.HEADER_TOOLBAR).isEmpty());
+        assertTrue(calendar.options().getRawOption("headerToolbar").isEmpty());
     }
 }

@@ -327,38 +327,6 @@ public class RawOptionSyncTest extends BrowserlessTest {
         assertThrows(UnsupportedOperationException.class, () -> calendar.setCustomCalendarViews());
     }
 
-    @Test
-    void oldOptionApi_removalAfterAttach_isSentAsNull() {
-        calendar.setOption(Option.WEEKENDS, false);
-        attach();
-
-        calendar.removeOption(Option.WEEKENDS);
-        List<JsonNode> calls = respond();
-
-        assertTrue(calls.getFirst().get("weekends").isNull());
-    }
-
-    @Test
-    void oldOptionApi_jsonNull_removesTheOption() {
-        calendar.setOption(Option.WEEKENDS, false);
-        attach();
-
-        calendar.setOption(Option.WEEKENDS, JsonFactory.createNull());
-        List<JsonNode> calls = respond();
-
-        assertTrue(calls.getFirst().get("weekends").isNull());
-        assertTrue(calendar.getOption(Option.WEEKENDS).isEmpty());
-        assertTrue(calendar.options().getRawOption("weekends").isEmpty());
-    }
-
-    @Test
-    void oldOptionApi_writesRawOptions() {
-        calendar.setOption(Option.WEEKENDS, false);
-
-        assertFalse(calendar.options().getRawOption("weekends").orElseThrow().asBoolean());
-        assertEquals(Boolean.FALSE, calendar.getOption(Option.WEEKENDS).orElseThrow());
-    }
-
     /**
      * Runs what the server does before its response and returns the client functions called, in order. Flow writes a
      * function call as {@code return $0.name(...)}; other scripts are returned as they are.

@@ -42,7 +42,7 @@ public class ShortTimeValuesTest extends BrowserlessTest {
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         ui.getInternals().dumpPendingJavaScriptInvocations();
 
-        calendar.setOption(KEY, value);
+        calendar.options().setRawOption(KEY, value);
 
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
         List<PendingJavaScriptInvocation> invocations = ui.getInternals().dumpPendingJavaScriptInvocations();
@@ -59,10 +59,10 @@ public class ShortTimeValuesTest extends BrowserlessTest {
 
     @Test
     void localTime_beforeAttach_leavesOutZeroSeconds() {
-        calendar.setOption(KEY, LocalTime.of(10, 0));
+        calendar.options().setRawOption(KEY, LocalTime.of(10, 0));
         assertEquals("10:00", initialValue().asString());
 
-        calendar.setOption(KEY, LocalTime.of(10, 0, 30));
+        calendar.options().setRawOption(KEY, LocalTime.of(10, 0, 30));
         assertEquals("10:00:30", initialValue().asString());
     }
 
@@ -80,9 +80,9 @@ public class ShortTimeValuesTest extends BrowserlessTest {
     void localDateTime_beforeAndAfterAttach_leavesOutZeroSeconds() {
         LocalDateTime value = LocalDateTime.of(2025, 3, 10, 10, 0);
 
-        calendar.setOption(KEY, value);
+        calendar.options().setRawOption(KEY, value);
         assertEquals("2025-03-10T10:00", initialValue().asString());
-        calendar.setOption(KEY, null); // only a change reaches an attached calendar
+        calendar.options().setRawOption(KEY, null); // only a change reaches an attached calendar
         assertEquals("2025-03-10T10:00", valueAfterAttach(value).asString());
     }
 
@@ -92,8 +92,8 @@ public class ShortTimeValuesTest extends BrowserlessTest {
     }
 
     @Test
-    void viewSpecificOption_leavesOutZeroSeconds() {
-        calendar.setViewSpecificOption("dayGridMonth", KEY, LocalTime.of(10, 0));
+    void viewRawOption_leavesOutZeroSeconds() {
+        calendar.options().view(CalendarViewImpl.DAY_GRID_MONTH).setRawOption(KEY, LocalTime.of(10, 0));
 
         JsonNode views = ((JsonNode) calendar.getElement().getPropertyRaw("initialOptions")).get("views");
         assertEquals("10:00", views.get("dayGridMonth").get(KEY).asString());
@@ -101,7 +101,7 @@ public class ShortTimeValuesTest extends BrowserlessTest {
 
     @Test
     void nestedValues_leaveOutZeroSeconds() {
-        calendar.setOption(KEY, Map.of("list", List.of(LocalTime.of(10, 0)),
+        calendar.options().setRawOption(KEY, Map.of("list", List.of(LocalTime.of(10, 0)),
                 "record", new Slot(LocalTime.of(9, 0), LocalDateTime.of(2025, 3, 10, 9, 0))));
 
         JsonNode value = initialValue();
@@ -115,7 +115,7 @@ public class ShortTimeValuesTest extends BrowserlessTest {
         UI ui = UI.getCurrent();
         ui.add(calendar);
         ui.getInternals().getStateTree().runExecutionsBeforeClientResponse();
-        calendar.setOption(KEY, LocalTime.of(10, 0));
+        calendar.options().setRawOption(KEY, LocalTime.of(10, 0));
         ui.remove(calendar);
         ui.getInternals().dumpPendingJavaScriptInvocations();
 
